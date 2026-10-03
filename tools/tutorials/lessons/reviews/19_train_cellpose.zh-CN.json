@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "检查文件夹、模型名称和输出位置，然后按Run。Figures面板把训练图像显示在其掩膜上方，控制台显示进度。在这块GPU上，用六张图像训练十轮不到一分钟就完成了。",
     "训练结束后，控制台会给出检查点路径。使用默认位置时，它位于源文件夹中的models、cellpose model、models下。文件名会在模型名称后加上架构和轮数。请把它与训练设置放在一起。",
     "打开Apply选项卡。Custom model现在指向您训练的检查点。把Source设为示例的apply文件夹，其中的图像来自未用于训练的孔。把Channels设为零，Percentiles设为二和九十九。关闭Fill in，让相互接触的细胞保持分开，并开启Save和Verbose。",
-    "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十六个细胞。在处理整个文件夹之前，请在这里调整设置。",
-    "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十六、四十八和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。"
+    "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十八个细胞。在处理整个文件夹之前，请在这里调整设置。",
+    "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十九、五十和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。"
   ]
 }

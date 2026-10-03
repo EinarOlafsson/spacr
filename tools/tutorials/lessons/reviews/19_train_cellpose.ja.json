@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "フォルダー、モデル名、出力先を確認してから、Runを押します。Figuresパネルには学習用の画像がマスクの上に並び、コンソールで進み具合がわかります。このGPUでは、六枚の画像で十エポックの学習が一分かからずに終わりました。",
     "学習が終わると、コンソールにチェックポイントのパスが表示されます。既定の場所では、元のフォルダーの中のmodels、cellpose model、modelsにあります。ファイル名は、モデル名にアーキテクチャーとエポック数を加えたものです。学習の設定と一緒に保管します。",
     "Applyタブを開きます。Custom modelは、学習させたチェックポイントを指しています。Sourceを例のapplyフォルダーにします。その画像は、学習に使っていないウェルから撮ったものです。Channelsをゼロ、Percentilesを二と九十九にします。接している細胞が分かれたままになるようFill inをオフにし、SaveとVerboseをオンにします。",
-    "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされ、ここでは細胞が七十六個見つかります。フォルダー全体を処理する前に、ここで設定を調整します。",
-    "Runを押します。Applyは、画像ごとに一つのマスクを、それらの画像の横のmasksサブフォルダーに書き出します。Verboseでは、各結果が図として表示されます。ここでは、三つのマスクに七十六個、四十八個、五十五個の細胞があります。モデルを実験全体に使う前に、そのマスクを別にラベル付けした視野と比べます。"
+    "Live previewを開いて画像を一枚選び、同じチャンネルとパーセンタイルでRun previewを押します。チェックポイントでその画像がセグメンテーションされ、ここでは細胞が七十八個見つかります。フォルダー全体を処理する前に、ここで設定を調整します。",
+    "Runを押します。Applyは、画像ごとに一つのマスクを、それらの画像の横のmasksサブフォルダーに書き出します。Verboseでは、各結果が図として表示されます。ここでは、三つのマスクに七十九個、五十個、五十五個の細胞があります。モデルを実験全体に使う前に、そのマスクを別にラベル付けした視野と比べます。"
   ]
 }

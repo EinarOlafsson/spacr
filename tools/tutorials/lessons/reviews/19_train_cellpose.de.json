@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "Prüfen Sie Ordner, Modellnamen und Ausgabeort und drücken Sie dann Run. Das Feld Figures zeigt die Trainingsbilder über ihren Masken, und die Konsole verfolgt den Fortschritt. Auf dieser GPU waren 10 Epochen mit sechs Bildern in unter einer Minute fertig.",
     "Nach dem Training nennt die Konsole den Checkpoint-Pfad. Beim Standardort liegt er im Quellordner unter models/cellpose_model/models. Der Dateiname ergänzt Ihren Modellnamen um Architektur und Epochenzahl. Bewahren Sie ihn zusammen mit Ihren Trainingseinstellungen auf.",
     "Öffnen Sie den Reiter Apply. Custom model zeigt jetzt auf den trainierten Checkpoint. Setzen Sie Source auf den Ordner apply des Beispiels, dessen Bilder aus Wells stammen, die nicht zum Training verwendet wurden. Setzen Sie Channels auf 0 und Percentiles auf 2 und 99. Schalten Sie Fill in aus, damit sich berührende Zellen getrennt bleiben, und schalten Sie Save und Verbose ein.",
-    "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert; hier werden 76 Zellen gefunden. Passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
-    "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Hier enthalten die drei Masken 76, 48 und 55 Zellen. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden."
+    "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert; hier werden 78 Zellen gefunden. Passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
+    "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Hier enthalten die drei Masken 79, 50 und 55 Zellen. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden."
   ]
 }

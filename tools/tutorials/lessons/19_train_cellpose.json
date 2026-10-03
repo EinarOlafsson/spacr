@@ -132,7 +132,7 @@
     },
     {
       "visual": "apply_preview",
-      "narration": "Open Live preview, choose one image and press Run preview, with the same channel and percentiles. It segments that image with your checkpoint, here finding seventy-six cells. Adjust settings here before running the whole folder.",
+      "narration": "Open Live preview, choose one image and press Run preview, with the same channel and percentiles. It segments that image with your checkpoint, here finding seventy-eight cells. Adjust settings here before running the whole folder.",
       "hold_after": 0.7,
       "focus": [
         390,
@@ -143,7 +143,7 @@
     },
     {
       "visual": "apply_result",
-      "narration": "Press Run. Apply writes one mask per image into a masks subfolder beside those images, and Verbose shows each result as a figure. Here the three masks hold seventy-six, forty-eight and fifty-five cells. Before using a model on a whole experiment, compare its masks with separately labelled fields.",
+      "narration": "Press Run. Apply writes one mask per image into a masks subfolder beside those images, and Verbose shows each result as a figure. Here the three masks hold seventy-nine, fifty and fifty-five cells. Before using a model on a whole experiment, compare its masks with separately labelled fields.",
       "hold_after": 0.7,
       "related_lessons": [
         "20_cellpose_masks",

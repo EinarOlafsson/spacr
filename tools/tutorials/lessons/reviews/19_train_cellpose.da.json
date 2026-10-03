@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "Kontrollér mapper, modelnavn og outputplacering, og tryk derefter på Run. Panelet Figures viser træningsbillederne over deres masker, og konsollen følger fremdriften. På denne GPU var 10 epoker med seks billeder færdige på under et minut.",
     "Når træningen er færdig, angiver konsollen stien til checkpointet. Med standardplaceringen ligger det i kildemappen under models/cellpose_model/models. Filnavnet tilføjer arkitektur og antal epoker til modelnavnet. Behold det sammen med dine træningsindstillinger.",
     "Åbn fanen Apply. Custom model peger nu på det checkpoint, du har trænet. Sæt Source til eksemplets mappe apply, hvis billeder stammer fra brønde, der ikke blev brugt til træning. Sæt Channels til 0 og Percentiles til 2 og 99. Slå Fill in fra, så celler, der rører hinanden, holdes adskilt, og slå Save og Verbose til.",
-    "Åbn Live preview, vælg ét billede, og tryk på Run preview med samme kanal og percentiler. Billedet segmenteres med dit checkpoint, der her finder 76 celler. Justér indstillingerne her, før du kører hele mappen.",
-    "Tryk på Run. Apply skriver én maske pr. billede i en undermappe masks ved siden af billederne, og Verbose viser hvert resultat som en figur. Her indeholder de tre masker 76, 48 og 55 celler. Sammenlign en models masker med separat labelede synsfelter, før du bruger den på et helt forsøg."
+    "Åbn Live preview, vælg ét billede, og tryk på Run preview med samme kanal og percentiler. Billedet segmenteres med dit checkpoint, der her finder 78 celler. Justér indstillingerne her, før du kører hele mappen.",
+    "Tryk på Run. Apply skriver én maske pr. billede i en undermappe masks ved siden af billederne, og Verbose viser hvert resultat som en figur. Her indeholder de tre masker 79, 50 og 55 celler. Sammenlign en models masker med separat labelede synsfelter, før du bruger den på et helt forsøg."
   ]
 }

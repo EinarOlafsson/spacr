@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "Athugaðu möppur, heiti líkans og úttaksstað og ýttu svo á Run. Spjaldið Figures sýnir þjálfunarmyndirnar fyrir ofan grímur þeirra og stjórnborðið fylgir framvindunni. Á þessu GPU-skjákorti tóku 10 umferðir á sex myndum innan við mínútu.",
     "Þegar þjálfun lýkur gefur stjórnborðið upp slóð eftirlitspunktsins. Með sjálfgefnum stað er hann í upprunamöppunni undir models/cellpose_model/models. Skráarheitið bætir högun og fjölda umferða við heiti líkansins. Geymdu hann með þjálfunarstillingunum.",
     "Opnaðu flipann Apply. Custom model vísar nú á eftirlitspunktinn sem þú þjálfaðir. Stilltu Source á möppuna apply í dæminu, en myndir hennar koma úr brunnum sem ekki voru notaðir til þjálfunar. Stilltu Channels á 0 og Percentiles á 2 og 99. Slökktu á Fill in svo að frumur sem snertast haldist aðskildar, og kveiktu á Save og Verbose.",
-    "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 76 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
-    "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 76, 48 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun."
+    "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 78 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
+    "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 79, 50 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun."
   ]
 }

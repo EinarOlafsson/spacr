@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "Controlla le cartelle, il nome del modello e la posizione di output, poi premi Run. Il pannello Figures mostra le immagini di addestramento sopra le loro maschere, e la console segue l’avanzamento. Su questa GPU, dieci epoche su sei immagini sono terminate in meno di un minuto.",
     "Al termine dell’addestramento, la console indica il percorso del checkpoint. Con la posizione predefinita si trova nella cartella di origine, in models, cellpose model, models. Il nome del file aggiunge al nome del modello l’architettura e il numero di epoche. Conservalo insieme alle impostazioni di addestramento.",
     "Apri la scheda Apply. Custom model ora punta al checkpoint che hai addestrato. Imposta Source sulla cartella apply dell’esempio, le cui immagini provengono da pozzetti non usati per l’addestramento. Imposta Channels su zero e Percentiles su due e novantanove. Disattiva Fill in perché le cellule che si toccano restino separate, e attiva Save e Verbose.",
-    "Apri Live preview, scegli un’immagine e premi Run preview, con lo stesso canale e gli stessi percentili. L’immagine viene segmentata con il tuo checkpoint, che qui trova settantasei cellule. Regola le impostazioni qui prima di elaborare tutta la cartella.",
-    "Premi Run. Apply scrive una maschera per immagine in una sottocartella masks accanto a quelle immagini, e Verbose mostra ogni risultato come figura. Qui le tre maschere contengono settantasei, quarantotto e cinquantacinque cellule. Prima di usare un modello su un intero esperimento, confronta le sue maschere con campi etichettati separatamente."
+    "Apri Live preview, scegli un’immagine e premi Run preview, con lo stesso canale e gli stessi percentili. L’immagine viene segmentata con il tuo checkpoint, che qui trova settantotto cellule. Regola le impostazioni qui prima di elaborare tutta la cartella.",
+    "Premi Run. Apply scrive una maschera per immagine in una sottocartella masks accanto a quelle immagini, e Verbose mostra ogni risultato come figura. Qui le tre maschere contengono settantanove, cinquanta e cinquantacinque cellule. Prima di usare un modello su un intero esperimento, confronta le sue maschere con campi etichettati separatamente."
   ]
 }

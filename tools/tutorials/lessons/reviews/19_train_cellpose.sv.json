@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "Kontrollera mappar, modellnamn och utdataplats och tryck sedan på Run. Panelen Figures visar träningsbilderna ovanför deras masker, och konsolen följer förloppet. På den här GPU:n tog 10 epoker med sex bilder under en minut.",
     "När träningen är klar anger konsolen sökvägen till kontrollpunkten. Med standardplatsen ligger den i källmappen under models/cellpose_model/models. Filnamnet lägger till arkitektur och antal epoker till modellnamnet. Behåll den tillsammans med dina träningsinställningar.",
     "Öppna fliken Apply. Custom model pekar nu på kontrollpunkten du tränade. Ställ Source på exemplets mapp apply, vars bilder kommer från brunnar som inte användes för träningen. Ställ Channels på 0 och Percentiles på 2 och 99. Stäng av Fill in så att celler som rör vid varandra hålls isär, och slå på Save och Verbose.",
-    "Öppna Live preview, välj en bild och tryck på Run preview med samma kanal och percentiler. Bilden segmenteras med din kontrollpunkt, som här hittar 76 celler. Justera inställningarna här innan du kör hela mappen.",
-    "Tryck på Run. Apply skriver en mask per bild i en undermapp masks bredvid bilderna, och Verbose visar varje resultat som en figur. Här innehåller de tre maskerna 76, 48 och 55 celler. Jämför en modells masker med separat märkta synfält innan du använder den på ett helt experiment."
+    "Öppna Live preview, välj en bild och tryck på Run preview med samma kanal och percentiler. Bilden segmenteras med din kontrollpunkt, som här hittar 78 celler. Justera inställningarna här innan du kör hela mappen.",
+    "Tryck på Run. Apply skriver en mask per bild i en undermapp masks bredvid bilderna, och Verbose visar varje resultat som en figur. Här innehåller de tre maskerna 79, 50 och 55 celler. Jämför en modells masker med separat märkta synfält innan du använder den på ett helt experiment."
   ]
 }

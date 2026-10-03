@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "폴더, 모델 이름, 출력 위치를 확인한 뒤 Run을 누르세요. Figures 패널에는 학습 이미지가 마스크 위에 표시되고, 콘솔에서 진행 상황을 볼 수 있습니다. 이 GPU에서는 이미지 6개로 10 에포크 학습이 1분도 안 되어 끝났습니다.",
     "학습이 끝나면 콘솔에 체크포인트 경로가 표시됩니다. 기본 위치에서는 원본 폴더의 models/cellpose_model/models 아래에 있습니다. 파일 이름은 모델 이름에 아키텍처와 에포크 수를 덧붙입니다. 학습 설정과 함께 보관하세요.",
     "Apply 탭을 여세요. Custom model은 이제 학습한 체크포인트를 가리킵니다. Source를 예제의 apply 폴더로 설정하세요. 그 이미지는 학습에 쓰지 않은 웰에서 나온 것입니다. Channels를 0으로, Percentiles를 2와 99로 설정하세요. 맞닿은 세포가 분리된 채로 남도록 Fill in을 끄고, Save와 Verbose를 켜세요.",
-    "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 76개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",
-    "Run을 누르세요. Apply는 이미지마다 마스크 하나를 그 이미지 옆의 masks 하위 폴더에 기록하고, Verbose는 각 결과를 그림으로 보여 줍니다. 여기서 세 마스크에는 세포가 각각 76개, 48개, 55개 있습니다. 모델을 실험 전체에 쓰기 전에 그 마스크를 별도로 라벨을 붙인 시야와 비교하세요."
+    "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 78개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",
+    "Run을 누르세요. Apply는 이미지마다 마스크 하나를 그 이미지 옆의 masks 하위 폴더에 기록하고, Verbose는 각 결과를 그림으로 보여 줍니다. 여기서 세 마스크에는 세포가 각각 79개, 50개, 55개 있습니다. 모델을 실험 전체에 쓰기 전에 그 마스크를 별도로 라벨을 붙인 시야와 비교하세요."
   ]
 }

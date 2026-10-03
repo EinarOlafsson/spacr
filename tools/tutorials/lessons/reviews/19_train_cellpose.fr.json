@@ -1,10 +1,10 @@
 {
   "lesson": "19_train_cellpose",
-  "english_sha256": "1bc761b3425b075ebda076f50b4a7aafb5e76b855a1e57b2b75853650546765f",
+  "english_sha256": "3881314504fee1828c6b9f989e01f605a9bfa2b765e01008795f199b1b08bf4a",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,7 +30,7 @@
     "Vérifiez les dossiers, le nom du modèle et l’emplacement de sortie, puis appuyez sur Run. Le panneau Figures montre les images d’entraînement au-dessus de leurs masques, et la console suit la progression. Sur ce GPU, dix époques sur six images se sont terminées en moins d’une minute.",
     "À la fin de l’entraînement, la console indique le chemin du point de contrôle. Avec l’emplacement par défaut, il se trouve dans le dossier source, sous models, cellpose model, models. Le nom du fichier ajoute l’architecture et le nombre d’époques au nom du modèle. Conservez-le avec vos réglages d’entraînement.",
     "Ouvrez l’onglet Apply. Custom model pointe maintenant vers le point de contrôle que vous avez entraîné. Réglez Source sur le dossier apply de l’exemple, dont les images proviennent de puits non utilisés pour l’entraînement. Réglez Channels sur zéro et Percentiles sur deux et quatre-vingt-dix-neuf. Désactivez Fill in pour que les cellules qui se touchent restent séparées, et activez Save et Verbose.",
-    "Ouvrez Live preview, choisissez une image et appuyez sur Run preview, avec le même canal et les mêmes percentiles. L’image est segmentée avec votre point de contrôle, qui trouve ici soixante-seize cellules. Ajustez les réglages ici avant de traiter tout le dossier.",
-    "Appuyez sur Run. Apply écrit un masque par image dans un sous-dossier masks à côté de ces images, et Verbose affiche chaque résultat sous forme de figure. Ici, les trois masques contiennent soixante-seize, quarante-huit et cinquante-cinq cellules. Avant d’utiliser un modèle sur toute une expérience, comparez ses masques à des champs étiquetés séparément."
+    "Ouvrez Live preview, choisissez une image et appuyez sur Run preview, avec le même canal et les mêmes percentiles. L’image est segmentée avec votre point de contrôle, qui trouve ici soixante-dix-huit cellules. Ajustez les réglages ici avant de traiter tout le dossier.",
+    "Appuyez sur Run. Apply écrit un masque par image dans un sous-dossier masks à côté de ces images, et Verbose affiche chaque résultat sous forme de figure. Ici, les trois masques contiennent soixante-dix-neuf, cinquante et cinquante-cinq cellules. Avant d’utiliser un modèle sur toute une expérience, comparez ses masques à des champs étiquetés séparément."
   ]
 }
