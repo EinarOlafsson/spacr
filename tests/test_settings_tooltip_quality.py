@@ -973,7 +973,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_583_channel_map = {(app, "illumination_vendor_channel_map")
                        for app in ("mask", "measure", "external_masks")}
     assert item_537_lineage | item_583_channel_map <= compared_pairs
-    assert comparisons == 908
+    # 908 -> 910 on 2026-10-03, +2/-0 (item 631): ram_guard (True), the
+    # Measure RAM guard, resolved by Measure and by External Masks.
+    item_631 = {(app, "ram_guard") for app in ("measure", "external_masks")}
+    assert item_631 <= compared_pairs
+    assert comparisons == 910
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1017,7 +1021,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_549) + len(item_566) + len(item_559)
             + len(item_576) + len(item_557) + len(item_542_detector)
             + len(item_536_threshold) + len(item_537_lineage)
-            + len(item_583_channel_map)
+            + len(item_583_channel_map) + len(item_631)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

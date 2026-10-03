@@ -1250,6 +1250,22 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # catalogued or retired with their source captions. No translation bypass remains.
 # 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 631: Measure RAM guard dialog and the free-RAM process list
+    "Close selected",
+    "Close these programs?",
+    "Free RAM by closing applications",
+    "Free RAM by closing applications…",
+    "Keep {count} (spaCR will throttle)",
+    "No other programs of yours can be closed from here.",
+    "Not enough RAM for these workers",
+    "Tick the programs to close. They are asked to quit, so most can save "
+    "first. Unsaved work in them may still be lost.",
+    "Use {count} workers (recommended)",
+    "spaCR will ask these programs to quit:\n\n{names}",
+    "{name} ({ram} GiB)",
+    "{requested} workers would need about {needed} GiB of RAM, but "
+    "{available} GiB is free and spaCR keeps {reserve} GiB for the rest of "
+    "the computer. {safe} workers fit without pausing.",
     # item 558: pix2pix option in the virtual-staining channel prompt
     "Input channels > channel to predict (add pix2pix for the adversarial "
     "model):",

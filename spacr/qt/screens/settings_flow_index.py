@@ -987,6 +987,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'queue_limit',
     'queue_measure',
     'radial_dist',
+    'ram_guard',
     'random_row_column_effects',
     'random_seed',
     'random_state',

@@ -1,0 +1,33 @@
+631. RAM-aware worker guard for Measure
+
+Status: IMPLEMENTED 2026-10-03 — measure_crop clamps and throttles (spacr/measure.py
+_ram_guard_plan, _wait_for_ram, _calibrated_wave); the Measure Run button asks
+first (AppScreen._confirm_ram_guard, _RamGuardDialog, _FreeRamDialog); process
+listing and closing in spacr/resource_log.py. Setting ram_guard (default True).
+Left: catalog translations for the new captions at the next catalog rebuild.
+
+User request: "I have a measure session on my work machine that keeps crashing
+because, it says, that I put in too many workers and ram filled up. There
+should be a guard against this . So the workers throttle the ram and don't
+crash the machine. And if the user putts in so many workers that this throttle
+guard activates the user should be warned and asked if they want to reduce the
+number of workers to the maximum number that would not throttle. They should
+also be asked if they want spacr to close other applications to free up ram
+all this in a pop up window"
+
+Build:
+1. Before Measure starts its pool, estimate RAM per worker: one sample .npy's
+   nbytes times a multiplier calibrated from a one-field measurement.
+   max_safe_workers = (available RAM - 12.5% reserve) / per-worker.
+2. Runtime throttle: while running, if available RAM drops below the reserve,
+   stop dispatching new fields until it recovers. Log every throttle.
+3. GUI: n_jobs > max_safe_workers -> one modal popup with three choices: use
+   the safe count (recommended), keep n (spaCR throttles), or free RAM by
+   closing the user's own top memory processes (checkboxes, none pre-checked,
+   SIGTERM / terminate() only after an explicit confirm).
+4. Headless/CLI: no popup; clamp with a printed warning unless the setting
+   ram_guard (default True) is False.
+
+Done when: clamp math, throttle pause/resume and the popup choices are tested
+with mocked psutil and no real process is killed; guards green; settings-flow
+and consumer-map artefacts regenerated.

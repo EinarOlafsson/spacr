@@ -349,6 +349,8 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # item 631: the Measure RAM guard switch
+    "ram_guard",
     "object_filters",
     "psf_measurement_source",
     "mask_src", "test_src", "test_mask_src", "save_path", "channel_axis",

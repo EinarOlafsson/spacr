@@ -817,3 +817,127 @@ class ResourceSampler:
             handle.close()
         except Exception:                                        # noqa: BLE001
             LOG.debug("could not close the resource log", exc_info=True)
+
+
+_PROTECTED_PROCESS_NAMES = frozenset(name.lower() for name in (
+    'systemd', 'init', 'login', 'sshd', 'ssh-agent', 'gpg-agent', 'dbus-daemon',
+    'dbus-broker', 'Xorg', 'Xwayland', 'gnome-shell', 'gnome-session-binary',
+    'gnome-keyring-daemon', 'gdm', 'gdm-wayland-session', 'gdm-x-session',
+    'plasmashell', 'kwin_x11', 'kwin_wayland', 'ksmserver', 'kded5', 'kded6',
+    'xfce4-session', 'xfwm4', 'xfce4-panel', 'cinnamon', 'mutter',
+    'lightdm', 'sddm', 'pulseaudio', 'pipewire', 'pipewire-pulse',
+    'wireplumber', 'at-spi-bus-launcher', 'at-spi2-registryd',
+    'xdg-desktop-portal', 'xdg-desktop-portal-gnome', 'xdg-document-portal',
+    'xdg-permission-store', 'ibus-daemon', 'nautilus-desktop',
+    'bash', 'zsh', 'sh', 'fish', 'tmux', 'tmux: server', 'screen',
+    'explorer.exe', 'dwm.exe', 'winlogon.exe', 'csrss.exe', 'smss.exe',
+    'wininit.exe', 'services.exe', 'lsass.exe', 'svchost.exe', 'sihost.exe',
+    'taskhostw.exe', 'fontdrvhost.exe', 'ctfmon.exe', 'conhost.exe',
+    'runtimebroker.exe', 'shellexperiencehost.exe', 'searchhost.exe',
+    'startmenuexperiencehost.exe', 'textinputhost.exe', 'dllhost.exe',
+    'system', 'registry', 'memory compression', 'system idle process',
+    'loginwindow', 'WindowServer', 'Dock', 'Finder', 'SystemUIServer',
+    'launchd', 'ControlCenter', 'NotificationCenter', 'coreaudiod',
+))
+
+_PROTECTED_USERS = frozenset(('root', 'system', 'nt authority\\system',
+                              'local service', 'network service',
+                              'nt authority\\local service',
+                              'nt authority\\network service'))
+
+
+def _spacr_process_ids(psutil_module) -> set:
+    """Process ids of this spaCR process, its ancestors and its children."""
+    ids = set()
+    try:
+        me = psutil_module.Process()
+        ids.add(me.pid)
+        for relative in list(me.parents()) + list(me.children(recursive=True)):
+            ids.add(relative.pid)
+    except Exception:
+        ids.add(os.getpid())
+    return ids
+
+
+def _current_username(psutil_module) -> Optional[str]:
+    """The user name that owns this process, or ``None`` if unreadable."""
+    try:
+        return psutil_module.Process().username()
+    except Exception:
+        return None
+
+
+def _closable_processes(psutil_module=None, limit: int = 15) -> List[Dict[str, Any]]:
+    """The user's own processes using the most RAM, which spaCR may offer to close.
+
+    spaCR itself, its parents and children, processes of other users or of
+    root and the system, and desktop, session and shell processes are left
+    out, so closing a listed row cannot end the session or the run.
+
+    :param psutil_module: the psutil module to read; the installed one when
+        omitted.
+    :param limit: at most this many rows, largest first.
+    :returns: dicts with ``pid``, ``name`` and ``rss`` (bytes); empty when
+        psutil is missing.
+    """
+    psutil_module = psutil_module or _psutil()
+    if psutil_module is None:
+        return []
+    owner = _current_username(psutil_module)
+    skip = _spacr_process_ids(psutil_module)
+    rows = []
+    for proc in psutil_module.process_iter(['pid', 'name', 'username',
+                                            'memory_info']):
+        try:
+            info = proc.info
+            pid = int(info.get('pid') or 0)
+            name = str(info.get('name') or '')
+            user = str(info.get('username') or '')
+            memory = info.get('memory_info')
+        except Exception:
+            continue
+        if pid <= 4 or pid in skip or not name or memory is None:
+            continue
+        if not user or user.lower() in _PROTECTED_USERS:
+            continue
+        if owner is not None and user != owner:
+            continue
+        if name.lower() in _PROTECTED_PROCESS_NAMES:
+            continue
+        if 'spacr' in name.lower():
+            continue
+        rows.append({'pid': pid, 'name': name, 'rss': int(memory.rss)})
+    rows.sort(key=lambda row: row['rss'], reverse=True)
+    return rows[:max(0, int(limit))]
+
+
+def _close_processes(pids: Iterable[int], psutil_module=None) -> Dict[int, str]:
+    """Ask each process to close: SIGTERM on Linux and macOS, terminate on Windows.
+
+    Nothing is killed outright; a program that wants to save its work gets
+    the chance. Only processes :func:`_closable_processes` would list are
+    touched, so a stale or edited pid list cannot reach spaCR or the session.
+
+    :param pids: the process ids the user confirmed.
+    :returns: ``{pid: outcome}`` with outcome ``'closed'``, ``'gone'``,
+        ``'denied'`` or ``'refused'``.
+    """
+    psutil_module = psutil_module or _psutil()
+    outcomes: Dict[int, str] = {}
+    if psutil_module is None:
+        return outcomes
+    allowed = {row['pid'] for row in _closable_processes(psutil_module,
+                                                          limit=10 ** 6)}
+    for pid in pids:
+        pid = int(pid)
+        if pid not in allowed:
+            outcomes[pid] = 'refused'
+            continue
+        try:
+            psutil_module.Process(pid).terminate()
+            outcomes[pid] = 'closed'
+        except psutil_module.NoSuchProcess:
+            outcomes[pid] = 'gone'
+        except Exception:
+            outcomes[pid] = 'denied'
+    return outcomes

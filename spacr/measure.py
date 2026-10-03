@@ -56,7 +56,7 @@ empty by default and both entry points return their input unchanged when they
 are, so an ordinary run is byte-identical to one from before they existed.
 """
 
-import os, cv2, time, sqlite3, threading, traceback, shutil, inspect
+import os, cv2, time, sqlite3, threading, traceback, shutil, inspect, contextlib
 import json
 import re
 import numpy as np
@@ -8615,6 +8615,266 @@ def _record_organelle_caveats(settings, run):
     return caveats
 
 
+_RAM_RESERVE_FRACTION = 0.125
+_RAM_DEFAULT_MULTIPLIER = 8.0
+_RAM_POLL_SECONDS = 1.0
+
+
+def _psutil_or_none():
+    """Return the psutil module, or ``None`` when it cannot be imported."""
+    try:
+        import psutil
+    except Exception:
+        return None
+    return psutil
+
+
+def _ram_snapshot(psutil_module=None):
+    """Return ``(available_bytes, total_bytes)``, or ``None`` when unreadable.
+
+    :param psutil_module: the psutil module to read; the installed one when
+        omitted.
+    """
+    psutil_module = psutil_module or _psutil_or_none()
+    if psutil_module is None:
+        return None
+    try:
+        memory = psutil_module.virtual_memory()
+        return int(memory.available), int(memory.total)
+    except Exception:
+        return None
+
+
+def _ram_reserve_bytes(total_bytes):
+    """Bytes of RAM that Measure leaves free for the desktop and the system."""
+    return int(total_bytes * _RAM_RESERVE_FRACTION)
+
+
+def _sample_field_path(src):
+    """Return one ``.npy`` field Measure would read from ``src``, or ``None``.
+
+    :param src: a merged folder, its parent, or a list of either.
+    """
+    if isinstance(src, (list, tuple)):
+        src = src[0] if src else None
+    if not src or not os.path.isdir(str(src)):
+        return None
+    folder = str(src)
+    if not os.path.basename(folder.rstrip(os.sep)).endswith('merged'):
+        folder = os.path.join(folder, 'merged')
+    try:
+        names = sorted(name for name in os.listdir(folder)
+                       if name.endswith('.npy') and not name.startswith('.'))
+    except OSError:
+        return None
+    return os.path.join(folder, names[0]) if names else None
+
+
+def _field_nbytes(path):
+    """Size in bytes of one field array, read from its header only.
+
+    :returns: ``0`` when the file cannot be read.
+    """
+    try:
+        return int(np.load(path, mmap_mode='r').nbytes)
+    except Exception:
+        return 0
+
+
+def _max_safe_workers(available_bytes, total_bytes, per_worker_bytes):
+    """How many workers fit in available RAM while keeping the reserve free.
+
+    :returns: at least 1; one worker always runs, and the runtime throttle
+        keeps it from starting a field the RAM cannot hold.
+    """
+    if per_worker_bytes <= 0:
+        return None
+    spare = available_bytes - _ram_reserve_bytes(total_bytes)
+    return max(1, int(spare // per_worker_bytes))
+
+
+def _ram_guard_plan(src, n_jobs, multiplier=None, psutil_module=None):
+    """Estimate whether ``n_jobs`` Measure workers fit in RAM.
+
+    Each worker is estimated as one field's array size times ``multiplier``.
+
+    :param src: the Measure source folder.
+    :param n_jobs: the requested worker count.
+    :param multiplier: bytes of worker memory per byte of field array.
+    :returns: a dict with ``per_worker``, ``available``, ``total``,
+        ``reserve``, ``max_safe`` and ``exceeds``, or ``None`` when RAM or
+        the field size cannot be read.
+    """
+    snapshot = _ram_snapshot(psutil_module)
+    path = _sample_field_path(src)
+    if snapshot is None or path is None:
+        return None
+    nbytes = _field_nbytes(path)
+    if nbytes <= 0:
+        return None
+    available, total = snapshot
+    per_worker = int(nbytes * float(multiplier or _RAM_DEFAULT_MULTIPLIER))
+    max_safe = _max_safe_workers(available, total, per_worker)
+    try:
+        requested = max(1, int(n_jobs))
+    except (TypeError, ValueError):
+        requested = 1
+    return {'per_worker': per_worker, 'nbytes': nbytes,
+            'available': available,
+            'total': total, 'reserve': _ram_reserve_bytes(total),
+            'max_safe': max_safe, 'requested': requested,
+            'exceeds': requested > max_safe}
+
+
+def _clamp_workers_to_ram(settings, n_jobs, plan):
+    """Lower ``n_jobs`` to the RAM-safe count unless ``ram_guard`` is off.
+
+    :returns: the worker count to use; a warning is printed when lowered.
+    """
+    if plan is None or not settings.get('ram_guard', True):
+        return n_jobs
+    if n_jobs <= plan['max_safe']:
+        return n_jobs
+    gib = 1024 ** 3
+    print(f"WARNING: n_jobs={n_jobs} would need about "
+          f"{n_jobs * plan['per_worker'] / gib:.1f} GiB of RAM but "
+          f"{plan['available'] / gib:.1f} GiB is available and "
+          f"{plan['reserve'] / gib:.1f} GiB is kept free; using "
+          f"{plan['max_safe']} workers. Set ram_guard to False to keep "
+          f"n_jobs (fields then wait for free RAM).")
+    return plan['max_safe']
+
+
+class _PeakChildMemory:
+    """Track the largest resident memory of any child worker process.
+
+    Polled on a daemon thread while one calibration field runs, so the
+    per-worker estimate comes from a real field instead of a guess.
+    """
+
+    def __init__(self, psutil_module=None, interval=0.1):
+        self._psutil = psutil_module or _psutil_or_none()
+        self._interval = interval
+        self._stop = threading.Event()
+        self._thread = None
+        self.peak = 0
+
+    def _poll(self):
+        """Read every child's resident memory until stopped."""
+        try:
+            me = self._psutil.Process()
+        except Exception:
+            return
+        while not self._stop.is_set():
+            try:
+                for child in me.children(recursive=True):
+                    try:
+                        self.peak = max(self.peak,
+                                        int(child.memory_info().rss))
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+            self._stop.wait(self._interval)
+
+    def __enter__(self):
+        if self._psutil is not None:
+            self._thread = threading.Thread(target=self._poll, daemon=True)
+            self._thread.start()
+        return self
+
+    def __exit__(self, *exc):
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2)
+        return False
+
+
+def _any_field_running(pending):
+    """Whether any dispatched field in ``pending`` has not returned yet.
+
+    :param pending: ``(file, index, async_result)`` triples.
+    """
+    for _file, _index, result in pending:
+        ready = getattr(result, 'ready', None)
+        if callable(ready) and not ready():
+            return True
+    return False
+
+
+def _calibrated_wave(settings, plan, peak_bytes, wave):
+    """Re-estimate per-worker RAM from one measured field and resize the wave.
+
+    :param plan: the pre-run estimate from :func:`_ram_guard_plan`.
+    :param peak_bytes: the largest resident memory a worker reached while
+        measuring the calibration field; ``0`` keeps the estimate.
+    :param wave: how many fields run at once so far.
+    :returns: ``(per_worker_bytes, wave)``. The wave shrinks to the
+        RAM-safe count when ``ram_guard`` is on; with it off the wave is
+        kept and the runtime throttle alone protects RAM.
+    """
+    if plan is None or peak_bytes <= 0 or plan['nbytes'] <= 0:
+        return (plan['per_worker'] if plan else 0), wave
+    multiplier = peak_bytes / plan['nbytes']
+    per_worker = int(peak_bytes)
+    max_safe = _max_safe_workers(plan['available'], plan['total'], per_worker)
+    gib = 1024 ** 3
+    print(f"RAM guard: one field used {per_worker / gib:.2f} GiB "
+          f"({multiplier:.1f}x its array); about {max_safe} workers fit.")
+    if settings.get('ram_guard', True) and wave > max_safe:
+        print(f"WARNING: running {max_safe} fields at a time instead of "
+              f"{wave} so RAM keeps its reserve.")
+        wave = max_safe
+    return per_worker, wave
+
+
+def _wait_for_ram(per_worker_bytes, busy, *, field='', psutil_module=None,
+                  sleep=time.sleep, poll=_RAM_POLL_SECONDS):
+    """Hold the next field until starting it cannot eat into the RAM reserve.
+
+    The field may start once available RAM minus one worker's estimate stays
+    above the reserve. While ``busy()`` reports fields still running, the
+    wait continues because their memory will come back; with nothing
+    running the field starts, since waiting could never free anything.
+    Every pause and every resume is printed.
+
+    :param per_worker_bytes: estimated RAM one field needs.
+    :param busy: zero-argument callable, true while fields are running.
+    :param field: the field name used in the printed lines.
+    :returns: seconds spent waiting.
+    """
+    from .cancellation import checkpoint
+    waited = 0.0
+    paused = False
+    gib = 1024 ** 3
+    while True:
+        snapshot = _ram_snapshot(psutil_module)
+        if snapshot is None:
+            return waited
+        available, total = snapshot
+        reserve = _ram_reserve_bytes(total)
+        if available - per_worker_bytes >= reserve:
+            if paused:
+                print(f"RAM guard: {available / gib:.1f} GiB free again; "
+                      f"resuming with {field} after {waited:.0f} s.")
+            return waited
+        if not busy():
+            if paused:
+                print(f"RAM guard: no field is running and only "
+                      f"{available / gib:.1f} GiB is free; starting {field} "
+                      f"alone.")
+            return waited
+        if not paused:
+            print(f"RAM guard: only {available / gib:.1f} GiB free "
+                  f"(reserve {reserve / gib:.1f} GiB, about "
+                  f"{per_worker_bytes / gib:.1f} GiB per field); holding "
+                  f"{field} until running fields finish.")
+            paused = True
+        checkpoint()
+        sleep(poll)
+        waited += poll
+
+
 def _wait_for_measure_job(result, psf_cancel=None):
     """Relay Stop, allowing five seconds for a worker's current PSF operation.
 
@@ -8988,6 +9248,10 @@ def measure_crop(settings):
                 warn_if_hooks_will_not_reach_workers(start_method)
                 pool_jobs = resolve_pool_size(n_jobs, len(files),
                                               start_method=start_method)
+                ram_plan = _ram_guard_plan(settings['src'], pool_jobs)
+                pool_jobs = _clamp_workers_to_ram(settings, pool_jobs, ram_plan)
+                per_worker = ram_plan['per_worker'] if ram_plan else 0
+                calibrate = ram_plan is not None and pool_jobs > 1 and len(files) > 1
 
                 try:
                     with _start_manager(ctx) as manager:
@@ -8996,12 +9260,20 @@ def measure_crop(settings):
                         completed_jobs = set()
 
                         with ctx.Pool(pool_jobs) as pool:
-                            for offset in range(0, len(files), pool_jobs):
+                            wave = pool_jobs
+                            offset = 0
+                            while offset < len(files):
                                 cancellation_checkpoint()
+                                size = 1 if calibrate else wave
                                 pending = []
                                 for index in range(
-                                        offset, min(offset + pool_jobs, len(files))):
+                                        offset, min(offset + size, len(files))):
                                     file = files[index]
+                                    if per_worker:
+                                        _wait_for_ram(
+                                            per_worker,
+                                            lambda: _any_field_running(pending),
+                                            field=file)
                                     result = pool.apply_async(
                                         _measure_crop_core,
                                         args=((index, time_ls, file, settings, psf_plan, psf_cancel)
@@ -9009,27 +9281,34 @@ def measure_crop(settings):
                                               (index, time_ls, file, settings)),
                                     )
                                     pending.append((file, index, result))
-                                for file, index, async_result in pending:
-                                    for attempt in policy.attempts_for(
-                                            file, stage='measure'):
-                                        with attempt:
-                                            try:
-                                                if attempt.number == 1:
-                                                    job_callback(_wait_for_measure_job(
-                                                        async_result, psf_cancel))
-                                                else:
-                                                    retried = pool.apply_async(
-                                                        _measure_crop_core,
-                                                        args=((index, time_ls, file, settings, psf_plan, psf_cancel)
-                                                              if psf_plan is not None else
-                                                              (index, time_ls, file, settings)))
-                                                    job_callback(_wait_for_measure_job(retried, psf_cancel))
-                                            except PipelineCancelled:
-                                                raise
-                                            except Exception as exc:
-                                                if attempt.last:
-                                                    make_error_callback(file)(exc)
-                                                raise
+                                peak = _PeakChildMemory() if calibrate else None
+                                with (peak if peak is not None else contextlib.nullcontext()):
+                                    for file, index, async_result in pending:
+                                        for attempt in policy.attempts_for(
+                                                file, stage='measure'):
+                                            with attempt:
+                                                try:
+                                                    if attempt.number == 1:
+                                                        job_callback(_wait_for_measure_job(
+                                                            async_result, psf_cancel))
+                                                    else:
+                                                        retried = pool.apply_async(
+                                                            _measure_crop_core,
+                                                            args=((index, time_ls, file, settings, psf_plan, psf_cancel)
+                                                                  if psf_plan is not None else
+                                                                  (index, time_ls, file, settings)))
+                                                        job_callback(_wait_for_measure_job(retried, psf_cancel))
+                                                except PipelineCancelled:
+                                                    raise
+                                                except Exception as exc:
+                                                    if attempt.last:
+                                                        make_error_callback(file)(exc)
+                                                    raise
+                                offset += size
+                                if peak is not None:
+                                    calibrate = False
+                                    per_worker, wave = _calibrated_wave(
+                                        settings, ram_plan, peak.peak, wave)
                                 cancellation_checkpoint()
 
                             pool.close()

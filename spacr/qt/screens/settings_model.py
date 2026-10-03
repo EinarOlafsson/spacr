@@ -1320,7 +1320,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Runtime & Reliability", (
             "resume", "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "dry_run",
-            "verbose", "n_jobs",
+            "verbose", "n_jobs", "ram_guard",
         )),
         ("Profiling α", ("@Profiling α",)),
         ("Measurement Backend α", ("@Measurement Backend α",)),

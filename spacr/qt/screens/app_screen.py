@@ -28,6 +28,8 @@ from PySide6.QtCore import (
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
+    QCheckBox,
+    QDialog,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -8429,6 +8431,11 @@ class AppScreen(QWidget):
             log_button_press(f"{self.app_key}.Run",
                              {"result": "cancelled_at_crop_warning"})
             return
+        if self.app_key == "measure" and not self._confirm_ram_guard(
+                settings):
+            log_button_press(f"{self.app_key}.Run",
+                             {"result": "cancelled_at_ram_guard"})
+            return
 
         if self.app_key == "umap":
             from ..theme import active_palette
@@ -9595,6 +9602,56 @@ class AppScreen(QWidget):
         if adopt is not None and box.clickedButton() is adopt:
             self.apply_settings_dict(correction)
         return False
+
+    def _confirm_ram_guard(self, settings, *, plan_for=None, ask=None,
+                           free_ram=None) -> bool:
+        """Ask before Measure starts more workers than the RAM can hold.
+
+        The estimate is one field's array size times a typical worker
+        overhead, against the RAM free right now minus a reserve. When the
+        requested workers fit, nothing is shown. Otherwise one dialog offers
+        the safe count, keeping the requested count with spaCR pausing new
+        fields whenever RAM runs short, or closing other programs first; after
+        closing programs the estimate is taken again and the dialog returns
+        only if it still does not fit.
+
+        :param settings: the run settings; ``n_jobs`` or ``ram_guard`` is
+            changed in place to match the answer.
+        :param plan_for: callable ``(src, n_jobs) -> plan``; the Measure
+            estimate when omitted.
+        :param ask: callable ``(plan) -> choice``; the dialog when omitted.
+        :param free_ram: zero-argument callable showing the process list.
+        :returns: whether the run should go ahead.
+        """
+        if not settings.get("ram_guard", True):
+            return True
+        if plan_for is None:
+            from ...measure import _ram_guard_plan as plan_for
+        ask = ask or (lambda plan: _RamGuardDialog.ask(self, plan))
+        free_ram = free_ram or (lambda: _FreeRamDialog(self).exec())
+        try:
+            from ...measure import resolve_n_jobs
+            requested = resolve_n_jobs(settings.get("n_jobs"))
+        except Exception:
+            return True
+        while True:
+            try:
+                plan = plan_for(settings.get("src"), requested)
+            except Exception:
+                LOG.debug("could not estimate Measure RAM", exc_info=True)
+                return True
+            if plan is None or not plan["exceeds"]:
+                return True
+            choice = ask(plan)
+            if choice == "use":
+                settings["n_jobs"] = int(plan["max_safe"])
+                return True
+            if choice == "keep":
+                settings["ram_guard"] = False
+                return True
+            if choice != "free":
+                return False
+            free_ram()
 
     def _confirm_crop_choices(self, settings) -> bool:
         """Ask before a crop setting that changes every downstream image.
@@ -12290,3 +12347,136 @@ def _fill_measure_preview_card(card):
     panel = MeasurePreviewPanel(card)
     card.body_layout.addWidget(panel)
     return panel
+
+
+def _gib(value) -> str:
+    """Bytes as a short GiB figure for a dialog."""
+    return f"{float(value) / 1024 ** 3:.1f}"
+
+
+class _RamGuardDialog(QDialog):
+    """Warn that the requested Measure workers do not fit in free RAM.
+
+    Three buttons answer it: the safe worker count, the requested count
+    with spaCR pausing new fields when RAM runs short, or closing other
+    programs first. ``choice`` holds ``'use'``, ``'keep'``, ``'free'`` or
+    ``None`` when the dialog was closed, which cancels the run.
+    """
+
+    def __init__(self, parent, plan):
+        super().__init__(parent)
+        self.setObjectName("RamGuardDialog")
+        self.setWindowTitle(tr("Not enough RAM for these workers"))
+        self.setModal(True)
+        self.choice = None
+        layout = QVBoxLayout(self)
+        text = QLabel(tr(
+            "{requested} workers would need about {needed} GiB of RAM, but "
+            "{available} GiB is free and spaCR keeps {reserve} GiB for the "
+            "rest of the computer. {safe} workers fit without pausing.",
+            requested=plan["requested"],
+            needed=_gib(plan["requested"] * plan["per_worker"]),
+            available=_gib(plan["available"]),
+            reserve=_gib(plan["reserve"]), safe=plan["max_safe"]))
+        text.setWordWrap(True)
+        layout.addWidget(text)
+        self.use_button = QPushButton(tr(
+            "Use {count} workers (recommended)", count=plan["max_safe"]))
+        self.use_button.setObjectName("RamGuardUse")
+        self.keep_button = QPushButton(tr(
+            "Keep {count} (spaCR will throttle)", count=plan["requested"]))
+        self.keep_button.setObjectName("RamGuardKeep")
+        self.free_button = QPushButton(tr(
+            "Free RAM by closing applications…"))
+        self.free_button.setObjectName("RamGuardFree")
+        for button, choice in ((self.use_button, "use"),
+                               (self.keep_button, "keep"),
+                               (self.free_button, "free")):
+            button.clicked.connect(
+                lambda _checked=False, value=choice: self._choose(value))
+            layout.addWidget(button)
+        self.use_button.setDefault(True)
+
+    def _choose(self, value):
+        """Record the answer and close."""
+        self.choice = value
+        self.accept()
+
+    @classmethod
+    def ask(cls, parent, plan):
+        """Show the dialog modally and return the answer."""
+        dialog = cls(parent, plan)
+        dialog.exec()
+        return dialog.choice
+
+
+class _FreeRamDialog(QDialog):
+    """List the user's largest programs and close the ticked ones on confirm.
+
+    Only the user's own programs are listed: spaCR, the system, root,
+    desktop and session processes never are. Nothing starts ticked, and
+    nothing is closed until the user confirms; closing is a polite request
+    (SIGTERM, or terminate on Windows), so programs may save first.
+    """
+
+    def __init__(self, parent=None, psutil_module=None, confirm=None):
+        super().__init__(parent)
+        from ...resource_log import _closable_processes
+        self.setObjectName("FreeRamDialog")
+        self.setWindowTitle(tr("Free RAM by closing applications"))
+        self.setModal(True)
+        self._psutil = psutil_module
+        self._confirm = confirm or self._ask_to_confirm
+        self.outcomes = {}
+        layout = QVBoxLayout(self)
+        note = QLabel(tr(
+            "Tick the programs to close. They are asked to quit, so most "
+            "can save first. Unsaved work in them may still be lost."))
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        self.boxes = []
+        for row in _closable_processes(psutil_module):
+            box = QCheckBox(tr("{name} ({ram} GiB)", name=row["name"],
+                               ram=_gib(row["rss"])))
+            box.setChecked(False)
+            box.setProperty("pid", int(row["pid"]))
+            layout.addWidget(box)
+            self.boxes.append(box)
+        if not self.boxes:
+            layout.addWidget(QLabel(tr("No other programs of yours can be "
+                                       "closed from here.")))
+        buttons = QHBoxLayout()
+        self.close_button = QPushButton(tr("Close selected"))
+        self.close_button.setObjectName("FreeRamClose")
+        self.close_button.clicked.connect(self._close_selected)
+        cancel = QPushButton(tr("Cancel"))
+        cancel.clicked.connect(self.reject)
+        buttons.addWidget(self.close_button)
+        buttons.addWidget(cancel)
+        layout.addLayout(buttons)
+
+    def selected_pids(self):
+        """Process ids of the ticked rows."""
+        return [int(box.property("pid")) for box in self.boxes
+                if box.isChecked()]
+
+    def _ask_to_confirm(self, names):
+        """Ask once more before anything is closed."""
+        answer = QMessageBox.question(
+            self, tr("Close these programs?"),
+            tr("spaCR will ask these programs to quit:\n\n{names}",
+               names="\n".join(names)),
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        return answer == QMessageBox.Yes
+
+    def _close_selected(self):
+        """Close the ticked programs after an explicit confirm."""
+        from ...resource_log import _close_processes
+        pids = self.selected_pids()
+        if not pids:
+            return
+        names = [box.text() for box in self.boxes if box.isChecked()]
+        if not self._confirm(names):
+            return
+        self.outcomes = _close_processes(pids, self._psutil)
+        self.accept()
