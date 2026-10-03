@@ -151,3 +151,30 @@ The feature remains alpha/partial overall.
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: responsive Load/Assign controls (4ac7527eb, 74ace76e8).
     BLOCKED / open: a real infected-tissue Visium/Xenium and Visium HD dataset (external data); SpatialData .zarr output and h5py/pyarrow/anndata as optional dependencies (maintainer decision on dependencies); H&E-IF landmark registration needs real paired data.
+
+2026-10-03 — REAL INFECTED-TISSUE CHECK (lane 2, CPU)
+    Data: Hildebrandt et al. 2024 (Nat Commun 15:7105), P. berghei-infected
+    vs control mouse liver, Space Ranger outputs zenodo.org/records/8386528
+    (open access, no explicit licence on the record; also GEO GSE268068).
+    Capture areas V10S29-135_A1 and _D1 (38 h p.i.; one infected and one
+    control section per area). Reference carries 5,245 P. berghei genes, so
+    infection is read from the data: spot infected = >=3 parasite UMIs.
+    Only change to the published files: gunzip of filtered_feature_bc_matrix.h5.gz.
+    Script/results: /mnt/wd4tb/scratch/534/work/ (run.py, *_overlay_pb.pdf).
+    - Load: _st_read_bundle reads both (legacy tissue_positions_list.csv,
+      60,646 features; 2,902 / 2,676 spots). Registration on the hires
+      image via scalefactors (3.50 um/px); overlay checked by eye: spots on
+      tissue, parasite UMIs only on the infected section.
+    - Infected vs uninfected spots (_st_compare_groups, host genes): A1 131
+      infected spots, 1,709 genes q<0.05; D1 84 spots, 1,459 genes. Top
+      hits include interferon genes (Iigp1, Ifit1, Ifi27l2a) and Saa2, as
+      the paper reports, but also haemoglobin and mt- transcripts (likely
+      spot quality/vessel confounding). Same-size random spot sets: 0 genes
+      q<0.05 in both (calibrated null).
+    - Distance to nearest infected spot (_st_distance_trend): Isg15, Saa1,
+      Saa2, Ifitm3 fall with distance (rho -0.67 to -0.76); this mixes the
+      within-section gradient with the infected-vs-control section split.
+    NOT met: assignment to spaCR-segmented CELLS on this data. Only
+    hires/lowres images are published (3.5 um/px, nuclei ~3 px), so no cell
+    segmentation is possible; analysis is per spot. Visium HD: no public
+    infected-tissue HD dataset found (still BLOCKED).
