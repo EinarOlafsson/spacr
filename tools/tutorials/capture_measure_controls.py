@@ -118,6 +118,40 @@ def record_controls(app, window, screen, captures, capture, settle, write_json, 
     second = observation()
     capture('07_live_second_field')
     require_unchanged_settings(settings_live, screen._settings_model.collect())
+    # Checked images (612): tick two fields; the grid groups crops by field.
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QMenu
+    picked = []
+
+    def tick(frame):
+        menus = [m for m in app.topLevelWidgets() if isinstance(m, QMenu) and m.isVisible()]
+        if len(menus) != 1:
+            picked.append('no menu')
+            return
+        menu = menus[0]
+        if frame:
+            capture(frame)
+        actions = [a for a in menu.actions() if a.isCheckable() and not a.isChecked()]
+        if not actions:
+            picked.append('nothing to tick')
+            menu.close()
+            return
+        picked.append(actions[0].text())
+        QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(actions[0]).center())
+
+    checked = panel._checked_button
+    for frame in ('07b_checked_images_menu', None):
+        QTimer.singleShot(900, lambda frame=frame: tick(frame))
+        QTest.mouseClick(checked, Qt.LeftButton)
+        settle(1.2)
+        ready()
+    if len(panel._checked_sources) < 2:
+        raise RuntimeError(f'Checked images did not hold two fields: {picked}')
+    settle(1)
+    capture('07c_checked_two_fields')
+    panel._uncheck_all_sources()
+    settle(.8)
+    require_unchanged_settings(settings_live, screen._settings_model.collect())
     # Close Live before restoring the setting that controls the saved crops.
     visible_click(screen._preview_switch)
     bar.set_query('normalize')

@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "Usa gli output uniti di Mask oppure scegli Load test data in Measure. L’esempio fornisce sedici campi con i piani di intensità 0–3 e le maschere di cellule, nuclei e patogeni nei piani 4, 5 e 6.",
   "scenes": [
     "Da Home, apri Measure. Parti da immagini che hanno già le maschere degli oggetti. Measure estrae caratteristiche come area e intensità, abbina oggetti correlati e può salvare ritagli dei singoli oggetti per Annotate e Classify.",
-    "Fai clic su Load test data e attendi il caricamento dell’esempio, oppure seleziona un tuo progetto unito. Controlla l’assegnazione dei piani: questo esempio ha quattro canali di intensità seguiti dalle maschere di cellule, nuclei e patogeni nei piani quattro, cinque e sei.",
+    "Fai clic su Load test data e attendi il caricamento dell’esempio, oppure seleziona un tuo progetto unito. Controlla l’assegnazione dei piani: questo esempio ha quattro canali di intensità seguiti dalle maschere di cellule, nuclei e patogeni nei piani quattro, cinque e sei. Quando preme Run, Measure confronta questi piani di maschera con il layout salvato per la cartella; se non coincidono, propone Use stored image layout e le chiede di rivedere la mappatura e rieseguire.",
     "Per esaminare questi ritagli di esempio a sedici bit, attiva Normalize prima di aprire Live. Così l’anteprima è più leggibile. Ricorda che questa impostazione principale influisce anche sui ritagli salvati; la disattiveremo prima di questa esecuzione in batch.",
     "Attiva Live e scegli un campo. Esamina i ritagli degli oggetti e le relazioni tra le loro maschere. Scorri le categorie e ingrandisci l’anteprima se serve per vedere bene i bordi.",
     "Usa il selettore del canale visualizzato per esaminare un canale di intensità alla volta. Il canale zero mostra una vista in scala di grigi; All channels ripristina la vista combinata. Questo selettore cambia l’anteprima senza modificare le etichette né l’assegnazione dei canali del batch.",
     "Scegli un altro campo e confrontane gli oggetti. Se mancano maschere o ci sono oggetti uniti per errore, correggile o regola Mask prima di proseguire.",
+    "Per confrontare i campi affiancati, apra Checked images e spunti i campi desiderati. La griglia raggruppa i ritagli per campo di origine; passi il cursore su un ritaglio per vederne il percorso, oppure faccia doppio clic per aprire proprio quel campo. Uncheck all images svuota la griglia. Cambia solo l’anteprima, non ciò che Measure elabora.",
     "Per controllare la qualità della segmentazione di tutto il progetto prima di misurare, attiva QC nella riga Actions, accanto a 3D e Time. La sua finestra elenca i campi e i pozzetti le cui maschere sembrano insolite, ad esempio con molti meno oggetti del resto della piastra, con collegamenti per esaminarli. Il controllo è solo indicativo e non ferma mai Measure; chiudendo la finestra l’interruttore si spegne.",
     "In All settings, Image Preprocessing raccoglie le correzioni che Measure può applicare a ogni campo prima di misurare: Image Deconvolution con una funzione di dispersione del punto e Illumination Correction con un modello stimato in precedenza. Cambiano i pixel misurati in questa esecuzione; le maschere e gli array su disco non vengono modificati.",
     "Disattiva Live e rimetti Normalize su disattivato per questo esempio. Scegli con cura la normalizzazione quando salvi i ritagli: il ridimensionamento per singolo ritaglio cambia le differenze di intensità che vedrà poi un classificatore di immagini. Conserva gli array uniti originali per le misure quantitative.",

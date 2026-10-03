@@ -27,7 +27,7 @@
     },
     {
       "visual": "preview_03_data_ready",
-      "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six.",
+      "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six. When you press Run, Measure compares these mask planes with the layout stored for the folder; if they disagree, it offers Use stored image layout and asks you to review the mapping and run again.",
       "hold_after": 0.7
     },
     {
@@ -48,6 +48,11 @@
     {
       "visual": "preview_07_live_second_field",
       "narration": "Choose another field and compare its objects. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "preview_07c_checked_two_fields",
+      "narration": "To compare fields side by side, open Checked images and tick the fields you want. The grid groups the crops by their source field; hover a crop to see its path, or double-click it to open that exact field. Uncheck all images clears the grid. This changes only the preview, not what Measure processes.",
       "hold_after": 0.7
     },
     {

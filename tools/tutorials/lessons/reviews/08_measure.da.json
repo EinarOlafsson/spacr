@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "Brug de sammenlagte output fra Mask, eller vælg Load test data i Measure. Eksemplet indeholder seksten synsfelter med intensitetsplanerne 0–3 og masker for celler, kerner og patogener i planerne 4, 5 og 6.",
   "scenes": [
     "Fra Home åbner du Measure. Begynd med billeder, der allerede har objektmasker. Measure udtrækker egenskaber som areal og intensitet, parrer relaterede objekter og kan gemme udsnit af enkelte objekter til Annotate og Classify.",
-    "Klik på Load test data, og vent, til eksemplet er indlæst, eller vælg dit eget sammenlagte projekt. Kontrollér plantilknytningen: eksemplet har fire intensitetskanaler efterfulgt af masker for celler, kerner og patogener i planerne 4, 5 og 6.",
+    "Klik på Load test data, og vent, til eksemplet er indlæst, eller vælg dit eget sammenlagte projekt. Kontrollér plantilknytningen: eksemplet har fire intensitetskanaler efterfulgt af masker for celler, kerner og patogener i planerne 4, 5 og 6. Når du trykker Run, sammenligner Measure disse maskeplaner med det layout, der er gemt for mappen; hvis de ikke stemmer overens, tilbyder den Use stored image layout og beder dig gennemgå tilknytningen og køre igen.",
     "For at undersøge disse 16-bit-eksempeludsnit slår du Normalize til, før du åbner Live. Så bliver forhåndsvisningen lettere at se. Husk, at denne hovedindstilling også påvirker gemte udsnit; vi slår den fra før denne batchkørsel.",
     "Slå Live til, og vælg et synsfelt. Undersøg objektudsnittene og sammenhængen mellem deres masker. Rul gennem kategorierne, og forstør forhåndsvisningen efter behov for at se grænserne tydeligt.",
     "Brug vælgeren til den viste kanal til at undersøge én intensitetskanal ad gangen. Kanal 0 viser en gråtonevisning; All channels gendanner den kombinerede visning. Vælgeren ændrer forhåndsvisningen uden at ændre labels eller batchens kanaltilknytning.",
     "Vælg et andet felt og sammenlign dets objekter. Hvis masker mangler eller er forkert sammenføjet, så ret dem eller juster Mask, før du fortsætter.",
+    "For at sammenligne felter side om side åbner du Checked images og markerer de felter, du vil se. Gitteret grupperer udsnittene efter deres kildefelt; hold musen over et udsnit for at se dets sti, eller dobbeltklik for at åbne netop det felt. Uncheck all images tømmer gitteret. Det ændrer kun forhåndsvisningen, ikke det, Measure behandler.",
     "For at kontrollere segmenteringskvaliteten i hele projektet før måling skal du slå QC til i Actions-rækken ved siden af 3D og Time. Vinduet viser felter og brønde, hvis masker ser usædvanlige ud, for eksempel med langt færre objekter end resten af pladen, med links til at undersøge dem. Kontrollen er kun vejledende og stopper aldrig Measure; når du lukker vinduet, slås kontakten fra.",
     "Under All settings rummer Image Preprocessing de korrektioner, Measure kan anvende på hvert felt før måling: Image Deconvolution med en punktspredningsfunktion og Illumination Correction med en model, du har estimeret tidligere. De ændrer de pixels, der måles i denne kørsel; maskerne og arrays på disken ændres ikke.",
     "Slå Live fra, og sæt Normalize tilbage til fra for dette eksempel. Vælg normaliseringen bevidst, når du gemmer udsnit: skalering pr. udsnit ændrer de intensitetsforskelle, som en senere billedklassifikator ser. Bevar de oprindelige sammenlagte arrays til kvantitative målinger.",

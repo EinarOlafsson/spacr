@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "Notaðu sameinað úttak frá Mask eða veldu Load test data í Measure. Dæmið inniheldur sextán sjónsvið með styrkleikalögum 0–3 og grímum fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
   "scenes": [
     "Frá Home opnarðu Measure. Byrjaðu á myndum sem hafa þegar grímur fyrir hluti. Measure dregur út eiginleika eins og flatarmál og styrk, parar tengda hluti saman og getur vistað úrklipp einstakra hluta fyrir Annotate og Classify.",
-    "Smelltu á Load test data og bíddu þar til dæmið hefur hlaðist inn, eða veldu þitt eigið sameinaða verkefni. Athugaðu vörpun laganna: dæmið hefur fjórar styrkleikarásir og svo grímur fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
+    "Smelltu á Load test data og bíddu þar til dæmið hefur hlaðist inn, eða veldu þitt eigið sameinaða verkefni. Athugaðu vörpun laganna: dæmið hefur fjórar styrkleikarásir og svo grímur fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6. Þegar þú ýtir á Run ber Measure þessi grímulög saman við uppsetninguna sem er vistuð fyrir möppuna; ef þau stemma ekki býður það Use stored image layout og biður þig að yfirfara vörpunina og keyra aftur.",
     "Til að skoða þessi 16 bita dæmaúrklipp kveikirðu á Normalize áður en þú opnar Live. Þá er auðveldara að sjá forskoðunina. Mundu að þessi aðalstilling hefur líka áhrif á vistuð úrklipp; við slökkvum á henni fyrir þessa runukeyrslu.",
     "Kveiktu á Live og veldu sjónsvið. Skoðaðu úrklipp hlutanna og tengsl grímna þeirra. Flettu í gegnum flokkana og stækkaðu forskoðunina ef þörf er á til að sjá mörkin skýrt.",
     "Notaðu valið fyrir birta rás til að skoða eina styrkleikarás í einu. Rás 0 sýnir gráskalamynd; All channels sýnir aftur samsettu myndina. Valið breytir forskoðuninni án þess að breyta merkingunum eða rásavörpun rununnar.",
     "Veldu annað svið og berðu saman hluti þess. Ef grímur vantar eða eru ranglega sameinaðar skaltu laga þær eða stilla Mask áður en þú heldur áfram.",
+    "Til að bera reiti saman hlið við hlið opnarðu Checked images og hakar við reitina sem þú vilt. Grindin flokkar úrklippurnar eftir upprunareit; haltu bendlinum yfir úrklippu til að sjá slóð hennar, eða tvísmelltu til að opna nákvæmlega þann reit. Uncheck all images tæmir grindina. Þetta breytir aðeins forskoðuninni, ekki því sem Measure vinnur úr.",
     "Til að athuga gæði skiptingarinnar í öllu verkefninu fyrir mælingu skaltu kveikja á QC í Actions-röðinni, við hlið 3D og Time. Glugginn sýnir svið og brunna þar sem grímur virðast óvenjulegar, til dæmis með miklu færri hluti en restin af plötunni, með tenglum til að skoða þá. Athugunin er aðeins ráðgefandi og stöðvar aldrei Measure; þegar glugganum er lokað slokknar á rofanum.",
     "Undir All settings geymir Image Preprocessing leiðréttingarnar sem Measure getur beitt á hvert svið fyrir mælingu: Image Deconvolution með punktdreififalli og Illumination Correction með líkani sem þú mast áður. Þær breyta pixlunum sem mældir eru í þessari keyrslu; grímurnar og fylkin á diskinum breytast ekki.",
     "Slökktu á Live og settu Normalize aftur á óvirkt fyrir þetta dæmi. Veldu stöðlun af ásettu ráði þegar úrklipp eru vistuð: kvörðun fyrir hvert úrklipp breytir þeim styrkmun sem myndflokkari sér síðar. Haltu upprunalegu sameinuðu fylkjunum fyrir megindlegar mælingar.",

@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "Utilisez les sorties fusionnées de Mask, ou choisissez Load test data dans Measure. L’exemple fournit seize champs avec les plans d’intensité 0–3 et les masques de cellules, de noyaux et de pathogènes dans les plans 4, 5 et 6.",
   "scenes": [
     "Depuis Home, ouvrez Measure. Partez d’images qui ont déjà des masques d’objets. Measure extrait des caractéristiques comme l’aire et l’intensité, associe les objets liés et peut enregistrer des vignettes d’objets individuels pour Annotate et Classify.",
-    "Cliquez sur Load test data et attendez le chargement de l’exemple, ou sélectionnez votre propre projet fusionné. Vérifiez l’attribution des plans : cet exemple comporte quatre canaux d’intensité, suivis des masques de cellules, de noyaux et de pathogènes dans les plans quatre, cinq et six.",
+    "Cliquez sur Load test data et attendez le chargement de l’exemple, ou sélectionnez votre propre projet fusionné. Vérifiez l’attribution des plans : cet exemple comporte quatre canaux d’intensité, suivis des masques de cellules, de noyaux et de pathogènes dans les plans quatre, cinq et six. Quand vous appuyez sur Run, Measure compare ces plans de masques avec la disposition enregistrée pour le dossier ; s’ils diffèrent, il propose Use stored image layout et vous demande de vérifier l’affectation puis de relancer.",
     "Pour inspecter ces vignettes d’exemple en seize bits, activez Normalize avant d’ouvrir Live. L’aperçu est ainsi plus lisible. N’oubliez pas que ce paramètre principal s’applique aussi aux vignettes enregistrées ; nous le désactiverons avant cette exécution par lots.",
     "Activez Live et choisissez un champ. Inspectez les vignettes d’objets et les relations entre leurs masques. Faites défiler les catégories et agrandissez l’aperçu si nécessaire pour bien voir les contours.",
     "Utilisez le sélecteur de canal affiché pour inspecter un canal d’intensité à la fois. Le canal zéro montre une vue en niveaux de gris ; All channels rétablit la vue combinée. Ce sélecteur modifie l’aperçu sans changer les étiquettes ni l’attribution des canaux du lot.",
     "Choisissez un autre champ et comparez ses objets. Si des masques manquent ou sont fusionnés à tort, corrigez-les ou ajustez Mask avant de continuer.",
+    "Pour comparer des champs côte à côte, ouvrez Checked images et cochez les champs voulus. La grille regroupe les découpes par champ d’origine ; survolez une découpe pour voir son chemin, ou double-cliquez pour ouvrir ce champ précis. Uncheck all images vide la grille. Cela ne change que l’aperçu, pas ce que Measure traite.",
     "Pour vérifier la qualité de la segmentation de tout le projet avant de mesurer, activez QC dans la rangée Actions, à côté de 3D et Time. Sa fenêtre liste les champs et les puits dont les masques semblent inhabituels, par exemple avec bien moins d’objets que le reste de la plaque, avec des liens pour les examiner. Ce contrôle n’est qu’indicatif et n’arrête jamais Measure ; fermer la fenêtre désactive l’interrupteur.",
     "Dans All settings, Image Preprocessing regroupe les corrections que Measure peut appliquer à chaque champ avant la mesure : Image Deconvolution avec une fonction d’étalement du point et Illumination Correction avec un modèle estimé auparavant. Elles modifient les pixels mesurés dans cette exécution ; les masques et les tableaux sur le disque ne sont pas modifiés.",
     "Désactivez Live et remettez Normalize sur désactivé pour cet exemple. Choisissez la normalisation avec soin lorsque vous enregistrez des vignettes : une mise à l’échelle par vignette modifie les différences d’intensité que verra ensuite un classificateur d’images. Conservez les tableaux fusionnés d’origine pour les mesures quantitatives.",

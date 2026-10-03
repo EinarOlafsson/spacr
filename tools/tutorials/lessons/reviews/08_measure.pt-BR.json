@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "Use as saídas combinadas do Mask ou escolha Load test data no Measure. O exemplo traz dezesseis campos com os planos de intensidade 0–3 e as máscaras de células, núcleos e patógenos nos planos 4, 5 e 6.",
   "scenes": [
     "Na tela Home, abra Measure. Comece com imagens que já tenham máscaras de objetos. O Measure extrai características como área e intensidade, associa objetos relacionados e pode salvar recortes individuais dos objetos para o Annotate e o Classify.",
-    "Clique em Load test data e aguarde o exemplo carregar, ou selecione seu próprio projeto combinado. Confira o mapeamento de planos: este exemplo tem quatro canais de intensidade seguidos das máscaras de células, núcleos e patógenos nos planos quatro, cinco e seis.",
+    "Clique em Load test data e aguarde o exemplo carregar, ou selecione seu próprio projeto combinado. Confira o mapeamento de planos: este exemplo tem quatro canais de intensidade seguidos das máscaras de células, núcleos e patógenos nos planos quatro, cinco e seis. Ao pressionar Run, Measure compara esses planos de máscara com o layout salvo para a pasta; se não coincidirem, oferece Use stored image layout e pede que você revise o mapeamento e execute novamente.",
     "Para inspecionar estes recortes de exemplo de dezesseis bits, ative Normalize antes de abrir Live. Isso facilita ver a pré-visualização. Lembre-se de que essa configuração principal também afeta os recortes salvos; vamos desativá-la antes desta execução em lote.",
     "Ative Live e escolha um campo. Inspecione os recortes dos objetos e as relações entre as máscaras. Percorra as categorias e amplie a pré-visualização, se necessário, para ver bem as bordas.",
     "Use o seletor de canal exibido para inspecionar um canal de intensidade por vez. O canal zero mostra uma visualização em tons de cinza; All channels restaura a visualização combinada. Esse seletor muda a pré-visualização sem alterar os rótulos nem o mapeamento de canais do lote.",
     "Escolha outro campo e compare seus objetos. Se faltarem máscaras ou houver objetos unidos por engano, corrija-as ou ajuste Mask antes de continuar.",
+    "Para comparar campos lado a lado, abra Checked images e marque os campos desejados. A grade agrupa os recortes pelo campo de origem; passe o cursor sobre um recorte para ver o caminho ou clique duas vezes para abrir exatamente esse campo. Uncheck all images limpa a grade. Isso muda apenas a pré-visualização, não o que Measure processa.",
     "Para verificar a qualidade da segmentação em todo o projeto antes de medir, ative QC na linha Actions, ao lado de 3D e Time. A janela lista os campos e poços cujas máscaras parecem incomuns, por exemplo com muito menos objetos que o resto da placa, com links para inspecioná-los. A verificação é apenas orientativa e nunca interrompe Measure; fechar a janela desliga o interruptor.",
     "Em All settings, Image Preprocessing reúne as correções que Measure pode aplicar a cada campo antes de medir: Image Deconvolution com uma função de espalhamento de ponto e Illumination Correction com um modelo estimado antes. Elas alteram os pixels medidos nesta execução; as máscaras e os arrays no disco não mudam.",
     "Desative Live e volte a desativar Normalize para este exemplo. Escolha a normalização com cuidado ao salvar recortes: o escalonamento por recorte muda as diferenças de intensidade que um classificador de imagens verá depois. Mantenha os arranjos combinados originais para as medições quantitativas.",

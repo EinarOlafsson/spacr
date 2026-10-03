@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "使用Mask的合并输出，或在Measure中选择Load test data。示例提供十六个视野，强度平面为0–3，平面4、5、6中分别是细胞、细胞核和病原体掩膜。",
   "scenes": [
     "从Home打开Measure。从已经带有对象掩膜的图像开始。Measure会提取面积和强度等特征，关联相关对象，并可以为Annotate和Classify保存单个对象的裁剪图像。",
-    "点击Load test data并等待示例加载，或选择您自己的合并项目。检查平面映射：本例有四个强度通道，其后平面四、五、六分别是细胞、细胞核和病原体掩膜。",
+    "点击Load test data并等待示例加载，或选择您自己的合并项目。检查平面映射：本例有四个强度通道，其后平面四、五、六分别是细胞、细胞核和病原体掩膜。 按下 Run 后，Measure 会将这些掩膜平面与该文件夹保存的布局进行比较；如果不一致，它会提供 Use stored image layout，并请您检查映射后重新运行。",
     "要查看这些十六位的示例裁剪图像，请在打开Live之前开启Normalize。这样预览更容易看清。请记住，这个主设置也会影响保存的裁剪图像；在本次批量运行之前我们会把它关闭。",
     "打开Live并选择一个视野。检查对象裁剪图像及其掩膜之间的关系。滚动浏览各个类别，必要时放大预览，以便看清边界。",
     "使用显示通道选择器，一次检查一个强度通道。通道零显示灰度视图；All channels恢复合成视图。这个选择器只改变预览，不会改变标签或批量处理的通道映射。",
     "选择另一个视野并比较其中的对象。如果掩膜缺失或被错误合并，请在继续之前修正它们或调整 Mask。",
+    "要并排比较视野，请打开 Checked images 并勾选所需视野。网格会按来源视野对裁剪图像分组；将指针悬停在裁剪图像上可查看其路径，双击则打开该视野。Uncheck all images 会清空网格。这只改变预览，不改变 Measure 处理的内容。",
     "要在测量前检查整个项目的分割质量，请打开 Actions 行中 3D 和 Time 旁边的 QC。弹出窗口会列出掩膜看起来异常的视野和孔，例如对象数量远少于板上其他部分，并提供可供检查的链接。该检查仅供参考，从不会阻止 Measure；关闭弹出窗口时开关会随之关闭。",
     "在 All settings 下，Image Preprocessing 汇集了 Measure 在测量前可对每个视野应用的校正：使用点扩散函数的 Image Deconvolution，以及使用先前估计模型的 Illumination Correction。它们会改变本次运行中被测量的像素；掩膜和磁盘上的数组不会改变。",
     "关闭Live，并在本例中把Normalize恢复为关闭。保存裁剪图像时请有意识地选择归一化方式：逐个裁剪图像进行缩放，会改变之后图像分类器看到的强度差异。定量测量请保留原始的合并数组。",

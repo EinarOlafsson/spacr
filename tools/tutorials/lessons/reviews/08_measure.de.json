@@ -1,6 +1,6 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "b4c906f3e36969867ebd6851facc35b0587dfeb98f6378a13df051f2f9b0814c",
+  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,11 +20,12 @@
   "prerequisite": "Verwenden Sie die zusammengeführten Ausgaben von Mask oder wählen Sie in Measure Load test data. Das Beispiel liefert sechzehn Bildfelder mit den Intensitätsebenen 0–3 sowie Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6.",
   "scenes": [
     "Öffnen Sie von Home aus Measure. Beginnen Sie mit Bildern, die bereits Objektmasken haben. Measure extrahiert Merkmale wie Fläche und Intensität, ordnet zusammengehörige Objekte einander zu und kann einzelne Objektausschnitte für Annotate und Classify speichern.",
-    "Klicken Sie auf Load test data und warten Sie, bis das Beispiel geladen ist, oder wählen Sie Ihr eigenes zusammengeführtes Projekt. Prüfen Sie die Ebenenzuordnung: Dieses Beispiel hat vier Intensitätskanäle, gefolgt von Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6.",
+    "Klicken Sie auf Load test data und warten Sie, bis das Beispiel geladen ist, oder wählen Sie Ihr eigenes zusammengeführtes Projekt. Prüfen Sie die Ebenenzuordnung: Dieses Beispiel hat vier Intensitätskanäle, gefolgt von Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6. Wenn Sie Run drücken, vergleicht Measure diese Maskenebenen mit dem für den Ordner gespeicherten Layout; stimmen sie nicht überein, bietet es Use stored image layout an und bittet Sie, die Zuordnung zu prüfen und erneut zu starten.",
     "Um diese 16-Bit-Beispielausschnitte zu prüfen, schalten Sie Normalize ein, bevor Sie Live öffnen. So ist die Vorschau besser zu erkennen. Denken Sie daran, dass diese Haupteinstellung auch gespeicherte Ausschnitte beeinflusst; wir schalten sie vor diesem Batch-Lauf wieder aus.",
     "Schalten Sie Live ein und wählen Sie ein Bildfeld. Prüfen Sie die Objektausschnitte und die Beziehungen zwischen ihren Masken. Blättern Sie durch die Kategorien und vergrößern Sie die Vorschau bei Bedarf, um die Grenzen deutlich zu sehen.",
     "Prüfen Sie mit der Auswahl des angezeigten Kanals jeweils einen Intensitätskanal. Kanal 0 zeigt eine Graustufenansicht; All channels stellt die kombinierte Ansicht wieder her. Diese Auswahl ändert die Vorschau, ohne die Labels oder die Kanalzuordnung des Batch-Laufs zu ändern.",
     "Wählen Sie ein weiteres Feld und vergleichen Sie seine Objekte. Wenn Masken fehlen oder falsch verbunden sind, korrigieren Sie sie oder passen Sie Mask an, bevor Sie fortfahren.",
+    "Um Felder nebeneinander zu vergleichen, öffnen Sie Checked images und haken die gewünschten Felder an. Das Raster gruppiert die Ausschnitte nach ihrem Quellfeld; zeigen Sie auf einen Ausschnitt, um seinen Pfad zu sehen, oder doppelklicken Sie, um genau dieses Feld zu öffnen. Uncheck all images leert das Raster. Das ändert nur die Vorschau, nicht, was Measure verarbeitet.",
     "Um die Segmentierungsqualität im ganzen Projekt vor dem Messen zu prüfen, schalten Sie QC in der Actions-Zeile neben 3D und Time ein. Das Fenster listet Felder und Wells, deren Masken ungewöhnlich wirken, etwa mit weit weniger Objekten als der Rest der Platte, und verlinkt sie zur Prüfung. Die Prüfung ist nur ein Hinweis und hält Measure nie an; wenn Sie das Fenster schließen, schaltet sich der Schalter aus.",
     "Unter All settings enthält Image Preprocessing die Korrekturen, die Measure vor dem Messen auf jedes Feld anwenden kann: Image Deconvolution mit einer Punktspreizfunktion und Illumination Correction mit einem zuvor geschätzten Modell. Sie verändern die Pixel, die in diesem Lauf gemessen werden; die Masken und die Arrays auf dem Datenträger bleiben unverändert.",
     "Schalten Sie Live aus und setzen Sie Normalize für dieses Beispiel wieder auf aus. Wählen Sie die Normalisierung beim Speichern von Ausschnitten bewusst: Eine Skalierung pro Ausschnitt verändert die Intensitätsunterschiede, die ein späterer Bildklassifikator sieht. Behalten Sie die ursprünglichen zusammengeführten Arrays für quantitative Messungen.",
