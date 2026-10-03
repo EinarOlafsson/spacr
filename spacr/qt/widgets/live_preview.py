@@ -269,7 +269,7 @@ BOUND_ROWS = {
 }
 """Where each bound control of a Cellpose compartment lives in
 ``object_filters``. Mask's ``{object}_min_area`` family was retired on
-2026-09-25 (item 511); for cell, nucleus and pathogen these four controls
+2026-09-25; for cell, nucleus and pathogen these four controls
 read and write the object's ``area`` and ``intensity_mean`` rows instead.
 The organelle slots keep their own settings."""
 

@@ -682,7 +682,7 @@ if njit is not None:
         :param offset_y: vertical shift added likewise.
         :param samples: ``1`` or less takes one sample at each pixel centre;
             anything larger averages a ``samples`` x ``samples`` grid of
-            samples per pixel (item 531: it used to be 2 x 2 whatever the
+            samples per pixel (it used to be 2 x 2 whatever the
             number said).
         :returns: ``(height, width, 3)`` uint8 RGB array.
         """
