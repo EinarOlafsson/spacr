@@ -192,7 +192,12 @@
     },
     {
       "visual": "31_figure_wells",
-      "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here two wells and their labels were found. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
+      "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here eight wells were found, each named by its strain and drug concentration. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "32_figure_all_wells",
+      "narration": "Click Find plaques in all wells. Each well is segmented with the default plaque model, and the Plaques tab lists every plaque found. Here sixty-six plaques were found across the eight wells, seventeen of them in the wild-type well without drug. Compare the counts with the figure before you rely on them.",
       "hold_after": 0.7
     }
   ],

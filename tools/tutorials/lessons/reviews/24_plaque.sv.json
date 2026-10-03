@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -37,6 +37,7 @@
     "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna.",
     "Plaque Assay läser även publicerade figurer. Byt Mode i förhandsvisningen från Plaque till Figure. I Figure-läget hittar körningen plackbrunnarna i varje figur, läser texten runt dem för att namnge varje villkor och segmenterar sedan placken. Släpp PDF-filer eller figurbilder var som helst på skärmen, eller hämta en artikel.",
     "Klicka på From a paper och ange en DOI, PubMed- eller PMC-id. spaCR hämtar artikelns figurer och deras figurtexter från Europe PMC till en ny mapp, noterar licensen och riktar förhandsvisningen mot dem. Det här exemplet använder en fritt tillgänglig artikel.",
-    "Välj en figur och klicka på Run preview. Varje brunn som hittas ramas in i figuren och listas i tabellen med etikettexten som lästs bredvid; här hittades två brunnar och deras etiketter. Kontrollera varje villkor, rätta det vid behov och klicka på Save annotations före Run så att mätningarna får rätt namn."
+    "Välj en figur och klicka på Run preview. Varje brunn som hittas ramas in i figuren och listas i tabellen med etikettexten som lästs bredvid; här hittades åtta brunnar, var och en namngiven efter stam och läkemedelskoncentration. Kontrollera varje villkor, rätta det vid behov och klicka på Save annotations före Run så att mätningarna får rätt namn.",
+    "Klicka på Find plaques in all wells. Varje brunn segmenteras med standardmodellen för plack, och fliken Plaques listar varje plack som hittats. Här hittades sextiosex plack i de åtta brunnarna, sjutton av dem i vildtypsbrunnen utan läkemedel. Jämför antalen med figuren innan du litar på dem."
   ]
 }

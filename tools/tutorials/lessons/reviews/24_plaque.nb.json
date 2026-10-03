@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -37,6 +37,7 @@
     "Åpne details for å undersøke arealet til hvert enkelt plakk. Kolonner med fysisk areal er tomme når kalibrering mangler. Lagre databasen sammen med bildene, maskene og innstillingene.",
     "Plaque Assay leser også publiserte figurer. Bytt Mode i forhåndsvisningen fra Plaque til Figure. I Figure-modus finner kjøringen plakkbrønnene i hver figur, leser teksten rundt dem for å navngi hver betingelse, og segmenterer deretter plakkene. Slipp PDF-er eller figurbilder hvor som helst på skjermen, eller hent en artikkel.",
     "Klikk From a paper og skriv inn en DOI, PubMed- eller PMC-ID. spaCR henter artikkelens figurer og figurtekster fra Europe PMC til en ny mappe, noterer lisensen og peker forhåndsvisningen mot dem. Dette eksempelet bruker en fritt tilgjengelig artikkel.",
-    "Velg en figur og klikk Run preview. Hver brønn som blir funnet, rammes inn på figuren og vises i tabellen med etikettteksten som ble lest ved siden av; her ble to brønner og etikettene deres funnet. Sjekk hver betingelse, rett den om nødvendig, og klikk Save annotations før Run, slik at målingene får riktige navn."
+    "Velg en figur og klikk Run preview. Hver brønn som blir funnet, rammes inn på figuren og vises i tabellen med etikettteksten som ble lest ved siden av; her ble åtte brønner funnet, hver navngitt etter stamme og legemiddelkonsentrasjon. Sjekk hver betingelse, rett den om nødvendig, og klikk Save annotations før Run, slik at målingene får riktige navn.",
+    "Klikk Find plaques in all wells. Hver brønn segmenteres med standardmodellen for plakk, og fanen Plaques viser hvert plakk som ble funnet. Her ble det funnet sekstiseks plakk i de åtte brønnene, sytten av dem i villtypebrønnen uten legemiddel. Sammenlign tallene med figuren før du stoler på dem."
   ]
 }

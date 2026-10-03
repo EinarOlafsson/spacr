@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -37,6 +37,7 @@
     "Apri details per esaminare l’area di ogni singola placca. Le colonne dell’area fisica restano vuote quando manca la calibrazione. Salva il database insieme a immagini, maschere e impostazioni.",
     "Plaque Assay legge anche le figure pubblicate. Nell’anteprima, passa Mode da Plaque a Figure. In modalità Figure l’esecuzione trova i pozzetti con le placche in ogni figura, legge il testo stampato intorno per dare un nome a ogni condizione, poi segmenta le placche. Trascina PDF o immagini di figure in qualsiasi punto dello schermo, oppure scarica un articolo.",
     "Fai clic su From a paper e inserisci un DOI, o un identificativo PubMed o PMC. spaCR scarica le figure dell’articolo e le loro didascalie da Europe PMC in una nuova cartella, annota la licenza e punta l’anteprima su di esse. Questo esempio usa un articolo ad accesso aperto.",
-    "Scegli una figura e fai clic su Run preview. Ogni pozzetto trovato viene riquadrato nella figura ed elencato nella tabella con il testo dell’etichetta letto accanto; qui sono stati trovati due pozzetti e le loro etichette. Controlla ogni condizione, correggila se serve e fai clic su Save annotations prima di Run, così le misurazioni portano i nomi giusti."
+    "Scegli una figura e fai clic su Run preview. Ogni pozzetto trovato viene riquadrato nella figura ed elencato nella tabella con il testo dell’etichetta letto accanto; qui sono stati trovati otto pozzetti, ciascuno indicato dal ceppo e dalla concentrazione del farmaco. Controlla ogni condizione, correggila se serve e fai clic su Save annotations prima di Run, così le misurazioni portano i nomi giusti.",
+    "Fai clic su Find plaques in all wells. Ogni pozzetto viene segmentato con il modello di placche predefinito e la scheda Plaques elenca ogni placca trovata. Qui sono state trovate sessantasei placche negli otto pozzetti, diciassette delle quali nel pozzetto di tipo selvatico senza farmaco. Confronta i conteggi con la figura prima di fidarti."
   ]
 }

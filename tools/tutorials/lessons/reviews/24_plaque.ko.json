@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -37,6 +37,7 @@
     "details를 열어 개별 플라크의 면적을 확인하세요. 보정 값이 없으면 물리적 면적 열은 비어 있습니다. 데이터베이스를 이미지, 마스크, 설정과 함께 저장하세요.",
     "Plaque Assay는 출판된 그림도 읽습니다. 미리보기의 Mode를 Plaque에서 Figure로 바꾸세요. Figure 모드에서는 각 그림 안의 플라크 웰을 찾고, 그 주변에 인쇄된 글자를 읽어 각 조건의 이름을 붙인 다음 플라크를 분할합니다. PDF나 그림 이미지를 화면 어디에나 끌어다 놓거나 논문을 가져오세요.",
     "From a paper를 클릭하고 DOI, PubMed 또는 PMC ID를 입력하세요. spaCR은 Europe PMC에서 논문의 그림과 설명을 새 폴더로 가져오고, 라이선스를 기록한 뒤 미리보기를 그 그림들로 바꿉니다. 이 예제는 오픈 액세스 논문을 사용합니다.",
-    "그림을 고르고 Run preview를 클릭하세요. 찾은 각 웰은 그림 위에 상자로 표시되고, 옆에서 읽은 레이블 글자와 함께 표에 나열됩니다. 여기서는 웰 두 개와 그 레이블을 찾았습니다. 각 조건을 확인하고 필요하면 고친 다음, Run 전에 Save annotations를 클릭해 측정값에 올바른 이름이 붙도록 하세요."
+    "그림을 고르고 Run preview를 클릭하세요. 찾은 각 웰은 그림 위에 상자로 표시되고, 옆에서 읽은 레이블 글자와 함께 표에 나열됩니다. 여기서는 웰 여덟 개를 찾았고, 각각 균주와 약물 농도로 이름이 붙었습니다. 각 조건을 확인하고 필요하면 고친 다음, Run 전에 Save annotations를 클릭해 측정값에 올바른 이름이 붙도록 하세요.",
+    "Find plaques in all wells를 클릭하세요. 각 웰이 기본 플라크 모델로 분할되고, Plaques 탭에 찾은 플라크가 모두 나열됩니다. 여기서는 웰 여덟 개에서 플라크 예순여섯 개를 찾았고, 그중 열일곱 개는 약물이 없는 야생형 웰에 있었습니다. 이 수를 믿기 전에 그림과 비교해 보세요."
   ]
 }

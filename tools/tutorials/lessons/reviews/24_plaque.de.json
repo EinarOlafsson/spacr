@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -37,6 +37,7 @@
     "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen.",
     "Plaque Assay liest auch veröffentlichte Abbildungen. Stellen Sie Mode in der Vorschau von Plaque auf Figure um. Im Figure-Modus findet der Lauf die Plaque-Wells in jeder Abbildung, liest den Text um sie herum, um jede Bedingung zu benennen, und segmentiert dann die Plaques. Ziehen Sie PDFs oder Abbildungen irgendwo auf den Bildschirm oder holen Sie ein Paper.",
     "Klicken Sie auf From a paper und geben Sie eine DOI, PubMed- oder PMC-ID ein. spaCR lädt die Abbildungen des Papers und ihre Legenden von Europe PMC in einen neuen Ordner, vermerkt die Lizenz und richtet die Vorschau darauf aus. Dieses Beispiel verwendet ein frei zugängliches Paper.",
-    "Wählen Sie eine Abbildung und klicken Sie auf Run preview. Jedes gefundene Well wird in der Abbildung umrahmt und in der Tabelle mit dem daneben gelesenen Beschriftungstext aufgeführt; hier wurden zwei Wells und ihre Beschriftungen gefunden. Prüfen Sie jede Bedingung, korrigieren Sie sie bei Bedarf und klicken Sie vor Run auf Save annotations, damit die Messungen die richtigen Namen tragen."
+    "Wählen Sie eine Abbildung und klicken Sie auf Run preview. Jedes gefundene Well wird in der Abbildung umrahmt und in der Tabelle mit dem daneben gelesenen Beschriftungstext aufgeführt; hier wurden acht Wells gefunden, jedes nach Stamm und Wirkstoffkonzentration benannt. Prüfen Sie jede Bedingung, korrigieren Sie sie bei Bedarf und klicken Sie vor Run auf Save annotations, damit die Messungen die richtigen Namen tragen.",
+    "Klicken Sie auf Find plaques in all wells. Jedes Well wird mit dem Standard-Plaquemodell segmentiert, und die Registerkarte Plaques listet jede gefundene Plaque auf. Hier wurden sechsundsechzig Plaques in den acht Wells gefunden, siebzehn davon im Wildtyp-Well ohne Wirkstoff. Vergleichen Sie die Zahlen mit der Abbildung, bevor Sie sich darauf verlassen."
   ]
 }

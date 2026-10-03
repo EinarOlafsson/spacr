@@ -1,6 +1,6 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "3b8e43d2ee158b17f4a7e1f57e4764a96510702c7823c161ebe5cfffe3516eb5",
+  "english_sha256": "0f0ef06e2658e60f9275cb5cc7b28aaf68a3ff44013b494cbc367509321b7693",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -37,6 +37,7 @@
     "Ouvrez details pour examiner l’aire de chaque plage. Les colonnes d’aire physique restent vides sans calibration. Enregistrez la base de données avec les images, les masques et les paramètres.",
     "Plaque Assay lit aussi les figures publiées. Faites passer Mode, dans l’aperçu, de Plaque à Figure. En mode Figure, l’exécution trouve les puits de plages dans chaque figure, lit le texte imprimé autour pour nommer chaque condition, puis segmente les plages. Déposez des PDF ou des images de figures n’importe où sur l’écran, ou récupérez un article.",
     "Cliquez sur From a paper et saisissez un DOI, ou un identifiant PubMed ou PMC. spaCR récupère les figures de l’article et leurs légendes depuis Europe PMC dans un nouveau dossier, note la licence et oriente l’aperçu vers elles. Cet exemple utilise un article en libre accès.",
-    "Choisissez une figure et cliquez sur Run preview. Chaque puits trouvé est encadré sur la figure et listé dans le tableau avec le texte d’étiquette lu à côté ; ici, deux puits et leurs étiquettes ont été trouvés. Vérifiez chaque condition, corrigez-la si besoin et cliquez sur Save annotations avant Run pour que les mesures portent les bons noms."
+    "Choisissez une figure et cliquez sur Run preview. Chaque puits trouvé est encadré sur la figure et listé dans le tableau avec le texte d’étiquette lu à côté ; ici, huit puits ont été trouvés, chacun nommé par sa souche et la concentration du composé. Vérifiez chaque condition, corrigez-la si besoin et cliquez sur Save annotations avant Run pour que les mesures portent les bons noms.",
+    "Cliquez sur Find plaques in all wells. Chaque puits est segmenté avec le modèle de plages par défaut, et l’onglet Plaques liste chaque plage trouvée. Ici, soixante-six plages ont été trouvées dans les huit puits, dont dix-sept dans le puits de type sauvage sans composé. Comparez les décomptes à la figure avant de vous y fier."
   ]
 }
