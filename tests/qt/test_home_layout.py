@@ -224,8 +224,10 @@ def test_every_app_is_on_exactly_one_subject_tab_and_one_home_band():
     # it is new, which is exactly what this count is for.
     # Item 474 adds three organism directories; their rollout remains alpha.
     # Host–Pathogen adds an alpha assay under Toxoplasma.
-    assert len(staged) == 34, (
-        f"{len(staged)} apps staged, not 34 — if that is intended, say so "
+    # 34 -> 39 on 2026-10-01, +5/-0, intended: item 634 (eb2201537) adds the
+    # Trypanosoma, Leishmania, Giardia, virus and mammalian pages as alpha.
+    assert len(staged) == 39, (
+        f"{len(staged)} apps staged, not 39 — if that is intended, say so "
         "here; the count is the user\'s list")
 
 
@@ -564,7 +566,7 @@ def test_sidebar_still_has_a_home_button(home):
 
 def test_command_palette_finds_every_app_after_the_regrouping(
         qtbot, qt_theme_applied):
-    from spacr.qt.app import MainWindow
+    from spacr.qt.app import MainWindow, visible_apps
     from spacr.qt.command_palette import CommandPalette
 
     win = MainWindow()
@@ -573,7 +575,9 @@ def test_command_palette_finds_every_app_after_the_regrouping(
     qtbot.addWidget(palette)
 
     labels = [c.label for c in palette._commands]
-    for _key, name, _desc, _section in APPS:
+    # Every app the user can see; alpha pages hidden by Preferences (such as
+    # the 634 organism pages, eb2201537) are deliberately not offered.
+    for _key, name, _desc, _section in visible_apps():
         assert f"Go to  {name}" in labels, f"{name} missing from the palette"
 
     # The section badge follows the app table, so the new names show up.

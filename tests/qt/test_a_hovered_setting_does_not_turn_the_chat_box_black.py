@@ -101,7 +101,8 @@ def _what_lost_its_sheet(screen) -> list:
     return lost
 
 
-def test_hovering_a_setting_leaves_the_chat_box_styled(mask_window, qapp):
+def test_hovering_a_setting_leaves_the_chat_box_styled(mask_window, qapp,
+                                                       hover_now):
     """A real setting hover writes only the bottom hint and preserves chat styling.
 
     The hint timer may already have grown PySide's class metaobject in an
@@ -124,7 +125,7 @@ def test_hovering_a_setting_leaves_the_chat_box_styled(mask_window, qapp):
     popup = HoverTooltip.instance()
     popup.hide()
 
-    QApplication.sendEvent(label, QEvent(QEvent.Enter))
+    hover_now(label)
     _settle(qapp)
 
     assert screen._hinted_widget is label

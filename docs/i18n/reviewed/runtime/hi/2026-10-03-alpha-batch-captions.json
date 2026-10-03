@@ -539,9 +539,9 @@
     {
       "table": "setting_tooltips",
       "key": "ram_guard",
-      "source": "Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.",
-      "source_sha256": "1711254a45e46aa701e21e350139351208996cb04f8ed287830200cf1a2df56a",
-      "translation": "Measure को RAM भरने से रोकता है। पूल शुरू होने से पहले spaCR एक फ़ील्ड से हर वर्कर की मेमोरी का अनुमान लगाता है और n_jobs को उस संख्या तक घटाता है जिससे 12.5% RAM खाली रहे, और चेतावनी दिखाता है; GUI पहले पूछता है। बंद होने पर आपका n_jobs बना रहता है, और खाली RAM उस आरक्षित मात्रा से कम रहने तक फ़ील्ड फिर भी प्रतीक्षा करते हैं। डिफ़ॉल्ट: True।"
+      "source": "Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+      "source_sha256": "e83d50d6a26a00a167d571939b86dcfbcd7e6a6490af81c6237a1f2c3192ab38",
+      "translation": "वर्कर पूल को RAM भरने से रोकता है। कोई भी मॉड्यूल अपने वर्कर शुरू करे, उससे पहले spaCR एक इनपुट (एक फ़ील्ड, मास्क, क्रॉप बैच या तालिका) से हर वर्कर की मेमोरी का अनुमान लगाता है और n_jobs को उस संख्या तक घटाता है जिससे 12.5% RAM खाली रहे, और चेतावनी दिखाता है; GUI पहले पूछता है। बंद होने पर आपका n_jobs बना रहता है, और खाली RAM उस आरक्षित मात्रा से कम रहने तक Measure के फ़ील्ड फिर भी प्रतीक्षा करते हैं। डिफ़ॉल्ट: True।"
     },
     {
       "table": "setting_tooltips",

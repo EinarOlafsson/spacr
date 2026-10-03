@@ -30,9 +30,11 @@ def _own_keys(section):
 
 
 def test_the_top_level_reads_in_run_order(qtbot):
+    # Lineage Trees is the alpha heading measured lineage colouring added
+    # (9658d5f86); the screen hides it while alpha features are off.
     assert list(_tree(qtbot)) == [
         "Input & Experiment", "Mask & Channel Mapping", "Image Preprocessing",
-        "Features", "Object Filtering", "Crop Output",
+        "Features", "Lineage Trees α", "Object Filtering", "Crop Output",
         "3D Calibration (Beta)", "Postprocessing"]
 
 

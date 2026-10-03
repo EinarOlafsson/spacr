@@ -254,15 +254,14 @@ def test_the_strip_reserves_a_fixed_height_so_run_stop_never_moves(qtbot):
     assert strip.height() == before
 
 
-def test_hovering_a_category_header_fills_the_strip(qtbot):
+def test_hovering_a_category_header_fills_the_strip(hover_now, qtbot):
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
     default = strip.text()
     section = next(s for s in _sections(screen)
                    if s.title() == "IMAGE PREPROCESSING")
 
-    QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
-    QApplication.processEvents()
+    hover_now(section.header())
     shown = _strip_text(screen)
     assert shown != default
     assert "IMAGE PREPROCESSING" in shown
@@ -285,7 +284,7 @@ def _is_nested(section) -> bool:
     return False
 
 
-def test_every_rendered_category_reaches_the_strip(qtbot):
+def test_every_rendered_category_reaches_the_strip(hover_now, qtbot):
     """Not just the one we happened to pick: every heading Mask draws.
 
     The panel renders the settings TREE now, so the list holds sub-headings
@@ -303,8 +302,7 @@ def test_every_rendered_category_reaches_the_strip(qtbot):
     nested_seen = 0
     for section in _sections(screen):
         source = section.property("settingsCategorySource") or section.title()
-        QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
-        QApplication.processEvents()
+        hover_now(section.header())
         assert section.title() in _strip_text(screen)
         assert screen._category_blurbs[source] in _strip_text(screen)
         if _is_nested(section):
@@ -331,7 +329,7 @@ def test_pruned_category_headers_are_owned_but_never_wired_live(qtbot):
         assert not section.header().property("categoryHintWired")
 
 
-def test_expanding_a_category_pins_its_blurb(qtbot):
+def test_expanding_a_category_pins_its_blurb(hover_now, qtbot):
     """"Selected" outlives the pointer: the open category stays described."""
     screen = _make_screen(qtbot, "mask")
     strip = _strip(screen)
@@ -344,8 +342,7 @@ def test_expanding_a_category_pins_its_blurb(qtbot):
     # Wander over another header and back off it -- the open one is restored,
     # not the placeholder.
     other = _sections(screen)[0]
-    QApplication.sendEvent(other.header(), QEvent(QEvent.Type.Enter))
-    QApplication.processEvents()
+    hover_now(other.header())
     assert other.title() in _strip_text(screen)
     QApplication.sendEvent(other.header(), QEvent(QEvent.Type.Leave))
     QApplication.processEvents()
@@ -355,31 +352,28 @@ def test_expanding_a_category_pins_its_blurb(qtbot):
     assert strip.text() == screen._default_category_hint()
 
 
-def test_the_category_strip_is_not_the_per_setting_strip(qtbot):
+def test_the_category_strip_is_not_the_per_setting_strip(hover_now, qtbot):
     """Two regions, two jobs: crossing a header must not blank the other."""
     screen = _make_screen(qtbot, "mask")
     labels = [w for w in screen._settings_content.findChildren(QLabel)
               if w.property("settingKey")]
     setting_label = labels[0]
-    QApplication.sendEvent(setting_label, QEvent(QEvent.Type.Enter))
-    QApplication.processEvents()
+    hover_now(setting_label)
     setting_text = screen._hint_strip.text()
     assert setting_text != screen._default_hint()
 
     header = _sections(screen)[0].header()
-    QApplication.sendEvent(header, QEvent(QEvent.Type.Enter))
-    QApplication.processEvents()
+    hover_now(header)
     assert screen._hint_strip.text() == setting_text, (
         "hovering a category header wiped the per-setting hint")
     assert _sections(screen)[0].title() in _strip_text(screen)
 
 
 @pytest.mark.parametrize("app_key", ["measure", "umap", "regression"])
-def test_other_modules_get_the_same_region(qtbot, app_key):
+def test_other_modules_get_the_same_region(hover_now, qtbot, app_key):
     screen = _make_screen(qtbot, app_key)
     section = _sections(screen)[0]
-    QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
-    QApplication.processEvents()
+    hover_now(section.header())
     assert section.title() in _strip_text(screen)
 
 
@@ -435,7 +429,7 @@ def test_switching_primary_object_does_not_duplicate_setting_help(qtbot):
     assert not dialog.findChildren(DotLink)
 
 
-def test_switching_primary_object_emits_one_tooltip_per_hover(qtbot):
+def test_switching_primary_object_emits_one_tooltip_per_hover(hover_now, qtbot):
     """The user-visible half: one hover, one popup, after any number of
     re-gates.
 
@@ -470,8 +464,7 @@ def test_switching_primary_object_emits_one_tooltip_per_hover(qtbot):
         original = ht.HoverTooltip.show_for
         ht.HoverTooltip.show_for = lambda self, anchor, html: shown.append(anchor)
         try:
-            QApplication.sendEvent(target, QEvent(QEvent.Type.Enter))
-            QApplication.processEvents()
+            hover_now(target)
         finally:
             ht.HoverTooltip.show_for = original
         return len(shown)
@@ -575,7 +568,7 @@ def test_only_one_help_filter_is_ever_created(qtbot):
     assert len(filters) == 1, f"{len(filters)} help filters on one panel"
 
 
-def test_rewiring_category_hints_stays_at_one_delivery(qtbot):
+def test_rewiring_category_hints_stays_at_one_delivery(hover_now, qtbot):
     """The new path is held to the same rule as the old one.
 
     ``_wire_category_hints`` installs an event filter on every header. Qt
@@ -591,8 +584,7 @@ def test_rewiring_category_hints_stays_at_one_delivery(qtbot):
     try:
         for _ in range(3):
             screen._wire_category_hints()
-        QApplication.sendEvent(section.header(), QEvent(QEvent.Type.Enter))
-        QApplication.processEvents()
+        hover_now(section.header())
     finally:
         AppScreen.show_category_hint = original
 

@@ -1278,7 +1278,10 @@ class TestLoadingTheExampleScreen:
                             lambda **_kwargs: got)
         screen._example_data_button = None
         added = []
+        # A stored editor is watched for commits (bfba7f77a), which asks
+        # a composite field for its line edits.
         screen._settings_model._widgets["paired_data"] = types.SimpleNamespace(
+            findChildren=lambda *_args: [],
             add_paths_for_side=lambda paths, side: (
                 added.append((tuple(paths), side)) or len(paths)))
 

@@ -289,7 +289,9 @@ class TestTheEmptyStateCard:
                                                                  monkeypatch):
         """An unreadable source is not a source, and not an exception either."""
         monkeypatch.setitem(screen._settings_model._widgets, "src",
-                            types.SimpleNamespace(get_value=_boom))
+                            types.SimpleNamespace(
+                                get_value=_boom,
+                                findChildren=lambda *_args: []))
 
         assert screen._settings_src_path() == ""
 

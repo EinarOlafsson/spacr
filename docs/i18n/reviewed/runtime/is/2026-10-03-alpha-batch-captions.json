@@ -539,9 +539,9 @@
     {
       "table": "setting_tooltips",
       "key": "ram_guard",
-      "source": "Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.",
-      "source_sha256": "1711254a45e46aa701e21e350139351208996cb04f8ed287830200cf1a2df56a",
-      "translation": "Kemur í veg fyrir að Measure fylli RAM. Áður en vinnsluhópurinn ræsist áætlar spaCR minni hvers vinnuþráðar út frá einum myndreit og lækkar n_jobs niður í þann fjölda sem skilur 12.5% af RAM eftir laus og birtir viðvörun; GUI spyr fyrst. Óvirkt heldur n_jobs óbreyttu og myndreitir bíða samt meðan laust RAM er undir þeim varaforða. Sjálfgefið: True."
+      "source": "Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+      "source_sha256": "e83d50d6a26a00a167d571939b86dcfbcd7e6a6490af81c6237a1f2c3192ab38",
+      "translation": "Kemur í veg fyrir að vinnsluhópar fylli RAM. Áður en eining ræsir vinnuþræði sína áætlar spaCR minni hvers vinnuþráðar út frá einu inntaki (myndreit, grímu, lotu af útskurðum eða töflu) og lækkar n_jobs niður í þann fjölda sem skilur 12.5% af RAM eftir laus og birtir viðvörun; GUI spyr fyrst. Óvirkt heldur n_jobs óbreyttu og myndreitir í Measure bíða samt meðan laust RAM er undir þeim varaforða. Sjálfgefið: True."
     },
     {
       "table": "setting_tooltips",

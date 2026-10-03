@@ -539,9 +539,9 @@
     {
       "table": "setting_tooltips",
       "key": "ram_guard",
-      "source": "Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.",
-      "source_sha256": "1711254a45e46aa701e21e350139351208996cb04f8ed287830200cf1a2df56a",
-      "translation": "Measure가 RAM을 가득 채우지 않게 합니다. 풀이 시작되기 전에 spaCR은 필드 하나로 각 작업자의 메모리를 추정하고 RAM의 12.5%가 남도록 n_jobs를 낮추며 경고를 출력합니다. GUI에서는 먼저 묻습니다. 끄면 n_jobs가 그대로 유지되며, 여유 RAM이 그 예비량보다 적은 동안에는 필드가 계속 대기합니다. 기본값: True."
+      "source": "Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+      "source_sha256": "e83d50d6a26a00a167d571939b86dcfbcd7e6a6490af81c6237a1f2c3192ab38",
+      "translation": "워커 프로세스 풀이 RAM을 가득 채우지 않게 합니다. 모듈이 작업자를 시작하기 전에 spaCR은 입력 하나(필드, 마스크, 크롭 배치 또는 테이블)로 각 작업자의 메모리를 추정하고 RAM의 12.5%가 남도록 n_jobs를 낮추며 경고를 출력합니다. GUI에서는 먼저 묻습니다. 끄면 n_jobs가 그대로 유지되며, 여유 RAM이 그 예비량보다 적은 동안에는 Measure의 필드가 계속 대기합니다. 기본값: True."
     },
     {
       "table": "setting_tooltips",

@@ -1,6 +1,7 @@
 """Portable annotation recipes carry rules rather than source rows or values."""
 import copy
 import json
+import os
 
 import pandas as pd
 import pytest
@@ -252,7 +253,7 @@ def test_save_refuses_source_path_and_hardlink(tmp_path):
     source_path = tmp_path / "source.csv"
     source_path.write_text("original measurements")
     alias = tmp_path / "alias.json"
-    alias.hardlink_to(source_path)
+    os.link(source_path, alias)
     for path in (source_path, alias):
         with pytest.raises(annotations.AnnotationError, match="separately"):
             annotations._save_schema(path, frame, definition, source)

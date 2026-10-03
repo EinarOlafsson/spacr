@@ -144,7 +144,7 @@ def test_the_live_settings_dialog_draws_no_api_link_dots(preview_module, qapp):
 
 
 def test_hovering_a_field_shows_nothing_and_hovering_its_label_shows_help(
-        preview_module, qapp):
+        preview_module, qapp, hover_now):
     """Help belongs to the setting, not to the thing you are typing in.
 
     Simulated rather than asserted on properties: a tooltip can arrive from
@@ -179,7 +179,7 @@ def test_hovering_a_field_shows_nothing_and_hovering_its_label_shows_help(
         qapp.processEvents()
         centre = widget.rect().center()
         globally = widget.mapToGlobal(centre)
-        qapp.sendEvent(widget, QEnterEvent(centre, globally, globally))
+        hover_now(widget, QEnterEvent(centre, globally, globally))
         qapp.sendEvent(widget, QEvent(QEvent.ToolTip))
         for _ in range(4):
             qapp.processEvents()

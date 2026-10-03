@@ -510,6 +510,10 @@ class _Model:
     def _refresh_setting_dependencies(self):
         self.dependencies += 1
 
+    def _valid_committed_value(self, key):
+        # Read by the settings-commit observation added in bfba7f77a.
+        return self._widgets.get(key)
+
 
 class TestABulkApplyWithNothingToReadFrom:
 

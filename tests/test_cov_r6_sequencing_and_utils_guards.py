@@ -316,7 +316,8 @@ def test_a_merge_that_reaches_the_write_always_has_rows(monkeypatch):
     monkeypatch.setattr(U, "_release_imported_rows_for_field",
                         lambda *_args, **_kwargs: 0)
     monkeypatch.setattr(U, "_append_to_measurements_db",
-                        lambda _path, _table, frame: written.append(frame.copy()))
+                        lambda _path, _table, frame, **_kwargs:
+                        written.append(frame.copy()))
     U._merge_and_save_to_database(
         morph, pd.DataFrame({"object_label": [1], "mean": [5.0]}),
         "cell", "/unused", "plate1_A1_1", "exp")

@@ -1,6 +1,7 @@
 """Strict spot-comparison receipts refuse incomplete or source-changing runs."""
 import importlib.util
 import json
+import os
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -122,7 +123,7 @@ def test_existing_destination_or_input_alias_is_refused_before_decode(comparison
     elif alias == 'symlink':
         out.symlink_to(source)
     else:
-        out.hardlink_to(source)
+        os.link(source, out)
     before = source.read_bytes(), out.read_bytes()
     with pytest.raises(SystemExit):
         tool.main([*args, '--strict'])

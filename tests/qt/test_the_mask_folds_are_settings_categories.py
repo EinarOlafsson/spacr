@@ -197,7 +197,7 @@ def test_no_setting_gets_a_second_control(host):
             assert model._widgets[key] is fold.model._widgets[key]
 
 
-def test_a_folded_setting_answers_into_the_host_hint_strip(host):
+def test_a_folded_setting_answers_into_the_host_hint_strip(host, hover_now):
     """Hovering a tracking setting fills the strip every other one fills.
 
     A row wired to the module's own screen would answer into a screen
@@ -213,7 +213,7 @@ def test_a_folded_setting_answers_into_the_host_hint_strip(host):
     assert "timelapse_objects" in labels
 
     screen._hint_strip.setText("")
-    screen.eventFilter(labels["timelapse_objects"], QEvent(QEvent.Enter))
+    hover_now(labels["timelapse_objects"])
 
     expected = screen._settings_model.plain_tooltip_for("timelapse_objects")
     assert expected

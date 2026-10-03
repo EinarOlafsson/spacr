@@ -119,7 +119,7 @@ def test_the_unavailable_entries_are_exactly_the_greyed_rows(field):
     assert {entry['title'] for entry in field.unavailable_entries()} == greyed
 
 
-def test_hovering_a_greyed_row_opens_the_panel_on_that_row(field):
+def test_hovering_a_greyed_row_opens_the_panel_on_that_row(field, flush_hover):
     field.combo.showPopup()
     view = field.combo.view()
     row = _greyed_rows(field)[0]
@@ -129,13 +129,14 @@ def test_hovering_a_greyed_row_opens_the_panel_on_that_row(field):
     event = QMouseEvent(QEvent.MouseMove, centre, centre, centre,
                         Qt.NoButton, Qt.NoButton, Qt.NoModifier)
     field._hover_popup_row(view, event)
+    flush_hover()
     panel = AvailabilityPanel.instance()
     assert panel.isVisible()
     assert panel.current_entry()['title'] == field.combo.itemData(row)
     field.combo.hidePopup()
 
 
-def test_hovering_an_available_row_does_not_open_the_panel(field):
+def test_hovering_an_available_row_does_not_open_the_panel(field, flush_hover):
     field.combo.showPopup()
     view = field.combo.view()
     available = [i for i in range(field.combo.count())
@@ -145,6 +146,7 @@ def test_hovering_an_available_row_does_not_open_the_panel(field):
     event = QMouseEvent(QEvent.MouseMove, centre, centre, centre,
                         Qt.NoButton, Qt.NoButton, Qt.NoModifier)
     field._hover_popup_row(view, event)
+    flush_hover()
     assert AvailabilityPanel.instance().isVisible() is False
     field.combo.hidePopup()
 
@@ -169,7 +171,8 @@ def test_an_ordinary_key_is_left_alone(field):
     assert AvailabilityPanel.instance().isVisible() is False
 
 
-def test_pressing_install_reaches_the_three_answer_flow(field, monkeypatch):
+def test_pressing_install_reaches_the_three_answer_flow(field, monkeypatch,
+                                                       flush_hover):
     seen = {}
 
     def _fake(parent, offer, **kwargs):
@@ -178,6 +181,7 @@ def test_pressing_install_reaches_the_three_answer_flow(field, monkeypatch):
 
     monkeypatch.setattr(settings_model, "run_install_offer", _fake)
     field.show_availability_panel("cuml")
+    flush_hover()
     panel = AvailabilityPanel.instance()
     assert panel.current_entry()['key'] == "cuml"
     panel._on_link("install")
@@ -216,7 +220,7 @@ def test_the_panel_answers_this_field_and_not_a_previous_one(qtbot,
 
 
 def test_the_stale_selection_still_explains_itself_from_the_closed_combo(
-        qtbot):
+        qtbot, flush_hover):
     """141 C keeps a selection that has gone unavailable rather than silently
     re-pointing it, so hovering the closed combo is a real state to be in."""
     widget = settings_model._RegressionBackendField(
@@ -224,7 +228,9 @@ def test_the_stale_selection_still_explains_itself_from_the_closed_combo(
     qtbot.addWidget(widget)
     widget.set_regression_type("mixed")
     assert widget.get_value() == "pyfixest (CPU)"
+    widget.show()
     widget._hover_closed_combo()
+    flush_hover()
     panel = AvailabilityPanel.instance()
     assert panel.isVisible()
     assert panel.current_entry()['title'] == "pyfixest (CPU)"
@@ -232,13 +238,16 @@ def test_the_stale_selection_still_explains_itself_from_the_closed_combo(
     panel.set_install_handler(None)
 
 
-def test_an_available_selection_does_not_open_a_panel_on_hover(field):
+def test_an_available_selection_does_not_open_a_panel_on_hover(field,
+                                                              flush_hover):
     assert field.get_value() == "statsmodels (CPU)"
     field._hover_closed_combo()
+    flush_hover()
     assert AvailabilityPanel.instance().isVisible() is False
 
 
-def test_leaving_the_popup_closes_it_so_the_panel_can_be_clicked(field):
+def test_leaving_the_popup_closes_it_so_the_panel_can_be_clicked(field,
+                                                                flush_hover):
     """A QComboBox popup is a `Qt.Popup` with an active mouse grab. With it
     still open the first press on the panel is eaten by the grab, so the
     Install link would need two clicks and the first would look inert."""
@@ -246,6 +255,7 @@ def test_leaving_the_popup_closes_it_so_the_panel_can_be_clicked(field):
     view = field.combo.view()
     assert view.isVisible()
     field.show_availability_panel("cuml")
+    flush_hover()
     field.eventFilter(view.viewport(), QEvent(QEvent.Leave))
     assert view.isVisible() is False
     assert AvailabilityPanel.instance().isVisible()

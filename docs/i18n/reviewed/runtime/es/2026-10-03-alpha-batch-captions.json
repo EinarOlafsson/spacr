@@ -539,9 +539,9 @@
     {
       "table": "setting_tooltips",
       "key": "ram_guard",
-      "source": "Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.",
-      "source_sha256": "1711254a45e46aa701e21e350139351208996cb04f8ed287830200cf1a2df56a",
-      "translation": "Evita que Measure llene la RAM. Antes de iniciar el grupo de procesos, spaCR estima la memoria de cada proceso de trabajo a partir de un campo y reduce n_jobs al número que deja libre el 12.5% de la RAM, mostrando un aviso; la GUI pregunta antes. Desactivado mantiene su n_jobs, y los campos siguen esperando mientras la RAM libre esté por debajo de esa reserva. Valor predeterminado: True."
+      "source": "Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+      "source_sha256": "e83d50d6a26a00a167d571939b86dcfbcd7e6a6490af81c6237a1f2c3192ab38",
+      "translation": "Evita que los grupos de procesos de trabajo llenen la RAM. Antes de que cualquier módulo inicie sus procesos de trabajo, spaCR estima la memoria de cada proceso a partir de una entrada (un campo, una máscara, un lote de recortes o una tabla) y reduce n_jobs al número que deja libre el 12.5% de la RAM, mostrando un aviso; la GUI pregunta antes. Desactivado mantiene su n_jobs, y los campos de Measure siguen esperando mientras la RAM libre esté por debajo de esa reserva. Valor predeterminado: True."
     },
     {
       "table": "setting_tooltips",

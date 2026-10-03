@@ -1105,3 +1105,54 @@ def immediate_hover_help(monkeypatch, qtbot):
         qtbot.waitUntil(ready, timeout=1000)
 
     return hover
+
+
+
+def _deliver_pending_hover(anchor=None):
+    """Fire pending hover help on ``anchor`` (all anchors when ``None``)."""
+    from shiboken6 import isValid
+
+    from spacr.qt import tooltip_policy
+
+    for pending in list(tooltip_policy._hover_delays):
+        if not isValid(pending) or pending._anchor is None:
+            continue
+        if anchor is not None and pending._anchor is not anchor:
+            continue
+        callback = pending._callback
+        pending.cancel()
+        if callback is not None:
+            callback()
+
+
+@pytest.fixture
+def flush_hover():
+    """Let the full tooltip delay elapse at once for help already scheduled.
+
+    For tests that drive a hover handler directly rather than through an
+    ``Enter`` event; pass the anchor, or nothing to deliver every pending one.
+    """
+    return _deliver_pending_hover
+
+
+@pytest.fixture
+def hover_now():
+    """Hover a widget and let the full tooltip delay elapse at once.
+
+    Sends ``Enter`` through the widget's real event filters, then fires
+    every pending :class:`spacr.qt.tooltip_policy.HoverDelay` scheduled on
+    that widget as though the pointer had rested for the whole delay.
+    Content tests use it on screens that are never shown; the visibility
+    gate and the delay itself are covered by the 603 timing tests.
+    """
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QApplication
+
+    def hover(widget, enter=None):
+        """Enter ``widget`` and deliver its scheduled help immediately."""
+        QApplication.sendEvent(
+            widget, enter if enter is not None else QEvent(QEvent.Type.Enter))
+        _deliver_pending_hover(widget)
+        QApplication.processEvents()
+
+    return hover

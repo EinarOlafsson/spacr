@@ -130,7 +130,7 @@ class TestTheFieldStaysQuiet:
 
         assert fired == [], f"{len(fired)} field(s) fired: {set(fired)}"
 
-    def test_the_titles_do_fire(self, qtbot):
+    def test_the_titles_do_fire(self, qtbot, hover_now):
         """The other half -- a panel where nothing fires is not a fix."""
         from PySide6.QtCore import QEvent
         from PySide6.QtWidgets import QApplication, QWidget
@@ -148,8 +148,7 @@ class TestTheFieldStaysQuiet:
 
         tip.hide()
         before = screen._hint_strip.text()
-        QApplication.sendEvent(titles[0], QEvent(QEvent.Enter))
-        QApplication.processEvents()
+        hover_now(titles[0])
         # THE TITLE STILL FIRES -- into the bottom strip rather than into a
         # popup. Changed on 2026-09-01: "i dont need the popup box if the
         # tooltip is shown on the bottom of the window". The half this test

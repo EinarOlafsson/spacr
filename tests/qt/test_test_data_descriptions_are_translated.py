@@ -34,7 +34,7 @@ def test_class_owned_hover_prose_enters_the_english_inventory(monkeypatch):
 
 @pytest.mark.parametrize('language', LANGUAGES)
 def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(
-        qtbot, qt_theme_applied, monkeypatch, language):
+        qtbot, qt_theme_applied, monkeypatch, language, hover_now):
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     reviewed = json.loads((ROOT/f'docs/i18n/reviewed/runtime/{language}/2026-09-21-test-data-chooser.json').read_text())
     targets = {}
@@ -51,7 +51,7 @@ def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(
     for key, _label, source in Chooser.ROUTES:
         button = dialog._buttons[key]
         assert button.toolTip() == targets[source]
-        QCoreApplication.sendEvent(button, QEvent(QEvent.Enter))
+        hover_now(button)
         actual = dialog.description_text()
         assert actual == targets[source] and actual != source
         document = QTextDocument()
