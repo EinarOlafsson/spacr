@@ -418,7 +418,7 @@ def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
         detached copy so the figure on screen keeps its colours, and the PNG
         is not display-capped. False (every gallery and canvas render) is
         unchanged: theme colours, applied to ``fig`` itself. Decision
-        2026-09-25 (item 50): "saved graphs (PDF/PNG) get a WHITE PRINT STYLE
+        2026-09-25: "saved graphs (PDF/PNG) get a WHITE PRINT STYLE
         (white background, dark text/axes/lines) whatever the screen theme";
         a file is opened by a PDF reader, a printer or a journal, and white
         text on a transparent page disappears on every one of them.

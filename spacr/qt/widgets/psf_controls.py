@@ -1,6 +1,6 @@
 """Calibrated, asynchronous PSF configuration for Make Masks enhancement.
 
-Item 509: the calibration fills itself. A microscope objective, camera and
+The calibration fills itself. A microscope objective, camera and
 fluorophore chooser, or "Infer from images…", fills magnification, numerical
 aperture, refractive index, emission wavelength, camera pixel, image pixel
 size and Gaussian FWHM, each field saying where its value came from. Only the

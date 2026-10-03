@@ -124,7 +124,7 @@ class MeasurementComparePanel(QWidget):
                  results: Optional[Any] = None):
         """Build the comparison panel: the pickers, the plot and the statistics.
 
-        IT OPENS ON THE TOP HITS. Decision 2026-09-25 (item 205): "the
+        IT OPENS ON THE TOP HITS. Decision 2026-09-25: "the
         regression Compare panel opens with the TOP HITS pre-selected (top
         significant guides/genes and the wells that carry them; user can
         change it)". The regression's results table gives the hits

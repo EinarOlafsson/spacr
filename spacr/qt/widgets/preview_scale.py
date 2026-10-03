@@ -1,4 +1,4 @@
-"""One scale slider per live preview, scaling that preview alone (item 471).
+"""One scale slider per live preview, scaling that preview alone.
 
 The whole-GUI scale (:mod:`spacr.qt.gui_scale`) is fixed at startup and
 applies everywhere. A preview wants its own: a Mask preview on a laptop
@@ -31,7 +31,7 @@ The slider itself is exempt: at 10 % the thing that brings the preview back
 must still be there to grab, and double-clicking its value returns to 100 %.
 ``Ctrl+Alt+0`` resets every preview (:func:`reset_all_preview_scales`).
 
-A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW (item 522). A dialog
+A WINDOW OPENED FROM THE PREVIEW IS NOT THE PREVIEW. A dialog
 parented to the panel is a window of its own, yet Qt cascades the panel's
 scaled sheet into it, and the walk found it among the panel's children: at
 150 % a settings dialog's buttons were 59 px tall, not the 40 px of every

@@ -1,7 +1,7 @@
 """One image view that fits, zooms, pans -- and can be tied to another.
 
 spaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC
-field browser's own ``_FieldView``. Item 473's raw-versus-enhanced window
+field browser's own ``_FieldView``. The raw-versus-enhanced window
 needed the same thing twice over, and a third copy of "a QGraphicsView with
 a pixmap in it" is how a codebase ends up with three that behave subtly
 differently. So the field browser's view moved here unchanged, under a name

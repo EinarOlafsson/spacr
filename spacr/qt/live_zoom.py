@@ -863,7 +863,7 @@ def install_column_text_scale(app=None) -> Optional[ColumnTextScale]:
 
 
 def register_text_column(root) -> Optional[ColumnTextScale]:
-    """Let Ctrl + wheel over ``root`` size the text inside it (item 529).
+    """Let Ctrl + wheel over ``root`` size the text inside it.
 
     :param root: a module screen's right-hand column.
     :returns: the filter, or None without an application.

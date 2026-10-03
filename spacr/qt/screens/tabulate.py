@@ -103,7 +103,7 @@ class TabulateScreen(QWidget):
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         """Build the screen: the pivot builder beside the shared filter.
 
-        Item 471: the pivot, the graph and the filter are sections of
+        The pivot, the graph and the filter are sections of
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         panes -- each folds by its heading and each shared edge drags.
 

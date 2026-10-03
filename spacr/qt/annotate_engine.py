@@ -1490,7 +1490,7 @@ class SaveWorker:
 
         :param batch: ``{png_path: value}``; ``None`` clears.
         :param column: the column to write; the annotation column when
-            omitted. The Annotate screen's judgements (item 512) go to the
+            omitted. The Annotate screen's judgements go to the
             ``<column>_verdict`` column through this same writer rather than
             through a second connection: one writer, one queue, one order.
             A batch for another column that cannot be written is kept in

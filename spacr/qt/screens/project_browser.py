@@ -118,7 +118,7 @@ class ProjectBrowserScreen(QWidget):
                  roots: Tuple[str, ...] = ()) -> None:
         """Build the project browser.
 
-        Item 471: the project table ("Projects") and the detail pane
+        The project table ("Projects") and the detail pane
         ("Project details") fold by their headings and share a draggable
         edge in a
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.

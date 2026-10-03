@@ -1127,9 +1127,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     result, so the saved masks and the database rows are written the same.
     One whose model setting reads ``cellpose_dino:<checkpoint path>`` is
     segmented by the Cellpose-DINO backend's worker, which takes the very
-    ``eval`` call a Cellpose-SAM model takes and returns its shapes (item
-    525). So is one whose model setting carries a StarDist, InstanSeg or
-    Omnipose prefix (``stardist:<model>`` and the rest, items 551-553),
+    ``eval`` call a Cellpose-SAM model takes and returns its shapes. So is one whose model setting carries a StarDist, InstanSeg or
+    Omnipose prefix (``stardist:<model>`` and the rest),
     each in its own backend's worker.
 
     :param src: Directory containing the pre-batched ``.npz`` image stacks.

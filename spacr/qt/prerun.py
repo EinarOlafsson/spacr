@@ -20,8 +20,7 @@ live in a module nothing calls:
   the one users guess at.  The panel this module builds turns the guess into a
   measurement, per object type, and shows how many objects it measured so the
   number can be disbelieved.  It opens in a popup of its own from the
-  *Measure diameters…* button in Mask generation's Model zoo popup (item
-  533), next to the choice of model it is the other half of, rather than on
+  *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on
   the main screen.
 
 **Neither one blocks anything.**  The banner is advisory by construction: it
@@ -1428,7 +1427,7 @@ class DiameterPanel(_JobMixin, QFrame):
 class DiameterDialog(QDialog):
     """The diameter estimate in a popup of its own, opened from the Model zoo.
 
-    Asked for in item 533: "in mask generation the, diamiter calculation
+    Asked for by a user: "in mask generation the, diamiter calculation
     should be a button in the model zoo button popup window not on the main
     screen. pressing the button should bring another pupup with all the
     information in the current container." So this holds the whole

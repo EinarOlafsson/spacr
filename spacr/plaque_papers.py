@@ -880,7 +880,7 @@ class ReaderNeedsInstall(ImportError):
 
     An :class:`ImportError`, so every caller that already reported a missing
     reader still does; Plaque Assay catches this one to offer the install
-    in place (item 518).
+    in place.
 
     :param message: what is missing and why.
     :param reinstall: True when the reader is installed but was built
@@ -3034,7 +3034,7 @@ def figure_folders(src: Any) -> List[Path]:
 
     A paper folder, or a folder of figure images, is read as it is. A folder
     that holds paper folders -- several PDFs read at once, each into a
-    folder of its own (item 526) -- is read paper by paper: its own figure
+    folder of its own -- is read paper by paper: its own figure
     images first when it has any, then each paper folder by name.
 
     :param src: the folder Figure mode was given.

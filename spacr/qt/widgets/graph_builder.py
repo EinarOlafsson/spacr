@@ -1725,7 +1725,7 @@ class GraphBuilderPanel(QWidget):
         """Build the well, the drop zones and the canvas.
 
         :param parent: parent widget.
-        :param fold_key: the host module's key (item 471). Given, the width
+        :param fold_key: the host module's key. Given, the width
             the user drags the shelf | graph split to is remembered under
             ``"<fold_key>::graph"`` and a fold of the Columns shelf or the
             Graph under ``"<fold_key>/Columns"`` and ``"<fold_key>/Graph"``;

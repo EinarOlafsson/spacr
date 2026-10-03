@@ -558,8 +558,8 @@ class BackendInstallDialog(QDialog):
     :param uninstall: remove the backend's environment instead.
     :param job: ``job(progress=..., cancel=...)``; the real install or
         uninstall when None. Tests pass their own.
-    :param reinstall: build an installed backend's environment again
-        (item 518), for a backend installed before a package it now needs
+    :param reinstall: build an installed backend's environment again,
+        for a backend installed before a package it now needs
         was pinned; the dialog says so and its button says Reinstall.
     :param why: a sentence saying why the install is offered, shown first
         in the description.
@@ -571,7 +571,7 @@ class BackendInstallDialog(QDialog):
     button can say "installing" while it runs and a console can say why it
     failed after the dialog has gone.
 
-    IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog
+    IT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog
     inherits the style sheet of every widget above it, and Plaque Assay asks
     from its preview, whose own scale slider re-states the application sheet
     at that preview's scale: at 150 % Install and Cancel were 59 px tall,
@@ -859,7 +859,7 @@ def install_backend(parent, name: str, *, watch=None, reinstall: bool = False,
     :param name: the backend.
     :param watch: ``watch(dialog)``, called before the dialog opens, so the
         caller can connect to its ``job_*`` signals and follow the install.
-    :param reinstall: build an installed backend again (item 518).
+    :param reinstall: build an installed backend again.
     :param why: a sentence saying why it is offered, shown in the dialog.
     """
     dialog = BackendInstallDialog(name, parent, reinstall=reinstall, why=why)

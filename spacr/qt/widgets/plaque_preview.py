@@ -4920,7 +4920,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                  segment: Optional[Callable] = None,
                                  upload: Optional[Callable] = None
                                  ) -> Optional[ContributeDialog]:
-        """Open the annotate-then-upload window for this mode (item 523).
+        """Open the annotate-then-upload window for this mode.
 
         Figure mode boxes every well for the YOLO well detector; Plaque mode
         paints every plaque for the next plaque model. What the preview has
@@ -5567,7 +5567,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             False for the fetch that follows an install, so one offer is made
             per PDF however the install ends.
         :returns: True when the fetch was started, or when a PDF that needs
-            the figure reader was answered with its install (item 518).
+            the figure reader was answered with its install.
 
         A PDF on disk is read by the figure reader, so when the reader is not
         installed, or was installed before it read PDFs, the install is
@@ -5661,7 +5661,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def fetch_papers(self, pdfs: Sequence[Any], parent: Any = None, *,
                      fetch: Optional[Callable] = None,
                      offer_install: bool = True) -> bool:
-        """Read several PDFs, one after another, off the GUI thread (item 526).
+        """Read several PDFs, one after another, off the GUI thread.
 
         Each paper's figures go into a folder of its own, ``parent/<paper>``,
         and when the last is read ``src`` is pointed at ``parent``, which
@@ -5924,7 +5924,7 @@ def input_mode_question(pdfs: Sequence[Any], images: Sequence[Any],
                         figures: Sequence[Any], mode: Any) -> str:
     """Which question, if any, what was found asks about the mode.
 
-    Item 518: PDFs are read in Figure mode and plaque images in Plaque mode,
+    PDFs are read in Figure mode and plaque images in Plaque mode,
     so input for the other mode asks to switch, and input for both asks
     which to read.
 
@@ -6098,7 +6098,7 @@ def check_the_src(screen: Any, source: str) -> Optional[str]:
     Asked once per source and mode, and only while the screen is on
     screen. A ``src`` that names a PDF, or a folder of PDFs, in Figure mode
     -- already, or after the answer switched to it -- has every PDF read
-    the way dropped ones are (item 526), so the preview and the run get the
+    the way dropped ones are, so the preview and the run get the
     paper's figure folder rather than a PDF they cannot open.
 
     :param screen: the Plaque Assay screen.

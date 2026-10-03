@@ -7,7 +7,7 @@ full and shortened text.
 PROGRESS LINE. :class:`ProgressLine` is a slim progress bar whose numbers sit
 beside it, where nothing can cut them.
 
-WHY (item 502). The theme draws every ``QProgressBar`` as an 8 px track
+WHY. The theme draws every ``QProgressBar`` as an 8 px track
 (``height: 8px; max-height: 8px`` in :mod:`spacr.qt.theme`). A bar that also
 paints its own text -- "step 2 of 3", "45%", "312 MB / 690 MB (45%)" -- draws
 a 13 px caption into those 8 px, so only the top half of each glyph reaches

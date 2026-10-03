@@ -1,6 +1,6 @@
 """What was dropped on Make Masks, decided before anything is opened.
 
-Item 600. Make Masks takes a drop of files, folders or both, and what the
+Make Masks takes a drop of files, folders or both, and what the
 user means depends on what they dropped. :func:`classify_drop` reads the
 paths -- names, folder layout and, for a few TIFFs, their pixels -- and says
 which of these it is, without a single question or widget:

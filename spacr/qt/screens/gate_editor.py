@@ -1526,7 +1526,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         its fonts embedded as TrueType. Calling matplotlib directly would
         give none of that.
 
-        THE FILE GETS THE PRINT STYLE. Decision 2026-09-25 (item 50):
+        THE FILE GETS THE PRINT STYLE. Decision 2026-09-25:
         "saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background,
         dark text/axes/lines) whatever the screen theme". The render passes
         ``for_print=True``, which styles a detached copy white with dark ink,

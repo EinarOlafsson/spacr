@@ -2997,8 +2997,8 @@ def load_cellpose_model(model_name: str):
     is loaded by :func:`_backend_model`, in the Cellpose 3 backend's own
     environment, as Mask generation loads it. A ``cellpose_dino:<path>``
     model, a Cellpose-DINO checkpoint, is loaded the same way in the
-    Cellpose-DINO backend (item 525), and a ``stardist:``, ``instanseg:``
-    or ``omnipose:`` model in its own backend (items 551-553).
+    Cellpose-DINO backend, and a ``stardist:``, ``instanseg:``
+    or ``omnipose:`` model in its own backend.
 
     :param model_name: a Cellpose model name, the path of a fine-tuned
         checkpoint, resolved by
@@ -7991,7 +7991,7 @@ class NapariBridgeScreen(QWidget):
 class ObjectFilterList(QWidget):
     """Make Masks' object filters: one row per regionprop the user added.
 
-    Item 511. The Filter category used to hold four fixed boxes -- minimum
+    The Filter category used to hold four fixed boxes -- minimum
     and maximum area, minimum and maximum mean intensity. It now starts
     EMPTY, and "Add a filter" offers every scalar property
     :func:`skimage.measure.regionprops` computes (see
@@ -8197,7 +8197,7 @@ class ObjectFilterList(QWidget):
 
         A dict of the old four bounds (``min_area`` and the rest) is migrated
         by :func:`mask_engine.legacy_filters`, so a saved state from before
-        item 511 opens as the rows it meant.
+        the filter list opens as the rows it meant.
 
         :param filters: a filter list in any form
             :func:`mask_engine.normalise_filters` accepts, or the legacy dict.
@@ -15529,7 +15529,7 @@ class MakeMasksScreen(QWidget):
     def open_paths(self, paths) -> bool:
         """Open a drop the way its contents say, asking where there is a choice.
 
-        Item 600. :func:`spacr.drop_classification.classify_drop` says what
+        :func:`spacr.drop_classification.classify_drop` says what
         was dropped, and:
 
         * image files (with or without folders) open as one queue, in drop
@@ -15539,7 +15539,7 @@ class MakeMasksScreen(QWidget):
         * one folder whose subfolders look like channels (DAPI/, GFP/..., or
           the same fields in each) opens "Organize for Measure" with a
           channel column per subfolder; any other folder whose images sit in
-          subfolders is offered for consolidation (item 593);
+          subfolders is offered for consolidation;
         * several folders of images open "Organize for Measure" with a
           channel column per folder;
         * when that popup is cancelled (or nobody can see it), the drop

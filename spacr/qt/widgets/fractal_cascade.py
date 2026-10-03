@@ -492,7 +492,7 @@ class CascadeEngine:
         still renders.
 
     `samples` is how many samples a side each pixel takes, set by the
-    widget from the Supersampling setting (item 531); two is the published
+    widget from the Supersampling setting; two is the published
     2x2, and an engine nobody configured keeps it.
     """
 

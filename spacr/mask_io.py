@@ -33,7 +33,7 @@ Masks as ROIs: QuPath GeoJSON, ImageJ RoiSet and COCO
 ------------------------------------------------------
 
 The second half of this module moves label masks to and from the formats
-other tools curate and train on (item 545): :func:`masks_to_geojson` and
+other tools curate and train on: :func:`masks_to_geojson` and
 :func:`geojson_to_masks` for QuPath, :func:`masks_to_roiset` and
 :func:`roiset_to_masks` for Fiji's ROI Manager, :func:`masks_to_coco` and
 :func:`coco_to_masks` for COCO-style training sets, and

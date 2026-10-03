@@ -485,7 +485,7 @@ class PivotPanel(QWidget):
     def __init__(self, parent=None):
         """Build the pivot shelf beside the table.
 
-        Item 471: the shelf ("Pivot fields") and the table ("Pivot table")
+        The shelf ("Pivot fields") and the table ("Pivot table")
         are sections of one
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         (``pivot_builder::panel``): each folds by its heading, and the edge

@@ -373,7 +373,7 @@ class TrellisPanelWidget(QWidget):
     def __init__(self, parent=None, *, link=None, source: str = "trellis"):
         """Build the channel shelf beside the trellis canvas.
 
-        Item 471: the shelf ("Channels") and the canvas ("Trellis") are
+        The shelf ("Channels") and the canvas ("Trellis") are
         sections of one
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         (``trellis_view::panel``): each folds by its heading and the edge

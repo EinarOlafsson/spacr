@@ -1,6 +1,6 @@
 """Drag an edge to resize a pane; collapsing is where the drag stops.
 
-Item 471, slice B. Two requests that turn out to be one: every container
+Two requests that turn out to be one: every container
 collapses ("whenever anything is collapsed it should auto lock to the bottom
 of the container it is in"), and every container can be "expanded or
 shrinkable by draging the edges". A :class:`~PySide6.QtWidgets.QSplitter`
@@ -179,7 +179,7 @@ def lock_folded_to_bottom(container: QWidget, folder,
 
     A folded panel given more room than its heading needs -- the last pane
     in a splitter, a section stretched by its column -- used to lay its
-    heading out in the middle of that room, which is the bug item 471 names
+    heading out in the middle of that room, which is the reported bug
     ("when i collapse the console it collapses to the middle"). A stretch
     put ABOVE the heading while it is folded takes the spare room instead.
 
@@ -247,7 +247,7 @@ def _hidden_by_owner(widget) -> bool:
 class FoldSection(QWidget):
     """A body under a clickable heading; folded, the heading sits at the bottom.
 
-    Item 471, slice C: "any sections inside the figures or live preview
+    Requested: "any sections inside the figures or live preview
     containers should also be colapseable ... evey GUI element be it a figure
     or a table". This is the one way a section inside a screen gets a fold
     control, so every one of them looks and behaves alike: an arrow and a
@@ -258,7 +258,7 @@ class FoldSection(QWidget):
 
     THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner
     holder, never the body, so unfolding cannot show a panel its owner hid
-    or build a panel that is built on first show (items 284/380). The other
+    or build a panel that is built on first show. The other
     way round, the section follows its body: while the owner keeps the body
     hidden the whole section -- heading included -- is hidden too, and it
     comes back when the owner shows the body. Only the body's hidden flag is
@@ -1156,7 +1156,7 @@ class CollapsibleSplitter(QSplitter):
 class FocusCollapse(QObject):
     """Collapse the surroundings while a focus widget is on screen.
 
-    Item 471: "when a live preview opens, it takes the whole screen height:
+    Requested: "when a live preview opens, it takes the whole screen height:
     the console, the System container and the button section below System
     auto-collapse, and the settings collapse to the left", and the same
     whenever figures appear.

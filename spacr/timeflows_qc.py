@@ -2,7 +2,7 @@
 
 WHAT IT IS FOR
 ==============
-The timeflows plan (``features/future/426``) rests on one claim about the
+The timeflows plan rests on one claim about the
 training data: an object keeps the SAME LABEL in every frame it appears in.
 A time-flow head is trained to point from a pixel of an object in frame ``t``
 at that object's centre in frame ``t+1``, and the only thing that says which

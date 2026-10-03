@@ -5,8 +5,7 @@ including fill, relabel, size and intensity filtering, Otsu detection, and
 magic-wand selection. It has no Qt dependency, so the editing operations can
 be tested without a display.
 
-THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS (items 435 and 419
-point 9). :func:`invert_intensity` is the photographic complement of an
+THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS. :func:`invert_intensity` is the photographic complement of an
 IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly
 reversible on every integer dtype -- and it is what the Make Masks screen's
 "Invert image" draws with. :func:`invert_for_detection` reflects an image
@@ -1270,7 +1269,7 @@ def fill_holes(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
 
     Holes are filled per object by :func:`fill_label_holes`, never by
     filling the foreground and labelling it again: that joined every pair of
-    touching cells into one object (item 588).
+    touching cells into one object.
 
     :param mask: label image to fill.
     :param preserve_ids: validate the ids as exact primary IDs first
@@ -3285,7 +3284,7 @@ def fill_label_holes(labels: np.ndarray) -> np.ndarray:
     Cellpose ``fill_in`` step) all come here. Filling the binary foreground
     and labelling it afresh with ``ndimage.label`` is what this replaces: it
     makes every pair of TOUCHING objects one object, so a field of 74
-    adjacent cells came back as 8 (item 588). Here nothing is relabelled.
+    adjacent cells came back as 8. Here nothing is relabelled.
 
     ``binary_fill_holes`` over the whole foreground would also fill the gap
     BETWEEN objects that happen to ring a piece of background, so each label

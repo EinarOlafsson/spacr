@@ -1363,7 +1363,7 @@ def build_plan(folder: str, sets: Dict[SetKey, Dict[int, str]], *,
         whose images differ in size, a mask that is not its image's size or
         an image that is not 2-D.
     :param masks: ``{image: mask path}`` naming each image's mask outright
-        (item 600's mask columns); an image missing from it has none. None
+        (the organizer's mask columns); an image missing from it has none. None
         looks each mask up with :func:`mask_for`.
     :param convert: write RGB images as grey and z-stacks as their maximum
         projection instead of refusing them; without it they are listed in

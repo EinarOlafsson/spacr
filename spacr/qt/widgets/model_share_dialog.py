@@ -1,7 +1,7 @@
 """The form that collects a shared model's scorecard before it is uploaded.
 
 Also the consent step and the upload shared by every community training-data
-contribution (item 523), so each screen that contributes asks the same
+contribution, so each screen that contributes asks the same
 question once and sends the same way, and Make Masks' dialog for sending
 images with their masks to a community dataset the user names.
 """

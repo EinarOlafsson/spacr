@@ -1230,7 +1230,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             * getattr(self, "_column_text_scale", 1.0)))))
 
     def apply_column_text_scale(self, scale: float) -> None:
-        """Size the console's text with the column it sits in (item 529).
+        """Size the console's text with the column it sits in.
 
         The entries carry their own point size (a per-widget sheet and an
         explicit font), which a sheet on the column cannot reach, so the

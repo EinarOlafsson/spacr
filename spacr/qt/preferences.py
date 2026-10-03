@@ -811,7 +811,7 @@ def set_folded_panel(key: str, shut: bool, *, default_shut: bool = False) -> Non
     A PANEL IN ITS DEFAULT STATE IS REMOVED rather than stored. Most panels
     default to open, so storing that would grow the dict by one entry for
     every panel the user has ever touched and never shrink it. A panel that
-    starts folded (item 509: the advanced PSF, restoration and CLAHE rows)
+    starts folded (the advanced PSF, restoration and CLAHE rows)
     passes ``default_shut=True``, so opening it is what gets stored, as
     False, and folding it again forgets it.
 
@@ -3969,7 +3969,7 @@ def _set_home_aside_scale(key: str, scale: float, low: float,
 def get_dock_width() -> int:
     """The width the user dragged the dock to, or 0 for its fitting width.
 
-    Item 529. Stored in logical pixels; the dock clamps it to its drag
+    Stored in logical pixels; the dock clamps it to its drag
     bounds when it applies it, see :meth:`spacr.qt.widgets.dock.Dock.column_width`.
     """
     try:

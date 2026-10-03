@@ -5916,7 +5916,7 @@ def rebuild_the_spaceout_backdrops() -> int:
 
     :returns: how many were rebuilt.
 
-    WHY A SAVED PATTERN USED TO WAIT FOR A RESTART (item 530). The window
+    WHY A SAVED PATTERN USED TO WAIT FOR A RESTART. The window
     builds ONE backdrop behind the dock and the page and keeps it for the
     session. Saving Preferences pushed the runtime numbers into it
     (`apply_saved_controls`) but the pattern, backend, quality and scale are

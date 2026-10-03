@@ -328,7 +328,7 @@ class VolcanoExplorer(QWidget):
                  style: VolcanoStyle | None = None, parent=None):
         """Build the volcano, its style controls and its detail panel.
 
-        Item 471: the plot ("Volcano plot") and the selected-point table
+        The plot ("Volcano plot") and the selected-point table
         ("Selected point") are sections of a vertical
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         -- each folds by its heading, and the edge between them drags -- and

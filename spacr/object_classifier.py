@@ -459,8 +459,7 @@ def segment_and_classify(backend: Any, image: np.ndarray, *,
     """Segment a field with any backend, then classify what it found.
 
     The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM,
-    Cellpose 3, DINOCell and SAMCell all answer it, which is what items
-    404, 405, 423 and 446 built. This function therefore wraps a model
+    Cellpose 3, DINOCell and SAMCell all answer it. This function therefore wraps a model
     without knowing which model it has.
 
     :param backend: the segmenter.

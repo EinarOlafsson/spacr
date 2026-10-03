@@ -32,7 +32,7 @@ The cursor and the keyboard move the same current tile: entering a tile
 makes it current, and an arrow key moves it away. There is no second
 "hovered" highlight that could point somewhere else.
 
-A PAGE IS WHAT FITS (item 512). The grid holds exactly the crops that fit
+A PAGE IS WHAT FITS. The grid holds exactly the crops that fit
 the room the crop pane gives it, at the crop size the settings ask for, and
 it never scrolls: opening the console, folding a pane, changing the GUI
 scale or resizing the window recomputes the page and pushes the rest to
@@ -40,7 +40,7 @@ the next one, the page counter follows, and the first crop on screen stays
 where it was. See :func:`grid_that_fits` and
 :meth:`AnnotateScreen._refit_grid`.
 
-A SUGGESTION IS JUDGED, NOT RELABELLED (item 512). A crop Suggest proposed a
+A SUGGESTION IS JUDGED, NOT RELABELLED. A crop Suggest proposed a
 class for wears an amber ``?`` badge beside its dashed ring. A click or ``Y``
 confirms it (it becomes an ordinary label and wears a green tick); a
 right-click or ``N`` rejects it (it goes back to unanswered and wears a red
@@ -530,7 +530,7 @@ JUDGEMENT_STATES = ("suggested", "confirmed", "rejected")
 def badge_colors(state: str, dark: Optional[bool] = None) -> Tuple[str, str]:
     """``(fill, glyph)`` for the corner badge a judged or judgeable crop wears.
 
-    Item 512. A suggestion is amber, a confirmed suggestion green and a
+    A suggestion is amber, a confirmed suggestion green and a
     rejected one red -- the theme's own warning, success and error colours,
     so the badge follows a theme change the way the rest of the chrome does.
     The glyph is drawn in the theme's background colour, which is black on

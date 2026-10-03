@@ -1436,7 +1436,7 @@ class MakeMasksDropHandler(DropHandler):
     def can_accept(self, path: Path) -> bool:
         """An image file, a ``.npy``, or a folder with images or spaCR output.
 
-        Item 600: a folder whose images sit only in subfolders, and a folder
+        A folder whose images sit only in subfolders, and a folder
         spaCR wrote (``merged/*.npy``, ``sorted_channels``), are taken too,
         and a ``.npy`` so the screen can say what it is;
         :func:`spacr.drop_classification.classify_drop` decides what the
@@ -1644,7 +1644,7 @@ def plaque_others(paths: Sequence[Path], *, limit: int = 20000) -> int:
     """How many dropped files Plaque Assay leaves aside.
 
     A file that is neither a plaque image nor a PDF, dropped or at the top of
-    a dropped folder, is ignored rather than refused (item 526); hidden
+    a dropped folder, is ignored rather than refused; hidden
     files are not counted, nor is what a paper folder holds.
 
     :param paths: dropped files and folders, or ``[src]``.
@@ -1786,7 +1786,7 @@ class PlaqueDropHandler(DropHandler):
     """Plaque Assay's own drop policy and its own words.
 
     It takes plaque images, folders of them, both mixed, and in Figure mode
-    any number of PDFs (item 526); other files dropped with them are left
+    any number of PDFs; other files dropped with them are left
     aside quietly. Before this handler Plaque Assay was given Make Masks'
     policy, which refused a folder it could not use with Make Masks'
     sentence.
@@ -1858,7 +1858,7 @@ class PlaqueDropHandler(DropHandler):
     def apply_all(self, paths: Sequence[Path], screen) -> bool:
         """Point Plaque Assay at the drop: PDFs to Figure mode, images to src.
 
-        The mode follows what was dropped (item 518): PDFs, or a folder of
+        The mode follows what was dropped: PDFs, or a folder of
         them, dropped in Plaque mode ask to switch to Figure mode; images
         dropped in Figure mode ask to switch to Plaque mode; PDFs and images
         together say that PDFs are read in Figure mode and images in Plaque

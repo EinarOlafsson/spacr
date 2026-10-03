@@ -232,8 +232,8 @@ class Settings:
     """What the picture is made of. Every field is a Preferences row.
 
     `supersampling` is samples per pixel along each axis, the Fractal tab's
-    Supersampling row. Every renderer used a fixed 2x2 whatever it said
-    (item 531); now the shaders and the CPU kernels take an N x N grid from
+    Supersampling row. Every renderer used a fixed 2x2 whatever it said;
+    now the shaders and the CPU kernels take an N x N grid from
     it. Two is the published grid, so a `Settings()` nobody filled in draws
     what it always drew.
     """
@@ -817,7 +817,7 @@ class OrbitEngine:
     phases, which is what the antialiasing needs and all it needs.
 
     Four is the published 2x2. `samples`, set by the widget from the
-    Supersampling setting (item 531), makes it N x N phases walked over
+    Supersampling setting, makes it N x N phases walked over
     N * N frames; one a side keeps no history at all.
 
     :param thread_count: worker threads to render with. Clamped to at least
@@ -2698,7 +2698,7 @@ def apply_saved_controls() -> int:
     What cannot -- the pattern, the backend, the quality, the scale and the
     Mandelbrot reference orbit -- needs the backdrop rebuilding, which
     :func:`spacr.qt.widgets.ambient.rebuild_the_spaceout_backdrops` does
-    when Preferences is saved (item 530).
+    when Preferences is saved.
     """
     try:
         from ..preferences import get_fractal_settings

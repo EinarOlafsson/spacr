@@ -477,7 +477,7 @@ class Dock(QWidget):
     def column_width(self) -> int:
         """The width the column wears: the one the user dragged, else fitting.
 
-        Item 529. A width the user chose is kept through every refresh, every
+        A width the user chose is kept through every refresh, every
         hide and show, and every session; with none stored the column fits
         its longest name, as :meth:`fitting_width` has always done.
         """
@@ -624,7 +624,7 @@ class Dock(QWidget):
 
 
 class DockEdge(QWidget):
-    """The strip along the dock's right edge that drags its width (item 529).
+    """The strip along the dock's right edge that drags its width.
 
     Dragging it sets the width of the dock while the dock is shown. A
     sibling of the dock's slot rather than a

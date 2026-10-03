@@ -70,7 +70,7 @@ class TrellisScreen(QWidget):
     def __init__(self, parent=None, *, link=None, threaded: bool = True):
         """Build the screen: the trellis panel beside the filter and column tabs.
 
-        Item 471: the panel and the side tabs share a draggable edge in a
+        The panel and the side tabs share a draggable edge in a
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         (``trellis::body``), and the side tabs fold by their heading.
 

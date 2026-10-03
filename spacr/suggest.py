@@ -29,7 +29,7 @@ THREE RULES THAT PROTECT THE ANNOTATIONS
    gets a suggestion, sorted most-confident first, and the reviewer stops
    where they stop agreeing. A threshold would make that decision for them,
    with a number nobody chose.
-4. A JUDGEMENT IS RECORDED, NOT INFERRED (item 512). Confirming a suggestion
+4. A JUDGEMENT IS RECORDED, NOT INFERRED. Confirming a suggestion
    turns it into an ordinary label and rejecting one clears it -- and both
    are written down beside the column, in ``<column>_verdict``, as the class
    that was confirmed (``+c``) or rejected (``-c``). A rejection is

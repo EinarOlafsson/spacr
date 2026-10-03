@@ -144,7 +144,7 @@ class Folder:
 
         :param shut: True to close it.
         :param by_user: False when the program folds it on the user's behalf
-            (item 471: a live preview opening). Such a fold is not
+            (for example, a live preview opening). Such a fold is not
             remembered across a restart, and the listeners are told so.
         :returns: the new shut state.
         """
@@ -231,7 +231,7 @@ def make_foldable(heading: QLabel, body: QWidget, name: str = "",
         test wants -- a test that wrote to the real preferences would fold a
         panel on the user's next launch.
     :param shut_by_default: start folded unless the user opened this panel
-        before (item 509: advanced rows that most people never change).
+        before (advanced rows that most people never change).
     """
     key = str(persist_key or "").strip()
     shut_at_start = bool(shut_by_default)

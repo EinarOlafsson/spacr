@@ -2394,7 +2394,7 @@ class ImportedCopyNotReleased(ValueError):
     same field: :func:`_merge_and_save_to_database` *appends*, so its rows land
     beside theirs, in different columns, with nothing in the row marking the
     seam -- and every ``count_cell`` downstream becomes the sum of two
-    populations. That is F34.
+    populations.
 
     A resume supersedes the copy before measuring (see
     :func:`spacr.resume.supersede_imported_copies`) or refuses and says so,
@@ -9890,7 +9890,7 @@ def fill_holes_in_mask(mask):
     filler for label images. This used to run ``ndimage.label`` over the
     mask first, which made every pair of touching objects one object: with
     Cellpose ``fill_in`` on (its default in Apply), a field of 74 adjacent
-    cells was saved as 8 (item 588). Now no object is merged or renumbered,
+    cells was saved as 8. Now no object is merged or renumbered,
     and a hole takes the id of the object that encloses it.
 
     Args:

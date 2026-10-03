@@ -2,7 +2,7 @@
 
 WHAT IT IS FOR
 ==============
-Step 2 of the timeflows plan (``features/future/426``) is a number, not a
+Step 2 of the timeflows plan is a number, not a
 feature. Before a third Cellpose head is written, trained and maintained,
 there has to be a baseline: segment every frame independently, link the frames
 by mask overlap, and score the result against the ground truth with the

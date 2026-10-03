@@ -847,7 +847,7 @@ class SpaceEngine:
     :param thread_count: worker threads numba may use.
 
     `samples` is how many samples a side each pixel takes, set by the
-    widget from the Supersampling setting (item 531). ``None`` -- an engine
+    widget from the Supersampling setting. ``None`` -- an engine
     nobody configured -- keeps the old rule of two on a small frame and one
     on a large one.
 

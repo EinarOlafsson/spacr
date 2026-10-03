@@ -85,7 +85,7 @@ class Card(QFrame):
         The body is laid out with a stretch, and a layout counts that stretch
         even while the body is hidden, so a folded card still asked for room
         and shared it evenly with the stretch that locks a folded heading to
-        the bottom of its pane (item 515): the folded Console came out half
+        the bottom of its pane: the folded Console came out half
         the pane tall. Folded, the body gives its stretch up; opened, it takes
         it back.
 
