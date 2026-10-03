@@ -111,3 +111,12 @@ SLURM SETTINGS BIND CORRECTION (2026-10-02, partial)
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: --nv GLIBC shadowing fix (2026-09-30 note).
     BLOCKED / open: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (another machine).
+
+2026-10-03 — GPU ACCEPTANCE RUN SCRIPTED, NOT RUN (lane 3)
+    GPU card held by cellposetime-r1-train (another session; epoch 14/100 at
+    08:25, ~31 min/epoch, so ~44 h left). Queued with tools/gpu_turn.sh at
+    08:26 and withdrawn at 08:50; not run. Rerun by itself: tools/gpu_turn.sh
+    586-apptainer-nv timeout 30m /mnt/wd4tb/scratch/586/gpu_mask.sh
+    (apptainer run --nv spacr-cuda.sif python /opt/spacr/smoke_pipeline.py
+    --mask --workspace /mnt/wd4tb/scratch/586/runs/gpu). The SIF from 09-30
+    is still in place.
