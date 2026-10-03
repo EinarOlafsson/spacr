@@ -59,6 +59,10 @@ jobs:
           if-no-files-found: warn
 
   windows-upgrade:
+    strategy:
+      fail-fast: false
+      matrix:
+        new_run: ['36419911083', '37052970531']
     runs-on: windows-latest
     timeout-minutes: 90
     env:
@@ -83,13 +87,13 @@ jobs:
         with:
           name: legacy-build-windows
           path: new
-          run-id: ${{ inputs.new_run || '36419911083' }}
+          run-id: ${{ matrix.new_run }}
           github-token: ${{ github.token }}
       - name: Replace, restart and interruption on Windows
         shell: pwsh
         env:
           PREVIOUS_RUN: ${{ inputs.old_run || '36372926331' }}
-          CURRENT_RUN: ${{ inputs.new_run || '36419911083' }}
+          CURRENT_RUN: ${{ matrix.new_run }}
         run: |
           foreach ($r in 'old','new') { $f = "$r/acceptance/SHA256SUMS"; (Get-Content $f -Raw) -replace "`r","" | Set-Content -NoNewline $f }
           ./tools/accept_frozen_windows_upgrade.ps1 -OldRoot old -NewRoot new -Output upgrade-evidence -InterruptAfterSeconds 10
@@ -97,7 +101,7 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: upgrade-windows
+          name: upgrade-windows-${{ matrix.new_run }}
           path: upgrade-evidence/
           if-no-files-found: warn
 

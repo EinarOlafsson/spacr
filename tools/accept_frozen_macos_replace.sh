@@ -16,7 +16,7 @@ mkdir -p "$apps"
 
 verify() { (cd "$1/dist" && shasum -a 256 -c ../acceptance/SHA256SUMS) >/dev/null; }
 verify "$old_root"; verify "$new_root"
-old_dmg=$(ls "$old_root"/dist/*1.5.1.0*.dmg); new_dmg=$(ls "$new_root"/dist/*1.5.1.1*.dmg)
+old_dmg=$(ls "$old_root"/dist/*1.5.1.0*.dmg); new_dmg=$(ls "$new_root"/dist/*.dmg)
 old_commit=$(tr -d '\r\n' < "$old_root/acceptance/source-commit.txt")
 new_commit=$(tr -d '\r\n' < "$new_root/acceptance/source-commit.txt")
 new_mount="$RUNNER_TEMP/new-mounted"; old_mount="$RUNNER_TEMP/old-mounted"
@@ -24,7 +24,8 @@ mkdir -p "$new_mount" "$old_mount"
 hdiutil attach -readonly -nobrowse -mountpoint "$old_mount" "$old_dmg" >/dev/null
 hdiutil attach -readonly -nobrowse -mountpoint "$new_mount" "$new_dmg" >/dev/null
 
-version_of() { plutil -extract CFBundleShortVersionString raw "$1/Contents/Info.plist"; }
+version_of() { plutil -extract SPACRPackageVersion raw "$1/Contents/Info.plist"; }
+new_version=$(python3 -c 'import plistlib,sys;print(plistlib.load(open(sys.argv[1],"rb"))["SPACRPackageVersion"])' "$new_mount/spaCR.app/Contents/Info.plist")
 
 install_old() {
   rm -rf "$target" "$apps"/.spacr-update-*
@@ -58,11 +59,11 @@ stage_new() {  # -> prints transaction dir with staged bundle
 }
 
 helper() {  # mode tx -> runs install_cleanup in a fresh python process
-  python3 - "$repo/spacr/install_cleanup.py" "$1" "$target" "$2" "$new_mount/spaCR.app" <<'PY'
+  python3 - "$repo/spacr/install_cleanup.py" "$1" "$target" "$2" "$new_mount/spaCR.app" "$new_version" <<'PY'
 import importlib.util, json, os, sys
 path, mode, target, tx, mounted = sys.argv[1:6]
 spec = importlib.util.spec_from_file_location("install_cleanup", path)
-ic = importlib.util.module_from_spec(spec); spec.loader.exec_module(ic)
+ic = importlib.util.module_from_spec(spec); sys.modules["install_cleanup"] = ic; spec.loader.exec_module(ic)
 if mode == "recover":
     print(json.dumps(ic._macos_recover_user_bundle(tx), default=str)); sys.exit(0)
 def swap(a, b):
@@ -73,7 +74,7 @@ def swap(a, b):
         os._exit(137)
 expected = ic._macos_tree(mounted)
 staged = os.path.join(tx, "spaCR.app")
-print(json.dumps(ic._macos_replace_user_bundle(target, staged, tx, "1.5.1.1", expected, swap=swap)))
+print(json.dumps(ic._macos_replace_user_bundle(target, staged, tx, sys.argv[6], expected, swap=swap)))
 PY
 }
 

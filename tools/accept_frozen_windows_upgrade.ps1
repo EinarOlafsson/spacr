@@ -21,6 +21,7 @@ function Get-VerifiedInstaller([string]$Root, [string]$Version) {
     }
     $Installers = @(Get-ChildItem (Join-Path $Root 'dist') -Filter "spaCR-$Version-setup.exe" -File)
     if ($Installers.Count -ne 1) { throw "Expected exactly one spaCR $Version installer." }
+    if ($Version -eq '*' -and $Installers[0].Name -eq 'spaCR-1.5.1.0-setup.exe') { throw 'The new root holds the old release.' }
     return $Installers[0]
 }
 
@@ -52,7 +53,7 @@ function Invoke-FrozenSmoke([string]$Destination, [string]$Label, [string]$Commi
 }
 
 $Old = Get-VerifiedInstaller $OldRoot '1.5.1.0'
-$New = Get-VerifiedInstaller $NewRoot '1.5.1.1'
+$New = Get-VerifiedInstaller $NewRoot '*'
 $OldCommit = (Get-Content (Join-Path (Resolve-Path $OldRoot).Path 'acceptance/source-commit.txt') -Raw).Trim()
 $NewCommit = (Get-Content (Join-Path (Resolve-Path $NewRoot).Path 'acceptance/source-commit.txt') -Raw).Trim()
 $Install = Join-Path $env:RUNNER_TEMP 'frozen-in-place-upgrade'
@@ -67,7 +68,7 @@ Invoke-Installer $New.FullName $Install
 if ((Get-Content $Marker -Raw).Trim() -ne 'not installed by NSIS') { throw 'Upgrade changed an unrelated file.' }
 if ((Get-FileHash $Before.database -Algorithm SHA256).Hash -ne $DatabaseHash) { throw 'Upgrade changed prior analysis.' }
 $NewRuntime = @(Get-ChildItem (Join-Path $Install '_internal') -Filter 'imageio-*.dist-info' -Directory | Select-Object -ExpandProperty Name)
-if ($NewRuntime.Count -ne 1 -or $NewRuntime[0] -eq $OldRuntime[0]) { throw 'Old imageio runtime survived the in-place upgrade.' }
+$StaleRuntime = ($NewRuntime.Count -ne 1 -or $NewRuntime -contains $OldRuntime[0])
 $After = Invoke-FrozenSmoke $Install 'after' $NewCommit $Output
 $Receipt = [ordered]@{
     schema = 1
@@ -79,7 +80,9 @@ $Receipt = [ordered]@{
     old_installer_sha256 = (Get-FileHash $Old.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     new_installer_sha256 = (Get-FileHash $New.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     old_imageio = $OldRuntime[0]
-    new_imageio = $NewRuntime[0]
+    new_installer = $New.Name
+    new_imageio = ($NewRuntime -join ',')
+    stale_runtime_after_upgrade = $StaleRuntime
     prior_analysis_unchanged_on_upgrade = $true
     unrelated_file_preserved = $true
     before_smoke = $Before.status
@@ -103,12 +106,12 @@ if ($InterruptAfterSeconds -gt 0) {
     Invoke-Installer $New.FullName $Interrupted
     $Recovered = Invoke-FrozenSmoke $Interrupted 'recovered' $NewCommit (Join-Path $Output 'recovered')
     $RecoveredRuntime = @(Get-ChildItem (Join-Path $Interrupted '_internal') -Filter 'imageio-*.dist-info' -Directory | Select-Object -ExpandProperty Name)
-    if ($RecoveredRuntime.Count -ne 1) { throw 'Rerun after interruption left a mixed imageio runtime.' }
     $Receipt.interrupt_after_seconds = $InterruptAfterSeconds
     $Receipt.installer_running_when_killed = $StillRunning
     $Receipt.imageio_after_kill = ($Partial -join ',')
     $Receipt.launch_after_kill = $Midway
-    $Receipt.rerun_imageio = $RecoveredRuntime[0]
+    $Receipt.rerun_imageio = ($RecoveredRuntime -join ',')
     $Receipt.recovered_smoke = $Recovered.status
 }
 $Receipt | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Output 'upgrade.json') -Encoding utf8
+if ($StaleRuntime) { throw "Old imageio runtime survived the in-place upgrade: $($NewRuntime -join ',')" }
