@@ -2656,7 +2656,9 @@
       "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
       "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "Point 471 : l’étagère (\"Channels\") et le canevas (\"Trellis\") sont des sections d’un même :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``) : chacune se replie par son en-tête et le bord qui les sépare se fait glisser, avec l’ancienne répartition 300 / 900 à l’ouverture.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
@@ -2960,7 +2962,9 @@
       "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
       "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
       "translation": "Point 471 : le graphique (\"Volcano plot\") et la table du point sélectionné (\"Selected point\") sont des sections d’un :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` vertical -- chacune se replie par son en-tête, et le bord qui les sépare se fait glisser -- et cette colonne partage un bord déplaçable avec les contrôles de style, dont les catégories se replient déjà.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",

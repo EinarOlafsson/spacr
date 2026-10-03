@@ -98,7 +98,9 @@
       "source_sha256": "5abd53dda9ed73cf906787d8657cb5e81a52b4d607c3e83dfc94cbb0a9ff0e8b",
       "context": "Item 471: the project table (\"Projects\") and the detail pane (\"Project details\") fold by their headings and share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
       "translation": "Elemento 471: la tabla de proyectos (\"Projects\") y el panel de detalles (\"Project details\") se pliegan por sus encabezados y comparten un borde arrastrable en un :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
-      "review_basis": "MT draft kept after AI review"
+      "review_basis": "MT draft kept after AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen.add_root#1",
@@ -602,7 +604,9 @@
       "source_sha256": "e6eb3db85c0f1da124d205e48574c7972d13bf01cd26ba9b3890acb8c5b50468",
       "context": "Item 471: the pivot, the graph and the filter are sections of :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` panes -- each folds by its heading and each shared edge drags.",
       "translation": "Elemento 471: la tabla dinámica, el gráfico y el filtro son secciones de paneles :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- cada una se pliega por su encabezado y cada borde compartido se puede arrastrar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.tabulate.TabulateScreen.load_path#3",
@@ -698,7 +702,9 @@
       "source_sha256": "2f01d370fd44d96dca57de576c67a3658dedb1280f016214abac3fb54c1a3665",
       "context": "Item 471: the panel and the side tabs share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), and the side tabs fold by their heading.",
       "translation": "Elemento 471: el panel y las pestañas laterales comparten un borde arrastrable en un :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), y las pestañas laterales se pliegan por su encabezado.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.trellis.TrellisScreen.set_frame#1",

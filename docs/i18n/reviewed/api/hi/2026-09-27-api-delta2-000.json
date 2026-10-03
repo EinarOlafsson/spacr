@@ -1396,7 +1396,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "स्थिरांक: ``MAD_SCALE`` ``1 / Phi^-1(0.75)`` = 1.4826 है, जिससे किसी सामान्य नमूने का MAD उसके मानक विचलन का आकलन करता है (वह गुणक जो R का ``mad()`` और इसलिए cellHTS2 लगाते हैं)। ``SSMD_ESTIMATORS`` हैं ``mm`` (आघूर्ण-विधि), ``umvue`` (समान रूप से न्यूनतम प्रसरण वाला अनभिनत) और ``robust`` (माध्यिका/MAD, SSMD*)। ``DEFAULT_HIT_THRESHOLDS`` हर आँकड़े के लिए 3 है: SSMD 3 Zhang का \"strong\" प्रभाव है, और 3 रोबस्ट सिग्मा रोबस्ट z और B-स्कोर के लिए सामान्य कट-ऑफ़ है। ``MEDIAN_POLISH_MAX_ITER`` और ``MEDIAN_POLISH_EPS`` R के ``medpolish`` के डिफ़ॉल्ट (10 और 0.01) हैं, जिन्हें इसलिए रखा गया है ताकि अवशेष cellHTS2 द्वारा गणना किए गए B-स्कोर से मेल खाएँ।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sp_stats#6",

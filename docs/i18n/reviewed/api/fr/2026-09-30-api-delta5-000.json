@@ -530,7 +530,9 @@
       "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
       "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
       "translation": "Le verrou est le plus récent que :func:`lock_analysis` a créé couvrant ``app_key`` sur le ``src`` des paramètres, sauf si un verrou est fourni. Le verrou est d’abord vérifié par rapport à son propre hachage, si bien qu’un fichier de verrou modifié est détecté ; puis chaque paramètre, chaque fichier haché et chaque stratégie de gating verrouillée sont comparés.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#2",
@@ -610,7 +612,9 @@
       "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
       "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
       "translation": "Stratégies de gating du Gate Editor dont dépend le plan : un ensemble de gates, son dictionnaire, un fichier de gates enregistré, une liste de ceux-ci, ou une correspondance d’une étiquette vers l’un d’eux. Les fichiers de gates nommés par un paramètre sont également pris. Un fichier de gates est vérifié à chaque exécution ; les gates transmis sous forme d’objets sont vérifiés lorsque :func:`check_analysis_lock` les reçoit sous la même étiquette.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sim.gini#1",

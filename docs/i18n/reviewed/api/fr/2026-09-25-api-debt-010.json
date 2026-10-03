@@ -2843,7 +2843,9 @@
       "source_sha256": "8937824b6ff6d124d72b3bfe6d1fa486c2b648967896a0e76070cb4b44ae955f",
       "context": "the host module's structured-data name (item 471). Given, the width the user drags the shelf | graph split to is remembered under ``\"<fold_key>::graph\"`` and a fold of the Columns shelf or the Graph under ``\"<fold_key>/Columns\"`` and ``\"<fold_key>/Graph\"``; empty remembers nothing, which is what a test or a second host that has not chosen a structured-data name wants.",
       "translation": "la clé du module hôte (point 471). Si elle est fournie, la largeur à laquelle l’utilisateur fait glisser la séparation étagère | graphique est mémorisée sous ``\"<fold_key>::graph\"`` et le repli de l’étagère Columns ou du Graph sous ``\"<fold_key>/Columns\"`` et ``\"<fold_key>/Graph\"`` ; vide, elle ne mémorise rien, ce que veut un test ou un second hôte qui n’a pas choisi de clé.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder.GraphBuilderPanel.set_spec#1",

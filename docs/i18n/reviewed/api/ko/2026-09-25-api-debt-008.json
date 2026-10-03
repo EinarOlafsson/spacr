@@ -3494,7 +3494,9 @@
       "source_sha256": "8937824b6ff6d124d72b3bfe6d1fa486c2b648967896a0e76070cb4b44ae955f",
       "context": "the host module's structured-data name (item 471). Given, the width the user drags the shelf | graph split to is remembered under ``\"<fold_key>::graph\"`` and a fold of the Columns shelf or the Graph under ``\"<fold_key>/Columns\"`` and ``\"<fold_key>/Graph\"``; empty remembers nothing, which is what a test or a second host that has not chosen a structured-data name wants.",
       "translation": "호스트 모듈의 키입니다(항목 471). 주어지면 사용자가 끈 선반 | 그래프 분할 너비가 ``\"<fold_key>::graph\"`` 아래에, Columns 선반이나 Graph 의 접힘 상태가 ``\"<fold_key>/Columns\"`` 와 ``\"<fold_key>/Graph\"`` 아래에 기억됩니다. 비어 있으면 아무것도 기억하지 않으며, 테스트나 아직 키를 정하지 않은 두 번째 호스트가 원하는 방식입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder.GraphBuilderPanel.set_spec#1",

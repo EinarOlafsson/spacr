@@ -1922,7 +1922,9 @@
       "source_sha256": "5bec44a77e868a8e164ca7c003f700cc65738d6fd6f5486b5f8e0db30b897b5c",
       "context": "It opens on the top hits. Decision 2026-09-25 (item 205): \"the regression Compare panel opens with the top hits pre-selected (top significant guides/genes and the microplate sample positions that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected microplate sample positions\", the derived microplate sample positions are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "translation": "它打开时预选排名靠前的命中。2026-09-25 的决定（条目 205）：\"the regression Compare panel opens with the TOP HITS pre-selected (top significant guides/genes and the wells that carry them; user can change it)\"。回归的结果表给出命中（:func:`spacr.well_scope._top_hits`）；没有结果表时，蒙太奇自身各组的引导 RNA 即为选择。随后群体框从 \"gRNAs + other datapoints in selected wells\" 开始，推导出的孔显示在控件下方，而 \"gRNAs…\" / \"selected wells…\" 可以更改其中任意一项。没有可选内容时从 \"All datapoints\" 开始，因此没有引导 RNA 的面板仍会绘制它以前绘制的内容。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel#10",

@@ -97,7 +97,7 @@
       "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. Converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
       "translation": "通常由 :func:`spacr.core.preprocess_generate_masks` 在内部调用，但若只需要预处理部分，也可直接调用。它把 z 堆栈转换为 MIP，把文件重命名为 Yokogawa/spacr 布局，将逐图像数据通道文件夹合并为堆叠的 ``.npy`` 数组，并可选地执行背景扣除和百分位归一化；在 ``test_mode`` 下还会生成示例图。",
       "retired": true,
-      "retired_reason": "The English source block was rewritten; superseded by the 2026-10-03 preprocess-img-data-volumetric review."
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.logging_util#6",

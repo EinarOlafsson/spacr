@@ -1922,7 +1922,9 @@
       "source_sha256": "5bec44a77e868a8e164ca7c003f700cc65738d6fd6f5486b5f8e0db30b897b5c",
       "context": "It opens on the top hits. Decision 2026-09-25 (item 205): \"the regression Compare panel opens with the top hits pre-selected (top significant guides/genes and the microplate sample positions that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected microplate sample positions\", the derived microplate sample positions are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "translation": "यह शीर्ष हिट पर खुलता है। निर्णय 2026-09-25 (आइटम 205): \"रिग्रेशन Compare पैनल शीर्ष हिट पहले से चुने हुए खुलता है (शीर्ष महत्वपूर्ण गाइड/जीन और उन्हें धारण करने वाले वेल; उपयोगकर्ता इसे बदल सकता है)\"। हिट रिग्रेशन की परिणाम तालिका देती है (:func:`spacr.well_scope._top_hits`); उसके बिना, मॉन्टाज के अपने समूहों के गाइड ही चयन होते हैं। फिर पॉपुलेशन बॉक्स \"gRNAs + other datapoints in selected wells\" पर शुरू होता है, व्युत्पन्न वेल नियंत्रणों के नीचे दिखाए जाते हैं, और \"gRNAs…\" / \"selected wells…\" दोनों में से किसी को भी बदलते हैं। चुनने को कुछ न हो तो \"All datapoints\" पर शुरू होता है, ताकि बिना गाइड वाला पैनल वही बनाए जो पहले बनाता था।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel#10",

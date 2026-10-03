@@ -1036,7 +1036,9 @@
       "source_sha256": "8937824b6ff6d124d72b3bfe6d1fa486c2b648967896a0e76070cb4b44ae955f",
       "context": "the host module's structured-data name (item 471). Given, the width the user drags the shelf | graph split to is remembered under ``\"<fold_key>::graph\"`` and a fold of the Columns shelf or the Graph under ``\"<fold_key>/Columns\"`` and ``\"<fold_key>/Graph\"``; empty remembers nothing, which is what a test or a second host that has not chosen a structured-data name wants.",
       "translation": "lykill hýsieiningarinnar (liður 471). Ef hann er gefinn er breiddin sem notandinn dregur skiptingu shelf | graph í munuð undir ``\"<fold_key>::graph\"`` og samanbrot Columns-hillunnar eða Graph undir ``\"<fold_key>/Columns\"`` og ``\"<fold_key>/Graph\"``; tómt man ekkert, sem er það sem próf eða annar hýsill sem hefur ekki valið lykil vill.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder.GraphBuilderPanel.set_spec#1",
@@ -2036,7 +2038,9 @@
       "source_sha256": "28c93f3c11ebf77d34bddcfa279715288cbd8365a89c1c35a4992c1557b20d67",
       "context": "Item 471: the shelf (\"Pivot fields\") and the table (\"Pivot table\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): each folds by its heading, and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "Liður 471: hillan (\"Pivot fields\") og taflan (\"Pivot table\") eru hlutar einnar :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): hvor leggst saman eftir fyrirsögn sinni, og brúnina á milli þeirra má draga, og hún opnast við gömlu 300 / 900 skiptinguna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.pivot_builder.PivotPanel.set_frame#2",

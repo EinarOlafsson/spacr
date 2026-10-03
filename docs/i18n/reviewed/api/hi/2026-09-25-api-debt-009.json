@@ -2459,7 +2459,9 @@
       "source_sha256": "8937824b6ff6d124d72b3bfe6d1fa486c2b648967896a0e76070cb4b44ae955f",
       "context": "the host module's structured-data name (item 471). Given, the width the user drags the shelf | graph split to is remembered under ``\"<fold_key>::graph\"`` and a fold of the Columns shelf or the Graph under ``\"<fold_key>/Columns\"`` and ``\"<fold_key>/Graph\"``; empty remembers nothing, which is what a test or a second host that has not chosen a structured-data name wants.",
       "translation": "होस्ट मॉड्यूल की कुंजी (आइटम 471)। दिए जाने पर, उपयोगकर्ता शेल्फ | ग्राफ़ विभाजन को जिस चौड़ाई तक खींचता है वह ``\"<fold_key>::graph\"`` के अंतर्गत याद रखी जाती है, और Columns शेल्फ या Graph का मोड़ना ``\"<fold_key>/Columns\"`` और ``\"<fold_key>/Graph\"`` के अंतर्गत; खाली होने पर कुछ भी याद नहीं रखा जाता, जो किसी परीक्षण या ऐसे दूसरे होस्ट को चाहिए जिसने कुंजी नहीं चुनी है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder.GraphBuilderPanel.set_spec#1",
@@ -4421,7 +4423,9 @@
       "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
       "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "आइटम 471: शेल्फ़ (\"Channels\") और कैनवास (\"Trellis\") एक :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``) के खंड हैं: हर एक अपने शीर्षक से मुड़ता है और उनके बीच का किनारा खींचा जा सकता है, जो पुराने 300 / 900 विभाजन पर खुलता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
@@ -4725,7 +4729,9 @@
       "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
       "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
       "translation": "आइटम 471: प्लॉट (\"Volcano plot\") और चयनित-बिंदु तालिका (\"Selected point\") एक ऊर्ध्वाधर :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` के खंड हैं -- हर एक अपने शीर्षक से मुड़ता है, और उनके बीच का किनारा खींचा जा सकता है -- और वह स्तंभ शैली नियंत्रणों के साथ एक खींचने योग्य किनारा साझा करता है, जिनकी श्रेणियाँ पहले से मुड़ती हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",

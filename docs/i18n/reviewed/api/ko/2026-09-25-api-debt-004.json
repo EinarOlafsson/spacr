@@ -3003,7 +3003,9 @@
       "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
       "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "항목 471: 선반 영역(\"Channels\")과 캔버스(\"Trellis\")는 하나의 :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``)의 섹션입니다. 각 섹션은 제목으로 접히고 둘 사이의 경계는 끌 수 있으며, 처음에는 예전의 300 / 900 분할로 열립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
@@ -3307,7 +3309,9 @@
       "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
       "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
       "translation": "항목 471: 플롯(\"Volcano plot\")과 선택된 점 테이블(\"Selected point\")은 세로 :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` 의 섹션입니다 -- 각 섹션은 제목으로 접히고 둘 사이의 경계는 끌 수 있습니다 -- 그리고 그 열은 범주가 이미 접히는 스타일 컨트롤과 끌 수 있는 경계를 공유합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",

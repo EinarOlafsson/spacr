@@ -1396,7 +1396,9 @@
       "source_sha256": "048bed063018b38251f3b8bbc16621fb439247088351d56473603a5634068790",
       "context": "The constants: ``MAD_SCALE`` is ``1 / Phi^-1(0.75)`` = 1.4826, which makes the MAD of a normal sample estimate its standard deviation (the factor R's ``mad()`` and so cellHTS2 apply). ``SSMD_ESTIMATORS`` are ``mm`` (method of moments), ``umvue`` (uniformly minimal variance unbiased) and ``robust`` (median/MAD, SSMD*). ``DEFAULT_HIT_THRESHOLDS`` are 3 for every statistic: SSMD 3 is Zhang's \"strong\" effect, and 3 robust sigma is the usual cut-off for robust z and the B-score. ``MEDIAN_POLISH_MAX_ITER`` and ``MEDIAN_POLISH_EPS`` are R's ``medpolish`` defaults (10 and 0.01), kept so the residuals agree with the B-score cellHTS2 computes.",
       "translation": "常量：``MAD_SCALE`` 为 ``1 / Phi^-1(0.75)`` = 1.4826，使正态样本的 MAD 能估计其标准差（这是 R 的 ``mad()`` 以及 cellHTS2 所用的系数）。``SSMD_ESTIMATORS`` 为 ``mm``（矩估计法）、``umvue``（一致最小方差无偏）和 ``robust``（中位数/MAD，SSMD*）。``DEFAULT_HIT_THRESHOLDS`` 对每种统计量都是 3：SSMD 3 是 Zhang 所说的 \"strong\" 效应，3 个稳健 sigma 是稳健 z 和 B 分数的常用临界值。``MEDIAN_POLISH_MAX_ITER`` 和 ``MEDIAN_POLISH_EPS`` 是 R 的 ``medpolish`` 默认值（10 和 0.01），保留它们是为了让残差与 cellHTS2 计算的 B 分数一致。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sp_stats#6",

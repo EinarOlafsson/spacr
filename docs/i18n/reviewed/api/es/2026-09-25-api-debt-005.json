@@ -3873,7 +3873,9 @@
       "source_sha256": "28c93f3c11ebf77d34bddcfa279715288cbd8365a89c1c35a4992c1557b20d67",
       "context": "Item 471: the shelf (\"Pivot fields\") and the table (\"Pivot table\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): each folds by its heading, and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "Elemento 471: el estante (\"Pivot fields\") y la tabla (\"Pivot table\") son secciones de un único :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): cada una se pliega por su encabezado y el borde entre ellas se puede arrastrar, y se abre con la antigua división 300 / 900.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.pivot_builder.PivotPanel.set_frame#2",

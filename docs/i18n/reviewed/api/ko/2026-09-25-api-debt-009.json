@@ -1839,7 +1839,9 @@
       "source_sha256": "5abd53dda9ed73cf906787d8657cb5e81a52b4d607c3e83dfc94cbb0a9ff0e8b",
       "context": "Item 471: the project table (\"Projects\") and the detail pane (\"Project details\") fold by their headings and share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
       "translation": "항목 471: 프로젝트 표(\"Projects\")와 상세 창(\"Project details\")은 제목으로 접히며, :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` 에서 끌 수 있는 가장자리를 공유합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen.add_root#1",

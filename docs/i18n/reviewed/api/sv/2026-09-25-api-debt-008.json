@@ -752,7 +752,9 @@
       "source_sha256": "5abd53dda9ed73cf906787d8657cb5e81a52b4d607c3e83dfc94cbb0a9ff0e8b",
       "context": "Item 471: the project table (\"Projects\") and the detail pane (\"Project details\") fold by their headings and share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
       "translation": "Punkt 471: projekttabellen (\"Projects\") och detaljpanelen (\"Project details\") fälls ihop via sina rubriker och delar en dragbar kant i en :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.project_browser.ProjectBrowserScreen.add_root#1",

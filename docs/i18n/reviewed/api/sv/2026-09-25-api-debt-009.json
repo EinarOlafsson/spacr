@@ -258,7 +258,9 @@
       "source_sha256": "e6eb3db85c0f1da124d205e48574c7972d13bf01cd26ba9b3890acb8c5b50468",
       "context": "Item 471: the pivot, the graph and the filter are sections of :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` panes -- each folds by its heading and each shared edge drags.",
       "translation": "Punkt 471: pivottabellen, diagrammet och filtret är avsnitt i paneler av typen :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- var och en fälls ihop via sin rubrik och varje delad kant kan dras.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.tabulate.TabulateScreen.load_path#3",
@@ -354,7 +356,9 @@
       "source_sha256": "2f01d370fd44d96dca57de576c67a3658dedb1280f016214abac3fb54c1a3665",
       "context": "Item 471: the panel and the side tabs share a draggable edge in a :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), and the side tabs fold by their heading.",
       "translation": "Punkt 471: panelen och sidoflikarna delar en dragbar kant i en :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis::body``), och sidoflikarna fälls ihop via sin rubrik.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.trellis.TrellisScreen.set_frame#1",

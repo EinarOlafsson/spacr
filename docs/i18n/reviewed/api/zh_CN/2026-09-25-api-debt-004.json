@@ -1789,7 +1789,9 @@
       "source_sha256": "28c93f3c11ebf77d34bddcfa279715288cbd8365a89c1c35a4992c1557b20d67",
       "context": "Item 471: the shelf (\"Pivot fields\") and the table (\"Pivot table\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): each folds by its heading, and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "第 471 项：字段架 (\"Pivot fields\") 和表格 (\"Pivot table\") 是同一个 :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`（``pivot_builder::panel``）中的区块：每个区块都可以通过其标题折叠，两者之间的边可以拖动，初始按原来的 300 / 900 比例分割。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.pivot_builder.PivotPanel.set_frame#2",

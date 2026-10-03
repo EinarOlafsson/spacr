@@ -4114,7 +4114,8 @@
       "source_sha256": "e0b4f88c95f256c5431b20b0ae14c186ab132a4d8d0491a1d63535a9828b9031",
       "context": "Executing it again on a laboratory microplate folder it has already processed resumes rather than starting over. Raw images an earlier run moved into ``orig/`` are read from there, and only the microscope fields of view ``stack/`` lacks are built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is checked before it is reused: a file cut short is renamed to ``<name>.damaged``, named in the log, and built again, a microscope field of view stack from the raw images or image data channel folders and an archive from ``stack/``. A microscope field of view stack with nothing left to build it from is recorded as a failure, so the processing session ends incomplete instead of quietly short of that microscope field of view, and an archive with nothing left to build it from stops the processing session with an error that names it. When no microscope field of view can be built at all, the error says what the folder does hold. In ``test_mode`` a laboratory microplate whose raw images are gone is sampled from its ``stack/`` instead.",
       "translation": "Le relancer sur un dossier de plaque déjà traité reprend le travail au lieu de tout recommencer. Les images brutes qu’une exécution antérieure a déplacées dans ``orig/`` y sont lues, et seuls les champs qui manquent dans ``stack/`` sont construits. Chaque ``stack/*.npy`` et ``masks/*.npz`` laissé par une exécution antérieure est vérifié avant d’être réutilisé : un fichier tronqué est renommé en ``<name>.damaged``, nommé dans le journal, puis reconstruit -- une pile de champ à partir des images brutes ou des dossiers de canaux, une archive à partir de ``stack/``. Une pile de champ pour laquelle il ne reste aucune source de reconstruction est enregistrée comme un échec, de sorte que l’exécution se termine incomplète au lieu de manquer discrètement ce champ, et une archive pour laquelle il ne reste aucune source de reconstruction arrête l’exécution avec une erreur qui la nomme. Lorsqu’aucun champ ne peut être construit, l’erreur indique ce que contient le dossier. En ``test_mode``, une plaque dont les images brutes ont disparu est plutôt échantillonnée à partir de son ``stack/``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.io.preprocess_img_data#2"
     },
     {
       "label": "spacr.io.preprocess_img_data#10",
@@ -4122,7 +4123,8 @@
       "source_sha256": "cdd0b8c3efbfe6bf476deff04e36fe8861ad85e1a21d586f3c503290ed9b0ceb",
       "context": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` and each object's ``*_background`` and ``*_signal_to_noise`` values. Every organelle slot the run enables uses its own pair, e.g. ``organelleb_background``.",
       "translation": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` et les valeurs ``*_background`` et ``*_signal_to_noise`` de chaque objet. Chaque emplacement d’organite activé par l’exécution utilise sa propre paire, p. ex. ``organelleb_background``.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "rebound_from": "spacr.io.preprocess_img_data#9"
     },
     {
       "label": "spacr.lineage.LineageNode.find#1",

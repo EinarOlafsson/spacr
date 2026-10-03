@@ -530,7 +530,9 @@
       "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
       "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
       "translation": "除非传入了锁，否则所用的锁是 :func:`lock_analysis` 创建的、涵盖 ``app_key``（位于这些设置的 ``src`` 上）的最新锁。锁首先与其自身的哈希核对，因此被编辑过的锁文件会被发现；然后逐项比较每个设置、每个已计算哈希的文件以及每个已锁定的门控策略。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#2",
@@ -610,7 +612,9 @@
       "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
       "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
       "translation": "计划所依赖的 Gate Editor 门控策略：一个门控集、它的字典、一个已保存的门控文件、由这些组成的列表，或从标签到其中之一的映射。任何设置所指定的门控文件也会被纳入。门控文件在每次处理时都会被核对；以对象形式传入的门控，只有在 :func:`check_analysis_lock` 以相同标签收到它们时才会被核对。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sim.gini#1",

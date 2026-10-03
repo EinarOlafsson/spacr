@@ -530,7 +530,9 @@
       "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
       "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
       "translation": "잠금을 넘기지 않으면 :func:`lock_analysis` 가 만든 잠금 중 ``app_key`` 를 설정의 ``src`` 에서 포함하는 가장 최신 잠금을 씁니다. 잠금은 먼저 자신의 해시와 대조되므로 편집된 잠금 파일은 잡혀 나오며, 그다음 모든 설정, 해시된 모든 파일, 잠긴 모든 게이팅 전략을 비교합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#2",
@@ -610,7 +612,9 @@
       "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
       "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
       "translation": "계획이 의존하는 Gate Editor 게이팅 전략: 게이트 세트, 그 사전, 저장된 게이트 파일, 이들의 목록, 또는 레이블에서 그중 하나로의 매핑. 어떤 설정이 지정한 게이트 파일도 함께 포함됩니다. 게이트 파일은 모든 처리에서 확인되며, 객체로 넘긴 게이트는 :func:`check_analysis_lock` 이 같은 레이블로 받을 때 확인됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sim.gini#1",

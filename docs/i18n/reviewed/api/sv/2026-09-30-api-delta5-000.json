@@ -530,7 +530,9 @@
       "source_sha256": "31b6f08effa0bb154920756a3b05b21674f528631602289a62e43370f6f75fe2",
       "context": "The lock is the newest one :func:`lock_analysis` made covering ``app_key`` on the settings' ``src``, unless one is passed. The lock is first checked against its own hash, so an edited lock file is caught; then every setting, every hashed file and every locked data-selection filtering strategy is compared.",
       "translation": "Låset är det senaste som :func:`lock_analysis` skapade och som omfattar ``app_key`` på inställningarnas ``src``, om inget skickas in. Låset kontrolleras först mot sin egen hash, så en redigerad låsfil upptäcks; sedan jämförs varje inställning, varje hashad fil och varje låst gating-strategi.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#2",
@@ -610,7 +612,9 @@
       "source_sha256": "d72aaaa3f7c96e24c95d82afbadce1697625b231112f73391da0bfc7d34a18c5",
       "context": "Data-selection boundary Editor data-selection filtering strategies the plan depends on: a data-selection boundary set, its key-value mapping, a saved data-selection boundary file, a list of these, or a mapping from a label to one. Data-selection boundary files named by any setting are taken as well. A data-selection boundary file is checked on every processing session; data-selection boundaries handed over as objects are checked when :func:`check_analysis_lock` is given them under the same label.",
       "translation": "Gating-strategier från Gate Editor som planen beror på: en grinduppsättning, dess dict, en sparad grindfil, en lista av dessa, eller en mappning från en etikett till en av dem. Grindfiler som nämns av någon inställning tas också med. En grindfil kontrolleras vid varje körning; grindar som lämnats över som objekt kontrolleras när :func:`check_analysis_lock` får dem under samma etikett.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.sim.gini#1",

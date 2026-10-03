@@ -3858,7 +3858,9 @@
       "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
       "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "Liður 471: hillan (\"Channels\") og striginn (\"Trellis\") eru hlutar einnar :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): hvor leggst saman eftir fyrirsögn sinni og brúnina á milli þeirra má draga, og hún opnast við gömlu 300 / 900 skiptinguna.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
@@ -4162,7 +4164,9 @@
       "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
       "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
       "translation": "Liður 471: ritið (\"Volcano plot\") og tafla valda punktsins (\"Selected point\") eru hlutar lóðréttrar :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- hvor leggst saman eftir fyrirsögn sinni, og brúnina á milli þeirra má draga -- og sá dálkur deilir dragalegri brún með stílstýringunum, en flokkar þeirra leggjast þegar saman.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",

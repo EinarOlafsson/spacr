@@ -1129,7 +1129,9 @@
       "source_sha256": "28c93f3c11ebf77d34bddcfa279715288cbd8365a89c1c35a4992c1557b20d67",
       "context": "Item 471: the shelf (\"Pivot fields\") and the table (\"Pivot table\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): each folds by its heading, and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "Eintrag 471: Die Ablage (\"Pivot fields\") und die Tabelle (\"Pivot table\") sind Abschnitte eines :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``pivot_builder::panel``): Jede klappt über ihre Überschrift ein, und die Kante zwischen ihnen lässt sich ziehen, wobei sie in der alten Aufteilung 300 / 900 öffnet.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.pivot_builder.PivotPanel.set_frame#2",
@@ -3523,7 +3525,9 @@
       "source_sha256": "0641e549844c7dd40b6f78e06ec4a4f75248bc5d816d3acba52fe2d3873f48dc",
       "context": "Item 471: the shelf (\"Channels\") and the canvas (\"Trellis\") are sections of one :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): each folds by its heading and the edge between them drags, opening at the old 300 / 900 split.",
       "translation": "Eintrag 471: Das Regal (\"Channels\") und der Canvas (\"Trellis\") sind Abschnitte eines :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` (``trellis_view::panel``): Jeder klappt über seine Überschrift ein, und die Kante zwischen ihnen lässt sich ziehen; geöffnet wird mit der alten Aufteilung 300 / 900.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display#1",
@@ -3827,7 +3831,9 @@
       "source_sha256": "6325a527a2f604029f704ea5c7a4d0658153463b6b4bdbba44a7b25e4c00f249",
       "context": "Item 471: the plot (\"Volcano plot\") and the selected-point table (\"Selected point\") are sections of a vertical :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- each folds by its heading, and the edge between them drags -- and that column shares a draggable edge with the style controls, whose categories already fold.",
       "translation": "Eintrag 471: Das Diagramm (\"Volcano plot\") und die Tabelle des ausgewählten Punktes (\"Selected point\") sind Abschnitte eines vertikalen :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter` -- jeder klappt über seine Überschrift ein, und die Kante zwischen ihnen lässt sich ziehen --, und diese Spalte teilt eine ziehbare Kante mit den Stilsteuerungen, deren Kategorien bereits einklappen.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.label_for#1",

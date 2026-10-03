@@ -1922,7 +1922,9 @@
       "source_sha256": "5bec44a77e868a8e164ca7c003f700cc65738d6fd6f5486b5f8e0db30b897b5c",
       "context": "It opens on the top hits. Decision 2026-09-25 (item 205): \"the regression Compare panel opens with the top hits pre-selected (top significant guides/genes and the microplate sample positions that carry them; user can change it)\". The regression's results table gives the hits (:func:`spacr.well_scope._top_hits`); without one, the guides of the montage's own groups are the selection. The population box then starts on \"gRNAs + other datapoints in selected microplate sample positions\", the derived microplate sample positions are shown under the controls, and \"gRNAs…\" / \"selected wells…\" change either. Nothing to select starts on \"All datapoints\", so a panel with no guides still draws what it drew before.",
       "translation": "상위 히트가 선택된 상태로 열립니다. 2026-09-25 결정(항목 205): \"회귀 Compare 패널은 상위 히트(유의성이 가장 높은 가이드/유전자와 이를 가진 웰)가 미리 선택된 상태로 열린다(사용자가 변경할 수 있음)\". 히트는 회귀의 결과 표가 제공합니다(:func:`spacr.well_scope._top_hits`). 결과 표가 없으면 몽타주 자체 그룹의 가이드가 선택됩니다. 그러면 모집단 상자는 \"gRNAs + other datapoints in selected wells\" 로 시작하고, 도출된 웰이 컨트롤 아래에 표시되며, \"gRNAs…\" / \"selected wells…\" 로 둘 중 어느 것이든 바꿀 수 있습니다. 선택할 것이 없으면 \"All datapoints\" 로 시작하므로, 가이드가 없는 패널도 이전에 그리던 것을 그대로 그립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel#10",

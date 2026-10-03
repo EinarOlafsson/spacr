@@ -2364,7 +2364,9 @@
       "source_sha256": "8937824b6ff6d124d72b3bfe6d1fa486c2b648967896a0e76070cb4b44ae955f",
       "context": "the host module's structured-data name (item 471). Given, the width the user drags the shelf | graph split to is remembered under ``\"<fold_key>::graph\"`` and a fold of the Columns shelf or the Graph under ``\"<fold_key>/Columns\"`` and ``\"<fold_key>/Graph\"``; empty remembers nothing, which is what a test or a second host that has not chosen a structured-data name wants.",
       "translation": "宿主模块的键（第 471 项）。提供时，用户拖动的字段架 | 图表分隔宽度会记录在 ``\"<fold_key>::graph\"`` 下，Columns 字段架或 Graph 的折叠状态记录在 ``\"<fold_key>/Columns\"`` 和 ``\"<fold_key>/Graph\"`` 下；为空时不记录任何内容，这正是测试或尚未选择键的第二个宿主所需要的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.graph_builder.GraphBuilderPanel.set_spec#1",
