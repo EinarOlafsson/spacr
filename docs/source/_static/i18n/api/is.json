@@ -44426,6 +44426,230 @@
         "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873"
       ]
     },
+    "spacr.measure._calculate_radial_distribution._calculate_average_intensity": {
+      "source_blocks_sha256": [
+        "de5f4ed001c16173e25e8f7a0259bab2b3797c551e0faf4dc946584cfc804431",
+        "757cf42af988150ba76ad9ef9c0ccd05742ac6b6cdd2b17eb8737dcf65b2839a",
+        "4ea038f1112521657fa7e763ea1a4ff87d281b96b5f4ad8c6d5c8d9190bd1762",
+        "7d2cc953d6f4c367bc72a6b45e4d04f51d749b1cfff841ce3bd813d682daf2d2"
+      ],
+      "source_sha256": "5cdb6245563d8cb298f0a491d68cce0bc97532336a514ae8c5c4bae2fb487815",
+      "text": "Reiknar meðalstyrk einrásarmyndar út frá fjarlægðarkortinu.\n\nAðeins dílar innan ``region_mask`` (frumunnar) eru flokkaðir í hólf. Fyrri útgáfan margfaldaði í staðinn fjarlægðarkortið með frumugrímunni, sem setti hvern díl utan frumunnar í fjarlægðina 0 og henti öllum bakgrunni sviðsins í hólf 0 — svo ``rad_dist_..._bin_0`` mældi bakgrunn, ekki innsta lagið, og sneri merkingu einkennisins við.\n\nArgs: distance_map (numpy.ndarray): Fjarlægð frá jaðri hlutarins. single_channel_image (numpy.ndarray): Einrásarmyndin. num_bins (int): Fjöldi hólfa fyrir geislalægu dreifinguna. region_mask (numpy.ndarray): Boolesk gríma móðurfrumunnar.\n\nReturns: numpy.ndarray: Geislalæg dreifing meðalstyrks. Hólf án díla eru NaN frekar en merkingarlaust 0.",
+      "translation_source_blocks_sha256": [
+        "e1694b50c9eb84b562ef418c4d6f3c94e66d37b52207354d09824ed739e7436b",
+        "8ecc054bc360c7cf60a612ceaa06d7bce095d9627e68c0fa6055e4b60e1a3543",
+        "844c13c16a9a450fc83c7b21c623c014b5697577b597154e638b03a527495368",
+        "7d2cc953d6f4c367bc72a6b45e4d04f51d749b1cfff841ce3bd813d682daf2d2"
+      ]
+    },
+    "spacr.measure._cell_cycle_by_well._fractions": {
+      "source_blocks_sha256": [
+        "4ad522a42a851dbb68f7f7d5af38226212a5e51357070ea1b493d899765edf1d"
+      ],
+      "source_sha256": "4ad522a42a851dbb68f7f7d5af38226212a5e51357070ea1b493d899765edf1d",
+      "text": "Fjöldi og fasahlutföll eins hóps kjarna.",
+      "translation_source_blocks_sha256": [
+        "4ad522a42a851dbb68f7f7d5af38226212a5e51357070ea1b493d899765edf1d"
+      ]
+    },
+    "spacr.measure._cellprofiler_tables.field_masks": {
+      "source_blocks_sha256": [
+        "c721b5607b1caded4b23af04dbe6e41e34553ba3892a6904364378930dcc8384"
+      ],
+      "source_sha256": "c721b5607b1caded4b23af04dbe6e41e34553ba3892a6904364378930dcc8384",
+      "text": "``{object type: label image}`` eins sviðs, lesið einu sinni.",
+      "translation_source_blocks_sha256": [
+        "c721b5607b1caded4b23af04dbe6e41e34553ba3892a6904364378930dcc8384"
+      ]
+    },
+    "spacr.measure._cellprofiler_tables.lookup": {
+      "source_blocks_sha256": [
+        "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1"
+      ],
+      "source_sha256": "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1",
+      "text": "spaCR-merkið undir hverri miðju í grímu ``role``.",
+      "translation_source_blocks_sha256": [
+        "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1"
+      ]
+    },
+    "spacr.measure._confluency_phase_features.log_sd": {
+      "source_blocks_sha256": [
+        "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182"
+      ],
+      "source_sha256": "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182",
+      "text": "Lograr staðbundins staðalfráviks í ``window``, í suðeiningum.",
+      "translation_source_blocks_sha256": [
+        "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182"
+      ]
+    },
+    "spacr.measure._extended_regionprops_table._gini": {
+      "source_blocks_sha256": [
+        "49b049dab3d2a75f445f7e56c6af607ae6f8cbc6289d37c1176dcd76364bf876"
+      ],
+      "source_sha256": "49b049dab3d2a75f445f7e56c6af607ae6f8cbc6289d37c1176dcd76364bf876",
+      "text": "NaN-öruggur Gini-stuðull styrkfylkis.",
+      "translation_source_blocks_sha256": [
+        "49b049dab3d2a75f445f7e56c6af607ae6f8cbc6289d37c1176dcd76364bf876"
+      ]
+    },
+    "spacr.measure._extended_regionprops_table._masked_intensity": {
+      "source_blocks_sha256": [
+        "9721cea781c6c222bba1ecf605f76083795c652b00a8909f487a13293a2dca8f"
+      ],
+      "source_sha256": "9721cea781c6c222bba1ecf605f76083795c652b00a8909f487a13293a2dca8f",
+      "text": "Dílar innan svæðis, yfir gömul og ný heiti scikit-image.",
+      "translation_source_blocks_sha256": [
+        "9721cea781c6c222bba1ecf605f76083795c652b00a8909f487a13293a2dca8f"
+      ]
+    },
+    "spacr.measure._morphological_measurements._all_masks": {
+      "source_blocks_sha256": [
+        "6db153ee6184205f533e512e409743fd037194956c86f3a06f7fb522074284ca"
+      ],
+      "source_sha256": "6db153ee6184205f533e512e409743fd037194956c86f3a06f7fb522074284ca",
+      "text": "Hlutagerð -> merkjamynd, fyrir grímurnar sem þessi keyrsla hefur í raun.",
+      "translation_source_blocks_sha256": [
+        "6db153ee6184205f533e512e409743fd037194956c86f3a06f7fb522074284ca"
+      ]
+    },
+    "spacr.measure._morphological_measurements._props": {
+      "source_blocks_sha256": [
+        "82b8b5fc8a38afd8cbe5afbf856be749418f03bbe7936557ea5a86083c49b0f9"
+      ],
+      "source_sha256": "82b8b5fc8a38afd8cbe5afbf856be749418f03bbe7936557ea5a86083c49b0f9",
+      "text": "regionprops_table + (aðeins 3-D) rúmmálsdálkarnir sem eru nefndir sérstaklega.",
+      "translation_source_blocks_sha256": [
+        "82b8b5fc8a38afd8cbe5afbf856be749418f03bbe7936557ea5a86083c49b0f9"
+      ]
+    },
+    "spacr.measure._morphological_measurements._with_bystanders": {
+      "source_blocks_sha256": [
+        "593c89ad5e04a175e6b79d7047d3e39f464335acbf304d731eb11f12aa973231",
+        "79645da035287a4b4e8f5b986fdb33aed414f1dd1822da4dd309945b4b96a524",
+        "876e8703cf70d44a4c3fd773752c5dbe24bf8919c0fcf301fa152733df2d8610",
+        "3e92e45dd5b6c07243d4467e554d72b6d23872aa28b833c1c69180e8b32dbc8a"
+      ],
+      "source_sha256": "10f66e967a39ccb48debd8e3ede890c0a93374e822cf62c6af1d2d79591a0201",
+      "text": "Sameinar bystander-blokkina við props-ramma FRUMNANNA.\n\nFruma er sýkt ef hún geymir sýkil, bystander ef hún geymir engan en er innan seilingar frá frumu sem gerir það, og fjarlæg annars. Án skiptingarinnar eru tvær síðustu sama röðin, og ósýkta viðmiðið er blanda þar sem dreifnin felur einmitt áhrifin sem hver sýkingarsamanburður leitar að.\n\nSEILINGIN ER LEIDD AF EIGIN FRUMUM ÞESSA SVIÐS, sem margfeldi af miðgildisþvermáli þeirra, svo hún þýðir það sama við 20x og 63x.\n\nProps til VINSTRI, af ástæðunni sem `_with_spatial` gefur.",
+      "translation_source_blocks_sha256": [
+        "593c89ad5e04a175e6b79d7047d3e39f464335acbf304d731eb11f12aa973231",
+        "79645da035287a4b4e8f5b986fdb33aed414f1dd1822da4dd309945b4b96a524",
+        "3879eb21d2e2c7442da5fc64ba7bbcdceb70e9efd144e43c3b9ec9418e26fb89",
+        "3e92e45dd5b6c07243d4467e554d72b6d23872aa28b833c1c69180e8b32dbc8a"
+      ]
+    },
+    "spacr.measure._morphological_measurements._with_distances": {
+      "source_blocks_sha256": [
+        "19a6cbe661e1a0274a73726856b21bb2fabb168022f1904f7f6a75e383ac5e85",
+        "d8ade6bb51a5647eef83af5506a30253f7f68a3958ed064f27e707b6b684459f"
+      ],
+      "source_sha256": "c2efabd5d00979ae956bc8b727e5c8351ddfcb93f5d20fa9304cff4d33c491fb",
+      "text": "Sameinar fjarlægðarblokk hluta við props-ramma.\n\nProps til VINSTRI af ástæðunni sem `_with_spatial` gefur: 'label' verður að halda dálkastöðu 0. Rammi sem er ekki tómur þýðir að gríma ``name`` geymir merki, svo `_all_masks` ber hana þegar.",
+      "translation_source_blocks_sha256": [
+        "19a6cbe661e1a0274a73726856b21bb2fabb168022f1904f7f6a75e383ac5e85",
+        "d8ade6bb51a5647eef83af5506a30253f7f68a3958ed064f27e707b6b684459f"
+      ]
+    },
+    "spacr.measure._morphological_measurements._with_spatial": {
+      "source_blocks_sha256": [
+        "e9438c15ee31bd9911c6348e8209e63efd2313187ea8ae8d59f2e477177b799c"
+      ],
+      "source_sha256": "e9438c15ee31bd9911c6348e8209e63efd2313187ea8ae8d59f2e477177b799c",
+      "text": "Sameinar rúmfræðiblokkina við props-ramma. Props til VINSTRI.",
+      "translation_source_blocks_sha256": [
+        "e9438c15ee31bd9911c6348e8209e63efd2313187ea8ae8d59f2e477177b799c"
+      ]
+    },
+    "spacr.measure._phases_by_xgboost._model": {
+      "source_blocks_sha256": [
+        "de55060650b92a8e1eb79e6cffae105f35b7e5fa5321c5936fd75f119cb4937f"
+      ],
+      "source_sha256": "de55060650b92a8e1eb79e6cffae105f35b7e5fa5321c5936fd75f119cb4937f",
+      "text": "Nýr flokkari með föstu stikunum fyrir fasagreiningu.",
+      "translation_source_blocks_sha256": [
+        "cd2b1f99742ac5174eecacd59ea2ca57bbb94274bf491a086189012a84e408a5"
+      ]
+    },
+    "spacr.measure._save_viability_figures._keep": {
+      "source_blocks_sha256": [
+        "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614"
+      ],
+      "source_sha256": "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614",
+      "text": "Vistar eina mynd í niðurstöðumöppu lífvænleika.",
+      "translation_source_blocks_sha256": [
+        "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614"
+      ]
+    },
+    "spacr.measure._stain_cut._share": {
+      "source_blocks_sha256": [
+        "752fece034fac4bf0d7c1ddbb30c406b5c880eb6369744dc4f0c5136d9716ffb"
+      ],
+      "source_sha256": "752fece034fac4bf0d7c1ddbb30c406b5c880eb6369744dc4f0c5136d9716ffb",
+      "text": "Hlutfall hluta plötunnar yfir ``threshold``.",
+      "translation_source_blocks_sha256": [
+        "752fece034fac4bf0d7c1ddbb30c406b5c880eb6369744dc4f0c5136d9716ffb"
+      ]
+    },
+    "spacr.measure._torch_intensity_table.host": {
+      "source_blocks_sha256": [
+        "202e41029fe45887981ac6cab6281db406da3471bf0cbb4b4b6cec7c2c707f6b"
+      ],
+      "source_sha256": "202e41029fe45887981ac6cab6281db406da3471bf0cbb4b4b6cec7c2c707f6b",
+      "text": "Afritar tensor í NumPy-fylki.",
+      "translation_source_blocks_sha256": [
+        "202e41029fe45887981ac6cab6281db406da3471bf0cbb4b4b6cec7c2c707f6b"
+      ]
+    },
+    "spacr.measure._two_population_fit._mixture": {
+      "source_blocks_sha256": [
+        "2e3b50ec7f96a325f1899a7d4f3622a0912576f0dac46bd4c5c460b853fec5eb"
+      ],
+      "source_sha256": "2e3b50ec7f96a325f1899a7d4f3622a0912576f0dac46bd4c5c460b853fec5eb",
+      "text": "Mátaði tveggja þýða þéttleikinn við ``v``.",
+      "translation_source_blocks_sha256": [
+        "2e3b50ec7f96a325f1899a7d4f3622a0912576f0dac46bd4c5c460b853fec5eb"
+      ]
+    },
+    "spacr.measure._two_population_fit._near": {
+      "source_blocks_sha256": [
+        "080d5188e78db935ba8bde8d3f32a6b4510090be50a95f77e3dc85a5fdbc3e0d"
+      ],
+      "source_sha256": "080d5188e78db935ba8bde8d3f32a6b4510090be50a95f77e3dc85a5fdbc3e0d",
+      "text": "Hve mörg gildi eru innan ``reach`` frá ``v``.",
+      "translation_source_blocks_sha256": [
+        "080d5188e78db935ba8bde8d3f32a6b4510090be50a95f77e3dc85a5fdbc3e0d"
+      ]
+    },
+    "spacr.measure._wound_axis.inside": {
+      "source_blocks_sha256": [
+        "b1808e32962edaf79f876cdb1117eadb96fceb447d27cda519d82e6a967954f8"
+      ],
+      "source_sha256": "b1808e32962edaf79f876cdb1117eadb96fceb447d27cda519d82e6a967954f8",
+      "text": "Merkir ássýni innan myndarinnar við gefna þverhliðrun.",
+      "translation_source_blocks_sha256": [
+        "b1808e32962edaf79f876cdb1117eadb96fceb447d27cda519d82e6a967954f8"
+      ]
+    },
+    "spacr.measure._wound_closure_tables.planes": {
+      "source_blocks_sha256": [
+        "4f1a95b138e6ca9e8d5dda131f726491b920c247ab86bc0be8ee94c6b036ba75"
+      ],
+      "source_sha256": "4f1a95b138e6ca9e8d5dda131f726491b920c247ab86bc0be8ee94c6b036ba75",
+      "text": "Skilar plönum þessa sviðs fyrir sárgreiningu í tímaröð.",
+      "translation_source_blocks_sha256": [
+        "8d74935fd83ded3a74cfaf2ae029961aa859df2e388f256108e882d55e59560e"
+      ]
+    },
+    "spacr.measure._wound_fronts.running": {
+      "source_blocks_sha256": [
+        "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e"
+      ],
+      "source_sha256": "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e",
+      "text": "Hlaupandi miðgildi góðu framlínanna, borið yfir raðir sem hafa enga.",
+      "translation_source_blocks_sha256": [
+        "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e"
+      ]
+    },
     "spacr.measure.assign_paths_by_regex": {
       "source_blocks_sha256": [
         "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
@@ -44458,6 +44682,16 @@
         "b16afdd51adc67e4a7971f7126812ca4437591378242619771865e9344316eec",
         "10d7377a97eec21c603e92b3571ec69f40a372eea009cfafda6dee39db9486ea",
         "7c16fabbcb13db681607d7005497d36c75c222b3b5500e33eb930bc818d778e4"
+      ]
+    },
+    "spacr.measure.assign_paths_by_regex.first": {
+      "source_blocks_sha256": [
+        "1530c7ebee048a8d6695f85aa74877a1bcd054e57a746a90b39867d84071e267"
+      ],
+      "source_sha256": "1530c7ebee048a8d6695f85aa74877a1bcd054e57a746a90b39867d84071e267",
+      "text": "Fyrsta af ``names`` sem mynstrið skilgreinir í raun.",
+      "translation_source_blocks_sha256": [
+        "1530c7ebee048a8d6695f85aa74877a1bcd054e57a746a90b39867d84071e267"
       ]
     },
     "spacr.measure.crop_objects_from_array": {
@@ -44620,6 +44854,18 @@
         "81103098e517f5b355a126783609dbab847430ebb1b821f4c7e3a0a21197c49c"
       ]
     },
+    "spacr.measure.generate_object_dataset._in": {
+      "source_blocks_sha256": [
+        "2541b64140f1fcc8b51dc3b4d888630bf553268b95cabe9847daf6c29f06a40d",
+        "0ab47d5ec0a0a95a2bad2a876c4dca28df020f65fd5c785ada10450db9888549"
+      ],
+      "source_sha256": "bb3faa7b8fee200dccc580ae1e791a2af3a66a8f86ace60829e82a49e283f686",
+      "text": "``IN (...)``-klausa og stikar hennar, byggð á öruggan hátt.\n\nStaðgenglar frekar en innskeyting: gildin koma úr stillingaskrá, og sniðinn listi er innspýting sem bíður eftir skráarheiti með gæsalöppum.",
+      "translation_source_blocks_sha256": [
+        "2541b64140f1fcc8b51dc3b4d888630bf553268b95cabe9847daf6c29f06a40d",
+        "0ab47d5ec0a0a95a2bad2a876c4dca28df020f65fd5c785ada10450db9888549"
+      ]
+    },
     "spacr.measure.get_components": {
       "source_blocks_sha256": [
         "ac76e51ee9a084f54bf59c4674efb96b672f077e341f5792efdb8fe2c0cb21a5",
@@ -44730,6 +44976,44 @@
         "0435063b6c1d1ab1c8f135661088e1f29811eecdc7446c7714cb2a8f88d057ee"
       ]
     },
+    "spacr.measure.measure_crop.job_callback": {
+      "source_blocks_sha256": [
+        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
+        "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9"
+      ],
+      "source_sha256": "23b43004a8a076e52456a15fc43a8e4385e79d4501c8136b8f8f84e403e4fbcf",
+      "text": "Skráir eitt lokið svið og vistar valfrjálsar myndir þess.\n\n:param result: 4-túpullinn ``(index, average_time, cells, figs)`` sem :func:`_measure_crop_core` skilar, tekinn beint af ``AsyncResult`` -- ein niðurstaða, ekki listinn sem :func:`process_measure_crop_results` tekur við, og þess vegna er honum pakkað aftur sem ``[result]`` hér að neðan. ``index`` er staðan í ``files`` og er þýdd aftur í gegnum ``index_to_file`` svo bókhaldsfærslan nefni sviðið frekar en tölu. ``cells`` ræður niðurstöðunni: árangursleiðin skilur þar eftir fylkið ``np.unique(cell_mask)``, en einfalt int ``0`` er villumerkið milli ferla sem worker skilur eftir þegar hann greip eigin undantekningu, svo aðeins það int skráir villu. ``figs`` getur verið tómt dict -- ekkert er teiknað nema með ``settings['plot']``. Að senda sama svið tvisvar er öruggt fyrir teljarana (``completed_jobs`` og ``reported_files`` eru mengi) en myndi vista myndir þess tvisvar, svo endurtekningarlykkjan kallar aðeins á þetta fyrir tilraunina sem skilaði í raun.",
+      "translation_source_blocks_sha256": [
+        "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
+        "9de763bc6925a55a39a626efdb10f5b6a12d0fbccb192a66f9a0b6858b39904b"
+      ]
+    },
+    "spacr.measure.measure_crop.make_error_callback": {
+      "source_blocks_sha256": [
+        "821b82d21f2aed27316e1794955739da4613069c3d71fa890c08c2ba3c6a9800",
+        "35ba5714a146ba2a5f0caea57f3c9a1e2d06b5c2073c6bd36db51507acedd3fc",
+        "69f2129f3679abddd3426b411f5509e4d16b24ebe38d0f8ce97c8cd2fe3083c0",
+        "b1c74284824deeedfa8857488d838d4a3b528e450c7bd10a2f8b429ef4bb7ef9"
+      ],
+      "source_sha256": "3569381dd8c3a1ad99fbcb2326dfbc2a1cb1b80e6b41450a1d27fccfddf1cad3",
+      "text": "Bindur skráarheitið inn í villubakkall safnsins.\n\n``apply_async`` réttir villubakkallinu aðeins undantekninguna, svo skráin verður að vera fönguð í lokun. Án þessa króks hvarf worker sem dó beint alveg: undantekningin sat á AsyncResult sem enginn las, og keyrslan prentaði samt \"Successfully completed run\".\n\n:param job_file: ``.npy``-skráarheiti sviðsins, eins og það birtist í ``files`` -- bert grunnheiti, ekki slóð skeytt við ``settings['src']``. Það er notað óbreytt sem bókhaldslykill *og* sem færsla í ``reported_files``, svo allt annað missir hljóðlaust samsvörunina við ``files`` í yfirferðinni í ``finally`` og sviðið er skráð í annað sinn sem \"field produced no result\".\n:returns: Kallanlegt fall með eitt viðfang, hentugt sem ``error_callback`` fyrir ``Pool.apply_async``; það tekur við undantekningunni og skilar ``None``. Kallið á það sem ``make_error_callback(file)(exc)`` þegar þið kastið undantekningunni sjálf, sem endurtekningarlykkjan gerir í síðustu tilraun -- bókhaldið telur svið, ekki tilraunir, svo svið sem mistókst tvisvar og virkaði svo má alls ekki tilkynna hér.",
+      "translation_source_blocks_sha256": [
+        "821b82d21f2aed27316e1794955739da4613069c3d71fa890c08c2ba3c6a9800",
+        "557b5314e73e79cde31ba5347980578c3c0c13cacc733d5693494bd6889f45e2",
+        "12880e45457415d4954d21afc6218d23bf7e31480f7ec74de7aa6b401174f4be",
+        "b1c74284824deeedfa8857488d838d4a3b528e450c7bd10a2f8b429ef4bb7ef9"
+      ]
+    },
+    "spacr.measure.measure_crop.make_error_callback._on_error": {
+      "source_blocks_sha256": [
+        "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9"
+      ],
+      "source_sha256": "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9",
+      "text": "Skráir villu eins worker á skrána sem olli henni.",
+      "translation_source_blocks_sha256": [
+        "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9"
+      ]
+    },
     "spacr.measure.measure_from_field_table": {
       "source_blocks_sha256": [
         "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
@@ -44756,6 +45040,18 @@
         "47c7d25b397f58281374c5da6ab1554e0eb9868923ea4381f100c48cb6203ac0",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "7a739f6a09506a198da71a521b1a6ba933237e31502c65f932feedda0f0972ea"
+      ]
+    },
+    "spacr.measure.measure_from_field_table.say": {
+      "source_blocks_sha256": [
+        "c4b6a80bf4ad38ea922c169981c33ec890d46f6cc0994468c70f9aa301854bb9",
+        "73defc1d2820b723b97162c511a1cdc527a26b43368afddd0c14a3ef4e82b37f"
+      ],
+      "source_sha256": "ec467bdc8e21099a76a7ef542f077fc008baca17b7f017d687c7bcf86eb30068",
+      "text": "Tilkynnir þrep, ef einhver bað um að heyra af þeim.\n\nVarið því kallandinn er gluggi sem getur lokast meðan þetta er enn í gangi: bakkall FEATURES-gluggans sendir Qt-merki, og worker sem bíður lengur en græjan hans lifir kastar ``RuntimeError`` úr emit. Keyrsla má ekki mistakast af því að enginn hlustar lengur á hana.",
+      "translation_source_blocks_sha256": [
+        "c4b6a80bf4ad38ea922c169981c33ec890d46f6cc0994468c70f9aa301854bb9",
+        "663e70e9da7e8eedf226f557c2a3a0683cc7f9ca67210907a7b348f624e1fd8c"
       ]
     },
     "spacr.measure.process_meassure_crop_results": {
@@ -44814,6 +45110,18 @@
         "18f17e588ad519c9d91678da7b32102d431574a67adf4951b69b38f04f7b23e1",
         "310969a1e95c1bdc882359462db9ca61d3c9573ce3f6bab4d68eeb0576be2dce",
         "bf99848c248c299a5fd59ad6f68f286ff33acd04933199cf98464f69f8645bc9"
+      ]
+    },
+    "spacr.measure.resolve_measurement_spacing._positive": {
+      "source_blocks_sha256": [
+        "b4ee27c47c2ecb45020133b8b349868e4a5fe2bddc860587ca86295b4d09fa09",
+        "29c509955c2bf776795e6aa1ef89e3d84ee427d163ee5baf686467bc3fbfe322"
+      ],
+      "source_sha256": "bd5f1bf3eb45629b83cc03c224e8c96bedc408d25c67107a870197ae7742f3a3",
+      "text": "Eitt bilgildi, hafnað nema það sé jákvæð tala.\n\nBil sem er núll eða neikvætt gerir hverja eðlisfræðilega mælingu ranga um stuðul sem enginn getur endurheimt eftir á, svo því er hafnað frekar en að sjálfgildi komi í staðinn.",
+      "translation_source_blocks_sha256": [
+        "b4ee27c47c2ecb45020133b8b349868e4a5fe2bddc860587ca86295b4d09fa09",
+        "29c509955c2bf776795e6aa1ef89e3d84ee427d163ee5baf686467bc3fbfe322"
       ]
     },
     "spacr.measure.resolve_n_jobs": {

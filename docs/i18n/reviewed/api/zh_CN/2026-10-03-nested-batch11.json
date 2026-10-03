@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#0",
+      "source": "Calculate the average intensity of a single-channel image based on the distance map.",
+      "source_sha256": "de5f4ed001c16173e25e8f7a0259bab2b3797c551e0faf4dc946584cfc804431",
+      "context": "Calculate the average intensity of a single-image data channel image based on the distance map.",
+      "translation": "根据距离图计算单通道图像的平均强度。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#1",
+      "source": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole field background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
+      "source_sha256": "757cf42af988150ba76ad9ef9c0ccd05742ac6b6cdd2b17eb8737dcf65b2839a",
+      "context": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole microscope field of view background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
+      "translation": "只有 ``region_mask``（细胞）内的像素会被分箱。以前的版本改为把距离图乘以细胞掩膜，这会把细胞外的每个像素设为距离 0，并把整个视野背景都倒进第 0 个分箱 — 因此 ``rad_dist_..._bin_0`` 测量的是背景而不是最内层，并颠倒了该特征的含义。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#2",
+      "source": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
+      "source_sha256": "4ea038f1112521657fa7e763ea1a4ff87d281b96b5f4ad8c6d5c8d9190bd1762",
+      "context": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-image data channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
+      "translation": "Args: distance_map (numpy.ndarray)：到对象边界的距离。single_channel_image (numpy.ndarray)：单通道图像。num_bins (int)：径向分布的分箱数。region_mask (numpy.ndarray)：父细胞的布尔掩膜。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#3",
+      "source": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
+      "source_sha256": "7d2cc953d6f4c367bc72a6b45e4d04f51d749b1cfff841ce3bd813d682daf2d2",
+      "context": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
+      "translation": "Returns: numpy.ndarray：平均强度的径向分布。没有像素的分箱为 NaN，而不是无意义的 0。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._cell_cycle_by_well._fractions#0",
+      "source": "Count and phase fractions of one group of nuclei.",
+      "source_sha256": "4ad522a42a851dbb68f7f7d5af38226212a5e51357070ea1b493d899765edf1d",
+      "context": "Count and phase fractions of one group of nuclei.",
+      "translation": "一组细胞核的数量和细胞周期时相比例。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._cellprofiler_tables.field_masks#0",
+      "source": "``{object type: label image}`` of one field, read once.",
+      "source_sha256": "c721b5607b1caded4b23af04dbe6e41e34553ba3892a6904364378930dcc8384",
+      "context": "``{object type: label image}`` of one field, read once.",
+      "translation": "一个视野的 ``{object type: label image}``，只读取一次。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._cellprofiler_tables.lookup#0",
+      "source": "The spaCR label under each centre in ``role``'s mask.",
+      "source_sha256": "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1",
+      "context": "The spaCR label under each centre in ``role``'s mask.",
+      "translation": "``role`` 的掩膜中每个中心点下方的 spaCR 标签。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._confluency_phase_features.log_sd#0",
+      "source": "Log of the local standard deviation in ``window``, in noise units.",
+      "source_sha256": "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182",
+      "context": "Log of the local standard deviation in ``window``, in noise units.",
+      "translation": "``window`` 内局部标准差的对数，以噪声为单位。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._extended_regionprops_table._gini#0",
+      "source": "NaN-safe Gini coefficient of an intensity array.",
+      "source_sha256": "49b049dab3d2a75f445f7e56c6af607ae6f8cbc6289d37c1176dcd76364bf876",
+      "context": "NaN-safe Gini coefficient of an intensity array.",
+      "translation": "强度数组的 NaN 安全 Gini 系数。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._extended_regionprops_table._masked_intensity#0",
+      "source": "Pixels inside a region across old and new scikit-image names.",
+      "source_sha256": "9721cea781c6c222bba1ecf605f76083795c652b00a8909f487a13293a2dca8f",
+      "context": "Pixels inside a region across old and new scikit-image names.",
+      "translation": "区域内的像素，兼容 scikit-image 的新旧名称。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._all_masks#0",
+      "source": "Object type -> label image, for the masks this run actually has.",
+      "source_sha256": "6db153ee6184205f533e512e409743fd037194956c86f3a06f7fb522074284ca",
+      "context": "Object type -> label image, for the masks this run actually has.",
+      "translation": "对象类型 -> 标签图像，仅针对本次运行实际拥有的掩膜。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._props#0",
+      "source": "regionprops_table + (3-D only) the explicitly-named volume columns.",
+      "source_sha256": "82b8b5fc8a38afd8cbe5afbf856be749418f03bbe7936557ea5a86083c49b0f9",
+      "context": "regionprops_table + (3-D only) the explicitly-named volume columns.",
+      "translation": "regionprops_table + （仅 3-D）显式命名的体积列。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#0",
+      "source": "Merge the bystander block onto the CELL props frame.",
+      "source_sha256": "593c89ad5e04a175e6b79d7047d3e39f464335acbf304d731eb11f12aa973231",
+      "context": "Merge the bystander block onto the CELL props frame.",
+      "translation": "把 bystander 块合并到细胞的 props 框架上。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#1",
+      "source": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
+      "source_sha256": "79645da035287a4b4e8f5b986fdb33aed414f1dd1822da4dd309945b4b96a524",
+      "context": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
+      "translation": "含有病原体的细胞为感染细胞；不含病原体但位于含病原体细胞作用范围内的为 bystander；其余为远端细胞。如果不做这种区分，后两者就是同一行，未感染对照会成为一种混合，其方差恰好掩盖每次感染比较所要寻找的效应。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#2",
+      "source": "THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
+      "source_sha256": "876e8703cf70d44a4c3fd773752c5dbe24bf8919c0fcf301fa152733df2d8610",
+      "context": "The reach is derived from this field's own cells, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
+      "translation": "作用范围由该视野自身的细胞推导，取其中位直径的倍数，因此在 20x 和 63x 下含义相同。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#3",
+      "source": "Props on the LEFT, for the reason `_with_spatial` gives.",
+      "source_sha256": "3e92e45dd5b6c07243d4467e554d72b6d23872aa28b833c1c69180e8b32dbc8a",
+      "context": "Props on the LEFT, for the reason `_with_spatial` gives.",
+      "translation": "props 放在左侧，原因见 `_with_spatial`。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_distances#0",
+      "source": "Merge the object-distance block onto a props frame.",
+      "source_sha256": "19a6cbe661e1a0274a73726856b21bb2fabb168022f1904f7f6a75e383ac5e85",
+      "context": "Merge the object-distance block onto a props frame.",
+      "translation": "把对象距离块合并到 props 框架上。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_distances#1",
+      "source": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
+      "source_sha256": "d8ade6bb51a5647eef83af5506a30253f7f68a3958ed064f27e707b6b684459f",
+      "context": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
+      "translation": "props 放在左侧，原因见 `_with_spatial`：'label' 必须保持在第 0 列。非空框架表示 ``name`` 的掩膜含有标签，因此 `_all_masks` 已经包含它。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_spatial#0",
+      "source": "Merge the spatial block onto a props frame. Props on the LEFT.",
+      "source_sha256": "e9438c15ee31bd9911c6348e8209e63efd2313187ea8ae8d59f2e477177b799c",
+      "context": "Merge the spatial block onto a props frame. Props on the LEFT.",
+      "translation": "把空间块合并到 props 框架上。props 放在左侧。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._phases_by_xgboost._model#0",
+      "source": "A fresh classifier with the fixed phase-calling parameters.",
+      "source_sha256": "de55060650b92a8e1eb79e6cffae105f35b7e5fa5321c5936fd75f119cb4937f",
+      "context": "A fresh machine-learning classification model with the fixed phase-calling parameters.",
+      "translation": "一个使用固定时相判定参数的新分类器。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._save_viability_figures._keep#0",
+      "source": "Save one figure under the viability results folder.",
+      "source_sha256": "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614",
+      "context": "Save one figure under the viability results folder.",
+      "translation": "把一个图形保存到活力结果文件夹中。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._stain_cut._share#0",
+      "source": "Share of the plate's objects above ``threshold``.",
+      "source_sha256": "752fece034fac4bf0d7c1ddbb30c406b5c880eb6369744dc4f0c5136d9716ffb",
+      "context": "Share of the plate's objects above ``threshold``.",
+      "translation": "板上对象中高于 ``threshold`` 的比例。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._torch_intensity_table.host#0",
+      "source": "Copy a tensor to a NumPy array.",
+      "source_sha256": "202e41029fe45887981ac6cab6281db406da3471bf0cbb4b4b6cec7c2c707f6b",
+      "context": "Copy a tensor to a NumPy array.",
+      "translation": "把张量复制为 NumPy 数组。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._two_population_fit._mixture#0",
+      "source": "The fitted two-population density at ``v``.",
+      "source_sha256": "2e3b50ec7f96a325f1899a7d4f3622a0912576f0dac46bd4c5c460b853fec5eb",
+      "context": "The fitted two-population density at ``v``.",
+      "translation": "在 ``v`` 处拟合得到的双群体密度。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._two_population_fit._near#0",
+      "source": "How many values lie within ``reach`` of ``v``.",
+      "source_sha256": "080d5188e78db935ba8bde8d3f32a6b4510090be50a95f77e3dc85a5fdbc3e0d",
+      "context": "How many values lie within ``reach`` of ``v``.",
+      "translation": "位于 ``reach`` 范围内、靠近 ``v`` 的值有多少个。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._wound_axis.inside#0",
+      "source": "Mark axis samples inside the image at the given normal offset.",
+      "source_sha256": "b1808e32962edaf79f876cdb1117eadb96fceb447d27cda519d82e6a967954f8",
+      "context": "Mark axis samples inside the image at the given normal offset.",
+      "translation": "在给定法向偏移处标记图像内的轴采样点。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._wound_closure_tables.planes#0",
+      "source": "Yield this field's wound-analysis planes in time order.",
+      "source_sha256": "4f1a95b138e6ca9e8d5dda131f726491b920c247ab86bc0be8ee94c6b036ba75",
+      "context": "Yield this microscope field of view's wound-analysis image layers in time order.",
+      "translation": "按时间顺序逐个给出该视野的伤口分析平面。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._wound_fronts.running#0",
+      "source": "Running median of the good fronts, carried over rows with none.",
+      "source_sha256": "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e",
+      "context": "Running median of the good fronts, carried over rows with none.",
+      "translation": "良好前沿的滑动中位数，在没有前沿的行上沿用之前的值。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex.first#0",
+      "source": "The first of ``names`` the pattern actually defines.",
+      "source_sha256": "1530c7ebee048a8d6695f85aa74877a1bcd054e57a746a90b39867d84071e267",
+      "context": "The first of ``names`` the pattern actually defines.",
+      "translation": "``names`` 中模式实际定义的第一个。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset._in#0",
+      "source": "An ``IN (...)`` clause and its parameters, built safely.",
+      "source_sha256": "2541b64140f1fcc8b51dc3b4d888630bf553268b95cabe9847daf6c29f06a40d",
+      "context": "An ``IN (...)`` clause and its parameters, built safely.",
+      "translation": "一个安全构建的 ``IN (...)`` 子句及其参数。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset._in#1",
+      "source": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
+      "source_sha256": "0ab47d5ec0a0a95a2bad2a876c4dca28df020f65fd5c785ada10450db9888549",
+      "context": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
+      "translation": "使用占位符而不是插值：这些值来自设置文件，而格式化的列表就是一个等待含引号文件名的注入漏洞。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.job_callback#0",
+      "source": "Record one completed field and save its optional figures.",
+      "source_sha256": "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
+      "context": "Record one completed field and save its optional figures.",
+      "translation": "记录一个已完成的视野，并保存其可选图形。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.job_callback#1",
+      "source": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty dict -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
+      "source_sha256": "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9",
+      "context": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty key-value mapping -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
+      "translation": "4 元组 ``(index, average_time, cells, figs)`` 由 :func:`_measure_crop_core` 返回，直接取自 ``AsyncResult`` -- 是单个结果，而不是 :func:`process_measure_crop_results` 接收的列表，因此下面会把它重新包装成 ``[result]``。``index`` 是在 ``files`` 中的位置，并通过 ``index_to_file`` 转换回来，使台账条目记录视野名称而不是数字。``cells`` 决定结论：成功路径会在那里留下 ``np.unique(cell_mask)`` 数组，而普通 int ``0`` 是 worker 捕获自身异常时留下的跨进程失败标记，因此只有这个 int 会记录失败。``figs`` 可以是空 dict -- 没有 ``settings['plot']`` 时什么也不绘制。把同一视野传入两次对计数器是安全的（``completed_jobs`` 和 ``reported_files`` 都是集合），但会把其图形保存两次，因此重试循环只对真正返回的那次尝试调用此函数。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#0",
+      "source": "Bind the filename into the pool's error callback.",
+      "source_sha256": "821b82d21f2aed27316e1794955739da4613069c3d71fa890c08c2ba3c6a9800",
+      "context": "Bind the filename into the pool's error callback.",
+      "translation": "把文件名绑定到进程池的错误回调中。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#1",
+      "source": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the run still printed \"Successfully completed run\".",
+      "source_sha256": "35ba5714a146ba2a5f0caea57f3c9a1e2d06b5c2073c6bd36db51507acedd3fc",
+      "context": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the processing session still printed \"Successfully completed run\".",
+      "translation": "``apply_async`` 只把异常交给错误回调，因此文件必须通过闭包捕获。没有这个钩子时，直接崩溃的 worker 会完全消失：异常留在一个没人读取的 AsyncResult 上，而运行仍会打印 \"Successfully completed run\"。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#2",
+      "source": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger key *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
+      "source_sha256": "69f2129f3679abddd3426b411f5509e4d16b24ebe38d0f8ce97c8cd2fe3083c0",
+      "context": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger structured-data name *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
+      "translation": "视野的 ``.npy`` 文件名，与它在 ``files`` 中的形式一致 -- 只是基本名称，而不是拼接到 ``settings['src']`` 上的路径。它原样用作台账键 *以及* ``reported_files`` 条目，因此任何其他形式都会静默失去与 ``files`` 的匹配（在 ``finally`` 的清点中），该视野会被再次记为 \"field produced no result\"。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#3",
+      "source": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
+      "source_sha256": "b1c74284824deeedfa8857488d838d4a3b528e450c7bd10a2f8b429ef4bb7ef9",
+      "context": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
+      "translation": "一个单参数可调用对象，适合用作 ``error_callback`` 传给 ``Pool.apply_async``；它接收异常并返回 ``None``。自行抛出异常时请以 ``make_error_callback(file)(exc)`` 的形式调用，这正是重试循环在最后一次尝试时的做法 -- 台账统计的是视野而不是尝试次数，因此失败两次后又成功的视野绝不能在这里报告。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback._on_error#0",
+      "source": "Record one worker's failure against the file that caused it.",
+      "source_sha256": "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9",
+      "context": "Record one worker's failure against the file that caused it.",
+      "translation": "把一个 worker 的失败记录到导致失败的文件名下。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table.say#0",
+      "source": "Report a stage, if anyone asked to hear about them.",
+      "source_sha256": "c4b6a80bf4ad38ea922c169981c33ec890d46f6cc0994468c70f9aa301854bb9",
+      "context": "Report a stage, if anyone asked to hear about them.",
+      "translation": "如果有人要求了解阶段信息，就报告当前阶段。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table.say#1",
+      "source": "Guarded because the caller is a window that may be closed while this is still running: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A run must not fail because nobody is listening to it any more.",
+      "source_sha256": "73defc1d2820b723b97162c511a1cdc527a26b43368afddd0c14a3ef4e82b37f",
+      "context": "Guarded because the caller is a window that may be closed while this is still executing: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A processing session must not fail because nobody is listening to it any more.",
+      "translation": "之所以加以防护，是因为调用方是一个窗口，在此函数仍在运行时可能被关闭：FEATURES 窗口的回调会发出 Qt 信号，而在其控件销毁后仍在等待的 worker 会在 emit 时抛出 ``RuntimeError``。运行不应因为没人再监听而失败。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.resolve_measurement_spacing._positive#0",
+      "source": "One spacing value, refused unless it is a positive number.",
+      "source_sha256": "b4ee27c47c2ecb45020133b8b349868e4a5fe2bddc860587ca86295b4d09fa09",
+      "context": "One spacing value, refused unless it is a positive number.",
+      "translation": "一个间距值，除非是正数，否则拒绝。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.resolve_measurement_spacing._positive#1",
+      "source": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
+      "source_sha256": "29c509955c2bf776795e6aa1ef89e3d84ee427d163ee5baf686467bc3fbfe322",
+      "context": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
+      "translation": "零或负的间距会使每个物理测量都错上一个事后无人能恢复的倍数，因此会被拒绝，而不是替换为默认值。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

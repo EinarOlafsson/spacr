@@ -74,6 +74,7 @@ ENABLED_MODULES: frozenset[str] = frozenset({
     "spacr.lineage",
     "spacr.logger",
     "spacr.logging_util",
+    "spacr.measure",
     "spacr.metadata_resolution",
     "spacr.mixed_gpu",
     "spacr.model_compare",

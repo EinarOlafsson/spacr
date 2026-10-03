@@ -1,0 +1,343 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#0",
+      "source": "Calculate the average intensity of a single-channel image based on the distance map.",
+      "source_sha256": "de5f4ed001c16173e25e8f7a0259bab2b3797c551e0faf4dc946584cfc804431",
+      "context": "Calculate the average intensity of a single-image data channel image based on the distance map.",
+      "translation": "거리 맵을 바탕으로 단일 채널 이미지의 평균 강도를 계산합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#1",
+      "source": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole field background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
+      "source_sha256": "757cf42af988150ba76ad9ef9c0ccd05742ac6b6cdd2b17eb8737dcf65b2839a",
+      "context": "Only pixels inside ``region_mask`` (the cell) are binned. The previous version multiplied the distance map by the cell mask instead, which set every pixel outside the cell to distance 0 and dumped the whole microscope field of view background into bin 0 — so ``rad_dist_..._bin_0`` measured background, not the innermost shell, and inverted the meaning of the feature.",
+      "translation": "``region_mask``(세포) 안의 픽셀만 구간으로 나눕니다. 이전 버전은 대신 거리 맵에 세포 마스크를 곱했는데, 그 때문에 세포 밖의 모든 픽셀이 거리 0이 되어 시야 전체의 배경이 구간 0에 쏟아졌습니다 — 그래서 ``rad_dist_..._bin_0``은 가장 안쪽 껍질이 아니라 배경을 측정했고 특징의 의미가 뒤집혔습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#2",
+      "source": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
+      "source_sha256": "4ea038f1112521657fa7e763ea1a4ff87d281b96b5f4ad8c6d5c8d9190bd1762",
+      "context": "Args: distance_map (numpy.ndarray): Distance from the object boundary. single_channel_image (numpy.ndarray): The single-image data channel image. num_bins (int): The number of bins for the radial distribution. region_mask (numpy.ndarray): Boolean mask of the parent cell.",
+      "translation": "Args: distance_map (numpy.ndarray): 객체 경계로부터의 거리. single_channel_image (numpy.ndarray): 단일 채널 이미지. num_bins (int): 방사형 분포의 구간 수. region_mask (numpy.ndarray): 상위 세포의 불리언 마스크.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._calculate_radial_distribution._calculate_average_intensity#3",
+      "source": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
+      "source_sha256": "7d2cc953d6f4c367bc72a6b45e4d04f51d749b1cfff841ce3bd813d682daf2d2",
+      "context": "Returns: numpy.ndarray: The radial distribution of average intensities. Bins with no pixels are NaN rather than a meaningless 0.",
+      "translation": "Returns: numpy.ndarray: 평균 강도의 방사형 분포. 픽셀이 없는 구간은 의미 없는 0이 아니라 NaN입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._cell_cycle_by_well._fractions#0",
+      "source": "Count and phase fractions of one group of nuclei.",
+      "source_sha256": "4ad522a42a851dbb68f7f7d5af38226212a5e51357070ea1b493d899765edf1d",
+      "context": "Count and phase fractions of one group of nuclei.",
+      "translation": "핵 그룹 하나의 개수와 위상 비율.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._cellprofiler_tables.field_masks#0",
+      "source": "``{object type: label image}`` of one field, read once.",
+      "source_sha256": "c721b5607b1caded4b23af04dbe6e41e34553ba3892a6904364378930dcc8384",
+      "context": "``{object type: label image}`` of one field, read once.",
+      "translation": "한 시야의 ``{object type: label image}``이며, 한 번만 읽습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._cellprofiler_tables.lookup#0",
+      "source": "The spaCR label under each centre in ``role``'s mask.",
+      "source_sha256": "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1",
+      "context": "The spaCR label under each centre in ``role``'s mask.",
+      "translation": "``role`` 마스크에서 각 중심 아래에 있는 spaCR 레이블.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._confluency_phase_features.log_sd#0",
+      "source": "Log of the local standard deviation in ``window``, in noise units.",
+      "source_sha256": "946bba1bab987957ae59fef6689a070bc1ec2b2a2d454be73cf9c2592ff71182",
+      "context": "Log of the local standard deviation in ``window``, in noise units.",
+      "translation": "``window`` 안의 국소 표준편차의 로그이며, 잡음 단위로 나타냅니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._extended_regionprops_table._gini#0",
+      "source": "NaN-safe Gini coefficient of an intensity array.",
+      "source_sha256": "49b049dab3d2a75f445f7e56c6af607ae6f8cbc6289d37c1176dcd76364bf876",
+      "context": "NaN-safe Gini coefficient of an intensity array.",
+      "translation": "강도 배열의 NaN 안전 지니 계수.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._extended_regionprops_table._masked_intensity#0",
+      "source": "Pixels inside a region across old and new scikit-image names.",
+      "source_sha256": "9721cea781c6c222bba1ecf605f76083795c652b00a8909f487a13293a2dca8f",
+      "context": "Pixels inside a region across old and new scikit-image names.",
+      "translation": "영역 안의 픽셀이며, 예전과 새 scikit-image 이름을 모두 지원합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._all_masks#0",
+      "source": "Object type -> label image, for the masks this run actually has.",
+      "source_sha256": "6db153ee6184205f533e512e409743fd037194956c86f3a06f7fb522074284ca",
+      "context": "Object type -> label image, for the masks this run actually has.",
+      "translation": "객체 유형 -> 레이블 이미지, 이번 실행에 실제로 있는 마스크에 대해.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._props#0",
+      "source": "regionprops_table + (3-D only) the explicitly-named volume columns.",
+      "source_sha256": "82b8b5fc8a38afd8cbe5afbf856be749418f03bbe7936557ea5a86083c49b0f9",
+      "context": "regionprops_table + (3-D only) the explicitly-named volume columns.",
+      "translation": "regionprops_table + (3-D에서만) 명시적으로 이름 붙인 부피 열.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#0",
+      "source": "Merge the bystander block onto the CELL props frame.",
+      "source_sha256": "593c89ad5e04a175e6b79d7047d3e39f464335acbf304d731eb11f12aa973231",
+      "context": "Merge the bystander block onto the CELL props frame.",
+      "translation": "bystander 블록을 세포 props 프레임에 병합합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#1",
+      "source": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
+      "source_sha256": "79645da035287a4b4e8f5b986fdb33aed414f1dd1822da4dd309945b4b96a524",
+      "context": "A cell is infected if it holds a pathogen, a bystander if it holds none but sits within the reach of one that does, and distal otherwise. Without the split the last two are the same row, and the uninfected control is a mixture whose variance hides the effect every infection comparison is looking for.",
+      "translation": "병원체를 품고 있으면 감염 세포, 품고 있지 않지만 품고 있는 세포의 도달 범위 안에 있으면 bystander, 그 밖에는 원위 세포입니다. 이 구분이 없으면 뒤의 두 경우가 같은 행이 되고, 비감염 대조군은 그 분산이 모든 감염 비교가 찾는 효과를 가리는 혼합물이 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#2",
+      "source": "THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
+      "source_sha256": "876e8703cf70d44a4c3fd773752c5dbe24bf8919c0fcf301fa152733df2d8610",
+      "context": "The reach is derived from this field's own cells, as a multiple of their median diameter, so it means the same thing at 20x and 63x.",
+      "translation": "도달 범위는 이 시야 자체의 세포에서 중앙 지름의 배수로 도출되므로, 20x와 63x에서 같은 의미를 가집니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_bystanders#3",
+      "source": "Props on the LEFT, for the reason `_with_spatial` gives.",
+      "source_sha256": "3e92e45dd5b6c07243d4467e554d72b6d23872aa28b833c1c69180e8b32dbc8a",
+      "context": "Props on the LEFT, for the reason `_with_spatial` gives.",
+      "translation": "`_with_spatial`이 설명하는 이유로 props를 왼쪽에 둡니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_distances#0",
+      "source": "Merge the object-distance block onto a props frame.",
+      "source_sha256": "19a6cbe661e1a0274a73726856b21bb2fabb168022f1904f7f6a75e383ac5e85",
+      "context": "Merge the object-distance block onto a props frame.",
+      "translation": "객체 거리 블록을 props 프레임에 병합합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_distances#1",
+      "source": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
+      "source_sha256": "d8ade6bb51a5647eef83af5506a30253f7f68a3958ed064f27e707b6b684459f",
+      "context": "Props on the LEFT for the reason `_with_spatial` gives: 'label' has to keep column position 0. A non-empty frame means ``name``'s mask holds labels, so `_all_masks` already carries it.",
+      "translation": "`_with_spatial`이 설명하는 이유로 props를 왼쪽에 둡니다: 'label'은 열 위치 0을 유지해야 합니다. 비어 있지 않은 프레임은 ``name`` 마스크에 레이블이 있다는 뜻이므로, `_all_masks`가 이미 이를 포함합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._morphological_measurements._with_spatial#0",
+      "source": "Merge the spatial block onto a props frame. Props on the LEFT.",
+      "source_sha256": "e9438c15ee31bd9911c6348e8209e63efd2313187ea8ae8d59f2e477177b799c",
+      "context": "Merge the spatial block onto a props frame. Props on the LEFT.",
+      "translation": "공간 블록을 props 프레임에 병합합니다. props는 왼쪽에 둡니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._phases_by_xgboost._model#0",
+      "source": "A fresh classifier with the fixed phase-calling parameters.",
+      "source_sha256": "de55060650b92a8e1eb79e6cffae105f35b7e5fa5321c5936fd75f119cb4937f",
+      "context": "A fresh machine-learning classification model with the fixed phase-calling parameters.",
+      "translation": "고정된 위상 판정 매개변수를 가진 새 분류기.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._save_viability_figures._keep#0",
+      "source": "Save one figure under the viability results folder.",
+      "source_sha256": "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614",
+      "context": "Save one figure under the viability results folder.",
+      "translation": "생존율 결과 폴더에 그림 하나를 저장합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._stain_cut._share#0",
+      "source": "Share of the plate's objects above ``threshold``.",
+      "source_sha256": "752fece034fac4bf0d7c1ddbb30c406b5c880eb6369744dc4f0c5136d9716ffb",
+      "context": "Share of the plate's objects above ``threshold``.",
+      "translation": "플레이트 객체 중 ``threshold``를 넘는 비율.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._torch_intensity_table.host#0",
+      "source": "Copy a tensor to a NumPy array.",
+      "source_sha256": "202e41029fe45887981ac6cab6281db406da3471bf0cbb4b4b6cec7c2c707f6b",
+      "context": "Copy a tensor to a NumPy array.",
+      "translation": "텐서를 NumPy 배열로 복사합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._two_population_fit._mixture#0",
+      "source": "The fitted two-population density at ``v``.",
+      "source_sha256": "2e3b50ec7f96a325f1899a7d4f3622a0912576f0dac46bd4c5c460b853fec5eb",
+      "context": "The fitted two-population density at ``v``.",
+      "translation": "``v``에서의 적합된 두 집단 밀도.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._two_population_fit._near#0",
+      "source": "How many values lie within ``reach`` of ``v``.",
+      "source_sha256": "080d5188e78db935ba8bde8d3f32a6b4510090be50a95f77e3dc85a5fdbc3e0d",
+      "context": "How many values lie within ``reach`` of ``v``.",
+      "translation": "``reach`` 안에서 ``v``에 가까운 값이 몇 개인지.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._wound_axis.inside#0",
+      "source": "Mark axis samples inside the image at the given normal offset.",
+      "source_sha256": "b1808e32962edaf79f876cdb1117eadb96fceb447d27cda519d82e6a967954f8",
+      "context": "Mark axis samples inside the image at the given normal offset.",
+      "translation": "주어진 법선 방향 오프셋에서 이미지 안에 있는 축 표본을 표시합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._wound_closure_tables.planes#0",
+      "source": "Yield this field's wound-analysis planes in time order.",
+      "source_sha256": "4f1a95b138e6ca9e8d5dda131f726491b920c247ab86bc0be8ee94c6b036ba75",
+      "context": "Yield this microscope field of view's wound-analysis image layers in time order.",
+      "translation": "이 시야의 상처 분석 평면을 시간 순서로 내놓습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure._wound_fronts.running#0",
+      "source": "Running median of the good fronts, carried over rows with none.",
+      "source_sha256": "01ea6ee50870a5094c9fd19a90437404020d7d7b10eb4c09a5c2b34b29b9b91e",
+      "context": "Running median of the good fronts, carried over rows with none.",
+      "translation": "좋은 전선의 이동 중앙값이며, 전선이 없는 행에는 이전 값을 이어 갑니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.assign_paths_by_regex.first#0",
+      "source": "The first of ``names`` the pattern actually defines.",
+      "source_sha256": "1530c7ebee048a8d6695f85aa74877a1bcd054e57a746a90b39867d84071e267",
+      "context": "The first of ``names`` the pattern actually defines.",
+      "translation": "패턴이 실제로 정의하는 ``names`` 중 첫 번째.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset._in#0",
+      "source": "An ``IN (...)`` clause and its parameters, built safely.",
+      "source_sha256": "2541b64140f1fcc8b51dc3b4d888630bf553268b95cabe9847daf6c29f06a40d",
+      "context": "An ``IN (...)`` clause and its parameters, built safely.",
+      "translation": "안전하게 만든 ``IN (...)`` 절과 그 매개변수.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.generate_object_dataset._in#1",
+      "source": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
+      "source_sha256": "0ab47d5ec0a0a95a2bad2a876c4dca28df020f65fd5c785ada10450db9888549",
+      "context": "Placeholders rather than interpolation: the values come from a settings file, and a formatted list is an injection waiting for a filename with a quote in it.",
+      "translation": "보간 대신 자리 표시자를 씁니다: 값은 설정 파일에서 오며, 서식화된 목록은 따옴표가 든 파일 이름 하나만 있으면 터지는 인젝션입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.job_callback#0",
+      "source": "Record one completed field and save its optional figures.",
+      "source_sha256": "4125957ce35fa2732ebe63cc2fab8251c1530f38ec47e9f704ad64049e951e3a",
+      "context": "Record one completed field and save its optional figures.",
+      "translation": "완료된 시야 하나를 기록하고 선택적 그림을 저장합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.job_callback#1",
+      "source": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty dict -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
+      "source_sha256": "7c2086c26796b9a25462ef474b70ed5f24e224738f26f5c95d4eb9fceb6cd4b9",
+      "context": "The 4-tuple ``(index, average_time, cells, figs)`` that :func:`_measure_crop_core` returns, taken straight off the ``AsyncResult`` -- one result, not the list that :func:`process_measure_crop_results` takes, which is why it is re-wrapped as ``[result]`` below. ``index`` is the position in ``files`` and is translated back through ``index_to_file`` so the ledger entry names the field rather than a number. ``cells`` decides the verdict: the success path leaves the ``np.unique(cell_mask)`` array there, while a plain int ``0`` is the cross-process failure sentinel a worker leaves when it caught its own exception, so only that int records a failure. ``figs`` may be an empty key-value mapping -- nothing is drawn unless ``settings['plot']``. Passing the same field twice is safe for the counters (``completed_jobs`` and ``reported_files`` are sets) but would save its figures twice, so the retry loop calls this only for the attempt that actually returned.",
+      "translation": "4-튜플 ``(index, average_time, cells, figs)``은 :func:`_measure_crop_core`가 반환하는 값으로, ``AsyncResult``에서 바로 가져온 것입니다 -- 결과 하나이며 :func:`process_measure_crop_results`가 받는 목록이 아니므로, 아래에서 ``[result]``로 다시 감쌉니다. ``index``는 ``files`` 안의 위치이며 ``index_to_file``을 통해 다시 변환되어 장부 항목이 숫자가 아니라 시야 이름을 갖게 됩니다. ``cells``가 판정을 결정합니다: 성공 경로는 그 자리에 ``np.unique(cell_mask)`` 배열을 남기고, 단순 int ``0``은 worker가 자신의 예외를 잡았을 때 남기는 프로세스 간 실패 표식이므로 그 int만 실패로 기록됩니다. ``figs``는 빈 dict일 수 있습니다 -- ``settings['plot']``이 없으면 아무것도 그리지 않습니다. 같은 시야를 두 번 넘기는 것은 카운터에는 안전하지만(``completed_jobs``와 ``reported_files``는 집합) 그림을 두 번 저장하게 되므로, 재시도 루프는 실제로 결과를 돌려준 시도에 대해서만 이를 호출합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#0",
+      "source": "Bind the filename into the pool's error callback.",
+      "source_sha256": "821b82d21f2aed27316e1794955739da4613069c3d71fa890c08c2ba3c6a9800",
+      "context": "Bind the filename into the pool's error callback.",
+      "translation": "파일 이름을 풀의 오류 콜백에 묶습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#1",
+      "source": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the run still printed \"Successfully completed run\".",
+      "source_sha256": "35ba5714a146ba2a5f0caea57f3c9a1e2d06b5c2073c6bd36db51507acedd3fc",
+      "context": "``apply_async`` hands the error callback only the exception, so the file has to be closed over. Without this hook a worker that died outright vanished entirely: the exception sat on an AsyncResult nobody read, and the processing session still printed \"Successfully completed run\".",
+      "translation": "``apply_async``는 오류 콜백에 예외만 넘기므로 파일을 클로저로 잡아 두어야 합니다. 이 훅이 없으면 바로 죽은 worker는 완전히 사라졌습니다: 예외는 아무도 읽지 않는 AsyncResult에 남아 있었고, 실행은 여전히 \"Successfully completed run\"을 출력했습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#2",
+      "source": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger key *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
+      "source_sha256": "69f2129f3679abddd3426b411f5509e4d16b24ebe38d0f8ce97c8cd2fe3083c0",
+      "context": "The ``.npy`` filename of the field, as it appears in ``files`` -- a bare basename, not a path joined onto ``settings['src']``. It is used unchanged as the ledger structured-data name *and* as the ``reported_files`` entry, so anything else silently loses the match against ``files`` in the ``finally`` sweep and the field is filed a second time as \"field produced no result\".",
+      "translation": "시야의 ``.npy`` 파일 이름이며 ``files``에 나타나는 그대로입니다 -- ``settings['src']``에 붙인 경로가 아니라 순수한 기본 이름입니다. 이 값은 장부 키 *그리고* ``reported_files`` 항목으로 그대로 쓰이므로, 다른 값을 쓰면 ``files``와의 일치가 ``finally`` 점검에서 조용히 사라지고 시야가 \"field produced no result\"로 한 번 더 기록됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback#3",
+      "source": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
+      "source_sha256": "b1c74284824deeedfa8857488d838d4a3b528e450c7bd10a2f8b429ef4bb7ef9",
+      "context": "A one-argument callable suitable as the ``error_callback`` of ``Pool.apply_async``; it takes the exception and returns ``None``. Call it as ``make_error_callback(file)(exc)`` when raising the exception yourself, which is what the retry loop does on the last attempt -- the ledger counts fields, not tries, so a field that failed twice and then worked must not be reported here at all.",
+      "translation": "인자 하나짜리 호출 가능 객체로, ``error_callback``으로서 ``Pool.apply_async``에 쓰기에 적합하며, 예외를 받아 ``None``을 반환합니다. 예외를 직접 발생시킬 때는 ``make_error_callback(file)(exc)``로 호출하십시오. 재시도 루프가 마지막 시도에서 바로 이렇게 합니다 -- 장부는 시도가 아니라 시야를 세므로, 두 번 실패한 뒤 성공한 시야는 여기서 절대 보고하면 안 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_crop.make_error_callback._on_error#0",
+      "source": "Record one worker's failure against the file that caused it.",
+      "source_sha256": "b3e7df802817cac8b0aceeaf6d4a80c87c0d757f224ea11855a750c9c51addd9",
+      "context": "Record one worker's failure against the file that caused it.",
+      "translation": "worker 하나의 실패를 그 원인이 된 파일에 기록합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table.say#0",
+      "source": "Report a stage, if anyone asked to hear about them.",
+      "source_sha256": "c4b6a80bf4ad38ea922c169981c33ec890d46f6cc0994468c70f9aa301854bb9",
+      "context": "Report a stage, if anyone asked to hear about them.",
+      "translation": "누군가 단계 소식을 요청했다면 단계를 보고합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.measure_from_field_table.say#1",
+      "source": "Guarded because the caller is a window that may be closed while this is still running: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A run must not fail because nobody is listening to it any more.",
+      "source_sha256": "73defc1d2820b723b97162c511a1cdc527a26b43368afddd0c14a3ef4e82b37f",
+      "context": "Guarded because the caller is a window that may be closed while this is still executing: the FEATURES window's callback emits a Qt signal, and a worker parked past its widget's destruction raises ``RuntimeError`` from the emit. A processing session must not fail because nobody is listening to it any more.",
+      "translation": "호출자가 이 작업이 실행되는 동안 닫힐 수 있는 창이므로 보호합니다: FEATURES 창의 콜백은 Qt 시그널을 보내며, 위젯이 파괴된 뒤까지 대기한 worker는 emit에서 ``RuntimeError``를 발생시킵니다. 아무도 더 이상 듣지 않는다는 이유로 실행이 실패해서는 안 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.resolve_measurement_spacing._positive#0",
+      "source": "One spacing value, refused unless it is a positive number.",
+      "source_sha256": "b4ee27c47c2ecb45020133b8b349868e4a5fe2bddc860587ca86295b4d09fa09",
+      "context": "One spacing value, refused unless it is a positive number.",
+      "translation": "간격 값 하나이며, 양수가 아니면 거부합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.measure.resolve_measurement_spacing._positive#1",
+      "source": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
+      "source_sha256": "29c509955c2bf776795e6aa1ef89e3d84ee427d163ee5baf686467bc3fbfe322",
+      "context": "A zero or negative spacing makes every physical measurement wrong by a factor nobody can recover afterwards, so it is refused rather than defaulted.",
+      "translation": "0이나 음수 간격은 모든 물리적 측정을 나중에 아무도 복구할 수 없는 배율만큼 틀리게 만들므로, 기본값으로 대체하지 않고 거부합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

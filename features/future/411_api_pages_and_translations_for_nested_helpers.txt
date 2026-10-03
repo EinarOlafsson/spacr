@@ -2178,3 +2178,13 @@ spacr.submodules (one block's capitalised "WHERE" is a protected product
 token every locale would have to keep), qt.screens.make_masks (undocumented
 nightly helper).
     BLOCKED / open: OPEN docs work: 484 of 1,158 nested helpers (11 unrenderable); upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — SPACR.MEASURE ENABLED (PARTIAL; 702 of 1,158)
+ENABLED_MODULES gains spacr.measure (28 helpers). The writer adds 28 symbols
+(12,700 -> 12,728) in English and nine locales from 42 AI-reviewed blocks
+(2026-10-03-nested-batch11.json, direct AI translation with AI technical
+review, no native-speaker signoff); generated=0, decoded=0; earlier locale
+records byte-identical. Help index regenerated. Guards: all pass. Next: io,
+figure_settings, ml, gui_scale, utils, plot, fractal_travel; submodules once
+the "WHERE" product-token false positive is resolved in the tooling.
+    BLOCKED / open: OPEN docs work: 456 of 1,158 nested helpers (11 unrenderable); upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
