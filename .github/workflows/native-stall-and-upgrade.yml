@@ -1,6 +1,9 @@
 name: Native stall and frozen upgrade acceptance
 
 on:
+  push:
+    branches: [nightly]
+    paths: [.github/workflows/native-stall-and-upgrade.yml]
   workflow_dispatch:
     inputs:
       old_run:
@@ -64,19 +67,19 @@ jobs:
         with:
           name: legacy-build-windows
           path: old
-          run-id: ${{ inputs.old_run }}
+          run-id: ${{ inputs.old_run || '36372926331' }}
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
           name: legacy-build-windows
           path: new
-          run-id: ${{ inputs.new_run }}
+          run-id: ${{ inputs.new_run || '36419911083' }}
           github-token: ${{ github.token }}
       - name: Replace, restart and interruption on Windows
         shell: pwsh
         env:
-          PREVIOUS_RUN: ${{ inputs.old_run }}
-          CURRENT_RUN: ${{ inputs.new_run }}
+          PREVIOUS_RUN: ${{ inputs.old_run || '36372926331' }}
+          CURRENT_RUN: ${{ inputs.new_run || '36419911083' }}
         run: |
           foreach ($r in 'old','new') { $f = "$r/acceptance/SHA256SUMS"; (Get-Content $f -Raw) -replace "`r","" | Set-Content -NoNewline $f }
           ./tools/accept_frozen_windows_upgrade.ps1 -OldRoot old -NewRoot new -Output upgrade-evidence -InterruptAfterSeconds 10
@@ -97,13 +100,13 @@ jobs:
         with:
           name: legacy-build-macos
           path: old
-          run-id: ${{ inputs.old_run }}
+          run-id: ${{ inputs.old_run || '36372926331' }}
           github-token: ${{ github.token }}
       - uses: actions/download-artifact@v8
         with:
           name: legacy-build-macos
           path: new
-          run-id: ${{ inputs.new_run }}
+          run-id: ${{ inputs.new_run || '36419911083' }}
           github-token: ${{ github.token }}
       - name: User-writable replace, restart and crash recovery on macOS
         run: bash tools/accept_frozen_macos_replace.sh old new replace-evidence
