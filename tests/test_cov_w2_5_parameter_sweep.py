@@ -463,8 +463,11 @@ def test_the_pool_holds_back_when_memory_is_low(tmp_path, inline_pool,
                         lambda payload: {"trial_id": payload[1]["trial_id"],
                                          "status": "ok", "seconds": 0.1})
 
-    results = ps.run_sweep_parallel({"src": str(tmp_path)}, tmp_path / "out",
-                                    space, n_jobs=2, progress_every=0)
+    # ram_guard off: the start-up RAM guard (f853a2dba) would otherwise size
+    # the pool from this machine's free RAM before the floor is reached.
+    results = ps.run_sweep_parallel({"src": str(tmp_path), "ram_guard": False},
+                                    tmp_path / "out", space, n_jobs=2,
+                                    progress_every=0)
 
     assert len(results) == 2
     assert "held back" in capsys.readouterr().out
