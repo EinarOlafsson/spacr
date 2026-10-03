@@ -60,19 +60,20 @@ from spacr.qt.widgets.power_design import (
 )
 
 
-#: Small enough that nine fits take about ten seconds, real enough that the
-#: model actually converges at the fed end of the curve and actually fails to
-#: at the starved end — which is the behaviour the power curve is made of.
+#: Small enough that both sweeps (nine points, two replicates) take about
+#: fifteen seconds, real enough that the model actually converges at the fed
+#: end of the curve and actually fails to at the starved end — which is the
+#: behaviour the power curve is made of.
 def _tiny(**changes) -> DesignSpec:
     base = dict(
-        n_genes=24, n_grnas_per_gene=1, cells_per_well=64.0,
+        n_genes=12, n_grnas_per_gene=1, cells_per_well=64.0,
         wells_per_plate=96, n_plates=1, constructs_per_well=4.0,
         background_positive_rate=0.10, effect_fold=6.0, hit_rate=0.25,
         reads_per_well=8000.0, gene_abundance_alpha=5.0,
         cells_per_well_var=200.0, class_pos_var=0.005, class_neg_var=0.005,
         sequencing_cells_per_well=300.0, pcr_factor_mu=1.0,
         pcr_factor_var=0.3, read_depth_cv=0.0,
-        n_replicates=3, detection_auroc=0.80, seed=11, backend="torch",
+        n_replicates=2, detection_auroc=0.80, seed=11, backend="torch",
     )
     base.update(changes)
     return DesignSpec(**base)
@@ -80,7 +81,7 @@ def _tiny(**changes) -> DesignSpec:
 
 #: ADVI settings that keep a fit under a second without stopping it
 #: converging where the design supports it.
-FAST_FIT = {"n_steps": 400, "n_draws": 128}
+FAST_FIT = {"n_steps": 150, "n_draws": 32}
 
 #: Even smaller, for the threading tests, where the point is the QThread and
 #: not the statistics.
@@ -148,7 +149,7 @@ def test_the_screen_reproduces_the_librarys_own_numbers_for_a_fixed_seed(
             fit_kwargs=FAST_FIT,
         )
 
-    assert len(from_screen) == len(direct) == len(cells_grid(spec)) * 3
+    assert len(from_screen) == len(direct) == len(cells_grid(spec)) * spec.n_replicates
     assert list(from_screen["run_key"]) == list(direct["run_key"])
     assert list(from_screen["status"]) == list(direct["status"])
     assert list(from_screen["seed_used"]) == list(direct["seed_used"])

@@ -392,6 +392,11 @@ class ConvertScreen(QWidget):
         src_row.addWidget(QLabel("Source"))
         src_row.addWidget(self._src_edit, 1)
         src_row.addWidget(self._btn_pick_src)
+        from ..import_demo import _import_test_data_button
+        example = _import_test_data_button(
+            self, "nikon_nd2", self._use_test_data, say=self._set_summary)
+        example.setObjectName("ConvertTestDataButton")
+        src_row.addWidget(example)
         outer.addLayout(src_row)
 
         opt_row = QHBoxLayout()
@@ -525,6 +530,16 @@ class ConvertScreen(QWidget):
                              os.path.basename(os.path.normpath(str(path)))
                              + "_yokogawa"))
         self._on_option_changed()
+
+    def _use_test_data(self, inputs) -> None:
+        """Point the screen at an Import test variant's images and preview.
+
+        :param inputs: :func:`spacr.import_examples.variant_inputs` for it.
+        """
+        images = str(inputs["images"])
+        self.set_source(images)
+        self.set_destination(images + "_yokogawa")
+        self.preview()
 
     def source_path(self) -> str:
         """The source folder currently typed in."""

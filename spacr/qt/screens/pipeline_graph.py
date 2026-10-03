@@ -450,6 +450,11 @@ class PipelineGraphScreen(QWidget):
             "provenance. Nothing is written.")
         self._reload_button.clicked.connect(self._on_reload)
         picker.addWidget(self._reload_button)
+        from ..widgets.measurements_example import install_test_data_button
+        example = install_test_data_button(
+            self, picker, lambda folder, _db: self.load_project(str(folder)),
+            say=lambda text: self._set_verdict(text, problem=True))
+        example.setObjectName("PipelineGraphTestDataButton")
         outer.addLayout(picker)
 
         self._banner = QFrame()

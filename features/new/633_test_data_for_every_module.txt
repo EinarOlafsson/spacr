@@ -18,6 +18,32 @@ EmbeddingsTestDataButton, PowerTestDataButton. Hidden unless Preferences ->
 spacr.qt.widgets.measurements_example; nothing new is downloaded or published.
 Test: tests/qt/test_test_data_for_every_module.py.
 
+ALPHA 2026-10-03 (second pass): five more buttons in ALPHA_FEATURES[633]:
+ConvertTestDataButton (Import's nikon_nd2 variant, the CC BY 4.0 public ND2
+sample, previewed in the converter), LayerViewerTestDataButton (one field
+of Import's "auto" variant: three channels plus its cell and nucleus
+masks), ExternalMasksTestDataButton (the same variant's images and masks
+folder into the inputs table, dst set beside it), PipelineGraphTestDataButton
+and ProjectBrowserTestDataButton (the HF example plate as the project).
+The first three reuse Import's published archive
+(einarolafsson/spacr-example-import) through
+spacr.qt.import_demo._import_test_data_button; nothing new downloaded or
+published. tests/qt/test_power_screen.py now simulates 12 genes, 2
+replicates, 150 ADVI steps (serial run 11 min -> 1.5 min).
+
+Genuinely no data (checked 2026-10-03):
+- dose_response: CPJUMP1 (control_chart_cpjump1) has no concentration or
+  dose column (metadata is broad_sample, solvent, plate, well, InChIKey,
+  pert_iname, pubchem_cid, gene, pert_type, control_type, smiles); its
+  compounds are a single dose, so no curve can be derived. Needs a dose
+  plate (maintainer's, or a public multi-dose set such as cpg0004 LINCS).
+- profiler, investigate_hit: read Regression's coefficients / a hit from a
+  finished Regression run, which no published set ships. They become
+  testable by running Regression's own test data first.
+- run_compare, run_history, train_compare: read spaCR's artifact registry
+  of recorded runs; the example plate has none. A recorded demo registry
+  would have to be published.
+
 Audit (2026-10-03, nightly 9ff4ec07c)
 Mechanisms: EXAMPLE_DATA_SECTIONS dispatch in app_screen.py (settings modules),
 widgets/measurements_example.install_test_data_button (DB-reading tools),
@@ -98,9 +124,6 @@ To publish to HF (staged, NOT uploaded):
 
 Left:
 - Publish the CPJUMP1 set and switch Control Chart to it.
-- Dose-Response: needs a small dose plate from the maintainer.
-- Layer Viewer and External Masks: wire the PV training-set sample
-  (make_masks_datasets, add the app keys) once those screens take a folder.
-- Convert: pick an OME-TIFF sample and add a button.
-- Registry-reading tools (run_compare, pipeline_graph, ...): a recorded
-  demo run would be needed.
+- Dose-Response: needs a multi-dose plate (see above).
+- Profiler / Investigate Hit: chain from Regression's test data.
+- run_compare, run_history, train_compare: a published demo registry.

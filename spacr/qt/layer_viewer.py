@@ -58,6 +58,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .i18n import tr
 from ..layers import (
     COLORMAPS,
     Blending,
@@ -804,6 +805,12 @@ class LayerViewer(LinkedView, QWidget):
                        self.add_points_button, self.add_shapes_button):
             buttons.addWidget(button)
         column.addLayout(buttons)
+        from .import_demo import _import_test_data_button
+        example = _import_test_data_button(
+            self, "auto", self._use_test_data,
+            say=lambda text: self.status.setText(text))
+        example.setObjectName("LayerViewerTestDataButton")
+        column.addWidget(example)
 
         order = QHBoxLayout()
         order.setSpacing(4)
@@ -968,6 +975,34 @@ class LayerViewer(LinkedView, QWidget):
             "Masks (*.tif *.tiff *.png *.npy);;All files (*)")
         if path:
             self.add_labels_file(path)
+
+    def _use_test_data(self, inputs) -> None:
+        """Open one field of an Import test variant: its channels and masks.
+
+        :param inputs: :func:`spacr.import_examples.variant_inputs` for it.
+        """
+        import glob
+        import os
+
+        found = sorted(glob.glob(os.path.join(
+            str(inputs["images"]), "*", "*.tif")))
+        if not found:
+            self.status.setText(tr("The test data has no images."))
+            return
+        first = found[0]
+        field = os.path.basename(first).rsplit("_ch", 1)[0] + "_ch"
+        folder = os.path.dirname(first)
+        for path in found:
+            if (os.path.dirname(path) == folder
+                    and os.path.basename(path).startswith(field)):
+                self.add_image_file(path)
+        relative = os.path.relpath(first, str(inputs["images"]))
+        for masks in dict(inputs["masks"]).values():
+            mask = os.path.join(str(masks), relative)
+            if os.path.isfile(mask):
+                self.add_labels_file(mask)
+        self.status.setText(tr("Opened test data: {path}",
+                               path=str(inputs["images"])))
 
     def add_image_file(self, path) -> Optional[ImageLayer]:
         """Load ``path`` as an image layer. Returns it, or ``None`` on failure.

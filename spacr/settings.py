@@ -7593,7 +7593,10 @@ ALPHA_FEATURES = {
         'widgets': ('TrellisTestDataButton', 'FeatureExplorerTestDataButton',
                     'OutliersTestDataButton', 'ControlChartTestDataButton',
                     'DataManagerTestDataButton', 'EmbeddingsTestDataButton',
-                    'PowerTestDataButton'),
+                    'PowerTestDataButton', 'ConvertTestDataButton',
+                    'LayerViewerTestDataButton', 'ExternalMasksTestDataButton',
+                    'PipelineGraphTestDataButton',
+                    'ProjectBrowserTestDataButton'),
     },
 }
 

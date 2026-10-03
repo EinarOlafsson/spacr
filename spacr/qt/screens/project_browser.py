@@ -173,6 +173,12 @@ class ProjectBrowserScreen(QWidget):
         self._rescan.setToolTip("Walk the search folders again")
         self._rescan.clicked.connect(self.rescan)
         controls.addWidget(self._rescan)
+        from ..widgets.measurements_example import install_test_data_button
+        example = install_test_data_button(
+            self, controls,
+            lambda folder, _db: self.add_root(os.path.dirname(str(folder))),
+            say=lambda text: self._status.setText(text))
+        example.setObjectName("ProjectBrowserTestDataButton")
         controls.addStretch(1)
         self._status = QLabel("Add a folder to search for projects.")
         self._status.setObjectName("ProjectBrowserStatus")

@@ -116,10 +116,39 @@ class ExternalMaskInputWidget(QWidget):
         buttons.addWidget(self._add_files)
         buttons.addWidget(self._add_folder)
         buttons.addWidget(self._remove)
+        from ..import_demo import _import_test_data_button
+        example = _import_test_data_button(self, "auto", self._use_test_data)
+        example.setObjectName("ExternalMasksTestDataButton")
+        buttons.addWidget(example)
         buttons.addStretch(1)
         outer.addLayout(buttons)
 
         self.set_value(value or [])
+
+    def _use_test_data(self, inputs) -> int:
+        """Add an Import test variant's images and its masks folder.
+
+        The destination is set beside the images when the screen holding
+        this table has none yet.
+
+        :param inputs: :func:`spacr.import_examples.variant_inputs` for it.
+        :returns: the number of files added.
+        """
+        import os
+
+        paths = [str(inputs["images"])]
+        masks = list(dict(inputs["masks"]).values())
+        if masks:
+            paths.append(os.path.dirname(str(masks[0])))
+        added = self.add_paths(paths)
+        holder = self.parent()
+        while holder is not None and not hasattr(holder, "_settings_model"):
+            holder = holder.parent()
+        model = getattr(holder, "_settings_model", None)
+        widget = getattr(model, "_widgets", {}).get("dst")
+        if widget is not None and not model._read_widget(widget):
+            model.set_value_for_key("dst", str(inputs["images"]) + "_spacr")
+        return added
 
     def add_paths(self, paths: Iterable[Any]) -> int:
         """Detect and append one drag/drop or picker batch.

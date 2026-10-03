@@ -242,3 +242,77 @@ def _apply_to_converter(screen, inputs) -> bool:
     screen._set_status(tr("Opened the Format Converter on {path}",
                           path=images))
     return bool(converter.preview())
+
+
+def _import_test_data_button(owner, key: str, apply: Callable[[dict], object],
+                             *, say: Optional[Callable[[str], object]] = None):
+    """A "Load test data…" button that hands one Import variant to ``apply``.
+
+    For a screen other than Import that can show the same fields: the button
+    reuses Import's archive, and a copy any earlier press unpacked is opened
+    without touching the network.
+
+    :param owner: the widget the button belongs to; the button, ``key``,
+        ``apply`` and ``say`` are kept on it so
+        :func:`_load_import_variant` can be called with the owner alone.
+    :param key: the variant, from :data:`spacr.import_examples.IMPORT_VARIANTS`.
+    :param apply: called as ``apply(inputs)`` with
+        :func:`spacr.import_examples.variant_inputs` once the variant is on disk.
+    :param say: where a failed download is reported; logged when omitted.
+    :returns: the button, not yet named or placed in a layout.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    button = QPushButton(tr("Load test data…"), owner)
+    button.setToolTip(tr(
+        "Download Import's test data, about 285 MB: four microscope fields "
+        "with their cell, nucleus and pathogen masks, written in every "
+        "format spaCR reads. This screen is filled with the fields it can "
+        "show. Cached afterwards."))
+    owner._import_test_data = (button, key, apply, say)
+    button.clicked.connect(
+        lambda _checked=False: _load_import_variant(owner))
+    return button
+
+
+def _load_import_variant(owner, *, ask=None, plate=None) -> bool:
+    """Open the variant ``owner``'s button names, downloading it if needed.
+
+    :param owner: a widget :func:`_import_test_data_button` was called on.
+    :param ask: replaces :func:`download_import_example`, for tests.
+    :param plate: replaces the example plate folder, for tests.
+    :returns: whether the variant was handed over before returning.
+    """
+    button, key, apply, say = owner._import_test_data
+    plate = Path(plate) if plate is not None else example_plate_folder()
+    root = ix.import_example_folder(plate)
+
+    def _report(message: str) -> None:
+        """Show ``message`` where the owner asked, or log it."""
+        if say is not None:
+            say(message)
+        else:
+            LOG.info("%s", message)
+
+    if ix.is_present(root, key):
+        apply(ix.variant_inputs(root, key))
+        return True
+    button.setEnabled(False)
+    button.setText(tr("Fetching test data…"))
+
+    def _done(result, error):
+        """Put the button back, then hand over the variant or say why not."""
+        button.setEnabled(True)
+        button.setText(tr("Load test data…"))
+        if result is None or not ix.is_present(root, key):
+            _report(tr("The test data could not be downloaded: {detail}",
+                       detail=error or tr("unknown error")))
+            return
+        apply(ix.variant_inputs(root, key))
+
+    download = ask if ask is not None else download_import_example
+    try:
+        download(owner, plate, _done)
+    except Exception as exc:
+        _done(None, explain_download_failure(exc))
+    return False

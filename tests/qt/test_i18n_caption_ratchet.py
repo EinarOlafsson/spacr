@@ -1261,6 +1261,12 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # N615, 2026-10-03: every pending caption above, and item 631's RAM guard
 # dialog, catalogued in nine locales; Object and Propagate are compact rows.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 633: Load test data on Convert, Layer Viewer and External Masks
+    "Download Import's test data, about 285 MB: four microscope fields "
+    "with their cell, nucleus and pathogen masks, written in every "
+    "format spaCR reads. This screen is filled with the fields it can "
+    "show. Cached afterwards.",
+    "Opened test data: {path}", "The test data has no images.",
     # item 632: the gate editor's 3D shapes, polygon closing and renaming
     "Polygon through view", "Ellipsoid with handles", "Box with handles",
     "Polygon through view: click the corners, then click the first "
