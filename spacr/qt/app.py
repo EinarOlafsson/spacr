@@ -6277,7 +6277,9 @@ def _start_icon_prewarm() -> Optional[threading.Thread]:
     See :func:`spacr.qt.iconset._warm_the_bundled_icons` for what this saves:
     the icon decoding that a module's first open otherwise pays inside its
     freeze. The theme is resolved here, on the GUI thread, because it reads
-    preferences. ``launch`` starts this :data:`_ICON_WARM_AFTER_MS` after
+    preferences, and the glyph font loads here too, because Qt registers
+    fonts on the GUI thread and the first module screen otherwise pays for
+    it. ``launch`` starts this :data:`_ICON_WARM_AFTER_MS` after
     the window is shown, the same wait the pipeline preloader uses, so Home
     paints first.
     """
@@ -6285,6 +6287,11 @@ def _start_icon_prewarm() -> Optional[threading.Thread]:
         theme = iconset.active_theme()
     except Exception:                                        # noqa: BLE001
         return None
+    try:
+        with _timing.span("warm", "glyph font"):
+            iconset.icon("settings", theme=theme)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("Could not load the glyph font early", exc_info=True)
 
     def warm():
         """Fill the icon caches, and never let a bad file reach the GUI."""

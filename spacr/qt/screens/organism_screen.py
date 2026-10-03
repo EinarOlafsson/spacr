@@ -308,6 +308,13 @@ class OrganismScreen(QWidget):
 
     def _reflow(self, *args) -> None:
         """Fit Home tiles to the current right-pane width after divider moves."""
+        from .. import timing as _timing
+
+        with _timing.span("organism reflow", self.app_key):
+            self._reflow_tiles()
+
+    def _reflow_tiles(self) -> None:
+        """Re-grid the tiles when the column count changes."""
         if not self._tiles:
             return
         available = self._module_scroll.viewport().width()

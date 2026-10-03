@@ -534,6 +534,13 @@ class OrganismDiagram(QWidget):
         self._fit_width()
 
     def _reserved_heights(self, width: int) -> tuple:
+        """Timed wrapper of :meth:`_measure_reserved_heights`."""
+        from .. import timing as _timing
+
+        with _timing.span("organism heights", str(width)):
+            return self._measure_reserved_heights(width)
+
+    def _measure_reserved_heights(self, width: int) -> tuple:
         """The model row's and the caption's heights at ``width``.
 
         The caption reserves the longest description any compartment can

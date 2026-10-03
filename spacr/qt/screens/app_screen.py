@@ -7667,6 +7667,7 @@ class AppScreen(QWidget):
             "Copy everything in the console, section headers included.")
         self._btn_copy_console.clicked.connect(self._on_copy_console)
 
+        _breathe_while_a_window_opens()
         from .. import iconset as _iconset_prefs
 
         self._btn_preferences = QPushButton()

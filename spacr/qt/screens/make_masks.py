@@ -10606,6 +10606,8 @@ class MakeMasksScreen(QWidget):
 
         :returns: the assembled panel.
         """
+        from .. import screens as _screens_package
+
         from ..i18n import tr
         wrap = QWidget()
         col = QVBoxLayout(wrap)
@@ -10707,6 +10709,7 @@ class MakeMasksScreen(QWidget):
         wand_form.addRow("", self._wand_salvage)
         wand_card.body_layout.addLayout(wand_form)
 
+        _screens_package._breathe_while_a_window_opens()
         runaway = QGroupBox("Trim a runaway flood")
         runaway.setCheckable(True)
         runaway.setChecked(True)
@@ -10850,6 +10853,7 @@ class MakeMasksScreen(QWidget):
         col.addWidget(wand_card)
 
         norm_card = self._settings_category("Display")
+        _screens_package._breathe_while_a_window_opens()
         norm_form = QFormLayout()
         from ..mask_thumbnail_quality import quality_combo
 
@@ -10962,6 +10966,7 @@ class MakeMasksScreen(QWidget):
         col.addWidget(filter_card)
 
         obj_card = self._settings_category("Object operations")
+        _screens_package._breathe_while_a_window_opens()
         ops_col = QVBoxLayout()
         ops_col.setSpacing(SPACING["xs"])
         for label, cb, hint in (
@@ -11086,7 +11091,9 @@ class MakeMasksScreen(QWidget):
         self._sync_method_controls()
         _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_enhance_card())
+        _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_magnifier_card())
+        _screens_package._breathe_while_a_window_opens()
         col.addWidget(self._build_prompt_card())
 
         col.addStretch(1)
