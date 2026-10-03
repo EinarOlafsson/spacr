@@ -55,6 +55,12 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     manifest = json.loads((ROOT / 'release-manifest.json').read_text())
     assert nav['missing_tutorials'] == manifest['outstanding_module_tutorials']
     assert nav['missing_tutorials'] == []
+    # Alpha modules are excluded by name, never by weakening the check above:
+    # each is registered in ALPHA_FEATURES['apps'] and has no lesson route.
+    from spacr.settings import _alpha_names
+    alpha_apps = set(_alpha_names('apps'))
+    assert set(nav['alpha_modules_without_tutorials']) <= alpha_apps
+    assert not {x.get('app_key') for x in lessons} & set(nav['alpha_modules_without_tutorials'])
     assert nav['routes']['76_ops']['host_app_key'] == 'mask'
     navigation_text = (ROOT / 'web/module_navigation.js').read_text()
     assert navigation_text.startswith(NAV_PREFIX) and navigation_text.endswith(JS_SUFFIX)

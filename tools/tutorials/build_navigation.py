@@ -130,6 +130,11 @@ def build(catalog: dict) -> dict:
         raise ValueError('Navigation must place each existing lesson exactly once')
     expected = set(names) | set(HOSTED_MODES)
     expected = {KEY_ALIASES.get(k, k) for k in expected}
+    # Alpha modules get no tutorial: they are hidden while Preferences >
+    # Show alpha features is off, which is how every lesson is recorded.
+    from spacr.settings import _alpha_names
+    alpha_modules = sorted(expected & set(_alpha_names('apps')))
+    expected -= set(alpha_modules)
     uncovered = [{'app_key': k, 'title': names.get(k, k), 'host_app_key': parents.get(k),
                   'status': 'deferred_unvalidated_workflow' if k == 'ops' else 'needs_tutorial'}
                  for k in sorted(expected - set(by_key))]
@@ -139,6 +144,7 @@ def build(catalog: dict) -> dict:
                        for language, labels in LABELS.items()},
             'intro': intro, 'sections': sections, 'routes': routes,
             'missing_tutorials': uncovered,
+            'alpha_modules_without_tutorials': alpha_modules,
             'preserved_lesson_ids': [l['id'] for l in lessons]}
 
 
