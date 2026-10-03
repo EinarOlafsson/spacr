@@ -379,12 +379,12 @@ class ConditionRowsModel(QAbstractTableModel):
 class ConditionSourceTable(QTableView):
     """Drag selected proxy rows using their original source identities."""
 
-    def setModel(self, model):  # noqa: N802
+    def _show_sorted(self, model):
         """Show ``model`` with the shared three-state header sorting.
 
         :param model: the filter proxy over the condition rows.
         """
-        super().setModel(model)
+        self.setModel(model)
         install_sorting(self)
 
     def startDrag(self, supported_actions):  # noqa: N802
@@ -864,7 +864,7 @@ class ConditionAnnotationDialog(QDialog):
         self.proxy.setSortRole(Qt.UserRole + 1)
         self.filter.textChanged.connect(self.proxy.setFilterFixedString)
         self.table = ConditionSourceTable(self)
-        self.table.setModel(self.proxy)
+        self.table._show_sorted(self.proxy)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.table.setDragEnabled(True)

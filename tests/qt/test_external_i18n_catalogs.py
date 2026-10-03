@@ -231,7 +231,10 @@ def test_reviewed_ui_rows_are_exact_in_regenerated_runtime_catalogs():
 #: splits its fields across GPUs): the two mask GPU keys.
 # 316, 2026-09-26 (fourth pass): the catalog rebuild carries both mask GPU
 # keys now, so the list is empty.
-_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset()
+# Owed since 2026-10-02 by item 470 (46e4972ee): the alpha real / not-real
+# object classifier setting.
+_AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "real_object_classifier", "real_object_threshold"})
 
 
 def _assert_setting_tooltip_inventory(sources, en):

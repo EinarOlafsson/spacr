@@ -114,8 +114,10 @@ def test_parallel_sweep_refills_after_each_completed_future(tmp_path,
     monkeypatch.setattr(futures_module, "ProcessPoolExecutor", FakeExecutor)
     monkeypatch.setattr(futures_module, "as_completed", lambda snapshot: iter(snapshot))
 
+    # ram_guard off: the 631 start-up guard (f853a2dba) would size the pool
+    # from the runner's free RAM; this test is about refilling.
     rows = sweep.run_sweep_parallel(
-        {}, tmp_path, n_jobs=2, progress_every=0,
+        {"ram_guard": False}, tmp_path, n_jobs=2, progress_every=0,
     )
 
     assert submitted == [1, 2, 3]

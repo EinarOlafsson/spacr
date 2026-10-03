@@ -71,6 +71,7 @@ GROUPS = (
         (544, "Blind scoring"),
         (564, "Counterfactuals: morph a control cell toward a hit"),
         (561, "Self-supervised DINO pretraining"),
+        (470, "Judge every label from cross-channel ground truth"),
     )),
     ("Screens and statistics", (
         (570, "Arrayed-screen hits: SSMD, robust z, B-score"),

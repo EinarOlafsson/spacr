@@ -93,6 +93,26 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.",
         "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.",
         "Plasmodium spp."),
+    "Trypanosoma spp.": _row(
+        "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.",
+        "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.",
+        "Trypanosoma spp."),
+    "Leishmania spp.": _row(
+        "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.",
+        "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.",
+        "Leishmania spp."),
+    "Giardia duodenalis": _row(
+        "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis",
+        "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis",
+        "Giardia duodenalis"),
+    "Virus infection": _row(
+        "Virusinfektion", "Virusinfektion", "Infección viral", "病毒感染",
+        "Infecção viral", "वायरस संक्रमण", "바이러스 감염", "Veirusýking",
+        "Infection virale"),
+    "Mammalian cells": _row(
+        "Däggdjursceller", "Säugetierzellen", "Células de mamífero", "哺乳动物细胞",
+        "Células de mamífero", "स्तनधारी कोशिकाएँ", "포유류 세포", "Spendýrafrumur",
+        "Cellules de mammifères"),
     "What may leave this machine, and under whose name. With issue filing set to always, the default, a failed run files a redacted report on the public spaCR GitHub repository automatically, once per error, under the GitHub account signed in below. With ask, you see each report first and it is sent only when you press Send. With never, nothing is sent.": _row(
         "Vad som får lämna den här datorn och i vems namn. Med always, standardvalet för felrapportering, skickar en misslyckad körning automatiskt en rapport med känsliga uppgifter borttagna till spaCR:s offentliga GitHub-arkiv, en gång per fel, från det GitHub-konto som är inloggat nedan. Med ask får du först se varje rapport, och den skickas bara när du trycker på Skicka. Med never skickas ingenting.",
         "Was diesen Rechner verlassen darf und unter wessen Namen. Mit always, der Standardeinstellung für Fehlermeldungen, veröffentlicht ein fehlgeschlagener Lauf automatisch einmal pro Fehler einen Bericht mit entfernten sensiblen Angaben im öffentlichen GitHub-Repository von spaCR, unter dem unten angemeldeten GitHub-Konto. Mit ask sehen Sie jeden Bericht zuerst; er wird erst gesendet, wenn Sie auf Senden klicken. Mit never wird nichts gesendet.",

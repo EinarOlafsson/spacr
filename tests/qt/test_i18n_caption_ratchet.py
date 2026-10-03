@@ -1271,14 +1271,9 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "show. Cached afterwards.",
     "Opened test data: {path}", "The test data has no images.",
     # item 632: the gate editor's 3D shapes, polygon closing and renaming
+    # (the polygon help, renaming and 631's keep button were catalogued by
+    # 9d4066a96 and left this list)
     "Polygon through view", "Ellipsoid with handles", "Box with handles",
-    "Polygon through view: click the corners, then click the first "
-    "one again. Ellipsoid and Box with handles fit the objects a "
-    "dragged rectangle frames; pull their handles to adjust them.",
-    "That outline encloses nothing: click around the objects to keep.",
-    "Rename gate", "New name for the gate:",
-    # item 631 extended to every module: the keep button off Measure
-    "Keep {count} workers",
     # item 634: the five alpha organism pages
     "Amastigote conversion",
     "Amastigote infection",

@@ -28,6 +28,17 @@ from spacr import cli
 from spacr.cli import MODULES, resolve_settings
 
 
+@pytest.fixture(autouse=True)
+def _cli_log_reaches_caplog(monkeypatch):
+    """Undo ``cli.setup_logging`` left behind by an earlier test.
+
+    A batch run stops ``spacr.cli`` propagating so its stdout handler is
+    the only one; in a shared worker that state outlives the test that set
+    it, and caplog then sees nothing.
+    """
+    monkeypatch.setattr(logging.getLogger("spacr.cli"), "propagate", True)
+
+
 def _file(tmp_path, rows, name="settings.csv"):
     path = tmp_path / name
     with path.open("w", newline="") as handle:

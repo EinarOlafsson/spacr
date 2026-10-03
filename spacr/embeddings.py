@@ -1749,7 +1749,8 @@ def _embedding_umap(features: Any, *, n_neighbors: int = 15,
     spread = values.std(axis=0)
     values = values / np.where(spread > 0, spread, 1.0)
     try:
-        import umap
+        from .utils import umap
+        _ = umap.UMAP
     except ImportError as exc:
         raise ImportError(
             "The embedding UMAP needs umap-learn: pip install "

@@ -69,7 +69,7 @@ def test_map_barcodes_layout_is_scoped_and_non_mutating():
     assert "Advanced" not in mapped
     assert "Model Training" not in mapped
     assert mapped["Sequencing Input"] == ["src", "mode", "single_direction"]
-    assert mapped["Runtime & Reliability"] == ["chunk_size", "n_jobs", "test"]
+    assert mapped["Runtime & Reliability"] == ["chunk_size", "n_jobs", "ram_guard", "test"]
     # The layout names every setting the module has, so its groups also name
     # keys this synthetic source does not carry. `build_sections` filters
     # those out at render time; here, what matters is that nothing the

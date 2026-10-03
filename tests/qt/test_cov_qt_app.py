@@ -259,6 +259,9 @@ def _tiles(page: HomePage) -> dict:
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
     "toxoplasma": "Assays", "plasmodium": "Assays", "candida": "Assays",
+    # 634 (eb2201537): five alpha organism pages under Assays.
+    "trypanosoma": "Assays", "leishmania": "Assays", "giardia": "Assays",
+    "virus": "Assays", "mammalian": "Assays",
     # REWRITTEN 2026-08-31, when Home was cut from seven categories to
     # four. The user wrote out the tiles they wanted, in the order they
     # wanted them, and this ledger is the record of where every app
@@ -337,6 +340,8 @@ EXPECTED_SECTIONS = {
 EXPECTED_STAGES = {
     "host_pathogen": "alpha",
     "toxoplasma": "alpha", "plasmodium": "alpha", "candida": "alpha",
+    "trypanosoma": "alpha", "leishmania": "alpha", "giardia": "alpha",
+    "virus": "alpha", "mammalian": "alpha",
     # New module, so alpha: the two pipelines it dispatches to are trusted,
     # the merged screen has not been run on real data.
     "classify_merged": "alpha",
@@ -466,7 +471,8 @@ def test_every_app_carries_the_maturity_it_was_given():
     # registers them now. Each has declared stage='alpha' in `app_catalog`
     # since it was written; the column grew by three tiles, not by three
     # demotions.
-    assert counts == {"alpha": 33, "beta": 4, "stable": 6}
+    # 33 -> 38: the five 634 alpha organism pages (eb2201537).
+    assert counts == {"alpha": 38, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -1100,7 +1106,8 @@ def test_every_other_key_builds_a_generic_app_screen(win):
     seeing, and the old shape could not fail on that at all.
     """
     from spacr.qt.screens.app_screen import AppScreen
-    dedicated = {"toxoplasma", "plasmodium", "candida", "annotate", "make_masks", "queue", "db_browser", "agreement",
+    dedicated = {"toxoplasma", "plasmodium", "candida", "trypanosoma",
+                 "leishmania", "giardia", "virus", "mammalian", "annotate", "make_masks", "queue", "db_browser", "agreement",
                  "plate_view", "model_compare", "align", "convert", "foreign",
                  "batch", "distributed_jobs", "model_zoo", "report", "train_compare",
                  "classifier_evaluation", "run_history",
@@ -1172,8 +1179,14 @@ def test_clicking_a_sidebar_row_navigates(win):
 def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
     from spacr.qt.organisms import ORGANISMS
 
-    organism_summaries = {key: summary for guide in ORGANISMS.values()
-                          for key, _title, summary, _icon in guide['modules'] if key}
+    # A module shared by several organism menus keeps each organism's own
+    # summary (634, eb2201537 added the same routes under new organisms), so
+    # every summary a route carries is accepted.
+    organism_summaries = {}
+    for guide in ORGANISMS.values():
+        for key, _title, summary, _icon in guide['modules']:
+            if key:
+                organism_summaries.setdefault(key, set()).add(summary)
     # The apps sit one level down since 2026-08-23: the spaCR menu opens
     # onto a submenu per section rather than onto sixty-five flat rows.
     seen = {}
@@ -1185,7 +1198,7 @@ def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
             if act.menu() is not None:
                 collect(act.menu())
             else:
-                seen[act.text()] = act.statusTip()
+                seen.setdefault(act.text(), set()).add(act.statusTip())
 
     for top in win.menuBar().actions():
         if top.text().replace("&", "") != "spaCR":
@@ -1193,7 +1206,7 @@ def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
         collect(top.menu())
         break
     for key, name, desc, _s in APPS:
-        assert seen.get(name) == organism_summaries.get(key, desc), (
+        assert seen.get(name, set()) & organism_summaries.get(key, {desc}), (
             f"{name} missing/mislabelled in menu")
     # Triggered through the section submenu it now lives in.
     def find(menu, label):
@@ -1255,7 +1268,11 @@ def test_the_command_palette_filters_by_section_name(win, qtbot):
     palette._on_filter(SECTION_ASSAYS)
     rows = [palette._list.item(i).text()
             for i in range(palette._list.count())]
-    for name in (n for _k, n, _d, s in APPS if s == SECTION_ASSAYS):
+    from spacr.qt.app import visible_apps
+
+    # Only apps the user can see are offered; 634's alpha organism pages
+    # (eb2201537) are hidden while alpha features are off.
+    for name in (n for _k, n, _d, s in visible_apps() if s == SECTION_ASSAYS):
         assert any(name in r for r in rows), f"{name} not found by section"
 
 

@@ -20,13 +20,14 @@ def test_the_published_alpha_page_covers_the_current_registry():
     from pypdf import PdfReader
 
     # 634, 2026-10-03: with 633, the five alpha organism pages make 60.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 60
+    # 470 (registered in ALPHA_FEATURES, cross-channel label judging) makes 61.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 61
     pdf = PdfReader(ROOT / "docs/source/_static/deck/spacr_deck.pdf")
     text = " ".join(unicodedata.normalize("NFKC", pdf.pages[3].extract_text()).split())
     for _, rows in deck.GROUPS:
         for _, caption in rows:
             assert unicodedata.normalize("NFKC", caption) in text
-    assert "60 alpha features" in text
+    assert "61 alpha features" in text
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
@@ -68,7 +69,7 @@ def test_refresh_preserves_other_pages_and_renders_searchable_text(tmp_path):
     assert len(after.pages) == 3
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
-    assert "60 alpha features" in " ".join(after.pages[1].extract_text().split())
+    assert "61 alpha features" in " ".join(after.pages[1].extract_text().split())
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     assert Image.open(tmp_path / "1.jpg").size == (3200, 1800)

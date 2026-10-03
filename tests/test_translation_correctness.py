@@ -113,6 +113,10 @@ DELIBERATELY_UNTRANSLATED = {
     # build_i18n_catalogs._IDENTITY_TEXT and the organism Home captions.
     "Candida spp.": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
     "Plasmodium spp.": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
+    # 634 (eb2201537): the alpha organism pages' genus/species names.
+    "Trypanosoma spp.": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
+    "Leishmania spp.": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
+    "Giardia duodenalis": {"de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"},
     "Tutorial (web)": {"es", "pt"},
     # Natural-language cognates and established clinical terms whose target
     # spelling is exactly the canonical source spelling.
