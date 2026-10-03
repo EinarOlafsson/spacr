@@ -1018,8 +1018,11 @@ class CategoryFoldSet:
 
         :returns: keys of folds that contributed at least one setting.
         """
+        from . import _breathe_while_a_window_opens
+
         mounted = []
         for key in self.order:
+            _breathe_while_a_window_opens()
             if self.folds[key].mount():
                 mounted.append(key)
             else:

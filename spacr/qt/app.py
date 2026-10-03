@@ -388,6 +388,14 @@ def _import_the_data_libraries_off_the_gui_thread():
                 except Exception:
                     LOG.debug("could not import %s early", name,
                               exc_info=True)
+            try:
+                from .widgets.organism_diagram import _warm_the_artwork
+
+                with _timing.span("background warm", "organism artwork"):
+                    _warm_the_artwork()
+            except Exception:
+                LOG.debug("could not prepare the organism artwork early",
+                          exc_info=True)
 
     thread = threading.Thread(target=_work, name="spacr-data-libraries",
                               daemon=True)
@@ -5166,7 +5174,8 @@ class MainWindow(QMainWindow):
                     return
                 self._breathe_while_opening()
                 try:
-                    self._theme_screen(self._screens[key], key)
+                    with _timing.span("theme screen", key):
+                        self._theme_screen(self._screens[key], key)
                 except Exception:
                     LOG.exception("Could not theme the %s screen", key)
                 self._a_page_joined_the_stack(self._screens[key])
@@ -5175,26 +5184,30 @@ class MainWindow(QMainWindow):
                 self._breathe_while_opening()
                 try:
                     from .i18n import retranslate_widget_tree
-                    retranslate_widget_tree(self._screens[key])
+                    with _timing.span("retranslate", key):
+                        retranslate_widget_tree(self._screens[key])
                 except Exception:
                     LOG.exception("Could not translate the %s screen", key)
             try:
                 from .screens.settings_model import retarget_field_tooltips
 
-                retarget_field_tooltips(self._screens[key])
+                with _timing.span("retarget tooltips", key):
+                    retarget_field_tooltips(self._screens[key])
             except Exception:
                 LOG.exception("Could not retarget help on the %s screen", key)
             detach = getattr(self._screens[key], "_detach_what_the_form_hides",
                              None)
             if built_now and callable(detach):
                 try:
-                    detach()
+                    with _timing.span("detach hidden settings", key):
+                        detach()
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not detach the hidden settings",
                               exc_info=True)
             if built_now:
                 self._breathe_while_opening()
-            self._stack.setCurrentWidget(self._screens[key])
+            with _timing.span("show screen", key):
+                self._stack.setCurrentWidget(self._screens[key])
         finally:
             self._hide_preparing(card)
         _timing.watch_interactive(

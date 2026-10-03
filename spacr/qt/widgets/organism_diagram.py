@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 
 from PySide6.QtCore import QByteArray, QEvent, QRect, QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QImage, QPainter, QPen
+from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QPushButton, QSizePolicy, QVBoxLayout, QWidget
 
@@ -191,6 +191,75 @@ def _diagram_svg(source: str, *, portrait: bool = True) -> bytes:
     return _render_tree(_clean_tree(source), portrait=portrait)
 
 
+_PREPARED: dict = {}
+
+
+def _prepared_artwork(source: str, portrait: bool):
+    """The cleaned tree and the outline SVG of ``source``, computed once.
+
+    Pages that share a drawing, and a second visit to one page, reuse the
+    first parse instead of cleaning and re-serialising the markup again on
+    the GUI thread. Nothing here touches Qt, so the background warm-up can
+    fill it.
+
+    :param source: the SVG markup as bundled.
+    :param portrait: whether the page draws the cell upright.
+    :returns: ``(tree, outline_bytes)``; callers must not change the tree.
+    """
+    key = (source, bool(portrait))
+    found = _PREPARED.get(key)
+    if found is None:
+        tree = _clean_tree(source)
+        found = (tree, _render_tree(tree, portrait=portrait))
+        _PREPARED[key] = found
+    return found
+
+
+_DESCRIPTIONS: dict = {}
+
+
+def _compartment_descriptions(source: str) -> dict:
+    """Each compartment's description text from ``source``, parsed once.
+
+    :param source: the SVG markup as bundled.
+    :returns: compartment id to its description; callers copy it.
+    """
+    found = _DESCRIPTIONS.get(source)
+    if found is None:
+        root = ET.fromstring(source)
+        found = {node.get("id"): " ".join(text.itertext()).strip()
+                 for node in root.iter() for text in node.findall(_SVG + "text")
+                 if text.get("property") == "description"}
+        _DESCRIPTIONS[source] = found
+    return found
+
+
+def _warm_the_artwork() -> int:
+    """Prepare every organism page's drawing ahead of its first open.
+
+    Safe on a worker thread: it reads the bundled SVGs and fills
+    :func:`_prepared_artwork`'s cache, and builds no Qt object.
+
+    :returns: how many drawings were prepared.
+    """
+    from ..organisms import ORGANISMS
+
+    images = Path(__file__).resolve().parents[2] / "resources" / "images"
+    done = 0
+    for app_key, organism in ORGANISMS.items():
+        name = organism.get("diagram") if isinstance(organism, dict) else None
+        if not name:
+            continue
+        try:
+            source = (images / name).read_text(encoding="utf-8")
+            _prepared_artwork(source, app_key in _PORTRAIT_ORGANISMS)
+            _compartment_descriptions(source)
+        except Exception:                                    # noqa: BLE001
+            continue
+        done += 1
+    return done
+
+
 class _CellArtwork(QWidget):
     """White compartment outlines, colored selections and pixel-accurate hover."""
 
@@ -202,14 +271,16 @@ class _CellArtwork(QWidget):
         super().__init__(parent)
         self.source = source
         self.portrait = portrait
-        self.tree = _clean_tree(source)
+        self.tree, outline = _prepared_artwork(source, portrait)
+        self._art = None
+        self._art_key = None
         self.locations = tuple(dict.fromkeys("SL0173" if code == "SL0171" else code for code in locations))
         self.selected = set()
         self.hover_location = ""
         self._masks = {}
         self._masks_size = None
         self.renderer = QSvgRenderer(self)
-        self.renderer.load(QByteArray(_render_tree(self.tree, portrait=portrait)))
+        self.renderer.load(QByteArray(outline))
         self.setMinimumHeight(scaled_px(360))
         self.setMaximumHeight(scaled_px(560))
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
@@ -307,8 +378,28 @@ class _CellArtwork(QWidget):
             painter.setOpacity(0.75)
             painter.drawImage(0, 0, colored)
         painter.setOpacity(1)
-        self.renderer.render(painter, self._target())
+        painter.drawPixmap(0, 0, self._outline_pixmap())
         painter.end()
+
+    def _outline_pixmap(self) -> QPixmap:
+        """The outlines drawn once per size and pixel density, then reused.
+
+        Every repaint (a hover, a breath while a page opens, the backdrop
+        moving behind it) used to render the whole SVG again.
+        """
+        ratio = max(1.0, float(self.devicePixelRatioF()))
+        key = (self.width(), self.height(), ratio)
+        if self._art is None or self._art_key != key:
+            art = QPixmap(max(1, round(self.width() * ratio)),
+                          max(1, round(self.height() * ratio)))
+            art.setDevicePixelRatio(ratio)
+            art.fill(Qt.transparent)
+            painter = QPainter(art)
+            painter.setRenderHint(QPainter.Antialiasing)
+            self.renderer.render(painter, self._target())
+            painter.end()
+            self._art, self._art_key = art, key
+        return self._art
 
     @staticmethod
     def panel_color() -> QColor:
@@ -384,10 +475,7 @@ class OrganismDiagram(QWidget):
         row.addWidget(self._legend, 45)
         layout.addWidget(self._model_row)
         source = path.read_text(encoding="utf-8")
-        root = ET.fromstring(source)
-        self.descriptions = {node.get("id"): " ".join(text.itertext()).strip()
-                             for node in root.iter() for text in node.findall(_SVG + "text")
-                             if text.get("property") == "description"}
+        self.descriptions = dict(_compartment_descriptions(source))
         self.artwork = _CellArtwork(source, self, portrait=app_key in _PORTRAIT_ORGANISMS, locations=self.labels.values())
         self.artwork.setAccessibleName(tr("Cell compartments"))
         row.addWidget(self.artwork, 55)

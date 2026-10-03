@@ -89,7 +89,34 @@ def _breathe_while_a_window_opens() -> None:
 
     flags = QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
     started = time.perf_counter()
+    worked = started - _last_breath_at
     QCoreApplication.processEvents(flags)
     if time.perf_counter() - started >= _SECOND_PASS_AFTER_S:
         QCoreApplication.processEvents(flags)
     _last_breath_at = time.perf_counter()
+    _note_the_breath(worked, _last_breath_at - started)
+
+
+def _note_the_breath(worked: float, breathed: float) -> None:
+    """Put a breath on the timing timeline, with the step that preceded it.
+
+    Only while timing is on. The step is named by its caller's function
+    and line, so a long gap in a hosted run points at the code that made it.
+
+    :param worked: seconds of work since the previous breath.
+    :param breathed: seconds the breath's own event-loop passes took.
+    """
+    from .. import timing
+
+    if not timing.ENABLED:
+        return
+    import sys
+
+    frame = sys._getframe(2)
+    while frame.f_back is not None and frame.f_code.co_name.startswith(
+            "_breathe"):
+        frame = frame.f_back
+    where = (f"{frame.f_code.co_filename.rsplit('spacr', 1)[-1]}:"
+             f"{frame.f_lineno} {frame.f_code.co_name}")
+    timing.mark("breath", f"{where} worked {worked * 1000:.0f} ms, "
+                f"breathed {breathed * 1000:.0f} ms")
