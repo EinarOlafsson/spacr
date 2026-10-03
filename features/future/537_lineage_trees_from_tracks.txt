@@ -190,3 +190,37 @@ close the remaining real parasite endodyogeny acceptance for F537.
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: Measure-column colouring after Measure: 9658d5f86 (tests/test_lineage_measurements_f537.py); hours-per-frame: e021e3aa0 (tests/test_lineage_calibrated_time_f537.py).
     BLOCKED / open: endodyogeny on real tracked parasite movies (external data).
+
+2026-10-03 — REAL LINEAGE GROUND TRUTH, CTC Fluo-N2DL-HeLa (lane 2, CPU)
+    Data: Cell Tracking Challenge training set Fluo-N2DL-HeLa (sequences
+    01 and 02, 92 frames; man_track.txt parent links; CTC terms: free for
+    research with citation). Tracks = GT TRA marker centroids. Scored
+    against man_track.txt: division links (mother, daughter) precision and
+    recall; generation time (daughters' first frame - birth) per complete
+    cycle. Script/results: /mnt/wd4tb/scratch/537/work/ (run.py,
+    results.csv, tree_01.png; trees render).
+      seq run                        links P / R   cycles  exact  MAE(fr)
+      01  parent_track_id + source   1.00 / 1.00   56/56   1.00   0.0
+      01  parent_track_id, no source 0.89 / 1.00   56/56   1.00   0.0
+      01  inferred only              0.84 / 0.90   44/56   0.95   1.0
+      01  _track_by_iou + inferred   0.74 / 0.86   14/56   0.79   3.0
+      02  parent_track_id + source   1.00 / 1.00   96/96   1.00   0.0
+      02  parent_track_id, no source 0.82 / 1.00   96/96   0.98   0.9
+      02  inferred only              0.78 / 0.93   85/96   0.95   1.6
+      02  _track_by_iou + inferred   0.61 / 0.89    4/96   0.00  36.0
+    Findings:
+    - Done-when met when the tracker supplies parents (generation times
+      match the tracks exactly).
+    - BUG-LIKE: with parent_track_id but no parent_track_id_source (the
+      Trackastra path) roots are still open to inference: 14 (01) and 48
+      (02) spurious "inferred" divisions with the mother continuing.
+      Trackastra-written parents should mark their tracks as known.
+    - Inference alone: ~0.8 link precision, ~0.9 recall, generation time
+      exact in 95% of recovered cycles.
+    - _track_by_iou on TRA markers (small blobs, not full masks) fragments
+      tracks, so its lineages are unusable here (harsh stand-in).
+      link_by_iou is O(objects^2 x pixels): 2.9 s for one 54-object frame
+      pair, minutes per pair at ~300 objects. The run used an identical
+      contingency-table linker (same matches on a checked frame pair).
+    Still open: post-Measure colouring, hours-per-frame, parasite
+    endodyogeny on real data.
