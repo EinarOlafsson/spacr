@@ -761,6 +761,33 @@ def _safe_morphology_table(mask, properties, spacing=None):
     return frame[[prop for prop in requested if prop in frame.columns]]
 
 
+def _cucim_morphology_table(mask, properties):
+    """Return the 2-D morphology table computed by cuCIM on the GPU, or ``None``.
+
+    ``None`` (and the caller's scikit-image path) when cuCIM is not installed
+    (``pip install spacr[gpu]``), when it fails, or when its columns differ
+    from the requested properties, so the table always has the CPU columns in
+    the CPU order.
+    """
+    try:
+        import cupy
+        from cucim.skimage.measure import regionprops_table as gpu_table
+    except ImportError:
+        return None
+    requested = list(properties)
+    try:
+        table = gpu_table(cupy.asarray(np.asarray(mask)), properties=requested)
+        columns = {name: cupy.asnumpy(cupy.asarray(values))
+                   for name, values in table.items()}
+    except Exception as error:                               # noqa: BLE001
+        print(f"[measure] cuCIM morphology failed ({type(error).__name__}: "
+              f"{error}); measuring on the CPU.")
+        return None
+    if list(columns) != requested:
+        return None
+    return pd.DataFrame(columns)
+
+
 def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
     """Attach each child object's parent ``cell_id`` to its morphology row.
 
@@ -1132,8 +1159,12 @@ def _morphological_measurements(
 
     def _props(mask):
         """regionprops_table + (3-D only) the explicitly-named volume columns."""
-        frame = _safe_morphology_table(
-            mask, properties=morphological_props, spacing=spacing)
+        frame = None
+        if device is not None and _gpu_measurable(mask, spacing=spacing):
+            frame = _cucim_morphology_table(mask, morphological_props)
+        if frame is None:
+            frame = _safe_morphology_table(
+                mask, properties=morphological_props, spacing=spacing)
         if ndim == 3 and len(frame) > 0:
             for name, values in _voxel_volume_columns(
                     mask, frame['label'].tolist(), stamp).items():

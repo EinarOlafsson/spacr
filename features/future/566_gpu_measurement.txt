@@ -68,3 +68,20 @@ WHAT IS LEFT
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: GPU timing and real plate on/off comparison (GPU, data). OPEN code over 1 h: cuCIM morphology table and remaining CPU features.
+
+2026-10-03 — cuCIM MORPHOLOGY TABLE (alpha, optional `gpu` extra)
+    The maintainer chose an optional extra: setup.py now declares
+    extras_require['gpu'] = cucim-cu12 + cupy-cuda12x (Linux); the import
+    map in tests/test_declared_dependencies_match_imports.py resolves
+    `cucim` -> cucim-cu12. With measure_gpu on, a CUDA device and a 2-D
+    unspaced mask, _morphological_measurements builds the morphology table
+    (area, perimeter, solidity, ... = MORPHOLOGICAL_PROPS) through
+    measure._cucim_morphology_table (cuCIM regionprops_table). cuCIM missing,
+    an error, or columns that differ from the requested ones -> the
+    scikit-image table, so the columns are always identical.
+    Tests (tests/test_gpu_measurement.py, CPU): the fallback without cuCIM
+    is frame-identical to the CPU run; a refused cuCIM table falls back; a
+    cuCIM-vs-skimage value test skips without cucim/CUDA (not run on the
+    GPU). Tooltip of measure_gpu not yet updated to mention cuCIM.
+    LEFT: GPU timing and real-plate on/off comparison (GPU, data); blur,
+    periphery/outside intensity, radial distribution, correlation on CPU.

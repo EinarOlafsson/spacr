@@ -140,3 +140,16 @@ WHAT IS LEFT
     tests/qt/test_virtual_stain_alpha_gate.py.
     LEFT: label-free paired data set (BLOCKED, external); pix2pix /
     published-model option.
+
+2026-10-03 — PIX2PIX OPTION (alpha)
+    ALPHA: 2026-10-03. Behind the existing ALPHA_FEATURES[558] widgets (no
+    new widget). deep_spacr._train_virtual_stain(model_type='pix2pix',
+    gan_weight=0.01) trains the same U-Net as a conditional-GAN generator
+    against a small PatchGAN critic (_vs_patch_discriminator) on
+    L1 + gan_weight * adversarial loss; only the generator is saved, so
+    predict/save/load/apply are unchanged and meta records model_type.
+    The Workbench prompt accepts "1 > 0 pix2pix". Tests: tiny CPU stub in
+    tests/test_virtual_staining.py and tests/qt/test_virtual_stain_alpha_gate.py.
+    Not trained on real data or GPU; no comparison vs plain U-Net yet.
+    LEFT: label-free paired data set (BLOCKED, external); a pix2pix vs U-Net
+    scorecard on real data; published pretrained models.

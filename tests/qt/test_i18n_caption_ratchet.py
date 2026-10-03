@@ -1250,6 +1250,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # catalogued or retired with their source captions. No translation bypass remains.
 # 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 558: pix2pix option in the virtual-staining channel prompt
+    "Input channels > channel to predict (add pix2pix for the adversarial "
+    "model):",
     # item 560: Embeddings labels, scorecard and Use-for picker
     "Choose a label table",
     "Choose a table with one row per embedded crop, in crop order, and a "

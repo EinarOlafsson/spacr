@@ -130,3 +130,53 @@ def test_intensity_measurements_route_through_the_device(monkeypatch):
     np.testing.assert_allclose(gpu[numeric].astype(float),
                                cpu[numeric].astype(float),
                                rtol=1e-4, atol=1e-2)
+
+
+def _morphology(labels):
+    empty = np.zeros_like(labels)
+    settings = {"cell_mask_dim": 0, "nucleus_mask_dim": None,
+                "pathogen_mask_dim": None, "cytoplasm": False}
+    return M._morphological_measurements(labels, empty, empty, empty, empty,
+                                         settings, zernike=False)[0]
+
+
+def test_without_cucim_the_morphology_table_falls_back_to_the_cpu(monkeypatch):
+    import sys
+
+    labels, _ = _field(seed=5, size=96, objects=12)
+    cpu = _morphology(labels)
+    monkeypatch.setitem(sys.modules, "cucim", None)
+    monkeypatch.setitem(sys.modules, "cucim.skimage.measure", None)
+    assert M._cucim_morphology_table(labels, M.MORPHOLOGICAL_PROPS) is None
+    monkeypatch.setattr(M, "_measurement_device", lambda _settings: CPU)
+    fallback = _morphology(labels)
+    assert list(fallback.columns) == list(cpu.columns)
+    pd.testing.assert_frame_equal(fallback, cpu)
+
+
+def test_a_cucim_table_with_other_columns_is_not_used(monkeypatch):
+    labels, _ = _field(seed=6, size=64, objects=6)
+    cpu = _morphology(labels)
+    calls = []
+
+    def fake(mask, properties):
+        calls.append(list(properties))
+        return None
+
+    monkeypatch.setattr(M, "_measurement_device", lambda _settings: CPU)
+    monkeypatch.setattr(M, "_cucim_morphology_table", fake)
+    pd.testing.assert_frame_equal(_morphology(labels), cpu)
+    assert calls and "solidity" in calls[0]
+
+
+def test_cucim_morphology_matches_scikit_image():
+    pytest.importorskip("cucim")
+    cupy = pytest.importorskip("cupy")
+    if not cupy.cuda.is_available():
+        pytest.skip("no CUDA device")
+    labels, _ = _field(seed=7)
+    gpu = M._cucim_morphology_table(labels, M.MORPHOLOGICAL_PROPS)
+    cpu = M._safe_morphology_table(labels, M.MORPHOLOGICAL_PROPS)
+    assert gpu is not None and list(gpu.columns) == list(cpu.columns)
+    np.testing.assert_allclose(gpu.values.astype(float),
+                               cpu.values.astype(float), rtol=1e-5, atol=1e-6)

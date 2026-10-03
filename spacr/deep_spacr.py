@@ -4332,7 +4332,8 @@ def _train_virtual_stain(fields, sources, target, *, scale: int = 4,
                          crop: int = 128, per_field: int = 32,
                          epochs: int = 10, batch_size: int = 16,
                          base: int = 16, depth: int = 3, lr: float = 1e-3,
-                         seed: int = 0, device: str = 'cpu', progress=None):
+                         seed: int = 0, device: str = 'cpu', progress=None,
+                         model_type: str = 'unet', gan_weight: float = 0.01):
     """Train a U-Net that predicts one channel of a field from others.
 
     Each field is block-averaged by ``scale``, every plane is scaled to its
@@ -4357,9 +4358,19 @@ def _train_virtual_stain(fields, sources, target, *, scale: int = 4,
     :param seed: seed for the crops and the weights.
     :param device: torch device.
     :param progress: optional callable given ``(epoch, loss)``.
+    :param model_type: ``'unet'`` trains the U-Net on the absolute error
+        alone; ``'pix2pix'`` trains the same U-Net as a conditional GAN
+        generator against a PatchGAN discriminator that sees the input and
+        the real or predicted stain, adding ``gan_weight`` times the
+        adversarial loss to the absolute error. Only the generator is kept,
+        so prediction, saving and loading are the same for both.
+    :param gan_weight: weight of the adversarial term for ``'pix2pix'``.
     :returns: a dict with the ``model`` (in eval mode), its settings and the
-        per-epoch ``losses``.
+        per-epoch ``losses`` (the absolute error).
     """
+    model_type = str(model_type).lower()
+    if model_type not in ('unet', 'pix2pix'):
+        raise ValueError("model_type must be 'unet' or 'pix2pix'.")
     sources = [int(c) for c in sources]
     target = int(target)
     if target in sources:
@@ -4371,6 +4382,11 @@ def _train_virtual_stain(fields, sources, target, *, scale: int = 4,
     prepared = [_vs_prepare(field, sources, target, scale) for field in fields]
     model = _VirtualStainUNet(len(sources), base=base, depth=depth).to(device)
     optimizer = AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
+    critic = None
+    if model_type == 'pix2pix':
+        critic = _vs_patch_discriminator(len(sources) + 1, base).to(device)
+        critic_optimizer = AdamW(critic.parameters(), lr=lr,
+                                 betas=(0.5, 0.999), weight_decay=1e-4)
     losses = []
     for epoch in range(int(epochs)):
         model.train()
@@ -4382,9 +4398,23 @@ def _train_virtual_stain(fields, sources, target, *, scale: int = 4,
             x = torch.from_numpy(x_all[pick]).to(device)
             y = torch.from_numpy(y_all[pick]).to(device)
             optimizer.zero_grad()
-            loss = F.l1_loss(model(x), y)
-            loss.backward()
+            fake = model(x)
+            loss = F.l1_loss(fake, y)
+            if critic is None:
+                loss.backward()
+            else:
+                score = critic(torch.cat([x, fake], 1))
+                (loss + gan_weight * F.binary_cross_entropy_with_logits(
+                    score, torch.ones_like(score))).backward()
             optimizer.step()
+            if critic is not None:
+                critic_optimizer.zero_grad()
+                real = critic(torch.cat([x, y], 1))
+                faked = critic(torch.cat([x, fake.detach()], 1))
+                (F.binary_cross_entropy_with_logits(real, torch.ones_like(real))
+                 + F.binary_cross_entropy_with_logits(
+                     faked, torch.zeros_like(faked))).backward()
+                critic_optimizer.step()
             total += float(loss) * len(pick)
         losses.append(total / len(order))
         if progress is not None:
@@ -4392,7 +4422,17 @@ def _train_virtual_stain(fields, sources, target, *, scale: int = 4,
     model.eval()
     return {'model': model, 'sources': sources, 'target': target,
             'scale': int(scale), 'depth': int(depth), 'base': int(base),
-            'losses': losses}
+            'model_type': model_type, 'losses': losses}
+
+
+def _vs_patch_discriminator(channels, base):
+    """Return a small PatchGAN critic scoring overlapping patches as real or predicted."""
+    nn = torch.nn
+    return nn.Sequential(
+        nn.Conv2d(channels, base, 4, 2, 1), nn.LeakyReLU(0.2),
+        nn.Conv2d(base, base * 2, 4, 2, 1), nn.BatchNorm2d(base * 2),
+        nn.LeakyReLU(0.2),
+        nn.Conv2d(base * 2, 1, 3, 1, 1))
 
 
 def _predict_virtual_stain(fitted, field):

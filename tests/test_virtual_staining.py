@@ -186,3 +186,22 @@ def test_without_cellpose_the_scorecard_falls_back_to_the_watershed(
 
     monkeypatch.setitem(sys.modules, "cellpose", None)
     assert ds._vs_default_segment().name == "watershed"
+
+
+def test_pix2pix_trains_the_same_generator_with_a_critic(tmp_path):
+    fields = [_field(s, size=32, blobs=3) for s in range(2)]
+    fitted = ds._train_virtual_stain(fields, [1], 0, scale=1, crop=16,
+                                     per_field=4, epochs=2, batch_size=4,
+                                     base=4, depth=2, model_type="pix2pix")
+    assert fitted["model_type"] == "pix2pix"
+    assert len(fitted["losses"]) == 2 and np.isfinite(fitted["losses"]).all()
+    path = tmp_path / "p2p.pt"
+    ds._save_virtual_stain(fitted, path)
+    loaded = ds._load_virtual_stain(path)
+    assert loaded["model_type"] == "pix2pix"
+    np.testing.assert_allclose(ds._predict_virtual_stain(loaded, fields[0]),
+                               ds._predict_virtual_stain(fitted, fields[0]),
+                               atol=1e-5)
+    with pytest.raises(ValueError):
+        ds._train_virtual_stain(fields, [1], 0, scale=1, crop=16, epochs=1,
+                                base=4, depth=2, model_type="gan")

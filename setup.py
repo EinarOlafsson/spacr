@@ -217,6 +217,10 @@ setup(
             'platform_machine != "x86_64" or python_version < "3.13")',
         ],
         'attribution': ['torchcam>=0.4.0,<1.0'],
+        'gpu': [
+            'cucim-cu12>=24.0; platform_system == "Linux"',
+            'cupy-cuda12x>=13.0; platform_system == "Linux"',
+        ],
         'rapids': [
             'cuml-cu12>=25.2; python_version >= "3.11" and python_version < "3.13"',
             'cupy-cuda12x>=13.0; python_version >= "3.11" and python_version < "3.13"',

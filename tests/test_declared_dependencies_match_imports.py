@@ -152,6 +152,9 @@ IMPORT_TO_DIST = {
     # FAISS (item 565) is imported as `faiss`; the CPU wheel is faiss-cpu.
     "faiss": "faiss-cpu",
     "cupy": "cupy-cuda12x",
+    # cuCIM (item 566, the `gpu` extra) publishes its CUDA 12 wheel as
+    # cucim-cu12.
+    "cucim": "cucim-cu12",
     # `cupyx` is a SUBPACKAGE of the same distribution, not a second
     # one -- `cupyx.scipy.ndimage` is where cupy keeps the SciPy-
     # compatible half. `ops_accel` imports it by that name for the

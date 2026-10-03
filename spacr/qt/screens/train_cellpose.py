@@ -339,8 +339,9 @@ class CellposeWorkbenchScreen(QWidget):
         """Train a virtual-staining model on a folder and score it.
 
         :param folder: folder of paired fields; asks for one when empty.
-        :param channels: ``"<inputs> > <target>"``, for example ``"1,3 > 0"``;
-            asks when empty.
+        :param channels: ``"<inputs> > <target>"``, for example ``"1,3 > 0"``,
+            optionally followed by ``pix2pix`` to train the U-Net as a
+            conditional GAN generator; asks when empty.
         :returns: the folder used, or ``''`` when a dialog was dismissed.
         """
         from PySide6.QtWidgets import QFileDialog, QInputDialog
@@ -353,12 +354,16 @@ class CellposeWorkbenchScreen(QWidget):
         if not channels:
             channels, ok = QInputDialog.getText(
                 self, tr("Virtual staining"),
-                tr("Input channels > channel to predict:"), text="1 > 0")
+                tr("Input channels > channel to predict (add pix2pix for "
+                   "the adversarial model):"), text="1 > 0")
             if not ok:
                 return ""
         inputs, _sep, goal = str(channels).partition(">")
         sources = [int(c) for c in inputs.replace(" ", "").split(",") if c]
-        target = int(goal.strip())
+        words = goal.split()
+        target = int(words[0])
+        model_type = "pix2pix" if "pix2pix" in (w.lower() for w in words[1:]) \
+            else "unet"
         folder = str(folder)
         self._show_virtual_stain_note(tr("Training the virtual stain…"))
 
@@ -367,7 +372,8 @@ class CellposeWorkbenchScreen(QWidget):
             from ...deep_spacr import _virtual_stain_from_folder
 
             return _virtual_stain_from_folder(folder, sources, target,
-                                              epochs=20)[1]
+                                              epochs=20,
+                                              model_type=model_type)[1]
 
         self._vs_jobs.submit(work, self._on_virtual_stain_done)
         return folder

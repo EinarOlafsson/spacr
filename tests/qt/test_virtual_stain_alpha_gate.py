@@ -69,16 +69,19 @@ def test_a_folder_given_while_hidden_still_reaches_the_run(
     seen = []
 
     def fake(folder, sources, target, **kwargs):
-        seen.append((folder, sources, target, kwargs["epochs"]))
+        seen.append((folder, sources, target, kwargs["epochs"],
+                     kwargs["model_type"]))
         return None, {"test_fields": 2, "predicted_f1_50": 0.8,
                       "input_baseline_f1_50": 0.2, "predicted_pearson": 0.9}
 
     monkeypatch.setattr(ds, "_virtual_stain_from_folder", fake)
     assert screen._vs_button.isHidden()
     assert screen._virtual_stain(str(tmp_path), "1, 3 > 0") == str(tmp_path)
-    assert seen == [(str(tmp_path), [1, 3], 0, 20)]
+    assert seen == [(str(tmp_path), [1, 3], 0, 20, "unet")]
     assert screen._vs_summary["predicted_f1_50"] == 0.8
     assert "F1 0.80" in screen._vs_note.text()
+    screen._virtual_stain(str(tmp_path), "1 > 0 pix2pix")
+    assert seen[-1][-1] == "pix2pix"
 
 
 def test_the_dialogs_ask_for_what_was_not_given(screen, monkeypatch,
