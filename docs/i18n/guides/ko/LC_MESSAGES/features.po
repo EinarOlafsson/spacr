@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -192,6 +192,9 @@ msgstr "**툴팁** 은 포인터가 2초 동안 머무르면 나타나고, 포�
 
 msgid "These sizes are remembered between sessions."
 msgstr "이 크기들은 세션 간에 기억됩니다."
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "팝업 크기를 바꾸려면 가장자리나 모서리 중 하나를 가리킵니다. 끌 수 있는 각 변의 가운데 절반에 얇은 파란색 안내선이 나타납니다. 그 가장자리나 모서리의 어느 지점에서든 끌면 되며, 안내선은 변을 표시할 뿐입니다."
 
 msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
 msgstr "마스크 만들기는 마스크를 손으로 수정하며, 헤더에서 Cellpose 루프를 제공합니다. 캔버스에는 브러시, 지우개, Erase object, Wand +, Wand −, Draw, Divide, 확대/축소, Recrop, 자의 10가지 도구가 있습니다. :doc:`마스크 만들기 참조 <make_masks>` 에서 이 도구들과 레벨, 검출 설정, 1차/2차 짝짓기, 저장, 측정을 다룹니다."

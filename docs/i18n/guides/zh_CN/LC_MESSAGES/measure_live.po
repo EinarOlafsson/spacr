@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-02 02:41-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -46,30 +46,6 @@ msgstr "图像列表使用现有的有数量上限的随机样本。样本变化
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "勾选图像只改变预览，不会选择 测量 处理哪些视野，也不会改变已保存的测量结果或导出内容。**传递设置** 保留原有用途：把裁剪和筛选设置复制到 测量 表单。"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Preview and export unmixed crops"
-msgstr "预览和导出解混后的裁剪图"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
-msgstr "启用 **显示 Alpha 功能** 后，在 **测量** 表单中设置 ``unmix=True`` 并配置 ``unmix_controls``。切换 **光谱解混显示**，即可在裁剪图预览中使用这些单染对照。默认显示原始图像。无效或缺失的对照会被报告。此开关仅改变显示；运行设置、源数组和批量 PNG 输出均保持不变。"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
-msgstr "预览完成后，选择 **导出显示的裁剪图…**，选择父文件夹并输入新文件夹名称。仅导出已完成预览中的裁剪图，保留其显示颜色以及原始或解混后的像素。``provenance.json`` 记录源路径、对象标识、显示设置和解混信息。不允许使用已有文件夹。取消或更改预览会丢弃未完成的导出；源文件和批量输出保持不变。"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Preview reference-well calibration"
-msgstr "预览参考孔校准"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
-msgstr "启用 **显示 Alpha 功能** 后，在 **测量** 表单中开启 ``intensity_calibration``，并配置参考孔、相机偏移量和统计量。关闭 **测试模式**，然后选择 **强度校准孔** 旁的 **预览**。使用本地运行文件夹或其中的 ``merged`` 文件夹。预览读取当前设置，不运行 **测量**，也不写入图像、测量结果或设置。"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
-msgstr "每个源文件夹单独生成校准计划。按名称排序的第一块板作为参考板。表格显示每块板、每个通道的乘法增益因子、参考统计量和参考视野数量。更改设置会使结果失效。**取消** 会丢弃预览，同时让已启动的源扫描安全结束；重新打开预览需要等待该扫描停止。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

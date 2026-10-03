@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -192,6 +192,9 @@ msgstr "**Skjábendingar** birtast eftir að bendillinn hefur hvílt í tvær se
 
 msgid "These sizes are remembered between sessions."
 msgstr "Þessar stærðir eru munaðar milli lota."
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "Til að breyta stærð sprettiglugga bendir þú á eina af brúnum hans eða hornum. Þunn blá leiðarlína birtist yfir miðhelmingi hverrar hliðar sem hægt er að draga. Dragðu hvar sem er meðfram þeirri brún eða horni; línan merkir aðeins hliðina."
 
 msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
 msgstr "Búa til grímur leiðréttir grímur handvirkt og ber Cellpose-lykkjuna á haus sínum. Strigi þess hefur tíu verkfæri: Pensill, Strokleður, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop og Reglustika. :doc:`Tilvísunin fyrir Búa til grímur <make_masks>` fjallar um þessi verkfæri, Tónsvið, greiningarstillingar, pörun frum- og afleiddra hluta, vistun og mælingu."

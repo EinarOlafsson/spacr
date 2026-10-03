@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -206,6 +206,9 @@ msgstr "Använd, spara och läs in resultatet igen"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
 msgstr "I Graph Builder placerar du resultatkolumner på kanalerna **X**, **Y**, färg, storlek eller facett. I Gate Editor använder du kolumnerna för trösklar, polygoner och andra gateformer. Gate Editor kan visa ett urval enligt inställningarna ``sample_fraction`` och ``max_points``; gateexporten utvärderar hela den sammanfogade tabellen."
+
+msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
+msgstr "När en kanal i Graph Builder rensas, eller innehåller en kolumn som den valda diagramtypen inte kan rita, förklarar arbetsytan vad som saknas i stället för att rita ett diagram. Den ber dig till exempel dra en kolumn till **X** eller **Y**, anger att ett histogram behöver en kontinuerlig kolumn, eller namnger en kolumn som den aktuella tabellen inte innehåller. Diagramtypen förblir vald, så diagrammet ritas igen när lämpliga kolumner placeras."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

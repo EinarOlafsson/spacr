@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: es\n"
@@ -192,6 +192,9 @@ msgstr "La **Información emergente** aparece cuando el puntero se detiene dos s
 
 msgid "These sizes are remembered between sessions."
 msgstr "Estos tamaños se recuerdan entre sesiones."
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "Para cambiar el tamaño de una ventana emergente, apunte a uno de sus bordes o esquinas. Aparece una fina línea guía azul a lo largo de la mitad central de cada lado que se puede arrastrar. Arrastre desde cualquier punto de ese borde o esquina; la línea solo marca el lado."
 
 msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
 msgstr "Crear máscaras corrige máscaras a mano e incluye el ciclo de Cellpose en su cabecera. Su lienzo tiene diez herramientas: Pincel, Goma de borrar, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop y Regla. La :doc:`referencia de Crear máscaras <make_masks>` trata estas herramientas, los Niveles, los ajustes de detección, el emparejamiento primario/secundario, el guardado y la medición."

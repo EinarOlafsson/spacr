@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 19:24-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -334,10 +334,6 @@ msgstr "Mæling"
 
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "Mæling les myndir og merkjaplön saman. Virkjaðu vistun myndskurða ef þú þarft PNG-skrár; haltu gagnagrunninum og upprunaverkefninu saman fyrir streymda myndskurði."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
-msgstr "Þegar alfa-eiginleikar eru virkir skaltu nota vistunartáknið við ``cellprofiler_pipeline`` til að flytja út meðfylgjandi dæmi. Það gerir ráð fyrir tveimur myndrásum, ``_ch0.tif`` (DNA) og ``_ch1.tif`` (Actin), ásamt ``_nucleus_mask.tif`` (Nuclei) og ``_cell_mask.tif`` (Cells). Lagaðu rása- og hlutaskilgreiningar þess að gögnunum þínum áður en það er keyrt. Við vistun er útflutta slóðin valin; ef hætt er við eða vistun mistekst helst fyrra valið. CellProfiler keyrir í aðskildu umhverfi."
 
 msgid "**Open:** Home → Measure."
 msgstr "**Opna:** Heim → Mæling."
@@ -1586,10 +1582,6 @@ msgstr "Opnaðu Tímaraðir innan Grímur til að hluta og tengja hluti yfir ra�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "Útflutt ættargögn halda kynslóðatímum í römmum og bæta við ``generation_time_hours`` ásamt kvörðuðum samantektartölum. Gefðu upp jákvætt ``frame_interval_s`` eða fullkomna runu hækkandi ``time_s`` gilda í ferlatöflunni. Ef hvort tveggja er til staðar verður það að samræmast; óreglulegir tímastimplar eru studdir án fasts tímabils. Þegar kvörðun vantar eða frumuhringir eru ófullgerðir er enginn kynslóðatími í klukkustundum. Útfluttar töflur skrá uppruna kvörðunar og einingar. Ás trésins og lengdir greina í Newick haldast í römmum."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
-msgstr "Til að lita tré eftir mældum eiginleikum skaltu fyrst keyra rakningu með ``timelapse_lineage`` virkt svo spaCR visti vörpun milli ramma og upprunaskráa. Keyrðu síðan eininguna Mæling á sameinaða verkefninu með ``timelapse=True``, ``timelapse_objects`` sem samsvarar hlutunum sem voru raktir og ``timelapse_lineage=True``. Virkjaðu alfa-eiginleika og tímavíddina til að birta stillingar ættartrjáa. Stilltu ``timelapse_lineage_color_by`` á tölulegan dálk úr mælingatöflu valinnar tegundar hlutar. Meðaltöl fyrir hluta trésins nota þá ramma sem hafa mæligildi; hlutar án mæligilda haldast ólitaðir og tilkynnt er hversu mikið mæligildin ná yfir. Niðurstöður fara í ``tracks/lineage_measured`` án þess að eldri ættartrésniðurstöðum sé skipt út. Fyrir eldri rakningar án vörpunarinnar þarf að keyra rakningu aftur. Vistuð, sérstaklega tilgreind tímakvörðun er notuð áfram; tímabili sem stangast á við hana er hafnað."
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**Opna:** Grímur → Tímaraðir."

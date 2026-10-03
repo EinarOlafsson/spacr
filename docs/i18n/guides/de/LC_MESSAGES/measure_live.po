@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-02 02:41-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -46,30 +46,6 @@ msgstr "Die Bildliste verwendet die bestehende begrenzte Zufallsstichprobe. Bere
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Checking images changes the preview only. It does not select the fields that Measure processes or change saved measurements or exports. **Propagate settings** retains its existing purpose: copying crop and filter settings into the Measure form."
 msgstr "Das Markieren von Bildern ändert nur die Vorschau. Es wählt weder die von Messen verarbeiteten Bildfelder aus noch verändert es gespeicherte Messungen oder Exporte. **Einstellungen übertragen** behält seine bisherige Funktion: Ausschnitt- und Filtereinstellungen in das Messen-Formular zu kopieren."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Preview and export unmixed crops"
-msgstr "Spektral entmischte Bildausschnitte ansehen und exportieren"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, set ``unmix=True`` and configure ``unmix_controls`` in the **Measure** form. Toggle **Unmixed display** to use those single-stain controls in the crop preview. The default display is raw. Invalid or missing controls are reported. This toggle changes the display only; it leaves run settings, source arrays and batch PNG outputs unchanged."
-msgstr "Wenn **Alpha-Funktionen anzeigen** aktiviert ist, setzen Sie ``unmix=True`` und konfigurieren Sie ``unmix_controls`` im Formular **Messen**. Schalten Sie **Spektral entmischte Anzeige** um, um diese Einzelfärbungskontrollen in der Bildausschnittvorschau zu verwenden. Standardmäßig werden Rohdaten angezeigt. Ungültige oder fehlende Kontrollen werden gemeldet. Dieser Schalter ändert nur die Anzeige; Laufeinstellungen, Quellarrays und PNG-Ausgaben der Stapelverarbeitung bleiben unverändert."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "After the preview finishes, choose **Export displayed crops…**, select a parent folder and enter a new folder name. Only the completed preview's crops are exported, with their displayed colours and raw or unmixed pixels. ``provenance.json`` records source paths, object identities, display settings and unmixing information. Existing folders are refused. Cancelling or changing the preview discards an unfinished export; source files and batch outputs remain unchanged."
-msgstr "Wählen Sie nach Abschluss der Vorschau **Angezeigte Bildausschnitte exportieren…**, wählen Sie einen übergeordneten Ordner und geben Sie einen neuen Ordnernamen ein. Exportiert werden nur die Bildausschnitte der abgeschlossenen Vorschau, mit ihren angezeigten Farben und den rohen oder spektral entmischten Pixeln. ``provenance.json`` enthält Quellpfade, Objektidentitäten, Anzeigeeinstellungen und Angaben zur spektralen Entmischung. Bereits vorhandene Ordner werden abgelehnt. Abbrechen oder Ändern der Vorschau verwirft einen noch nicht abgeschlossenen Export; Quelldateien und Ausgaben der Stapelverarbeitung bleiben unverändert."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Preview reference-well calibration"
-msgstr "Kalibrierung mit Referenzwells vorab prüfen"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With **Show alpha features** enabled, turn on ``intensity_calibration`` and configure the reference wells, camera offset and statistic in the **Measure** form. Turn off **Test mode**, then choose **Preview** beside **Intensity calibration wells**. Use a local run folder or its ``merged`` folder. The preview reads the current settings without running **Measure** or writing images, measurements or settings."
-msgstr "Wenn **Alpha-Funktionen anzeigen** aktiviert ist, aktivieren Sie ``intensity_calibration`` und konfigurieren Sie Referenzwells, Kameraoffset und Statistik im Formular **Messen**. Schalten Sie **Testmodus** aus und wählen Sie dann **Vorschau** neben **Kalibrierungs-Wells der Intensität**. Verwenden Sie einen lokalen Laufordner oder dessen Ordner ``merged``. Die Vorschau liest die aktuellen Einstellungen, ohne **Messen** auszuführen oder Bilder, Messwerte oder Einstellungen zu schreiben."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Each source folder is planned separately. The first plate in name order is the reference. The table shows each plate and channel's multiplicative gain, reference statistic and reference-field count. Changing settings invalidates the result. **Cancel** discards the preview while any source scan already running finishes safely; reopening waits for that scan to stop."
-msgstr "Jeder Quellordner wird separat geplant. Die nach Namen erste Platte dient als Referenz. Die Tabelle zeigt für jede Platte und jeden Kanal den multiplikativen Verstärkungsfaktor, die Referenzstatistik und die Anzahl der Referenzbildfelder. Eine Änderung der Einstellungen macht das Ergebnis ungültig. **Abbrechen** verwirft die Vorschau, während eine bereits laufende Prüfung der Quelldateien sicher abgeschlossen wird; beim erneuten Öffnen wird gewartet, bis diese Prüfung beendet ist."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Resolve a stored plane-layout conflict"

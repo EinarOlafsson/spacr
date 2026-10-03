@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -27,22 +27,6 @@ msgstr "O SDK de plugins permite que um pacote Python instalado separadamente ad
 
 msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
 msgstr "A API atual do SDK é ``1.0``. Apenas a versão principal determina a compatibilidade: um plugin que declara a API ``1.x`` funciona com o SDK ``1.x`` do spaCR. Um plugin malformado ou com falha é isolado e informado por ``spacr-plugins doctor``; ele não pode substituir um módulo integrado nem impedir a inicialização do spaCR."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Browse and install from a catalogue"
-msgstr "Explorar e instalar a partir de um catálogo"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
-msgstr "Ative **Mostrar recursos alfa** nas Preferências e abra a aba **Extensões**. Informe em **Catálogo** um arquivo JSON de catálogo, a pasta que o contém ou um endereço HTTP(S), e pressione **Lista**. Selecione uma entrada para **Instalar ou atualizar** ou **Desinstalar**. Para uma receita instalada, **Abrir** carrega suas configurações salvas no módulo correspondente sem iniciar a análise."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
-msgstr "Listagem, instalação e remoção são executadas em segundo plano. A aba mostra **Trabalhando...** e desativa temporariamente seus controles de catálogo durante uma ação. Os demais controles da interface continuam utilizáveis. Fechar as Preferências não cancela uma instalação; ela termina independentemente da janela. Reabra a aba para inspecionar o resultado instalado. Uma falha na atualização do catálogo é informada separadamente de uma instalação ou remoção bem-sucedida."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
-msgstr "Os plugins do catálogo usam pastas de instalação separadas, mas compartilham o interpretador Python do spaCR. Este instalador de catálogo ainda não oferece ambientes separados para dependências conflitantes."
 
 msgid "Minimal plugin"
 msgstr "Plugin mínimo"

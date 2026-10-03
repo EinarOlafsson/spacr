@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.18.0\n"
 
 msgid "spaCR plugin SDK"
 msgstr "spaCR 플러그인 SDK"
@@ -27,22 +27,6 @@ msgstr "플러그인 SDK를 사용하면 별도로 설치한 Python 패키지가
 
 msgid "The current SDK API is ``1.0``. Only the major version controls compatibility: a plugin declaring API ``1.x`` works with spaCR's ``1.x`` SDK. A malformed or failing plugin is isolated and reported by ``spacr-plugins doctor``; it cannot replace a built-in module or prevent spaCR from starting."
 msgstr "현재 SDK API는 ``1.0`` 입니다. 호환성은 주 버전만으로 결정됩니다. API ``1.x`` 를 선언한 플러그인은 spaCR의 ``1.x`` SDK와 함께 동작합니다. 형식이 잘못되었거나 오류가 나는 플러그인은 격리되어 ``spacr-plugins doctor`` 로 보고되며, 기본 제공 모듈을 대체하거나 spaCR의 시작을 막을 수 없습니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Browse and install from a catalogue"
-msgstr "카탈로그에서 찾아보기 및 설치"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Enable **Show alpha features** in Preferences, then open its **Plugins** tab. Enter a catalogue JSON file, its containing folder, or an HTTP(S) address in **Catalogue** and press **List**. Select an entry to **Install or update** or **Uninstall** it. For an installed recipe, **Open** loads its saved settings into the corresponding module without starting analysis."
-msgstr "환경설정에서 **알파 기능 표시**\\ 를 활성화한 다음 **플러그인** 탭을 여세요. **카탈로그**\\ 에 카탈로그 JSON 파일, 해당 파일이 있는 폴더 또는 HTTP(S) 주소를 입력하고 **목록**\\ 을 누르세요. 항목을 선택하여 **설치 또는 업데이트**\\ 하거나 **제거**\\ 할 수 있습니다. 설치된 레시피에서 **열기**\\ 를 선택하면 분석을 시작하지 않고 저장된 설정을 해당 모듈로 불러옵니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Listing, installation and removal run in the background. The tab shows **Working…** and temporarily disables its catalogue controls while an action runs. Other interface controls remain usable. Closing Preferences does not cancel an installation; it finishes independently of the window. Reopen the tab to inspect the installed result. A failed catalogue refresh is reported separately from a successful installation or removal."
-msgstr "목록 조회, 설치 및 제거는 백그라운드에서 실행됩니다. 작업 중에는 탭에 **작업 중…**\\ 이라는 상태가 표시되고 카탈로그 컨트롤이 일시적으로 비활성화됩니다. 다른 인터페이스 컨트롤은 계속 사용할 수 있습니다. 환경설정을 닫아도 설치는 취소되지 않으며 창과 독립적으로 완료됩니다. 설치 결과를 확인하려면 탭을 다시 여세요. 카탈로그 새로 고침 실패는 설치 또는 제거 성공과 별도로 보고됩니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Catalogue plugins use separate installation folders but share spaCR's Python interpreter. Separate environments for conflicting dependencies are not yet provided by this catalogue installer."
-msgstr "카탈로그 플러그인은 별도의 설치 폴더를 사용하지만 spaCR의 Python 인터프리터를 공유합니다. 이 카탈로그 설치 프로그램은 의존성 충돌을 위한 별도 환경을 아직 제공하지 않습니다."
 
 msgid "Minimal plugin"
 msgstr "최소 플러그인"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -382,6 +382,9 @@ msgstr "将文件或文件夹拖放到表格的列中，每个通道一列。拖
 
 msgid "choose **Teach me…** and answer \"Which channel is this?\" for one image at a time. spaCR learns a regex from the answers and asks again only about a name it cannot yet read."
 msgstr "选择 **教我…**，一次针对一张图像回答“这是哪个通道？”。spaCR 会根据回答学习一个正则表达式，并且只在遇到尚无法识别的名称时再次询问。"
+
+msgid "When the source folder keeps its images in subfolders, tick **Consolidate subfolders into filenames first**. Sorting then copies the images into one new folder, each named after its folders, and reads that copy; the originals are not touched. If any image cannot be copied, for example because the disk is full or a file is not readable, the popup shows **Consolidation failed** with the number of files not copied and the path of the copy's ``rename_manifest.csv``. Sorting, **Auto regex**, **Teach me…** and **Detect sets** stop at that point. The source folder, the consolidation choice and the table keep their previous contents, and successful copies remain in place. Fix the cause and run the step again; the retry makes a complete new copy that includes each image once."
+msgstr "当源文件夹将图像保存在子文件夹中时，请勾选 **Consolidate subfolders into filenames first** 。随后排序会把图像复制到一个新文件夹中，每张图像按其所在文件夹命名，并读取该副本；原始文件不会被改动。如果有任何图像无法复制（例如磁盘已满或某个文件不可读），弹出窗口会显示 **合并失败** ，并给出未复制的文件数以及副本的 ``rename_manifest.csv`` 路径。排序、 **自动正则表达式** 、 **教我…** 和 **检测图像组** 会在此处停止。源文件夹、合并选项和表格保留原有内容，已成功复制的文件仍然保留。排除原因后再次运行该步骤；重试会生成一个完整的新副本，其中每张图像只包含一次。"
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**添加通道** 和 **添加掩膜** 用于添加列；每个掩膜列都会注明其对象类别（细胞、细胞核、病原体或细胞器）以及其勾勒的图像所在的通道。合并后的文件夹按其文件的原始名称读取。缺少图像的行会阻止 **应用** 并说明如何修复；RGB 图像和 z 栈可转换为单个灰度平面，原始文件会被保留。在 **应用** 之前不会移动任何内容。之后，图像会被移入源文件夹内的 ``sorted_channels/``，每个通道一个文件夹，另有掩膜和 ``merged/``，每次移动都记录在 ``channel_sorting_manifest.csv`` 中。将测量模块的 ``src`` 指向该 ``sorted_channels`` 文件夹。参见 :func:`spacr.channel_sorting.build_plan` 和 :ref:`测量的输入和输出 <workflow-module-measure>`。"

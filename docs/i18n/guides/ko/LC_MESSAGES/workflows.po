@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 19:24-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -334,10 +334,6 @@ msgstr "측정"
 
 msgid "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops."
 msgstr "측정은 이미지와 레이블 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 스트리밍 크롭을 쓰려면 데이터베이스와 소스 프로젝트를 함께 보관하세요."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "With alpha features enabled, use the save icon beside ``cellprofiler_pipeline`` to export a bundled example. It expects two image channels, ``_ch0.tif`` (DNA) and ``_ch1.tif`` (Actin), plus ``_nucleus_mask.tif`` (Nuclei) and ``_cell_mask.tif`` (Cells). Adapt its channel and object definitions to your data before running it. Saving selects the exported path; cancellation or failure preserves the previous selection. CellProfiler runs in its separate environment."
-msgstr "알파 기능을 활성화한 상태에서 ``cellprofiler_pipeline`` 옆의 저장 아이콘으로 번들 예제를 내보내세요. 이 예제는 두 이미지 채널 ``_ch0.tif`` (DNA)와 ``_ch1.tif`` (Actin), 그리고 ``_nucleus_mask.tif`` (Nuclei)와 ``_cell_mask.tif`` (Cells)를 사용합니다. 실행하기 전에 채널 및 객체 정의를 데이터에 맞게 수정하세요. 저장하면 내보낸 경로가 선택되며 취소하거나 실패하면 기존 선택이 유지됩니다. CellProfiler는 별도의 환경에서 실행됩니다."
 
 msgid "**Open:** Home → Measure."
 msgstr "**열기:** 홈 → 측정."
@@ -1586,10 +1582,6 @@ msgstr "마스크에서 타임랩스를 열어 순서가 있는 프레임에 걸
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
 msgstr "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours``와 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s``를 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "To colour trees with measured features, first track with ``timelapse_lineage`` enabled so spaCR saves the frame/source mapping. Then run Measure on the merged project with ``timelapse=True``, matching ``timelapse_objects`` and ``timelapse_lineage=True``. Enable alpha features and the time dimension to reveal the lineage controls. Set ``timelapse_lineage_color_by`` to a numeric column from the selected object's measurement table. Segment means use available measured frames; segments with no measured values remain uncoloured, with coverage reported. Results go to ``tracks/lineage_measured`` without replacing earlier lineage outputs. Old tracks without the mapping require tracking again. Saved explicit timing calibration is inherited; a conflicting interval is refused."
-msgstr "측정한 특성으로 트리의 색상을 지정하려면 먼저 ``timelapse_lineage``\\ 를 활성화하여 추적을 실행하세요. 그러면 spaCR이 프레임/원본 매핑을 저장합니다. 그런 다음 병합된 프로젝트에서 ``timelapse=True``\\ 와 ``timelapse_lineage=True``\\ 를 설정하고 ``timelapse_objects``\\ 를 추적에 사용한 객체와 일치시킨 뒤 측정을 실행하세요. 계보 제어 항목을 표시하려면 알파 기능과 시간 차원을 활성화하세요. ``timelapse_lineage_color_by``\\ 를 선택한 객체의 측정 테이블에 있는 수치형 열로 설정하세요. 구간 평균은 측정값이 있는 프레임을 사용하며, 측정값이 전혀 없는 구간에는 색상을 지정하지 않고 측정값이 있는 범위를 보고합니다. 결과는 기존 계보 출력을 대체하지 않고 ``tracks/lineage_measured``\\ 에 저장됩니다. 매핑이 없는 이전 추적 결과는 추적을 다시 실행해야 합니다. 저장된 명시적 시간 보정을 이어서 사용하며, 이와 충돌하는 시간 간격은 거부합니다."
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**열기:** 마스크 → 타임랩스."

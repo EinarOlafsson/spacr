@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -206,6 +206,9 @@ msgstr "परिणाम उपयोग करना, सहेजना औ�
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
 msgstr "Graph Builder में परिणाम स्तंभों को **X**, **Y**, रंग, आकार या फ़ैसेट चैनलों में रखें। Gate Editor में स्तंभों का उपयोग थ्रेशोल्ड, बहुभुज और अन्य गेट आकृतियों के लिए करें। Gate Editor अपनी ``sample_fraction`` और ``max_points`` सेटिंग्स के अनुसार नमूना दिखा सकता है; गेट निर्यात पूरी मर्ज की हुई तालिका का मूल्यांकन करता है।"
+
+msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
+msgstr "जब Graph Builder का कोई चैनल खाली कर दिया जाता है, या उसमें ऐसा कॉलम होता है जिसे चुना गया प्लॉट प्रकार नहीं बना सकता, तो कैनवास चार्ट बनाने के बजाय बताता है कि क्या कमी है। उदाहरण के लिए, वह आपसे किसी कॉलम को **X** या **Y** पर खींचने को कहता है, बताता है कि हिस्टोग्राम को सतत कॉलम चाहिए, या ऐसे कॉलम का नाम बताता है जो वर्तमान तालिका में नहीं है। प्लॉट प्रकार चुना रहता है, इसलिए उपयुक्त कॉलम रखने पर चार्ट फिर से बन जाता है।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

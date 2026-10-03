@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -206,6 +206,9 @@ msgstr "使用、保存并重新加载结果"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
 msgstr "在 Graph Builder 中，将结果列放到 **X**、**Y**、颜色、大小或分面通道。在 Gate Editor 中，将这些列用于阈值、多边形和其他门控形状。Gate Editor 可能根据 ``sample_fraction`` 和 ``max_points`` 设置显示抽样数据；导出门控时会计算完整的合并表。"
+
+msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
+msgstr "当 Graph Builder 的某个通道被清空，或其中的列无法用所选图表类型绘制时，画布不会绘制图表，而是说明缺少什么。例如，它会提示你将一列拖到 **X** 或 **Y** 上，说明直方图需要连续型列，或指出当前表中不存在的某个列。图表类型保持选中，因此放入合适的列后图表会重新绘制。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

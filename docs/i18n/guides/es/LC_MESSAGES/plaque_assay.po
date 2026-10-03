@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 18:26-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -45,22 +45,6 @@ msgstr "Elija **Usar esta configuración** para copiar los valores ajustados en 
 
 msgid "The preview resolves local checkpoints without downloading them implicitly. When a model is absent, the panel explains what is missing and offers the appropriate download. Keep the selected model and settings with the results; ``bundled`` names the historical packaged checkpoint, not an alias for the current Model Zoo model."
 msgstr "La vista previa resuelve los puntos de control locales sin descargarlos implícitamente. Cuando falta un modelo, el panel explica qué falta y ofrece la descarga adecuada. Conserve el modelo y la configuración seleccionados junto con los resultados; ``bundled`` designa el punto de control histórico empaquetado, no un alias del modelo actual de la biblioteca de modelos."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Preview colony counting (alpha)"
-msgstr "Vista previa del recuento de colonias (alfa)"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Enable **Preferences → Show alpha features**, then turn on **Colony counting** in the module's **Colony Counting (Alpha)** settings. Keep **Plaque** mode selected and press **Run preview**. The preview uses the colony-counting settings and original image pixels, shows the colony overlay and reports the count and mean area in original-image pixels. With well detection enabled, the detected wells are counted separately and displayed at their positions on the original photo. No plaque segmentation model is needed for this path."
-msgstr "Active **Preferencias → Mostrar funciones alfa** y después **Recuento de colonias** en los ajustes **Colony Counting (Alpha)** del módulo. Mantenga seleccionado el modo **Placa** y pulse **Ejecutar vista previa**. La vista previa utiliza los ajustes de recuento de colonias y los píxeles originales de la imagen, muestra la superposición de colonias e informa del recuento y del área media en píxeles de la imagen original. Con la detección de pocillos activada, los pocillos detectados se cuentan por separado y se muestran en sus posiciones en la foto original. Este procedimiento no necesita un modelo de segmentación de placas de lisis."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Leave the colony detector blank to use thresholding, or select an installed colony detector. Preview reports a missing checkpoint or detector dependency instead of silently switching methods; the batch run can fall back to thresholding when its optional detector dependency is unavailable. Check that the intended method is available when comparing preview and batch results. Colony counting produces no flow or cell-probability output, so those views show an unavailable-output message. Preview writes no analysis database and does not change the source image. Colony counting is ignored in Figure mode."
-msgstr "Deje vacío el detector de colonias para usar umbralización o seleccione un detector de colonias instalado. La vista previa informa si falta un archivo de pesos del modelo o una dependencia del detector, en lugar de cambiar de método silenciosamente; la ejecución por lotes puede recurrir a la umbralización cuando su dependencia opcional del detector no está disponible. Compruebe que el método deseado está disponible al comparar resultados de vista previa y por lotes. El recuento de colonias no genera salidas de flujo ni de probabilidad celular, por lo que esas vistas muestran un mensaje de salida no disponible. La vista previa no escribe ninguna base de datos de análisis ni modifica la imagen de origen. El recuento de colonias se ignora en el modo Figure."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "For per-plate dilutions, enter a UTF-8 CSV path in **Colony dilution**. The required headers are ``file,dilution``; each row names an image filename (including its extension) or a filename stem and a positive, finite dilution. For example, ``plate1.png,10000`` and ``plate2,0.0001`` both describe a dilution factor of 10000. Exact filenames take priority over stems. Duplicate identifiers and malformed rows stop preview or analysis before detection or output writes; plates absent from the mapping still receive counts but no CFU/mL. A single number or a Python dictionary remains supported. Set the plated volume in µL separately; CFU/mL uses the volume converted to mL."
-msgstr "Para diluciones por placa, introduzca una ruta CSV UTF-8 en **Dilución de colonias**. Los encabezados obligatorios son ``file,dilution``; cada fila indica un nombre de archivo de imagen, incluida su extensión, o un nombre sin extensión y una dilución positiva y finita. Por ejemplo, ``plate1.png,10000`` y ``plate2,0.0001`` describen ambos un factor de dilución de 10000. Los nombres de archivo exactos tienen prioridad sobre los nombres sin extensión. Los identificadores duplicados y las filas mal formadas detienen la vista previa o el análisis antes de detectar o escribir salidas; las placas ausentes de la asignación reciben recuentos, pero no CFU/mL. Se sigue admitiendo un solo número o un diccionario de Python. Establezca por separado el volumen sembrado en µL; CFU/mL utiliza el volumen convertido a mL."
 
 msgid "Read a published figure"
 msgstr "Leer una figura publicada"

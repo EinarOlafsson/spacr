@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -192,6 +192,9 @@ msgstr "**टूलटिप** सूचक के दो सेकंड रु
 
 msgid "These sizes are remembered between sessions."
 msgstr "ये आकार सत्रों के बीच याद रखे जाते हैं।"
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "किसी पॉपअप का आकार बदलने के लिए उसके किसी किनारे या कोने पर पॉइंटर ले जाएँ। जिस भी भुजा को खींचा जा सकता है, उसके बीच के आधे भाग पर एक पतली नीली मार्गदर्शक रेखा दिखती है। उस किनारे या कोने पर कहीं से भी खींचें; रेखा केवल भुजा को चिह्नित करती है।"
 
 msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
 msgstr "मास्क बनाएँ हाथ से मास्क सुधारता है और अपनी शीर्षपट्टी पर Cellpose लूप रखता है। इसके कैनवास में दस उपकरण हैं: ब्रश, इरेज़र, Erase object, Wand +, Wand −, Draw, Divide, ज़ूम, Recrop और रूलर। :doc:`मास्क बनाएँ संदर्भ <make_masks>` इन उपकरणों, स्तर, पहचान सेटिंग्स, प्राथमिक/द्वितीयक युग्मन, सहेजने और मापन को कवर करता है।"

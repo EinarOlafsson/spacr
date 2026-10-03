@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -192,6 +192,9 @@ msgstr "**Verktygstips** visas när pekaren har vilat i två sekunder och ligger
 
 msgid "These sizes are remembered between sessions."
 msgstr "Dessa storlekar sparas mellan sessionerna."
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "Om du vill ändra storlek på ett popupfönster pekar du på någon av dess kanter eller hörn. En tunn blå hjälplinje visas över den mittersta halvan av varje sida som du kan dra i. Dra var som helst längs den kanten eller det hörnet; linjen markerar bara sidan."
 
 msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
 msgstr "Skapa masker korrigerar masker för hand och har Cellpose-slingan i sin huvudrad. Dess arbetsyta har tio verktyg: Pensel, Suddgummi, Erase object, Wand +, Wand −, Draw, Divide, Zooma, Recrop och Linjal. :doc:`Referensen för Skapa masker <make_masks>` beskriver dessa verktyg, Nivåer, detektionsinställningar, parning av primära och sekundära objekt, sparande och mätning."

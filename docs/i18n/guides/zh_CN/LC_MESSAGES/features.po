@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -192,6 +192,9 @@ msgstr "**工具提示** 在指针停留两秒后出现，并在指针位于其�
 
 msgid "These sizes are remembered between sessions."
 msgstr "这些尺寸会在会话之间被记住。"
+
+msgid "To resize a popup, point at one of its edges or corners. A thin blue guide line appears across the middle half of each side you can drag. Drag from anywhere along that edge or corner; the line only marks the side."
+msgstr "要调整弹出窗口的大小，请将指针指向其任一边缘或角。可拖动的每条边的中间一半会出现一条细蓝色参考线。可沿该边缘或角的任意位置拖动；参考线只是标示出可拖动的边。"
 
 msgid "Make Masks corrects masks by hand and carries the Cellpose loop on its masthead. Its canvas has ten tools: Brush, Erase, Erase object, Wand +, Wand −, Draw, Divide, Zoom, Recrop and Ruler. The :doc:`Make Masks reference <make_masks>` covers these tools, Levels, detection settings, primary/secondary pairing, saving and measurement."
 msgstr "创建掩膜用于手动校正掩膜，并在其标题栏上提供 Cellpose 循环。其画布有十种工具：画笔、橡皮擦、Erase object、Wand +、Wand −、Draw、Divide、缩放、Recrop 和标尺。:doc:`创建掩膜参考 <make_masks>` 介绍了这些工具、色阶、检测设置、初级/次级配对、保存和测量。"

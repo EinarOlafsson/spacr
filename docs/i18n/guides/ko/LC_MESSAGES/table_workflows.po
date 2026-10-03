@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-03 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Review-Kind: AI technical review (Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.18.0\n"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Combine measurement tables for plots and gates"
@@ -206,6 +206,9 @@ msgstr "결과 사용, 저장, 다시 불러오기"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
 msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction``과 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다."
+
+msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
+msgstr "Graph Builder 채널이 비워지거나 선택한 플롯 종류로 그릴 수 없는 열이 들어 있으면, 캔버스는 차트를 그리는 대신 무엇이 빠졌는지 설명합니다. 예를 들어 열을 **X** 또는 **Y** 로 끌어 놓으라고 요청하거나, 히스토그램에는 연속형 열이 필요하다고 알리거나, 현재 표에 없는 열 이름을 알려 줍니다. 플롯 종류는 선택된 채로 유지되므로 알맞은 열을 놓으면 차트가 다시 그려집니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."
