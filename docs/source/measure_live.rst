@@ -66,6 +66,18 @@ reference statistic and reference-field count. Changing settings invalidates
 the result. **Cancel** discards the preview while any source scan already
 running finishes safely; reopening waits for that scan to stop.
 
+Measure on a GPU
+----------------
+
+With **Show alpha features** enabled, turn on ``measure_gpu`` under **GPU
+Measurement (Alpha)**. The per-object intensity statistics, GLCM homogeneity
+and Zernike moments are then computed with PyTorch on a CUDA GPU, all objects
+of a field at once. When cuCIM is also installed (the ``gpu`` extra), the
+per-object morphology table is computed on the GPU too; without cuCIM it stays
+on the CPU. Values match a CPU run within floating-point tolerance. Only 2-D
+masks without voxel spacing use the GPU; anything else, or a missing PyTorch
+or CUDA device, measures on the CPU as usual.
+
 Resolve a stored plane-layout conflict
 --------------------------------------
 

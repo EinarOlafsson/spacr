@@ -127,3 +127,21 @@ Headless entry points
 
 The statistical APIs are :mod:`spacr.surrogate`,
 :mod:`spacr.hit_attribution`, and :mod:`spacr.hit_investigation`.
+
+Counterfactual sequences
+------------------------
+
+With **Show alpha features** enabled, **Activation Maps** has a
+**Counterfactuals** heading. Turn on ``counterfactuals`` to morph held-out
+crops step by step toward the other class, guided and scored by the loaded
+classifier. ``counterfactual_condition`` chooses what the edits move between:
+``class`` (the default) uses the classifier's classes, while ``plate``,
+``well``, ``row`` or ``column`` read that condition from each crop's file name
+and push the edit toward the classifier's mean class probabilities for the
+target condition. At least two conditions must be present among the crops.
+
+Choose **Counterfactuals…** on a finished run and pick its ``counterfactuals``
+folder to step through each sequence with the classifier's score at every
+step. The folder must contain ``counterfactual_cells.csv``. The same
+classifier guides and scores the edits, so read the flip rate together with
+how far each crop moved.

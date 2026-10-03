@@ -504,6 +504,29 @@ with image dimensions, channel count and the saved settings. Existing
 ``stack/`` files help distinguish a completed ingestion stage from a failure
 before the first field was written.
 
+Follow objects through a movie with SAM2
+----------------------------------------
+
+With **Show alpha features** enabled and SAM2 installed from the Model Zoo,
+choose **SAM2 tracking…** and open a time-lapse TIFF stack. Click each object
+on any frame to seed it (**New object** starts the next one), optionally tick
+**Also follow backward**, and choose **Propagate**. SAM2 follows every object
+through the movie. Where it goes wrong, click the object again on that frame
+and propagate once more.
+
+Apply a virtual-staining model
+------------------------------
+
+With **Show alpha features** enabled, **Apply virtual stain…** in Make Masks
+(and in the Mask and Timelapse run row) asks for a ``.pt`` model saved by the
+Cellpose workbench and predicts its stain for every ``.npy`` or ``.tif`` field
+of the screen's source folder, frame by frame for time stacks, on the CPU.
+Predictions are written to ``<folder>/virtual_stain``. When training the
+model with the workbench's **Virtual staining…** button, answer the channel
+prompt with, for example, ``1 > 0 pix2pix`` to train the same U-Net against an
+adversarial critic instead of the plain U-Net; only the generator is saved, so
+applying it is unchanged.
+
 Engine parameter reference
 --------------------------
 

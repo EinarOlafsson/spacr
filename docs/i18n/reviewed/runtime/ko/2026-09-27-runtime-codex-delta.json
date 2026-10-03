@@ -111,13 +111,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "measure_gpu",
-      "source": "Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
-      "source_sha256": "6eaaea0282c282c44b813c237e745549466d706e066e6dfc14d15529d80d0d6e",
-      "translation": "PyTorch를 통해 CUDA GPU에서 객체별 강도 통계, GLCM 균질성 및 Zernike 모멘트를 계산하며, 시야의 객체를 하나씩 처리하는 대신 모두 한 번에 처리합니다. 값은 부동소수점 허용 오차 내에서 CPU 실행과 일치합니다. 복셀 간격이 없는 2-D 마스크에 적용됩니다. 다른 경우, PyTorch가 없거나 보이는 CUDA 장치가 없으면 평소처럼 CPU에서 측정합니다. 기본값: False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "timelapse_events_conditions",
       "source": "Conditions compared in the event timing, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']; fields in wells no entry names are left out. Blank compares wells. Default None.",
       "source_sha256": "77be758082531ddb7e490f6baf0a62190de63ed446549f04f11084322960d28d",
@@ -957,7 +950,15 @@
       "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
       "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
       "translation": "객체 검출 설정으로 각 시야를 원본, 두 방향으로 뒤집은 이미지, 90도 회전한 이미지의 네 가지로 분할하고 네 결과가 불일치하는 위치를 측정합니다. 이 시야 매핑은 별도 탭에 불일치를 히트맵으로 표시합니다. 시야 정렬은 가장 불확실한 시야를 먼저 배치하고 spacr-make-masks --order uncertain에 사용할 점수를 “curate_uncertainty.csv”로 저장합니다. 시야당 검출 네 번이 필요합니다."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure_gpu",
+      "source": "Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+      "source_sha256": "6eaaea0282c282c44b813c237e745549466d706e066e6dfc14d15529d80d0d6e",
+      "translation": "PyTorch를 통해 CUDA GPU에서 객체별 강도 통계, GLCM 균질성 및 Zernike 모멘트를 계산하며, 시야의 객체를 하나씩 처리하는 대신 모두 한 번에 처리합니다. 값은 부동소수점 허용 오차 내에서 CPU 실행과 일치합니다. 복셀 간격이 없는 2-D 마스크에 적용됩니다. 다른 경우, PyTorch가 없거나 보이는 CUDA 장치가 없으면 평소처럼 CPU에서 측정합니다. 기본값: False."
     }
   ],
-  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",
+  "retirement_2026_10_03": "N615: source text changed (measure_gpu tooltip gained its cuCIM sentence; the virtual-staining channel prompt gained the pix2pix hint). The replacement translations are in 2026-10-03-alpha-batch-captions.json."
 }

@@ -11200,7 +11200,7 @@ Read by ``import_project``.
 measure_gpu
 -----------
 
-(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.
+(bool) - Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. With cuCIM installed (the 'gpu' extra), the per-object morphology table is computed on the GPU too; without it, morphology stays on the CPU. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.
 
 | ``_measure_crop_core``
 |     ``_intensity_measurements``

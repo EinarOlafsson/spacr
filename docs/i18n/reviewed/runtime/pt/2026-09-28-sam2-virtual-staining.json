@@ -19,13 +19,6 @@
     },
     {
       "table": "ui",
-      "key": "Input channels > channel to predict:",
-      "source": "Input channels > channel to predict:",
-      "source_sha256": "9a9b1d3f3306ef8ad54280d217b28ac7c00fbb4a2f3b9eff705c9dcc4b3c13fa",
-      "translation": "Canais de entrada > canal a prever:"
-    },
-    {
-      "table": "ui",
       "key": "Published results: Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not scored it against those results; item 556 scores it on Cell Tracking Challenge movies.",
       "source": "Published results: Ravi et al., 'SAM 2: Segment Anything in Images and Videos', ICLR 2025 (arXiv:2408.00714). spaCR has not scored it against those results; item 556 scores it on Cell Tracking Challenge movies.",
       "source_sha256": "10f5c11cd47de98ef14f6be733e8adaf6dffdad559aacfa2933deba08cd7bac3",
@@ -80,5 +73,15 @@
       "source_sha256": "f31bfdd297d543a0c682b0dcf4c17cd69c4a6ed4cc28a54b96bb75722d6c8c66",
       "translation": "Coloração virtual…"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Input channels > channel to predict:",
+      "source": "Input channels > channel to predict:",
+      "source_sha256": "9a9b1d3f3306ef8ad54280d217b28ac7c00fbb4a2f3b9eff705c9dcc4b3c13fa",
+      "translation": "Canais de entrada > canal a prever:"
+    }
+  ],
+  "retirement_2026_10_03": "N615: source text changed (measure_gpu tooltip gained its cuCIM sentence; the virtual-staining channel prompt gained the pix2pix hint). The replacement translations are in 2026-10-03-alpha-batch-captions.json."
 }

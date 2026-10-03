@@ -1,0 +1,554 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical translation with AI technical review against the English source; no human or native-speaker signoff",
+  "review_method": "Source-bound alpha-batch captions: SAM2 click seeding, virtual-stain apply and pix2pix prompt, Embeddings labels scorecard and Use-for picker, well-label model, counterfactual sequence viewer and condition setting, field QC labelling and image QC classifier, the Measure RAM guard dialog and ram_guard setting, and the measure_gpu tooltip's cuCIM sentence. Review checked placeholders, file names, setting keys, quoted literals and terminology against the existing catalog.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Also follow backward",
+      "source": "Also follow backward",
+      "source_sha256": "dbe8f803bbcc850b460f541ee6200aa81398fb74c6920e0757b1dbfecd453f52",
+      "translation": "同时向后追踪"
+    },
+    {
+      "table": "ui",
+      "key": "Apply virtual stain…",
+      "source": "Apply virtual stain…",
+      "source_sha256": "5dc1b7e05c60c66385f746a5055cfd1746b1392d49570804f609845b07ac5fb2",
+      "translation": "应用虚拟染色…"
+    },
+    {
+      "table": "ui",
+      "key": "Applying the virtual stain…",
+      "source": "Applying the virtual stain…",
+      "source_sha256": "c30bd92235489ed44b13b40ad0032fcf1ad367e52bb2c908d803d76ef8c539f1",
+      "translation": "正在应用虚拟染色…"
+    },
+    {
+      "table": "ui",
+      "key": "Benchmark {row}",
+      "source": "Benchmark {row}",
+      "source_sha256": "9495863efb1b815733fb87162d83a0a643dbb8d0d790d9ffb4148f77e4ce9727",
+      "translation": "基准测试 {row}"
+    },
+    {
+      "table": "ui",
+      "key": "Browse the counterfactual sequences of a finished run: pick its counterfactuals folder to step through each crop as it is morphed toward the target class or condition, with the classifier's score at every step. Default not opened.",
+      "source": "Browse the counterfactual sequences of a finished run: pick its counterfactuals folder to step through each crop as it is morphed toward the target class or condition, with the classifier's score at every step. Default not opened.",
+      "source_sha256": "a718fa24142bca0c952927aabffdeca2274d2461dbe835de28c0728f1b87d5f3",
+      "translation": "浏览已完成运行的反事实序列：选择其反事实文件夹，逐步查看每个裁剪图像向目标类别或条件变形的过程，并显示每一步的分类器得分。默认：未打开。"
+    },
+    {
+      "table": "ui",
+      "key": "Bubble",
+      "source": "Bubble",
+      "source_sha256": "77d87b0061d4094d1c654a07a04a3d312076f385cb69f140de5073160a305c34",
+      "translation": "气泡"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a counterfactuals folder",
+      "source": "Choose a counterfactuals folder",
+      "source_sha256": "a30dc3eb730e417fc4777577b26f973bcef3dc3aaf6611a6d7378d201c281f0b",
+      "translation": "选择反事实文件夹"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of raw .npy fields",
+      "source": "Choose a folder of raw .npy fields",
+      "source_sha256": "f0843ad4bb66807e16942517f2a2190f206f1433635ba44278f457d11f66d57e",
+      "translation": "选择原始 .npy 视野文件夹"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a label table",
+      "source": "Choose a label table",
+      "source_sha256": "050bed68f631098c88ebe532bd6b7cb9047df33a3a0dbc62e49da6e92dee4a3a",
+      "translation": "选择标签表"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a table with one row per embedded crop, in crop order, and a 'label' column (else the first column). The backbone is scored on it: kNN accuracy, mean average precision and precision at 10 against chance, and the classifier uses the same labels. Default no labels.",
+      "source": "Choose a table with one row per embedded crop, in crop order, and a 'label' column (else the first column). The backbone is scored on it: kNN accuracy, mean average precision and precision at 10 against chance, and the classifier uses the same labels. Default no labels.",
+      "source_sha256": "0a379e7d125a1de6a9047ebf1d0726a5eaaec2da957f129051a3442ea5a07759",
+      "translation": "选择一个表格：每个已嵌入的裁剪图像一行，按裁剪顺序排列，并包含 'label' 列（否则使用第一列）。主干网络据此评分：kNN 准确率、平均精度均值和前 10 精度，并与随机水平比较；分类器也使用相同的标签。默认：无标签。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a timelapse movie",
+      "source": "Choose a timelapse movie",
+      "source_sha256": "c4d7bfd6e82121b07c9df787d78dc5edfcabb8e29ed198d8734c81ca5c7bfe87",
+      "translation": "选择延时影片"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a virtual-staining model",
+      "source": "Choose a virtual-staining model",
+      "source_sha256": "43dad9ce89735e1c22b02f6268d1c6ed0a785373dc465e2816e5da5670755282",
+      "translation": "选择虚拟染色模型"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a virtual-staining model (.pt) saved by the Cellpose workbench and predict its stain for every .npy or .tif field of the folder, frame by frame for time stacks, on the CPU. Predictions are written to <folder>/virtual_stain. Default the screen's source folder.",
+      "source": "Choose a virtual-staining model (.pt) saved by the Cellpose workbench and predict its stain for every .npy or .tif field of the folder, frame by frame for time stacks, on the CPU. Predictions are written to <folder>/virtual_stain. Default the screen's source folder.",
+      "source_sha256": "689a4b0744b13780f284e159e7328fd25f8201d8f1a6444e5ad3764129913285",
+      "translation": "选择由 Cellpose workbench 保存的虚拟染色模型（.pt），并在 CPU 上为文件夹中每个 .npy 或 .tif 视野预测其染色，时间堆栈逐帧处理。预测结果写入 <folder>/virtual_stain。默认：该界面的源文件夹。"
+    },
+    {
+      "table": "ui",
+      "key": "Choose labels first.",
+      "source": "Choose labels first.",
+      "source_sha256": "0f6116270e71febcd04c96b83ee99612dd339e5d1a9a89a46543118df6b743a9",
+      "translation": "请先选择标签。"
+    },
+    {
+      "table": "ui",
+      "key": "Classifier on {name}: accuracy {acc:.2f} ± {sd:.2f} over {folds} folds (chance {chance:.2f}), {n} crops in {classes} classes.",
+      "source": "Classifier on {name}: accuracy {acc:.2f} ± {sd:.2f} over {folds} folds (chance {chance:.2f}), {n} crops in {classes} classes.",
+      "source_sha256": "17e94898f7cf22f1d8e65b3e34fe99ee954f4383ee5c120fd9aa31200bc92930",
+      "translation": "{name} 上的分类器：准确率 {acc:.2f} ± {sd:.2f}，共 {folds} 折（随机水平 {chance:.2f}），{n} 个裁剪图像，{classes} 个类别。"
+    },
+    {
+      "table": "ui",
+      "key": "Click an object to seed it.",
+      "source": "Click an object to seed it.",
+      "source_sha256": "bf145fa9af79eb7cf9cad0600ca1c71bdbaea34f5e02c766efa6da4a8a190d9b",
+      "translation": "点击对象以设置种子。"
+    },
+    {
+      "table": "ui",
+      "key": "Could not read the benchmark: {error}",
+      "source": "Could not read the benchmark: {error}",
+      "source_sha256": "c5631f648f9a2c9e1fe0cc2bc14bc842978fe6a5658e9a49035faf74e9375f4b",
+      "translation": "无法读取基准测试：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "Counterfactual sequences",
+      "source": "Counterfactual sequences",
+      "source_sha256": "b4751db36cfae13eb4f18d85765c1dd49ca3681af1962d6e5624361ba3e89ec7",
+      "translation": "反事实序列"
+    },
+    {
+      "table": "ui",
+      "key": "Counterfactuals…",
+      "source": "Counterfactuals…",
+      "source_sha256": "63b9396b71aa153788235f6553fd0e9c01203802a743a1d8c6c010ab030d8b15",
+      "translation": "反事实示例…"
+    },
+    {
+      "table": "ui",
+      "key": "Debris",
+      "source": "Debris",
+      "source_sha256": "c08dba183bdaeeaab0ec6c0141a40d5009aa04d83eb09a9f23a2190943660a7e",
+      "translation": "碎屑"
+    },
+    {
+      "table": "ui",
+      "key": "Done. Click an object on a wrong frame and propagate again.",
+      "source": "Done. Click an object on a wrong frame and propagate again.",
+      "source_sha256": "1dafc69b56f3f7cb020fb8722a6bc5541f50850f6c8bc3cef7f7a0760d708cd6",
+      "translation": "完成。在出错的帧上点击对象，然后再次传播。"
+    },
+    {
+      "table": "ui",
+      "key": "Embed the crops first.",
+      "source": "Embed the crops first.",
+      "source_sha256": "7e879fb955ccca7358816419a1bfdc3a09b3ffb2138cf6f8ef91364769a5a00e",
+      "translation": "请先嵌入裁剪图像。"
+    },
+    {
+      "table": "ui",
+      "key": "Empty",
+      "source": "Empty",
+      "source_sha256": "c6c094bc0054f9cbe34102ff49f86b3928b5ac09f3d2ac87e170d0500675921f",
+      "translation": "空"
+    },
+    {
+      "table": "ui",
+      "key": "Encoder {name}: kNN accuracy {knn:.2f}, mAP {map:.2f} (chance {chance:.2f}), precision at 10 {prec:.2f}, over {n} crops in {classes} classes.",
+      "source": "Encoder {name}: kNN accuracy {knn:.2f}, mAP {map:.2f} (chance {chance:.2f}), precision at 10 {prec:.2f}, over {n} crops in {classes} classes.",
+      "source_sha256": "41ab011aac88804e47751f10353530a789ab1192164a47c11d29354a5c83e3cf",
+      "translation": "编码器 {name}：kNN 准确率 {knn:.2f}，mAP {map:.2f}（随机水平 {chance:.2f}），前 10 精度 {prec:.2f}，{n} 个裁剪图像，{classes} 个类别。"
+    },
+    {
+      "table": "ui",
+      "key": "Feature columns",
+      "source": "Feature columns",
+      "source_sha256": "8297ed051e0a0f4062d66e5175c22920cc9bdd50b6ca14e55610a791b5494f8c",
+      "translation": "特征列"
+    },
+    {
+      "table": "ui",
+      "key": "Field QC…",
+      "source": "Field QC…",
+      "source_sha256": "64ec67b1b660ab44902fa3b746b8f016c93a31da34758ccf9cb5408effe425b5",
+      "translation": "视野 QC…"
+    },
+    {
+      "table": "ui",
+      "key": "Field quality labels",
+      "source": "Field quality labels",
+      "source_sha256": "5adea40e5feacb3cc22f9e357066086c618a62ab38f665432477d22e1059f154",
+      "translation": "视野质量标签"
+    },
+    {
+      "table": "ui",
+      "key": "Good",
+      "source": "Good",
+      "source_sha256": "c939327ca16dcf97ca32521d8b834bf1de16573d21deda3bb2a337cf403787a6",
+      "translation": "良好"
+    },
+    {
+      "table": "ui",
+      "key": "Image UMAP of {n} crops from {name}.",
+      "source": "Image UMAP of {n} crops from {name}.",
+      "source_sha256": "95730fb0f45c2bf10cc9903fa8df6c863d3e527a1ddcd0ccd42a8fcfad47fa6c",
+      "translation": "Image UMAP：{n} 个裁剪图像，来自 {name}。"
+    },
+    {
+      "table": "ui",
+      "key": "Input channels > channel to predict (add pix2pix for the adversarial model):",
+      "source": "Input channels > channel to predict (add pix2pix for the adversarial model):",
+      "source_sha256": "188dd60e06a5cc4d70522bd741f636f3d99ed7f80a41f52c1b7ee7a77812641d",
+      "translation": "输入通道 > 待预测通道（添加 pix2pix 以使用对抗模型）："
+    },
+    {
+      "table": "ui",
+      "key": "Label column",
+      "source": "Label column",
+      "source_sha256": "5d5623d88b1e15239a5e26e968c6c013ae5454d558b06eb203a4584ed3d8cf85",
+      "translation": "标签列"
+    },
+    {
+      "table": "ui",
+      "key": "Label whole raw fields as good, out of focus, saturated, debris, bubble or empty, one at a time, with the classifier's guesses ticked when a screened report exists. Saves qc/image_qc_labels.csv for the image_qc_classifier_labels setting. Default not open.",
+      "source": "Label whole raw fields as good, out of focus, saturated, debris, bubble or empty, one at a time, with the classifier's guesses ticked when a screened report exists. Saves qc/image_qc_labels.csv for the image_qc_classifier_labels setting. Default not open.",
+      "source_sha256": "25ac6dc82aa9c87747018c9bf042b3289e65ab5b9e35a3e5a031d5ef12c147d9",
+      "translation": "逐个将整幅原始视野标记为良好、失焦、饱和、碎屑、气泡或空；若存在筛查报告，分类器的猜测会预先勾选。为 image_qc_classifier_labels 设置保存 qc/image_qc_labels.csv。默认：不打开。"
+    },
+    {
+      "table": "ui",
+      "key": "Labels…",
+      "source": "Labels…",
+      "source_sha256": "2a80eafeea86e56447c42ae05f41f2ff7c88de5254bd27011d22203a65007e01",
+      "translation": "标签…"
+    },
+    {
+      "table": "ui",
+      "key": "Learn from well labels",
+      "source": "Learn from well labels",
+      "source_sha256": "97525b202b1aa6925912517e78a9320646ef9aebf5dc5c3adf1daa3017fae9d0",
+      "translation": "从孔标签学习"
+    },
+    {
+      "table": "ui",
+      "key": "New object",
+      "source": "New object",
+      "source_sha256": "bf1bba04531b3a045e51eb95fc60f233268701bfe3491cc0e6b258136ed16565",
+      "translation": "新对象"
+    },
+    {
+      "table": "ui",
+      "key": "No .npy fields in this folder.",
+      "source": "No .npy fields in this folder.",
+      "source_sha256": "482136cb0e82d63be9dbe5eb8e060f2e05a19f8fee8b3f65ce4d0373789c0759",
+      "translation": "此文件夹中没有 .npy 视野。"
+    },
+    {
+      "table": "ui",
+      "key": "No counterfactual_cells.csv in this folder.",
+      "source": "No counterfactual_cells.csv in this folder.",
+      "source_sha256": "b28140498e00650a9518c334a6484d86b45646c3cdf5262012d44e2cccc901c6",
+      "translation": "此文件夹中没有 counterfactual_cells.csv。"
+    },
+    {
+      "table": "ui",
+      "key": "No crop images: add a 'png_path' column to see the cells with the highest attention.",
+      "source": "No crop images: add a 'png_path' column to see the cells with the highest attention.",
+      "source_sha256": "9198112081e3626059f03d8c339123b054979328f953071305c6d2cd19524bb2",
+      "translation": "没有裁剪图像：添加 'png_path' 列即可查看注意力最高的细胞。"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing labelled yet.",
+      "source": "Nothing labelled yet.",
+      "source_sha256": "1f965623076b2a88297d072c5a38047c2a1a9b1b052abd89913cb31136a23485",
+      "translation": "尚未标记任何内容。"
+    },
+    {
+      "table": "ui",
+      "key": "Open a timelapse movie, click each object on any frame to seed it, and let SAM2 follow every object through the movie. Click again on a frame where it went wrong and propagate once more.",
+      "source": "Open a timelapse movie, click each object on any frame to seed it, and let SAM2 follow every object through the movie. Click again on a frame where it went wrong and propagate once more.",
+      "source_sha256": "471b5cc5680f1a8fda68e83623adb8f04532aa43601fce4db6043ee3098997d9",
+      "translation": "打开一部延时影片，在任意帧上点击每个对象以设置种子，让 SAM2 在整部影片中追踪每个对象。在出错的帧上再次点击，然后再传播一次。"
+    },
+    {
+      "table": "ui",
+      "key": "Out of focus",
+      "source": "Out of focus",
+      "source_sha256": "0002fdf3c7e8931895ca803f6623830a1e4309578b2726f5c0413b81bd050558",
+      "translation": "失焦"
+    },
+    {
+      "table": "ui",
+      "key": "Propagating…",
+      "source": "Propagating…",
+      "source_sha256": "3acbf728f79a83c275bafb3842b3b87b5b0a1391b25e1ec6064fc96e7a6e3604",
+      "translation": "正在传播…"
+    },
+    {
+      "table": "ui",
+      "key": "Run the chosen use on the last embedding. Default off until an embedding exists.",
+      "source": "Run the chosen use on the last embedding. Default off until an embedding exists.",
+      "source_sha256": "a0fdb14f6a23d65656867a514c52a1b18f2278f02745054544f1a05e23882f7d",
+      "translation": "对最近一次嵌入运行所选用途。默认：在有嵌入之前关闭。"
+    },
+    {
+      "table": "ui",
+      "key": "Running on the embedding…",
+      "source": "Running on the embedding…",
+      "source_sha256": "a29d8a64180ac7509b446517510206ac23015679f56aa3a0635c471c09f871db",
+      "translation": "正在对嵌入运行…"
+    },
+    {
+      "table": "ui",
+      "key": "SAM2 failed: {error}",
+      "source": "SAM2 failed: {error}",
+      "source_sha256": "c6ae55a09b9ab5754b990441c960ce805620de015be1a611bd34e681f16aa31d",
+      "translation": "SAM2 失败：{error}"
+    },
+    {
+      "table": "ui",
+      "key": "SAM2 tracking",
+      "source": "SAM2 tracking",
+      "source_sha256": "fc266331ab4c117bf9212014fb65586449f4e9221be298a60d33336e68c5dcec",
+      "translation": "SAM2 追踪"
+    },
+    {
+      "table": "ui",
+      "key": "SAM2 tracking…",
+      "source": "SAM2 tracking…",
+      "source_sha256": "b98b6b06358280da4eb9c889147f3b384b5cf93ef20f64afa5ecb84e79ca798d",
+      "translation": "SAM2 追踪…"
+    },
+    {
+      "table": "ui",
+      "key": "Saturated",
+      "source": "Saturated",
+      "source_sha256": "ca707893aaf9b56cce0db09f0bc69758bb1d4714230372c5cbbe0b4cbfbfa6f8",
+      "translation": "饱和"
+    },
+    {
+      "table": "ui",
+      "key": "Save labels",
+      "source": "Save labels",
+      "source_sha256": "789564534219cd06c3f033729d341b0c85da7f249ee014d8f62de92f03c43cdf",
+      "translation": "保存标签"
+    },
+    {
+      "table": "ui",
+      "key": "Saved {n} field labels to {path}",
+      "source": "Saved {n} field labels to {path}",
+      "source_sha256": "845eefc4fc033da0af1b430566aba4ffe17eaef08286392a85f7ef36e6ac3000",
+      "translation": "已将 {n} 个视野标签保存到 {path}"
+    },
+    {
+      "table": "ui",
+      "key": "TIFF stacks (*.tif *.tiff)",
+      "source": "TIFF stacks (*.tif *.tiff)",
+      "source_sha256": "86c0d0f504713610c13b2140a91790eba9799d526f48a0a561b7dae32dd26f51",
+      "translation": "TIFF 堆栈 (*.tif *.tiff)"
+    },
+    {
+      "table": "ui",
+      "key": "The label table has {rows} rows but {crops} crops were embedded.",
+      "source": "The label table has {rows} rows but {crops} crops were embedded.",
+      "source_sha256": "417598e8db6289e4658016807eac34a1f4e39034701d0dd8d19005f8a63dd179",
+      "translation": "标签表有 {rows} 行，但嵌入了 {crops} 个裁剪图像。"
+    },
+    {
+      "table": "ui",
+      "key": "The labels cannot be scored: two classes with labelled crops are needed.",
+      "source": "The labels cannot be scored: two classes with labelled crops are needed.",
+      "source_sha256": "8fe6797d10fe7ec667bcb838436e5722d9e4348662c9777354fcc215917f5406",
+      "translation": "无法为标签评分：需要两个含已标记裁剪图像的类别。"
+    },
+    {
+      "table": "ui",
+      "key": "Use for:",
+      "source": "Use for:",
+      "source_sha256": "741155c763afc149102f76f240b559bea3909047aeafd8f2e9f98996b14ce668",
+      "translation": "用于："
+    },
+    {
+      "table": "ui",
+      "key": "Virtual stain written for {n} fields.",
+      "source": "Virtual stain written for {n} fields.",
+      "source_sha256": "8fdea3590e22c864e5fe8ba88ad1427c7a5698cbf844bbd9e9edbcf86dcecb4c",
+      "translation": "已为 {n} 个视野写入虚拟染色。"
+    },
+    {
+      "table": "ui",
+      "key": "Virtual-staining models (*.pt)",
+      "source": "Virtual-staining models (*.pt)",
+      "source_sha256": "58b45c64d18affe43bee701cfce4c56ef2c834c78a6487b2f77f0acc1ad9a678",
+      "translation": "虚拟染色模型 (*.pt)"
+    },
+    {
+      "table": "ui",
+      "key": "Well-label model",
+      "source": "Well-label model",
+      "source_sha256": "ee85bfe8bde3b38ab0f93df6c0bc612d464e8aa3b7eabb783b8672f885056b92",
+      "translation": "孔标签模型"
+    },
+    {
+      "table": "ui",
+      "key": "What to do with the embedding of the chosen backbone or foundation model. Image UMAP maps every crop to two dimensions; Classifier cross-validates a logistic regression on the labels. Default Image UMAP.",
+      "source": "What to do with the embedding of the chosen backbone or foundation model. Image UMAP maps every crop to two dimensions; Classifier cross-validates a logistic regression on the labels. Default Image UMAP.",
+      "source_sha256": "7456667ceba806c1b61ac0df3804d96c3056d831c2c9f83d572c8d31df648ac8",
+      "translation": "对所选主干网络或基础模型的嵌入执行的操作。Image UMAP 将每个裁剪图像映射到二维；分类器在标签上对逻辑回归进行交叉验证。默认：Image UMAP。"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {n} of {total} channels at or above {threshold}; mean p {mean}",
+      "source": "{name}: {n} of {total} channels at or above {threshold}; mean p {mean}",
+      "source_sha256": "d4215bc44207117c71c1b9bc8492735f5ad930aaf5b11d19f98888525f614756",
+      "translation": "{name}：{n}/{total} 个通道达到或超过 {threshold}；平均 p {mean}"
+    },
+    {
+      "table": "ui",
+      "key": "{n} sequences; the first {k} have saved frames.",
+      "source": "{n} sequences; the first {k} have saved frames.",
+      "source_sha256": "4c91c7a912a9eebcfa63c0bbc9dbeb60bf3af477a5ea3aa03717504a1d202816",
+      "translation": "{n} 个序列；前 {k} 个有已保存的帧。"
+    },
+    {
+      "table": "ui",
+      "key": "{total} channels scored; {flagged} class flags at threshold {threshold}.",
+      "source": "{total} channels scored; {flagged} class flags at threshold {threshold}.",
+      "source_sha256": "0a09d6234cae0eb09d20983a90a1669c5f77e69dd34999826d34268e78999cf8",
+      "translation": "已评分 {total} 个通道；{flagged} 个类别标记，阈值 {threshold}。"
+    },
+    {
+      "table": "ui",
+      "key": "Close selected",
+      "source": "Close selected",
+      "source_sha256": "0609d7d30ed8f76995630311467d3dd7928170b495bfdc393e03957cf41813f4",
+      "translation": "关闭所选"
+    },
+    {
+      "table": "ui",
+      "key": "Close these programs?",
+      "source": "Close these programs?",
+      "source_sha256": "1d581a393ba8876cd8b89341579705989dd802a7b4fc6c6dfe1c59a53907d139",
+      "translation": "关闭这些程序？"
+    },
+    {
+      "table": "ui",
+      "key": "Free RAM by closing applications",
+      "source": "Free RAM by closing applications",
+      "source_sha256": "6c35e0b59f81f7cff47f3ca5c324d8cf9fc9df02844583b8bb09d1c1ab690700",
+      "translation": "关闭应用程序以释放 RAM"
+    },
+    {
+      "table": "ui",
+      "key": "Free RAM by closing applications…",
+      "source": "Free RAM by closing applications…",
+      "source_sha256": "c45c859bf1daded18a2d2256e04e8144b600f7982a37a51cc5a0dd796e5575c1",
+      "translation": "关闭应用程序以释放 RAM…"
+    },
+    {
+      "table": "ui",
+      "key": "Keep {count} (spaCR will throttle)",
+      "source": "Keep {count} (spaCR will throttle)",
+      "source_sha256": "00592d497f1f9c668fafa24833167dec6f05329273bab8962edc8416dafbdc0c",
+      "translation": "保留 {count} 个（spaCR 将限速）"
+    },
+    {
+      "table": "ui",
+      "key": "No other programs of yours can be closed from here.",
+      "source": "No other programs of yours can be closed from here.",
+      "source_sha256": "047ff75d7f7ee40dbdd1142afcf5e288722681fe2b3de72ecafb4451136663f2",
+      "translation": "无法从此处关闭您的其他程序。"
+    },
+    {
+      "table": "ui",
+      "key": "Not enough RAM for these workers",
+      "source": "Not enough RAM for these workers",
+      "source_sha256": "8c03f49a6fd3161a2a799a68c1b4b8da58be7de2863d31e7ccd983eb6a31f4f8",
+      "translation": "RAM 不足以运行这些工作进程"
+    },
+    {
+      "table": "ui",
+      "key": "Tick the programs to close. They are asked to quit, so most can save first. Unsaved work in them may still be lost.",
+      "source": "Tick the programs to close. They are asked to quit, so most can save first. Unsaved work in them may still be lost.",
+      "source_sha256": "37aedb074cb4a531f208975b6f6855922d1fe950ad555e38ca8228221bf8d286",
+      "translation": "勾选要关闭的程序。系统会请求它们退出，因此大多数程序可以先保存。其中未保存的工作仍可能丢失。"
+    },
+    {
+      "table": "ui",
+      "key": "Use {count} workers (recommended)",
+      "source": "Use {count} workers (recommended)",
+      "source_sha256": "bc35e3a27d6d3dc27ed21ea64493df1098275bb0ea872d26c7150a2172766ac0",
+      "translation": "使用 {count} 个工作进程（推荐）"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR will ask these programs to quit:\n\n{names}",
+      "source": "spaCR will ask these programs to quit:\n\n{names}",
+      "source_sha256": "00517383b73a2b118450b0cbcfac827787d93706a7361b91f56da5903e873ff1",
+      "translation": "spaCR 将请求以下程序退出：\n\n{names}"
+    },
+    {
+      "table": "ui",
+      "key": "{name} ({ram} GiB)",
+      "source": "{name} ({ram} GiB)",
+      "source_sha256": "70d2cd533677da4a40042d7c70ae2fd2ccfcbb5109e27ca8c38b4f2188bc885e",
+      "translation": "{name}（占用 {ram} GiB）"
+    },
+    {
+      "table": "ui",
+      "key": "{requested} workers would need about {needed} GiB of RAM, but {available} GiB is free and spaCR keeps {reserve} GiB for the rest of the computer. {safe} workers fit without pausing.",
+      "source": "{requested} workers would need about {needed} GiB of RAM, but {available} GiB is free and spaCR keeps {reserve} GiB for the rest of the computer. {safe} workers fit without pausing.",
+      "source_sha256": "afbbdde055f3bed722b01c2b5b9731c6a25c81ec517638e5bb1e9ba822e11598",
+      "translation": "{requested} 个工作进程约需 {needed} GiB RAM，但空闲 {available} GiB，且 spaCR 为计算机其余部分保留 {reserve} GiB。{safe} 个工作进程可不暂停地运行。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_condition",
+      "source": "Counterfactual condition",
+      "source_sha256": "93b34877f7c04ecf5c8bd63e4f417a61c5ea3ea8b3ac5ae99a052c37c4beb853",
+      "translation": "反事实条件"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ram_guard",
+      "source": "Ram guard",
+      "source_sha256": "6326936bbb9dba9724b92ca7c4e6b41b359143966fb14880b0a94687c6eb49cd",
+      "translation": "内存保护"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_condition",
+      "source": "What the counterfactuals morph between: 'class' uses the classifier's classes; 'plate', 'well', 'row' or 'column' uses that condition, read from each crop's file name, and pushes every edit toward the classifier's mean class probabilities for the target condition, so a control well's cells are drawn the way the classifier sees a treated well's. Needs at least two conditions among the crops. Ignored unless counterfactuals is on. Default 'class'.",
+      "source_sha256": "f919a2142b305791b8a5133b609fdc9298d3d0dad27790e4b5e32f50f35e97ad",
+      "translation": "反事实在哪些对象之间变形：'class' 使用分类器的类别；'plate'、'well'、'row' 或 'column' 使用从每个裁剪图像文件名读取的该条件，并将每次编辑推向分类器对目标条件的平均类别概率，使对照孔的细胞按分类器看待处理孔细胞的方式绘制。裁剪图像中至少需要两个条件。除非开启 counterfactuals，否则忽略。默认：'class'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ram_guard",
+      "source": "Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.",
+      "source_sha256": "1711254a45e46aa701e21e350139351208996cb04f8ed287830200cf1a2df56a",
+      "translation": "防止 Measure 占满 RAM。在进程池启动前，spaCR 根据一个视野估算每个工作进程的内存，并将 n_jobs 降低到能保留 12.5% RAM 空闲的数量，同时打印警告；GUI 会先询问。关闭时保留您的 n_jobs，但当空闲 RAM 低于该预留量时，视野仍会等待。默认：True。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure_gpu",
+      "source": "Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. With cuCIM installed (the 'gpu' extra), the per-object morphology table is computed on the GPU too; without it, morphology stays on the CPU. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+      "source_sha256": "88730af6e63ad136ecef9f5f7ef007f3f538244c93827f6f126440209f0892ad",
+      "translation": "通过 PyTorch 在 CUDA GPU 上计算每个对象的强度统计量、GLCM 同质性和 Zernike 矩，一次处理视野中的所有对象，而非逐个处理。安装 cuCIM（'gpu' 扩展）后，每个对象的形态学表也在 GPU 上计算；未安装时，形态学仍在 CPU 上计算。结果在浮点容差范围内与 CPU 运行一致。适用于无体素间距的 2-D 掩膜；其他情况、缺少 PyTorch 或没有可见 CUDA 设备时，仍按常规在 CPU 上测量。默认：False。"
+    }
+  ]
+}

@@ -388,6 +388,11 @@ COMPACT_CAPTION_SHA256 = (
 # preceding committed English catalogue. Translation quality gates unchanged.
 # 2026-10-02 F572: six reviewed post-save integrity notice identities added,
 # none removed; subtracting exactly those keys reproduces the preceding pin.
+# 2026-10-03 N615: the alpha batch (556, 558, 560, 564, image QC) catalogued
+# with nine-locale AI-reviewed records: +62 UI, -1 UI (the pix2pix prompt
+# replaces "Input channels > channel to predict:"), +1 SETTING_LABELS and
+# +1 SETTING_TOOLTIPS for counterfactual_condition; then item 631's RAM
+# guard: +12 UI and ram_guard's label and tooltip.
 EXTERNAL_SOURCE_COUNTS = {
     # 2026-09-15, the old OPS engine deleted (372): -116 / +0 by SET
     # DIFFERENCE of the identities against the tree before the deletion,
@@ -398,8 +403,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # to the fingerprint below.
     # `recursive` keeps its row: its English now comes from
     # spacr.external_masks, which reads it, so its identity is unchanged.
-    "SETTING_LABELS": 1209,
-    "SETTING_TOOLTIPS": 1231,
+    "SETTING_LABELS": 1211,
+    "SETTING_TOOLTIPS": 1233,
     # 192 -> 201 on 2026-09-08, +9/-0: the nine OPS section headings that
     # fold onto Align & Stitch. Each needed a curated CATEGORY_TOOLTIPS
     # entry or its panel drew the generic fallback -- a heading whose
@@ -520,7 +525,8 @@ EXTERNAL_SOURCE_COUNTS = {
     # 2026-10-01: CellProfiler provisioning replaces one blurb and adds
     # "Prepare compatible Python": two arrivals, one retirement, net +1.
     # F538: two reviewed opt-in unmixed Measure display captions, no removals.
-    "UI": 6552,
+    # N615 2026-10-03: +62/-1 alpha-batch captions and +12 for 631, named above.
+    "UI": 6625,
     "MODULE_SUMMARIES": 72,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -639,7 +645,10 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # Removing the two F538 display captions reproduces fa681c9c...ff8d1d7.
     # N610: replace only the cancellation tooltip with the accurate
     # no-new-suggestions / possible earlier clears-and-scores wording.
-    '70748cfb75e90f603b71dac275876ad74d1be82944088ad6930a5a20ab181c60'
+    # N615 2026-10-03: the +78/-1 identities (alpha batch and 631) named over
+    # EXTERNAL_SOURCE_COUNTS; removing them and restoring the retired
+    # prompt reproduces 70748cfb...181c60.
+    'd977d86f57aefba253bfda05ac300bdbb306c75ec6a46230c570cdd28dd2da39'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
@@ -1249,93 +1258,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 2026-10-01: full nine-locale rebuild completed; pending rows are now
 # catalogued or retired with their source captions. No translation bypass remains.
 # 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
+# N615, 2026-10-03: every pending caption above, and item 631's RAM guard
+# dialog, catalogued in nine locales; Object and Propagate are compact rows.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    # item 631: Measure RAM guard dialog and the free-RAM process list
-    "Close selected",
-    "Close these programs?",
-    "Free RAM by closing applications",
-    "Free RAM by closing applications…",
-    "Keep {count} (spaCR will throttle)",
-    "No other programs of yours can be closed from here.",
-    "Not enough RAM for these workers",
-    "Tick the programs to close. They are asked to quit, so most can save "
-    "first. Unsaved work in them may still be lost.",
-    "Use {count} workers (recommended)",
-    "spaCR will ask these programs to quit:\n\n{names}",
-    "{name} ({ram} GiB)",
-    "{requested} workers would need about {needed} GiB of RAM, but "
-    "{available} GiB is free and spaCR keeps {reserve} GiB for the rest of "
-    "the computer. {safe} workers fit without pausing.",
-    # item 558: pix2pix option in the virtual-staining channel prompt
-    "Input channels > channel to predict (add pix2pix for the adversarial "
-    "model):",
-    # item 560: Embeddings labels, scorecard and Use-for picker
-    "Choose a label table",
-    "Choose a table with one row per embedded crop, in crop order, and a "
-    "'label' column (else the first column). The backbone is scored on it: "
-    "kNN accuracy, mean average precision and precision at 10 against "
-    "chance, and the classifier uses the same labels. Default no labels.",
-    "Choose labels first.",
-    "Classifier on {name}: accuracy {acc:.2f} ± {sd:.2f} over {folds} folds "
-    "(chance {chance:.2f}), {n} crops in {classes} classes.",
-    "Embed the crops first.",
-    "Encoder {name}: kNN accuracy {knn:.2f}, mAP {map:.2f} (chance "
-    "{chance:.2f}), precision at 10 {prec:.2f}, over {n} crops in {classes} "
-    "classes.",
-    "Image UMAP of {n} crops from {name}.",
-    "Labels…",
-    "Run the chosen use on the last embedding. Default off until an "
-    "embedding exists.",
-    "Running on the embedding…",
-    "The label table has {rows} rows but {crops} crops were embedded.",
-    "The labels cannot be scored: two classes with labelled crops are "
-    "needed.",
-    "Use for:",
-    "What to do with the embedding of the chosen backbone or foundation "
-    "model. Image UMAP maps every crop to two dimensions; Classifier "
-    "cross-validates a logistic regression on the labels. Default Image "
-    "UMAP.",
-    # item 564: counterfactual sequence viewer on Activation Maps
-    "Counterfactuals…", "Choose a counterfactuals folder",
-    "Counterfactual sequences",
-    "No counterfactual_cells.csv in this folder.",
-    "{n} sequences; the first {k} have saved frames.",
-    "Browse the counterfactual sequences of a finished run: pick its counterfactuals folder to step through each crop as it is morphed toward the target class or condition, with the classifier's score at every step. Default not opened.",
-    # item 556: SAM2 click-seeding dialog
-    "SAM2 tracking…", "Choose a timelapse movie", "TIFF stacks (*.tif *.tiff)",
-    "SAM2 tracking", "Object", "New object", "Also follow backward",
-    "Propagate", "Click an object to seed it.", "Propagating…",
-    "SAM2 failed: {error}",
-    "Done. Click an object on a wrong frame and propagate again.",
-    "Open a timelapse movie, click each object on any frame to seed it, and let SAM2 follow every object through the movie. Click again on a frame where it went wrong and propagate once more.",
-    "Feature columns",
-    "Label column",
-    "Learn from well labels",
-    "No crop images: add a 'png_path' column to see the cells with the "
-    "highest attention.",
-    "Well-label model",
-    "Apply virtual stain…",
-    "Choose a virtual-staining model (.pt) saved by the Cellpose "
-    "workbench and predict its stain for every .npy or .tif field "
-    "of the folder, frame by frame for time stacks, on the CPU. "
-    "Predictions are written to <folder>/virtual_stain. Default "
-    "the screen's source folder.",
-    "Choose a virtual-staining model",
-    "Virtual-staining models (*.pt)",
-    "Applying the virtual stain…",
-    "Virtual stain written for {n} fields.",
-    "Field quality labels", "Out of focus", "Saturated", "Debris", "Bubble",
-    "Empty", "Good", "Save labels", "No .npy fields in this folder.",
-    "Nothing labelled yet.", "Saved {n} field labels to {path}",
-    "Field QC…", "Choose a folder of raw .npy fields",
-    "Label whole raw fields as good, out of focus, saturated, debris, "
-    "bubble or empty, one at a time, with the classifier's guesses "
-    "ticked when a screened report exists. Saves qc/image_qc_labels.csv "
-    "for the image_qc_classifier_labels setting. Default not open.",
-    "Image QC classifier",
-    "{name}: {n} of {total} channels at or above {threshold}; mean p {mean}",
-    "{total} channels scored; {flagged} class flags at threshold {threshold}.",
-    "Benchmark {row}", "Could not read the benchmark: {error}",
 })
 
 

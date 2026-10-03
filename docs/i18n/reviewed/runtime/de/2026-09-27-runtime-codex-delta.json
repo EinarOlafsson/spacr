@@ -111,13 +111,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "measure_gpu",
-      "source": "Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
-      "source_sha256": "6eaaea0282c282c44b813c237e745549466d706e066e6dfc14d15529d80d0d6e",
-      "translation": "Intensitätsstatistiken, GLCM-Homogenität und Zernike-Momente pro Objekt mit PyTorch auf einer CUDA-GPU berechnen, für alle Objekte eines Bildfelds gleichzeitig statt einzeln. Die Werte stimmen innerhalb der Gleitkommatoleranz mit dem CPU-Lauf überein. Unterstützt 2-D-Masken ohne Voxelabstände; andere Fälle, fehlendes PyTorch oder kein sichtbares CUDA-Gerät werden wie gewohnt auf der CPU gemessen. Standard False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "timelapse_events_conditions",
       "source": "Conditions compared in the event timing, as name=wells entries in the plate-map notation, such as ['mock=c1,c2', 'drug=c3,c4']; fields in wells no entry names are left out. Blank compares wells. Default None.",
       "source_sha256": "77be758082531ddb7e490f6baf0a62190de63ed446549f04f11084322960d28d",
@@ -957,7 +950,15 @@
       "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field.",
       "source_sha256": "e0cf5ba8422790530547833acc9f5e31162c2415de0de8804c4414a055a0928f",
       "translation": "Jedes Bildfeld mit den Einstellungen der Objekterkennung viermal segmentieren: unverändert, in zwei Richtungen gespiegelt und um eine Vierteldrehung gedreht. Die Abweichungen der vier Ergebnisse messen. Die Felddarstellung zeigt sie als Heatmap in einem eigenen Reiter; die Feldsortierung setzt die unsichersten zuerst und speichert die Werte als curate_uncertainty.csv für spacr-make-masks --order uncertain. Erfordert vier Erkennungsläufe pro Bildfeld."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "measure_gpu",
+      "source": "Compute the per-object intensity statistics, GLCM homogeneity and Zernike moments on a CUDA GPU through PyTorch, all objects of a field at once instead of one at a time. Values match the CPU run within float tolerance. Covers 2-D masks without voxel spacing; anything else, a missing PyTorch or no visible CUDA device measures on the CPU as usual. Default False.",
+      "source_sha256": "6eaaea0282c282c44b813c237e745549466d706e066e6dfc14d15529d80d0d6e",
+      "translation": "Intensitätsstatistiken, GLCM-Homogenität und Zernike-Momente pro Objekt mit PyTorch auf einer CUDA-GPU berechnen, für alle Objekte eines Bildfelds gleichzeitig statt einzeln. Die Werte stimmen innerhalb der Gleitkommatoleranz mit dem CPU-Lauf überein. Unterstützt 2-D-Masken ohne Voxelabstände; andere Fälle, fehlendes PyTorch oder kein sichtbares CUDA-Gerät werden wie gewohnt auf der CPU gemessen. Standard False."
     }
   ],
-  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text."
+  "retirement_2026_10_01": "Preserved obsolete source wording after global tooltip timing, uncertainty ensemble controls and removal of retired Demos navigation. Current wording is translated separately; historical review is not reused as review of new text.",
+  "retirement_2026_10_03": "N615: source text changed (measure_gpu tooltip gained its cuCIM sentence; the virtual-staining channel prompt gained the pix2pix hint). The replacement translations are in 2026-10-03-alpha-batch-captions.json."
 }

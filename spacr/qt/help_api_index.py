@@ -11969,6 +11969,7 @@ SETTING_CONSUMERS = {
     'count_data': (('spacr.ml', 'minimum_cell_simulation'), ('spacr.ml', 'normalize_regression_input_pairs'), ('spacr.sequencing', 'graph_sequencing_stats'), ('spacr.sequencing_qc', 'barcode_qc'), ('spacr.sequencing_qc', 'barcode_qc_defaults'),),
     'count_grna_column': (('spacr.settings', 'get_perform_regression_default_settings'),),
     'count_value_column': (('spacr.settings', 'get_perform_regression_default_settings'),),
+    'counterfactual_condition': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_crops': (('spacr.deep_spacr', 'generate_activation_map'), ('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_epochs': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactuals': (('spacr.deep_spacr', 'generate_activation_map'), ('spacr.settings', 'get_default_generate_activation_map_settings'),),
@@ -12280,7 +12281,7 @@ SETTING_CONSUMERS = {
     'n2v_denoise': (('spacr.psf_pipeline', 'processing_requested'),),
     'n_epochs': (('spacr.submodules', 'train_cellpose'),),
     'n_estimators': (('spacr.ml', 'generate_ml_scores'), ('spacr.settings', 'set_default_analyze_screen'),),
-    'n_jobs': (('spacr.core', 'generate_image_umap'), ('spacr.core', 'preprocess_generate_masks'), ('spacr.core', 'reducer_hyperparameter_search'), ('spacr.deep_spacr', 'apply_model_to_tar'), ('spacr.deep_spacr', 'generate_activation_map'), ('spacr.deep_spacr', 'train_test_model'), ('spacr.hyperparam', 'run_search_for_app'), ('spacr.measure', 'measure_crop'), ('spacr.ml', 'generate_ml_scores'), ('spacr.ml', 'interpret_vision_model'), ('spacr.object', 'generate_organelle_masks_sam'), ('spacr.qt.bridge', 'apply_worker_budget'), ('spacr.sequencing', 'generate_barecode_mapping'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_automated_motility_assay_default_settings'), ('spacr.settings', 'get_default_generate_activation_map_settings'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'get_train_test_model_settings'), ('spacr.settings', 'set_default_analyze_screen'), ('spacr.settings', 'set_default_generate_barecode_mapping'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.settings', 'set_default_train_test_model'), ('spacr.settings', 'set_default_umap_image_settings'), ('spacr.settings', 'set_interpret_vision_model_defaults'), ('spacr.submodules', 'interpret_vision_model'), ('spacr.timelapse', 'automated_motility_assay'), ('spacr.utils', 'reduction_and_clustering'), ('spacr.validate', 'describe_resources'),),
+    'n_jobs': (('spacr.core', 'generate_image_umap'), ('spacr.core', 'preprocess_generate_masks'), ('spacr.core', 'reducer_hyperparameter_search'), ('spacr.deep_spacr', 'apply_model_to_tar'), ('spacr.deep_spacr', 'generate_activation_map'), ('spacr.deep_spacr', 'train_test_model'), ('spacr.hyperparam', 'run_search_for_app'), ('spacr.intensity_rescale', 'build_plate_plan'), ('spacr.measure', 'measure_crop'), ('spacr.ml', 'generate_ml_scores'), ('spacr.ml', 'interpret_vision_model'), ('spacr.object', 'generate_organelle_masks_sam'), ('spacr.qt.bridge', 'apply_worker_budget'), ('spacr.sequencing', 'generate_barecode_mapping'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_automated_motility_assay_default_settings'), ('spacr.settings', 'get_default_generate_activation_map_settings'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'get_train_test_model_settings'), ('spacr.settings', 'set_default_analyze_screen'), ('spacr.settings', 'set_default_generate_barecode_mapping'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.settings', 'set_default_train_test_model'), ('spacr.settings', 'set_default_umap_image_settings'), ('spacr.settings', 'set_interpret_vision_model_defaults'), ('spacr.submodules', 'interpret_vision_model'), ('spacr.timelapse', 'automated_motility_assay'), ('spacr.utils', 'reduction_and_clustering'), ('spacr.validate', 'describe_resources'),),
     'n_neighbors': (('spacr.core', 'generate_image_umap'), ('spacr.hyperparam', 'umap_search'), ('spacr.settings', 'set_default_umap_image_settings'), ('spacr.utils', 'reduction_and_clustering'),),
     'n_repeats': (('spacr.ml', 'generate_ml_scores'), ('spacr.settings', 'set_default_analyze_screen'),),
     'n_top_examples': (('spacr.deep_spacr', 'deep_spacr'), ('spacr.settings', 'deep_spacr_defaults'),),
@@ -12556,6 +12557,7 @@ SETTING_CONSUMERS = {
     'queue_limit': (('spacr.settings', 'set_annotate_default_settings'),),
     'queue_measure': (('spacr.settings', 'set_annotate_default_settings'),),
     'radial_dist': (('spacr.settings', 'get_measure_crop_settings'),),
+    'ram_guard': (('spacr.settings', 'get_measure_crop_settings'),),
     'random_row_column_effects': (('spacr.refit', 'refit_settings'), ('spacr.settings', 'get_perform_regression_default_settings'),),
     'random_seed': (('spacr.annotation_dataset', 'generate_annotation_dataset'), ('spacr.core', 'generate_image_umap'), ('spacr.deep_spacr', 'train_test_model'), ('spacr.io', 'generate_training_dataset'), ('spacr.runctx', 'resolve_seed'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'set_default_umap_image_settings'), ('spacr.settings', 'set_generate_training_dataset_defaults'), ('spacr.sim', 'run_and_save'), ('spacr.stream_dataset', 'stream_dataset'),),
     'random_test': (('spacr.io', 'preprocess_img_data'), ('spacr.settings', 'set_default_settings_preprocess_img_data'),),
@@ -12821,8 +12823,8 @@ SETTING_CONSUMERS = {
     'z_axis': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
     'z_handling': (('spacr.convert', 'convert_folder'), ('spacr.external_masks', 'plan_external_masks'), ('spacr.foreign', 'import_project'),),
     'z_projection': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
-    'z_segmentation_mode': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
-    'z_stack': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_from_settings'),),
+    'z_segmentation_mode': (('spacr.io', 'preprocess_img_data'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
+    'z_stack': (('spacr.io', 'preprocess_img_data'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_from_settings'),),
 }
 
 PREFERENCE_ENTRIES = (

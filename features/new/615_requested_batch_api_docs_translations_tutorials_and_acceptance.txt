@@ -516,5 +516,36 @@ pretend the later private backend source listings were rebuilt or deployed.
 Tutorial media/publication and broad nested-helper rollout remain separate.
 Evidence: features/data/615_documentation_help_delta_2026-10-02.json.
 
+2026-10-03 — ALPHA-BATCH SETTINGS/API, DOCUMENTATION AND RUNTIME CAPTIONS
+
+615.1 Settings/API: measure_gpu's tooltip now names cuCIM (the 'gpu' extra
+computes the morphology table on the GPU; without it morphology stays on the
+CPU). The consumer map, settings-flow JSON/RST/index, notebook settings and
+Help API index were stale on nightly and were regenerated with their normal
+tools; all freshness checks pass.
+615.2 Documentation: alpha sections added to existing guides -- GPU measuring
+(measure_live), field-QC labelling (image_quality), SAM2 tracking and virtual
+stain apply/pix2pix (make_masks), counterfactual sequences and
+counterfactual_condition (model_explanation). Guide-locale translations of
+these new paragraphs are not done; Sphinx shows them in English, marked.
+615.3 Runtime translations: every caption pending in
+_AWAITING_CATALOG_REBUILD (62 UI; Object and Propagate are compact rows), plus
+counterfactual_condition's label/tooltip, the new measure_gpu tooltip, and
+item 631's RAM guard dialog (12 UI) with ram_guard's label/tooltip, have
+source-bound records in all nine locales
+(docs/i18n/reviewed/runtime/<lang>/2026-10-03-alpha-batch-captions.json;
+AI technical translation with AI review, no human/native-speaker signoff).
+Two superseded records per locale moved to retired_records. Catalogs rebuilt
+with the normal builder (--repair-invalid-only, no model output used); audit
+verified 9 languages, ui=6625. Runtime coverage complete in every locale
+(docs/i18n/COVERAGE.md). Ratchet pins moved with subtraction proof
+(digest d977d86f...; minus the batch reproduces 70748cfb...).
+Guards (i18n, caption ratchet, tooltip, docstring, settings-flow, notebook):
+920 passed, 11 xfailed. Still xfail, not from this change: three stale
+reviewed API blocks (e.g. spacr.io.preprocess_img_data) and six
+untranslated theme names.
+LEFT: API-doc translation delta (3 blocks), guide-locale translation of the
+new alpha paragraphs, tutorials (tutorial lane), PyPI/platform checks.
+
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: PyPI storage quota for 1.5.1.1 (maintainer). OPEN docs: translations and tutorial media (docs lane).

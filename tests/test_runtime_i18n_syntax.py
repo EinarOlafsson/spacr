@@ -239,7 +239,9 @@ def _inherited_2026_09_28_sources(language: str, reviewed) -> set[str]:
         sources |= {record["source"] for record in document["records"]}
     # 31 -> 30 on 2026-09-29: the "Measurement Backend (Alpha)" caption was
     # renamed to its "α" form (591-597); the old record was deleted.
-    assert len(sources) == 30
+    # 30 -> 29 on 2026-10-03 (N615): the virtual-staining channel prompt
+    # gained its pix2pix hint; the old record moved to retired_records.
+    assert len(sources) == 29
     assert sources <= reviewed.keys()
     return sources
 
@@ -313,7 +315,10 @@ def _runtime_debt_sources(language: str, reviewed: dict[str, str], expected: int
     # to their "α" captions, so those three records were deleted (key gone).
     # 136 -> 133 (hi 171 -> 168) on 2026-10-02 (item 43): 603423d0a moved
     # three records whose source text changed to the file's retired_records.
-    assert len(seventh) == len(latest7) == (168 if language == "hi" else 133)
+    # 133 -> 132 (hi 168 -> 167) on 2026-10-03 (N615): the measure_gpu
+    # tooltip gained its cuCIM sentence, so its record moved to
+    # retired_records; the current wording is in the alpha-batch file.
+    assert len(seventh) == len(latest7) == (167 if language == "hi" else 132)
     assert not latest7 & sources
     sources |= latest7
     discovery = json.loads((folder / "2026-09-27-gpu-discovery.json").read_text())["records"]
