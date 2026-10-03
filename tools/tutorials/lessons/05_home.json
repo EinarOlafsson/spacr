@@ -133,9 +133,9 @@
       "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
       "hold_after": 0.7,
       "focus": [
-        3040,
+        1800,
         171,
-        320,
+        300,
         1950
       ]
     },
@@ -202,6 +202,28 @@
         440,
         1200,
         1200
+      ]
+    },
+    {
+      "visual": "13c_appearance_theme",
+      "narration": "Theme and Animation are folded sections of Appearance. Click Theme to open it: it sets the interface theme and page opacity, whether fields fade towards the right, and the window rim, with its length, how closely it follows the pointer, its alignment, mode and cycle.",
+      "hold_after": 0.7,
+      "focus": [
+        1310,
+        290,
+        1200,
+        1500
+      ]
+    },
+    {
+      "visual": "13d_appearance_animation",
+      "narration": "Click Animation to open it instead. It chooses the animated backdrop and its palette, with sliders for detail, blur, speed, size and density, whether setting tooltips animate, and the backdrop shown behind settings.",
+      "hold_after": 0.7,
+      "focus": [
+        1310,
+        290,
+        1200,
+        1500
       ]
     },
     {

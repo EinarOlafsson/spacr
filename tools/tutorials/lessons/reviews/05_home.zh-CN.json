@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
     "Preferences 的 General 选项卡用于设置界面语言、字体和 GUI 缩放、应用停靠栏是否保持打开，以及适合色觉障碍者的绘图配色。Figures 选项卡选择保存图片的格式和分辨率，Appearance 决定工具提示何时出现。",
     "Appearance 决定工作时帮助信息如何出现。Tooltip delay 是指针停在控件上多久后才显示提示：默认两秒，设为零则立即显示。Show tooltips 可以完全关闭提示，下方的 Theme 和 Animation 部分可以展开，用来设置窗口外观。",
+    "Theme 和 Animation 是 Appearance 中折叠起来的部分。点击 Theme 将其展开：它设置界面主题和页面不透明度、字段是否向右淡出，以及窗口边框的长度、跟随指针的程度、对齐方式、模式和周期。",
+    "改为点击 Animation 将其展开。它选择动画背景及其配色，提供细节、模糊、速度、大小和密度滑块，并设置设置项提示是否带动画，以及设置项背后显示的背景。",
     "回到Home，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从spaCR screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
   ]
 }

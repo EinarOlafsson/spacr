@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
     "Die Registerkarte General in Preferences legt die Sprache der Oberfläche, die Schrift- und GUI-Skalierung, das dauerhafte Offenhalten des App-Docks und eine farbenblindenfreundliche Palette für Diagramme fest. Die Registerkarte Figures wählt Format und Auflösung gespeicherter Abbildungen, und Appearance steuert, wann Tooltips erscheinen.",
     "Appearance legt fest, wie Hilfe während der Arbeit erscheint. Tooltip delay ist die Zeit, die der Mauszeiger auf einem Element ruhen muss, bevor der Hinweis erscheint: standardmäßig zwei Sekunden, und null zeigt Hinweise sofort. Show tooltips schaltet sie ganz ab, und darunter lassen sich die Abschnitte Theme und Animation für das Aussehen des Fensters aufklappen.",
+    "Theme und Animation sind eingeklappte Abschnitte von Appearance. Klicken Sie auf Theme, um ihn zu öffnen: Er legt das Oberflächendesign und die Seitendeckkraft fest, ob Felder nach rechts ausblenden, und den Fensterrand mit seiner Länge, wie eng er dem Mauszeiger folgt, seiner Ausrichtung, seinem Modus und seinem Zyklus.",
+    "Klicken Sie stattdessen auf Animation, um diesen Abschnitt zu öffnen. Er wählt den animierten Hintergrund und seine Palette, mit Reglern für Detail, Unschärfe, Tempo, Größe und Dichte, ob Einstellungs-Tooltips animiert werden, und den Hintergrund hinter den Einstellungen.",
     "Kehren Sie zu Home zurück und klicken Sie auf Pipeline overviews, um einen Workflow zu wählen. Beginnen Sie mit spaCR screens für einen gepoolten bildbasierten Screen, oder wählen Sie einen Bildanalyse- oder Sequenzierpfad für Ihre Daten. Die nächsten Tutorials zeigen, wie diese Module zusammenhängen, und die Modul-Lektionen führen anschließend durch jede Aufgabe."
   ]
 }

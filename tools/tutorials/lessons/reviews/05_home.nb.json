@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
     "Fanen General i Preferences stiller inn språket i grensesnittet, skrift- og GUI-skalering, om app-dokken holdes åpen, og en fargeblindvennlig palett for plott. Fanen Figures velger format og oppløsning for lagrede figurer, og Appearance styrer når verktøytips vises.",
     "Appearance bestemmer hvordan hjelpen vises mens du jobber. Tooltip delay er hvor lenge pekeren må hvile på et element før tipset vises: to sekunder som standard, og null viser tips med en gang. Show tooltips slår dem helt av, og seksjonene Theme og Animation kan brettes ut nedenfor for vinduets utseende.",
+    "Theme og Animation er sammenbrettede seksjoner i Appearance. Klikk Theme for å åpne den: den stiller inn grensesnittets tema og sidens gjennomsiktighet, om felt toner ut mot høyre, og vinduskanten med lengde, hvor tett den følger pekeren, justering, modus og syklus.",
+    "Klikk heller Animation for å åpne den. Den velger den animerte bakgrunnen og paletten, med glidebrytere for detalj, uskarphet, hastighet, størrelse og tetthet, om verktøytips for innstillinger animeres, og bakgrunnen bak innstillingene.",
     "Gå tilbake til Home og klikk på Pipeline overviews for å velge en arbeidsflyt. Begynn med spaCR screens for en samlet bildebasert screening, eller velg en vei for bildeanalyse eller sekvensering for dataene dine. De neste veiledningene viser hvordan modulene henger sammen, og modulleksjonene går deretter gjennom hver oppgave."
   ]
 }

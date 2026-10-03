@@ -479,6 +479,8 @@ def main() -> int:
         record_preferences_page(window, capture, settle)
         record_preferences_page(window, capture, settle, 'PreferencesTabAppearance',
                                 '13b_preferences_appearance')
+        from capture_home import record_appearance_sections
+        record_appearance_sections(window, capture, settle)
         write_json(captures / 'home_focus.json', home_focus)
     if args.workflow_overview:
         from capture_workflow_overview import record_overview

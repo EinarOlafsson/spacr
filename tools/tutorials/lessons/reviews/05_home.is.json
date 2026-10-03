@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
     "Flipinn General í Preferences stillir tungumál viðmótsins, leturstærð og kvörðun viðmótsins, hvort forritabryggjan haldist opin og litaspjald fyrir litblinda í gröfum. Flipinn Figures velur snið og upplausn vistaðra mynda, og Appearance ræður hvenær vísbendingar birtast.",
     "Appearance ræður hvernig hjálp birtist á meðan þú vinnur. Tooltip delay er hversu lengi bendillinn hvílir á stjórnhlut áður en ábendingin birtist: tvær sekúndur sjálfgefið, og núll sýnir ábendingar strax. Show tooltips slekkur alveg á þeim, og hlutarnir Theme og Animation opnast fyrir neðan fyrir útlit gluggans.",
+    "Theme og Animation eru felldir hlutar af Appearance. Smelltu á Theme til að opna hann: hann stillir þema viðmótsins og ógegnsæi síðunnar, hvort svið dofni til hægri, og gluggarammann með lengd hans, hve vel hann fylgir bendlinum, jöfnun, ham og lotu.",
+    "Smelltu frekar á Animation til að opna hann. Hann velur hreyfðan bakgrunn og litaspjald hans, með sleðum fyrir smáatriði, móðu, hraða, stærð og þéttleika, hvort vísbendingar stillinga hreyfist, og bakgrunninn á bak við stillingarnar.",
     "Farðu aftur í Home og smelltu á Pipeline overviews til að velja verkferli. Byrjaðu á spaCR screens fyrir samsafnaða myndgreiningarskimun, eða veldu leið fyrir myndgreiningu eða raðgreiningu sem hentar gögnunum þínum. Næstu kennslur sýna hvernig þessar einingar tengjast og kennslur einstakra eininga fara síðan í gegnum hvert verk."
   ]
 }

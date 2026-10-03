@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "I Preferences väljer du en Performance-profil för din dator. Laptop använder mindre resurser; de högre profilerna tillåter mer cachning och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat. Dina analysinställningar förblir under din kontroll i varje modul.",
     "Fliken General i Preferences ställer in gränssnittets språk, teckensnitts- och GUI-skalning, om appdockan hålls öppen och en färgblindvänlig palett för diagram. Fliken Figures väljer format och upplösning för sparade figurer, och Appearance styr när verktygstips visas.",
     "Appearance bestämmer hur hjälpen visas medan du arbetar. Tooltip delay är hur länge pekaren vilar på en kontroll innan tipset visas: två sekunder som standard, och noll visar tips direkt. Show tooltips stänger av dem helt, och avsnitten Theme och Animation kan fällas ut nedanför för fönstrets utseende.",
+    "Theme och Animation är hopfällda avsnitt i Appearance. Klicka på Theme för att öppna det: det ställer in gränssnittets tema och sidans opacitet, om fält tonar ut åt höger, och fönsterkanten med dess längd, hur tätt den följer pekaren, justering, läge och cykel.",
+    "Klicka i stället på Animation för att öppna det. Det väljer den animerade bakgrunden och dess palett, med reglage för detalj, oskärpa, hastighet, storlek och täthet, om verktygstips för inställningar animeras, och bakgrunden bakom inställningarna.",
     "Gå tillbaka till Home och klicka på Pipeline overviews för att välja ett arbetsflöde. Börja med spaCR screens för en poolad bildbaserad screening, eller välj en väg för bildanalys eller sekvensering för dina data. Nästa handledningar visar hur modulerna hänger ihop, och modullektionerna går sedan igenom varje uppgift."
   ]
 }

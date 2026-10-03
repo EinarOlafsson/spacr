@@ -118,6 +118,11 @@ def record_resize_panels(app, window, capture, settle, key="mask"):
     body = getattr(screen, "_body_splitter", None)
     if body is None or not body.isVisible():
         raise RuntimeError(f"{key} has no visible settings splitter")
+    # Start from the screen's own proportions (settings 1 : runtime 2), not
+    # from whatever earlier recordings left in this private profile.
+    total = sum(body.sizes())
+    body.setSizes([total // 3, total - total // 3])
+    settle(0.5)
     sizes = body.sizes()
     column = getattr(app, _COLUMN_FILTER_ATTRIBUTE, None)
     if column is None:
@@ -229,6 +234,58 @@ def record_preferences_page(window, capture, settle, object_name="PreferencesTab
         if not page.isVisible():
             raise RuntimeError(f"{object_name} is not visible")
         capture(name)
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        settle()
+
+
+def record_appearance_sections(window, capture, settle):
+    """Open Appearance's folded Theme and Animation sections, one at a time (601)."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QScrollArea, QTabWidget, QWidget
+
+    from spacr.qt.preferences import PreferencesDialog
+    from spacr.qt.widgets.section import Section
+
+    dialog = PreferencesDialog(window)
+    try:
+        tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+        page = dialog.findChild(QWidget, "PreferencesTabAppearance")
+        for index in range(tabs.count()):
+            if tabs.widget(index).isAncestorOf(page):
+                tabs.setCurrentIndex(index)
+                break
+        dialog.resize(1200, 1500)
+        dialog.show()
+        settle()
+        sections = {s.title().lower(): s for s in page.findChildren(Section)}
+        for key in ("theme", "animation"):
+            if key not in sections:
+                raise RuntimeError(f"Appearance has no folded {key} section: {sorted(sections)}")
+        scroll = page.parentWidget()
+        while scroll is not None and not isinstance(scroll, QScrollArea):
+            scroll = scroll.parentWidget()
+        for key, name in (("theme", "13c_appearance_theme"), ("animation", "13d_appearance_animation")):
+            other = sections["animation" if key == "theme" else "theme"]
+            if other.is_expanded():
+                QTest.mouseClick(other.header(), Qt.LeftButton)
+                settle(0.5)
+            section = sections[key]
+            if not section.is_expanded():
+                QTest.mouseClick(section.header(), Qt.LeftButton)
+                settle(1)
+            if not section.is_expanded():
+                raise RuntimeError(f"Clicking {key} did not open it")
+            if scroll is not None:
+                scroll.ensureWidgetVisible(section.header(), 0, 0)
+            settle(1)
+            capture(name)
+        for section in sections.values():
+            if section.is_expanded():
+                QTest.mouseClick(section.header(), Qt.LeftButton)
+                settle(0.3)
     finally:
         dialog.close()
         dialog.deleteLater()

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "En Preferences, elige un perfil de Performance para tu ordenador. Laptop usa menos recursos; los perfiles más altos permiten más caché y más trabajo en segundo plano. Empieza con un perfil modesto si la memoria es limitada. Los ajustes de tus análisis siguen bajo tu control en cada módulo.",
     "La pestaña General de Preferences fija el idioma de la interfaz, la escala de fuente y de la interfaz, si el dock de aplicaciones permanece abierto y una paleta apta para daltónicos en los gráficos. La pestaña Figures elige el formato y la resolución de las figuras guardadas, y Appearance controla cuándo aparecen las descripciones emergentes.",
     "Appearance decide cómo aparece la ayuda mientras trabaja. Tooltip delay es el tiempo que el puntero descansa sobre un control antes de que aparezca su descripción: dos segundos por defecto, y cero las muestra al instante. Show tooltips las desactiva por completo, y las secciones Theme y Animation se despliegan debajo para el aspecto de la ventana.",
+    "Theme y Animation son secciones plegadas de Appearance. Haga clic en Theme para abrirla: fija el tema de la interfaz y la opacidad de la página, si los campos se desvanecen hacia la derecha y el borde de la ventana, con su longitud, cuánto sigue al puntero, su alineación, su modo y su ciclo.",
+    "Haga clic en Animation para abrirla en su lugar. Elige el fondo animado y su paleta, con controles deslizantes de detalle, desenfoque, velocidad, tamaño y densidad, si las descripciones de los ajustes se animan y el fondo que aparece detrás de los ajustes.",
     "Vuelve a Home y haz clic en Pipeline overviews para elegir un flujo de trabajo. Empieza con spaCR screens para un cribado agrupado basado en imágenes, o elige una ruta de análisis de imágenes o de secuenciación para tus datos. Los siguientes tutoriales muestran cómo se conectan esos módulos, y las lecciones de cada módulo recorren después cada tarea."
   ]
 }

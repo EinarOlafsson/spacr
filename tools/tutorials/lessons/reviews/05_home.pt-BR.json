@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "1c8ae496db029ebd47d6e85b561cc635da07e5679ee75a59fe6d855644de4023",
+  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,6 +36,8 @@
     "Em Preferences, escolha um perfil de Performance para o seu computador. Laptop usa menos recursos; os perfis mais altos permitem mais cache e mais trabalho em segundo plano. Comece com um perfil modesto se a memória for limitada. As configurações das suas análises continuam sob o seu controle em cada módulo.",
     "A aba General de Preferences define o idioma da interface, a escala da fonte e da interface, se o dock de aplicativos fica aberto e uma paleta adequada para daltônicos nos gráficos. A aba Figures escolhe o formato e a resolução das figuras salvas, e Appearance controla quando as dicas aparecem.",
     "Appearance define como a ajuda aparece enquanto você trabalha. Tooltip delay é o tempo que o ponteiro fica sobre um controle antes de a dica aparecer: dois segundos por padrão, e zero mostra as dicas na hora. Show tooltips as desliga por completo, e as seções Theme e Animation se abrem abaixo para a aparência da janela.",
+    "Theme e Animation são seções recolhidas de Appearance. Clique em Theme para abri-la: ela define o tema da interface e a opacidade da página, se os campos esmaecem para a direita e a borda da janela, com seu comprimento, o quanto ela segue o ponteiro, seu alinhamento, modo e ciclo.",
+    "Clique em Animation para abri-la no lugar. Ela escolhe o fundo animado e sua paleta, com controles deslizantes de detalhe, desfoque, velocidade, tamanho e densidade, se as dicas das configurações são animadas e o fundo exibido atrás das configurações.",
     "Volte à tela Home e clique em Pipeline overviews para escolher um fluxo de trabalho. Comece com spaCR screens para uma triagem agrupada baseada em imagens, ou escolha um caminho de análise de imagens ou de sequenciamento para os seus dados. Os próximos tutoriais mostram como esses módulos se conectam, e as lições de cada módulo percorrem depois cada tarefa."
   ]
 }
