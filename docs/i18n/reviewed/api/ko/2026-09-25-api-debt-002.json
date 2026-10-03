@@ -3160,7 +3160,9 @@
       "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
       "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "timeflows 계획의 2단계(``features/future/426``)는 기능이 아니라 수치입니다. 세 번째 Cellpose 헤드를 작성하고 학습시키고 유지하기 전에 기준선이 있어야 합니다. 모든 프레임을 독립적으로 분할하고, 마스크 겹침으로 프레임을 연결하고, 추적 분야에서 이미 합의된 측정 방법으로 결과를 정답과 비교해 채점합니다. 그러면 포크가 무엇을 만들어 내든 이보다 낫거나 그렇지 않으며, 계획은 \"단순 스티처로 이미 충분하다\"가 실제로 가능한 결과이고 그런 경우 받아들여야 한다고 분명히 말합니다. 그 결과는 이 수치가 먼저 존재해야만 보입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#3",
@@ -4280,7 +4282,9 @@
       "source_sha256": "e4877979e7efafe306ddcdbe9a56fc3712465d7f9146681f5459d6015cec2c8b",
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "timeflows 계획(``features/future/426``)은 학습 데이터에 대한 한 가지 주장에 기반합니다. 즉 객체는 자신이 나타나는 모든 프레임에서 반드시 같은 레이블을 유지한다는 것입니다. 시간 흐름 헤드는 프레임 ``t`` 에 있는 객체의 픽셀에서 프레임 ``t+1`` 에 있는 그 객체의 중심을 가리키도록 학습되며, ``t+1`` 의 어느 객체가 같은 객체인지 알려 주는 것은 레이블뿐입니다. 어노테이션이 객체가 죽거나 떠난 뒤 그 레이블을 재활용하면 모델은 관련 없는 세포를 가리키도록 학습되고, 이후 어떤 점수도 이를 잡아내지 못합니다 -- 보류 검증은 같은 잘못된 레이블을 뒤섞어 자기 자신과 일치할 뿐입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#3",

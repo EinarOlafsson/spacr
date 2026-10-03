@@ -1060,7 +1060,9 @@
       "source_sha256": "ff9423729059adb402cc46f48603cba83d1d63dffd3e0b6de49259e4ed263c27",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup (item 533), next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**직경.**  :mod:`spacr.diameter` 는 Cellpose 나 torch 를 로드하지 않고, 사용자 자신의 시야 몇 개로부터 특징적인 객체 크기를 측정합니다. ``diameter`` 는 spaCR 이 노출하는 Cellpose 4 설정 중 가장 큰 영향을 주는 단일 설정이며(``CellposeModel.eval(diameter=...)`` 는 모든 이미지를 ``30/diameter`` 배로 재조정하여 객체가 ``cpsam`` 이 작동하는 크기 근처에 오게 합니다), 사용자가 짐작으로 정하는 설정이기도 합니다.  이 모듈이 만드는 패널은 그 짐작을 객체 유형별 측정값으로 바꾸고, 측정한 객체 수를 보여 주어 그 숫자를 의심할 수 있게 합니다.  이 패널은 주 화면이 아니라, Mask 생성의 Model zoo 팝업에 있는 *직경 측정…* 버튼에서 자체 팝업으로 열리며(항목 533), 그것이 나머지 절반을 이루는 모델 선택 옆에 있습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#0",
@@ -1230,7 +1232,9 @@
       "source_sha256": "d47c6663b65104e73c8bc9a8b55b53e06da2b2f4ad9844600902e34c5a5ee6a3",
       "context": "The file gets the print style. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
       "translation": "파일에는 인쇄 스타일이 적용됩니다. 2026-09-25 결정(항목 50): \"저장된 그래프(PDF/PNG)는 화면 테마와 관계없이 흰색 인쇄 스타일(흰색 배경, 어두운 텍스트/축/선)을 가진다\". 렌더링은 ``for_print=True`` 를 전달하여 분리된 사본을 흰 바탕에 어두운 잉크로 꾸미므로, 화면의 그래프는 테마 색상을 유지합니다. PDF 를 쓸지는 사용자가 고른 확장자가 결정하므로, PNG 기본 설정 아래에서도 대화 상자에서 PDF 를 고르면 PDF 가 만들어집니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
@@ -1758,7 +1762,9 @@
       "source_sha256": "40ee44ced93d890379dc91495382d4e84a426f5a410c6d969eb4304673d78585",
       "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
       "translation": "사용자가 파일로 저장하는 그래프이면 True 입니다. 파일은 화면 테마와 관계없이 흰색 인쇄 스타일(:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`)을 가지며, 화면의 그림이 색상을 유지하도록 분리된 사본에서 기록되고, PNG 는 표시용 크기 제한을 받지 않습니다. False (모든 갤러리 및 캔버스 렌더링)는 그대로입니다. 테마 색상이 ``fig`` 자체에 적용됩니다. 2026-09-25 결정(항목 50): \"저장된 그래프(PDF/PNG)는 화면 테마와 관계없이 흰색 인쇄 스타일(흰색 배경, 어두운 텍스트/축/선)을 가진다\". 파일은 PDF 뷰어, 프린터, 학술지가 열며, 투명한 페이지 위의 흰색 텍스트는 그 모든 곳에서 사라집니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#6",

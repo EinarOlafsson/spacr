@@ -4616,7 +4616,9 @@
       "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
       "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "timeflows 方案（``features/future/426``）的第 2 步是一个数值，而不是一项功能。在编写、训练和维护第三个 Cellpose 预测头之前，必须先有一个基线：独立分割每一帧，按掩膜重叠链接各帧，并用跟踪研究界已经公认的度量将结果与参考标注对比评分。无论该分支得出什么，要么比这个更好，要么不是；方案明确指出，“普通拼接器已经足够好”是一个真实可能的结果，如果发生就应当接受。只有先有这个数值，这一结果才能显现出来。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#3",

@@ -1060,7 +1060,9 @@
       "source_sha256": "ff9423729059adb402cc46f48603cba83d1d63dffd3e0b6de49259e4ed263c27",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup (item 533), next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**直径。**  :mod:`spacr.diameter` 根据用户自己的少量视野测量对象的特征大小，无需加载 Cellpose 或 torch。``diameter`` 是 spaCR 公开的 Cellpose 4 设置中影响最大的一项——``CellposeModel.eval(diameter=...)`` 会按 ``30/diameter`` 缩放每张图像，使对象接近 ``cpsam`` 的工作尺寸——而它恰恰是用户靠猜的那一项。  本模块构建的面板把猜测变成按对象类型进行的测量，并显示测量了多少个对象，以便对该数值提出质疑。  它从 Mask generation 的 Model zoo 弹出窗口中的 *Measure diameters…* 按钮打开，位于自己的弹出窗口中（条目 533），紧挨着与它互为另一半的模型选择，而不是放在主界面上。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#0",
@@ -1230,7 +1232,9 @@
       "source_sha256": "d47c6663b65104e73c8bc9a8b55b53e06da2b2f4ad9844600902e34c5a5ee6a3",
       "context": "The file gets the print style. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
       "translation": "文件采用打印样式。2026-09-25 的决定（条目 50）：\"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\"。渲染时传入 ``for_print=True``，它会将一个分离的副本设置为白底深色笔墨，因此界面上的图表保留主题颜色。用户选择的扩展名决定是否写入 PDF，因此即使首选项为 PNG，在对话框中选择 PDF 仍会得到 PDF。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
@@ -1758,7 +1762,9 @@
       "source_sha256": "40ee44ced93d890379dc91495382d4e84a426f5a410c6d969eb4304673d78585",
       "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
       "translation": "当用户要将图表保存到文件时为 True。无论界面主题如何，文件都采用白色打印样式（:data:`PRINT_BACKGROUND`、:data:`PRINT_INK`），从一个分离的副本写入，因此界面上的图形保留其颜色，并且 PNG 不受显示尺寸上限限制。False（所有图库和画布渲染）保持不变：使用主题颜色，直接应用于 ``fig`` 本身。2026-09-25 的决定（条目 50）：\"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\"；文件会被 PDF 阅读器、打印机或期刊打开，透明页面上的白色文字在它们中都会消失。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#6",

@@ -4452,7 +4452,9 @@
       "source_sha256": "e4877979e7efafe306ddcdbe9a56fc3712465d7f9146681f5459d6015cec2c8b",
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "timeflows योजना (``features/future/426``) प्रशिक्षण डेटा के बारे में एक दावे पर टिकी है: कोई ऑब्जेक्ट हर उस फ़्रेम में जिसमें वह दिखाई देता है, बिल्कुल एक ही लेबल रखता है। समय-प्रवाह हेड को फ़्रेम ``t`` में किसी ऑब्जेक्ट के पिक्सेल से फ़्रेम ``t+1`` में उसी ऑब्जेक्ट के केंद्र की ओर इंगित करने के लिए प्रशिक्षित किया जाता है, और ``t+1`` में कौन-सा ऑब्जेक्ट वही ऑब्जेक्ट है, यह केवल लेबल बताता है। यदि एनोटेशन किसी लेबल को उसके ऑब्जेक्ट के मरने या बाहर जाने के बाद फिर से उपयोग करता है, तो मॉडल को किसी असंबंधित कोशिका की ओर इंगित करने के लिए प्रशिक्षित किया जाता है, और बाद का कोई स्कोर इसे नहीं पकड़ता -- अलग रखी गई जाँच उन्हीं गलत लेबलों को फेंटती है और स्वयं से सहमत हो जाती है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#3",

@@ -1308,7 +1308,9 @@
       "source_sha256": "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
       "context": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
       "translation": "后端可以是任何具有 Cellpose 的 ``eval`` 的对象——Cellpose-SAM、Cellpose 3、DINOCell 和 SAMCell 都支持它，这正是条目 404、405、423 和 446 所构建的内容。因此，本函数在包装模型时无需知道具体是哪个模型。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.segment_and_classify#2",
@@ -4064,7 +4066,9 @@
       "source_sha256": "e4877979e7efafe306ddcdbe9a56fc3712465d7f9146681f5459d6015cec2c8b",
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "timeflows 方案（``features/future/426``）依赖于关于训练数据的一个前提：一个对象在其出现的每一帧中都保持“相同的标签”。时间流预测头被训练为从帧 ``t`` 中某个对象的像素指向该对象在帧 ``t+1`` 中的中心，而唯一能说明 ``t+1`` 中哪个对象是同一对象的就是标签。如果标注在某个对象死亡或离开后回收了它的标签，模型就会被训练为指向一个无关的细胞，而且之后的任何评分都发现不了——留出检验会打乱同样错误的标签，并与自身保持一致。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#3",

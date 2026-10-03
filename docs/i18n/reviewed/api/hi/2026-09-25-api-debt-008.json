@@ -4618,7 +4618,9 @@
       "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
       "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "timeflows योजना (``features/future/426``) का चरण 2 एक संख्या है, कोई सुविधा नहीं। तीसरा Cellpose हेड लिखे, प्रशिक्षित और बनाए रखे जाने से पहले एक बेसलाइन होनी चाहिए: हर फ़्रेम का स्वतंत्र रूप से सेगमेंटेशन करें, फ़्रेमों को मास्क ओवरलैप से जोड़ें, और परिणाम को ग्राउंड ट्रुथ के विरुद्ध उन मापों से स्कोर करें जिन पर ट्रैकिंग का क्षेत्र पहले से सहमत है। फ़ोर्क जो भी बनाए, वह या तो इससे बेहतर होगा या नहीं होगा, और योजना स्पष्ट कहती है कि \"साधारण जोड़ने वाला पहले से ही पर्याप्त अच्छा है\" एक वास्तविक संभावित परिणाम है जिसे होने पर स्वीकार किया जाना चाहिए। वह परिणाम तभी दिखाई देता है जब यह संख्या पहले से मौजूद हो।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#3",

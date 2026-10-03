@@ -3396,7 +3396,9 @@
       "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
       "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "A etapa 2 do plano do timeflows (``features/future/426``) é um número, não uma funcionalidade. Antes que uma terceira cabeça do Cellpose seja escrita, treinada e mantida, é preciso haver uma referência: segmentar cada quadro de forma independente, ligar os quadros pela sobreposição das máscaras e pontuar o resultado contra a referência com as medidas com que a área de rastreamento já concorda. O que quer que a bifurcação produza é então melhor do que isto ou não é, e o plano diz claramente que \"o costurador simples já é bom o bastante\" é um resultado real possível, que deve ser aceito se acontecer. Esse resultado só fica visível se este número existir primeiro.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#3",
@@ -4508,7 +4510,9 @@
       "source_sha256": "e4877979e7efafe306ddcdbe9a56fc3712465d7f9146681f5459d6015cec2c8b",
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "O plano do timeflows (``features/future/426``) se apoia em uma única afirmação sobre os dados de treinamento: um objeto mantém o MESMO RÓTULO em todo quadro em que aparece. Uma cabeça de fluxo temporal é treinada para apontar de um pixel de um objeto no quadro ``t`` para o centro desse objeto no quadro ``t+1``, e a única coisa que diz qual objeto em ``t+1`` é o mesmo objeto é o rótulo. Se a anotação recicla um rótulo depois que seu objeto morre ou sai, o modelo é treinado para apontar para uma célula não relacionada, e nenhuma pontuação posterior detecta isso -- a verificação com dados separados embaralha os mesmos rótulos errados e concorda consigo mesma.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#3",

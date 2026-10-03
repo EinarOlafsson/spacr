@@ -964,7 +964,9 @@
       "source_sha256": "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
       "context": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
       "translation": "Le backend est n’importe quel objet doté de l’``eval`` de Cellpose -- Cellpose-SAM, Cellpose 3, DINOCell et SAMCell y répondent tous, et c’est ce qu’ont construit les éléments 404, 405, 423 et 446. Cette fonction enveloppe donc un modèle sans savoir de quel modèle il s’agit.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.object_classifier.segment_and_classify#2",

@@ -10,7 +10,9 @@
       "source_sha256": "458e0718fd7c8fe44ebb1f16ece2c2ab2690e2bbc1f15c7a079d2da08d7ed031",
       "context": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
       "translation": "``{image: mask path}`` 로 각 이미지의 마스크를 직접 지정합니다(마스크 열). 여기에 없는 이미지에는 마스크가 없습니다. None 이면 각 마스크를 :func:`mask_for` 로 찾습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification#1",
@@ -162,7 +164,9 @@
       "source_sha256": "dcccfc6a6a8bd9d2afdb58ae1f5b43758d38174a1b3def9bc346e52e81b3fe01",
       "context": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "요청 내용: \"mask generation 에서 직경 계산은 주 화면이 아니라 model zoo 버튼 팝업 창의 버튼이어야 한다. 버튼을 누르면 현재 컨테이너의 모든 정보를 담은 또 다른 팝업이 나와야 한다.\" 따라서 이 대화 상자는 :class:`DiameterPanel` 전체(측정 버튼, 근거와 메모가 있는 객체 유형별 행, 행마다의 *사용* 과 *모두 사용*)를 담으며, 패널은 여전히 Model zoo 를 연 화면의 설정에 기록합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#10",
@@ -266,7 +270,9 @@
       "source_sha256": "623f21c03aef1c8e8342c15cf1af89df40907668b4c800d9c0bb381989bd0358",
       "context": "The request: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "요청 내용: \"실시간 미리 보기가 열리면 화면 높이 전체를 차지한다: 콘솔, System 컨테이너, System 아래의 버튼 섹션이 자동으로 접히고, 설정은 왼쪽으로 접힌다\", 그리고 그림이 나타날 때마다 마찬가지입니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
@@ -274,7 +280,9 @@
       "source_sha256": "c575a161fa01047f40f4f06db899ee34572f672da673e4f8c50c9291738ae694",
       "context": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "요청 내용: \"그림이나 실시간 미리 보기 컨테이너 안의 모든 섹션도 접을 수 있어야 한다 ... 그림이든 표든 모든 GUI 요소가\". 이것이 화면 안의 섹션이 접기 컨트롤을 얻는 유일한 방법이므로, 모두가 같은 모양과 동작을 가집니다: 본문 위의 화살표와 이름(콘솔과 System 이 쓰는 것과 같은 :class:`~spacr.qt.widgets.foldable.Folder`), 클릭하면 접히고, 접힌 섹션은 주어진 공간의 맨 아래에 고정된 제목이 됩니다(:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
@@ -330,7 +338,9 @@
       "source_sha256": "3352e147240549d6dbfdd2bb045862ec2c1431c4518293a96b16ee98b82bcdef",
       "context": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "프로그램이 사용자를 대신해 접을 때 False 입니다(실시간 미리 보기 열기). 그런 접기는 재시작 후에 기억되지 않으며, 수신자에게도 그렇게 알립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.make_foldable#5",
@@ -434,7 +444,9 @@
       "source_sha256": "07e5c058297cb833a1694e8a850228cd515ebd6e6fe437682bd02a94ce47e74f",
       "context": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
       "translation": "이전의 연속된 프롬프트와 별도의 \"Sort into channels\" 대화 상자를 진입점으로서 대체합니다. 팝업 단 하나가 이미지와 그 마스크를 Measure 가 읽는 구조(Yokogawa 이름의 채널 폴더, 마스크, ``merged/*.npy``)로 배치하며, 모든 결정은 :mod:`spacr.channel_sorting` 과 :mod:`spacr.folder_consolidation` 이 내립니다:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#0",

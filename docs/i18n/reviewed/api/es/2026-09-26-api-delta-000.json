@@ -1060,7 +1060,9 @@
       "source_sha256": "ff9423729059adb402cc46f48603cba83d1d63dffd3e0b6de49259e4ed263c27",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup (item 533), next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**El diámetro.**  :mod:`spacr.diameter` mide el tamaño característico de los objetos en un puñado de campos del propio usuario, sin cargar Cellpose ni torch. ``diameter`` es el ajuste de Cellpose 4 de mayores consecuencias que expone spaCR — ``CellposeModel.eval(diameter=...)`` reescala cada imagen por ``30/diameter`` para que los objetos queden cerca del tamaño con el que trabaja ``cpsam`` — y es el que los usuarios adivinan.  El panel que construye este módulo convierte la conjetura en una medición, por tipo de objeto, y muestra cuántos objetos midió para que se pueda desconfiar de la cifra.  Se abre en una ventana emergente propia desde el botón *Medir diámetros…* de la ventana emergente del zoo de modelos de la generación de máscaras (elemento 533), junto a la elección de modelo de la que es la otra mitad, en lugar de en la pantalla principal.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#0",
@@ -1230,7 +1232,9 @@
       "source_sha256": "d47c6663b65104e73c8bc9a8b55b53e06da2b2f4ad9844600902e34c5a5ee6a3",
       "context": "The file gets the print style. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
       "translation": "EL ARCHIVO RECIBE EL ESTILO DE IMPRESIÓN. Decisión del 2026-09-25 (elemento 50): \"los gráficos guardados (PDF/PNG) reciben un ESTILO DE IMPRESIÓN BLANCO (fondo blanco, texto/ejes/líneas oscuros) sea cual sea el tema de la pantalla\". El renderizado pasa ``for_print=True``, que aplica a una copia separada un estilo blanco con tinta oscura, de modo que el gráfico en pantalla conserva los colores del tema. La extensión que eligió el usuario decide si se escribe el PDF, de modo que elegir PDF en el diálogo con una preferencia PNG sigue dando un PDF.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
@@ -1758,7 +1762,9 @@
       "source_sha256": "40ee44ced93d890379dc91495382d4e84a426f5a410c6d969eb4304673d78585",
       "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
       "translation": "True para un gráfico que el usuario está GUARDANDO en un archivo. Los archivos reciben el estilo de impresión blanco (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) sea cual sea el tema de la pantalla, se escriben desde una copia separada para que la figura en pantalla conserve sus colores, y el PNG no se limita al tamaño de visualización. False (cada renderizado de galería y de lienzo) no cambia: colores del tema, aplicados al propio ``fig``. Decisión del 2026-09-25 (elemento 50): \"los gráficos guardados (PDF/PNG) reciben un ESTILO DE IMPRESIÓN BLANCO (fondo blanco, texto/ejes/líneas oscuros) sea cual sea el tema de la pantalla\"; un archivo lo abre un lector de PDF, una impresora o una revista, y el texto blanco sobre una página transparente desaparece en todos ellos.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#6",

@@ -1060,7 +1060,9 @@
       "source_sha256": "ff9423729059adb402cc46f48603cba83d1d63dffd3e0b6de49259e4ed263c27",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup (item 533), next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**व्यास।**  :mod:`spacr.diameter` उपयोगकर्ता के अपने कुछ फ़ील्ड से, Cellpose या torch लोड किए बिना, विशिष्ट ऑब्जेक्ट आकार मापता है। ``diameter`` spaCR द्वारा उपलब्ध कराई गई सबसे अधिक प्रभाव डालने वाली एकल Cellpose 4 सेटिंग है — ``CellposeModel.eval(diameter=...)`` हर छवि को ``30/diameter`` से पुनः स्केल करता है ताकि ऑब्जेक्ट उस आकार के निकट आएँ जिस पर ``cpsam`` काम करता है — और यही वह सेटिंग है जिसका उपयोगकर्ता अनुमान लगाते हैं।  यह मॉड्यूल जो पैनल बनाता है वह अनुमान को प्रति ऑब्जेक्ट प्रकार एक माप में बदल देता है, और दिखाता है कि उसने कितने ऑब्जेक्ट मापे ताकि संख्या पर संदेह किया जा सके।  यह मुख्य पेज पर नहीं, बल्कि Mask निर्माण के Model zoo पॉपअप में *व्यास मापें…* बटन से अपने अलग पॉपअप में खुलता है (आइटम 533), मॉडल के उस चुनाव के बगल में जिसका यह दूसरा आधा हिस्सा है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#0",
@@ -1230,7 +1232,9 @@
       "source_sha256": "d47c6663b65104e73c8bc9a8b55b53e06da2b2f4ad9844600902e34c5a5ee6a3",
       "context": "The file gets the print style. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
       "translation": "फ़ाइल को प्रिंट शैली मिलती है। निर्णय 2026-09-25 (आइटम 50): \"सहेजे गए ग्राफ़ (PDF/PNG) को पेज थीम चाहे जो हो, सफ़ेद प्रिंट शैली (सफ़ेद पृष्ठभूमि, गहरे टेक्स्ट/अक्ष/रेखाएँ) मिलती है\"। रेंडर ``for_print=True`` पास करता है, जो एक अलग प्रति को सफ़ेद और गहरी स्याही में स्टाइल करता है, ताकि पेज पर दिख रहा ग्राफ़ थीम के रंग बनाए रखे। PDF लिखा जाएगा या नहीं, यह उपयोगकर्ता द्वारा चुना गया एक्सटेंशन तय करता है, इसलिए PNG प्राथमिकता के तहत भी संवाद में PDF चुनने पर PDF ही मिलता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
@@ -1758,7 +1762,9 @@
       "source_sha256": "40ee44ced93d890379dc91495382d4e84a426f5a410c6d969eb4304673d78585",
       "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
       "translation": "True, उस ग्राफ़ के लिए जिसे उपयोगकर्ता फ़ाइल में सहेज रहा है। फ़ाइलों को पेज थीम चाहे जो हो, सफ़ेद प्रिंट शैली (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) मिलती है, वे एक अलग प्रति से लिखी जाती हैं ताकि पेज पर दिख रहा फ़िगर अपने रंग बनाए रखे, और PNG पर प्रदर्शन-सीमा लागू नहीं होती। False (हर गैलरी और कैनवास रेंडर) अपरिवर्तित है: थीम रंग, ``fig`` पर ही लागू। निर्णय 2026-09-25 (आइटम 50): \"सहेजे गए ग्राफ़ (PDF/PNG) को पेज थीम चाहे जो हो, सफ़ेद प्रिंट शैली (सफ़ेद पृष्ठभूमि, गहरे टेक्स्ट/अक्ष/रेखाएँ) मिलती है\"; फ़ाइल को PDF रीडर, प्रिंटर या जर्नल खोलता है, और पारदर्शी पेज पर सफ़ेद टेक्स्ट उन सभी में गायब हो जाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#6",

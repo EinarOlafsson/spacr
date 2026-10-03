@@ -1060,7 +1060,9 @@
       "source_sha256": "ff9423729059adb402cc46f48603cba83d1d63dffd3e0b6de49259e4ed263c27",
       "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup (item 533), next to the choice of model it is the other half of, rather than on the main application view.",
       "translation": "**Þvermálið.**  :mod:`spacr.diameter` mælir einkennandi stærð hluta úr nokkrum eigin sjónsviðum notandans, án þess að hlaða Cellpose eða torch. ``diameter`` er sú einstaka Cellpose 4 stilling sem spaCR birtir sem hefur mest áhrif — ``CellposeModel.eval(diameter=...)`` endurkvarðar hverja mynd um ``30/diameter`` svo hlutir lendi nálægt stærðinni sem ``cpsam`` vinnur við — og það er sú sem notendur giska á.  Spjaldið sem þessi eining byggir breytir gisknum í mælingu, fyrir hverja hlutagerð, og sýnir hve marga hluti það mældi svo hægt sé að vantreysta tölunni.  Það opnast í eigin sprettiglugga frá *Mæla þvermál…* hnappinum í Model zoo sprettiglugga grímugerðar (atriði 533), við hlið líkanavalsins sem það er hinn helmingurinn af, frekar en á aðalskjámyndinni.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.prerun.DiameterDialog#0",
@@ -1230,7 +1232,9 @@
       "source_sha256": "d47c6663b65104e73c8bc9a8b55b53e06da2b2f4ad9844600902e34c5a5ee6a3",
       "context": "The file gets the print style. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
       "translation": "SKRÁIN FÆR PRENTSTÍLINN. Ákvörðun 2026-09-25 (atriði 50): \"vistuð gröf (PDF/PNG) fá HVÍTAN PRENTSTÍL (hvítur bakgrunnur, dökkur texti/ásar/línur) hvert sem þema skjámyndarinnar er\". Myndgerðin sendir ``for_print=True``, sem stílar aftengt afrit hvítt með dökku bleki, svo grafið á skjánum heldur litum þemans. Endingin sem notandinn valdi ræður því hvort PDF er skrifað, svo að velja PDF í glugganum undir PNG-kjörstillingu gefur samt PDF.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action#1",
@@ -1758,7 +1762,9 @@
       "source_sha256": "40ee44ced93d890379dc91495382d4e84a426f5a410c6d969eb4304673d78585",
       "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25 (item 50): \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
       "translation": "True fyrir graf sem notandinn er að VISTA í skrá. Skrárnar fá hvíta prentstílinn (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) hvert sem þema skjámyndarinnar er, eru skrifaðar úr aftengdu afriti svo myndin á skjánum heldur litum sínum, og PNG er ekki takmarkað að birtingarstærð. False (hver myndgerð í myndasafni og á striga) er óbreytt: litir þemans, beitt á ``fig`` sjálft. Ákvörðun 2026-09-25 (atriði 50): \"vistuð gröf (PDF/PNG) fá HVÍTAN PRENTSTÍL (hvítur bakgrunnur, dökkur texti/ásar/línur) hvert sem þema skjámyndarinnar er\"; skrá er opnuð af PDF-lesara, prentara eða tímariti, og hvítur texti á gagnsærri síðu hverfur í þeim öllum.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#6",

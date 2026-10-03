@@ -350,7 +350,9 @@
       "source_sha256": "d94e3d62d3ee1ba13d3fa35dfd88a2560d6e07f69cdabe851e4d0453a237ae2d",
       "context": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which image data channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the image data channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the application view applies the plan off the main GUI execution path and every move is written to the manifest.",
       "translation": "模式 1：填写源，选择或测试正则表达式，点击 \"Sort by regex\"，然后 Apply。模式 2：通过拖放填充各列，然后 Apply。模式 3，\"Teach me…\"：逐张图像回答“这是哪个通道？”，同时 spaCR 从回答中学习正则表达式（:func:`spacr.channel_sorting._teach_step`），直到每张图像都有归属。每种模式都可独立使用。由文件夹合并生成的文件夹按其文件的原始名称读取（来自其 ``rename_manifest.csv``），因为副本的名称可能已丢失区分各通道的信息。Apply 会构建一个 :class:`spacr.channel_sorting.SortPlan`；不完整的行会阻止构建（在正则表达式框中修正），会提示转换 RGB 图像和 z 堆栈，检测到的图像组在使用前每次显示三组。Apply 之前不会移动任何文件；界面在 GUI 线程之外执行该计划，每次移动都写入清单。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#0",

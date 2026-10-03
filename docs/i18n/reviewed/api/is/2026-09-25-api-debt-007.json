@@ -3640,7 +3640,9 @@
       "source_sha256": "9dc1931fbcdb644f877bf82f20900207010a07852a0f13f3ecb34d20e92f028b",
       "context": "Step 2 of the timeflows plan (``features/future/426``) is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
       "translation": "Skref 2 í timeflows-áætluninni (``features/future/426``) er tala, ekki eiginleiki. Áður en þriðji Cellpose-hausinn er skrifaður, þjálfaður og honum viðhaldið þarf að vera til grunnlína: hluta hvern ramma sjálfstætt, tengja rammana eftir skörun gríma, og skora niðurstöðuna á móti réttu gildunum með þeim mælikvörðum sem rakningarsviðið er þegar sammála um. Hvað sem kvíslin skilar er þá annaðhvort betra en þetta eða ekki, og áætlunin segir berum orðum að \"einfaldi samskeytirinn er þegar nógu góður\" sé raunveruleg möguleg niðurstaða sem ætti að samþykkja ef hún kemur upp. Sú niðurstaða sést aðeins ef þessi tala er til fyrst.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_baseline#3",
@@ -4760,7 +4762,9 @@
       "source_sha256": "e4877979e7efafe306ddcdbe9a56fc3712465d7f9146681f5459d6015cec2c8b",
       "context": "The timeflows plan (``features/future/426``) rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
       "translation": "Timeflows-áætlunin (``features/future/426``) hvílir á einni fullyrðingu um þjálfunargögnin: hlutur heldur SAMA MERKI í hverjum ramma sem hann birtist í. Tímaflæðishaus er þjálfaður til að benda frá pixli hlutar í ramma ``t`` á miðju þess hlutar í ramma ``t+1``, og það eina sem segir hvaða hlutur í ``t+1`` er sami hluturinn er merkið. Ef merkingin endurnýtir merki eftir að hlutur þess deyr eða fer, er líkanið þjálfað til að benda á óskylda frumu, og ekkert síðara skor grípur það -- athugunin á fráteknum gögnum stokkar sömu röngu merkin og er sammála sjálfri sér.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.timeflows_qc#3",

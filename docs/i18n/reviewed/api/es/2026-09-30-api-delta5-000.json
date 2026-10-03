@@ -10,7 +10,9 @@
       "source_sha256": "458e0718fd7c8fe44ebb1f16ece2c2ab2690e2bbc1f15c7a079d2da08d7ed031",
       "context": "``{image: mask path}`` naming each image's mask outright (the mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
       "translation": "``{image: mask path}`` que indica directamente la máscara de cada imagen (las columnas de máscara); una imagen que no figura en él no tiene ninguna. None busca cada máscara con :func:`mask_for`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.drop_classification#1",
@@ -162,7 +164,9 @@
       "source_sha256": "dcccfc6a6a8bd9d2afdb58ae1f5b43758d38174a1b3def9bc346e52e81b3fe01",
       "context": "The request: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
       "translation": "La petición: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" Por eso esto contiene el :class:`DiameterPanel` completo -- el botón de medir, una fila por tipo de objeto con su evidencia y su nota, *Usar* por fila y *Usar todo* --, y el panel sigue escribiendo en los ajustes de la pantalla que abrió el zoo.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.screens.annotate#10",
@@ -266,7 +270,9 @@
       "source_sha256": "623f21c03aef1c8e8342c15cf1af89df40907668b4c800d9c0bb381989bd0358",
       "context": "The request: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
       "translation": "La petición: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", y lo mismo siempre que aparecen figuras.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
@@ -274,7 +280,9 @@
       "source_sha256": "c575a161fa01047f40f4f06db899ee34572f672da673e4f8c50c9291738ae694",
       "context": "The request: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
       "translation": "La petición: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". Esta es la única forma en que una sección dentro de una pantalla recibe un control de plegado, de modo que todas tienen el mismo aspecto y comportamiento: una flecha y un nombre sobre el cuerpo (el mismo :class:`~spacr.qt.widgets.foldable.Folder` que usan la consola y System), un clic la pliega, y una sección plegada es su encabezado fijado al FONDO del espacio que se le dé (:func:`lock_folded_to_bottom`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#2",
@@ -330,7 +338,9 @@
       "source_sha256": "3352e147240549d6dbfdd2bb045862ec2c1431c4518293a96b16ee98b82bcdef",
       "context": "False when the program folds it on the user's behalf (a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
       "translation": "False cuando el programa lo pliega en nombre del usuario (al abrirse una vista previa en vivo). Un plegado así no se recuerda entre reinicios, y así se indica a los oyentes.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.foldable.make_foldable#5",
@@ -434,7 +444,9 @@
       "source_sha256": "07e5c058297cb833a1694e8a850228cd515ebd6e6fe437682bd02a94ce47e74f",
       "context": "It replaces the earlier string of prompts and the separate \"Sort into channels\" dialog as the entry point. ONE popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
       "translation": "Sustituye como punto de entrada la serie anterior de preguntas y el diálogo aparte \"Sort into channels\". UNA sola ventana emergente coloca las imágenes y sus máscaras en la estructura que lee Measure -- carpetas de canal con nombres Yokogawa, las máscaras y ``merged/*.npy`` -- mediante :mod:`spacr.channel_sorting` y :mod:`spacr.folder_consolidation`, que toman todas las decisiones:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data#0",

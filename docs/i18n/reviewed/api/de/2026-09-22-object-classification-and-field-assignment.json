@@ -683,7 +683,9 @@
       "label": "spacr.object_classifier.segment_and_classify#1",
       "source": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
       "source_sha256": "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
-      "translation": "Das Backend muss die ``eval``-Schnittstelle von Cellpose anbieten. Cellpose-SAM, Cellpose 3, DINOCell und SAMCell unterstützen sie; dies wurde in den Punkten 404, 405, 423 und 446 umgesetzt. Die Funktion kann deshalb ein Modell verwenden, ohne dessen konkrete Art zu kennen."
+      "translation": "Das Backend muss die ``eval``-Schnittstelle von Cellpose anbieten. Cellpose-SAM, Cellpose 3, DINOCell und SAMCell unterstützen sie; dies wurde in den Punkten 404, 405, 423 und 446 umgesetzt. Die Funktion kann deshalb ein Modell verwenden, ohne dessen konkrete Art zu kennen.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "the segmenter.",
