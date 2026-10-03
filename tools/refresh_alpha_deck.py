@@ -97,12 +97,20 @@ GROUPS = (
         (574, "Metadata and archive packages (REMBI, IDR)"),
         (579, "One-click Zenodo archive with a DOI"),
     )),
-    ("Organisms", (
-        (634, "Trypanosoma, Leishmania, Giardia, virus, mammalian pages"),
-    )),
+)
+# Alpha organism pages (ALPHA_SPECIES), drawn as a strip with their Home icons.
+SPECIES_ITEM = 634
+SPECIES = (
+    ("plasmodium", "Plasmodium"),
+    ("candida", "Candida"),
+    ("trypanosoma", "Trypanosoma"),
+    ("leishmania", "Leishmania"),
+    ("giardia", "Giardia"),
+    ("virus", "Virus"),
+    ("mammalian", "Mammalian"),
 )
 # Filed future alpha items that are listed before they enter the registry.
-PLANNED = frozenset({634})
+PLANNED = frozenset()
 
 
 def _registry_ids(source):
@@ -119,22 +127,37 @@ def _registry_ids(source):
     return found["ALPHA_FEATURES"] | found.get("ALPHA_SPECIES", set())
 
 
+def _species_icons():
+    # The Home tile icon of each alpha species, read from iconset's table.
+    tree = ast.parse((ROOT / "spacr/qt/iconset.py").read_text(encoding="utf-8"))
+    for node in tree.body:
+        if (isinstance(node, ast.Assign) and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "SHARED_ICON_ASSETS"):
+            table = ast.literal_eval(node.value)
+            return [ROOT / "spacr/resources/icons" / table[key] for key, _ in SPECIES]
+    raise ValueError("SHARED_ICON_ASSETS not found in spacr/qt/iconset.py")
+
+
 def _check_registry(source):
+    """Return the number of alpha features listed; the species strip is extra."""
     registered = _registry_ids(source)
     listed = [number for _, rows in GROUPS for number, _ in rows
               if number not in PLANNED or number in registered]
+    if SPECIES_ITEM in registered:
+        listed.append(SPECIES_ITEM)
     if len(listed) != len(set(listed)) or set(listed) != registered:
         raise ValueError(
             f"Update alpha slide labels: missing {sorted(registered - set(listed))}; "
             f"retired {sorted(set(listed) - registered)}; duplicates are forbidden"
         )
-    return len(listed)
+    return len(listed) - (SPECIES_ITEM in registered)
 
 
 def _draw_pdf(target, count, page_size):
     # Qt emits vector text with embedded fonts. No application window is opened.
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     from PySide6.QtCore import QMarginsF, QRectF, QSizeF, Qt
+    from PySide6.QtSvg import QSvgRenderer
     from PySide6.QtGui import (
         QColor,
         QFont,
@@ -160,7 +183,7 @@ def _draw_pdf(target, count, page_size):
     painter.setRenderHint(QPainter.RenderHint.Antialiasing)
     painter.fillRect(0, 0, 3200, 1800, QColor("#0e1116"))
 
-    def label(text, x, y, w, h, size=29, color="#e3e8ed", bold=False):
+    def label(text, x, y, w, h, size=27, color="#e3e8ed", bold=False):
         font = QFont("Open Sans")
         font.setPixelSize(size)
         font.setWeight(QFont.Weight.DemiBold if bold else QFont.Weight.Normal)
@@ -179,7 +202,7 @@ def _draw_pdf(target, count, page_size):
         painter.setBrush(QColor("#222932"))
         painter.drawRoundedRect(QRectF(2850, 118, 230, 76), 38, 38)
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
-        row_height = 43
+        row_height = 36
         for x, groups in ((120, GROUPS[:3]), (1640, GROUPS[3:])):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
@@ -194,9 +217,23 @@ def _draw_pdf(target, count, page_size):
                                      QColor("#191f27"))
                     label(caption, x + 388, y, 1038, row_height - 3)
                     y += row_height
+        top, cell_h = 1560, 110
+        painter.fillRect(QRectF(120, top, 371, cell_h), QColor("#222932"))
+        label("Alpha species", 134, top, 345, cell_h, 34, bold=True)
+        cell_w = (2960 - 374) / len(SPECIES)
+        for i, (path, (_, name)) in enumerate(zip(_species_icons(), SPECIES)):
+            x = 494 + i * cell_w
+            painter.fillRect(QRectF(x, top, cell_w - 3, cell_h), QColor("#191f27"))
+            renderer = QSvgRenderer(str(path))
+            if not renderer.isValid():
+                raise ValueError(f"Species icon does not load: {path}")
+            renderer.render(painter, QRectF(x + 18, top + 23, 64, 64))
+            label(name, x + 96, top, cell_w - 108, cell_h, 30)
         planned = len(PLANNED - set(_registry_ids(ROOT / "spacr/settings.py")))
-        label(f"{count} alpha features{f' and {planned} planned' if planned else ''}, hidden until "
-              "Preferences → Modules → Show alpha features is on. Early versions: expect changes.", 120, 1700, 2960, 62, 30, "#acb5be")
+        label(f"{count} alpha features{f' and {planned} planned' if planned else ''} and "
+              f"{len(SPECIES)} alpha species, hidden until Preferences → Modules → Show alpha "
+              "features and Show alpha species are on. Early versions: expect changes.",
+              120, 1700, 2960, 62, 30, "#acb5be")
     finally:
         painter.end()
     # Keep the application alive until the paint device is finalized.
