@@ -14,8 +14,10 @@ from tools import build_module_workflows as workflow
 def test_api_tutorial_links_stay_in_their_documentation_channel(channel):
     data = workflow.load()
     generated = workflow.outputs(data)
-    for module in data['modules'].values():
-        if not module.get('lesson'):
+    from spacr.settings import _alpha_species_names
+    hidden = _alpha_species_names('apps')
+    for key, module in data['modules'].items():
+        if not module.get('lesson') or key in hidden:
             continue
         api = module['api_module']
         text = generated[Path(f'docs/source/_generated/module_workflows/{api}.rst')]
@@ -24,6 +26,20 @@ def test_api_tutorial_links_stay_in_their_documentation_channel(channel):
         base = 'https://einarolafsson.github.io/spacr/' + channel
         page = base + 'api/' + api.replace('.', '/') + '/index.html'
         assert urljoin(page, target) == base + 'tutorials/#lesson=' + module['lesson']
+
+
+def test_alpha_species_stay_out_of_the_user_guides():
+    from spacr.settings import _alpha_species_names
+
+    data = workflow.load()
+    generated = workflow.outputs(data)
+    hidden = _alpha_species_names('apps') & set(data['modules'])
+    assert hidden, "the map still carries alpha species with published lessons"
+    for path, text in generated.items():
+        if path.suffix != '.rst':
+            continue
+        for key in hidden:
+            assert f'workflow-module-{key}' not in text, (path, key)
 
 
 def test_all_live_routes_and_existing_io_contracts_are_mapped():
