@@ -1,6 +1,6 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
+  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -38,6 +38,7 @@
     "Einnig má draga úttak út úr texta. Bættu við fjórða úttaki sem heitir row_number og veldu Extract text. Veldu rowID sem upprunadálk og sláðu inn reglulega segð með nefndum hópi, hér r á undan hópi sem heitir row_number og grípur tölustafina. Smelltu á Create columns from named groups og svo á Preview. Línur sem passa ekki haldast tómar. Dæmataflan hefur engin upprunaleg skráarheiti, svo við drögum út úr fyrirliggjandi auðkennisdálki.",
     "Smelltu á Save schema og veldu JSON-skrá. Skema geymir reglurnar, ekki gildin: úttökin, kassa þeirra, samsetningar og útdráttarmynstur. Handvirkar línuúthlutanir tilheyra þessari töflu og eru skildar eftir, og stöðulínan segir hve margar.",
     "Load schema les slíka skrá inn á sömu töflu eða aðra. Hún er borin saman við dálka töflunnar og opnast sem forskoðun allra úttaka; ekkert er notað fyrr en þú smellir á Apply conditions.",
+    "Veldu genotype undir Generated columns til að athuga hvað skemað endurheimti: kassarnir WildType og mutant koma aftur með nákvæmum gildum sínum og hver kassi sýnir hve margar línur passa. Athugaðu hvert úttak á þennan hátt áður en þú smellir á Apply conditions.",
     "Smelltu á Apply conditions til að bæta genotype, replicate, condition og row_number við vinnutöfluna. Upprunalegu mæligildadálkarnir og upprunagagnagrunnurinn breytast ekki. Sami merkingarritill virkar líka með sameinaðri vinnutöflu. Notaðu tilraunaskipulagið til að velja merkingarbær merki áður en þú teiknar eftir nýju dálkunum.",
     "Save chart geymir sýnina og merkingaruppskriftina til að hlaða aftur. Export table inniheldur dálkana sem voru búnir til. Fyrir SQLite-uppruna biður Save annotated table um nýtt töfluheiti, stingur upp á cell_annotated og skrifar aldrei yfir fyrirliggjandi töflu. Þetta eru aðskildar vistunaraðgerðir; Apply conditions eitt sér skrifar ekki í upprunagagnagrunninn.",
     "Til að sameina töflur skaltu smella á Merge tables við hlið töfluvalsins. Hakaðu við cell, nucleus og pathogen, haltu cell sem úttakstöflu svo ein lína sé á hverja frumu, og gefðu niðurstöðunni nafn. Smelltu á Validate and preview, lestu línufjölda og tengilykla hverrar töflu og smelltu svo á Create merged table.",

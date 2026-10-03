@@ -1,6 +1,6 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
+  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -38,6 +38,7 @@
     "输出也可以从文本中提取。添加名为 row_number 的第四个输出并选择 Extract text。选择 rowID 作为源列，并输入带命名组的正则表达式，这里是 r 后接一个名为 row_number、用来捕获数字的组。点击 Create columns from named groups，然后点击 Preview。不匹配的行保持为空。示例表中没有原始文件名，因此我们从现有的 ID 列中提取。",
     "点击 Save schema 并选择一个 JSON 文件。模式保存的是规则而不是值：输出、它们的规则框、组合和提取模式。手动的行分配与此表绑定，因此会被省略，状态行会显示省略了多少。",
     "Load schema 会把这样的文件读入同一张表或另一张表。它会根据表的列进行检查，并以所有输出的预览形式打开；在点击 Apply conditions 之前不会应用任何内容。",
+    "在 Generated columns 中选择 genotype，检查模式恢复了什么：WildType 和 mutant 规则框连同其精确值一起恢复，每个规则框都会显示匹配的行数。点击 Apply conditions 之前，请这样检查每个输出。",
     "点击 Apply conditions，将 genotype、replicate、condition 和 row_number 添加到工作表。原始测量列和源数据库保持不变。同一个注释编辑器也适用于合并后的工作表。在按这些新列绘图之前，请根据实验设计选择有意义的标签。",
     "Save chart 会保存视图和注释方案以便重新加载。Export table 包含生成的列。对于 SQLite 数据源，Save annotated table 会询问新的表名，建议 cell_annotated，并且绝不覆盖已有的表。这些是彼此独立的保存操作；仅点击 Apply conditions 不会写入源数据库。",
     "要合并表，请点击表格选择器旁的 Merge tables。勾选 cell、nucleus 和 pathogen，保持 cell 作为输出观测表，使每个细胞一行，并为结果命名。点击 Validate and preview，查看每张表的行数和连接键，然后点击 Create merged table。",

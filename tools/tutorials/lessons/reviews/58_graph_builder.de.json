@@ -1,6 +1,6 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
+  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -38,6 +38,7 @@
     "Eine Ausgabe kann auch aus Text extrahiert werden. Fügen Sie eine vierte Ausgabe namens row_number hinzu und wählen Sie Extract text. Wählen Sie rowID als Quellspalte und geben Sie einen regulären Ausdruck mit einer benannten Gruppe ein, hier r gefolgt von einer Gruppe namens row_number, die die Ziffern erfasst. Klicken Sie auf Create columns from named groups und dann auf Preview. Zeilen ohne Treffer bleiben leer. Die Beispieltabelle enthält keine ursprünglichen Dateinamen, daher extrahieren wir aus einer vorhandenen ID-Spalte.",
     "Klicken Sie auf Save schema und wählen Sie eine JSON-Datei. Ein Schema speichert die Regeln, nicht die Werte: die Ausgaben, ihre Boxen, Zusammensetzungen und Extraktionsmuster. Manuelle Zeilenzuordnungen gehören zu dieser Tabelle und werden weggelassen; die Statuszeile nennt, wie viele es waren.",
     "Load schema liest eine solche Datei auf dieselbe oder eine andere Tabelle ein. Sie wird gegen die Spalten der Tabelle geprüft und öffnet sich als Vorschau aller Ausgaben; angewendet wird nichts, bis Sie auf Apply conditions klicken.",
+    "Wählen Sie unter Generated columns genotype, um zu prüfen, was das Schema wiederhergestellt hat: Die Boxen WildType und mutant kehren mit ihren exakten Werten zurück, und jede Box zeigt, wie viele Zeilen sie trifft. Prüfen Sie so jede Ausgabe, bevor Sie auf Apply conditions klicken.",
     "Klicken Sie auf Apply conditions, um genotype, replicate, condition und row_number zur Arbeitstabelle hinzuzufügen. Die ursprünglichen Messspalten und die Quelldatenbank bleiben unverändert. Derselbe Annotationseditor funktioniert auch mit einer zusammengeführten Arbeitstabelle. Wählen Sie anhand Ihres Versuchsplans sinnvolle Labels, bevor Sie nach diesen neuen Spalten darstellen.",
     "Save chart bewahrt die Ansicht und das Annotationsrezept zum erneuten Laden. Export table enthält die erzeugten Spalten. Bei einer SQLite-Quelle fragt Save annotated table nach einem neuen Tabellennamen, schlägt cell_annotated vor und überschreibt nie eine vorhandene Tabelle. Das sind getrennte Speicheraktionen; Apply conditions allein schreibt nicht in die Quelldatenbank.",
     "Um Tabellen zu kombinieren, klicken Sie auf Merge tables neben der Tabellenauswahl. Haken Sie cell, nucleus und pathogen an, lassen Sie cell als Ausgabetabelle, sodass es eine Zeile pro Zelle gibt, und benennen Sie das Ergebnis. Klicken Sie auf Validate and preview, lesen Sie Zeilenzahlen und Verknüpfungsschlüssel jeder Tabelle und klicken Sie dann auf Create merged table.",

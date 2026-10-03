@@ -1,6 +1,6 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
+  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -38,6 +38,7 @@
     "Uma saída também pode ser extraída de um texto. Adicione uma quarta saída chamada row_number e escolha Extract text. Selecione rowID como coluna de origem e digite uma expressão regular com um grupo nomeado, aqui r seguido de um grupo chamado row_number que captura os dígitos. Clique em Create columns from named groups e depois em Preview. Linhas sem correspondência ficam em branco. A tabela de exemplo não tem nomes de arquivo originais, então extraímos de uma coluna de identificação existente.",
     "Clique em Save schema e escolha um arquivo JSON. Um esquema guarda as regras, não os valores: as saídas, suas caixas, composições e padrões de extração. As atribuições manuais de linhas pertencem a esta tabela e ficam de fora, e a linha de status informa quantas.",
     "Load schema lê um arquivo assim na mesma tabela ou em outra. Ele é conferido com as colunas da tabela e abre como prévia de todas as saídas; nada é aplicado até você clicar em Apply conditions.",
+    "Selecione genotype em Generated columns para conferir o que o esquema restaurou: as caixas WildType e mutant voltam com seus valores exatos, e cada caixa mostra quantas linhas correspondem. Confira assim cada saída antes de clicar em Apply conditions.",
     "Clique em Apply conditions para adicionar genotype, replicate, condition e row_number à tabela de trabalho. As colunas de medição originais e o banco de dados de origem não mudam. O mesmo editor de anotações também funciona com uma tabela de trabalho combinada. Use seu desenho experimental para escolher rótulos significativos antes de plotar por essas novas colunas.",
     "Save chart preserva a visualização e a receita de anotação para recarregar. Export table inclui as colunas geradas. Para uma origem SQLite, Save annotated table pede o nome de uma nova tabela, sugere cell_annotated e nunca sobrescreve uma tabela existente. São ações de salvamento separadas; Apply conditions sozinho não grava no banco de dados de origem.",
     "Para combinar tabelas, clique em Merge tables ao lado do seletor de tabelas. Marque cell, nucleus e pathogen, mantenha cell como tabela de saída para ter uma linha por célula e dê um nome ao resultado. Clique em Validate and preview, leia as contagens de linhas e as chaves de junção de cada tabela e depois clique em Create merged table.",

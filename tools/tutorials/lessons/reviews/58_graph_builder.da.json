@@ -1,6 +1,6 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
+  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -38,6 +38,7 @@
     "Et output kan også udtrækkes fra tekst. Tilføj et fjerde output kaldet row_number og vælg Extract text. Vælg rowID som kildekolonne, og indtast et regulært udtryk med en navngivet gruppe, her r efterfulgt af en gruppe kaldet row_number, der fanger cifrene. Klik på Create columns from named groups og derefter på Preview. Rækker uden match forbliver tomme. Eksempeltabellen har ingen oprindelige filnavne, så vi udtrækker fra en eksisterende ID-kolonne.",
     "Klik på Save schema og vælg en JSON-fil. Et skema gemmer reglerne, ikke værdierne: outputtene, deres bokse, sammensætninger og udtræksmønstre. Manuelle rækketildelinger hører til denne tabel og udelades, og statuslinjen fortæller, hvor mange der blev udeladt.",
     "Load schema indlæser en sådan fil på den samme eller en anden tabel. Den kontrolleres mod tabellens kolonner og åbnes som en forhåndsvisning af alle output; intet anvendes, før du klikker på Apply conditions.",
+    "Vælg genotype under Generated columns for at se, hvad skemaet gendannede: boksene WildType og mutant vender tilbage med deres eksakte værdier, og hver boks viser, hvor mange rækker den matcher. Kontroller hvert output på denne måde, før du klikker på Apply conditions.",
     "Klik på Apply conditions for at tilføje genotype, replicate, condition og row_number til arbejdstabellen. De oprindelige målekolonner og kildedatabasen forbliver uændrede. Den samme annotationseditor virker også med en sammenflettet arbejdstabel. Brug dit forsøgsdesign til at vælge meningsfulde etiketter, før du plotter efter de nye kolonner.",
     "Save chart gemmer visningen og annotationsopskriften til genindlæsning. Export table indeholder de genererede kolonner. For en SQLite-kilde beder Save annotated table om et nyt tabelnavn, foreslår cell_annotated og overskriver aldrig en eksisterende tabel. Det er separate gemmehandlinger; Apply conditions alene skriver ikke til kildedatabasen.",
     "Klik på Merge tables ved siden af tabelvælgeren for at kombinere tabeller. Sæt flueben ved cell, nucleus og pathogen, behold cell som outputtabel, så der er én række pr. celle, og navngiv resultatet. Klik på Validate and preview, læs rækkeantal og koblingsnøgler for hver tabel, og klik derefter på Create merged table.",

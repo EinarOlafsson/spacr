@@ -109,6 +109,11 @@
       "hold_after": 0.7
     },
     {
+      "visual": "15e_loaded_rules",
+      "narration": "Select genotype under Generated columns to check what the schema restored: the WildType and mutant boxes return with their exact values, and each box shows how many rows it matches. Check every output this way before you click Apply conditions.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "16_annotations_applied",
       "narration": "Click Apply conditions to add genotype, replicate, condition and row_number to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
       "hold_after": 0.7

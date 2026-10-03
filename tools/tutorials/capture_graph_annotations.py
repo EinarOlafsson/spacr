@@ -133,6 +133,10 @@ def fill_annotation_controls(dialog, capture, settle, timeout, extras=None):
         settle(3)
         capture('15d_load_schema')
         extras['schema_loaded_status'] = dialog.status.text()
+        # The loaded rules of the first output, as the schema restored them.
+        choose(dialog.column_selector, 'genotype')
+        settle(3)
+        capture('15e_loaded_rules')
     click(dialog.apply_button)
 
 

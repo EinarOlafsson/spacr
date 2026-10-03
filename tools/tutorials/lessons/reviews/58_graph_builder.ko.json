@@ -1,6 +1,6 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
+  "english_sha256": "3d874d9843bd844f57bf6948007176605319ec953a7a898c853f209c42aaa3d9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -38,6 +38,7 @@
     "출력은 텍스트에서 추출할 수도 있습니다. row_number라는 네 번째 출력을 추가하고 Extract text를 고르세요. 원본 열로 rowID를 고르고 이름 있는 그룹이 들어간 정규식을 입력합니다. 여기서는 r 뒤에 숫자를 잡아내는 row_number 그룹을 둡니다. Create columns from named groups를 클릭한 다음 Preview를 클릭하세요. 일치하지 않는 행은 비어 있습니다. 예제 테이블에는 원래 파일 이름이 없으므로 기존 ID 열에서 추출합니다.",
     "Save schema를 클릭하고 JSON 파일을 고르세요. 스키마에는 값이 아니라 규칙이 저장됩니다. 출력, 그 상자, 조합, 추출 패턴입니다. 수동 행 지정은 이 테이블에 묶여 있어 빠지며, 몇 개가 빠졌는지는 상태 줄에 표시됩니다.",
     "Load schema는 그런 파일을 같은 테이블이나 다른 테이블에 읽어 들입니다. 테이블의 열과 대조해 확인한 뒤 모든 출력의 미리보기로 열리며, Apply conditions를 클릭하기 전에는 아무것도 적용되지 않습니다.",
+    "Generated columns에서 genotype을 선택해 스키마가 무엇을 복원했는지 확인하세요. WildType과 mutant 상자가 정확한 값과 함께 돌아오고, 각 상자에는 일치하는 행 수가 표시됩니다. Apply conditions를 클릭하기 전에 모든 출력을 이렇게 확인하세요.",
     "Apply conditions를 클릭하면 작업 테이블에 genotype, replicate, condition, row_number가 추가됩니다. 원래 측정 열과 원본 데이터베이스는 바뀌지 않습니다. 같은 주석 편집기는 합친 작업 테이블에서도 동작합니다. 새 열로 그래프를 그리기 전에 실험 설계에 맞게 의미 있는 레이블을 고르세요.",
     "Save chart는 다시 불러올 수 있도록 보기와 주석 레시피를 저장합니다. Export table에는 생성된 열이 포함됩니다. SQLite 원본에서는 Save annotated table이 새 테이블 이름을 묻고 cell_annotated를 제안하며, 기존 테이블을 절대 덮어쓰지 않습니다. 이것들은 서로 다른 저장 작업이며, Apply conditions만으로는 원본 데이터베이스에 쓰지 않습니다.",
     "테이블을 합치려면 테이블 선택기 옆의 Merge tables를 클릭하세요. cell, nucleus, pathogen에 체크하고, 세포마다 한 행이 되도록 출력 테이블은 cell로 두고 결과에 이름을 붙이세요. Validate and preview를 클릭해 각 테이블의 행 수와 결합 키를 확인한 뒤 Create merged table을 클릭하세요.",
