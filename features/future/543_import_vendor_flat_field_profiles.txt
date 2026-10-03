@@ -141,3 +141,16 @@ features/data/543_vendor_profile_validation_2026-10-01.json.
     Harmony adds no further rescaling (corrected mean = raw mean to 0.01%).
     LEFT (code): accept Background-only profiles and apply them additively
     with Mean as above; real Foreground+Background profiles still unseen.
+
+2026-10-03 — BACKGROUND-ONLY HARMONY PROFILES SUPPORTED (CPU)
+    _harmony_profiles now accepts a profile with only a Background
+    polynomial plus its Mean: unit gain and spatial offset Mean*(B-1), so
+    the correction is raw - Mean*(B-1). A background polynomial without a
+    Mean is still skipped. Re-run through IlluminationCorrector on the
+    scPortrait export (16 fields, uint16 rounded both sides):
+      ch1 Hoechst: median |err| 0 counts, mean 0.53, p95 2, max 19
+      ch2 Alexa 488: median |err| 0 counts, mean 0.48, p95 2, max 25
+    Script: /mnt/wd4tb/scratch/543/work/validate_rd3.py.
+    Tests: tests/test_vendor_flat_field_profiles.py (background-only
+    additive, background-only without Mean refused).
+    LEFT: a real Foreground+Background profile; CZI/ND2/Olympus formats.

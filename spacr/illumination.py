@@ -933,6 +933,26 @@ def _harmony_surface(profile: Any) -> Optional[np.ndarray]:
     return surface
 
 
+def _harmony_background_mean(profile: Any) -> Optional[float]:
+    """The ``Mean`` of a Harmony background profile, or None when absent.
+
+    A profile with a background polynomial but no foreground polynomial is
+    Harmony's additive correction: the background surface ``B`` is
+    normalised to about 1 and Harmony's corrected image is
+    ``raw - Mean * (B - 1)``, which keeps the field's mean intensity.
+
+    :param profile: the ``Background`` entry.
+    :returns: the mean in raw counts, or None when it is missing or not a
+        number.
+    """
+    if not isinstance(profile, Mapping):
+        return None
+    try:
+        return float(profile['Mean'])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
 def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
     """Every channel's flat-field profile in a Harmony XML file.
 
@@ -942,7 +962,9 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
 
     :param path: the XML file.
     :returns: Harmony channel number -> ``{'foreground', 'background',
-        'degree', 'name'}``, the surfaces evaluated.
+        'degree', 'name'}``, the surfaces evaluated. A background-only
+        profile with a ``Mean`` becomes a unit foreground and the additive
+        offset ``Mean * (B - 1)``.
     :raises IlluminationError: when the file holds no profile.
     """
     import xml.etree.ElementTree as ElementTree
@@ -966,12 +988,20 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
         if channel is None:
             channel = len(profiles) + 1
         foreground = _harmony_surface(blob.get('Foreground'))
-        if foreground is None:
-            continue
-        coefficients = blob['Foreground']['Profile']['Coefficients']
+        background = _harmony_surface(blob.get('Background'))
+        if foreground is not None:
+            coefficients = blob['Foreground']['Profile']['Coefficients']
+        else:
+            mean = _harmony_background_mean(blob.get('Background'))
+            if background is None or mean is None:
+                continue
+            coefficients = blob['Background']['Profile']['Coefficients']
+            with np.errstate(over='ignore', invalid='ignore'):
+                background = mean * (background - 1.0)
+            foreground = np.ones_like(background)
         candidate = {
             'foreground': foreground,
-            'background': _harmony_surface(blob.get('Background')),
+            'background': background,
             'degree': max(len(coefficients) - 1, 0),
             'name': str(blob.get('ChannelName', '') or ''),
         }
@@ -992,7 +1022,7 @@ def _harmony_profiles(path: str) -> Dict[int, Dict[str, Any]]:
     if not profiles:
         raise IlluminationError(
             f"{path!r} contains no Harmony FlatfieldProfile with a "
-            f"foreground polynomial. Point illumination_vendor_profile at the "
+            f"foreground polynomial or a background polynomial and mean. Point illumination_vendor_profile at the "
             f"export's Index.idx.xml (or Index.xml), or at a saved FFC "
             f"profile file.")
     return profiles
@@ -1082,7 +1112,10 @@ def _vendor_illumination(path: str, channels: Sequence[int], *,
       ``-ch1``, ``-ch2`` file names merge in. The foreground polynomial is the
       gain and the background polynomial the spatial offset, both kept at
       Harmony's own scale, so ``(observed - background) / foreground`` is
-      exactly what Harmony applies. ``dark`` is added to the background.
+      exactly what Harmony applies. A profile with only a background
+      polynomial and its ``Mean`` is applied additively as
+      ``observed - Mean * (background - 1)``, as Harmony does. ``dark`` is
+      added to the background.
     * **A shading reference image** (ZEN shading reference, Nikon or Olympus
       flat-field image). Plane ``c`` is merged channel ``c``; a single plane
       serves every channel. Each plane has ``dark`` subtracted and is

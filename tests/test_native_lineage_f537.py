@@ -116,9 +116,10 @@ def test_filtered_native_parent_stays_orphan_instead_of_adopting_neighbour():
     native = timelapse._native_lineage_columns(table, {6: None, 8: [99]}, 'ultrack')
     assert native.parent_track_id.tolist() == [0, 0, 0]
     assert timelapse._lineage_segments(native).parent_segment_id.eq(0).all()
-    # An old CSV without native-root provenance retains the historical fallback.
+    # Without provenance, a lone new track beside a mother that goes on is
+    # not a division when the tracker reports its own parents.
     legacy = timelapse._lineage_segments(native.drop(columns='parent_track_id_source'))
-    assert legacy.parent_segment_id.gt(0).any()
+    assert legacy.parent_segment_id.eq(0).all()
 
 
 def test_unrepresentable_native_merge_fails_before_replacing_tracks_csv(tmp_path, monkeypatch):

@@ -119,3 +119,21 @@ def test_tuned_rule_separates_blur_by_focus():
     saturation = np.zeros(6)
     low, high = iq._tuned_rule(focus, saturation, focus < 10)
     assert 3 < low <= 50 and high == np.inf
+
+
+def test_builtin_cutoffs_move_to_the_threshold_and_fine_tuning_drops_them(
+        tmp_path, monkeypatch):
+    raw = np.array([[0.89, 0.5, 0.94, 0.76, 0.2],
+                    [0.91, 0.6, 0.96, 0.70, 0.5]], np.float32)
+    plain = iq._qc_network()
+    assert iq._calibrated_qc(plain, raw) is raw
+    monkeypatch.setattr(iq, '_builtin_qc_model_path', lambda: tmp_path / 'm.pt')
+    iq._save_qc_model(iq._qc_network(), tmp_path / 'm.pt', 'test')
+    builtin = iq._base_qc_model(iq.quality_policy({'image_qc_classifier': True}))
+    assert builtin.qc_cutoffs == iq._QC_BUILTIN_CUTOFFS
+    called = iq._calibrated_qc(builtin, raw) >= 0.5
+    np.testing.assert_array_equal(called, [[False, True, False, True, False],
+                                           [True, True, True, False, True]])
+    at_cut = np.array([[iq._QC_BUILTIN_CUTOFFS[c] for c in iq._QC_CLASSES]],
+                      np.float32)
+    np.testing.assert_allclose(iq._calibrated_qc(builtin, at_cut), 0.5, atol=1e-5)

@@ -305,3 +305,34 @@ def test_reading_a_profile_says_so_when_verbose(tmp_path, capsys):
     path = _write_index(tmp_path / "Index.idx.xml")
     ill._vendor_illumination(str(path), [0], verbose=True)
     assert "illumination field read from vendor profile" in capsys.readouterr().out
+
+
+def test_a_background_only_profile_is_applied_additively_with_its_mean(
+        tmp_path):
+    """Real Harmony exports often carry only a Background polynomial and its
+    Mean; Harmony then corrects ``raw - Mean * (B - 1)``."""
+    coefficients = [[1.1], [0.05, -0.04], [-0.3, 0.02, -0.2]]
+    mean = 158.7
+    blob = {"Background": dict(_profile(coefficients), Mean=mean),
+            "Channel": 1, "ChannelName": "HOECHST 33342",
+            "Version": "Acapella:2013"}
+    path = tmp_path / "Index.xml"
+    path.write_text('<Root><Entry><FlatfieldProfile>' + _bare(blob)
+                    + '</FlatfieldProfile></Entry></Root>')
+    model = ill._vendor_illumination(str(path), [0], verbose=False)
+    raw = np.random.default_rng(3).uniform(300, 3000, (H, W, 1))
+    raw = raw.astype(np.float32)
+    expected = raw[..., 0] - mean * (_harmony_polynomial(coefficients) - 1.0)
+    corrected = _correct(model, raw, channels=(0,))
+    np.testing.assert_allclose(corrected[..., 0], expected, rtol=1e-5,
+                               atol=1e-2)
+    assert np.allclose(model.fields[ill.ALL_PLATES].flatfield, 1.0)
+
+
+def test_a_background_only_profile_without_a_mean_is_refused(tmp_path):
+    blob = {"Background": _profile([[1.0]]), "Channel": 1}
+    path = tmp_path / "Index.xml"
+    path.write_text('<Root><FlatfieldProfile>' + json.dumps(blob)
+                    + '</FlatfieldProfile></Root>')
+    with pytest.raises(ill.IlluminationError, match="background polynomial"):
+        ill._vendor_illumination(str(path), [0], verbose=False)

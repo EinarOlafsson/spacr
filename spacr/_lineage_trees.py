@@ -43,7 +43,7 @@ def _lineage_explicit_parents(df, spans):
     return links
 
 
-def _lineage_inferred_parents(df, spans, max_distance, skip):
+def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False):
     """Infer division links from where new tracks start.
 
     A track that starts after the field's first frame is a daughter of the
@@ -59,6 +59,11 @@ def _lineage_inferred_parents(df, spans, max_distance, skip):
     :param spans: first and last frame per track, indexed by track id.
     :param max_distance: largest mother-to-daughter distance in pixels.
     :param skip: track ids whose parent is already known.
+    :param strict: for a tracker that reports its own divisions, where a
+        mother never keeps her id through one. Only two or more tracks that
+        start together beside a mother whose track ends in the frame before
+        them form a division; a lone new track, or one beside a mother that
+        goes on, is a track entering or breaking and stays a root.
     :returns: ``{daughter_track_id: mother_track_id}``.
     """
     first_frame = spans['start'].min()
@@ -80,7 +85,10 @@ def _lineage_inferred_parents(df, spans, max_distance, skip):
     links = {}
     for (mother, frame), daughters in candidates.items():
         continues = spans.loc[mother, 'end'] >= frame
-        if continues or len(daughters) >= 2:
+        if strict:
+            if len(daughters) >= 2 and spans.loc[mother, 'end'] == frame - 1:
+                links.update({d: mother for d in daughters})
+        elif continues or len(daughters) >= 2:
             links.update({d: mother for d in daughters})
     return links
 
@@ -91,7 +99,10 @@ def _lineage_segments(tracks, max_distance=30.0):
     A segment is one cell from its birth, or its first frame, to its last
     frame before it divides, or its last frame. Division links come from a
     ``parent_track_id`` column where the tracker wrote one and are otherwise
-    inferred (see :func:`_lineage_inferred_parents`). When the tracker kept
+    inferred (see :func:`_lineage_inferred_parents`). Tracks a native
+    tracker marked in ``parent_track_id_source`` are never inferred; when a
+    ``parent_track_id`` column is present without that mark, inference is
+    strict: two daughters beside a mother that ends just before them. When the tracker kept
     one daughter under the mother's id, that track is cut at the division
     and its remainder becomes a daughter segment.
 
@@ -124,10 +135,12 @@ def _lineage_segments(tracks, max_distance=30.0):
     if 'parent_track_id_source' in df:
         # A native root (including an orphan after filtering) must not be
         # silently attached to whichever unrelated track is closest.
-        native = df['parent_track_id_source'].fillna('').isin(['ultrack', 'btrack'])
+        native = df['parent_track_id_source'].fillna('').isin(
+            ['ultrack', 'btrack', 'trackastra'])
         known.update(df.loc[native, 'track_id'].astype(int))
     inferred = _lineage_inferred_parents(df, spans, float(max_distance),
-                                         known)
+                                         known,
+                                         strict='parent_track_id' in df.columns)
     parents = {**inferred, **explicit}
 
     segments = {}

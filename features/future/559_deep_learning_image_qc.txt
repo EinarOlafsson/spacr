@@ -150,3 +150,19 @@ precision/recall acceptance remain open; this note does not close item 559.
        training), 3 min B, CPU only.
     LEFT: real labelled debris/bubble/saturation/empty fields; retrain or
     calibrate the built-in model on real good fields before shipping weights.
+
+2026-10-03 — BUILT-IN QC MODEL RECALIBRATED ON BBBC006 (CPU)
+    Retraining with real fields was not done: BBBC006 is CC0, but the
+    built-in model trains on the user's machine, so real fields would have
+    to ship as package data (maintainer decision). Instead the built-in
+    model carries per-class cut-offs (_QC_BUILTIN_CUTOFFS: out_of_focus
+    0.9, debris 0.95, bubble 0.75, saturated/empty 0.5), chosen on half
+    the wells and mapped to 0.5 by a log-odds shift, so the default
+    threshold keeps its meaning; a fine-tuned model drops them.
+    Re-run on the 240 labelled fields (run_rd3.py, runC_fields.csv):
+      any reason   P 0.54 -> 0.94   R 1.00 -> 0.94
+      held-out wells (123 fields)  P 0.93  R 0.95
+      false flags on 120 good fields: 8 (all out_of_focus); was 76 debris,
+      60 bubble, 36 out_of_focus.
+    Test: test_image_qc_classifier.py (cut-offs applied, map to 0.5).
+    LEFT: real debris/bubble/saturation/empty labels; shipped weights.

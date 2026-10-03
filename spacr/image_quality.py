@@ -338,6 +338,8 @@ _QC_BUILTIN_FIELDS = 2400
 _QC_BUILTIN_EPOCHS = 12
 _QC_FINE_TUNE_EPOCHS = 15
 _QC_MODEL_VERSION = 1
+_QC_BUILTIN_CUTOFFS = {'out_of_focus': 0.9, 'saturated': 0.5, 'debris': 0.95,
+                       'bubble': 0.75, 'empty': 0.5}
 _QC_LABEL_ALIASES = {'good': (), 'ok': (), 'pass': (), 'blur': ('out_of_focus',),
                      'blurry': ('out_of_focus',), 'defocus': ('out_of_focus',),
                      'saturation': ('saturated',), 'bubbles': ('bubble',),
@@ -670,12 +672,40 @@ def _base_qc_model(policy):
         return _load_qc_model(policy['image_qc_classifier_model'])
     path = _builtin_qc_model_path()
     if path.is_file():
-        return _load_qc_model(path)
-    print('Image quality: training the built-in classifier on synthetic fields '
-          '(once, on the CPU; about a few minutes)...')
-    model = _train_builtin_qc_model()
-    _save_qc_model(model, path, 'built-in synthetic planted defects')
+        model = _load_qc_model(path)
+    else:
+        print('Image quality: training the built-in classifier on synthetic fields '
+              '(once, on the CPU; about a few minutes)...')
+        model = _train_builtin_qc_model()
+        _save_qc_model(model, path, 'built-in synthetic planted defects')
+    model.qc_cutoffs = dict(_QC_BUILTIN_CUTOFFS)
     return model
+
+
+def _calibrated_qc(model, probabilities):
+    """Move each class's operating point of a calibrated model to 0.5.
+
+    The built-in classifier, trained on synthetic fields only, scores real
+    in-focus fields high for debris, bubble and blur. Its ``qc_cutoffs``
+    were measured on real labelled fields; a probability equal to a class's
+    cut-off is mapped to 0.5 by a shift in log-odds, so
+    ``image_qc_classifier_threshold`` keeps its meaning and its default
+    lands on the measured operating point. A model without cut-offs, such
+    as one fine-tuned on the user's labels, is returned unchanged.
+
+    :param model: the classifier, optionally carrying ``qc_cutoffs``.
+    :param probabilities: ``(fields, classes)`` raw probabilities.
+    :returns: the calibrated probabilities.
+    """
+    import numpy as np
+
+    cutoffs = getattr(model, 'qc_cutoffs', None)
+    if not cutoffs:
+        return probabilities
+    p = np.clip(np.asarray(probabilities, np.float64), 1e-7, 1 - 1e-7)
+    cut = np.array([cutoffs.get(name, 0.5) for name in _QC_CLASSES], np.float64)
+    shift = np.log(cut / (1 - cut))
+    return (1 / (1 + np.exp(-(np.log(p / (1 - p)) - shift)))).astype(np.float32)
 
 
 def _field_ceiling(image, policy, channel):
@@ -705,7 +735,7 @@ def _classify_records(model, image, records, policy, channel_ids=None):
         channel = record['channel']
         local, whole = _qc_inputs(image[..., channel_ids.index(channel)],
                                   _field_ceiling(image, policy, channel))
-        probabilities = _predict_qc(model, local[None], whole[None])[0]
+        probabilities = _calibrated_qc(model, _predict_qc(model, local[None], whole[None]))[0]
         for name, value in zip(_QC_CLASSES, probabilities):
             record[f'p_{name}'] = round(float(value), 4)
             if value >= policy['image_qc_classifier_threshold']:
@@ -896,5 +926,6 @@ def _prepare_qc_classifier(root, policy, paths, channel_ids=None):
     model = _train_qc_network(model, np.stack([sample['tiles'] for sample in samples]),
                               np.stack([sample['thumbnail'] for sample in samples]), truth, _QC_FINE_TUNE_EPOCHS,
                               rate=5e-4, balance=3.0)
+    model.qc_cutoffs = None
     _save_qc_model(model, qc / 'image_qc_model.pt', policy['image_qc_classifier_labels'])
     return model

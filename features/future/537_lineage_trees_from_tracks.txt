@@ -224,3 +224,20 @@ close the remaining real parasite endodyogeny acceptance for F537.
       contingency-table linker (same matches on a checked frame pair).
     Not checked here: post-Measure colouring, hours-per-frame, parasite
     endodyogeny on real data.
+
+2026-10-03 — FALSE DIVISIONS WITH TRACKER PARENTS FIXED (CPU)
+    1) Trackastra now writes parent_track_id via _native_lineage_columns
+       with parent_track_id_source='trackastra'; its roots are never
+       inferred (CTC HeLa: 0 spurious, links P/R 1.00/1.00 both seqs).
+    2) A table with parent_track_id but no provenance now infers only
+       strictly: >= 2 daughters starting together beside a mother whose
+       track ends in the frame before (gap rule; no overlap with a mother
+       that goes on). Re-scored (run_rd3.py, results_rd3.csv):
+         seq  spurious inferred  links P (before -> after)   R
+         01   14 -> 1            0.89 -> 0.99                1.00
+         02   48 -> 6            0.82 -> 0.97                1.00
+       Generation time exact in 100% of matched cycles (MAE 0).
+       Plain inference (no parent column) unchanged: P 0.84/0.78.
+    Tests: test_lineage_trees_from_tracks.py (strict inference),
+    test_native_lineage_f537.py (legacy lone-daughter no longer adopted).
+    LEFT: parasite endodyogeny on real movies.

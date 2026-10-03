@@ -148,3 +148,23 @@ def test_missing_tracks_are_reported_not_raised(tmp_path, capsys):
     assert _run_lineage_step(str(tmp_path / "merged"), "x", "cell",
                              "trackastra", {}) is None
     assert "no tracks table" in capsys.readouterr().out
+
+
+def test_a_parent_column_without_provenance_infers_only_two_daughter_divisions():
+    """Trackastra-style parents: roots stay roots unless two tracks start
+    together beside a mother that ends just before them."""
+    df = pd.DataFrame(_track(1, range(0, 5), 50, 50, parent_track_id=0)
+                      + _track(2, range(5, 10), 45, 50, parent_track_id=0)
+                      + _track(3, range(5, 10), 55, 50, parent_track_id=0)
+                      + _track(4, range(0, 10), 200, 200, parent_track_id=0)
+                      + _track(5, range(4, 10), 205, 200, parent_track_id=0))
+    seg = _lineage_segments(df, max_distance=30).set_index("track_id")
+    mother = seg.loc[1, "segment_id"]
+    assert seg.loc[2, "parent_segment_id"] == mother
+    assert seg.loc[3, "parent_segment_id"] == mother
+    assert seg.loc[1, "division_source"] == "inferred"
+    assert seg.loc[5, "parent_segment_id"] == 0
+    assert seg.loc[4, "n_daughters"] == 0
+    loose = _lineage_segments(df.drop(columns="parent_track_id"),
+                              max_distance=30).set_index("track_id")
+    assert loose.loc[5, "parent_segment_id"] > 0

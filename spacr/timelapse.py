@@ -641,7 +641,7 @@ def _trackastra_track_cells(src, name, batch_filenames, object_type, masks, imag
     tracks_df = _trackastra_graph_to_tracks_df(track_graph, masks_tracked)
     if isinstance(ctc_df, pd.DataFrame) and {'label', 'parent'} <= set(ctc_df.columns):
         mothers = dict(zip(ctc_df['label'].astype(int), ctc_df['parent'].astype(int)))
-        tracks_df['parent_track_id'] = tracks_df['track_id'].map(mothers).fillna(0).astype(int)
+        tracks_df = _native_lineage_columns(tracks_df, mothers, 'trackastra')
 
     if timelapse_remove_transient:
         n_frames = masks_tracked.shape[0]
