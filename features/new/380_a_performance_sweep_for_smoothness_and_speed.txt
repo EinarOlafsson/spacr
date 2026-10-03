@@ -2277,3 +2277,44 @@ offscreen is still not a real compositor. The worst stall is always an
 Item stays OPEN: macOS misses the 500 ms ceiling outright on every run;
 Windows misses it on two thirds. Next: profile the worst macOS module opens
 from the run artifacts.
+
+2026-10-03 — AREA 3 ON HOSTED macOS/WINDOWS: WORST STALLS FOUND AND CUT
+Per-module breakdown from the stall-<os> artifacts of the five runs above
+(build-screen spans, background-import spans, and each >400 ms watchdog
+freeze mapped to the module being opened):
+  macOS   the worst freeze in every run was Dose-Response's first open
+          (930-2,170 ms). Phases: Matplotlib font-list scan (the harness
+          gives each cold process a fresh HOME, i.e. a first launch), then
+          scipy.stats/optimize imported by the fitter module. After that
+          fix, Plate View (scipy.stats via plate_qc, 600-1,280 ms) and
+          Make Masks (scipy.ndimage + scikit-image, ~330 modules,
+          700-1,800 ms) surfaced.
+  Windows Mask's first open (the first screen: 540-2,650 ms build) and
+          Dose-Response / Make Masks as above.
+  Per-screen build time vs local Linux (same tree, 138 pairs): macOS
+  median ratio 1.02, Windows 1.65. So macOS was not slower CPU; its
+  outliers were import and font work on the GUI thread.
+Changes (nightly d7f48b8ff, 54f156ee7, bdfc4f438, 7de275f56, e8e9155e6):
+  - launch builds Matplotlib's font list in a child interpreter when none
+    is on disk (not in frozen builds); matplotlib.figure, train_compare,
+    scipy.ndimage and skimage.measure/morphology/filters join pandas on
+    the after-first-screen background import thread;
+  - widgets/dose_response imports SciPy on first fit; plate_qc imports
+    scipy.stats inside its two tests;
+  - Map Barcodes' alpha spatial-transcriptomics panel is built on first
+    toggle, not on every open;
+  - Feature Dictionary's object_type_summary uses set lookups (422 -> 118
+    ms locally).
+Result, workflow run 37151544333 (e8e9155e6), three cold processes each:
+                worst per process       before (5 runs, 15 processes)
+  macOS         598 / 730 / 578 ms      worst 2,154, median 1,310
+  Windows       1,067 / 580 / 499 ms    worst 1,308, median 603
+Dose-Response's build went 1,321 -> 23-42 ms on macOS. Remaining
+over-500 freezes: macOS = the first organism page (Toxoplasma) after
+its build (build 150-250 ms; the rest is first paint, not reproducible on
+Linux, where the same post-build phase is <30 ms, so likely macOS text/
+font fallback on the runner); Windows = Mask's first open in one process
+in three (Windows builds run 1.65x Linux across all screens) and Make
+Masks at ~500-580. Item stays OPEN for the 500 ms ceiling on these
+runners; next levers: the organism page's first paint on macOS and the
+first settings screen's build on Windows.
