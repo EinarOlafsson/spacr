@@ -191,6 +191,7 @@ _KEY_FIELD_FADE = "prefs/field_fade"
 _KEY_SHOW_ALPHA = "prefs/show_alpha"
 _KEY_SHOW_BETA = "prefs/show_beta"
 _KEY_SHOW_ALPHA_FEATURES = "prefs/show_alpha_features"
+_KEY_SHOW_ALPHA_SPECIES = "prefs/show_alpha_species"
 _KEY_AMBIENT_ENABLED = "prefs/ambient_enabled"
 _KEY_AMBIENT_THEME   = "prefs/ambient_theme"
 _KEY_AMBIENT_PALETTE = "prefs/ambient_palette"
@@ -4951,24 +4952,67 @@ def _set_show_alpha_features(on: bool) -> None:
     settings.sync()
 
 
+DEFAULT_SHOW_ALPHA_SPECIES = False
+
+
+def _get_show_alpha_species() -> bool:
+    """Whether the alpha organism pages are shown (default off).
+
+    Independent of :func:`_get_show_alpha_features`: it shows or hides only
+    what ``spacr.settings.ALPHA_SPECIES`` lists.
+    """
+    return _as_bool(
+        _settings().value(_KEY_SHOW_ALPHA_SPECIES,
+                          DEFAULT_SHOW_ALPHA_SPECIES),
+        DEFAULT_SHOW_ALPHA_SPECIES)
+
+
+def _set_show_alpha_species(on: bool) -> None:
+    """Show or hide every organism page registered as an alpha species.
+
+    :param on: true to show the alpha organism pages, false to hide them.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_SHOW_ALPHA_SPECIES, bool(on))
+    settings.sync()
+
+
+def _alpha_switch_for(kind, name) -> bool:
+    """The preference that gates one registered name.
+
+    :param kind: one of ``spacr.settings.ALPHA_KINDS``.
+    :param name: the registered name.
+    :returns: Show alpha species for an ``ALPHA_SPECIES`` name, otherwise
+        Show alpha features.
+    """
+    from ..settings import _alpha_species_names
+
+    if str(name) in _alpha_species_names(kind):
+        return _get_show_alpha_species()
+    return _get_show_alpha_features()
+
+
 def _is_alpha_visible(kind=None, name=None, choice=None) -> bool:
     """THE alpha gate: whether something should be on screen right now.
 
     With no arguments, whether alpha features are shown at all. With a kind
     and a name, True for anything not registered in
     ``spacr.settings.ALPHA_FEATURES`` and, for a registered thing,
-    whether the Show alpha features preference is on.
+    whether the Show alpha features preference is on; for a name in
+    ``spacr.settings.ALPHA_SPECIES``, whether Show alpha species is on.
 
     :param kind: one of ``spacr.settings.ALPHA_KINDS``, or None.
     :param name: the settings key, object name, module key or model key.
     :param choice: with ``kind='choices'``, the dropdown entry asked about.
     """
+    if kind is None:
+        return _get_show_alpha_features()
+    from ..settings import _alpha_species_names, _is_alpha
+
+    if kind != 'choices' and str(name) in _alpha_species_names(kind):
+        return _get_show_alpha_species()
     if _get_show_alpha_features():
         return True
-    if kind is None:
-        return False
-    from ..settings import _is_alpha
-
     return not _is_alpha(kind, name, choice)
 
 
@@ -4987,9 +5031,9 @@ def _apply_alpha_widgets(root) -> int:
 
     from ..settings import _alpha_names
 
-    shown = _get_show_alpha_features()
     changed = 0
     for name in sorted(_alpha_names("widgets")):
+        shown = _alpha_switch_for("widgets", name)
         found = list(root.findChildren(QObject, name))
         if root.objectName() == name:
             found.append(root)
@@ -7843,11 +7887,23 @@ class PreferencesDialog:
             "saved values still reach every run."
         ))
         alpha_features_check.setChecked(_get_show_alpha_features())
+        alpha_species_check = Toggle(tr(
+            "Show alpha species (Plasmodium, Candida, Trypanosoma, "
+            "Leishmania, Giardia, Virus, Mammalian)"))
+        alpha_species_check.setObjectName("ShowAlphaSpecies")
+        alpha_species_check.setToolTip(tr(
+            "Show the organism pages that are not yet released: Plasmodium, "
+            "Candida, Trypanosoma, Leishmania, Giardia, Virus and Mammalian "
+            "cells. Separate from Show alpha features. Toxoplasma is always "
+            "shown. Default off."
+        ))
+        alpha_species_check.setChecked(_get_show_alpha_species())
         maturity_col = QVBoxLayout()
         maturity_col.setContentsMargins(0, 0, 0, 0)
         maturity_col.addWidget(alpha_check)
         maturity_col.addWidget(beta_check)
         maturity_col.addWidget(alpha_features_check)
+        maturity_col.addWidget(alpha_species_check)
         modules.addRow(tr("Module visibility"), _hbox_wrap(maturity_col))
 
         figure_save_mode_combo = QComboBox()
@@ -8695,6 +8751,7 @@ class PreferencesDialog:
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
                 alpha_features_check.setChecked(_get_show_alpha_features())
+                alpha_species_check.setChecked(_get_show_alpha_species())
                 if sound_page is not None:
                     sound_page.reset()
                 if notifications_page is not None:
@@ -8771,6 +8828,7 @@ class PreferencesDialog:
             set_show_alpha(alpha_check.isChecked())
             set_show_beta(beta_check.isChecked())
             _set_show_alpha_features(alpha_features_check.isChecked())
+            _set_show_alpha_species(alpha_species_check.isChecked())
             set_figure_save_mode(figure_save_mode_combo.currentData())
             set_figure_format(fig_format_combo.currentData())
             if integrity_check is not None:

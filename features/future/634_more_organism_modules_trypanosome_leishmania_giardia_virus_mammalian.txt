@@ -86,3 +86,40 @@ LEFT
     (nine-locale rows and the external caption pin).
   * Coming soon tiles (17) need their own pipelines; organism-specific
     Home icons would replace the borrowed ones.
+
+FOLLOW-UP (2026-10-03, maintainer): own switch and recognisable drawings
+  Request: "the new speceas modulas should be under their own alpha speceas
+  preference and the icons need to actually look like the organisms ...
+  fix this !"; later: Plasmodium and Candida also go under it, Toxoplasma
+  stays visible; Trypanosoma's icon and model stay as they are.
+  * ALPHA: Preferences -> "Show alpha species (Plasmodium, Candida,
+    Trypanosoma, Leishmania, Giardia, Virus, Mammalian)" (object name
+    ShowAlphaSpecies, key prefs/show_alpha_species, default off), next to
+    Show alpha features and independent of it. Registry: ALPHA_SPECIES[634]
+    in spacr/settings.py (apps plasmodium, candida, trypanosoma, leishmania,
+    giardia, virus, mammalian; widgets <Name>OrganismPage). _alpha_names
+    counts it with ALPHA_FEATURES; _is_alpha_visible and
+    _apply_alpha_widgets read the species switch for these names.
+  * Drawn for spaCR (BSD 3-Clause, recorded in organism_sources.json):
+    organism_leishmania.svg (promastigote with free anterior flagellum,
+    flagellar pocket, kinetoplast, central nucleus, plus a round
+    amastigote; shown upright), organism_giardia.svg (pear-shaped
+    trophozoite, two nuclei, ventral disc, median bodies, eight basal
+    bodies, four flagellar pairs), organism_virus.svg (enveloped
+    icosahedral capsid with tegument and spikes beside an infected host
+    cell), organism_mammalian.svg (adherent polarised cell on ECM with
+    nucleus, nucleoli, speckles, ER, Golgi, centrosome, primary cilium,
+    mitochondria, endosomes, lysosomes, stress fibres and microtubules).
+    Group ids and names are the UniProt locations; descriptions unchanged.
+    The three SwissBioPics files they replace were removed.
+  * Home icons: icons/organism_leishmania.svg, organism_giardia.svg,
+    organism_virus.svg, organism_mammalian.svg.
+  * README/docs module grids regenerated (Plasmodium and Candida tiles
+    leave the default Home).
+  LEFT
+  * Plasmodium and Candida have published lessons; until the tutorial lane
+    retires them, settings._SPECIES_WITH_PUBLISHED_LESSONS keeps them in
+    tutorial navigation, the module workflow map and the tutorial guards.
+    tools/tutorials/capture_policy.py does not yet force Show alpha
+    species off.
+  * Catalog lane: the new captions wait in _AWAITING_CATALOG_REBUILD.

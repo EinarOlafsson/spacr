@@ -858,8 +858,9 @@ def test_each_tab_holds_exactly_its_own_members(home):
 #: They were briefly SECTIONS. They are stages now, and the difference is
 #: that an app in one of these lists is still filed under what it does —
 #: it just lights a different colour on hover.
+# 634: Plasmodium and Candida are alpha species (Show alpha species).
 ALPHA_MODULES = {
-    "toxoplasma", "plasmodium", "candida",
+    "toxoplasma",
     "host_pathogen",
     # `model_zoo` and `model_compare` stood at the front of this line until
     # they became buttons on the Make Masks masthead. A stage is a property

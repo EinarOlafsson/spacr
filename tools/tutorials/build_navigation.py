@@ -68,7 +68,16 @@ def build(catalog: dict) -> dict:
             if key in by_key:
                 raise ValueError(f'Duplicate tutorial route {key}')
             by_key[key] = lesson
+    from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS
     tiles = app.tiled_apps()
+    # Plasmodium and Candida moved behind Preferences > Show alpha species
+    # after their lessons were published; they keep their Home place here
+    # until those lessons are retired.
+    shown = {row[0] for row in tiles}
+    tiles = sorted(tiles + [row for row in app.APPS
+                            if row[0] in _SPECIES_WITH_PUBLISHED_LESSONS
+                            and row[0] not in shown],
+                   key=app.tile_sort_key)
     tile_keys = {row[0] for row in tiles}
     names = {row[0]: row[1] for row in app.APPS}
     names.update({k: v[0] for k, v in folded_modules().items()})
@@ -83,7 +92,9 @@ def build(catalog: dict) -> dict:
              'lessons': [key for key in SETUP_ORDER if key in identities]}
     orientation = [key for key in ORIENTATION_ORDER if key in identities]
     groups = []
-    for section, rows in app.home_bands(tiles):
+    bands = [(section, [row for row in tiles if row[3] == section])
+             for section in app.SECTIONS]
+    for section, rows in [(section, rows) for section, rows in bands if rows]:
         groups.append({'id': section.lower(), 'title': section,
                        'kind': 'main', 'module_keys': [r[0] for r in rows],
                        'lessons': [by_key[r[0]]['id'] for r in rows
@@ -133,7 +144,8 @@ def build(catalog: dict) -> dict:
     # Alpha modules get no tutorial: they are hidden while Preferences >
     # Show alpha features is off, which is how every lesson is recorded.
     from spacr.settings import _alpha_names
-    alpha_modules = sorted(expected & set(_alpha_names('apps')))
+    alpha_modules = sorted(expected & (set(_alpha_names('apps'))
+                                       - _SPECIES_WITH_PUBLISHED_LESSONS))
     expected -= set(alpha_modules)
     uncovered = [{'app_key': k, 'title': names.get(k, k), 'host_app_key': parents.get(k),
                   'status': 'deferred_unvalidated_workflow' if k == 'ops' else 'needs_tutorial'}

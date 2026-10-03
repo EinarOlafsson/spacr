@@ -18,10 +18,10 @@ def test_assays_menu_groups_children_under_the_three_organisms(window):
             (action.menu().property('moduleAppKey') if action.menu() else None)
             for action in menu.actions()]
     # 634 (eb2201537) adds five alpha organism pages after the first three;
-    # they are hidden while Preferences keeps alpha features off.
+    # all but Toxoplasma wait for Preferences > Show alpha species.
     assert keys[:len(ORGANISMS)] == list(ORGANISMS)
     visible = [action.isVisible() for action in menu.actions()[:len(ORGANISMS)]]
-    assert visible == [True] * 3 + [False] * (len(ORGANISMS) - 3)
+    assert visible == [True] + [False] * (len(ORGANISMS) - 1)
     assert 'analyze_plaques' not in keys and 'host_pathogen' not in keys
     for key, guide in ORGANISMS.items():
         actions = [a for a in window._organism_menus[key].actions() if not a.isSeparator()]

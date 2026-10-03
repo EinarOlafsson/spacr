@@ -45,6 +45,8 @@ WIDGET_LABELS = {
     "MaskVirtualStainApply": ("Apply virtual stain",),
     "QCClassifierCard": ("Image QC classifier",),
     # Alpha organism pages: their Home tile and page titles.
+    "PlasmodiumOrganismPage": ("Plasmodium spp.",),
+    "CandidaOrganismPage": ("Candida spp.",),
     "TrypanosomaOrganismPage": ("Trypanosoma spp.",),
     "LeishmaniaOrganismPage": ("Leishmania spp.",),
     "GiardiaOrganismPage": ("Giardia duodenalis",),
@@ -155,13 +157,22 @@ WIDGET_LABELS = {
 }
 
 #: The setting itself. Allowed only in a Preferences lesson.
-TOGGLE_TERMS = ("Show alpha features", "alpha features", "show_alpha_features")
+TOGGLE_TERMS = ("Show alpha features", "alpha features", "show_alpha_features",
+                "Show alpha species", "alpha species", "show_alpha_species")
+
+#: Organism pages moved under Show alpha species on 2026-10-03 whose lessons
+#: were published before the move; their retirement is routed to the
+#: tutorial lane, so they are not counted until it lands.
+PUBLISHED_SPECIES_LESSONS = spacr_settings._SPECIES_WITH_PUBLISHED_LESSONS
+_PUBLISHED_SPECIES_PAGES = frozenset({"PlasmodiumOrganismPage", "CandidaOrganismPage"})
 
 
 def _registry_terms():
     """(term, what) pairs for everything registered as alpha."""
     terms = []
-    for number, entry in spacr_settings.ALPHA_FEATURES.items():
+    registries = (*spacr_settings.ALPHA_FEATURES.items(),
+                  *spacr_settings.ALPHA_SPECIES.items())
+    for number, entry in registries:
         for key in entry.get("settings", ()) or ():
             terms.append((key, f"{number} setting {key}"))
             if "_" in key:
@@ -170,10 +181,14 @@ def _registry_terms():
             for value in values:
                 terms.append((value, f"{number} {key} choice {value}"))
         for name in entry.get("widgets", ()) or ():
+            if name in _PUBLISHED_SPECIES_PAGES:
+                continue
             terms.append((name, f"{number} widget {name}"))
             for label in WIDGET_LABELS.get(name, ()):
                 terms.append((label, f"{number} widget {name} ({label!r})"))
         for key in entry.get("apps", ()) or ():
+            if key in PUBLISHED_SPECIES_LESSONS:
+                continue
             terms.append((key, f"{number} module {key}"))
         for key in entry.get("models", ()) or ():
             terms.append((key, f"{number} model {key}"))
@@ -220,7 +235,7 @@ def alpha_references(lesson, *, alpha_apps=()):
 
 
 def _alpha_apps():
-    return frozenset(spacr_settings._alpha_names("apps"))
+    return frozenset(spacr_settings._alpha_names("apps")) - PUBLISHED_SPECIES_LESSONS
 
 
 def test_the_registry_is_not_empty_so_this_guard_is_not_vacuous():

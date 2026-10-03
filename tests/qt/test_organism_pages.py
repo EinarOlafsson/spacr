@@ -55,9 +55,9 @@ COMING_SOON = {
 
 
 def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
-    # 634's five alpha organism pages draw no tile with alpha features off.
+    # 634: every organism page but Toxoplasma waits for Show alpha species.
     assert [row[0] for row in app.section_members(app.SECTION_ASSAYS)] == [
-        "toxoplasma", "plasmodium", "candida"]
+        "toxoplasma"]
     assert set(ASSAYS) <= {row[0] for row in app.APPS}
     assert not set(ASSAYS) & {row[0] for row in app.tiled_apps()}
     assert SHARED_ICON_ASSETS["toxoplasma"] == "replication.png"
@@ -75,8 +75,13 @@ def test_each_organism_has_home_tiles_and_a_credited_cell_diagram(
     assert screen._diagram.artwork.renderer.isValid()
     credits = screen.findChildren(QLabel, "OrganismImageCredit")
     assert len(credits) == 1
-    assert "Philippe Le Mercier" in credits[0].text()
-    assert "swissbiopics.org" in credits[0].text()
+    # 634: Leishmania, Giardia, virus and mammalian are drawn for spaCR.
+    if key in {"leishmania", "giardia", "virus", "mammalian"}:
+        assert "spaCR contributors" in credits[0].text()
+        assert "uniprot.org/locations" in credits[0].text()
+    else:
+        assert "Philippe Le Mercier" in credits[0].text()
+        assert "swissbiopics.org" in credits[0].text()
     assert len(screen.findChildren(QLabel, "OrganismSectionText")) == 4
     for tile in screen._tiles:
         assert tile.sizeHint().width() == scaled_px(TILE_W)
@@ -163,11 +168,15 @@ def test_command_palette_keeps_direct_assay_navigation(qtbot):
 
 def test_bundled_artwork_matches_its_attributed_source_records():
     records = json.loads((_IMAGES / "organism_sources.json").read_text())
-    # 634: four more SwissBioPics drawings for the alpha organism pages.
-    assert len(records) == 6
+    # 634: the Trypanosoma SwissBioPics drawing and four drawn for spaCR.
+    assert len(records) == 7
     for record in records:
-        assert record["licence"] == "CC BY 4.0"
-        assert "Philippe Le Mercier" in record["credit"]
+        if "swissbiopics" in record["source_page"]:
+            assert record["licence"] == "CC BY 4.0"
+            assert "Philippe Le Mercier" in record["credit"]
+        else:
+            assert record["licence"] == "BSD 3-Clause"
+            assert record["credit"] == "spaCR contributors"
         assert record["modifications"]
         assert hashlib.sha256((_IMAGES / record["file"]).read_bytes()).hexdigest() == record["sha256"]
 
@@ -188,7 +197,8 @@ def test_new_vector_art_is_distinct_and_follows_both_themes(qapp):
     from spacr.qt import iconset
 
     sources = sorted((_IMAGES.parent / "icons").glob("organism_*.svg"))
-    assert len(sources) == 22
+    # 634: Leishmania, Giardia, virus and mammalian icons.
+    assert len(sources) == 26
     rendered = set()
     for path in sources:
         dark = iconset.themed_array(str(path), "dark")
@@ -197,7 +207,7 @@ def test_new_vector_art_is_distinct_and_follows_both_themes(qapp):
         assert dark[:, :, 3].max() == 255
         assert not (dark == light).all(), path.name
         rendered.add(dark.tobytes())
-    assert len(rendered) == 22
+    assert len(rendered) == 26
 
 
 @pytest.mark.parametrize("key", ORGANISMS)

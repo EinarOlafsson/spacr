@@ -87,10 +87,13 @@ spacr.qt.register_self_registering_modules()
 from spacr.qt.app import APPS, tiled_apps, folded_children
 from spacr.qt.widgets.fold_strip import folded_modules
 from spacr.settings import _alpha_names
-alpha = _alpha_names("apps")
+# Plasmodium and Candida moved under Show alpha species on 2026-10-03 with
+# lessons already published; their retirement is routed to the tutorial lane.
+from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS as published
+alpha = _alpha_names("apps") - published
 print(json.dumps({
     "registry": sorted({row[0] for row in APPS} - alpha),
-    "home_tiles": sorted({row[0] for row in tiled_apps()} - alpha),
+    "home_tiles": sorted(({row[0] for row in tiled_apps()} | published) - alpha),
     "folded": {
         key: entry[3].rsplit(".", 1)[-1]
         for key, entry in folded_modules().items()

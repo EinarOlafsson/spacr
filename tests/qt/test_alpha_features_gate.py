@@ -286,6 +286,7 @@ def test_every_registered_widget_follows_the_switch(qtbot, prefs):
     for name, (label, action) in things.items():
         assert label.isHidden() and not action.isVisible(), name
     prefs._set_show_alpha_features(True)
+    prefs._set_show_alpha_species(True)
     prefs._apply_alpha_widgets(root)
     for name, (label, action) in things.items():
         assert not label.isHidden() and action.isVisible(), name
@@ -381,7 +382,9 @@ def test_a_built_future_item_registers_with_the_gate():
                                              errors="ignore"))
         if not BUILT.search(status):
             continue
-        if item in ALPHA_FEATURES or item in RELEASED_BEFORE_THE_ALPHA_RULE:
+        # 634: the organism pages register in ALPHA_SPECIES, the same shape.
+        if (item in ALPHA_FEATURES or item in spacr_settings.ALPHA_SPECIES
+                or item in RELEASED_BEFORE_THE_ALPHA_RULE):
             continue
         offenders.append(f"{path.name}: {status}")
     assert not offenders, (

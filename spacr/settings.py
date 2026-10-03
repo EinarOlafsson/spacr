@@ -7611,14 +7611,28 @@ ALPHA_FEATURES = {
                     'PipelineGraphTestDataButton',
                     'ProjectBrowserTestDataButton'),
     },
+}
+
+
+ALPHA_SPECIES = {
     634: {
-        'apps': ('trypanosoma', 'leishmania', 'giardia', 'virus',
-                 'mammalian'),
-        'widgets': ('TrypanosomaOrganismPage', 'LeishmaniaOrganismPage',
+        'apps': ('plasmodium', 'candida', 'trypanosoma', 'leishmania',
+                 'giardia', 'virus', 'mammalian'),
+        'widgets': ('PlasmodiumOrganismPage', 'CandidaOrganismPage',
+                    'TrypanosomaOrganismPage', 'LeishmaniaOrganismPage',
                     'GiardiaOrganismPage', 'VirusOrganismPage',
                     'MammalianOrganismPage'),
     },
 }
+
+
+_SPECIES_WITH_PUBLISHED_LESSONS = frozenset({'plasmodium', 'candida'})
+"""Alpha species whose pages had published lessons before the switch existed.
+
+Tutorial navigation and the module workflow map keep these pages in place
+until their lessons are retired; the app itself hides them like the rest of
+``ALPHA_SPECIES``.
+"""
 
 
 def _alpha_names(kind, app_key=None):
@@ -7637,7 +7651,8 @@ def _alpha_names(kind, app_key=None):
     ``module_settings`` (``{module key: (settings keys,)}``, settings that are
     alpha on those modules' forms only, where the same key is an ordinary
     setting of another module). A feature is marked in this one place and
-    promoted out of alpha by deleting its entry.
+    promoted out of alpha by deleting its entry. Organism pages are listed
+    in ``ALPHA_SPECIES`` instead and are included here too.
 
     Hiding is a display decision only: a saved or typed alpha setting still
     reaches the run, and headless and command-line runs never consult the
@@ -7658,7 +7673,7 @@ def _alpha_names(kind, app_key=None):
         raise ValueError(
             f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
     names = set()
-    for entry in ALPHA_FEATURES.values():
+    for entry in (*ALPHA_FEATURES.values(), *ALPHA_SPECIES.values()):
         if kind == 'module_settings':
             for keys in (entry.get(kind) or {}).values():
                 names.update(keys or ())
@@ -7670,6 +7685,28 @@ def _alpha_names(kind, app_key=None):
     return frozenset(str(name) for name in names)
 
 
+def _alpha_species_names(kind):
+    """The names of ``kind`` registered in ``ALPHA_SPECIES`` only.
+
+    ``ALPHA_SPECIES`` lists the alpha organism pages. It has the shape of
+    ``ALPHA_FEATURES`` and is counted with it by :func:`_alpha_names`, but
+    Preferences -> Show alpha species shows or hides it instead of Show
+    alpha features, so the two switches are independent. Toxoplasma is not
+    listed and is always shown.
+
+    :param kind: one of ``ALPHA_KINDS``.
+    :returns: a frozenset of names that Show alpha species gates.
+    :raises ValueError: for a kind that is not in ``ALPHA_KINDS``.
+    """
+    if kind not in ALPHA_KINDS:
+        raise ValueError(
+            f'unknown alpha kind {kind!r}; expected one of {ALPHA_KINDS}')
+    names = set()
+    for entry in ALPHA_SPECIES.values():
+        names.update(entry.get(kind, ()) or ())
+    return frozenset(str(name) for name in names)
+
+
 def _alpha_choices(key):
     """The dropdown entries of settings ``key`` that are alpha.
 
@@ -7677,7 +7714,7 @@ def _alpha_choices(key):
     :returns: a frozenset of the entries' values, empty when none are alpha.
     """
     values = set()
-    for entry in ALPHA_FEATURES.values():
+    for entry in (*ALPHA_FEATURES.values(), *ALPHA_SPECIES.values()):
         values.update((entry.get('choices') or {}).get(str(key), ()) or ())
     return frozenset(str(value) for value in values)
 

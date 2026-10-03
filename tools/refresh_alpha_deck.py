@@ -107,13 +107,16 @@ PLANNED = frozenset({634})
 
 def _registry_ids(source):
     # Read the registry without importing scientific libraries or evaluating it.
+    # ALPHA_SPECIES (the organism pages behind Show alpha species) counts too.
+    found = {}
     for node in ast.parse(source.read_text(encoding="utf-8")).body:
-        if isinstance(node, ast.Assign) and any(
-            isinstance(target, ast.Name) and target.id == "ALPHA_FEATURES"
-            for target in node.targets
-        ):
-            return {ast.literal_eval(key) for key in node.value.keys}
-    raise ValueError("ALPHA_FEATURES registry not found")
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id in ("ALPHA_FEATURES", "ALPHA_SPECIES"):
+                    found[target.id] = {ast.literal_eval(key) for key in node.value.keys}
+    if "ALPHA_FEATURES" not in found:
+        raise ValueError("ALPHA_FEATURES registry not found")
+    return found["ALPHA_FEATURES"] | found.get("ALPHA_SPECIES", set())
 
 
 def _check_registry(source):

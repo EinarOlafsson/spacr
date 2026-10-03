@@ -403,14 +403,15 @@ ORGANISMS = {
             "motility, stage conversion and responses to compounds."
         ),
         "source": "https://www.cdc.gov/dpdx/leishmaniasis/index.html",
-        "diagram": "organism_trypanosomatid.svg",
+        "diagram": "organism_leishmania.svg",
         "diagram_note": (
-            "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma "
-            "page. Hover for a UniProt location description and check "
-            "several compartments to keep them highlighted. The labels are "
-            "the UniProt subcellular locations annotated for Leishmania "
-            "proteins that this artwork draws. Promastigotes and the "
-            "rounded amastigote differ in shape and flagellum length."
+            "A schematic Leishmania promastigote, with its free anterior "
+            "flagellum leaving the flagellar pocket, the kinetoplast just "
+            "behind it and a central nucleus, above the rounded amastigote. "
+            "Hover for a UniProt location description and check several "
+            "compartments to keep them highlighted. The labels are the "
+            "UniProt subcellular locations annotated for Leishmania "
+            "proteins."
         ),
         "sections": (
             ("Macrophage infection and parasite load", (
@@ -449,9 +450,8 @@ ORGANISMS = {
                 "motility and Drug response imaging open existing spaCR "
                 "modules; the other four tiles are planned and marked Coming "
                 "soon. TriTrypDB provides genome context and UniProt supplies "
-                "protein annotations. The diagram is shared with Trypanosoma "
-                "and shows UniProt vocabulary, not the measured location of "
-                "a Leishmania protein."
+                "protein annotations. The diagram shows UniProt vocabulary, "
+                "not the measured location of a Leishmania protein."
             ), ()),
         ),
         "links": (
@@ -500,14 +500,15 @@ ORGANISMS = {
             "Imaging can measure attachment, motility and encystation."
         ),
         "source": "https://www.cdc.gov/dpdx/giardiasis/index.html",
-        "diagram": "organism_eukaryote.svg",
+        "diagram": "organism_giardia.svg",
         "diagram_note": (
-            "SwissBioPics has no Giardia drawing, so this is its generic "
-            "eukaryotic cell. Hover for a UniProt location description and "
-            "check several compartments to keep them highlighted. The labels "
-            "are UniProt locations annotated for Giardia proteins and drawn "
-            "here. Giardia has two nuclei, mitosomes instead of mitochondria "
-            "and no stacked Golgi, so those are not offered."
+            "A schematic Giardia trophozoite seen from above: a pear-shaped "
+            "cell with two nuclei, the ventral adhesive disc, the median "
+            "bodies and four pairs of flagella. Hover for a UniProt "
+            "location description and check several compartments to keep "
+            "them highlighted. The labels are UniProt locations annotated "
+            "for Giardia proteins. Giardia has mitosomes instead of "
+            "mitochondria and no stacked Golgi, so those are not offered."
         ),
         "sections": (
             ("Attachment and motility", (
@@ -593,14 +594,16 @@ ORGANISMS = {
         ),
         "source": "https://viralzone.expasy.org/",
         "source_label": "Biology source: ViralZone",
-        "diagram": "organism_host_virus.svg",
+        "diagram": "organism_virus.svg",
         "diagram_note": (
-            "The SwissBioPics host animal cell with a virion. Hover for a "
-            "UniProt location description and check several compartments to "
-            "keep them highlighted. The labels are the virion and host-cell "
-            "locations UniProt annotates for viral proteins that this "
-            "artwork draws. It is generic: virion structure and replication "
-            "sites differ between virus families."
+            "A schematic enveloped virus with an icosahedral capsid, "
+            "tegument and spiked envelope, beside an infected host cell "
+            "with nascent capsids in the nucleus, an internalised virion "
+            "and budding particles. Hover for a UniProt location "
+            "description and check several compartments to keep them "
+            "highlighted. The labels are the virion and host-cell locations "
+            "UniProt annotates for viral proteins. Virion structure and "
+            "replication sites differ between virus families."
         ),
         "sections": (
             ("Infection and replication sites", (
@@ -686,13 +689,16 @@ ORGANISMS = {
         ),
         "source": "https://www.uniprot.org/help/subcellular_location",
         "source_label": "Biology source: UniProt",
-        "diagram": "organism_animal.svg",
+        "diagram": "organism_mammalian.svg",
         "diagram_note": (
-            "The SwissBioPics animal cell. Hover for a UniProt location "
+            "A schematic adherent mammalian cell spread on extracellular "
+            "matrix, with its nucleus and nucleoli, endoplasmic reticulum, "
+            "Golgi apparatus beside the centrosome and primary cilium, "
+            "mitochondria and cytoskeleton. Hover for a UniProt location "
             "description and check several compartments to keep them "
             "highlighted. The labels are UniProt subcellular locations "
-            "annotated for mammalian proteins that this artwork draws. Cell "
-            "shape and organelle arrangement vary between cell types."
+            "annotated for mammalian proteins. Cell shape and organelle "
+            "arrangement vary between cell types."
         ),
         "sections": (
             ("Segmentation and morphology", (

@@ -1263,6 +1263,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 634, 2026-10-03: the five alpha organism pages (Trypanosoma, Leishmania,
 # Giardia, virus, mammalian): their prose, tiles, links, workflow notes,
 # UniProt compartment names and SwissBioPics location descriptions.
+# 634, 2026-10-03, later: Preferences > Show alpha species and its tooltip;
+# the redrawn Leishmania, Giardia, virus and mammalian diagram notes.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # item 633: Load test data on Convert, Layer Viewer and External Masks
     "Download Import's test data, about 285 MB: four microscope fields "
@@ -1274,6 +1276,13 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     # (the polygon help, renaming and 631's keep button were catalogued by
     # 9d4066a96 and left this list)
     "Polygon through view", "Ellipsoid with handles", "Box with handles",
+    # item 634: Show alpha species
+    "Show alpha species (Plasmodium, Candida, Trypanosoma, Leishmania, "
+    "Giardia, Virus, Mammalian)",
+    "Show the organism pages that are not yet released: Plasmodium, "
+    "Candida, Trypanosoma, Leishmania, Giardia, Virus and Mammalian "
+    "cells. Separate from Show alpha features. Toxoplasma is always "
+    "shown. Default off.",
     # item 634: the five alpha organism pages
     "Amastigote conversion",
     "Amastigote infection",
@@ -1371,7 +1380,7 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Macrophage infection",
     "Macrophage infection and parasite load",
     "Macrophage infection opens Host–Pathogen Analysis to report the fraction of infected macrophages and the amastigotes per macrophage, the two usual measures of parasite load. Macrophage binding opens the Invasion Assay to separate bound from internalised promastigotes when differential staining is used. The planned Vacuole size module will measure parasitophorous vacuole area, which differs between Leishmania species and grows as amastigotes multiply inside it.",
-    "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+    "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram shows UniProt vocabulary, not the measured location of a Leishmania protein.",
     "Mammalian cells",
     "Measure amastigote clearance across compound concentrations.",
     "Measure cell number across compound concentrations.",
@@ -1430,11 +1439,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Separate bound from internalised promastigotes.",
     "Separate bound from internalised virions.",
     "Stage differentiation",
-    "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+    "A schematic Giardia trophozoite seen from above: a pear-shaped cell with two nuclei, the ventral adhesive disc, the median bodies and four pairs of flagella. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins. Giardia has mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
     "Syncytium formation",
-    "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
-    "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
-    "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
+    "A schematic adherent mammalian cell spread on extracellular matrix, with its nucleus and nucleoli, endoplasmic reticulum, Golgi apparatus beside the centrosome and primary cilium, mitochondria and cytoskeleton. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins. Cell shape and organelle arrangement vary between cell types.",
+    "A schematic enveloped virus with an icosahedral capsid, tegument and spiked envelope, beside an infected host cell with nascent capsids in the nucleus, an internalised virion and budding particles. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins. Virion structure and replication sites differ between virus families.",
+    "A schematic Leishmania promastigote, with its free anterior flagellum leaving the flagellar pocket, the kinetoplast just behind it and a central nucleus, above the rounded amastigote. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins.",
     "The SwissBioPics trypanosomatid cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Trypanosoma proteins that this artwork draws. It shows one trypomastigote-like form; amastigotes and epimastigotes differ in flagellum length and organelle position.",
     "The basal body is a barrel-shaped microtubule-based structure required for the formation of flagella. Basal bodies, structuraly related to and often interconvertible with centrioles, serves as a nucleation site for axoneme growth.",
     "The centrosome is a microtubule organizing center (MTOC) responsible for the nucleation and organisation of  microtubules. It is composed of two orthogonally arranged centrioles, each one having a barrel shaped microtubule structure, and their surrounding pericentriolar material (PCM).",

@@ -31,7 +31,7 @@ Assays
 
 Quantitative readouts for biological assays.
 
-| |DocModule_toxoplasma|\ |DocModule_plasmodium|\ |DocModule_candida|
+| |DocModule_toxoplasma|
 
 .. |DocModule_mask| image:: /_static/workflow/mask.png
    :width: 16.0%
@@ -127,14 +127,4 @@ Quantitative readouts for biological assays.
    :width: 16.0%
    :alt: Open the Toxoplasma API
    :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma
-   :align: middle
-.. |DocModule_plasmodium| image:: /_static/workflow/apps/plasmodium.png
-   :width: 16.0%
-   :alt: Open the Plasmodium spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium
-   :align: middle
-.. |DocModule_candida| image:: /_static/workflow/apps/candida.png
-   :width: 16.0%
-   :alt: Open the Candida spp. API
-   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida
    :align: middle

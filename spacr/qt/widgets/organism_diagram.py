@@ -107,7 +107,7 @@ location names and are the locations UniProt annotates for that taxon
 (Trypanosoma 5690, Leishmania 5658, Giardia 5740, Viruses 10239, Mammalia
 40674) that are drawn in the bundled artwork.
 """
-_PORTRAIT_ORGANISMS = frozenset({"toxoplasma", "plasmodium"})
+_PORTRAIT_ORGANISMS = frozenset({"toxoplasma", "plasmodium", "leishmania"})
 
 
 def _compartment_labels(app_key: str) -> dict:
@@ -451,7 +451,7 @@ class OrganismDiagram(QWidget):
     """A cell illustration and keyboard-accessible compartment selector.
 
     :param app_key: organism key; only Toxoplasma uses hyperLOPIT labels,
-        and only the apicomplexan pages are drawn upright.
+        and only the apicomplexan and Leishmania pages are turned upright.
     :param path: bundled SVG path; no external resource is fetched.
     :param parent: owning Qt widget.
     """

@@ -33,36 +33,47 @@
     "modifications": "Original bundled SVG unchanged. Rendering removes hidden text, links, canvas backgrounds and logo; organelles receive a schematic pastel palette and selected compartment outlines are accented. Attribution is shown beside the drawing. The selectable compartments are the UniProt subcellular locations (release 2026_03) annotated for the organism's taxon and drawn in this artwork."
   },
   {
-    "file": "organism_eukaryote.svg",
-    "source_page": "https://www.swissbiopics.org/name/Eukaryota_cell",
-    "source_image": "https://www.swissbiopics.org/api/image/Eukaryota_cells.svg",
-    "sha256": "c8ae70ef0389f6030a09572c139576211c9ed094652b5aec6c1e459cf2c9cfa2",
+    "file": "organism_leishmania.svg",
+    "source_page": "https://www.uniprot.org/locations",
+    "source_image": "",
+    "sha256": "eb047f7c5bb0943f556648ba11b5f6c041bc62345bfbbf5662b14a0d290ff503",
     "retrieved": "2026-10-03",
-    "licence": "CC BY 4.0",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "credit": "Philippe Le Mercier \u00b7 SIB Swiss Institute of Bioinformatics",
-    "modifications": "Original bundled SVG unchanged. Rendering removes hidden text, links, canvas backgrounds and logo; organelles receive a schematic pastel palette and selected compartment outlines are accented. Attribution is shown beside the drawing. The selectable compartments are the UniProt subcellular locations (release 2026_03) annotated for the organism's taxon and drawn in this artwork."
+    "licence": "BSD 3-Clause",
+    "licence_url": "https://github.com/EinarOlafsson/spacr/blob/main/LICENSE",
+    "credit": "spaCR contributors",
+    "modifications": "Drawn for spaCR: a schematic Leishmania promastigote and amastigote following textbook morphology. Each compartment group is named with its UniProt subcellular location (release 2026_03) and carries that location's UniProt description."
   },
   {
-    "file": "organism_host_virus.svg",
-    "source_page": "https://www.swissbiopics.org/name/Animal_cell",
-    "source_image": "https://www.swissbiopics.org/api/image/HostAnimal_cell.svg",
-    "sha256": "41ca9c7a7e779bcf7481b70ae7c50e39a968ac2360c3e9e30d1c199c9efabd7d",
+    "file": "organism_giardia.svg",
+    "source_page": "https://www.uniprot.org/locations",
+    "source_image": "",
+    "sha256": "aaf130609a3c3ef0bdb5b8503e51af2fbee038198d6f85d04ba26cb3e7b8fd36",
     "retrieved": "2026-10-03",
-    "licence": "CC BY 4.0",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "credit": "Philippe Le Mercier \u00b7 SIB Swiss Institute of Bioinformatics",
-    "modifications": "Original bundled SVG unchanged. Rendering removes hidden text, links, canvas backgrounds and logo; organelles receive a schematic pastel palette and selected compartment outlines are accented. Attribution is shown beside the drawing. The selectable compartments are the UniProt subcellular locations (release 2026_03) annotated for the organism's taxon and drawn in this artwork."
+    "licence": "BSD 3-Clause",
+    "licence_url": "https://github.com/EinarOlafsson/spacr/blob/main/LICENSE",
+    "credit": "spaCR contributors",
+    "modifications": "Drawn for spaCR: a schematic Giardia trophozoite, dorsal view following textbook morphology. Each compartment group is named with its UniProt subcellular location (release 2026_03) and carries that location's UniProt description."
   },
   {
-    "file": "organism_animal.svg",
-    "source_page": "https://www.swissbiopics.org/name/Animal_cell",
-    "source_image": "https://www.swissbiopics.org/api/image/Animal_cells.svg",
-    "sha256": "332453c5b22c90c9d155849b5ceb07a40866d9a80e3c45a30c12d096820d5bbd",
+    "file": "organism_virus.svg",
+    "source_page": "https://www.uniprot.org/locations",
+    "source_image": "",
+    "sha256": "e2c87ec99664800e9831022689fc31bf8981957aa9cb299a61fab523d9a05981",
     "retrieved": "2026-10-03",
-    "licence": "CC BY 4.0",
-    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
-    "credit": "Philippe Le Mercier \u00b7 SIB Swiss Institute of Bioinformatics",
-    "modifications": "Original bundled SVG unchanged. Rendering removes hidden text, links, canvas backgrounds and logo; organelles receive a schematic pastel palette and selected compartment outlines are accented. Attribution is shown beside the drawing. The selectable compartments are the UniProt subcellular locations (release 2026_03) annotated for the organism's taxon and drawn in this artwork."
+    "licence": "BSD 3-Clause",
+    "licence_url": "https://github.com/EinarOlafsson/spacr/blob/main/LICENSE",
+    "credit": "spaCR contributors",
+    "modifications": "Drawn for spaCR: a schematic enveloped icosahedral virion beside an infected host cell following textbook morphology. Each compartment group is named with its UniProt subcellular location (release 2026_03) and carries that location's UniProt description."
+  },
+  {
+    "file": "organism_mammalian.svg",
+    "source_page": "https://www.uniprot.org/locations",
+    "source_image": "",
+    "sha256": "0f23498c68dad106a0313a6e3191d1cf8aa3d68af1eaaf384a5e2f869978bd7c",
+    "retrieved": "2026-10-03",
+    "licence": "BSD 3-Clause",
+    "licence_url": "https://github.com/EinarOlafsson/spacr/blob/main/LICENSE",
+    "credit": "spaCR contributors",
+    "modifications": "Drawn for spaCR: a schematic adherent, polarised mammalian cell on extracellular matrix following textbook morphology. Each compartment group is named with its UniProt subcellular location (release 2026_03) and carries that location's UniProt description."
   }
 ]

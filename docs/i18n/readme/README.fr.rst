@@ -343,7 +343,7 @@ Essais
 
 Quantitative readouts for biological assays.
 
-| |Module_toxoplasma|\ |Module_plasmodium|\ |Module_candida|
+| |Module_toxoplasma|
 
 .. |Module_mask| raw:: html
 
@@ -420,14 +420,6 @@ Quantitative readouts for biological assays.
 .. |Module_toxoplasma| raw:: html
 
    <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-toxoplasma"><img src="../../../spacr/resources/icons/workflow/apps/toxoplasma.png" width="16.0%" align="middle" alt="Ouvrir l’API de Toxoplasma"></a>
-
-.. |Module_plasmodium| raw:: html
-
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-plasmodium"><img src="../../../spacr/resources/icons/workflow/apps/plasmodium.png" width="16.0%" align="middle" alt="Ouvrir l’API de Plasmodium spp."></a>
-
-.. |Module_candida| raw:: html
-
-   <a href="https://einarolafsson.github.io/spacr/api/spacr/qt/screens/organism_screen/index.html#spacr-qt-screens-organism-screen-candida"><img src="../../../spacr/resources/icons/workflow/apps/candida.png" width="16.0%" align="middle" alt="Ouvrir l’API de Candida spp."></a>
 
 .. spacr-workflow-end
 

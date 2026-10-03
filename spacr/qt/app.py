@@ -1696,14 +1696,15 @@ def tiled_apps(
 def _alpha_hidden_apps() -> frozenset:
     """The app keys the alpha gate hides right now.
 
-    :returns: every app in ``ALPHA_FEATURES`` while Preferences > Show
-        alpha features is off, otherwise an empty set; also empty when the
-        preferences cannot be read.
+    :returns: the apps in ``ALPHA_FEATURES`` while Preferences > Show
+        alpha features is off and those in ``ALPHA_SPECIES`` while Show
+        alpha species is off; empty when the preferences cannot be read.
     """
     try:
         from ..settings import _alpha_names
         from .preferences import _is_alpha_visible
-        return frozenset() if _is_alpha_visible() else _alpha_names("apps")
+        return frozenset(key for key in _alpha_names("apps")
+                         if not _is_alpha_visible("apps", key))
     except Exception:
         return frozenset()
 

@@ -144,10 +144,14 @@ class OrganismScreen(QWidget):
     def _name_alpha_page(self, app_key: str) -> None:
         """Give each alpha organism page the object name the alpha gate hides.
 
-        :param app_key: the organism page key; established pages keep
+        :param app_key: the organism page key; the Toxoplasma page keeps
             ``OrganismScreen``.
         """
-        if app_key == "trypanosoma":
+        if app_key == "plasmodium":
+            self.setObjectName("PlasmodiumOrganismPage")
+        elif app_key == "candida":
+            self.setObjectName("CandidaOrganismPage")
+        elif app_key == "trypanosoma":
             self.setObjectName("TrypanosomaOrganismPage")
         elif app_key == "leishmania":
             self.setObjectName("LeishmaniaOrganismPage")
@@ -192,10 +196,12 @@ class OrganismScreen(QWidget):
         column.addWidget(self._paragraph(self.organism["diagram_note"]))
         records = json.loads((_IMAGES / "organism_sources.json").read_text())
         record = next(row for row in records if row["file"] == self.organism["diagram"])
-        credit = self._link(record["credit"] + " · SwissBioPics", record["source_page"])
+        swiss = "swissbiopics" in record["source_page"]
+        credit = self._link(record["credit"] + (" · SwissBioPics" if swiss else ""),
+                            record["source_page"])
         credit.setObjectName("OrganismImageCredit")
         column.addWidget(credit)
-        column.addWidget(self._link("CC BY 4.0", record["licence_url"]))
+        column.addWidget(self._link(record["licence"], record["licence_url"]))
         modules = {key or icon: title for key, title, _, icon in self.organism["modules"]
                    if key or workflow(self.app_key, icon)}
         for title, text, keys in self.organism["sections"]:

@@ -114,9 +114,10 @@ def validate(data, root=ROOT, *, live=True):
     from spacr.qt import app
     from spacr.qt.widgets.fold_strip import folded_modules
     from spacr.qt.screens.settings_model import _APP_API_MODULE
-    from spacr.settings import _alpha_names
-    # Alpha-gated apps are hidden by default and documented nowhere yet.
-    alpha = _alpha_names("apps")
+    from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS, _alpha_names
+    # Alpha-gated apps are hidden by default and documented nowhere yet;
+    # alpha species with published lessons stay mapped until those retire.
+    alpha = _alpha_names("apps") - _SPECIES_WITH_PUBLISHED_LESSONS
     names = {row[0]: row[1] for row in app.APPS if row[0] not in alpha}
     names.update({key: row[0] for key, row in folded_modules().items()})
     if set(modules) != set(names) | set(MODES) | set(APP_FUNCTIONS) | set(ports.PORTS):
@@ -124,7 +125,7 @@ def validate(data, root=ROOT, *, live=True):
     parents = {child: host for host, children in app.folded_children().items()
                for child in children}
     parents.update(MODES)
-    tiles = {row[0] for row in app.tiled_apps()}
+    tiles = {row[0] for row in app.tiled_apps()} | _SPECIES_WITH_PUBLISHED_LESSONS
     for key, module in modules.items():
         if key not in names and key not in MODES:
             if not module.get("api_entry") or module["api_entry"] != APP_FUNCTIONS.get(key):

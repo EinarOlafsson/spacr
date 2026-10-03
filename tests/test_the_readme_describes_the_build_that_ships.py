@@ -101,10 +101,11 @@ class TestTheReadmeGrid:
 
         # 474 adds three organism pages and folds the four assays into Toxoplasma.
         # 634 registers five alpha organism pages; they draw no tile with
-        # alpha features off, so the tile count stays 21.
+        # alpha features off, so the tile count stays 21. Later, Plasmodium
+        # and Candida moved behind Show alpha species too, leaving 19.
         assert len(apps) == 54
         assert any(app[0] == 'host_pathogen' for app in apps)
-        assert len(tiled_apps()) == 21
+        assert len(tiled_apps()) == 19
         assert sections == ["Core", "Data", "Tools", "Assays"]
 
     def test_no_folded_module_is_offered_as_a_separate_tool(self, folded):
