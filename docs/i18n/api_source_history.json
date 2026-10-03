@@ -198,6 +198,27 @@
       "source_sha256": "2db3bf33d280f5cf88216d3a5ec058b59bb7e48cd4e8e8611fab47e6ad3f65ce",
       "text": "Make Masks' \"Organize for Measure…\" popup: images and masks into merged/.\n\nItem 600, replacing item 593's string of prompts and its separate \"Sort into\nchannels\" dialog as the entry point. ONE popup puts images and their masks\ninto the layout Measure reads -- Yokogawa-named channel folders, the masks,\nand ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and\n:mod:`spacr.folder_consolidation`, which hold every decision:\n\n* a SOURCE folder (typed, browsed or dropped), optionally consolidated\n  first (its subfolders' images copied into one folder, named after their\n  folders);\n* the REGEX box: Mask generation's own ``metadata_type`` field -- the same\n  grouped convention menu, example and \"Test on my folder\" -- with its\n  ``custom_regex``, plus \"Sort by regex\", \"Auto regex\" and \"Detect sets\";\n* the DIMENSIONS: which columns are image channels and which are masks,\n  each mask with its role (cell, nucleus, pathogen) and the channel whose\n  images it outlines;\n* a TABLE with one column per channel and per mask and one row per field.\n  Every column takes files and folders dropped from the file manager (a\n  folder brings its images, recursively) and cells dragged from another\n  column. Dropped files sort themselves by name and are matched across the\n  columns the way Detect sets pairs images -- file-name tokens, then order,\n  never two images of different size (:func:`spacr.channel_sorting.\n  _match_columns`). A cell nothing matched stays empty and flagged.\n\nMode 1: fill the source, choose or test the regex, press \"Sort by regex\",\nApply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\":\nanswer \"Which channel is this?\" for one image at a time while spaCR learns\na regex from the answers (:func:`spacr.channel_sorting._teach_step`), until\nevery image is placed. Each works without the others. A folder made by\nfolder consolidation is read under its files' ORIGINAL names, from its\n``rename_manifest.csv``, because the copies' names may have lost what told\nthe channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete\nrows block it (the regex box is where to fix them), RGB images and z-stacks\nare offered for conversion, and detected sets are shown three at a time\nbefore they are used. Nothing moves before Apply; the screen applies the\nplan off the GUI thread and every move is written to the manifest."
     },
+    "2dd22918c99db330f18cf40bbeac9a750e4af604902764dd25ac36e4f2c3c07f": {
+      "source_blocks_sha256": [
+        "1d3e20670f21b7b95ea01a00d046dfa1051972e29260bcdef890db5d18d0ea9c",
+        "395058da1b9704baa5ed8d83d2abb56f6d82a4ba1d5cf8a1f527e4899166fa1f",
+        "ec69102b30c518853239ead6884cbf323d292204963e00d4ee87a5c4600fbf68",
+        "e44846eedb57332cbfb6722f9358ca705954cb32479e026a2bb053ca24549f01",
+        "c38b4ddf3d20eeef5afc8d0889d7ab2f5d5f9738802b5680c98c88afefe46a5a",
+        "93e9bf1ab797f4a1b5cd4b9f518a686802779ae503c4b91da16c0155eed76dda",
+        "90878b329ba879f23f5134ad103727c59219e351935ae484d0d773ddd64549ee",
+        "6f74f60f44e5058aa61216b6e198c9c5f577901309ee0c12925987388277036e",
+        "1e8eb916c867a8ba9a0e36ba7cd3f10f544e8468a439893084bc692b9ad4164c",
+        "5414c4d751eede660b968e9aec01104868442719f6b408f035ffa1db564d477d",
+        "04313392df0a26c42cd6cdb8e775d0c11e2865d2cb3f5e38c158694054a0135b",
+        "51f0fb93ac7ef1e8bec905b55dcead7cec82a054685474af4fa80a4fe9b7daf0",
+        "d60ae82da6b70f94d10696e9427c4d412a3df0738c193f7641862ed767a64462",
+        "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
+        "6d2245fcf05e118dae2594ddeb348ea0be897f2f89877de7d64b555d0478cbad"
+      ],
+      "source_sha256": "2dd22918c99db330f18cf40bbeac9a750e4af604902764dd25ac36e4f2c3c07f",
+      "text": "A whole frame of the flight.\n\n``nogil`` because this runs on the shading thread and the GUI thread\nhas to keep answering while it does.\n\nWhen Numba is unavailable, the public ``render_space_frame`` name\ninstead accepts arbitrary positional and keyword arguments and raises\n``RuntimeError``.\n\n:param width: frame width in pixels.\n:param height: frame height in pixels.\n:param t: elapsed animation time used to advance the flight.\n:param speed: multiplier applied to the flight's forward motion.\n:param offset_x: horizontal shift added to every pixel's scene\n    coordinate, which steers the flight's heading.\n:param offset_y: vertical shift added likewise.\n:param samples: ``1`` or less takes one sample at each pixel centre;\n    anything larger averages a ``samples`` x ``samples`` grid of\n    samples per pixel (item 531: it used to be 2 x 2 whatever the\n    number said).\n:returns: ``(height, width, 3)`` uint8 RGB array.\nRefuse: the CPU space renderer needs Numba, which is absent.\n\n:param _args: whatever the caller would have rendered.\n:param _kwargs: likewise.\n:raises RuntimeError: always."
+    },
     "3037be6aa43fbc632a134190b5a9b87e0243085e9371bd717e3308a76b23e431": {
       "source_blocks_sha256": [
         "6b0579156a6c584df9096cab9f7b7211c548aaa35b80fbb997ea450b5476e1a9",
@@ -539,6 +560,14 @@
       "source_sha256": "7a00b9ca02874f55c5e3df14abc1cba476fc3dad695efb9233209156f53e6c3b",
       "text": "The folders Figure mode reads for ``src``, in reading order.\n\nA paper folder, or a folder of figure images, is read as it is. A folder\nthat holds paper folders -- several PDFs read at once, each into a\nfolder of its own (item 526) -- is read paper by paper: its own figure\nimages first when it has any, then each paper folder by name.\n\n:param src: the folder Figure mode was given.\n:returns: the folders; ``[src]`` when it holds no paper folders."
     },
+    "7a0bf93eac46084b62f6f4ad4301c79510372f6d21c905c541c9d18629a66957": {
+      "source_blocks_sha256": [
+        "6ca46fa236f46b3273c7718263c23b7c2a9138fbe6a0cf4c85a9ec82cbc301d7",
+        "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936"
+      ],
+      "source_sha256": "7a0bf93eac46084b62f6f4ad4301c79510372f6d21c905c541c9d18629a66957",
+      "text": "The four legacy bounds, named as :func:`filter_report`'s keywords are.\n\nThey are no longer a second filter. :func:`legacy_filters` turns them into\nentries of the one filter list (item 511), so a caller that still passes\n``min_area=20`` is judged by the same regionprops pass as a user who added\nan ``area`` row, and a :class:`FilterRemoval` still names the legacy bound\nan object failed so the older ledgers read the same."
+    },
     "7b33ef6e164887fefe1f7f87aaa3aac0aec4725edc5824ec5d63785d3478f5c5": {
       "source_blocks_sha256": [
         "134a808c6cb1583cad50f47b9315e1727d962a4e68d11d3eefb9d5c808bbc26e",
@@ -574,6 +603,13 @@
       ],
       "source_sha256": "7b6b926a10e7333c48c030945d0bb575d890011014e1aa30eb8bfe0313cc425d",
       "text": "Install, or uninstall, one segmentation backend, with progress and\nCancel.\n\nWHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an\nenvironment of its own under ``~/.spacr/backends``; spaCR's own\nenvironment is never touched, so nothing here can stop spaCR starting.\nThe dialog says where it goes, what it downloads, how large it is and\nunder what licence before Install is pressed.\n\nTHE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for\nminutes -- runs on a worker thread; the dialog shows which step it is on\nand pip's latest line, and Cancel stops pip and everything it started\nand removes the half-built environment. A failure shows the failing\ncommand's own output, verbatim.\n\n:param name: the backend, e.g. ``'cellpose3'``.\n:param parent: the widget that opened it; the dialog's parent is its\n    window.\n:param uninstall: remove the backend's environment instead.\n:param job: ``job(progress=..., cancel=...)``; the real install or\n    uninstall when None. Tests pass their own.\n:param reinstall: build an installed backend's environment again\n    (item 518), for a backend installed before a package it now needs\n    was pinned; the dialog says so and its button says Reinstall.\n:param why: a sentence saying why the install is offered, shown first\n    in the description.\n:ivar error: the last failure's message, verbatim; empty until one.\n\nTHE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,\n:attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`\ntell the widget that opened the dialog what the install is doing, so a\nbutton can say \"installing\" while it runs and a console can say why it\nfailed after the dialog has gone.\n\nIT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED (item 521). A dialog\ninherits the style sheet of every widget above it, and Plaque Assay asks\nfrom its preview, whose own scale slider re-states the application sheet\nat that preview's scale: at 150 % Install and Cancel were 59 px tall,\nnot the 40 px of every other button. Parented to ``parent.window()`` it\nis themed like every other dialog and still centred on, and modal to,\nthe window that opened it.\n\nTHE BAR SITS ON THE BUTTONS. The progress line is the last thing above\nthe buttons and the status keeps four lines' room while a job runs, so\nthe bar does not move as the status line grows and shrinks.\nDescribe the backend and wait for the button."
+    },
+    "8064458271faa455b295aac64e2f5369eeb13923ed1b46ec0c8ee409cf1b7e02": {
+      "source_blocks_sha256": [
+        "ed583203453911451f7e78d25390fc23e7ef616cefc590ba915b433825357431"
+      ],
+      "source_sha256": "8064458271faa455b295aac64e2f5369eeb13923ed1b46ec0c8ee409cf1b7e02",
+      "text": "Where each bound control of a Cellpose compartment lives in\n``object_filters``. Mask's ``{object}_min_area`` family was retired on\n2026-09-25 (item 511); for cell, nucleus and pathogen these four controls\nread and write the object's ``area`` and ``intensity_mean`` rows instead.\nThe organelle slots keep their own settings."
     },
     "87a662c1d626d0d2ea2b1da4b53b9b416b78c7f49f3e1cc9a7c9dc925a200d84": {
       "source_blocks_sha256": [

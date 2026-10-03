@@ -50407,10 +50407,10 @@
     "spacr.qt.mask_engine.FILTER_BOUNDS": {
       "source_blocks_sha256": [
         "6ca46fa236f46b3273c7718263c23b7c2a9138fbe6a0cf4c85a9ec82cbc301d7",
-        "680fdcbb8bea819fa4d8fd7853559d6a26d9847d442def1bc678c86829040936"
+        "eee49aff894aec4122fb525057383a50ee6982efc83f0fa60deb0a1453e82df3"
       ],
-      "source_sha256": "7a0bf93eac46084b62f6f4ad4301c79510372f6d21c905c541c9d18629a66957",
-      "text": "The four legacy bounds, named as :func:`filter_report`'s keywords are.\n\nThey are no longer a second filter. :func:`legacy_filters` turns them into\nentries of the one filter list (item 511), so a caller that still passes\n``min_area=20`` is judged by the same regionprops pass as a user who added\nan ``area`` row, and a :class:`FilterRemoval` still names the legacy bound\nan object failed so the older ledgers read the same."
+      "source_sha256": "f7c873e3fdf98b8cbe5b8b8e58f0face220f84f70fde954e5f63be3e300abe41",
+      "text": "The four legacy bounds, named as :func:`filter_report`'s keywords are.\n\nThey are no longer a second filter. :func:`legacy_filters` turns them into\nentries of the one filter list, so a caller that still passes\n``min_area=20`` is judged by the same regionprops pass as a user who added\nan ``area`` row, and a :class:`FilterRemoval` still names the legacy bound\nan object failed so the older ledgers read the same."
     },
     "spacr.qt.mask_engine.FILTER_KEYS": {
       "source_blocks_sha256": [
@@ -87375,15 +87375,15 @@
         "90878b329ba879f23f5134ad103727c59219e351935ae484d0d773ddd64549ee",
         "6f74f60f44e5058aa61216b6e198c9c5f577901309ee0c12925987388277036e",
         "1e8eb916c867a8ba9a0e36ba7cd3f10f544e8468a439893084bc692b9ad4164c",
-        "5414c4d751eede660b968e9aec01104868442719f6b408f035ffa1db564d477d",
+        "83e470742723539dc5c32efba72e4a30a02143d93c4f0d9aecd4271fc76f52da",
         "04313392df0a26c42cd6cdb8e775d0c11e2865d2cb3f5e38c158694054a0135b",
         "51f0fb93ac7ef1e8bec905b55dcead7cec82a054685474af4fa80a4fe9b7daf0",
         "d60ae82da6b70f94d10696e9427c4d412a3df0738c193f7641862ed767a64462",
         "ca364f1768288bed548825ceecb07247de4fe055248bf12b5f1bf13ae337cade",
         "6d2245fcf05e118dae2594ddeb348ea0be897f2f89877de7d64b555d0478cbad"
       ],
-      "source_sha256": "2dd22918c99db330f18cf40bbeac9a750e4af604902764dd25ac36e4f2c3c07f",
-      "text": "A whole frame of the flight.\n\n``nogil`` because this runs on the shading thread and the GUI thread\nhas to keep answering while it does.\n\nWhen Numba is unavailable, the public ``render_space_frame`` name\ninstead accepts arbitrary positional and keyword arguments and raises\n``RuntimeError``.\n\n:param width: frame width in pixels.\n:param height: frame height in pixels.\n:param t: elapsed animation time used to advance the flight.\n:param speed: multiplier applied to the flight's forward motion.\n:param offset_x: horizontal shift added to every pixel's scene\n    coordinate, which steers the flight's heading.\n:param offset_y: vertical shift added likewise.\n:param samples: ``1`` or less takes one sample at each pixel centre;\n    anything larger averages a ``samples`` x ``samples`` grid of\n    samples per pixel (item 531: it used to be 2 x 2 whatever the\n    number said).\n:returns: ``(height, width, 3)`` uint8 RGB array.\nRefuse: the CPU space renderer needs Numba, which is absent.\n\n:param _args: whatever the caller would have rendered.\n:param _kwargs: likewise.\n:raises RuntimeError: always."
+      "source_sha256": "edd79ece545fe7f4892b9a72bcb1d8014a6dbaa1706d1684f8797e9cc03e8da2",
+      "text": "A whole frame of the flight.\n\n``nogil`` because this runs on the shading thread and the GUI thread\nhas to keep answering while it does.\n\nWhen Numba is unavailable, the public ``render_space_frame`` name\ninstead accepts arbitrary positional and keyword arguments and raises\n``RuntimeError``.\n\n:param width: frame width in pixels.\n:param height: frame height in pixels.\n:param t: elapsed animation time used to advance the flight.\n:param speed: multiplier applied to the flight's forward motion.\n:param offset_x: horizontal shift added to every pixel's scene\n    coordinate, which steers the flight's heading.\n:param offset_y: vertical shift added likewise.\n:param samples: ``1`` or less takes one sample at each pixel centre;\n    anything larger averages a ``samples`` x ``samples`` grid of\n    samples per pixel (it used to be 2 x 2 whatever the\n    number said).\n:returns: ``(height, width, 3)`` uint8 RGB array.\nRefuse: the CPU space renderer needs Numba, which is absent.\n\n:param _args: whatever the caller would have rendered.\n:param _kwargs: likewise.\n:raises RuntimeError: always."
     },
     "spacr.qt.widgets.fractal_space.sample_space": {
       "source_blocks_sha256": [
@@ -93461,10 +93461,10 @@
     },
     "spacr.qt.widgets.live_preview.BOUND_ROWS": {
       "source_blocks_sha256": [
-        "ed583203453911451f7e78d25390fc23e7ef616cefc590ba915b433825357431"
+        "03ad49454a91154977ff644cd16de6d732918dc4887f650871f4be77251f9153"
       ],
-      "source_sha256": "8064458271faa455b295aac64e2f5369eeb13923ed1b46ec0c8ee409cf1b7e02",
-      "text": "Where each bound control of a Cellpose compartment lives in\n``object_filters``. Mask's ``{object}_min_area`` family was retired on\n2026-09-25 (item 511); for cell, nucleus and pathogen these four controls\nread and write the object's ``area`` and ``intensity_mean`` rows instead.\nThe organelle slots keep their own settings."
+      "source_sha256": "4ba3d29e8c7b1d24c22f302f28b7ee900071eac55b8165847f0365210e5d21f7",
+      "text": "Where each bound control of a Cellpose compartment lives in\n``object_filters``. Mask's ``{object}_min_area`` family was retired on\n2026-09-25; for cell, nucleus and pathogen these four controls\nread and write the object's ``area`` and ``intensity_mean`` rows instead.\nThe organelle slots keep their own settings."
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel": {
       "source_blocks_sha256": [
