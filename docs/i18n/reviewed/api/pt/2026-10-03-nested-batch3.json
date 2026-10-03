@@ -1,0 +1,503 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.hits.HitList.filter._ok#0",
+      "source": "Return whether ``hit`` satisfies every supplied filter.",
+      "source_sha256": "5aa9d87150363e6fc2b270ffdc1581f745146bf3b30d5219d331481f0fe246f9",
+      "context": "Return whether ``hit`` satisfies every supplied filter.",
+      "translation": "Indica se ``hit`` satisfaz todos os filtros fornecidos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.hits._rank.key#0",
+      "source": "Rank finite selection and effect magnitude high, then gene.",
+      "source_sha256": "eb978c84dc8a4e086110d7f3ccaad3b705e448acc586d55a49d2b455b2d72096",
+      "context": "Rank finite selection and effect magnitude high, then gene.",
+      "translation": "Classifica alto a seleção finita e a magnitude do efeito, depois o gene.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.hits._rank.key#1",
+      "source": "Rank finite q low, effect magnitude high, then gene.",
+      "source_sha256": "88797a3873b4cf16aeb238d69bc096e04f106f79de6581742c48b376c31a4b20",
+      "context": "Rank finite q low, effect magnitude high, then gene.",
+      "translation": "Classifica baixo o q finito, alto a magnitude do efeito, depois o gene.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_settings_table._filter_text._num#0",
+      "source": "One bound as compact text; blank for an unset bound.",
+      "source_sha256": "c9f9142a8ba6bb4ff90645e6f5f723be7f625feddbc644cdc81b9c5360e4c84c",
+      "context": "One bound as compact text; blank for an unset bound.",
+      "translation": "Um limite como texto compacto; vazio para um limite não definido.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_settings_table._parse_filter_text._side#0",
+      "source": "One side of the range as a number; ``None`` when left blank.",
+      "source_sha256": "6f8b1bf425206075943d5ba29ce067146a04dcc9789310ff8e96b397de8a97d0",
+      "context": "One side of the range as a number; ``None`` when left blank.",
+      "translation": "Um lado do intervalo como número; ``None`` quando deixado em branco.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.dnd._route_drop.deliver#0",
+      "source": "Act on what `scan` found, back on the GUI thread.",
+      "source_sha256": "76a5aac41c1b2bf75777ec6e03a80830030cfe1a67c2db7eb1f6781c680885d8",
+      "context": "Act on what `scan` found, back on the main GUI execution path.",
+      "translation": "Age sobre o que `scan` encontrou, de volta na thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.dnd._route_drop.deliver#1",
+      "source": "the classification `scan` produced.",
+      "source_sha256": "c911869c2de59a7caaa2d44530ca5b9600d46d1f8950964325d590683eff2503",
+      "context": "the classification `scan` produced.",
+      "translation": "a classificação produzida por `scan`.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.dnd._route_drop.scan#0",
+      "source": "Classify the dropped paths, off the GUI thread.",
+      "source_sha256": "2a6b1b145703a20698040ed0089aead36dc61e93dd781d602e5c986416fa475a",
+      "context": "Classify the dropped paths, off the main GUI execution path.",
+      "translation": "Classifica os caminhos soltos, fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.dnd._route_drop.scan#1",
+      "source": "This is the half that touches the filesystem, and a dropped folder is a path the USER chose -- which on some machines is an `autofs` share that takes twenty seconds to answer its first stat.",
+      "source_sha256": "2dd135aa2707bddd27bab55d5ab5ba7893752eea536992a588c7fe31e71d4d1f",
+      "context": "This is the half that touches the filesystem, and a dropped folder is a path the USER chose -- which on some machines is an `autofs` share that takes twenty seconds to answer its first stat.",
+      "translation": "Esta é a metade que toca o sistema de arquivos, e uma pasta solta é um caminho escolhido pelo USUÁRIO -- que em algumas máquinas é um compartilhamento `autofs` que leva vinte segundos para responder à sua primeira chamada stat.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.dnd._route_drop.scan#2",
+      "source": "the classification report `deliver` will act on.",
+      "source_sha256": "59e45090823e4f77b431c80fab56715958160d8f1ef8f50bc569b35f7d3233ce",
+      "context": "the classification report `deliver` will act on.",
+      "translation": "o relatório de classificação sobre o qual `deliver` vai agir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.hf_download.download_chosen_screen_data._factory#0",
+      "source": "Build the worker for the chosen archives.",
+      "source_sha256": "3cb2d8f2ea0c7092b5544f6bf1cb8eb746c2c2278b3b808f4c7387b9c8343c44",
+      "context": "Build the worker for the chosen archives.",
+      "translation": "Constrói o trabalhador para os arquivos compactados escolhidos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.hf_download.download_toxo_mito_demo._stop_before_quitting#0",
+      "source": "Cancel and join the download before the application exits.",
+      "source_sha256": "a482beb8be332624ca675554b8a674301d3544939c6c1111c80e707fb22d9d98",
+      "context": "Cancel and join the download before the application exits.",
+      "translation": "Cancela o download e aguarda seu término antes de o aplicativo encerrar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.hf_download.download_toxo_mito_demo._stop_before_quitting#1",
+      "source": "The worker and thread are bound as default arguments so this still refers to THIS download if another starts before the quit.",
+      "source_sha256": "e4c5232d53634806bd604240afdba328f1320ee9ba7e0ae7dfe6c6b3482358b0",
+      "context": "The worker and independent execution path are bound as default arguments so this still refers to THIS download if another starts before the quit.",
+      "translation": "O trabalhador e a thread são vinculados como argumentos padrão, para que isto ainda se refira a ESTE download caso outro comece antes do encerramento.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.menus.name_the_macos_application_menu.send#0",
+      "source": "One typed ``objc_msgSend`` call. Untyped calls corrupt the ABI.",
+      "source_sha256": "3fc272226d0bbba7da34bc0bc2df4d79b0ec5ebd24e9f27e64260924a846a613",
+      "context": "One typed ``objc_msgSend`` call. Untyped calls corrupt the ABI.",
+      "translation": "Uma chamada tipada a ``objc_msgSend``. Chamadas sem tipo corrompem a ABI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.menus.name_the_macos_application_menu.to_nsstring#0",
+      "source": "Wrap bytes as an NSString for the Objective-C call.",
+      "source_sha256": "d2ba009ad1d48572f098bb18faeaefbc06687fbc06854587cda9122c95ed7f26",
+      "context": "Wrap bytes as an NSString for the Objective-C call.",
+      "translation": "Envolve bytes como NSString para a chamada Objective-C.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterPanel._on_measure_clicked._job#0",
+      "source": "Run the estimator. Off the GUI thread.",
+      "source_sha256": "9c92f5428ea8a6d13093795a2aff55fce31a3dddcd6a68ce056e3e3981b449be",
+      "context": "Run the estimator. Off the main GUI execution path.",
+      "translation": "Executa o estimador. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.prerun.SegQCBanner._on_score_clicked._job#0",
+      "source": "Score the segmentation QC. Off the GUI thread.",
+      "source_sha256": "0d32d5b6ac632f1132bbaa283d81c6dd4520fb6a31b1107d7bcbff5f626d62b5",
+      "context": "Score the segmentation QC. Off the main GUI execution path.",
+      "translation": "Pontua o QC da segmentação. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen._run_job._job#0",
+      "source": "Call the wrapped function, stashing its result in the payload.",
+      "source_sha256": "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+      "context": "Call the wrapped function, stashing its result in the payload.",
+      "translation": "Chama a função envolvida e guarda seu resultado na carga útil.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen._run_job._job#1",
+      "source": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
+      "source_sha256": "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca",
+      "context": "The payload is how a value crosses back from the worker: a return would be swallowed by the runner.",
+      "translation": "A carga útil é como um valor volta do trabalhador: um valor retornado seria engolido pelo executor.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.agreement.AgreementScreen.compute._job#0",
+      "source": "Build the agreement report and its disagreements. Off the GUI thread.",
+      "source_sha256": "df13a1cc8d302fbb775682ca9ad6326aebc166122286c9f5e34987846ddcab0f",
+      "context": "Build the agreement report and its disagreements. Off the main GUI execution path.",
+      "translation": "Constrói o relatório de concordância e suas discordâncias. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation.ClassifierEvaluationScreen._load_selected_bundle._work#0",
+      "source": "Load one evaluation bundle. Off the GUI thread.",
+      "source_sha256": "34c67a3b15c5864e303ebce2c4c697ce7a27cfac6d0f80b65934eb8baa90a36b",
+      "context": "Load one evaluation bundle. Off the main GUI execution path.",
+      "translation": "Carrega um pacote de avaliação. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation.ClassifierEvaluationScreen.scan._work#0",
+      "source": "Find the evaluation bundles under a folder. Off the GUI thread.",
+      "source_sha256": "affd3c890751850e525ac562a48dec05c5c8b3fb3ff38070136d0462d1c9874c",
+      "context": "Find the evaluation bundles under a folder. Off the main GUI execution path.",
+      "translation": "Encontra os pacotes de avaliação sob uma pasta. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.preview._job#0",
+      "source": "Scan the source and plan the conversion. Off the GUI thread.",
+      "source_sha256": "c4487f714efd6faaf786f3c2145d170cf81852e7d7ae5f04447a5fa2db7032a6",
+      "context": "Scan the source and plan the conversion. Off the main GUI execution path.",
+      "translation": "Varre a origem e planeja a conversão. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.convert.ConvertScreen.run_convert._job#0",
+      "source": "Run the conversion. Off the GUI thread.",
+      "source_sha256": "0e5c0afe83e1b06837bd5081d9883353b957280bb8df9a93861a80f46ec0af1f",
+      "context": "Run the conversion. Off the main GUI execution path.",
+      "translation": "Executa a conversão. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.preview._job#0",
+      "source": "Plan the foreign import. Off the GUI thread.",
+      "source_sha256": "c7193e024bcc95d752c047f3ee8c70e096ed1224d9d29001a2f732c8d2ee584f",
+      "context": "Plan the foreign import. Off the main GUI execution path.",
+      "translation": "Planeja a importação externa. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.run_import._job#0",
+      "source": "Run the foreign import. Off the GUI thread.",
+      "source_sha256": "9f399614b3587f062543323f76d5470047107ac6e5873b2d21d63cd95c76dafa",
+      "context": "Run the foreign import. Off the main GUI execution path.",
+      "translation": "Executa a importação externa. Fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.HyperparamPanel.adaptive_parameters._number#0",
+      "source": "One field as a number, or the default when it is blank.",
+      "source_sha256": "42317a08d139394c90b29af6e99459c4cf71ee921160a6231b9d6e10869ed879",
+      "context": "One field as a number, or the default when it is blank.",
+      "translation": "Um campo como número, ou o valor padrão quando está vazio.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam._complete_metrics_when_opened.show_popup#0",
+      "source": "Fill the metric list the first time the popup opens.",
+      "source_sha256": "6e350613cea0079cea83badb83ef355c75ffe4f10449dc6992a3196782e597e9",
+      "context": "Fill the metric list the first time the popup opens.",
+      "translation": "Preenche a lista de métricas na primeira vez que o menu suspenso abre.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam._complete_metrics_when_opened.show_popup#1",
+      "source": "Deferred because the list comes from umap, and importing it at build time would pay for it on every screen that never opens this combo.",
+      "source_sha256": "3341b6a4ec6ede14b76b4d38be73114629b078b7efacac611d754ff63d4e2acf",
+      "context": "Deferred because the list comes from umap, and importing it at build time would pay for it on every screen that never opens this combo.",
+      "translation": "Adiado porque a lista vem do umap, e importá-la na construção custaria em cada vista que nunca abre esta caixa de combinação.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.run_import._job#0",
+      "source": "Write the project in the worker thread.",
+      "source_sha256": "1b27f498990fb2ce7e26343c3ea6fd5123e503314f4766a4b346e5c097c3938e",
+      "context": "Write the project in the background execution unit.",
+      "translation": "Grava o projeto na thread de trabalho.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.run_import._job#1",
+      "source": "Every argument is a plain value captured above, for the same reason the scan's is: this runs off the GUI thread, and reading a checkbox from there is undefined behaviour rather than a stale answer.",
+      "source_sha256": "1aee9f6e69df981012d106010a77a2ddd13011bff1e5cc4550f9a312351e95ff",
+      "context": "Every argument is a plain value captured above, for the same reason the scan's is: this runs off the main GUI execution path, and reading a checkbox from there is undefined behaviour rather than a stale answer.",
+      "translation": "Cada argumento é um valor simples capturado acima, pelo mesmo motivo dos da varredura: isto roda fora da thread da GUI, e ler uma caixa de seleção a partir dali é comportamento indefinido, não uma resposta desatualizada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.scan._job#0",
+      "source": "Read the folder in the worker thread. Writes nothing.",
+      "source_sha256": "2b9215d30f97f4c46914a74eaf12c07d2992cb5f74e853d1475d04474b71d1e3",
+      "context": "Read the folder in the background execution unit. Writes nothing.",
+      "translation": "Lê a pasta na thread de trabalho. Não grava nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.scan._job#1",
+      "source": "The settings are read out of the widgets BEFORE this closes over them: a job must not touch a QLineEdit from another thread, and a user who edits the sample size mid-scan would otherwise change what the running scan is doing.",
+      "source_sha256": "27c99f5d9532f2ad485ff220f09a1f2e3cb7b542b9d5d34155251e1f2f2ad2f2",
+      "context": "The settings are read out of the widgets BEFORE this closes over them: a job must not touch a QLineEdit from another independent execution path, and a user who edits the sample size mid-scan would otherwise change what the executing scan is doing.",
+      "translation": "As configurações são lidas dos widgets ANTES que isto as capture: um job não deve tocar um QLineEdit de outra thread, e um usuário que edite o tamanho da amostra no meio da varredura mudaria, caso contrário, o que a varredura em andamento faz.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_correction_families.set_frame#0",
+      "source": "Narrow the frame to one correction family before setting it.",
+      "source_sha256": "75b21dac1373791eca226f24eab7fe52d52d320714b44aec36f1d949f6c5387a",
+      "context": "Narrow the frame to one correction family before setting it.",
+      "translation": "Restringe a tabela a uma família de correção antes de defini-la.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_publication_figure.build_style_menu#0",
+      "source": "Build the style menu, then add the publication-figure entry.",
+      "source_sha256": "bcac3b016b1f30be9bb6bb7203e98cd23c1ba39e926b1bb4d496db3d1b581de8",
+      "context": "Build the style menu, then add the publication-figure entry.",
+      "translation": "Constrói o menu de estilos e depois adiciona a entrada de figura para publicação.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen._virtual_stain.work#0",
+      "source": "Train, predict and score off the GUI thread.",
+      "source_sha256": "7b6f3c596e46b4096f9577e67e942cdabe8d33bf76d7e80df7a600881c44566e",
+      "context": "Train, predict and score off the main GUI execution path.",
+      "translation": "Treina, prevê e pontua fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.train_cellpose._VirtualStainApply.apply.work#0",
+      "source": "Predict off the GUI thread.",
+      "source_sha256": "8e8fac148a5d9b11ae7a50c6a9cf6d9f6f7ade92e3d802d58d819a7ba9ceec28",
+      "context": "Predict off the main GUI execution path.",
+      "translation": "Prevê fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar._mark._unmark#0",
+      "source": "Put the field back the way it was found.",
+      "source_sha256": "c5888698ce98b0c042d45e6e718e55b4abad6928ff902f1a869208f39d19ec2e",
+      "context": "Put the field back the way it was found.",
+      "translation": "Devolve o campo ao estado em que foi encontrado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar._wanted_now.narrowed#0",
+      "source": "``keys`` less whatever the query, Modified and level exclude.",
+      "source_sha256": "650adf0387bb7e5f98a87922a456fb9c7409bd68299140d19a83633fed7a9c99",
+      "context": "``keys`` less whatever the query, Modified and level exclude.",
+      "translation": "``keys`` menos o que a consulta, Modificados e o nível excluem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.__init__.check#0",
+      "source": "Store the comparison until the worker's finished signal arrives.",
+      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
+      "context": "Store the comparison until the worker's finished signal arrives.",
+      "translation": "Guarda a comparação até chegar o sinal finished do trabalhador.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.starplast.open_starplast.check#0",
+      "source": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
+      "source_sha256": "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b",
+      "context": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
+      "translation": "Recolhe o processo filho desanexado e mostra falhas sem fechar o Starplast ao sair do spaCR.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
+      "source": "Show ``model`` with the shared three-state header sorting.",
+      "source_sha256": "2321b1e4b3ee0248fadb7fc6f1fedcac409c67f881b871c2b01edabf11e07ab4",
+      "context": "Show ``model`` with the shared three-state header sorting.",
+      "translation": "Mostra ``model`` com a ordenação compartilhada de três estados no cabeçalho.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#1",
+      "source": "the filter proxy over the condition rows.",
+      "source_sha256": "d135d3a7f1ca9996c8742b82b6d5996a46cebd1e64e495165d793fd20952bf42",
+      "context": "the filter proxy over the condition rows.",
+      "translation": "o proxy de filtro sobre as linhas de condições.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.DnaRainWidget._coalesce.close#0",
+      "source": "Close the run being accumulated and emit it.",
+      "source_sha256": "8524dbde513e2481fc80010ddc02d96b60682b607e0ad4f6047e1c103f315a6e",
+      "context": "Close the run being accumulated and emit it.",
+      "translation": "Fecha a sequência sendo acumulada e a emite.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dna_rain.derive_head_color.gain#0",
+      "source": "How far a lightness is from both reference lightnesses.",
+      "source_sha256": "a7012acacbec2966347c05a4cce2a7a0ac0d7bce20d8429896a72e4b918966c0",
+      "context": "How far a lightness is from both reference lightnesses.",
+      "translation": "Quão longe uma luminosidade está de ambas as luminosidades de referência.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._follow_path_probes.let_go#0",
+      "source": "Drop the probe connection as the widget is destroyed.",
+      "source_sha256": "1743abff352c1cba4395bfb17b5e17988039eca2cc4a488a9d5c26df7f9c680d",
+      "context": "Drop the probe connection as the widget is destroyed.",
+      "translation": "Solta a conexão da sonda quando o widget é destruído.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._follow_path_probes.let_go#1",
+      "source": "whatever ``destroyed`` sends; unused.",
+      "source_sha256": "8e125ea9a0322782d1ce0044d67dadbe47ad50f3208390b674fc5220ae403e70",
+      "context": "whatever ``destroyed`` sends; unused.",
+      "translation": "o que quer que ``destroyed`` envie; não usado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._follow_path_probes.redraw#0",
+      "source": "Refresh the hint once a probe has an answer.",
+      "source_sha256": "e7fa0d6f5ad7cb5e2316f3edd2a1dbb32ffb7bf992246b14fbad5bde632375b5",
+      "context": "Refresh the hint once a probe has an answer.",
+      "translation": "Atualiza a dica quando uma sonda tem uma resposta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._follow_path_probes.redraw#1",
+      "source": "Both arguments are ignored: the hint is rebuilt from every path it shows, so which one answered does not change the work.",
+      "source_sha256": "6adcbc9533c874577baa135c2e29d3e90304daf2e27c24ee98a501b6af11af49",
+      "context": "Both arguments are ignored: the hint is rebuilt from every path it shows, so which one answered does not change the work.",
+      "translation": "Ambos os argumentos são ignorados: a dica é reconstruída a partir de todos os caminhos que mostra, então qual deles respondeu não muda o trabalho.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._follow_path_probes.redraw#2",
+      "source": "the path that was probed; unused.",
+      "source_sha256": "fe69a859c8175c0ea5786f57bcd0c7ace64bfbc2aa6b55065b8f0646a3bbe3f7",
+      "context": "the path that was probed; unused.",
+      "translation": "o caminho sondado; não usado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.FilePathListWidget._follow_path_probes.redraw#3",
+      "source": "what the probe found; unused.",
+      "source_sha256": "fab8082737168222b47b3c864177c828611b52a0b4ba8895cca1451e039fa0d5",
+      "context": "what the probe found; unused.",
+      "translation": "o que a sonda encontrou; não usado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot._GlideCamera.consider._score_at#0",
+      "source": "The survey's score at ``point``, or 0 outside it.",
+      "source_sha256": "4e6bbcb16821eac61444efbae31ef6fbc9291e0bf78133df07c69af99fedf426",
+      "context": "The survey's score at ``point``, or 0 outside it.",
+      "translation": "A pontuação do levantamento em ``point``, ou 0 fora dele.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot._GlideCamera.consider._score_at#1",
+      "source": "``(re, im)`` relative to the reference.",
+      "source_sha256": "8a9560c586b2488ab6d877cd3c5fc0eb81d828e7c268a8e6804efc221407dbdb",
+      "context": "``(re, im)`` relative to the reference.",
+      "translation": "``(re, im)`` relativo à referência.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot.exact_misiurewicz_center._iterate#0",
+      "source": "Iterate the map n times at arbitrary precision.",
+      "source_sha256": "b4547d415daedabe417f09ad4f848369140a6544e0e9ff4fc02987fb07082673",
+      "context": "Iterate the map n times at arbitrary precision.",
+      "translation": "Itera o mapa n vezes com precisão arbitrária.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot.exact_misiurewicz_center._iterate#1",
+      "source": "`mpmath` rather than float: a Misiurewicz point is found by Newton's method on an orbit that is chaotic by construction, and double precision loses the point long before the iteration converges.",
+      "source_sha256": "4618fdd704e97ad7b007a0cca5125b2af9aaef345b177f85eb5bea86c902e155",
+      "context": "`mpmath` rather than float: a Misiurewicz point is found by Newton's method on an orbit that is chaotic by construction, and double precision loses the point long before the iteration converges.",
+      "translation": "`mpmath` em vez de float: um ponto de Misiurewicz é encontrado pelo método de Newton numa órbita caótica por construção, e a precisão dupla perde o ponto muito antes de a iteração convergir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure._legible_backdrop.luminance#0",
+      "source": "The colour's relative luminance (WCAG 2), 0 for black to 1 for white.",
+      "source_sha256": "1a72541fd53b35a7bdd11f900e9e008b45f222d75afb2911115f98a6b74f9ff2",
+      "context": "The colour's relative luminance (WCAG 2), 0 for black to 1 for white.",
+      "translation": "A luminância relativa da cor (WCAG 2), de 0 para preto a 1 para branco.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure._legible_backdrop.luminance.linear#0",
+      "source": "One sRGB channel, 0..1, converted to linear light.",
+      "source_sha256": "7c9bb39859bb24e313ae2a2f063b2cd433d45cd780c5ea68561cbf4ce410dd12",
+      "context": "One sRGB channel, 0..1, converted to linear light.",
+      "translation": "Um canal sRGB, 0..1, convertido para luz linear.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel._draw_guide_support.verdict#0",
+      "source": "Whether one row's guide support is sufficient to trust.",
+      "source_sha256": "a66a5cefb0e431cca4ec4dc6338aa42d9c937f569ffff8b89bb3c8410bfa9341",
+      "context": "Whether one row's guide support is sufficient to trust.",
+      "translation": "Se o suporte de guia de uma linha basta para confiar nela.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.regression_results.RegressionResultsPanel._read_run.reading#0",
+      "source": "Pass one file of the read on as step 2.",
+      "source_sha256": "9f24927d7cef45281107840e6613f461e4e11867cb25b24ff9460a76bc6fd826",
+      "context": "Pass one file of the read on as step 2.",
+      "translation": "Repassa um arquivo da leitura como passo 2.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.spaceout.read#0",
+      "source": "The current spaceout choice from the card's dressing.",
+      "source_sha256": "0d08a5267bffa4f78aa2b7d0ecf343a58d66a603dedcb130118f1ea68728276c",
+      "context": "The current spaceout choice from the card's dressing.",
+      "translation": "A escolha spaceout atual a partir da decoração do cartão.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.setup_card.SetupCard.spaceout_hue.read#0",
+      "source": "The current spaceout hue from the card's dressing.",
+      "source_sha256": "3b34bff5fa604ce5662071ca27c793c858826470240b983912b4f5482f4c5189",
+      "context": "The current spaceout hue from the card's dressing.",
+      "translation": "O matiz spaceout atual a partir da decoração do cartão.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_figure_settings.redraw_umap_figure._get#0",
+      "source": "One figure setting, or the fallback when it is unset.",
+      "source_sha256": "dbc6a4dceddcc30f42506de5eeb1d7578188998d4c58796d2485e3bedfdce705",
+      "context": "One figure setting, or the fallback when it is unset.",
+      "translation": "Uma configuração de figura, ou o valor reserva quando não está definida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

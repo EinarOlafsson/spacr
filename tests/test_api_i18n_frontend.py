@@ -149,7 +149,9 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # one per module); all 12,038 prior symbols unchanged.
 # 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
 # (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
-REAL_SYMBOL_COUNT = 12_171
+# 2026-10-03 F411: +46/-0, documented nested helpers of 23 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,171 prior symbols unchanged.
+REAL_SYMBOL_COUNT = 12_217
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

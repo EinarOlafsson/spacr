@@ -2094,3 +2094,20 @@ The canonical documented-helper denominator is now 1,153 (source grew from
 1,134). Enabled: 145; 1,008 remain. Next: modules with 2-3 helpers, then the
 large ones (preferences, utils, plot, fractal_travel, gui_scale, ml).
     BLOCKED / open: OPEN docs work: 1,008 of 1,153 nested helpers; 79 upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 23 MORE MODULES ENABLED (PARTIAL; 190 of 1,157)
+ENABLED_MODULES grows by 23 modules with two helpers each (hits,
+object_settings_table, qt.dnd, qt.hf_download, qt.menus, qt.prerun, ten
+qt.screens, qt.settings_search, qt.starplast and seven qt.widgets). The normal
+API writer adds 46 symbols (12,171 -> 12,217; 45 helpers plus nightly's new
+public ConditionSourceTable.setModel) in English and all nine locales; earlier
+records unchanged. 62 unique blocks got direct AI translations with AI
+technical review, in docs/i18n/reviewed/api/<lang>/2026-10-03-nested-batch3.json
+(no native-speaker signoff); writer generated=0, decoded=0. Four symbol pins
++46; Help index regenerated. Strict audit: only the pre-existing
+spacr.crops#1 / preview_contract false-friend entries fail. Guards: the three
+remaining failures are nightly's upstream drift (callable inventory 9991/9990,
+stale en hashes), owned elsewhere. spacr.object_classifier stays out: a
+nightly helper (_train_real_classifier.estimator) has no docstring. The
+canonical denominator is now 1,157.
+    BLOCKED / open: OPEN docs work: 967 of 1,157 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
