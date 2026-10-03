@@ -1,0 +1,39 @@
+632. Gate editor 3D mode is usable
+
+Status: IMPLEMENTED 2026-10-03 — GateCanvas (spacr/qt/widgets/gate_editor.py):
+free spin is an orbit (no roll, no snap, angle kept); zoom drops points
+outside the zoomed box; new 3D shapes "Polygon through view" (click corners,
+click first or double-click to close; swept along the line of sight as a
+ViewGate), "Ellipsoid with handles" and "Box with handles" (fitted to the
+objects a dragged rectangle frames, then pulled by face/radius handles or
+moved by the centre handle; view gates also move by their centre handle);
+live highlight of the objects inside any shape being drawn; double-click a
+gate in the gate table to rename it (children and combinations follow).
+New _EllipsoidGate in gate_spec.py goes through GateSet like every gate.
+Frames checked in /mnt/wd4tb/scratch/632. Tests:
+tests/qt/test_gate_editor_3d_mode_is_usable.py.
+Left: catalog translations for the new captions at the next catalog rebuild;
+the plane-based shapes (box/oval/circle/polygon gate) are kept unchanged.
+
+User request: "the gating in the gate editor in 3D is not usable. And the axes
+still snap to one centered and one set at no angle in 3D mode. So have an
+agent overhaul the 3D mode in gate editor so it is actually possible to use
+and draw gates in 3d. The 2d mode works fine I think."
+
+Build:
+1. Camera: free orbit and zoom with no axis snapping to centred or zero
+   angle, and a sensible default view.
+2. Gate drawing in 3D:
+   - a polygon drawn in screen space on the current view, extruded along the
+     view direction into a prism gate;
+   - a box / ellipsoid gate with draggable handles;
+   - points inside the gate highlighted live;
+   - edit, move, delete and rename gates;
+   - 3D gate membership feeds the existing gate model (same output columns
+     as 2D).
+3. 2D mode unchanged.
+
+Done when: offscreen frames rendered to PNG in /mnt/wd4tb/scratch/632 look
+right; Qt tests cover the camera keeping its angle after interaction, a drawn
+polygon gate selecting the expected synthetic points, and the 2D tests pass
+unchanged; guards green.

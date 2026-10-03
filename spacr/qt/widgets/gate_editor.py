@@ -33,7 +33,7 @@ is.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -60,7 +60,8 @@ from .gate_spec import (
     PolygonGate, RectGate, ThresholdGate,
     CYLINDER, PRISM,
     COMPOSITE,
-    CylinderGate, PrismGate, VIEW_LASSO, ViewGate,
+    CylinderGate, PrismGate, VIEW_LASSO, ViewGate, CompositeGate,
+    _EllipsoidGate, points_in_polygon,
 )
 from .toggle import Toggle
 from .volume_view import rotate_about_world, trackball, view_axes
@@ -93,6 +94,11 @@ def _set_view(ax, elevation: float, azimuth: float, roll: float = 0.0) -> None:
                      roll=float(roll))
     except TypeError:
         ax.view_init(elev=float(elevation), azim=float(azimuth))
+
+
+def _wrapped_angle(angle: float) -> float:
+    """An angle in degrees folded into ``[-180, 180)``."""
+    return (float(angle) + 180.0) % 360.0 - 180.0
 
 
 def _is_right_button(event) -> bool:
@@ -243,7 +249,10 @@ TOOL_LABELS = {
 #: and left the control looking as though 3D gating had not been built.
 VOLUME_SHAPES: Tuple[Tuple[str, str], ...] = (
     ("lasso", "Lasso through view"),
+    ("view_polygon", "Polygon through view"),
     ("view_rect", "Rectangle through view"),
+    ("ellipsoid", "Ellipsoid with handles"),
+    ("box_handles", "Box with handles"),
     ("box", "Box gate"),
     ("oval", "Oval gate"),
     ("circle", "Circle gate"),
@@ -254,6 +263,34 @@ VOLUME_SHAPES: Tuple[Tuple[str, str], ...] = (
 #: The volume shapes drawn on the screen and swept along the line of sight,
 #: at any angle, rather than on one of the three axis planes.
 VIEW_SHAPES = ("lasso", "view_rect")
+
+#: The volume shapes framed by a rectangle on the screen and then fitted, on
+#: all three measurements, to the objects that rectangle encloses.
+_FITTED_SHAPES = ("box_handles", "ellipsoid")
+
+#: Shapes whose drag is a screen rectangle rather than a free outline.
+_RECT_SHAPES = ("view_rect",) + _FITTED_SHAPES
+
+
+def _screen_points(ax, points) -> Optional[np.ndarray]:
+    """Where 3D data points land on the canvas, in pixels.
+
+    Projected with the camera as it is now (``get_proj``), not with the
+    matrix of the last draw, so a point is placed correctly straight after a
+    spin. Returns None when the axes cannot project.
+    """
+    try:
+        from mpl_toolkits.mplot3d import proj3d
+
+        array = np.asarray(points, dtype=float).reshape(-1, 3)
+        matrix = ax.get_proj()
+        xs, ys, _zs = proj3d.proj_transform(
+            array[:, 0], array[:, 1], array[:, 2], matrix)
+        return np.asarray(ax.transData.transform(
+            np.column_stack([xs, ys])), dtype=float)
+    except Exception:
+        LOG.debug("could not project points to the screen", exc_info=True)
+        return None
 
 
 class GateCanvas(GraphCanvas):
@@ -382,6 +419,15 @@ class GateCanvas(GraphCanvas):
         self._pending_volume_gate: Optional[Gate] = None
         self._pending_volume_axis: str = ""
         self._depth_drag_from: Optional[Tuple[float, float]] = None
+        #: The polygon being clicked on the 3D view, in canvas pixels.
+        self._view_polygon: List[Tuple[float, float]] = []
+        #: The handle being pulled in the volume: (gate name, role, start
+        #: pixel, gate as it was), or None.
+        self._handle_drag = None
+        #: The edited gate shown while a handle is pulled, or None.
+        self._volume_preview: Optional[Gate] = None
+        #: The live highlight of the objects inside a shape being drawn.
+        self._live = None
 
     @property
     def tool(self) -> str:
@@ -418,6 +464,7 @@ class GateCanvas(GraphCanvas):
         leave it offering to close a polygon that no longer exists.
         """
         self._pending = []
+        self._view_polygon = []
         self.polygon_changed.emit(0)
         self.render_now()
 
@@ -714,6 +761,13 @@ class GateCanvas(GraphCanvas):
         y = pd.to_numeric(frame[spec.y], errors="coerce").to_numpy(float)
         zs = pd.to_numeric(frame[z], errors="coerce").to_numpy(float)
         finite = np.isfinite(x) & np.isfinite(y) & np.isfinite(zs)
+        if self._volume_zoom > 1.0:
+            self._apply_volume_zoom(ax)
+            for values, (low, high) in ((x, ax.get_xlim3d()),
+                                        (y, ax.get_ylim3d()),
+                                        (zs, ax.get_zlim3d())):
+                with np.errstate(invalid="ignore"):
+                    finite &= (values >= low) & (values <= high)
 
         if not self._draw_voxels(ax, x[finite], y[finite], zs[finite]):
             ax.scatter(x[finite], y[finite], zs[finite],
@@ -744,8 +798,10 @@ class GateCanvas(GraphCanvas):
             self._apply_volume_zoom(ax)
 
         self._draw_anchor_aura(ax)
-        self._draw_volume_gates(ax, frame, palette)
         self._axes = {(0, 0): ax}
+        self._live = None
+        self._draw_volume_gates(ax, frame, palette)
+        self._draw_volume_handles(ax)
         self._canvas.draw_idle()
         return True
 
@@ -967,6 +1023,21 @@ class GateCanvas(GraphCanvas):
             ax.plot([a[0], b[0]], [a[1], b[1]], [a[2], b[2]],
                     color=colour, linewidth=self._line_width + 0.4, alpha=0.9)
 
+    def _draw_ellipsoid(self, ax, gate, colour) -> None:
+        """An ellipsoid as three rings, one in each pair of its axes."""
+        shown = self._plot_columns()
+        centre = {gate.x_column: gate.x_centre, gate.y_column: gate.y_centre,
+                  gate.z_column: gate.z_centre}
+        radius = {gate.x_column: gate.x_radius, gate.y_column: gate.y_radius,
+                  gate.z_column: gate.z_radius}
+        turn = np.linspace(0.0, 2.0 * np.pi, 73)
+        for first, second in ((0, 1), (0, 2), (1, 2)):
+            ring = np.tile([centre[c] for c in shown], (len(turn), 1))
+            ring[:, first] += radius[shown[first]] * np.cos(turn)
+            ring[:, second] += radius[shown[second]] * np.sin(turn)
+            ax.plot(ring[:, 0], ring[:, 1], ring[:, 2], color=colour,
+                    linewidth=self._line_width + 0.6, alpha=0.9)
+
     def _draw_volume_gates(self, ax, frame, palette) -> None:
         """Show each shown gate's objects in the volume.
 
@@ -976,11 +1047,19 @@ class GateCanvas(GraphCanvas):
         the gate bounds a depth it never mentioned.
         """
         spec = self._spec
-        for gate in self._gates.gates:
+        gates = self._gates
+        preview = getattr(self, "_volume_preview", None)
+        if preview is not None:
+            gates = GateSet(list(self._gates.gates))
+            try:
+                gates.add(preview)
+            except GateError:
+                gates = self._gates
+        for gate in gates.gates:
             if not self.is_gate_enabled(gate.name):
                 continue
             try:
-                inside = self._gates.mask(frame, gate.name)
+                inside = gates.mask(frame, gate.name)
             except Exception:
                 continue
             if not bool(np.any(inside)):
@@ -988,6 +1067,8 @@ class GateCanvas(GraphCanvas):
             colour = self.gate_colour(gate.name)
             if isinstance(gate, BoxGate) and gate.z_column == self._z_column:
                 self._draw_box(ax, gate, colour)
+            if isinstance(gate, _EllipsoidGate) and self._shows_columns(gate):
+                self._draw_ellipsoid(ax, gate, colour)
             if isinstance(gate, ViewGate) and set(gate.columns) == {
                     spec.x, spec.y, self._z_column}:
                 self._draw_view_gate(ax, gate, colour)
@@ -1547,7 +1628,402 @@ class GateCanvas(GraphCanvas):
         return (self._mode in ("3D", "xD")
                 and hasattr(self.axes_at(0, 0), "get_zlim"))
 
+    def _plot_columns(self) -> Tuple[str, str, str]:
+        """The three measurements on the volume's x, y and z axes."""
+        return (self._spec.x, self._spec.y, self._z_column)
+
+    def _shows_columns(self, gate: Gate) -> bool:
+        """Whether ``gate`` reads exactly the three measurements on screen."""
+        shown = self._plot_columns()
+        return all(shown) and set(gate.columns) == set(shown)
+
+    def _volume_xyz(self, frame=None) -> Optional[np.ndarray]:
+        """The population as an ``(n, 3)`` array in the volume's axis order."""
+        frame = self.population() if frame is None else frame
+        shown = self._plot_columns()
+        if frame is None or not all(shown) or any(
+                c not in frame.columns for c in shown):
+            return None
+        return np.column_stack([
+            pd.to_numeric(frame[c], errors="coerce").to_numpy(float)
+            for c in shown])
+
+    def _inside_outline(self, outline) -> Optional[np.ndarray]:
+        """Which population rows project inside a screen outline.
+
+        :param outline: the outline's vertices in canvas pixels.
+        :returns: a boolean array, or None when the volume cannot project.
+        """
+        ax = self.axes_at(0, 0)
+        points = self._volume_xyz()
+        if ax is None or points is None or len(outline) < 3:
+            return None
+        pixels = _screen_points(ax, points)
+        if pixels is None:
+            return None
+        return points_in_polygon(pixels[:, 0], pixels[:, 1], list(outline))
+
+    def _clear_live(self) -> None:
+        """Remove the live highlight of a shape being drawn."""
+        artist, self._live = getattr(self, "_live", None), None
+        if artist is not None:
+            try:
+                artist.remove()
+            except Exception:
+                pass
+
+    def _show_live(self, outline) -> None:
+        """Ring the objects inside the shape being drawn, as it is drawn."""
+        self._clear_live()
+        ax = self.axes_at(0, 0)
+        if ax is None or not self._in_volume() or len(outline) < 3:
+            return
+        inside = self._inside_outline(outline)
+        points = self._volume_xyz()
+        if inside is None or points is None or not inside.any():
+            return
+        picked = points[inside]
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        try:
+            self._live = ax.scatter(
+                picked[:, 0], picked[:, 1], picked[:, 2], s=22,
+                facecolor="none", edgecolor=active_palette()["warning"],
+                linewidths=0.9, depthshade=False)
+        finally:
+            ax.set_xlim3d(*limits[0])
+            ax.set_ylim3d(*limits[1])
+            ax.set_zlim3d(*limits[2])
+
+    def _view_polygon_click(self, event) -> bool:
+        """Place one vertex of a polygon drawn on the 3D view.
+
+        A click near the first vertex, or a double-click, closes the polygon
+        once it has three corners; the gate is then swept along the line of
+        sight like the lasso.
+
+        :returns: True when the click belonged to the polygon.
+        """
+        if (not self._in_volume() or self.drag_mode() != "draw"
+                or _is_right_button(event)
+                or self.volume_shape() != "view_polygon"
+                or event.inaxes is None):
+            return False
+        point = (float(getattr(event, "x", 0) or 0),
+                 float(getattr(event, "y", 0) or 0))
+        self._last_gesture = "draw"
+        polygon = self._view_polygon
+        if len(polygon) >= 3:
+            first = polygon[0]
+            near = np.hypot(point[0] - first[0], point[1] - first[1]) \
+                <= self.CLOSE_RADIUS_PX
+            if near or bool(getattr(event, "dblclick", False)):
+                self._finish_view_polygon()
+                return True
+        if not polygon or np.hypot(point[0] - polygon[-1][0],
+                                   point[1] - polygon[-1][1]) > 3.0:
+            polygon.append(point)
+        self.polygon_changed.emit(len(polygon))
+        self._show_view_polygon(None)
+        return True
+
+    def _show_view_polygon(self, event) -> None:
+        """Draw the polygon so far, with a rubber band to the pointer."""
+        from matplotlib.lines import Line2D
+        from matplotlib.transforms import IdentityTransform
+
+        self._clear_ghost()
+        outline = list(self._view_polygon)
+        if event is not None and getattr(event, "x", None) is not None:
+            outline.append((float(event.x), float(event.y)))
+        if not outline:
+            return
+        xs = [p[0] for p in outline] + [outline[0][0]]
+        ys = [p[1] for p in outline] + [outline[0][1]]
+        line = Line2D(xs, ys, transform=IdentityTransform(),
+                      color=active_palette()["warning"], linewidth=1.2,
+                      linestyle="--", marker="o", markersize=3)
+        self._figure.add_artist(line)
+        self._ghost.append(line)
+        self._show_live(outline)
+        self._canvas.draw_idle()
+
+    def _finish_view_polygon(self) -> None:
+        """Turn the clicked polygon into a gate swept through the view."""
+        outline, self._view_polygon = list(self._view_polygon), []
+        self._clear_ghost()
+        self._clear_live()
+        self.polygon_changed.emit(0)
+        gate = self.gate_from_screen_outline(outline)
+        if gate is None:
+            self.depth_requested.emit(tr(
+                "That outline encloses nothing: click around the objects "
+                "to keep."))
+            self._canvas.draw_idle()
+            return
+        self.depth_requested.emit("")
+        self.gate_drawn.emit(gate)
+
+    def _fitted_gate_from_outline(self, outline) -> Optional[Gate]:
+        """A box or ellipsoid fitted to the objects a screen shape encloses.
+
+        The rectangle picks the objects; their range on each of the three
+        measurements sets the box's sides, or the ellipsoid's centre and
+        radii. The handles then refine it from any angle.
+
+        :param outline: the outline's vertices in canvas pixels.
+        :returns: the gate, or None when the outline encloses nothing.
+        """
+        inside = self._inside_outline(outline)
+        points = self._volume_xyz()
+        if inside is None or points is None:
+            return None
+        picked = points[inside]
+        picked = picked[np.isfinite(picked).all(axis=1)]
+        if not len(picked):
+            return None
+        low, high = picked.min(axis=0), picked.max(axis=0)
+        spans = np.where(high > low, high - low, 1e-9)
+        columns = self._plot_columns()
+        if self.volume_shape() == "ellipsoid":
+            centre, radius = (low + high) / 2.0, spans / 2.0
+            return _EllipsoidGate(
+                name="(unnamed)", x_column=columns[0], y_column=columns[1],
+                z_column=columns[2], x_centre=float(centre[0]),
+                y_centre=float(centre[1]), z_centre=float(centre[2]),
+                x_radius=float(radius[0]), y_radius=float(radius[1]),
+                z_radius=float(radius[2]))
+        return BoxGate.from_limits(
+            "(unnamed)", columns,
+            [(float(a), float(b)) for a, b in zip(low, high)])
+
+    def _handle_gate(self) -> Optional[Gate]:
+        """The gate whose handles are shown: the selected one, if it has any."""
+        name = self._active
+        if not name or name not in self._gates.names:
+            return None
+        preview = self._volume_preview
+        gate = preview if preview is not None and preview.name == name \
+            else self._gates.get(name)
+        if not self.is_gate_enabled(name) or not self._shows_columns(gate):
+            return None
+        if isinstance(gate, BoxGate) and None in (
+                gate.x_low, gate.x_high, gate.y_low, gate.y_high,
+                gate.z_low, gate.z_high):
+            return None
+        if isinstance(gate, (BoxGate, _EllipsoidGate, ViewGate)):
+            return gate
+        return None
+
+    def _volume_handles(self, gate: Gate) -> List[Tuple[str, np.ndarray]]:
+        """``gate``'s handles as ``(role, point)`` in the volume's axis order.
+
+        A box offers its centre and the middle of each face, an ellipsoid its
+        centre and the tip of each radius, and a gate drawn through the view
+        its centre only, at the middle of the objects it keeps.
+        """
+        shown = self._plot_columns()
+
+        def placed(values: Dict[str, float]) -> np.ndarray:
+            """A point given by column, laid out in the volume's order."""
+            return np.asarray([values[c] for c in shown], dtype=float)
+
+        handles: List[Tuple[str, np.ndarray]] = []
+        if isinstance(gate, BoxGate):
+            sides = {gate.x_column: (gate.x_low, gate.x_high, "x"),
+                     gate.y_column: (gate.y_low, gate.y_high, "y"),
+                     gate.z_column: (gate.z_low, gate.z_high, "z")}
+            middle = {c: (lo + hi) / 2.0 for c, (lo, hi, _p) in sides.items()}
+            handles.append(("centre", placed(middle)))
+            for column, (low, high, prefix) in sides.items():
+                for role, value in ((f"{prefix}_low", low),
+                                    (f"{prefix}_high", high)):
+                    handles.append((role, placed({**middle, column: value})))
+        elif isinstance(gate, _EllipsoidGate):
+            middle = {gate.x_column: gate.x_centre,
+                      gate.y_column: gate.y_centre,
+                      gate.z_column: gate.z_centre}
+            handles.append(("centre", placed(middle)))
+            for prefix in ("x", "y", "z"):
+                column = getattr(gate, f"{prefix}_column")
+                radius = getattr(gate, f"{prefix}_radius")
+                for role, sign in ((f"{prefix}_low", -1.0),
+                                   (f"{prefix}_high", 1.0)):
+                    handles.append((role, placed(
+                        {**middle, column: middle[column] + sign * radius})))
+        elif isinstance(gate, ViewGate):
+            points = self._volume_xyz()
+            frame = self.population()
+            if points is None or frame is None:
+                return []
+            try:
+                inside = gate.mask(frame)
+            except Exception:
+                return []
+            kept = points[inside]
+            kept = kept[np.isfinite(kept).all(axis=1)]
+            if len(kept):
+                handles.append(("centre", kept.mean(axis=0)))
+        return handles
+
+    def _draw_volume_handles(self, ax) -> None:
+        """Draw the selected gate's handles as rings the pointer can grab."""
+        gate = self._handle_gate()
+        if gate is None:
+            return
+        handles = self._volume_handles(gate)
+        if not handles:
+            return
+        points = np.asarray([p for _r, p in handles])
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        colour = self.gate_colour(gate.name)
+        try:
+            ax.scatter(points[:, 0], points[:, 1], points[:, 2], s=46,
+                       facecolor=colour, edgecolor=active_palette()["fg"],
+                       linewidths=1.4, depthshade=False, zorder=10)
+        finally:
+            ax.set_xlim3d(*limits[0])
+            ax.set_ylim3d(*limits[1])
+            ax.set_zlim3d(*limits[2])
+
+    def _grab_volume_handle(self, event) -> bool:
+        """Start pulling the handle under the pointer, if there is one."""
+        if not self._in_volume() or _is_right_button(event) \
+                or event.inaxes is None:
+            return False
+        gate = self._handle_gate()
+        ax = self.axes_at(0, 0)
+        if gate is None or ax is None:
+            return False
+        handles = self._volume_handles(gate)
+        if not handles:
+            return False
+        pixels = _screen_points(ax, [p for _r, p in handles])
+        if pixels is None:
+            return False
+        x = float(getattr(event, "x", 0) or 0)
+        y = float(getattr(event, "y", 0) or 0)
+        distance = np.hypot(pixels[:, 0] - x, pixels[:, 1] - y)
+        index = int(np.argmin(distance))
+        if float(distance[index]) > self.HANDLE_RADIUS_PX * 1.5:
+            return False
+        role, point = handles[index]
+        self._last_gesture = "draw"
+        self._handle_drag = (gate.name, role, (x, y), gate, point)
+        return True
+
+    def _pixels_per_unit(self, ax, point) -> Optional[np.ndarray]:
+        """How far one data unit along each volume axis moves on screen.
+
+        :returns: a 2 x 3 array of pixels per unit, one column per axis.
+        """
+        limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        steps = [max(abs(hi - lo), 1e-12) * 1e-3 for lo, hi in limits]
+        base = np.asarray(point, dtype=float)
+        probes = [base] + [base + np.eye(3)[a] * steps[a] for a in range(3)]
+        pixels = _screen_points(ax, probes)
+        if pixels is None or not np.isfinite(pixels).all():
+            return None
+        return np.column_stack([(pixels[a + 1] - pixels[0]) / steps[a]
+                                for a in range(3)])
+
+    def _handle_moved(self, event) -> Optional[Gate]:
+        """The gate being pulled, as it would be with the pointer here."""
+        if self._handle_drag is None:
+            return None
+        _name, role, start, gate, point = self._handle_drag
+        ax = self.axes_at(0, 0)
+        if ax is None:
+            return None
+        jacobian = self._pixels_per_unit(ax, point)
+        if jacobian is None:
+            return None
+        drag = np.array([float(getattr(event, "x", 0) or 0) - start[0],
+                         float(getattr(event, "y", 0) or 0) - start[1]])
+        shown = self._plot_columns()
+        if role == "centre":
+            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+            spans = np.array([max(abs(hi - lo), 1e-12) for lo, hi in limits])
+            delta = (np.linalg.pinv(jacobian * spans) @ drag) * spans
+            return self._moved_gate(gate, dict(zip(shown, delta)), point,
+                                    delta)
+        prefix, side = role.split("_")
+        column = getattr(gate, f"{prefix}_column")
+        direction = jacobian[:, shown.index(column)]
+        length = float(direction @ direction)
+        if length < 1e-9:
+            return gate
+        amount = float(drag @ direction) / length
+        if isinstance(gate, BoxGate):
+            field_name = f"{prefix}_{side}"
+            return replace(gate, **{
+                field_name: float(getattr(gate, field_name)) + amount})
+        if isinstance(gate, _EllipsoidGate):
+            radius = float(getattr(gate, f"{prefix}_radius"))
+            radius = radius + amount if side == "high" else radius - amount
+            return replace(gate, **{f"{prefix}_radius": abs(radius)})
+        return gate
+
+    def _moved_gate(self, gate: Gate, by_column: Dict[str, float], point,
+                    delta) -> Gate:
+        """``gate`` moved through the volume by ``by_column`` data units."""
+        if isinstance(gate, BoxGate):
+            changes = {}
+            for prefix in ("x", "y", "z"):
+                shift = by_column[getattr(gate, f"{prefix}_column")]
+                for side in ("low", "high"):
+                    name = f"{prefix}_{side}"
+                    changes[name] = float(getattr(gate, name)) + shift
+            return replace(gate, **changes)
+        if isinstance(gate, _EllipsoidGate):
+            return replace(gate, **{
+                f"{p}_centre": float(getattr(gate, f"{p}_centre"))
+                + by_column[getattr(gate, f"{p}_column")]
+                for p in ("x", "y", "z")})
+        if isinstance(gate, ViewGate):
+            shown = self._plot_columns()
+            before = {c: float(v) for c, v in zip(shown, point)}
+            after = {c: float(v) + float(d)
+                     for c, v, d in zip(shown, point, delta)}
+            old = gate.project(*[[before[c]] for c in gate.columns])
+            new = gate.project(*[[after[c]] for c in gate.columns])
+            dx, dy = float(new[0][0] - old[0][0]), float(new[1][0] - old[1][0])
+            if np.isfinite(dx) and np.isfinite(dy):
+                return gate.translated(dx, dy)
+        return gate
+
+    def _drag_volume_handle(self, event) -> None:
+        """Show the gate following the handle being pulled."""
+        edited = self._handle_moved(event)
+        if edited is None:
+            return
+        self._volume_preview = edited
+        self.render_now()
+
+    def _release_volume_handle(self, event) -> None:
+        """Finish pulling a handle and hand the edited gate to the panel."""
+        edited = self._handle_moved(event)
+        original = self._handle_drag[3] if self._handle_drag else None
+        self._handle_drag = None
+        self._volume_preview = None
+        if edited is None or edited == original:
+            self.render_now()
+            return
+        self.gate_edited.emit(edited)
+
     def _volume_press(self, event) -> bool:
+        """Start a gesture on the volume: a handle, a polygon vertex or a drag.
+
+        :returns: True when the volume consumed the press.
+        """
+        if not self._in_volume():
+            return False
+        if self._grab_volume_handle(event):
+            return True
+        if self._view_polygon_click(event):
+            return True
+        return self._volume_press_gesture(event)
+
+    def _volume_press_gesture(self, event) -> bool:
         """Start the gesture selected by Spin/Draw.
 
         The gate tools must not see it. That is the bug behind "i cant zoom in
@@ -1563,7 +2039,7 @@ class GateCanvas(GraphCanvas):
         drawing = self.drag_mode() == "draw" and not _is_right_button(event)
         self._last_gesture = "draw" if drawing else "spin"
         if drawing:
-            if self.volume_shape() in VIEW_SHAPES:
+            if self.volume_shape() in VIEW_SHAPES + _FITTED_SHAPES:
                 self._lasso = [(float(getattr(event, "x", 0) or 0),
                                 float(getattr(event, "y", 0) or 0))]
                 return True
@@ -1590,6 +2066,12 @@ class GateCanvas(GraphCanvas):
         """
         if not self._in_volume():
             return False
+        if self._handle_drag is not None:
+            self._drag_volume_handle(event)
+            return True
+        if self._view_polygon:
+            self._show_view_polygon(event)
+            return True
         if self._lasso is not None:
             self._extend_lasso(event)
             return True
@@ -1628,10 +2110,11 @@ class GateCanvas(GraphCanvas):
     def _turned(self, ax, dx: float, dy: float) -> Tuple[float, float, float]:
         """The camera angles after a drag of ``(dx, dy)`` pixels.
 
-        Free (the default) is a trackball: the volume turns about the screen's
-        vertical for a sideways drag and about its horizontal for an upward
-        one, the front following the pointer, with no pole to stop at and no
-        clamp. Locked to a data axis, the drag turns the volume about that
+        Free (the default) is an orbit: a sideways drag changes the azimuth
+        and an upward drag the elevation, as matplotlib's own rotation does,
+        so the vertical axis stays upright and the camera never rolls. There
+        is no clamp and no snap: the view stays at whatever angle the drag
+        leaves, over the pole included. Locked to a data axis, the drag turns the volume about that
         axis only, measured across the axis as it lies on screen so the
         gesture reads the same whichever way the axis points.
         """
@@ -1642,7 +2125,8 @@ class GateCanvas(GraphCanvas):
         roll = float(getattr(ax, "roll", 0.0) or 0.0)
         axis = self._spin_axis
         if axis not in ("x", "y", "z"):
-            return trackball(elevation, azimuth, roll, dx * step, dy * step)
+            return (_wrapped_angle(elevation - dy * step),
+                    _wrapped_angle(azimuth - dx * step), roll)
         u, v, _w = view_axes(elevation, azimuth, roll)
         direction = np.zeros(3)
         direction[{"x": 0, "y": 1, "z": 2}[axis]] = 1.0
@@ -1663,11 +2147,18 @@ class GateCanvas(GraphCanvas):
         """
         if not self._in_volume():
             return False
+        if self._handle_drag is not None:
+            self._release_volume_handle(event)
+            return True
         if self._lasso is not None:
             self._extend_lasso(event)
             outline, self._lasso = self._lasso_outline(), None
             self._clear_ghost()
-            gate = self.gate_from_screen_outline(outline)
+            self._clear_live()
+            if self.volume_shape() in _FITTED_SHAPES:
+                gate = self._fitted_gate_from_outline(outline)
+            else:
+                gate = self.gate_from_screen_outline(outline)
             if gate is None:
                 self.depth_requested.emit(tr(
                     "That outline encloses nothing: drag around the objects "
@@ -1712,7 +2203,10 @@ class GateCanvas(GraphCanvas):
         self._volume_zoom = max(0.05, min(50.0,
                                           self._volume_zoom * (1.25 ** step)))
         self._apply_volume_zoom(ax)
-        self._canvas.draw_idle()
+        if ax in getattr(self._figure, "axes", ()):
+            self.render_now()
+        else:
+            self._canvas.draw_idle()
         return True
 
     def _show_volume_drag(self, event) -> None:
@@ -1814,7 +2308,7 @@ class GateCanvas(GraphCanvas):
         point = (float(getattr(event, "x", 0) or 0),
                  float(getattr(event, "y", 0) or 0))
         last = self._lasso[-1]
-        if self.volume_shape() == "view_rect":
+        if self.volume_shape() in _RECT_SHAPES:
             self._lasso = [self._lasso[0], point]
         elif (point[0] - last[0]) ** 2 + (point[1] - last[1]) ** 2 >= 4.0:
             self._lasso.append(point)
@@ -1823,7 +2317,7 @@ class GateCanvas(GraphCanvas):
     def _lasso_outline(self) -> List[Tuple[float, float]]:
         """The outline drawn so far, in canvas pixels, as a closed shape."""
         points = list(self._lasso or ())
-        if self.volume_shape() == "view_rect" and len(points) >= 2:
+        if self.volume_shape() in _RECT_SHAPES and len(points) >= 2:
             (x0, y0), (x1, y1) = points[0], points[-1]
             return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
         return points
@@ -1844,6 +2338,7 @@ class GateCanvas(GraphCanvas):
                       linestyle="--")
         self._figure.add_artist(line)
         self._ghost.append(line)
+        self._show_live(outline)
         self._canvas.draw_idle()
 
     def view_projection(self, ax=None) -> Optional[np.ndarray]:
@@ -2173,7 +2668,8 @@ class GateCanvas(GraphCanvas):
         disappears the moment it points at the viewer.
         """
         plane = self.anchor_plane()
-        if plane is None or self.volume_shape() in VIEW_SHAPES:
+        if plane is None or self.volume_shape() in VIEW_SHAPES + _FITTED_SHAPES + (
+                "view_polygon",):
             return
         first, second, normal = plane
         spec = self._spec
@@ -2370,6 +2866,9 @@ class GateCanvas(GraphCanvas):
 
         The first-vertex shortcut and the Close button both use this method.
         """
+        if self._mode in ("3D", "xD") and len(self._view_polygon) >= 3:
+            self._finish_view_polygon()
+            return
         if self._mode in ("3D", "xD") and self._pending_plane:
             gate = self.close_polygon(emit=False)
             if gate is not None:
@@ -2661,6 +3160,7 @@ class GateTree(QWidget):
             "sets the axes to its measurements and makes the next gate you "
             "draw a child of it — it never changes what the plot shows.")
         self.tree.currentItemChanged.connect(self._on_selection)
+        self.tree.itemDoubleClicked.connect(self._on_double_clicked)
         self.active_changed.connect(self._rebuild_thresholds)
         self.tree.itemChanged.connect(self._on_item_changed)
         #: Gates the user has unticked. The tree owns this because the tick
@@ -2872,6 +3372,50 @@ class GateTree(QWidget):
             return True
         return any(self._select_in(item.child(i), name)
                    for i in range(item.childCount()))
+
+    def _on_double_clicked(self, item: QTreeWidgetItem, column: int) -> None:
+        """Ask for a new name for the gate whose name was double-clicked."""
+        if column != 0 or item is None:
+            return
+        old = str(item.data(0, Qt.UserRole) or item.text(0)).strip()
+        if old not in self._gates.names:
+            return
+        name, ok = QInputDialog.getText(
+            self, tr("Rename gate"), tr("New name for the gate:"), text=old)
+        if ok:
+            self._rename_gate(old, name)
+
+    def _rename_gate(self, old: str, new: str) -> bool:
+        """Rename a gate, keeping its children and combinations pointing at it.
+
+        :param old: the gate's current name.
+        :param new: the name it should have; surrounding spaces are dropped.
+        :returns: True when the gate was renamed, False when ``old`` does not
+            exist or ``new`` is empty or already taken.
+        """
+        new = str(new or "").strip()
+        names = self._gates.names
+        if old not in names or not new or new == old or new in names:
+            return False
+        renamed = []
+        for gate in self._gates.gates:
+            if gate.name == old:
+                gate = gate.rename(new)
+            if gate.parent == old:
+                gate = gate.with_parent(new)
+            if isinstance(gate, CompositeGate) and old in gate.operands:
+                gate = replace(gate, operands=tuple(
+                    new if o == old else o for o in gate.operands))
+            renamed.append(gate)
+        self._gates.gates = renamed
+        if old in self._disabled:
+            self._disabled.discard(old)
+            self._disabled.add(new)
+        self.refresh()
+        self.select(new)
+        self.gates_changed.emit()
+        self.active_changed.emit(self.active_gate())
+        return True
 
     def remove_selected(self) -> None:
         """Delete the selected gate, and everything drawn inside it."""
@@ -3261,7 +3805,10 @@ class GateEditorPanel(QWidget):
             "position on that view falls inside the outline. Box, oval, "
             "circle and polygon are drawn on the chosen plane and given a "
             "depth with a second drag. A right-button drag always turns the "
-            "volume."))
+            "volume.") + "\n" + tr(
+            "Polygon through view: click the corners, then click the first "
+            "one again. Ellipsoid and Box with handles fit the objects a "
+            "dragged rectangle frames; pull their handles to adjust them."))
         self._volume_shape.currentIndexChanged.connect(
             lambda _i: self._on_volume_shape_picked())
         volume_tools.addWidget(self._volume_shape)

@@ -2317,6 +2317,144 @@ class ViewGate(Gate):
 
 _GATE_CLASSES[VIEW_LASSO] = ViewGate
 
+#: An axis-aligned ellipsoid in three measurements.
+_ELLIPSOID = "ellipsoid"
+
+
+@dataclass(frozen=True)
+class _EllipsoidGate(Gate):
+    """An axis-aligned ellipsoid in three measurements.
+
+    The rounded sibling of :class:`BoxGate`: a centre and a radius on each of
+    the three columns, read the same from every camera angle. A row is inside
+    when its scaled distance from the centre is at most one.
+
+    :param name: unique name within a :class:`GateSet`.
+    """
+
+    x_column: str = ""
+    y_column: str = ""
+    z_column: str = ""
+    x_centre: float = 0.0
+    y_centre: float = 0.0
+    z_centre: float = 0.0
+    x_radius: float = 0.0
+    y_radius: float = 0.0
+    z_radius: float = 0.0
+
+    def __post_init__(self) -> None:
+        """Normalise the three columns and take each radius as its size.
+
+        :raises GateError: if a column is blank or two columns repeat.
+        """
+        super().__post_init__()
+        for name in ("x_column", "y_column", "z_column"):
+            value = str(getattr(self, name)).strip()
+            if not value:
+                raise GateError(
+                    f"ellipsoid gate {self.name!r} has no {name}; an "
+                    f"ellipsoid is drawn on three measurements")
+            object.__setattr__(self, name, value)
+        if len({self.x_column, self.y_column, self.z_column}) != 3:
+            raise GateError(
+                f"ellipsoid gate {self.name!r} names the same measurement "
+                f"twice")
+        for name in ("x_radius", "y_radius", "z_radius"):
+            object.__setattr__(self, name, abs(float(getattr(self, name))))
+
+    @property
+    def kind(self) -> str:
+        """The tag a saved ellipsoid gate carries."""
+        return _ELLIPSOID
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        """The three columns this gate reads, in axis order."""
+        return (self.x_column, self.y_column, self.z_column)
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows fall inside the ellipsoid.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
+        what = f"gate {self.name!r}"
+        radii = (self.x_radius, self.y_radius, self.z_radius)
+        if not all(radii):
+            return np.zeros(len(frame), dtype=bool)
+        total = np.zeros(len(frame), dtype=float)
+        keep = np.ones(len(frame), dtype=bool)
+        for column, centre, radius in zip(
+                self.columns, (self.x_centre, self.y_centre, self.z_centre),
+                radii):
+            values = _numeric(frame, column, what)
+            keep &= np.isfinite(values)
+            with np.errstate(invalid="ignore"):
+                total = total + ((values - centre) / radius) ** 2
+        with np.errstate(invalid="ignore"):
+            return keep & (total <= 1.0)
+
+    def describe(self) -> str:
+        """The centre and radii as one line.
+
+        :returns: a one-line description.
+        """
+        return (f"ellipsoid on {self.x_column}/{self.y_column}/"
+                f"{self.z_column} at ({self.x_centre:g}, {self.y_centre:g}, "
+                f"{self.z_centre:g}) ± ({self.x_radius:g}, "
+                f"{self.y_radius:g}, {self.z_radius:g})")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data.
+
+        :returns: a JSON-safe dict.
+        """
+        return {"kind": _ELLIPSOID, "name": self.name, "parent": self.parent,
+                "x_column": self.x_column, "y_column": self.y_column,
+                "z_column": self.z_column,
+                "x_centre": self.x_centre, "y_centre": self.y_centre,
+                "z_centre": self.z_centre,
+                "x_radius": self.x_radius, "y_radius": self.y_radius,
+                "z_radius": self.z_radius}
+
+    def translated(self, dx: float, dy: float) -> "_EllipsoidGate":
+        """A copy moved by ``(dx, dy)`` on x and y.
+
+        :param dx: shift along the x column.
+        :param dy: shift along the y column.
+        :returns: the moved copy.
+        """
+        return replace(self, x_centre=self.x_centre + float(dx),
+                       y_centre=self.y_centre + float(dy))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The middle on x and y.
+
+        :returns: ``(x, y)``.
+        """
+        return (self.x_centre, self.y_centre)
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None
+               ) -> "_EllipsoidGate":
+        """A copy grown or shrunk about its centre on all three axes.
+
+        :param factor: multiplier; must be positive.
+        :param about: the x/y anchor, defaulting to the centre.
+        :returns: the resized copy.
+        """
+        _check_factor(factor)
+        cx, cy = about if about is not None else self.centre()
+        return replace(
+            self,
+            x_centre=cx + (self.x_centre - cx) * factor,
+            y_centre=cy + (self.y_centre - cy) * factor,
+            x_radius=self.x_radius * factor, y_radius=self.y_radius * factor,
+            z_radius=self.z_radius * factor)
+
+
+_GATE_CLASSES[_ELLIPSOID] = _EllipsoidGate
+
 
 @dataclass(frozen=True)
 class CompositeGate(Gate):

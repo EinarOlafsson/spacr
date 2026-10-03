@@ -68,18 +68,18 @@ def test_the_dropdown_lists_every_volume_shape(panel):
     offered = [panel._volume_shape.itemData(i)
                for i in range(panel._volume_shape.count())]
     assert offered == [key for key, _label in VOLUME_SHAPES]
-    assert offered == ["lasso", "view_rect", "box", "oval", "circle",
-                       "polygon"]
+    assert offered == ["lasso", "view_polygon", "view_rect", "ellipsoid",
+                       "box_handles", "box", "oval", "circle", "polygon"]
 
 
 def test_the_labels_are_the_words_the_request_used(panel):
     labels = [panel._volume_shape.itemText(i)
               for i in range(panel._volume_shape.count())]
-    assert labels[2:5] == ["Box gate", "Oval gate", "Circle gate"]
+    assert labels[5:8] == ["Box gate", "Oval gate", "Circle gate"]
 
 
 def test_choosing_a_shape_reaches_the_canvas(panel):
-    panel._volume_shape.setCurrentIndex(3)
+    panel._volume_shape.setCurrentIndex(6)
     assert panel.canvas.volume_shape() == "oval"
 
 
