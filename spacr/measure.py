@@ -1942,7 +1942,7 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
             mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
             range_intensity.append(np.ptp(intens))
             upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
-            iqr_intensity.append(upper_quartile - lower_quartile)
+            iqr_intensity.append(float(upper_quartile - lower_quartile))
             cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
             gini_intensity.append(_gini(intens))
             frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
