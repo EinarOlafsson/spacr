@@ -829,6 +829,18 @@ def test_deep_spacr_builds_both_datasets_with_no_png_folder(project, monkeypatch
 # generate_image_umap
 # ---------------------------------------------------------------------------
 
+def _thumbnail_settings(project, crop_source):
+    """UMAP settings whose thumbnails do not depend on DBSCAN finding clusters.
+
+    ``plot_by_cluster`` skips noise, so an embedding DBSCAN calls all noise
+    (it does on the py3.9 minimum-dependency stack) draws no thumbnail at
+    all; sampling rows directly keeps these tests about the crop source.
+    """
+    settings = _umap_settings(project, crop_source)
+    settings["plot_by_cluster"] = False
+    return settings
+
+
 def _spy_thumbnails(monkeypatch):
     """Record every thumbnail that reaches the embedding axes."""
     import spacr.utils as su
@@ -849,13 +861,13 @@ def test_umap_draws_the_same_thumbnails_from_either_source(project, monkeypatch)
 
     np.random.seed(0)
     random.seed(0)
-    generate_image_umap(_umap_settings(project, "png"))
+    generate_image_umap(_thumbnail_settings(project, "png"))
     from_png = list(seen)
     seen.clear()
 
     np.random.seed(0)
     random.seed(0)
-    generate_image_umap(_umap_settings(project, "merged"))
+    generate_image_umap(_thumbnail_settings(project, "merged"))
     from_merged = list(seen)
 
     assert from_png and len(from_png) == len(from_merged)
@@ -874,7 +886,7 @@ def test_umap_runs_with_no_png_folder_and_no_png_list(project, monkeypatch):
     conn.close()
 
     seen = _spy_thumbnails(monkeypatch)
-    out = generate_image_umap(_umap_settings(project, "merged"))
+    out = generate_image_umap(_thumbnail_settings(project, "merged"))
     assert len(out) == N_CELLS * len(FIELDS)
     assert "cluster" in out.columns
     assert seen, "no thumbnail reached the embedding"
