@@ -152,3 +152,18 @@ biological validation outside the training pool remain OPEN, as described above.
 
 2026-10-02 — RECHECK
     First WHAT IS LEFT point (second-model ensemble, alpha) confirmed done on nightly; CPU stub-model test: tests/test_568_uncertainty_compute.py::test_ensemble_changes_uncertainty_and_preserves_primary_objects.
+
+2026-10-03 — GPU ACCEPTANCE RUN SCRIPTED, NOT RUN (lane 3)
+    GPU card held by cellposetime-r1-train (another session; epoch 14/100 at
+    08:25, ~31 min/epoch, so ~44 h left). Queued with tools/gpu_turn.sh at
+    08:26 and withdrawn at 08:50; not run. Rerun by itself: tools/gpu_turn.sh
+    568 timeout 30m /mnt/wd4tb/scratch/568/gpu.sh toxo|out, one turn per set:
+    headless spacr-make-masks --compute-uncertainty with r5 on cuda over
+    whole fields, then r5 labels per field (r5_labels.py) for 1-PQ. Sets:
+    fields_toxo (the ten 1994 px toxo_pv test fields) and fields_out (31
+    fields of 1998 px OUTSIDE r5's training pool). r5 trained with
+    holdout_included=True, so the only round-3 fields it never saw are the 31
+    moved to data/_removed_from_training in the 09-15 label-inconsistency
+    pass (23 MEF RNF213, 5 HeLa abTg, 2 dsred, 1 mtocScreen); truth from
+    curation/round3_queue. Those labels were flagged as inconsistent, so
+    treat their scores with care.
