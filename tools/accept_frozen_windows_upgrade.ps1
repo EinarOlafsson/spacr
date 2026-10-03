@@ -93,9 +93,14 @@ if ($InterruptAfterSeconds -gt 0) {
     $Interrupted = Join-Path $env:RUNNER_TEMP 'frozen-interrupted-upgrade'
     Invoke-Installer $Old.FullName $Interrupted
     $Killed = Start-Process $New.FullName -ArgumentList @('/S', "/D=$Interrupted") -PassThru
-    Start-Sleep -Seconds $InterruptAfterSeconds
+    $Old437 = Join-Path $Interrupted "_internal/$($OldRuntime[0])"
+    $Deadline = (Get-Date).AddSeconds($InterruptAfterSeconds)
+    while (-not $Killed.HasExited -and (Get-Date) -lt $Deadline -and (Test-Path $Old437) -and
+           -not (Test-Path (Join-Path $Interrupted '_internal/imageio-2.38.0.dist-info'))) { Start-Sleep -Milliseconds 50 }
+    Start-Sleep -Milliseconds 300
     $StillRunning = -not $Killed.HasExited
-    & "$env:SystemRoot\system32\taskkill.exe" /PID $Killed.Id /T /F | Out-Null
+    & "$env:SystemRoot\system32\taskkill.exe" /PID $Killed.Id /T /F 2>&1 | Out-Null
+    $global:LASTEXITCODE = 0
     Start-Sleep -Seconds 3
     $Partial = @(Get-ChildItem (Join-Path $Interrupted '_internal') -Filter 'imageio-*.dist-info' -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)
     $Midway = 'not-attempted'

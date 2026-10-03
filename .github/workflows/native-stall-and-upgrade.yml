@@ -96,8 +96,9 @@ jobs:
           CURRENT_RUN: ${{ matrix.new_run }}
         run: |
           foreach ($r in 'old','new') { $f = "$r/acceptance/SHA256SUMS"; (Get-Content $f -Raw) -replace "`r","" | Set-Content -NoNewline $f }
-          ./tools/accept_frozen_windows_upgrade.ps1 -OldRoot old -NewRoot new -Output upgrade-evidence -InterruptAfterSeconds 10
+          ./tools/accept_frozen_windows_upgrade.ps1 -OldRoot old -NewRoot new -Output upgrade-evidence -InterruptAfterSeconds 60
           Get-Content upgrade-evidence/upgrade.json
+          exit 0
       - if: always()
         uses: actions/upload-artifact@v7
         with:

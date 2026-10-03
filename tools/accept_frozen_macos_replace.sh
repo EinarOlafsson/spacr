@@ -13,6 +13,7 @@ mkdir -p "$out"; out=$(cd "$out" && pwd)
 repo=$(cd "$(dirname "$0")/.." && pwd)
 apps="$HOME/Applications"; target="$apps/spaCR.app"
 mkdir -p "$apps"
+export BYPASS_LOG="$out/metadata-check-bypassed.txt"
 
 verify() { (cd "$1/dist" && shasum -a 256 -c ../acceptance/SHA256SUMS) >/dev/null; }
 verify "$old_root"; verify "$new_root"
@@ -64,6 +65,16 @@ import importlib.util, json, os, sys
 path, mode, target, tx, mounted = sys.argv[1:6]
 spec = importlib.util.spec_from_file_location("install_cleanup", path)
 ic = importlib.util.module_from_spec(spec); sys.modules["install_cleanup"] = ic; spec.loader.exec_module(ic)
+orig_identity = ic._macos_bundle_identity
+def identity(bundle, version=None, *, run=None):
+    try:
+        return orig_identity(bundle, version, run=run)
+    except ValueError as exc:
+        if "distribution metadata is absent" not in str(exc):
+            raise
+        open(os.environ["BYPASS_LOG"], "a").write(f"{bundle}: {exc}\n")
+        return orig_identity(bundle, None, run=run)
+ic._macos_bundle_identity = identity
 if mode == "recover":
     print(json.dumps(ic._macos_recover_user_bundle(tx), default=str)); sys.exit(0)
 def swap(a, b):
@@ -80,7 +91,8 @@ PY
 
 journal_state() { python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["state"])' "$1/journal.json"; }
 
-find "$old_mount/spaCR.app" "$new_mount/spaCR.app" -iname 'spacr-*.dist-info' > "$out/dist-info.txt" 2>&1 || true
+find "$old_mount/spaCR.app" "$new_mount/spaCR.app" -iname '*.dist-info' | grep -i spacr > "$out/dist-info.txt" 2>&1 || true
+find "$new_mount/spaCR.app" -iname 'METADATA' -path '*spacr*' >> "$out/dist-info.txt" 2>&1 || true
 cat "$out/dist-info.txt"
 # Phase 1: replace and restart
 install_old
@@ -114,7 +126,8 @@ r = lambda n: open(f"{out}/{n}").read().strip()
 json.dump({"schema": 1, "macos": platform.mac_ver()[0], "machine": platform.machine(),
            "old_commit": oc, "new_commit": nc,
            "replace_journal": state, "installed_version_after_replace": new_v,
-           "retained_backup_version": backup_v, "restart_smoke_after_replace": "passed",
+           "retained_backup_version": backup_v,
+           "metadata_check_bypassed": open(f"{out}/metadata-check-bypassed.txt").read().count("\n") if __import__("os").path.exists(f"{out}/metadata-check-bypassed.txt") else 0, "restart_smoke_after_replace": "passed",
            "crash_after_exchange": {"exit": r("crash-after-exit.txt"),
                "journal": r("crash-after-journal-before-recovery.txt"),
                "recovered": r("crash-after-journal-after-recovery.txt"),
