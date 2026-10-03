@@ -182,3 +182,36 @@ def test_the_data_libraries_come_in_off_the_gui_thread_once():
     assert "after: True" in out, out
     assert "figure: True" in out, out
     assert "again: None" in out, out
+
+
+def test_the_font_list_is_built_in_a_child_only_when_missing(tmp_path,
+                                                             monkeypatch):
+    """380: a first launch builds Matplotlib's font list in a child process.
+
+    Started only when no list is on disk, never in a frozen build, and the
+    child is an interpreter importing the font manager with no shared pipes.
+    """
+    import subprocess
+
+    import spacr.qt.app as A
+
+    started = []
+
+    class _Child:
+        def __init__(self, argv, **kwargs):
+            started.append((argv, kwargs))
+
+    monkeypatch.setenv("MPLCONFIGDIR", str(tmp_path))
+    monkeypatch.setattr(subprocess, "Popen", _Child)
+    assert A._matplotlib_cache_dir() == tmp_path
+    assert isinstance(A._start_the_font_cache_in_a_child(), _Child)
+    argv, kwargs = started[0]
+    assert argv[1:] == ["-c", "import matplotlib.font_manager"]
+    assert kwargs["stdout"] is subprocess.DEVNULL
+    assert kwargs["stderr"] is subprocess.DEVNULL
+    (tmp_path / "fontlist-v390.json").write_text("{}")
+    assert A._start_the_font_cache_in_a_child() is None
+    (tmp_path / "fontlist-v390.json").unlink()
+    monkeypatch.setattr(A.sys, "frozen", True, raising=False)
+    assert A._start_the_font_cache_in_a_child() is None
+    assert len(started) == 1

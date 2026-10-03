@@ -332,7 +332,7 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
 
 
-_DATA_LIBRARIES = ("pandas", "matplotlib.figure")
+_DATA_LIBRARIES = ("pandas", "matplotlib.figure", "spacr.train_compare")
 _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
@@ -357,7 +357,8 @@ def _import_the_data_libraries_off_the_gui_thread():
     because its import loads Matplotlib's font list, and with no font cache
     yet (a first launch, or a new Matplotlib) that is a scan of every system
     font: measured at 1.0-2.2 s inside Dose-Response's first open on hosted
-    macOS, the worst freeze of the whole sweep there. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
+    macOS, the worst freeze of the whole sweep there. ``spacr.train_compare``
+    is the local model scan Make Masks runs while it builds its Mode box. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
     seconds after a module screen is on show, so the import does not share
     the interpreter lock with the open that has just finished painting.
 
@@ -377,7 +378,8 @@ def _import_the_data_libraries_off_the_gui_thread():
         with responsive_gui():
             for name in _DATA_LIBRARIES:
                 try:
-                    _importlib.import_module(name)
+                    with _timing.span("background import", name):
+                        _importlib.import_module(name)
                 except Exception:
                     LOG.debug("could not import %s early", name,
                               exc_info=True)
@@ -6163,6 +6165,58 @@ def _start_settings_prewarm() -> threading.Thread:
     return thread
 
 
+def _matplotlib_cache_dir() -> "Path":
+    """The folder Matplotlib keeps its font list in, without importing it.
+
+    The same rule as ``matplotlib.get_cachedir``: ``MPLCONFIGDIR`` when set,
+    the XDG cache folder on Linux, ``~/.matplotlib`` elsewhere.
+    """
+    from pathlib import Path
+
+    configured = os.environ.get("MPLCONFIGDIR")
+    if configured:
+        return Path(configured)
+    if sys.platform.startswith(("linux", "freebsd")):
+        base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
+        return Path(base) / "matplotlib"
+    return Path.home() / ".matplotlib"
+
+
+def _start_the_font_cache_in_a_child():
+    """Build Matplotlib's font list in a separate process when there is none.
+
+    Matplotlib scans every system font the first time it is imported with no
+    font list on disk, which is every first launch and every launch after a
+    Matplotlib upgrade. On hosted macOS that scan was the worst freeze of a
+    whole module sweep (1.0-2.2 s inside Dose-Response's first open), and on
+    a worker thread it still shares the interpreter lock with the screens
+    being built. A child interpreter shares nothing: it writes the list and
+    exits, and the first screen that draws a figure reads it.
+
+    Nothing is started in a frozen build (its executable is the app, not an
+    interpreter), when a list is already there, or when the child cannot be
+    started; Matplotlib then builds the list itself as before.
+
+    :returns: the child process, or ``None`` when none was started.
+    """
+    if getattr(sys, "frozen", False):
+        return None
+    try:
+        folder = _matplotlib_cache_dir()
+        if folder.is_dir() and any(folder.glob("fontlist-v*.json")):
+            return None
+        import subprocess
+
+        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        return subprocess.Popen(
+            [sys.executable, "-c", "import matplotlib.font_manager"],
+            stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL, close_fds=True, creationflags=flags)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not build the font list in a child", exc_info=True)
+        return None
+
+
 _ICON_WARM_AFTER_MS = 1500
 
 
@@ -6366,6 +6420,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     from .preferences import in_safe_mode
 
     if not in_safe_mode():
+        _start_the_font_cache_in_a_child()
         _start_settings_prewarm()
         from PySide6.QtCore import QTimer
 
