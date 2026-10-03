@@ -1,0 +1,106 @@
+633 Test data for every module and submodule
+
+Status: IMPLEMENTED AS ALPHA 2026-10-03 (partial: see "Left")
+
+Request (maintainer, verbatim):
+"have an agent pass over each modular and sub modal, and check if there is any
+modular/submodual that could use some test data to show if the modual,
+especially if you could use some test dataset already in use or know of data
+on my home machine that could be used."
+
+ALPHA 2026-10-03: seven new "Load test data…" buttons, registered in
+ALPHA_FEATURES[633] (widgets): TrellisTestDataButton,
+FeatureExplorerTestDataButton, OutliersTestDataButton,
+ControlChartTestDataButton, DataManagerTestDataButton,
+EmbeddingsTestDataButton, PowerTestDataButton. Hidden unless Preferences ->
+"Show alpha features" is on. All reuse the existing HF example plate
+(einarolafsson/spacr-example-annotate) through
+spacr.qt.widgets.measurements_example; nothing new is downloaded or published.
+Test: tests/qt/test_test_data_for_every_module.py.
+
+Audit (2026-10-03, nightly 9ff4ec07c)
+Mechanisms: EXAMPLE_DATA_SECTIONS dispatch in app_screen.py (settings modules),
+widgets/measurements_example.install_test_data_button (DB-reading tools),
+make_masks_datasets (HF training-set samples), make_masks_demo,
+import_demo, ops_stitch_demo, assay_examples, sra_picker.
+
+module            | had test data? | data loaded / candidate                           | license
+------------------+----------------+---------------------------------------------------+-----------------
+mask              | yes            | HF toxo_mito example plate (~400 MB)               | maintainer's own
+measure           | yes            | HF example plate / stream arrays                   | own
+annotate          | yes            | HF spacr-example-annotate (crops + db)             | own
+classify(_merged) | yes            | HF spacr-example-annotate                          | own
+map_barcodes      | yes            | SRA PRJNA1261935 reads (picker)                    | own, public SRA
+regression        | yes            | HF example tables                                  | own
+foreign (Import)  | yes            | import_demo examples                               | own
+align             | yes            | HF spacr-example-stitch                            | own
+make_masks        | yes            | HF example set + 6 HF training-set samples         | own (live_cell set mixes public sets, see note)
+umap              | yes            | HF spacr-example-annotate                          | own
+ops               | yes            | HF OPS sample (two fields, 11 cycles)              | published screen
+analyze_plaques   | yes            | HF toxoplasma-plaque-dataset / well-detector set   | own
+replication       | yes            | HF spacr-example-replication                       | own
+recruitment       | yes            | HF spacr-example-recruitment                       | own
+invasion          | yes            | assay_examples                                     | own
+host_pathogen     | yes            | assay_examples (host_pathogen_v1/v2)               | own
+tabulate, graph_builder, gate_editor, plate_view, db_browser, lineage,
+qc_dashboard, report | yes        | HF spacr-example-annotate measurements.db          | own
+experiment_design | yes (templates)| built-in plate templates                           | n/a
+trellis           | NO -> ADDED    | HF spacr-example-annotate, cell table              | own
+feature_explorer  | NO -> ADDED    | HF spacr-example-annotate, cell table              | own
+outliers          | NO -> ADDED    | HF spacr-example-annotate, cell table              | own
+control_chart     | NO -> ADDED    | HF example plate now; better: CPJUMP1 wells (staged)| CC0 1.0
+data_manager      | NO -> ADDED    | HF example plate folder as the project             | own
+embeddings        | NO -> ADDED    | HF example plate measurements.db (crops)           | own
+power             | NO -> ADDED    | HF example plate cell table as the pilot           | own
+dose_response     | no             | needs a dose column; none on HF or disk fits.      | -
+                  |                | Candidate: maintainer's own dose plate             |
+profiler          | no             | needs Regression coefficients: run Regression on   | own
+                  |                | the HF example tables first (no separate data)     |
+investigate_hit   | no             | needs a Regression hit (same as profiler)          | own
+run_compare, run_history, pipeline_graph, project_browser, train_compare
+                  | no             | read spaCR's own run registry; a demo would need   | -
+                  |                | recorded runs, not images                          |
+layer_viewer      | no             | candidate: HF toxoplasma-pv-segmentation-dataset   | own
+                  |                | sample (images + masks), via make_masks_datasets   |
+external_masks    | no             | candidate: same PV sample (images + masks); needs  | own
+                  |                | the "inputs" mapping widget filled                 |
+convert           | no             | needs ND2/CZI/LIF/OME-TIFF; no openly licensed     | -
+                  |                | small file on disk. Candidate: an OME-TIFF from    |
+                  |                | the OME sample files (CC BY 4.0)                   |
+queue, batch, distributed_jobs | n/a | orchestrate other modules; no data of their own | -
+toxoplasma, plasmodium, candida | hubs | submodules covered above (assays, plaques)    | -
+
+Local data considered (/mnt/wd4tb/scratch):
+- 563/cpjump1_wells: CPJUMP1 well-level profiles, 4 plates, 28 MB, CC0 1.0
+  (Cell Painting Gallery). Best fit for Control Chart (plate-to-plate drift,
+  with control wells). STAGED, not uploaded.
+- 536/bbbc: BBBC019 wound healing derivatives (678 MB), CC BY 3.0. Candidate
+  for the wound-closure option in Measure (item 536), not a module of its own.
+- 537/Fluo-N2DL-HeLa (CTC): free for research with citation, not an open
+  licence. Not used.
+- 538/lumos: LUMoS raw TIFFs (259 MB), CC BY 4.0 (PLoS ONE). Candidate for
+  spectral unmixing in Measure (item 538).
+- 542/makrai: only annotation tables and URLs (images not on disk).
+- 558/jump: JUMP cpg0016 fields (697 MB), CC0 1.0. Candidate for Mask/Measure
+  on public Cell Painting.
+- 571/vicar: labels only; licence unverified.
+- 404/livecell_eval: evaluation CSVs only. LIVECell itself is CC BY-NC 4.0
+  (non-commercial): note this for the live-cell HF dataset.
+- /mnt/wd4tb/spacr_pv_crops, /mnt/wd4tb/af3/projects/*: maintainer's own
+  (PV crops, plaque, cross-channel, live_cell), already the source of the
+  published HF datasets above.
+
+To publish to HF (staged, NOT uploaded):
+- ~/.cache/spacr/example_data/control_chart_cpjump1/ (4 x
+  BR0011701{0..3}_augmented.csv.gz, 28 MB, CC0 1.0) -> proposed
+  einarolafsson/spacr-example-control-chart. Then point Control Chart's
+  button at it instead of the example plate.
+
+Left:
+- Publish the CPJUMP1 set and switch Control Chart to it.
+- Dose-Response: needs a small dose plate from the maintainer.
+- Layer Viewer and External Masks: wire the PV training-set sample
+  (make_masks_datasets, add the app keys) once those screens take a folder.
+- Convert: pick an OME-TIFF sample and add a button.
+- Registry-reading tools (run_compare, pipeline_graph, ...): a recorded
+  demo run would be needed.

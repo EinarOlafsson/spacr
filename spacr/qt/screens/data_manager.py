@@ -50,6 +50,7 @@ from ..theme import (SPACING, block_surface, font_px,
 from .app_screen import ModuleHeader
 from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.toggle import Toggle
+from ..widgets.measurements_example import install_test_data_button
 from ..widgets.sortable_table import install_sorting, table_item
 from ..app_catalog import register_declared
 
@@ -480,6 +481,10 @@ class DataManagerScreen(QWidget):
                           "measurements/")
         choose.clicked.connect(self.choose_project)
         head.addWidget(choose)
+        example = install_test_data_button(
+            self, head, lambda folder, _db: self.set_project(str(folder)),
+            say=self.project_label.setText)
+        example.setObjectName("DataManagerTestDataButton")
 
         self.rescan_button = QPushButton("Rescan", self)
         self.rescan_button.setObjectName("PrimaryButton")

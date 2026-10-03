@@ -60,6 +60,7 @@ from PySide6.QtWidgets import (
 
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, block_surface, register_widget_qss)
+from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
 
 #: The control column's object name, and what the QSS block below keys off.
 CONTROLS_OBJECT = "OutlierControls"
@@ -204,6 +205,11 @@ class OutliersScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of measurements")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        example = install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
+        example.setObjectName("OutliersTestDataButton")
 
         self._export = QPushButton("Export…", self)
         self._export.setToolTip(

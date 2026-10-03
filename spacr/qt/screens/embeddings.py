@@ -92,6 +92,7 @@ from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
                             DEFAULT_CROP_LIMIT, DEFAULT_PAGE_SIZE)
 from ..app_catalog import declared_app
 from ..i18n import tr
+from ..widgets.measurements_example import install_test_data_button
 from ..job_runner import JobRunner
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import FoldSection
@@ -277,6 +278,10 @@ class EmbeddingsScreen(QWidget):
         self._browse.setToolTip("Find the database or the crop folder")
         self._browse.clicked.connect(self.choose_path)
         picker.addWidget(self._browse)
+        example = install_test_data_button(
+            self, picker, lambda _folder, db: self._use_example_database(db),
+            say=lambda text: self._status.setText(text))
+        example.setObjectName("EmbeddingsTestDataButton")
         outer.addLayout(picker)
 
         selection = QHBoxLayout()
@@ -894,6 +899,20 @@ class EmbeddingsScreen(QWidget):
             self._plate.setCurrentIndex(max(0, index))
         finally:
             self._plate.blockSignals(False)
+
+    def _use_example_database(self, database) -> None:
+        """Point the crop source at the example plate's measurements database.
+
+        Selects the database source, fills the path and refreshes what it
+        offers; the crops are loaded when Load crops is pressed.
+
+        :param database: the example plate's ``measurements.db``.
+        """
+        index = self._where.findData(CROP_SOURCE_DATABASE)
+        if index >= 0:
+            self._where.setCurrentIndex(index)
+        self._path.setText(str(database))
+        self._on_path_changed()
 
     def crop_source(self) -> str:
         """Which kind of place the crops come from."""

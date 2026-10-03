@@ -35,7 +35,6 @@ NOT_WIRED = {
     "pipeline_graph": "draws provenance; the example has no registry",
     "project_browser": "lists project folders; it does not read a database",
     "layer_viewer": "opens images and masks, not a database",
-    "power": "a design calculator; it reads no data at all",
 }
 
 

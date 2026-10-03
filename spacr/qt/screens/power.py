@@ -91,6 +91,7 @@ from PySide6.QtWidgets import (
 
 from ..app_catalog import declared_app, register_declared
 from ..i18n import tr
+from ..widgets.measurements_example import install_test_data_button
 from ..theme import (
     SPACING,
     active_palette,
@@ -938,6 +939,9 @@ class PowerScreen(QWidget):
         browse.clicked.connect(self._browse_pilot)
         path_row.addWidget(self._pilot_path, 1)
         path_row.addWidget(browse)
+        example = install_test_data_button(
+            self, path_row, lambda _folder, db: self._use_example_pilot(db))
+        example.setObjectName("PowerTestDataButton")
         form.addRow(tr("Pilot table"), path_row)
         self._pilot_table = QLineEdit("cell")
         self._pilot_table.setToolTip(tr(
@@ -1069,6 +1073,15 @@ class PowerScreen(QWidget):
         if path:
             self._pilot_path.setText(path)
             self._refresh_pilot_columns()
+
+    def _use_example_pilot(self, database) -> None:
+        """Use the example plate's cell table as the pilot measurements.
+
+        :param database: the example plate's ``measurements.db``.
+        """
+        self._pilot_path.setText(str(database))
+        self._pilot_table.setText("cell")
+        self._refresh_pilot_columns()
 
     def _refresh_pilot_columns(self) -> None:
         """Offer the pilot table's columns in the column pickers."""

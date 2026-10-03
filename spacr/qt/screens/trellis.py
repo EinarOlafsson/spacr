@@ -34,6 +34,7 @@ from PySide6.QtWidgets import (
 
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.formula_editor import FormulaPanel
@@ -118,6 +119,11 @@ class TrellisScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of measurements")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        example = install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
+        example.setObjectName("TrellisTestDataButton")
         outer.addLayout(head)
 
         body = CollapsibleSplitter(Qt.Horizontal, self,

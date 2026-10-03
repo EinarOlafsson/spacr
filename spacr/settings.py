@@ -7589,6 +7589,12 @@ ALPHA_FEATURES = {
     508: {
         'widgets': ('MakeMasksUseInMaskGeneration',),
     },
+    633: {
+        'widgets': ('TrellisTestDataButton', 'FeatureExplorerTestDataButton',
+                    'OutliersTestDataButton', 'ControlChartTestDataButton',
+                    'DataManagerTestDataButton', 'EmbeddingsTestDataButton',
+                    'PowerTestDataButton'),
+    },
 }
 
 

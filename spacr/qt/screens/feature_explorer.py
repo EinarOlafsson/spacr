@@ -35,6 +35,7 @@ from PySide6.QtWidgets import (
 from ..job_runner import JobRunner
 from ..linked_selection import linked_selection
 from ..theme import SPACING
+from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.feature_explorer import FeatureExplorerPanel
 from ..widgets.feature_rank import ExplorerSpec
@@ -112,6 +113,11 @@ class FeatureExplorerScreen(QWidget):
         load.setObjectName("PrimaryButton")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        example = install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
+        example.setObjectName("FeatureExplorerTestDataButton")
 
         export = QPushButton("Export ranking…", self)
         export.setToolTip(

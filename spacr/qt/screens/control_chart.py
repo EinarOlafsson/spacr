@@ -52,6 +52,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..i18n import tr
+from ..widgets.measurements_example import EXAMPLE_TABLE, install_test_data_button
 from ..job_runner import JobRunner
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
@@ -434,6 +435,11 @@ class ControlChartScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of per-well values")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        example = install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
+        example.setObjectName("ControlChartTestDataButton")
 
         export = QPushButton("Export points…", self)
         export.setToolTip(
