@@ -30,6 +30,41 @@ PUBLISHED_CATALOG = REPO / "docs" / "source" / "_extra" / "tutorials" / "catalog
 #: Every registered widget must appear here: a new alpha widget fails
 #: ``test_every_alpha_widget_has_its_visible_text_listed`` until it is added.
 WIDGET_LABELS = {
+    "ActivationCounterfactualViewer": ("Counterfactuals…",),
+    "AnnotateFieldQCButton": ("Field QC…",),
+    "AnnotateFieldQCDialog": ("Field quality labels",),
+    "AnnotateSimilarityOptions": ("Similar crops",),
+    "ConvertPlateBarcodeLinkage": ("Plate barcode linkage",),
+    "EmbeddingsLabelsButton": (),
+    "EmbeddingsUseForLabel": (),
+    "EmbeddingsUseForPicker": (),
+    "EmbeddingsUseForRun": (),
+    "MakeMasksSam2Button": ("SAM2 tracking",),
+    "MakeMasksUncertaintyEnsembleSetting": ("Uncertainty ensemble model",),
+    "MakeMasksVirtualStainApply": ("Apply virtual stain",),
+    "MaskVirtualStainApply": ("Apply virtual stain",),
+    "QCClassifierCard": ("Image QC classifier",),
+    # Alpha organism pages: their Home tile and page titles.
+    "TrypanosomaOrganismPage": ("Trypanosoma spp.",),
+    "LeishmaniaOrganismPage": ("Leishmania spp.",),
+    "GiardiaOrganismPage": ("Giardia duodenalis",),
+    "VirusOrganismPage": ("Virus infection",),
+    "MammalianOrganismPage": ("Mammalian cells",),
+    # Alpha "Load test data…" buttons share their text with every non-alpha
+    # module's button of the same name, and Embeddings' "Labels…", "Use
+    # for:" and "Run" are ordinary words; the object names still guard them.
+    "ControlChartTestDataButton": (),
+    "ConvertTestDataButton": (),
+    "DataManagerTestDataButton": (),
+    "EmbeddingsTestDataButton": (),
+    "ExternalMasksTestDataButton": (),
+    "FeatureExplorerTestDataButton": (),
+    "LayerViewerTestDataButton": (),
+    "OutliersTestDataButton": (),
+    "PipelineGraphTestDataButton": (),
+    "PowerTestDataButton": (),
+    "ProjectBrowserTestDataButton": (),
+    "TrellisTestDataButton": (),
     "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
     "PlaqueEstimateScaleTime": ("Estimate scale / time (experimental)",),
     "PlaqueEstimateScaleTimeNote": ("Published RH/HFF reference",),
