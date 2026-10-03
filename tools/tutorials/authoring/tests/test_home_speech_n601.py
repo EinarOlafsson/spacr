@@ -53,7 +53,6 @@ def test_unknown_labels_or_changed_pronunciation_premise_require_review(display,
 
 
 @pytest.mark.parametrize('identity,count,expected', [
-    ('86_psf_workflow', 50, '9628f4eb4514c41748b08cd6210372e6830ee35f24a9205d50c1f58a0fab402e'),
     ('05_home', 37, '548b13315b65865793b77df737c71cd7c7a59316117a9c2bf54cd7907fda19d0')])
 def test_unaffected_track_fingerprints_match_before_home_change(identity, count, expected):
     # Captured before this Home-only branch; no runtime/model imports needed.

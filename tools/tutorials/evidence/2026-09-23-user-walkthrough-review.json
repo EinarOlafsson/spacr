@@ -11,7 +11,7 @@
     "run",
     "outputs and next step"
   ],
-  "source_lessons": 86,
+  "source_lessons": 85,
   "manually_rewritten": [
     "01_pypi_github",
     "02_conda_install",
@@ -120,8 +120,7 @@
     "85_host_pathogen"
   ],
   "remaining_existing_scripts": [
-    "71_investigate_hit",
-    "86_psf_workflow"
+    "71_investigate_hit"
   ],
   "live_verified_commit": "f33805514a0baae336c947468569bedde8b1a955",
   "live_catalog_sha256": "c395980afeba74bbd69b50f14e1bcbe560109e26170776901bad20a11de1b21f",
@@ -1299,18 +1298,6 @@
       "scene_count": 12,
       "source_revised": false,
       "newly_authored": true,
-      "manual_review": "pending",
-      "automated_review_flags": [],
-      "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
-    },
-    {
-      "lesson": "86_psf_workflow",
-      "english_sha256": "486874655765fd9afa8dea1a68fd795654b8d909705fdb95230018e32dee4aab",
-      "scene_count": 7,
-      "source_revised": false,
-      "newly_authored": false,
       "manual_review": "pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
