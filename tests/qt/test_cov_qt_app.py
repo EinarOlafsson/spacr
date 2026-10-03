@@ -2539,7 +2539,10 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
 #: the race it has to win.
 PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
                      "spacr.qt.imagery", "spacr.qt.screens.app_screen",
-                     "spacr.qt.screens.mask")
+                     "spacr.qt.screens.mask",
+                     "spacr.qt.screens.train_cellpose",
+                     "spacr.qt.screens.parameter_sweep",
+                     "spacr.qt.screens.hyperparam")
 
 
 def _prewarmed_module_names():

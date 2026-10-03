@@ -7722,6 +7722,7 @@ class AppScreen(QWidget):
         self._watch_progress.setVisible(False)
         row.addWidget(self._watch_progress)
 
+        _breathe_while_a_window_opens()
         from ..widgets import AiToggleLabel
 
         self._install_dimension_switches(row, AiToggleLabel)
@@ -7750,6 +7751,7 @@ class AppScreen(QWidget):
                 "the plaque images in one figure, reads their labels and "
                 "segments them."),
         }
+        _breathe_while_a_window_opens()
         from ..widgets.preview_refresh import install_refresh_button
 
         for panel_attr, part in (("_live_preview", _LIVE_PREVIEW),

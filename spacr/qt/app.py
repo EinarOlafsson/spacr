@@ -6196,7 +6196,10 @@ def _start_settings_prewarm() -> threading.Thread:
                         "spacr.qt.screens.settings_model",
                         "spacr.qt.imagery",
                         "spacr.qt.screens.app_screen",
-                        "spacr.qt.screens.mask"):
+                        "spacr.qt.screens.mask",
+                        "spacr.qt.screens.train_cellpose",
+                        "spacr.qt.screens.parameter_sweep",
+                        "spacr.qt.screens.hyperparam"):
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
