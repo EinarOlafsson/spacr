@@ -1099,6 +1099,21 @@ def _colony_preview_pass(path, settings):
             "colony_summaries": summaries}
 
 
+def _at_figure_scale(settings: Dict[str, Any]) -> Dict[str, Any]:
+    """The settings a well cropped from a figure is segmented with.
+
+    The diameter is left out, so Cellpose segments the crop at the model's
+    own scale, as the run's Figure mode does. The diameter is in the
+    pixels of Plaque mode's images, a whole well a thousand or more pixels
+    across; a well on a figure is a hundred or two, so a diameter set for
+    those images shrank each crop to a few pixels and found no plaques.
+
+    :param settings: the module's settings.
+    :returns: a copy without ``diameter``.
+    """
+    return {k: v for k, v in settings.items() if k != "diameter"}
+
+
 @_serialized_inference
 def figure_pass(path: Any, settings: Dict[str, Any], *,
                 detect: Optional[Callable] = None,
@@ -1142,7 +1157,9 @@ def figure_pass(path: Any, settings: Dict[str, Any], *,
 
         def segment(crop: np.ndarray) -> np.ndarray:
             """The Cellpose label mask of one plaque-well crop."""
-            return segment_plaque_image(model, crop, settings)
+            return segment_plaque_image(model, crop, scaled)
+
+        scaled = _at_figure_scale(settings)
 
     image = _load_image(path)
     regions = find_plaque_regions(
@@ -1376,7 +1393,9 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
 
     Runs on a worker thread; touches no widget. The model and its thresholds
     are the Plaque settings, through the same
-    :func:`spacr.plaque.segment_plaque_image` Plaque mode uses.
+    :func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the
+    diameter: the crop is segmented at the model's own scale
+    (:func:`_at_figure_scale`).
 
     :param image: the figure, ``H x W x 3``.
     :param region: the well's box.
@@ -1402,7 +1421,8 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
 
         def segment(c: np.ndarray) -> Tuple[np.ndarray, Dict[str, Any]]:
             """The plaque label mask of one well crop, with its flows."""
-            return segment_plaque_image(model, c, settings, return_flows=True)
+            return segment_plaque_image(model, c, _at_figure_scale(settings),
+                                        return_flows=True)
 
     segmented = segment(crop)
     flows: Dict[str, Any] = {}

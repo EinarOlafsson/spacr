@@ -1,0 +1,41 @@
+================================================================================
+PLAQUE FIGURE MODE FINDS NO PLAQUES ON PAPER FIGURES
+================================================================================
+
+Status:    done 2026-10-03
+Requested: 2026-10-03 — spacr-d7: in Figure mode the default model
+           (toxoplasma_plaque_v2) finds 0 plaques on CC BY paper figures
+           (PLoS Biol pbio.3002110 Fig 8; 10.1186/s13071-023-05698-0 Fig 2)
+           although the wells and their labels are found.
+Owner:     claude session, 2026-10-03
+
+--------------------------------------------------------------------------------
+CAUSE
+--------------------------------------------------------------------------------
+
+The live preview's diameter spin box is shared by Plaque and Figure mode and
+is in the pixels of Plaque mode's whole-well images. segment_well passed it
+to Cellpose for each well crop. A figure well is ~170 px across; the
+synthetic Plaque-mode lesson's plaques are ~180 px (mean area 25229 px), so
+Cellpose shrank each crop by 30/diameter to a few pixels and found nothing.
+The run's Figure mode (plaque_papers._cellpose_segmenter) never passes a
+diameter. Colour, contrast, normalisation and the default model were fine.
+
+Measured on pbio.3002110 Fig 8, CPU, cpsam_plaque_r5, 8 wells:
+  diameter 30 or none : 17, 4, 0, 0, 9, 0, 14, 22  (66)
+  diameter 60: 39;  diameter 100: 10;  diameter 180: 0 (the report)
+  after the fix, any diameter: 66; overlay checked, trend matches Fig 8B
+The WT 0 µM crop (an 11.3 mm square, ~1/4 of the well whose Fig 8B count
+is ~75) gets 17; the visible bright plaques there number about that.
+
+--------------------------------------------------------------------------------
+FIX
+--------------------------------------------------------------------------------
+
+plaque_preview._at_figure_scale drops the diameter for well crops, used by
+segment_well (Plaque preview, Find plaques in all wells) and figure_pass.
+Plaque mode still honours the diameter.
+Test: tests/qt/test_635_plaque_figure_mode_finds_no_plaques.py (synthetic
+well, scale-aware fake model).
+
+Left: nothing. The 24_plaque Figure scenes can be recaptured.
