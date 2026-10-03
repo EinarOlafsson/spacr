@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: item 632's gate-editor polygon, renaming and empty-outline messages and item 631's all-module 'Keep {count} workers' button, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Keep {count} workers",
+      "source": "Keep {count} workers",
+      "source_sha256": "87d2feb3ff3476ad206ce3efcc013ac24999e1004f3e1fefb2091266029a1c43",
+      "translation": "워커 프로세스 {count}개 유지"
+    },
+    {
+      "table": "ui",
+      "key": "New name for the gate:",
+      "source": "New name for the gate:",
+      "source_sha256": "c5490efcbbb0487b05e94aa6826229315680e8eea2c9c0a3e032fd6599b69d9a",
+      "translation": "게이트의 새 이름:"
+    },
+    {
+      "table": "ui",
+      "key": "Polygon through view: click the corners, then click the first one again. Ellipsoid and Box with handles fit the objects a dragged rectangle frames; pull their handles to adjust them.",
+      "source": "Polygon through view: click the corners, then click the first one again. Ellipsoid and Box with handles fit the objects a dragged rectangle frames; pull their handles to adjust them.",
+      "source_sha256": "5bbfc55ad467625cb14e59fdb8a644af67042651a39004e140292b00a549632e",
+      "translation": "뷰를 관통하는 다각형: 모서리를 클릭한 뒤 첫 번째 모서리를 다시 클릭하세요. 핸들이 있는 타원체와 상자는 드래그한 사각형이 감싸는 객체에 맞춰집니다. 핸들을 끌어 조정하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Rename gate",
+      "source": "Rename gate",
+      "source_sha256": "1aedf09c4a674b9704675317d5b7bbeb538872f5a43b708f07e9000e3cb73078",
+      "translation": "게이트 이름 바꾸기"
+    },
+    {
+      "table": "ui",
+      "key": "That outline encloses nothing: click around the objects to keep.",
+      "source": "That outline encloses nothing: click around the objects to keep.",
+      "source_sha256": "72a101aa09178007eb04f4e2b052fb5a251fda961b3af6655ea732a3a8ed524e",
+      "translation": "이 윤곽선은 아무것도 둘러싸지 않습니다. 유지할 객체 주위를 클릭하세요."
+    }
+  ]
+}

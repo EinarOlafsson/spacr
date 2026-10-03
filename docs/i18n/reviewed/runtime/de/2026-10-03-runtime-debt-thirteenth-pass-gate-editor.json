@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: item 632's gate-editor polygon, renaming and empty-outline messages and item 631's all-module 'Keep {count} workers' button, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Keep {count} workers",
+      "source": "Keep {count} workers",
+      "source_sha256": "87d2feb3ff3476ad206ce3efcc013ac24999e1004f3e1fefb2091266029a1c43",
+      "translation": "{count} Worker behalten"
+    },
+    {
+      "table": "ui",
+      "key": "New name for the gate:",
+      "source": "New name for the gate:",
+      "source_sha256": "c5490efcbbb0487b05e94aa6826229315680e8eea2c9c0a3e032fd6599b69d9a",
+      "translation": "Neuer Name für das Gate:"
+    },
+    {
+      "table": "ui",
+      "key": "Polygon through view: click the corners, then click the first one again. Ellipsoid and Box with handles fit the objects a dragged rectangle frames; pull their handles to adjust them.",
+      "source": "Polygon through view: click the corners, then click the first one again. Ellipsoid and Box with handles fit the objects a dragged rectangle frames; pull their handles to adjust them.",
+      "source_sha256": "5bbfc55ad467625cb14e59fdb8a644af67042651a39004e140292b00a549632e",
+      "translation": "Polygon durch die Ansicht: Klicken Sie die Ecken an und dann erneut die erste. Ellipsoid und Quader mit Griffen passen sich an die Objekte an, die ein aufgezogenes Rechteck umrahmt; ziehen Sie an den Griffen, um sie anzupassen."
+    },
+    {
+      "table": "ui",
+      "key": "Rename gate",
+      "source": "Rename gate",
+      "source_sha256": "1aedf09c4a674b9704675317d5b7bbeb538872f5a43b708f07e9000e3cb73078",
+      "translation": "Gate umbenennen"
+    },
+    {
+      "table": "ui",
+      "key": "That outline encloses nothing: click around the objects to keep.",
+      "source": "That outline encloses nothing: click around the objects to keep.",
+      "source_sha256": "72a101aa09178007eb04f4e2b052fb5a251fda961b3af6655ea732a3a8ed524e",
+      "translation": "Dieser Umriss schließt nichts ein: Klicken Sie um die Objekte herum, die behalten werden sollen."
+    }
+  ]
+}
