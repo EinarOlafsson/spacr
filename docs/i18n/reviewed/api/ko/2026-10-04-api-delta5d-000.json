@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (the organizer's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "067dd5913c1c6fa0fe861b7892a2e8259ed83f71fd01685ace0e408f65c03343",
+      "context": "``{image: mask path}`` naming each image's mask outright (the organizer's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` 로 각 이미지의 마스크를 직접 지정합니다(정리 도구의 마스크 열). 여기에 없는 이미지에는 마스크가 없습니다. None 이면 각 마스크를 :func:`mask_for` 로 찾습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#1",
+      "source": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it. This function therefore wraps a model without knowing which model it has.",
+      "source_sha256": "807330236de3d6c2ee1418e3338b9c3f4d45eef13b4ca6226a8d871c56bbfd45",
+      "context": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it. This function therefore wraps a model without knowing which model it has.",
+      "translation": "백엔드는 Cellpose 의 ``eval`` 을 가진 모든 것입니다. Cellpose-SAM, Cellpose 3, DINOCell, SAMCell 모두 이에 응답합니다. 따라서 이 함수는 어떤 모델인지 모른 채 모델을 감쌉니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.app.tiled_apps#3",
+      "source": "An app registered with the alpha gate has no tile while Preferences > Show alpha features is off: Home does not draw it, so nothing that counts or lists Home's tiles may count it either.",
+      "source_sha256": "528efa653d912fd124de6cd30b354d27c0a1e50ceeac506e82a76612442fec01",
+      "context": "An app registered with the alpha data-selection boundary has no tile while Preferences > Show alpha features is off: Home does not draw it, so nothing that counts or lists Home's tiles may count it either.",
+      "translation": "alpha 제한과 함께 등록된 앱은 Preferences > Show alpha features 가 꺼져 있는 동안 타일이 없습니다. Home 이 그 타일을 그리지 않으므로, Home 의 타일을 세거나 나열하는 어떤 것도 그것을 세어서는 안 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.organisms.ORGANISMS#0",
+      "source": "Organism guides keyed by ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` and ``mammalian``.",
+      "source_sha256": "387f4cdb233d3ccbba5fe3a015a89eb1ce6f01a103b47dd7fd7f4664969d1216",
+      "context": "Organism guides keyed by ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` and ``mammalian``.",
+      "translation": "``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus``, ``mammalian`` 을 키로 하는 생물 안내서.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.organisms.ORGANISMS#1",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "a56d63eaada705a2dcd6146ee9c5b8c7258c0808f987e7579563e0290941850e",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공하며, 생물학적 출처가 CDC 가 아니면 ``source_label`` 이 그 출처의 이름을 지정합니다. 마지막 다섯 페이지는 alpha 기능입니다. ``sections`` 에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links`` 에는 표시 레이블과 URL 의 쌍이 들어 있습니다. ``modules`` 에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 자체 파이프라인이 없는 생물 특이적 분석을 뜻합니다. ``workflows`` 는 그러한 타일의 아이콘 키를, 그 판독값을 측정하는 기존 모듈, 열 때 적용되는 설정 프리셋, 사용 방법에 대한 메모에 매핑합니다. ``None`` 타일 중 ``workflows`` 에 없는 것은 Coming soon 입니다. ``starplast`` 는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.organisms.workflow#1",
+      "source": "an organism page key from :data:`ORGANISMS`.",
+      "source_sha256": "b80310d1eda51f3bce3cd92a3af3b59766fb6b92501ed42b6a5798b8d350b5d5",
+      "context": "an organism page key from :data:`ORGANISMS`.",
+      "translation": ":data:`ORGANISMS` 의 생물 페이지 키.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun#3",
+      "source": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main screen.",
+      "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
+      "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
+      "translation": "**직경.**  :mod:`spacr.diameter` 는 Cellpose 나 torch 를 로드하지 않고, 사용자 자신의 시야 몇 개로부터 특징적인 객체 크기를 측정합니다. ``diameter`` 는 spaCR 이 노출하는 Cellpose 4 설정 중 가장 큰 영향을 주는 단일 설정이며(``CellposeModel.eval(diameter=...)`` 는 모든 이미지를 ``30/diameter`` 배로 재조정하여 객체가 ``cpsam`` 이 작동하는 크기 근처에 오게 합니다), 사용자가 짐작으로 정하는 설정이기도 합니다.  이 모듈이 만드는 패널은 그 짐작을 객체 유형별 측정값으로 바꾸고, 측정한 객체 수를 보여 주어 그 숫자를 의심할 수 있게 합니다.  이 패널은 주 화면이 아니라, Mask 생성의 Model zoo 팝업에 있는 *직경 측정…* 버튼에서 자체 팝업으로 열리며, 그것이 나머지 절반을 이루는 모델 선택 옆에 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterDialog#1",
+      "source": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the screen that opened the zoo.",
+      "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
+      "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
+      "translation": "한 사용자의 요청: \"mask generation 에서 직경 계산은 주 화면이 아니라 model zoo 버튼 팝업 창의 버튼이어야 한다. 버튼을 누르면 현재 컨테이너의 모든 정보를 담은 또 다른 팝업이 나와야 한다.\" 따라서 이 대화 상자는 :class:`DiameterPanel` 전체(측정 버튼, 근거와 메모가 있는 객체 유형별 행, 행마다의 *사용* 과 *모두 사용*)를 담으며, 패널은 여전히 Model zoo 를 연 화면의 설정에 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
+      "source": "THE FILE GETS THE PRINT STYLE. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on screen keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
+      "source_sha256": "cfe455c999987d2c217f44576c1a92f942f8cf8f8ff10f8f27951614d811a8a5",
+      "context": "The file gets the print style. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
+      "translation": "파일에는 인쇄 스타일이 적용됩니다. 2026-09-25 결정: \"저장된 그래프(PDF/PNG)는 화면 테마와 관계없이 흰색 인쇄 스타일(흰색 배경, 어두운 텍스트/축/선)을 가진다\". 렌더링은 ``for_print=True`` 를 전달하여 분리된 사본을 흰 바탕에 어두운 잉크로 꾸미므로, 화면의 그래프는 테마 색상을 유지합니다. PDF 를 쓸지는 사용자가 고른 확장자가 결정하므로, PNG 기본 설정 아래에서도 대화 상자에서 PDF 를 고르면 PDF 가 만들어집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#8",
+      "source": "Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells",
+      "source_sha256": "d02ce41bc1e3f6e68fc57e302a6011d2e28a222e4cd5379e04999fe36231dcb5",
+      "context": "Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells",
+      "translation": "트리파노소마, 리슈마니아, 지아르디아, 바이러스 감염, 포유류 세포",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#9",
+      "source": "These five pages appear on Home only with Preferences > Show alpha features on. Each follows the same layout: an introduction, a SwissBioPics cell whose selectable compartments are the UniProt subcellular locations annotated for that taxon, four topic sections, and eight tiles. Live tiles open an existing module with a preset (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask or Measure), and the others say Coming soon. Giardia uses the generic eukaryotic cell, the virus page the host cell with a virion, and the mammalian page the animal cell. The pages need no input files; the opened module writes to its selected output folder.",
+      "source_sha256": "636f7995605beea6a62049349b797f2745b0174c4ae3e7d2a26e8578966a959d",
+      "context": "These five pages appear on Home only with Preferences > Show alpha features on. Each follows the same layout: an introduction, a SwissBioPics cell whose selectable compartments are the UniProt subcellular locations annotated for that taxon, four topic sections, and eight tiles. Live tiles open an existing module with a preset (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask or Measure), and the others say Coming soon. Giardia uses the generic eukaryotic cell, the virus page the host cell with a virion, and the mammalian page the animal cell. The pages need no input files; the opened module writes to its selected output folder.",
+      "translation": "이 다섯 페이지는 Preferences > Show alpha features 가 켜져 있을 때만 Home 에 나타납니다. 각 페이지는 같은 구성을 따릅니다. 소개, 해당 분류군에 대해 주석된 UniProt 세포내 위치를 선택 가능한 구획으로 가진 SwissBioPics 세포, 네 개의 주제 섹션, 여덟 개의 타일입니다. 활성 타일은 프리셋과 함께 기존 모듈(Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask 또는 Measure)을 열고, 나머지는 Coming soon 을 표시합니다. Giardia 는 일반 진핵세포를, 바이러스 페이지는 비리온이 있는 숙주 세포를, 포유류 페이지는 동물 세포를 사용합니다. 이 페이지들은 입력 파일이 필요 없으며, 열린 모듈은 선택된 출력 폴더에 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#1",
+      "source": "an organism page key from ``ORGANISMS``.",
+      "source_sha256": "88408bfeb3a0078a226bf4222087605a7e7a0df24871c7df5dc660c95301ca0e",
+      "context": "an organism page key from ``ORGANISMS``.",
+      "translation": "``ORGANISMS`` 의 생물 페이지 키.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.set_install_handler#1",
+      "source": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
+      "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
+      "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
+      "translation": "이 패널은 호출자가 둘인 프로세스 전체의 싱글턴입니다. 표시할 때마다 단순히 ``connect`` 하면 수신자가 쌓여, 한 번 누르면 결국 회귀 선택기의 설치와 Image UMAP 의 설치가 모두 실행됩니다. 단순한 ``disconnect()`` 는 아직 아무것도 연결되지 않았을 때 경고를 냅니다. 현재 슬롯을 보관해 두고 교체하면 둘 다 일어나지 않습니다. 이미 삭제된 위젯에 묶인 이전 슬롯은 그냥 버립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "Requested: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "49181f3cc9ec21f5b3f8f2b8a87d65566b432f1201b7d0f5ff3601363ea01c96",
+      "context": "Requested: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "요청 내용: \"실시간 미리 보기가 열리면 화면 높이 전체를 차지한다: 콘솔, System 컨테이너, System 아래의 버튼 섹션이 자동으로 접히고, 설정은 왼쪽으로 접힌다\", 그리고 그림이 나타날 때마다 마찬가지입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
+      "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "요청 내용: \"그림이나 실시간 미리 보기 컨테이너 안의 모든 섹션도 접을 수 있어야 한다 ... 그림이든 표든 모든 GUI 요소가\". 이것이 화면 안의 섹션이 접기 컨트롤을 얻는 유일한 방법이므로, 모두가 같은 모양과 동작을 가집니다: 본문 위의 화살표와 이름(콘솔과 System 이 쓰는 것과 같은 :class:`~spacr.qt.widgets.foldable.Folder`), 클릭하면 접히고, 접힌 섹션은 주어진 공간의 맨 아래에 고정된 제목이 됩니다(:func:`lock_folded_to_bottom`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
+      "source": "Show ``model`` with the shared three-state header sorting.",
+      "source_sha256": "2321b1e4b3ee0248fadb7fc6f1fedcac409c67f881b871c2b01edabf11e07ab4",
+      "context": "Show ``model`` with the shared three-state header sorting.",
+      "translation": "공유되는 세 가지 상태의 헤더 정렬로 ``model`` 을 표시합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#1",
+      "source": "the filter proxy over the condition rows.",
+      "source_sha256": "d135d3a7f1ca9996c8742b82b6d5996a46cebd1e64e495165d793fd20952bf42",
+      "context": "the filter proxy over the condition rows.",
+      "translation": "조건 행 위의 필터 프록시.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#5",
+      "source": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the screen theme, are written from a detached copy so the figure on screen keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
+      "source_sha256": "5dcbf4b456afbc86ffd1c09b36c33fcc32d83637f0ab1d0cb0c74e297b43ba97",
+      "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
+      "translation": "사용자가 파일로 저장하는 그래프이면 True 입니다. 파일은 화면 테마와 관계없이 흰색 인쇄 스타일(:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`)을 가지며, 화면의 그림이 색상을 유지하도록 분리된 사본에서 기록되고, PNG 는 표시용 크기 제한을 받지 않습니다. False (모든 갤러리 및 캔버스 렌더링)는 그대로입니다. 테마 색상이 ``fig`` 자체에 적용됩니다. 2026-09-25 결정: \"저장된 그래프(PDF/PNG)는 화면 테마와 관계없이 흰색 인쇄 스타일(흰색 배경, 어두운 텍스트/축/선)을 가진다\". 파일은 PDF 뷰어, 프린터, 학술지가 열며, 투명한 페이지 위의 흰색 텍스트는 그 모든 곳에서 사라집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
+      "source": "False when the program folds it on the user's behalf (for example, a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "source_sha256": "7d4924b31cfbebe8da8ce4f54ab2029e2eed9b464059d23244d77eebbe347f4e",
+      "context": "False when the program folds it on the user's behalf (for example, a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "translation": "프로그램이 사용자를 대신해 접을 때 False 입니다(예: 실시간 미리 보기가 열릴 때). 그런 접기는 재시작 후에 기억되지 않으며, 수신자에게도 그렇게 알립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#1",
+      "source": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan pages are drawn upright.",
+      "source_sha256": "2d912368194c3f03f0ac1c3aef08823d0c3251a5f0f12a157675546d8ceeed85",
+      "context": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan pages are drawn upright.",
+      "translation": "생물 키. Toxoplasma 만 hyperLOPIT 레이블을 사용하며, 정단복합체 생물 페이지만 똑바로 세워 그립니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "One popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "24fde80ec1f1ed4212183e40cbbd96190b9e89bf3b0b7a43d8f693164e51a89f",
+      "context": "One popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "팝업 단 하나가 이미지와 그 마스크를 Measure 가 읽는 구조(Yokogawa 이름의 채널 폴더, 마스크, ``merged/*.npy``)로 배치하며, 모든 결정은 :mod:`spacr.channel_sorting` 과 :mod:`spacr.folder_consolidation` 이 내립니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#6",
+      "source": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the channels apart. If any image cannot be copied during consolidation, the popup reports the failed-file count and the manifest path and stops there: the source folder, the consolidation choice and the table stay as they were, so the problem can be fixed and the step retried. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the screen applies the plan off the GUI thread and every move is written to the manifest.",
+      "source_sha256": "dfc35b4dc96a918ed9c789575e5ef991079a9f55e6c5aa9b402c2cf5af4f6016",
+      "context": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which image data channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the image data channels apart. If any image cannot be copied during consolidation, the popup reports the failed-file count and the manifest path and stops there: the source folder, the consolidation choice and the table stay as they were, so the problem can be fixed and the step retried. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the application view applies the plan off the main GUI execution path and every move is written to the manifest.",
+      "translation": "모드 1: 소스를 채우고, 정규식을 고르거나 테스트한 뒤 \"Sort by regex\" 를 누르고 Apply 합니다. 모드 2: 끌어 놓기로 열을 채우고 Apply 합니다. 모드 3, \"Teach me…\": spaCR 가 답변에서 정규식을 학습하는 동안(:func:`spacr.channel_sorting._teach_step`) 한 번에 이미지 하나씩 \"이것은 어느 채널입니까?\" 에 답하며, 모든 이미지가 배치될 때까지 계속합니다. 각 모드는 다른 모드 없이도 작동합니다. 폴더 통합으로 만든 폴더는 ``rename_manifest.csv`` 에서 가져온 파일의 원래 이름으로 읽습니다. 복사본의 이름에서는 채널을 구분하던 정보가 사라졌을 수 있기 때문입니다. 통합 중에 복사하지 못한 이미지가 있으면 팝업은 실패한 파일 수와 매니페스트 경로를 보고하고 거기서 멈춥니다. 소스 폴더, 통합 선택, 표는 그대로 유지되므로 문제를 고친 뒤 그 단계를 다시 시도할 수 있습니다. Apply 는 :class:`spacr.channel_sorting.SortPlan` 을 만듭니다. 불완전한 행이 있으면 만들 수 없고(정규식 상자에서 고칩니다), RGB 이미지와 z 스택은 변환을 제안하며, 감지된 세트는 사용하기 전에 한 번에 세 개씩 보여 줍니다. Apply 전에는 아무것도 이동하지 않습니다. 화면은 GUI 스레드 밖에서 계획을 적용하고 모든 이동을 매니페스트에 기록합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#1",
+      "source": "Runs on a worker thread; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the diameter: the crop is segmented at the model's own scale (:func:`_at_figure_scale`).",
+      "source_sha256": "a017c77627795cf426f2bdd28f9a5e2f7f6abf60e7765cca89da86c369f83ce9",
+      "context": "Executes on a background execution unit; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the diameter: the extracted image region is segmented at the model's own scale (:func:`_at_figure_scale`).",
+      "translation": "워커 스레드에서 실행되며 위젯은 건드리지 않습니다. 모델과 그 임계값은 Plaque 설정이며, Plaque 모드가 사용하는 것과 같은 :func:`spacr.plaque.segment_plaque_image` 를 거칩니다. 단, 직경은 예외로, 크롭 이미지는 모델 자체의 축척으로 분할됩니다(:func:`_at_figure_scale`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#2",
+      "source": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking field already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
+      "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "translation": "timeflows 계획의 2단계는 기능이 아니라 수치입니다. 세 번째 Cellpose 헤드를 작성하고 학습시키고 유지하기 전에 기준선이 있어야 합니다. 모든 프레임을 독립적으로 분할하고, 마스크 겹침으로 프레임을 연결하고, 추적 분야에서 이미 합의된 측정 방법으로 결과를 정답과 비교해 채점합니다. 그러면 포크가 무엇을 만들어 내든 이보다 낫거나 그렇지 않으며, 계획은 \"단순 스티처로 이미 충분하다\"가 실제로 가능한 결과이고 그런 경우 받아들여야 한다고 분명히 말합니다. 그 결과는 이 수치가 먼저 존재해야만 보입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#2",
+      "source": "The timeflows plan rests on one claim about the training data: an object keeps the SAME LABEL in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
+      "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
+      "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
+      "translation": "timeflows 계획은 학습 데이터에 대한 한 가지 주장에 기반합니다. 즉 객체는 자신이 나타나는 모든 프레임에서 반드시 같은 레이블을 유지한다는 것입니다. 시간 흐름 헤드는 프레임 ``t`` 에 있는 객체의 픽셀에서 프레임 ``t+1`` 에 있는 그 객체의 중심을 가리키도록 학습되며, ``t+1`` 의 어느 객체가 같은 객체인지 알려 주는 것은 레이블뿐입니다. 어노테이션이 객체가 죽거나 떠난 뒤 그 레이블을 재활용하면 모델은 관련 없는 세포를 가리키도록 학습되고, 이후 어떤 점수도 이를 잡아내지 못합니다 -- 보류 검증은 같은 잘못된 레이블을 뒤섞어 자기 자신과 일치할 뿐입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.ImportedCopyNotReleased#1",
+      "source": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
+      "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
+      "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
+      "translation": "``foreign.run_import`` 는 대상이 비어 있으면 가져온 프레임을 표준 ``cell`` / ``nucleus`` / ``pathogen`` 테이블에 복사하므로, 가져오기만으로 만든 프로젝트도 모든 spaCR 도구에서 읽을 수 있습니다. 이 복사본은 편의를 위한 것이며, spaCR 이 같은 시야를 측정하는 순간 더는 편의가 아닙니다. :func:`_merge_and_save_to_database` 는 *덧붙이기* 때문에 그 행이 가져온 행 옆에, 다른 열로 놓이고, 행 안에는 이음매를 표시하는 것이 아무것도 없습니다 -- 그리고 이후의 모든 ``count_cell`` 은 두 집단의 합이 됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
