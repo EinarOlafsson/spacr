@@ -1542,7 +1542,7 @@ verify_bundle() {
   [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info")" = "$short_version" ] || return 1
   [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info")" = "$build_version" ] || return 1
   [ "$(/usr/libexec/PlistBuddy -c 'Print :SPACRPackageVersion' "$info")" = "$package_version" ] || return 1
-  /usr/bin/lipo -verify_arch "$(/usr/bin/uname -m)" "$app/Contents/MacOS/spacr" || return 1
+  /usr/bin/lipo "$app/Contents/MacOS/spacr" -verify_arch "$(/usr/bin/uname -m)" || return 1
   /usr/bin/codesign --verify --deep --strict "$app" || return 1
   metadata=$(/usr/bin/find "$app" -type f -path "*/spacr-$package_version.dist-info/METADATA") || return 1
   [ -n "$metadata" ] && [ "$(printf '%s\n' "$metadata" | /usr/bin/wc -l | /usr/bin/tr -d ' ')" = 1 ] || return 1
@@ -1990,7 +1990,7 @@ def _macos_bundle_identity(bundle, version=None, *, run=None):
         architecture = invoke(["/usr/bin/uname", "-m"]).strip()
         if architecture not in {"arm64", "x86_64"}:
             raise ValueError("unsupported native macOS architecture")
-        invoke(["/usr/bin/lipo", "-verify_arch", architecture, executable])
+        invoke(["/usr/bin/lipo", executable, "-verify_arch", architecture])
         invoke(["/usr/bin/codesign", "--verify", "--deep", "--strict", root])
     return info
 

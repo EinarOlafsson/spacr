@@ -757,4 +757,8 @@ by the exact SPACRPackageVersion/CFBundle* fields already checked in
 Info.plist, any bundled spacr/_version.py must agree, and dist-info for any
 other spaCR release is refused. lipo/codesign checks still run. Unit test:
 test_frozen_bundle_without_distribution_metadata_is_identified_by_its_versions.
+Rerun 37135785013 (45b1e1556): metadata gate passed on real bundles, then
+lipo failed: argv had -verify_arch before the input file ("unknown
+architecture specification flag"). Fixed order in the Python gate and the
+protected shell transaction; the test runner now pins lipo argv.
 macOS acceptance rerun: PENDING.

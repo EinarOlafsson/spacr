@@ -43,6 +43,8 @@ def _native(argv, **options):
     if argv == ["/usr/bin/uname", "-m"]:
         return "arm64\n"
     assert argv[0] in {"/usr/bin/lipo", "/usr/bin/codesign"}
+    if argv[0] == "/usr/bin/lipo":
+        assert argv[2:] == ["-verify_arch", "arm64"] and argv[1].endswith("/Contents/MacOS/spacr")
     return ""
 
 
