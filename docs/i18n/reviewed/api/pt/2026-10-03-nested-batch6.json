@@ -1,0 +1,591 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting._match_columns.plane#0",
+      "source": "A file's 2-D size, for comparing an image with a mask.",
+      "source_sha256": "cb4c07c6cb8bdd0b48a519c95ab319e0ec12f0e39826443fa50392d3b080331a",
+      "context": "A file's 2-D size, for comparing an image with a mask.",
+      "translation": "O tamanho 2-D de um arquivo, para comparar uma imagem com uma máscara.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._match_columns.plane#1",
+      "source": "a file, or None.",
+      "source_sha256": "136670aef9e2439cd373d445c0ada8b0f8d37241537badf1ee712d274246fde8",
+      "context": "a file, or None.",
+      "translation": "um arquivo, ou None.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.complete#0",
+      "source": "Whether ``identity`` columns give each label exactly once per set.",
+      "source_sha256": "0bc9cdb370a7cc7d9acfe64c5a8e02b3b6d10486c6addae73fe74e8363e72e5f",
+      "context": "Whether ``identity`` columns give each label exactly once per set.",
+      "translation": "Se as colunas ``identity`` dão cada rótulo exatamente uma vez por conjunto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.complete#1",
+      "source": "the columns that identify a set.",
+      "source_sha256": "53810503d942e5f1bc2e42f9e182001f1e8876f9fba688f5454924bb54b9f54b",
+      "context": "the columns that identify a set.",
+      "translation": "as colunas que identificam um conjunto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.complete#2",
+      "source": "the channel label of each name.",
+      "source_sha256": "50867ef86a074b8283c89dbcf7e944d2f7a7d94a03bde261134f2318151b64aa",
+      "context": "the channel label of each name.",
+      "translation": "o rótulo de canal de cada nome.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.function_of#0",
+      "source": "Whether column ``position`` is fixed by ``labels``.",
+      "source_sha256": "c2f37dcfa20071d3eda65bbf81e2d9e2309a4b4c3cd1fa416e81a7cc62ab75b0",
+      "context": "Whether column ``position`` is fixed by ``labels``.",
+      "translation": "Se a coluna ``position`` é determinada por ``labels``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.function_of#1",
+      "source": "a token column.",
+      "source_sha256": "fd66a6f3305266e3c29e3f06fae7c905d352925d1e6a440f3171346c75075a57",
+      "context": "a token column.",
+      "translation": "uma coluna de tokens.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.function_of#2",
+      "source": "one label per name.",
+      "source_sha256": "841e1839c40f61ab913984ad30ea5ab99a336d37d2f1be4bc4dfa64cceee9e60",
+      "context": "one label per name.",
+      "translation": "um rótulo por nome.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex.channel_count#0",
+      "source": "How many channels ``pattern`` gives, when it puts every name in a set.",
+      "source_sha256": "2d3375c3828a5a78e6541fca7dd209bcccbe3da8bcf2087cdb83856d6b06f45c",
+      "context": "How many channels ``pattern`` gives, when it puts every name in a set.",
+      "translation": "Quantos canais ``pattern`` produz quando coloca cada nome num conjunto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex.channel_count#1",
+      "source": "a candidate regex.",
+      "source_sha256": "c5c6caea41d4a61a94080e0cc012b179addd7102d56cf5fabe7a3226cc3116ee",
+      "context": "a candidate regex.",
+      "translation": "uma regex candidata.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex.channel_count#2",
+      "source": "the channel count, or None when the pattern fails.",
+      "source_sha256": "64246685d82ecf03eaf117f120d9566b7785881c036033ee99798f436e153be3",
+      "context": "the channel count, or None when the pattern fails.",
+      "translation": "o número de canais, ou None quando o padrão falha.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets.identity#0",
+      "source": "The groups that tell fields apart within a well.",
+      "source_sha256": "e39a9b3e8a75dca0829e654ff9dbf0001ed908452b54e2d8ec44f154ac8589dd",
+      "context": "The groups that tell microscope fields of view apart within a microplate sample position.",
+      "translation": "Os grupos que distinguem os campos dentro de um poço.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets.identity#1",
+      "source": "Groups with one value across every set (the ``L01``/``A01`` of a Yokogawa name) tell nothing apart and are left out.",
+      "source_sha256": "06d4968ba617462ebc8005aa4a5a7e6b824a5125d44d570ef43ab91ecb082dd3",
+      "context": "Groups with one value across every set (the ``L01``/``A01`` of a Yokogawa name) tell nothing apart and are left out.",
+      "translation": "Grupos com um único valor em todos os conjuntos (o ``L01``/``A01`` de um nome Yokogawa) não distinguem nada e são omitidos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets.identity#2",
+      "source": "one set's groups.",
+      "source_sha256": "ea3a1fecca15b0c74faffdf44892b48354adf1e09b8f9787e08673ad844ef4c7",
+      "context": "one set's groups.",
+      "translation": "os grupos de um conjunto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_numpyro_nuts.model#0",
+      "source": "Define the regularized-horseshoe Poisson model for NumPyro NUTS.",
+      "source_sha256": "f1a5c530d9f0dccb12951b1da2fc8482ad638f2e3125ee670a1c74b20c172001",
+      "context": "Define the regularized-horseshoe Poisson model for NumPyro NUTS.",
+      "translation": "Define o modelo de Poisson com horseshoe regularizado para NumPyro NUTS.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_torch_advi._log_joint#0",
+      "source": "Evaluate the unnormalized horseshoe-Poisson log posterior.",
+      "source_sha256": "e72bdb6aa013ec758942c17a75539710809f10508f273960a7a8a90afbe7c7d0",
+      "context": "Evaluate the unnormalized horseshoe-Poisson log posterior.",
+      "translation": "Avalia a log-posterior horseshoe-Poisson não normalizada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_torch_advi._log_joint#1",
+      "source": "The parameter-independent Poisson factorial is omitted, so each leading draw receives the same optimizer-equivalent objective.",
+      "source_sha256": "fdc21a3b1680bd92f2f79043975df11fe9a85f251eacb13bcbb9c3929bb0da58",
+      "context": "The parameter-independent Poisson factorial is omitted, so each leading draw receives the same optimizer-equivalent objective.",
+      "translation": "O fatorial de Poisson, independente dos parâmetros, é omitido, de modo que cada amostra inicial recebe o mesmo objetivo equivalente para o otimizador.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_torch_advi._unpack#0",
+      "source": "Split the final parameter axis while preserving leading draws.",
+      "source_sha256": "53f35971706d97fa8c8f209aeae2005da3fa4c3dfd6b6fe498a770c774cb17af",
+      "context": "Split the final parameter axis while preserving leading draws.",
+      "translation": "Divide o último eixo de parâmetros preservando as amostras iniciais.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model.prepare_model_data._matrix#0",
+      "source": "Pivot ``column`` to captured well-by-gene order as float64.",
+      "source_sha256": "5d2784826fd4721592d194dc779487dcd8f9ada0210222d0790d13331b1ac006",
+      "context": "Pivot ``column`` to captured well-by-gene order as float64.",
+      "translation": "Pivota ``column`` para a ordem capturada poço por gene como float64.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters._report#0",
+      "source": "Hand one finished row to ``on_point``; True means \"keep going\".",
+      "source_sha256": "501e721807b8f346d3fabe7b987b26c0d7f766b6f12bb51f981094738b4d5ca1",
+      "context": "Hand one finished row to ``on_point``; True means \"keep going\".",
+      "translation": "Entrega uma linha concluída a ``on_point``; True significa \"keep going\", ou seja, continuar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters._report#1",
+      "source": "Kept as a closure over the loop counters rather than inlined twice so the resumed and freshly-computed paths cannot drift apart — a progress bar that skips the rows a resume restored is a progress bar that runs backwards on the second attempt.",
+      "source_sha256": "aec7d1c975d540a88448e992042051cca33464b66acb6878ffe61f6fded6a71e",
+      "context": "Kept as a closure over the loop counters rather than inlined twice so the resumed and freshly-computed paths cannot drift apart — a progress bar that skips the rows a resume restored is a progress bar that executes backwards on the second attempt.",
+      "translation": "Mantido como uma closure sobre os contadores do laço em vez de escrito duas vezes, para que o caminho retomado e o recém-calculado não possam divergir — uma barra de progresso que pula as linhas restauradas por uma retomada é uma barra de progresso que anda para trás na segunda tentativa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.__init__#0",
+      "source": "Build the screen. ``host`` is the window, NOT a Qt parent.",
+      "source_sha256": "2d039590cd1e852f6afe02b70faef3f2acd6984fee28ec477a41208e44d2511a",
+      "context": "Build the application view. ``host`` is the window, NOT a Qt parent.",
+      "translation": "Constrói a vista. ``host`` é a janela, NÃO um pai Qt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.__init__#1",
+      "source": "Handing it to ``QWidget.__init__`` raises, because the registry's host is not always a QWidget.",
+      "source_sha256": "3ba198240e1d748068be15876aec9014fbbe6145f80cdb9383dccbd2025eeed7",
+      "context": "Handing it to ``QWidget.__init__`` raises, because the registry's host is not always a QWidget.",
+      "translation": "Passá-lo para ``QWidget.__init__`` lança uma exceção, porque o hospedeiro do registro nem sempre é um QWidget.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen._open#0",
+      "source": "Ask for a results folder and load it.",
+      "source_sha256": "ae28b1cbe2533a80a1623f064c892db4c1aa4a551da406a30bdf3628636f72fa",
+      "context": "Ask for a results folder and load it.",
+      "translation": "Pede uma pasta de resultados e a carrega.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.dragEnterEvent#0",
+      "source": "Accept a drag that carries paths.",
+      "source_sha256": "d298ebbfa117d580038addc51a1da8391e722cf340e74ba65e467e312dec5d77",
+      "context": "Accept a drag that carries paths.",
+      "translation": "Aceita um arrasto que carrega caminhos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.dropEvent#0",
+      "source": "Load the first dropped folder that holds results.",
+      "source_sha256": "7d71515481d89ed97024e9f0c0bab483db120c09ac1987cde83be57e88dce168",
+      "context": "Load the first dropped folder that holds results.",
+      "translation": "Carrega a primeira pasta solta que contém resultados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.load#0",
+      "source": "Load a results folder. Returns whether one was found.",
+      "source_sha256": "408e50807ebdcbabbf86544ab18a8911f7d57f1a5266fa165f5d0bd56a0cbde8",
+      "context": "Load a results folder. Returns whether one was found.",
+      "translation": "Carrega uma pasta de resultados. Retorna se alguma foi encontrada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.BenchmarkController._advance_after_watchdog._after_beat#0",
+      "source": "Continue once the GUI thread has answered again.",
+      "source_sha256": "69798c37aecb020d104427935fcec7539867bf9394c97b8b328c19cf18c295e4",
+      "context": "Continue once the main GUI execution path has answered again.",
+      "translation": "Continua quando a thread da GUI tiver respondido de novo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.coordinates#0",
+      "source": "Retain integer geometry in a JSON-compatible representation.",
+      "source_sha256": "aa85bfc5f4c61d3852adcd557b109007253abb4501b39a774183f71bc97eea87",
+      "context": "Retain integer geometry in a JSON-compatible representation.",
+      "translation": "Mantém a geometria inteira numa representação compatível com JSON.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.coordinates#1",
+      "source": "the observed Qt rectangle.",
+      "source_sha256": "57a3bb2e8e2cbc8c0249f66fdaebc4e39a2f8ead8ebef62cbad756a221d58ab3",
+      "context": "the observed Qt rectangle.",
+      "translation": "o retângulo Qt observado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.rectangle#0",
+      "source": "Map actual geometry into the window.",
+      "source_sha256": "a8ad285e0057181d2dd3d3606de2aed077705c261a78ef63a99463e97f341759",
+      "context": "Map actual geometry into the window.",
+      "translation": "Mapeia a geometria real para dentro da janela.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.rectangle#1",
+      "source": "the real child widget being measured.",
+      "source_sha256": "a9ffb559a5eccb7feced465560c54c8f6e96c41435ddaa7f9aef0b501b3e596b",
+      "context": "the real child widget being measured.",
+      "translation": "o widget filho real que está sendo medido.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._start_native_menu_check.text#0",
+      "source": "Read a native NSString without inventing an action caption.",
+      "source_sha256": "28e1176c9c4e3b2bd8e1ebbcb5a6d64621912c4e7f569b63f7339815206e577d",
+      "context": "Read a native NSString without inventing an action caption.",
+      "translation": "Lê um NSString nativo sem inventar um rótulo de ação.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start._live_keys#0",
+      "source": "Every registered app key, read when the benchmark runs.",
+      "source_sha256": "0479d930aad04fa6e9e9ea6507c92cb8902b5cdadf612a247347497fa39409eb",
+      "context": "Every registered app key, read when the benchmark runs.",
+      "translation": "Cada chave de aplicativo registrada, lida quando o benchmark é executado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._hue_shift.tint#0",
+      "source": "The base hue at ``step``, lightened toward white.",
+      "source_sha256": "89cbc360d878582bd672287c29ebcfd6565833489e9ee140e60660609a55bab0",
+      "context": "The base hue at ``step``, lightened toward white.",
+      "translation": "O matiz base em ``step``, clareado em direção ao branco.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._hue_shift.value#0",
+      "source": "The base hue at ``level``, darkened toward black.",
+      "source_sha256": "2c6ec90758e8db2a27068e94cde84c8e23bb502bc75004cb6b02409be7f9a05a",
+      "context": "The base hue at ``level``, darkened toward black.",
+      "translation": "O matiz base em ``level``, escurecido em direção ao preto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._relative_luminance.channel#0",
+      "source": "One sRGB channel linearised, per WCAG's own definition.",
+      "source_sha256": "999c68c782ad3be13432ade1be9c28f51b7310ca16b5507854a31e9457fdfaba",
+      "context": "One sRGB channel linearised, per WCAG's own definition.",
+      "translation": "Um canal sRGB linearizado, segundo a própria definição das WCAG.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._scrim_bounds.over#0",
+      "source": "The luminance of the scrim at ``alpha`` over one background.",
+      "source_sha256": "65c676e08402c629e2639f8c2bde9f8f432c3e5ec52a8cc987ec355bddbc38c5",
+      "context": "The luminance of the scrim at ``alpha`` over one background.",
+      "translation": "A luminância do véu com ``alpha`` sobre um fundo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._scrim_bounds.shows#0",
+      "source": "Whether text still meets the contrast floor at this scrim strength.",
+      "source_sha256": "fef8a93e9e6f77b8f5b5e86b65053630137e0ad0d7b9b3ffd8ce1c8403bc97a6",
+      "context": "Whether text still meets the contrast floor at this scrim strength.",
+      "translation": "Se o texto ainda atinge o contraste mínimo com esta intensidade de véu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._scrim_bounds.shows#1",
+      "source": "Checked against BOTH the lightest and the darkest thing the scrim can sit on, because a picture backdrop is neither -- an alpha that reads against one and not the other is not usable.",
+      "source_sha256": "871eab7342f2a8ad9ed7024dfbdfe23453352fe00a158f3c753e4aa1f05d970a",
+      "context": "Checked against BOTH the lightest and the darkest thing the scrim can sit on, because a picture backdrop is neither -- an alpha that reads against one and not the other is not usable.",
+      "translation": "Verificado contra o mais claro E o mais escuro sobre o que o véu pode ficar, porque um fundo de imagem não é nenhum dos dois -- um alfa legível sobre um e não sobre o outro não serve.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_confirm._confirm#0",
+      "source": "Ask a yes/no question in a modal box.",
+      "source_sha256": "f8b48870d405dafa7d44164638ca4c9427308ea7ab546999b628ce51155cdea6",
+      "context": "Ask a yes/no question in a modal box.",
+      "translation": "Faz uma pergunta de sim/não numa caixa modal.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_dry_run._run#0",
+      "source": "Dry-run an install and hand the outcome back.",
+      "source_sha256": "4237bbb4e42d15c44c4f3c0945ab15e2257d3b01f711b9286954502b872eca0a",
+      "context": "Dry-run an install and hand the outcome back.",
+      "translation": "Faz uma simulação de instalação e devolve o resultado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_dry_run._run._work#0",
+      "source": "Do the dry run. Called off the GUI thread.",
+      "source_sha256": "24adb9ed8963897e8d1408e7a03b8bfb30c2353f4fde8375ae444e9a423ec0df",
+      "context": "Do the dry run. Called off the main GUI execution path.",
+      "translation": "Executa a simulação. Chamado fora da thread da GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_inform._inform#0",
+      "source": "Say something in a modal box.",
+      "source_sha256": "5196d14ef238f930d819b63e24d3c4038105a1d68886b5c20681c3cf00966892",
+      "context": "Say something in a modal box.",
+      "translation": "Diz algo numa caixa modal.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.explain._install#0",
+      "source": "Run one install offer and report what happened.",
+      "source_sha256": "d8e75c90c637cc8f685b5f2ebaf1fe9bd3ef9690ba66b29a3426f1a83fe175f6",
+      "context": "Run one install offer and report what happened.",
+      "translation": "Executa uma oferta de instalação e relata o que aconteceu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.PooledFit.summary_row.num#0",
+      "source": "``None`` as NaN, so a refused fit still fills its columns.",
+      "source_sha256": "907116584102a32775585b107b31b061320816cae5c4282f1d283ed1a3765468",
+      "context": "``None`` as NaN, so a refused fit still fills its columns.",
+      "translation": "``None`` como NaN, para que um ajuste recusado ainda preencha suas colunas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.PooledFit.summary_row.num#1",
+      "source": "A refusal has no EC50, and leaving the cell empty would make the row a different shape from a fitted one -- which is what a table cannot have. NaN is the value that says \"not a number here\" without changing the columns.",
+      "source_sha256": "8d626ce64448d01307c27e95b2668b4d4dba82f35e06a94eb9adc1de68dfa8c3",
+      "context": "A refusal has no EC50, and leaving the cell empty would make the row a different shape from a fitted one -- which is what a table cannot have. NaN is the value that says \"not a number here\" without changing the columns.",
+      "translation": "Uma recusa não tem EC50, e deixar a célula vazia daria à linha uma forma diferente da de uma ajustada -- e é isso que uma tabela não pode ter. NaN é o valor que diz \"not a number here\" sem mudar as colunas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#0",
+      "source": "The affected fraction at each dose, in [0, 1].",
+      "source_sha256": "6af0c21e0f737878d633f7abd9a56dad5a716a5f1129b0337b411e69138f84a7",
+      "context": "The affected fraction at each dose, in [0, 1].",
+      "translation": "A fração afetada em cada dose, em [0, 1].",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#1",
+      "source": "Zero and negative doses are clamped to a tiny positive number rather than refused: a checkerboard's first row IS zero, and a 4PL has no value there because log10(0) is undefined. The clamp puts them at the curve's own baseline, which is what an untreated well measures.",
+      "source_sha256": "336ac340dba3f68521625f3da09e3e2b6f0645675cde9952d40d61e4dfdb8d06",
+      "context": "Zero and negative doses are clamped to a tiny positive number rather than refused: a checkerboard's first row IS zero, and a 4PL has no value there because log10(0) is undefined. The clamp puts them at the curve's own baseline, which is what an untreated microplate sample position measures.",
+      "translation": "Doses zero e negativas são limitadas a um número positivo minúsculo em vez de recusadas: a primeira linha de um tabuleiro de xadrez É zero, e um 4PL não tem valor ali porque log10(0) é indefinido. O limite as coloca na linha de base da própria curva, que é o que um poço não tratado mede.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#2",
+      "source": "concentrations, any shape.",
+      "source_sha256": "bb7b7e7e688502d86d846f7e9f15c2858c72bbb3c05dc0215b5c9b8d4ef67ab8",
+      "context": "concentrations, any shape.",
+      "translation": "concentrações, qualquer forma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#3",
+      "source": "affected fraction, same shape.",
+      "source_sha256": "92ccd011c9004b74284125c436e9b30c82e8e18766a0ed284078969d919253ad",
+      "context": "affected fraction, same shape.",
+      "translation": "fração afetada, mesma forma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._profile_five_sse.objective#0",
+      "source": "SSE at one ``(log slope magnitude, log asymmetry)`` point.",
+      "source_sha256": "97d322cf25c7f9c725c2e7d0167c81aeb4ace5b0b5bcca585773f98093bd6ae1",
+      "context": "SSE at one ``(log slope magnitude, log asymmetry)`` point.",
+      "translation": "SSE em um ponto ``(log slope magnitude, log asymmetry)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response.wald#0",
+      "source": "One parameter's Wald interval, or ``None`` when it cannot be formed.",
+      "source_sha256": "d164c31ce011b6f990372dbca1054e264221c8ee56adaa4b572e34daa48f17ac",
+      "context": "One parameter's Wald interval, or ``None`` when it cannot be formed.",
+      "translation": "O intervalo de Wald de um parâmetro, ou ``None`` quando não pode ser formado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response.wald#1",
+      "source": "Returns None rather than an interval when the covariance is unusable: an interval computed from a bad covariance looks like a result and is not one.",
+      "source_sha256": "7ae055a22c09b50a59a91eb83299516021a27cd3aa72075f329aabe6a07100c4",
+      "context": "Returns None rather than an interval when the covariance is unusable: an interval computed from a bad covariance looks like a result and is not one.",
+      "translation": "Retorna None em vez de um intervalo quando a covariância é inutilizável: um intervalo calculado a partir de uma covariância ruim parece um resultado e não é.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#0",
+      "source": "One end of the interval, or ``None`` when that end is open.",
+      "source_sha256": "d9815f4f887110192d68dc26c940a4a5b4c035884940c530aebb61f67a629510",
+      "context": "One end of the interval, or ``None`` when that end is open.",
+      "translation": "Uma extremidade do intervalo, ou ``None`` quando essa extremidade está aberta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#1",
+      "source": "Returns ``None`` rather than raising or substituting a sentinel: an open side of a one-sided index is a fact about the experiment, and a number here would make it look bounded.",
+      "source_sha256": "ef78419296e608107a9d41e53212ae344cfd4a5a6b0113ec3007df471333e6aa",
+      "context": "Returns ``None`` rather than throwing or substituting a sentinel: an open side of a one-sided index is a fact about the experiment, and a number here would make it look bounded.",
+      "translation": "Retorna ``None`` em vez de lançar uma exceção ou substituir por um sentinela: um lado aberto de um índice unilateral é um fato sobre o experimento, e um número aqui o faria parecer limitado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#2",
+      "source": "a host EC50 bound, or ``None``.",
+      "source_sha256": "ac5902976c6482d23389dd6738abff42489b5bc66ffb1e7957ea33f07cc70a69",
+      "context": "a host EC50 bound, or ``None``.",
+      "translation": "um limite de EC50 do hospedeiro, ou ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#3",
+      "source": "a parasite EC50 bound, or ``None``.",
+      "source_sha256": "03896007a2a5ae8fcc66e4495da9e7563fac17b46bb2d7f6c08d616e1c0fdd2d",
+      "context": "a parasite EC50 bound, or ``None``.",
+      "translation": "um limite de EC50 do parasita, ou ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.ColumnFormula.uses_whole_table.walk#0",
+      "source": "Whether any node needs the whole column rather than one row.",
+      "source_sha256": "56145c219edeb288e159177cb46e8b722225b9b6d97a326eba3f3826a44f66eb",
+      "context": "Whether any node needs the whole column rather than one row.",
+      "translation": "Se algum nó precisa da coluna inteira em vez de uma linha.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.ColumnFormula.uses_whole_table.walk#1",
+      "source": "An aggregate cannot be computed row by row, so this decides whether the formula can stream or has to hold the table.",
+      "source_sha256": "14600e03ad74bc93238d5b05ae594acce6da93ae366075f7987ebc711e8cecaa",
+      "context": "An aggregate cannot be computed row by row, so this decides whether the formula can stream or has to hold the table.",
+      "translation": "Um agregado não pode ser calculado linha a linha, então isto decide se a fórmula pode ser processada em fluxo ou precisa reter a tabela.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._aggregate.call#0",
+      "source": "Reduce the values to one number, ignoring non-finite entries.",
+      "source_sha256": "89e8f6cb5b8021e11fd560834535e3dd61689e47f1bf383c6d6b9d7bd3ba0e2f",
+      "context": "Reduce the values to one number, ignoring non-finite entries.",
+      "translation": "Reduz os valores a um número, ignorando entradas não finitas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._aggregate.call#1",
+      "source": "An all-non-finite column gives ``nan`` rather than raising: an empty aggregate is an answer the caller can carry, and an exception here would take down a whole computed column for one bad group.",
+      "source_sha256": "99bbfbfa3dc3a6e329c249cc649ad19a358fae25a4038a2e400c39b2c59dd262",
+      "context": "An all-non-finite column gives ``nan`` rather than throwing: an empty aggregate is an answer the caller can carry, and an exception here would take down a whole computed column for one bad group.",
+      "translation": "Uma coluna toda não finita dá ``nan`` em vez de lançar uma exceção: um agregado vazio é uma resposta que quem chama pode carregar, e uma exceção aqui derrubaria uma coluna calculada inteira por causa de um único grupo ruim.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._elementwise.call#0",
+      "source": "Apply the function across the arrays, warnings suppressed.",
+      "source_sha256": "01d9cd7a26e7fc03330887f076f407b98f935702505d7266ec9c7fbb7feb714b",
+      "context": "Apply the function across the arrays, warnings suppressed.",
+      "translation": "Aplica a função aos arrays, com avisos suprimidos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._elementwise.call#1",
+      "source": "A column of real data contains zeros and negatives, so a log or a divide will legitimately produce inf and nan; the VALUE is what the formula means, and numpy's warning about it is not something a user can act on.",
+      "source_sha256": "06dfe340c218dc2140f835fa156f3d6a34efaf4a1eaea23c6c58e9810d2e3aa2",
+      "context": "A column of real data contains zeros and negatives, so a log or a divide will legitimately produce inf and nan; the VALUE is what the formula means, and numpy's warning about it is not something a user can act on.",
+      "translation": "Uma coluna de dados reais contém zeros e negativos, então um log ou uma divisão produzirão legitimamente inf e nan; o VALOR é o que a fórmula significa, e o aviso do numpy sobre isso não é algo sobre o qual um usuário possa agir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.evaluate.walk#0",
+      "source": "Evaluate one node of the tree, recursing into its children.",
+      "source_sha256": "8927a7d075a67c2835db13f5a4bd38ad241ed7801c896f2569b7c110aa8c3ea5",
+      "context": "Evaluate one node of the tree, recursing into its children.",
+      "translation": "Avalia um nó da árvore, descendo recursivamente em seus filhos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.referenced_columns.walk#0",
+      "source": "Collect every column the expression names, depth first.",
+      "source_sha256": "1ec4285e8cb5bf49adec90e0effee027939e5293466520121b3a54d6704f7d1b",
+      "context": "Collect every column the expression names, depth first.",
+      "translation": "Coleta cada coluna que a expressão nomeia, em profundidade primeiro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.BoxGate.describe.side#0",
+      "source": "One axis's bound as words, handling either side being open.",
+      "source_sha256": "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a",
+      "context": "One axis's bound as words, handling either side being open.",
+      "translation": "O limite de um eixo em palavras, tratando qualquer lado aberto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.order.walk#0",
+      "source": "Append this gate and everything under it, depth first.",
+      "source_sha256": "bdfbb1babbba1a5f95ab5c7d423a4126eb32c47e1ab5a94b750cfc2b52ef56f0",
+      "context": "Append this data-selection boundary and everything under it, depth first.",
+      "translation": "Acrescenta esta gate e tudo abaixo dela, em profundidade primeiro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.centre.middle#0",
+      "source": "The midpoint of a bound, or ``None`` when either side is open.",
+      "source_sha256": "cf6d7183f915edcc396de5b7adc295abfd54237ea598577e5cbabefba95ae8f2",
+      "context": "The midpoint of a bound, or ``None`` when either side is open.",
+      "translation": "O ponto médio de um limite, ou ``None`` quando algum lado está aberto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.centre.middle#1",
+      "source": "An open side has no midpoint, and inventing one would put a gate's centre somewhere the gate does not reach.",
+      "source_sha256": "b67b969a01f17d4ac933fd77e77c0b26d6740df1492905780dd4162814e83713",
+      "context": "An open side has no midpoint, and inventing one would put a data-selection boundary's centre somewhere the data-selection boundary does not reach.",
+      "translation": "Um lado aberto não tem ponto médio, e inventar um colocaria o centro de uma gate num lugar que a gate não alcança.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.describe.side#0",
+      "source": "One axis's bound as words, handling either side being open.",
+      "source_sha256": "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a",
+      "context": "One axis's bound as words, handling either side being open.",
+      "translation": "O limite de um eixo em palavras, tratando qualquer lado aberto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec._convex_hull._half#0",
+      "source": "One monotone half of the hull, by cross product.",
+      "source_sha256": "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
+      "context": "One monotone half of the hull, by cross product.",
+      "translation": "Uma metade monótona da envoltória, por produto vetorial.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec._convex_hull._half#1",
+      "source": "Points that turn the wrong way are popped, which is what leaves only the boundary -- run twice, upper and lower, it gives the whole hull.",
+      "source_sha256": "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573",
+      "context": "Points that turn the wrong way are popped, which is what leaves only the boundary -- run twice, upper and lower, it gives the whole hull.",
+      "translation": "Pontos que viram para o lado errado são removidos, e é isso que deixa apenas a borda -- executado duas vezes, superior e inferior, dá a envoltória inteira.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

@@ -2127,3 +2127,22 @@ Nightly removed ConditionSourceTable.setModel, so it leaves the catalogs and
 the batch3 records: pins 12,217 -> 12,352 (+136/-1). The documented-__init__
 set gains three local constructors. Help index regenerated.
     BLOCKED / open: OPEN docs work: 831 of 1,157 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 19 MORE MODULES ENABLED (PARTIAL; 425 of 1,158)
+ENABLED_MODULES gains nine five-helper modules (channel_sorting, power_model,
+qt.screens.volcano, qt.startup_benchmark, qt.theme, availability_panel,
+dose_response, formula, gate_spec) and nine six-helper ones (install_cleanup,
+qt.dialogs, distributed_jobs, qt.screens.model_zoo, plate_view, live_preview,
+measurement_scan_panel, regression_summary, run_journal). The writer adds 99
+symbols (12,352 -> 12,451) in English and nine locales from 145 AI-reviewed
+blocks (2026-10-03-nested-batch{6,7}.json, no native-speaker signoff);
+generated=0, decoded=0; earlier locale records byte-identical. Three local
+__init__ helpers (volcano, two qt.dialogs) join the documented-__init__ set;
+Help index regenerated. Guards: only nightly's stale OrganismDiagram hash fails.
+Held back: qt.thread_guard (a quoted English Qt message the es/pt
+contextualizer rewrites inside the quote) and qt.stall_watch (capitalised
+"WHERE" is a protected product token, so every locale would have to keep it);
+spacr.object_classifier still has one undocumented nightly helper.
+Denominator is 1,158 (source grew by one). Next: 7-12 helper modules, then
+the large ones (preferences, utils, plot, fractal_travel, gui_scale, ml).
+    BLOCKED / open: OPEN docs work: 733 of 1,158 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).

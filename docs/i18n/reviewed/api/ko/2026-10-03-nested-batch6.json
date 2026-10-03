@@ -1,0 +1,591 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting._match_columns.plane#0",
+      "source": "A file's 2-D size, for comparing an image with a mask.",
+      "source_sha256": "cb4c07c6cb8bdd0b48a519c95ab319e0ec12f0e39826443fa50392d3b080331a",
+      "context": "A file's 2-D size, for comparing an image with a mask.",
+      "translation": "이미지와 마스크를 비교하기 위한 파일의 2-D 크기.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._match_columns.plane#1",
+      "source": "a file, or None.",
+      "source_sha256": "136670aef9e2439cd373d445c0ada8b0f8d37241537badf1ee712d274246fde8",
+      "context": "a file, or None.",
+      "translation": "파일 하나, 또는 None.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.complete#0",
+      "source": "Whether ``identity`` columns give each label exactly once per set.",
+      "source_sha256": "0bc9cdb370a7cc7d9acfe64c5a8e02b3b6d10486c6addae73fe74e8363e72e5f",
+      "context": "Whether ``identity`` columns give each label exactly once per set.",
+      "translation": "``identity`` 열이 세트마다 각 레이블을 정확히 한 번씩 주는지 여부.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.complete#1",
+      "source": "the columns that identify a set.",
+      "source_sha256": "53810503d942e5f1bc2e42f9e182001f1e8876f9fba688f5454924bb54b9f54b",
+      "context": "the columns that identify a set.",
+      "translation": "세트를 식별하는 열.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.complete#2",
+      "source": "the channel label of each name.",
+      "source_sha256": "50867ef86a074b8283c89dbcf7e944d2f7a7d94a03bde261134f2318151b64aa",
+      "context": "the channel label of each name.",
+      "translation": "각 이름의 채널 레이블.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.function_of#0",
+      "source": "Whether column ``position`` is fixed by ``labels``.",
+      "source_sha256": "c2f37dcfa20071d3eda65bbf81e2d9e2309a4b4c3cd1fa416e81a7cc62ab75b0",
+      "context": "Whether column ``position`` is fixed by ``labels``.",
+      "translation": "열 ``position``이 ``labels``에 의해 결정되는지 여부.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.function_of#1",
+      "source": "a token column.",
+      "source_sha256": "fd66a6f3305266e3c29e3f06fae7c905d352925d1e6a440f3171346c75075a57",
+      "context": "a token column.",
+      "translation": "토큰 열.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting._regexes_for_family.function_of#2",
+      "source": "one label per name.",
+      "source_sha256": "841e1839c40f61ab913984ad30ea5ab99a336d37d2f1be4bc4dfa64cceee9e60",
+      "context": "one label per name.",
+      "translation": "이름마다 하나의 레이블.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex.channel_count#0",
+      "source": "How many channels ``pattern`` gives, when it puts every name in a set.",
+      "source_sha256": "2d3375c3828a5a78e6541fca7dd209bcccbe3da8bcf2087cdb83856d6b06f45c",
+      "context": "How many channels ``pattern`` gives, when it puts every name in a set.",
+      "translation": "``pattern``이 모든 이름을 세트에 넣을 때 몇 개의 채널을 주는지.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex.channel_count#1",
+      "source": "a candidate regex.",
+      "source_sha256": "c5c6caea41d4a61a94080e0cc012b179addd7102d56cf5fabe7a3226cc3116ee",
+      "context": "a candidate regex.",
+      "translation": "후보 정규식.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.infer_regex.channel_count#2",
+      "source": "the channel count, or None when the pattern fails.",
+      "source_sha256": "64246685d82ecf03eaf117f120d9566b7785881c036033ee99798f436e153be3",
+      "context": "the channel count, or None when the pattern fails.",
+      "translation": "채널 수이며, 패턴이 실패하면 None입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets.identity#0",
+      "source": "The groups that tell fields apart within a well.",
+      "source_sha256": "e39a9b3e8a75dca0829e654ff9dbf0001ed908452b54e2d8ec44f154ac8589dd",
+      "context": "The groups that tell microscope fields of view apart within a microplate sample position.",
+      "translation": "한 웰 안에서 필드를 서로 구별하는 그룹.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets.identity#1",
+      "source": "Groups with one value across every set (the ``L01``/``A01`` of a Yokogawa name) tell nothing apart and are left out.",
+      "source_sha256": "06d4968ba617462ebc8005aa4a5a7e6b824a5125d44d570ef43ab91ecb082dd3",
+      "context": "Groups with one value across every set (the ``L01``/``A01`` of a Yokogawa name) tell nothing apart and are left out.",
+      "translation": "모든 세트에서 값이 하나뿐인 그룹(Yokogawa 이름의 ``L01``/``A01``)은 아무것도 구별하지 못하므로 제외됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.channel_sorting.name_sets.identity#2",
+      "source": "one set's groups.",
+      "source_sha256": "ea3a1fecca15b0c74faffdf44892b48354adf1e09b8f9787e08673ad844ef4c7",
+      "context": "one set's groups.",
+      "translation": "한 세트의 그룹.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_numpyro_nuts.model#0",
+      "source": "Define the regularized-horseshoe Poisson model for NumPyro NUTS.",
+      "source_sha256": "f1a5c530d9f0dccb12951b1da2fc8482ad638f2e3125ee670a1c74b20c172001",
+      "context": "Define the regularized-horseshoe Poisson model for NumPyro NUTS.",
+      "translation": "NumPyro NUTS용 정규화 horseshoe-Poisson 모델을 정의합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_torch_advi._log_joint#0",
+      "source": "Evaluate the unnormalized horseshoe-Poisson log posterior.",
+      "source_sha256": "e72bdb6aa013ec758942c17a75539710809f10508f273960a7a8a90afbe7c7d0",
+      "context": "Evaluate the unnormalized horseshoe-Poisson log posterior.",
+      "translation": "정규화되지 않은 horseshoe-Poisson 로그 사후분포를 계산합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_torch_advi._log_joint#1",
+      "source": "The parameter-independent Poisson factorial is omitted, so each leading draw receives the same optimizer-equivalent objective.",
+      "source_sha256": "fdc21a3b1680bd92f2f79043975df11fe9a85f251eacb13bcbb9c3929bb0da58",
+      "context": "The parameter-independent Poisson factorial is omitted, so each leading draw receives the same optimizer-equivalent objective.",
+      "translation": "매개변수와 무관한 Poisson 계승 항은 생략되므로, 각 선행 추출은 최적화기 입장에서 동일한 목적 함수를 받습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model._fit_torch_advi._unpack#0",
+      "source": "Split the final parameter axis while preserving leading draws.",
+      "source_sha256": "53f35971706d97fa8c8f209aeae2005da3fa4c3dfd6b6fe498a770c774cb17af",
+      "context": "Split the final parameter axis while preserving leading draws.",
+      "translation": "선행 추출을 보존하면서 마지막 매개변수 축을 나눕니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model.prepare_model_data._matrix#0",
+      "source": "Pivot ``column`` to captured well-by-gene order as float64.",
+      "source_sha256": "5d2784826fd4721592d194dc779487dcd8f9ada0210222d0790d13331b1ac006",
+      "context": "Pivot ``column`` to captured well-by-gene order as float64.",
+      "translation": "``column``을 캡처된 웰-유전자 순서로 피벗하여 float64로 만듭니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters._report#0",
+      "source": "Hand one finished row to ``on_point``; True means \"keep going\".",
+      "source_sha256": "501e721807b8f346d3fabe7b987b26c0d7f766b6f12bb51f981094738b4d5ca1",
+      "context": "Hand one finished row to ``on_point``; True means \"keep going\".",
+      "translation": "완료된 행 하나를 ``on_point``에 넘깁니다. True는 \"keep going\", 즉 계속하라는 뜻입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.power_model.scan_parameters._report#1",
+      "source": "Kept as a closure over the loop counters rather than inlined twice so the resumed and freshly-computed paths cannot drift apart — a progress bar that skips the rows a resume restored is a progress bar that runs backwards on the second attempt.",
+      "source_sha256": "aec7d1c975d540a88448e992042051cca33464b66acb6878ffe61f6fded6a71e",
+      "context": "Kept as a closure over the loop counters rather than inlined twice so the resumed and freshly-computed paths cannot drift apart — a progress bar that skips the rows a resume restored is a progress bar that executes backwards on the second attempt.",
+      "translation": "두 번 인라인으로 쓰지 않고 루프 카운터에 대한 클로저로 유지하므로, 재개된 경로와 새로 계산된 경로가 서로 어긋날 수 없습니다 — 재개가 복원한 행을 건너뛰는 진행 표시줄은 두 번째 시도에서 거꾸로 가는 진행 표시줄입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.__init__#0",
+      "source": "Build the screen. ``host`` is the window, NOT a Qt parent.",
+      "source_sha256": "2d039590cd1e852f6afe02b70faef3f2acd6984fee28ec477a41208e44d2511a",
+      "context": "Build the application view. ``host`` is the window, NOT a Qt parent.",
+      "translation": "화면을 만듭니다. ``host``는 창이며, Qt 부모가 아닙니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.__init__#1",
+      "source": "Handing it to ``QWidget.__init__`` raises, because the registry's host is not always a QWidget.",
+      "source_sha256": "3ba198240e1d748068be15876aec9014fbbe6145f80cdb9383dccbd2025eeed7",
+      "context": "Handing it to ``QWidget.__init__`` raises, because the registry's host is not always a QWidget.",
+      "translation": "이를 ``QWidget.__init__``에 넘기면 예외가 발생합니다. 레지스트리의 호스트가 항상 QWidget인 것은 아니기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen._open#0",
+      "source": "Ask for a results folder and load it.",
+      "source_sha256": "ae28b1cbe2533a80a1623f064c892db4c1aa4a551da406a30bdf3628636f72fa",
+      "context": "Ask for a results folder and load it.",
+      "translation": "결과 폴더를 묻고 불러옵니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.dragEnterEvent#0",
+      "source": "Accept a drag that carries paths.",
+      "source_sha256": "d298ebbfa117d580038addc51a1da8391e722cf340e74ba65e467e312dec5d77",
+      "context": "Accept a drag that carries paths.",
+      "translation": "경로를 담은 끌기를 받아들입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.dropEvent#0",
+      "source": "Load the first dropped folder that holds results.",
+      "source_sha256": "7d71515481d89ed97024e9f0c0bab483db120c09ac1987cde83be57e88dce168",
+      "context": "Load the first dropped folder that holds results.",
+      "translation": "놓인 폴더 중 결과가 있는 첫 번째 폴더를 불러옵니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.volcano._make_screen.VolcanoScreen.load#0",
+      "source": "Load a results folder. Returns whether one was found.",
+      "source_sha256": "408e50807ebdcbabbf86544ab18a8911f7d57f1a5266fa165f5d0bd56a0cbde8",
+      "context": "Load a results folder. Returns whether one was found.",
+      "translation": "결과 폴더를 불러옵니다. 찾았는지 여부를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.BenchmarkController._advance_after_watchdog._after_beat#0",
+      "source": "Continue once the GUI thread has answered again.",
+      "source_sha256": "69798c37aecb020d104427935fcec7539867bf9394c97b8b328c19cf18c295e4",
+      "context": "Continue once the main GUI execution path has answered again.",
+      "translation": "GUI 스레드가 다시 응답하면 계속합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.coordinates#0",
+      "source": "Retain integer geometry in a JSON-compatible representation.",
+      "source_sha256": "aa85bfc5f4c61d3852adcd557b109007253abb4501b39a774183f71bc97eea87",
+      "context": "Retain integer geometry in a JSON-compatible representation.",
+      "translation": "정수 기하 정보를 JSON 호환 표현으로 보존합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.coordinates#1",
+      "source": "the observed Qt rectangle.",
+      "source_sha256": "57a3bb2e8e2cbc8c0249f66fdaebc4e39a2f8ead8ebef62cbad756a221d58ab3",
+      "context": "the observed Qt rectangle.",
+      "translation": "관찰된 Qt 사각형.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.rectangle#0",
+      "source": "Map actual geometry into the window.",
+      "source_sha256": "a8ad285e0057181d2dd3d3606de2aed077705c261a78ef63a99463e97f341759",
+      "context": "Map actual geometry into the window.",
+      "translation": "실제 기하 정보를 창 안으로 매핑합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.rectangle#1",
+      "source": "the real child widget being measured.",
+      "source_sha256": "a9ffb559a5eccb7feced465560c54c8f6e96c41435ddaa7f9aef0b501b3e596b",
+      "context": "the real child widget being measured.",
+      "translation": "측정 대상인 실제 자식 위젯.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark._DistributionSmokeController._start_native_menu_check.text#0",
+      "source": "Read a native NSString without inventing an action caption.",
+      "source_sha256": "28e1176c9c4e3b2bd8e1ebbcb5a6d64621912c4e7f569b63f7339815206e577d",
+      "context": "Read a native NSString without inventing an action caption.",
+      "translation": "동작 캡션을 지어내지 않고 네이티브 NSString을 읽습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.startup_benchmark.maybe_start._live_keys#0",
+      "source": "Every registered app key, read when the benchmark runs.",
+      "source_sha256": "0479d930aad04fa6e9e9ea6507c92cb8902b5cdadf612a247347497fa39409eb",
+      "context": "Every registered app key, read when the benchmark runs.",
+      "translation": "벤치마크가 실행될 때 읽는, 등록된 모든 앱 키.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._hue_shift.tint#0",
+      "source": "The base hue at ``step``, lightened toward white.",
+      "source_sha256": "89cbc360d878582bd672287c29ebcfd6565833489e9ee140e60660609a55bab0",
+      "context": "The base hue at ``step``, lightened toward white.",
+      "translation": "``step``에서의 기본 색조를 흰색 쪽으로 밝힌 것.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._hue_shift.value#0",
+      "source": "The base hue at ``level``, darkened toward black.",
+      "source_sha256": "2c6ec90758e8db2a27068e94cde84c8e23bb502bc75004cb6b02409be7f9a05a",
+      "context": "The base hue at ``level``, darkened toward black.",
+      "translation": "``level``에서의 기본 색조를 검은색 쪽으로 어둡게 한 것.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._relative_luminance.channel#0",
+      "source": "One sRGB channel linearised, per WCAG's own definition.",
+      "source_sha256": "999c68c782ad3be13432ade1be9c28f51b7310ca16b5507854a31e9457fdfaba",
+      "context": "One sRGB channel linearised, per WCAG's own definition.",
+      "translation": "WCAG 자체 정의에 따라 선형화한 sRGB 채널 하나.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._scrim_bounds.over#0",
+      "source": "The luminance of the scrim at ``alpha`` over one background.",
+      "source_sha256": "65c676e08402c629e2639f8c2bde9f8f432c3e5ec52a8cc987ec355bddbc38c5",
+      "context": "The luminance of the scrim at ``alpha`` over one background.",
+      "translation": "하나의 배경 위에서 ``alpha``일 때 스크림의 휘도.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._scrim_bounds.shows#0",
+      "source": "Whether text still meets the contrast floor at this scrim strength.",
+      "source_sha256": "fef8a93e9e6f77b8f5b5e86b65053630137e0ad0d7b9b3ffd8ce1c8403bc97a6",
+      "context": "Whether text still meets the contrast floor at this scrim strength.",
+      "translation": "이 스크림 강도에서 텍스트가 여전히 최소 대비를 충족하는지 여부.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.theme._scrim_bounds.shows#1",
+      "source": "Checked against BOTH the lightest and the darkest thing the scrim can sit on, because a picture backdrop is neither -- an alpha that reads against one and not the other is not usable.",
+      "source_sha256": "871eab7342f2a8ad9ed7024dfbdfe23453352fe00a158f3c753e4aa1f05d970a",
+      "context": "Checked against BOTH the lightest and the darkest thing the scrim can sit on, because a picture backdrop is neither -- an alpha that reads against one and not the other is not usable.",
+      "translation": "스크림이 놓일 수 있는 가장 밝은 것과 가장 어두운 것 모두에 대해 검사합니다. 그림 배경은 둘 다 아니기 때문입니다 -- 한쪽에서는 읽히고 다른 쪽에서는 읽히지 않는 알파는 쓸 수 없습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_confirm._confirm#0",
+      "source": "Ask a yes/no question in a modal box.",
+      "source_sha256": "f8b48870d405dafa7d44164638ca4c9427308ea7ab546999b628ce51155cdea6",
+      "context": "Ask a yes/no question in a modal box.",
+      "translation": "모달 상자에서 예/아니요 질문을 합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_dry_run._run#0",
+      "source": "Dry-run an install and hand the outcome back.",
+      "source_sha256": "4237bbb4e42d15c44c4f3c0945ab15e2257d3b01f711b9286954502b872eca0a",
+      "context": "Dry-run an install and hand the outcome back.",
+      "translation": "설치를 시험 실행하고 결과를 돌려줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_dry_run._run._work#0",
+      "source": "Do the dry run. Called off the GUI thread.",
+      "source_sha256": "24adb9ed8963897e8d1408e7a03b8bfb30c2353f4fde8375ae444e9a423ec0df",
+      "context": "Do the dry run. Called off the main GUI execution path.",
+      "translation": "시험 실행을 수행합니다. GUI 스레드 밖에서 호출됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel._default_inform._inform#0",
+      "source": "Say something in a modal box.",
+      "source_sha256": "5196d14ef238f930d819b63e24d3c4038105a1d68886b5c20681c3cf00966892",
+      "context": "Say something in a modal box.",
+      "translation": "모달 상자에서 무언가를 알립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.explain._install#0",
+      "source": "Run one install offer and report what happened.",
+      "source_sha256": "d8e75c90c637cc8f685b5f2ebaf1fe9bd3ef9690ba66b29a3426f1a83fe175f6",
+      "context": "Run one install offer and report what happened.",
+      "translation": "설치 제안 하나를 실행하고 무슨 일이 있었는지 보고합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.PooledFit.summary_row.num#0",
+      "source": "``None`` as NaN, so a refused fit still fills its columns.",
+      "source_sha256": "907116584102a32775585b107b31b061320816cae5c4282f1d283ed1a3765468",
+      "context": "``None`` as NaN, so a refused fit still fills its columns.",
+      "translation": "``None``을 NaN으로 바꾸어, 거부된 적합도 열을 채우게 합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.PooledFit.summary_row.num#1",
+      "source": "A refusal has no EC50, and leaving the cell empty would make the row a different shape from a fitted one -- which is what a table cannot have. NaN is the value that says \"not a number here\" without changing the columns.",
+      "source_sha256": "8d626ce64448d01307c27e95b2668b4d4dba82f35e06a94eb9adc1de68dfa8c3",
+      "context": "A refusal has no EC50, and leaving the cell empty would make the row a different shape from a fitted one -- which is what a table cannot have. NaN is the value that says \"not a number here\" without changing the columns.",
+      "translation": "거부된 적합에는 EC50이 없으며, 셀을 비워 두면 그 행의 모양이 적합된 행과 달라집니다 -- 표에서는 있을 수 없는 일입니다. NaN은 열을 바꾸지 않고 \"not a number here\"를 뜻하는 값입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#0",
+      "source": "The affected fraction at each dose, in [0, 1].",
+      "source_sha256": "6af0c21e0f737878d633f7abd9a56dad5a716a5f1129b0337b411e69138f84a7",
+      "context": "The affected fraction at each dose, in [0, 1].",
+      "translation": "각 용량에서 영향을 받은 비율이며, [0, 1] 범위입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#1",
+      "source": "Zero and negative doses are clamped to a tiny positive number rather than refused: a checkerboard's first row IS zero, and a 4PL has no value there because log10(0) is undefined. The clamp puts them at the curve's own baseline, which is what an untreated well measures.",
+      "source_sha256": "336ac340dba3f68521625f3da09e3e2b6f0645675cde9952d40d61e4dfdb8d06",
+      "context": "Zero and negative doses are clamped to a tiny positive number rather than refused: a checkerboard's first row IS zero, and a 4PL has no value there because log10(0) is undefined. The clamp puts them at the curve's own baseline, which is what an untreated microplate sample position measures.",
+      "translation": "0과 음수 용량은 거부하지 않고 아주 작은 양수로 고정합니다. 체커보드의 첫 행은 0이며, log10(0)이 정의되지 않으므로 4PL은 그곳에 값이 없습니다. 고정하면 곡선 자체의 기준선에 놓이며, 이는 처리하지 않은 웰이 측정하는 값입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#2",
+      "source": "concentrations, any shape.",
+      "source_sha256": "bb7b7e7e688502d86d846f7e9f15c2858c72bbb3c05dc0215b5c9b8d4ef67ab8",
+      "context": "concentrations, any shape.",
+      "translation": "농도, 모양 무관.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._effect_curve.effect#3",
+      "source": "affected fraction, same shape.",
+      "source_sha256": "92ccd011c9004b74284125c436e9b30c82e8e18766a0ed284078969d919253ad",
+      "context": "affected fraction, same shape.",
+      "translation": "영향받은 비율, 같은 모양.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response._profile_five_sse.objective#0",
+      "source": "SSE at one ``(log slope magnitude, log asymmetry)`` point.",
+      "source_sha256": "97d322cf25c7f9c725c2e7d0167c81aeb4ace5b0b5bcca585773f98093bd6ae1",
+      "context": "SSE at one ``(log slope magnitude, log asymmetry)`` point.",
+      "translation": "``(log slope magnitude, log asymmetry)`` 점 하나에서의 SSE.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response.wald#0",
+      "source": "One parameter's Wald interval, or ``None`` when it cannot be formed.",
+      "source_sha256": "d164c31ce011b6f990372dbca1054e264221c8ee56adaa4b572e34daa48f17ac",
+      "context": "One parameter's Wald interval, or ``None`` when it cannot be formed.",
+      "translation": "매개변수 하나의 Wald 구간이며, 만들 수 없으면 ``None``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.fit_dose_response.wald#1",
+      "source": "Returns None rather than an interval when the covariance is unusable: an interval computed from a bad covariance looks like a result and is not one.",
+      "source_sha256": "7ae055a22c09b50a59a91eb83299516021a27cd3aa72075f329aabe6a07100c4",
+      "context": "Returns None rather than an interval when the covariance is unusable: an interval computed from a bad covariance looks like a result and is not one.",
+      "translation": "공분산을 쓸 수 없으면 구간 대신 None을 반환합니다. 잘못된 공분산으로 계산한 구간은 결과처럼 보이지만 결과가 아닙니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#0",
+      "source": "One end of the interval, or ``None`` when that end is open.",
+      "source_sha256": "d9815f4f887110192d68dc26c940a4a5b4c035884940c530aebb61f67a629510",
+      "context": "One end of the interval, or ``None`` when that end is open.",
+      "translation": "구간의 한쪽 끝이며, 그 끝이 열려 있으면 ``None``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#1",
+      "source": "Returns ``None`` rather than raising or substituting a sentinel: an open side of a one-sided index is a fact about the experiment, and a number here would make it look bounded.",
+      "source_sha256": "ef78419296e608107a9d41e53212ae344cfd4a5a6b0113ec3007df471333e6aa",
+      "context": "Returns ``None`` rather than throwing or substituting a sentinel: an open side of a one-sided index is a fact about the experiment, and a number here would make it look bounded.",
+      "translation": "예외를 일으키거나 대체 값을 넣지 않고 ``None``을 반환합니다. 단측 지수의 열린 쪽은 실험에 관한 사실이며, 여기에 숫자를 넣으면 유계처럼 보이게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#2",
+      "source": "a host EC50 bound, or ``None``.",
+      "source_sha256": "ac5902976c6482d23389dd6738abff42489b5bc66ffb1e7957ea33f07cc70a69",
+      "context": "a host EC50 bound, or ``None``.",
+      "translation": "숙주의 EC50 경계, 또는 ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.selectivity_index._ratio#3",
+      "source": "a parasite EC50 bound, or ``None``.",
+      "source_sha256": "03896007a2a5ae8fcc66e4495da9e7563fac17b46bb2d7f6c08d616e1c0fdd2d",
+      "context": "a parasite EC50 bound, or ``None``.",
+      "translation": "기생충의 EC50 경계, 또는 ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.ColumnFormula.uses_whole_table.walk#0",
+      "source": "Whether any node needs the whole column rather than one row.",
+      "source_sha256": "56145c219edeb288e159177cb46e8b722225b9b6d97a326eba3f3826a44f66eb",
+      "context": "Whether any node needs the whole column rather than one row.",
+      "translation": "어떤 노드든 한 행이 아니라 열 전체가 필요한지 여부.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.ColumnFormula.uses_whole_table.walk#1",
+      "source": "An aggregate cannot be computed row by row, so this decides whether the formula can stream or has to hold the table.",
+      "source_sha256": "14600e03ad74bc93238d5b05ae594acce6da93ae366075f7987ebc711e8cecaa",
+      "context": "An aggregate cannot be computed row by row, so this decides whether the formula can stream or has to hold the table.",
+      "translation": "집계는 행 단위로 계산할 수 없으므로, 이것이 공식을 스트리밍할 수 있는지 아니면 표를 들고 있어야 하는지를 결정합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._aggregate.call#0",
+      "source": "Reduce the values to one number, ignoring non-finite entries.",
+      "source_sha256": "89e8f6cb5b8021e11fd560834535e3dd61689e47f1bf383c6d6b9d7bd3ba0e2f",
+      "context": "Reduce the values to one number, ignoring non-finite entries.",
+      "translation": "유한하지 않은 항목은 무시하고 값을 하나의 숫자로 줄입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._aggregate.call#1",
+      "source": "An all-non-finite column gives ``nan`` rather than raising: an empty aggregate is an answer the caller can carry, and an exception here would take down a whole computed column for one bad group.",
+      "source_sha256": "99bbfbfa3dc3a6e329c249cc649ad19a358fae25a4038a2e400c39b2c59dd262",
+      "context": "An all-non-finite column gives ``nan`` rather than throwing: an empty aggregate is an answer the caller can carry, and an exception here would take down a whole computed column for one bad group.",
+      "translation": "모든 값이 유한하지 않은 열은 예외 대신 ``nan``을 줍니다. 빈 집계는 호출자가 가지고 갈 수 있는 답이며, 여기서 예외가 나면 나쁜 그룹 하나 때문에 계산된 열 전체가 무너집니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._elementwise.call#0",
+      "source": "Apply the function across the arrays, warnings suppressed.",
+      "source_sha256": "01d9cd7a26e7fc03330887f076f407b98f935702505d7266ec9c7fbb7feb714b",
+      "context": "Apply the function across the arrays, warnings suppressed.",
+      "translation": "경고를 억제한 채 배열 전체에 함수를 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula._elementwise.call#1",
+      "source": "A column of real data contains zeros and negatives, so a log or a divide will legitimately produce inf and nan; the VALUE is what the formula means, and numpy's warning about it is not something a user can act on.",
+      "source_sha256": "06dfe340c218dc2140f835fa156f3d6a34efaf4a1eaea23c6c58e9810d2e3aa2",
+      "context": "A column of real data contains zeros and negatives, so a log or a divide will legitimately produce inf and nan; the VALUE is what the formula means, and numpy's warning about it is not something a user can act on.",
+      "translation": "실제 데이터 열에는 0과 음수가 있으므로 로그나 나눗셈은 당연히 inf와 nan을 만듭니다. 공식이 뜻하는 것은 그 값이며, 이에 대한 numpy 경고는 사용자가 조치할 수 있는 것이 아닙니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.evaluate.walk#0",
+      "source": "Evaluate one node of the tree, recursing into its children.",
+      "source_sha256": "8927a7d075a67c2835db13f5a4bd38ad241ed7801c896f2569b7c110aa8c3ea5",
+      "context": "Evaluate one node of the tree, recursing into its children.",
+      "translation": "트리의 노드 하나를 평가하고, 그 자식으로 재귀합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.formula.referenced_columns.walk#0",
+      "source": "Collect every column the expression names, depth first.",
+      "source_sha256": "1ec4285e8cb5bf49adec90e0effee027939e5293466520121b3a54d6704f7d1b",
+      "context": "Collect every column the expression names, depth first.",
+      "translation": "식이 가리키는 모든 열을 깊이 우선으로 모읍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.BoxGate.describe.side#0",
+      "source": "One axis's bound as words, handling either side being open.",
+      "source_sha256": "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a",
+      "context": "One axis's bound as words, handling either side being open.",
+      "translation": "한 축의 경계를 말로 나타내며, 어느 쪽이 열려 있어도 처리합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.GateSet.order.walk#0",
+      "source": "Append this gate and everything under it, depth first.",
+      "source_sha256": "bdfbb1babbba1a5f95ab5c7d423a4126eb32c47e1ab5a94b750cfc2b52ef56f0",
+      "context": "Append this data-selection boundary and everything under it, depth first.",
+      "translation": "이 게이트와 그 아래의 모든 것을 깊이 우선으로 추가합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.centre.middle#0",
+      "source": "The midpoint of a bound, or ``None`` when either side is open.",
+      "source_sha256": "cf6d7183f915edcc396de5b7adc295abfd54237ea598577e5cbabefba95ae8f2",
+      "context": "The midpoint of a bound, or ``None`` when either side is open.",
+      "translation": "경계의 중점이며, 어느 한쪽이 열려 있으면 ``None``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.centre.middle#1",
+      "source": "An open side has no midpoint, and inventing one would put a gate's centre somewhere the gate does not reach.",
+      "source_sha256": "b67b969a01f17d4ac933fd77e77c0b26d6740df1492905780dd4162814e83713",
+      "context": "An open side has no midpoint, and inventing one would put a data-selection boundary's centre somewhere the data-selection boundary does not reach.",
+      "translation": "열린 쪽에는 중점이 없으며, 중점을 지어내면 게이트의 중심이 게이트가 닿지 않는 곳에 놓이게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.describe.side#0",
+      "source": "One axis's bound as words, handling either side being open.",
+      "source_sha256": "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a",
+      "context": "One axis's bound as words, handling either side being open.",
+      "translation": "한 축의 경계를 말로 나타내며, 어느 쪽이 열려 있어도 처리합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec._convex_hull._half#0",
+      "source": "One monotone half of the hull, by cross product.",
+      "source_sha256": "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
+      "context": "One monotone half of the hull, by cross product.",
+      "translation": "외적으로 구한 볼록 껍질의 단조로운 절반.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec._convex_hull._half#1",
+      "source": "Points that turn the wrong way are popped, which is what leaves only the boundary -- run twice, upper and lower, it gives the whole hull.",
+      "source_sha256": "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573",
+      "context": "Points that turn the wrong way are popped, which is what leaves only the boundary -- run twice, upper and lower, it gives the whole hull.",
+      "translation": "잘못된 방향으로 꺾이는 점은 제거되며, 그래서 경계만 남습니다 -- 위와 아래로 두 번 실행하면 껍질 전체가 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

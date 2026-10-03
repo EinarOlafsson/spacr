@@ -10011,6 +10011,46 @@
         "7d26a047d111c56705ea146362e8def7fd7cebcc268291ab8568cbcbb80ef5c2"
       ]
     },
+    "spacr.channel_sorting._match_columns.plane": {
+      "source_blocks_sha256": [
+        "cb4c07c6cb8bdd0b48a519c95ab319e0ec12f0e39826443fa50392d3b080331a",
+        "136670aef9e2439cd373d445c0ada8b0f8d37241537badf1ee712d274246fde8"
+      ],
+      "source_sha256": "2523c51f22b1782461576bd46cba7a5e20855bc86c7adf2807da5ead256251bb",
+      "text": "文件的二维尺寸，用于比较图像与掩膜。\n\n:param path: 一个文件，或 None。",
+      "translation_source_blocks_sha256": [
+        "cb4c07c6cb8bdd0b48a519c95ab319e0ec12f0e39826443fa50392d3b080331a",
+        "136670aef9e2439cd373d445c0ada8b0f8d37241537badf1ee712d274246fde8"
+      ]
+    },
+    "spacr.channel_sorting._regexes_for_family.complete": {
+      "source_blocks_sha256": [
+        "0bc9cdb370a7cc7d9acfe64c5a8e02b3b6d10486c6addae73fe74e8363e72e5f",
+        "53810503d942e5f1bc2e42f9e182001f1e8876f9fba688f5454924bb54b9f54b",
+        "50867ef86a074b8283c89dbcf7e944d2f7a7d94a03bde261134f2318151b64aa"
+      ],
+      "source_sha256": "fc24a79235cfe66be5340534efa5945c6b5f6280ed206ea5835085b51fedb9cd",
+      "text": "``identity`` 列是否在每个集合中恰好给出每个标签一次。\n\n:param identity: 标识一个集合的列。\n:param labels: 每个名称的通道标签。",
+      "translation_source_blocks_sha256": [
+        "0bc9cdb370a7cc7d9acfe64c5a8e02b3b6d10486c6addae73fe74e8363e72e5f",
+        "53810503d942e5f1bc2e42f9e182001f1e8876f9fba688f5454924bb54b9f54b",
+        "50867ef86a074b8283c89dbcf7e944d2f7a7d94a03bde261134f2318151b64aa"
+      ]
+    },
+    "spacr.channel_sorting._regexes_for_family.function_of": {
+      "source_blocks_sha256": [
+        "c2f37dcfa20071d3eda65bbf81e2d9e2309a4b4c3cd1fa416e81a7cc62ab75b0",
+        "fd66a6f3305266e3c29e3f06fae7c905d352925d1e6a440f3171346c75075a57",
+        "841e1839c40f61ab913984ad30ea5ab99a336d37d2f1be4bc4dfa64cceee9e60"
+      ],
+      "source_sha256": "14387ae9e6203656810e4e9f7ff0d19e48435fe11afdb510835161ac073ab718",
+      "text": "列 ``position`` 是否由 ``labels`` 决定。\n\n:param position: 一个标记列。\n:param labels: 每个名称一个标签。",
+      "translation_source_blocks_sha256": [
+        "c2f37dcfa20071d3eda65bbf81e2d9e2309a4b4c3cd1fa416e81a7cc62ab75b0",
+        "fd66a6f3305266e3c29e3f06fae7c905d352925d1e6a440f3171346c75075a57",
+        "841e1839c40f61ab913984ad30ea5ab99a336d37d2f1be4bc4dfa64cceee9e60"
+      ]
+    },
     "spacr.channel_sorting.apply_plan": {
       "source_blocks_sha256": [
         "146c0eae586d5ec99dd028c688bb6398ef7b1740aa9a69d1981a9d40eab49308",
@@ -10177,6 +10217,20 @@
         "af5fd94f3da97b7b7cfee3269c527b158678ed30469ae914d25b422bee4ee791"
       ]
     },
+    "spacr.channel_sorting.infer_regex.channel_count": {
+      "source_blocks_sha256": [
+        "2d3375c3828a5a78e6541fca7dd209bcccbe3da8bcf2087cdb83856d6b06f45c",
+        "c5c6caea41d4a61a94080e0cc012b179addd7102d56cf5fabe7a3226cc3116ee",
+        "64246685d82ecf03eaf117f120d9566b7785881c036033ee99798f436e153be3"
+      ],
+      "source_sha256": "5e502865ee18665d2ed8a459389979a6907fb25413813a2e16ec596ea0511599",
+      "text": "当 ``pattern`` 把每个名称都放入某个集合时，它给出多少个通道。\n\n:param pattern: 一个候选正则表达式。\n:returns: 通道数；若模式失败则为 None。",
+      "translation_source_blocks_sha256": [
+        "2d3375c3828a5a78e6541fca7dd209bcccbe3da8bcf2087cdb83856d6b06f45c",
+        "c5c6caea41d4a61a94080e0cc012b179addd7102d56cf5fabe7a3226cc3116ee",
+        "64246685d82ecf03eaf117f120d9566b7785881c036033ee99798f436e153be3"
+      ]
+    },
     "spacr.channel_sorting.list_folder_images": {
       "source_blocks_sha256": [
         "b79e04ddd944ecdc7a05a2554fe1a061b477f32e4284d4ebf473ad6eeca8e545",
@@ -10287,6 +10341,20 @@
         "b4b4600a7831a0335b08789f0d9c06a9e5fbd16ccd943a3bf66c0bd44d804940",
         "7bcf6779e0939351fe7b1e0cdcdf0477bdc506cd99b3efa47b937569e54c5ba8",
         "e1ff2328f1cf090fc31d6fe044233e587f5a2f1dd974f56baf657047b76d4e48"
+      ]
+    },
+    "spacr.channel_sorting.name_sets.identity": {
+      "source_blocks_sha256": [
+        "e39a9b3e8a75dca0829e654ff9dbf0001ed908452b54e2d8ec44f154ac8589dd",
+        "06d4968ba617462ebc8005aa4a5a7e6b824a5125d44d570ef43ab91ecb082dd3",
+        "ea3a1fecca15b0c74faffdf44892b48354adf1e09b8f9787e08673ad844ef4c7"
+      ],
+      "source_sha256": "a4ce39d57dc2f68b86f9c2da2bf61bc929b616b196a4e6285573cdb48bc7113e",
+      "text": "在一个孔内区分各视野的分组。\n\n在所有集合中只有一个取值的分组（例如 Yokogawa 名称中的 ``L01``/``A01``）无法区分任何内容，因此被略去。\n\n:param d: 一个集合的分组。",
+      "translation_source_blocks_sha256": [
+        "4a20931b7ef223716912c50ac8a041726ea5b454574b132c1c0f60461e0f4366",
+        "06d4968ba617462ebc8005aa4a5a7e6b824a5125d44d570ef43ab91ecb082dd3",
+        "ea3a1fecca15b0c74faffdf44892b48354adf1e09b8f9787e08673ad844ef4c7"
       ]
     },
     "spacr.channel_sorting.natural_key": {
@@ -37133,6 +37201,90 @@
         "28d5942b909f593a8665c322eb016f1731034aa7da04b26baa87445eb3804b50"
       ]
     },
+    "spacr.install_cleanup._delete._writable_then_retry": {
+      "source_blocks_sha256": [
+        "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
+        "8d56e857392c4c86ec29dd6ad11e7138b21e962e0caef84ccb004d9b23dca180",
+        "205d343a8fa878f17f75188c5173fc3e463846ff4ea4035eb62cde57881d819c",
+        "16c73f200148d43334c9b326e334589f1128b4bace65f2932ae92f131d46153c"
+      ],
+      "source_sha256": "bac6c5f69f86968cd10123ff0ce22b899fb4bf2309fc02ab6296ef7a20aa6356",
+      "text": "清除只读标志并重试一次，同时记录失败。\n\n:param func: 失败的 :mod:`os` 函数。\n:param failed_path: 它失败时所在的路径。\n:param exc_info: 错误，按 :func:`shutil.rmtree` 传入的形式。",
+      "translation_source_blocks_sha256": [
+        "d3fff3ce723738f6656a43e787c795d9b6cfcfb86dd0e050ad4ac6e19431b657",
+        "8d56e857392c4c86ec29dd6ad11e7138b21e962e0caef84ccb004d9b23dca180",
+        "205d343a8fa878f17f75188c5173fc3e463846ff4ea4035eb62cde57881d819c",
+        "16c73f200148d43334c9b326e334589f1128b4bace65f2932ae92f131d46153c"
+      ]
+    },
+    "spacr.install_cleanup._macos_recover_user_bundle.identity": {
+      "source_blocks_sha256": [
+        "57fd25665dd161be0d63a2db877677088ef3c765acadb64af13e68bb8abb4344",
+        "4bdce93fc821a7302e12f182e76f7f3c421b0d291cf22f2e561fcfbc64ba577c",
+        "280a01035224856689d1dd9a23d19c9beb614f87ea6010a0de34cff20ffdfa48"
+      ],
+      "source_sha256": "c40f972ef54ca7d196668a7bd59e4dc366a59b8b18cab3840c22838fff20bc30",
+      "text": "将恢复绑定到实际的目录 inode，而不只是可变的应用名称。\n\n:param path: 要识别的、已记入日志的包目录。\n:returns: 兼容 JSON 的设备/inode 对。",
+      "translation_source_blocks_sha256": [
+        "57fd25665dd161be0d63a2db877677088ef3c765acadb64af13e68bb8abb4344",
+        "4bdce93fc821a7302e12f182e76f7f3c421b0d291cf22f2e561fcfbc64ba577c",
+        "280a01035224856689d1dd9a23d19c9beb614f87ea6010a0de34cff20ffdfa48"
+      ]
+    },
+    "spacr.install_cleanup._macos_replace_user_bundle.identity": {
+      "source_blocks_sha256": [
+        "7be71a1756b9fe42847de0cc36961ec22780e9365ca587301e8a5784e3357ba6",
+        "472633849157276e087b2aa8df4cb7a0f2c8080decf6bbd7ddbc65e99a3ad2a3",
+        "280a01035224856689d1dd9a23d19c9beb614f87ea6010a0de34cff20ffdfa48"
+      ],
+      "source_sha256": "40b7e5d6040bb5f76df36cb52a4c951b62175119d94aa5cfd28e0cf9f39ea80c",
+      "text": "在交换之前或之后记录目录的实际身份。\n\n:param path: 记录其设备和 inode 的包目录。\n:returns: 兼容 JSON 的设备/inode 对。",
+      "translation_source_blocks_sha256": [
+        "7be71a1756b9fe42847de0cc36961ec22780e9365ca587301e8a5784e3357ba6",
+        "472633849157276e087b2aa8df4cb7a0f2c8080decf6bbd7ddbc65e99a3ad2a3",
+        "280a01035224856689d1dd9a23d19c9beb614f87ea6010a0de34cff20ffdfa48"
+      ]
+    },
+    "spacr.install_cleanup._macos_tree.refuse_unreadable": {
+      "source_blocks_sha256": [
+        "10a7acde9c0ebd2363f1557c03a54533a4b868e5e496311b5a1b82b12fd26094",
+        "903c6484f4ff7f5161e8c3608a510f1514f08f43f4dcdd1032d5dea37ce9ee61"
+      ],
+      "source_sha256": "b9adab940d058d32d0a53e49a354e8d2e59f8f8f668d11f9d93bdc018b4d956a",
+      "text": "传播文件系统遍历失败，而不是省略其子树。\n\n:param error: os.walk 报告的操作系统异常。",
+      "translation_source_blocks_sha256": [
+        "10a7acde9c0ebd2363f1557c03a54533a4b868e5e496311b5a1b82b12fd26094",
+        "903c6484f4ff7f5161e8c3608a510f1514f08f43f4dcdd1032d5dea37ce9ee61"
+      ]
+    },
+    "spacr.install_cleanup._run_plan._finish": {
+      "source_blocks_sha256": [
+        "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
+        "e7a79149a400ea55f4d7de4ac47e2776d1daf947986dac7101344929501e5fbc"
+      ],
+      "source_sha256": "4fffb3b21011173df53ed8b0b30a6accceccba1c48c56431ffac3d0ba7993ef2",
+      "text": "写入更新日志并返回 ``code``。\n\n:param code: 要返回的退出码。",
+      "translation_source_blocks_sha256": [
+        "532b1ab0bf40eeff8d6202d2541133e0781ca4b38117e18d5bfd1a883e4107a7",
+        "e7a79149a400ea55f4d7de4ac47e2776d1daf947986dac7101344929501e5fbc"
+      ]
+    },
+    "spacr.install_cleanup._standalone_helper_command.contains": {
+      "source_blocks_sha256": [
+        "f54f2b1636a068c74c200862f8a4ccc30ff26640427fd1a4fa9e6401a8751af3",
+        "bbb842c373dad2acabc38707e2736d58ec1262c84a4acbe8850f98375b790e66",
+        "239ed992bcee4a14e708123412e02bd325eee51c70915e89e24101a80f195daf",
+        "bc61bb570437f6a4b6c97b4aa7b4a689ade249b13e5f5e35bffa7eea4b057553"
+      ],
+      "source_sha256": "b3086d1e68c608198d1ebf1bd0a3b72446e8a7a36f9dad002882f5fd29f5a533",
+      "text": "按照宿主文件系统的大小写规则比较规范路径。\n\n:param path: 可能嵌套在内的候选路径。\n:param root: 要检查的上级目录。\n:returns: 候选路径是否解析到该目录之内。",
+      "translation_source_blocks_sha256": [
+        "f54f2b1636a068c74c200862f8a4ccc30ff26640427fd1a4fa9e6401a8751af3",
+        "bbb842c373dad2acabc38707e2736d58ec1262c84a4acbe8850f98375b790e66",
+        "239ed992bcee4a14e708123412e02bd325eee51c70915e89e24101a80f195daf",
+        "bc61bb570437f6a4b6c97b4aa7b4a689ade249b13e5f5e35bffa7eea4b057553"
+      ]
+    },
     "spacr.install_cleanup.find_old_installs": {
       "source_blocks_sha256": [
         "cfe96f2e3cd9807b937778c7536e6f80f2e56dbe13033812f3c9bf3ddf55e13c",
@@ -62851,6 +63003,38 @@
         "d92d48de51b0e49101719f293dc00bdf8f532f34dcc5121d358b409b63c24243"
       ]
     },
+    "spacr.power_model._fit_numpyro_nuts.model": {
+      "source_blocks_sha256": [
+        "f1a5c530d9f0dccb12951b1da2fc8482ad638f2e3125ee670a1c74b20c172001"
+      ],
+      "source_sha256": "f1a5c530d9f0dccb12951b1da2fc8482ad638f2e3125ee670a1c74b20c172001",
+      "text": "为 NumPyro NUTS 定义正则化 horseshoe-Poisson 模型。",
+      "translation_source_blocks_sha256": [
+        "f1a5c530d9f0dccb12951b1da2fc8482ad638f2e3125ee670a1c74b20c172001"
+      ]
+    },
+    "spacr.power_model._fit_torch_advi._log_joint": {
+      "source_blocks_sha256": [
+        "e72bdb6aa013ec758942c17a75539710809f10508f273960a7a8a90afbe7c7d0",
+        "fdc21a3b1680bd92f2f79043975df11fe9a85f251eacb13bcbb9c3929bb0da58"
+      ],
+      "source_sha256": "13c60a9bf79d38d31bca017a4e1b1fd5e781eefc6f25b3bc9137e8bd02b78c92",
+      "text": "计算未归一化的 horseshoe-Poisson 对数后验。\n\n与参数无关的 Poisson 阶乘项被省略，因此每个前导抽样得到的目标函数对优化器而言是等价的。",
+      "translation_source_blocks_sha256": [
+        "e72bdb6aa013ec758942c17a75539710809f10508f273960a7a8a90afbe7c7d0",
+        "fdc21a3b1680bd92f2f79043975df11fe9a85f251eacb13bcbb9c3929bb0da58"
+      ]
+    },
+    "spacr.power_model._fit_torch_advi._unpack": {
+      "source_blocks_sha256": [
+        "53f35971706d97fa8c8f209aeae2005da3fa4c3dfd6b6fe498a770c774cb17af"
+      ],
+      "source_sha256": "53f35971706d97fa8c8f209aeae2005da3fa4c3dfd6b6fe498a770c774cb17af",
+      "text": "拆分最后一个参数轴，同时保留前导抽样。",
+      "translation_source_blocks_sha256": [
+        "53f35971706d97fa8c8f209aeae2005da3fa4c3dfd6b6fe498a770c774cb17af"
+      ]
+    },
     "spacr.power_model.available_backends": {
       "source_blocks_sha256": [
         "0349569c56c2e51ccda742d8b46def3fc14af1c8e31216b53981fccbc370bac1",
@@ -63015,6 +63199,16 @@
         "e442ec9ebf2a0d8e584239719fb3b9fb99a6f2b79564bd401ea4e2997dd0d77f"
       ]
     },
+    "spacr.power_model.prepare_model_data._matrix": {
+      "source_blocks_sha256": [
+        "5d2784826fd4721592d194dc779487dcd8f9ada0210222d0790d13331b1ac006"
+      ],
+      "source_sha256": "5d2784826fd4721592d194dc779487dcd8f9ada0210222d0790d13331b1ac006",
+      "text": "将 ``column`` 透视为捕获的按孔和基因排列的顺序，类型为 float64。",
+      "translation_source_blocks_sha256": [
+        "5d2784826fd4721592d194dc779487dcd8f9ada0210222d0790d13331b1ac006"
+      ]
+    },
     "spacr.power_model.resolve_backend": {
       "source_blocks_sha256": [
         "d7293304bc5a2a3d68d69626d3404949c6e46f39535dcf3c9e22e94f79be3f59",
@@ -63077,6 +63271,18 @@
         "0462a6a37dd2e77c856d872a1265ba0cf09e0ee9aea3035c820cfc0e2d36124f",
         "905314d1666406bc4eccd01d48df000d27f63082ce3bd5c93ecd27c841b6ff4d",
         "6eb1d36b371d7c7de5704d27b19eb75344e102dddbc73c4e4bb0ce0c4ff49dfa"
+      ]
+    },
+    "spacr.power_model.scan_parameters._report": {
+      "source_blocks_sha256": [
+        "501e721807b8f346d3fabe7b987b26c0d7f766b6f12bb51f981094738b4d5ca1",
+        "aec7d1c975d540a88448e992042051cca33464b66acb6878ffe61f6fded6a71e"
+      ],
+      "source_sha256": "c8c15b2b7674c3ad2c4eb5a459aca82db271b7bb636533056c5d81960e0fe49a",
+      "text": "把一行已完成的结果交给 ``on_point``；True 表示 \"keep going\"，即继续。\n\n作为对循环计数器的闭包保留，而不是内联写两遍，这样恢复路径和新计算路径就不会彼此偏离——跳过恢复所还原的行的进度条，在第二次尝试时就会倒着走。",
+      "translation_source_blocks_sha256": [
+        "501e721807b8f346d3fabe7b987b26c0d7f766b6f12bb51f981094738b4d5ca1",
+        "5151a183f7db5138704fbc0bc0620a8b4857619b52012da8d9c0802433edc382"
       ]
     },
     "spacr.power_simulate": {
@@ -71639,6 +71845,48 @@
         "49a11c98c83ea583e730094341761e4fcc8f4742db8238a2dd522b1624f600fe"
       ]
     },
+    "spacr.qt.dialogs._drag_class._DragTheWindowByTheForm.__init__": {
+      "source_blocks_sha256": [
+        "898ecb98994a14c6eac0f14c6a4665f8f17673b35f6a1dfe1bbe0c25a6be6c44",
+        "18a69af12aa8e371021a6c950926b108b1a66da26b61684db7d052b42dfb5692"
+      ],
+      "source_sha256": "95a5de2806c326149bcd36d5591617b1467450f89c0a66cd6685865cec8b0c75",
+      "text": "拖动其容器中的空白区域时移动窗口。\n\n:param holder: 拥有该空白区域的控件，以及 QObject 父对象。不是窗口，也不是滚动区域：把内容放入滚动区域后，空白区域移到了这个容器上，这正是该类存在的意义。",
+      "translation_source_blocks_sha256": [
+        "898ecb98994a14c6eac0f14c6a4665f8f17673b35f6a1dfe1bbe0c25a6be6c44",
+        "18a69af12aa8e371021a6c950926b108b1a66da26b61684db7d052b42dfb5692"
+      ]
+    },
+    "spacr.qt.dialogs._drag_class._DragTheWindowByTheForm.eventFilter": {
+      "source_blocks_sha256": [
+        "898ecb98994a14c6eac0f14c6a4665f8f17673b35f6a1dfe1bbe0c25a6be6c44"
+      ],
+      "source_sha256": "898ecb98994a14c6eac0f14c6a4665f8f17673b35f6a1dfe1bbe0c25a6be6c44",
+      "text": "拖动其容器中的空白区域时移动窗口。",
+      "translation_source_blocks_sha256": [
+        "898ecb98994a14c6eac0f14c6a4665f8f17673b35f6a1dfe1bbe0c25a6be6c44"
+      ]
+    },
+    "spacr.qt.dialogs._form_scroll_class._FormScroll.minimumSizeHint": {
+      "source_blocks_sha256": [
+        "e79840b8f4dd665c4802caf3d227c5180af88ab25ec94a27557d488e1ad0ecbb"
+      ],
+      "source_sha256": "e79840b8f4dd665c4802caf3d227c5180af88ab25ec94a27557d488e1ad0ecbb",
+      "text": "一个足够小的下限，使对话框始终可以缩小。",
+      "translation_source_blocks_sha256": [
+        "e79840b8f4dd665c4802caf3d227c5180af88ab25ec94a27557d488e1ad0ecbb"
+      ]
+    },
+    "spacr.qt.dialogs._form_scroll_class._FormScroll.sizeHint": {
+      "source_blocks_sha256": [
+        "e6cd39db0d251494d10857b21fbce90374248cbf2eda0135a4619b202cac5cf0"
+      ],
+      "source_sha256": "e6cd39db0d251494d10857b21fbce90374248cbf2eda0135a4619b202cac5cf0",
+      "text": "内部表单自身的宽度，使对话框打开时宽到足以阅读。",
+      "translation_source_blocks_sha256": [
+        "e6cd39db0d251494d10857b21fbce90374248cbf2eda0135a4619b202cac5cf0"
+      ]
+    },
     "spacr.qt.dialogs.content_floor": {
       "source_blocks_sha256": [
         "61c6e4b49237cb8391bb3370ce904b4f264595b28649f11077aaab1f4be59616",
@@ -71663,6 +71911,28 @@
         "2fd60fe27c97d86d04959d2e2b4848ff508e6020686be15654a440d7d69dfc4c",
         "04ef62dc0a223bea151f6721f55d6b9c0bdcc2be73b6416dba221beacb38af0e",
         "cf69dcd1171708b2e9ba0b88e41bf4fc244467335b0540705a1e147bb871a5fb"
+      ]
+    },
+    "spacr.qt.dialogs.detach_all_dialogs._Filter.__init__": {
+      "source_blocks_sha256": [
+        "f62a4ec8f0e7e82f843203112da6ca4c80fd6ab67810a665a5ddfce7905c4835"
+      ],
+      "source_sha256": "f62a4ec8f0e7e82f843203112da6ca4c80fd6ab67810a665a5ddfce7905c4835",
+      "text": "包装此过滤器应用于每个对话框的分离器。",
+      "translation_source_blocks_sha256": [
+        "f62a4ec8f0e7e82f843203112da6ca4c80fd6ab67810a665a5ddfce7905c4835"
+      ]
+    },
+    "spacr.qt.dialogs.detach_all_dialogs._Filter.eventFilter": {
+      "source_blocks_sha256": [
+        "ace6aa5e6fe36781b5d8abb86d55af0acc4fa1eb5c18cf3322ebb55793be90ac",
+        "b060baca2b50abe479014fa82687ab2b1540be82393407c8637aae6b2ce912bd"
+      ],
+      "source_sha256": "2a4f52d0ce9b15c42092a23da7c057388de76c887c980f95e1b83c811946111c",
+      "text": "只转发分离器所处理的两种事件，不转发其他事件。\n\n此处和内部都要做这项检查，因为 Qt 会为应用程序中的每个事件调用此方法，而每次打开模块有 94,431 次这样的调用，返回 False 的 Python 调用并非没有代价。分离器会为直接调用它的人做同样的检查。",
+      "translation_source_blocks_sha256": [
+        "ace6aa5e6fe36781b5d8abb86d55af0acc4fa1eb5c18cf3322ebb55793be90ac",
+        "d24a99647e84cdb16d6a5bb856ec3918bcc8b422164ce0b8ba43a4cb17093563"
       ]
     },
     "spacr.qt.dialogs.detach_from_window_manager": {
@@ -94273,6 +94543,16 @@
         "585fb1c28d594fb4d09922ee3c5b2dbdeaf72ea28f34b92eeaf0e4fe8d536e87"
       ]
     },
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen._start_task._work": {
+      "source_blocks_sha256": [
+        "5d8646b2eab803f183486a5e905182848124bfcc3bd8acb4a15d3c9ec8e343fb"
+      ],
+      "source_sha256": "5d8646b2eab803f183486a5e905182848124bfcc3bd8acb4a15d3c9ec8e343fb",
+      "text": "在作业运行器的线程上执行该操作。",
+      "translation_source_blocks_sha256": [
+        "7c226e9525be9d9589b1f86cb6801390f9b5eabd37d0a14f61f28fdf11f0edef"
+      ]
+    },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.cancel_selected": {
       "source_blocks_sha256": [
         "b50a87563f972adff76f62af603370ef2d62da8f52e2fbcc5bd9e345aa855b6b"
@@ -94281,6 +94561,18 @@
       "text": "请求取消所选的活跃工作。",
       "translation_source_blocks_sha256": [
         "b50a87563f972adff76f62af603370ef2d62da8f52e2fbcc5bd9e345aa855b6b"
+      ]
+    },
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.cancel_selected._done": {
+      "source_blocks_sha256": [
+        "5de029da1872b968e0cdd66b936a2ac3588e8cea5b489ab7a22f01afb0f310a2",
+        "272a015b7b0f6995dee8dbf69e0279ad2043617687f7501839be991539adaee2"
+      ],
+      "source_sha256": "f4fc9e0dbebc56437490de33ba60d02cf33fa0e3c728df8ed63d056685b6da78",
+      "text": "重绘时保持已取消的作业处于选中状态。\n\n保持选中状态才是关键：取消后跳回顶部的列表会丢失用户正在处理的那一行。",
+      "translation_source_blocks_sha256": [
+        "5de029da1872b968e0cdd66b936a2ac3588e8cea5b489ab7a22f01afb0f310a2",
+        "272a015b7b0f6995dee8dbf69e0279ad2043617687f7501839be991539adaee2"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.closeEvent": {
@@ -94333,6 +94625,16 @@
         "2a09c8c897a963f665aac7140997450e9b4821950659d1e434ac8416925ffbbc"
       ]
     },
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh._done": {
+      "source_blocks_sha256": [
+        "e480eab3d2effc841531d8aa9f6abb9dd64ed9feb11f8b1fa9bd38128ec6ab45"
+      ],
+      "source_sha256": "e480eab3d2effc841531d8aa9f6abb9dd64ed9feb11f8b1fa9bd38128ec6ab45",
+      "text": "重绘作业列表，并报告还有多少仍处于活动状态。",
+      "translation_source_blocks_sha256": [
+        "e480eab3d2effc841531d8aa9f6abb9dd64ed9feb11f8b1fa9bd38128ec6ab45"
+      ]
+    },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh_log": {
       "source_blocks_sha256": [
         "01aac28781483c7f827e83467bbae8e48c9c9743fe87a234ed027c27fa9396e8"
@@ -94341,6 +94643,16 @@
       "text": "将所选工作的远程登记尾巴切割。",
       "translation_source_blocks_sha256": [
         "01aac28781483c7f827e83467bbae8e48c9c9743fe87a234ed027c27fa9396e8"
+      ]
+    },
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.refresh_log._done": {
+      "source_blocks_sha256": [
+        "6a133ee63f634f81604bc6813ae39dabde3590c256d55790042cab69c19538ac"
+      ],
+      "source_sha256": "6a133ee63f634f81604bc6813ae39dabde3590c256d55790042cab69c19538ac",
+      "text": "显示获取到的日志，并重新读取作业，以防它已推进。",
+      "translation_source_blocks_sha256": [
+        "6a133ee63f634f81604bc6813ae39dabde3590c256d55790042cab69c19538ac"
       ]
     },
     "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.showEvent": {
@@ -94363,6 +94675,26 @@
       "text": "解决并提交所选择的设置文件。",
       "translation_source_blocks_sha256": [
         "bea65de796fa0b33a2ee3cee40f0ab859023bd90bb0e7b18bf8af69583753298"
+      ]
+    },
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.submit._done": {
+      "source_blocks_sha256": [
+        "66c41963416b12105aaf3ba7b722d46c9738a793afc3b648921b897284bdf5ea"
+      ],
+      "source_sha256": "66c41963416b12105aaf3ba7b722d46c9738a793afc3b648921b897284bdf5ea",
+      "text": "重绘作业列表，并选中新作业。",
+      "translation_source_blocks_sha256": [
+        "66c41963416b12105aaf3ba7b722d46c9738a793afc3b648921b897284bdf5ea"
+      ]
+    },
+    "spacr.qt.screens.distributed_jobs.DistributedJobsScreen.submit._submit": {
+      "source_blocks_sha256": [
+        "87653d6a29f80d541a1298cc3d23fa3862dc0827b361a144d5f33a1b531f83a2"
+      ],
+      "source_sha256": "87653d6a29f80d541a1298cc3d23fa3862dc0827b361a144d5f33a1b531f83a2",
+      "text": "解析模块及其设置，然后提交。在线程之外。",
+      "translation_source_blocks_sha256": [
+        "87653d6a29f80d541a1298cc3d23fa3862dc0827b361a144d5f33a1b531f83a2"
       ]
     },
     "spacr.qt.screens.distributed_jobs.ExecutionProfileDialog": {
@@ -102199,6 +102531,18 @@
         "30161ff7db62ed384e53bd48f1541a9753e1e89a20959a6def4b5740176dde43"
       ]
     },
+    "spacr.qt.screens.model_zoo.ModelZooScreen._run_job._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "69cc5f6a6f99a790acaef753619424830f08cefe73a160156ca2e6a77b23c209"
+      ],
+      "source_sha256": "3a574e2b6773a68e8e75526a3edbed65d6206a5d457a40bbc2a465d9449f81c5",
+      "text": "调用被包装的函数，并把其结果存入载荷。\n\n载荷是值从工作线程传回的方式：直接返回的值会被运行器吞掉。",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "4e2dde1cd8122ff3bce822ba2b1188c1f2a0467e94aaaeb194e2bb898e6db406"
+      ]
+    },
     "spacr.qt.screens.model_zoo.ModelZooScreen.active_jobs": {
       "source_blocks_sha256": [
         "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
@@ -102323,6 +102667,16 @@
         "ef934f985b538e927d16f11ec5a69ac4d21c5014560e31764a255dcaed1ece94"
       ]
     },
+    "spacr.qt.screens.model_zoo.ModelZooScreen.download_selected._job": {
+      "source_blocks_sha256": [
+        "1a69e6ba74e6670cc7e25c3b35292a6547c632853796b376f30d88dd6d8d9ee6"
+      ],
+      "source_sha256": "1a69e6ba74e6670cc7e25c3b35292a6547c632853796b376f30d88dd6d8d9ee6",
+      "text": "安装所选模型。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "aa8a78e5c935ef26a22e093ff10a44d5cd6130fc6c24e19f71183d5ac56b524f"
+      ]
+    },
     "spacr.qt.screens.model_zoo.ModelZooScreen.entries": {
       "source_blocks_sha256": [
         "efd0be6a6380c7e7157d0b65baa53a0811c2852381ab89ee7cd5a59d4a1449a4"
@@ -102395,6 +102749,16 @@
         "6078e412ed428b5edc3bc1c8ffb3f57fc502facd7dcebf7a868c27227a7b61ef"
       ]
     },
+    "spacr.qt.screens.model_zoo.ModelZooScreen.rows.text": {
+      "source_blocks_sha256": [
+        "3460d9984c1b53714f6b0a1e54f3b4b8a66ad4abfb7f930e415593f8bba46f95"
+      ],
+      "source_sha256": "3460d9984c1b53714f6b0a1e54f3b4b8a66ad4abfb7f930e415593f8bba46f95",
+      "text": "单元 ``(r, c)`` 中显示的文本，取自其项目或组合框。",
+      "translation_source_blocks_sha256": [
+        "3460d9984c1b53714f6b0a1e54f3b4b8a66ad4abfb7f930e415593f8bba46f95"
+      ]
+    },
     "spacr.qt.screens.model_zoo.ModelZooScreen.run_benchmark": {
       "source_blocks_sha256": [
         "554bb80c2c0c5bd61c7ef19f7ef8b517b74a911860fa035fc2b3dfc686ef2b78",
@@ -102405,6 +102769,16 @@
       "translation_source_blocks_sha256": [
         "554bb80c2c0c5bd61c7ef19f7ef8b517b74a911860fa035fc2b3dfc686ef2b78",
         "712d72313c67d1b85e9bd59260c8bd38f8cd7ce84f711a4b65259c467216dda1"
+      ]
+    },
+    "spacr.qt.screens.model_zoo.ModelZooScreen.run_benchmark._job": {
+      "source_blocks_sha256": [
+        "7d3ad762cca60948c940d9652f6b3214244ad16068757822e75c7cde281dcd91"
+      ],
+      "source_sha256": "7d3ad762cca60948c940d9652f6b3214244ad16068757822e75c7cde281dcd91",
+      "text": "用已加载的视野对一个模型做基准测试。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "f92254298a00edd10c2162ea802e328074af4f5ac09008ffba3387ac1d688b2e"
       ]
     },
     "spacr.qt.screens.model_zoo.ModelZooScreen.scan": {
@@ -102423,6 +102797,16 @@
         "4e13bbc1fef7a130dd708e3fb4064c198f9e655dab3151ffbca386997ed64f02",
         "bf4cb9d482b4a74188b2bc17771dac7d5feabbfe0d212fcfae214ba595a3fbbf",
         "c57a7011e166266d66f80503c1e8e00dd16986e941c4d98e55e50f3d50baecd8"
+      ]
+    },
+    "spacr.qt.screens.model_zoo.ModelZooScreen.scan._job": {
+      "source_blocks_sha256": [
+        "7fa35cac3a557fea32ce5e0e68a388203b5c349ea0c7add9bcd89ff8b9c001df"
+      ],
+      "source_sha256": "7fa35cac3a557fea32ce5e0e68a388203b5c349ea0c7add9bcd89ff8b9c001df",
+      "text": "查找所有模型，包括目录中的和本地的。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "35ebfbd87addd5fa295b33ed96f16e89649c8543c45143fe4ca1bead48a7e883"
       ]
     },
     "spacr.qt.screens.model_zoo.ModelZooScreen.select": {
@@ -102499,6 +102883,16 @@
         "fb5275b4dd105bda7a30ad5f09c4520745662ff0c22690fac323a0a7e95cd021",
         "7d645c7c82aab7fd958b013a9e5a69e1e225734bd12113fa9e202cd6383864b8",
         "e9190212f9d73882cf17760aa9fa7800b3ca318ef76347b0bb69e9ae5a7f1c60"
+      ]
+    },
+    "spacr.qt.screens.model_zoo.ModelZooScreen.set_fields_source._job": {
+      "source_blocks_sha256": [
+        "c1bb7d5d42eb366a21cb17b83f5e2dfd7f90bd22baa812ed264fe84d095eff61"
+      ],
+      "source_sha256": "c1bb7d5d42eb366a21cb17b83f5e2dfd7f90bd22baa812ed264fe84d095eff61",
+      "text": "加载基准测试视野。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "06cd6c3f9172cac451c7aa3187d6b912c84ded017d3b8b7ecae6b086b2f2bd85"
       ]
     },
     "spacr.qt.screens.model_zoo.ModelZooScreen.set_opener": {
@@ -103625,6 +104019,38 @@
         "865014f2880345808752bf170df2342b08eb4333f2f14fae996e2e8b521c41dd"
       ]
     },
+    "spacr.qt.screens.plate_view.PlateViewScreen._on_table_changed._done": {
+      "source_blocks_sha256": [
+        "d4c2238ad8160b1673bae2dd929b2775abe33ac647fc2ad1eca107a05d654a6c"
+      ],
+      "source_sha256": "d4c2238ad8160b1673bae2dd929b2775abe33ac647fc2ad1eca107a05d654a6c",
+      "text": "提供列选项，并加以保护，避免重新填充时再次触发此处。",
+      "translation_source_blocks_sha256": [
+        "d4c2238ad8160b1673bae2dd929b2775abe33ac647fc2ad1eca107a05d654a6c"
+      ]
+    },
+    "spacr.qt.screens.plate_view.PlateViewScreen._on_table_changed._job": {
+      "source_blocks_sha256": [
+        "2fe7a7c3ed84f665664420b7aa24b79c11d231155261a60d729f9b3e368de2ce"
+      ],
+      "source_sha256": "2fe7a7c3ed84f665664420b7aa24b79c11d231155261a60d729f9b3e368de2ce",
+      "text": "读取表格的数值列。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "daa506253af7072a14c8c2e8d62f19f1af3299570238f6ff4b39160467087237"
+      ]
+    },
+    "spacr.qt.screens.plate_view.PlateViewScreen._run_job._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca"
+      ],
+      "source_sha256": "8cd009032c2ce8bf9b501c063eb7544329141b557608b5a48bda15f5e2563dc9",
+      "text": "调用被包装的函数，并把其结果存入载荷。\n\n载荷是值从工作器传回的方式：直接返回的值会被运行器吞掉。",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca"
+      ]
+    },
     "spacr.qt.screens.plate_view.PlateViewScreen.active_jobs": {
       "source_blocks_sha256": [
         "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
@@ -103741,6 +104167,16 @@
         "0e28d231c44fe6b63023e93c8997eb7e90b068533635cebe86210ca992f7cc52"
       ]
     },
+    "spacr.qt.screens.plate_view.PlateViewScreen.recompute._job": {
+      "source_blocks_sha256": [
+        "6d55358c1edc63e02e49f7e05e312b7f33158859eb99ff6a7cc128eda072770f"
+      ],
+      "source_sha256": "6d55358c1edc63e02e49f7e05e312b7f33158859eb99ff6a7cc128eda072770f",
+      "text": "重新计算板汇总。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "61fc1af21d76481bb89ae05547e038ffe80b11f05d14f9b13b249e085bfa9fa0"
+      ]
+    },
     "spacr.qt.screens.plate_view.PlateViewScreen.render_plate": {
       "source_blocks_sha256": [
         "52e56c53f02ed9c5b638f911b0f711494954f1d8003eb419868f9937d5562592",
@@ -103753,6 +104189,26 @@
         "52e56c53f02ed9c5b638f911b0f711494954f1d8003eb419868f9937d5562592",
         "86500a38bb67f91fb44ca6ac1879fc054dd7c3bea3d976b6b3117ad7c00b202d",
         "27276a24eee55bdf116327c5f2a9df7c95ad2cc24b1aa3d8c008fbad023b3931"
+      ]
+    },
+    "spacr.qt.screens.plate_view.PlateViewScreen.render_plate._done": {
+      "source_blocks_sha256": [
+        "512cc48fbc376c30e6065fe5a41a9c43a827036123d74521efdbdace59387d35"
+      ],
+      "source_sha256": "512cc48fbc376c30e6065fe5a41a9c43a827036123d74521efdbdace59387d35",
+      "text": "保留数据表并绘制，同时记住它所依据的键。",
+      "translation_source_blocks_sha256": [
+        "512cc48fbc376c30e6065fe5a41a9c43a827036123d74521efdbdace59387d35"
+      ]
+    },
+    "spacr.qt.screens.plate_view.PlateViewScreen.render_plate._job": {
+      "source_blocks_sha256": [
+        "5ee0df554659af18ec548ad595be986bdd1586344974173eab5476258f414d7d"
+      ],
+      "source_sha256": "5ee0df554659af18ec548ad595be986bdd1586344974173eab5476258f414d7d",
+      "text": "加载板的数据表。在 GUI 线程之外。",
+      "translation_source_blocks_sha256": [
+        "04a611db0c2fd90d18e040e5920345802f60f04f7c453d2d44a5aa62985966bc"
       ]
     },
     "spacr.qt.screens.plate_view.PlateViewScreen.report_text": {
@@ -108069,6 +108525,58 @@
         "187c0eb20a48251fc04ff7390343037fd803f08523092d3ba987f3b89f9acdc7"
       ]
     },
+    "spacr.qt.screens.volcano._make_screen.VolcanoScreen.__init__": {
+      "source_blocks_sha256": [
+        "2d039590cd1e852f6afe02b70faef3f2acd6984fee28ec477a41208e44d2511a",
+        "3ba198240e1d748068be15876aec9014fbbe6145f80cdb9383dccbd2025eeed7"
+      ],
+      "source_sha256": "ad7a143d8b56f7a68dfc35bab67f37630552d717c39c9c18b79a8f9ef2d24801",
+      "text": "构建界面。``host`` 是窗口，而不是 Qt 父对象。\n\n把它传给 ``QWidget.__init__`` 会抛出异常，因为注册表的宿主并不总是 QWidget。",
+      "translation_source_blocks_sha256": [
+        "a0c3158e48777e7c04179df70c655840e606c875b8026cbb55471efa9f763d10",
+        "3ba198240e1d748068be15876aec9014fbbe6145f80cdb9383dccbd2025eeed7"
+      ]
+    },
+    "spacr.qt.screens.volcano._make_screen.VolcanoScreen._open": {
+      "source_blocks_sha256": [
+        "ae28b1cbe2533a80a1623f064c892db4c1aa4a551da406a30bdf3628636f72fa"
+      ],
+      "source_sha256": "ae28b1cbe2533a80a1623f064c892db4c1aa4a551da406a30bdf3628636f72fa",
+      "text": "询问结果文件夹并加载它。",
+      "translation_source_blocks_sha256": [
+        "ae28b1cbe2533a80a1623f064c892db4c1aa4a551da406a30bdf3628636f72fa"
+      ]
+    },
+    "spacr.qt.screens.volcano._make_screen.VolcanoScreen.dragEnterEvent": {
+      "source_blocks_sha256": [
+        "d298ebbfa117d580038addc51a1da8391e722cf340e74ba65e467e312dec5d77"
+      ],
+      "source_sha256": "d298ebbfa117d580038addc51a1da8391e722cf340e74ba65e467e312dec5d77",
+      "text": "接受携带路径的拖动。",
+      "translation_source_blocks_sha256": [
+        "d298ebbfa117d580038addc51a1da8391e722cf340e74ba65e467e312dec5d77"
+      ]
+    },
+    "spacr.qt.screens.volcano._make_screen.VolcanoScreen.dropEvent": {
+      "source_blocks_sha256": [
+        "7d71515481d89ed97024e9f0c0bab483db120c09ac1987cde83be57e88dce168"
+      ],
+      "source_sha256": "7d71515481d89ed97024e9f0c0bab483db120c09ac1987cde83be57e88dce168",
+      "text": "加载拖放的第一个包含结果的文件夹。",
+      "translation_source_blocks_sha256": [
+        "7d71515481d89ed97024e9f0c0bab483db120c09ac1987cde83be57e88dce168"
+      ]
+    },
+    "spacr.qt.screens.volcano._make_screen.VolcanoScreen.load": {
+      "source_blocks_sha256": [
+        "408e50807ebdcbabbf86544ab18a8911f7d57f1a5266fa165f5d0bd56a0cbde8"
+      ],
+      "source_sha256": "408e50807ebdcbabbf86544ab18a8911f7d57f1a5266fa165f5d0bd56a0cbde8",
+      "text": "加载结果文件夹。返回是否找到了一个。",
+      "translation_source_blocks_sha256": [
+        "408e50807ebdcbabbf86544ab18a8911f7d57f1a5266fa165f5d0bd56a0cbde8"
+      ]
+    },
     "spacr.qt.screens.volcano.find_results_table": {
       "source_blocks_sha256": [
         "d7539e730e3a16089a6be4c50df427a79187fc73f8ba0f80ed71448475694f4e",
@@ -111085,6 +111593,50 @@
         "36d37e71fad237791fc17aa5b5e07fc824e6909e1432f9b557bede8e43310745"
       ]
     },
+    "spacr.qt.startup_benchmark.BenchmarkController._advance_after_watchdog._after_beat": {
+      "source_blocks_sha256": [
+        "69798c37aecb020d104427935fcec7539867bf9394c97b8b328c19cf18c295e4"
+      ],
+      "source_sha256": "69798c37aecb020d104427935fcec7539867bf9394c97b8b328c19cf18c295e4",
+      "text": "在 GUI 线程再次响应后继续。",
+      "translation_source_blocks_sha256": [
+        "954651f62dceb1b4843f4321f661ec04bdcb534e341df81feac0791f00fe1000"
+      ]
+    },
+    "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.coordinates": {
+      "source_blocks_sha256": [
+        "aa85bfc5f4c61d3852adcd557b109007253abb4501b39a774183f71bc97eea87",
+        "57a3bb2e8e2cbc8c0249f66fdaebc4e39a2f8ead8ebef62cbad756a221d58ab3"
+      ],
+      "source_sha256": "7870e26f00ee1bd0aebf7c65f1b6cb1fe12a8a5f77fee852388dd9d3bb33fc08",
+      "text": "以兼容 JSON 的形式保留整数几何信息。\n\n:param rect: 观察到的 Qt 矩形。",
+      "translation_source_blocks_sha256": [
+        "aa85bfc5f4c61d3852adcd557b109007253abb4501b39a774183f71bc97eea87",
+        "57a3bb2e8e2cbc8c0249f66fdaebc4e39a2f8ead8ebef62cbad756a221d58ab3"
+      ]
+    },
+    "spacr.qt.startup_benchmark._DistributionSmokeController._layout_snapshot.rectangle": {
+      "source_blocks_sha256": [
+        "a8ad285e0057181d2dd3d3606de2aed077705c261a78ef63a99463e97f341759",
+        "a9ffb559a5eccb7feced465560c54c8f6e96c41435ddaa7f9aef0b501b3e596b"
+      ],
+      "source_sha256": "fe419b330bc34c81a8d13423ef6a9cbb0332b4735e4d0e7c238aab25f85cc2ea",
+      "text": "将实际几何映射到窗口中。\n\n:param widget: 被测量的实际子控件。",
+      "translation_source_blocks_sha256": [
+        "a8ad285e0057181d2dd3d3606de2aed077705c261a78ef63a99463e97f341759",
+        "a9ffb559a5eccb7feced465560c54c8f6e96c41435ddaa7f9aef0b501b3e596b"
+      ]
+    },
+    "spacr.qt.startup_benchmark._DistributionSmokeController._start_native_menu_check.text": {
+      "source_blocks_sha256": [
+        "28e1176c9c4e3b2bd8e1ebbcb5a6d64621912c4e7f569b63f7339815206e577d"
+      ],
+      "source_sha256": "28e1176c9c4e3b2bd8e1ebbcb5a6d64621912c4e7f569b63f7339815206e577d",
+      "text": "读取原生 NSString，而不捏造操作标题。",
+      "translation_source_blocks_sha256": [
+        "28e1176c9c4e3b2bd8e1ebbcb5a6d64621912c4e7f569b63f7339815206e577d"
+      ]
+    },
     "spacr.qt.startup_benchmark.maybe_start": {
       "source_blocks_sha256": [
         "fbd99a931c1aa658731b8d31bcf72b8995acdbcf1026027edbab34c7d7aac139",
@@ -111099,6 +111651,16 @@
         "31e875c8021c5af64ce295eb2128dda1a971f31d0b978ea0dcc10845aaf7157b",
         "19569a499f7f7ea9b58981a4e226dbe46458a02bc426f31a8e30cfd1f2cccf86",
         "caefeb5b0f01e4349e17700cf856cd22e48b89f3471ed7a7dbe9dd664e683b9c"
+      ]
+    },
+    "spacr.qt.startup_benchmark.maybe_start._live_keys": {
+      "source_blocks_sha256": [
+        "0479d930aad04fa6e9e9ea6507c92cb8902b5cdadf612a247347497fa39409eb"
+      ],
+      "source_sha256": "0479d930aad04fa6e9e9ea6507c92cb8902b5cdadf612a247347497fa39409eb",
+      "text": "每个已注册的应用键，在基准测试运行时读取。",
+      "translation_source_blocks_sha256": [
+        "0479d930aad04fa6e9e9ea6507c92cb8902b5cdadf612a247347497fa39409eb"
       ]
     },
     "spacr.qt.synthetic": {
@@ -111631,6 +112193,58 @@
       "text": "使用低估的 ``PALETTE`` 标志(PEP 562)。",
       "translation_source_blocks_sha256": [
         "bbd3d8c575e2000155893ebc49076ec449de651deca3e63e0b5c5fb7bc2a0430"
+      ]
+    },
+    "spacr.qt.theme._hue_shift.tint": {
+      "source_blocks_sha256": [
+        "89cbc360d878582bd672287c29ebcfd6565833489e9ee140e60660609a55bab0"
+      ],
+      "source_sha256": "89cbc360d878582bd672287c29ebcfd6565833489e9ee140e60660609a55bab0",
+      "text": "``step`` 处的基础色相，向白色提亮。",
+      "translation_source_blocks_sha256": [
+        "89cbc360d878582bd672287c29ebcfd6565833489e9ee140e60660609a55bab0"
+      ]
+    },
+    "spacr.qt.theme._hue_shift.value": {
+      "source_blocks_sha256": [
+        "2c6ec90758e8db2a27068e94cde84c8e23bb502bc75004cb6b02409be7f9a05a"
+      ],
+      "source_sha256": "2c6ec90758e8db2a27068e94cde84c8e23bb502bc75004cb6b02409be7f9a05a",
+      "text": "``level`` 处的基础色相，向黑色压暗。",
+      "translation_source_blocks_sha256": [
+        "2c6ec90758e8db2a27068e94cde84c8e23bb502bc75004cb6b02409be7f9a05a"
+      ]
+    },
+    "spacr.qt.theme._relative_luminance.channel": {
+      "source_blocks_sha256": [
+        "999c68c782ad3be13432ade1be9c28f51b7310ca16b5507854a31e9457fdfaba"
+      ],
+      "source_sha256": "999c68c782ad3be13432ade1be9c28f51b7310ca16b5507854a31e9457fdfaba",
+      "text": "按 WCAG 自身的定义线性化的一个 sRGB 通道。",
+      "translation_source_blocks_sha256": [
+        "999c68c782ad3be13432ade1be9c28f51b7310ca16b5507854a31e9457fdfaba"
+      ]
+    },
+    "spacr.qt.theme._scrim_bounds.over": {
+      "source_blocks_sha256": [
+        "65c676e08402c629e2639f8c2bde9f8f432c3e5ec52a8cc987ec355bddbc38c5"
+      ],
+      "source_sha256": "65c676e08402c629e2639f8c2bde9f8f432c3e5ec52a8cc987ec355bddbc38c5",
+      "text": "在 ``alpha`` 下叠加于某一背景之上的遮罩亮度。",
+      "translation_source_blocks_sha256": [
+        "65c676e08402c629e2639f8c2bde9f8f432c3e5ec52a8cc987ec355bddbc38c5"
+      ]
+    },
+    "spacr.qt.theme._scrim_bounds.shows": {
+      "source_blocks_sha256": [
+        "fef8a93e9e6f77b8f5b5e86b65053630137e0ad0d7b9b3ffd8ce1c8403bc97a6",
+        "871eab7342f2a8ad9ed7024dfbdfe23453352fe00a158f3c753e4aa1f05d970a"
+      ],
+      "source_sha256": "fd4012d751139a96b48b3dacf37c9803847453ed65bdf5cf86f02187aa91375e",
+      "text": "在此遮罩强度下文本是否仍满足对比度下限。\n\n同时针对遮罩可能覆盖的最亮和最暗的内容进行检查，因为图片背景两者都不是——在一种背景上可读而在另一种上不可读的 alpha 是不可用的。",
+      "translation_source_blocks_sha256": [
+        "fef8a93e9e6f77b8f5b5e86b65053630137e0ad0d7b9b3ffd8ce1c8403bc97a6",
+        "871eab7342f2a8ad9ed7024dfbdfe23453352fe00a158f3c753e4aa1f05d970a"
       ]
     },
     "spacr.qt.theme.active_page_colour": {
@@ -117913,6 +118527,46 @@
         "5fcd2a3c27012ca5c9297fdef72459fa70c5da05aa4b6996e2e919fe55c23efa"
       ]
     },
+    "spacr.qt.widgets.availability_panel._default_confirm._confirm": {
+      "source_blocks_sha256": [
+        "f8b48870d405dafa7d44164638ca4c9427308ea7ab546999b628ce51155cdea6"
+      ],
+      "source_sha256": "f8b48870d405dafa7d44164638ca4c9427308ea7ab546999b628ce51155cdea6",
+      "text": "在模态框中提出一个是/否问题。",
+      "translation_source_blocks_sha256": [
+        "f8b48870d405dafa7d44164638ca4c9427308ea7ab546999b628ce51155cdea6"
+      ]
+    },
+    "spacr.qt.widgets.availability_panel._default_dry_run._run": {
+      "source_blocks_sha256": [
+        "4237bbb4e42d15c44c4f3c0945ab15e2257d3b01f711b9286954502b872eca0a"
+      ],
+      "source_sha256": "4237bbb4e42d15c44c4f3c0945ab15e2257d3b01f711b9286954502b872eca0a",
+      "text": "试运行一次安装并交回结果。",
+      "translation_source_blocks_sha256": [
+        "4237bbb4e42d15c44c4f3c0945ab15e2257d3b01f711b9286954502b872eca0a"
+      ]
+    },
+    "spacr.qt.widgets.availability_panel._default_dry_run._run._work": {
+      "source_blocks_sha256": [
+        "24adb9ed8963897e8d1408e7a03b8bfb30c2353f4fde8375ae444e9a423ec0df"
+      ],
+      "source_sha256": "24adb9ed8963897e8d1408e7a03b8bfb30c2353f4fde8375ae444e9a423ec0df",
+      "text": "执行试运行。在 GUI 线程之外调用。",
+      "translation_source_blocks_sha256": [
+        "cfcf162ab34c279fd80555fbef90f5880ad84f06d0dec0afb5c8acc1d918bf65"
+      ]
+    },
+    "spacr.qt.widgets.availability_panel._default_inform._inform": {
+      "source_blocks_sha256": [
+        "5196d14ef238f930d819b63e24d3c4038105a1d68886b5c20681c3cf00966892"
+      ],
+      "source_sha256": "5196d14ef238f930d819b63e24d3c4038105a1d68886b5c20681c3cf00966892",
+      "text": "在模态框中显示一条信息。",
+      "translation_source_blocks_sha256": [
+        "5196d14ef238f930d819b63e24d3c4038105a1d68886b5c20681c3cf00966892"
+      ]
+    },
     "spacr.qt.widgets.availability_panel.disable_combo_row": {
       "source_blocks_sha256": [
         "293135f988f49bec68e677e9b2384f77170fcd360db4bfad7ba4d83d2448d58f",
@@ -117957,6 +118611,16 @@
         "9448d6b4249c7a249e87336e72a2bde0b66d489a9504080453302adc2e3427bf",
         "46671e4dc1ba738d0b75418f43c58f2cf9f2fedd14abfcf1bfe4366db34f574d",
         "235bf4d5932eb0dfc046992b052f5790b63f06bdcaa339761c149dff217679fa"
+      ]
+    },
+    "spacr.qt.widgets.availability_panel.explain._install": {
+      "source_blocks_sha256": [
+        "d8e75c90c637cc8f685b5f2ebaf1fe9bd3ef9690ba66b29a3426f1a83fe175f6"
+      ],
+      "source_sha256": "d8e75c90c637cc8f685b5f2ebaf1fe9bd3ef9690ba66b29a3426f1a83fe175f6",
+      "text": "执行一个安装选项并报告发生了什么。",
+      "translation_source_blocks_sha256": [
+        "d8e75c90c637cc8f685b5f2ebaf1fe9bd3ef9690ba66b29a3426f1a83fe175f6"
       ]
     },
     "spacr.qt.widgets.availability_panel.install_word_for": {
@@ -126555,6 +127219,18 @@
         "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
       ]
     },
+    "spacr.qt.widgets.dose_response.PooledFit.summary_row.num": {
+      "source_blocks_sha256": [
+        "907116584102a32775585b107b31b061320816cae5c4282f1d283ed1a3765468",
+        "8d626ce64448d01307c27e95b2668b4d4dba82f35e06a94eb9adc1de68dfa8c3"
+      ],
+      "source_sha256": "856e1ed316758e71fc2a52957180df04528f68fd108c04b050d2c17f5fb0ecea",
+      "text": "将 ``None`` 视为 NaN，这样被拒绝的拟合仍会填满其列。\n\n被拒绝的拟合没有 EC50；若把单元留空，该行的形状就会与已拟合的行不同——而表格不能出现这种情况。NaN 正是表示 \"not a number here\" 而又不改变列的值。",
+      "translation_source_blocks_sha256": [
+        "907116584102a32775585b107b31b061320816cae5c4282f1d283ed1a3765468",
+        "8d626ce64448d01307c27e95b2668b4d4dba82f35e06a94eb9adc1de68dfa8c3"
+      ]
+    },
     "spacr.qt.widgets.dose_response.SelectivityIndex": {
       "source_blocks_sha256": [
         "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
@@ -126593,6 +127269,32 @@
       "text": "结果表的一个顺序,拒绝包括。",
       "translation_source_blocks_sha256": [
         "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
+    "spacr.qt.widgets.dose_response._effect_curve.effect": {
+      "source_blocks_sha256": [
+        "6af0c21e0f737878d633f7abd9a56dad5a716a5f1129b0337b411e69138f84a7",
+        "336ac340dba3f68521625f3da09e3e2b6f0645675cde9952d40d61e4dfdb8d06",
+        "bb7b7e7e688502d86d846f7e9f15c2858c72bbb3c05dc0215b5c9b8d4ef67ab8",
+        "92ccd011c9004b74284125c436e9b30c82e8e18766a0ed284078969d919253ad"
+      ],
+      "source_sha256": "5e808a05edc9ddcec87b160fc7ae328fbe651692d52276b2de031bf82641aefd",
+      "text": "每个剂量下受影响的比例，取值在 [0, 1]。\n\n零剂量和负剂量会被钳制为一个极小的正数，而不是被拒绝：棋盘格的第一行就是零，而 4PL 在那里没有值，因为 log10(0) 无定义。钳制会把它们放在曲线自身的基线上，这正是未处理孔所测得的值。\n\n:param dose: 浓度，任意形状。\n:returns: 受影响比例，形状相同。",
+      "translation_source_blocks_sha256": [
+        "6af0c21e0f737878d633f7abd9a56dad5a716a5f1129b0337b411e69138f84a7",
+        "612d75b24c3d2feb89a66478baeaef6970a12e51ee72d4eba06483545234f530",
+        "bb7b7e7e688502d86d846f7e9f15c2858c72bbb3c05dc0215b5c9b8d4ef67ab8",
+        "92ccd011c9004b74284125c436e9b30c82e8e18766a0ed284078969d919253ad"
+      ]
+    },
+    "spacr.qt.widgets.dose_response._profile_five_sse.objective": {
+      "source_blocks_sha256": [
+        "97d322cf25c7f9c725c2e7d0167c81aeb4ace5b0b5bcca585773f98093bd6ae1"
+      ],
+      "source_sha256": "97d322cf25c7f9c725c2e7d0167c81aeb4ace5b0b5bcca585773f98093bd6ae1",
+      "text": "一个 ``(log slope magnitude, log asymmetry)`` 点处的 SSE。",
+      "translation_source_blocks_sha256": [
+        "97d322cf25c7f9c725c2e7d0167c81aeb4ace5b0b5bcca585773f98093bd6ae1"
       ]
     },
     "spacr.qt.widgets.dose_response.bliss_surface": {
@@ -126727,6 +127429,18 @@
         "caae5df2071cbfb532945c8f9c30937b921517c5dad60300c7b7f6e6ffb68c5c",
         "3715703a7a65cbd3e88724e5cf3b0a73faa87e9d9291b331f28c090edbf7df19",
         "b2569f037da71ac3c4a03d2ec4d7863acc3e31b76c3bf490e0d0d66afa0ad12f"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.fit_dose_response.wald": {
+      "source_blocks_sha256": [
+        "d164c31ce011b6f990372dbca1054e264221c8ee56adaa4b572e34daa48f17ac",
+        "7ae055a22c09b50a59a91eb83299516021a27cd3aa72075f329aabe6a07100c4"
+      ],
+      "source_sha256": "873061a4823a52718c1c97337a052431712f44daf59e45eb13d68ee31a82a517",
+      "text": "一个参数的 Wald 区间；无法构成时为 ``None``。\n\n当协方差不可用时返回 None 而不是区间：由错误的协方差算出的区间看起来像结果，实际上并不是。",
+      "translation_source_blocks_sha256": [
+        "d164c31ce011b6f990372dbca1054e264221c8ee56adaa4b572e34daa48f17ac",
+        "7ae055a22c09b50a59a91eb83299516021a27cd3aa72075f329aabe6a07100c4"
       ]
     },
     "spacr.qt.widgets.dose_response.fit_frame": {
@@ -127007,6 +127721,22 @@
         "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
         "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
         "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.selectivity_index._ratio": {
+      "source_blocks_sha256": [
+        "d9815f4f887110192d68dc26c940a4a5b4c035884940c530aebb61f67a629510",
+        "ef78419296e608107a9d41e53212ae344cfd4a5a6b0113ec3007df471333e6aa",
+        "ac5902976c6482d23389dd6738abff42489b5bc66ffb1e7957ea33f07cc70a69",
+        "03896007a2a5ae8fcc66e4495da9e7563fac17b46bb2d7f6c08d616e1c0fdd2d"
+      ],
+      "source_sha256": "25880419cad75c8b234b2ae1e3afe0b2adadba5a89233a42c82110868514139a",
+      "text": "区间的一端；该端开放时为 ``None``。\n\n返回 ``None``，而不是抛出异常或代入哨兵值：单侧指数的开放一侧是关于实验的事实，在这里给出数字会让它看起来是有界的。\n\n:param numerator: 宿主的 EC50 界限，或 ``None``。\n:param denominator: 寄生虫的 EC50 界限，或 ``None``。",
+      "translation_source_blocks_sha256": [
+        "d9815f4f887110192d68dc26c940a4a5b4c035884940c530aebb61f67a629510",
+        "1cbf2ccf092d98b88d95df61f630ed98e391c6aeed1274d8e7be3a6a27cf1167",
+        "ac5902976c6482d23389dd6738abff42489b5bc66ffb1e7957ea33f07cc70a69",
+        "03896007a2a5ae8fcc66e4495da9e7563fac17b46bb2d7f6c08d616e1c0fdd2d"
       ]
     },
     "spacr.qt.widgets.dot_link": {
@@ -134869,6 +135599,18 @@
         "5503269b40bd6edd8cd07f2cba506f8de1e84d274ec0f509edb5f5fe7ceddd4b"
       ]
     },
+    "spacr.qt.widgets.formula.ColumnFormula.uses_whole_table.walk": {
+      "source_blocks_sha256": [
+        "56145c219edeb288e159177cb46e8b722225b9b6d97a326eba3f3826a44f66eb",
+        "14600e03ad74bc93238d5b05ae594acce6da93ae366075f7987ebc711e8cecaa"
+      ],
+      "source_sha256": "11acaf00db02caf402bdee62838aa978237d89cb54c5cea9eca9790ac23afccd",
+      "text": "是否有任何节点需要整列而不是单行。\n\n聚合无法逐行计算，因此由此决定公式能否流式处理，还是必须保留整张表。",
+      "translation_source_blocks_sha256": [
+        "56145c219edeb288e159177cb46e8b722225b9b6d97a326eba3f3826a44f66eb",
+        "14600e03ad74bc93238d5b05ae594acce6da93ae366075f7987ebc711e8cecaa"
+      ]
+    },
     "spacr.qt.widgets.formula.ColumnResult": {
       "source_blocks_sha256": [
         "e8612a2ae7587f694aa5d915818c405bb4a769ffc735e8d4628c085c43b01111",
@@ -135113,6 +135855,30 @@
         "a25e052ff2aa900f41c1e9873463b9c35a02c3411e1923248578b5208b1e154c"
       ]
     },
+    "spacr.qt.widgets.formula._aggregate.call": {
+      "source_blocks_sha256": [
+        "89e8f6cb5b8021e11fd560834535e3dd61689e47f1bf383c6d6b9d7bd3ba0e2f",
+        "99bbfbfa3dc3a6e329c249cc649ad19a358fae25a4038a2e400c39b2c59dd262"
+      ],
+      "source_sha256": "8139948c325208ec1bf364f2954065f7f3a6cd5669b2db5cda3ac17409dea788",
+      "text": "将这些值归约为一个数字，忽略非有限项。\n\n全部为非有限值的列会得到 ``nan`` 而不是抛出异常：空聚合是调用方可以携带的答案，而在这里抛出异常会因为一个坏组拖垮整个计算列。",
+      "translation_source_blocks_sha256": [
+        "89e8f6cb5b8021e11fd560834535e3dd61689e47f1bf383c6d6b9d7bd3ba0e2f",
+        "5253dad93ec84abdd379dbee1ea6a87e68c31436249b3a6f1baf8833e171d4cd"
+      ]
+    },
+    "spacr.qt.widgets.formula._elementwise.call": {
+      "source_blocks_sha256": [
+        "01d9cd7a26e7fc03330887f076f407b98f935702505d7266ec9c7fbb7feb714b",
+        "06dfe340c218dc2140f835fa156f3d6a34efaf4a1eaea23c6c58e9810d2e3aa2"
+      ],
+      "source_sha256": "983226972f4516a86d818a77be36dc700b8b89825ba21ee11cfdb42b432147a1",
+      "text": "在数组上逐元素应用该函数，并抑制警告。\n\n真实数据列包含零和负数，因此取对数或除法会合理地产生 inf 和 nan；公式的含义就是这个值，而 numpy 对此发出的警告不是用户能够处理的。",
+      "translation_source_blocks_sha256": [
+        "01d9cd7a26e7fc03330887f076f407b98f935702505d7266ec9c7fbb7feb714b",
+        "06dfe340c218dc2140f835fa156f3d6a34efaf4a1eaea23c6c58e9810d2e3aa2"
+      ]
+    },
     "spacr.qt.widgets.formula.compute": {
       "source_blocks_sha256": [
         "2c8e8777ed6cdda9c25ed9e2a47b61972b4fcb674f5c5285190e85acad6b230a",
@@ -135151,6 +135917,16 @@
         "85bafe06859725f1cb4de387d5d7b9fe507ce595f745f7508a6a95dc3399120b"
       ]
     },
+    "spacr.qt.widgets.formula.evaluate.walk": {
+      "source_blocks_sha256": [
+        "8927a7d075a67c2835db13f5a4bd38ad241ed7801c896f2569b7c110aa8c3ea5"
+      ],
+      "source_sha256": "8927a7d075a67c2835db13f5a4bd38ad241ed7801c896f2569b7c110aa8c3ea5",
+      "text": "计算树中的一个节点，并递归进入其子节点。",
+      "translation_source_blocks_sha256": [
+        "8927a7d075a67c2835db13f5a4bd38ad241ed7801c896f2569b7c110aa8c3ea5"
+      ]
+    },
     "spacr.qt.widgets.formula.parse": {
       "source_blocks_sha256": [
         "4c76c991323a23b26ac6bb7d66d339c3c52b9da8f10119b6ea480ccf404e91e0",
@@ -135175,6 +135951,16 @@
       "translation_source_blocks_sha256": [
         "0f5adde7be9b404d0e594bfc02dd8ab2705ca81cac88f3d5d32645697aee79a2",
         "58acaabd2ffa025945c6e71f570408a15b53119ead3ea85ad19f15eedced9d87"
+      ]
+    },
+    "spacr.qt.widgets.formula.referenced_columns.walk": {
+      "source_blocks_sha256": [
+        "1ec4285e8cb5bf49adec90e0effee027939e5293466520121b3a54d6704f7d1b"
+      ],
+      "source_sha256": "1ec4285e8cb5bf49adec90e0effee027939e5293466520121b3a54d6704f7d1b",
+      "text": "以深度优先方式收集表达式中提到的每一列。",
+      "translation_source_blocks_sha256": [
+        "1ec4285e8cb5bf49adec90e0effee027939e5293466520121b3a54d6704f7d1b"
       ]
     },
     "spacr.qt.widgets.formula.tokenize": {
@@ -138419,6 +139205,16 @@
         "c0f7a5b745b813950c403baef63ccf9f2b197183de5cf4cc71b8d2651ff14366"
       ]
     },
+    "spacr.qt.widgets.gate_spec.BoxGate.describe.side": {
+      "source_blocks_sha256": [
+        "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a"
+      ],
+      "source_sha256": "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a",
+      "text": "以文字表述一个轴的界限，可处理任一侧开放的情况。",
+      "translation_source_blocks_sha256": [
+        "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a"
+      ]
+    },
     "spacr.qt.widgets.gate_spec.BoxGate.from_limits": {
       "source_blocks_sha256": [
         "0be8e3aeb8b339e0ad2b19a8d192aad985db1743e6fcb0bd455fb5f72f9b8baf",
@@ -139757,6 +140553,16 @@
         "082cc5e580d3b2e5b650b582f8c5636d32f2f4de0d3ea5ee5c187e565d974152"
       ]
     },
+    "spacr.qt.widgets.gate_spec.GateSet.order.walk": {
+      "source_blocks_sha256": [
+        "bdfbb1babbba1a5f95ab5c7d423a4126eb32c47e1ab5a94b750cfc2b52ef56f0"
+      ],
+      "source_sha256": "bdfbb1babbba1a5f95ab5c7d423a4126eb32c47e1ab5a94b750cfc2b52ef56f0",
+      "text": "以深度优先方式追加此门控及其下的所有内容。",
+      "translation_source_blocks_sha256": [
+        "2aad184d4234c0a96fdeb8ff6138bf96ed8014372e5129d2b6f23abda38edac7"
+      ]
+    },
     "spacr.qt.widgets.gate_spec.GateSet.path": {
       "source_blocks_sha256": [
         "76424cdb44742660e08aac78212499029a17dc41e554da910381ac6e80ea9a99",
@@ -140395,6 +141201,18 @@
         "9e00b60ba4bca2f2663a2cd444f448423e987fa35bc7ecbd037b913de18b9fe0"
       ]
     },
+    "spacr.qt.widgets.gate_spec.RectGate.centre.middle": {
+      "source_blocks_sha256": [
+        "cf6d7183f915edcc396de5b7adc295abfd54237ea598577e5cbabefba95ae8f2",
+        "b67b969a01f17d4ac933fd77e77c0b26d6740df1492905780dd4162814e83713"
+      ],
+      "source_sha256": "d48915f4ae762a656a270a1826facab33acfc3c73b36f3f6e31d3343cb70f536",
+      "text": "界限的中点；任一侧开放时为 ``None``。\n\n开放的一侧没有中点，若捏造一个，会把门控的中心放到门控并未覆盖的位置。",
+      "translation_source_blocks_sha256": [
+        "cf6d7183f915edcc396de5b7adc295abfd54237ea598577e5cbabefba95ae8f2",
+        "ef2efd4d1ebf03408492fd10d0c8adc1f9ecd23ac6356b96f1a06292ea5b7640"
+      ]
+    },
     "spacr.qt.widgets.gate_spec.RectGate.columns": {
       "source_blocks_sha256": [
         "e23608061403f865d4fdb9534b471e9fe7f4de7e8f8e3babf087809d63a34551",
@@ -140417,6 +141235,16 @@
       "translation_source_blocks_sha256": [
         "14847f0859556f71f8f2a397c0c1d9d3c6d06ebbe0bafbfd85a9385f4b28abff",
         "c0f7a5b745b813950c403baef63ccf9f2b197183de5cf4cc71b8d2651ff14366"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec.RectGate.describe.side": {
+      "source_blocks_sha256": [
+        "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a"
+      ],
+      "source_sha256": "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a",
+      "text": "以文字表述一个轴的界限，可处理任一侧开放的情况。",
+      "translation_source_blocks_sha256": [
+        "e3e0e7d6f8e1ea1ae7346a8adcce7385cdac859ab5fb408a88efc09894a8a71a"
       ]
     },
     "spacr.qt.widgets.gate_spec.RectGate.handles": {
@@ -140929,6 +141757,18 @@
       "text": "一个不能成为数据选择的边界,与原因的滑动点击。",
       "translation_source_blocks_sha256": [
         "32e4e5b6055f6f5a1511963184a5974f6c0c2c1246dddc913aa8c5599142662f"
+      ]
+    },
+    "spacr.qt.widgets.gate_spec._convex_hull._half": {
+      "source_blocks_sha256": [
+        "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
+        "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573"
+      ],
+      "source_sha256": "1528980f1c919a1f594388a1219048fb83aba87ea5b2ffb83b2dd43bc1a9e792",
+      "text": "凸包的一个单调半部，通过叉积求得。\n\n转向错误方向的点会被弹出，这样就只剩下边界——上下各运行一次，即可得到完整的凸包。",
+      "translation_source_blocks_sha256": [
+        "c4a2443a566ab76d53f93e2e19c501c2e03d8cda6b7233770edc68ce44194bae",
+        "b29d06bbc97708aebffba5aa2a9a993c61ad9f5ca003aff93843d9697c2c6573"
       ]
     },
     "spacr.qt.widgets.gate_spec.best_cluster_candidate": {
@@ -145461,6 +146301,26 @@
         "65305a584c42eaa9d88e09ed06d222ccd14364d97ee405140a09871854890429"
       ]
     },
+    "spacr.qt.widgets.live_preview.LivePreviewPanel._build_compartment_widgets._organelle_widget": {
+      "source_blocks_sha256": [
+        "48824c24d5f9dd5dac9889f94246d209e826fd38562f55eab053bf3e71f26a43"
+      ],
+      "source_sha256": "48824c24d5f9dd5dac9889f94246d209e826fd38562f55eab053bf3e71f26a43",
+      "text": "细胞器设置按其类型所需要的控件。",
+      "translation_source_blocks_sha256": [
+        "48824c24d5f9dd5dac9889f94246d209e826fd38562f55eab053bf3e71f26a43"
+      ]
+    },
+    "spacr.qt.widgets.live_preview.LivePreviewPanel._build_compartment_widgets._spin": {
+      "source_blocks_sha256": [
+        "bcfa634f8228dae359ea6ab8ca472a43f984b9362d39631e187e9edba561fcfa"
+      ],
+      "source_sha256": "bcfa634f8228dae359ea6ab8ca472a43f984b9362d39631e187e9edba561fcfa",
+      "text": "适合此设置类型的一个数值框。",
+      "translation_source_blocks_sha256": [
+        "bcfa634f8228dae359ea6ab8ca472a43f984b9362d39631e187e9edba561fcfa"
+      ]
+    },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings": {
       "source_blocks_sha256": [
         "e6729fed5c9e3dbb60711b5b114dd6ba9a1a2a337de6f83ea542adbf1ff467ee",
@@ -145477,6 +146337,18 @@
         "daa268fc39c430d671a725026b006c5e33fa3ae4a00219d8bfc895b611add550",
         "224478c8368153c57c55cd02dbdac849a3149fc9578f97b51ec6b4d198ac49ee",
         "ad5345f62ae7ee6b16f9ad1550ce258f2c5f61a358bbfa41cbd47a9ffa1ab57b"
+      ]
+    },
+    "spacr.qt.widgets.live_preview.LivePreviewPanel.apply_settings._seed": {
+      "source_blocks_sha256": [
+        "f7f14e5ee4f10dadb14279b9431454a64c97a427a4ffde87d72bdb18190df3b2",
+        "80dd839b940339cbf6dfc055ff80aeda4c545068edc8a7ca77d62511f1051da8"
+      ],
+      "source_sha256": "b6d9c9e1da32c1154c170c953c269d31debe56070595b0cb5397dba853abfc4d",
+      "text": "写入 ``keys`` 中第一个存在且可用的值。\n\n数值框会悄悄截断它无法容纳的值。这里的流阈值范围是 -1 到 3，而 Mask 自带的值是 100——\"accept everything Cellpose proposes\"——所以预填写入了 3，随后的传播又把 3 当作用户选择的值传回。无法容纳的值会被记住，以便传播时原样返回；参见 :meth:`_unclamped`。",
+      "translation_source_blocks_sha256": [
+        "f7f14e5ee4f10dadb14279b9431454a64c97a427a4ffde87d72bdb18190df3b2",
+        "fac2942253bec87793a71a34fc1c7af963a20c93885a731a62a6fadae5f1464e"
       ]
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview": {
@@ -145909,6 +146781,36 @@
       "text": "对比面板可以叠加显示的本次会话掩膜数量：最近的八个，最早的先被丢弃。每个都是全尺寸的标签数组，如果面板保留一个下午的每一次运行，就会把它们全部保存在内存中，而弹出窗口只适合列出八个。",
       "translation_source_blocks_sha256": [
         "e5e5585868edd9f7f7c680740e5b2da9572a78e09072f7e669d1564f93caf35c"
+      ]
+    },
+    "spacr.qt.widgets.live_preview._apply_size_filter._num": {
+      "source_blocks_sha256": [
+        "be95c4c7097498d503916b24c1e283bcaef753c053ec134315cbcd5fc6e2948d"
+      ],
+      "source_sha256": "be95c4c7097498d503916b24c1e283bcaef753c053ec134315cbcd5fc6e2948d",
+      "text": "一项尺寸过滤设置，转为数字，或使用默认值。",
+      "translation_source_blocks_sha256": [
+        "be95c4c7097498d503916b24c1e283bcaef753c053ec134315cbcd5fc6e2948d"
+      ]
+    },
+    "spacr.qt.widgets.live_preview._segment_multi._prepared": {
+      "source_blocks_sha256": [
+        "7080e241a0ac29e7a2b06eef801d2b4e9e9d59d7a600c7b384c72ecb1211edbf"
+      ],
+      "source_sha256": "7080e241a0ac29e7a2b06eef801d2b4e9e9d59d7a600c7b384c72ecb1211edbf",
+      "text": "经过 PSF 或增强链处理后的单个通道平面，只计算一次。",
+      "translation_source_blocks_sha256": [
+        "0d6f6c26318c74f38368dda6555f7af58f0d4603e20a8dc659adfb19eb0b540b"
+      ]
+    },
+    "spacr.qt.widgets.live_preview._unmix_preview_field.load_control": {
+      "source_blocks_sha256": [
+        "04416b3a460bdffe1a7fdfc743ad36a22af8c707eb5ed75629b365aa78a705f0"
+      ],
+      "source_sha256": "04416b3a460bdffe1a7fdfc743ad36a22af8c707eb5ed75629b365aa78a705f0",
+      "text": "以协作方式读取对照，并拒绝不兼容的通道布局。",
+      "translation_source_blocks_sha256": [
+        "04416b3a460bdffe1a7fdfc743ad36a22af8c707eb5ed75629b365aa78a705f0"
       ]
     },
     "spacr.qt.widgets.live_preview.first_supported_image": {
@@ -147805,6 +148707,34 @@
         "9a8606cb6d236b5d88671bb952fcfbd5150e448fa5b9faf74de313ad82c27067"
       ]
     },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel._follow_path_probes.corrected": {
+      "source_blocks_sha256": [
+        "dd89b8ddbc87e4aff826e917773cdac2918bc89a72ce23c9290cba065490e485",
+        "9558d182ef277d7a821f46adda4c5bf1b792090ea7f789d575ab78e10a468f35",
+        "f6272bc2fc9c9560aecd3ba5d010077b5ca44f6bec30519bab2ea764ec4806a5"
+      ],
+      "source_sha256": "8abc158d6880ad2e69ee08c5bda31da036d4eee568583d11b2d16488f6c76c2b",
+      "text": "当 ``path`` 属于我们时重绘，忽略其他所有路径。\n\n:param path: 其结果刚刚改变的路径。\n:param _answer: 它变成了什么；各行由 `paths()` 绘制，它会自行读取探测缓存。",
+      "translation_source_blocks_sha256": [
+        "dd89b8ddbc87e4aff826e917773cdac2918bc89a72ce23c9290cba065490e485",
+        "9558d182ef277d7a821f46adda4c5bf1b792090ea7f789d575ab78e10a468f35",
+        "f6272bc2fc9c9560aecd3ba5d010077b5ca44f6bec30519bab2ea764ec4806a5"
+      ]
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel._follow_path_probes.let_go": {
+      "source_blocks_sha256": [
+        "905746e1ce961769139e950a191e9f24e291be036ae200805c27ff9dad49b351",
+        "c6cba3b2fac82db7da6bc8fc30a7bc385403277480ac26d21e03ea596ccbdeb7",
+        "8e125ea9a0322782d1ce0044d67dadbe47ad50f3208390b674fc5220ae403e70"
+      ],
+      "source_sha256": "fcaf581d5816d0e0f0b13e2678ab601a7b7a1dea58c84ed37b3d9f596fbc8e75",
+      "text": "在面板销毁时断开探测连接。\n\n仅在仍处于连接状态时：`closeEvent` 可能已经停止跟踪，而断开两次会产生警告。\n\n:param _args: ``destroyed`` 发送的任何内容；未使用。",
+      "translation_source_blocks_sha256": [
+        "905746e1ce961769139e950a191e9f24e291be036ae200805c27ff9dad49b351",
+        "c6cba3b2fac82db7da6bc8fc30a7bc385403277480ac26d21e03ea596ccbdeb7",
+        "8e125ea9a0322782d1ce0044d67dadbe47ad50f3208390b674fc5220ae403e70"
+      ]
+    },
     "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.anchor": {
       "source_blocks_sha256": [
         "c3239315984d1c79463d6487c58eb7d84bd27719692cd859ae970789e27f3f84"
@@ -148061,6 +148991,18 @@
         "faaa7f1c72a69d739e7b3384623d73fd5dce8a5f28a3a21ac8eb7e4db21a87f0",
         "31ba3becc26fa2fcf23705f78692854cbf43cacb167aa8563c11e9364480803d",
         "1cf5669104203cb78d013e74b99fbbcf5b5cd6c97d44359279e94e621da2431b"
+      ]
+    },
+    "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.show_aggregation_rules.preview": {
+      "source_blocks_sha256": [
+        "7a0fc7dcaa57c39e4f0305f6db0c89f6224463cbdfc101f4d55bbb5dc24b28f8",
+        "bfb3e7b05c9023d36cc8a00e03089c979fe9b30f8484f2acbe060f9f35fbaf5a"
+      ],
+      "source_sha256": "48667dd75cfad3644e83b65481e18ca7d5c1f6c3ca42d93eada52b2951befcf2",
+      "text": "读取预览。工作线程；不触碰任何控件。\n\n:returns: 所选表格经 :func:`~spacr.multi_database.read_merged` 返回的内容。",
+      "translation_source_blocks_sha256": [
+        "1bfeda2d6b0e4d9b91c077d8618dc569a4b27de2bc7929329ceb9e46dcc90509",
+        "bfb3e7b05c9023d36cc8a00e03089c979fe9b30f8484f2acbe060f9f35fbaf5a"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel.DatabaseMergePanel.start_merge": {
@@ -148623,6 +149565,16 @@
         "df171410cb4ae54a7b24e17ea1ccc3834d50a92132fe0544c77a3a2f606fec8b"
       ]
     },
+    "spacr.qt.widgets.measurement_scan_panel.describe_key_overlap._canonical": {
+      "source_blocks_sha256": [
+        "03ac57490e799cb4a892cb0dcc5cfeb013d9523a0b780e93f8d6c477da96d8a7"
+      ],
+      "source_sha256": "03ac57490e799cb4a892cb0dcc5cfeb013d9523a0b780e93f8d6c477da96d8a7",
+      "text": "板 id 已规范化的键，使两种写法能够匹配。",
+      "translation_source_blocks_sha256": [
+        "03ac57490e799cb4a892cb0dcc5cfeb013d9523a0b780e93f8d6c477da96d8a7"
+      ]
+    },
     "spacr.qt.widgets.measurement_scan_panel.displayed_plates": {
       "source_blocks_sha256": [
         "5d5c6f8dc51d0801443af0c5250aea5e4e2d4e145e26b92bccf66c1e942074f2",
@@ -148693,6 +149645,28 @@
         "d0caefccf9a9a381f44e292e66d6efb560beea52e37c1d83c33707d3ce9e77be",
         "b7ab33842f7315b3cf5c670dc8a3f1e833a5ae38913936b8ace3c9ad0ed36416",
         "012f70c8237708eba6a396a766266ce517b7ac4f6580e838e94824321661b828"
+      ]
+    },
+    "spacr.qt.widgets.measurement_scan_panel.merge_across_databases._say": {
+      "source_blocks_sha256": [
+        "c64026a67feded613ce93a159a397fd24a7772a80d105878d2c508da51c1561f"
+      ],
+      "source_sha256": "c64026a67feded613ce93a159a397fd24a7772a80d105878d2c508da51c1561f",
+      "text": "如果有人在监听，报告当前阶段。",
+      "translation_source_blocks_sha256": [
+        "c64026a67feded613ce93a159a397fd24a7772a80d105878d2c508da51c1561f"
+      ]
+    },
+    "spacr.qt.widgets.measurement_scan_panel.merge_across_databases._stop": {
+      "source_blocks_sha256": [
+        "bb51fdcc79cf02a7c3fb65e4d46335bcce6da99ef946929c6cf32df7ece88a96",
+        "3a31e8400eae846831bab4e8464e4f4b411cf1b1dccd855f85d0e0d047784baa"
+      ],
+      "source_sha256": "681c50bb32bbcfeee40099f234af6585f6d62f701a9adde8e368921c300c1d2c",
+      "text": "若调用方已取消，则抛出异常，并指明在何处停止。\n\n在各阶段之间都会检查，而不只是在开始时：跨数据库合并要运行数分钟，直到结束才被注意到的取消就不算取消。",
+      "translation_source_blocks_sha256": [
+        "72cbcceada565a32c2f9ca847a2228e62e2cdb99e5939a258d670130affeac68",
+        "3a31e8400eae846831bab4e8464e4f4b411cf1b1dccd855f85d0e0d047784baa"
       ]
     },
     "spacr.qt.widgets.measurement_scan_panel.merge_evidence": {
@@ -170701,6 +171675,66 @@
         "4b47cca4c9ebfbce7ee4888b5a1441e46af463c61fd802fee70082c11c47e263"
       ]
     },
+    "spacr.regression_summary._assumptions_section.add": {
+      "source_blocks_sha256": [
+        "b1ef054690dd8636673080ce9d34ad241b85b5730162146ce0268b352ee9d723"
+      ],
+      "source_sha256": "b1ef054690dd8636673080ce9d34ad241b85b5730162146ce0268b352ee9d723",
+      "text": "向假设部分追加一个带标签的字段。",
+      "translation_source_blocks_sha256": [
+        "b1ef054690dd8636673080ce9d34ad241b85b5730162146ce0268b352ee9d723"
+      ]
+    },
+    "spacr.regression_summary._call_section.add": {
+      "source_blocks_sha256": [
+        "f8c41ab54985eabc49b7db0c227a13a909e70178c824bbd3b6ce3b77091c5d1b"
+      ],
+      "source_sha256": "f8c41ab54985eabc49b7db0c227a13a909e70178c824bbd3b6ce3b77091c5d1b",
+      "text": "向命中判定部分追加一个带标签的字段。",
+      "translation_source_blocks_sha256": [
+        "f8c41ab54985eabc49b7db0c227a13a909e70178c824bbd3b6ce3b77091c5d1b"
+      ]
+    },
+    "spacr.regression_summary._design_section.add": {
+      "source_blocks_sha256": [
+        "c417de83f1cdc3f139dd33df266fa14e77bb61605e39dbcd94e206dd078fe993"
+      ],
+      "source_sha256": "c417de83f1cdc3f139dd33df266fa14e77bb61605e39dbcd94e206dd078fe993",
+      "text": "向拟合设计部分追加一个带标签的字段。",
+      "translation_source_blocks_sha256": [
+        "c417de83f1cdc3f139dd33df266fa14e77bb61605e39dbcd94e206dd078fe993"
+      ]
+    },
+    "spacr.regression_summary._excluded_section.add": {
+      "source_blocks_sha256": [
+        "caf0f942e11aae5e63d764eb358926c1b4aac4c1a088adb3ec51b41ae1f1f7f0"
+      ],
+      "source_sha256": "caf0f942e11aae5e63d764eb358926c1b4aac4c1a088adb3ec51b41ae1f1f7f0",
+      "text": "向排除项部分追加一个带标签的字段。",
+      "translation_source_blocks_sha256": [
+        "caf0f942e11aae5e63d764eb358926c1b4aac4c1a088adb3ec51b41ae1f1f7f0"
+      ]
+    },
+    "spacr.regression_summary._fit_quality_section.add": {
+      "source_blocks_sha256": [
+        "473928972cbf6d3e6faed56e4211f2b5db1d64f182ab5a3809c44219e4f00651"
+      ],
+      "source_sha256": "473928972cbf6d3e6faed56e4211f2b5db1d64f182ab5a3809c44219e4f00651",
+      "text": "向拟合质量部分追加一个带标签的字段。",
+      "translation_source_blocks_sha256": [
+        "473928972cbf6d3e6faed56e4211f2b5db1d64f182ab5a3809c44219e4f00651"
+      ]
+    },
+    "spacr.regression_summary._fitted_section.add": {
+      "source_blocks_sha256": [
+        "4b545729b7f156ffe3640aff53aa97f110383ec341d64ab980cb59a8592afbcc"
+      ],
+      "source_sha256": "4b545729b7f156ffe3640aff53aa97f110383ec341d64ab980cb59a8592afbcc",
+      "text": "向拟合模型部分追加一个带标签的字段。",
+      "translation_source_blocks_sha256": [
+        "4b545729b7f156ffe3640aff53aa97f110383ec341d64ab980cb59a8592afbcc"
+      ]
+    },
     "spacr.regression_summary.build_run_summary": {
       "source_blocks_sha256": [
         "1d786b8e5bb6cb31ca87917d869b8043980e73c8756e4f906963b4058faf8ecf",
@@ -174395,6 +175429,48 @@
         "581ee7534d8a3b3d94810e1b2509f58447ca6fa3a5d0ba1d7f936c8fb97c9299"
       ]
     },
+    "spacr.run_journal._desktop_os_notify.quoted": {
+      "source_blocks_sha256": [
+        "b8e1a4a10acf622c57b4c073a85164d0b39aed3594b857e4d6d61b96a0528c42"
+      ],
+      "source_sha256": "b8e1a4a10acf622c57b4c073a85164d0b39aed3594b857e4d6d61b96a0528c42",
+      "text": "将 ``text`` 表示为单行的 AppleScript 字符串字面量。",
+      "translation_source_blocks_sha256": [
+        "b8e1a4a10acf622c57b4c073a85164d0b39aed3594b857e4d6d61b96a0528c42"
+      ]
+    },
+    "spacr.run_journal._dispatch_notification.work": {
+      "source_blocks_sha256": [
+        "355d23a3e064979b67d838e7a030cd2a4d45f3698141a711aeb496762d407507"
+      ],
+      "source_sha256": "355d23a3e064979b67d838e7a030cd2a4d45f3698141a711aeb496762d407507",
+      "text": "发送，并保留所发生的结果。",
+      "translation_source_blocks_sha256": [
+        "355d23a3e064979b67d838e7a030cd2a4d45f3698141a711aeb496762d407507"
+      ]
+    },
+    "spacr.run_journal._iter_files.excluded": {
+      "source_blocks_sha256": [
+        "e3e32ac1236b633410a61e5a69078d82f311250fb33c29728eba2826e624d81e",
+        "761bff2643127c7aff7856026befe4970ca58cdb362c71ddafba09b349b09c64"
+      ],
+      "source_sha256": "322762b618524ff0dc70826b642f87282ad260f97e4c27ea7b9d8037e9e12868",
+      "text": "返回 ``candidate`` 是否解析到某个被排除的根目录或其下方。\n\n无法解析的路径会被保留，这样一个恶意条目既不会中止文件遍历，也不会悄悄清空其余部分。",
+      "translation_source_blocks_sha256": [
+        "e3e32ac1236b633410a61e5a69078d82f311250fb33c29728eba2826e624d81e",
+        "761bff2643127c7aff7856026befe4970ca58cdb362c71ddafba09b349b09c64"
+      ]
+    },
+    "spacr.run_journal._send_notification.secret": {
+      "source_blocks_sha256": [
+        "63c8d333cc0ce3ec309d0c2f9e522d0eb456ebd3e8db993bf82c34ca4e1248f9"
+      ],
+      "source_sha256": "63c8d333cc0ce3ec309d0c2f9e522d0eb456ebd3e8db993bf82c34ca4e1248f9",
+      "text": "为本次尝试提供的密钥，否则使用已存储的密钥。",
+      "translation_source_blocks_sha256": [
+        "63c8d333cc0ce3ec309d0c2f9e522d0eb456ebd3e8db993bf82c34ca4e1248f9"
+      ]
+    },
     "spacr.run_journal.check_analysis_lock": {
       "source_blocks_sha256": [
         "a7dab553cf176267f0dc83ae6090ff6b64dd890fcd37a0b970343a4cc8bb9a66",
@@ -174637,6 +175713,16 @@
         "92d6c36628f01ed84255b9faf4e7edecfd071a4a899c0b254d493e5ea83d87a1"
       ]
     },
+    "spacr.run_journal.recent_runs._sort_key": {
+      "source_blocks_sha256": [
+        "db6af1c515fb265619825c4d759b0c8a8122424310613656ecfe00f81dc19079"
+      ],
+      "source_sha256": "db6af1c515fb265619825c4d759b0c8a8122424310613656ecfe00f81dc19079",
+      "text": "按解析出的开始时间、再按文件夹 mtime 对最近运行条目排序。",
+      "translation_source_blocks_sha256": [
+        "db6af1c515fb265619825c4d759b0c8a8122424310613656ecfe00f81dc19079"
+      ]
+    },
     "spacr.run_journal.resolve_run_dir": {
       "source_blocks_sha256": [
         "e4c3f2e1f4fd3c0240c7dab077069e3ea4aee656d14daf7e4594caf73f745798",
@@ -174691,6 +175777,16 @@
         "03a196ab9ab45074d031b9c8de5482f76e13c9213ebe8899b04466599541e520",
         "9d866a1981e1366ea36d022e7f5f478f4ee3a7a5474310b694ef0d5de52b75bf",
         "aa2e3b714e1a71b9eb72e86d0dae62dbced742753c8fccb1d601afee1884134a"
+      ]
+    },
+    "spacr.run_journal.search_runs._history_sort_key": {
+      "source_blocks_sha256": [
+        "90b0aa96f50f48951a2cb74f193a117cc316075d5c07ee8e86e67be1087efc16"
+      ],
+      "source_sha256": "90b0aa96f50f48951a2cb74f193a117cc316075d5c07ee8e86e67be1087efc16",
+      "text": "返回带 UTC 时区的开始时间，以及基于目录 mtime 的稳健次级排序依据。",
+      "translation_source_blocks_sha256": [
+        "90b0aa96f50f48951a2cb74f193a117cc316075d5c07ee8e86e67be1087efc16"
       ]
     },
     "spacr.run_journal.start_blinding": {
