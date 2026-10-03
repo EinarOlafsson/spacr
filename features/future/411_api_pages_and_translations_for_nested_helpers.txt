@@ -2146,3 +2146,18 @@ spacr.object_classifier still has one undocumented nightly helper.
 Denominator is 1,158 (source grew by one). Next: 7-12 helper modules, then
 the large ones (preferences, utils, plot, fractal_travel, gui_scale, ml).
     BLOCKED / open: OPEN docs work: 733 of 1,158 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 13 MORE MODULES ENABLED (PARTIAL; 520 of 1,158)
+ENABLED_MODULES gains qt.dnd_handlers, _mask_workers, qt.gil_priority,
+qt.widgets.graph_builder, qt.bridge, qt.screens.embeddings,
+qt.screens.settings_model, crashreport, deep_spacr, parameter_sweep,
+qt.widgets.gate_editor, sequencing and settings_advisor (95 helpers). The
+writer adds 95 symbols (12,451 -> 12,546) in English and nine locales from
+151 AI-reviewed blocks (2026-10-03-nested-batch8.json, direct AI translation
+with AI technical review, no native-speaker signoff); generated=0,
+decoded=0; earlier locale records byte-identical. Two local __init__ helpers
+(gil_priority hub, graph_builder canvas) join the documented-__init__ set;
+Help index regenerated. Guards: only nightly's stale OrganismDiagram en hash
+fails. Held back: qt.screens.make_masks (nightly helper
+_Sam2SeedDialog.run.work has no docstring).
+    BLOCKED / open: OPEN docs work: 638 of 1,158 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).

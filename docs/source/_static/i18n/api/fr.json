@@ -166,6 +166,76 @@
         "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153"
       ]
     },
+    "spacr._mask_workers._generate_masks_in_parallel.report": {
+      "source_blocks_sha256": [
+        "395a174f12d0e06ee3bb43dc93df9e6f52b6719646115997d629735c88f8295c"
+      ],
+      "source_sha256": "395a174f12d0e06ee3bb43dc93df9e6f52b6719646115997d629735c88f8295c",
+      "text": "Conserve le dernier instantané pour le résumé et l'affiche pour la GUI.",
+      "translation_source_blocks_sha256": [
+        "395a174f12d0e06ee3bb43dc93df9e6f52b6719646115997d629735c88f8295c"
+      ]
+    },
+    "spacr._mask_workers._mask_worker.completed": {
+      "source_blocks_sha256": [
+        "8396c65563b7036380793be1d7a3eb88c760cfae3e23cb64005fb970ade2ffbf"
+      ],
+      "source_sha256": "8396c65563b7036380793be1d7a3eb88c760cfae3e23cb64005fb970ade2ffbf",
+      "text": "Publie l'achèvement uniquement après la limite d'enregistrement de la pipeline.",
+      "translation_source_blocks_sha256": [
+        "15faddeb871ae2af9e1f996ca0686cc4eef4203b09638b58f01ed25e6bb08e86"
+      ]
+    },
+    "spacr._mask_workers._run_checkpointed_mask_workers.progress": {
+      "source_blocks_sha256": [
+        "79ca9bc66778c8e77d7df3669869e82748f00f399727fd3a3eaee00ae02bf94b"
+      ],
+      "source_sha256": "79ca9bc66778c8e77d7df3669869e82748f00f399727fd3a3eaee00ae02bf94b",
+      "text": "Enregistre chaque archive nouvellement terminée avant de publier la progression globale.",
+      "translation_source_blocks_sha256": [
+        "79ca9bc66778c8e77d7df3669869e82748f00f399727fd3a3eaee00ae02bf94b"
+      ]
+    },
+    "spacr._mask_workers._run_mask_workers.consume": {
+      "source_blocks_sha256": [
+        "d44dd0529c1b5e627e3b7fa1494b92c20b6b373ba3b8ff8e35b39f117676b970"
+      ],
+      "source_sha256": "d44dd0529c1b5e627e3b7fa1494b92c20b6b373ba3b8ff8e35b39f117676b970",
+      "text": "Vérifie l'appartenance de l'archive avant d'accepter l'événement d'un worker.",
+      "translation_source_blocks_sha256": [
+        "d44dd0529c1b5e627e3b7fa1494b92c20b6b373ba3b8ff8e35b39f117676b970"
+      ]
+    },
+    "spacr._mask_workers._run_mask_workers.publish": {
+      "source_blocks_sha256": [
+        "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e"
+      ],
+      "source_sha256": "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e",
+      "text": "Empêche les consommateurs de modifier la comptabilité du planificateur.",
+      "translation_source_blocks_sha256": [
+        "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e"
+      ]
+    },
+    "spacr._mask_workers._worker_figures.publish": {
+      "source_blocks_sha256": [
+        "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
+      ],
+      "source_sha256": "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743",
+      "text": "Fige la figure maintenant, avant que le processus enfant puisse la modifier ou la fermer.",
+      "translation_source_blocks_sha256": [
+        "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
+      ]
+    },
+    "spacr._mask_workers._worker_figures.show": {
+      "source_blocks_sha256": [
+        "084e424d975f179a7ab6c0c2b2a7b1d793ad3e3a17285df094d7c306073d3ef1"
+      ],
+      "source_sha256": "084e424d975f179a7ab6c0c2b2a7b1d793ad3e3a17285df094d7c306073d3ef1",
+      "text": "Publie chaque figure affichée une fois et libère la propriété pyplot du processus enfant.",
+      "translation_source_blocks_sha256": [
+        "084e424d975f179a7ab6c0c2b2a7b1d793ad3e3a17285df094d7c306073d3ef1"
+      ]
+    },
     "spacr._merged_names": {
       "source_blocks_sha256": [
         "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282"
@@ -15442,6 +15512,76 @@
         "377b9d5a835a4da92969ef713d31aa8d6a755b690aa3207539f5d05484e65c13"
       ]
     },
+    "spacr.crashreport._doctor_sections.gather_json": {
+      "source_blocks_sha256": [
+        "c9e734c17832dc18b14a1bc359121c837e4a6c49a317df3896e9540451687490"
+      ],
+      "source_sha256": "c9e734c17832dc18b14a1bc359121c837e4a6c49a317df3896e9540451687490",
+      "text": "Renvoie les lignes Doctor conservées en JSON, ou lève une erreur si la collecte a échoué.",
+      "translation_source_blocks_sha256": [
+        "36189f3aa26ca3ff873ca81ead8826ff9fec6745da782de79d6979bc71eb2470"
+      ]
+    },
+    "spacr.crashreport._doctor_sections.gather_text": {
+      "source_blocks_sha256": [
+        "2ed1b919c6dad914c1b48d35e433ec01c0ac6190f5e0cfdc660dd84a46738820"
+      ],
+      "source_sha256": "2ed1b919c6dad914c1b48d35e433ec01c0ac6190f5e0cfdc660dd84a46738820",
+      "text": "Exécute Doctor, conserve ses lignes et son résumé et renvoie un texte formaté.",
+      "translation_source_blocks_sha256": [
+        "2ed1b919c6dad914c1b48d35e433ec01c0ac6190f5e0cfdc660dd84a46738820"
+      ]
+    },
+    "spacr.crashreport._main_log_section.gather": {
+      "source_blocks_sha256": [
+        "59f2f9861c6f7da9c622d60a2d39bd1807e5c99aa6dd16307b974c1d5ac6fc42"
+      ],
+      "source_sha256": "59f2f9861c6f7da9c622d60a2d39bd1807e5c99aa6dd16307b974c1d5ac6fc42",
+      "text": "Renvoie la fin plafonnée du journal principal et note son chemin et ses informations de taille.",
+      "translation_source_blocks_sha256": [
+        "59f2f9861c6f7da9c622d60a2d39bd1807e5c99aa6dd16307b974c1d5ac6fc42"
+      ]
+    },
+    "spacr.crashreport._run_log_section.gather": {
+      "source_blocks_sha256": [
+        "5a73e06f28f2e97541280d7c9048f5f07cca61033ac7a091135fdc26ae2cc930"
+      ],
+      "source_sha256": "5a73e06f28f2e97541280d7c9048f5f07cca61033ac7a091135fdc26ae2cc930",
+      "text": "Renvoie la fin plafonnée du journal d'exécution et note son chemin et ses informations de taille.",
+      "translation_source_blocks_sha256": [
+        "5a73e06f28f2e97541280d7c9048f5f07cca61033ac7a091135fdc26ae2cc930"
+      ]
+    },
+    "spacr.crashreport._run_status_section.gather": {
+      "source_blocks_sha256": [
+        "bbfcd46fc2b7e7ea020ce48aaa2615652674e9a193813228835e008b96e1aae7"
+      ],
+      "source_sha256": "bbfcd46fc2b7e7ea020ce48aaa2615652674e9a193813228835e008b96e1aae7",
+      "text": "Renvoie les lignes d'état d'exécution du projet en JSON lorsqu'une base de données les fournit.",
+      "translation_source_blocks_sha256": [
+        "bbfcd46fc2b7e7ea020ce48aaa2615652674e9a193813228835e008b96e1aae7"
+      ]
+    },
+    "spacr.crashreport._run_summary_section.gather": {
+      "source_blocks_sha256": [
+        "75e65f2184fa3118c3d0bbbb45eb5f72e5b16a0450352ef0654f7e1c9a75d7ef"
+      ],
+      "source_sha256": "75e65f2184fa3118c3d0bbbb45eb5f72e5b16a0450352ef0654f7e1c9a75d7ef",
+      "text": "Renvoie les enregistrements d'exécution de niveau WARNING et plus en texte lisible, s'il y en a.",
+      "translation_source_blocks_sha256": [
+        "75e65f2184fa3118c3d0bbbb45eb5f72e5b16a0450352ef0654f7e1c9a75d7ef"
+      ]
+    },
+    "spacr.crashreport._settings_section.gather": {
+      "source_blocks_sha256": [
+        "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970"
+      ],
+      "source_sha256": "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970",
+      "text": "Renvoie les paramètres explicites ou enregistrés en JSON, ou ``None`` s'ils sont absents.",
+      "translation_source_blocks_sha256": [
+        "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970"
+      ]
+    },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
@@ -15486,6 +15626,16 @@
         "a9baa0f08c254fc9c39ba00bbb6053d90da8fe9f4f33df49a10d213ffb65e0ba"
       ]
     },
+    "spacr.crashreport.collect.environment": {
+      "source_blocks_sha256": [
+        "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b"
+      ],
+      "source_sha256": "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b",
+      "text": "Renvoie le JSON d'environnement expurgé et note chaque nom expurgé.",
+      "translation_source_blocks_sha256": [
+        "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b"
+      ]
+    },
     "spacr.crashreport.find_last_run_id": {
       "source_blocks_sha256": [
         "687f5e050f35a6d9e2b1f35deef01405f216961f79e90a861a307daf00bb0dc2",
@@ -15518,6 +15668,16 @@
         "7e71dcd0c53d3a23021f464d859d3eae5865a6a8e8fce7d716a1408a15e599b8",
         "81b3e0584a0bedba56cb4a9f54589d712dd996f8479933ad5fcb754893d8e2e1",
         "21759c923f9ebfc9b1b1045d2522bd281332de99a8d2e3692ced19dfc70b50f8"
+      ]
+    },
+    "spacr.crashreport.install_excepthook.hook": {
+      "source_blocks_sha256": [
+        "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f"
+      ],
+      "source_sha256": "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f",
+      "text": "Signale, puis délègue au hook installé auparavant.",
+      "translation_source_blocks_sha256": [
+        "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f"
       ]
     },
     "spacr.crashreport.main": {
@@ -20470,6 +20630,76 @@
         "83cde647189878d07b6d9e205343408e793f513d51f4529210167c2f73061d57"
       ]
     },
+    "spacr.deep_spacr._VirtualStainUNet.__init__.block": {
+      "source_blocks_sha256": [
+        "10792755223e3325f3002be2db274e460ecfcf6b09a57741523c5ca906a44fee"
+      ],
+      "source_sha256": "10792755223e3325f3002be2db274e460ecfcf6b09a57741523c5ca906a44fee",
+      "text": "Deux couches de convolution, normalisation et ReLU.",
+      "translation_source_blocks_sha256": [
+        "10792755223e3325f3002be2db274e460ecfcf6b09a57741523c5ca906a44fee"
+      ]
+    },
+    "spacr.deep_spacr._cross_validate_model._fit_one": {
+      "source_blocks_sha256": [
+        "560181fd6aae6fcc47961e80fed489ba136f4f4232eefe65558230ab524b641f"
+      ],
+      "source_sha256": "560181fd6aae6fcc47961e80fed489ba136f4f4232eefe65558230ab524b641f",
+      "text": "Entraîne un modèle de fold avec un jeu de validation non utilisé pour le score final.",
+      "translation_source_blocks_sha256": [
+        "560181fd6aae6fcc47961e80fed489ba136f4f4232eefe65558230ab524b641f"
+      ]
+    },
+    "spacr.deep_spacr._cross_validate_model._inner_loader": {
+      "source_blocks_sha256": [
+        "6900435b9bdb7ad17e0a67b0fdf5792ff134c8d0e94d345cc833f768a687cc9f"
+      ],
+      "source_sha256": "6900435b9bdb7ad17e0a67b0fdf5792ff134c8d0e94d345cc833f768a687cc9f",
+      "text": "Construit un loader interne à partir d'index globaux dans le jeu de données de base.",
+      "translation_source_blocks_sha256": [
+        "6900435b9bdb7ad17e0a67b0fdf5792ff134c8d0e94d345cc833f768a687cc9f"
+      ]
+    },
+    "spacr.deep_spacr._cross_validate_model._metrics_for_probabilities": {
+      "source_blocks_sha256": [
+        "1f48bbfe9039ae037386cfb53d811cfd0e113cffa13f3ec2d18b89975ec34541"
+      ],
+      "source_sha256": "1f48bbfe9039ae037386cfb53d811cfd0e113cffa13f3ec2d18b89975ec34541",
+      "text": "Calcule les métriques de fold historiques pour une matrice de probabilités d'un ensemble.",
+      "translation_source_blocks_sha256": [
+        "1f48bbfe9039ae037386cfb53d811cfd0e113cffa13f3ec2d18b89975ec34541"
+      ]
+    },
+    "spacr.deep_spacr._flowview_pipeline.decorate": {
+      "source_blocks_sha256": [
+        "4e9d5117a4f4ea9e1d93898192050bb39347a15138afd73655aaa0d2f63b716d"
+      ],
+      "source_sha256": "4e9d5117a4f4ea9e1d93898192050bb39347a15138afd73655aaa0d2f63b716d",
+      "text": "Renvoie un wrapper qui signale le cycle de vie de ``function`` pour ``family``.",
+      "translation_source_blocks_sha256": [
+        "4e9d5117a4f4ea9e1d93898192050bb39347a15138afd73655aaa0d2f63b716d"
+      ]
+    },
+    "spacr.deep_spacr._flowview_pipeline.decorate.observed": {
+      "source_blocks_sha256": [
+        "06ee00c263a44c319a96d2e9d1e0d7221986f4d1f6ea6125507c918c4fc36fca"
+      ],
+      "source_sha256": "06ee00c263a44c319a96d2e9d1e0d7221986f4d1f6ea6125507c918c4fc36fca",
+      "text": "Appelle la pipeline en préservant son résultat ou son erreur tout en traçant le cycle de vie.",
+      "translation_source_blocks_sha256": [
+        "0639dc899e914263dec06dab93f179ceddcfda9168dfb55e398b17d7a07a9a4d"
+      ]
+    },
+    "spacr.deep_spacr._vs_cellpose_segment.segment": {
+      "source_blocks_sha256": [
+        "a7c176415f446b4f3709060448f55058e1b9652c865a0da1896cb04af438c3c6"
+      ],
+      "source_sha256": "a7c176415f446b4f3709060448f55058e1b9652c865a0da1896cb04af438c3c6",
+      "text": "Segmente un plan 0-1 avec Cellpose.",
+      "translation_source_blocks_sha256": [
+        "501ade9fadeabf2c630e6d59fe10143a2d61464d379ed6b22de621650584afbb"
+      ]
+    },
     "spacr.deep_spacr.analyze_activation_maps": {
       "source_blocks_sha256": [
         "4045733fccb49b8d15e487096f3ae2feb01c5b7dd35653811548f13cca845297",
@@ -20524,6 +20754,20 @@
         "a0d51ae297e3cb639722d0744671188db3025bc2f72bf96947574008111e7416",
         "9239a8b869f51a7bd5b67736aa7554a8d113d5b94606bd2dfa767c3a84f873c2",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.deep_spacr.annotate_filter_vision.filter_csv_by_png": {
+      "source_blocks_sha256": [
+        "cc5e7a7718ef716d6fe5789deccd3c4ac6d0b59626b32a3fca9b82d0a38b3b1f",
+        "34fd7977393039d6608a7d02294e2be9689c594fddd5790671708c263cfb32b2",
+        "1226489e2e3e7382db95a4eae18d2abcb437bc44fa0fe7c2d808b6cbc81e4a22"
+      ],
+      "source_sha256": "a50bebb6b0b79c38e63fc06f3a6664c94bb02f0fba010d9d12ef48d70e7ae4d4",
+      "text": "Renvoie un DataFrame dont les lignes correspondant à un PNG des dossiers voisins ``training/train`` ont été retirées.\n\n:param csv_file: Chemin du CSV de scores.\n:returns: DataFrame filtré.",
+      "translation_source_blocks_sha256": [
+        "cc5e7a7718ef716d6fe5789deccd3c4ac6d0b59626b32a3fca9b82d0a38b3b1f",
+        "34fd7977393039d6608a7d02294e2be9689c594fddd5790671708c263cfb32b2",
+        "1226489e2e3e7382db95a4eae18d2abcb437bc44fa0fe7c2d808b6cbc81e4a22"
       ]
     },
     "spacr.deep_spacr.apply_model": {
@@ -20924,6 +21168,16 @@
         "92850542f5d271791773e74d33665a96b0c0f4432004d917dd429154083e5194",
         "e2848695434267b875e755002572e9fa63fa5fc0ee7e9f7fd42bc4473bfb1ae3",
         "3b759b7f2f728d78221cae8656989a0ae79afb145ca8863774382eaeda1919b1"
+      ]
+    },
+    "spacr.deep_spacr.model_fusion.combine_tensors": {
+      "source_blocks_sha256": [
+        "96a1157d50e749bc4924cb4d64f9bc4a664fbc195add8f572109e236167256b6"
+      ],
+      "source_sha256": "96a1157d50e749bc4924cb4d64f9bc4a664fbc195add8f572109e236167256b6",
+      "text": "Combine une liste de tenseurs avec l'agrégateur choisi.",
+      "translation_source_blocks_sha256": [
+        "96a1157d50e749bc4924cb4d64f9bc4a664fbc195add8f572109e236167256b6"
       ]
     },
     "spacr.deep_spacr.model_knowledge_transfer": {
@@ -56524,6 +56778,76 @@
         "365179ad7522b2bb25689649bea138c952367f491a81b0edd7fedfa812c44b7b"
       ]
     },
+    "spacr.parameter_sweep._default_filters.aggregation_belongs_to_wells": {
+      "source_blocks_sha256": [
+        "3aa272bdb12b36a71d0f6301afa7eae053890c83643b136fae6ea4dbef498630"
+      ],
+      "source_sha256": "3aa272bdb12b36a71d0f6301afa7eae053890c83643b136fae6ea4dbef498630",
+      "text": "Rejette les variantes d'agrégation qu'une analyse par cellule ignore.",
+      "translation_source_blocks_sha256": [
+        "3aa272bdb12b36a71d0f6301afa7eae053890c83643b136fae6ea4dbef498630"
+      ]
+    },
+    "spacr.parameter_sweep._default_filters.mixed_replaces_the_backend": {
+      "source_blocks_sha256": [
+        "e3905dd50d29099e8944169cb956fc4c90d564d640b4dfcc6d04a7a3ecb1af41"
+      ],
+      "source_sha256": "e3905dd50d29099e8944169cb956fc4c90d564d640b4dfcc6d04a7a3ecb1af41",
+      "text": "Rejette les effets aléatoires de ligne/colonne à côté d'un backend non mixte.",
+      "translation_source_blocks_sha256": [
+        "e3905dd50d29099e8944169cb956fc4c90d564d640b4dfcc6d04a7a3ecb1af41"
+      ]
+    },
+    "spacr.parameter_sweep._default_filters.penalty_belongs_to_penalised_families": {
+      "source_blocks_sha256": [
+        "a01a34fb4bbabf7c08f3e492a3296370582886743c6b8e38edb93b4606bbeee3"
+      ],
+      "source_sha256": "a01a34fb4bbabf7c08f3e492a3296370582886743c6b8e38edb93b4606bbeee3",
+      "text": "Rejette les valeurs alpha non par défaut pour les familles qui ne les lisent jamais.",
+      "translation_source_blocks_sha256": [
+        "a01a34fb4bbabf7c08f3e492a3296370582886743c6b8e38edb93b4606bbeee3"
+      ]
+    },
+    "spacr.parameter_sweep._default_filters.permutation_at_cell_level_exhausts_memory": {
+      "source_blocks_sha256": [
+        "76488082983a9587da573034b2df397bf44e243cdf03fcea47e0357afc1f8b97"
+      ],
+      "source_sha256": "76488082983a9587da573034b2df397bf44e243cdf03fcea47e0357afc1f8b97",
+      "text": "Rejette l'ajustement par permutation par cellule, mesuré comme nécessitant 57 GiB.",
+      "translation_source_blocks_sha256": [
+        "76488082983a9587da573034b2df397bf44e243cdf03fcea47e0357afc1f8b97"
+      ]
+    },
+    "spacr.parameter_sweep._default_filters.permutation_has_no_row_column_terms": {
+      "source_blocks_sha256": [
+        "baf1a04d14a3e3993f3cf504b6fad4e994e4093e8bf94d4eff159eaa429de530"
+      ],
+      "source_sha256": "baf1a04d14a3e3993f3cf504b6fad4e994e4093e8bf94d4eff159eaa429de530",
+      "text": "Rejette les effets de ligne/colonne que la permutation par blocs de plaque omet.",
+      "translation_source_blocks_sha256": [
+        "a98c9a74c00eee2f38fc59c50e9da14124e885d908d9c10f97009ea36d4ca05a"
+      ]
+    },
+    "spacr.parameter_sweep._default_filters.permutation_ignores_the_family": {
+      "source_blocks_sha256": [
+        "fcdb7c266926a6d50c2df3ff985781087a5b51912a51cd4a15343c2a7385d583"
+      ],
+      "source_sha256": "fcdb7c266926a6d50c2df3ff985781087a5b51912a51cd4a15343c2a7385d583",
+      "text": "Rejette les variantes de backend inutilisées par l'inférence non paramétrique.",
+      "translation_source_blocks_sha256": [
+        "fcdb7c266926a6d50c2df3ff985781087a5b51912a51cd4a15343c2a7385d583"
+      ]
+    },
+    "spacr.parameter_sweep._default_filters.quantile_needs_its_own_unit": {
+      "source_blocks_sha256": [
+        "3bf074c06d58235dabfd77383a4de4e1777a47dd3ca2e5098bceb6277ac56589"
+      ],
+      "source_sha256": "3bf074c06d58235dabfd77383a4de4e1777a47dd3ca2e5098bceb6277ac56589",
+      "text": "Rejette les ajustements de quantiles au niveau du puits, qui exigent des lignes par objet.",
+      "translation_source_blocks_sha256": [
+        "3e6243521fde3e2f2a0e38504f20d354406a3a219cb9a23780949e6570e162b2"
+      ]
+    },
     "spacr.parameter_sweep.be_polite": {
       "source_blocks_sha256": [
         "eaf6667145e67aa7b99ecd1e046d868e7a3f41b581d629b24d86db2567ce21bf",
@@ -56560,6 +56884,16 @@
         "be05007d746354d70d35f9681bc5e8bfbce7dd655bdac8913628e1bece720c7f",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "3682426dc09be9de10a3a8510028ab24b60ba3b1d9bf1d9d0c1ae0537fc1c4ca"
+      ]
+    },
+    "spacr.parameter_sweep.build_trials.accept": {
+      "source_blocks_sha256": [
+        "9e9a502730723e8d9a1085cda19d9176d3ccb73a108d11619c3148c50705c6ca"
+      ],
+      "source_sha256": "9e9a502730723e8d9a1085cda19d9176d3ccb73a108d11619c3148c50705c6ca",
+      "text": "Renvoie le motif de rejet du premier filtre, ou ``None``.",
+      "translation_source_blocks_sha256": [
+        "9e9a502730723e8d9a1085cda19d9176d3ccb73a108d11619c3148c50705c6ca"
       ]
     },
     "spacr.parameter_sweep.containment_available": {
@@ -56732,6 +57066,18 @@
         "19cbdf49a62ad738af12f8c662dabc35c39c2610d421929a9f3ce2fa63ff7f48",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "1b49559af04e70a9a6e9bb5b105a691b745af9a063d4ba26c4154c0d19c473fb"
+      ]
+    },
+    "spacr.parameter_sweep.run_sweep_parallel._fill": {
+      "source_blocks_sha256": [
+        "815c249a161ae076bdd24b4ddf5b2b59a2d8a8f18cd2530a00b8f56dc0ba3f10",
+        "6ba65128d0eca759f0934df95a9d05a91b874ec32d547406f0012b5d4f908a2e"
+      ],
+      "source_sha256": "0b7aafea9c6809e29280f89e3570199d61b0f03bdeb25f660d98299659e426f4",
+      "text": "Complète le pool, mais jamais au-delà de ce que la mémoire permet actuellement.\n\nSoumettre les 5,000 futures d'un coup signifie que le pool décide quand chaque essai démarre et que rien ne peut intervenir. Ne garder que n_jobs en cours est ce qui permet au plancher de mémoire ci-dessous d'empêcher réellement le balayage de croître pendant que l'éditeur de l'utilisateur tourne.",
+      "translation_source_blocks_sha256": [
+        "815c249a161ae076bdd24b4ddf5b2b59a2d8a8f18cd2530a00b8f56dc0ba3f10",
+        "6ba65128d0eca759f0934df95a9d05a91b874ec32d547406f0012b5d4f908a2e"
       ]
     },
     "spacr.parameter_sweep.run_trial_contained": {
@@ -69348,6 +69694,78 @@
         "5ec6121e762d40ed8f602630ff9a47c582eecda79f615badc0941c8c26957f17"
       ]
     },
+    "spacr.qt.bridge.PipelineWorker.run._already_emitted": {
+      "source_blocks_sha256": [
+        "28f40aafe5ead9615f17914c5651526d9047f209c242e5a4ce41b318e97f00e2",
+        "3b78bd37977833221f8cf449a7fc14c2115ce74218e256c57e9aecb939609a03"
+      ],
+      "source_sha256": "54007b08383a51dbd0c51d234d965b8ee151abd1e71bc4cdeab95fe982a5f82d",
+      "text": "Indique si cette figure a été émise pendant cette exécution.\n\nL'identité d'objet enregistrée pour l'exécution et le marqueur de la figure doivent tous deux correspondre. Exiger les deux évite les fausses correspondances lorsque Python réutilise un ID d'objet ou qu'une figure persiste d'une exécution à l'autre.",
+      "translation_source_blocks_sha256": [
+        "28f40aafe5ead9615f17914c5651526d9047f209c242e5a4ce41b318e97f00e2",
+        "3b78bd37977833221f8cf449a7fc14c2115ce74218e256c57e9aecb939609a03"
+      ]
+    },
+    "spacr.qt.bridge.PipelineWorker.run._capture_show": {
+      "source_blocks_sha256": [
+        "c5f43d96b76ccc9dd909afd260b40a1f1a4aaf4cf6d84b4829e4b55cb0b6c330",
+        "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
+        "43cb2b34f08fa40dfdbc787c0d514f1d36395405126e60005213939290aeed95"
+      ],
+      "source_sha256": "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4",
+      "text": "Émet chaque nouvelle figure une fois, en la rendant ICI sur le thread du worker.\n\nLe savefig d'Agg ne touche pas à Qt, donc la partie coûteuse se fait hors du thread de la GUI et la GUI ne fait qu'un déplacement de fichier et un chargement de pixmap -- c'est ce qui l'empêche de se figer pendant l'arrivée des figures.\n\nLes figures marquées ``_spacr_live_update`` sont réémises sur place ; c'est ainsi que le moniteur d'entraînement se rafraîchit sans remplir la galerie d'un instantané par époque.",
+      "translation_source_blocks_sha256": [
+        "b85435577490c98ef8b01d998f573e25925bc5789d8f96f54623b7299e2cc586",
+        "8d0fbca8ec06af296fe54cc0a5059ff85d5b3b413915207909e44a7fcf26dca7",
+        "43cb2b34f08fa40dfdbc787c0d514f1d36395405126e60005213939290aeed95"
+      ]
+    },
+    "spacr.qt.bridge.PipelineWorker.run._forward_output": {
+      "source_blocks_sha256": [
+        "8585e0b88f48332e8a0121c6e8a632891b9fad1b974196098b225704f1de08e2"
+      ],
+      "source_sha256": "8585e0b88f48332e8a0121c6e8a632891b9fad1b974196098b225704f1de08e2",
+      "text": "Émet le texte du worker et conserve les lignes d'avertissement dans son manifeste.",
+      "translation_source_blocks_sha256": [
+        "8585e0b88f48332e8a0121c6e8a632891b9fad1b974196098b225704f1de08e2"
+      ]
+    },
+    "spacr.qt.bridge.PipelineWorker.run._mark_emitted": {
+      "source_blocks_sha256": [
+        "d39e83df7c82b8050e56c0fda7500f3e2e5e75f8bdfb73241082a50841317cc5",
+        "ad96cb94f2b0c7c8559442e2e45857a55fce482891cf45705678981ed24de14f"
+      ],
+      "source_sha256": "471238a37b65a5f166f8b42b5ac9b5c1ca235c02b529eccb9b59231233b2e5e1",
+      "text": "Note qu'une figure a été émise, par id et sur la figure.\n\nL'attribut est la moitié inter-routes de la garde, et une figure qui le refuse obtient quand même sa vignette -- elle perd seulement cette moitié.",
+      "translation_source_blocks_sha256": [
+        "d39e83df7c82b8050e56c0fda7500f3e2e5e75f8bdfb73241082a50841317cc5",
+        "ad96cb94f2b0c7c8559442e2e45857a55fce482891cf45705678981ed24de14f"
+      ]
+    },
+    "spacr.qt.bridge.PipelineWorker.run._publish_figure": {
+      "source_blocks_sha256": [
+        "953ab74e488b44399e9252d21f82677458decbea7335b6cf2c2b58f793050d52",
+        "24aec7acecfaee953fbed3eefa5a8df5d8a22abd9a69992b2c71d8915177d321"
+      ],
+      "source_sha256": "0bfa49630e7a174a2db1f81b16199f7fa55b065cf6a8e42b0bf80e881439e45c",
+      "text": "Publie une figure, sauf si elle a déjà été affichée.\n\nUne image enregistrée puis tracée est UNE seule image : sans cela, la galerie contenait deux vignettes pour un fichier, ce que `generate_ml_scores` produit comme séquence ordinaire.",
+      "translation_source_blocks_sha256": [
+        "953ab74e488b44399e9252d21f82677458decbea7335b6cf2c2b58f793050d52",
+        "24aec7acecfaee953fbed3eefa5a8df5d8a22abd9a69992b2c71d8915177d321"
+      ]
+    },
+    "spacr.qt.bridge.PipelineWorker.run._registered_figures": {
+      "source_blocks_sha256": [
+        "daa53f26854879ba31358aa9a896a771c02934ad1f7038ff4172868656ffc5e2",
+        "ad27c9b5a5784ed25f0dd7372efd53e48dea86afc1fb80c9a85131f3ff6477a0"
+      ],
+      "source_sha256": "7ac9f4bde995823c4c1b053279b1d0883438222c30819237ff497b9044376bb8",
+      "text": "Produit les figures pyplot existantes sans en créer.\n\n``pyplot.figure(number)`` est à la fois une recherche et un constructeur. Les numéros ci-dessous viennent du registre de pyplot à l'échelle du processus, mais un autre thread peut en fermer un entre les deux appels.  Son manager est lu directement afin que la capture ne recrée jamais une figure et ne l'attribue pas par erreur à cette exécution.",
+      "translation_source_blocks_sha256": [
+        "daa53f26854879ba31358aa9a896a771c02934ad1f7038ff4172868656ffc5e2",
+        "e8cf600734d2680795890f47d6e6966d27f9405b1baee78d2d60c279824bffc1"
+      ]
+    },
     "spacr.qt.bridge.PipelineWorker.supports_pause": {
       "source_blocks_sha256": [
         "f9c2cc31070fb4b888c0c39dddd563f30a92c1bb3d18d060071ab8aeee5de7a4",
@@ -69568,6 +69986,16 @@
         "d20eb0a07360d14d69c7b6e0d3cdb6c75d4dc479a098ae0bd5741cddcf389a5a"
       ]
     },
+    "spacr.qt.bridge._say_what_is_wrong_with_the_settings.run": {
+      "source_blocks_sha256": [
+        "6f2117bb9b30d9e38c2dbc3e80da85b90fa88441be3318e1397bf26ff1cbd8e2"
+      ],
+      "source_sha256": "6f2117bb9b30d9e38c2dbc3e80da85b90fa88441be3318e1397bf26ff1cbd8e2",
+      "text": "Exécute le point d'entrée en transformant un problème de paramètres en message.",
+      "translation_source_blocks_sha256": [
+        "f37b6e8158c2fe2f1c3325a74b1e5eaddaeb950cfc696835adfabe6c50da6015"
+      ]
+    },
     "spacr.qt.bridge.apply_worker_budget": {
       "source_blocks_sha256": [
         "ce0199deae2a32985fb6ab298e8da290fdfb3826cfcc241659802e26599a7e28",
@@ -69768,6 +70196,16 @@
         "f507d10b3fe6a8687ab712850f4819469a8dae3c01310d5953381b10447606a3",
         "99570f81f22a24804a51cc4926d5b3f0e51f8618cca26922b320be6cbadb5ed4",
         "c7f1d22fec40f883f8cc6f0fe5e96bba077bc100b0a117eaaffbb8d2fc151d07"
+      ]
+    },
+    "spacr.qt.bridge.resolve_pipeline_entry._ret": {
+      "source_blocks_sha256": [
+        "17d29713da065e594a9e231eab8585cf2bfe65bb2b1e23e28239a9b807c05c71"
+      ],
+      "source_sha256": "17d29713da065e594a9e231eab8585cf2bfe65bb2b1e23e28239a9b807c05c71",
+      "text": "Marque le point d'entrée avec sa clé d'application et sa vérification des paramètres.",
+      "translation_source_blocks_sha256": [
+        "a9d0e033de86d949d56fd910fcd6214105f9bff3d663702f97f8411043ea89a2"
       ]
     },
     "spacr.qt.bridge.thread_has_stopped": {
@@ -74766,6 +75204,48 @@
         "346aa9851cfe20db209e3c6d9c1e62852e9deb9c87ff151738ac3e571695c95c"
       ]
     },
+    "spacr.qt.dnd_handlers._decide.run": {
+      "source_blocks_sha256": [
+        "96b3b3f980ad69e414b857a7290502c0728b27177f9a52670a92d5d45e24b798",
+        "f73778a409bcd465124d23694ad8dcd6e463d06d01b56efd8cc59ed4789e2134"
+      ],
+      "source_sha256": "feef136e6c42926ad6df4eedce390bd8b06524cabf34e0db6442399ac4533008",
+      "text": "Interroge ``work`` sur un thread jetable et met en cache sa réponse.\n\nSurvit à l'attente ci-dessous chaque fois que le partage est en veille, c'est pourquoi :func:`_remember` refuse une réponse plus ancienne que celle qu'il détient.",
+      "translation_source_blocks_sha256": [
+        "96b3b3f980ad69e414b857a7290502c0728b27177f9a52670a92d5d45e24b798",
+        "f73778a409bcd465124d23694ad8dcd6e463d06d01b56efd8cc59ed4789e2134"
+      ]
+    },
+    "spacr.qt.dnd_handlers._open_metadata_table._on_apply": {
+      "source_blocks_sha256": [
+        "cb28124979dfe440461b095a9035f704246e107385f900042dc20d22584f3a58"
+      ],
+      "source_sha256": "cb28124979dfe440461b095a9035f704246e107385f900042dc20d22584f3a58",
+      "text": "Note où la carte des métadonnées a été écrite.",
+      "translation_source_blocks_sha256": [
+        "cb28124979dfe440461b095a9035f704246e107385f900042dc20d22584f3a58"
+      ]
+    },
+    "spacr.qt.dnd_handlers._scan_then.guarded": {
+      "source_blocks_sha256": [
+        "959ae13d612e6df578db78e74786f7d3ef7d16b5ee65d55e078f8412403fefe4"
+      ],
+      "source_sha256": "959ae13d612e6df578db78e74786f7d3ef7d16b5ee65d55e078f8412403fefe4",
+      "text": "Exécute ``fn`` sur le worker en renvoyant un échec sous forme de données.",
+      "translation_source_blocks_sha256": [
+        "959ae13d612e6df578db78e74786f7d3ef7d16b5ee65d55e078f8412403fefe4"
+      ]
+    },
+    "spacr.qt.dnd_handlers._scan_then.landed": {
+      "source_blocks_sha256": [
+        "e243499a3f79e281e6dc1a54990d24760439fc0b8c551f880c1c4cd44271e8b1"
+      ],
+      "source_sha256": "e243499a3f79e281e6dc1a54990d24760439fc0b8c551f880c1c4cd44271e8b1",
+      "text": "Achemine une analyse terminée vers ``on_done`` ou ``on_error``.",
+      "translation_source_blocks_sha256": [
+        "e243499a3f79e281e6dc1a54990d24760439fc0b8c551f880c1c4cd44271e8b1"
+      ]
+    },
     "spacr.qt.dnd_handlers.active_scan_jobs": {
       "source_blocks_sha256": [
         "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
@@ -75300,6 +75780,78 @@
         "112a86100c182df502589bf6b5bfb5c7fddc1dc02e6cf66ac977f75ab05c9458",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "cc1e13a28a5f440b973238c735976447a0231ae41fc30fd250accdd9ab9edf77"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.__init__": {
+      "source_blocks_sha256": [
+        "cd2dc0b27463c0f11bc8fa7f7d5fcee6aea3a40bf0db0ded5879dfe7d74f908e"
+      ],
+      "source_sha256": "cd2dc0b27463c0f11bc8fa7f7d5fcee6aea3a40bf0db0ded5879dfe7d74f908e",
+      "text": "Commence sans observateurs.",
+      "translation_source_blocks_sha256": [
+        "cd2dc0b27463c0f11bc8fa7f7d5fcee6aea3a40bf0db0ded5879dfe7d74f908e"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub._forget_the_dead": {
+      "source_blocks_sha256": [
+        "4310aa0685e3c0c6c34925b4c38a64369fec530d73963af1f75d7d79a7bd2b91",
+        "dbcc594fc4eb3ebe2a57d6df0c2c5811cdbb8b35725bfc970eb144f3b62c1f92"
+      ],
+      "source_sha256": "9aa34e48d3932a11fdfdef296a65d0e9c930e306f648e41207405d40d36329d3",
+      "text": "Retire chaque observateur dont l'objet a disparu.\n\nUn observateur que Qt tenait directement était retiré de l'application à la destruction de son objet ; derrière le hub, il resterait dans la chaîne, ignoré mais tout de même examiné à chaque événement de ses types -- un par écran de module jamais construit, pendant toute la vie du processus.",
+      "translation_source_blocks_sha256": [
+        "4310aa0685e3c0c6c34925b4c38a64369fec530d73963af1f75d7d79a7bd2b91",
+        "2ad7bbe3ded7856312e47628eb95e569eb17e26f8ab651b1d55cb71b70f6a68e"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub._rebuild": {
+      "source_blocks_sha256": [
+        "d56c1937a1a023d5132c6ceb12806cd90db41d74d8c021e5926751a787844ac2"
+      ],
+      "source_sha256": "d56c1937a1a023d5132c6ceb12806cd90db41d74d8c021e5926751a787844ac2",
+      "text": "Indexe les observateurs vivants par type d'événement, les plus récents d'abord.",
+      "translation_source_blocks_sha256": [
+        "d56c1937a1a023d5132c6ceb12806cd90db41d74d8c021e5926751a787844ac2"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.add": {
+      "source_blocks_sha256": [
+        "f8b5a8804eb31fa41e1b9da7ee2b0ee117ca3fdc46c657507fae61de3211a469"
+      ],
+      "source_sha256": "f8b5a8804eb31fa41e1b9da7ee2b0ee117ca3fdc46c657507fae61de3211a469",
+      "text": "Interroge ``watcher`` en premier sur chaque événement de ``kinds``.",
+      "translation_source_blocks_sha256": [
+        "f8b5a8804eb31fa41e1b9da7ee2b0ee117ca3fdc46c657507fae61de3211a469"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.discard": {
+      "source_blocks_sha256": [
+        "b23c8b7c661f31ecf644a12848c412a0d5fd91bbe578cba4f35a98c8d4fcb781"
+      ],
+      "source_sha256": "b23c8b7c661f31ecf644a12848c412a0d5fd91bbe578cba4f35a98c8d4fcb781",
+      "text": "Cesse d'interroger ``watcher`` ; ``True`` s'il était interrogé.",
+      "translation_source_blocks_sha256": [
+        "b23c8b7c661f31ecf644a12848c412a0d5fd91bbe578cba4f35a98c8d4fcb781"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.eventFilter": {
+      "source_blocks_sha256": [
+        "17e20feac781b29a22547bae33516bd3f480ba82f2305426075b3f312575cdb7"
+      ],
+      "source_sha256": "17e20feac781b29a22547bae33516bd3f480ba82f2305426075b3f312575cdb7",
+      "text": "Transmet ``event`` aux observateurs qui ont demandé son type.",
+      "translation_source_blocks_sha256": [
+        "17e20feac781b29a22547bae33516bd3f480ba82f2305426075b3f312575cdb7"
+      ]
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.watchers": {
+      "source_blocks_sha256": [
+        "46ff79ac36f68f9ac3433ccf5b2602be23f287d43697b0d87086d823cc21a194"
+      ],
+      "source_sha256": "46ff79ac36f68f9ac3433ccf5b2602be23f287d43697b0d87086d823cc21a194",
+      "text": "Les observateurs vivants, dans l'ordre où ils sont interrogés.",
+      "translation_source_blocks_sha256": [
+        "46ff79ac36f68f9ac3433ccf5b2602be23f287d43697b0d87086d823cc21a194"
       ]
     },
     "spacr.qt.gil_priority.active": {
@@ -94968,6 +95520,70 @@
         "128fe41d91f1e1aa86f6c114185d5f4d972f115cb8c1329beba95bf1ecbf6e65"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_well_labels.work": {
+      "source_blocks_sha256": [
+        "8adc198a24ac4d529d8b33ccd14aab32b2317d8ba444c7d6e429bffe08a52b73"
+      ],
+      "source_sha256": "8adc198a24ac4d529d8b33ccd14aab32b2317d8ba444c7d6e429bffe08a52b73",
+      "text": "Calcule les scores et ajuste hors du thread de la GUI.",
+      "translation_source_blocks_sha256": [
+        "d4292c2b4607a42e1c03a95cd22b5e390cbaf59eb4feea5f422b37919fc8f2a1"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._on_planned.work": {
+      "source_blocks_sha256": [
+        "879b02ad919dc72ade43e3b97a523412a8c05efe4c439e79314dd7714a86717c",
+        "e9393c89ab6f4647ab38e4cb68a494579900c982e3d23b0bfdbd146c83061a76"
+      ],
+      "source_sha256": "0615d08c4ae670b2f273364bb116726caf2607921167711964a18835d3ad87b3",
+      "text": "Lit les pages sur un thread de worker.\n\n``emit`` est un signal lié et la seule chose ici qui atteint la GUI : Qt le met en file sur le thread récepteur, donc la ligne de progression avance sans que cette fonction touche jamais un widget.",
+      "translation_source_blocks_sha256": [
+        "98e6c1922cc05e2b90ff5346994c387c6590fd9a5fd6af6c33d567cd91303e2b",
+        "0be5de8c5d7c6e5d352f07b3a727c2f9614e68469165a910905ca1af71550d25"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
+      "source_blocks_sha256": [
+        "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
+      ],
+      "source_sha256": "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa",
+      "text": "Entraîne hors du thread de la GUI.",
+      "translation_source_blocks_sha256": [
+        "fabdbfe12a35704f5987929d5aea0075ddebb5169768ccd5779018242fa06ab2"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._read_database_choices.done": {
+      "source_blocks_sha256": [
+        "7f30733e00140e017317b9a6a8afdee8807d92339ce7db6b3be1e6deb4fbb12b"
+      ],
+      "source_sha256": "7f30733e00140e017317b9a6a8afdee8807d92339ce7db6b3be1e6deb4fbb12b",
+      "text": "Place la réponse dans les deux listes déroulantes.",
+      "translation_source_blocks_sha256": [
+        "7f30733e00140e017317b9a6a8afdee8807d92339ce7db6b3be1e6deb4fbb12b"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._read_database_choices.work": {
+      "source_blocks_sha256": [
+        "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
+        "1e021fa46c4f049c96d82956bb5b320537598c0bb15f464c019fda08c1404e6b"
+      ],
+      "source_sha256": "7e58ecbd26981620a1bb87e69dd27f8ed8812d38eeb99a7765ce59e1a3950243",
+      "text": "Demande à la base de données ce qu'elle contient. Deux lectures indexées peu coûteuses.\n\nLE STAT EST ICI, sur le worker, parce que c'est la partie qui bloque sur un montage lent. Un chemin qui n'est pas encore un fichier n'est pas une erreur -- quelqu'un est en train de le taper -- donc il répond sans rien proposer au lieu de lever une erreur, ce qui mettrait un refus dans la ligne d'état à chaque frappe.",
+      "translation_source_blocks_sha256": [
+        "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
+        "61d2992be70109d1c24826f9a1f8a844580ae5fb00d0f9afa4a1228830995547"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {
+      "source_blocks_sha256": [
+        "1fb09d2f06e98495b37f35ea3811abc257e9fbb2b0592ef1149fd90f64d61f51"
+      ],
+      "source_sha256": "1fb09d2f06e98495b37f35ea3811abc257e9fbb2b0592ef1149fd90f64d61f51",
+      "text": "Projette ou classe hors du thread de la GUI.",
+      "translation_source_blocks_sha256": [
+        "00f34992afec67f9c9b5d82cc4a69c16d0a95ce13afeddcb583bde4eec1beae5"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.choose_path": {
       "source_blocks_sha256": [
         "9bd756d49b15faff091b49694c959fe512f647a5e1d51782e4f8c9cf2891524f",
@@ -95036,6 +95652,18 @@
         "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df"
       ]
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.work": {
+      "source_blocks_sha256": [
+        "ff21c9a8a81a0a776fd379f39f76add0c87e14b6235670b44a8f1e0e0f8955ef",
+        "63c5c48c4a54e6f9ddd2686813178d16f0cedabd13c907ce130c6d995101573f"
+      ],
+      "source_sha256": "838e783293e71bdb83427054589506ba20465bdc43d6595dfcffcac496e0b1c5",
+      "text": "Exécute le backbone hors du thread de la GUI.\n\nL'import est à l'intérieur parce qu'il charge torch : un utilisateur qui n'ouvre jamais cette vue ne doit pas en payer le prix, et celui qui l'ouvre doit le payer une fois, ici, plutôt qu'au lancement.",
+      "translation_source_blocks_sha256": [
+        "3c7d6cb4d133163b29a0f772f402b34572d89e98dd84f7573068d78b628531f5",
+        "63c5c48c4a54e6f9ddd2686813178d16f0cedabd13c907ce130c6d995101573f"
+      ]
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
         "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
@@ -95068,6 +95696,16 @@
       "translation_source_blocks_sha256": [
         "22ac714f6d2a1cf8b9205a56b196ffe1d6cf0c20c412075911fdfb5975e8b81e",
         "c59affcbc3da521d88c8fdddf1505c50bb8db59d8ba14a68054628a0d96c2ceb"
+      ]
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.load_crops.work": {
+      "source_blocks_sha256": [
+        "ed02e28555a8b5880d1a9d05324992cb771c5bbb3432469f49f0b247e503a008"
+      ],
+      "source_sha256": "ed02e28555a8b5880d1a9d05324992cb771c5bbb3432469f49f0b247e503a008",
+      "text": "Demande ce qui correspond. Aucun pixel n'est lu ici.",
+      "translation_source_blocks_sha256": [
+        "ed02e28555a8b5880d1a9d05324992cb771c5bbb3432469f49f0b247e503a008"
       ]
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops": {
@@ -106516,6 +107154,36 @@
         "eba0ca2adbd6777856c5df15c6a0cce97e1c09b03576f5412feddcf107a2cc0b"
       ]
     },
+    "spacr.qt.screens.settings_model.SettingsWidgets._hide_the_headings_of_slots_the_run_lacks.absent": {
+      "source_blocks_sha256": [
+        "c829bd1bffcd1acc4a729dc4e679a5e4aaadf92f449daef63c5e3de1ae06bf43"
+      ],
+      "source_sha256": "c829bd1bffcd1acc4a729dc4e679a5e4aaadf92f449daef63c5e3de1ae06bf43",
+      "text": "Indique si l'exécution n'a aucun ``role``.",
+      "translation_source_blocks_sha256": [
+        "c829bd1bffcd1acc4a729dc4e679a5e4aaadf92f449daef63c5e3de1ae06bf43"
+      ]
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets._refresh_mask_gpu_enablement.refresh": {
+      "source_blocks_sha256": [
+        "adf23a4ee7923faf38b96fa0e2d0397d5c94ddd47a0c9601d85fd5381b94f548"
+      ],
+      "source_sha256": "adf23a4ee7923faf38b96fa0e2d0397d5c94ddd47a0c9601d85fd5381b94f548",
+      "text": "Actualise les contrôles restants sans prolonger la durée de vie du panneau.",
+      "translation_source_blocks_sha256": [
+        "adf23a4ee7923faf38b96fa0e2d0397d5c94ddd47a0c9601d85fd5381b94f548"
+      ]
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets._route_control.class_editor": {
+      "source_blocks_sha256": [
+        "7deb8af10243e9f8204273e7dbc1d76779a7900bbd236020f1f4cfd74d21d066"
+      ],
+      "source_sha256": "7deb8af10243e9f8204273e7dbc1d76779a7900bbd236020f1f4cfd74d21d066",
+      "text": "L'éditeur de classes, informé de l'image qu'il prévisualise.",
+      "translation_source_blocks_sha256": [
+        "7deb8af10243e9f8204273e7dbc1d76779a7900bbd236020f1f4cfd74d21d066"
+      ]
+    },
     "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
       "source_blocks_sha256": [
         "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
@@ -106828,6 +107496,38 @@
       "translation_source_blocks_sha256": [
         "eb01d34d9d9393d97e87f9a899882cb9d107242f98a79bde716f908439828b61",
         "0e149c2dddc73f90dedc9ababa6ad57e8eec0a9718a90b1e3551d78e6c251bcc"
+      ]
+    },
+    "spacr.qt.screens.settings_model._CloudBrowserDialog.open_address.work": {
+      "source_blocks_sha256": [
+        "7062991664a9649d2f7b83476c4551e0b984935b52b2599403ca74af1872f063"
+      ],
+      "source_sha256": "7062991664a9649d2f7b83476c4551e0b984935b52b2599403ca74af1872f063",
+      "text": "Lit la liste et la description, sans jamais lever d'erreur.",
+      "translation_source_blocks_sha256": [
+        "7062991664a9649d2f7b83476c4551e0b984935b52b2599403ca74af1872f063"
+      ]
+    },
+    "spacr.qt.screens.settings_model._TrainingFolderEdit.__init__.browse": {
+      "source_blocks_sha256": [
+        "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b"
+      ],
+      "source_sha256": "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b",
+      "text": "Définit un répertoire choisi ; annuler laisse le paramètre existant intact.",
+      "translation_source_blocks_sha256": [
+        "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b"
+      ]
+    },
+    "spacr.qt.screens.settings_model._sibling_label_for._named": {
+      "source_blocks_sha256": [
+        "f9c4484ca192a6f59c2e7ee25f43fe90f82c58c8a6ac9af9b75bc75b9c4fea28",
+        "dc9eac15866088c44ec6c3889e401f7c2c201c7d401209dd4e3029bda518a286"
+      ],
+      "source_sha256": "2840b98e630bfe2e62f2badb05c28d6180218c5df248af44185c30d9eed7e30b",
+      "text": "Le vrai libellé d'une ligne, en déballant un hôte s'il y en a un.\n\n`Section.add_row` enveloppe la légende dans un `SettingLabelWithInfo` chaque fois que la ligne est alignée à droite contre son champ -- la forme normale du formulaire --, donc le layout renvoie un simple QWidget et un isinstance direct le rejette. Mesuré sur Mask : 1,541 lignes sur 1,657 gardaient leur aide sur le CHAMP pour cette seule raison, et seuls 13 libellés l'avaient.",
+      "translation_source_blocks_sha256": [
+        "f9c4484ca192a6f59c2e7ee25f43fe90f82c58c8a6ac9af9b75bc75b9c4fea28",
+        "6deb2e0df489c74f8d63b6fb1f7c81205483e80c211780f3c2a664cf4397820f"
       ]
     },
     "spacr.qt.screens.settings_model.api_docs_url": {
@@ -107356,6 +108056,16 @@
         "df3f010fc65d87195d2d0a4892d22df6313085fa9aeb7104fc596310d4815185"
       ]
     },
+    "spacr.qt.screens.settings_model.regression_model_explainer.tx": {
+      "source_blocks_sha256": [
+        "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782"
+      ],
+      "source_sha256": "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782",
+      "text": "Traduit une chaîne source dans la langue de l'explicateur.",
+      "translation_source_blocks_sha256": [
+        "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782"
+      ]
+    },
     "spacr.qt.screens.settings_model.regression_model_explainer_html": {
       "source_blocks_sha256": [
         "73e00e45270c47d70b1508892b6488bd5a489e4126b635e1eb77e19a1d1f60e1",
@@ -107372,6 +108082,16 @@
         "f60289495551b5ace63714680acad09fbe173145039d027667d620043edeb16f",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "aa3731324f28fd29bae843168353477e6d55aabbe8b4810287b0098f88bacad5"
+      ]
+    },
+    "spacr.qt.screens.settings_model.regression_model_explainer_html.tx": {
+      "source_blocks_sha256": [
+        "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782"
+      ],
+      "source_sha256": "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782",
+      "text": "Traduit une chaîne source dans la langue de l'explicateur.",
+      "translation_source_blocks_sha256": [
+        "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782"
       ]
     },
     "spacr.qt.screens.settings_model.resolve_default_settings": {
@@ -138068,6 +138788,60 @@
         "93c9812b8eefc72e455de9f0c524dc356b0b964e99b5b4018701da19f7a5cfbf"
       ]
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas._apply_spin_speed.scaled": {
+      "source_blocks_sha256": [
+        "a68f9137a7e51e627ad3e536d9bb5cf2bc11192f001bd55b080f27f9c1d9905f"
+      ],
+      "source_sha256": "a68f9137a7e51e627ad3e536d9bb5cf2bc11192f001bd55b080f27f9c1d9905f",
+      "text": "Met à l'échelle un cran de molette selon le réglage de vitesse propre à la zone numérique.",
+      "translation_source_blocks_sha256": [
+        "a68f9137a7e51e627ad3e536d9bb5cf2bc11192f001bd55b080f27f9c1d9905f"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._draw_box.bound": {
+      "source_blocks_sha256": [
+        "e49fba475d833b9be54945b9eaa4b76233eb89b49aeeee332ffbce522f636e58",
+        "5bc91eb02e70154f0f1d29f7068c077acadea8c1f13464315fc6804fae82ba61"
+      ],
+      "source_sha256": "f059607a1a4fed9a652c23d7fcf4d9bbaf54e804e14c5b06e512777792fd00f5",
+      "text": "Les limites d'un axe : celles du gate lui-même, ou la plage réelle de la colonne.\n\nSe rabat sur les DONNÉES lorsqu'un côté n'est pas défini, afin qu'un gate semi-ouvert soit toujours dessiné comme un rectangle au lieu de sortir de l'axe.",
+      "translation_source_blocks_sha256": [
+        "96851f888dc51480e44c6e1aa5eb5ef41cc498cdbf0061151b748ad05d708dca",
+        "c108e68ab3214ac88b92c82ebe064505c9b75c0edb9facdde067613c4e5386ce"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._gate_from_volume_drag.side": {
+      "source_blocks_sha256": [
+        "e36733e674518d3136d8d23a08a54162d50e24361051d0fa8f283b9421ac013d"
+      ],
+      "source_sha256": "e36733e674518d3136d8d23a08a54162d50e24361051d0fa8f283b9421ac013d",
+      "text": "Les bornes stockées pour une colonne, ou ``(None, None)``.",
+      "translation_source_blocks_sha256": [
+        "e36733e674518d3136d8d23a08a54162d50e24361051d0fa8f283b9421ac013d"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._on_scroll.zoomed": {
+      "source_blocks_sha256": [
+        "c27b8e019d798485874e2fd551d6df5ad23350a5d2f0d2c7ca47230f66f05c00",
+        "7c068a8c1a504bb17a8435ead765bcdf21230c8e9862a3c191af6baf83ed63ab"
+      ],
+      "source_sha256": "2b112fc298bdc895806ff11ba38841fddf7eb5ced8c8e585a488bbe02b281c8f",
+      "text": "Met à l'échelle les limites d'un axe autour de l'ancre située sous le pointeur.\n\nAncré sur le POINTEUR plutôt que sur le centre, pour que le point sous le curseur reste en place -- c'est ce qui donne à un défilement l'impression de zoomer sur quelque chose plutôt que de voir le graphique glisser.",
+      "translation_source_blocks_sha256": [
+        "c27b8e019d798485874e2fd551d6df5ad23350a5d2f0d2c7ca47230f66f05c00",
+        "7c068a8c1a504bb17a8435ead765bcdf21230c8e9862a3c191af6baf83ed63ab"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._volume_handles.placed": {
+      "source_blocks_sha256": [
+        "90a36d3d0f84a75a224f6c4d0b616e970668358cdf24dda706a94274af0338b5"
+      ],
+      "source_sha256": "90a36d3d0f84a75a224f6c4d0b616e970668358cdf24dda706a94274af0338b5",
+      "text": "Un point donné par colonne, disposé dans l'ordre du volume.",
+      "translation_source_blocks_sha256": [
+        "90a36d3d0f84a75a224f6c4d0b616e970668358cdf24dda706a94274af0338b5"
+      ]
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.active_gate": {
       "source_blocks_sha256": [
         "f9546c19655730b304b1688500d314b3282e5a8ba6f9e9fc144e17828f5b7f9d"
@@ -138570,6 +139344,28 @@
         "f84aefdda5409a57c80f960672dc8eba399bf967a408f564938ad081d697ad39"
       ]
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_axis_map.invert": {
+      "source_blocks_sha256": [
+        "9449336bc92f0626c7e0b3786c29ed9b334b23f75926edaf1dc0b9e577db3647",
+        "14d8a0b8ad20226549dcbca6e14f83f24c4257542e42bc9d7321f5572249c1ae"
+      ],
+      "source_sha256": "0f38191c9cde8262c52ec95e592837a6703bd6339ceb0173a9086cb700f36b71",
+      "text": "Reconvertit un delta en pixels d'affichage en delta de données.\n\nUtilise l'INVERSE de la projection prise une fois à l'extérieur, de sorte qu'un glissement se mesure dans les unités de l'axe plutôt qu'en pixels -- le même glissement près de l'origine et loin d'elle signifie le même changement.",
+      "translation_source_blocks_sha256": [
+        "9449336bc92f0626c7e0b3786c29ed9b334b23f75926edaf1dc0b9e577db3647",
+        "14d8a0b8ad20226549dcbca6e14f83f24c4257542e42bc9d7321f5572249c1ae"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_axis_map.screen": {
+      "source_blocks_sha256": [
+        "765cc06b41daa48ce13424e9a80c1b815d91578e18118fda71b1eb9118c2b414"
+      ],
+      "source_sha256": "765cc06b41daa48ce13424e9a80c1b815d91578e18118fda71b1eb9118c2b414",
+      "text": "Projette un point de données en pixels d'affichage.",
+      "translation_source_blocks_sha256": [
+        "765cc06b41daa48ce13424e9a80c1b815d91578e18118fda71b1eb9118c2b414"
+      ]
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.volume_shape": {
       "source_blocks_sha256": [
         "bb359819d45c593810ad0deab5d98795ec1591d1864f300364ccad62366a2fc1",
@@ -138830,6 +139626,16 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ]
     },
+    "spacr.qt.widgets.gate_editor.GateTree._apply_threshold.value": {
+      "source_blocks_sha256": [
+        "7d47859d3bc17e0afc4c88ddfc50b24bbf17f65f771fa43fa7c4ff15b495f4fb"
+      ],
+      "source_sha256": "7d47859d3bc17e0afc4c88ddfc50b24bbf17f65f771fa43fa7c4ff15b495f4fb",
+      "text": "Un champ de seuil sous forme de nombre, ou ``None`` s'il est vide.",
+      "translation_source_blocks_sha256": [
+        "7d47859d3bc17e0afc4c88ddfc50b24bbf17f65f771fa43fa7c4ff15b495f4fb"
+      ]
+    },
     "spacr.qt.widgets.gate_editor.GateTree.active_gate": {
       "source_blocks_sha256": [
         "aab3f813fa354ce758666c52c2fc90f1501ddbf14a63697df9fa27516f69c764",
@@ -138912,6 +139718,18 @@
         "89454e9f44f7ae6b51e81e2400dd09d3b628235757c1ad5f3bbca6e791fc5a90",
         "d9331012b54083d90b7221c3cb4c6277649b4de285faa659424a8e3698332078",
         "9fc02fc637f0524feb441d310be167bdd106dc3e6c888886f8f451d5869442db"
+      ]
+    },
+    "spacr.qt.widgets.gate_editor._ClusterSettingsDialog.__init__._setting": {
+      "source_blocks_sha256": [
+        "9686901aace92f206daa7b8237c481f50688a055b6e202828bd182db17bd6c78",
+        "9b468891ea22c5cf6c359801e8ebd7ee691f646731a27a6494bc637e6a4a80b8"
+      ],
+      "source_sha256": "1f81073861505213b2c09a8e5555ebd3a4436b54021f553b51ac407cdfd4c0c4",
+      "text": "Un paramètre de la source, avec repli par NOM plutôt qu'en bloc.\n\nUne source qui porte certains paramètres et pas d'autres est le cas ordinaire, et prendre l'objet de repli en entier écarterait ceux qu'elle portait.",
+      "translation_source_blocks_sha256": [
+        "9686901aace92f206daa7b8237c481f50688a055b6e202828bd182db17bd6c78",
+        "9b468891ea22c5cf6c359801e8ebd7ee691f646731a27a6494bc637e6a4a80b8"
       ]
     },
     "spacr.qt.widgets.gate_editor.fit_to_text": {
@@ -142802,6 +143620,26 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ]
     },
+    "spacr.qt.widgets.graph_builder.GraphCanvas._draw_points.update": {
+      "source_blocks_sha256": [
+        "7bc7a130f6d2b59f1fd339991231fb0d64ee8d11ef30ffd0bac96881fa9b6f1d"
+      ],
+      "source_sha256": "7bc7a130f6d2b59f1fd339991231fb0d64ee8d11ef30ffd0bac96881fa9b6f1d",
+      "text": "Redessine les points pour un nouveau masque de sélection.",
+      "translation_source_blocks_sha256": [
+        "7bc7a130f6d2b59f1fd339991231fb0d64ee8d11ef30ffd0bac96881fa9b6f1d"
+      ]
+    },
+    "spacr.qt.widgets.graph_builder.GraphCanvas._xy.axis": {
+      "source_blocks_sha256": [
+        "3f8fb4a2a09af5e32f9b2827c6c9c6dfb1b2f72671ecfbffac2edfaac4fe41f2"
+      ],
+      "source_sha256": "3f8fb4a2a09af5e32f9b2827c6c9c6dfb1b2f72671ecfbffac2edfaac4fe41f2",
+      "text": "Les valeurs d'un axe et l'ordre de ses niveaux, ou vide s'il n'est pas défini.",
+      "translation_source_blocks_sha256": [
+        "3f8fb4a2a09af5e32f9b2827c6c9c6dfb1b2f72671ecfbffac2edfaac4fe41f2"
+      ]
+    },
     "spacr.qt.widgets.graph_builder.GraphCanvas.axes_at": {
       "source_blocks_sha256": [
         "af839acee1bd9098f0fd9d0f911c84301a00c6949a578c0db2c36fd5948e3cbc",
@@ -143056,6 +143894,66 @@
       "translation_source_blocks_sha256": [
         "0dd06423a2fa8191edb7774e5edc3a6e22bb99d9566f8f90584e34668658498f",
         "0dc4431ef54f8f48a7c3729f37606ab2d0925b3aee3f00aa156f03b14760f502"
+      ]
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__": {
+      "source_blocks_sha256": [
+        "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
+        "55ab87079aea47703d05f9c19d3acf949db0c916195216c2c034e1fc12e94d8b",
+        "c27c0288e88988856d0a2113b6988c2706b55a248af34b7d683c1adfd9ebc085",
+        "7b63084fe5ba4163b61482315534256a40bea4519262cc7c38099c5e361d19f4"
+      ],
+      "source_sha256": "c814db195beb337548180ead4f2b4c8806485710d4aeb07853555302e5da1076",
+      "text": "Enveloppe une figure dans un canevas qui possède son propre minuteur de redessin.\n\n:param figure: la ``Figure`` Matplotlib à dessiner. Tenue par le canevas, ce que \"owned\" veut dire ici -- le minuteur est un enfant du canevas, donc la figure et le redessin qu'elle programme sont détruits ensemble et un redessin en file ne peut survivre au widget qu'il peindrait.\n:param panel: dessiner la surface de page sous la figure.\n\n``False`` pour un canevas déjà posé SUR un panneau — le graphique des éboulis dans le volet PCA, par exemple. Deux surfaces empilées donnent 0.49 pour 30 % demandés, une teinte qu'aucune position du curseur ne peut atteindre, donc le canevas intérieur laisse voir le panneau extérieur.",
+      "translation_source_blocks_sha256": [
+        "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
+        "55ab87079aea47703d05f9c19d3acf949db0c916195216c2c034e1fc12e94d8b",
+        "c27c0288e88988856d0a2113b6988c2706b55a248af34b7d683c1adfd9ebc085",
+        "7b63084fe5ba4163b61482315534256a40bea4519262cc7c38099c5e361d19f4"
+      ]
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas._spacr_draw": {
+      "source_blocks_sha256": [
+        "c554c8c2b1b50c7fe39bb467e992e914cea287aecc097ee58dc00c41ddd5d8ef",
+        "543562b5678b4fa41698c59cd657c105d1e211e83a85f2353cbcf60e4ada51f5"
+      ],
+      "source_sha256": "c1e92e0ca637b0948d9d640ee53449525e4b02d51e18f4afd0241a106173bb1b",
+      "text": "Dessine une fois, si un dessin est encore en attente.\n\nL'indicateur est effacé EN PREMIER pour qu'un dessin qui en programme un autre ne le perde pas.",
+      "translation_source_blocks_sha256": [
+        "c554c8c2b1b50c7fe39bb467e992e914cea287aecc097ee58dc00c41ddd5d8ef",
+        "543562b5678b4fa41698c59cd657c105d1e211e83a85f2353cbcf60e4ada51f5"
+      ]
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.cancel_pending_draw": {
+      "source_blocks_sha256": [
+        "f44bd393c4cd4c911539a55afc8574c03f5131326c843aa3f77c4f0c06fe45a0"
+      ],
+      "source_sha256": "f44bd393c4cd4c911539a55afc8574c03f5131326c843aa3f77c4f0c06fe45a0",
+      "text": "Abandonne tout redessin en file. Sans danger sur un canevas que Qt a déjà supprimé.",
+      "translation_source_blocks_sha256": [
+        "f44bd393c4cd4c911539a55afc8574c03f5131326c843aa3f77c4f0c06fe45a0"
+      ]
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.draw_idle": {
+      "source_blocks_sha256": [
+        "b3a541d2b27562bdaf6c8a9556f596f0989d3bd5e4fd80cf7d74045e20a3f581",
+        "0b8c5da31e3e9751720a9f8ca1ef7e1dfa0c07ec2f6fea0720557250da3bd117"
+      ],
+      "source_sha256": "205e2ca742095670d8d87daf04f39da8dc27f4fa75b190f848db08596a265589",
+      "text": "Demande un redessin sur le minuteur POSSÉDÉ plutôt que sur un minuteur statique.\n\nLe canevas Qt de Matplotlib utilise le ``QTimer.singleShot`` statique, dont le callback n'appartient pas au canevas et peut s'exécuter après que Qt l'a supprimé. Le minuteur ici est un enfant du canevas, il meurt donc avec ce qu'il dessinerait.",
+      "translation_source_blocks_sha256": [
+        "b3a541d2b27562bdaf6c8a9556f596f0989d3bd5e4fd80cf7d74045e20a3f581",
+        "0b8c5da31e3e9751720a9f8ca1ef7e1dfa0c07ec2f6fea0720557250da3bd117"
+      ]
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "7229680ed6d6dad56074c845f37449278d9ff25fe84dee2dd523dea9aee1f54e"
+      ],
+      "source_sha256": "7229680ed6d6dad56074c845f37449278d9ff25fe84dee2dd523dea9aee1f54e",
+      "text": "Dessine le panneau de page, puis laisse matplotlib dessiner par-dessus.",
+      "translation_source_blocks_sha256": [
+        "7229680ed6d6dad56074c845f37449278d9ff25fe84dee2dd523dea9aee1f54e"
       ]
     },
     "spacr.qt.widgets.graph_builder.categorical_colours": {
@@ -180530,6 +181428,18 @@
         "e1380a40a01e067252f44957c4b4467d882cea762eb3b170776da2b0cbdb125a"
       ]
     },
+    "spacr.sequencing._map_within.resolve": {
+      "source_blocks_sha256": [
+        "1feec1dadeee8416c8f7e38be063bbaef06a882ef00d3818f2060353af5a9359",
+        "996fbd50d42b6d1e2175f0fe4ffbeda40bfd12e27bfb658099bc815863d04d38"
+      ],
+      "source_sha256": "260bc4321e3b6d2d07db814f61e8ba8063c9b5299a2e7f0a83ad9d4ca98cfa2b",
+      "text": "Renvoie le nom de référence unique dans le budget de mésappariements.\n\nLes correspondances exactes contournent le parcours.  Les résultats inexacts, y compris un ``pd.NA`` ambigu, sont mis en cache selon leur représentation en chaîne afin qu'une lecture répétée ne reparcoure pas toutes les références de même longueur.",
+      "translation_source_blocks_sha256": [
+        "1feec1dadeee8416c8f7e38be063bbaef06a882ef00d3818f2060353af5a9359",
+        "996fbd50d42b6d1e2175f0fe4ffbeda40bfd12e27bfb658099bc815863d04d38"
+      ]
+    },
     "spacr.sequencing.barecodes_reverse_complement": {
       "source_blocks_sha256": [
         "367dedfaf9c1afef9b5b305c8be06b0bee0effdfd3f9a67df28818adca1fa6e4",
@@ -180544,6 +181454,16 @@
         "208b76000364112a619b5cea2c6682eabe358ee725170186272bc7855e728afc",
         "8e018ff7cdad43e619622a586360705b84387b3381d9820510ed261af7067f60",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.sequencing.barecodes_reverse_complement.reverse_complement": {
+      "source_blocks_sha256": [
+        "27d1fef0ff79d8d17cda91f92ef0c0b7f5edb77954b870596bc9e03c64ab3810"
+      ],
+      "source_sha256": "27d1fef0ff79d8d17cda91f92ef0c0b7f5edb77954b870596bc9e03c64ab3810",
+      "text": "Renvoie le complément inverse de ``sequence`` (N reste N).",
+      "translation_source_blocks_sha256": [
+        "27d1fef0ff79d8d17cda91f92ef0c0b7f5edb77954b870596bc9e03c64ab3810"
       ]
     },
     "spacr.sequencing.create_consensus": {
@@ -180694,6 +181614,42 @@
         "1f0cb6efcc239c689a1542972040ca48d0b3fbe9616bb18fc8f348208c8923f3"
       ]
     },
+    "spacr.sequencing.graph_sequencing_stats.find_and_visualize_fraction_threshold": {
+      "source_blocks_sha256": [
+        "2298aff56cbde30d00c8629a79eef2e56e30159af9bdc1881d9ee065b5f926b2",
+        "5bab7496f6f89949b81c1789abeec451831c161bb320012e8aabc77a36586716",
+        "72a62417e1f43f973138f714e2b4a256179f4f1054c926a426f8660656b8b31a",
+        "89eff7803908328a647029805af9615a9bf43c07a17ebdd0d2cfa3da1ac6a2cf",
+        "271e5b8f84da3f0c87a71b1ca19cbf6f261e652644c8a3cbe99e1e3c07fdd72a",
+        "a3c179481ae24283ae63174c32dae0b15cca1c5a4ecceb9dca42ff0a541e596c",
+        "9b0406443ac7d4849a391dae00f1f286885e3abeb630c357c205ba0f84ef4cf3",
+        "421f53d86d5ddd465d3a3bbbb60be312f7db957f3ce763a9763e8163e0ee0ade"
+      ],
+      "source_sha256": "ea1cd71f3635d31b1f23686a42a2f1cef5b8f93590a3ecf363ba131495920077",
+      "text": "Renvoie le seuil de fraction dont la moyenne de gRNA uniques par puits est la plus proche de ``target_unique_count``.\n\nLa vue du graphique de balayage est limitée à x dans [0, 0.1] et y dans [0, 20], donc pour un seuil renvoyé supérieur à 0.1, la ligne de repère est tracée hors des axes visibles même si la valeur elle-même est correcte.\n\n:param df: une ligne par gRNA et par puits, avec ``fraction`` ainsi que ``plateID``, ``rowID`` et ``columnID`` ; toute colonne manquante lève ``KeyError``.\n:param target_unique_count: moyenne visée de gRNAs uniques par puits. La réponse n'est que le point le plus proche d'une grille fixe de 1000 pas allant de 0.001 à 0.99, donc une cible inatteignable sature silencieusement à une extrémité de cette grille au lieu de signaler qu'elle n'a pas été atteinte. ``None`` ou une chaîne lève une erreur lors de la soustraction.\n:param log_x: met l'axe x du graphique en échelle logarithmique. Le ``xlim(0, 0.1)`` codé en dur appliqué ensuite est alors rejeté par matplotlib comme limite non positive sur un axe logarithmique, et la vue s'ajuste automatiquement.\n:param log_y: la même chose pour l'axe y et ``ylim(0, 20)``.\n:param dst: si défini, écrit ``<dst>/results/fraction_threshold.pdf`` en créant les répertoires ; ``None`` affiche seulement la figure. L'unique appelant passe toujours un chemin, donc la valeur par défaut y est inatteignable.\n:returns: le seuil choisi sous forme de ``numpy.float64``. Un seuil qui vide la table donne NaN au lieu de 0, donc une table dont toutes les fractions sont inférieures à 0.001 rend chaque point du balayage NaN et le repli renvoie 0.99 -- une valeur qui écarte ensuite chaque lecture.",
+      "translation_source_blocks_sha256": [
+        "04ade3de16209c581ba55fd2ce9c44092203b46497a1f9112da1edeb9b79e46d",
+        "5bab7496f6f89949b81c1789abeec451831c161bb320012e8aabc77a36586716",
+        "d5ea1af304d8d64fadb1f7dbf72a6ddc5a2f9bbcb32e5f0995f84918abb3d63c",
+        "5c94547f5bfc55a7eeb51514755ef660bc1741ad48b5b8b7c91d74b661706b6b",
+        "271e5b8f84da3f0c87a71b1ca19cbf6f261e652644c8a3cbe99e1e3c07fdd72a",
+        "a3c179481ae24283ae63174c32dae0b15cca1c5a4ecceb9dca42ff0a541e596c",
+        "9b0406443ac7d4849a391dae00f1f286885e3abeb630c357c205ba0f84ef4cf3",
+        "421f53d86d5ddd465d3a3bbbb60be312f7db957f3ce763a9763e8163e0ee0ade"
+      ]
+    },
+    "spacr.sequencing.graph_sequencing_stats.find_and_visualize_fraction_threshold._line_plot": {
+      "source_blocks_sha256": [
+        "430e0592a20dadb960529d1e972613b9c1f66f4acaed8172864e24223111018c",
+        "36f45415cda85649420b264a69b89f8277849e8806161acd554726b44ef78a53"
+      ],
+      "source_sha256": "9cb43f73cb6d64ea2c5b5361b99390430d8d99fbbb7d7f05759ef42e4ae1e169",
+      "text": "Trace les colonnes ``x`` et ``y`` avec le style de figure commun.\n\nLa figure et les axes renvoyés permettent à l'appelant d'ajouter son repère de seuil avant d'enregistrer ou d'afficher le graphique.",
+      "translation_source_blocks_sha256": [
+        "430e0592a20dadb960529d1e972613b9c1f66f4acaed8172864e24223111018c",
+        "36f45415cda85649420b264a69b89f8277849e8806161acd554726b44ef78a53"
+      ]
+    },
     "spacr.sequencing.map_sequences_to_names": {
       "source_blocks_sha256": [
         "8859a495036ece9c8c2e8b04a5e253fbcf69759712bc860655820b60f28dd3c9",
@@ -180716,6 +181672,16 @@
         "63def37dbced938fdb1583319a633afd75ce13548fc5b44aac2394fbffc9c0cc",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "e1376a739660ef22a6a71766316323b78e1319939e2e24680a4261e86d62044b"
+      ]
+    },
+    "spacr.sequencing.map_sequences_to_names.rev_comp": {
+      "source_blocks_sha256": [
+        "dee2666ea16a5f6d6c9801048ec97c95467819da149e907707296627e8e05fb3"
+      ],
+      "source_sha256": "dee2666ea16a5f6d6c9801048ec97c95467819da149e907707296627e8e05fb3",
+      "text": "Renvoie le complément inverse de ``dna_sequence`` (N reste N).",
+      "translation_source_blocks_sha256": [
+        "dee2666ea16a5f6d6c9801048ec97c95467819da149e907707296627e8e05fb3"
       ]
     },
     "spacr.sequencing.paired_read_chunked_processing": {
@@ -180792,6 +181758,88 @@
         "bf9bd93ef68541694f2ff3a1eeaf6b395cd418ce65271fbe9519c407d90c68f9",
         "ceea04f123b4df4f7997168fd0e5f2c0ea335f2b74163b25e3e7287adc0f96df",
         "adc7d0347d0edc612ebaddeebf7d5fe63a0af172d77647872835af3971211df5"
+      ]
+    },
+    "spacr.sequencing.process_chunk._parse_record": {
+      "source_blocks_sha256": [
+        "c11e7b6cd9bd6067e9ec2c265f8e74b179a1a0f4d50b0d6c5e45ddf7c4b5e5b1",
+        "efda6ecce14276b5c5e390d9e4412f2d4f1c87c3cc2bb2f7ac5c6003233228ee",
+        "2c37db8f5210eb85096445c1629681afa7406060c5a556ac88d91541c17c8c8d",
+        "c746c17e2dd83b81bf48714300705a088a62cde6db7eb2d7517e37d2a339d880",
+        "5f78c3c9d89c77f68fe9e2d5d0680ddde9323b1ec7035d19cf1b8ff75f04f0bd"
+      ],
+      "source_sha256": "b496d0f2fc29e7258aa5f69d85f6472e89ba5452e4382e6d61538a615ec28381",
+      "text": "Valide et découpe un enregistrement FASTQ de quatre lignes.\n\n:param record: l'enregistrement sous forme d'une chaîne de quatre lignes.\n:param label: comment nommer cet enregistrement dans un message d'erreur.\n:returns: un tuple ``(sequence, quality)``.\n:raises ValueError: lorsque l'enregistrement ne compte pas quatre lignes, n'est pas un enregistrement FASTQ ou associe une séquence à une chaîne de qualité d'une autre longueur.",
+      "translation_source_blocks_sha256": [
+        "c11e7b6cd9bd6067e9ec2c265f8e74b179a1a0f4d50b0d6c5e45ddf7c4b5e5b1",
+        "efda6ecce14276b5c5e390d9e4412f2d4f1c87c3cc2bb2f7ac5c6003233228ee",
+        "2c37db8f5210eb85096445c1629681afa7406060c5a556ac88d91541c17c8c8d",
+        "c746c17e2dd83b81bf48714300705a088a62cde6db7eb2d7517e37d2a339d880",
+        "5f78c3c9d89c77f68fe9e2d5d0680ddde9323b1ec7035d19cf1b8ff75f04f0bd"
+      ]
+    },
+    "spacr.sequencing.process_chunk._split_window": {
+      "source_blocks_sha256": [
+        "7cccc3b4dd8c73c7878710df65552fe5a7c85c102163b8d4ae6f4bc2de7f6e4c",
+        "3f98f476764e5291310224eac60485a6dadf8d88c1bcc1d5131a7265e0c0ad58",
+        "11423e9260be4dcb379fae4926c1d137d32517d06c9c919729f2f7a22724fc2d"
+      ],
+      "source_sha256": "d3a58888bfaea55edb6bb7c7433b66f0097633139486abcd470a32fba2bc944f",
+      "text": "Note chaque code-barres capturé par l'expression régulière dans cette fenêtre.\n\n:param match: la correspondance de l'expression régulière sur une fenêtre consensus.\n:returns: None. Le texte capturé est ajouté aux listes de ``extracted``, une liste par code-barres, afin que chaque code-barres de chaque lecture correspondante reste à la même position.",
+      "translation_source_blocks_sha256": [
+        "7cccc3b4dd8c73c7878710df65552fe5a7c85c102163b8d4ae6f4bc2de7f6e4c",
+        "3f98f476764e5291310224eac60485a6dadf8d88c1bcc1d5131a7265e0c0ad58",
+        "11423e9260be4dcb379fae4926c1d137d32517d06c9c919729f2f7a22724fc2d"
+      ]
+    },
+    "spacr.sequencing.process_chunk.paired_find_sequence_in_chunk_reads": {
+      "source_blocks_sha256": [
+        "482b6ab0e4c74503c2706cdf17c0fdbc928c140d46b7f16dc3b4ba2db306eced",
+        "1b50fb27a04522ba7610ff4803801769098217463de00850a71d8845d0bb214c",
+        "8687f05a111be488ecc8c5cbf3240c311442c6f7686b47861a2c8f1380e0a819",
+        "7b56ff6e18a1676a2420a1af282269da2f2035c6fc510ccd06bdd91389b43ed6",
+        "862987221a16cd068958e205e870f00bded032fae0e1dd80850ef693380862bc",
+        "b61c582cdaf8d7b45919950174a738671e03ad85e85dfd057fccb22d88b7119f",
+        "b99334e6c4e3d9e64ce8fed3624baee5cbd6cdda706678ad3540e07e37c71fe2",
+        "d055458844dc34e5c8d8cdfe4097b3d9deef4c42f2f489395b0694cf57d22ca0",
+        "7c673c3e14070bbd1a1ef0bff9e443ca08ba6bc71cffc145d8c85cf3bbdced05"
+      ],
+      "source_sha256": "5def343ac2b0104bf50913b2b8d201419c3383fec0832b7a61b12de0cb65120d",
+      "text": "Renvoie les lectures consensus et leurs codes-barres pour des blocs appariés.\n\n:param r1_chunk: chaînes d'enregistrements FASTQ de quatre lignes pour R1.\n:param r2_chunk: les enregistrements R2 correspondants, appariés à ``r1_chunk`` uniquement par position -- les en-têtes ne sont jamais comparés.\n:param target_sequence: ancre localisée avec ``str.find`` (première occurrence). R2 est converti en complément inverse avant la recherche, donc écrivez l'ancre dans l'orientation R1. Une paire dont l'ancre manque dans l'un des deux mates est écartée sans ligne, donc le ``total_reads`` du QC compte les paires correspondantes plutôt que les paires en entrée.\n:param offset_start: bases de l'ancre jusqu'au début de la fenêtre. Un début résultant inférieur à zéro est ramené au début de la lecture plutôt que rejeté, donc un décalage trop négatif déplace la fenêtre sans avertissement.\n:param expected_end: *longueur* de la fenêtre, pas une coordonnée de fin. Une fenêtre coupée par la fin de la lecture est complétée à droite par ``N`` (qualité ``!``) jusqu'à exactement cette longueur, donc la vérification de longueur passe toujours et une lecture tronquée peut encore correspondre avec ``N`` dans un code-barres -- qui est alors associé à NA et disparaît des comptages par puits.\n:param regex: chaîne de motif appliquée avec ``re.match`` : ancrée au début de la fenêtre, mais les bases après le dernier groupe sont ignorées, donc un ``expected_end`` surdimensionné n'ajoute que du remplissage.\n:returns: la séquence consensus de chaque paire correspondante, une entrée par paire, avec les codes-barres de cette paire ajoutés à ``extracted``. Un bloc sans correspondance affiche un avertissement et réessaie la dernière fenêtre en complément inverse, comme indice d'orientation.\n:raises ValueError: lorsque les deux blocs contiennent des nombres de lectures différents.",
+      "translation_source_blocks_sha256": [
+        "482b6ab0e4c74503c2706cdf17c0fdbc928c140d46b7f16dc3b4ba2db306eced",
+        "1b50fb27a04522ba7610ff4803801769098217463de00850a71d8845d0bb214c",
+        "8687f05a111be488ecc8c5cbf3240c311442c6f7686b47861a2c8f1380e0a819",
+        "7b56ff6e18a1676a2420a1af282269da2f2035c6fc510ccd06bdd91389b43ed6",
+        "862987221a16cd068958e205e870f00bded032fae0e1dd80850ef693380862bc",
+        "9eed1b4635c3fab23550a0c7523b90240798ba20a2be8bf1bd27b4c1011d3ea1",
+        "b99334e6c4e3d9e64ce8fed3624baee5cbd6cdda706678ad3540e07e37c71fe2",
+        "d055458844dc34e5c8d8cdfe4097b3d9deef4c42f2f489395b0694cf57d22ca0",
+        "7c673c3e14070bbd1a1ef0bff9e443ca08ba6bc71cffc145d8c85cf3bbdced05"
+      ]
+    },
+    "spacr.sequencing.process_chunk.single_find_sequence_in_chunk_reads": {
+      "source_blocks_sha256": [
+        "f19a6caf47bd7b32d1ffca6a04fc634815df63b7bf6c5acf7858c92aae0ca5bb",
+        "398a5b8c9e8185987704d37a5d1043199a6a9db443cb7a6642a13858b87780cf",
+        "1b50fb27a04522ba7610ff4803801769098217463de00850a71d8845d0bb214c",
+        "53f694089038a79282805e55e81969529fd96c89663d27558e13d3be2118026e",
+        "1ab3c82bc97b0c922e9495c36a3f18468fcb68e1fef1faac8b8e12b969184947",
+        "f07a80b33407ea4b9e8e3f1caee4571c75a1ca89ab18434821298d2e527d1cc3",
+        "1abe5b4b1cf075f6973bbdd2dfe7f6dab3963f0620eb09deb28c0673b3170fa4",
+        "e56bc0ee4025add78e40bcb341dd0e426b693e1e99081331e63a4bf4278bb171"
+      ],
+      "source_sha256": "f04620437705cd16d84d2eba87e80c4a55fa4e1c7c1b2c93f72fe5cc71f22830",
+      "text": "Renvoie les fenêtres R1 et leurs codes-barres pour des blocs à extrémité unique.\n\nAucun consensus n'est calculé ici : la fenêtre R1 est utilisée telle quelle, donc la qualité de lecture n'influence jamais les appels de bases comme elle le fait pour les paires.\n\n:param r1_chunk: chaînes d'enregistrements FASTQ de quatre lignes pour R1.\n:param target_sequence: ancre localisée avec ``str.find`` (première occurrence). Une lecture sans elle est écartée sans ligne, donc le ``total_reads`` du QC compte les lectures correspondantes plutôt que les lectures en entrée.\n:param offset_start: bases de l'ancre jusqu'au début de la fenêtre. Un début résultant inférieur à zéro est ramené au début de la lecture plutôt que rejeté.\n:param expected_end: *longueur* de la fenêtre, pas une coordonnée de fin. Une fenêtre coupée par la fin de la lecture est complétée à droite par ``N`` (qualité ``!``) jusqu'à exactement cette longueur, donc une lecture tronquée peut encore correspondre avec ``N`` dans un code-barres -- qui est alors associé à NA et disparaît des comptages par puits.\n:param regex: chaîne de motif appliquée avec ``re.match`` : ancrée au début de la fenêtre, mais les bases après le dernier groupe sont ignorées.\n:returns: la fenêtre de chaque lecture correspondante, une entrée par lecture, avec les codes-barres de cette lecture ajoutés à ``extracted``. Un bloc sans correspondance affiche un avertissement et réessaie la dernière fenêtre en complément inverse, comme indice d'orientation.",
+      "translation_source_blocks_sha256": [
+        "f19a6caf47bd7b32d1ffca6a04fc634815df63b7bf6c5acf7858c92aae0ca5bb",
+        "398a5b8c9e8185987704d37a5d1043199a6a9db443cb7a6642a13858b87780cf",
+        "1b50fb27a04522ba7610ff4803801769098217463de00850a71d8845d0bb214c",
+        "53f694089038a79282805e55e81969529fd96c89663d27558e13d3be2118026e",
+        "1ab3c82bc97b0c922e9495c36a3f18468fcb68e1fef1faac8b8e12b969184947",
+        "730b1717d0c7374a52d21e0b0d7355799c62599edf7b2ca9d13179af64929e00",
+        "1abe5b4b1cf075f6973bbdd2dfe7f6dab3963f0620eb09deb28c0673b3170fa4",
+        "e56bc0ee4025add78e40bcb341dd0e426b693e1e99081331e63a4bf4278bb171"
       ]
     },
     "spacr.sequencing.reverse_complement": {
@@ -183056,6 +184104,24 @@
         "95bfceffd59d8ff278444115072fad9fb6d32809a8187abfcb18bb8104be091e",
         "bb6ee719503beba1efcc88db97fb02602a4700a326757320d82c3efba1768d56",
         "4746c6b77308e9ff5e29e34d9969808e1acf1bccb374b4c611491454e4898000"
+      ]
+    },
+    "spacr.settings_advisor._from_the_run.replace": {
+      "source_blocks_sha256": [
+        "ed6c15e6a7b7e401d76446c0f5d591f6c1b731c0fd9248fd28ca2d7423e2a3ab",
+        "7fe6886e5d863b0740aeb8d3099e070c4bcd4004b1c9ebd73026248af97b0408",
+        "f9ca09c0245dd57b206051b1c899b28fc0174cf4923471f2bfb4ab524959aed5",
+        "d9e0506bc96591bb147978539f1b45587250c75e293c9ea6cf7ddca773ef22c9",
+        "773b60be3ead58cfbd16ee895ff183d598c980ae4e519bb80673283f01e37858"
+      ],
+      "source_sha256": "a26c6280f553fce406dc75128cf9d0cbda0297ac9d4071a0e6b19de9b7e73cf2",
+      "text": "Remplace ou ajoute une recommandation dans les choix capturés.\n\n:param key: clé du choix de paramètre à mettre à jour.\n:param value: valeur recommandée à partir de l'exécution terminée.\n:param why: justification de la recommandation visible par l'utilisateur.\n:returns: None. Le premier choix de même clé est remplacé à sa position existante ; une clé pas encore présente est ajoutée une fois.",
+      "translation_source_blocks_sha256": [
+        "ed6c15e6a7b7e401d76446c0f5d591f6c1b731c0fd9248fd28ca2d7423e2a3ab",
+        "938846d3d8192d088c76df875b5902449e95fd8ddb8c02a02fd497435b82ed3d",
+        "da9e787a26a689fc5248a67544f664b760b83f01db9052255481f548aabf4879",
+        "d9e0506bc96591bb147978539f1b45587250c75e293c9ea6cf7ddca773ef22c9",
+        "773b60be3ead58cfbd16ee895ff183d598c980ae4e519bb80673283f01e37858"
       ]
     },
     "spacr.settings_advisor.advise": {

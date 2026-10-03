@@ -110,6 +110,55 @@
       "source_sha256": "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153",
       "text": "Process isolation and cooperative stop for assigned mask batches."
     },
+    "spacr._mask_workers._generate_masks_in_parallel.report": {
+      "source_blocks_sha256": [
+        "395a174f12d0e06ee3bb43dc93df9e6f52b6719646115997d629735c88f8295c"
+      ],
+      "source_sha256": "395a174f12d0e06ee3bb43dc93df9e6f52b6719646115997d629735c88f8295c",
+      "text": "Keep the latest snapshot for the summary and print it for the GUI."
+    },
+    "spacr._mask_workers._mask_worker.completed": {
+      "source_blocks_sha256": [
+        "8396c65563b7036380793be1d7a3eb88c760cfae3e23cb64005fb970ade2ffbf"
+      ],
+      "source_sha256": "8396c65563b7036380793be1d7a3eb88c760cfae3e23cb64005fb970ade2ffbf",
+      "text": "Publish completion only after the pipeline's save boundary."
+    },
+    "spacr._mask_workers._run_checkpointed_mask_workers.progress": {
+      "source_blocks_sha256": [
+        "79ca9bc66778c8e77d7df3669869e82748f00f399727fd3a3eaee00ae02bf94b"
+      ],
+      "source_sha256": "79ca9bc66778c8e77d7df3669869e82748f00f399727fd3a3eaee00ae02bf94b",
+      "text": "Persist each newly completed archive before publishing aggregate progress."
+    },
+    "spacr._mask_workers._run_mask_workers.consume": {
+      "source_blocks_sha256": [
+        "d44dd0529c1b5e627e3b7fa1494b92c20b6b373ba3b8ff8e35b39f117676b970"
+      ],
+      "source_sha256": "d44dd0529c1b5e627e3b7fa1494b92c20b6b373ba3b8ff8e35b39f117676b970",
+      "text": "Validate archive ownership before accepting a worker's event."
+    },
+    "spacr._mask_workers._run_mask_workers.publish": {
+      "source_blocks_sha256": [
+        "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e"
+      ],
+      "source_sha256": "a68f1d91e3d19e4b7dfe89f0480efd933d7597aa8c5b4730f6060de20da7bc6e",
+      "text": "Do not let consumers mutate scheduler bookkeeping."
+    },
+    "spacr._mask_workers._worker_figures.publish": {
+      "source_blocks_sha256": [
+        "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743"
+      ],
+      "source_sha256": "d263c266a19ac5be96f3658af0b3f86ad1ee06695b320eb7f6deb87b6fab0743",
+      "text": "Freeze the figure now, before the child can change or close it."
+    },
+    "spacr._mask_workers._worker_figures.show": {
+      "source_blocks_sha256": [
+        "084e424d975f179a7ab6c0c2b2a7b1d793ad3e3a17285df094d7c306073d3ef1"
+      ],
+      "source_sha256": "084e424d975f179a7ab6c0c2b2a7b1d793ad3e3a17285df094d7c306073d3ef1",
+      "text": "Publish each shown figure once and release child pyplot ownership."
+    },
     "spacr._merged_names": {
       "source_blocks_sha256": [
         "29dab18b207dea34f8251c5ed435b552489f6524d86208b8d89372a424fa0282"
@@ -9516,6 +9565,55 @@
       "source_sha256": "a4962dda3f28baba639c4e8c79fde7f36f9772ca5c7a9832bfe12489a29f1b82",
       "text": "One short block naming the run, the versions and what is missing.\n\nThis is also ``summary.txt``, the first file in the bundle, because a\nreport recipient opening a zip should not have to guess which file to read\nfirst.\n\n:returns: the summary text."
     },
+    "spacr.crashreport._doctor_sections.gather_json": {
+      "source_blocks_sha256": [
+        "c9e734c17832dc18b14a1bc359121c837e4a6c49a317df3896e9540451687490"
+      ],
+      "source_sha256": "c9e734c17832dc18b14a1bc359121c837e4a6c49a317df3896e9540451687490",
+      "text": "Return retained Doctor rows as JSON, or raise if collection failed."
+    },
+    "spacr.crashreport._doctor_sections.gather_text": {
+      "source_blocks_sha256": [
+        "2ed1b919c6dad914c1b48d35e433ec01c0ac6190f5e0cfdc660dd84a46738820"
+      ],
+      "source_sha256": "2ed1b919c6dad914c1b48d35e433ec01c0ac6190f5e0cfdc660dd84a46738820",
+      "text": "Run Doctor, retain its rows and summary, and return formatted text."
+    },
+    "spacr.crashreport._main_log_section.gather": {
+      "source_blocks_sha256": [
+        "59f2f9861c6f7da9c622d60a2d39bd1807e5c99aa6dd16307b974c1d5ac6fc42"
+      ],
+      "source_sha256": "59f2f9861c6f7da9c622d60a2d39bd1807e5c99aa6dd16307b974c1d5ac6fc42",
+      "text": "Return the capped main-log tail and record its path and size facts."
+    },
+    "spacr.crashreport._run_log_section.gather": {
+      "source_blocks_sha256": [
+        "5a73e06f28f2e97541280d7c9048f5f07cca61033ac7a091135fdc26ae2cc930"
+      ],
+      "source_sha256": "5a73e06f28f2e97541280d7c9048f5f07cca61033ac7a091135fdc26ae2cc930",
+      "text": "Return the capped run-log tail and record its path and size facts."
+    },
+    "spacr.crashreport._run_status_section.gather": {
+      "source_blocks_sha256": [
+        "bbfcd46fc2b7e7ea020ce48aaa2615652674e9a193813228835e008b96e1aae7"
+      ],
+      "source_sha256": "bbfcd46fc2b7e7ea020ce48aaa2615652674e9a193813228835e008b96e1aae7",
+      "text": "Return project run-status rows as JSON when a database provides them."
+    },
+    "spacr.crashreport._run_summary_section.gather": {
+      "source_blocks_sha256": [
+        "75e65f2184fa3118c3d0bbbb45eb5f72e5b16a0450352ef0654f7e1c9a75d7ef"
+      ],
+      "source_sha256": "75e65f2184fa3118c3d0bbbb45eb5f72e5b16a0450352ef0654f7e1c9a75d7ef",
+      "text": "Return WARNING-and-higher run records as readable text, if any."
+    },
+    "spacr.crashreport._settings_section.gather": {
+      "source_blocks_sha256": [
+        "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970"
+      ],
+      "source_sha256": "3723a3d308b1ff2cbe41bcb76bbc7189f321dd330d79e2afa39a68b2ebaca970",
+      "text": "Return explicit or recorded settings as JSON, or ``None`` if absent."
+    },
     "spacr.crashreport.build_parser": {
       "source_blocks_sha256": [
         "361572caac77d4eb2b156897b2bd68bc5f5ed5f0237a1989b4a718af86b3e95e",
@@ -9542,6 +9640,13 @@
       "source_sha256": "27f7236e5296d3552b7e93b54b0178932de800307401db5f58d8c9f1dc2071eb",
       "text": "Gather everything worth attaching to a bug report.\n\nComposed from :mod:`spacr.doctor`, :mod:`spacr.runctx`, :mod:`spacr.errors`\nand :mod:`spacr.logging_util` rather than collected again, so the report\ncannot disagree with what those tools say when run directly.\n\n:param run_id: the run to include. Defaults to :func:`find_last_run_id`,\n    which prefers an active ``run_context`` over the newest log on disk.\n:param db: project database, e.g. ``plate1/measurements/measurements.db``.\n    Adds the doctor's database checks and the run-status stamps.\n:param settings: settings csv/json that was run.\n:param settings_values: the settings as a mapping, when the caller has them\n    in memory. Takes precedence over ``settings``.\n:param checkout: directory the user believes they are editing; defaults to\n    the current one, which is what makes \"am I running this code\" answerable.\n:param app: app key for the settings file (``mask``, ``measure``, ...).\n:param exception: the exception being reported, if any. Its traceback goes\n    in verbatim.\n:param note: free text from the user — what they were doing.\n:param probe_gpu: let the doctor allocate on the GPU to prove it works.\n    Off by default: a probe that fails would add a failure that is not the\n    one being reported.\n:returns: the assembled :class:`CrashReport`. Never raises; a section that\n    could not be gathered is named in :attr:`CrashReport.problems`."
     },
+    "spacr.crashreport.collect.environment": {
+      "source_blocks_sha256": [
+        "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b"
+      ],
+      "source_sha256": "70f3e313df0a893be895249e92469990e15698192066ed92eeaeec2718fe852b",
+      "text": "Return redacted environment JSON and record every redacted name."
+    },
     "spacr.crashreport.find_last_run_id": {
       "source_blocks_sha256": [
         "687f5e050f35a6d9e2b1f35deef01405f216961f79e90a861a307daf00bb0dc2",
@@ -9562,6 +9667,13 @@
       ],
       "source_sha256": "eef02f55a5953b26e7226e351612756bfdb90993489be3ff976203f86af1227e",
       "text": "Write a crash report on any unhandled exception, then behave as before.\n\nChains rather than replaces: the previous ``sys.excepthook`` still runs, so\nthe traceback the user is used to seeing still appears, with one line after\nit saying where the bundle is.\n\n:param destination: as :func:`write_crash_report`.\n:param kwargs: passed to :func:`collect`.\n:returns: the hook that was installed, so a caller can restore\n    ``sys.excepthook`` to what it was."
+    },
+    "spacr.crashreport.install_excepthook.hook": {
+      "source_blocks_sha256": [
+        "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f"
+      ],
+      "source_sha256": "a262dbd7a4976be9ef04e4bd6955fba38116c0efad04145e6de05829dc82905f",
+      "text": "Report, then delegate to the hook that was installed before."
     },
     "spacr.crashreport.main": {
       "source_blocks_sha256": [
@@ -12620,6 +12732,55 @@
       "source_sha256": "ff0d6c64487c76e539937aa859406cb598822772bb492ea1cf492a15d091a27b",
       "text": "Return the averaged gradient map for ``target_class`` given ``input_tensor``.\n\n:param input_tensor: Input tensor to attribute (single sample or batch).\n:param target_class: Class index whose logit is differentiated.\n:returns: Tensor of the same shape as ``input_tensor`` holding\n    the averaged gradients."
     },
+    "spacr.deep_spacr._VirtualStainUNet.__init__.block": {
+      "source_blocks_sha256": [
+        "10792755223e3325f3002be2db274e460ecfcf6b09a57741523c5ca906a44fee"
+      ],
+      "source_sha256": "10792755223e3325f3002be2db274e460ecfcf6b09a57741523c5ca906a44fee",
+      "text": "Two convolution, normalisation and ReLU layers."
+    },
+    "spacr.deep_spacr._cross_validate_model._fit_one": {
+      "source_blocks_sha256": [
+        "560181fd6aae6fcc47961e80fed489ba136f4f4232eefe65558230ab524b641f"
+      ],
+      "source_sha256": "560181fd6aae6fcc47961e80fed489ba136f4f4232eefe65558230ab524b641f",
+      "text": "Train one fold model with a validation set not used for final scoring."
+    },
+    "spacr.deep_spacr._cross_validate_model._inner_loader": {
+      "source_blocks_sha256": [
+        "6900435b9bdb7ad17e0a67b0fdf5792ff134c8d0e94d345cc833f768a687cc9f"
+      ],
+      "source_sha256": "6900435b9bdb7ad17e0a67b0fdf5792ff134c8d0e94d345cc833f768a687cc9f",
+      "text": "Build one inner loader from global indexes into the base dataset."
+    },
+    "spacr.deep_spacr._cross_validate_model._metrics_for_probabilities": {
+      "source_blocks_sha256": [
+        "1f48bbfe9039ae037386cfb53d811cfd0e113cffa13f3ec2d18b89975ec34541"
+      ],
+      "source_sha256": "1f48bbfe9039ae037386cfb53d811cfd0e113cffa13f3ec2d18b89975ec34541",
+      "text": "Compute legacy fold metrics for an ensemble probability matrix."
+    },
+    "spacr.deep_spacr._flowview_pipeline.decorate": {
+      "source_blocks_sha256": [
+        "4e9d5117a4f4ea9e1d93898192050bb39347a15138afd73655aaa0d2f63b716d"
+      ],
+      "source_sha256": "4e9d5117a4f4ea9e1d93898192050bb39347a15138afd73655aaa0d2f63b716d",
+      "text": "Return a wrapper that reports ``function`` lifecycle for ``family``."
+    },
+    "spacr.deep_spacr._flowview_pipeline.decorate.observed": {
+      "source_blocks_sha256": [
+        "06ee00c263a44c319a96d2e9d1e0d7221986f4d1f6ea6125507c918c4fc36fca"
+      ],
+      "source_sha256": "06ee00c263a44c319a96d2e9d1e0d7221986f4d1f6ea6125507c918c4fc36fca",
+      "text": "Call the pipeline, preserving its result or error while tracing lifecycle."
+    },
+    "spacr.deep_spacr._vs_cellpose_segment.segment": {
+      "source_blocks_sha256": [
+        "a7c176415f446b4f3709060448f55058e1b9652c865a0da1896cb04af438c3c6"
+      ],
+      "source_sha256": "a7c176415f446b4f3709060448f55058e1b9652c865a0da1896cb04af438c3c6",
+      "text": "Segment one 0-1 plane with Cellpose."
+    },
     "spacr.deep_spacr.analyze_activation_maps": {
       "source_blocks_sha256": [
         "4045733fccb49b8d15e487096f3ae2feb01c5b7dd35653811548f13cca845297",
@@ -12651,6 +12812,15 @@
       ],
       "source_sha256": "d92e463abbad63e62aa820dcdb5df315e1d460204506a8b7a8c8f9c052de5930",
       "text": "Annotate and filter vision-model score CSVs, then optionally drop training images.\n\nFor every ``src`` CSV the plate metadata is corrected and annotated, rows\nwhose ``filter_column`` value lies between ``lower_threshold`` and\n``upper_threshold`` are dropped, and the result is written to\n``<src>_annotated_filtered.csv``. Only afterwards, and only when\n``remove_train`` is set, are rows matching a PNG under the sibling\n``datasets/training/train`` folders removed and the same CSV rewritten.\n\n:param settings: Settings dict with ``src`` (path or list of paths); the\n    ``annotate_conditions`` keys ``cells``, ``cell_loc``, ``pathogens``,\n    ``pathogen_loc``, ``treatments`` and ``treatment_loc``; the filter keys\n    ``filter_column`` (``None``, or a name absent from the frame, leaves it\n    unfiltered), ``upper_threshold`` and ``lower_threshold``; and\n    ``remove_train``.\n:returns: None"
+    },
+    "spacr.deep_spacr.annotate_filter_vision.filter_csv_by_png": {
+      "source_blocks_sha256": [
+        "cc5e7a7718ef716d6fe5789deccd3c4ac6d0b59626b32a3fca9b82d0a38b3b1f",
+        "34fd7977393039d6608a7d02294e2be9689c594fddd5790671708c263cfb32b2",
+        "1226489e2e3e7382db95a4eae18d2abcb437bc44fa0fe7c2d808b6cbc81e4a22"
+      ],
+      "source_sha256": "a50bebb6b0b79c38e63fc06f3a6664c94bb02f0fba010d9d12ef48d70e7ae4d4",
+      "text": "Return a DataFrame with rows matching any PNG in the sibling ``training/train`` folders removed.\n\n:param csv_file: Path to the score CSV.\n:returns: Filtered DataFrame."
     },
     "spacr.deep_spacr.apply_model": {
       "source_blocks_sha256": [
@@ -12885,6 +13055,13 @@
       ],
       "source_sha256": "e757c08c79d517558511c44df638a22ff0d85de5c2bd9f4874dfe530880286fb",
       "text": "Fuse the weights of several identically-shaped model checkpoints into one.\n\n:param model_paths: Paths to source checkpoints (dicts or ``TorchModel`` objects).\n:param save_path: Base output path; suffix ``_<aggregator>.pth`` is\n    appended.\n:param device: Torch device string. Default ``'cpu'``.\n:param model_name: TorchModel architecture name for the fused model.\n:param pretrained: Whether pretrained weights are expected.\n:param dropout_rate: Optional dropout rate.\n:param use_checkpoint: Whether to enable gradient checkpointing.\n:param aggregator: Reduction over stacked weights — one of\n    ``'mean'``, ``'geomean'``, ``'median'``, ``'sum'``, ``'max'``,\n    ``'min'``. Default ``'mean'``.\n:returns: The fused ``TorchModel``.\n:raises ValueError: on unsupported ``aggregator``, mismatched state\n    dict keys, or unsupported checkpoint types."
+    },
+    "spacr.deep_spacr.model_fusion.combine_tensors": {
+      "source_blocks_sha256": [
+        "96a1157d50e749bc4924cb4d64f9bc4a664fbc195add8f572109e236167256b6"
+      ],
+      "source_sha256": "96a1157d50e749bc4924cb4d64f9bc4a664fbc195add8f572109e236167256b6",
+      "text": "Given a list of Tensors, combine them using the chosen aggregator."
     },
     "spacr.deep_spacr.model_knowledge_transfer": {
       "source_blocks_sha256": [
@@ -34829,6 +35006,55 @@
       "source_sha256": "365179ad7522b2bb25689649bea138c952367f491a81b0edd7fedfa812c44b7b",
       "text": "Return the raw Cartesian-product size before filtering."
     },
+    "spacr.parameter_sweep._default_filters.aggregation_belongs_to_wells": {
+      "source_blocks_sha256": [
+        "3aa272bdb12b36a71d0f6301afa7eae053890c83643b136fae6ea4dbef498630"
+      ],
+      "source_sha256": "3aa272bdb12b36a71d0f6301afa7eae053890c83643b136fae6ea4dbef498630",
+      "text": "Reject aggregation variants that a per-cell analysis ignores."
+    },
+    "spacr.parameter_sweep._default_filters.mixed_replaces_the_backend": {
+      "source_blocks_sha256": [
+        "e3905dd50d29099e8944169cb956fc4c90d564d640b4dfcc6d04a7a3ecb1af41"
+      ],
+      "source_sha256": "e3905dd50d29099e8944169cb956fc4c90d564d640b4dfcc6d04a7a3ecb1af41",
+      "text": "Reject random row/column effects beside a non-mixed backend."
+    },
+    "spacr.parameter_sweep._default_filters.penalty_belongs_to_penalised_families": {
+      "source_blocks_sha256": [
+        "a01a34fb4bbabf7c08f3e492a3296370582886743c6b8e38edb93b4606bbeee3"
+      ],
+      "source_sha256": "a01a34fb4bbabf7c08f3e492a3296370582886743c6b8e38edb93b4606bbeee3",
+      "text": "Reject non-default alpha values for families that never read them."
+    },
+    "spacr.parameter_sweep._default_filters.permutation_at_cell_level_exhausts_memory": {
+      "source_blocks_sha256": [
+        "76488082983a9587da573034b2df397bf44e243cdf03fcea47e0357afc1f8b97"
+      ],
+      "source_sha256": "76488082983a9587da573034b2df397bf44e243cdf03fcea47e0357afc1f8b97",
+      "text": "Reject the per-cell permutation fit measured to require 57 GiB."
+    },
+    "spacr.parameter_sweep._default_filters.permutation_has_no_row_column_terms": {
+      "source_blocks_sha256": [
+        "baf1a04d14a3e3993f3cf504b6fad4e994e4093e8bf94d4eff159eaa429de530"
+      ],
+      "source_sha256": "baf1a04d14a3e3993f3cf504b6fad4e994e4093e8bf94d4eff159eaa429de530",
+      "text": "Reject row/column effects that the plate-blocked permutation omits."
+    },
+    "spacr.parameter_sweep._default_filters.permutation_ignores_the_family": {
+      "source_blocks_sha256": [
+        "fcdb7c266926a6d50c2df3ff985781087a5b51912a51cd4a15343c2a7385d583"
+      ],
+      "source_sha256": "fcdb7c266926a6d50c2df3ff985781087a5b51912a51cd4a15343c2a7385d583",
+      "text": "Reject backend variants unused by nonparametric inference."
+    },
+    "spacr.parameter_sweep._default_filters.quantile_needs_its_own_unit": {
+      "source_blocks_sha256": [
+        "3bf074c06d58235dabfd77383a4de4e1777a47dd3ca2e5098bceb6277ac56589"
+      ],
+      "source_sha256": "3bf074c06d58235dabfd77383a4de4e1777a47dd3ca2e5098bceb6277ac56589",
+      "text": "Reject well-level quantile fits, which require per-object rows."
+    },
     "spacr.parameter_sweep.be_polite": {
       "source_blocks_sha256": [
         "eaf6667145e67aa7b99ecd1e046d868e7a3f41b581d629b24d86db2567ce21bf",
@@ -34851,6 +35077,13 @@
       ],
       "source_sha256": "7c3aa1beaf7d114b3ee7536d2e755081620d9f558baba89b926b240912583274",
       "text": "Enumerate accepted trials from a sweep space.\n\nParameters\n----------\nspace : SweepSpace\n    Variable axes, fixed settings, and optional rejection predicates.\nmode : {'grid', 'random'}, default='grid'\n    ``'grid'`` visits the Cartesian product in axis order. ``'random'``\n    shuffles that product without replacement before applying the limit.\nmax_trials : int, default=5000\n    Maximum number of accepted trials to return. Rejected combinations do\n    not count toward this limit.\nseed : int, default=0\n    Seed used to shuffle combinations in ``'random'`` mode. It has no\n    effect in ``'grid'`` mode.\n\nReturns\n-------\nlist of dict\n    Complete setting dictionaries with one-based ``trial_id`` values.\n    Fixed settings are present when filters are evaluated.\n\nRaises\n------\nValueError\n    If ``mode`` is not ``'grid'`` or ``'random'``.\n\nNotes\n-----\nRandom mode materializes the full Cartesian product before shuffling it.\nUse narrower axes when the unfiltered product is very large."
+    },
+    "spacr.parameter_sweep.build_trials.accept": {
+      "source_blocks_sha256": [
+        "9e9a502730723e8d9a1085cda19d9176d3ccb73a108d11619c3148c50705c6ca"
+      ],
+      "source_sha256": "9e9a502730723e8d9a1085cda19d9176d3ccb73a108d11619c3148c50705c6ca",
+      "text": "Return the first filter's rejection reason, or ``None``."
     },
     "spacr.parameter_sweep.containment_available": {
       "source_blocks_sha256": [
@@ -34957,6 +35190,14 @@
       ],
       "source_sha256": "63d1ccf466b8b5f3d0687fff3e9b26a8dc91c2c045af184a148f923e9cf00c21",
       "text": "Run parameter-sweep trials concurrently in spawned processes.\n\nParameters\n----------\nbase_settings : mapping\n    Regression settings shared by every trial, including the score and\n    count inputs.\ndestination : path-like\n    Directory for trial folders, ``sweep_trials.json``, and the incremental\n    ``sweep_results.csv`` table.\nspace : SweepSpace or None, optional\n    Search space. ``None`` uses :data:`DEFAULT_SWEEP_SPACE` and the built-in\n    compatibility filters.\nmode : {'grid', 'random'}, default='random'\n    Trial enumeration order passed to :func:`build_trials`.\nmax_trials : int, default=1000\n    Maximum number of accepted trials.\nseed : int, default=0\n    Random-order seed used when ``mode='random'``.\ncontrols : mapping or None, optional\n    Mapping from control aliases to identifiers. Control recovery metrics\n    are added to each result row.\nn_jobs : int, default=8\n    Requested pool size. :func:`recommended_workers` may reduce it based\n    on memory and CPU capacity.\ncontained : bool, default=True\n    Run each fit in a separate child through\n    :func:`run_trial_contained`. Hard memory, swap, task, and CPU limits\n    are enforced only when a usable systemd user scope is available;\n    otherwise the child is uncapped but uses reduced priority and thread\n    limits. Set to ``False`` only when trial resource use is known.\nqc : bool, default=False\n    Generate the full regression diagnostic figure suite for every trial.\nprogress_every : int, default=25\n    Print progress after this many completed trials. Use zero to disable\n    periodic progress messages.\n\nReturns\n-------\npandas.DataFrame\n    One status row per trial, sorted by ``trial_id``. The same rows are\n    written incrementally to ``sweep_results.csv``.\n\nRaises\n------\nRuntimeError\n    If called from a worker process. Scripts must call this function under\n    an ``if __name__ == '__main__':`` guard.\n\nNotes\n-----\nThe pool uses the ``spawn`` start method because fitted models may import\ntorch and OpenMP runtimes. Only a bounded number of jobs are submitted at\nonce, allowing new submissions to pause when available memory is low."
+    },
+    "spacr.parameter_sweep.run_sweep_parallel._fill": {
+      "source_blocks_sha256": [
+        "815c249a161ae076bdd24b4ddf5b2b59a2d8a8f18cd2530a00b8f56dc0ba3f10",
+        "6ba65128d0eca759f0934df95a9d05a91b874ec32d547406f0012b5d4f908a2e"
+      ],
+      "source_sha256": "0b7aafea9c6809e29280f89e3570199d61b0f03bdeb25f660d98299659e426f4",
+      "text": "Top the pool up, but never past what memory currently allows.\n\nSubmitting all 5,000 futures at once means the pool decides when\nto start each trial and nothing can intervene. Keeping only\nn_jobs in flight is what lets the memory floor below actually\nstop the sweep growing while the user's editor is running."
     },
     "spacr.parameter_sweep.run_trial_contained": {
       "source_blocks_sha256": [
@@ -42700,6 +42941,54 @@
       "source_sha256": "0c9a665280f34a574413d4276f3512d510abc2526aa37eec5b56ef4c376dca69",
       "text": "Invoked by QThread.started; runs the pipeline function to completion."
     },
+    "spacr.qt.bridge.PipelineWorker.run._already_emitted": {
+      "source_blocks_sha256": [
+        "28f40aafe5ead9615f17914c5651526d9047f209c242e5a4ce41b318e97f00e2",
+        "3b78bd37977833221f8cf449a7fc14c2115ce74218e256c57e9aecb939609a03"
+      ],
+      "source_sha256": "54007b08383a51dbd0c51d234d965b8ee151abd1e71bc4cdeab95fe982a5f82d",
+      "text": "Return whether this figure was emitted during this run.\n\nBoth the object identity recorded for the run and the figure\nmarker must match. Requiring both avoids false matches when\nPython reuses an object ID or a figure persists across runs."
+    },
+    "spacr.qt.bridge.PipelineWorker.run._capture_show": {
+      "source_blocks_sha256": [
+        "c5f43d96b76ccc9dd909afd260b40a1f1a4aaf4cf6d84b4829e4b55cb0b6c330",
+        "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
+        "43cb2b34f08fa40dfdbc787c0d514f1d36395405126e60005213939290aeed95"
+      ],
+      "source_sha256": "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4",
+      "text": "Emit each new figure once, rendering it HERE on the worker thread.\n\nAgg's savefig touches no Qt, so the expensive part happens off the GUI\nthread and the GUI only does a file move and a pixmap load -- which is\nwhat stops it hanging while figures stream in.\n\nFigures marked ``_spacr_live_update`` are re-emitted in place instead,\nwhich is how the training monitor refreshes without filling the gallery\nwith one snapshot per epoch."
+    },
+    "spacr.qt.bridge.PipelineWorker.run._forward_output": {
+      "source_blocks_sha256": [
+        "8585e0b88f48332e8a0121c6e8a632891b9fad1b974196098b225704f1de08e2"
+      ],
+      "source_sha256": "8585e0b88f48332e8a0121c6e8a632891b9fad1b974196098b225704f1de08e2",
+      "text": "Emit worker text and retain warning lines in its manifest."
+    },
+    "spacr.qt.bridge.PipelineWorker.run._mark_emitted": {
+      "source_blocks_sha256": [
+        "d39e83df7c82b8050e56c0fda7500f3e2e5e75f8bdfb73241082a50841317cc5",
+        "ad96cb94f2b0c7c8559442e2e45857a55fce482891cf45705678981ed24de14f"
+      ],
+      "source_sha256": "471238a37b65a5f166f8b42b5ac9b5c1ca235c02b529eccb9b59231233b2e5e1",
+      "text": "Record that a figure has been emitted, by id and on the figure.\n\nThe attribute is the cross-route half of the guard and a figure that\nrefuses one still gets its tile -- it just loses that half."
+    },
+    "spacr.qt.bridge.PipelineWorker.run._publish_figure": {
+      "source_blocks_sha256": [
+        "953ab74e488b44399e9252d21f82677458decbea7335b6cf2c2b58f793050d52",
+        "24aec7acecfaee953fbed3eefa5a8df5d8a22abd9a69992b2c71d8915177d321"
+      ],
+      "source_sha256": "0bfa49630e7a174a2db1f81b16199f7fa55b065cf6a8e42b0bf80e881439e45c",
+      "text": "Publish one figure, unless it has already been shown.\n\nA picture that was saved and then plotted is ONE picture: without this\nthe gallery held two tiles for one file, which `generate_ml_scores`\nproduces as an ordinary sequence."
+    },
+    "spacr.qt.bridge.PipelineWorker.run._registered_figures": {
+      "source_blocks_sha256": [
+        "daa53f26854879ba31358aa9a896a771c02934ad1f7038ff4172868656ffc5e2",
+        "ad27c9b5a5784ed25f0dd7372efd53e48dea86afc1fb80c9a85131f3ff6477a0"
+      ],
+      "source_sha256": "7ac9f4bde995823c4c1b053279b1d0883438222c30819237ff497b9044376bb8",
+      "text": "Yield existing pyplot figures without creating one.\n\n``pyplot.figure(number)`` is both a lookup and a constructor.\nThe numbers below come from pyplot's process-wide registry,\nbut another thread can close one between the two calls.  Read\nits manager directly so capture never recreates a figure and\naccidentally assigns it to this run."
+    },
     "spacr.qt.bridge.PipelineWorker.supports_pause": {
       "source_blocks_sha256": [
         "f9c2cc31070fb4b888c0c39dddd563f30a92c1bb3d18d060071ab8aeee5de7a4",
@@ -42842,6 +43131,13 @@
       "source_sha256": "8b7eaaae3fc520657fa9ca40814299230b22f609c7e870679ae204362a8cb82c",
       "text": "Stop tracking a run and hand ownership back to Python.\n\n:param handle: the run to drop."
     },
+    "spacr.qt.bridge._say_what_is_wrong_with_the_settings.run": {
+      "source_blocks_sha256": [
+        "6f2117bb9b30d9e38c2dbc3e80da85b90fa88441be3318e1397bf26ff1cbd8e2"
+      ],
+      "source_sha256": "6f2117bb9b30d9e38c2dbc3e80da85b90fa88441be3318e1397bf26ff1cbd8e2",
+      "text": "Run the entry point, turning a settings problem into a message."
+    },
     "spacr.qt.bridge.apply_worker_budget": {
       "source_blocks_sha256": [
         "ce0199deae2a32985fb6ab298e8da290fdfb3826cfcc241659802e26599a7e28",
@@ -42968,6 +43264,13 @@
       ],
       "source_sha256": "685bc732283ce5c8468607c8e36d7a049518673f108f0962da02498bd35c5efe",
       "text": "Return the pipeline function that runs a given app, or None if the\napp is interactive-only (annotate / make_masks) or unknown.\n\nEach returned entry point is wrapped with\n:func:`spacr.qt.verbose_logger.log_call` so that when the user has\n\"Verbose logging\" enabled, every pipeline invocation emits an\nentry-and-return trace in the console. Zero cost when verbose is\noff (the wrapper is a single attribute check).\n\nThe result is also stamped with the app key (:func:`_tag`) so the\nrun registry can say *which module* is running. Note that none of\nthese are stamped :func:`pausable` — see :class:`PauseGate`.\n\n:param app_key: the app key, e.g. ``'mask'`` or ``'measure'``; keys outside\n    the built-in chain fall back to the ``entry=`` an app registered, then\n    to a plugin app of that key."
+    },
+    "spacr.qt.bridge.resolve_pipeline_entry._ret": {
+      "source_blocks_sha256": [
+        "17d29713da065e594a9e231eab8585cf2bfe65bb2b1e23e28239a9b807c05c71"
+      ],
+      "source_sha256": "17d29713da065e594a9e231eab8585cf2bfe65bb2b1e23e28239a9b807c05c71",
+      "text": "Tag the entry point with its app key and its settings check."
     },
     "spacr.qt.bridge.thread_has_stopped": {
       "source_blocks_sha256": [
@@ -46159,6 +46462,35 @@
       "source_sha256": "3be884f2b76f8ec53292dcad70902cbfd24303a7fcc1a43fa947bb5fcad42997",
       "text": "Say that runs live in a folder, not in a file.\n\n:param path: the dropped file or folder.\n:returns: the sentence shown when the drop is refused."
     },
+    "spacr.qt.dnd_handlers._decide.run": {
+      "source_blocks_sha256": [
+        "96b3b3f980ad69e414b857a7290502c0728b27177f9a52670a92d5d45e24b798",
+        "f73778a409bcd465124d23694ad8dcd6e463d06d01b56efd8cc59ed4789e2134"
+      ],
+      "source_sha256": "feef136e6c42926ad6df4eedce390bd8b06524cabf34e0db6442399ac4533008",
+      "text": "Ask ``work`` on a throwaway thread and cache what it answers.\n\nOutlives the wait below whenever the share is asleep, which is why\n:func:`_remember` refuses an answer older than the one it holds."
+    },
+    "spacr.qt.dnd_handlers._open_metadata_table._on_apply": {
+      "source_blocks_sha256": [
+        "cb28124979dfe440461b095a9035f704246e107385f900042dc20d22584f3a58"
+      ],
+      "source_sha256": "cb28124979dfe440461b095a9035f704246e107385f900042dc20d22584f3a58",
+      "text": "Note where the metadata map was written."
+    },
+    "spacr.qt.dnd_handlers._scan_then.guarded": {
+      "source_blocks_sha256": [
+        "959ae13d612e6df578db78e74786f7d3ef7d16b5ee65d55e078f8412403fefe4"
+      ],
+      "source_sha256": "959ae13d612e6df578db78e74786f7d3ef7d16b5ee65d55e078f8412403fefe4",
+      "text": "Run ``fn`` on the worker, carrying a failure back as data."
+    },
+    "spacr.qt.dnd_handlers._scan_then.landed": {
+      "source_blocks_sha256": [
+        "e243499a3f79e281e6dc1a54990d24760439fc0b8c551f880c1c4cd44271e8b1"
+      ],
+      "source_sha256": "e243499a3f79e281e6dc1a54990d24760439fc0b8c551f880c1c4cd44271e8b1",
+      "text": "Route one finished scan to ``on_done`` or ``on_error``."
+    },
     "spacr.qt.dnd_handlers.active_scan_jobs": {
       "source_blocks_sha256": [
         "6fa2be0eaa5efec83e92fe1ced904b26b9e9b674f20ce582de5dae21a3046e62",
@@ -46494,6 +46826,56 @@
       ],
       "source_sha256": "41945469c122c0b98e091a538cd151988680169c24b1a1a73b01fd8d7a538c2c",
       "text": "Keep the Qt interface responsive during Python-bound background work.\n\nPython code that does not release the global interpreter lock can delay the\nGUI thread. :func:`claim` temporarily lowers the interpreter thread-switch\ninterval to :data:`BUSY_INTERVAL`; :func:`release` restores the previous value\nafter the last active worker finishes. Prefer the balanced\n:func:`responsive_gui` context manager for pipeline work.\n\nThe setting is process-wide, so it is applied only while a Qt worker is\nactive. Importing this module does not change the switch interval and headless\nruns incur no cost.\n\nNotes\n-----\nA shorter interval creates more context switches and can make pure-Python\nworkers marginally slower. NumPy and similar compiled operations generally\nrelease the interpreter lock and are less affected."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.__init__": {
+      "source_blocks_sha256": [
+        "cd2dc0b27463c0f11bc8fa7f7d5fcee6aea3a40bf0db0ded5879dfe7d74f908e"
+      ],
+      "source_sha256": "cd2dc0b27463c0f11bc8fa7f7d5fcee6aea3a40bf0db0ded5879dfe7d74f908e",
+      "text": "Start with no watchers."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub._forget_the_dead": {
+      "source_blocks_sha256": [
+        "4310aa0685e3c0c6c34925b4c38a64369fec530d73963af1f75d7d79a7bd2b91",
+        "dbcc594fc4eb3ebe2a57d6df0c2c5811cdbb8b35725bfc970eb144f3b62c1f92"
+      ],
+      "source_sha256": "9aa34e48d3932a11fdfdef296a65d0e9c930e306f648e41207405d40d36329d3",
+      "text": "Drop every watcher whose object is gone.\n\nA watcher Qt held directly came off the application when its\nobject was destroyed; behind the hub it would stay in the chain,\nskipped but still looked at on every event of its kinds -- one\nper module screen ever built, for the life of the process."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub._rebuild": {
+      "source_blocks_sha256": [
+        "d56c1937a1a023d5132c6ceb12806cd90db41d74d8c021e5926751a787844ac2"
+      ],
+      "source_sha256": "d56c1937a1a023d5132c6ceb12806cd90db41d74d8c021e5926751a787844ac2",
+      "text": "Index the live watchers by event type, newest first."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.add": {
+      "source_blocks_sha256": [
+        "f8b5a8804eb31fa41e1b9da7ee2b0ee117ca3fdc46c657507fae61de3211a469"
+      ],
+      "source_sha256": "f8b5a8804eb31fa41e1b9da7ee2b0ee117ca3fdc46c657507fae61de3211a469",
+      "text": "Ask ``watcher`` first about every event of ``kinds``."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.discard": {
+      "source_blocks_sha256": [
+        "b23c8b7c661f31ecf644a12848c412a0d5fd91bbe578cba4f35a98c8d4fcb781"
+      ],
+      "source_sha256": "b23c8b7c661f31ecf644a12848c412a0d5fd91bbe578cba4f35a98c8d4fcb781",
+      "text": "Stop asking ``watcher``; ``True`` when it was being asked."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.eventFilter": {
+      "source_blocks_sha256": [
+        "17e20feac781b29a22547bae33516bd3f480ba82f2305426075b3f312575cdb7"
+      ],
+      "source_sha256": "17e20feac781b29a22547bae33516bd3f480ba82f2305426075b3f312575cdb7",
+      "text": "Hand ``event`` to the watchers that asked for its type."
+    },
+    "spacr.qt.gil_priority._application_event_hub_class._ApplicationEventHub.watchers": {
+      "source_blocks_sha256": [
+        "46ff79ac36f68f9ac3433ccf5b2602be23f287d43697b0d87086d823cc21a194"
+      ],
+      "source_sha256": "46ff79ac36f68f9ac3433ccf5b2602be23f287d43697b0d87086d823cc21a194",
+      "text": "The live watchers, in the order they are asked."
     },
     "spacr.qt.gil_priority.active": {
       "source_blocks_sha256": [
@@ -59004,6 +59386,50 @@
       "source_sha256": "96542cd0bc5a012f28bb433a1d052e865a9885442a05f4f3fd08066529c589a7",
       "text": "Pick a crop source and a channel policy, and embed every object.\n\nThe crop loader above the encoder controls is the screen's entry point:\n:mod:`spacr.crop_loader` plans the selection, this screen pages through\nit on a worker thread, and :meth:`set_crops` -- which used to be\nreachable only from Python -- is what each finished load calls.\n\n:param parent: the usual Qt parent.\n:param threaded: ``False`` runs the embedding and the crop load inline,\n    emitting the same signals in the same order, so a test drives the\n    screen synchronously without the behaviour diverging.\nBuild the screen: the controls above, the preview table below."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._learn_from_well_labels.work": {
+      "source_blocks_sha256": [
+        "8adc198a24ac4d529d8b33ccd14aab32b2317d8ba444c7d6e429bffe08a52b73"
+      ],
+      "source_sha256": "8adc198a24ac4d529d8b33ccd14aab32b2317d8ba444c7d6e429bffe08a52b73",
+      "text": "Score and fit off the GUI thread."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._on_planned.work": {
+      "source_blocks_sha256": [
+        "879b02ad919dc72ade43e3b97a523412a8c05efe4c439e79314dd7714a86717c",
+        "e9393c89ab6f4647ab38e4cb68a494579900c982e3d23b0bfdbd146c83061a76"
+      ],
+      "source_sha256": "0615d08c4ae670b2f273364bb116726caf2607921167711964a18835d3ad87b3",
+      "text": "Read the pages on a worker thread.\n\n``emit`` is a bound signal and the only thing here that reaches\nthe GUI: Qt queues it onto the receiving thread, so the progress\nline moves without this function ever touching a widget."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._pretrain_dino.work": {
+      "source_blocks_sha256": [
+        "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa"
+      ],
+      "source_sha256": "d3a72f1666f43661844dbe53ad6718a27977337fa5df81afdd8ffe4b7f21f6aa",
+      "text": "Train off the GUI thread."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._read_database_choices.done": {
+      "source_blocks_sha256": [
+        "7f30733e00140e017317b9a6a8afdee8807d92339ce7db6b3be1e6deb4fbb12b"
+      ],
+      "source_sha256": "7f30733e00140e017317b9a6a8afdee8807d92339ce7db6b3be1e6deb4fbb12b",
+      "text": "Put the answer in the two combos."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._read_database_choices.work": {
+      "source_blocks_sha256": [
+        "ef54a96509237954a086aef555dd5f344751d6b9a8e1bf1f608a947a594c55d6",
+        "1e021fa46c4f049c96d82956bb5b320537598c0bb15f464c019fda08c1404e6b"
+      ],
+      "source_sha256": "7e58ecbd26981620a1bb87e69dd27f8ed8812d38eeb99a7765ce59e1a3950243",
+      "text": "Ask the database what it holds. Two cheap indexed reads.\n\nTHE STAT IS HERE, on the worker, because it is the part that\nblocks on a slow mount. A path that is not a file yet is not an\nerror -- it is one somebody is halfway through typing -- so it\nanswers with nothing to offer rather than raising, which would\nput a refusal in the status line for every keystroke."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen._use_embeddings.work": {
+      "source_blocks_sha256": [
+        "1fb09d2f06e98495b37f35ea3811abc257e9fbb2b0592ef1149fd90f64d61f51"
+      ],
+      "source_sha256": "1fb09d2f06e98495b37f35ea3811abc257e9fbb2b0592ef1149fd90f64d61f51",
+      "text": "Map or classify off the GUI thread."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.choose_path": {
       "source_blocks_sha256": [
         "9bd756d49b15faff091b49694c959fe512f647a5e1d51782e4f8c9cf2891524f",
@@ -59050,6 +59476,14 @@
       "source_sha256": "a0e312a61dff616127476251124b3917ef1f591679c8922809c3a4a40c41a3df",
       "text": "Runs the encoder in the background and shows the result."
     },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.embed.work": {
+      "source_blocks_sha256": [
+        "ff21c9a8a81a0a776fd379f39f76add0c87e14b6235670b44a8f1e0e0f8955ef",
+        "63c5c48c4a54e6f9ddd2686813178d16f0cedabd13c907ce130c6d995101573f"
+      ],
+      "source_sha256": "838e783293e71bdb83427054589506ba20465bdc43d6595dfcffcac496e0b1c5",
+      "text": "Run the backbone off the GUI thread.\n\nThe import is inside because it pulls torch in: a user who never\nopens this screen should not pay for it, and a user who does\nshould pay for it once, here, rather than at launch."
+    },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy": {
       "source_blocks_sha256": [
         "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316",
@@ -59072,6 +59506,13 @@
       ],
       "source_sha256": "0f872e5616056ef47b1062b505e7a185097b6fac818312527408b908849c1575",
       "text": "Plan the selection, then read it a page at a time.\n\nTWO JOBS, NOT ONE, and the split is the point: planning is a count\nand a select, so it comes back in milliseconds and the screen can\nsay what was matched -- or why nothing was -- before committing to\nread a single pixel. Only then does the second job start, and it\nreports after every page."
+    },
+    "spacr.qt.screens.embeddings.EmbeddingsScreen.load_crops.work": {
+      "source_blocks_sha256": [
+        "ed02e28555a8b5880d1a9d05324992cb771c5bbb3432469f49f0b247e503a008"
+      ],
+      "source_sha256": "ed02e28555a8b5880d1a9d05324992cb771c5bbb3432469f49f0b247e503a008",
+      "text": "Ask what matches. No pixels are read here."
     },
     "spacr.qt.screens.embeddings.EmbeddingsScreen.set_crops": {
       "source_blocks_sha256": [
@@ -66460,6 +66901,27 @@
       "source_sha256": "69d30624c01b709e3b52c27cf1ff7ccf6ddb694004106bc7226724232a99fe07",
       "text": "Container for the Qt widgets bound to a settings dict.\n\nInstantiate with an `app_key`; call `.build_sections()` to get a list\nof (section_title, list_of_(label, widget)) tuples to feed into the\nSection widgets on a screen. `.collect()` returns the current settings\ndict after user edits.\nLoad the app's defaults and prepare its empty widget map.\n\n:param app_key: id of the app whose settings are being edited.\n:param parent: optional Qt parent for created widgets.\n:param skip_keys: settings to build NO widget for.\n\n    For a FOLD, which mounts one module's extra settings onto\n    another's panel. The timelapse fold on the mask screen built all\n    364 of timelapse's settings -- 1,552 widgets, 1,148 ms -- and\n    kept the 14 that mask does not already have, discarding the rest\n    because the host already owns them. Naming them here skips them\n    instead, which is the same result for 4% of the work.\n:param current: optional mapping from the form being rebuilt. Recognized\n    settings replace the app defaults; its organelle count, slot, and\n    object-channel values determine which controls the replacement\n    form builds."
     },
+    "spacr.qt.screens.settings_model.SettingsWidgets._hide_the_headings_of_slots_the_run_lacks.absent": {
+      "source_blocks_sha256": [
+        "c829bd1bffcd1acc4a729dc4e679a5e4aaadf92f449daef63c5e3de1ae06bf43"
+      ],
+      "source_sha256": "c829bd1bffcd1acc4a729dc4e679a5e4aaadf92f449daef63c5e3de1ae06bf43",
+      "text": "Whether the run has no ``role`` at all."
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets._refresh_mask_gpu_enablement.refresh": {
+      "source_blocks_sha256": [
+        "adf23a4ee7923faf38b96fa0e2d0397d5c94ddd47a0c9601d85fd5381b94f548"
+      ],
+      "source_sha256": "adf23a4ee7923faf38b96fa0e2d0397d5c94ddd47a0c9601d85fd5381b94f548",
+      "text": "Refresh surviving controls without extending the panel lifetime."
+    },
+    "spacr.qt.screens.settings_model.SettingsWidgets._route_control.class_editor": {
+      "source_blocks_sha256": [
+        "7deb8af10243e9f8204273e7dbc1d76779a7900bbd236020f1f4cfd74d21d066"
+      ],
+      "source_sha256": "7deb8af10243e9f8204273e7dbc1d76779a7900bbd236020f1f4cfd74d21d066",
+      "text": "The class editor, told which frame it is previewing."
+    },
     "spacr.qt.screens.settings_model.SettingsWidgets.apply_organelle_presets_from_mapping": {
       "source_blocks_sha256": [
         "2b54cdd4ebbfc50b8c81d29bf51f561e731f28573c27e8e6b6411ff3bec101dd",
@@ -66658,6 +67120,28 @@
       ],
       "source_sha256": "1ea2ede9949c119f21a4fc376b3f3645598978f3d11df43f5b8e0f50a971af01",
       "text": "Return the HTML-formatted tooltip for a given setting key.\n\n:param key: setting key whose description is looked up; an unknown key\n    gets the generic fallback text."
+    },
+    "spacr.qt.screens.settings_model._CloudBrowserDialog.open_address.work": {
+      "source_blocks_sha256": [
+        "7062991664a9649d2f7b83476c4551e0b984935b52b2599403ca74af1872f063"
+      ],
+      "source_sha256": "7062991664a9649d2f7b83476c4551e0b984935b52b2599403ca74af1872f063",
+      "text": "Read the listing and the description, never raising."
+    },
+    "spacr.qt.screens.settings_model._TrainingFolderEdit.__init__.browse": {
+      "source_blocks_sha256": [
+        "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b"
+      ],
+      "source_sha256": "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b",
+      "text": "Set a chosen directory; cancelling leaves the existing setting intact."
+    },
+    "spacr.qt.screens.settings_model._sibling_label_for._named": {
+      "source_blocks_sha256": [
+        "f9c4484ca192a6f59c2e7ee25f43fe90f82c58c8a6ac9af9b75bc75b9c4fea28",
+        "dc9eac15866088c44ec6c3889e401f7c2c201c7d401209dd4e3029bda518a286"
+      ],
+      "source_sha256": "2840b98e630bfe2e62f2badb05c28d6180218c5df248af44185c30d9eed7e30b",
+      "text": "The real label inside a row, unwrapping a host if there is one.\n\n`Section.add_row` wraps the caption in a `SettingLabelWithInfo` whenever\nthe row is right-aligned against its field -- the form's normal shape --\nso the layout hands back a plain QWidget and a bare isinstance rejects\nit. Measured on Mask: 1,541 of 1,657 rows kept their help on the FIELD\nfor this reason alone, and only 13 labels had it."
     },
     "spacr.qt.screens.settings_model.api_docs_url": {
       "source_blocks_sha256": [
@@ -66986,6 +67470,13 @@
       "source_sha256": "9562503ebb4fcf8f9db61a3a38c28afbad5337f00fb63510b50b8b35a808f212",
       "text": "Describe the regression formula selected in the settings panel.\n\nParameters\n----------\nregression_type : Any\n    Requested regression backend, such as ``\"ols\"`` or ``\"mixed\"``.\nlevel : Any, default=\"both\"\n    Coefficient level to describe: ``\"grna\"``, ``\"gene\"``, or ``\"both\"``.\nplate_position : Any, default=False\n    Whether the formula includes row and column position terms.\nrandom_row_column : Any, default=False\n    Whether row and column terms are variance components instead of fixed\n    effects.\nlanguage : str or None, default=None\n    UI language code. ``None`` uses the active language. Only exact,\n    source-current paragraph translations are used.\ninference : Any, default='auto'\n    Selected inference mode.\nanalysis_mode : Any, default=''\n    Compatibility value used to identify permutation inference.\n\nReturns\n-------\nstr\n    Plain text containing the selected model, fitted formula, output, and\n    interpretation notes. Unknown backends receive an explicit warning.\n\nNotes\n-----\nGuide and gene effects are described as separate fits. The retired design,\n``y ~ fraction:grna + gene_fraction:gene + rowID + columnID``, contains\nboth guide fractions and their gene-level sums. It is rank deficient, so\nits individual coefficients are not uniquely interpretable.\n:data:`COLLINEAR_FORMULA` stores the formula used by the compatibility\nchecks."
     },
+    "spacr.qt.screens.settings_model.regression_model_explainer.tx": {
+      "source_blocks_sha256": [
+        "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782"
+      ],
+      "source_sha256": "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782",
+      "text": "Translate one source string into the explainer's language."
+    },
     "spacr.qt.screens.settings_model.regression_model_explainer_html": {
       "source_blocks_sha256": [
         "73e00e45270c47d70b1508892b6488bd5a489e4126b635e1eb77e19a1d1f60e1",
@@ -66996,6 +67487,13 @@
       ],
       "source_sha256": "1bed29ecfe0c0c899c04ca8744409ec1660b1140c1cc1b940ebea0522cab228f",
       "text": "Render localized model or inference guidance as HTML.\n\nParameters\n----------\nregression_type : Any\n    Selected regression backend.\nlevel : Any, default='both'\n    Coefficient level: guide, gene, or both.\nplate_position : Any, default=False\n    Include fixed plate-position terms when true.\nrandom_row_column : Any, default=False\n    Use row and column variance components when true.\npalette : dict, optional\n    Resolved theme palette. The active semantic color names are used when\n    omitted.\nlanguage : str, optional\n    UI language. Missing or stale translations fall back by whole sentence.\ninference : Any, default='auto'\n    Selected inference mode.\nanalysis_mode : Any, default=''\n    Compatibility value used to identify permutation inference.\n\nReturns\n-------\nstr\n    Rich text describing the run that the current settings will execute."
+    },
+    "spacr.qt.screens.settings_model.regression_model_explainer_html.tx": {
+      "source_blocks_sha256": [
+        "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782"
+      ],
+      "source_sha256": "09af30f8aa91ecf6bee77b462ef92b5340cde288c51196d6db03402e05b49782",
+      "text": "Translate one source string into the explainer's language."
     },
     "spacr.qt.screens.settings_model.resolve_default_settings": {
       "source_blocks_sha256": [
@@ -86483,6 +86981,43 @@
       "source_sha256": "514f68f316dcaed861542ecfe4dacac7814765f428a838aa4665b0582f0b756e",
       "text": "A :class:`GraphCanvas` you can draw gates on.\n\nAdds interactive gate drawing, dragging and hit-testing to the shared\ncanvas, and pins the axes while a gate exists -- see\n:data:`RESCALE_ON_FILTER` for why that is not optional here.\n\nEmits :attr:`gate_drawn` with a finished\n:class:`~spacr.qt.widgets.gate_spec.Gate` that has **no name yet** --\nnaming is the host's job, because a gate is not a gate until it is named\nand a dialog does not belong in a canvas.\n\n:param parent: parent widget.\n:param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this\n    view joins, so selecting here selects in every other view on it.\n    ``None`` joins the shared one; pass a private one in a test so the\n    selection does not reach the rest of the application.\n:param source: this view's name on that link, stamped onto everything it\n    publishes -- which is how a view knows not to answer its own\n    selection.\nBuild a gating canvas over one graph spec.\n\n:param parent: parent widget.\n:param link: the shared selection to join, if any.\n:param source: the table being gated."
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas._apply_spin_speed.scaled": {
+      "source_blocks_sha256": [
+        "a68f9137a7e51e627ad3e536d9bb5cf2bc11192f001bd55b080f27f9c1d9905f"
+      ],
+      "source_sha256": "a68f9137a7e51e627ad3e536d9bb5cf2bc11192f001bd55b080f27f9c1d9905f",
+      "text": "Scale one wheel step by the spin box's own speed setting."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._draw_box.bound": {
+      "source_blocks_sha256": [
+        "e49fba475d833b9be54945b9eaa4b76233eb89b49aeeee332ffbce522f636e58",
+        "5bc91eb02e70154f0f1d29f7068c077acadea8c1f13464315fc6804fae82ba61"
+      ],
+      "source_sha256": "f059607a1a4fed9a652c23d7fcf4d9bbaf54e804e14c5b06e512777792fd00f5",
+      "text": "One axis's limits: the gate's own, or the column's actual range.\n\nFalls back to the DATA when a side is unset, so a half-open gate still\ndraws as a box rather than running off the axis."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._gate_from_volume_drag.side": {
+      "source_blocks_sha256": [
+        "e36733e674518d3136d8d23a08a54162d50e24361051d0fa8f283b9421ac013d"
+      ],
+      "source_sha256": "e36733e674518d3136d8d23a08a54162d50e24361051d0fa8f283b9421ac013d",
+      "text": "The stored bounds for one column, or ``(None, None)``."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._on_scroll.zoomed": {
+      "source_blocks_sha256": [
+        "c27b8e019d798485874e2fd551d6df5ad23350a5d2f0d2c7ca47230f66f05c00",
+        "7c068a8c1a504bb17a8435ead765bcdf21230c8e9862a3c191af6baf83ed63ab"
+      ],
+      "source_sha256": "2b112fc298bdc895806ff11ba38841fddf7eb5ced8c8e585a488bbe02b281c8f",
+      "text": "Scale one axis's limits about the anchor the pointer is over.\n\nAnchored on the POINTER rather than the centre, so the point under the\ncursor stays put -- which is what makes a scroll feel like zooming in on\nsomething rather than the plot sliding away."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas._volume_handles.placed": {
+      "source_blocks_sha256": [
+        "90a36d3d0f84a75a224f6c4d0b616e970668358cdf24dda706a94274af0338b5"
+      ],
+      "source_sha256": "90a36d3d0f84a75a224f6c4d0b616e970668358cdf24dda706a94274af0338b5",
+      "text": "A point given by column, laid out in the volume's order."
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.active_gate": {
       "source_blocks_sha256": [
         "f9546c19655730b304b1688500d314b3282e5a8ba6f9e9fc144e17828f5b7f9d"
@@ -86810,6 +87345,21 @@
       "source_sha256": "a70b769a8c68aabf82f447668a601d24f373d7044b4566611b6e008c5abb3df6",
       "text": "How screen pixels map to data on the two axes the user selected.\n\nReturns ``(x_column, y_column, invert)`` where ``invert(dx, dy)`` turns\na movement in PIXELS into one in data units, or None when the view is\nnot square-on.\n\nBuilt by projecting the data's own corners and measuring where they\nland, rather than by trusting a formula for the projection matrix:\nmatplotlib has changed how `ax.M` is spelled more than once, and a\ndrag that silently lands in the wrong measurement is worse than one\nthat refuses.\n\nThe first implementation chose the two axes that happened to face the\ncamera.  That made the X/Y/Z plane buttons cosmetic: turning the view\ncould make a gate land on a different plane from the blue aura.  The\nselected plane is now the source of truth.  A genuinely edge-on plane\nis refused because its two data dimensions collapse to one screen\nline and no inverse exists."
     },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_axis_map.invert": {
+      "source_blocks_sha256": [
+        "9449336bc92f0626c7e0b3786c29ed9b334b23f75926edaf1dc0b9e577db3647",
+        "14d8a0b8ad20226549dcbca6e14f83f24c4257542e42bc9d7321f5572249c1ae"
+      ],
+      "source_sha256": "0f38191c9cde8262c52ec95e592837a6703bd6339ceb0173a9086cb700f36b71",
+      "text": "Turn a screen-pixel delta back into a data delta.\n\nUses the INVERSE of the projection taken once outside, so a drag is\nmeasured in the units the axis is in rather than in pixels -- the same\ndrag near the origin and far from it means the same change."
+    },
+    "spacr.qt.widgets.gate_editor.GateCanvas.volume_axis_map.screen": {
+      "source_blocks_sha256": [
+        "765cc06b41daa48ce13424e9a80c1b815d91578e18118fda71b1eb9118c2b414"
+      ],
+      "source_sha256": "765cc06b41daa48ce13424e9a80c1b815d91578e18118fda71b1eb9118c2b414",
+      "text": "Project one data point to screen pixels."
+    },
     "spacr.qt.widgets.gate_editor.GateCanvas.volume_shape": {
       "source_blocks_sha256": [
         "bb359819d45c593810ad0deab5d98795ec1591d1864f300364ccad62366a2fc1",
@@ -86980,6 +87530,13 @@
       "source_sha256": "3465b799cb20a91d70fa6252d5187574fcff621bf5337421ccb6d93a4282610f",
       "text": "The gating hierarchy, with each gate's n and its percentage of parent.\n\nBoth percentages are shown, from\n:class:`~spacr.qt.widgets.gate_spec.GateStats` — 90% of a parent that is 2%\nof the table is 1.8% of the objects, and a strategy that prints only the\nfirst is flattering itself.\n\n:param parent: parent widget.\nBuild the hierarchy view.\n\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.gate_editor.GateTree._apply_threshold.value": {
+      "source_blocks_sha256": [
+        "7d47859d3bc17e0afc4c88ddfc50b24bbf17f65f771fa43fa7c4ff15b495f4fb"
+      ],
+      "source_sha256": "7d47859d3bc17e0afc4c88ddfc50b24bbf17f65f771fa43fa7c4ff15b495f4fb",
+      "text": "One threshold field as a number, or ``None`` when blank."
+    },
     "spacr.qt.widgets.gate_editor.GateTree.active_gate": {
       "source_blocks_sha256": [
         "aab3f813fa354ce758666c52c2fc90f1501ddbf14a63697df9fa27516f69c764",
@@ -87035,6 +87592,14 @@
       ],
       "source_sha256": "579ec5410e803b35861e14e46ea0695de30d29b1de860886664ffc46c366ea82",
       "text": "Show a gate hierarchy, counted against a table.\n\nBOTH ARGUMENTS TOGETHER. The counts and percentages are a property of\nthe gates AND the rows they were applied to, so a tree given new\ngates against the old frame would show numbers belonging to neither.\n\n:param gates: the hierarchy to show.\n:param frame: the rows to count against, or None for no counts."
+    },
+    "spacr.qt.widgets.gate_editor._ClusterSettingsDialog.__init__._setting": {
+      "source_blocks_sha256": [
+        "9686901aace92f206daa7b8237c481f50688a055b6e202828bd182db17bd6c78",
+        "9b468891ea22c5cf6c359801e8ebd7ee691f646731a27a6494bc637e6a4a80b8"
+      ],
+      "source_sha256": "1f81073861505213b2c09a8e5555ebd3a4436b54021f553b51ac407cdfd4c0c4",
+      "text": "One setting from the source, falling back per NAME rather than wholesale.\n\nA source that carries some settings and not others is the ordinary case,\nand taking the fallback object entire would discard the ones it did\ncarry."
     },
     "spacr.qt.widgets.gate_editor.fit_to_text": {
       "source_blocks_sha256": [
@@ -89518,6 +90083,20 @@
       "source_sha256": "4336ac7a47eeb25150fe20ad6bbb21a219ef4995b7b6f1b9278cd0a040576c96",
       "text": "The matplotlib canvas every built graph is drawn on.\n\nA :class:`LinkedView`, so a selection made here propagates to the other\nviews sharing its model, and the base class for :class:`GateCanvas`.\n\n:param parent: parent widget.\n:param link: the :class:`~spacr.qt.linked_selection.LinkedSelection` this\n    view joins, so selecting here selects in every other view on it.\n    ``None`` joins the shared one; pass a private one in a test so the\n    selection does not reach the rest of the application.\n:param source: this view's name on that link, stamped onto everything it\n    publishes -- which is how a view knows not to answer its own\n    selection.\nBuild the canvas and link it to the shared selection.\n\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.graph_builder.GraphCanvas._draw_points.update": {
+      "source_blocks_sha256": [
+        "7bc7a130f6d2b59f1fd339991231fb0d64ee8d11ef30ffd0bac96881fa9b6f1d"
+      ],
+      "source_sha256": "7bc7a130f6d2b59f1fd339991231fb0d64ee8d11ef30ffd0bac96881fa9b6f1d",
+      "text": "Redraw the points for a new selection mask."
+    },
+    "spacr.qt.widgets.graph_builder.GraphCanvas._xy.axis": {
+      "source_blocks_sha256": [
+        "3f8fb4a2a09af5e32f9b2827c6c9c6dfb1b2f72671ecfbffac2edfaac4fe41f2"
+      ],
+      "source_sha256": "3f8fb4a2a09af5e32f9b2827c6c9c6dfb1b2f72671ecfbffac2edfaac4fe41f2",
+      "text": "One axis's values and its level order, or empty when unset."
+    },
     "spacr.qt.widgets.graph_builder.GraphCanvas.axes_at": {
       "source_blocks_sha256": [
         "af839acee1bd9098f0fd9d0f911c84301a00c6949a578c0db2c36fd5948e3cbc",
@@ -89685,6 +90264,46 @@
       ],
       "source_sha256": "56b571586499ff70f6b27f15b16a80d804fc4192fb54b7bdd0f172231b1b32db",
       "text": "The graph this canvas is drawing.\n\n:returns: the spec."
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__": {
+      "source_blocks_sha256": [
+        "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
+        "55ab87079aea47703d05f9c19d3acf949db0c916195216c2c034e1fc12e94d8b",
+        "c27c0288e88988856d0a2113b6988c2706b55a248af34b7d683c1adfd9ebc085",
+        "7b63084fe5ba4163b61482315534256a40bea4519262cc7c38099c5e361d19f4"
+      ],
+      "source_sha256": "c814db195beb337548180ead4f2b4c8806485710d4aeb07853555302e5da1076",
+      "text": "Wrap a figure in a canvas that owns its own redraw timer.\n\n:param figure: the Matplotlib ``Figure`` to draw. Held by the\n    canvas, which is what \"owned\" means here -- the timer is a\n    child of the canvas, so the figure and the redraw it\n    schedules are destroyed together and a queued redraw cannot\n    outlive the widget it would paint.\n:param panel: draw the page surface under the figure.\n\n``False`` for a canvas that is already sitting ON a panel — the\nscree plot inside the PCA shelf, say. Two surfaces stacked read\n0.49 at a requested 30 %, a shade no position of the slider can\nreach, so the inner one shows the outer panel through instead."
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas._spacr_draw": {
+      "source_blocks_sha256": [
+        "c554c8c2b1b50c7fe39bb467e992e914cea287aecc097ee58dc00c41ddd5d8ef",
+        "543562b5678b4fa41698c59cd657c105d1e211e83a85f2353cbcf60e4ada51f5"
+      ],
+      "source_sha256": "c1e92e0ca637b0948d9d640ee53449525e4b02d51e18f4afd0241a106173bb1b",
+      "text": "Draw once, if a draw is still pending.\n\nThe flag is cleared FIRST so a draw that schedules another does not lose\nit."
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.cancel_pending_draw": {
+      "source_blocks_sha256": [
+        "f44bd393c4cd4c911539a55afc8574c03f5131326c843aa3f77c4f0c06fe45a0"
+      ],
+      "source_sha256": "f44bd393c4cd4c911539a55afc8574c03f5131326c843aa3f77c4f0c06fe45a0",
+      "text": "Drop any queued redraw. Safe on a canvas Qt has already deleted."
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.draw_idle": {
+      "source_blocks_sha256": [
+        "b3a541d2b27562bdaf6c8a9556f596f0989d3bd5e4fd80cf7d74045e20a3f581",
+        "0b8c5da31e3e9751720a9f8ca1ef7e1dfa0c07ec2f6fea0720557250da3bd117"
+      ],
+      "source_sha256": "205e2ca742095670d8d87daf04f39da8dc27f4fa75b190f848db08596a265589",
+      "text": "Ask for a redraw on the OWNED timer rather than a static one.\n\nMatplotlib's Qt canvas uses static ``QTimer.singleShot``, whose callback\nis not owned by the canvas and can run after Qt has deleted it. The\ntimer here is a child of the canvas, so it dies with what it would draw."
+    },
+    "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "7229680ed6d6dad56074c845f37449278d9ff25fe84dee2dd523dea9aee1f54e"
+      ],
+      "source_sha256": "7229680ed6d6dad56074c845f37449278d9ff25fe84dee2dd523dea9aee1f54e",
+      "text": "Draw the page panel, then let matplotlib draw over it."
     },
     "spacr.qt.widgets.graph_builder.categorical_colours": {
       "source_blocks_sha256": [
@@ -113342,6 +113961,14 @@
       "source_sha256": "c7f31c57df8988181371ae96508f3d62a573810bce60756ff15d347294ae50d1",
       "text": "Decode pooled-screen FASTQ reads into per-well guide counts.\n\nWHAT IT IS FOR\n==============\nThe **Map Barcodes** module connects a sequencing run to an image-based\nscreen.  It finds the plate-column, guide, and plate-row barcode in each\nread, resolves those sequences against reference tables, and counts the\nresulting guides by well.  :func:`generate_barecode_mapping` is the GUI and\nPython entry point (the historical ``barecode`` spelling remains part of the\npublic API); :func:`graph_sequencing_stats` can then help choose a read-fraction\ncutoff.\n\nWHAT IT NEEDS\n=============\n``src`` must contain gzip-compressed FASTQ files whose names let spaCR pair R1\nand R2 reads.  The run also needs a CSV reference table per barcode, with\n``sequence`` and ``name`` columns.  A run that decodes the three barcodes\nspaCR shipped names them as ``row_csv``, ``column_csv`` and ``grna_csv``, and\na run that decodes any other number of barcodes lists them under\n``barcode_set`` instead, one entry per barcode.  ``target_sequence`` anchors\nthe barcode window, while ``offset_start``, ``expected_end``, and a regex\nnaming one group per barcode describe its layout.  The shipped regex names\n``columnID``, ``grna`` and ``rowID``.  Use ``mode='paired'`` for a\nquality-weighted R1/R2 consensus or ``mode='single'`` with\n``single_direction`` when only one mate should be read.\n\nWHAT IT PRODUCES\n================\nEach sample gets its own output directory beneath ``src``.  The essential\nartifacts are ``unique_combinations.csv`` (guide counts by row and column)\nand ``qc.csv``; ``annotated_reads.h5`` is also written when ``save_h5`` is\nenabled.  Optional barcode QC adds a report and plots under ``barcode_qc``.\nRun manifests and failure records identify samples that were skipped or\ncould not be processed.\n\nWHAT TO DO NEXT\n===============\nInspect the QC table and unmapped fraction before trusting the counts.  Use\n``test=True`` to process one chunk while checking the regex, read direction,\nand reference orientation, then run the full mapping and pass the resulting\n``unique_combinations.csv`` files to :func:`spacr.ml.perform_regression` as\n``count_data``.  :func:`barecodes_reverse_complement` can make an\nopposite-orientation copy of a reference CSV.\n\nThere are three easy ways to obtain plausible but incomplete output.  The\nanchor match is exact and a wrong regex silently rejects reads; reference\nsequences are compared in their stored orientation; and a sequence within\n``barcode_mismatches`` of two references remains unassigned instead of being\nguessed.  Finally, read-level HDF5 output can be much larger than the count\ntables, and high compression may spend more time saving than decoding, so\ndisable ``save_h5`` unless those individual annotations are needed."
     },
+    "spacr.sequencing._map_within.resolve": {
+      "source_blocks_sha256": [
+        "1feec1dadeee8416c8f7e38be063bbaef06a882ef00d3818f2060353af5a9359",
+        "996fbd50d42b6d1e2175f0fe4ffbeda40bfd12e27bfb658099bc815863d04d38"
+      ],
+      "source_sha256": "260bc4321e3b6d2d07db814f61e8ba8063c9b5299a2e7f0a83ad9d4ca98cfa2b",
+      "text": "Return the unique reference name within the mismatch budget.\n\nExact matches bypass the scan.  Inexact results, including an\nambiguous ``pd.NA``, are cached by their string representation so a\nrepeated read does not rescan every same-length reference."
+    },
     "spacr.sequencing.barecodes_reverse_complement": {
       "source_blocks_sha256": [
         "367dedfaf9c1afef9b5b305c8be06b0bee0effdfd3f9a67df28818adca1fa6e4",
@@ -113351,6 +113978,13 @@
       ],
       "source_sha256": "abe23220dd94f41ddff4210a761bba7bee5c76db67561e5959b905d610a1c26e",
       "text": "Write a copy of a barcode CSV with the ``sequence`` column reverse-complemented.\n\nOutput is saved in the same directory with the extension dropped and\n``_RC.csv`` appended, so ``rows.csv`` becomes ``rows_RC.csv``.\n\n:param csv_file: input CSV path with a ``sequence`` column.\n:returns: None."
+    },
+    "spacr.sequencing.barecodes_reverse_complement.reverse_complement": {
+      "source_blocks_sha256": [
+        "27d1fef0ff79d8d17cda91f92ef0c0b7f5edb77954b870596bc9e03c64ab3810"
+      ],
+      "source_sha256": "27d1fef0ff79d8d17cda91f92ef0c0b7f5edb77954b870596bc9e03c64ab3810",
+      "text": "Return the reverse complement of ``sequence`` (N stays N)."
     },
     "spacr.sequencing.create_consensus": {
       "source_blocks_sha256": [
@@ -113438,6 +114072,28 @@
       "source_sha256": "2f6a74772f7e47e6fadbc9230e0f57b4ba28c2e3bf7695fffade20b5b785fd7c",
       "text": "Pick the fraction cutoff that yields a target mean of unique gRNAs per well.\n\nLoads one or more count CSVs, drops control wells, computes per-well\ngRNA fractions, sweeps thresholds to find the value producing the\nrequested unique-count average, and plots both the sweep curve and\nthe resulting per-plate heatmap.\n\n:param settings: dict with keys ``count_data`` (str or list of CSVs\n    with ``grna``, ``count``, ``rowID``, ``columnID``),\n    ``target_unique_count``, ``filter_column``, ``control_wells``,\n    ``log_x`` and ``log_y``.\n:returns: the fraction threshold closest to the target unique count.\n\n``calibrate_fraction_threshold`` IS DELIBERATELY NOT READ HERE, and the\nreason is structural rather than a division of labour.\n\nTHE TWO ARE DIFFERENT QUESTIONS. ``target_unique_count`` asks how many\ngRNAs a well should end up with and answers it from the counts; the\ncalibration asks which cut-off makes imaging and sequencing agree and\nanswers it from the control wells. Both numbers are worth having and the\nrun reports both -- so \"both\" is the right answer about REPORTING. It is\nthe wrong answer about the SWITCH, for three checkable reasons.\n\nONE: THE INPUTS ARE NOT HERE. The calibration needs the imaging side -- a\nper-cell classifier score, the well each cell is in, and the plate design\nnaming the pure positive- and negative-control blocks. None of those is\nin this function's contract, which is the count tables and nothing else.\nReading the switch here would either demand keys this function has never\ndocumented, or quietly fall back to the counts answer whenever they are\nabsent -- a switch that appears honoured while nothing happened, which is\nthe failure the calibration wiring was already once filed for.\n\nTWO: IT WOULD COLLAPSE THE COMPARISON THE RUN EXISTS TO SHOW. In\n``ml._perform_regression`` the calibration runs FIRST. When it succeeds\n``fraction_threshold`` is no longer ``None``, so this function is never\nasked for a threshold at all -- it is asked to DRAW, through\n``ml._draw_the_threshold_sweep``, whose whole job is to print the\ncalibrated number beside this sweep's own independent pick. A sweep that\nalso read the switch would hand back the calibrated number, and the run\nwould print it twice as though two methods had agreed.\n\nTHREE: ONE READER, ONE WRITER. The switch is read exactly once, where the\nscore table is already loaded and the sweep can actually be run. A second\nreader in a module that cannot run it could only disagree with the first.\n\nWhat this function DOES owe the reader is the source of the number it\nreturns, which it now prints: a screen that asked for the calibration and\ncould not have it falls through to this threshold, and a bare number gives\nno way to tell which of the two questions was answered."
     },
+    "spacr.sequencing.graph_sequencing_stats.find_and_visualize_fraction_threshold": {
+      "source_blocks_sha256": [
+        "2298aff56cbde30d00c8629a79eef2e56e30159af9bdc1881d9ee065b5f926b2",
+        "5bab7496f6f89949b81c1789abeec451831c161bb320012e8aabc77a36586716",
+        "72a62417e1f43f973138f714e2b4a256179f4f1054c926a426f8660656b8b31a",
+        "89eff7803908328a647029805af9615a9bf43c07a17ebdd0d2cfa3da1ac6a2cf",
+        "271e5b8f84da3f0c87a71b1ca19cbf6f261e652644c8a3cbe99e1e3c07fdd72a",
+        "a3c179481ae24283ae63174c32dae0b15cca1c5a4ecceb9dca42ff0a541e596c",
+        "9b0406443ac7d4849a391dae00f1f286885e3abeb630c357c205ba0f84ef4cf3",
+        "421f53d86d5ddd465d3a3bbbb60be312f7db957f3ce763a9763e8163e0ee0ade"
+      ],
+      "source_sha256": "ea1cd71f3635d31b1f23686a42a2f1cef5b8f93590a3ecf363ba131495920077",
+      "text": "Return the fraction threshold whose per-well unique gRNA mean is closest to ``target_unique_count``.\n\nThe sweep plot's view is clamped to x in [0, 0.1] and y in [0, 20], so a\nreturned threshold above 0.1 has its marker line drawn off the visible\naxes even though the value itself is correct.\n\n:param df: one row per gRNA per well, with ``fraction`` plus\n    ``plateID``, ``rowID`` and ``columnID``; any missing column raises\n    ``KeyError``.\n:param target_unique_count: mean unique gRNAs per well to aim for. The\n    answer is only the nearest point of a fixed 1000-step grid spanning\n    0.001 to 0.99, so an unreachable target silently saturates at one\n    end of that grid instead of reporting that it was not met. ``None``\n    or a string raises from the subtraction.\n:param log_x: log-scale the plot's x axis. The hard-coded\n    ``xlim(0, 0.1)`` applied afterwards is then rejected by matplotlib\n    as a non-positive limit on a log axis, so the view autoscales.\n:param log_y: the same for the y axis and ``ylim(0, 20)``.\n:param dst: when set, writes ``<dst>/results/fraction_threshold.pdf``,\n    creating the directories; ``None`` only shows the figure. The sole\n    caller always passes a path, so the default is unreachable there.\n:returns: the chosen threshold as a ``numpy.float64``. A threshold that\n    empties the table yields NaN rather than 0, so a table whose\n    fractions are all below 0.001 makes every sweep point NaN and the\n    fallback returns 0.99 -- a value that then discards every read."
+    },
+    "spacr.sequencing.graph_sequencing_stats.find_and_visualize_fraction_threshold._line_plot": {
+      "source_blocks_sha256": [
+        "430e0592a20dadb960529d1e972613b9c1f66f4acaed8172864e24223111018c",
+        "36f45415cda85649420b264a69b89f8277849e8806161acd554726b44ef78a53"
+      ],
+      "source_sha256": "9cb43f73cb6d64ea2c5b5361b99390430d8d99fbbb7d7f05759ef42e4ae1e169",
+      "text": "Plot columns ``x`` and ``y`` using the shared figure style.\n\nThe returned figure and axes let the caller add its chosen\nthreshold marker before either saving or displaying the plot."
+    },
     "spacr.sequencing.map_sequences_to_names": {
       "source_blocks_sha256": [
         "8859a495036ece9c8c2e8b04a5e253fbcf69759712bc860655820b60f28dd3c9",
@@ -113451,6 +114107,13 @@
       ],
       "source_sha256": "44aeca24717e13889e314659ef99819ffdf94ae404ad2ace96ebec1a9d6fabc8",
       "text": "Look up barcode / gRNA names for a list of DNA reads against a ``sequence,name`` mapping CSV.\n\nUsed inside the spacr sequencing pipeline to translate the row,\ncolumn, and gRNA barcodes extracted from paired-end reads into their\nhuman-readable labels. Only the CSV's ``sequence`` column is\nreverse-complemented when ``rc=True``; the input ``sequences`` are\nmatched verbatim, so callers should orient reads consistently\nbeforehand.\n\n:param csv_file: Path to a CSV with ``sequence`` and ``name``\n    columns.\n:param sequences: Iterable of DNA sequences to look up.\n:param rc: If True, reverse-complement the CSV sequences before\n    building the lookup dict.\n:returns: List of names aligned positionally with ``sequences``;\n    ``pd.NA`` for sequences that do not match any entry.\n\nExample:\n    .. code-block:: python\n\n        from spacr.sequencing import map_sequences_to_names\n        names = map_sequences_to_names(\n            '/data/barcodes/rows.csv',\n            sequences=['ACGT...', 'TTGG...'],\n            rc=False,\n        )\n\nSee Also:\n    :func:`generate_barecode_mapping` — full end-to-end read ->\n    (row, column, gRNA) name pipeline."
+    },
+    "spacr.sequencing.map_sequences_to_names.rev_comp": {
+      "source_blocks_sha256": [
+        "dee2666ea16a5f6d6c9801048ec97c95467819da149e907707296627e8e05fb3"
+      ],
+      "source_sha256": "dee2666ea16a5f6d6c9801048ec97c95467819da149e907707296627e8e05fb3",
+      "text": "Return the reverse complement of ``dna_sequence`` (N stays N)."
     },
     "spacr.sequencing.paired_read_chunked_processing": {
       "source_blocks_sha256": [
@@ -113493,6 +114156,55 @@
       ],
       "source_sha256": "074c6072f1ac07b7e3cc8a02a68bbd3d863eb0c6cde82715ca85eb278ff7c2d1",
       "text": "Extract and map barcodes from a chunk of single- or paired-end FASTQ reads.\n\nAnchors on ``target_sequence``, extracts a consensus window, splits that\nwindow with the named-group ``regex``, and maps every barcode it holds to\na name through that barcode's own reference table.\n\nTHE CHUNK ARRIVES IN ONE OF TWO SHAPES. A tuple is the historical one and\ndecodes the three barcodes this module has always decoded, a plate\ncolumn, a guide and a plate row, from three reference CSV paths. A\nmapping carries a barcode set instead and decodes however many barcodes\nthat set holds, one or ten, writing a sequence column and a name column\nfor each of them.\n\nThe regex must name a group for every barcode being decoded, and the run\nstops naming the barcode that has no group rather than decoding the rest.\nFor the historical three the column and the row are read from\n``columnID`` and ``rowID`` where the regex defines those, and from\n``column`` and ``row`` where it does not, so a pattern written before\nthose names were settled goes on matching.\n\n:param chunk_data: a 9-tuple for single-end reads\n    ``(r1_chunk, regex, target_sequence, offset_start, expected_end,\n    column_csv, grna_csv, row_csv, fill_na)``, a 10-tuple for paired-end\n    reads ``(r1_chunk, r2_chunk, ...)`` with the same trailing fields, or\n    a mapping holding ``r1_chunk``, ``r2_chunk`` (absent or None for\n    single-end reads), ``regex``, ``target_sequence``, ``offset_start``,\n    ``window_length``, ``barcode_set`` and ``fill_na``.\n:returns: tuple ``(df, unique_combinations, qc_df)`` — the annotated\n    reads, holding the read and then each barcode's sequence and name;\n    the number of reads behind each unique combination of barcode names;\n    and a one-row QC frame of missing values and total reads.\n:raises ValueError: when the chunk is neither of those shapes, when the\n    window length is not positive, when the regex names no group for one\n    of the barcodes, or when a FASTQ record is malformed."
+    },
+    "spacr.sequencing.process_chunk._parse_record": {
+      "source_blocks_sha256": [
+        "c11e7b6cd9bd6067e9ec2c265f8e74b179a1a0f4d50b0d6c5e45ddf7c4b5e5b1",
+        "efda6ecce14276b5c5e390d9e4412f2d4f1c87c3cc2bb2f7ac5c6003233228ee",
+        "2c37db8f5210eb85096445c1629681afa7406060c5a556ac88d91541c17c8c8d",
+        "c746c17e2dd83b81bf48714300705a088a62cde6db7eb2d7517e37d2a339d880",
+        "5f78c3c9d89c77f68fe9e2d5d0680ddde9323b1ec7035d19cf1b8ff75f04f0bd"
+      ],
+      "source_sha256": "b496d0f2fc29e7258aa5f69d85f6472e89ba5452e4382e6d61538a615ec28381",
+      "text": "Validate and split one four-line FASTQ record.\n\n:param record: the record as one string of four lines.\n:param label: how to name this record in an error message.\n:returns: tuple ``(sequence, quality)``.\n:raises ValueError: when the record is not four lines, is not a FASTQ\n    record, or pairs a sequence with a quality string of another\n    length."
+    },
+    "spacr.sequencing.process_chunk._split_window": {
+      "source_blocks_sha256": [
+        "7cccc3b4dd8c73c7878710df65552fe5a7c85c102163b8d4ae6f4bc2de7f6e4c",
+        "3f98f476764e5291310224eac60485a6dadf8d88c1bcc1d5131a7265e0c0ad58",
+        "11423e9260be4dcb379fae4926c1d137d32517d06c9c919729f2f7a22724fc2d"
+      ],
+      "source_sha256": "d3a58888bfaea55edb6bb7c7433b66f0097633139486abcd470a32fba2bc944f",
+      "text": "Record every barcode the regex captured in this window.\n\n:param match: the regex match over one consensus window.\n:returns: None. The captured text is appended to the lists in\n    ``extracted``, one list per barcode, so that every barcode of\n    every matched read stays at the same position."
+    },
+    "spacr.sequencing.process_chunk.paired_find_sequence_in_chunk_reads": {
+      "source_blocks_sha256": [
+        "482b6ab0e4c74503c2706cdf17c0fdbc928c140d46b7f16dc3b4ba2db306eced",
+        "1b50fb27a04522ba7610ff4803801769098217463de00850a71d8845d0bb214c",
+        "8687f05a111be488ecc8c5cbf3240c311442c6f7686b47861a2c8f1380e0a819",
+        "7b56ff6e18a1676a2420a1af282269da2f2035c6fc510ccd06bdd91389b43ed6",
+        "862987221a16cd068958e205e870f00bded032fae0e1dd80850ef693380862bc",
+        "b61c582cdaf8d7b45919950174a738671e03ad85e85dfd057fccb22d88b7119f",
+        "b99334e6c4e3d9e64ce8fed3624baee5cbd6cdda706678ad3540e07e37c71fe2",
+        "d055458844dc34e5c8d8cdfe4097b3d9deef4c42f2f489395b0694cf57d22ca0",
+        "7c673c3e14070bbd1a1ef0bff9e443ca08ba6bc71cffc145d8c85cf3bbdced05"
+      ],
+      "source_sha256": "5def343ac2b0104bf50913b2b8d201419c3383fec0832b7a61b12de0cb65120d",
+      "text": "Return consensus reads and their barcodes for paired-end chunks.\n\n:param r1_chunk: four-line FASTQ record strings for R1.\n:param r2_chunk: the matching R2 records, paired with ``r1_chunk`` by\n    position only -- headers are never compared.\n:param target_sequence: anchor located with ``str.find`` (first\n    occurrence). R2 is reverse-complemented before the search, so write\n    the anchor in R1 orientation. A pair missing the anchor in either\n    mate is dropped without a row, so the QC ``total_reads`` counts\n    matched pairs rather than input pairs.\n:param offset_start: bases from the anchor to the window start. A\n    resulting start below zero is clamped to the read start, not\n    rejected, so an over-negative offset quietly shifts the window.\n:param expected_end: window *length*, not an end coordinate. A window\n    cut short by the read end is right-padded with ``N`` (quality\n    ``!``) to exactly this length, so the length check always passes\n    and a truncated read can still match with ``N`` inside a barcode --\n    which then maps to NA and drops out of the per-well counts.\n:param regex: pattern string applied with ``re.match``: anchored at the\n    window start, but bases past the last group are ignored, so an\n    oversized ``expected_end`` only adds padding.\n:returns: the consensus sequence of every matched pair, one entry per\n    pair, with that pair's barcodes appended to ``extracted``. A chunk\n    with no matches prints a warning and retries the last window\n    reverse-complemented as an orientation hint.\n:raises ValueError: when the two chunks hold different read counts."
+    },
+    "spacr.sequencing.process_chunk.single_find_sequence_in_chunk_reads": {
+      "source_blocks_sha256": [
+        "f19a6caf47bd7b32d1ffca6a04fc634815df63b7bf6c5acf7858c92aae0ca5bb",
+        "398a5b8c9e8185987704d37a5d1043199a6a9db443cb7a6642a13858b87780cf",
+        "1b50fb27a04522ba7610ff4803801769098217463de00850a71d8845d0bb214c",
+        "53f694089038a79282805e55e81969529fd96c89663d27558e13d3be2118026e",
+        "1ab3c82bc97b0c922e9495c36a3f18468fcb68e1fef1faac8b8e12b969184947",
+        "f07a80b33407ea4b9e8e3f1caee4571c75a1ca89ab18434821298d2e527d1cc3",
+        "1abe5b4b1cf075f6973bbdd2dfe7f6dab3963f0620eb09deb28c0673b3170fa4",
+        "e56bc0ee4025add78e40bcb341dd0e426b693e1e99081331e63a4bf4278bb171"
+      ],
+      "source_sha256": "f04620437705cd16d84d2eba87e80c4a55fa4e1c7c1b2c93f72fe5cc71f22830",
+      "text": "Return R1 windows and their barcodes for single-end chunks.\n\nNo consensus is computed here: the R1 window is used as-is, so read\nquality never influences the base calls the way it does for pairs.\n\n:param r1_chunk: four-line FASTQ record strings for R1.\n:param target_sequence: anchor located with ``str.find`` (first\n    occurrence). A read without it is dropped without a row, so the QC\n    ``total_reads`` counts matched reads rather than input reads.\n:param offset_start: bases from the anchor to the window start. A\n    resulting start below zero is clamped to the read start, not\n    rejected.\n:param expected_end: window *length*, not an end coordinate. A window\n    cut short by the read end is right-padded with ``N`` (quality\n    ``!``) to exactly this length, so a truncated read can still match\n    with ``N`` inside a barcode -- which then maps to NA and drops out\n    of the per-well counts.\n:param regex: pattern string applied with ``re.match``: anchored at the\n    window start, but bases past the last group are ignored.\n:returns: the window of every matched read, one entry per read, with\n    that read's barcodes appended to ``extracted``. A chunk with no\n    matches prints a warning and retries the last window\n    reverse-complemented as an orientation hint."
     },
     "spacr.sequencing.reverse_complement": {
       "source_blocks_sha256": [
@@ -114901,6 +115613,17 @@
       ],
       "source_sha256": "846506ee1c04c8875d613fe3a21b9d55adc1ceaec7ad04244a35a8c2f0e7053b",
       "text": "A setting this module will not guess, and why not.\n\n:param key: setting name or advisory topic left unresolved;\n    :meth:`Advice.why` uses it to retrieve this record's explanation.\n:param why: evidence-based explanation of why no value was proposed or\n    why a refused proposal was withdrawn."
+    },
+    "spacr.settings_advisor._from_the_run.replace": {
+      "source_blocks_sha256": [
+        "ed6c15e6a7b7e401d76446c0f5d591f6c1b731c0fd9248fd28ca2d7423e2a3ab",
+        "7fe6886e5d863b0740aeb8d3099e070c4bcd4004b1c9ebd73026248af97b0408",
+        "f9ca09c0245dd57b206051b1c899b28fc0174cf4923471f2bfb4ab524959aed5",
+        "d9e0506bc96591bb147978539f1b45587250c75e293c9ea6cf7ddca773ef22c9",
+        "773b60be3ead58cfbd16ee895ff183d598c980ae4e519bb80673283f01e37858"
+      ],
+      "source_sha256": "a26c6280f553fce406dc75128cf9d0cbda0297ac9d4071a0e6b19de9b7e73cf2",
+      "text": "Replace or append one recommendation in the captured choices.\n\n:param key: setting-choice key to update.\n:param value: value recommended from the completed run.\n:param why: user-facing evidence for the recommendation.\n:returns: None. The first same-key choice is replaced at its existing\n    position; a key not already present is appended once."
     },
     "spacr.settings_advisor.advise": {
       "source_blocks_sha256": [
