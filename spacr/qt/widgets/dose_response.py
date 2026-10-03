@@ -225,8 +225,47 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
-from scipy import stats
-from scipy.optimize import curve_fit, minimize, minimize_scalar
+
+
+class _OnFirstUse:
+    """A SciPy module or function that is imported the first time it is used.
+
+    Opening the Dose-Response screen imports this module, and SciPy's
+    ``stats`` and ``optimize`` were most of that open on hosted macOS
+    (1.3-1.6 s of a single freeze). Nothing is fitted until Fit is pressed,
+    so the import waits until then. Calls and attribute reads behave as on
+    the real object.
+
+    :param module: the module to import.
+    :param name: the attribute of ``module`` to stand for, or ``None`` for
+        the module itself.
+    """
+
+    def __init__(self, module: str, name: Optional[str] = None) -> None:
+        """Remember what to import; import nothing yet."""
+        self._module = module
+        self._name = name
+
+    def _target(self):
+        """Import and return the module or attribute this stands for."""
+        import importlib
+
+        found = importlib.import_module(self._module)
+        return found if self._name is None else getattr(found, self._name)
+
+    def __getattr__(self, attribute: str):
+        """Read ``attribute`` from the real object."""
+        return getattr(self._target(), attribute)
+
+    def __call__(self, *args, **kwargs):
+        """Call the real function."""
+        return self._target()(*args, **kwargs)
+
+
+stats = _OnFirstUse("scipy.stats")
+curve_fit = _OnFirstUse("scipy.optimize", "curve_fit")
+minimize = _OnFirstUse("scipy.optimize", "minimize")
+minimize_scalar = _OnFirstUse("scipy.optimize", "minimize_scalar")
 
 __all__ = [
     "DoseResponseError",
