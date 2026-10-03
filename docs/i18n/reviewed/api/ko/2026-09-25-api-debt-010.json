@@ -2334,7 +2334,9 @@
       "source_sha256": "1081bb5bd61e83fba215027133d2e5e6a6a03c5e7293ec3b47b841cc46b1634b",
       "context": "the paint event; a new frame is taken from the shading independent execution path only when its ``rect()`` covers the whole widget, otherwise the current frame is repainted.",
       "translation": "페인트 이벤트입니다. 그 ``rect()`` 가 위젯 전체를 덮을 때만 셰이딩 스레드에서 새 프레임을 가져오고, 그렇지 않으면 현재 프레임을 다시 그립니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.AmbientWidget.set_animating#2",

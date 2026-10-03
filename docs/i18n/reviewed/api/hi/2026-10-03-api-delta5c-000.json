@@ -10,7 +10,9 @@
       "source_sha256": "161b7cdc292552b3888f1eb49abd1be87606f66522a20ebbbb76466e127846a9",
       "context": "Measured values on lineage trees.",
       "translation": "वंशावली ट्री पर मापे गए मान।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr._lineage_measurements#1",
@@ -18,7 +20,9 @@
       "source_sha256": "5f7ed57768207cbf5c5b112009b1307820357d8159a6cd800af318207e6a555e",
       "context": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
       "translation": "यह दर्ज करता है कि किसी ट्रैकिंग रन ने कौन-सी इमेज और लेबल स्टैक उपयोग किए, ताकि बाद का Measure रन अपने प्रति-ऑब्जेक्ट माप को उन्हीं ट्रैक से जोड़ सके और वंशावली ट्री को किसी मापे गए कॉलम के अनुसार रंग सके।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr._lineage_trees#0",
@@ -26,7 +30,9 @@
       "source_sha256": "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
       "context": "Lineage trees built from tracked objects.",
       "translation": "ट्रैक किए गए ऑब्जेक्ट से बने वंशावली ट्री।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr._lineage_trees#1",
@@ -34,7 +40,9 @@
       "source_sha256": "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca",
       "context": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
       "translation": "विभाजन घटनाएँ स्पष्ट पैरेंट कॉलम से पढ़ी जाती हैं या पास के ट्रैक आरंभ बिंदुओं से अनुमानित की जाती हैं, फिर ट्री आरेखों के रूप में बनाई जाती हैं, Newick टेक्स्ट के रूप में लिखी जाती हैं और प्रति-वंशावली आँकड़ों के रूप में सारांशित की जाती हैं, वैकल्पिक रूप से घंटों में कैलिब्रेट की गई।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.cli_make_masks#0",
@@ -1186,7 +1194,9 @@
       "source_sha256": "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
       "context": "Convert raw microscopy images into normalized, image data channel-merged ``.npy`` stacks ready for mask generation.",
       "translation": "कच्ची माइक्रोस्कोपी इमेज को मास्क निर्माण के लिए तैयार, सामान्यीकृत, चैनल-मर्ज किए गए ``.npy`` स्टैक में बदलता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#1",
@@ -1194,7 +1204,9 @@
       "source_sha256": "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
       "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
       "translation": "आमतौर पर :func:`spacr.core.preprocess_generate_masks` द्वारा आंतरिक रूप से कॉल किया जाता है, लेकिन जब आपको केवल प्रीप्रोसेसिंग वाला आधा हिस्सा चाहिए तो इसे सीधे कॉल किया जा सकता है। डिफ़ॉल्ट रूप से यह z-स्टैक को MIP में बदलता है, फ़ाइलों का नाम बदलकर Yokogawa/spacr लेआउट में रखता है, प्रति-चैनल फ़ोल्डरों को वैकल्पिक बैकग्राउंड घटाव और पर्सेंटाइल सामान्यीकरण के साथ स्टैक किए गए ``.npy`` ऐरे में मर्ज करता है, और (``test_mode`` में) उदाहरण प्लॉट बनाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#13",
@@ -1202,7 +1214,9 @@
       "source_sha256": "1f93f2d6aa2e43e0bdc2c66cd3a80ff04f4dff553a6f4965c20f5de9cd39a713",
       "context": "Tuple ``(settings, src)`` — ``settings`` with defaults applied and ``src`` pointing at the folder containing the generated ``stack/`` / ``channel_stack/`` outputs (the downstream mask stage reads from here).",
       "translation": "टपल ``(settings, src)`` — ``settings`` जिस पर डिफ़ॉल्ट लागू हो चुके हैं, और ``src`` जो उस फ़ोल्डर की ओर इशारा करता है जिसमें बने हुए ``stack/`` / ``channel_stack/`` आउटपुट हैं (आगे का मास्क चरण यहीं से पढ़ता है)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#15",
@@ -1210,7 +1224,9 @@
       "source_sha256": "5d5edbec44cd72e43ff860526e1ed2f6c29c8e9bcf9f661009474779072cfbee",
       "context": "See Also: :func:`spacr.core.preprocess_generate_masks` — full workflow wrapper that calls this then generates masks.",
       "translation": "यह भी देखें: :func:`spacr.core.preprocess_generate_masks` — पूरा वर्कफ़्लो रैपर जो इसे कॉल करता है और फिर मास्क बनाता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#2",
@@ -1218,7 +1234,9 @@
       "source_sha256": "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
       "context": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each microscope field of view/image data channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the microscope field of view and image data channel; ambiguous axes, duplicate image data channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one microscope field of view at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
       "translation": "``z_stack=True`` और ``z_segmentation_mode='volumetric'`` के साथ, एक अलग कच्चा TIFF मार्ग Z को सुरक्षित रखता है। हर दृश्य-क्षेत्र/चैनल एक पूरी TIFF शृंखला होना चाहिए जिस पर स्पष्ट रूप से ``ZYX`` लेबल हो। फ़ाइल नाम का मेटाडेटा दृश्य-क्षेत्र और चैनल की पहचान करता है; अस्पष्ट अक्ष, दोहराए गए चैनल और अनुपस्थित सहायक फ़ाइलें कोई भी स्टैक लिखे जाने से पहले अस्वीकार कर दी जाती हैं। यह मार्ग ``save_original_images`` के false होने पर भी मूल फ़ाइलें रखता है, पूर्णता रिकॉर्ड के साथ मानक ``ZYXC`` स्टैक प्रकाशित करता है, और एक बार में एक दृश्य-क्षेत्र को सामान्यीकृत करता है। पुन: उपयोग स्रोत और स्टैक हैश तथा संबंधित प्रोसेसिंग सेटिंग्स को सत्यापित करता है। पुराने प्रक्षेपित स्टैक को वॉल्यूम के रूप में फिर से उपयोग नहीं किया जा सकता। अलग-अलग स्लाइस-फ़ाइल लेआउट, टाइम-सीरीज़, टेस्ट-मोड सैंपलिंग और प्रदीप्ति या PSF प्रीप्रोसेसिंग इस कच्चे वॉल्यूमेट्रिक मार्ग में समर्थित नहीं हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#4",
@@ -1226,7 +1244,9 @@
       "source_sha256": "82a7443a521f22d0db1efbef111005193ec33029a94f36fb95cd53315789be28",
       "context": "Preprocessing settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_settings_preprocess_img_data`. Structured-data entries:",
       "translation": "प्रीप्रोसेसिंग सेटिंग्स डिक्शनरी, :func:`spacr.settings.set_default_settings_preprocess_img_data` के माध्यम से मानकीकृत। मुख्य प्रविष्टियाँ:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#5",
@@ -1234,7 +1254,9 @@
       "source_sha256": "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
       "context": "``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).",
       "translation": "``src`` — कच्ची इमेज का फ़ोल्डर (``.tif/.nd2/.czi/.lif`` आदि)।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#6",
@@ -1242,7 +1264,9 @@
       "source_sha256": "6b3a051f3b59d057f3ca118adfb628f6bf235e9d2311247cc3178744631fc603",
       "context": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives filename regex.",
       "translation": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; फ़ाइल नाम के रेगुलर एक्सप्रेशन को निर्धारित करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#7",
@@ -1250,7 +1274,9 @@
       "source_sha256": "3207a085ee8822704e20bd63ced3ca2b47332b6d54e9a1ca4de170009f36807e",
       "context": "``custom_regex`` — override the built-in regex.",
       "translation": "``custom_regex`` — अंतर्निहित रेगुलर एक्सप्रेशन को ओवरराइड करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#8",
@@ -1266,7 +1292,9 @@
       "source_sha256": "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
       "context": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-microscope field of view/image data channel projection behavior.",
       "translation": "``z_stack`` और ``z_segmentation_mode`` ऊपर वर्णित स्पष्ट वॉल्यूमेट्रिक TIFF मार्ग चुनते हैं। अन्य कच्चे लेआउट मौजूदा प्रति-दृश्य-क्षेत्र/चैनल प्रक्षेपण व्यवहार बनाए रखते हैं।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.merge_tables.aggregation_overrides#0",

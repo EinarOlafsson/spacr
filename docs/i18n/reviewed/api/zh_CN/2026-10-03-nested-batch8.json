@@ -801,7 +801,9 @@
       "source_sha256": "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
       "context": "Wrap a figure in a canvas that owns its own redraw timer.",
       "translation": "把图形包装进一个拥有自己重绘计时器的画布。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__#1",
@@ -833,7 +835,9 @@
       "source_sha256": "c554c8c2b1b50c7fe39bb467e992e914cea287aecc097ee58dc00c41ddd5d8ef",
       "context": "Draw once, if a draw is still pending.",
       "translation": "如果仍有待处理的绘制，则绘制一次。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas._spacr_draw#1",

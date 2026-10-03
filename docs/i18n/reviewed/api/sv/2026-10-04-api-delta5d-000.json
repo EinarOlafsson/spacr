@@ -162,7 +162,9 @@
       "source_sha256": "2d912368194c3f03f0ac1c3aef08823d0c3251a5f0f12a157675546d8ceeed85",
       "context": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan pages are drawn upright.",
       "translation": "organismnyckel; endast Toxoplasma använder hyperLOPIT-etiketter, och endast apikomplexsidorna ritas upprätt.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.organize_for_measure#1",

@@ -466,7 +466,9 @@
       "source_sha256": "1081bb5bd61e83fba215027133d2e5e6a6a03c5e7293ec3b47b841cc46b1634b",
       "context": "the paint event; a new frame is taken from the shading independent execution path only when its ``rect()`` covers the whole widget, otherwise the current frame is repainted.",
       "translation": "teikniatburðurinn; nýr rammi er aðeins tekinn frá skyggingarþræðinum þegar ``rect()`` hans nær yfir alla græjuna, annars er núverandi rammi endurteiknaður.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.AmbientWidget.set_animating#2",

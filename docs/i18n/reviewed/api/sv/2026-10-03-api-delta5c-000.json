@@ -34,7 +34,9 @@
       "source_sha256": "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca",
       "context": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
       "translation": "Delningshändelser läses från uttryckliga föräldrakolumner eller härleds från närliggande spårstarter, och ritas sedan som trädfigurer, skrivs som Newick-text och sammanfattas som statistik per härstamning, valfritt kalibrerad till timmar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.cli_make_masks#0",
@@ -1186,7 +1188,9 @@
       "source_sha256": "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
       "context": "Convert raw microscopy images into normalized, image data channel-merged ``.npy`` stacks ready for mask generation.",
       "translation": "Konvertera råa mikroskopibilder till normaliserade, kanalsammanslagna ``.npy``-stackar redo för maskgenerering.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#1",
@@ -1194,7 +1198,9 @@
       "source_sha256": "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
       "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
       "translation": "Anropas vanligtvis internt av :func:`spacr.core.preprocess_generate_masks`, men kan anropas direkt när du bara vill ha förbehandlingshalvan. Som standard konverterar den z-stackar till MIP:ar, döper om filer till layouten för Yokogawa/spacr, slår samman mappar per kanal till staplade ``.npy``-matriser med valfri bakgrundssubtraktion och percentilnormalisering, och (i ``test_mode``) skapar exempeldiagram.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#13",
@@ -1202,7 +1208,9 @@
       "source_sha256": "1f93f2d6aa2e43e0bdc2c66cd3a80ff04f4dff553a6f4965c20f5de9cd39a713",
       "context": "Tuple ``(settings, src)`` — ``settings`` with defaults applied and ``src`` pointing at the folder containing the generated ``stack/`` / ``channel_stack/`` outputs (the downstream mask stage reads from here).",
       "translation": "Tupel ``(settings, src)`` — ``settings`` med standardvärden tillämpade och ``src`` som pekar på mappen som innehåller de genererade utdata ``stack/`` / ``channel_stack/`` (masksteget längre fram läser härifrån).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#15",
@@ -1210,7 +1218,9 @@
       "source_sha256": "5d5edbec44cd72e43ff860526e1ed2f6c29c8e9bcf9f661009474779072cfbee",
       "context": "See Also: :func:`spacr.core.preprocess_generate_masks` — full workflow wrapper that calls this then generates masks.",
       "translation": "Se även: :func:`spacr.core.preprocess_generate_masks` — omslutning av hela pipelinen som anropar detta och sedan genererar masker.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#2",
@@ -1218,7 +1228,9 @@
       "source_sha256": "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
       "context": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each microscope field of view/image data channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the microscope field of view and image data channel; ambiguous axes, duplicate image data channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one microscope field of view at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
       "translation": "Med ``z_stack=True`` och ``z_segmentation_mode='volumetric'`` bevarar en separat väg för råa TIFF Z. Varje synfält/kanal måste vara en komplett TIFF-serie som uttryckligen är märkt ``ZYX``. Metadata i filnamnet identifierar synfältet och kanalen; tvetydiga axlar, dubblerade kanaler och saknade följeslagare avvisas innan någon stack skrivs. Den här vägen behåller originalfilerna även om ``save_original_images`` är false, publicerar kanoniska ``ZYXC``-stackar med en slutförandepost och normaliserar ett synfält i taget. Återanvändning verifierar käll- och stackhashar och relevanta bearbetningsinställningar. En gammal projicerad stack kan inte återanvändas som volym. Layouter med enskilda snittfiler, tidsserier, sampling i testläge samt förbehandling för belysning eller PSF stöds inte av den här råa volymetriska vägen.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#4",
@@ -1226,7 +1238,9 @@
       "source_sha256": "82a7443a521f22d0db1efbef111005193ec33029a94f36fb95cd53315789be28",
       "context": "Preprocessing settings key-value mapping, canonicalized via :func:`spacr.settings.set_default_settings_preprocess_img_data`. Structured-data entries:",
       "translation": "Inställnings-dict för förbehandling, kanoniserad via :func:`spacr.settings.set_default_settings_preprocess_img_data`. Nyckelposter:",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#5",
@@ -1234,7 +1248,9 @@
       "source_sha256": "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
       "context": "``src`` — folder of raw images (``.tif/.nd2/.czi/.lif`` etc.).",
       "translation": "``src`` — mapp med råa bilder (``.tif/.nd2/.czi/.lif`` osv.).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#6",
@@ -1242,7 +1258,9 @@
       "source_sha256": "6b3a051f3b59d057f3ca118adfb628f6bf235e9d2311247cc3178744631fc603",
       "context": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; drives filename regex.",
       "translation": "``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; styr filnamnets regex.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#7",
@@ -1250,7 +1268,9 @@
       "source_sha256": "3207a085ee8822704e20bd63ced3ca2b47332b6d54e9a1ca4de170009f36807e",
       "context": "``custom_regex`` — override the built-in regex.",
       "translation": "``custom_regex`` — åsidosätt det inbyggda regexet.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#8",
@@ -1258,7 +1278,9 @@
       "source_sha256": "56edd9d16e46c33f077f13ce3455e67369d51009b3cf22dd34f6f80b74946344",
       "context": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — channel selection.",
       "translation": "``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — kanalval.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io.preprocess_img_data#9",
@@ -1266,7 +1288,9 @@
       "source_sha256": "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
       "context": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-microscope field of view/image data channel projection behavior.",
       "translation": "``z_stack`` och ``z_segmentation_mode`` väljer den uttryckliga volymetriska TIFF-vägen som beskrivs ovan. Andra råa layouter behåller det befintliga projektionsbeteendet per synfält/kanal.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: nightly reviewed the same English block differently; that record is kept and this one is retired in place."
     },
     {
       "label": "spacr.merge_tables.aggregation_overrides#0",

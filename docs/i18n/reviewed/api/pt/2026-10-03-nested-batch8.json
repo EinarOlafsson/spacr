@@ -801,7 +801,9 @@
       "source_sha256": "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
       "context": "Wrap a figure in a canvas that owns its own redraw timer.",
       "translation": "Envolve uma figura em uma tela de desenho que possui seu próprio temporizador de redesenho.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.widgets.graph_builder._canvas_class.OwnedTimerFigureCanvas.__init__#1",
