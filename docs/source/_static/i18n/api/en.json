@@ -72410,14 +72410,11 @@
     },
     "spacr.qt.widgets.ambient.AmbientWidget.paintEvent": {
       "source_blocks_sha256": [
-        "bc6876646571ae3aa20a574e00ffe24427d018ddc24398062a04b686e74a9eec",
-        "47f3962294bed80f3624b6e64a2df59bac1594a9cf79a727de957608dd778480",
-        "d85f94db058967febbdfdde9209554148f85a03d764a905ff6567537114ba2a1",
-        "72bf488fd5f4108cf7b6c285e6bd95fb2ffc0512811981dcf25bc388ba4e31e0",
-        "1081bb5bd61e83fba215027133d2e5e6a6a03c5e7293ec3b47b841cc46b1634b"
+        "9b40c56412e0f8007de3db2ea5526a13c1ef4b4823622d308ad35e47e219b1ea",
+        "5244039e2ac6e27154b7126ddab051fc78767a7c7a3d21592ac3e648f7a78b35"
       ],
-      "source_sha256": "91983849ae3864297f8958afc558314a481cb6e13b91911a841899e9f9d3c56f",
-      "text": "Put the page down, then the newest frame the shading thread has.\n\n**This method never waits for anything.** That is the requirement the\nwhole change exists to meet — \"a frame that is not ready is a\nrepeated frame, never a blocked GUI thread\" — and it is met the only\nway it can be: :meth:`_FrameProducer.latest` refuses the slot rather\nthan blocking on it, the widget keeps a reference to the frame it is\nalready showing, and a paint with nothing new blits that one again\nand counts it in :attr:`repeated_frames`.\n\nWith a shading thread the engine lock is never *waited* on here, and\nwith no shading thread it cannot be contended — the one path that\ntakes it is the case where nothing has been published yet (a widget\nshown at zero size and resized in the same tick), and it takes it\nwithout blocking, settling for the flat page if the thread is\nmid-frame.\n\nRepainting is not only the timer's doing: every console line the\nwindow paints over a translucent surface exposes this widget and Qt\nasks it for a whole frame. Measured on a real X server with the real\nstylesheet, **one ambient repaint per console line** — 0.99 of them,\nwith the animation timer stopped. That is the fps cap being bypassed\nentirely, and it is why the cost of a repaint matters more than the\ncap suggests: shading it cost 1.7 ms idle and 22 ms under a Python\nworker, and blitting an already-shaded frame costs 0.24-0.32 ms at\nevery load measured.\n\n:param event: the paint event; a new frame is taken from the shading\n    thread only when its ``rect()`` covers the whole widget, otherwise\n    the current frame is repainted."
+      "source_sha256": "75083b78345adb55277df8948dec802d02079f889f84342757cea14af21216df",
+      "text": "Paint, timed on the timing timeline when timing is on.\n\n:param event: the Qt paint event, passed on to the painter."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.palette_name": {
       "source_blocks_sha256": [
@@ -95742,13 +95739,13 @@
     "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
       "source_blocks_sha256": [
         "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
-        "2d912368194c3f03f0ac1c3aef08823d0c3251a5f0f12a157675546d8ceeed85",
+        "aa90c80e0002f2baa3f52d37453f87d8cdfd7e50fd666248e347f0d61eeeb973",
         "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
         "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
         "67f3dc6748e58da7dca09315869b27acfe07ddd1fab88d9771b2557881ee550f"
       ],
-      "source_sha256": "651f8dae96c3c14f0285db821d946038f45c103b4a679d1dfbca922c5fb1439c",
-      "text": "A cell illustration and keyboard-accessible compartment selector.\n\n:param app_key: organism key; only Toxoplasma uses hyperLOPIT labels,\n    and only the apicomplexan pages are drawn upright.\n:param path: bundled SVG path; no external resource is fetched.\n:param parent: owning Qt widget.\nBuild upright artwork, a multi-select legend and compartment descriptions."
+      "source_sha256": "fb4a911755ed097ba32cbdcdc10846c5b7eef5938554768d7edbe1c4bc8db992",
+      "text": "A cell illustration and keyboard-accessible compartment selector.\n\n:param app_key: organism key; only Toxoplasma uses hyperLOPIT labels,\n    and only the apicomplexan and Leishmania pages are turned upright.\n:param path: bundled SVG path; no external resource is fetched.\n:param parent: owning Qt widget.\nBuild upright artwork, a multi-select legend and compartment descriptions."
     },
     "spacr.qt.widgets.organism_diagram.OrganismDiagram.changeEvent": {
       "source_blocks_sha256": [

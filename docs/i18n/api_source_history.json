@@ -596,6 +596,17 @@
       "source_sha256": "89c3fe58e7fbf73dc3bcaca167b6b07f05ab92edb17fa15c05080fb4c8535aba",
       "text": "The well, the three axes, the aggregations and the grid.\n\n:param parent: parent widget.\nBuild the pivot shelf beside the table.\n\nItem 471: the shelf (\"Pivot fields\") and the table (\"Pivot table\")\nare sections of one\n:class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`\n(``pivot_builder::panel``): each folds by its heading, and the edge\nbetween them drags, opening at the old 300 / 900 split.\n\n:param parent: parent widget, or ``None``."
     },
+    "91983849ae3864297f8958afc558314a481cb6e13b91911a841899e9f9d3c56f": {
+      "source_blocks_sha256": [
+        "bc6876646571ae3aa20a574e00ffe24427d018ddc24398062a04b686e74a9eec",
+        "47f3962294bed80f3624b6e64a2df59bac1594a9cf79a727de957608dd778480",
+        "d85f94db058967febbdfdde9209554148f85a03d764a905ff6567537114ba2a1",
+        "72bf488fd5f4108cf7b6c285e6bd95fb2ffc0512811981dcf25bc388ba4e31e0",
+        "1081bb5bd61e83fba215027133d2e5e6a6a03c5e7293ec3b47b841cc46b1634b"
+      ],
+      "source_sha256": "91983849ae3864297f8958afc558314a481cb6e13b91911a841899e9f9d3c56f",
+      "text": "Put the page down, then the newest frame the shading thread has.\n\n**This method never waits for anything.** That is the requirement the\nwhole change exists to meet — \"a frame that is not ready is a\nrepeated frame, never a blocked GUI thread\" — and it is met the only\nway it can be: :meth:`_FrameProducer.latest` refuses the slot rather\nthan blocking on it, the widget keeps a reference to the frame it is\nalready showing, and a paint with nothing new blits that one again\nand counts it in :attr:`repeated_frames`.\n\nWith a shading thread the engine lock is never *waited* on here, and\nwith no shading thread it cannot be contended — the one path that\ntakes it is the case where nothing has been published yet (a widget\nshown at zero size and resized in the same tick), and it takes it\nwithout blocking, settling for the flat page if the thread is\nmid-frame.\n\nRepainting is not only the timer's doing: every console line the\nwindow paints over a translucent surface exposes this widget and Qt\nasks it for a whole frame. Measured on a real X server with the real\nstylesheet, **one ambient repaint per console line** — 0.99 of them,\nwith the animation timer stopped. That is the fps cap being bypassed\nentirely, and it is why the cost of a repaint matters more than the\ncap suggests: shading it cost 1.7 ms idle and 22 ms under a Python\nworker, and blitting an already-shaded frame costs 0.24-0.32 ms at\nevery load measured.\n\n:param event: the paint event; a new frame is taken from the shading\n    thread only when its ``rect()`` covers the whole widget, otherwise\n    the current frame is repainted."
+    },
     "9beff523d5d32d9b2005cf509aff2e8a1aeea1bdabaf8182318c4d0a7feb4f4f": {
       "source_blocks_sha256": [
         "1782ff18ad967054f6b3da1ed013ab810da7709e2ba5e25c76c4aae5932998f6",

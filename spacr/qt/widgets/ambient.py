@@ -5593,7 +5593,10 @@ class AmbientWidget(QWidget):
         return QPoint(x - offset.x(), y - offset.y())
 
     def paintEvent(self, event) -> None:
-        """Paint, timed on the timing timeline when timing is on."""
+        """Paint, timed on the timing timeline when timing is on.
+
+        :param event: the Qt paint event, passed on to the painter.
+        """
         from .. import timing as _timing
 
         with _timing.span("paint", "ambient"):
