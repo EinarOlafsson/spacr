@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "sv",
   "title": "Graph Builder: rita mätningar och filtrera objekt",
-  "description": "Läs in en mättabell, tilldela diagramaxlar, jämför grupper och filtrera de visade objekten.",
+  "description": "Läs in en mättabell, jämför grupper, filtrera objekt och bygg illustrativa kolumner för genotyp, replikat och kombinerat villkor.",
   "objectives": [
     "Läsa in en exempelmättabell.",
     "Skapa ett histogram, ett spridningsdiagram och grupperade paneler.",
-    "Filtrera objekt och välja en uppföljande vy."
+    "Filtrera objekt och välja en uppföljande vy.",
+    "Tilldela etiketter efter exakta värden i separata utdatakolumner och kombinera dem utan att ändra källmätningarna.",
+    "Hämta text till kolumner, spara och läsa in ett annoteringsschema och slå ihop tabeller."
   ],
   "prerequisite": "Hämta och packa upp Graph_Builder_real_measurements.zip. Den innehåller measurements.db. För att granska bildutsnitt senare behåller du även det matchande Annotate-projektet och dess bilder tillgängliga.",
   "scenes": [
     "Öppna Graph Builder från Home för att utforska en mättabell. Börja med den länkade exempeldatabasen och upprepa sedan stegen med ditt eget uppmätta projekt.",
-    "Klicka på Load table och öppna measurements.db från det uppackade arkivet. Välj tabellen cell. Exemplet innehåller 2 341 uppmätta celler.",
+    "Klicka på Load table och öppna measurements.db från det uppackade arkivet. Välj tabellen cell. Exemplet innehåller 2 341 uppmätta celler. Merge tables, bredvid tabellväljaren, slår ihop flera tabeller till en; vi använder den i slutet.",
     "Hitta cell_area i kolumnlistan och dra den till X. Det automatiska diagrammet blir ett histogram: varje stapel räknar celler i ett areaintervall. Kontrollera mätenheterna innan du tolkar axeln.",
     "Dra cell_channel_1_mean_intensity till Y för att få ett spridningsdiagram. Varje punkt placerar en cell efter dess area och medelintensitet i kanal 1. Läs meddelandet om antal rader när du arbetar med större tabeller.",
     "Dra columnID till Colour för att skilja plattans kolumner åt. Använd förklaringen för att koppla färgerna till de registrerade kolumnetiketterna och leta efter grupper som behöver granskas närmare.",
     "Dra rowID till den nedåtriktade facettkanalen för att skapa en panel för varje plattrad. Jämför panelerna med hjälp av deras gemensamma axlar. Använd oberoende brunnar för statistiska jämförelser mellan förhållanden.",
     "I filterpanelen till höger lägger du till cell_area och anger ett minimum. Exemplet använder 21 925, vilket lämnar 1 171 rader. Välj gränser som passar dina egna mätningar och se hur antalet punkter och axlarna ändras.",
     "Klicka på Clear all i filterpanelen för att återställa hela tabellen. Använd Clear all channels till vänster när du vill ta bort diagrammets tilldelningar och börja ett annat diagram.",
+    "Clear all channels behåller diagramtypen men tar bort alla kolumner ur diagrammet, och ritytan säger då vad som saknas: dra en kolumn till X eller Y för att rita ett diagram igen. Släpp tillbaka samma kolumner för att fortsätta.",
     "Ta bort en facett med dess lilla kryss för att återgå till ett enda spridningsdiagram. Dra en rektangel runt objekt för att välja ett område. Om Open selection in Annotate inte är tillgängligt öppnar du Annotate separat med motsvarande projekt och granskar objekten där.",
     "Klicka på en tom del av diagrammet för att rensa markeringen. Kontrollera aktiva filter och det visade antalet innan du utforskar en annan grupp objekt.",
-    "Använd genvägarna i sidhuvudet för att öppna Plate Viewer för brunnsvärmekartor eller Small Multiples för upprepade diagram. Behåll källdatabasen, de valda kolumnerna och filtren så att du kan återskapa vyn.",
-    "Den nuvarande skärmen visar diagram utan exportknapp. Använd Graph Builder-API:t för skriptade diagram, eller Database Browser för att exportera en tabell till ett annat diagramverktyg."
+    "Klicka på Annotate conditions. Ge det första utdata namnet genotype och använd Assign values. Välj Exact values och märk columnID-värdena c1, c2 och c3 som WildType. Lägg till en andra ruta som heter mutant för c7, c4, c5 och c6. Detta är illustrativa etiketter, inte validerade genotyper. Den nedladdade tabellen innehåller bara c1 och c2, så alla celler matchar WildType och ingen matchar mutant. Exact values jämför hela värden: c1 matchar inte c10.",
+    "Lägg till en utdatakolumn som heter replicate. Matcha rowID-värdena r1, r4, r5 och r6 i en ruta som heter replicate 1. Lägg till ytterligare en ruta med samma namn för r7, r9 och r10. Rutor med samma etikett bildar en union; motstridiga olika etiketter i ett utdata måste lösas före Apply conditions. Exemplet innehåller r5 och r12, så r5 matchar och r12 förblir tom. Dessa övningsetiketter visar inte biologisk replikering.",
+    "Lägg till ett tredje utdata som heter condition och välj Compose column. Välj genotype under Available columns och klicka på Add column token. Skriv ett understreck och klicka på Add text token. Välj replicate och klicka på Add column token. De ordnade tecknen lyder nu genotype, understreck, replicate. Du kan dra tecknen eller använda Move token up och Move token down för att ändra ordningen. Förhandsgranska alla tre utdata. Matchande r5-celler blir WildType understreck replicate 1. Saknas en del förblir kombinationen tom, så r12 ger ingen etikett med None eller nan.",
+    "Ett utdata kan också hämtas ur text. Lägg till ett fjärde utdata som heter row_number och välj Extract text. Välj rowID som källkolumn och ange ett reguljärt uttryck med en namngiven grupp, här r följt av en grupp som heter row_number och fångar siffrorna. Klicka på Create columns from named groups och sedan på Preview. Rader utan träff förblir tomma. Exempeltabellen har inga ursprungliga filnamn, så vi hämtar ur en befintlig ID-kolumn.",
+    "Klicka på Save schema och välj en JSON-fil. Ett schema sparar reglerna, inte värdena: utdata, deras rutor, sammansättningar och uttrycksmönster. Manuella radtilldelningar hör till den här tabellen och utelämnas, och statusraden anger hur många.",
+    "Load schema läser in en sådan fil på samma eller en annan tabell. Den kontrolleras mot tabellens kolumner och öppnas som en förhandsvisning av alla utdata; inget tillämpas förrän du klickar på Apply conditions.",
+    "Klicka på Apply conditions för att lägga till genotype, replicate, condition och row_number i arbetstabellen. De ursprungliga mätkolumnerna och källdatabasen förblir oförändrade. Samma annoteringsredigerare fungerar också med en sammanslagen arbetstabell. Använd din försöksplan för att välja meningsfulla etiketter innan du ritar efter de nya kolumnerna.",
+    "Save chart sparar vyn och annoteringsreceptet för att läsas in igen. Export table innehåller de genererade kolumnerna. För en SQLite-källa frågar Save annotated table efter ett nytt tabellnamn, föreslår cell_annotated och skriver aldrig över en befintlig tabell. Det är separata sparåtgärder; Apply conditions ensamt skriver inte till källdatabasen.",
+    "Klicka på Merge tables bredvid tabellväljaren för att slå ihop tabeller. Markera cell, nucleus och pathogen, behåll cell som utdatatabell så att det blir en rad per cell, och namnge resultatet. Klicka på Validate and preview, läs radantal och kopplingsnycklar för varje tabell och klicka sedan på Create merged table.",
+    "Den sammanslagna tabellen väljs i tabellväljaren och dess kolumner kan ritas som vilken annan tabell som helst. Källtabellerna i databasen är oförändrade; sammanslagningen sparas som en reproducerbar definition bredvid databasen.",
+    "Använd genvägarna i sidhuvudet för att öppna Plate Viewer för brunnsvärmekartor eller Small Multiples för upprepade diagram. Behåll källdatabasen, de valda kolumnerna och filtren så att du kan återskapa vyn."
   ]
 }

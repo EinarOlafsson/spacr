@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "zh-CN",
   "title": "Graph Builder：绘制测量数据并过滤对象",
-  "description": "加载测量表，指定绘图坐标轴，比较分组，并过滤显示的对象。",
+  "description": "加载测量表，比较分组，筛选对象，并构建示例性的基因型、重复和组合条件列。",
   "objectives": [
     "加载示例测量表。",
     "绘制直方图、散点图和分组面板。",
-    "过滤对象并选择后续视图。"
+    "过滤对象并选择后续视图。",
+    "在单独的输出列中按精确值分配标签，并在不改变源测量值的情况下组合它们。",
+    "把文本提取到列中，保存并加载注释模式，以及合并表。"
   ],
   "prerequisite": "下载并解压Graph_Builder_real_measurements.zip。其中包含measurements.db。如需稍后查看图像裁剪，请同时保留对应的Annotate项目及其图像。",
   "scenes": [
     "从Home打开Graph Builder探索测量表。先使用链接中的示例数据库，然后在您自己的已测量项目上重复这些步骤。",
-    "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。",
+    "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。表格选择器旁的 Merge tables 可将多个表合并为一个；我们在最后会用到它。",
     "在列列表中找到cell_area，把它拖到X上。自动生成的图变成直方图：每个柱表示某个面积区间内的细胞数。解读坐标轴之前，请检查测量单位。",
     "把cell_channel_1_mean_intensity拖到Y上，生成散点图。每个点按面积和通道一的平均强度放置一个细胞。处理较大的表时，请留意行数提示。",
     "把columnID拖到Colour上，区分板上的各列。用图例把颜色与记录的列标签对应起来，并找出需要仔细检查的分组。",
     "把rowID拖到向下的分面通道上，为板上每一行生成一个面板。借助共享坐标轴比较各面板。在不同条件之间做统计比较时，请以独立的孔为单位。",
     "在右侧的过滤面板中添加cell_area并输入最小值。本例使用两万一千九百二十五，剩下一千一百七十一行。请为您自己的测量数据选择合适的阈值，并观察绘制的数量和坐标轴如何变化。",
     "在过滤面板中点击Clear all恢复完整的表。如果想移除绘图映射并开始另一张图，请使用左侧的Clear all channels。",
+    "Clear all channels 会保留图表类型，但从图表中移除所有列，画布随即说明缺少什么：把一列拖到 X 或 Y 上即可重新绘图。把相同的列放回去就能继续。",
     "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。",
     "点击图中的空白处清除选择。在探索另一组对象之前，请检查当前的过滤条件和显示的数量。",
-    "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。",
-    "当前界面显示的图没有导出按钮。需要用脚本绘图时请使用Graph Builder API，或使用Database Browser导出表格，供其他绘图工具使用。"
+    "点击 Annotate conditions。将第一个输出命名为 genotype，并使用 Assign values。选择 Exact values，然后将 columnID 值 c1、c2 和 c3 标记为 WildType。再添加一个名为 mutant 的规则框，用于 c7、c4、c5 和 c6。这些只是示例标签，并非经过验证的基因型。下载的表只包含 c1 和 c2，因此所有细胞都匹配 WildType，没有细胞匹配 mutant。Exact values 按完整值匹配：c1 不会匹配 c10。",
+    "添加名为 replicate 的输出列。在名为 replicate 1 的规则框中匹配 rowID 值 r1、r4、r5 和 r6。再添加一个同名规则框，用于 r7、r9 和 r10。标签相同的规则框取并集；同一输出中相互冲突的不同标签必须在 Apply conditions 之前解决。示例包含 r5 和 r12，因此 r5 匹配，r12 保持为空。这些练习标签并不能证明生物学重复。",
+    "添加名为 condition 的第三个输出并选择 Compose column。在 Available columns 中选择 genotype，然后点击 Add column token。输入一个下划线并点击 Add text token。选择 replicate 并点击 Add column token。按顺序排列的标记现在是 genotype、下划线、replicate。您可以拖动标记，或使用 Move token up 和 Move token down 调整顺序。预览全部三个输出。匹配的 r5 细胞变为 WildType 下划线 replicate 1。缺少任一组成部分时组合保持为空，因此 r12 不会生成包含 None 或 nan 的标签。",
+    "输出也可以从文本中提取。添加名为 row_number 的第四个输出并选择 Extract text。选择 rowID 作为源列，并输入带命名组的正则表达式，这里是 r 后接一个名为 row_number、用来捕获数字的组。点击 Create columns from named groups，然后点击 Preview。不匹配的行保持为空。示例表中没有原始文件名，因此我们从现有的 ID 列中提取。",
+    "点击 Save schema 并选择一个 JSON 文件。模式保存的是规则而不是值：输出、它们的规则框、组合和提取模式。手动的行分配与此表绑定，因此会被省略，状态行会显示省略了多少。",
+    "Load schema 会把这样的文件读入同一张表或另一张表。它会根据表的列进行检查，并以所有输出的预览形式打开；在点击 Apply conditions 之前不会应用任何内容。",
+    "点击 Apply conditions，将 genotype、replicate、condition 和 row_number 添加到工作表。原始测量列和源数据库保持不变。同一个注释编辑器也适用于合并后的工作表。在按这些新列绘图之前，请根据实验设计选择有意义的标签。",
+    "Save chart 会保存视图和注释方案以便重新加载。Export table 包含生成的列。对于 SQLite 数据源，Save annotated table 会询问新的表名，建议 cell_annotated，并且绝不覆盖已有的表。这些是彼此独立的保存操作；仅点击 Apply conditions 不会写入源数据库。",
+    "要合并表，请点击表格选择器旁的 Merge tables。勾选 cell、nucleus 和 pathogen，保持 cell 作为输出观测表，使每个细胞一行，并为结果命名。点击 Validate and preview，查看每张表的行数和连接键，然后点击 Create merged table。",
+    "合并后的表会在选择器中被选中，它的列可以像其他表一样绘图。数据库中的源表保持不变；合并以可重现的定义保存在数据库旁边。",
+    "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。"
   ]
 }

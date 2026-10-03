@@ -49,11 +49,25 @@ def check_brush(expected_keys, published_keys, visible_count, handoff_enabled):
             'annotation_handoff_works': False}
 
 
-def check_annotation_recipe(base, annotated, definition):
+def check_annotation_recipe(base, annotated, definition, *, extract=False):
     """Check all lesson outputs independently of the application's evaluator."""
     import pandas as pd
 
     outputs = ['genotype', 'replicate', 'condition']
+    extracted = None
+    if extract:
+        import re
+        entry = definition.get('columns', [])[3:]
+        if (len(entry) != 1 or entry[0].get('kind') != 'extract'
+                or entry[0].get('column') != 'row_number' or entry[0].get('metadata_column') != 'rowID'):
+            raise ValueError('Expected one Extract text output, row_number from rowID')
+        expected = [(m.group(1) if (m := re.fullmatch(r'r(\d+)', str(v))) else None) for v in base.rowID]
+        actual = [None if pd.isna(v) else str(v) for v in annotated['row_number']]
+        if expected != actual:
+            raise ValueError('Extract text differs from an independent regex over rowID')
+        extracted = dict(Counter(v for v in expected if v is not None))
+        annotated = annotated.drop(columns=['row_number'])
+        definition = dict(definition, columns=definition['columns'][:3])
     if (not base.index.equals(annotated.index)
             or list(annotated.columns) != list(base.columns) + outputs
             or not base.equals(annotated.loc[:, base.columns])):
@@ -97,4 +111,4 @@ def check_annotation_recipe(base, annotated, definition):
                        for i, name in enumerate(outputs)},
             'combined_missing_rows': sum(row[2] is None for row in expected_rows),
             'illustrative_labels_only': True, 'source_columns_unchanged': True,
-            'published': False}
+            'extract_text_row_number': extracted, 'published': False}

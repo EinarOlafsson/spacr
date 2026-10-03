@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "is",
   "title": "Graph Builder: teiknaðu mælingar og síaðu hluti",
-  "description": "Hlaðu inn mælingatöflu, úthlutaðu ásum grafsins, berðu saman hópa og síaðu birtu hlutina.",
+  "description": "Hladdu inn mælitöflu, berðu saman hópa, síaðu hluti og búðu til dæmadálka fyrir arfgerð, endurtekningu og sameinað skilyrði.",
   "objectives": [
     "Hlaða inn dæmatöflu með mælingum.",
     "Búa til stuðlarit, dreifirit og hópaspjöld.",
-    "Sía hluti og velja næstu sýn."
+    "Sía hluti og velja næstu sýn.",
+    "Úthluta merkjum eftir nákvæmum gildum í aðskildum úttaksdálkum og sameina þau án þess að breyta upprunamælingum.",
+    "Draga texta út í dálka, vista og hlaða merkingarskema og sameina töflur."
   ],
   "prerequisite": "Sæktu og dragðu út Graph_Builder_real_measurements.zip. Það inniheldur measurements.db. Til að skoða myndúrklipp síðar skaltu líka hafa samsvarandi Annotate-verkefni og myndir þess tiltækar.",
   "scenes": [
     "Opnaðu Graph Builder frá Home til að kanna mælingatöflu. Byrjaðu á tengda dæmagagnagrunninum og endurtaktu svo skrefin með þínu eigin mælda verkefni.",
-    "Smelltu á Load table og opnaðu measurements.db úr útdregna safninu. Veldu töfluna cell. Dæmið inniheldur 2.341 mælda frumu.",
+    "Smelltu á Load table og opnaðu measurements.db úr útdregna safninu. Veldu töfluna cell. Dæmið inniheldur 2.341 mælda frumu. Merge tables, við hlið töfluvalsins, sameinar nokkrar töflur í eina; við notum það í lokin.",
     "Finndu cell_area í dálkalistanum og dragðu hann á X. Sjálfvirka grafið verður stuðlarit: hver súla telur frumur á flatarmálsbili. Athugaðu mælieiningarnar áður en þú túlkar ásinn.",
     "Dragðu cell_channel_1_mean_intensity á Y til að búa til dreifirit. Hver punktur staðsetur eina frumu eftir flatarmáli og meðalstyrk í rás 1. Lestu tilkynninguna um línufjölda þegar þú vinnur með stærri töflur.",
     "Dragðu columnID á Colour til að greina á milli dálka plötunnar. Notaðu skýringuna til að para litina við skráð dálkamerki og leitaðu að hópum sem þarf að skoða nánar.",
     "Dragðu rowID á hliðarrásina niður á við til að búa til spjald fyrir hverja röð plötunnar. Berðu spjöldin saman með sameiginlegu ásunum. Notaðu óháða brunna þegar þú gerir tölfræðilegan samanburð milli aðstæðna.",
     "Í síuspjaldinu hægra megin bætirðu við cell_area og slærð inn lágmark. Dæmið notar 21.925, sem skilur eftir 1.171 línu. Veldu þröskulda sem henta þínum mælingum og fylgstu með teiknaða fjöldanum og ásunum breytast.",
     "Smelltu á Clear all í síuspjaldinu til að fá alla töfluna aftur. Notaðu Clear all channels vinstra megin þegar þú vilt fjarlægja vörpun grafsins og byrja á öðru grafi.",
+    "Clear all channels heldur gerð grafsins en fjarlægir alla dálka úr því, og strigi segir þá hvað vantar: dragðu dálk á X eða Y til að teikna graf aftur. Slepptu sömu dálkunum aftur til að halda áfram.",
     "Fjarlægðu hlið með litla krossinum hennar til að fara aftur í eitt dreifirit. Dragðu rétthyrning utan um hluti til að velja svæði. Ef Open selection in Annotate er ekki tiltækt opnarðu Annotate sérstaklega með samsvarandi verkefni og skoðar hlutina þar.",
     "Smelltu á auðan hluta grafsins til að hreinsa valið. Athugaðu virkar síur og birtan fjölda áður en þú kannar annan hóp hluta.",
-    "Notaðu flýtileiðirnar í hausnum til að opna Plate Viewer fyrir hitakort brunna eða Small Multiples fyrir endurtekin gröf. Haltu upprunagagnagrunninum, völdum dálkum og síum svo þú getir endurgert sýnina.",
-    "Núverandi skjár sýnir gröf án útflutningshnapps. Notaðu Graph Builder-forritaskilin fyrir skriftuð gröf, eða Database Browser til að flytja út töflu fyrir annað graftól."
+    "Smelltu á Annotate conditions. Nefndu fyrsta úttakið genotype og notaðu Assign values. Veldu Exact values og merktu columnID-gildin c1, c2 og c3 sem WildType. Bættu við öðrum kassa sem heitir mutant fyrir c7, c4, c5 og c6. Þetta eru dæmamerki, ekki staðfestar arfgerðir. Niðurhalaða taflan inniheldur aðeins c1 og c2, svo allar frumur passa við WildType og engin við mutant. Exact values ber saman heil gildi: c1 passar ekki við c10.",
+    "Bættu við úttaksdálki sem heitir replicate. Paraðu rowID-gildin r1, r4, r5 og r6 í kassa sem heitir replicate 1. Bættu við öðrum kassa með sama nafni fyrir r7, r9 og r10. Kassar með sama merki mynda sammengi; ólík merki sem stangast á í einu úttaki þarf að leysa fyrir Apply conditions. Dæmið inniheldur r5 og r12, svo r5 passar og r12 helst tómt. Þessi æfingamerki staðfesta ekki líffræðilega endurtekningu.",
+    "Bættu við þriðja úttaki sem heitir condition og veldu Compose column. Veldu genotype undir Available columns og smelltu á Add column token. Sláðu inn undirstrik og smelltu á Add text token. Veldu replicate og smelltu á Add column token. Röðuðu táknin eru nú genotype, undirstrik, replicate. Þú getur dregið táknin eða notað Move token up og Move token down til að breyta röðinni. Forskoðaðu öll þrjú úttökin. Frumur sem passa í r5 verða WildType undirstrik replicate 1. Vanti hluta helst samsetningin tóm, svo r12 gefur ekki merki með None eða nan.",
+    "Einnig má draga úttak út úr texta. Bættu við fjórða úttaki sem heitir row_number og veldu Extract text. Veldu rowID sem upprunadálk og sláðu inn reglulega segð með nefndum hópi, hér r á undan hópi sem heitir row_number og grípur tölustafina. Smelltu á Create columns from named groups og svo á Preview. Línur sem passa ekki haldast tómar. Dæmataflan hefur engin upprunaleg skráarheiti, svo við drögum út úr fyrirliggjandi auðkennisdálki.",
+    "Smelltu á Save schema og veldu JSON-skrá. Skema geymir reglurnar, ekki gildin: úttökin, kassa þeirra, samsetningar og útdráttarmynstur. Handvirkar línuúthlutanir tilheyra þessari töflu og eru skildar eftir, og stöðulínan segir hve margar.",
+    "Load schema les slíka skrá inn á sömu töflu eða aðra. Hún er borin saman við dálka töflunnar og opnast sem forskoðun allra úttaka; ekkert er notað fyrr en þú smellir á Apply conditions.",
+    "Smelltu á Apply conditions til að bæta genotype, replicate, condition og row_number við vinnutöfluna. Upprunalegu mæligildadálkarnir og upprunagagnagrunnurinn breytast ekki. Sami merkingarritill virkar líka með sameinaðri vinnutöflu. Notaðu tilraunaskipulagið til að velja merkingarbær merki áður en þú teiknar eftir nýju dálkunum.",
+    "Save chart geymir sýnina og merkingaruppskriftina til að hlaða aftur. Export table inniheldur dálkana sem voru búnir til. Fyrir SQLite-uppruna biður Save annotated table um nýtt töfluheiti, stingur upp á cell_annotated og skrifar aldrei yfir fyrirliggjandi töflu. Þetta eru aðskildar vistunaraðgerðir; Apply conditions eitt sér skrifar ekki í upprunagagnagrunninn.",
+    "Til að sameina töflur skaltu smella á Merge tables við hlið töfluvalsins. Hakaðu við cell, nucleus og pathogen, haltu cell sem úttakstöflu svo ein lína sé á hverja frumu, og gefðu niðurstöðunni nafn. Smelltu á Validate and preview, lestu línufjölda og tengilykla hverrar töflu og smelltu svo á Create merged table.",
+    "Sameinaða taflan er valin í töfluvalinu og dálka hennar má teikna eins og hverja aðra. Upprunatöflurnar í gagnagrunninum breytast ekki; sameiningin er vistuð sem endurtakanleg skilgreining við hlið gagnagrunnsins.",
+    "Notaðu flýtileiðirnar í hausnum til að opna Plate Viewer fyrir hitakort brunna eða Small Multiples fyrir endurtekin gröf. Haltu upprunagagnagrunninum, völdum dálkum og síum svo þú getir endurgert sýnina."
   ]
 }

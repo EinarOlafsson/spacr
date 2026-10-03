@@ -11,7 +11,8 @@
     "Load an example measurement table.",
     "Build a histogram, scatter plot and grouped panels.",
     "Filter objects and choose a follow-up view.",
-    "Assign exact-value labels in separate output columns and combine them without changing source measurements."
+    "Assign exact-value labels in separate output columns and combine them without changing source measurements.",
+    "Extract text into columns, save and load an annotation schema, and merge tables."
   ],
   "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
   "example_files": [
@@ -25,7 +26,7 @@
     },
     {
       "visual": "03_choose_database",
-      "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+      "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells. Merge tables, beside the table picker, combines several tables into one; we use it at the end.",
       "hold_after": 0.7,
       "related_lessons": [
         "09_annotate",
@@ -63,6 +64,11 @@
       "hold_after": 0.7
     },
     {
+      "visual": "10b_channels_cleared",
+      "narration": "Clear all channels keeps the plot kind but removes every column from the chart, and the canvas then says what is missing: drag a column onto X or Y to draw a chart again. Drop the same columns back to continue.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "11_actual_brush_state",
       "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
       "hold_after": 0.7
@@ -88,8 +94,38 @@
       "hold_after": 0.7
     },
     {
+      "visual": "15b_extract_text",
+      "narration": "An output can also be extracted from text. Add a fourth output named row_number and choose Extract text. Pick rowID as the source column and enter a regular expression with a named group, here r followed by a group called row_number that captures the digits. Click Create columns from named groups, then Preview. Rows that do not match stay blank. The example table has no original filenames, so we extract from an existing ID column.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15c_save_schema",
+      "narration": "Click Save schema and choose a JSON file. A schema keeps the rules, not the values: the outputs, their boxes, compositions and extraction patterns. Manual row assignments are tied to this table and are left out, and the status line says how many were omitted.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15d_load_schema",
+      "narration": "Load schema reads such a file onto the same or another table. It is checked against the table's columns and opens as a preview of every output; nothing is applied until you click Apply conditions.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "16_annotations_applied",
-      "narration": "Click Apply conditions to add genotype, replicate and condition to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
+      "narration": "Click Apply conditions to add genotype, replicate, condition and row_number to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16b_save_annotated",
+      "narration": "Save chart preserves the view and annotation recipe for reloading. Export table includes the generated columns. For a SQLite source, Save annotated table asks for a new table name, suggesting cell_annotated, and never overwrites an existing table. These are separate persistence actions; Apply conditions alone does not write the source database.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_merge_tables",
+      "narration": "To combine tables, click Merge tables beside the table picker. Tick cell, nucleus and pathogen, keep cell as the output observation table so there is one row per cell, and name the result. Click Validate and preview and read the row counts and join keys for each table, then click Create merged table.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_merged_table",
+      "narration": "The merged table is selected in the picker and its columns can be plotted like any other. The source tables in the database are unchanged; the merge is saved as a reproducible definition beside the database.",
       "hold_after": 0.7
     },
     {
@@ -99,14 +135,6 @@
       "related_lessons": [
         "33_plate_viewer",
         "63_small_multiples"
-      ]
-    },
-    {
-      "visual": "16_annotations_applied",
-      "narration": "Save chart preserves the view and annotation recipe for reloading. Export table includes the generated columns. For a SQLite source, Save annotated table writes a new table and refuses to overwrite an existing one. These are separate persistence actions; Apply conditions alone does not write the source database.",
-      "hold_after": 0.7,
-      "related_lessons": [
-        "06_api"
       ]
     }
   ]

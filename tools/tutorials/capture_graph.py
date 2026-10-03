@@ -288,9 +288,18 @@ def record_graph(app, window, screen, stage, captures, capture, settle, write_js
             if len(canvas.link.selection) or canvas.selected_count() or screen._to_annotate.isEnabled():
                 raise RuntimeError('The native click failed to clear the brush state')
             capture('12_selection_cleared')
-            annotation_proof = record_annotations(app, screen, capture, settle, timeout)
+            extras = {'schema': stage / 'graph_schema' / captures.name / 'conditions.schema.json'}
+            extras['schema'].parent.mkdir(parents=True, exist_ok=True)
+            annotation_proof = record_annotations(app, screen, capture, settle, timeout, extras=extras)
             if digest(database) != original_hash:
                 raise RuntimeError('Chart exploration changed the source database')
+            from capture_graph_annotations import record_graph_extras
+            annotation_proof['writes'] = record_graph_extras(app, screen, capture, settle, timeout,
+                                                             write_json, captures)
+            with sqlite3.connect('file:' + str(database) + '?mode=ro', uri=True) as connection:
+                after = pd.read_sql_query('SELECT * FROM cell', connection)
+            pd.testing.assert_frame_equal(after, expected_frame)
+            annotation_proof['cell_table_unchanged_after_writes'] = True
             write_json(captures/'scientific_acceptance.json', {
                 'accepted':True, 'scope':'Actual native charts and reversible filters; annotation handoff explicitly BROKEN',
                 'condition_annotations': annotation_proof,

@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "pt-BR",
   "title": "Graph Builder: plotar medições e filtrar objetos",
-  "description": "Carregue uma tabela de medições, atribua os eixos do gráfico, compare grupos e filtre os objetos exibidos.",
+  "description": "Carregue uma tabela de medições, compare grupos, filtre objetos e crie colunas ilustrativas de genótipo, réplica e condição combinada.",
   "objectives": [
     "Carregar uma tabela de medições de exemplo.",
     "Montar um histograma, um gráfico de dispersão e painéis por grupo.",
-    "Filtrar objetos e escolher uma visualização para o próximo passo."
+    "Filtrar objetos e escolher uma visualização para o próximo passo.",
+    "Atribuir rótulos por valores exatos em colunas de saída separadas e combiná-los sem alterar as medições de origem.",
+    "Extrair texto em colunas, salvar e carregar um esquema de anotação e combinar tabelas."
   ],
   "prerequisite": "Baixe e extraia Graph_Builder_real_measurements.zip. Ele contém measurements.db. Para inspecionar recortes de imagem depois, mantenha também disponíveis o projeto do Annotate correspondente e as imagens dele.",
   "scenes": [
     "Abra o Graph Builder na tela Home para explorar uma tabela de medições. Comece com o banco de dados de exemplo indicado e depois repita os passos com o seu próprio projeto medido.",
-    "Clique em Load table e abra measurements ponto db do arquivo extraído. Escolha a tabela cell. Este exemplo contém duas mil trezentas e quarenta e uma células medidas.",
+    "Clique em Load table e abra measurements ponto db do arquivo extraído. Escolha a tabela cell. Este exemplo contém duas mil trezentas e quarenta e uma células medidas. Merge tables, ao lado do seletor de tabelas, combina várias tabelas em uma; vamos usá-lo no fim.",
     "Encontre cell_area na lista de colunas e arraste para X. O gráfico automático vira um histograma: cada barra conta as células num intervalo de área. Confira as unidades da medição antes de interpretar o eixo.",
     "Arraste cell_channel_1_mean_intensity para Y para fazer um gráfico de dispersão. Cada ponto posiciona uma célula pela área e pela intensidade média do canal um. Leia o aviso sobre o número de linhas ao trabalhar com tabelas maiores.",
     "Arraste columnID para Colour para distinguir as colunas da placa. Use a legenda para associar as cores aos rótulos de coluna registrados e procure grupos que precisem de uma inspeção mais cuidadosa.",
     "Arraste rowID para o canal de facetas para baixo para criar um painel para cada linha da placa. Compare os painéis usando os eixos compartilhados. Use poços independentes ao fazer comparações estatísticas entre condições.",
     "No painel de filtros à direita, adicione cell_area e informe um mínimo. O exemplo usa vinte e um mil novecentos e vinte e cinco, o que deixa mil cento e setenta e uma linhas. Escolha limiares adequados às suas medições e observe a contagem plotada e os eixos mudarem.",
     "Clique em Clear all no painel de filtros para restaurar a tabela completa. Use Clear all channels à esquerda quando quiser remover as atribuições do gráfico e começar outro.",
+    "Clear all channels mantém o tipo de gráfico, mas remove todas as colunas do gráfico, e a área de desenho então diz o que falta: arraste uma coluna para X ou Y para desenhar um gráfico de novo. Solte as mesmas colunas de volta para continuar.",
     "Remova uma faceta pelo pequeno x para voltar a um único gráfico de dispersão. Desenhe um retângulo em volta de objetos para selecionar uma região. Se Open selection in Annotate não estiver disponível, abra o Annotate separadamente com o projeto correspondente e inspecione os objetos lá.",
     "Clique numa parte vazia do gráfico para limpar a seleção. Confira os filtros ativos e a contagem exibida antes de explorar outro grupo de objetos.",
-    "Use os atalhos do cabeçalho para abrir o Plate Viewer, com mapas de calor por poço, ou o Small Multiples, com gráficos repetidos. Guarde o banco de dados de origem, as colunas escolhidas e os filtros para poder reproduzir a visualização.",
-    "A tela atual mostra os gráficos sem botão de exportação. Use a API do Graph Builder para gráficos por script, ou o Database Browser para exportar uma tabela para outra ferramenta de gráficos."
+    "Clique em Annotate conditions. Chame a primeira saída de genotype e use Assign values. Escolha Exact values e rotule os valores de columnID c1, c2 e c3 como WildType. Adicione uma segunda caixa chamada mutant para c7, c4, c5 e c6. São rótulos ilustrativos, não genótipos validados. A tabela baixada contém apenas c1 e c2, então todas as células correspondem a WildType e nenhuma a mutant. Exact values compara valores inteiros: c1 não corresponde a c10.",
+    "Adicione uma coluna de saída chamada replicate. Faça corresponder os valores de rowID r1, r4, r5 e r6 em uma caixa chamada replicate 1. Adicione outra caixa com o mesmo nome para r7, r9 e r10. Caixas com o mesmo rótulo formam uma união; rótulos diferentes em conflito numa saída precisam ser resolvidos antes de Apply conditions. O exemplo contém r5 e r12, então r5 corresponde e r12 fica em branco. Esses rótulos de prática não comprovam replicação biológica.",
+    "Adicione uma terceira saída chamada condition e escolha Compose column. Selecione genotype em Available columns e clique em Add column token. Digite um sublinhado e clique em Add text token. Selecione replicate e clique em Add column token. Os tokens ordenados agora são genotype, sublinhado, replicate. Você pode arrastar os tokens ou usar Move token up e Move token down para mudar a ordem. Visualize as três saídas. As células r5 que correspondem viram WildType sublinhado replicate 1. Se faltar um componente, a combinação fica em branco, então r12 não gera um rótulo com None ou nan.",
+    "Uma saída também pode ser extraída de um texto. Adicione uma quarta saída chamada row_number e escolha Extract text. Selecione rowID como coluna de origem e digite uma expressão regular com um grupo nomeado, aqui r seguido de um grupo chamado row_number que captura os dígitos. Clique em Create columns from named groups e depois em Preview. Linhas sem correspondência ficam em branco. A tabela de exemplo não tem nomes de arquivo originais, então extraímos de uma coluna de identificação existente.",
+    "Clique em Save schema e escolha um arquivo JSON. Um esquema guarda as regras, não os valores: as saídas, suas caixas, composições e padrões de extração. As atribuições manuais de linhas pertencem a esta tabela e ficam de fora, e a linha de status informa quantas.",
+    "Load schema lê um arquivo assim na mesma tabela ou em outra. Ele é conferido com as colunas da tabela e abre como prévia de todas as saídas; nada é aplicado até você clicar em Apply conditions.",
+    "Clique em Apply conditions para adicionar genotype, replicate, condition e row_number à tabela de trabalho. As colunas de medição originais e o banco de dados de origem não mudam. O mesmo editor de anotações também funciona com uma tabela de trabalho combinada. Use seu desenho experimental para escolher rótulos significativos antes de plotar por essas novas colunas.",
+    "Save chart preserva a visualização e a receita de anotação para recarregar. Export table inclui as colunas geradas. Para uma origem SQLite, Save annotated table pede o nome de uma nova tabela, sugere cell_annotated e nunca sobrescreve uma tabela existente. São ações de salvamento separadas; Apply conditions sozinho não grava no banco de dados de origem.",
+    "Para combinar tabelas, clique em Merge tables ao lado do seletor de tabelas. Marque cell, nucleus e pathogen, mantenha cell como tabela de saída para ter uma linha por célula e dê um nome ao resultado. Clique em Validate and preview, leia as contagens de linhas e as chaves de junção de cada tabela e depois clique em Create merged table.",
+    "A tabela combinada fica selecionada no seletor e suas colunas podem ser plotadas como qualquer outra. As tabelas de origem no banco de dados não mudam; a combinação é salva como uma definição reproduzível ao lado do banco de dados.",
+    "Use os atalhos do cabeçalho para abrir o Plate Viewer, com mapas de calor por poço, ou o Small Multiples, com gráficos repetidos. Guarde o banco de dados de origem, as colunas escolhidas e os filtros para poder reproduzir a visualização."
   ]
 }

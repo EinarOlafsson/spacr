@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "ko",
   "title": "Graph Builder: 측정값 그래프와 객체 필터링",
-  "description": "측정 표를 불러오고, 그래프 축을 지정하고, 그룹을 비교한 뒤 표시된 객체를 필터링합니다.",
+  "description": "측정 테이블을 불러와 그룹을 비교하고, 객체를 필터링하고, 예시용 유전형, 반복, 조합 조건 열을 만듭니다.",
   "objectives": [
     "예제 측정 표를 불러옵니다.",
     "히스토그램, 산점도, 그룹별 패널을 만듭니다.",
-    "객체를 필터링하고 다음에 쓸 보기를 고릅니다."
+    "객체를 필터링하고 다음에 쓸 보기를 고릅니다.",
+    "별도의 출력 열에 정확한 값 기준 레이블을 지정하고, 원본 측정값을 바꾸지 않고 조합하기.",
+    "텍스트를 열로 추출하고, 주석 스키마를 저장하고 불러오며, 테이블을 합치기."
   ],
   "prerequisite": "Graph_Builder_real_measurements.zip을 내려받아 압축을 푸세요. measurements.db가 들어 있습니다. 나중에 이미지 크롭을 확인하려면 대응하는 Annotate 프로젝트와 이미지도 준비해 두세요.",
   "scenes": [
     "Home에서 Graph Builder를 열어 측정 표를 살펴보세요. 연결된 예제 데이터베이스로 시작한 뒤, 자신의 측정 프로젝트로 같은 단계를 반복하세요.",
-    "Load table을 클릭하고 압축을 푼 아카이브의 measurements.db를 여세요. cell 표를 고르세요. 이 예제에는 측정된 세포 2,341개가 있습니다.",
+    "Load table을 클릭하고 압축을 푼 아카이브의 measurements.db를 여세요. cell 표를 고르세요. 이 예제에는 측정된 세포 2,341개가 있습니다. 테이블 선택기 옆의 Merge tables는 여러 테이블을 하나로 합칩니다. 이 기능은 마지막에 사용합니다.",
     "열 목록에서 cell_area를 찾아 X로 끌어다 놓으세요. 자동 차트가 히스토그램이 되며, 각 막대는 면적 구간별 세포 수를 나타냅니다. 축을 해석하기 전에 측정 단위를 확인하세요.",
     "cell_channel_1_mean_intensity를 Y로 끌어다 놓아 산점도를 만드세요. 각 점은 세포 하나를 면적과 채널 1 평균 강도로 배치합니다. 큰 표를 다룰 때는 행 수 안내를 읽으세요.",
     "columnID를 Colour로 끌어다 놓아 플레이트 열을 구분하세요. 범례로 색과 기록된 열 라벨을 대응시키고, 더 자세히 볼 그룹을 찾으세요.",
     "rowID를 아래 방향 패싯 채널로 끌어다 놓으면 플레이트 행마다 패널이 생깁니다. 공유 축을 이용해 패널을 비교하세요. 조건 간 통계 비교에는 독립된 웰을 쓰세요.",
     "오른쪽 필터 패널에서 cell_area를 추가하고 최솟값을 입력하세요. 예제는 21,925를 쓰며, 그러면 1,171개 행이 남습니다. 자신의 측정값에 맞는 기준값을 고르고, 그려진 개수와 축이 바뀌는 것을 확인하세요.",
     "필터 패널의 Clear all을 클릭하면 전체 표로 돌아갑니다. 그래프 매핑을 지우고 다른 차트를 시작하려면 왼쪽의 Clear all channels를 쓰세요.",
+    "Clear all channels는 그래프 종류는 그대로 두고 그래프에서 모든 열을 뺍니다. 그러면 캔버스에 무엇이 빠졌는지 표시됩니다. 그래프를 다시 그리려면 열을 X나 Y로 끌어다 놓으세요. 같은 열을 다시 놓으면 이어서 진행할 수 있습니다.",
     "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. Open selection in Annotate를 쓸 수 없다면, 대응하는 프로젝트로 Annotate를 따로 열어 그곳에서 객체를 확인하세요.",
     "그래프의 빈 곳을 클릭하면 선택이 해제됩니다. 다른 객체 그룹을 살펴보기 전에 활성 필터와 표시된 개수를 확인하세요.",
-    "머리글의 바로 가기로 웰 히트맵은 Plate Viewer에서, 반복 차트는 Small Multiples에서 여세요. 보기를 재현할 수 있도록 원본 데이터베이스와 고른 열, 필터를 보관하세요.",
-    "현재 화면에는 차트 내보내기 버튼이 없습니다. 스크립트로 그래프를 만들려면 Graph Builder API를, 다른 그래프 도구에서 쓸 표를 내보내려면 Database Browser를 쓰세요."
+    "Annotate conditions를 클릭하세요. 첫 번째 출력의 이름을 genotype으로 하고 Assign values를 사용합니다. Exact values를 고른 뒤 columnID 값 c1, c2, c3에 WildType 레이블을 붙이세요. c7, c4, c5, c6을 위한 mutant라는 두 번째 상자를 추가하세요. 이것은 예시용 레이블이며 검증된 유전형이 아닙니다. 내려받은 테이블에는 c1과 c2만 있으므로 모든 세포가 WildType에 해당하고 mutant에 해당하는 세포는 없습니다. Exact values는 값 전체로 비교하므로 c1은 c10과 일치하지 않습니다.",
+    "replicate라는 출력 열을 추가하세요. rowID 값 r1, r4, r5, r6을 replicate 1이라는 상자에 지정하세요. 같은 이름의 상자를 하나 더 추가해 r7, r9, r10을 지정하세요. 같은 레이블의 상자는 합집합이 되며, 한 출력 안에서 서로 다른 레이블이 충돌하면 Apply conditions 전에 해결해야 합니다. 예제에는 r5와 r12가 있으므로 r5는 일치하고 r12는 비어 있습니다. 이 연습용 레이블은 생물학적 반복을 입증하지 않습니다.",
+    "condition이라는 세 번째 출력을 추가하고 Compose column을 고르세요. Available columns에서 genotype을 선택하고 Add column token을 클릭하세요. 밑줄을 입력하고 Add text token을 클릭하세요. replicate를 선택하고 Add column token을 클릭하세요. 정렬된 토큰은 이제 genotype, 밑줄, replicate입니다. 토큰을 끌거나 Move token up과 Move token down으로 순서를 바꿀 수 있습니다. 세 출력을 모두 미리 보세요. 일치하는 r5 세포는 WildType 밑줄 replicate 1이 됩니다. 구성 요소가 빠지면 조합은 비어 있으므로, r12에서는 None이나 nan이 들어간 레이블이 생기지 않습니다.",
+    "출력은 텍스트에서 추출할 수도 있습니다. row_number라는 네 번째 출력을 추가하고 Extract text를 고르세요. 원본 열로 rowID를 고르고 이름 있는 그룹이 들어간 정규식을 입력합니다. 여기서는 r 뒤에 숫자를 잡아내는 row_number 그룹을 둡니다. Create columns from named groups를 클릭한 다음 Preview를 클릭하세요. 일치하지 않는 행은 비어 있습니다. 예제 테이블에는 원래 파일 이름이 없으므로 기존 ID 열에서 추출합니다.",
+    "Save schema를 클릭하고 JSON 파일을 고르세요. 스키마에는 값이 아니라 규칙이 저장됩니다. 출력, 그 상자, 조합, 추출 패턴입니다. 수동 행 지정은 이 테이블에 묶여 있어 빠지며, 몇 개가 빠졌는지는 상태 줄에 표시됩니다.",
+    "Load schema는 그런 파일을 같은 테이블이나 다른 테이블에 읽어 들입니다. 테이블의 열과 대조해 확인한 뒤 모든 출력의 미리보기로 열리며, Apply conditions를 클릭하기 전에는 아무것도 적용되지 않습니다.",
+    "Apply conditions를 클릭하면 작업 테이블에 genotype, replicate, condition, row_number가 추가됩니다. 원래 측정 열과 원본 데이터베이스는 바뀌지 않습니다. 같은 주석 편집기는 합친 작업 테이블에서도 동작합니다. 새 열로 그래프를 그리기 전에 실험 설계에 맞게 의미 있는 레이블을 고르세요.",
+    "Save chart는 다시 불러올 수 있도록 보기와 주석 레시피를 저장합니다. Export table에는 생성된 열이 포함됩니다. SQLite 원본에서는 Save annotated table이 새 테이블 이름을 묻고 cell_annotated를 제안하며, 기존 테이블을 절대 덮어쓰지 않습니다. 이것들은 서로 다른 저장 작업이며, Apply conditions만으로는 원본 데이터베이스에 쓰지 않습니다.",
+    "테이블을 합치려면 테이블 선택기 옆의 Merge tables를 클릭하세요. cell, nucleus, pathogen에 체크하고, 세포마다 한 행이 되도록 출력 테이블은 cell로 두고 결과에 이름을 붙이세요. Validate and preview를 클릭해 각 테이블의 행 수와 결합 키를 확인한 뒤 Create merged table을 클릭하세요.",
+    "합친 테이블이 선택기에서 선택되고, 그 열은 다른 테이블처럼 그래프로 그릴 수 있습니다. 데이터베이스의 원본 테이블은 바뀌지 않으며, 합치기는 재현 가능한 정의로 데이터베이스 옆에 저장됩니다.",
+    "머리글의 바로 가기로 웰 히트맵은 Plate Viewer에서, 반복 차트는 Small Multiples에서 여세요. 보기를 재현할 수 있도록 원본 데이터베이스와 고른 열, 필터를 보관하세요."
   ]
 }

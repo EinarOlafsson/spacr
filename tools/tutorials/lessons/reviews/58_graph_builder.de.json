@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "de",
   "title": "Graph Builder: Messwerte darstellen und Objekte filtern",
-  "description": "Laden Sie eine Messtabelle, weisen Sie Diagrammachsen zu, vergleichen Sie Gruppen und filtern Sie die angezeigten Objekte.",
+  "description": "Laden Sie eine Messtabelle, vergleichen Sie Gruppen, filtern Sie Objekte und erstellen Sie illustrative Spalten für Genotyp, Replikat und kombinierte Bedingung.",
   "objectives": [
     "Eine Beispiel-Messtabelle laden.",
     "Ein Histogramm, ein Streudiagramm und gruppierte Panels erstellen.",
-    "Objekte filtern und eine Folgeansicht wählen."
+    "Objekte filtern und eine Folgeansicht wählen.",
+    "Exakte Wert-Labels in getrennten Ausgabespalten zuweisen und kombinieren, ohne die Quellmessungen zu ändern.",
+    "Text in Spalten extrahieren, ein Annotationsschema speichern und laden und Tabellen zusammenführen."
   ],
   "prerequisite": "Laden Sie Graph_Builder_real_measurements.zip herunter und entpacken Sie es. Es enthält measurements.db. Um später Bildausschnitte zu prüfen, halten Sie auch das passende Annotate-Projekt und seine Bilder bereit.",
   "scenes": [
     "Öffnen Sie Graph Builder von Home aus, um eine Messtabelle zu erkunden. Beginnen Sie mit der verlinkten Beispieldatenbank und wiederholen Sie die Schritte dann mit Ihrem eigenen gemessenen Projekt.",
-    "Klicken Sie auf Load table und öffnen Sie measurements.db aus dem entpackten Archiv. Wählen Sie die Tabelle cell. Dieses Beispiel enthält 2.341 gemessene Zellen.",
+    "Klicken Sie auf Load table und öffnen Sie measurements.db aus dem entpackten Archiv. Wählen Sie die Tabelle cell. Dieses Beispiel enthält 2.341 gemessene Zellen. Merge tables neben der Tabellenauswahl führt mehrere Tabellen zu einer zusammen; wir verwenden es am Ende.",
     "Suchen Sie cell_area in der Spaltenliste und ziehen Sie sie auf X. Das automatische Diagramm wird zu einem Histogramm: Jeder Balken zählt die Zellen in einem Flächenintervall. Prüfen Sie die Messeinheiten, bevor Sie die Achse deuten.",
     "Ziehen Sie cell_channel_1_mean_intensity auf Y, um ein Streudiagramm zu erstellen. Jeder Punkt platziert eine Zelle nach ihrer Fläche und der mittleren Intensität von Kanal 1. Lesen Sie bei größeren Tabellen den Hinweis zur Zeilenzahl.",
     "Ziehen Sie columnID auf Colour, um die Plattenspalten zu unterscheiden. Ordnen Sie über die Legende die Farben den erfassten Spaltenlabels zu und suchen Sie nach Gruppen, die genauer geprüft werden sollten.",
     "Ziehen Sie rowID auf den nach unten gerichteten Facettenkanal, um für jede Plattenzeile ein Panel zu erzeugen. Vergleichen Sie die Panels anhand ihrer gemeinsamen Achsen. Verwenden Sie für statistische Vergleiche zwischen Bedingungen unabhängige Wells.",
     "Fügen Sie im Filterbereich rechts cell_area hinzu und geben Sie ein Minimum ein. Das Beispiel verwendet 21.925, wodurch 1.171 Zeilen übrig bleiben. Wählen Sie für Ihre eigenen Messwerte passende Schwellen und beobachten Sie, wie sich dargestellte Anzahl und Achsen ändern.",
     "Klicken Sie im Filterbereich auf Clear all, um die vollständige Tabelle wiederherzustellen. Verwenden Sie links Clear all channels, wenn Sie die Diagrammzuordnungen entfernen und ein anderes Diagramm beginnen möchten.",
+    "Clear all channels behält die Diagrammart bei, entfernt aber jede Spalte aus dem Diagramm, und die Zeichenfläche sagt dann, was fehlt: Ziehen Sie eine Spalte auf X oder Y, um wieder ein Diagramm zu zeichnen. Legen Sie dieselben Spalten wieder ab, um fortzufahren.",
     "Entfernen Sie eine Facette über ihr kleines Kreuz, um zu einem einzelnen Streudiagramm zurückzukehren. Ziehen Sie ein Rechteck um Objekte, um einen Bereich auszuwählen. Ist Open selection in Annotate nicht verfügbar, öffnen Sie Annotate separat mit dem passenden Projekt und prüfen Sie die Objekte dort.",
     "Klicken Sie auf eine leere Stelle des Diagramms, um die Auswahl aufzuheben. Prüfen Sie aktive Filter und angezeigte Anzahl, bevor Sie eine andere Objektgruppe erkunden.",
-    "Öffnen Sie über die Verknüpfungen in der Kopfzeile Plate Viewer für Well-Heatmaps oder Small Multiples für wiederholte Diagramme. Bewahren Sie Quelldatenbank, gewählte Spalten und Filter auf, damit Sie die Ansicht reproduzieren können.",
-    "Der aktuelle Bildschirm zeigt Diagramme ohne Exportschaltfläche. Verwenden Sie die Graph-Builder-API für skriptgesteuerte Diagramme oder Database Browser, um eine Tabelle für ein anderes Diagrammwerkzeug zu exportieren."
+    "Klicken Sie auf Annotate conditions. Nennen Sie die erste Ausgabe genotype und verwenden Sie Assign values. Wählen Sie Exact values und beschriften Sie die columnID-Werte c1, c2 und c3 als WildType. Fügen Sie eine zweite Box namens mutant für c7, c4, c5 und c6 hinzu. Das sind illustrative Labels, keine validierten Genotypen. Die heruntergeladene Tabelle enthält nur c1 und c2, daher passt jede Zelle zu WildType und keine zu mutant. Exact values vergleicht ganze Werte: c1 passt nicht zu c10.",
+    "Fügen Sie eine Ausgabespalte namens replicate hinzu. Ordnen Sie die rowID-Werte r1, r4, r5 und r6 in einer Box namens replicate 1 zu. Fügen Sie eine weitere Box mit demselben Namen für r7, r9 und r10 hinzu. Boxen mit demselben Label bilden eine Vereinigung; widersprüchliche, verschiedene Labels in einer Ausgabe müssen vor Apply conditions aufgelöst werden. Das Beispiel enthält r5 und r12, daher passt r5 und r12 bleibt leer. Diese Übungslabels belegen keine biologische Replikation.",
+    "Fügen Sie eine dritte Ausgabe namens condition hinzu und wählen Sie Compose column. Wählen Sie genotype unter Available columns und klicken Sie auf Add column token. Geben Sie einen Unterstrich ein und klicken Sie auf Add text token. Wählen Sie replicate und klicken Sie auf Add column token. Die geordneten Tokens lauten nun genotype, Unterstrich, replicate. Sie können Tokens ziehen oder mit Move token up und Move token down ihre Reihenfolge ändern. Zeigen Sie alle drei Ausgaben in der Vorschau an. Passende r5-Zellen werden zu WildType Unterstrich replicate 1. Fehlt ein Bestandteil, bleibt die Kombination leer, sodass r12 kein Label mit None oder nan erzeugt.",
+    "Eine Ausgabe kann auch aus Text extrahiert werden. Fügen Sie eine vierte Ausgabe namens row_number hinzu und wählen Sie Extract text. Wählen Sie rowID als Quellspalte und geben Sie einen regulären Ausdruck mit einer benannten Gruppe ein, hier r gefolgt von einer Gruppe namens row_number, die die Ziffern erfasst. Klicken Sie auf Create columns from named groups und dann auf Preview. Zeilen ohne Treffer bleiben leer. Die Beispieltabelle enthält keine ursprünglichen Dateinamen, daher extrahieren wir aus einer vorhandenen ID-Spalte.",
+    "Klicken Sie auf Save schema und wählen Sie eine JSON-Datei. Ein Schema speichert die Regeln, nicht die Werte: die Ausgaben, ihre Boxen, Zusammensetzungen und Extraktionsmuster. Manuelle Zeilenzuordnungen gehören zu dieser Tabelle und werden weggelassen; die Statuszeile nennt, wie viele es waren.",
+    "Load schema liest eine solche Datei auf dieselbe oder eine andere Tabelle ein. Sie wird gegen die Spalten der Tabelle geprüft und öffnet sich als Vorschau aller Ausgaben; angewendet wird nichts, bis Sie auf Apply conditions klicken.",
+    "Klicken Sie auf Apply conditions, um genotype, replicate, condition und row_number zur Arbeitstabelle hinzuzufügen. Die ursprünglichen Messspalten und die Quelldatenbank bleiben unverändert. Derselbe Annotationseditor funktioniert auch mit einer zusammengeführten Arbeitstabelle. Wählen Sie anhand Ihres Versuchsplans sinnvolle Labels, bevor Sie nach diesen neuen Spalten darstellen.",
+    "Save chart bewahrt die Ansicht und das Annotationsrezept zum erneuten Laden. Export table enthält die erzeugten Spalten. Bei einer SQLite-Quelle fragt Save annotated table nach einem neuen Tabellennamen, schlägt cell_annotated vor und überschreibt nie eine vorhandene Tabelle. Das sind getrennte Speicheraktionen; Apply conditions allein schreibt nicht in die Quelldatenbank.",
+    "Um Tabellen zu kombinieren, klicken Sie auf Merge tables neben der Tabellenauswahl. Haken Sie cell, nucleus und pathogen an, lassen Sie cell als Ausgabetabelle, sodass es eine Zeile pro Zelle gibt, und benennen Sie das Ergebnis. Klicken Sie auf Validate and preview, lesen Sie Zeilenzahlen und Verknüpfungsschlüssel jeder Tabelle und klicken Sie dann auf Create merged table.",
+    "Die zusammengeführte Tabelle wird in der Auswahl markiert, und ihre Spalten lassen sich wie jede andere darstellen. Die Quelltabellen in der Datenbank bleiben unverändert; die Zusammenführung wird als reproduzierbare Definition neben der Datenbank gespeichert.",
+    "Öffnen Sie über die Verknüpfungen in der Kopfzeile Plate Viewer für Well-Heatmaps oder Small Multiples für wiederholte Diagramme. Bewahren Sie Quelldatenbank, gewählte Spalten und Filter auf, damit Sie die Ansicht reproduzieren können."
   ]
 }

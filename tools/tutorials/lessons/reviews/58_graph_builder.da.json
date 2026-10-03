@@ -1,35 +1,47 @@
 {
   "lesson": "58_graph_builder",
-  "english_sha256": "6855bb79dbd0af5586c0d6d06a63f03395659410531f3527da3dac63957829e7",
+  "english_sha256": "0aa705c7155f06532bcdef81c38a77e9447eefdd552cfcdb19ca0a80ccab67e3",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
   },
   "language": "da",
   "title": "Graph Builder: plot målinger, og filtrér objekter",
-  "description": "Indlæs en måletabel, tildel plotakser, sammenlign grupper, og filtrér de viste objekter.",
+  "description": "Indlæs en måletabel, sammenlign grupper, filtrer objekter og byg illustrative kolonner for genotype, replikat og kombineret betingelse.",
   "objectives": [
     "Indlæse en eksempeltabel med målinger.",
     "Lave et histogram, et punktdiagram og grupperede paneler.",
-    "Filtrere objekter og vælge en opfølgende visning."
+    "Filtrere objekter og vælge en opfølgende visning.",
+    "Tildele etiketter efter eksakte værdier i separate outputkolonner og kombinere dem uden at ændre kildemålingerne.",
+    "Udtrække tekst til kolonner, gemme og indlæse et annotationsskema og flette tabeller."
   ],
   "prerequisite": "Hent og udpak Graph_Builder_real_measurements.zip. Den indeholder measurements.db. For senere at kunne undersøge billedudsnit holder du også det tilsvarende Annotate-projekt og dets billeder tilgængelige.",
   "scenes": [
     "Åbn Graph Builder fra Home for at udforske en måletabel. Begynd med den linkede eksempeldatabase, og gentag derefter trinnene med dit eget målte projekt.",
-    "Klik på Load table, og åbn measurements.db fra det udpakkede arkiv. Vælg tabellen cell. Eksemplet indeholder 2.341 målte celler.",
+    "Klik på Load table, og åbn measurements.db fra det udpakkede arkiv. Vælg tabellen cell. Eksemplet indeholder 2.341 målte celler. Merge tables ved siden af tabelvælgeren samler flere tabeller i én; vi bruger den til sidst.",
     "Find cell_area på kolonnelisten, og træk den til X. Det automatiske diagram bliver et histogram: hver søjle tæller celler i et arealinterval. Kontrollér måleenhederne, før du fortolker aksen.",
     "Træk cell_channel_1_mean_intensity til Y for at lave et punktdiagram. Hvert punkt placerer én celle efter dens areal og gennemsnitlige intensitet i kanal 1. Læs meddelelsen om antal rækker, når du arbejder med større tabeller.",
     "Træk columnID til Colour for at skelne mellem pladens kolonner. Brug forklaringen til at knytte farverne til de registrerede kolonnelabels, og se efter grupper, der kræver nærmere undersøgelse.",
     "Træk rowID til den nedadgående facetkanal for at lave et panel for hver pladerække. Sammenlign panelerne ved hjælp af deres fælles akser. Brug uafhængige brønde, når du laver statistiske sammenligninger mellem betingelser.",
     "I filterpanelet til højre tilføjer du cell_area og indtaster et minimum. Eksemplet bruger 21.925, hvilket efterlader 1.171 rækker. Vælg tærskler, der passer til dine egne målinger, og se, hvordan det plottede antal og akserne ændres.",
     "Klik på Clear all i filterpanelet for at gendanne hele tabellen. Brug Clear all channels til venstre, når du vil fjerne plottets tildelinger og begynde på et andet diagram.",
+    "Clear all channels beholder diagramtypen, men fjerner alle kolonner fra diagrammet, og lærredet fortæller derefter, hvad der mangler: træk en kolonne til X eller Y for at tegne et diagram igen. Slip de samme kolonner tilbage for at fortsætte.",
     "Fjern en facet med dens lille kryds for at vende tilbage til ét punktdiagram. Træk et rektangel omkring objekter for at vælge et område. Hvis Open selection in Annotate ikke er tilgængelig, åbner du Annotate separat med det tilsvarende projekt og undersøger objekterne der.",
     "Klik på en tom del af plottet for at rydde markeringen. Kontrollér de aktive filtre og det viste antal, før du udforsker en anden gruppe objekter.",
-    "Brug genvejene i overskriften til at åbne Plate Viewer for brønd-heatmaps eller Small Multiples for gentagne diagrammer. Behold kildedatabasen og dine valgte kolonner og filtre, så du kan genskabe visningen.",
-    "Den nuværende skærm viser plot uden en eksportknap. Brug Graph Builder-API'et til scriptede plot, eller Database Browser til at eksportere en tabel til et andet plotværktøj."
+    "Klik på Annotate conditions. Navngiv det første output genotype og brug Assign values. Vælg Exact values, og giv columnID-værdierne c1, c2 og c3 etiketten WildType. Tilføj en anden boks kaldet mutant for c7, c4, c5 og c6. Det er illustrative etiketter, ikke validerede genotyper. Den downloadede tabel indeholder kun c1 og c2, så alle celler matcher WildType og ingen matcher mutant. Exact values matcher hele værdier: c1 matcher ikke c10.",
+    "Tilføj en outputkolonne kaldet replicate. Match rowID-værdierne r1, r4, r5 og r6 i en boks kaldet replicate 1. Tilføj en boks mere med samme navn for r7, r9 og r10. Bokse med samme etiket danner en forening; modstridende forskellige etiketter i ét output skal løses før Apply conditions. Eksemplet indeholder r5 og r12, så r5 matcher og r12 forbliver tom. Disse øvelsesetiketter dokumenterer ikke biologisk replikation.",
+    "Tilføj et tredje output kaldet condition og vælg Compose column. Vælg genotype under Available columns og klik på Add column token. Skriv en understregning og klik på Add text token. Vælg replicate og klik på Add column token. De ordnede tokens lyder nu genotype, understregning, replicate. Du kan trække tokens eller bruge Move token up og Move token down til at ændre rækkefølgen. Forhåndsvis alle tre output. Matchende r5-celler bliver til WildType understregning replicate 1. Mangler en del, forbliver kombinationen tom, så r12 ikke giver en etiket med None eller nan.",
+    "Et output kan også udtrækkes fra tekst. Tilføj et fjerde output kaldet row_number og vælg Extract text. Vælg rowID som kildekolonne, og indtast et regulært udtryk med en navngivet gruppe, her r efterfulgt af en gruppe kaldet row_number, der fanger cifrene. Klik på Create columns from named groups og derefter på Preview. Rækker uden match forbliver tomme. Eksempeltabellen har ingen oprindelige filnavne, så vi udtrækker fra en eksisterende ID-kolonne.",
+    "Klik på Save schema og vælg en JSON-fil. Et skema gemmer reglerne, ikke værdierne: outputtene, deres bokse, sammensætninger og udtræksmønstre. Manuelle rækketildelinger hører til denne tabel og udelades, og statuslinjen fortæller, hvor mange der blev udeladt.",
+    "Load schema indlæser en sådan fil på den samme eller en anden tabel. Den kontrolleres mod tabellens kolonner og åbnes som en forhåndsvisning af alle output; intet anvendes, før du klikker på Apply conditions.",
+    "Klik på Apply conditions for at tilføje genotype, replicate, condition og row_number til arbejdstabellen. De oprindelige målekolonner og kildedatabasen forbliver uændrede. Den samme annotationseditor virker også med en sammenflettet arbejdstabel. Brug dit forsøgsdesign til at vælge meningsfulde etiketter, før du plotter efter de nye kolonner.",
+    "Save chart gemmer visningen og annotationsopskriften til genindlæsning. Export table indeholder de genererede kolonner. For en SQLite-kilde beder Save annotated table om et nyt tabelnavn, foreslår cell_annotated og overskriver aldrig en eksisterende tabel. Det er separate gemmehandlinger; Apply conditions alene skriver ikke til kildedatabasen.",
+    "Klik på Merge tables ved siden af tabelvælgeren for at kombinere tabeller. Sæt flueben ved cell, nucleus og pathogen, behold cell som outputtabel, så der er én række pr. celle, og navngiv resultatet. Klik på Validate and preview, læs rækkeantal og koblingsnøgler for hver tabel, og klik derefter på Create merged table.",
+    "Den sammenflettede tabel vælges i tabelvælgeren, og dens kolonner kan plottes som alle andre. Kildetabellerne i databasen er uændrede; sammenfletningen gemmes som en reproducerbar definition ved siden af databasen.",
+    "Brug genvejene i overskriften til at åbne Plate Viewer for brønd-heatmaps eller Small Multiples for gentagne diagrammer. Behold kildedatabasen og dine valgte kolonner og filtre, så du kan genskabe visningen."
   ]
 }
