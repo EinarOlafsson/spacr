@@ -198,6 +198,10 @@ Arranging the window
 
 These sizes are remembered between sessions.
 
+To resize a popup, point at one of its edges or corners. A thin blue guide
+line appears across the middle half of each side you can drag. Drag from
+anywhere along that edge or corner; the line only marks the side.
+
 Make Masks
 ----------
 

@@ -149,6 +149,13 @@ gate shapes. The Gate Editor may display a sample according to its
 ``sample_fraction`` and ``max_points`` settings; gate export evaluates the
 full merged table.
 
+When a Graph Builder channel is cleared, or holds a column the chosen plot
+kind cannot draw, the canvas explains what is missing instead of drawing a
+chart. For example, it asks you to drag a column onto **X** or **Y**, says
+that a histogram needs a continuous column, or names a column that the
+current table does not contain. The plot kind stays selected, so placing
+suitable columns draws the chart again.
+
 The named definition is stored beside its database. For ``measurements.db``,
 the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening
 the source makes the result available again and recalculates it from the

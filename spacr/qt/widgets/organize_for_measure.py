@@ -1,8 +1,6 @@
 """Make Masks' "Organize for Measure…" popup: images and masks into merged/.
 
-Item 600, replacing item 593's string of prompts and its separate "Sort into
-channels" dialog as the entry point. ONE popup puts images and their masks
-into the layout Measure reads -- Yokogawa-named channel folders, the masks,
+One popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks,
 and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and
 :mod:`spacr.folder_consolidation`, which hold every decision:
 
@@ -30,7 +28,10 @@ a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until
 every image is placed. Each works without the others. A folder made by
 folder consolidation is read under its files' ORIGINAL names, from its
 ``rename_manifest.csv``, because the copies' names may have lost what told
-the channels apart. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete
+the channels apart. If any image cannot be copied during consolidation, the
+popup reports the failed-file count and the manifest path and stops there:
+the source folder, the consolidation choice and the table stay as they were,
+so the problem can be fixed and the step retried. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete
 rows block it (the regex box is where to fix them), RGB images and z-stacks
 are offered for conversion, and detected sets are shown three at a time
 before they are used. Nothing moves before Apply; the screen applies the

@@ -448,6 +448,18 @@ Fill its table in any of three ways, each on its own:
   a time. spaCR learns a regex from the answers and asks again only about a
   name it cannot yet read.
 
+When the source folder keeps its images in subfolders, tick **Consolidate
+subfolders into filenames first**. Sorting then copies the images into one
+new folder, each named after its folders, and reads that copy; the originals
+are not touched. If any image cannot be copied, for example because the disk
+is full or a file is not readable, the popup shows **Consolidation failed**
+with the number of files not copied and the path of the copy's
+``rename_manifest.csv``. Sorting, **Auto regex**, **Teach me…** and
+**Detect sets** stop at that point. The source folder, the consolidation
+choice and the table keep their previous contents, and successful copies
+remain in place. Fix the cause and run the step again; the retry makes a
+complete new copy that includes each image once.
+
 **Add channel** and **Add mask** add columns; each mask column names its
 object class (cell, nucleus, pathogen or organelle) and the channel whose
 images it outlines. A consolidated folder is read under its files' original
