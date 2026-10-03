@@ -118,13 +118,6 @@
     },
     {
       "table": "ui",
-      "key": "Image Enhancement",
-      "source": "Image Enhancement",
-      "source_sha256": "40715ba662e49fe8ac41c6f7808d00b099c3f5bc35d0dedc371d0a5057dee0ef",
-      "translation": "Bildförbättring"
-    },
-    {
-      "table": "ui",
       "key": "Image dimensions",
       "source": "Image dimensions",
       "source_sha256": "7c539fa539ea7537adcfabd561ceddd30bd910f6d557aa1fd4b02ea9a2f8b34e",
@@ -515,5 +508,15 @@
       "source_sha256": "bfda294dd2192ac3169fddfe90685237af58321efa8c245a920a4b1ede87d9b0",
       "translation": "{height} × {width} pixlar ({source})"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "ui",
+      "key": "Image Enhancement",
+      "source": "Image Enhancement",
+      "source_sha256": "40715ba662e49fe8ac41c6f7808d00b099c3f5bc35d0dedc371d0a5057dee0ef",
+      "translation": "Bildförbättring"
+    }
+  ],
+  "retired_note": "2026-10-03: item 636 (06c2758ca) removed the empty 'Image Enhancement' settings heading, so this caption is no longer a runtime source. Kept verbatim as evidence, not loaded."
 }
