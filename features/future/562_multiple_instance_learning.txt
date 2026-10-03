@@ -89,3 +89,27 @@ WHAT IS LEFT
     png_path column. Tests: tests/qt/test_well_mil_alpha_gate.py.
     Left: real screen + GPU runs (blocked); embeddings carried with object
     ids and wells from the screen's own result.
+
+2026-10-03 — REAL-SCREEN CHECK, BBBC014 (lane 2, CPU)
+    Data: BBBC014 v1 (Ilya Ravkin, CC-BY 3.0), 96-well NF-kB translocation
+    plate, MCF7 (rows A-D) and A549 (E-H), TNF-a in 12 doses by column.
+    53,896 cells segmented (Otsu + watershed on Hoechst, 6 px cytoplasm
+    ring); 8 per-cell measurements (nuclear/cytoplasm NF-kB ratio,
+    intensities, shape). Median ratio falls 2.7 -> 1.0 from column 1 to 12.
+    Known responder fractions: 300 spike-in wells (60 cells) per run, built
+    from REAL cells: background from one low-dose well (columns 10-12),
+    responders from one high-dose well (columns 1-3) of the same cell line;
+    half the wells negative. Truth = "cell from a high-dose well".
+    _mil_scorecard, 4-fold CV, 3 seeds each (mean):
+      responders  MIL well  mean   mean+SD  attention  evidence  s/run
+      5%          0.967     0.697  0.724    0.945      0.970     9.4
+      10%         0.988     0.852  0.873    0.920      0.963     8.3
+      25%         0.999     0.982  0.993    0.917      0.950    11.1
+      5-30% mix   0.994     0.891  0.911    0.897      0.964     9.0
+    Reading: done-when met on this stand-in: attention ranks responders
+    above non-responders (AUROC 0.90-0.95) and MIL beats both mean-feature
+    baselines at every fraction (largest margin at 5%). Caveats: spike-in
+    wells are resampled from 24 real wells per pool, not a titrated plate
+    with independent wells; features are measurements, not embeddings.
+    Scripts/results: /mnt/wd4tb/scratch/562/work/ (cells.py, bench.py,
+    bench.csv). GPU not used.
