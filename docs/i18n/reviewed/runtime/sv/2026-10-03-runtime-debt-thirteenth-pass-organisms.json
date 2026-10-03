@@ -1,0 +1,1387 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: the runtime strings nightly added in items 633-634 (test data on Convert, Layer Viewer and External Masks; the alpha organism pages for Trypanosoma, Leishmania, Giardia, viruses and mammalian cells) and the real-object classifier settings, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Amastigote conversion",
+      "source": "Amastigote conversion",
+      "source_sha256": "44d9e1fb9fa6be4eff45db1c4d817e06c5f7acdce85933d45df1d09a96cf9944",
+      "translation": "Omvandling till amastigoter"
+    },
+    {
+      "table": "ui",
+      "key": "Amastigote infection",
+      "source": "Amastigote infection",
+      "source_sha256": "a24ae92e57ec4f976a22f6fa4d20022d7a7d38334a6d6f678dc16edd07ea9c22",
+      "translation": "Amastigotinfektion"
+    },
+    {
+      "table": "ui",
+      "key": "Antiviral response",
+      "source": "Antiviral response",
+      "source_sha256": "a8ada245d4e24ab5c59b0837f9fa651721ae4d7b34b5bc4943c6921b00329351",
+      "translation": "Antiviralt svar"
+    },
+    {
+      "table": "ui",
+      "key": "Attachment and motility",
+      "source": "Attachment and motility",
+      "source_sha256": "a3997ddbad563555e6e0b577c6a2f712c14f9c855d70bae39229852cc3bc6ef7",
+      "translation": "Vidhäftning och motilitet"
+    },
+    {
+      "table": "ui",
+      "key": "Barrier damage",
+      "source": "Barrier damage",
+      "source_sha256": "4be7a86499d065a924a42cdcd3bb711bfa07ccc669dca5f8c9c625a797b2cd17",
+      "translation": "Barriärskada"
+    },
+    {
+      "table": "ui",
+      "key": "Biology source: UniProt",
+      "source": "Biology source: UniProt",
+      "source_sha256": "af3c25dbe43010d4d07446222d18cfbc5b98b852fb0899039865b78a8ca4b947",
+      "translation": "Biologikälla: UniProt"
+    },
+    {
+      "table": "ui",
+      "key": "Biology source: ViralZone",
+      "source": "Biology source: ViralZone",
+      "source_sha256": "1fb6d099e6c65d3422a3497356478a74a172d7d4482f98bbdcf81e0596eea91e",
+      "translation": "Biologikälla: ViralZone"
+    },
+    {
+      "table": "ui",
+      "key": "Cell cycle and compound responses",
+      "source": "Cell cycle and compound responses",
+      "source_sha256": "b4bf303d4622bf5f3fbc344b483926553a0b0ce22c29421bb487f4e3e742a908",
+      "translation": "Cellcykel och substanssvar"
+    },
+    {
+      "table": "ui",
+      "key": "Cell cycle, uptake and cytotoxicity",
+      "source": "Cell cycle, uptake and cytotoxicity",
+      "source_sha256": "166f5fc5e0011e35f1af49f6cc7821bf09bc7a3229a42f4685741d5275677924",
+      "translation": "Cellcykel, upptag och cytotoxicitet"
+    },
+    {
+      "table": "ui",
+      "key": "Cell migration",
+      "source": "Cell migration",
+      "source_sha256": "4d03d6a70c08425db17aed01c6bdcc4f2b0e329992c58e3085986ff54c0e8296",
+      "translation": "Cellmigration"
+    },
+    {
+      "table": "ui",
+      "key": "Cell migration opens the Motility Assay with infection QC off, because no pathogen is present; it reports track speed and straightness. The planned Wound closure module will measure gap closure in scratch assays. Record the frame interval and confluency, because crowding changes how fast and how straight cells move.",
+      "source": "Cell migration opens the Motility Assay with infection QC off, because no pathogen is present; it reports track speed and straightness. The planned Wound closure module will measure gap closure in scratch assays. Record the frame interval and confluency, because crowding changes how fast and how straight cells move.",
+      "source_sha256": "c2d06f243b3275a7361fe960dadd501f8ca45a58c6bc7b15687c77161f9bea85",
+      "translation": "Cellmigration öppnar Motility Assay med infektions-QC av, eftersom ingen patogen finns; den rapporterar spårhastighet och rakhet. Den planerade modulen Sårslutning kommer att mäta hur glappet sluts i skrapanalyser. Registrera bildintervallet och konfluensen, eftersom trängsel påverkar hur snabbt och hur rakt cellerna rör sig."
+    },
+    {
+      "table": "ui",
+      "key": "Cell segmentation",
+      "source": "Cell segmentation",
+      "source_sha256": "649d167da3ab92d14718350e92fb40d13efe5f7e1e534a62fe5b082d10d9e05a",
+      "translation": "Cellsegmentering"
+    },
+    {
+      "table": "ui",
+      "key": "Cell segmentation opens Mask to segment nuclei and cells in fixed or live images. Morphology profiling opens Measure to quantify per-cell intensity, texture and shape. The planned Organelle morphology module will measure mitochondrial and other organelle shapes. Choose stains that mark the compartments in the diagram you want to measure, and keep imaging settings fixed across a plate.",
+      "source": "Cell segmentation opens Mask to segment nuclei and cells in fixed or live images. Morphology profiling opens Measure to quantify per-cell intensity, texture and shape. The planned Organelle morphology module will measure mitochondrial and other organelle shapes. Choose stains that mark the compartments in the diagram you want to measure, and keep imaging settings fixed across a plate.",
+      "source_sha256": "c1f82bd3bb5b142f52a100258867bc36173ef4e040d6f096e113492707f6078b",
+      "translation": "Cellsegmentering öppnar Mask för att segmentera kärnor och celler i fixerade eller levande bilder. Morfologiprofilering öppnar Measure för att kvantifiera intensitet, textur och form per cell. Den planerade modulen Organellmorfologi kommer att mäta formen på mitokondrier och andra organeller. Välj färgningar som markerar de kompartment i diagrammet som du vill mäta, och håll avbildningsinställningarna fasta över en platta."
+    },
+    {
+      "table": "ui",
+      "key": "Cell segmentation, Morphology profiling, Cell migration, Phagocytosis and Cytotoxicity open existing spaCR modules; the other three tiles are planned and marked Coming soon. UniProt and the Human Protein Atlas give subcellular locations for choosing markers. The diagram shows UniProt vocabulary, not where a selected protein is measured.",
+      "source": "Cell segmentation, Morphology profiling, Cell migration, Phagocytosis and Cytotoxicity open existing spaCR modules; the other three tiles are planned and marked Coming soon. UniProt and the Human Protein Atlas give subcellular locations for choosing markers. The diagram shows UniProt vocabulary, not where a selected protein is measured.",
+      "source_sha256": "0561034c6a5bb948e818d34d8b7061ed59d8ba5ba79214d69b953411fc3ff029",
+      "translation": "Cellsegmentering, Morfologiprofilering, Cellmigration, Fagocytos och Cytotoxicitet öppnar befintliga spaCR-moduler; de övriga tre rutorna är planerade och märkta Kommer snart. UniProt och Human Protein Atlas anger subcellulära lokaliseringar för val av markörer. Diagrammet visar UniProts vokabulär, inte var ett valt protein mäts."
+    },
+    {
+      "table": "ui",
+      "key": "Cell-cycle staging",
+      "source": "Cell-cycle staging",
+      "source_sha256": "f25a67bcd7bddb797ff7beb12cb9e2d7d38ee0a28d716a27e51fc3f0b57ddb30",
+      "translation": "Cellcykelstadier"
+    },
+    {
+      "table": "ui",
+      "key": "Cell-cycle staging is planned to classify G1, S, G2 and mitotic cells from DNA content and markers. Phagocytosis opens Host–Pathogen Analysis with beads or particles as the pathogen objects. Cytotoxicity opens Dose–Response to fit cell number or a viability readout against compound concentration. Separate internalised from surface-bound particles with a quenching or differential stain before reading uptake, and count cells in each well so that cytotoxicity and proliferation are not confused.",
+      "source": "Cell-cycle staging is planned to classify G1, S, G2 and mitotic cells from DNA content and markers. Phagocytosis opens Host–Pathogen Analysis with beads or particles as the pathogen objects. Cytotoxicity opens Dose–Response to fit cell number or a viability readout against compound concentration. Separate internalised from surface-bound particles with a quenching or differential stain before reading uptake, and count cells in each well so that cytotoxicity and proliferation are not confused.",
+      "source_sha256": "26b2139351e1046b849631c957b86e6dcdfc33c820c5de3fddc843a639cde9e1",
+      "translation": "Cellcykelstadier planeras för att klassificera G1-, S-, G2- och mitotiska celler utifrån DNA-innehåll och markörer. Fagocytos öppnar Värd–patogenanalys med kulor eller partiklar som patogenobjekt. Cytotoxicitet öppnar Dos–respons för att anpassa cellantal eller en viabilitetsavläsning mot substanskoncentration. Skilj internaliserade partiklar från ytbundna med en släckande eller differentiell färgning innan upptaget avläses, och räkna cellerna i varje brunn så att cytotoxicitet och proliferation inte förväxlas."
+    },
+    {
+      "table": "ui",
+      "key": "Cell-cycle staging is planned to count kinetoplasts and nuclei per cell, because the kinetoplast divides before the nucleus and the counts mark cell-cycle position. Drug response imaging opens Dose–Response to fit a per-well image readout, such as parasite number, against compound concentration. Report the exposure time with each curve: a delayed cell cycle and parasite killing can both lower the count.",
+      "source": "Cell-cycle staging is planned to count kinetoplasts and nuclei per cell, because the kinetoplast divides before the nucleus and the counts mark cell-cycle position. Drug response imaging opens Dose–Response to fit a per-well image readout, such as parasite number, against compound concentration. Report the exposure time with each curve: a delayed cell cycle and parasite killing can both lower the count.",
+      "source_sha256": "9dd7ed4a1a04110241637eaf46d21ea6fbd4688c097e844c2e848ab30d4e7e25",
+      "translation": "Cellcykelstadier planeras för att räkna kinetoplaster och kärnor per cell, eftersom kinetoplasten delar sig före kärnan och antalen markerar läget i cellcykeln. Avbildning av läkemedelssvar öppnar Dos–respons för att anpassa en bildbaserad avläsning per brunn, till exempel antal parasiter, mot substanskoncentration. Ange exponeringstiden med varje kurva: en fördröjd cellcykel och avdödning av parasiter kan båda sänka antalet."
+    },
+    {
+      "table": "ui",
+      "key": "Centrosome",
+      "source": "Centrosome",
+      "source_sha256": "4db4acac1fb50e530e35c1fac3cc8413437004fb70e2d2d3ead912cc185eb3e4",
+      "translation": "Centrosom"
+    },
+    {
+      "table": "ui",
+      "key": "Chagas disease: CDC",
+      "source": "Chagas disease: CDC",
+      "source_sha256": "9afb21bf4eb2c9768b90419289461951c301e1d8ffd53cab20f6e078d232d88b",
+      "translation": "Chagas sjukdom: CDC"
+    },
+    {
+      "table": "ui",
+      "key": "Cilium",
+      "source": "Cilium",
+      "source_sha256": "eb2939899f6bc37a619e2a3308038f9d61f9b45a8cc46eab3a542e8323c0740c",
+      "translation": "Cilie"
+    },
+    {
+      "table": "ui",
+      "key": "Classify G1, S, G2 and mitotic cells.",
+      "source": "Classify G1, S, G2 and mitotic cells.",
+      "source_sha256": "b5c60b4ea2df0ad4325907180e8d76297d2da52b9b3b668a434a0c0461e69412",
+      "translation": "Klassificera G1-, S-, G2- och mitotiska celler."
+    },
+    {
+      "table": "ui",
+      "key": "Classify life-cycle forms from images.",
+      "source": "Classify life-cycle forms from images.",
+      "source_sha256": "93e913988bc9107eb014fffc81977ec38bfac5e131f3f6d54f18bbb60c452c6a",
+      "translation": "Klassificera livscykelformer utifrån bilder."
+    },
+    {
+      "table": "ui",
+      "key": "Classify procyclic and metacyclic promastigotes.",
+      "source": "Classify procyclic and metacyclic promastigotes.",
+      "source_sha256": "ea2260caf18b82973b8c55ee39fc1f1b8abc26a3f7e7f76b049c7c50c4d77d21",
+      "translation": "Klassificera prozykliska och metazykliska promastigoter."
+    },
+    {
+      "table": "ui",
+      "key": "Compound responses and host damage",
+      "source": "Compound responses and host damage",
+      "source_sha256": "e118c80687756d17fc6ab8f3c94be63e8ee77ff5f1f0e1320416c58acb1f6366",
+      "translation": "Substanssvar och värdskada"
+    },
+    {
+      "table": "ui",
+      "key": "Count amastigotes per macrophage and infected cells.",
+      "source": "Count amastigotes per macrophage and infected cells.",
+      "source_sha256": "c42c0d523cd33e394c89206543333c7ffe8a23e8e02932abbd7c63d8188911db",
+      "translation": "Räkna amastigoter per makrofag och infekterade celler."
+    },
+    {
+      "table": "ui",
+      "key": "Count infected host cells and amastigotes per cell.",
+      "source": "Count infected host cells and amastigotes per cell.",
+      "source_sha256": "731f38b072bd8f5db2702624da501a9b273c591bc32cb955048bff900a8ccf87",
+      "translation": "Räkna infekterade värdceller och amastigoter per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Count kinetoplasts and nuclei per cell.",
+      "source": "Count kinetoplasts and nuclei per cell.",
+      "source_sha256": "290d0d4614f079e1d9b84e84ab0f496945890f1e34fd809e450a6470e8c3743d",
+      "translation": "Räkna kinetoplaster och kärnor per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Count trophozoites on epithelial cells.",
+      "source": "Count trophozoites on epithelial cells.",
+      "source_sha256": "708cc9cf61483ce47126dc2f617a1711b6c5fe3a123ee551c801532c4e86a48c",
+      "translation": "Räkna trofozoiter på epitelceller."
+    },
+    {
+      "table": "ui",
+      "key": "Count virus-positive host cells per well.",
+      "source": "Count virus-positive host cells per well.",
+      "source_sha256": "2da92b46cdf2797a57d6514f30c1267561e103b548d89ef3710cda2363483f29",
+      "translation": "Räkna viruspositiva värdceller per brunn."
+    },
+    {
+      "table": "ui",
+      "key": "Cultured mammalian cells, from primary cells to established lines, are the hosts in most infection assays and the subject of many screens on their own. Imaging can measure cell number, shape, migration, the cell cycle, organelle organization and responses to compounds, with no pathogen in the well.",
+      "source": "Cultured mammalian cells, from primary cells to established lines, are the hosts in most infection assays and the subject of many screens on their own. Imaging can measure cell number, shape, migration, the cell cycle, organelle organization and responses to compounds, with no pathogen in the well.",
+      "source_sha256": "aab4b20912b0b08f1046436387e40ef2ce2467a3df94250f3673c7da3ac4e18d",
+      "translation": "Odlade däggdjursceller, från primärceller till etablerade linjer, är värdar i de flesta infektionsanalyser och föremål för många screeningar i sig. Avbildning kan mäta cellantal, form, migration, cellcykeln, organellernas organisation och svar på substanser, utan någon patogen i brunnen."
+    },
+    {
+      "table": "ui",
+      "key": "Cytopathic effect",
+      "source": "Cytopathic effect",
+      "source_sha256": "7209facd933403a99952122ab58e86a5bb35c466efa71b24c95d7fbfc9f8a260",
+      "translation": "Cytopatisk effekt"
+    },
+    {
+      "table": "ui",
+      "key": "Cytotoxicity",
+      "source": "Cytotoxicity",
+      "source_sha256": "74eb9d92a845d72cae702572044a102666dc05c46a5c9d323656d6f1799351bc",
+      "translation": "Cytotoxicitet"
+    },
+    {
+      "table": "ui",
+      "key": "Detect fused multinucleated host cells.",
+      "source": "Detect fused multinucleated host cells.",
+      "source_sha256": "f7dd01a83889ca3133f2739ba1258a0634e03d8eb417796928bb94f03441368f",
+      "translation": "Upptäck fusionerade flerkärniga värdceller."
+    },
+    {
+      "table": "ui",
+      "key": "Disc morphology",
+      "source": "Disc morphology",
+      "source_sha256": "6f0d20033a49de2fb42df90ee64af5c292dbdbab8fdab3a7ddbc58e9f61a2964",
+      "translation": "Diskmorfologi"
+    },
+    {
+      "table": "ui",
+      "key": "Division and host damage",
+      "source": "Division and host damage",
+      "source_sha256": "8a90b643ee5298ba5ef40d7b4e973e229705f7f655dcd47cdb6831ef4fad51c2",
+      "translation": "Delning och värdskada"
+    },
+    {
+      "table": "ui",
+      "key": "Download Import's test data, about 285 MB: four microscope fields with their cell, nucleus and pathogen masks, written in every format spaCR reads. This screen is filled with the fields it can show. Cached afterwards.",
+      "source": "Download Import's test data, about 285 MB: four microscope fields with their cell, nucleus and pathogen masks, written in every format spaCR reads. This screen is filled with the fields it can show. Cached afterwards.",
+      "source_sha256": "cb39d62d234ac404171d22d78341bba7f1143aad7f9ea4ddf41c8b69d831e5a9",
+      "translation": "Ladda ner Imports testdata, cirka 285 MB: fyra mikroskopfält med deras cell-, kärn- och patogenmasker, skrivna i alla format som spaCR läser. Den här skärmen fylls med de fält den kan visa. Cachas därefter."
+    },
+    {
+      "table": "ui",
+      "key": "Drug response imaging opens Dose–Response to fit amastigote clearance or infected-cell fraction against compound concentration. The planned Host cell damage module will measure macrophage loss, so that a compound that kills host cells is not mistaken for one that clears parasites. Count host cells in every well alongside the parasite readout, and include an untreated infected control on every plate so that the curve has a defined top.",
+      "source": "Drug response imaging opens Dose–Response to fit amastigote clearance or infected-cell fraction against compound concentration. The planned Host cell damage module will measure macrophage loss, so that a compound that kills host cells is not mistaken for one that clears parasites. Count host cells in every well alongside the parasite readout, and include an untreated infected control on every plate so that the curve has a defined top.",
+      "source_sha256": "12d622f1784561be374f90b36c4432f925d4b3830eb04577e9904df571ae707d",
+      "translation": "Avbildning av läkemedelssvar öppnar Dos–respons för att anpassa amastigotclearance eller andel infekterade celler mot substanskoncentration. Den planerade modulen Värdcellsskada kommer att mäta makrofagförlust, så att en substans som dödar värdceller inte misstas för en som rensar bort parasiter. Räkna värdcellerna i varje brunn vid sidan av parasitavläsningen, och ta med en obehandlad infekterad kontroll på varje platta så att kurvan har ett definierat topplateau."
+    },
+    {
+      "table": "ui",
+      "key": "Encystation",
+      "source": "Encystation",
+      "source_sha256": "be52e31495abc5bb194542e7a085ecd5845366dc8b6ab79aaade7cfa2cb7326e",
+      "translation": "Encystering"
+    },
+    {
+      "table": "ui",
+      "key": "Encystation and excystation",
+      "source": "Encystation and excystation",
+      "source_sha256": "f9eb8c8ed38c23502b8e038ef0a03d68ad95c97567145131b1f97844fa6a6bff",
+      "translation": "Encystering och excystering"
+    },
+    {
+      "table": "ui",
+      "key": "Encystation is planned to quantify cyst-wall staining and the fraction of trophozoites forming cysts, and Excystation will follow trophozoites emerging from cysts. These transitions take hours and depend on bile, pH and culture conditions, so report the induction protocol and the time of imaging with the result. Cysts are small and refractile, so a wall stain and a fixed focal plane help separate them from debris.",
+      "source": "Encystation is planned to quantify cyst-wall staining and the fraction of trophozoites forming cysts, and Excystation will follow trophozoites emerging from cysts. These transitions take hours and depend on bile, pH and culture conditions, so report the induction protocol and the time of imaging with the result. Cysts are small and refractile, so a wall stain and a fixed focal plane help separate them from debris.",
+      "source_sha256": "4f021bd6b5c9e35a26d6bcb6989cc9ba86b92ede874312ad4eae3bceab19db41",
+      "translation": "Encystering planeras för att kvantifiera cystväggsfärgning och andelen trofozoiter som bildar cystor, och Excystering kommer att följa trofozoiter som kommer ut ur cystor. Dessa övergångar tar timmar och beror på galla, pH och odlingsförhållanden, så ange induktionsprotokollet och tidpunkten för avbildningen med resultatet. Cystor är små och ljusbrytande, så en väggfärgning och ett fast fokalplan hjälper till att skilja dem från skräp."
+    },
+    {
+      "table": "ui",
+      "key": "Endosome",
+      "source": "Endosome",
+      "source_sha256": "96ee322508f246b17389fd6f79e3c251c49c1c2bda505915d82cc8f1e47db278",
+      "translation": "Endosom"
+    },
+    {
+      "table": "ui",
+      "key": "Endosomes are highly dynamic membrane systems involved in transport within the cell, they receive endocytosed cell membrane molecules and sort them for either degradation or recycling back to the cell surface. They also receive newly synthesised proteins destined for vacuolar/lysosomal compartments. In certain cell types, endosomal multivesicular bodies may fuse with the cell surface in an exocytic manner. These released vesicles are called exosomes.",
+      "source": "Endosomes are highly dynamic membrane systems involved in transport within the cell, they receive endocytosed cell membrane molecules and sort them for either degradation or recycling back to the cell surface. They also receive newly synthesised proteins destined for vacuolar/lysosomal compartments. In certain cell types, endosomal multivesicular bodies may fuse with the cell surface in an exocytic manner. These released vesicles are called exosomes.",
+      "source_sha256": "530acd257f85e5902b1d5dff17aa4202a9346daf139a0dfb13e345d8010e530c",
+      "translation": "Endosomer är mycket dynamiska membransystem som deltar i transport inom cellen; de tar emot endocyterade cellmembranmolekyler och sorterar dem antingen för nedbrytning eller för återföring till cellytan. De tar också emot nysyntetiserade proteiner avsedda för vakuolära/lysosomala kompartment. I vissa celltyper kan endosomala multivesikulära kroppar fusionera med cellytan på ett exocytiskt sätt. Dessa frisatta vesiklar kallas exosomer."
+    },
+    {
+      "table": "ui",
+      "key": "Entry, fusion and antivirals",
+      "source": "Entry, fusion and antivirals",
+      "source_sha256": "76542cb1cec7edb8f963e66c8240010f7a60173ff9e6fa3dde9edff32380c30f",
+      "translation": "Inträde, fusion och antivirala medel"
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial attachment",
+      "source": "Epithelial attachment",
+      "source_sha256": "7a493583abab0ac6f39f0b9d4fdcdd4776da1d3530dca0603f07ec902c8f1136",
+      "translation": "Epitelvidhäftning"
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial attachment opens Host–Pathogen Analysis to count trophozoites on epithelial host cells; a single plane cannot separate attachment from overlap, so confirm it with a focal plane at the cell surface. Trophozoite motility opens the Motility Assay with infection QC off to measure swimming speed and straightness. The planned Disc morphology module will measure the ventral disc.",
+      "source": "Epithelial attachment opens Host–Pathogen Analysis to count trophozoites on epithelial host cells; a single plane cannot separate attachment from overlap, so confirm it with a focal plane at the cell surface. Trophozoite motility opens the Motility Assay with infection QC off to measure swimming speed and straightness. The planned Disc morphology module will measure the ventral disc.",
+      "source_sha256": "e683d3fb53fa124074325cb06370fd367c6f1e81b1bb19a7f596ec505cf0b711",
+      "translation": "Epitelvidhäftning öppnar Värd–patogenanalys för att räkna trofozoiter på epiteliala värdceller; ett enda plan kan inte skilja vidhäftning från överlappning, så bekräfta den med ett fokalplan vid cellytan. Trofozoitmotilitet öppnar Motility Assay med infektions-QC av för att mäta simhastighet och rakhet. Den planerade modulen Diskmorfologi kommer att mäta ventraldisken."
+    },
+    {
+      "table": "ui",
+      "key": "Epithelial attachment, Trophozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. GiardiaDB provides genome context and UniProt supplies protein annotations. The generic cell shows UniProt vocabulary, not Giardia anatomy or the measured location of a protein.",
+      "source": "Epithelial attachment, Trophozoite motility and Drug response imaging open existing spaCR modules; the other five tiles are planned and marked Coming soon. GiardiaDB provides genome context and UniProt supplies protein annotations. The generic cell shows UniProt vocabulary, not Giardia anatomy or the measured location of a protein.",
+      "source_sha256": "788a362f525de08d839879da5e777b49c1ae38b44e44d48b1b36f19f9bde14ea",
+      "translation": "Epitelvidhäftning, Trofozoitmotilitet och Avbildning av läkemedelssvar öppnar befintliga spaCR-moduler; de övriga fem rutorna är planerade och märkta Kommer snart. GiardiaDB ger genomkontext och UniProt tillhandahåller proteinannoteringar. Den generiska cellen visar UniProts vokabulär, inte Giardias anatomi eller den uppmätta lokaliseringen av ett protein."
+    },
+    {
+      "table": "ui",
+      "key": "Excystation",
+      "source": "Excystation",
+      "source_sha256": "bdf32dee7d977f2062d90e58b99de263bee62844ea1237e4410a16101ab0f165",
+      "translation": "Excystering"
+    },
+    {
+      "table": "ui",
+      "key": "Extracellular matrix",
+      "source": "Extracellular matrix",
+      "source_sha256": "6475b344adac4988d48d474c3f9c4573441655220f894fd66ec08961219a888e",
+      "translation": "Extracellulär matrix"
+    },
+    {
+      "table": "ui",
+      "key": "Flagellar motility",
+      "source": "Flagellar motility",
+      "source_sha256": "79404f75e43ec5ccba9ce71f02ffd1b37c6ec1aab864a01e775c1eedf868d905",
+      "translation": "Flagellmotilitet"
+    },
+    {
+      "table": "ui",
+      "key": "Flagellar motility opens the Motility Assay with infection QC off, because swimming trypanosomes have no host cell; it reports track speed and straightness. The planned Stage differentiation module will classify bloodstream, stumpy and procyclic forms of T. brucei, or trypomastigotes, epimastigotes and amastigotes of T. cruzi. Record the species and life-cycle form, because flagellum length and swimming behaviour differ between them.",
+      "source": "Flagellar motility opens the Motility Assay with infection QC off, because swimming trypanosomes have no host cell; it reports track speed and straightness. The planned Stage differentiation module will classify bloodstream, stumpy and procyclic forms of T. brucei, or trypomastigotes, epimastigotes and amastigotes of T. cruzi. Record the species and life-cycle form, because flagellum length and swimming behaviour differ between them.",
+      "source_sha256": "2e55587813708d594055f55bd9fa924f3d49aa70388473b383f0942cd759ab56",
+      "translation": "Flagellmotilitet öppnar Motility Assay med infektions-QC av, eftersom simmande trypanosomer saknar värdcell; den rapporterar spårhastighet och rakhet. Den planerade modulen Stadiedifferentiering kommer att klassificera blodbanans, stumpy- och prozykliska former av T. brucei, eller trypomastigoter, epimastigoter och amastigoter av T. cruzi. Registrera art och livscykelform, eftersom flagellens längd och simbeteendet skiljer sig mellan dem."
+    },
+    {
+      "table": "ui",
+      "key": "Flagellar motility, Host-cell invasion, Amastigote infection and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome and gene context and UniProt supplies protein annotations. The highlighted compartments are UniProt vocabulary for choosing markers, not a measured location for a selected gene.",
+      "source": "Flagellar motility, Host-cell invasion, Amastigote infection and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome and gene context and UniProt supplies protein annotations. The highlighted compartments are UniProt vocabulary for choosing markers, not a measured location for a selected gene.",
+      "source_sha256": "f2d587f0d1876aaaf05ca739f5623262251ffa2b0be12593b37aa2c789c17a30",
+      "translation": "Flagellmotilitet, Värdcellsinvasion, Amastigotinfektion och Avbildning av läkemedelssvar öppnar befintliga spaCR-moduler; de övriga fyra rutorna är planerade och märkta Kommer snart. TriTrypDB ger genom- och genkontext och UniProt tillhandahåller proteinannoteringar. De framhävda kompartmenten är UniProts vokabulär för val av markörer, inte en uppmätt lokalisering för en vald gen."
+    },
+    {
+      "table": "ui",
+      "key": "Flagellum",
+      "source": "Flagellum",
+      "source_sha256": "541f36f6a588e952a4788c395c21cd37e74a8f473413256bc3a27514669a8c79",
+      "translation": "Flagell"
+    },
+    {
+      "table": "ui",
+      "key": "Flagellum axoneme",
+      "source": "Flagellum axoneme",
+      "source_sha256": "9340a3efa57802bf2eb50debfb91ad68692a239a2c9499d8e52457674522b56b",
+      "translation": "Flagellaxonem"
+    },
+    {
+      "table": "ui",
+      "key": "Flagellum basal body",
+      "source": "Flagellum basal body",
+      "source_sha256": "12b61838de02dcd8656e221dec85687093ca94b4bbc75c397ff0684aa67107d8",
+      "translation": "Flagellens basalkropp"
+    },
+    {
+      "table": "ui",
+      "key": "Follow both nuclei through mitosis.",
+      "source": "Follow both nuclei through mitosis.",
+      "source_sha256": "3ceccca01f8fa297eb2b4cbd0c28dcf5c7021a2032e3ada33604af364a50acdb",
+      "translation": "Följ båda kärnorna genom mitosen."
+    },
+    {
+      "table": "ui",
+      "key": "Follow infection foci expanding over time.",
+      "source": "Follow infection foci expanding over time.",
+      "source_sha256": "3d7507c94540aa1883b1235f798796182f66bcd942bf9e688ed7ea679fb770df",
+      "translation": "Följ infektionshärdar som växer över tid."
+    },
+    {
+      "table": "ui",
+      "key": "Follow parasite release from host cells.",
+      "source": "Follow parasite release from host cells.",
+      "source_sha256": "c15b048803494fc0ac9f80e2d662444707c3bab539e0f0211fdc3cc4d6f2b993",
+      "translation": "Följ frisättningen av parasiter från värdceller."
+    },
+    {
+      "table": "ui",
+      "key": "Follow promastigote-to-amastigote transformation.",
+      "source": "Follow promastigote-to-amastigote transformation.",
+      "source_sha256": "a44e27feacbc3781444bfc738a57c28efcc07077ef5ee81110408f34f82a9090",
+      "translation": "Följ omvandlingen från promastigot till amastigot."
+    },
+    {
+      "table": "ui",
+      "key": "Follow trophozoite emergence from cysts.",
+      "source": "Follow trophozoite emergence from cysts.",
+      "source_sha256": "58b3157dbc0123f1dea3e0edd99a0032ab8dc1564804f1eefd36ac25dbb8a986",
+      "translation": "Följ trofozoiter som kommer ut ur cystor."
+    },
+    {
+      "table": "ui",
+      "key": "Giardia duodenalis, also called G. lamblia or G. intestinalis, causes giardiasis, a diarrhoeal disease of the small intestine. Trophozoites swim with four pairs of flagella, carry two nuclei and attach to the intestinal epithelium with a ventral disc; infection spreads through environmentally resistant cysts. Imaging can measure attachment, motility and encystation.",
+      "source": "Giardia duodenalis, also called G. lamblia or G. intestinalis, causes giardiasis, a diarrhoeal disease of the small intestine. Trophozoites swim with four pairs of flagella, carry two nuclei and attach to the intestinal epithelium with a ventral disc; infection spreads through environmentally resistant cysts. Imaging can measure attachment, motility and encystation.",
+      "source_sha256": "5fd2febc37177ac8f07e400be99740e44dd1a0f3a0c674ebddc2382bc9a6b295",
+      "translation": "Giardia duodenalis, även kallad G. lamblia eller G. intestinalis, orsakar giardiasis, en diarrésjukdom i tunntarmen. Trofozoiterna simmar med fyra par flageller, har två kärnor och fäster vid tarmepitelet med en ventraldisk; infektionen sprids via cystor som är motståndskraftiga i miljön. Avbildning kan mäta vidhäftning, motilitet och encystering."
+    },
+    {
+      "table": "ui",
+      "key": "Glycosome",
+      "source": "Glycosome",
+      "source_sha256": "b48fb481dd78350d68d0f140ad7ed3f40be1709b0c22a7fca018301632c22da5",
+      "translation": "Glykosom"
+    },
+    {
+      "table": "ui",
+      "key": "Host Golgi apparatus",
+      "source": "Host Golgi apparatus",
+      "source_sha256": "f4de37826c395c120d718069142a7df51a395e78daa8cb3bdc5d42061481a676",
+      "translation": "Värdens Golgiapparat"
+    },
+    {
+      "table": "ui",
+      "key": "Host cell membrane",
+      "source": "Host cell membrane",
+      "source_sha256": "0e0ec2c2fec20dac7a9bf68ae1246b5c8c1da8a8eab6286dad3b2b4445d28f79",
+      "translation": "Värdcellens membran"
+    },
+    {
+      "table": "ui",
+      "key": "Host cytoplasm",
+      "source": "Host cytoplasm",
+      "source_sha256": "868cedcca15c5cc7fc0b356e3e22e622b71e71ac2738893cce888777f62518ea",
+      "translation": "Värdens cytoplasma"
+    },
+    {
+      "table": "ui",
+      "key": "Host cytoskeleton",
+      "source": "Host cytoskeleton",
+      "source_sha256": "4970e959735f2b09c0e13144ad2d4d9b5ffbb3177beaa8f25eb218279f6db79d",
+      "translation": "Värdens cytoskelett"
+    },
+    {
+      "table": "ui",
+      "key": "Host endoplasmic reticulum",
+      "source": "Host endoplasmic reticulum",
+      "source_sha256": "d5aad8aada5bc33831404553e6a313870e46d19da36b25f48e20cc1e765cc12e",
+      "translation": "Värdens endoplasmatiska retikulum"
+    },
+    {
+      "table": "ui",
+      "key": "Host endosome",
+      "source": "Host endosome",
+      "source_sha256": "5e21436606df0c7b7b4d498aa0f2abdfb1df79a2ea1a2a0d9e9f0c56b4853d2d",
+      "translation": "Värdens endosom"
+    },
+    {
+      "table": "ui",
+      "key": "Host endosomes are highly dynamic membrane systems involved in transport within the host cell, they receive endocytosed host cell membrane molecules and sort them for either degradation or recycling back to the host cell surface. They also receive newly synthesised proteins destined for host vacuolar/lysosomal compartments.",
+      "source": "Host endosomes are highly dynamic membrane systems involved in transport within the host cell, they receive endocytosed host cell membrane molecules and sort them for either degradation or recycling back to the host cell surface. They also receive newly synthesised proteins destined for host vacuolar/lysosomal compartments.",
+      "source_sha256": "3f8aecb30e91608aa759fb10b0874dbf3db615230bf3a6f2198ca4f682be7716",
+      "translation": "Värdens endosomer är mycket dynamiska membransystem som deltar i transport inom värdcellen; de tar emot endocyterade molekyler från värdcellens membran och sorterar dem antingen för nedbrytning eller för återföring till värdcellens yta. De tar också emot nysyntetiserade proteiner avsedda för värdens vakuolära/lysosomala kompartment."
+    },
+    {
+      "table": "ui",
+      "key": "Host mitochondrion",
+      "source": "Host mitochondrion",
+      "source_sha256": "4bc5274a3f83b534aac69dc63dd91c1ece37e42bcd49ce2b2624d31e2c7dd23c",
+      "translation": "Värdens mitokondrie"
+    },
+    {
+      "table": "ui",
+      "key": "Host nucleolus",
+      "source": "Host nucleolus",
+      "source_sha256": "617f178d845954b8edf590412ec499d785e280b9e2de9ec2d2c1468d83900057",
+      "translation": "Värdens nukleol"
+    },
+    {
+      "table": "ui",
+      "key": "Host nucleus",
+      "source": "Host nucleus",
+      "source_sha256": "ac8d21aee960e97c6c131f101719e908240d1a515f3e0a7495579b7afc5166cf",
+      "translation": "Värdens cellkärna"
+    },
+    {
+      "table": "ui",
+      "key": "Host perinuclear region",
+      "source": "Host perinuclear region",
+      "source_sha256": "25081705c56b56eb8e502127f49faad9847c6d2771ac39a38a89ee8f875bc879",
+      "translation": "Värdens perinukleära region"
+    },
+    {
+      "table": "ui",
+      "key": "Host-cell infection by Trypanosoma cruzi",
+      "source": "Host-cell infection by Trypanosoma cruzi",
+      "source_sha256": "f7d33feb3451d2e83013e6c5278c570c47ad022aed3dfed98e1419c6893c4615",
+      "translation": "Infektion av värdceller med Trypanosoma cruzi"
+    },
+    {
+      "table": "ui",
+      "key": "Host-cell invasion",
+      "source": "Host-cell invasion",
+      "source_sha256": "96486b292d47b3945edcf7b2b2b855f372cf7fd729ada1bc380a67000c987ff4",
+      "translation": "Värdcellsinvasion"
+    },
+    {
+      "table": "ui",
+      "key": "Host-cell invasion opens the Invasion Assay, which separates attached from internalised trypomastigotes when two-colour differential staining is available. Amastigote infection opens Host–Pathogen Analysis to count infected host cells and amastigotes per cell. The planned Trypomastigote egress module will follow parasite release, and Host cell damage will describe monolayer loss. These readouts apply to T. cruzi; T. brucei does not invade cells.",
+      "source": "Host-cell invasion opens the Invasion Assay, which separates attached from internalised trypomastigotes when two-colour differential staining is available. Amastigote infection opens Host–Pathogen Analysis to count infected host cells and amastigotes per cell. The planned Trypomastigote egress module will follow parasite release, and Host cell damage will describe monolayer loss. These readouts apply to T. cruzi; T. brucei does not invade cells.",
+      "source_sha256": "ac47c57642f1fe51860cc6b3f7d65f3ddcb0e616b3a8a5e3c88fac25e5f7641b",
+      "translation": "Värdcellsinvasion öppnar Invasion Assay, som skiljer fästa från internaliserade trypomastigoter när tvåfärgs differentialfärgning finns. Amastigotinfektion öppnar Värd–patogenanalys för att räkna infekterade värdceller och amastigoter per cell. Den planerade modulen Utträde av trypomastigoter kommer att följa frisättningen av parasiter, och Värdcellsskada kommer att beskriva förlust av monolagret. Dessa avläsningar gäller T. cruzi; T. brucei invaderar inte celler."
+    },
+    {
+      "table": "ui",
+      "key": "ICTV virus taxonomy",
+      "source": "ICTV virus taxonomy",
+      "source_sha256": "5d0b4b91cfc56facdfaf0b63fc90db476b9bcb93be2c232085026ba3095d50e2",
+      "translation": "ICTV:s virustaxonomi"
+    },
+    {
+      "table": "ui",
+      "key": "Image-analysis modules for Giardia duodenalis",
+      "source": "Image-analysis modules for Giardia duodenalis",
+      "source_sha256": "a8dcd74f7d7e893e3d56e7637a66a14d30ae233a676e034ccb46aa3deeeac2bc",
+      "translation": "Bildanalysmoduler för Giardia duodenalis"
+    },
+    {
+      "table": "ui",
+      "key": "Image-analysis modules for Leishmania parasites",
+      "source": "Image-analysis modules for Leishmania parasites",
+      "source_sha256": "81cffb17103ff84eef2ff4962c7ea83c01a8026d3e28753a05bf11592cccc9b7",
+      "translation": "Bildanalysmoduler för Leishmania-parasiter"
+    },
+    {
+      "table": "ui",
+      "key": "Image-analysis modules for Trypanosoma brucei and Trypanosoma cruzi",
+      "source": "Image-analysis modules for Trypanosoma brucei and Trypanosoma cruzi",
+      "source_sha256": "2ee1c88780f375b2a53ecd080c06e39c91763cc399b63018cb529772e1af89a8",
+      "translation": "Bildanalysmoduler för Trypanosoma brucei och Trypanosoma cruzi"
+    },
+    {
+      "table": "ui",
+      "key": "Image-analysis modules for mammalian host cells without a pathogen",
+      "source": "Image-analysis modules for mammalian host cells without a pathogen",
+      "source_sha256": "8409654b455e9e07aade479b1ace4df49314fe8cb67db5fa4333e266a10a7c59",
+      "translation": "Bildanalysmoduler för däggdjursvärdceller utan patogen"
+    },
+    {
+      "table": "ui",
+      "key": "Image-analysis modules for virus-infected host cells",
+      "source": "Image-analysis modules for virus-infected host cells",
+      "source_sha256": "00edbc38f177ed9778ef0f7f50d8dc661a47170a85bf820245f56586b2e373f3",
+      "translation": "Bildanalysmoduler för virusinfekterade värdceller"
+    },
+    {
+      "table": "ui",
+      "key": "Infection and replication sites",
+      "source": "Infection and replication sites",
+      "source_sha256": "a1445577a961c82dd4788e572f499df7d62ac8cb50eb3b5846a25c9abedfe86a",
+      "translation": "Infektions- och replikationsplatser"
+    },
+    {
+      "table": "ui",
+      "key": "Infection rate",
+      "source": "Infection rate",
+      "source_sha256": "d24c8c39d7b0cc47baa7da7186b96240ab77e57f73e0cdfa0b172f39cffe3e1e",
+      "translation": "Infektionsgrad"
+    },
+    {
+      "table": "ui",
+      "key": "Infection rate opens Host–Pathogen Analysis to count host cells positive for a viral antigen or reporter among all host cells. Recruitment opens the Recruitment module to measure host-protein enrichment at viral replication compartments. Define the positivity threshold from mock-infected wells, and record the multiplicity of infection and fixation time with every measurement.",
+      "source": "Infection rate opens Host–Pathogen Analysis to count host cells positive for a viral antigen or reporter among all host cells. Recruitment opens the Recruitment module to measure host-protein enrichment at viral replication compartments. Define the positivity threshold from mock-infected wells, and record the multiplicity of infection and fixation time with every measurement.",
+      "source_sha256": "05e766111a38e7f25b1acfcb22f7d891c6776204f03c600330ae6b64b17fe30a",
+      "translation": "Infektionsgrad öppnar Värd–patogenanalys för att räkna värdceller som är positiva för ett viralt antigen eller en reporter bland alla värdceller. Recruitment öppnar modulen Recruitment för att mäta anrikning av värdproteiner vid virala replikationskompartment. Definiera positivitetströskeln utifrån mock-infekterade brunnar, och registrera infektionsmultipliciteten och fixeringstiden med varje mätning."
+    },
+    {
+      "table": "ui",
+      "key": "Infection rate, Plaque Assay, Recruitment and Antiviral response open existing spaCR modules; the other four tiles are planned and marked Coming soon. ViralZone describes virus families and their replication cycles, and UniProt supplies viral and host protein annotations. The diagram shows UniProt vocabulary, not where a selected protein is measured.",
+      "source": "Infection rate, Plaque Assay, Recruitment and Antiviral response open existing spaCR modules; the other four tiles are planned and marked Coming soon. ViralZone describes virus families and their replication cycles, and UniProt supplies viral and host protein annotations. The diagram shows UniProt vocabulary, not where a selected protein is measured.",
+      "source_sha256": "df97668193d4f562cb62fc41caa9e9beeeac3872dedad1688bafb1f4a930ed37",
+      "translation": "Infektionsgrad, Plaque Assay, Recruitment och Antiviralt svar öppnar befintliga spaCR-moduler; de övriga fyra rutorna är planerade och märkta Kommer snart. ViralZone beskriver virusfamiljer och deras replikationscykler, och UniProt tillhandahåller annoteringar av virus- och värdproteiner. Diagrammet visar UniProts vokabulär, inte var ett valt protein mäts."
+    },
+    {
+      "table": "ui",
+      "key": "Kinetoplast",
+      "source": "Kinetoplast",
+      "source_sha256": "354e7611700c9dfba44d161419d06b742e2e900223462763031b3ea79b25b8c2",
+      "translation": "Kinetoplasten"
+    },
+    {
+      "table": "ui",
+      "key": "Leishmania parasites cause cutaneous, mucosal and visceral leishmaniasis and are transmitted by sand flies. Flagellated promastigotes develop in the insect, and amastigotes replicate inside macrophages in a parasitophorous vacuole. Imaging can measure macrophage infection, parasite load, promastigote motility, stage conversion and responses to compounds.",
+      "source": "Leishmania parasites cause cutaneous, mucosal and visceral leishmaniasis and are transmitted by sand flies. Flagellated promastigotes develop in the insect, and amastigotes replicate inside macrophages in a parasitophorous vacuole. Imaging can measure macrophage infection, parasite load, promastigote motility, stage conversion and responses to compounds.",
+      "source_sha256": "c3874647e50eaf8b8933bfc2d4f8c9ead1b6ac4b3969e7d20c4bd0a2ed3dcd5c",
+      "translation": "Leishmania-parasiter orsakar kutan, mukosal och visceral leishmanios och överförs av sandmyggor. Flagellförsedda promastigoter utvecklas i insekten, och amastigoter förökar sig inuti makrofager i en parasitofor vakuol. Avbildning kan mäta makrofaginfektion, parasitbörda, promastigoternas motilitet, stadieomvandling och svar på substanser."
+    },
+    {
+      "table": "ui",
+      "key": "Lysosome",
+      "source": "Lysosome",
+      "source_sha256": "d884c024ee35d24979241c42cafded6877c36dd3247ce24d70d69d5eecb8f4ca",
+      "translation": "Lysosom"
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage binding",
+      "source": "Macrophage binding",
+      "source_sha256": "93b3d54ba623aa07eb6c2d9d4d43784b0c2b75c82c733f0e817e030e7323c2ec",
+      "translation": "Makrofagbindning"
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage infection",
+      "source": "Macrophage infection",
+      "source_sha256": "87b4299fbc2bd35e02d91637db46bf31739605feab608625874d52114368749c",
+      "translation": "Makrofaginfektion"
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage infection and parasite load",
+      "source": "Macrophage infection and parasite load",
+      "source_sha256": "2471de271c440f621ddda91955a04b0810d293e0e5548228db5436defe70de42",
+      "translation": "Makrofaginfektion och parasitbörda"
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage infection opens Host–Pathogen Analysis to report the fraction of infected macrophages and the amastigotes per macrophage, the two usual measures of parasite load. Macrophage binding opens the Invasion Assay to separate bound from internalised promastigotes when differential staining is used. The planned Vacuole size module will measure parasitophorous vacuole area, which differs between Leishmania species and grows as amastigotes multiply inside it.",
+      "source": "Macrophage infection opens Host–Pathogen Analysis to report the fraction of infected macrophages and the amastigotes per macrophage, the two usual measures of parasite load. Macrophage binding opens the Invasion Assay to separate bound from internalised promastigotes when differential staining is used. The planned Vacuole size module will measure parasitophorous vacuole area, which differs between Leishmania species and grows as amastigotes multiply inside it.",
+      "source_sha256": "eed75e25e5903edfcfba8303fc11c7fd29af4c7721c18444a07a6b5f4bf4254f",
+      "translation": "Makrofaginfektion öppnar Värd–patogenanalys för att rapportera andelen infekterade makrofager och amastigoterna per makrofag, de två vanliga måtten på parasitbörda. Makrofagbindning öppnar Invasion Assay för att skilja bundna från internaliserade promastigoter när differentialfärgning används. Den planerade modulen Vakuolstorlek kommer att mäta den parasitofora vakuolens area, som skiljer sig mellan Leishmania-arter och växer när amastigoterna förökar sig i den."
+    },
+    {
+      "table": "ui",
+      "key": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+      "source": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
+      "source_sha256": "b01612a5173d17b1e46e05eb30fe46c1338d7abddb0a4143be3eec272b5435a9",
+      "translation": "Makrofaginfektion, Makrofagbindning, Promastigotmotilitet och Avbildning av läkemedelssvar öppnar befintliga spaCR-moduler; de övriga fyra rutorna är planerade och märkta Kommer snart. TriTrypDB ger genomkontext och UniProt tillhandahåller proteinannoteringar. Diagrammet delas med Trypanosoma och visar UniProts vokabulär, inte den uppmätta lokaliseringen av ett Leishmania-protein."
+    },
+    {
+      "table": "ui",
+      "key": "Measure amastigote clearance across compound concentrations.",
+      "source": "Measure amastigote clearance across compound concentrations.",
+      "source_sha256": "e48c53277b70d908b79baa0c6cb6da93ae2db860430252b979ee16270b6c5de5",
+      "translation": "Mät amastigotclearance över substanskoncentrationer."
+    },
+    {
+      "table": "ui",
+      "key": "Measure cell number across compound concentrations.",
+      "source": "Measure cell number across compound concentrations.",
+      "source_sha256": "b7ec7b8758c193b31ee9c876499207a68c2f94e4aee2faa07f396c64a92dd5a5",
+      "translation": "Mät cellantal över substanskoncentrationer."
+    },
+    {
+      "table": "ui",
+      "key": "Measure epithelial monolayer integrity.",
+      "source": "Measure epithelial monolayer integrity.",
+      "source_sha256": "1ad0fa802e8d16436edea89e4506ba833f722960124a77c1a1cdf5204f51e7dc",
+      "translation": "Mät det epiteliala monolagrets integritet."
+    },
+    {
+      "table": "ui",
+      "key": "Measure gap closure in scratch assays.",
+      "source": "Measure gap closure in scratch assays.",
+      "source_sha256": "031e4ab22088fd88582db5403da0e003e4e139d4772a5b215f096cb81aaa648e",
+      "translation": "Mät hur glappet sluts i skrapanalyser."
+    },
+    {
+      "table": "ui",
+      "key": "Measure host-cell rounding, detachment and loss.",
+      "source": "Measure host-cell rounding, detachment and loss.",
+      "source_sha256": "7430463e3243ffe8cfe300597c43a2700de71f6ffa7768285650d3660cfde38e",
+      "translation": "Mät avrundning, lossning och förlust av värdceller."
+    },
+    {
+      "table": "ui",
+      "key": "Measure host-protein enrichment at replication sites.",
+      "source": "Measure host-protein enrichment at replication sites.",
+      "source_sha256": "63a75f32c7c97bac55f95fd523e8b2ab2371e331bf839cd300f9b1c3635bbdce",
+      "translation": "Mät anrikning av värdproteiner vid replikationsplatser."
+    },
+    {
+      "table": "ui",
+      "key": "Measure infection across antiviral concentrations.",
+      "source": "Measure infection across antiviral concentrations.",
+      "source_sha256": "81ef8320cd1575639abf91ee7c3527c498861593b7ed7b71f7ed7734f2d8960a",
+      "translation": "Mät infektion över koncentrationer av antivirala medel."
+    },
+    {
+      "table": "ui",
+      "key": "Measure macrophage loss and monolayer integrity.",
+      "source": "Measure macrophage loss and monolayer integrity.",
+      "source_sha256": "ede9fbd7603af0157497c9747952c99b6844cc83725d4d2fb34a0fcedd6afb75",
+      "translation": "Mät makrofagförlust och monolagrets integritet."
+    },
+    {
+      "table": "ui",
+      "key": "Measure mitochondrial and organelle shape.",
+      "source": "Measure mitochondrial and organelle shape.",
+      "source_sha256": "f5e2452aa82b0fdc459a37c594783863e47a17d21e99c36f875771db735d5e8e",
+      "translation": "Mät formen på mitokondrier och organeller."
+    },
+    {
+      "table": "ui",
+      "key": "Measure parasite growth across compound concentrations.",
+      "source": "Measure parasite growth across compound concentrations.",
+      "source_sha256": "b9ab6bc721b1045dc103ad75843044cc48a09a096cada672afbb717d938d1ff7",
+      "translation": "Mät parasittillväxt över substanskoncentrationer."
+    },
+    {
+      "table": "ui",
+      "key": "Measure parasitophorous vacuole area per infected cell.",
+      "source": "Measure parasitophorous vacuole area per infected cell.",
+      "source_sha256": "68971233a249206205522cc70c166c70d594024ee429304874110f317a5d222c",
+      "translation": "Mät den parasitofora vakuolens area per infekterad cell."
+    },
+    {
+      "table": "ui",
+      "key": "Measure per-cell intensity and shape features.",
+      "source": "Measure per-cell intensity and shape features.",
+      "source_sha256": "7a2e528fe9a9cee22cb84362e48041b35a8d9b5b27b33451e9b90ad94d69a27a",
+      "translation": "Mät intensitets- och formegenskaper per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Measure trophozoite growth across compound concentrations.",
+      "source": "Measure trophozoite growth across compound concentrations.",
+      "source_sha256": "92c98361d614a4a89ae1e6383fe2d240d34af3440f1df52f080b014be4ef5ac0",
+      "translation": "Mät trofozoittillväxt över substanskoncentrationer."
+    },
+    {
+      "table": "ui",
+      "key": "Measure ventral disc shape and integrity.",
+      "source": "Measure ventral disc shape and integrity.",
+      "source_sha256": "632572af2b510468dd52d832c1b4c91540d4a42e24ab1ded317f9b2ccb49ff8b",
+      "translation": "Mät ventraldiskens form och integritet."
+    },
+    {
+      "table": "ui",
+      "key": "Metacyclogenesis",
+      "source": "Metacyclogenesis",
+      "source_sha256": "84c62fff84663f7cd7342e104632b73af4862a21132f6f94267ab234d1331bff",
+      "translation": "Metacyklogenes"
+    },
+    {
+      "table": "ui",
+      "key": "Microtubule organizing center",
+      "source": "Microtubule organizing center",
+      "source_sha256": "883ac023ab2802d4909f66a387a9451dc14531539141c63e2ab10bb005f0036c",
+      "translation": "Mikrotubuliorganiserande centrum"
+    },
+    {
+      "table": "ui",
+      "key": "Migration and wound closure",
+      "source": "Migration and wound closure",
+      "source_sha256": "aba452992526104e75f8f9875396c5d8eec65b5a6a66673b0b36a8cb233306a6",
+      "translation": "Migration och sårslutning"
+    },
+    {
+      "table": "ui",
+      "key": "Morphology profiling",
+      "source": "Morphology profiling",
+      "source_sha256": "73f120164d5f10897dc65b04ef694a8319f57739c564f7518467a4a8eff9a3c3",
+      "translation": "Morfologiprofilering"
+    },
+    {
+      "table": "ui",
+      "key": "Motility and life-cycle forms",
+      "source": "Motility and life-cycle forms",
+      "source_sha256": "9d90f10800dd68fef67fcd3a80507826d6e93dba1f0238385f00a5688cd49193",
+      "translation": "Motilitet och livscykelformer"
+    },
+    {
+      "table": "ui",
+      "key": "Nuclear division",
+      "source": "Nuclear division",
+      "source_sha256": "f3d375790d4d6f146f5dfa298c274313a935cf05269f81ad46cbebea39df84d8",
+      "translation": "Kärndelning"
+    },
+    {
+      "table": "ui",
+      "key": "Nuclear division is planned to follow the two nuclei through mitosis, which a cell-cycle readout must count as a pair. Barrier damage will measure epithelial monolayer integrity after exposure to trophozoites. Drug response imaging opens Dose–Response to fit trophozoite number or attachment against compound concentration. Detached trophozoites are lost when wells are washed, so decide whether attachment or survival is the endpoint.",
+      "source": "Nuclear division is planned to follow the two nuclei through mitosis, which a cell-cycle readout must count as a pair. Barrier damage will measure epithelial monolayer integrity after exposure to trophozoites. Drug response imaging opens Dose–Response to fit trophozoite number or attachment against compound concentration. Detached trophozoites are lost when wells are washed, so decide whether attachment or survival is the endpoint.",
+      "source_sha256": "4595755fc5c0d2dbb6c1de47af331ee3e2b41064adb21b4af0641fc1d31254e1",
+      "translation": "Kärndelning planeras för att följa de två kärnorna genom mitosen, vilka en cellcykelavläsning måste räkna som ett par. Barriärskada kommer att mäta det epiteliala monolagrets integritet efter exponering för trofozoiter. Avbildning av läkemedelssvar öppnar Dos–respons för att anpassa antal trofozoiter eller vidhäftning mot substanskoncentration. Lossnade trofozoiter går förlorade när brunnarna tvättas, så bestäm om vidhäftning eller överlevnad är slutpunkten."
+    },
+    {
+      "table": "ui",
+      "key": "Nucleus speckle",
+      "source": "Nucleus speckle",
+      "source_sha256": "9f3b024038ef4a6f0380a08135f5c90f718799f2db7a1e9827d0d3129b9125e2",
+      "translation": "Kärnspeckle"
+    },
+    {
+      "table": "ui",
+      "key": "Opened test data: {path}",
+      "source": "Opened test data: {path}",
+      "source_sha256": "fb801ce165864f2f7e3492a4ec41631ab194fe225d1b19f3c405d30218019b6c",
+      "translation": "Öppnade testdata: {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to a per-well image readout, such as parasite number, against compound concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to a per-well image readout, such as parasite number, against compound concentration.",
+      "source_sha256": "bf6bcf1cff5d2db54f9d8a2a694699375a428a19461bb1589b78423cecce8c1d",
+      "translation": "Öppnar Dos–respons. Anpassa en fyrparameters logistisk kurva och EC50 till en bildbaserad avläsning per brunn, till exempel antal parasiter, mot substanskoncentration."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to cell number or viability per well against compound concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to cell number or viability per well against compound concentration.",
+      "source_sha256": "eda1e9910ac2cfa2b1b7174eda054fca59dc248c0ae77338e41e0eff591433b3",
+      "translation": "Öppnar Dos–respons. Anpassa en fyrparameters logistisk kurva och EC50 till cellantal eller viabilitet per brunn mot substanskoncentration."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to the infected fraction or amastigotes per macrophage against compound concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to the infected fraction or amastigotes per macrophage against compound concentration.",
+      "source_sha256": "2ced5582ef92f51fdc160c0f34432d5dea5cc4166a4d1b8f1732459c244a49c9",
+      "translation": "Öppnar Dos–respons. Anpassa en fyrparameters logistisk kurva och EC50 till den infekterade andelen eller amastigoterna per makrofag mot substanskoncentration."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to the infected fraction per well against antiviral concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to the infected fraction per well against antiviral concentration.",
+      "source_sha256": "9a353c2c13f5aed496d7affa7a44871229a3b249daf2d269e5bb65ff88a8c2bf",
+      "translation": "Öppnar Dos–respons. Anpassa en fyrparameters logistisk kurva och EC50 till den infekterade andelen per brunn mot koncentrationen av antiviralt medel."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to trophozoite number or attachment per well against compound concentration.",
+      "source": "Opens Dose–Response. Fit a four-parameter logistic curve and EC50 to trophozoite number or attachment per well against compound concentration.",
+      "source_sha256": "3ea85e5524b757dac4003bcc90246b95c81522bb4a56c2895953bffcf7877406",
+      "translation": "Öppnar Dos–respons. Anpassa en fyrparameters logistisk kurva och EC50 till antal trofozoiter eller vidhäftning per brunn mot substanskoncentration."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure all host cells and viral antigen or reporter signal as pathogen objects; its infected fraction per well is the infection rate.",
+      "source": "Opens Host–Pathogen Analysis. Measure all host cells and viral antigen or reporter signal as pathogen objects; its infected fraction per well is the infection rate.",
+      "source_sha256": "c4e728b1f790fd2a743da56d3804dc047b20751cf350a0ef17d4a7b7d51842df",
+      "translation": "Öppnar Värd–patogenanalys. Mät alla värdceller och signalen från viralt antigen eller reporter som patogenobjekt; dess infekterade andel per brunn är infektionsgraden."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure epithelial cells as host cells and trophozoites as pathogen objects; it reports the fraction of host cells with trophozoites and trophozoites per cell.",
+      "source": "Opens Host–Pathogen Analysis. Measure epithelial cells as host cells and trophozoites as pathogen objects; it reports the fraction of host cells with trophozoites and trophozoites per cell.",
+      "source_sha256": "3797ff87c4797f535ef58487599ac5fe3d60ab1b196b7f2d41dac17216c3c3a4",
+      "translation": "Öppnar Värd–patogenanalys. Mät epitelceller som värdceller och trofozoiter som patogenobjekt; den rapporterar andelen värdceller med trofozoiter och trofozoiter per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure host cells, including uninfected ones, and amastigotes as pathogen objects; it reports the infected fraction and amastigotes per cell.",
+      "source": "Opens Host–Pathogen Analysis. Measure host cells, including uninfected ones, and amastigotes as pathogen objects; it reports the infected fraction and amastigotes per cell.",
+      "source_sha256": "04f1abc26b7594a6d1f5d9594b6b5966868eb1ac765afe64a693c327650594bc",
+      "translation": "Öppnar Värd–patogenanalys. Mät värdceller, även oinfekterade, och amastigoter som patogenobjekt; den rapporterar den infekterade andelen och amastigoter per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure macrophages as host cells and amastigotes as pathogen objects; it reports the infected fraction and amastigotes per macrophage.",
+      "source": "Opens Host–Pathogen Analysis. Measure macrophages as host cells and amastigotes as pathogen objects; it reports the infected fraction and amastigotes per macrophage.",
+      "source_sha256": "6fba889cedd16947f37939ddf04e5259681fcfc8544f8ed0b54b6be8baa8954b",
+      "translation": "Öppnar Värd–patogenanalys. Mät makrofager som värdceller och amastigoter som patogenobjekt; den rapporterar den infekterade andelen och amastigoter per makrofag."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Host–Pathogen Analysis. Measure the cells as host cells and beads or particles as pathogen objects; it reports the fraction of cells with uptake and particles per cell.",
+      "source": "Opens Host–Pathogen Analysis. Measure the cells as host cells and beads or particles as pathogen objects; it reports the fraction of cells with uptake and particles per cell.",
+      "source_sha256": "653d888c5b167452adb9ebec57ff7abc7b9daf8c95bee3420e60fb00ceee34c1",
+      "translation": "Öppnar Värd–patogenanalys. Mät cellerna som värdceller och kulor eller partiklar som patogenobjekt; den rapporterar andelen celler med upptag och partiklar per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Mask. Choose a Cellpose model for nuclei and cells; it writes masks for Measure and the other modules.",
+      "source": "Opens Mask. Choose a Cellpose model for nuclei and cells; it writes masks for Measure and the other modules.",
+      "source_sha256": "749ec20fcd4c99a05d5dca1710f478c04dc982b3de79e79671624677e47d85f0",
+      "translation": "Öppnar Mask. Välj en Cellpose-modell för kärnor och celler; den skriver masker för Measure och de andra modulerna."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Measure. Point it at the images and masks; it writes per-cell intensity, texture and shape features.",
+      "source": "Opens Measure. Point it at the images and masks; it writes per-cell intensity, texture and shape features.",
+      "source_sha256": "0b8f9054aa4044bbfc36efcd57ac3a2ff09dff452f188e6dfae1e8fc8780e6f8",
+      "translation": "Öppnar Measure. Peka den mot bilderna och maskerna; den skriver intensitets-, textur- och formegenskaper per cell."
+    },
+    {
+      "table": "ui",
+      "key": "Opens Recruitment. Use the viral replication compartment as the pathogen object; it reports host-protein enrichment around it.",
+      "source": "Opens Recruitment. Use the viral replication compartment as the pathogen object; it reports host-protein enrichment around it.",
+      "source_sha256": "d8e9b4468edac1098063a2ce3e82d698f1d6d711f8136577bb31a0f0c26b1175",
+      "translation": "Öppnar Recruitment. Använd det virala replikationskompartmentet som patogenobjekt; den rapporterar anrikning av värdproteiner runt det."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Invasion Assay. Two-colour differential staining separates attached from internalised T. cruzi trypomastigotes, as for Toxoplasma invasion.",
+      "source": "Opens the Invasion Assay. Two-colour differential staining separates attached from internalised T. cruzi trypomastigotes, as for Toxoplasma invasion.",
+      "source_sha256": "7cbb8097be2dd6620bab7e800f26d87803855748201f71336e9c904a15863f85",
+      "translation": "Öppnar Invasion Assay. Tvåfärgs differentialfärgning skiljer fästa från internaliserade trypomastigoter av T. cruzi, som för invasion av Toxoplasma."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Invasion Assay. Two-colour differential staining separates bound from internalised promastigotes.",
+      "source": "Opens the Invasion Assay. Two-colour differential staining separates bound from internalised promastigotes.",
+      "source_sha256": "6947f6965a5c5560320beb6f4cae571596d217e9cd47a6e3d3102d5d0a3d52c8",
+      "translation": "Öppnar Invasion Assay. Tvåfärgs differentialfärgning skiljer bundna från internaliserade promastigoter."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Motility Assay with infection QC off, because no pathogen is present. Segment the cells as the tracked objects; it reports track speed and straightness per well.",
+      "source": "Opens the Motility Assay with infection QC off, because no pathogen is present. Segment the cells as the tracked objects; it reports track speed and straightness per well.",
+      "source_sha256": "ca1444d3f38f076a80034b499e20799efdfe61c9f80c434f42c3f590feb19b7d",
+      "translation": "Öppnar Motility Assay med infektions-QC av, eftersom ingen patogen finns. Segmentera cellerna som de spårade objekten; den rapporterar spårhastighet och rakhet per brunn."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Motility Assay with infection QC off, because promastigotes in culture have no host cell. Segment them as the tracked cell objects; it reports track speed and straightness per well.",
+      "source": "Opens the Motility Assay with infection QC off, because promastigotes in culture have no host cell. Segment them as the tracked cell objects; it reports track speed and straightness per well.",
+      "source_sha256": "bf1c1f874d080dc01c5359a7bb5f6f1aba14dfc218f648cac885d65b4e3f1a7f",
+      "translation": "Öppnar Motility Assay med infektions-QC av, eftersom promastigoter i odling saknar värdcell. Segmentera dem som de spårade cellobjekten; den rapporterar spårhastighet och rakhet per brunn."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Motility Assay with infection QC off, because swimming trophozoites have no host cell. Segment them as the tracked cell objects; it reports track speed and straightness per well.",
+      "source": "Opens the Motility Assay with infection QC off, because swimming trophozoites have no host cell. Segment them as the tracked cell objects; it reports track speed and straightness per well.",
+      "source_sha256": "352950dec79357e0d51315f5751b9bcfa5091eba238803ab24809ee8803057b6",
+      "translation": "Öppnar Motility Assay med infektions-QC av, eftersom simmande trofozoiter saknar värdcell. Segmentera dem som de spårade cellobjekten; den rapporterar spårhastighet och rakhet per brunn."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Motility Assay with infection QC off, because swimming trypanosomes have no host cell. Segment the parasites as the tracked cell objects; it reports track speed and straightness per well.",
+      "source": "Opens the Motility Assay with infection QC off, because swimming trypanosomes have no host cell. Segment the parasites as the tracked cell objects; it reports track speed and straightness per well.",
+      "source_sha256": "e19c8a84b80c0819b4ba5bf0086ad241c27f7a4cf5d61fde92695d8564ba9667",
+      "translation": "Öppnar Motility Assay med infektions-QC av, eftersom simmande trypanosomer saknar värdcell. Segmentera parasiterna som de spårade cellobjekten; den rapporterar spårhastighet och rakhet per brunn."
+    },
+    {
+      "table": "ui",
+      "key": "Opens the Plaque Assay. Segment plaques in the stained monolayer; it reports plaque number and size per well.",
+      "source": "Opens the Plaque Assay. Segment plaques in the stained monolayer; it reports plaque number and size per well.",
+      "source_sha256": "9aae14bd833545e966478a9421ce4ac5e2d1e0fa7cfd3b13fe063e80284b84ef",
+      "translation": "Öppnar Plaque Assay. Segmentera plack i det färgade monolagret; den rapporterar antal och storlek på plack per brunn."
+    },
+    {
+      "table": "ui",
+      "key": "Organelle morphology",
+      "source": "Organelle morphology",
+      "source_sha256": "886e04141ecddbc35b7b83e915aacc99024b64e2b170adf80e811e5504fa6ad5",
+      "translation": "Organellmorfologi"
+    },
+    {
+      "table": "ui",
+      "key": "Plaque Assay opens the Plaque Assay module to count and measure plaques in a stained monolayer. The planned Viral spread module will follow infection foci over time, and Cytopathic effect will measure host-cell rounding, detachment and loss. Plaque size integrates several rounds of replication and spread, so compare it with the infection rate before assigning a defect to one step.",
+      "source": "Plaque Assay opens the Plaque Assay module to count and measure plaques in a stained monolayer. The planned Viral spread module will follow infection foci over time, and Cytopathic effect will measure host-cell rounding, detachment and loss. Plaque size integrates several rounds of replication and spread, so compare it with the infection rate before assigning a defect to one step.",
+      "source_sha256": "794e266cca811ad154c4ebc08c62cd2d010f05398e3f0f77729989ab3f77caf0",
+      "translation": "Plaque Assay öppnar modulen Plaque Assay för att räkna och mäta plack i ett färgat monolager. Den planerade modulen Virusspridning kommer att följa infektionshärdar över tid, och Cytopatisk effekt kommer att mäta avrundning, lossning och förlust av värdceller. Plackstorleken integrerar flera omgångar av replikation och spridning, så jämför den med infektionsgraden innan en defekt tillskrivs ett enskilt steg."
+    },
+    {
+      "table": "ui",
+      "key": "Plaques and spread",
+      "source": "Plaques and spread",
+      "source_sha256": "7ed08ff4bf0207b0965948ad5ef792db2a4bc4c69bbd26b4b808a92347fbbe0a",
+      "translation": "Plack och spridning"
+    },
+    {
+      "table": "ui",
+      "key": "Promastigote development and motility",
+      "source": "Promastigote development and motility",
+      "source_sha256": "92c9dadf85439b4517b87068633bd33a17b65430f0151995ec2879577a81e1e5",
+      "translation": "Promastigoters utveckling och motilitet"
+    },
+    {
+      "table": "ui",
+      "key": "Promastigote motility",
+      "source": "Promastigote motility",
+      "source_sha256": "9eb267f135208ea9f2b9dd317ad5f35fdc38d4668ecd32420429e7e97983a239",
+      "translation": "Promastigotmotilitet"
+    },
+    {
+      "table": "ui",
+      "key": "Promastigote motility opens the Motility Assay with infection QC off to measure swimming speed and straightness. The planned Metacyclogenesis module will separate procyclic from infective metacyclic promastigotes by shape, and Amastigote conversion will follow the transformation into rounded amastigotes. Record the culture day and medium, because promastigote populations change composition as cultures age.",
+      "source": "Promastigote motility opens the Motility Assay with infection QC off to measure swimming speed and straightness. The planned Metacyclogenesis module will separate procyclic from infective metacyclic promastigotes by shape, and Amastigote conversion will follow the transformation into rounded amastigotes. Record the culture day and medium, because promastigote populations change composition as cultures age.",
+      "source_sha256": "4fb19041a70c8842ff3ca6ac95bc069ce211041ee7d4bc9fe53f22fe404b1146",
+      "translation": "Promastigotmotilitet öppnar Motility Assay med infektions-QC av för att mäta simhastighet och rakhet. Den planerade modulen Metacyklogenes kommer att skilja prozykliska från infektiösa metazykliska promastigoter utifrån form, och Omvandling till amastigoter kommer att följa omvandlingen till rundade amastigoter. Registrera odlingsdag och medium, eftersom promastigotpopulationernas sammansättning ändras när odlingarna åldras."
+    },
+    {
+      "table": "ui",
+      "key": "Quantify cyst-wall staining and cyst formation.",
+      "source": "Quantify cyst-wall staining and cyst formation.",
+      "source_sha256": "a4af902ce2da668a051f3af0f3f23bf1bd3ab09a7c35d8252ebaa7b8a0b058be",
+      "translation": "Kvantifiera cystväggsfärgning och cystbildning."
+    },
+    {
+      "table": "ui",
+      "key": "Quantify uptake of beads or particles.",
+      "source": "Quantify uptake of beads or particles.",
+      "source_sha256": "c1efa2b22783bc2ba83abcdfadd5bfeb1aab24c2d42ada48e48f42b88f7ae831",
+      "translation": "Kvantifiera upptag av kulor eller partiklar."
+    },
+    {
+      "table": "ui",
+      "key": "Segment nuclei and cells in fixed or live images.",
+      "source": "Segment nuclei and cells in fixed or live images.",
+      "source_sha256": "8c0206b05f14764ddb6cd8a5c96614bbf26474a73534ef83b45c2d38e80d3658",
+      "translation": "Segmentera kärnor och celler i fixerade eller levande bilder."
+    },
+    {
+      "table": "ui",
+      "key": "Segmentation and morphology",
+      "source": "Segmentation and morphology",
+      "source_sha256": "6b59e629891b1ed585af2530b023d9a7cf3f117def48dc1eb5f058c53d745041",
+      "translation": "Segmentering och morfologi"
+    },
+    {
+      "table": "ui",
+      "key": "Separate attached from internalised trypomastigotes.",
+      "source": "Separate attached from internalised trypomastigotes.",
+      "source_sha256": "68b6bc1e925a7db2da15e10d0fe3f26f3abdc206800559563444795fb36a6cf6",
+      "translation": "Skilj fästa från internaliserade trypomastigoter."
+    },
+    {
+      "table": "ui",
+      "key": "Separate bound from internalised promastigotes.",
+      "source": "Separate bound from internalised promastigotes.",
+      "source_sha256": "8acdfb6c4605e7423f1e6192005ef6083a3c20900354cbfede26ba050f5d89ea",
+      "translation": "Skilj bundna från internaliserade promastigoter."
+    },
+    {
+      "table": "ui",
+      "key": "Separate bound from internalised virions.",
+      "source": "Separate bound from internalised virions.",
+      "source_sha256": "81640c3a323a5d91642e5db2a11eb18874a95951e820439594c738215641e256",
+      "translation": "Skilj bundna från internaliserade virioner."
+    },
+    {
+      "table": "ui",
+      "key": "Stage differentiation",
+      "source": "Stage differentiation",
+      "source_sha256": "ad9bc4b5b23e06f414b17b004077a82444f03fed99856fcfc0f395a7e523f202",
+      "translation": "Stadiedifferentiering"
+    },
+    {
+      "table": "ui",
+      "key": "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+      "source": "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
+      "source_sha256": "f6797673c598cf48fdac87226232411ad6f06a63200f42e0af2680a54295c881",
+      "translation": "SwissBioPics har ingen teckning av Giardia, så detta är dess generiska eukaryota cell. Håll pekaren över för en beskrivning av platsen från UniProt och markera flera kompartment för att hålla dem framhävda. Etiketterna är UniProt-lokaliseringar som annoterats för Giardia-proteiner och ritats här. Giardia har två kärnor, mitosomer i stället för mitokondrier och ingen staplad Golgi, så dessa erbjuds inte."
+    },
+    {
+      "table": "ui",
+      "key": "Syncytium formation",
+      "source": "Syncytium formation",
+      "source_sha256": "7379ab7fc79340fe46e65274c5ed653e9bc78582c68c13af2ed8a63521b0ca23",
+      "translation": "Syncytiebildning"
+    },
+    {
+      "table": "ui",
+      "key": "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
+      "source": "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
+      "source_sha256": "ad490304e3aaa50cb93265d4034cb43c3fae86832c136b6f998f2be0bc954226",
+      "translation": "SwissBioPics djurcell. Håll pekaren över för en beskrivning av platsen från UniProt och markera flera kompartment för att hålla dem framhävda. Etiketterna är subcellulära UniProt-lokaliseringar som annoterats för däggdjursproteiner och som den här bilden ritar. Cellform och organellernas placering varierar mellan celltyper."
+    },
+    {
+      "table": "ui",
+      "key": "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
+      "source": "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
+      "source_sha256": "fb884f428ba8ef8c4a5533bc283f2399b465e860462bc5b89847e69a9ef0621a",
+      "translation": "SwissBioPics djurvärdcell med en virion. Håll pekaren över för en beskrivning av platsen från UniProt och markera flera kompartment för att hålla dem framhävda. Etiketterna är de virion- och värdcellslokaliseringar som UniProt annoterar för virusproteiner och som den här bilden ritar. Den är generisk: virionens struktur och replikationsplatserna skiljer sig mellan virusfamiljer."
+    },
+    {
+      "table": "ui",
+      "key": "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
+      "source": "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
+      "source_sha256": "c7fd8a8cb8057bbb3609a18cae8c1e5c5f44f0c238e69f7c8c4b8461fed71bda",
+      "translation": "SwissBioPics trypanosomatidcell, delad med Trypanosoma-sidan. Håll pekaren över för en beskrivning av platsen från UniProt och markera flera kompartment för att hålla dem framhävda. Etiketterna är de subcellulära UniProt-lokaliseringar som annoterats för Leishmania-proteiner och som den här bilden ritar. Promastigoter och den rundade amastigoten skiljer sig i form och flagellängd."
+    },
+    {
+      "table": "ui",
+      "key": "The SwissBioPics trypanosomatid cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Trypanosoma proteins that this artwork draws. It shows one trypomastigote-like form; amastigotes and epimastigotes differ in flagellum length and organelle position.",
+      "source": "The SwissBioPics trypanosomatid cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Trypanosoma proteins that this artwork draws. It shows one trypomastigote-like form; amastigotes and epimastigotes differ in flagellum length and organelle position.",
+      "source_sha256": "60fe02d042c0fea4f29f0fb69eedc0fe2f05e316e1128cf25fd5c2da6253fa9d",
+      "translation": "SwissBioPics trypanosomatidcell. Håll pekaren över för en beskrivning av platsen från UniProt och markera flera kompartment för att hålla dem framhävda. Etiketterna är de subcellulära UniProt-lokaliseringar som annoterats för Trypanosoma-proteiner och som den här bilden ritar. Den visar en trypomastigotliknande form; amastigoter och epimastigoter skiljer sig i flagellängd och organellernas läge."
+    },
+    {
+      "table": "ui",
+      "key": "The basal body is a barrel-shaped microtubule-based structure required for the formation of flagella. Basal bodies, structuraly related to and often interconvertible with centrioles, serves as a nucleation site for axoneme growth.",
+      "source": "The basal body is a barrel-shaped microtubule-based structure required for the formation of flagella. Basal bodies, structuraly related to and often interconvertible with centrioles, serves as a nucleation site for axoneme growth.",
+      "source_sha256": "bd683380e60cab8c3755be289f709dbb73e17feef6ef91809198b75bcfee62db",
+      "translation": "Basalkroppen är en tunnformad mikrotubulibaserad struktur som krävs för bildandet av flageller. Basalkroppar, som är strukturellt besläktade med och ofta kan omvandlas till centrioler, fungerar som nukleationsplats för axonemets tillväxt."
+    },
+    {
+      "table": "ui",
+      "key": "The centrosome is a microtubule organizing center (MTOC) responsible for the nucleation and organisation of  microtubules. It is composed of two orthogonally arranged centrioles, each one having a barrel shaped microtubule structure, and their surrounding pericentriolar material (PCM).",
+      "source": "The centrosome is a microtubule organizing center (MTOC) responsible for the nucleation and organisation of  microtubules. It is composed of two orthogonally arranged centrioles, each one having a barrel shaped microtubule structure, and their surrounding pericentriolar material (PCM).",
+      "source_sha256": "b171700d5d546975471d97c2aa94e0200c62d7bfb23b2f7cf63ba0010dcef64f",
+      "translation": "Centrosomen är ett mikrotubuliorganiserande centrum (MTOC) som ansvarar för nukleation och organisation av mikrotubuli. Den består av två vinkelrätt ordnade centrioler, var och en med en tunnformad mikrotubulistruktur, och det omgivande pericentriolära materialet (PCM)."
+    },
+    {
+      "table": "ui",
+      "key": "The cilium is a cell surface projection found at the surface of a large proportion of eukaryotic cells. The two basic types of cilia, motile (alternatively named flagella) and non-motile, collectively perform a wide variety of functions broadly encompassing cell/fluid movement and sensory perception. Their most prominent structural component is the axoneme which consists of nine doublet microtubules, with all motile cilia - except those at the embryonic node - containing an additional central pair of microtubules. The axonemal microtubules of all cilia nucleate and extend from a basal body, a centriolar structure most often composed of a radial array of nine triplet microtubules. In most cells, basal bodies associate with cell membranes and cilia are assembled as 'extracellular' membrane-enclosed compartments.",
+      "source": "The cilium is a cell surface projection found at the surface of a large proportion of eukaryotic cells. The two basic types of cilia, motile (alternatively named flagella) and non-motile, collectively perform a wide variety of functions broadly encompassing cell/fluid movement and sensory perception. Their most prominent structural component is the axoneme which consists of nine doublet microtubules, with all motile cilia - except those at the embryonic node - containing an additional central pair of microtubules. The axonemal microtubules of all cilia nucleate and extend from a basal body, a centriolar structure most often composed of a radial array of nine triplet microtubules. In most cells, basal bodies associate with cell membranes and cilia are assembled as 'extracellular' membrane-enclosed compartments.",
+      "source_sha256": "b40c86aa546f0b401fda766b8ddd0cd2ff16159d58f91782ac21268b41f1dca9",
+      "translation": "Cilien är ett cellytsutskott som finns på ytan av en stor andel eukaryota celler. De två grundtyperna av cilier, motila (även kallade flageller) och icke-motila, utför tillsammans en mängd olika funktioner som i stort omfattar cell-/vätskerörelse och sensorisk perception. Deras mest framträdande strukturella komponent är axonemet, som består av nio dubbletmikrotubuli, där alla motila cilier - utom de vid den embryonala noden - innehåller ytterligare ett centralt mikrotubulipar. Axonemets mikrotubuli i alla cilier nukleeras och växer ut från en basalkropp, en centriolstruktur som oftast består av en radiell uppsättning av nio triplettmikrotubuli. I de flesta celler associerar basalkroppar med cellmembran och cilier byggs upp som 'extracellular' membranomslutna kompartment."
+    },
+    {
+      "table": "ui",
+      "key": "The extracellular matrix (ECM) is a vague term used to refer to all the material surrounding cells in a multicellular organism, except circulating fluids such as blood or lymph. In some cases, the ECM accounts for more of the organism's bulk than its cells. In plants, arthropods and fungi the ECM is primarily composed of nonliving material such as cellulose or chitin. In vertebrates the ECM consists of a complex network including the basement membrane, collage, elastin, proteoglycans and hyaluronan.",
+      "source": "The extracellular matrix (ECM) is a vague term used to refer to all the material surrounding cells in a multicellular organism, except circulating fluids such as blood or lymph. In some cases, the ECM accounts for more of the organism's bulk than its cells. In plants, arthropods and fungi the ECM is primarily composed of nonliving material such as cellulose or chitin. In vertebrates the ECM consists of a complex network including the basement membrane, collage, elastin, proteoglycans and hyaluronan.",
+      "source_sha256": "0246eebcfca7725b84639408b52be508bda15719a8922bfc273ca2e4da8544df",
+      "translation": "Extracellulär matrix (ECM) är en vag term som används om allt material som omger cellerna i en flercellig organism, utom cirkulerande vätskor som blod eller lymfa. I vissa fall utgör ECM en större del av organismens massa än dess celler. Hos växter, leddjur och svampar består ECM främst av icke-levande material som cellulosa eller kitin. Hos ryggradsdjur består ECM av ett komplext nätverk som omfattar basalmembranet, kollagen, elastin, proteoglykaner och hyaluronan."
+    },
+    {
+      "table": "ui",
+      "key": "The flagellum axoneme is the most prominent structural component of the flagellum, which is a long whip-like or feathery structure which propels the cell through a liquid medium. The flagellum axoneme consists of a characteristic axial '9+2' microtubular array.",
+      "source": "The flagellum axoneme is the most prominent structural component of the flagellum, which is a long whip-like or feathery structure which propels the cell through a liquid medium. The flagellum axoneme consists of a characteristic axial '9+2' microtubular array.",
+      "source_sha256": "91261b5d3ea29d0a3e04c801be7071525a0286c60b250628b7b996d8d845369f",
+      "translation": "Flagellaxonemet är flagellens mest framträdande strukturella komponent; flagellen är en lång piskliknande eller fjäderlik struktur som driver cellen genom ett flytande medium. Flagellaxonemet består av en karakteristisk axiell '9+2' mikrotubuliuppsättning."
+    },
+    {
+      "table": "ui",
+      "key": "The flagellum is a long whip-like or feathery structure which propels the cell through a liquid medium. This motile cilium is produced by the unicellular eukaryotes, and by the motile male gametes of many eukaryotic organisms. The flagella commonly have a characteristic axial '9+2' microtubular array (axoneme) and bends are generated along the length of the flagellum by restricted sliding of the nine outer doublets.",
+      "source": "The flagellum is a long whip-like or feathery structure which propels the cell through a liquid medium. This motile cilium is produced by the unicellular eukaryotes, and by the motile male gametes of many eukaryotic organisms. The flagella commonly have a characteristic axial '9+2' microtubular array (axoneme) and bends are generated along the length of the flagellum by restricted sliding of the nine outer doublets.",
+      "source_sha256": "d52595681a6e8706ddd460915f2a87b19f66014ec8d7a49ea780d8f7e3917004",
+      "translation": "Flagellen är en lång piskliknande eller fjäderlik struktur som driver cellen genom ett flytande medium. Denna motila cilie bildas av encelliga eukaryoter och av de motila hanliga gameterna hos många eukaryota organismer. Flagellerna har vanligen en karakteristisk axiell '9+2' mikrotubuliuppsättning (axonem), och böjningar uppstår längs flagellen genom begränsad glidning av de nio yttre dubbletterna."
+    },
+    {
+      "table": "ui",
+      "key": "The glycosome is a specialized peroxisome found in all members of the protist order Kinetoplastida examined. Nine enzymes involved in glucose and glycerol metabolism are associated with these organelles. These enzymes are involved in pathways which, in other organisms, are usually located in the cytosol.",
+      "source": "The glycosome is a specialized peroxisome found in all members of the protist order Kinetoplastida examined. Nine enzymes involved in glucose and glycerol metabolism are associated with these organelles. These enzymes are involved in pathways which, in other organisms, are usually located in the cytosol.",
+      "source_sha256": "b840f6c0941762af3b7e46c58531ac5fb0ac11de9f3aeed2422dba140aa4221c",
+      "translation": "Glykosomen är en specialiserad peroxisom som finns hos alla undersökta medlemmar av protistordningen Kinetoplastida. Nio enzymer som deltar i glukos- och glycerolmetabolismen är associerade med dessa organeller. Dessa enzymer ingår i reaktionsvägar som hos andra organismer vanligen finns i cytosolen."
+    },
+    {
+      "table": "ui",
+      "key": "The host Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the host Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the host Golgi exists as many copies of discrete stacks dispersed throughout the host cytoplasm. It is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the host plasma membrane and compartments of the host endocytic pathway.",
+      "source": "The host Golgi apparatus is a series of flattened, cisternal membranes and similar vesicles usually arranged in close apposition to each other to form stacks. In mammalian cells, the host Golgi apparatus is juxtanuclear, often pericentriolar. The stacks are connected laterally by tubules to create a perinuclear ribbon structure, the 'Golgi ribbon'. In plants and lower animal cells, the host Golgi exists as many copies of discrete stacks dispersed throughout the host cytoplasm. It is a polarized structure with, in most higher eukaryotic cells, a cis-face associated with a tubular reticular network of membranes facing the endoplasmic reticulum, the cis-Golgi network (CGN), a medial area of disk-shaped flattened cisternae, and a trans-face associated with another tubular reticular membrane network, the trans-Golgi network (TGN) directed toward the host plasma membrane and compartments of the host endocytic pathway.",
+      "source_sha256": "58b772913807e4393d038716cd91800ed3b0d1953d8543d5ef0995c4417bfd03",
+      "translation": "Värdens Golgiapparat är en serie tillplattade cisternmembran och liknande vesiklar som vanligen ligger tätt intill varandra och bildar staplar. I däggdjursceller ligger värdens Golgiapparat juxtanukleärt, ofta pericentriolärt. Staplarna förbinds i sidled av tubuli och bildar en perinukleär bandstruktur, 'Golgi ribbon'. Hos växter och lägre djurceller finns värdens Golgi som många kopior av separata staplar spridda i värdens cytoplasma. Den är en polariserad struktur med, i de flesta högre eukaryota celler, en cis-sida associerad med ett tubulärt retikulärt membrannätverk vänt mot endoplasmatiska retikulum, cis-Golginätverket (CGN), ett mellersta område av diskformade tillplattade cisterner och en trans-sida associerad med ett annat tubulärt retikulärt membrannätverk, trans-Golginätverket (TGN), riktat mot värdens plasmamembran och kompartment i värdens endocytiska väg."
+    },
+    {
+      "table": "ui",
+      "key": "The host cell membrane is the selectively permeable membrane which separates the host cytoplasm from its surroundings. Known as the host cell inner membrane in prokaryotes with 2 membranes.",
+      "source": "The host cell membrane is the selectively permeable membrane which separates the host cytoplasm from its surroundings. Known as the host cell inner membrane in prokaryotes with 2 membranes.",
+      "source_sha256": "7225ae2bfb3b2c8c84a7fd5e84eebd2fbf555b0c92ae9551e75e481850fbfcad",
+      "translation": "Värdcellens membran är det selektivt permeabla membran som skiljer värdens cytoplasma från omgivningen. Kallas värdcellens inre membran hos prokaryoter med 2 membran."
+    },
+    {
+      "table": "ui",
+      "key": "The host cytoplasm is the content of a host cell within the plasma membrane and, in eukaryotics cells, surrounds the host nucleus.",
+      "source": "The host cytoplasm is the content of a host cell within the plasma membrane and, in eukaryotics cells, surrounds the host nucleus.",
+      "source_sha256": "c37a1e8e5aad0206e6a7737c246f659e61ce2d062b5e4d361955755d9b3aafc6",
+      "translation": "Värdens cytoplasma är innehållet i en värdcell innanför plasmamembranet och omger, i eukaryota celler, värdens cellkärna."
+    },
+    {
+      "table": "ui",
+      "key": "The host cytoskeleton is a dynamic three-dimensional structure that fills the host cytoplasm of eukaryotic cells. It is responsible for cell movement, cytokinesis, and the organization of the organelles or organelle-like structures within the host cell.",
+      "source": "The host cytoskeleton is a dynamic three-dimensional structure that fills the host cytoplasm of eukaryotic cells. It is responsible for cell movement, cytokinesis, and the organization of the organelles or organelle-like structures within the host cell.",
+      "source_sha256": "d4dd939ce71fa9d1fbba61a4810dd499b018283e0c66eb98a543bb5ddd58302f",
+      "translation": "Värdens cytoskelett är en dynamisk tredimensionell struktur som fyller värdens cytoplasma i eukaryota celler. Det ansvarar för cellrörelse, cytokines och organisationen av organeller eller organellliknande strukturer i värdcellen."
+    },
+    {
+      "table": "ui",
+      "key": "The host endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic host cell, especially those responsible for the production of hormones and other secretory products.",
+      "source": "The host endoplasmic reticulum (ER) is an extensive network of membrane tubules, vesicles and flattened cisternae (sac-like structures) found throughout the eukaryotic host cell, especially those responsible for the production of hormones and other secretory products.",
+      "source_sha256": "ecf25a9470288a389ac7cb4898dc2effdd5c4d5c630e41f856d732bade0d831a",
+      "translation": "Värdens endoplasmatiska retikulum (ER) är ett omfattande nätverk av membrantubuli, vesiklar och tillplattade cisterner (säckliknande strukturer) som finns i hela den eukaryota värdcellen, särskilt i celler som producerar hormoner och andra sekretoriska produkter."
+    },
+    {
+      "table": "ui",
+      "key": "The host mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, host eukaryotes. Each host mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. They are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP.",
+      "source": "The host mitochondrion is a semiautonomous, self-reproducing organelle that occurs in the cytoplasm of all cells of most, but not all, host eukaryotes. Each host mitochondrion is surrounded by a double limiting membrane. The inner membrane is highly invaginated, and its projections are called cristae. They are the sites of the reactions of oxidative phosphorylation, which result in the formation of ATP.",
+      "source_sha256": "bc99c0337bc407b9e1946c543f8641231ec7d523c942a0763e39329d77a49941",
+      "translation": "Värdens mitokondrie är en semiautonom, självreproducerande organell som finns i cytoplasman i alla celler hos de flesta, men inte alla, eukaryota värdar. Varje mitokondrie i värden omges av ett dubbelt avgränsande membran. Det inre membranet är kraftigt invaginerat och dess utskott kallas cristae. De är platserna för den oxidativa fosforyleringens reaktioner, som leder till bildning av ATP."
+    },
+    {
+      "table": "ui",
+      "key": "The host nucleolus is a dark, dense, roughly spherical area of fibers and granules in the host nucleus. Only plant and animal nuclei contain one or more nucleoli, although some do not. No membrane separates the host nucleolus from the host nucleoplasm. It mediates ribosomal RNA biogenesis.",
+      "source": "The host nucleolus is a dark, dense, roughly spherical area of fibers and granules in the host nucleus. Only plant and animal nuclei contain one or more nucleoli, although some do not. No membrane separates the host nucleolus from the host nucleoplasm. It mediates ribosomal RNA biogenesis.",
+      "source_sha256": "1ce644298fb37403d3be22c7322dbb16178d23a447ade3ba0115cf4fdb94646e",
+      "translation": "Värdens nukleol är ett mörkt, tätt, ungefär sfäriskt område av fibrer och granuler i värdens cellkärna. Endast växt- och djurkärnor innehåller en eller flera nukleoler, även om vissa saknar dem. Inget membran skiljer värdens nukleol från värdens nukleoplasma. Den förmedlar biogenesen av ribosomalt RNA."
+    },
+    {
+      "table": "ui",
+      "key": "The host nucleus is the most obvious organelle in any host eukaryotic cell. It is a membrane-bound organelle and is surrounded by double membranes. It communicates with the surrounding cytosol via numerous nuclear pores.",
+      "source": "The host nucleus is the most obvious organelle in any host eukaryotic cell. It is a membrane-bound organelle and is surrounded by double membranes. It communicates with the surrounding cytosol via numerous nuclear pores.",
+      "source_sha256": "b5c1eb285d5efb7a3c0ad811cd1ee341a5f19d6611cd21f73e6ce43a18f5d049",
+      "translation": "Värdens cellkärna är den mest iögonfallande organellen i varje eukaryot värdcell. Den är en membranbunden organell och omges av dubbla membran. Den kommunicerar med det omgivande cytosolet via många kärnporer."
+    },
+    {
+      "table": "ui",
+      "key": "The host perinuclear region is the host cytoplasmic region just around the host nucleus.",
+      "source": "The host perinuclear region is the host cytoplasmic region just around the host nucleus.",
+      "source_sha256": "d7ecef4fa5c247daa903bfe2fb277f201af9eb6f7637b2e51c82cb1f9c594822",
+      "translation": "Värdens perinukleära region är värdens cytoplasmaregion närmast runt värdens cellkärna."
+    },
+    {
+      "table": "ui",
+      "key": "The lysosome is a membrane-limited organelle present in all eukaryotic cells, which contains a large number of hydrolytic enzymes that are used for degrading almost any kind of cellular constituent, including entire organelles. The mechanisms responsible for delivering cytoplasmic cargo to the lysosome/vacuole are known collectively as autophagy and play an important role in the maintenance of homeostasis.",
+      "source": "The lysosome is a membrane-limited organelle present in all eukaryotic cells, which contains a large number of hydrolytic enzymes that are used for degrading almost any kind of cellular constituent, including entire organelles. The mechanisms responsible for delivering cytoplasmic cargo to the lysosome/vacuole are known collectively as autophagy and play an important role in the maintenance of homeostasis.",
+      "source_sha256": "573fd1cb791d23798fb8662cd3bd501a6e81c5bd0c99a25067a2482a3c5c2768",
+      "translation": "Lysosomen är en membranavgränsad organell som finns i alla eukaryota celler och innehåller ett stort antal hydrolytiska enzymer som används för att bryta ned nästan alla slags cellbeståndsdelar, inklusive hela organeller. Mekanismerna som levererar cytoplasmatisk last till lysosomen/vakuolen kallas sammantaget autofagi och spelar en viktig roll för att upprätthålla homeostas."
+    },
+    {
+      "table": "ui",
+      "key": "The membrane surrounding the virion.",
+      "source": "The membrane surrounding the virion.",
+      "source_sha256": "ceab7350648a42cc080df0bc4cad59bdd56879f5c081b631f85f055edaaaeb32",
+      "translation": "Membranet som omger virionen."
+    },
+    {
+      "table": "ui",
+      "key": "The microtubule organizing center (MTOC) is an intracellular structure that can catalyze gamma-tubulin-dependent microtubule nucleation and that can anchor microtubules.",
+      "source": "The microtubule organizing center (MTOC) is an intracellular structure that can catalyze gamma-tubulin-dependent microtubule nucleation and that can anchor microtubules.",
+      "source_sha256": "2948886ddad6d05fa6e244a3ec250bd1fcd4db6b0cb0c5719620834531699681",
+      "translation": "Det mikrotubuliorganiserande centret (MTOC) är en intracellulär struktur som kan katalysera gamma-tubulinberoende mikrotubulinukleation och som kan förankra mikrotubuli."
+    },
+    {
+      "table": "ui",
+      "key": "The mitochondrial DNA of trypanosomatid protozoa is termed kinetoplast DNA (kDNA). kDNA is a massive network, composed of thousands of topologically interlocked DNA circles. Each cell contains one network condensed into a disk-shaped structure within the matrix of its single mitochondrion. The kDNA circles are of two types, maxicircles present in a few dozen copies and minicircles present in several thousand copies.",
+      "source": "The mitochondrial DNA of trypanosomatid protozoa is termed kinetoplast DNA (kDNA). kDNA is a massive network, composed of thousands of topologically interlocked DNA circles. Each cell contains one network condensed into a disk-shaped structure within the matrix of its single mitochondrion. The kDNA circles are of two types, maxicircles present in a few dozen copies and minicircles present in several thousand copies.",
+      "source_sha256": "ee55f43f2472dc312e83bb8eba56f11078939785fae144766134e89b4ef53dfc",
+      "translation": "Det mitokondriella DNA:t hos trypanosomatida protozoer kallas kinetoplast-DNA (kDNA). kDNA är ett massivt nätverk av tusentals topologiskt sammanlänkade DNA-ringar. Varje cell innehåller ett nätverk kondenserat till en diskformad struktur i matrixen i dess enda mitokondrie. kDNA-ringarna är av två typer: maxiringar i några dussin kopior och miniringar i flera tusen kopior."
+    },
+    {
+      "table": "ui",
+      "key": "The nuclear speckles are small subnuclear membraneless organelles or structures, also called the splicing factor (SF) compartments that correspond to nuclear domains located in interchromatin regions of the nucleoplasm of mammalian cells. Protein found in speckles serves as a reservoir of factors that participate in transcription and pre-mRNA processing. Speckles appear, at the immunofluorescence-microscope level, as irregular, punctuate structures, which vary in size and shape. Usually 25-50 speckles are observed per interphase mammalian nucleus. At the electronic-microscope level, they are composed of heterogeneous mixture of electro-dense particles with diameters ranging from 20-25 nm and are called interchromatin granules clusters (IGCs). Speckles are dynamic structures. Both their protein and RNA-protein components can cycle continuously between speckles and other nuclear locations depending on the transcriptional state of the cell. Structures similar to nuclear speckles have been identified in the amphibian oocyte nucleus (called B snurposomes) and in Drosophila melanogaster embryos, but not in yeast.",
+      "source": "The nuclear speckles are small subnuclear membraneless organelles or structures, also called the splicing factor (SF) compartments that correspond to nuclear domains located in interchromatin regions of the nucleoplasm of mammalian cells. Protein found in speckles serves as a reservoir of factors that participate in transcription and pre-mRNA processing. Speckles appear, at the immunofluorescence-microscope level, as irregular, punctuate structures, which vary in size and shape. Usually 25-50 speckles are observed per interphase mammalian nucleus. At the electronic-microscope level, they are composed of heterogeneous mixture of electro-dense particles with diameters ranging from 20-25 nm and are called interchromatin granules clusters (IGCs). Speckles are dynamic structures. Both their protein and RNA-protein components can cycle continuously between speckles and other nuclear locations depending on the transcriptional state of the cell. Structures similar to nuclear speckles have been identified in the amphibian oocyte nucleus (called B snurposomes) and in Drosophila melanogaster embryos, but not in yeast.",
+      "source_sha256": "3132af3e72c84b88dfe78031c65025220a117c5d9dd479ff0feeb4471cc776be",
+      "translation": "Kärnspeckles är små subnukleära membranlösa organeller eller strukturer, även kallade splicingfaktorkompartment (SF), som motsvarar kärndomäner belägna i interkromatinregioner i nukleoplasman hos däggdjursceller. Protein i speckles fungerar som en reservoar av faktorer som deltar i transkription och pre-mRNA-bearbetning. På immunfluorescensmikroskopnivå syns speckles som oregelbundna, punktformiga strukturer som varierar i storlek och form. Vanligen observeras 25-50 speckles per interfaskärna hos däggdjur. På elektronmikroskopnivå består de av en heterogen blandning av elektrontäta partiklar med diametrar på 20-25 nm och kallas interkromatingranulkluster (IGCs). Speckles är dynamiska strukturer. Både deras protein- och RNA-proteinkomponenter kan kontinuerligt cirkulera mellan speckles och andra platser i kärnan beroende på cellens transkriptionstillstånd. Strukturer liknande kärnspeckles har identifierats i amfibieoocytens kärna (kallade B-snurposomer) och i embryon av Drosophila melanogaster, men inte i jäst."
+    },
+    {
+      "table": "ui",
+      "key": "The test data has no images.",
+      "source": "The test data has no images.",
+      "source_sha256": "6f66d5398958928e2f192acef0d61e933a955b5d8763092bde34aff7c68f0ce9",
+      "translation": "Testdata har inga bilder."
+    },
+    {
+      "table": "ui",
+      "key": "The viral tegument is a protein structure that resides between the capsid and envelope of herpesviruses and which appears amorphous in electron micrographs.",
+      "source": "The viral tegument is a protein structure that resides between the capsid and envelope of herpesviruses and which appears amorphous in electron micrographs.",
+      "source_sha256": "903bd5f17441e5ee826112aff1a95460e9dd768b2e8aade1a84a600866e7ba74",
+      "translation": "Det virala tegumentet är en proteinstruktur som ligger mellan kapsiden och höljet hos herpesvirus och som ser amorf ut i elektronmikrografier."
+    },
+    {
+      "table": "ui",
+      "key": "The virion is the complete fully infectious extracellular virus particle.",
+      "source": "The virion is the complete fully infectious extracellular virus particle.",
+      "source_sha256": "b3db0313acd7473f8f67b243bfae7d8c810612593104a49db796f97809fb8fac",
+      "translation": "Virionen är den kompletta, fullt infektiösa extracellulära viruspartikeln."
+    },
+    {
+      "table": "ui",
+      "key": "Track cell speed and straightness over time.",
+      "source": "Track cell speed and straightness over time.",
+      "source_sha256": "f26541ea415fd0306d61b1f088e50efe9d47c685e1bccb154a82496abfa314e6",
+      "translation": "Spåra cellernas hastighet och rakhet över tid."
+    },
+    {
+      "table": "ui",
+      "key": "Track swimming speed and straightness.",
+      "source": "Track swimming speed and straightness.",
+      "source_sha256": "45fa5cc681905d36d62e1a2760e3f543360b79a1f6a77aa560d0ca8c18903493",
+      "translation": "Spåra simhastighet och rakhet."
+    },
+    {
+      "table": "ui",
+      "key": "Trophozoite motility",
+      "source": "Trophozoite motility",
+      "source_sha256": "4a23090a8ed200637dfb5aafe595ef1f5b68e20269bfced6aba1baddb9259c22",
+      "translation": "Trofozoitmotilitet"
+    },
+    {
+      "table": "ui",
+      "key": "Trypanosoma brucei causes African sleeping sickness and lives outside host cells in blood and tissue fluids, while Trypanosoma cruzi causes Chagas disease and replicates inside host cells as amastigotes. Both are flagellated kinetoplastids whose single mitochondrion carries a kinetoplast. Imaging can follow motility, host-cell infection, the cell cycle and drug responses.",
+      "source": "Trypanosoma brucei causes African sleeping sickness and lives outside host cells in blood and tissue fluids, while Trypanosoma cruzi causes Chagas disease and replicates inside host cells as amastigotes. Both are flagellated kinetoplastids whose single mitochondrion carries a kinetoplast. Imaging can follow motility, host-cell infection, the cell cycle and drug responses.",
+      "source_sha256": "e248490f0facc73e9bf0d8aa74954e2ab617042b9c9ce889695f36046a16fccd",
+      "translation": "Trypanosoma brucei orsakar afrikansk sömnsjuka och lever utanför värdceller i blod och vävnadsvätskor, medan Trypanosoma cruzi orsakar Chagas sjukdom och förökar sig inuti värdceller som amastigoter. Båda är flagellförsedda kinetoplastider vars enda mitokondrie bär en kinetoplast. Avbildning kan följa motilitet, infektion av värdceller, cellcykeln och läkemedelssvar."
+    },
+    {
+      "table": "ui",
+      "key": "Trypomastigote egress",
+      "source": "Trypomastigote egress",
+      "source_sha256": "cba44261656d779888bf87cc9da65f114e985e22260f0abb4c7a4a0d3302fb06",
+      "translation": "Utträde av trypomastigoter"
+    },
+    {
+      "table": "ui",
+      "key": "Vacuole size",
+      "source": "Vacuole size",
+      "source_sha256": "a5fa099cd566be44f8b33daa504e9b284ef23a1aa34e30299223580b7bd24ba4",
+      "translation": "Vakuolstorlek"
+    },
+    {
+      "table": "ui",
+      "key": "Viral spread",
+      "source": "Viral spread",
+      "source_sha256": "559c1fa38476470a2c3082eafd45ef31f1222216474dfc310c8a4dd842eaf483",
+      "translation": "Virusspridning"
+    },
+    {
+      "table": "ui",
+      "key": "Virion",
+      "source": "Virion",
+      "source_sha256": "61f906170bc448b31764679e4b5647365763a0e6fbdccd98bece15b44f61e81e",
+      "translation": "Virionen"
+    },
+    {
+      "table": "ui",
+      "key": "Virion membrane",
+      "source": "Virion membrane",
+      "source_sha256": "948e102c83a89063747ef8bd98be4c871fd9210e70da54dcea15e73997424ffd",
+      "translation": "Virionmembran"
+    },
+    {
+      "table": "ui",
+      "key": "Virion tegument",
+      "source": "Virion tegument",
+      "source_sha256": "76a1e00c17b34d59d8dc1b2bc1c48fb67225b138bad60d34e64ce0fa698da62e",
+      "translation": "Viriontegument"
+    },
+    {
+      "table": "ui",
+      "key": "Virus entry",
+      "source": "Virus entry",
+      "source_sha256": "51897448080cde7ad2199a26fabb04bf946c69a2c727672e2ffb1a6b5f4fbbac",
+      "translation": "Virusinträde"
+    },
+    {
+      "table": "ui",
+      "key": "Virus entry is planned to separate bound from internalised virions, and Syncytium formation will detect fused, multinucleated host cells. Antiviral response opens Dose–Response to fit the infected fraction against compound concentration. Count host cells in each well too, so that a cytotoxic compound is not read as an antiviral, and keep the multiplicity of infection constant across the dilution series.",
+      "source": "Virus entry is planned to separate bound from internalised virions, and Syncytium formation will detect fused, multinucleated host cells. Antiviral response opens Dose–Response to fit the infected fraction against compound concentration. Count host cells in each well too, so that a cytotoxic compound is not read as an antiviral, and keep the multiplicity of infection constant across the dilution series.",
+      "source_sha256": "b16bad61190a3c19d9973d1a0e797abb77d9409d98cd167ad5d71180c81af85b",
+      "translation": "Virusinträde planeras för att skilja bundna från internaliserade virioner, och Syncytiebildning kommer att upptäcka fusionerade, flerkärniga värdceller. Antiviralt svar öppnar Dos–respons för att anpassa den infekterade andelen mot substanskoncentration. Räkna även värdcellerna i varje brunn, så att en cytotoxisk substans inte tolkas som antiviral, och håll infektionsmultipliciteten konstant över spädningsserien."
+    },
+    {
+      "table": "ui",
+      "key": "Viruses replicate only inside host cells, using host machinery in compartments that differ between virus families: many DNA viruses replicate in the nucleus, and many RNA viruses build replication organelles in the cytoplasm. Imaging can measure the infected fraction of cells, plaques, the spread of infection and responses to antiviral compounds.",
+      "source": "Viruses replicate only inside host cells, using host machinery in compartments that differ between virus families: many DNA viruses replicate in the nucleus, and many RNA viruses build replication organelles in the cytoplasm. Imaging can measure the infected fraction of cells, plaques, the spread of infection and responses to antiviral compounds.",
+      "source_sha256": "66316deb0d1deba71148380cdc714112e4e2cb42b9c1ac349f2193860581a575",
+      "translation": "Virus förökar sig endast inuti värdceller och använder värdens maskineri i kompartment som skiljer sig mellan virusfamiljer: många DNA-virus replikeras i kärnan, och många RNA-virus bygger replikationsorganeller i cytoplasman. Avbildning kan mäta andelen infekterade celler, plack, infektionens spridning och svar på antivirala substanser."
+    },
+    {
+      "table": "setting_labels",
+      "key": "real_object_classifier",
+      "source": "Real object classifier",
+      "source_sha256": "a0cea05ce760515973b92756a1dfaa9c6853c8057690ae08a9d61e9edd099bdf",
+      "translation": "Klassificerare för verkliga objekt"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "real_object_classifier",
+      "source": "A trained real / not-real classifier, or a folder holding cell.joblib, nucleus.joblib and pathogen.joblib, as written by tools/train_real_object_classifier.py. After the masks are made, each object is cut from the field with the cell, pathogen and nucleus channels and erased from its mask when the classifier calls it not real; the other ids are kept. Verdicts go to qc/real_object_filter_<object>.csv. Not applied to timelapse runs. Default None.",
+      "source_sha256": "d9e39ea98044ec3d32b38201497d8239a9d72432b2cf26534e4fe4bb350225ff",
+      "translation": "En tränad klassificerare för verkligt / inte verkligt, eller en mapp med cell.joblib, nucleus.joblib och pathogen.joblib, som skrivna av tools/train_real_object_classifier.py. När maskerna har skapats skärs varje objekt ut ur fältet med cell-, patogen- och kärnkanalerna och raderas ur sin mask när klassificeraren bedömer det som inte verkligt; övriga id:n behålls. Bedömningarna skrivs till qc/real_object_filter_<object>.csv. Tillämpas inte på timelapse-körningar. Standard None."
+    },
+    {
+      "table": "setting_labels",
+      "key": "real_object_threshold",
+      "source": "Real object threshold",
+      "source_sha256": "57b839edf789a1d1b733208a1fa3a381697c3aa19baebd66af2fbc636115dd08",
+      "translation": "Tröskel för verkliga objekt"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "real_object_threshold",
+      "source": "Probability of being real below which the real / not-real classifier erases an object. Higher removes more objects. Only used with real_object_classifier. Default 0.5.",
+      "source_sha256": "e63a36540ff1d799cba5f4f8fd3350660ceb0bd1fcbed88c4b891c76a14ad674",
+      "translation": "Sannolikheten att vara verkligt under vilken klassificeraren för verkligt / inte verkligt raderar ett objekt. Ett högre värde tar bort fler objekt. Används bara med real_object_classifier. Standard 0.5."
+    }
+  ]
+}

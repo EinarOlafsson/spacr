@@ -277,6 +277,10 @@ _IDENTITY_TEXT = {
     # on organism Home tiles; they are not untranslated English prose.
     "Candida spp.", "Plasmodium spp.",
     "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "Starplast",
+    # 316, 2026-10-03 (thirteenth pass): 634's alpha organism pages name
+    # these databases and organisms alone.
+    "Cellosaurus", "Giardia duodenalis", "GiardiaDB", "Human Protein Atlas",
+    "Leishmania spp.", "NCBI Virus", "TriTrypDB", "Trypanosoma spp.", "ViralZone",
     "BEI Resources", "BEI Resources / MR4", "Candida Genome Database",
     "NCBI Taxonomy", "Ctrl+S", "Ctrl+Z / Ctrl+Y", "Esc", "ER 2",
     "ER", "IMC", "CC BY 4.0",
