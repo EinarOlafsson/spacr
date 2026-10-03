@@ -266,7 +266,9 @@
       "source_sha256": "8fb6d5920b1685d71a61359315f3d8de148f905409e61624682db445f80c7b48",
       "context": "Executes on a background execution unit; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses.",
       "translation": "Läuft in einem Worker-Thread; berührt kein Widget. Das Modell und seine Schwellenwerte sind die Plaque-Einstellungen, über dasselbe :func:`spacr.plaque.segment_plaque_image`, das der Plaque-Modus verwendet.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.segment_well#5",

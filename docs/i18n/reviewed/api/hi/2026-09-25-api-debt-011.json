@@ -968,7 +968,9 @@
       "source_sha256": "8fb6d5920b1685d71a61359315f3d8de148f905409e61624682db445f80c7b48",
       "context": "Executes on a background execution unit; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses.",
       "translation": "वर्कर थ्रेड पर चलता है; किसी विजेट को नहीं छूता। मॉडल और उसके थ्रेशोल्ड Plaque सेटिंग्स हैं, उसी :func:`spacr.plaque.segment_plaque_image` के माध्यम से जिसका Plaque मोड उपयोग करता है।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.plaque_preview.segment_well#3",

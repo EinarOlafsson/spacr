@@ -960,7 +960,9 @@
       "source_sha256": "82832c2a46f1a1c9f982c197d15fc93d90c3d9ef8cfa5732314ffd7225a507b4",
       "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
       "translation": "각 레코드는 표시 이름, 설명, 생물학적 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections`` 에는 제목, 본문 및 연결된 분석 키의 삼중항이, ``links`` 에는 표시 레이블과 URL 의 쌍이 들어 있습니다. ``modules`` 에는 경로 키, 제목, 설명 및 아이콘 키의 튜플이 들어 있습니다. ``None`` 경로는 자체 파이프라인이 없는 생물 특이적 분석을 뜻합니다. ``workflows`` 는 그러한 타일의 아이콘 키를, 그 판독값을 측정하는 기존 모듈, 열 때 적용되는 설정 프리셋, 사용 방법에 대한 메모에 매핑합니다. ``None`` 타일 중 ``workflows`` 에 없는 것은 Coming soon 입니다. ``starplast`` 는 Toxoplasma 페이지에서 외부 앱을 실행하며 spaCR 분석 레지스트리 키나 분할 백엔드가 아닙니다. 표시 문구는 사용할 때 번역하고 경로 키, URL 및 리소스 이름은 그대로 유지합니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.organisms.workflow#0",

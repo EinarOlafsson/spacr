@@ -22,7 +22,9 @@
       "label": "spacr.qt.organisms.ORGANISMS#0",
       "source": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.",
       "source_sha256": "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
-      "translation": "Guides d’organismes associés aux clés ``toxoplasma``, ``plasmodium`` et ``candida``."
+      "translation": "Guides d’organismes associés aux clés ``toxoplasma``, ``plasmodium`` et ``candida``.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "Sourced organism guides, interactive cell diagrams and assay navigation.",
@@ -54,7 +56,9 @@
       "label": "spacr.qt.screens.organism_screen.OrganismScreen#1",
       "source": "``toxoplasma``, ``plasmodium`` or ``candida``.",
       "source_sha256": "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
-      "translation": "``toxoplasma``, ``plasmodium`` ou ``candida``."
+      "translation": "``toxoplasma``, ``plasmodium`` ou ``candida``.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "optional main window receiving module navigation requests.",
@@ -131,7 +135,9 @@
       "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#1",
       "source": "organism key; only Toxoplasma uses hyperLOPIT labels.",
       "source_sha256": "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
-      "translation": "clé de l’organisme ; seul Toxoplasma utilise les libellés hyperLOPIT."
+      "translation": "clé de l’organisme ; seul Toxoplasma utilise les libellés hyperLOPIT.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "bundled SVG path; no external resource is fetched.",
