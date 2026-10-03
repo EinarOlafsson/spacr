@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory=$true)][string]$OldRoot,
     [Parameter(Mandatory=$true)][string]$NewRoot,
-    [Parameter(Mandatory=$true)][string]$Output
+    [Parameter(Mandatory=$true)][string]$Output,
+    [int]$InterruptAfterSeconds = 0
 )
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'Windows acceptance requires Windows.' }
@@ -83,5 +84,31 @@ $Receipt = [ordered]@{
     unrelated_file_preserved = $true
     before_smoke = $Before.status
     after_smoke = $After.status
+}
+if ($InterruptAfterSeconds -gt 0) {
+    # Interruption: kill the 1.5.1.1 installer mid-copy over 1.5.1.0, try a launch, rerun, relaunch.
+    $Interrupted = Join-Path $env:RUNNER_TEMP 'frozen-interrupted-upgrade'
+    Invoke-Installer $Old.FullName $Interrupted
+    $Killed = Start-Process $New.FullName -ArgumentList @('/S', "/D=$Interrupted") -PassThru
+    Start-Sleep -Seconds $InterruptAfterSeconds
+    $StillRunning = -not $Killed.HasExited
+    & "$env:SystemRoot\system32\taskkill.exe" /PID $Killed.Id /T /F | Out-Null
+    Start-Sleep -Seconds 3
+    $Partial = @(Get-ChildItem (Join-Path $Interrupted '_internal') -Filter 'imageio-*.dist-info' -Directory -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name)
+    $Midway = 'not-attempted'
+    if (Test-Path (Join-Path $Interrupted 'spacr.exe')) {
+        try { $Midway = (Invoke-FrozenSmoke $Interrupted 'interrupted' $NewCommit (Join-Path $Output 'interrupted')).status }
+        catch { $Midway = "failed: $($_.Exception.Message)" }
+    } else { $Midway = 'no-executable' }
+    Invoke-Installer $New.FullName $Interrupted
+    $Recovered = Invoke-FrozenSmoke $Interrupted 'recovered' $NewCommit (Join-Path $Output 'recovered')
+    $RecoveredRuntime = @(Get-ChildItem (Join-Path $Interrupted '_internal') -Filter 'imageio-*.dist-info' -Directory | Select-Object -ExpandProperty Name)
+    if ($RecoveredRuntime.Count -ne 1) { throw 'Rerun after interruption left a mixed imageio runtime.' }
+    $Receipt.interrupt_after_seconds = $InterruptAfterSeconds
+    $Receipt.installer_running_when_killed = $StillRunning
+    $Receipt.imageio_after_kill = ($Partial -join ',')
+    $Receipt.launch_after_kill = $Midway
+    $Receipt.rerun_imageio = $RecoveredRuntime[0]
+    $Receipt.recovered_smoke = $Recovered.status
 }
 $Receipt | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Output 'upgrade.json') -Encoding utf8

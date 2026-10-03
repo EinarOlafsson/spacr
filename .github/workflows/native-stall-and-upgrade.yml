@@ -1,0 +1,115 @@
+name: Native stall and frozen upgrade acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      old_run:
+        description: frozen-installers run holding the 1.5.1.0 legacy builds
+        default: '36372926331'
+      new_run:
+        description: frozen-installers run holding the 1.5.1.1 legacy builds
+        default: '36419911083'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  stall:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONNOUSERSITE: '1'
+      CUDA_VISIBLE_DEVICES: ''
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install spaCR
+        run: python -m pip install -e .
+      - name: Byte-compile
+        run: python -m compileall -q spacr
+      - name: Calibrated stall harness, three cold offscreen processes
+        shell: bash
+        run: |
+          mkdir -p stall-evidence
+          for i in 1 2 3; do
+            python tools/spacr_startup_benchmark.py --runs 1 --record-only --offscreen --out stall-evidence/run$i.json || echo "run $i exit $?"
+          done
+          python - <<'PY'
+          import json, glob
+          for p in sorted(glob.glob("stall-evidence/run*.json")):
+              d = json.load(open(p))
+              print(p, "worst_event_loop_stall_ms", d.get("worst_event_loop_stall_ms"), "stall_budget_met", d.get("stall_budget_met"))
+          PY
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stall-${{ matrix.os }}
+          path: stall-evidence/
+          if-no-files-found: warn
+
+  windows-upgrade:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-windows
+          path: old
+          run-id: ${{ inputs.old_run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-windows
+          path: new
+          run-id: ${{ inputs.new_run }}
+          github-token: ${{ github.token }}
+      - name: Replace, restart and interruption on Windows
+        shell: pwsh
+        env:
+          PREVIOUS_RUN: ${{ inputs.old_run }}
+          CURRENT_RUN: ${{ inputs.new_run }}
+        run: |
+          foreach ($r in 'old','new') { $f = "$r/acceptance/SHA256SUMS"; (Get-Content $f -Raw) -replace "`r","" | Set-Content -NoNewline $f }
+          ./tools/accept_frozen_windows_upgrade.ps1 -OldRoot old -NewRoot new -Output upgrade-evidence -InterruptAfterSeconds 10
+          Get-Content upgrade-evidence/upgrade.json
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: upgrade-windows
+          path: upgrade-evidence/
+          if-no-files-found: warn
+
+  macos-replace:
+    runs-on: macos-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-macos
+          path: old
+          run-id: ${{ inputs.old_run }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: legacy-build-macos
+          path: new
+          run-id: ${{ inputs.new_run }}
+          github-token: ${{ github.token }}
+      - name: User-writable replace, restart and crash recovery on macOS
+        run: bash tools/accept_frozen_macos_replace.sh old new replace-evidence
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: replace-macos
+          path: replace-evidence/
+          if-no-files-found: warn
