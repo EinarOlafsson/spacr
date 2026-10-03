@@ -80,6 +80,8 @@ PY
 
 journal_state() { python3 -c 'import json,sys;print(json.load(open(sys.argv[1]))["state"])' "$1/journal.json"; }
 
+find "$old_mount/spaCR.app" "$new_mount/spaCR.app" -iname 'spacr-*.dist-info' > "$out/dist-info.txt" 2>&1 || true
+cat "$out/dist-info.txt"
 # Phase 1: replace and restart
 install_old
 smoke before-replace "$old_commit"

@@ -106,6 +106,10 @@ jobs:
           if-no-files-found: warn
 
   macos-replace:
+    strategy:
+      fail-fast: false
+      matrix:
+        new_run: ['36419911083', '37052970531']
     runs-on: macos-latest
     timeout-minutes: 90
     env:
@@ -130,13 +134,13 @@ jobs:
         with:
           name: legacy-build-macos
           path: new
-          run-id: ${{ inputs.new_run || '36419911083' }}
+          run-id: ${{ matrix.new_run }}
           github-token: ${{ github.token }}
       - name: User-writable replace, restart and crash recovery on macOS
         run: bash tools/accept_frozen_macos_replace.sh old new replace-evidence
       - if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: replace-macos
+          name: replace-macos-${{ matrix.new_run }}
           path: replace-evidence/
           if-no-files-found: warn

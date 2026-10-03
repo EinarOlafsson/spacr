@@ -69,7 +69,7 @@ if ((Get-Content $Marker -Raw).Trim() -ne 'not installed by NSIS') { throw 'Upgr
 if ((Get-FileHash $Before.database -Algorithm SHA256).Hash -ne $DatabaseHash) { throw 'Upgrade changed prior analysis.' }
 $NewRuntime = @(Get-ChildItem (Join-Path $Install '_internal') -Filter 'imageio-*.dist-info' -Directory | Select-Object -ExpandProperty Name)
 $StaleRuntime = ($NewRuntime.Count -ne 1 -or $NewRuntime -contains $OldRuntime[0])
-$After = Invoke-FrozenSmoke $Install 'after' $NewCommit $Output
+$After = Invoke-FrozenSmoke $Install 'after' $NewCommit (Join-Path $Output 'after')
 $Receipt = [ordered]@{
     schema = 1
     previous_run = $env:PREVIOUS_RUN
