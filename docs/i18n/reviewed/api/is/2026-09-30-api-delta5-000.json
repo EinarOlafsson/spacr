@@ -548,7 +548,9 @@
       "source_sha256": "83e6764c0d22590aaddbe5d378fc6debe0fb82a03fc36fcb42173d43f87ad4fe",
       "context": "the Data-selection boundary Editor data-selection filtering strategies in use, for data-selection boundaries the lock took as objects (see :func:`lock_analysis`).",
       "translation": "valsvæðaáætlanirnar úr Gate Editor sem eru í notkun, fyrir valsvæði sem lásinn tók við sem hlutum (sjá :func:`lock_analysis`).",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-03: a different reviewed translation of the same English block landed on nightly (cc8bf7884 and related API passes); that one is kept, this one is retired in place."
     },
     {
       "label": "spacr.run_journal.check_analysis_lock#7",
