@@ -120,3 +120,24 @@ features/data/543_vendor_profile_validation_2026-10-01.json.
 2026-10-02 — WHAT-IS-LEFT AUDIT
     Done on nightly: subset/reordered channel mapping (2026-10-01 note).
     BLOCKED / open: real Operetta plus Harmony-corrected export; CZI-attachment and ND2/Olympus shading sample files (external data).
+
+2026-10-03 — REAL-DATA CHECK (lane 2, CPU)
+    Data: scPortrait example parsing dataset, Harmony 5.2 export of one
+    Operetta well (16 fields, 2 channels, 1080x1080), with and without
+    Harmony flat-field correction: zenodo.org/records/14193689 (raw) and
+    zenodo.org/records/14973295 (corrected), both CC-BY-4.0. Scripts:
+    /mnt/wd4tb/scratch/543/work/cmp.py, fit.py.
+    Result: FAILS on real data. Both channels' FlatfieldProfile carry ONLY a
+    Background polynomial (no Foreground), so _vendor_illumination raises
+    "contains no Harmony FlatfieldProfile with a foreground polynomial".
+    The polynomial convention itself is confirmed: x = column, y = row,
+    Origin/Scale as implemented (transposed surface fits worse).
+    Harmony's actual correction for a Background-only profile is additive:
+        corrected = raw - Mean * (B(x, y) - 1)
+    with Mean the profile's Background.Mean. Against Harmony's own output
+    over 16 fields: median |error| 0.41 / 0.37 counts, p95 1.8 / 1.8 counts
+    (ch1 Hoechst / ch2 Alexa 488; uint16 rounding). The multiplicative
+    reading raw / B gives median 0.40 / 13.7 counts, p95 31 / 257 counts.
+    Harmony adds no further rescaling (corrected mean = raw mean to 0.01%).
+    LEFT (code): accept Background-only profiles and apply them additively
+    with Mean as above; real Foreground+Background profiles still unseen.
