@@ -7319,6 +7319,8 @@ class AppScreen(QWidget):
 
         :returns: the panel widget, ready to go into the body splitter.
         """
+        from . import _breathe_while_a_window_opens
+
         wrap = QWidget()
         self._runtime_wrap = wrap
         outside = QVBoxLayout(wrap)
@@ -7380,6 +7382,7 @@ class AppScreen(QWidget):
             0 if results_expected else 360)
         self._figures_card.hide()
 
+        _breathe_while_a_window_opens()
         from ..widgets import ConsolePanel
         app_title = APP_TITLES.get(self.app_key, self.app_key.title())
         console_wrap = QWidget()
@@ -7396,6 +7399,7 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_card.body_layout.addWidget(self._console, 1)
+        _breathe_while_a_window_opens()
         from ..widgets.foldable import make_foldable
 
         self._console_folder = make_foldable(
@@ -7538,6 +7542,7 @@ class AppScreen(QWidget):
         except Exception:
             pass
 
+        _breathe_while_a_window_opens()
         usage_card = Card(title="System", foldable=True,
                           fold_key=f"{self.app_key}/System")
         self._usage_card = usage_card
@@ -7572,6 +7577,7 @@ class AppScreen(QWidget):
         self._per_core_wrap.hide()
         usage_card.body_layout.addWidget(self._per_core_wrap)
 
+        _breathe_while_a_window_opens()
         section = QWidget()
         self._actions_section = section
         section_col = QVBoxLayout(section)

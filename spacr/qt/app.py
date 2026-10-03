@@ -5206,10 +5206,15 @@ class MainWindow(QMainWindow):
                               exc_info=True)
             if built_now:
                 self._breathe_while_opening()
+                with _timing.span("polish", key):
+                    self._screens[key].ensurePolished()
+                self._breathe_while_opening()
             with _timing.span("show screen", key):
                 self._stack.setCurrentWidget(self._screens[key])
         finally:
             self._hide_preparing(card)
+        if built_now:
+            self._breathe_while_opening()
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
             started_at=interaction_started,
@@ -6180,6 +6185,11 @@ def _start_settings_prewarm() -> threading.Thread:
 
     def warm():
         """Import the remaining settings dependencies without building widgets."""
+        with _timing.span("background warm", "settings screens"):
+            _warm_the_settings_imports()
+
+    def _warm_the_settings_imports():
+        """Import each module, logging rather than raising a failure."""
         try:
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
