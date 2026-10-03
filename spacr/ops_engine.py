@@ -1658,6 +1658,14 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         _say(f"{well} decode: {detector} runs in one worker of its own, so the "
              f"fields decode one at a time rather than {workers} at once")
         workers = 1
+    if workers > 1 and tasks:
+        from .resource_log import _array_file_nbytes, _guard_workers
+        first = [entry[0] for entries in tasks[0]["planes"].values()
+                 for entry in entries if entry]
+        workers = _guard_workers(
+            "ops_decode", workers,
+            len(first) * _array_file_nbytes(first[0]) if first else 0,
+            settings=settings)
     results = []
     if workers == 1:
         _init_decode_worker(library_set)

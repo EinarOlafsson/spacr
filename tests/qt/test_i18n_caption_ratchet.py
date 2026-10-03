@@ -1261,6 +1261,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # N615, 2026-10-03: every pending caption above, and item 631's RAM guard
 # dialog, catalogued in nine locales; Object and Propagate are compact rows.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 631 extended to every module: the keep button off Measure
+    "Keep {count} workers",
 })
 
 

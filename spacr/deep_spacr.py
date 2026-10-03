@@ -395,6 +395,10 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
             f"class subfolders, because inference has no classes to walk. "
             f"Point it at one folder of crops, or at each class folder in "
             f"turn.")
+    from .resource_log import _guard_workers, _loader_unit_bytes
+    if n_jobs:
+        n_jobs = _guard_workers('classify', n_jobs,
+                                _loader_unit_bytes(batch_size, image_size))
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False,
                              num_workers=n_jobs,
                              pin_memory=(device.type == "cuda"))
@@ -519,11 +523,16 @@ def apply_model_to_tar(settings=None):
         print("Tar has no root crop-format marker. Per-folder markers are "
               "resolved individually; unmarked crops are assumed format 1 "
               f"(declared order). Decoder policy: {dataset.crop_loading_policy}.")
+    from .resource_log import _guard_workers, _loader_unit_bytes
+    loader_workers = settings['n_jobs']
+    if loader_workers:
+        loader_workers = _guard_workers('classify', loader_workers, _loader_unit_bytes(
+            settings['batch_size'], settings.get('image_size')), settings=settings)
     data_loader = DataLoader(
         dataset,
         batch_size=settings['batch_size'],
         shuffle=False,
-        num_workers=settings['n_jobs'],
+        num_workers=loader_workers,
         pin_memory=(device.type == 'cuda'),
     )
 
@@ -1306,6 +1315,11 @@ def _cross_validate_model(settings, num_classes):
                 settings.get('class_balance', 'none'),
             )
         workers = max(0, int(settings.get('n_jobs', 0) or 0))
+        if workers:
+            from .resource_log import _guard_workers, _loader_unit_bytes
+            workers = _guard_workers('classify', workers, _loader_unit_bytes(
+                settings['batch_size'], settings.get('image_size'),
+                settings.get('train_channels') or 3), settings=settings)
         return DataLoader(
             dataset,
             batch_size=settings['batch_size'],
@@ -3068,6 +3082,10 @@ def generate_activation_map(settings):
     
     dataset = TarImageDataset(settings['dataset'], transform=transform,
                               crop_loading_policy=checkpoint_policy(metadata, announce=True))
+    if n_jobs:
+        from .resource_log import _guard_workers, _loader_unit_bytes
+        n_jobs = _guard_workers('classify', n_jobs, _loader_unit_bytes(
+            settings['batch_size'], settings.get('image_size')), settings=settings)
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=settings['shuffle'], num_workers=n_jobs, pin_memory=True,
                              generator=torch_generator(stream='activation_maps'),
                              worker_init_fn=seed_worker if n_jobs else None)

@@ -8431,8 +8431,7 @@ class AppScreen(QWidget):
             log_button_press(f"{self.app_key}.Run",
                              {"result": "cancelled_at_crop_warning"})
             return
-        if self.app_key == "measure" and not self._confirm_ram_guard(
-                settings):
+        if not self._confirm_ram_guard(settings):
             log_button_press(f"{self.app_key}.Run",
                              {"result": "cancelled_at_ram_guard"})
             return
@@ -9605,10 +9604,12 @@ class AppScreen(QWidget):
 
     def _confirm_ram_guard(self, settings, *, plan_for=None, ask=None,
                            free_ram=None) -> bool:
-        """Ask before Measure starts more workers than the RAM can hold.
+        """Ask before a module starts more workers than the RAM can hold.
 
-        The estimate is one field's array size times a typical worker
-        overhead, against the RAM free right now minus a reserve. When the
+        The estimate is one worker's input (a Measure field, a mask stack, a
+        batch of crops, a table) times that module's worker overhead,
+        against the RAM free right now minus a reserve. Modules without an
+        ``n_jobs`` setting are never asked about. When the
         requested workers fit, nothing is shown. Otherwise one dialog offers
         the safe count, keeping the requested count with spaCR pausing new
         fields whenever RAM runs short, or closing other programs first; after
@@ -9617,21 +9618,32 @@ class AppScreen(QWidget):
 
         :param settings: the run settings; ``n_jobs`` or ``ram_guard`` is
             changed in place to match the answer.
-        :param plan_for: callable ``(src, n_jobs) -> plan``; the Measure
+        :param plan_for: callable ``(src, n_jobs) -> plan``; this module's
             estimate when omitted.
         :param ask: callable ``(plan) -> choice``; the dialog when omitted.
         :param free_ram: zero-argument callable showing the process list.
         :returns: whether the run should go ahead.
         """
-        if not settings.get("ram_guard", True):
+        if not settings.get("ram_guard", True) or "n_jobs" not in settings:
             return True
+        app_key = getattr(self, "app_key", "measure")
         if plan_for is None:
-            from ...measure import _ram_guard_plan as plan_for
+            from ...resource_log import _APP_RAM_UNITS, _app_ram_plan
+            if app_key not in _APP_RAM_UNITS:
+                return True
+
+            def plan_for(_src, n_jobs):
+                """This module's estimate for ``n_jobs`` workers."""
+                return _app_ram_plan(app_key, settings, n_jobs)
         ask = ask or (lambda plan: _RamGuardDialog.ask(self, plan))
         free_ram = free_ram or (lambda: _FreeRamDialog(self).exec())
         try:
-            from ...measure import resolve_n_jobs
-            requested = resolve_n_jobs(settings.get("n_jobs"))
+            if app_key == "measure":
+                from ...measure import resolve_n_jobs
+                requested = resolve_n_jobs(settings.get("n_jobs"))
+            else:
+                from ...resource_log import _requested_workers
+                requested = _requested_workers(settings.get("n_jobs"))
         except Exception:
             return True
         while True:
@@ -12355,10 +12367,10 @@ def _gib(value) -> str:
 
 
 class _RamGuardDialog(QDialog):
-    """Warn that the requested Measure workers do not fit in free RAM.
+    """Warn that a module's requested workers do not fit in free RAM.
 
     Three buttons answer it: the safe worker count, the requested count
-    with spaCR pausing new fields when RAM runs short, or closing other
+    (Measure then pauses new fields when RAM runs short), or closing other
     programs first. ``choice`` holds ``'use'``, ``'keep'``, ``'free'`` or
     ``None`` when the dialog was closed, which cancels the run.
     """
@@ -12383,8 +12395,12 @@ class _RamGuardDialog(QDialog):
         self.use_button = QPushButton(tr(
             "Use {count} workers (recommended)", count=plan["max_safe"]))
         self.use_button.setObjectName("RamGuardUse")
-        self.keep_button = QPushButton(tr(
-            "Keep {count} (spaCR will throttle)", count=plan["requested"]))
+        if plan.get("module", "measure") == "measure":
+            keep = tr("Keep {count} (spaCR will throttle)",
+                      count=plan["requested"])
+        else:
+            keep = tr("Keep {count} workers", count=plan["requested"])
+        self.keep_button = QPushButton(keep)
         self.keep_button.setObjectName("RamGuardKeep")
         self.free_button = QPushButton(tr(
             "Free RAM by closing applications…"))

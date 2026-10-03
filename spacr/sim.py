@@ -1003,6 +1003,29 @@ def validate_and_adjust_beta_params(sim_params):
         
     return adjusted_params
 
+def _simulation_unit_bytes(settings):
+    """Approximate bytes one simulation holds: a per-cell table for its plates.
+
+    The largest swept plate count, cells per well and genes per well give
+    rows of eight-byte values for 384 wells per plate.
+
+    :returns: ``0`` when the sweep values cannot be read.
+    """
+    def _largest(key, default):
+        """The largest value swept for ``key``."""
+        value = settings.get(key, default)
+        values = value if isinstance(value, (list, tuple)) else [value]
+        try:
+            return max(float(v) for v in values)
+        except (TypeError, ValueError):
+            return float(default)
+    try:
+        rows = (_largest('nr_plates', 1) * 384
+                * _largest('avg_cells_per_well', 100))
+        return int(rows * (_largest('avg_genes_per_well', 2) + 8) * 8)
+    except Exception:
+        return 0
+
 def generate_parameters(settings):
     """Expand a sweep-settings dict into one settings dict per (Cartesian) simulation.
 
@@ -1076,6 +1099,10 @@ def run_multiple_simulations(settings):
     sim_ls = generate_parameters(settings)
 
     max_workers = settings['max_workers'] or max(1, cpu_count() - 4)
+    from .resource_log import _guard_workers
+    max_workers = _guard_workers('simulation', max_workers,
+                                 _simulation_unit_bytes(settings),
+                                 settings=settings)
     with Manager() as manager:
         time_ls = manager.list()
         total_sims = len(sim_ls)

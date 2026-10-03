@@ -1494,9 +1494,11 @@ def _say_what_is_wrong_with_the_settings(app_key, fn):
                 print(f"[settings] {mark}{where}: {problem.message}")
                 if problem.fix:
                     print(f"[settings]     {problem.fix}")
-        if settings is None:
-            return fn(*args, **kwargs)
-        return fn(settings, *args, **kwargs)
+        from spacr.resource_log import _ram_guard_scope
+        with _ram_guard_scope(settings):
+            if settings is None:
+                return fn(*args, **kwargs)
+            return fn(settings, *args, **kwargs)
 
     return run
 

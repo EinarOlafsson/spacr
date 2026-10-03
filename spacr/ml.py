@@ -8894,6 +8894,8 @@ def ml_analysis(
     See Also:
         :func:`generate_ml_scores` — wraps this call with DB I/O.
     """
+    from .resource_log import _guard_workers, _table_nbytes
+    n_jobs = _guard_workers('ml_analyze', n_jobs, _table_nbytes(df))
     
     _flowview_advance("dataset")
 

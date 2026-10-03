@@ -941,3 +941,375 @@ def _close_processes(pids: Iterable[int], psutil_module=None) -> Dict[int, str]:
         except Exception:
             outcomes[pid] = 'denied'
     return outcomes
+
+
+_RAM_RESERVE_FRACTION = 0.125
+_RAM_DEFAULT_MULTIPLIER = 8.0
+_RAM_MIN_UNIT_BYTES = 64 * 1024 ** 2
+
+_RAM_WORKER_MULTIPLIERS: Dict[str, float] = {
+    'measure': 8.0,
+    'mask': 10.0,
+    'classical_masks': 10.0,
+    'adjust_masks': 14.0,
+    'merge_split': 14.0,
+    'motility': 6.0,
+    'classify': 4.0,
+    'dataset': 3.0,
+    'augment': 10.0,
+    'cellpose_dataset': 10.0,
+    'map_barcodes': 4.0,
+    'simulation': 1.0,
+    'regression': 2.0,
+    'sweep': 1.0,
+    'umap': 1.0,
+    'ml_analyze': 1.0,
+    'ops_decode': 6.0,
+}
+
+_APP_RAM_UNITS: Dict[str, Tuple[str, Tuple[str, ...]]] = {
+    'measure': ('measure', ('.npy',)),
+    'mask': ('mask', ('.npy', '.npz', '.tif', '.tiff', '.png')),
+    'timelapse': ('mask', ('.npy', '.npz', '.tif', '.tiff', '.png')),
+    'motility': ('motility', ('.npy',)),
+    'classify': ('classify', ('.png', '.tif', '.tiff')),
+    'activation': ('classify', ('.png', '.tif', '.tiff', '.tar')),
+    'train_cellpose': ('cellpose_dataset', ('.tif', '.tiff', '.png', '.npy')),
+    'map_barcodes': ('map_barcodes', ()),
+    'umap': ('umap', ('.db', '.csv', '.parquet')),
+    'ml_analyze': ('ml_analyze', ('.db', '.csv', '.parquet')),
+    'regression': ('regression', ('.db', '.csv', '.parquet')),
+    'ops': ('ops_decode', ('.tif', '.tiff', '.nd2', '.npy')),
+}
+
+_SAMPLE_WALK_LIMIT = 2000
+
+_RAM_GUARD_STATE = threading.local()
+
+
+class _ram_guard_scope:
+    """Carry a run's ``ram_guard`` setting to pool sites that see no settings.
+
+    Entered around a pipeline call on the thread that runs it, so helpers
+    deep in the pipeline honour the run's choice. Outside any scope the
+    guard is on.
+    """
+
+    def __init__(self, settings: Optional[Mapping[str, Any]]):
+        value = True
+        if isinstance(settings, Mapping):
+            value = settings.get('ram_guard', True) is not False
+        self._value = value
+        self._previous = None
+
+    def __enter__(self):
+        self._previous = getattr(_RAM_GUARD_STATE, 'enabled', None)
+        _RAM_GUARD_STATE.enabled = self._value
+        return self
+
+    def __exit__(self, *exc):
+        _RAM_GUARD_STATE.enabled = self._previous
+        return False
+
+
+def _ram_guard_enabled(settings: Optional[Mapping[str, Any]] = None) -> bool:
+    """Whether the RAM guard is on for this run.
+
+    :param settings: the run settings when the caller has them; otherwise
+        the enclosing :class:`_ram_guard_scope` decides, defaulting to on.
+    """
+    if isinstance(settings, Mapping) and 'ram_guard' in settings:
+        return settings.get('ram_guard') is not False
+    enabled = getattr(_RAM_GUARD_STATE, 'enabled', None)
+    return True if enabled is None else bool(enabled)
+
+
+def _ram_snapshot(psutil_module=None) -> Optional[Tuple[int, int]]:
+    """Return ``(available_bytes, total_bytes)``, or ``None`` when unreadable.
+
+    :param psutil_module: the psutil module to read; the installed one when
+        omitted.
+    """
+    psutil_module = psutil_module or _psutil()
+    if psutil_module is None:
+        return None
+    try:
+        memory = psutil_module.virtual_memory()
+        return int(memory.available), int(memory.total)
+    except Exception:
+        return None
+
+
+def _ram_reserve_bytes(total_bytes: int) -> int:
+    """Bytes of RAM that spaCR leaves free for the desktop and the system."""
+    return int(total_bytes * _RAM_RESERVE_FRACTION)
+
+
+def _max_safe_workers(available_bytes: int, total_bytes: int,
+                      per_worker_bytes: int) -> Optional[int]:
+    """How many workers fit in available RAM while keeping the reserve free.
+
+    :returns: at least 1, or ``None`` when ``per_worker_bytes`` is unknown;
+        one worker always runs.
+    """
+    if per_worker_bytes <= 0:
+        return None
+    spare = available_bytes - _ram_reserve_bytes(total_bytes)
+    return max(1, int(spare // per_worker_bytes))
+
+
+def _requested_workers(n_jobs: Any) -> int:
+    """The worker count ``n_jobs`` asks for; ``None``, 0 and negatives mean every core."""
+    try:
+        value = int(n_jobs)
+    except (TypeError, ValueError):
+        value = 0
+    if value >= 1:
+        return value
+    cores = os.cpu_count() or 1
+    return max(1, cores + 1 + value) if value < 0 else cores
+
+
+def _array_file_nbytes(path: Any) -> int:
+    """In-memory size of one input file, read from its header where possible.
+
+    ``.npy`` gives the array size, ``.npz`` the sum of its arrays, TIFF and
+    PNG the decoded pixel size; anything else falls back to its size on disk.
+
+    :returns: ``0`` when the file cannot be read.
+    """
+    try:
+        path = os.fspath(path)
+    except TypeError:
+        return 0
+    lower = path.lower()
+    try:
+        if lower.endswith('.npy'):
+            import numpy as np
+            return int(np.load(path, mmap_mode='r').nbytes)
+        if lower.endswith('.npz'):
+            import numpy as np
+            with np.load(path) as archive:
+                return int(sum(archive[key].nbytes for key in archive.files))
+        if lower.endswith(('.tif', '.tiff')):
+            import tifffile
+            with tifffile.TiffFile(path) as tif:
+                series = tif.series[0]
+                size = 1
+                for extent in series.shape:
+                    size *= int(extent)
+                return int(size * series.dtype.itemsize)
+        if lower.endswith('.png'):
+            from PIL import Image
+            with Image.open(path) as image:
+                width, height = image.size
+                bands = len(image.getbands())
+                depth = 2 if image.mode.startswith('I;16') or image.mode == 'I' else 1
+                return int(width * height * bands * depth)
+        return int(os.path.getsize(path))
+    except Exception:
+        try:
+            return int(os.path.getsize(path))
+        except OSError:
+            return 0
+
+
+def _sample_input_file(src: Any, suffixes: Sequence[str]) -> Optional[str]:
+    """Find one input file under ``src`` with one of ``suffixes``.
+
+    ``src`` may be a file, a folder or a list of either. Folders are walked
+    in sorted order, stopping after a bounded number of entries so a huge
+    tree cannot stall the check.
+
+    :returns: the path, or ``None`` when none is found.
+    """
+    if isinstance(src, (list, tuple)):
+        for item in src:
+            found = _sample_input_file(item, suffixes)
+            if found:
+                return found
+        return None
+    if not src or not suffixes:
+        return None
+    src = os.fspath(src)
+    wanted = tuple(s.lower() for s in suffixes)
+    if os.path.isfile(src):
+        return src if src.lower().endswith(wanted) else None
+    if not os.path.isdir(src):
+        return None
+    seen = 0
+    for root, dirs, files in os.walk(src):
+        dirs.sort()
+        for suffix in wanted:
+            for name in sorted(files):
+                if name.lower().endswith(suffix) and not name.startswith('.'):
+                    return os.path.join(root, name)
+        seen += len(files) + len(dirs)
+        if seen > _SAMPLE_WALK_LIMIT:
+            return None
+    return None
+
+
+def _ram_plan(unit_bytes: int, n_jobs: Any, *, module: str = 'measure',
+              multiplier: Optional[float] = None,
+              psutil_module=None) -> Optional[Dict[str, Any]]:
+    """Estimate whether ``n_jobs`` workers of ``module`` fit in free RAM.
+
+    Each worker is estimated as one input unit's in-memory size times the
+    module's multiplier, the ratio of a worker's peak resident memory to its
+    input measured on one unit.
+
+    :param unit_bytes: in-memory size of one worker's input unit.
+    :param n_jobs: the requested worker count.
+    :param module: key into the per-module multipliers.
+    :param multiplier: overrides the module's multiplier.
+    :returns: a dict with ``module``, ``per_worker``, ``nbytes``,
+        ``available``, ``total``, ``reserve``, ``max_safe``, ``requested``
+        and ``exceeds``, or ``None`` when RAM or the unit size is unknown.
+    """
+    if not unit_bytes or unit_bytes <= 0:
+        return None
+    snapshot = _ram_snapshot(psutil_module)
+    if snapshot is None:
+        return None
+    available, total = snapshot
+    factor = float(multiplier or _RAM_WORKER_MULTIPLIERS.get(
+        module, _RAM_DEFAULT_MULTIPLIER))
+    per_worker = max(1, int(unit_bytes * factor))
+    max_safe = _max_safe_workers(available, total, per_worker)
+    requested = _requested_workers(n_jobs)
+    return {'module': module, 'per_worker': per_worker,
+            'nbytes': int(unit_bytes), 'available': available,
+            'total': total, 'reserve': _ram_reserve_bytes(total),
+            'max_safe': max_safe, 'requested': requested,
+            'exceeds': requested > max_safe}
+
+
+def _clamp_to_plan(n_jobs: Any, plan: Optional[Mapping[str, Any]],
+                   ram_guard: Any = True) -> Any:
+    """Lower ``n_jobs`` to the plan's RAM-safe count, printing a warning.
+
+    :param ram_guard: ``False`` keeps ``n_jobs`` unchanged.
+    :returns: ``n_jobs`` when it fits, the guard is off or there is no
+        plan; otherwise the safe count.
+    """
+    if plan is None or ram_guard is False or not plan.get('exceeds'):
+        return n_jobs
+    gib = 1024 ** 3
+    print(f"WARNING: {plan['module']}: {plan['requested']} workers would "
+          f"need about {plan['requested'] * plan['per_worker'] / gib:.1f} GiB "
+          f"of RAM but {plan['available'] / gib:.1f} GiB is available and "
+          f"{plan['reserve'] / gib:.1f} GiB is kept free; using "
+          f"{plan['max_safe']} workers. Set ram_guard to False to keep "
+          f"n_jobs.")
+    return plan['max_safe']
+
+
+def _guard_workers(module: str, n_jobs: Any, unit_bytes: int, *,
+                   settings: Optional[Mapping[str, Any]] = None,
+                   multiplier: Optional[float] = None,
+                   psutil_module=None) -> Any:
+    """Clamp a pool's worker count to what free RAM can hold.
+
+    Every place spaCR starts worker processes or threads calls this with the
+    size of one worker's input. Nothing happens when the workers fit, when
+    the size or the RAM cannot be read, or when ``settings['ram_guard']`` is
+    ``False``; otherwise a warning is printed and the safe count returned.
+
+    :param module: which multiplier to use, e.g. ``'mask'``.
+    :param n_jobs: the requested worker count.
+    :param unit_bytes: in-memory size of one worker's input unit.
+    :param settings: the run settings, read only for ``ram_guard``; the
+        enclosing :class:`_ram_guard_scope` decides when omitted.
+    :returns: the worker count to start.
+    """
+    if not _ram_guard_enabled(settings):
+        return n_jobs
+    try:
+        plan = _ram_plan(unit_bytes, n_jobs, module=module,
+                         multiplier=multiplier, psutil_module=psutil_module)
+    except Exception:
+        LOG.debug("could not estimate %s worker RAM", module, exc_info=True)
+        return n_jobs
+    return _clamp_to_plan(n_jobs, plan)
+
+
+def _table_nbytes(table: Any) -> int:
+    """In-memory size of an array or table a worker receives a copy of.
+
+    :returns: ``0`` when the size cannot be read.
+    """
+    try:
+        usage = getattr(table, 'memory_usage', None)
+        if callable(usage) and hasattr(table, 'columns'):
+            return int(usage(index=True, deep=False).sum())
+        return int(getattr(table, 'nbytes', 0) or 0)
+    except Exception:
+        return 0
+
+
+def _loader_unit_bytes(batch_size: Any, image_size: Any,
+                       channels: Any = 3, prefetch: int = 2) -> int:
+    """Bytes one data-loader worker holds: its prefetched batches of tensors.
+
+    Each item is a float32 tensor of ``channels`` planes of
+    ``image_size`` squared pixels; a worker keeps ``prefetch`` batches.
+
+    :returns: ``0`` when a size cannot be read.
+    """
+    try:
+        if isinstance(channels, (list, tuple)):
+            channels = len(channels) or 3
+        size = int(image_size or 224)
+        return int(max(1, int(batch_size or 1)) * size * size
+                   * max(1, int(channels or 3)) * 4 * max(1, prefetch))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _app_unit_bytes(app_key: str, settings: Mapping[str, Any]) -> int:
+    """In-memory size of one worker's input for a module's run settings.
+
+    :returns: ``0`` when the module starts no workers or no input is found.
+    """
+    profile = _APP_RAM_UNITS.get(app_key)
+    if profile is None:
+        return 0
+    module, suffixes = profile
+    if module == 'map_barcodes':
+        try:
+            chunk = int(settings.get('chunk_size') or 10000)
+        except (TypeError, ValueError):
+            chunk = 10000
+        return chunk * 2 * 1024
+    if module == 'measure':
+        from .measure import _sample_field_path
+        path = _sample_field_path(settings.get('src'))
+    else:
+        path = _sample_input_file(settings.get('src'), suffixes)
+    if path is None:
+        return 0
+    size = _array_file_nbytes(path)
+    if module in ('classify', 'cellpose_dataset'):
+        try:
+            batch = max(1, int(settings.get('batch_size') or 1))
+        except (TypeError, ValueError):
+            batch = 1
+        if module == 'classify':
+            size *= batch
+    return size
+
+
+def _app_ram_plan(app_key: str, settings: Mapping[str, Any], n_jobs: Any,
+                  psutil_module=None) -> Optional[Dict[str, Any]]:
+    """The RAM estimate for running ``app_key`` with ``n_jobs`` workers.
+
+    :returns: the plan from :func:`_ram_plan`, or ``None`` when the module
+        starts no workers or its input cannot be sized.
+    """
+    profile = _APP_RAM_UNITS.get(app_key)
+    if profile is None:
+        return None
+    unit = _app_unit_bytes(app_key, settings)
+    return _ram_plan(unit, n_jobs, module=profile[0],
+                     psutil_module=psutil_module)

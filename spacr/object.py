@@ -2454,6 +2454,9 @@ def _segment_classical_parallel(img_batch, classical_settings, n_jobs=1):
                 for idx in range(n_images)]
 
     effective_jobs = min(n_jobs, n_images, cpu_count())
+    from .resource_log import _guard_workers
+    effective_jobs = _guard_workers('classical_masks', effective_jobs,
+                                    int(img_batch[0].nbytes))
 
     worker_fn = partial(_segment_single_image, settings=classical_settings)
     image_list = [img_batch[idx] for idx in range(n_images)]

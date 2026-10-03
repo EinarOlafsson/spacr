@@ -47,6 +47,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from .checkpoint import CheckpointStore, fingerprint, json_safe
+from .resource_log import _guard_workers, _table_nbytes
 from .cancellation import (
     PipelineCancelled,
     checkpoint as cancellation_checkpoint,
@@ -3831,7 +3832,9 @@ def run_search_for_app(app_key: str,
         data.features, data.labels,
         model_type=settings.get("model_type_ml", "xgboost"),
         criterion=criterion, seed=seed,
-        n_jobs=int(settings.get("n_jobs", -1) or -1))
+        n_jobs=_guard_workers(
+            "regression", int(settings.get("n_jobs", -1) or -1),
+            _table_nbytes(data.features), settings=settings))
     result = cv_search(
         fit, space, labels=data.labels, groups=data.groups,
         group_by="well", n_folds=n_folds, seed=seed, metric=criterion,

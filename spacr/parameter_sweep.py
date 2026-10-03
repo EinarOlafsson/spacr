@@ -988,6 +988,9 @@ def run_sweep_parallel(base_settings: Mapping[str, Any], destination,
     os.makedirs(destination, exist_ok=True)
 
     n_jobs, reason = recommended_workers(requested=n_jobs)
+    from .resource_log import _guard_workers
+    n_jobs = _guard_workers("sweep", n_jobs, int(ASSUMED_TRIAL_GIB * 1024 ** 3),
+                            settings=base_settings)
     trials = build_trials(space, mode=mode, max_trials=max_trials, seed=seed)
     with open(os.path.join(destination, "sweep_trials.json"), "w",
               encoding="utf-8") as handle:

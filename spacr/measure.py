@@ -94,6 +94,8 @@ from . import measurement_schema as _measurement_schema
 MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .runctx import run_context
+from .resource_log import (_max_safe_workers, _ram_plan, _ram_reserve_bytes,
+                           _ram_snapshot)
 from .resume import plan_measure_resume
 from .measure_hooks import (
     MeasurementHookError,
@@ -8615,7 +8617,6 @@ def _record_organelle_caveats(settings, run):
     return caveats
 
 
-_RAM_RESERVE_FRACTION = 0.125
 _RAM_DEFAULT_MULTIPLIER = 8.0
 _RAM_POLL_SECONDS = 1.0
 
@@ -8627,27 +8628,6 @@ def _psutil_or_none():
     except Exception:
         return None
     return psutil
-
-
-def _ram_snapshot(psutil_module=None):
-    """Return ``(available_bytes, total_bytes)``, or ``None`` when unreadable.
-
-    :param psutil_module: the psutil module to read; the installed one when
-        omitted.
-    """
-    psutil_module = psutil_module or _psutil_or_none()
-    if psutil_module is None:
-        return None
-    try:
-        memory = psutil_module.virtual_memory()
-        return int(memory.available), int(memory.total)
-    except Exception:
-        return None
-
-
-def _ram_reserve_bytes(total_bytes):
-    """Bytes of RAM that Measure leaves free for the desktop and the system."""
-    return int(total_bytes * _RAM_RESERVE_FRACTION)
 
 
 def _sample_field_path(src):
@@ -8681,18 +8661,6 @@ def _field_nbytes(path):
         return 0
 
 
-def _max_safe_workers(available_bytes, total_bytes, per_worker_bytes):
-    """How many workers fit in available RAM while keeping the reserve free.
-
-    :returns: at least 1; one worker always runs, and the runtime throttle
-        keeps it from starting a field the RAM cannot hold.
-    """
-    if per_worker_bytes <= 0:
-        return None
-    spare = available_bytes - _ram_reserve_bytes(total_bytes)
-    return max(1, int(spare // per_worker_bytes))
-
-
 def _ram_guard_plan(src, n_jobs, multiplier=None, psutil_module=None):
     """Estimate whether ``n_jobs`` Measure workers fit in RAM.
 
@@ -8705,25 +8673,12 @@ def _ram_guard_plan(src, n_jobs, multiplier=None, psutil_module=None):
         ``reserve``, ``max_safe`` and ``exceeds``, or ``None`` when RAM or
         the field size cannot be read.
     """
-    snapshot = _ram_snapshot(psutil_module)
     path = _sample_field_path(src)
-    if snapshot is None or path is None:
+    if path is None:
         return None
-    nbytes = _field_nbytes(path)
-    if nbytes <= 0:
-        return None
-    available, total = snapshot
-    per_worker = int(nbytes * float(multiplier or _RAM_DEFAULT_MULTIPLIER))
-    max_safe = _max_safe_workers(available, total, per_worker)
-    try:
-        requested = max(1, int(n_jobs))
-    except (TypeError, ValueError):
-        requested = 1
-    return {'per_worker': per_worker, 'nbytes': nbytes,
-            'available': available,
-            'total': total, 'reserve': _ram_reserve_bytes(total),
-            'max_safe': max_safe, 'requested': requested,
-            'exceeds': requested > max_safe}
+    return _ram_plan(_field_nbytes(path), n_jobs, module='measure',
+                     multiplier=multiplier or _RAM_DEFAULT_MULTIPLIER,
+                     psutil_module=psutil_module)
 
 
 def _clamp_workers_to_ram(settings, n_jobs, plan):

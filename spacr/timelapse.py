@@ -1415,6 +1415,9 @@ def _btrack_track_cells(src, name, batch_filenames, object_type, plot, save, mas
     TRACKING_UPDATES = ["motion", "visual"]
 
     logger.debug("Converting segmentation to btrack objects...")
+    from .resource_log import _guard_workers
+    n_jobs = _guard_workers('mask', n_jobs, int(np.asarray(masks_3D[0]).nbytes)
+                            if len(masks_3D) else 0)
     objects = btrack.utils.segmentation_to_objects(
         masks_3D,
         properties=tuple(FEATURES),
@@ -9077,6 +9080,11 @@ def automated_motility_assay(settings):
 
         if n_jobs is None:
             n_jobs = max(cpu_count() - 1, 1)
+        if worker_args and worker_args[0][1]:
+            from .resource_log import _array_file_nbytes, _guard_workers
+            first = worker_args[0][1][0]
+            n_jobs = _guard_workers('motility', n_jobs, len(worker_args[0][1]) * _array_file_nbytes(
+                first if os.path.isabs(str(first)) else os.path.join(src, str(first))))
         print(f"[summarise_tracks_from_merged] Using n_jobs={n_jobs}")
 
         if n_jobs == 1:

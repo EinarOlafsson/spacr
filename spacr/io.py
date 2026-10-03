@@ -6475,6 +6475,9 @@ def generate_dataset(settings=None):
     os.makedirs(temp_dir, exist_ok=True)
 
     num_procs = max(1, min(max(2, cpu_count() - 2), total_images))
+    from .resource_log import _array_file_nbytes, _guard_workers
+    num_procs = _guard_workers('dataset', num_procs, _array_file_nbytes(
+        selected_paths[0]) if selected_paths else 0, settings=settings)
     chunk_size = total_images // num_procs
     remainder = total_images % num_procs
 
@@ -7415,6 +7418,10 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
                                      split_name='train', verbose=True)
 
     num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
+    if num_workers > 0:
+        from .resource_log import _guard_workers, _loader_unit_bytes
+        num_workers = _guard_workers('classify', num_workers, _loader_unit_bytes(
+            batch_size, image_size, channels))
     use_persistent = num_workers > 0
 
     fold_loaders = []
@@ -7520,6 +7527,10 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                         crop_loading_policy=crop_loading_policy)
 
     num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
+    if num_workers > 0:
+        from .resource_log import _guard_workers, _loader_unit_bytes
+        num_workers = _guard_workers('classify', num_workers, _loader_unit_bytes(
+            batch_size, image_size, channels))
     use_persistent = num_workers > 0
 
     if validation_split > 0 and mode == 'train':
@@ -9084,7 +9095,11 @@ def prepare_cellpose_dataset(input_root, augment_data=False, train_fraction=0.8,
         n_jobs = max(1, cpu_count() - 1)
     else:
         n_jobs = int(n_jobs)
-        
+    if instructions:
+        from .resource_log import _array_file_nbytes, _guard_workers
+        n_jobs = _guard_workers('cellpose_dataset', n_jobs,
+                                _array_file_nbytes(instructions[0]["src_img"]))
+
     with Pool(n_jobs) as pool:
         for i, _ in enumerate(pool.imap_unordered(process_instruction, instructions), 1):
             print_progress(i, len(instructions), n_jobs=n_jobs, time_ls=time_ls, batch_size=None, operation_type="cellpose dataset")

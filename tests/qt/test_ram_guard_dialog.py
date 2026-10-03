@@ -155,3 +155,44 @@ def test_the_real_psutil_is_never_used_to_close(monkeypatch, qapp):
     dialog.close_button.click()
     assert dialog.outcomes == {}
     dialog.deleteLater()
+
+
+class _OtherScreen:
+    _confirm_ram_guard = AppScreen._confirm_ram_guard
+
+    def __init__(self, app_key):
+        self.app_key = app_key
+
+
+def test_other_modules_ask_with_their_own_estimate(monkeypatch):
+    from spacr import resource_log
+    seen = []
+
+    def fake_plan(app_key, settings, n_jobs, psutil_module=None):
+        seen.append((app_key, n_jobs))
+        return dict(PLAN, module='adjust_masks', requested=n_jobs)
+
+    monkeypatch.setattr(resource_log, '_app_ram_plan', fake_plan)
+    settings = {'n_jobs': 24, 'src': '/nowhere'}
+    assert _OtherScreen('mask')._confirm_ram_guard(
+        settings, ask=lambda plan: 'use')
+    assert seen == [('mask', 24)]
+    assert settings['n_jobs'] == 8
+
+
+def test_a_module_without_workers_or_n_jobs_is_never_asked(monkeypatch):
+    from spacr import resource_log
+    monkeypatch.setattr(resource_log, '_app_ram_plan', pytest.fail)
+    assert _OtherScreen('plate_view')._confirm_ram_guard(
+        {'n_jobs': 4}, ask=pytest.fail)
+    assert _OtherScreen('mask')._confirm_ram_guard({}, ask=pytest.fail)
+
+
+def test_keep_names_the_throttle_only_for_measure(qapp):
+    measure_dialog = _RamGuardDialog(None, PLAN)
+    other = _RamGuardDialog(None, dict(PLAN, module='mask'))
+    assert 'throttle' in measure_dialog.keep_button.text()
+    assert 'throttle' not in other.keep_button.text()
+    assert '24' in other.keep_button.text()
+    measure_dialog.deleteLater()
+    other.deleteLater()

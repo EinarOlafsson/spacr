@@ -847,6 +847,9 @@ def merge_split_objects(mask_src, intensity_img_src=None, intensity_channel=None
         intensity_paths = [None] * len(mask_files)
 
     total = len(mask_paths)
+    from .resource_log import _array_file_nbytes, _guard_workers
+    n_jobs = _guard_workers('merge_split', n_jobs,
+                            _array_file_nbytes(mask_paths[0]))
 
     Parallel(n_jobs=n_jobs)(
         delayed(_process_single_fov)(
@@ -4642,8 +4645,13 @@ def augment_images(file_paths, dst):
         os.makedirs(dst)
 
     args_list = [(img_path, dst) for img_path in file_paths]
+    if not args_list:
+        return
+    from .resource_log import _array_file_nbytes, _guard_workers
+    workers = _guard_workers('augment', cpu_count(),
+                             _array_file_nbytes(args_list[0][0]))
 
-    with Pool(cpu_count()) as pool:
+    with Pool(workers) as pool:
         pool.map(augment_single_image, args_list)
         
 
@@ -7281,6 +7289,8 @@ def reduction_and_clustering(
         count when ``clustering='kmeans'``.
     :param clustering: clustering algorithm, ``'dbscan'`` or ``'kmeans'``.
     """
+    from .resource_log import _guard_workers, _table_nbytes
+    n_jobs = _guard_workers('umap', n_jobs, _table_nbytes(numeric_data))
     values = np.asarray(numeric_data)
     options = dict(reducer_options or {})
     aliases = {
@@ -8640,6 +8650,8 @@ def search_reduction_and_clustering(numeric_data, n_neighbors, min_dist, metric,
     :returns: ``(embedding, labels)``.
     :raises ValueError: on unsupported ``reduction_method`` or ``clustering``.
     """
+    from .resource_log import _guard_workers, _table_nbytes
+    n_jobs = _guard_workers('umap', n_jobs, _table_nbytes(numeric_data))
 
     if isinstance(n_neighbors, float):
         n_neighbors = int(n_neighbors * len(numeric_data))
@@ -9244,6 +9256,9 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
         n_jobs = max(1, cpu_count() - 2)
     else:
         n_jobs = max(1, int(n_jobs))
+    from .resource_log import _array_file_nbytes, _guard_workers
+    n_jobs = _guard_workers('adjust_masks', n_jobs, _array_file_nbytes(
+        os.path.join(cell_folder, parasite_files[0])))
 
     time_ls = []
     files_to_process = len(parasite_files)

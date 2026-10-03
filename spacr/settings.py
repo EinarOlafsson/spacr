@@ -1054,6 +1054,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('custom_regex', None)
     settings.setdefault('metadata_type', 'cellvoyager')
     settings.setdefault('n_jobs', _default_worker_count(reserve=4))
+    settings.setdefault('ram_guard', True)
     settings.setdefault('randomize', True)
     settings.setdefault('verbose', True)
     settings.setdefault('remove_background_cell', False)
@@ -1663,6 +1664,7 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('reduction_method','umap')
     settings.setdefault('save_figure', False)
     settings.setdefault('n_jobs', -1)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('color_by', None)
     settings.setdefault('exclude_conditions', None)
     settings.setdefault('exclude_rows', None)
@@ -1930,6 +1932,7 @@ def set_default_analyze_screen(settings):
     settings.setdefault('batch_min_samples', 3)
     settings.setdefault('batch_missing_control', 'error')
     settings.setdefault('n_jobs',-1)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('prune_features',False)
     settings.setdefault('cross_validation',True)
     settings.setdefault('verbose',True)
@@ -2405,6 +2408,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('custom_model_path','')
     settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
     settings.setdefault('verbose',False)
@@ -2505,6 +2509,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('resume_checkpoint','')
     settings.setdefault('pin_memory',False)
     settings.setdefault('n_jobs',cores)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('train_channels',['r','g','b'])
     settings.setdefault('augment',False)
     settings.setdefault('verbose',True)
@@ -2588,6 +2593,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('custom_model_path','')
      settings.setdefault('pin_memory', True)
      settings.setdefault('n_jobs', 30)
+     settings.setdefault('ram_guard', True)
      settings.setdefault('augment', True)
      settings.setdefault('verbose', True)
      settings.setdefault('label_smoothing', 0.1)
@@ -4685,7 +4691,7 @@ tooltips = {
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
-    "ram_guard": "(bool) - Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.",
+    "ram_guard": "(bool) - Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
     "normalize_by": "(str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'.",
     "nuclei_limit": '(int, bool, or None) - Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.',
     "pathogen_limit": "(int, bool, or None) - Maximum pathogens per cell. True or 1 = single pathogen only; None or False = no limit; int = custom limit. Default varies by module (1, 3, 10 or 1000 depending on the factory that fills it), so check the module's own settings rather than assuming one value.",
@@ -6655,6 +6661,7 @@ def set_default_generate_barecode_mapping(settings=None):
     settings.setdefault('comp_level', 5)
     settings.setdefault('chunk_size', 100000)
     settings.setdefault('n_jobs', None)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('mode', 'paired')
     settings.setdefault('single_direction', 'R1')
     settings.setdefault('test', False)
@@ -6684,6 +6691,7 @@ def get_default_generate_activation_map_settings(settings):
     settings.setdefault('correlation', True)
     settings.setdefault('manders_thresholds', [15,50, 75])
     settings.setdefault('n_jobs', None)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('smoothgrad_samples', 0)
     settings.setdefault('smoothgrad_sigma', 0.15)
     settings.setdefault('occlusion_window', 8)
@@ -6807,6 +6815,7 @@ def set_interpret_vision_model_defaults(settings):
     settings.setdefault('top_features',30)
     settings.setdefault('shap_sample',True)
     settings.setdefault('n_jobs',-1)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('shap_approximate',True)
     settings.setdefault('score_column','cv_predictions')
     return settings
@@ -7003,6 +7012,7 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('motility_analysis', False)
 
     settings.setdefault('n_jobs', 8)
+    settings.setdefault('ram_guard', True)
     settings.setdefault('max_displacement', 50.0)
     settings.setdefault('track_outlier_zscore', 3.0)
     settings.setdefault('drop_straight_tracks', False)

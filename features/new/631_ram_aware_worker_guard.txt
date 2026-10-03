@@ -6,6 +6,46 @@ first (AppScreen._confirm_ram_guard, _RamGuardDialog, _FreeRamDialog); process
 listing and closing in spacr/resource_log.py. Setting ram_guard (default True).
 Left: catalog translations for the new captions at the next catalog rebuild.
 
+EXTENDED 2026-10-03 (maintainer: "the ram aware work should apply to all
+modules not only measure"): the estimate, clamp and popup are shared from
+spacr/resource_log.py (_ram_plan, _guard_workers, _app_ram_plan,
+_ram_guard_scope; per-module multipliers in _RAM_WORKER_MULTIPLIERS; no new
+module). measure.py now reuses them. Guarded pool sites, each sized from its
+own input unit:
+  mask/timelapse: utils.adjust_cell_masks (one mask file x14, measured 13.1),
+    utils.merge_split_objects (x14), object._segment_classical_parallel
+    (one image x10, measured 9.6), timelapse._btrack_track_cells (x6);
+  motility: timelapse.automated_motility_assay (one group's fields x6);
+  classify/activation: io.generate_loaders, io.generate_cv_loaders,
+    deep_spacr.apply_model, apply_model_to_tar, the CV fold loaders and
+    generate_activation_map (batch x image_size^2 x channels x float32 x 2
+    prefetched batches, x4); crop tar export io.generate_dataset (x3);
+    utils.augment_images (x10); io.prepare_cellpose_dataset (x10);
+  map_barcodes: sequencing paired/single chunk pools (chunk_size x 2 KiB x4);
+  regression search: hyperparam.run_search_for_app (feature table x2);
+  parameter sweep: parameter_sweep.run_sweep_parallel (ASSUMED_TRIAL_GIB);
+  ml_analyze: ml.ml_analysis (table x1, sklearn threads);
+  umap/embedding: utils.reduction_and_clustering and
+    search_reduction_and_clustering (table x1; UMAP threads share the data,
+    one-thread peak measured 12.6x the table);
+  ops: ops_engine._decode (one task's planes x6);
+  simulation: sim.run_multiple_simulations (per-cell table estimate).
+Measured multipliers came from a CPU tracemalloc peak on one synthetic
+1024x1024 unit; the rest are estimates. Measure keeps its runtime one-field
+calibration and throttle.
+GUI: every module with n_jobs asks with the same popup before Run
+(AppScreen._confirm_ram_guard, now per app_key); the keep button names the
+throttle only for Measure. Headless: clamp with a printed warning. ram_guard
+stays one global setting, now a default of every module with n_jobs and
+categorised next to n_jobs; the bridge carries it to helpers that see no
+settings (_ram_guard_scope).
+Not guarded (no worker pool sized by n_jobs): plaque analysis (sequential),
+annotate thumbnail threads, mask multi-GPU workers (one per GPU), small
+fixed thread pools (io pin_memory loader, intensity_rescale, ops_engine 4).
+Tests: tests/test_ram_guard_modules.py, tests/qt/test_ram_guard_dialog.py.
+Pre-existing unrelated failure on origin/nightly:
+qt/test_the_mask_folds_are_settings_categories::test_a_folded_setting_answers_into_the_host_hint_strip.
+
 User request: "I have a measure session on my work machine that keeps crashing
 because, it says, that I put in too many workers and ram filled up. There
 should be a guard against this . So the workers throttle the ram and don't

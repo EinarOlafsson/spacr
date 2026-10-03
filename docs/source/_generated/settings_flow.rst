@@ -1257,6 +1257,9 @@ batch_size
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
+| ``_confirm_ram_guard``
+|     ``_app_ram_plan``
+|         ``_app_unit_bytes`` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.check_cellpose_models` **-- reads it**
 | :py:func:`~spacr.spacr_cellpose.identify_masks_finetune` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_plaques`
@@ -1268,7 +1271,7 @@ batch_size
 | :py:func:`~spacr.submodules.train_cellpose` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_cross_validate_model``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_cellpose_z_segment_fn``, ``_segment``, ``_segment_cellpose``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``apply_cellpose_model``, ``test_cellpose_model``, ``train_cellpose``.
+Read by ``_cross_validate_model``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``_concatenate_and_normalize_impl``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_cellpose_z_segment_fn``, ``_segment``, ``_segment_cellpose``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``_app_unit_bytes``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_generate_activation_map_settings``, ``get_default_test_cellpose_model_settings``, ``get_train_test_model_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``apply_cellpose_model``, ``test_cellpose_model``, ``train_cellpose``.
 
 .. _setting-flow-bimodality_cutoff:
 
@@ -2885,9 +2888,12 @@ chunk_size
 
 (int) - Number of FASTQ reads read into memory and handed to each worker batch. Larger chunks cut per-batch overhead and make the progress bar coarser but raise peak RAM per job; smaller chunks stream more gently on low-memory machines. Also sets how many reads are processed when test is True. Default 100000.
 
+| ``_confirm_ram_guard``
+|     ``_app_ram_plan``
+|         ``_app_unit_bytes`` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping` **-- reads it**
 
-Read by ``generate_barecode_mapping``.
+Read by ``_app_unit_bytes``, ``generate_barecode_mapping``.
 
 .. _setting-flow-circularize:
 
@@ -9293,6 +9299,7 @@ image_size
 | :py:func:`~spacr.crop_source.crops_from_merged` **-- reads it**
 | :py:func:`~spacr.crop_source.validate` **-- reads it**
 | ``_fit_one`` **-- reads it**
+| ``_inner_loader`` **-- reads it**
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar` **-- reads it**
 |     :py:func:`~spacr.deep_spacr.train_test_model` **-- reads it**
@@ -9316,7 +9323,7 @@ image_size
 |     ``_describe_classifier_training`` **-- reads it**
 | :py:func:`~spacr.torch_artifacts.build_model_from_configuration` **-- reads it**
 
-Read by ``crops_from_merged``, ``validate``, ``_cross_validate_model``, ``_fit_one``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``load_activation_data``, ``_describe_classifier_training``, ``get_default_generate_activation_map_settings``, ``get_train_test_model_settings``, ``build_model_from_configuration``.
+Read by ``crops_from_merged``, ``validate``, ``_cross_validate_model``, ``_fit_one``, ``_inner_loader``, ``apply_model_to_tar``, ``generate_activation_map``, ``train_test_model``, ``load_activation_data``, ``_describe_classifier_training``, ``get_default_generate_activation_map_settings``, ``get_train_test_model_settings``, ``build_model_from_configuration``.
 
 .. _setting-flow-image_source:
 
@@ -18686,20 +18693,71 @@ Read by ``_intensity_measurements``, ``get_measure_crop_settings``.
 ram_guard
 ---------
 
-(bool) - Keep Measure from filling RAM. Before the pool starts, spaCR estimates each worker's memory from one field and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and fields still wait while free RAM is below that reserve. Default True.
+(bool) - Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.
 
+| :py:func:`~spacr.deep_spacr.deep_spacr`
+|     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
+|         ``_guard_workers``
+|             ``_ram_guard_enabled`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|     :py:func:`~spacr.deep_spacr.train_test_model`
+|         ``_cross_validate_model``
+|             ``_guard_workers``
+|                 ``_ram_guard_enabled`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.settings.get_train_test_model_settings` **-- reads it**
+|     :py:func:`~spacr.io.generate_dataset`
+|         ``_guard_workers``
+|             ``_ram_guard_enabled`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.deep_spacr.generate_activation_map`
+|     ``_guard_workers``
+|         ``_ram_guard_enabled`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     :py:func:`~spacr.settings.get_default_generate_activation_map_settings` **-- reads it**
+| ``_default_train``
+|     :py:func:`~spacr.deep_spacr.train_test_model`
+|         ``_cross_validate_model``
+|             ``_guard_workers``
+|                 ``_ram_guard_enabled`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|         :py:func:`~spacr.settings.get_train_test_model_settings` **-- reads it**
+| :py:func:`~spacr.hyperparam.run_search_for_app`
+|     :py:func:`~spacr.hyperparam.classify_cv_fit_fn`
+|         :py:func:`~spacr.deep_spacr.train_test_model`
+|             ``_cross_validate_model``
+|                 ``_guard_workers``
+|                     ``_ram_guard_enabled`` **-- reads it**
+|                         ``isinstance(...)  [UNRESOLVED]``
+|             :py:func:`~spacr.settings.get_train_test_model_settings` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|         ``trainer(...)  [UNRESOLVED]``
+|     ``_guard_workers``
+|         ``_ram_guard_enabled`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     ``_calibrated_wave`` **-- reads it**
 |     ``_clamp_workers_to_ram`` **-- reads it**
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_decode``
+|         ``_guard_workers``
+|             ``_ram_guard_enabled`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
 | ``_confirm_ram_guard`` **-- reads it**
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``__init__`` **-- reads it**
+|     ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.sim.run_multiple_simulations`
+|     ``_guard_workers``
+|         ``_ram_guard_enabled`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_calibrated_wave``, ``_clamp_workers_to_ram``, ``_confirm_ram_guard``, ``get_measure_crop_settings``.
+Read by ``_calibrated_wave``, ``_clamp_workers_to_ram``, ``_confirm_ram_guard``, ``__init__``, ``_ram_guard_enabled``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``.
 
 .. _setting-flow-random_row_column_effects:
 
@@ -20983,6 +21041,8 @@ src
 | :py:func:`~spacr.qt.plate_queue.import_plates_from_csv` **-- reads it**
 | ``_confirm_measure_plane_layout`` **-- reads it**
 | ``_confirm_ram_guard`` **-- reads it**
+|     ``_app_ram_plan``
+|         ``_app_unit_bytes`` **-- reads it**
 | ``_load_regression_results`` **-- reads it**
 | ``_lock_analysis_now`` **-- reads it**
 | ``_measurements_destination`` **-- reads it**
@@ -21092,7 +21152,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_measure_crop_core``, ``_measured_fields``, ``_prepare_measurement_calibration``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``apply``, ``build``, ``import_plates_from_csv``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``destination``, ``_settings_point_at``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``run_and_save``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_measure_crop_core``, ``_measured_fields``, ``_prepare_measurement_calibration``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``apply``, ``build``, ``import_plates_from_csv``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``run_and_save``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-ssmd_estimator:
 

@@ -856,6 +856,9 @@ def paired_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     save_process.start()
     _label_resource_process(save_process, "sequencing_saver", "paired")
 
+    from .resource_log import _guard_workers
+    n_jobs = _guard_workers('map_barcodes', n_jobs or cpu_count(),
+                            int(chunk_size) * 2 * 1024)
     pool = Pool(n_jobs)
     _label_chunk_pool(pool)
 
@@ -973,6 +976,9 @@ def single_read_chunked_processing(r1_file, r2_file, regex, target_sequence, off
     save_process.start()
     _label_resource_process(save_process, "sequencing_saver", "single")
 
+    from .resource_log import _guard_workers
+    n_jobs = _guard_workers('map_barcodes', n_jobs or cpu_count(),
+                            int(chunk_size) * 2 * 1024)
     pool = Pool(n_jobs)
     _label_chunk_pool(pool)
 

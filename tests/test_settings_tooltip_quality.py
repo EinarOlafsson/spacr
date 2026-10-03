@@ -977,7 +977,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Measure RAM guard, resolved by Measure and by External Masks.
     item_631 = {(app, "ram_guard") for app in ("measure", "external_masks")}
     assert item_631 <= compared_pairs
-    assert comparisons == 910
+    # 910 -> 914 on 2026-10-03, +4/-0 (item 631, all modules): ram_guard
+    # (True) is now a default of every module that starts workers, and is
+    # compared in Mask, Image UMAP, Map Barcodes and Classify as well.
+    item_631_all = {(app, "ram_guard") for app in
+                    ("mask", "umap", "map_barcodes", "classify_merged")}
+    assert item_631_all <= compared_pairs
+    assert comparisons == 914
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1022,6 +1028,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_576) + len(item_557) + len(item_542_detector)
             + len(item_536_threshold) + len(item_537_lineage)
             + len(item_583_channel_map) + len(item_631)
+            + len(item_631_all)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

@@ -1144,7 +1144,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "figuresize", "umap_canvas_width", "umap_sidebar_width",
             "black_background", "save_figure",
         )),
-        ("Runtime", ("n_jobs", "verbose")),
+        ("Runtime", ("n_jobs", "ram_guard", "verbose")),
     ),
     "ml_analyze": (
         ("Labels & Classes", (
@@ -1173,7 +1173,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Plots & Heatmaps", (
             "cmap", "heatmap_feature", "grouping", "min_max",
         )),
-        ("Runtime & Reliability", ("verbose", "n_jobs")),
+        ("Runtime & Reliability", ("verbose", "n_jobs", "ram_guard")),
     ),
     "mask": (
         ("Input & Metadata", (
@@ -1234,7 +1234,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "keep_original_images", "save_original_images", "keep_npz",
             "filter", "merge_pathogens",
             "strict_errors", "max_failure_rate", "on_error",
-            "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs",
+            "on_error_attempts", "on_error_backoff", "random_seed", "verbose", "n_jobs", "ram_guard",
             "batch_size", "pipeline_style", "diameter_estimate_n_fields",
             "mask_parallel", "mask_gpu_indices",
         )),
@@ -1404,7 +1404,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "preprocess", "masks", "test_mode", "test_images", "resume",
             "strict_errors", "max_failure_rate", "on_error",
             "on_error_attempts", "on_error_backoff", "random_seed", "dry_run", "verbose",
-            "n_jobs", "batch_size", "pipeline_style",
+            "n_jobs", "ram_guard", "batch_size", "pipeline_style",
             "diameter_estimate_n_fields",
         )),
     ),
@@ -1456,7 +1456,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "motility_ylim", "motility_xlim",
             "infection_intensity_qc_graphs",
         )),
-        ("Runtime & Reliability", ("n_jobs",)),
+        ("Runtime & Reliability", ("n_jobs", "ram_guard")),
     ),
     "regression": (
         ("Input Tables", ("paired_data", "metadata_files",
@@ -1531,7 +1531,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "counterfactual_condition",
         )),
         ("Output & Runtime", (
-            "save", "shuffle", "batch_size", "n_jobs",
+            "save", "shuffle", "batch_size", "n_jobs", "ram_guard",
         )),
     ),
     "recruitment": (
@@ -1635,7 +1635,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Output & Storage", (
             "save_h5", "comp_type", "comp_level", "fill_na",
         )),
-        ("Runtime & Reliability", ("chunk_size", "n_jobs", "test")),
+        ("Runtime & Reliability", ("chunk_size", "n_jobs", "ram_guard", "test")),
     ),
     "barcode_qc": (
         ("Reference & Count Tables", (
@@ -2383,7 +2383,7 @@ def categories_for_app(
                 "intermedeate_save"],
 
             "Runtime & Reliability": [
-                "random_seed", "n_jobs", "pin_memory", "verbose",
+                "random_seed", "n_jobs", "ram_guard", "pin_memory", "verbose",
                 "strict_errors", "max_failure_rate"],
         }
         if app_key == "classify_merged":
