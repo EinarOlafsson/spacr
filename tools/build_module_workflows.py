@@ -422,11 +422,16 @@ def outputs(data):
         if route.get("note"):
             sections.append(route["note"] + "\n\n")
     sections.append(_heading("Module inputs, outputs and next steps", "-"))
-    sections.extend(module_rst(data, key) for key in data["modules"])
+    # Alpha species stay in the map (and in tutorial navigation while their
+    # lessons are published) but never appear in the user guides.
+    from spacr.settings import _alpha_species_names
+    hidden = _alpha_species_names("apps")
+    documented = [key for key in data["modules"] if key not in hidden]
+    sections.extend(module_rst(data, key) for key in documented)
     result = {Path("docs/source/workflows.rst"): "".join(sections)}
     by_api = {}
-    for key, module in data["modules"].items():
-        by_api.setdefault(module["api_module"], []).append(key)
+    for key in documented:
+        by_api.setdefault(data["modules"][key]["api_module"], []).append(key)
     for api, keys in by_api.items():
         text = _heading("Workflow inputs and outputs", "-")
         tutorial_root = "../" * (len(api.split(".")) + 1) + "tutorials/"
