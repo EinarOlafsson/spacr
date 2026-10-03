@@ -1214,6 +1214,203 @@ class _TextReportDialog(QDialog):
         self._view.setPlainText(body)
 
 
+class _FieldQCDialog(QDialog):
+    """Label whole fields for the learned image-quality classifier.
+
+    Steps through the raw ``.npy`` fields of a folder one at a time, shows a
+    percentile-stretched maximum projection, and records good or any of the
+    defect classes. Ticks are pre-filled from the classifier probabilities in
+    ``<folder>/../qc/image_quality.json`` (or ``<folder>/qc``) when a screened
+    report is there. Save writes a field and label table, read back by the
+    ``image_qc_classifier_labels`` setting to fine-tune and benchmark the
+    classifier.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Build an empty view; :meth:`load_folder` fills it.
+
+        :param parent: owning widget.
+        """
+        from ...image_quality import _QC_CLASSES
+
+        super().__init__(parent)
+        self.setObjectName("AnnotateFieldQCDialog")
+        self.setWindowFlag(Qt.Window, True)
+        self.setWindowTitle(tr("Field quality labels"))
+        self.resize(560, 620)
+        self._classes = tuple(_QC_CLASSES)
+        self._fields: List[str] = []
+        self._labels: Dict[str, set] = {}
+        self._suggested: Dict[str, Dict[str, float]] = {}
+        self._index = 0
+        self._folder = ""
+        layout = QVBoxLayout(self)
+        self._image = QLabel(self)
+        self._image.setAlignment(Qt.AlignCenter)
+        self._image.setMinimumSize(320, 320)
+        layout.addWidget(self._image, 1)
+        self._caption = QLabel(self)
+        self._caption.setProperty("i18nSkipText", True)
+        layout.addWidget(self._caption)
+        names = {'out_of_focus': tr("Out of focus"), 'saturated': tr("Saturated"),
+                 'debris': tr("Debris"), 'bubble': tr("Bubble"), 'empty': tr("Empty")}
+        self._good = QCheckBox(tr("Good"), self)
+        self._good.toggled.connect(self._on_good)
+        layout.addWidget(self._good)
+        self._boxes: Dict[str, QCheckBox] = {}
+        for name in self._classes:
+            box = QCheckBox(names.get(name, name), self)
+            box.toggled.connect(self._on_defect)
+            self._boxes[name] = box
+            layout.addWidget(box)
+        row = QHBoxLayout()
+        self._back = QPushButton(tr("Back"), self)
+        self._back.clicked.connect(lambda: self.show_field(self._index - 1))
+        self._next = QPushButton(tr("Next"), self)
+        self._next.clicked.connect(lambda: self.show_field(self._index + 1))
+        self._save = QPushButton(tr("Save labels"), self)
+        self._save.clicked.connect(self.save)
+        for button in (self._back, self._next, self._save):
+            row.addWidget(button)
+        layout.addLayout(row)
+        self._status = QLabel(self)
+        self._status.setProperty("i18nSkipText", True)
+        layout.addWidget(self._status)
+        self._syncing = False
+
+    def labels_path(self) -> str:
+        """Where :meth:`save` writes the table: ``<folder>/qc/image_qc_labels.csv``."""
+        return os.path.join(self._folder, "qc", "image_qc_labels.csv")
+
+    def load_folder(self, folder: str) -> int:
+        """List the folder's ``.npy`` fields and read saved labels and suggestions.
+
+        :param folder: a folder of raw fields, such as a plate's ``stack``.
+        :returns: how many fields were found.
+        """
+        import json
+        from pathlib import Path
+
+        from ...image_quality import REPORT, _parse_qc_labels
+        from ...tabular import read_table
+
+        self._folder = str(folder)
+        self._fields = sorted(p.name for p in Path(folder).glob("*.npy"))
+        self._labels, self._suggested = {}, {}
+        for root in (Path(folder).parent, Path(folder)):
+            report = root / REPORT
+            if not report.is_file():
+                continue
+            try:
+                fields = json.loads(report.read_text(encoding="utf-8"))["fields"]
+            except (OSError, ValueError, KeyError):
+                continue
+            for entry in fields:
+                for record in entry.get("channels", [])[:1]:
+                    scores = {n: float(record[f"p_{n}"]) for n in self._classes
+                              if f"p_{n}" in record}
+                    if scores:
+                        self._suggested[entry["field"]] = scores
+            break
+        if os.path.isfile(self.labels_path()):
+            table = read_table(self.labels_path(), report=None)
+            table.columns = [str(c).strip().lower() for c in table.columns]
+            table = table.rename(columns={"fieldid": "field"})
+            for row in table.to_dict("records"):
+                self._labels[str(row["field"])] = _parse_qc_labels(row["label"])
+        self.show_field(0)
+        return len(self._fields)
+
+    def show_field(self, index: int) -> None:
+        """Show field ``index`` with its saved or suggested labels ticked.
+
+        :param index: position in the folder's sorted field list; clamped.
+        """
+        if not self._fields:
+            self._caption.setText(tr("No .npy fields in this folder."))
+            return
+        self._index = max(0, min(int(index), len(self._fields) - 1))
+        name = self._fields[self._index]
+        self._image.setPixmap(QPixmap.fromImage(self._field_image(name)).scaled(
+            self._image.minimumSize(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        scores = self._suggested.get(name, {})
+        chosen = self._labels.get(name)
+        if chosen is None:
+            from ...image_quality import DEFAULTS
+            threshold = DEFAULTS["image_qc_classifier_threshold"]
+            chosen = {n for n, p in scores.items() if p >= threshold}
+        self._syncing = True
+        for n, box in self._boxes.items():
+            box.setChecked(n in chosen)
+        self._good.setChecked(not chosen)
+        self._syncing = False
+        hint = ", ".join(f"{n} {p:.2f}" for n, p in scores.items())
+        self._caption.setText(f"{self._index + 1}/{len(self._fields)}  {name}"
+                              + (f"  ({hint})" if hint else ""))
+
+    def _field_image(self, name: str) -> QImage:
+        """A percentile-stretched 8-bit maximum projection of one field."""
+        import numpy as np
+
+        array = np.load(os.path.join(self._folder, name), mmap_mode="r",
+                        allow_pickle=False)
+        plane = np.asarray(array, dtype=np.float32)
+        while plane.ndim > 2:
+            plane = plane.max(axis=-1)
+        low, high = np.percentile(plane, (1, 99.5))
+        plane = np.clip((plane - low) / max(float(high - low), 1e-6), 0, 1)
+        data = np.ascontiguousarray((plane * 255).astype(np.uint8))
+        image = QImage(data.data, data.shape[1], data.shape[0], data.strides[0],
+                       QImage.Format_Grayscale8)
+        return image.copy()
+
+    def current_labels(self) -> set:
+        """The defect classes ticked for the shown field; empty means good."""
+        return {n for n, box in self._boxes.items() if box.isChecked()}
+
+    def _remember(self) -> None:
+        """Store the ticks of the shown field."""
+        if self._fields and not self._syncing:
+            self._labels[self._fields[self._index]] = self.current_labels()
+
+    def _on_good(self, checked: bool) -> None:
+        """Good clears every defect tick."""
+        if checked and not self._syncing:
+            self._syncing = True
+            for box in self._boxes.values():
+                box.setChecked(False)
+            self._syncing = False
+        self._remember()
+
+    def _on_defect(self, checked: bool) -> None:
+        """A defect tick clears Good; no tick at all means good again."""
+        if not self._syncing:
+            self._syncing = True
+            self._good.setChecked(not self.current_labels())
+            self._syncing = False
+        self._remember()
+
+    def save(self) -> str:
+        """Write every labelled field as a field and label table.
+
+        :returns: the written path, or ``""`` with nothing labelled.
+        """
+        import pandas as pd
+
+        from ...tabular import write_table
+
+        rows = [dict(field=name, label=";".join(sorted(chosen)) or "good")
+                for name, chosen in sorted(self._labels.items())]
+        if not rows:
+            self._status.setText(tr("Nothing labelled yet."))
+            return ""
+        os.makedirs(os.path.dirname(self.labels_path()), exist_ok=True)
+        write_table(pd.DataFrame(rows), self.labels_path())
+        self._status.setText(tr("Saved {n} field labels to {path}").format(
+            n=len(rows), path=self.labels_path()))
+        return self.labels_path()
+
+
 class _Thumbnail(QLabel):
     """One crop in the grid: a rounded square wearing up to two rings.
 
@@ -3380,6 +3577,7 @@ class AnnotateScreen(QWidget):
         row.addWidget(self._build_blind_toggle())
         row.addWidget(self._build_similar_button())
         row.addWidget(self._build_similar_options())
+        row.addWidget(self._build_field_qc_button())
 
         self._btn_prev = QPushButton("Back")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -4509,6 +4707,41 @@ class AnnotateScreen(QWidget):
         _apply_alpha_widgets(button)
         self._btn_blind = button
         return button
+
+    def _build_field_qc_button(self) -> QPushButton:
+        """The Field QC button: label whole raw fields for the image-quality classifier.
+
+        Opens :class:`_FieldQCDialog` on a chosen folder of ``.npy`` fields.
+        An alpha feature, registered as ``AnnotateFieldQCButton`` in
+        :data:`spacr.settings.ALPHA_FEATURES`.
+
+        :returns: the button.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        button = QPushButton(tr("Field QC…"), self)
+        button.setObjectName("AnnotateFieldQCButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.setToolTip(tr(
+            "Label whole raw fields as good, out of focus, saturated, debris, "
+            "bubble or empty, one at a time, with the classifier's guesses "
+            "ticked when a screened report exists. Saves qc/image_qc_labels.csv "
+            "for the image_qc_classifier_labels setting. Default not open."))
+        button.clicked.connect(self._on_field_qc)
+        _apply_alpha_widgets(button)
+        self._btn_field_qc = button
+        return button
+
+    def _on_field_qc(self) -> None:
+        """Ask for a folder of raw fields and open the field-quality view on it."""
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Choose a folder of raw .npy fields"))
+        if not folder:
+            return
+        dialog = _FieldQCDialog(self)
+        dialog.load_folder(folder)
+        dialog.show()
+        self._field_qc_dialog = dialog
 
     def _build_similar_button(self) -> QPushButton:
         """The Like this button: show the crops most like the current one.

@@ -535,6 +535,59 @@ def _read_image_quality(src):
     return card
 
 
+def _read_image_qc_classifier(src):
+    """Summarise the learned image-quality classifier from the saved screening report.
+
+    Counts, per defect class, the field channels at or above the saved
+    threshold with their mean probability, and adds the precision and recall
+    rows of ``qc/image_qc_benchmark.csv`` when a labelled set was benchmarked.
+
+    :param src: project folder, plate folder, or a list of either.
+    :returns: a :class:`QCCard` keyed ``image_qc_classifier``, or ``None``
+        when no report carries classifier probabilities.
+    """
+    from pathlib import Path
+    from ...image_quality import REPORT, _QC_CLASSES
+    from ...tabular import read_table
+    from ..i18n import tr
+
+    path = Path(_project_root(src)) / REPORT
+    if not path.exists():
+        return None
+    try:
+        report = json.loads(path.read_text(encoding='utf-8'))
+        records = [record for field in report['fields'] for record in field['channels']
+                   if any(f'p_{name}' in record for name in _QC_CLASSES)]
+        threshold = float(report['policy']['image_qc_classifier_threshold'])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    if not records:
+        return None
+    card = QCCard(key='image_qc_classifier', title=tr('Image QC classifier'),
+                  source=str(path), mtime=path.stat().st_mtime)
+    counts = {}
+    for name in _QC_CLASSES:
+        scores = [float(record.get(f'p_{name}', 0.0)) for record in records]
+        counts[name] = sum(score >= threshold for score in scores)
+        card.detail.append(tr('{name}: {n} of {total} channels at or above {threshold}; mean p {mean}').format(
+            name=name, n=counts[name], total=len(scores), threshold=threshold,
+            mean=f'{sum(scores) / len(scores):.2f}'))
+    flagged = sum(counts.values())
+    card.verdict = 'warn' if flagged else 'ok'
+    card.headline = tr('{total} channels scored; {flagged} class flags at threshold {threshold}.').format(
+        total=len(records), flagged=flagged, threshold=threshold)
+    benchmark = path.parent / 'image_qc_benchmark.csv'
+    if benchmark.exists():
+        try:
+            table = read_table(str(benchmark), report=None)
+            for row in table.to_dict('records'):
+                card.detail.append(tr('Benchmark {row}').format(
+                    row=', '.join(f'{key} {value}' for key, value in row.items())))
+        except (OSError, ValueError) as exc:
+            card.detail.append(tr('Could not read the benchmark: {error}').format(error=exc))
+    return card
+
+
 def read_dashboard(src: Any, *, segmentation_reader=None) -> Dashboard:
     """Read every verdict already on disk for one project. Computes none.
 
@@ -548,6 +601,9 @@ def read_dashboard(src: Any, *, segmentation_reader=None) -> Dashboard:
     image_quality = _read_image_quality(src)
     if image_quality is not None:
         cards.append(image_quality)
+    classifier = _read_image_qc_classifier(src)
+    if classifier is not None:
+        cards.append(classifier)
     for key, reader in _READERS:
         if key == "segmentation":
             cards.append(_read_segmentation(src, reader=segmentation_reader))

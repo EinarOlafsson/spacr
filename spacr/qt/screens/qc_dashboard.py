@@ -523,7 +523,12 @@ class QCDashboardScreen(QWidget):
                 actions=[chip])
             section.setSizePolicy(QSizePolicy.Policy.Preferred,
                                   QSizePolicy.Policy.Maximum)
+            if card.key == 'image_qc_classifier':
+                from ..preferences import _apply_alpha_widgets
+                section.setObjectName("QCClassifierCard")
             self._cards_layout.addWidget(section)
+            if card.key == 'image_qc_classifier':
+                _apply_alpha_widgets(section)
 
     def visible_text(self) -> str:
         """Every card line currently on screen, joined. For tests."""

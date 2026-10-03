@@ -7515,6 +7515,8 @@ ALPHA_FEATURES = {
         'settings': ('image_qc_classifier', 'image_qc_classifier_model',
                      'image_qc_classifier_labels',
                      'image_qc_classifier_threshold'),
+        'widgets': ('AnnotateFieldQCButton', 'AnnotateFieldQCDialog',
+                    'QCClassifierCard'),
     },
     582: {
         'widgets': ('PluginCatalogueHelp', 'PluginCatalogueSource',

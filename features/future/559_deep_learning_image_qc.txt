@@ -109,3 +109,17 @@ precision/recall acceptance remain open; this note does not close item 559.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: public QC pretraining and shipped weights (network, maintainer package-data decision); real labelled bubble fields (data). OPEN code over 1 h: Annotate field-QC labelling view, classifier QC card.
+
+2026-10-03 — ANNOTATE FIELD-QC VIEW AND CLASSIFIER QC CARD (ALPHA)
+    ALPHA: 2026-10-03. ALPHA_FEATURES[559] widgets AnnotateFieldQCButton,
+    AnnotateFieldQCDialog, QCClassifierCard (Show alpha features off: hidden).
+    - Annotate "Field QC…" opens _FieldQCDialog (spacr/qt/screens/annotate.py)
+      on a folder of raw .npy fields: max-projection view, Good + five class
+      ticks, Back/Next, ticks pre-filled from p_<class> in qc/image_quality.json
+      at the default threshold, Save writes <folder>/qc/image_qc_labels.csv
+      (field, label) via spacr.tabular, readable by image_qc_classifier_labels.
+    - QC dashboard card "Image QC classifier" (qc_summary._read_image_qc_classifier):
+      per-class flag counts and mean p, plus image_qc_benchmark.csv rows.
+    CPU only; tests/qt/test_image_qc_field_view_and_card.py uses a stub model.
+    WHAT IS LEFT: only the blocked points (public QC pretraining / shipped
+    weights; real labelled bubble fields; real-data acceptance).

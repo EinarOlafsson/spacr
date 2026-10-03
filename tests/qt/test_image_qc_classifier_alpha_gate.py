@@ -36,7 +36,10 @@ def test_the_settings_are_registered_under_their_item():
     from spacr.image_quality import DEFAULTS
     from spacr.settings import ALPHA_FEATURES, _is_alpha
 
-    assert ALPHA_FEATURES[559] == {"settings": KEYS}
+    assert ALPHA_FEATURES[559] == {
+        "settings": KEYS,
+        "widgets": ("AnnotateFieldQCButton", "AnnotateFieldQCDialog",
+                    "QCClassifierCard")}
     assert set(KEYS) <= set(DEFAULTS)
     assert all(_is_alpha("settings", key) for key in KEYS)
 

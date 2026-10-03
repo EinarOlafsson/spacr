@@ -1273,6 +1273,18 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Virtual-staining models (*.pt)",
     "Applying the virtual stain…",
     "Virtual stain written for {n} fields.",
+    "Field quality labels", "Out of focus", "Saturated", "Debris", "Bubble",
+    "Empty", "Good", "Save labels", "No .npy fields in this folder.",
+    "Nothing labelled yet.", "Saved {n} field labels to {path}",
+    "Field QC…", "Choose a folder of raw .npy fields",
+    "Label whole raw fields as good, out of focus, saturated, debris, "
+    "bubble or empty, one at a time, with the classifier's guesses "
+    "ticked when a screened report exists. Saves qc/image_qc_labels.csv "
+    "for the image_qc_classifier_labels setting. Default not open.",
+    "Image QC classifier",
+    "{name}: {n} of {total} channels at or above {threshold}; mean p {mean}",
+    "{total} channels scored; {flagged} class flags at threshold {threshold}.",
+    "Benchmark {row}", "Could not read the benchmark: {error}",
 })
 
 
