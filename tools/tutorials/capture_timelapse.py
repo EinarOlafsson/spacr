@@ -131,14 +131,38 @@ def record_timelapse(app, window, stage, captures, capture, settle, write_json, 
     screen = window._screens['mask']
     capture('01_mask_host')
     folds = [w for w in screen.findChildren(FoldButton) if w.isVisible() and w.app_key == 'timelapse']
-    if len(folds) != 1:
-        raise ValueError('No unique Mask -> Timelapse fold')
-    if not folds[0].isChecked():
-        click(folds[0])
-    settle(1)
-    if screen._settings_model.collect().get('timelapse') is not True:
-        raise ValueError('The Timelapse fold did not enable tracking')
-    proof['fold_rect'] = capture_rect(folds[0], window)
+    if folds:
+        if len(folds) != 1:
+            raise ValueError('No unique Mask -> Timelapse fold')
+        if not folds[0].isChecked():
+            click(folds[0])
+        settle(1)
+        if screen._settings_model.collect().get('timelapse') is not True:
+            raise ValueError('The Timelapse fold did not enable tracking')
+        proof['fold_rect'] = capture_rect(folds[0], window)
+    else:
+        # The current Mask screen shows its timelapse settings through the
+        # Time switch in the Actions row; Timelapse itself is a setting there.
+        switch = screen.dimension_switch('t')
+        if switch is None or not switch.isVisible():
+            raise ValueError('No Time switch on Mask')
+        if not switch.isChecked():
+            click(switch)
+        settle(1)
+        if not screen.dimension_is_on('t'):
+            raise ValueError('The Time switch did not show the timelapse settings')
+        field = screen._settings_model._widgets.get('timelapse')
+        if field is None:
+            raise ValueError('Mask has no Timelapse setting')
+        screen._settings_scroll.ensureWidgetVisible(field, 50, 200)
+        settle(.5)
+        if not screen._settings_model.collect().get('timelapse'):
+            click(field)
+            settle(.5)
+        if screen._settings_model.collect().get('timelapse') is not True:
+            raise ValueError('Clicking Timelapse did not enable tracking')
+        proof['fold_rect'] = capture_rect(switch, window)
+        proof['timelapse_setting_rect'] = capture_rect(field, window)
     capture('02_timelapse_fold')
 
     # A bounded full run on a synthetic sequence, set up through Import settings.

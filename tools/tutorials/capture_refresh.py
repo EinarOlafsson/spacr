@@ -96,7 +96,7 @@ def main() -> int:
     parser.add_argument('--pca-host-only', action='store_true',
                         help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
     parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
-    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data'), default='home',
+    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels'), default='home',
                         help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--timeout', type=float, default=600)
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
@@ -433,6 +433,8 @@ def main() -> int:
             capture_openings.record_openings(app, window, captures, capture, settle, write_json)
         elif args.openings_set == 'illumination_apply':
             capture_openings.record_illumination_apply(app, window, stage, captures, capture, settle, write_json)
+        elif args.openings_set == 'mask_source_channels':
+            capture_openings.record_mask_source_channels(app, window, stage, captures, capture, settle, write_json)
         else:
             capture_openings.record_align_test_data(app, window, stage, captures, capture, settle, write_json, args.timeout)
     else:

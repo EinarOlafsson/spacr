@@ -13,6 +13,7 @@ narration names.
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
 HELP_ITEMS = (
     ('01_help_report', 'Report'),
@@ -213,3 +214,37 @@ def record_align_test_data(app, window, stage, captures, capture, settle, write_
         'status': screen._status.text(), 'source': screen._src_edit.text(),
         'button': [top_left.x(), top_left.y(), button.width(), button.height()],
         'status_rect': [status.x(), status.y(), screen._status.width(), screen._status.height()]})
+
+
+def record_mask_source_channels(app, window, stage, captures, capture, settle, write_json):
+    """Mask generation with Source and the three channels typed in (22_model_zoo s10)."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QLineEdit
+
+    source = Path(stage) / 'mask_src'
+    if not any(source.glob('*.tif')):
+        raise RuntimeError('No example fields in stage/mask_src')
+    mask = _open(window, settle, 'mask')
+
+    def type_into(key, value):
+        widget = mask._settings_model._widgets[key]
+        line = widget if isinstance(widget, QLineEdit) else widget.findChild(QLineEdit)
+        mask._settings_scroll.ensureWidgetVisible(line)
+        QTest.mouseClick(line, Qt.LeftButton)
+        QTest.keyClick(line, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClicks(line, value)
+        QTest.keyClick(line, Qt.Key_Tab)
+        settle(0.4)
+
+    type_into('src', str(source))
+    settle(0.6)
+    # The example's channels: nucleus 0, cell 1, pathogen 2 (its settings file).
+    for key, value in (('nucleus_channel', '0'), ('cell_channel', '1'), ('pathogen_channel', '2')):
+        type_into(key, value)
+    mask._settings_scroll.verticalScrollBar().setValue(0)
+    settle(0.6)
+    capture('09b_mask_source_and_channels')
+    write_json(captures / 'mask_source_channels.json',
+               {key: mask._settings_model.collect().get(key)
+                for key in ('src', 'nucleus_channel', 'cell_channel', 'pathogen_channel')})
