@@ -61,6 +61,16 @@ jobs:
   windows-upgrade:
     runs-on: windows-latest
     timeout-minutes: 90
+    env:
+      SPACR_DEVICE: cpu
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      SPACR_NO_SETUP: '1'
+      SPACR_DISTRIBUTION_SMOKE: '1'
+      SPACR_DISTRIBUTION_KIND: frozen
+      PYTHONNOUSERSITE: '1'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -94,6 +104,16 @@ jobs:
   macos-replace:
     runs-on: macos-latest
     timeout-minutes: 90
+    env:
+      SPACR_DEVICE: cpu
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '2'
+      SPACR_NO_SETUP: '1'
+      SPACR_DISTRIBUTION_SMOKE: '1'
+      SPACR_DISTRIBUTION_KIND: frozen
+      PYTHONNOUSERSITE: '1'
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8

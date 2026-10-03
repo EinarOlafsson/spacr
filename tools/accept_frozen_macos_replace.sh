@@ -36,6 +36,8 @@ smoke() {  # label commit -> exit status recorded, smoke.json checked
   mkdir -p "$receipt/profile" "$receipt/cwd"
   set +e
   (cd "$receipt/cwd" && env -i HOME="$receipt/profile" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
+     SPACR_DEVICE=cpu SPACR_NO_SETUP=1 SPACR_DISTRIBUTION_SMOKE=1 SPACR_DISTRIBUTION_KIND=frozen \
+     OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2 \
      SPACR_ACCEPTANCE_SOURCE_COMMIT="$commit" SPACR_BENCHMARK_JSON="$receipt/smoke.json" \
      "$target/Contents/MacOS/spacr" --no-setup > "$receipt/application.log" 2>&1) &
   local pid=$!
