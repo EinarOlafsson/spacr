@@ -377,6 +377,17 @@ def test_source_player_receipt_rejects_drift(tmp_path, mutation):
     else:
         with (checkpoint / "release-manifest.json").open("a") as stream:
             stream.write("\n")
+        manifest = json.loads((checkpoint / "release-manifest.json").read_text())
+        published = {row["path"]: row["sha256"] for row in manifest["files"]}
+        source = json.loads(receipt.read_text())
+        if all(published[f"web/{name}"] == record["sha256"]
+               for name, record in source["assets"].items()):
+            # The reviewed source was published (8d791272f): the manifest is
+            # the record again and the source receipt is no longer in force,
+            # so history is checked through the published branch.
+            _checked_player_source(tutorials, checkpoint, receipt)
+            assert source["published"] is False
+            return
     with pytest.raises(AssertionError):
         _checked_player_source(tutorials, checkpoint, receipt)
 

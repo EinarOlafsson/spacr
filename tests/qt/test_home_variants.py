@@ -1436,12 +1436,14 @@ def test_measure_sidebar_measures_the_scrolled_content(gen):
     """
     need, avail = gen.render.measure_sidebar(gen.app)
     assert avail == CANVAS[1] - 26 - 24
-    from spacr.qt.app import APPS
-    # One row per app plus the live section headers and Home is deliberately
-    # much taller than the ~85 px outer layout. The exact header count comes
-    # from the registry rather than this test's prose.
-    assert need > 20 * len(APPS), (
-        f"measure_sidebar reports {need} px for {len(APPS)} app rows — it "
+    from spacr.qt.app import visible_apps
+    # One row per visible app plus the live section headers and Home is
+    # deliberately much taller than the ~85 px outer layout. Hidden alpha
+    # apps draw no row (634's five organism pages, eb2201537), so the count
+    # comes from what the sidebar shows rather than the whole registry.
+    rows = len(visible_apps())
+    assert need > 20 * rows, (
+        f"measure_sidebar reports {need} px for {rows} app rows — it "
         "is measuring the viewport, not the rows inside it")
     assert need > avail, (
         "the sidebar's rows now fit without scrolling — finding 1 in "

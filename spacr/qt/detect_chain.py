@@ -507,6 +507,7 @@ def _contrast(image: np.ndarray, chain: Chain) -> np.ndarray:
         unit = np.log1p(unit * gain) / np.log1p(gain)
     if chain.sqrt:
         unit = np.sqrt(np.clip(unit, 0.0, None))
+    unit = np.clip(unit, 0.0, 1.0)
     if chain.clahe:
         from skimage.exposure import equalize_adapthist
 

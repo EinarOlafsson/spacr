@@ -51,8 +51,11 @@ def test_percentile_clip_keeps_units_and_needs_no_round_trip():
     image = _field()
     out = dc.prepare(image, dc.Chain(percentile_clip=True, percentile_low=2,
                                      percentile_high=98))
-    low, high = np.percentile(image, (2, 98))
-    np.testing.assert_array_equal(out, np.clip(image, low, high))
+    # Float quantiles, as the chain passes them: NumPy 2.5 interpolates
+    # integer quantiles of a float32 plane in float32.
+    low, high = np.percentile(image, (2.0, 98.0))
+    np.testing.assert_array_equal(
+        out, np.clip(image, low, high).astype(np.float32))
 
 
 def test_clip_runs_before_the_curves():

@@ -282,12 +282,17 @@ def _prior_width(estimates: np.ndarray) -> float:
     a variance that is undefined or zero: there is no spread to learn a prior
     from. Both answer 0.0, which the posterior reads as "no shrinkage room"
     and resolves to the prior mean. Returning NaN instead would carry
-    straight through the fixed point into the corrected table.
+    straight through the fixed point into the corrected table. Estimates that
+    agree to within rounding (a spread below ``1e-12`` of their magnitude)
+    count as coinciding, so the answer does not depend on the BLAS build.
     """
     if estimates.size < 2:
         return 0.0
     variance = float(np.var(estimates, ddof=1))
-    return variance if np.isfinite(variance) and variance > 0.0 else 0.0
+    magnitude = float(np.mean(np.abs(estimates)))
+    if not np.isfinite(variance) or variance <= (1e-12 * magnitude) ** 2:
+        return 0.0
+    return variance
 
 
 def _degenerate_scale_prior(delta_hat: np.ndarray) -> bool:
