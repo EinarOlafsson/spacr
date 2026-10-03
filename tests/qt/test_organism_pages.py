@@ -25,16 +25,37 @@ LIVE = {
                    "drug": "dose_response"},
     "candida": {"adhesion": "invasion", "epithelial": "invasion",
                 "phagocytosis": "host_pathogen", "antifungal": "dose_response"},
+    # 634, 2026-10-03: the five alpha organism pages.
+    "trypanosoma": {"gliding": "motility", "epithelial": "invasion",
+                    "parasitaemia": "host_pathogen", "drug": "dose_response"},
+    "leishmania": {"phagocytosis": "host_pathogen", "adhesion": "invasion",
+                   "gliding": "motility", "drug": "dose_response"},
+    "giardia": {"adhesion": "host_pathogen", "gliding": "motility",
+                "drug": "dose_response"},
+    "virus": {"parasitaemia": "host_pathogen", "analyze_plaques": "analyze_plaques",
+              "recruitment": "recruitment", "drug": "dose_response"},
+    "mammalian": {"mask": "mask", "measure": "measure", "gliding": "motility",
+                  "phagocytosis": "host_pathogen", "drug": "dose_response"},
 }
 COMING_SOON = {
     "toxoplasma": ["Egress", "Bradyzoite conversion", "Host cell damage"],
     "plasmodium": ["Blood-stage staging", "Merozoite invasion", "Liver-stage growth",
                    "Cell traversal", "Gametocyte maturity"],
     "candida": ["Filamentation", "Germ tube formation", "Biofilm", "Morphology"],
+    "trypanosoma": ["Cell-cycle staging", "Stage differentiation",
+                    "Trypomastigote egress", "Host cell damage"],
+    "leishmania": ["Metacyclogenesis", "Amastigote conversion", "Vacuole size",
+                   "Host cell damage"],
+    "giardia": ["Encystation", "Excystation", "Disc morphology",
+                "Nuclear division", "Barrier damage"],
+    "virus": ["Cytopathic effect", "Viral spread", "Syncytium formation",
+              "Virus entry"],
+    "mammalian": ["Cell-cycle staging", "Organelle morphology", "Wound closure"],
 }
 
 
 def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
+    # 634's five alpha organism pages draw no tile with alpha features off.
     assert [row[0] for row in app.section_members(app.SECTION_ASSAYS)] == [
         "toxoplasma", "plasmodium", "candida"]
     assert set(ASSAYS) <= {row[0] for row in app.APPS}
@@ -142,7 +163,8 @@ def test_command_palette_keeps_direct_assay_navigation(qtbot):
 
 def test_bundled_artwork_matches_its_attributed_source_records():
     records = json.loads((_IMAGES / "organism_sources.json").read_text())
-    assert len(records) == 2
+    # 634: four more SwissBioPics drawings for the alpha organism pages.
+    assert len(records) == 6
     for record in records:
         assert record["licence"] == "CC BY 4.0"
         assert "Philippe Le Mercier" in record["credit"]

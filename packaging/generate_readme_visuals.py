@@ -200,8 +200,9 @@ def _home_layout() -> "tuple[tuple[str, ...], dict[str, tuple[str, ...]]]":
     thing twice.
     """
     from spacr.qt.app import SECTION_ORDER, SECTION_TILE_ORDER
+    from spacr.settings import _alpha_names
 
-    pipeline = {key for key, _label in MAIN_PIPELINE}
+    pipeline = {key for key, _label in MAIN_PIPELINE} | set(_alpha_names("apps"))
     grouped = {
         section: tuple(key for key in SECTION_TILE_ORDER.get(section, ())
                        if key not in pipeline)
@@ -484,9 +485,13 @@ def _tiled_registry() -> list[tuple[str, str, str, str]]:
     EXISTS, so it keeps all of them.
     """
     from spacr.qt.app import tiled_apps
+    from spacr.settings import _alpha_names
 
     _registry()
-    return list(tiled_apps())
+    # Alpha-gated apps have no tile on the default Home, whatever this
+    # machine's preference says.
+    alpha = _alpha_names("apps")
+    return [row for row in tiled_apps() if row[0] not in alpha]
 
 
 def _api_urls() -> dict[str, str]:

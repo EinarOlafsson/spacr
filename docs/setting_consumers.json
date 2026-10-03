@@ -7174,7 +7174,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 2440,
+    "line": 2473,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -7183,7 +7183,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channels",
-    "line": 2572,
+    "line": 2605,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -15935,7 +15935,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "frame_interval_s",
-    "line": 560,
+    "line": 573,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -15944,7 +15944,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "frame_interval_s",
-    "line": 561,
+    "line": 574,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -15953,7 +15953,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "frame_interval_s",
-    "line": 565,
+    "line": 578,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -18015,7 +18015,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 1637,
+    "line": 1670,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -18024,7 +18024,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 1722,
+    "line": 1755,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_measurement_illumination_inputs"
@@ -18033,7 +18033,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 2427,
+    "line": 2460,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18042,7 +18042,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_correction",
-    "line": 2573,
+    "line": 2606,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18116,7 +18116,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 2451,
+    "line": 2484,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18125,7 +18125,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 2463,
+    "line": 2496,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18134,7 +18134,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_dark",
-    "line": 2579,
+    "line": 2612,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18145,7 +18145,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_degree",
-    "line": 2461,
+    "line": 2494,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18154,7 +18154,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_degree",
-    "line": 2576,
+    "line": 2609,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18165,7 +18165,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 2460,
+    "line": 2493,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18174,7 +18174,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_estimator",
-    "line": 2575,
+    "line": 2608,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18194,7 +18194,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_max_fields",
-    "line": 2462,
+    "line": 2495,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18203,7 +18203,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_max_fields",
-    "line": 2578,
+    "line": 2611,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18214,7 +18214,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 1653,
+    "line": 1686,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -18223,7 +18223,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 2443,
+    "line": 2476,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18232,7 +18232,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_model",
-    "line": 2574,
+    "line": 2607,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18270,7 +18270,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 1682,
+    "line": 1715,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -18279,7 +18279,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 2476,
+    "line": 2509,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18288,7 +18288,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 2521,
+    "line": 2554,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_correction"
@@ -18297,7 +18297,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_on_missing",
-    "line": 2580,
+    "line": 2613,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18308,7 +18308,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_per_plate",
-    "line": 2459,
+    "line": 2492,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18317,7 +18317,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_per_plate",
-    "line": 2577,
+    "line": 2610,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18328,7 +18328,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_qc",
-    "line": 2467,
+    "line": 2500,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18337,7 +18337,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_qc",
-    "line": 2581,
+    "line": 2614,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18348,7 +18348,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "illumination_vendor_channel_map",
-    "line": 2449,
+    "line": 2482,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18357,7 +18357,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_channel_map",
-    "line": 2452,
+    "line": 2485,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18366,7 +18366,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_channel_map",
-    "line": 2583,
+    "line": 2616,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -18377,7 +18377,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_profile",
-    "line": 2444,
+    "line": 2477,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -18386,7 +18386,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "illumination_vendor_profile",
-    "line": 2582,
+    "line": 2615,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -38644,7 +38644,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 566,
+    "line": 579,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -39994,7 +39994,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_backend",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40003,7 +40003,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_backend",
-    "line": 2012,
+    "line": 2025,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40014,7 +40014,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_background_positive_rate",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40023,7 +40023,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_background_positive_rate",
-    "line": 2005,
+    "line": 2018,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40034,7 +40034,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_cells_per_well",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40043,7 +40043,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_cells_per_well",
-    "line": 2001,
+    "line": 2014,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40054,7 +40054,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_constructs_per_well",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40063,7 +40063,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_constructs_per_well",
-    "line": 2004,
+    "line": 2017,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40074,7 +40074,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_detection_auroc",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40083,7 +40083,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_detection_auroc",
-    "line": 2010,
+    "line": 2023,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40094,7 +40094,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_effect_fold",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40103,7 +40103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_effect_fold",
-    "line": 2006,
+    "line": 2019,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40114,7 +40114,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_hit_rate",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40123,7 +40123,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_hit_rate",
-    "line": 2007,
+    "line": 2020,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40134,7 +40134,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_genes",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40143,7 +40143,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_genes",
-    "line": 1998,
+    "line": 2011,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40154,7 +40154,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_grnas_per_gene",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40163,7 +40163,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_grnas_per_gene",
-    "line": 1999,
+    "line": 2012,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40174,7 +40174,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_plates",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40183,7 +40183,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_plates",
-    "line": 2003,
+    "line": 2016,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40194,7 +40194,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_n_replicates",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40203,7 +40203,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_n_replicates",
-    "line": 2009,
+    "line": 2022,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40214,7 +40214,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_reads_per_well",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40223,7 +40223,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_reads_per_well",
-    "line": 2008,
+    "line": 2021,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40234,7 +40234,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_score_per",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40243,7 +40243,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_score_per",
-    "line": 2000,
+    "line": 2013,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40254,7 +40254,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_seed",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40263,7 +40263,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_seed",
-    "line": 2011,
+    "line": 2024,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -40274,7 +40274,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "power_wells_per_plate",
-    "line": 1982,
+    "line": 1995,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "power_default_settings"
@@ -40283,7 +40283,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "power_wells_per_plate",
-    "line": 2002,
+    "line": 2015,
     "module": "spacr.qt.screens.power",
     "nested": false,
     "qualname": "spec_from_settings"
@@ -44078,7 +44078,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 566,
+    "line": 579,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -46938,7 +46938,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1724,
+    "line": 1757,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "validate_measurement_illumination_inputs"
@@ -46947,7 +46947,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2434,
+    "line": 2467,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -46956,7 +46956,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2551,
+    "line": 2584,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_segmentation_illumination"
@@ -46965,7 +46965,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 2571,
+    "line": 2604,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "illumination_settings"
@@ -53178,7 +53178,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage_color_by",
-    "line": 563,
+    "line": 576,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -53216,7 +53216,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_lineage_max_distance",
-    "line": 564,
+    "line": 577,
     "module": "spacr._lineage_trees",
     "nested": false,
     "qualname": "_run_lineage_step"
@@ -56114,7 +56114,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 1676,
+    "line": 1709,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "load_segmentation_illumination_resume"
@@ -56123,7 +56123,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 2426,
+    "line": 2459,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_model"
@@ -56132,7 +56132,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 2515,
+    "line": 2548,
     "module": "spacr.illumination",
     "nested": false,
     "qualname": "prepare_illumination_correction"

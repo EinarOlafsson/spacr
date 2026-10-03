@@ -4116,6 +4116,11 @@ NO_DROP_TARGET: Dict[str, str] = {
     "toxoplasma": "opens organism assays; image and table inputs belong to the chosen assay module",
     "plasmodium": "opens organism assays; image and table inputs belong to the chosen assay module",
     "candida": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "trypanosoma": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "leishmania": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "giardia": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "virus": "opens organism assays; image and table inputs belong to the chosen assay module",
+    "mammalian": "opens organism assays; image and table inputs belong to the chosen assay module",
     "experiment_design": "designs a plate layout from typed numbers; it "
                          "reads no file",
     "power": "computes a sample size from typed numbers; it reads no file",

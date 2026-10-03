@@ -74,8 +74,12 @@ def test_preferences_dialog_loads_and_saves_both_feature_switches(
 
 
 def test_visible_app_registry_obeys_each_switch_independently(maturity_prefs):
-    from spacr.qt.app import APPS, app_stage, visible_apps
+    from spacr.qt.app import APPS as _ALL_APPS, app_stage, visible_apps
+    from spacr.settings import _alpha_names
 
+    # Alpha-gated apps (item 634) answer to the alpha-features switch,
+    # which these maturity switches leave off.
+    APPS = [row for row in _ALL_APPS if row[0] not in _alpha_names("apps")]
     prefs = maturity_prefs
     prefs.set_show_alpha(False)
     visible = {row[0] for row in visible_apps()}
@@ -273,6 +277,10 @@ def test_main_window_refreshes_home_dock_and_menus_together(
 ):
     from spacr.qt.app import MainWindow, app_stage
     from spacr.qt.widgets.home import AppTile
+    from spacr.settings import _alpha_names
+
+    # Alpha-gated apps (item 634) answer to the alpha-features switch.
+    gated = _alpha_names("apps")
 
     maturity_prefs.set_show_alpha(False)
     maturity_prefs.set_show_beta(False)
@@ -281,7 +289,7 @@ def test_main_window_refreshes_home_dock_and_menus_together(
 
     assert all(
         action.isVisible() == (app_stage(key) == "stable")
-        for key, action in window._app_actions.items()
+        for key, action in window._app_actions.items() if key not in gated
     )
     assert not hasattr(window, '_demo_actions')
     assert {
@@ -292,6 +300,6 @@ def test_main_window_refreshes_home_dock_and_menus_together(
     window.refresh_theme()
     assert all(
         action.isVisible() == (app_stage(key) != "beta")
-        for key, action in window._app_actions.items()
+        for key, action in window._app_actions.items() if key not in gated
     )
     assert not hasattr(window, '_demo_actions')

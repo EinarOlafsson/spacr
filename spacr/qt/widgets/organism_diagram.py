@@ -55,6 +55,69 @@ YEAST_LABELS = {
     "Endoplasmic reticulum": "SL0095", "Vacuole": "SL0272",
 }
 """Generic budding-yeast compartment labels mapped to UniProt SL identifiers."""
+_TRYPANOSOMA_LABELS = {
+    "Flagellum": "SL0117", "Flagellum axoneme": "SL0114",
+    "Flagellum basal body": "SL0308", "Kinetoplast": "SL0150",
+    "Mitochondrion": "SL0173", "Glycosome": "SL0129", "Nucleus": "SL0191",
+    "Nucleolus": "SL0188", "Endoplasmic reticulum": "SL0095",
+    "Lysosome": "SL0158", "Cell membrane": "SL0039",
+    "Cytoskeleton": "SL0090", "Cytosol": "SL0091",
+}
+_LEISHMANIA_LABELS = {
+    "Flagellum": "SL0117", "Kinetoplast": "SL0150",
+    "Mitochondrion": "SL0173", "Glycosome": "SL0129", "Nucleus": "SL0191",
+    "Nucleolus": "SL0188", "Endoplasmic reticulum": "SL0095",
+    "Lysosome": "SL0158", "Cell membrane": "SL0039",
+    "Cytoskeleton": "SL0090", "Cytosol": "SL0091",
+}
+_GIARDIA_LABELS = {
+    "Flagellum": "SL0117", "Flagellum axoneme": "SL0114",
+    "Flagellum basal body": "SL0308", "Cytoskeleton": "SL0090",
+    "Microtubule organizing center": "SL0484", "Nucleus": "SL0191",
+    "Nucleolus": "SL0188", "Endoplasmic reticulum": "SL0095",
+    "Cell membrane": "SL0039", "Cytosol": "SL0091",
+}
+_VIRUS_LABELS = {
+    "Virion": "SL0274", "Virion membrane": "SL0275",
+    "Virion tegument": "SL0273", "Host cell membrane": "SL0375",
+    "Host cytoplasm": "SL0381", "Host perinuclear region": "SL0382",
+    "Host cytoskeleton": "SL0383", "Host endoplasmic reticulum": "SL0388",
+    "Host Golgi apparatus": "SL0395", "Host endosome": "SL0393",
+    "Host mitochondrion": "SL0407", "Host nucleus": "SL0414",
+    "Host nucleolus": "SL0412",
+}
+_MAMMALIAN_LABELS = {
+    "Cell membrane": "SL0039", "Extracellular matrix": "SL0111",
+    "Cilium": "SL0066", "Centrosome": "SL0048", "Cytoskeleton": "SL0090",
+    "Cytosol": "SL0091", "Nucleus": "SL0191", "Nucleolus": "SL0188",
+    "Nucleus speckle": "SL0186", "Mitochondrion": "SL0173",
+    "Endoplasmic reticulum": "SL0095", "Golgi apparatus": "SL0132",
+    "Endosome": "SL0101", "Lysosome": "SL0158",
+}
+_ORGANISM_LABELS = {
+    "toxoplasma": COMPARTMENT_SL, "plasmodium": APICOMPLEXAN_LABELS,
+    "candida": YEAST_LABELS, "trypanosoma": _TRYPANOSOMA_LABELS,
+    "leishmania": _LEISHMANIA_LABELS, "giardia": _GIARDIA_LABELS,
+    "virus": _VIRUS_LABELS, "mammalian": _MAMMALIAN_LABELS,
+}
+"""Each organism page's selectable labels, keyed by its app key.
+
+The trypanosomatid, Giardia, virus and mammalian sets keep the UniProt
+location names and are the locations UniProt annotates for that taxon
+(Trypanosoma 5690, Leishmania 5658, Giardia 5740, Viruses 10239, Mammalia
+40674) that are drawn in the bundled artwork.
+"""
+_PORTRAIT_ORGANISMS = frozenset({"toxoplasma", "plasmodium"})
+
+
+def _compartment_labels(app_key: str) -> dict:
+    """The compartment labels one organism page offers.
+
+    :param app_key: the organism page key.
+    :returns: display label to UniProt SL identifier; the shared
+        apicomplexan set for an unknown key.
+    """
+    return _ORGANISM_LABELS.get(app_key, APICOMPLEXAN_LABELS)
 _SVG = "{http://www.w3.org/2000/svg}"
 _COMPARTMENT_COLOURS = {
     "SL0091": "#eee6d9", "SL0233": "#df96af", "SL0163": "#e2bc70",
@@ -63,6 +126,15 @@ _COMPARTMENT_COLOURS = {
     "SL0095": "#b0c4ce", "SL0191": "#b8b6d9", "SL0188": "#9998c6",
     "SL0039": "#9daec0", "SL0090": "#b7c88e", "SL0027": "#b5d2ba",
     "SL0029": "#99b5a8", "SL0041": "#d6c6a4", "SL0272": "#b4d4d4",
+    "SL0117": "#c9b37e", "SL0114": "#d8c48f", "SL0308": "#a99a6c",
+    "SL0150": "#d48f8f", "SL0129": "#a6c98f", "SL0158": "#cf9bc0",
+    "SL0484": "#b7a6d6", "SL0274": "#e39a8a", "SL0275": "#d7b17c",
+    "SL0273": "#c49ad0", "SL0375": "#9daec0", "SL0381": "#eee6d9",
+    "SL0382": "#d8cbb4", "SL0383": "#b7c88e", "SL0388": "#b0c4ce",
+    "SL0395": "#87bfcf", "SL0393": "#a4b9d9", "SL0407": "#e8ae87",
+    "SL0414": "#b8b6d9", "SL0412": "#9998c6", "SL0111": "#c8bba0",
+    "SL0066": "#c9b37e", "SL0048": "#b7a6d6", "SL0186": "#a9a7e0",
+    "SL0101": "#a4b9d9",
 }
 
 
@@ -287,7 +359,8 @@ class _ReservedColumn(QVBoxLayout):
 class OrganismDiagram(QWidget):
     """A cell illustration and keyboard-accessible compartment selector.
 
-    :param app_key: organism key; only Toxoplasma uses hyperLOPIT labels.
+    :param app_key: organism key; only Toxoplasma uses hyperLOPIT labels,
+        and only the apicomplexan pages are drawn upright.
     :param path: bundled SVG path; no external resource is fetched.
     :param parent: owning Qt widget.
     """
@@ -295,8 +368,7 @@ class OrganismDiagram(QWidget):
     def __init__(self, app_key: str, path: Path, parent=None):
         """Build upright artwork, a multi-select legend and compartment descriptions."""
         super().__init__(parent)
-        self.labels = (COMPARTMENT_SL if app_key == "toxoplasma" else
-                       YEAST_LABELS if app_key == "candida" else APICOMPLEXAN_LABELS)
+        self.labels = _compartment_labels(app_key)
         self.setObjectName("OrganismDiagram")
         layout = _ReservedColumn(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -316,7 +388,7 @@ class OrganismDiagram(QWidget):
         self.descriptions = {node.get("id"): " ".join(text.itertext()).strip()
                              for node in root.iter() for text in node.findall(_SVG + "text")
                              if text.get("property") == "description"}
-        self.artwork = _CellArtwork(source, self, portrait=app_key != "candida", locations=self.labels.values())
+        self.artwork = _CellArtwork(source, self, portrait=app_key in _PORTRAIT_ORGANISMS, locations=self.labels.values())
         self.artwork.setAccessibleName(tr("Cell compartments"))
         row.addWidget(self.artwork, 55)
         label = QLabel(tr("hyperLOPIT compartment") if app_key == "toxoplasma"

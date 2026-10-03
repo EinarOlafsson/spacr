@@ -104,7 +104,10 @@ def test_no_module_falls_out_of_the_dock_altogether():
     folded = folded_children()
     for host in top:
         reachable.update(folded.get(host, ()))
-    lost = sorted({row[0] for row in APPS} - reachable)
+    from spacr.settings import _alpha_names
+
+    # Alpha-gated apps (item 634) have a dock row only with alpha on.
+    lost = sorted({row[0] for row in APPS} - reachable - _alpha_names("apps"))
     assert not lost, (
         f"these modules have no dock row and no host that does: {lost}")
 

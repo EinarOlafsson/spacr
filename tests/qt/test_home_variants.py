@@ -280,7 +280,9 @@ def test_every_categorisation_covers_every_app(gen_common):
     itself has to reject each of the three defects it names.
     """
     from spacr.qt.app import APPS
-    registry = {key for key, *_rest in APPS}
+    from spacr.settings import _alpha_names
+    # Alpha-gated apps (item 634) are not on the default Home the variants draw.
+    registry = {key for key, *_rest in APPS} - _alpha_names("apps")
     assert registry, "the app registry is empty"
 
     tables = [(name, getattr(gen_common, name))
@@ -334,7 +336,8 @@ def test_orderings_are_permutations_of_the_real_registry(gen_common):
     # Derived, not a literal: the registry grew a Replication Assay and a
     # hardcoded 29 turns "an app was added" into "the variant harness is
     # broken", which is the wrong thing to be told.
-    assert keys == {k for k, *_rest in APPS}
+    from spacr.settings import _alpha_names
+    assert keys == {k for k, *_rest in APPS} - _alpha_names("apps")
     for order in (gen_common.by_frequency(), gen_common.alphabetical(),
                   gen_common.pinned_first()):
         assert len(order) == len(keys)
@@ -360,7 +363,9 @@ def test_use_counts_cover_every_app(gen_common):
 def test_n_apps_is_read_from_the_registry(gen_common):
     """``n_apps()`` must track ``APPS``, not a number typed here."""
     from spacr.qt.app import APPS
-    assert gen_common.n_apps() == len(APPS)
+    from spacr.settings import _alpha_names
+    assert gen_common.n_apps() == len(
+        [row for row in APPS if row[0] not in _alpha_names("apps")])
 
 
 def test_n_sections_is_read_from_the_non_empty_registry_sections(gen_common):

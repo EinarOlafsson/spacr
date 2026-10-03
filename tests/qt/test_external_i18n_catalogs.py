@@ -392,9 +392,7 @@ def test_organism_registry_prose_is_inventoried_without_location_ids():
         sys.path.pop(0)
     from spacr.qt.i18n import _ROWS, _TERM_ROWS
     from spacr.qt.organisms import ORGANISMS
-    from spacr.qt.widgets.organism_diagram import (
-        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
-    )
+    from spacr.qt.widgets.organism_diagram import _ORGANISM_LABELS
 
     discovered = set(builder.extract_static_ui_sources())
     known = set(builder.canonical_sources()["ui"]) | set(_ROWS) | set(_TERM_ROWS)
@@ -410,7 +408,7 @@ def test_organism_registry_prose_is_inventoried_without_location_ids():
         for label, url in organism["links"]:
             assert label in known
             assert url not in discovered
-    for labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
+    for labels in _ORGANISM_LABELS.values():
         assert set(labels) <= known
         assert not set(labels.values()) & discovered
     assert {"Cell compartments", "hyperLOPIT compartment", "UniProt compartment",

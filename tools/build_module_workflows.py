@@ -114,7 +114,10 @@ def validate(data, root=ROOT, *, live=True):
     from spacr.qt import app
     from spacr.qt.widgets.fold_strip import folded_modules
     from spacr.qt.screens.settings_model import _APP_API_MODULE
-    names = {row[0]: row[1] for row in app.APPS}
+    from spacr.settings import _alpha_names
+    # Alpha-gated apps are hidden by default and documented nowhere yet.
+    alpha = _alpha_names("apps")
+    names = {row[0]: row[1] for row in app.APPS if row[0] not in alpha}
     names.update({key: row[0] for key, row in folded_modules().items()})
     if set(modules) != set(names) | set(MODES) | set(APP_FUNCTIONS) | set(ports.PORTS):
         raise ValueError("workflow modules differ from the live registry")

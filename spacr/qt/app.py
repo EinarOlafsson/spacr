@@ -1128,6 +1128,11 @@ _BUILTIN_APPS = [
     ("toxoplasma", "Toxoplasma", "Image-analysis assays for Toxoplasma gondii", SECTION_ASSAYS),
     ("plasmodium", "Plasmodium spp.", "Image-analysis modules for malaria parasites", SECTION_ASSAYS),
     ("candida", "Candida spp.", "Image-analysis modules for Candida species", SECTION_ASSAYS),
+    ("trypanosoma", "Trypanosoma spp.", "Image-analysis modules for Trypanosoma brucei and Trypanosoma cruzi", SECTION_ASSAYS),
+    ("leishmania", "Leishmania spp.", "Image-analysis modules for Leishmania parasites", SECTION_ASSAYS),
+    ("giardia", "Giardia duodenalis", "Image-analysis modules for Giardia duodenalis", SECTION_ASSAYS),
+    ("virus", "Virus infection", "Image-analysis modules for virus-infected host cells", SECTION_ASSAYS),
+    ("mammalian", "Mammalian cells", "Image-analysis modules for mammalian host cells without a pathogen", SECTION_ASSAYS),
     ("analyze_plaques", "Plaque Assay",  "Quantify plaque assay measurements",                          SECTION_ASSAYS),
     ("recruitment",    "Recruitment",    "Quantify molecular recruitment measurements",                 SECTION_ASSAYS),
     ('host_pathogen', 'Host–Pathogen Analysis', 'Link vacuole recruitment and replication to host infection measurements', SECTION_ASSAYS),
@@ -1180,7 +1185,8 @@ for _row in _BUILTIN_APPS:
     if _row[0] == 'host_pathogen':
         register_app(*_row, stage=STAGE_ALPHA, api_module='host_pathogen',
                      entry='spacr.host_pathogen:analyze_host_pathogen')
-    elif _row[0] in {"toxoplasma", "plasmodium", "candida"}:
+    elif _row[0] in {"toxoplasma", "plasmodium", "candida", "trypanosoma",
+                     "leishmania", "giardia", "virus", "mammalian"}:
         register_app(
             *_row,
             factory=LazyScreenFactory("spacr.qt.screens.organism_screen", "OrganismScreen"),
@@ -1614,7 +1620,8 @@ SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
                    "qc_dashboard"),
     SECTION_TOOLS: ("make_masks", "align", "umap", "gate_editor",
                     "graph_builder"),
-    SECTION_ASSAYS: ("toxoplasma", "plasmodium", "candida"),
+    SECTION_ASSAYS: ("toxoplasma", "plasmodium", "candida", "trypanosoma",
+                     "leishmania", "giardia", "virus", "mammalian"),
 }
 
 
@@ -1655,10 +1662,31 @@ def tiled_apps(
     Anything asking "can this key be navigated to", "does this app have
     artwork", or "does every app have a screen" wants ``APPS`` -- a
     folded module must still answer yes to all three.
+
+    An app registered with the alpha gate has no tile while Preferences >
+    Show alpha features is off: Home does not draw it, so nothing that
+    counts or lists Home's tiles may count it either.
     """
     source = APPS if apps is None else apps
-    return sorted((row for row in source if row[0] not in TILELESS_APPS),
+    hidden = _alpha_hidden_apps()
+    return sorted((row for row in source if row[0] not in TILELESS_APPS
+                   and row[0] not in hidden),
                   key=tile_sort_key)
+
+
+def _alpha_hidden_apps() -> frozenset:
+    """The app keys the alpha gate hides right now.
+
+    :returns: every app in ``ALPHA_FEATURES`` while Preferences > Show
+        alpha features is off, otherwise an empty set; also empty when the
+        preferences cannot be read.
+    """
+    try:
+        from ..settings import _alpha_names
+        from .preferences import _is_alpha_visible
+        return frozenset() if _is_alpha_visible() else _alpha_names("apps")
+    except Exception:
+        return frozenset()
 
 
 def section_members(

@@ -100,7 +100,9 @@ class TestTheReadmeGrid:
         from spacr.qt.app import tiled_apps
 
         # 474 adds three organism pages and folds the four assays into Toxoplasma.
-        assert len(apps) == 49
+        # 634 registers five alpha organism pages; they draw no tile with
+        # alpha features off, so the tile count stays 21.
+        assert len(apps) == 54
         assert any(app[0] == 'host_pathogen' for app in apps)
         assert len(tiled_apps()) == 21
         assert sections == ["Core", "Data", "Tools", "Assays"]

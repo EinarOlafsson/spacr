@@ -7598,6 +7598,13 @@ ALPHA_FEATURES = {
                     'PipelineGraphTestDataButton',
                     'ProjectBrowserTestDataButton'),
     },
+    634: {
+        'apps': ('trypanosoma', 'leishmania', 'giardia', 'virus',
+                 'mammalian'),
+        'widgets': ('TrypanosomaOrganismPage', 'LeishmaniaOrganismPage',
+                    'GiardiaOrganismPage', 'VirusOrganismPage',
+                    'MammalianOrganismPage'),
+    },
 }
 
 

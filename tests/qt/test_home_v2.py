@@ -53,7 +53,11 @@ def _tiled_apps():
     settings resolution and saved session state all key off those
     strings. What changed is what Home offers.
     """
-    return [row for row in APPS if row[0] not in TILELESS_APPS]
+    from spacr.settings import _alpha_names
+
+    # Alpha-gated apps (item 634) draw no tile with alpha features off.
+    return [row for row in APPS if row[0] not in TILELESS_APPS
+            and row[0] not in _alpha_names("apps")]
 
 
 # WHICH SET A TEST WANTS depends on what it is asking:
@@ -946,8 +950,12 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
     taking keys out of both lists, and a literal count would fail for the
     list being right rather than for it being wrong."""
     from spacr.qt.app import app_stage
+    from spacr.settings import _alpha_names
+
     by_stage: dict = {}
     for key, _name, _desc, _section in APPS:
+        if key in _alpha_names("apps"):
+            continue
         by_stage.setdefault(app_stage(key), set()).add(key)
     assert by_stage["alpha"] == ALPHA_MODULES
     assert by_stage["beta"] == BETA_MODULES
@@ -958,7 +966,8 @@ def test_the_alpha_and_beta_lists_are_the_ones_that_were_asked_for():
     assert len(ALPHA_MODULES) == len(by_stage["alpha"])
     assert len(BETA_MODULES) == len(by_stage["beta"])
     assert by_stage["stable"] == (
-        {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES)
+        {row[0] for row in APPS} - ALPHA_MODULES - BETA_MODULES
+        - _alpha_names("apps"))
 
 
 def test_every_category_carries_its_one_line_note(window):
@@ -1604,7 +1613,13 @@ def test_the_drawer_is_not_the_only_way_to_reach_every_app(window, qapp):
 
     palette = CommandPalette(window)
     palette_labels = {c.label for c in palette._commands}
+    from spacr.settings import _alpha_names
+
     for _key, name, *_rest in APPS:
+        if _key in _alpha_names("apps"):
+            # Item 634: alpha-gated, so off the palette with alpha off.
+            assert f"Go to  {name}" not in palette_labels
+            continue
         assert f"Go to  {name}" in palette_labels, (
             f"{name} cannot be reached from the command palette")
     assert "All apps" not in menu_labels, (

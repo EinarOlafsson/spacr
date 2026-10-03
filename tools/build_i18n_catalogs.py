@@ -3697,14 +3697,11 @@ def _organism_description_sources() -> set[str]:
     """Read only SVG descriptions reachable through registered compartment labels."""
     import xml.etree.ElementTree as ET
     from spacr.qt.organisms import ORGANISMS
-    from spacr.qt.widgets.organism_diagram import (
-        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
-    )
+    from spacr.qt.widgets.organism_diagram import _compartment_labels
 
     found = set()
     for app_key, organism in ORGANISMS.items():
-        labels = (COMPARTMENT_SL if app_key == "toxoplasma" else
-                  YEAST_LABELS if app_key == "candida" else APICOMPLEXAN_LABELS)
+        labels = _compartment_labels(app_key)
         root = ET.parse(ROOT / "spacr/resources/images" / organism["diagram"]).getroot()
         for node in root.iter():
             if node.get("id") not in labels.values():
@@ -3770,9 +3767,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.preview_registry import PREVIEWS
     from spacr.qt import cpu_modes, organelle_modes
     from spacr.qt.organisms import ORGANISMS
-    from spacr.qt.widgets.organism_diagram import (
-        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
-    )
+    from spacr.qt.widgets.organism_diagram import _ORGANISM_LABELS
     from spacr.qt.screens.annotate import AnnotateScreen
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
@@ -3891,6 +3886,8 @@ def _indirect_runtime_ui_sources() -> set[str]:
     for organism in ORGANISMS.values():
         found.update(organism[field]
                      for field in ("name", "description", "diagram_note"))
+        if organism.get("source_label"):
+            found.add(organism["source_label"])
         for heading, prose, _routes in organism["sections"]:
             found.update((heading, prose))
         for _route, title, description, _icon in organism["modules"]:
@@ -3900,7 +3897,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
         # screen shows as tr(route[2]) in the tile's tooltip.
         found.update(note for _app, _preset, note
                      in organism.get("workflows", {}).values())
-    for compartment_labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
+    for compartment_labels in _ORGANISM_LABELS.values():
         found.update(compartment_labels)
     # Hover explanations are class data, passed to Qt through loop variables.
     # Keep their exact English sources separate from runtime-translated text.

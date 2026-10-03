@@ -73,16 +73,23 @@ def test_release_audit_parsers_pin_the_current_inventory():
 
 @lru_cache(maxsize=1)
 def _live_gui_inventory():
-    """Return live Home keys and physical fold ownership in a clean process."""
+    """Return live Home keys and physical fold ownership in a clean process.
+
+    Alpha-gated apps (item 634's organism pages) are left out: alpha
+    features ship without tutorials, and this process reads the real
+    preferences, so the gate's state is not the test's to assume.
+    """
     code = """
 import json
 import spacr.qt
 spacr.qt.register_self_registering_modules()
 from spacr.qt.app import APPS, tiled_apps, folded_children
 from spacr.qt.widgets.fold_strip import folded_modules
+from spacr.settings import _alpha_names
+alpha = _alpha_names("apps")
 print(json.dumps({
-    "registry": sorted({row[0] for row in APPS}),
-    "home_tiles": sorted({row[0] for row in tiled_apps()}),
+    "registry": sorted({row[0] for row in APPS} - alpha),
+    "home_tiles": sorted({row[0] for row in tiled_apps()} - alpha),
     "folded": {
         key: entry[3].rsplit(".", 1)[-1]
         for key, entry in folded_modules().items()

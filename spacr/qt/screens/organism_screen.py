@@ -47,6 +47,20 @@ Assay, Phagocytosis opens Host–Pathogen Analysis, and Antifungal response
 opens Dose–Response. Filamentation, Germ tube formation, Biofilm and
 Morphology say Coming soon and are disabled. This page requires no data; the
 opened module writes to its selected output folder.
+
+.. _spacr.qt.screens.organism_screen.alpha_pages:
+
+Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells
+---------------------------------------------------------------------
+These five pages appear on Home only with Preferences > Show alpha features
+on. Each follows the same layout: an introduction, a SwissBioPics cell whose
+selectable compartments are the UniProt subcellular locations annotated for
+that taxon, four topic sections, and eight tiles. Live tiles open an existing
+module with a preset (Motility Assay, Invasion Assay, Host–Pathogen Analysis,
+Dose–Response, Plaque Assay, Recruitment, Mask or Measure), and the others
+say Coming soon. Giardia uses the generic eukaryotic cell, the virus page the
+host cell with a virion, and the mammalian page the animal cell. The pages
+need no input files; the opened module writes to its selected output folder.
 """
 from __future__ import annotations
 
@@ -76,7 +90,7 @@ FOLDED_APPS = ("analyze_plaques", "recruitment", "invasion", "replication", 'hos
 class OrganismScreen(QWidget):
     """Show one organism and its existing or proposed image-analysis modules.
 
-    :param app_key: ``toxoplasma``, ``plasmodium`` or ``candida``.
+    :param app_key: an organism page key from ``ORGANISMS``.
     :param host: optional main window receiving module navigation requests.
     :param parent: owning Qt widget.
     """
@@ -88,6 +102,7 @@ class OrganismScreen(QWidget):
         super().__init__(parent)
         self.app_key = app_key
         self.setObjectName("OrganismScreen")
+        self._name_alpha_page(app_key)
         self.organism = ORGANISMS[app_key]
         self._host = host
         if host is not None:
@@ -125,6 +140,23 @@ class OrganismScreen(QWidget):
         self._build_tiles()
         self._splitter.splitterMoved.connect(self._reflow)
         QTimer.singleShot(0, self._reflow)
+
+    def _name_alpha_page(self, app_key: str) -> None:
+        """Give each alpha organism page the object name the alpha gate hides.
+
+        :param app_key: the organism page key; established pages keep
+            ``OrganismScreen``.
+        """
+        if app_key == "trypanosoma":
+            self.setObjectName("TrypanosomaOrganismPage")
+        elif app_key == "leishmania":
+            self.setObjectName("LeishmaniaOrganismPage")
+        elif app_key == "giardia":
+            self.setObjectName("GiardiaOrganismPage")
+        elif app_key == "virus":
+            self.setObjectName("VirusOrganismPage")
+        elif app_key == "mammalian":
+            self.setObjectName("MammalianOrganismPage")
 
     @staticmethod
     def _pane(widget: QWidget) -> QScrollArea:
@@ -179,7 +211,10 @@ class OrganismScreen(QWidget):
         resources = self._paragraph("Sources and research resources", "OrganismSectionTitle")
         resources.setStyleSheet(f"font-size: {font_px(17)}px; font-weight: 600;")
         column.addWidget(resources)
-        column.addWidget(self._link(tr("Biology source: CDC"), self.organism["source"]))
+        source_label = self.organism.get("source_label")
+        column.addWidget(self._link(tr(source_label) if source_label
+                                    else tr("Biology source: CDC"),
+                                    self.organism["source"]))
         for label, url in self.organism["links"]:
             column.addWidget(self._link(tr(label), url))
         column.addStretch(1)

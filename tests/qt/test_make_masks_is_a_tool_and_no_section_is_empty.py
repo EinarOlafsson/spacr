@@ -51,9 +51,11 @@ def test_the_declared_layout_is_the_one_that_was_asked_for(qapp):
     from whatever the registry happens to contain.
     """
     wanted = {app_module.SECTION_CORE: 6, app_module.SECTION_DATA: 7,
-              app_module.SECTION_TOOLS: 5, app_module.SECTION_ASSAYS: 3}
+              app_module.SECTION_TOOLS: 5, app_module.SECTION_ASSAYS: 8}
+    # 634, 2026-10-03: five alpha organism pages follow the three doors.
     assert app_module.SECTION_TILE_ORDER[app_module.SECTION_ASSAYS] == (
-        "toxoplasma", "plasmodium", "candida")
+        "toxoplasma", "plasmodium", "candida", "trypanosoma", "leishmania",
+        "giardia", "virus", "mammalian")
     actual = {name: len(keys)
               for name, keys in app_module.SECTION_TILE_ORDER.items()}
     assert actual == wanted

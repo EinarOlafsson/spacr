@@ -243,7 +243,10 @@ def test_every_registry_module_has_a_lesson_or_a_registered_gap():
                ('candida', 'host_pathogen', 'plasmodium', 'toxoplasma'))
     assert len(registered) == len(gaps)
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
-    missing = {key for key, *_ in APPS if not has_tutorial(key)}
+    from spacr.settings import _alpha_names
+
+    # Alpha-gated apps (item 634) ship without lessons by rule.
+    missing = {key for key, *_ in APPS if not has_tutorial(key)} - _alpha_names("apps")
     assert missing == registered
 
 

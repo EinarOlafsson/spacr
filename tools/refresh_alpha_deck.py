@@ -88,6 +88,7 @@ GROUPS = (
         (581, "Export for R (SingleCellExperiment), tidy Parquet"),
         (582, "Plugin and recipe catalogue"),
         (576, "Postgres or DuckDB / Parquet measurement store"),
+        (633, "Test data on seven more modules"),
     )),
     ("Reproducibility", (
         (572, "Figure-integrity check"),
@@ -96,7 +97,7 @@ GROUPS = (
         (579, "One-click Zenodo archive with a DOI"),
     )),
     ("Organisms", (
-        (634, "Planned: Trypanosome, Leishmania, Giardia, virus, mammalian"),
+        (634, "Trypanosoma, Leishmania, Giardia, virus, mammalian pages"),
     )),
 )
 # Filed future alpha items that are listed before they enter the registry.

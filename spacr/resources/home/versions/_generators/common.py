@@ -143,8 +143,15 @@ def _registry():
 
 
 def apps() -> List[Tuple[str, str, str, str]]:
-    """The real ``(key, name, blurb, section)`` list, unmodified."""
-    return list(_registry()[0])
+    """The real ``(key, name, blurb, section)`` list, as Home shows it by default.
+
+    Apps registered with the alpha gate are left out: the variants depict
+    Home with Preferences > Show alpha features off, its default.
+    """
+    from spacr.settings import _alpha_names
+
+    alpha = _alpha_names("apps")
+    return [row for row in _registry()[0] if row[0] not in alpha]
 
 
 def app_map() -> Dict[str, Tuple[str, str, str, str]]:

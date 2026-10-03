@@ -52,8 +52,11 @@ def test_no_registered_module_is_unreachable(routes):
     action from ``spacr/qt/widgets/feature_dictionary.py`` rather than
     from app.py's table, so it is reachable but not listed there.
     """
+    from spacr.settings import _alpha_names
+
     every, tiled, folded, helped = routes
-    stranded = sorted(every - tiled - set(folded) - helped)
+    # Alpha-gated apps (item 634) are opened from Home only with alpha on.
+    stranded = sorted(every - tiled - set(folded) - helped - _alpha_names("apps"))
     assert not stranded, (
         f"these modules are registered but nothing opens them: {stranded}")
 
