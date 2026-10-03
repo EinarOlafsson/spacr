@@ -591,6 +591,7 @@ class ConditionBox(QFrame):
         """Remove an explicit comparison while retaining manual assignments."""
         self.criteria.remove(row)
         self._criteria_layout.removeWidget(row)
+        row.hide()
         row.deleteLater()
         self.changed.emit()
 
@@ -1217,6 +1218,7 @@ class ConditionAnnotationDialog(QDialog):
         self.column_kind.setCurrentIndex(self.column_kind.findData("combine" if kind == "template" else kind))
         for box in self.boxes:
             self.box_layout.removeWidget(box)
+            box.hide()
             box.deleteLater()
         self.boxes = []
         self.combine_available.clear()
@@ -1473,6 +1475,7 @@ class ConditionAnnotationDialog(QDialog):
         """
         self.boxes.remove(box)
         self.box_layout.removeWidget(box)
+        box.hide()
         box.deleteLater()
         self._changed()
 

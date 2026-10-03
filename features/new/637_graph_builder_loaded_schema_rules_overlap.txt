@@ -1,0 +1,35 @@
+637 -- Graph Builder: loaded schema rules overlap
+
+Status: DONE 2026-10-03
+
+Report (spacr-d7, 2026-10-03):
+In Graph Builder, after Annotate conditions -> Load schema, the first
+output's rules box draws its rows on top of each other, and they stay
+overlapped for more than 3 s. Frame:
+/mnt/wd4tb/scratch-docs-overflow/rerec-a/stage/captures/graph-1003f/15d_load_schema.png
+
+Done when:
+- After Load schema only the loaded condition boxes are drawn, with no
+  overlapping rows.
+- A Qt test checks that row geometries don't overlap after Load schema.
+
+Cause:
+- Loading a column (Load schema, switching outputs) removed the old
+  ConditionBox widgets from the layout and called deleteLater() but left them
+  visible. Until the deferred delete ran, each stale box (Readable rules,
+  "object_label contains", its own counts and buttons) kept painting at its
+  old geometry under the new box. The capture shows the old box's rows
+  interleaved with the loaded box's rows. A recorder or busy loop that pumps
+  events without deferred deletes keeps them on screen indefinitely.
+
+What was done (2026-10-03):
+- spacr/qt/widgets/condition_annotation_dialog.py: hide() before
+  deleteLater() in _load_column, remove_box and ConditionBox._remove_criterion.
+- tests/qt/test_loaded_schema_rules_do_not_overlap_n637.py: loads a
+  two-condition exact-values schema over a readable-rules draft. Using only
+  processEvents, it asserts that the visible boxes are exactly the loaded
+  ones, that the boxes don't intersect, and that no two rows in a box
+  intersect. It failed before the fix.
+- Offscreen grab after the fix: /mnt/wd4tb/scratch/637/after.png (clean).
+
+Left: nothing.
