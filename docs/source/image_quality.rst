@@ -64,16 +64,3 @@ change. Turning screening ``off`` clears the active exclusion policy.
 The Python entry points are :func:`spacr.image_quality.quality_policy`,
 :func:`spacr.image_quality.assess_image` and
 :func:`spacr.image_quality.screen_fields`.
-
-Label fields for the QC classifier
-----------------------------------
-
-With **Show alpha features** enabled, ``image_qc_classifier`` adds a small
-CPU network that flags out-of-focus, saturated, debris-covered, bubble and
-empty fields next to the focus and saturation rules. To teach it your own
-fields, open **Annotate** and choose **Field QC…**, then pick a folder of raw
-``.npy`` fields. Label each whole field as good, out of focus, saturated,
-debris, bubble or empty; when a screened report exists, the classifier's
-guesses are already ticked. **Save labels** writes
-``qc/image_qc_labels.csv``; set ``image_qc_classifier_labels`` to that file
-for the next run.
