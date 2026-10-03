@@ -238,7 +238,9 @@ TOOLS = ROOT / "tools"
 # (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
 # 2026-10-03 F411: +46/-0, documented nested helpers of 23 more modules
 # (tools/nested_helper_docs.ENABLED_MODULES); all 12,171 prior symbols unchanged.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_217
+# 2026-10-03 F411: +136/-1 (the -1 is ConditionSourceTable.setModel, removed by nightly), documented nested helpers of 39 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,217 prior symbols unchanged.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_352
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

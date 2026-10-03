@@ -116,6 +116,46 @@
         "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca"
       ]
     },
+    "spacr._lineage_trees._lineage_newick.node": {
+      "source_blocks_sha256": [
+        "14dd823183f479226988cc30c6a72d780b8693f491ea9cce7bc728745b8432f9"
+      ],
+      "source_sha256": "14dd823183f479226988cc30c6a72d780b8693f491ea9cce7bc728745b8432f9",
+      "text": "O texto Newick de ``sid`` e de tudo abaixo dele.",
+      "translation_source_blocks_sha256": [
+        "14dd823183f479226988cc30c6a72d780b8693f491ea9cce7bc728745b8432f9"
+      ]
+    },
+    "spacr._lineage_trees._lineage_segments.covering": {
+      "source_blocks_sha256": [
+        "5ee689de26fcd8880d003d33c74fa2aeb5ce83ad1b1fe28ef6f6ff7a5b0f0458"
+      ],
+      "source_sha256": "5ee689de26fcd8880d003d33c74fa2aeb5ce83ad1b1fe28ef6f6ff7a5b0f0458",
+      "text": "O segmento de ``track`` vivo em ``frame``, ou então o último antes dele.",
+      "translation_source_blocks_sha256": [
+        "5ee689de26fcd8880d003d33c74fa2aeb5ce83ad1b1fe28ef6f6ff7a5b0f0458"
+      ]
+    },
+    "spacr._lineage_trees._lineage_segments.root_and_depth": {
+      "source_blocks_sha256": [
+        "da1f14679de41ca707bfbb3d1c0fee09b00e62e9ac248977b287dae1bac50fc3"
+      ],
+      "source_sha256": "da1f14679de41ca707bfbb3d1c0fee09b00e62e9ac248977b287dae1bac50fc3",
+      "text": "O segmento raiz de ``sid`` e quantas divisões os separam.",
+      "translation_source_blocks_sha256": [
+        "da1f14679de41ca707bfbb3d1c0fee09b00e62e9ac248977b287dae1bac50fc3"
+      ]
+    },
+    "spacr._lineage_trees._lineage_tree_figure.place": {
+      "source_blocks_sha256": [
+        "0a83227e4072d0a4369dd3004e1d0024e95b0461eb9d8d9a52417572a1a18653"
+      ],
+      "source_sha256": "0a83227e4072d0a4369dd3004e1d0024e95b0461eb9d8d9a52417572a1a18653",
+      "text": "Desenha ``sid`` e seus descendentes; retorna o y em que foi desenhado.",
+      "translation_source_blocks_sha256": [
+        "0a83227e4072d0a4369dd3004e1d0024e95b0461eb9d8d9a52417572a1a18653"
+      ]
+    },
     "spacr._mask_workers": {
       "source_blocks_sha256": [
         "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153"
@@ -862,6 +902,18 @@
         "556c4a5014a324bd15b48eba6e5cd70221e1cf29b2b8234f32bdfa4d28864cf7"
       ]
     },
+    "spacr.active_learning._segmentation_uncertainty._paint": {
+      "source_blocks_sha256": [
+        "c3e8eaec2bbdff041f2b1da6ce65496b4f8b1f3d51abc8ea69f0cd5d21626a42",
+        "1e0ab09c7851f4c7bc3b92c23ed22edf1c8af83bc620191373c5a222d8ed53c0"
+      ],
+      "source_sha256": "65fe5f5addb2294e7c779b74628c718bd7d0b3f9419f5528452450cc2903705c",
+      "text": ":param values: um valor por objeto de referência, em ordem de id.\n\n:returns: os pixels de cada objeto definidos com seu valor, 0 nos demais.",
+      "translation_source_blocks_sha256": [
+        "c3e8eaec2bbdff041f2b1da6ce65496b4f8b1f3d51abc8ea69f0cd5d21626a42",
+        "1e0ab09c7851f4c7bc3b92c23ed22edf1c8af83bc620191373c5a222d8ed53c0"
+      ]
+    },
     "spacr.active_learning.annotation_coverage": {
       "source_blocks_sha256": [
         "823f3b31e91d89f52443a750f39122ec9fe64dd6299c269f4750a4609493e0ed",
@@ -992,6 +1044,26 @@
         "4cd0c63aa13f57ab8ab203911c802e6dc94327a88641459be03dbd63cd470a39",
         "2fe1b2527e790ff54e7e1173d84ffe1148ee3de7ef3ed6a664e653662a2d4cfe",
         "d4dcd17afe0982baed06bda188b28ad55c242bddab118d6269d6489a9592a3a7"
+      ]
+    },
+    "spacr.active_learning.crops_for_object_keys._register": {
+      "source_blocks_sha256": [
+        "e641638a3c124fff0023f4d0d36ba845b4025d95e2a67cae8ecd5e592867e879"
+      ],
+      "source_sha256": "e641638a3c124fff0023f4d0d36ba845b4025d95e2a67cae8ecd5e592867e879",
+      "text": "Registra chaves de objeto sem tipo, vencendo a primeira, e com tipo quando conhecidas.",
+      "translation_source_blocks_sha256": [
+        "e641638a3c124fff0023f4d0d36ba845b4025d95e2a67cae8ecd5e592867e879"
+      ]
+    },
+    "spacr.active_learning.crops_for_object_keys._resolve": {
+      "source_blocks_sha256": [
+        "99e6bba433d48f7471afca510b38ea967267d17505c05bd5805e6f3cf635487b"
+      ],
+      "source_sha256": "99e6bba433d48f7471afca510b38ea967267d17505c05bd5805e6f3cf635487b",
+      "text": "A grafia com escape primeiro — é a que um produtor emite hoje.",
+      "translation_source_blocks_sha256": [
+        "99e6bba433d48f7471afca510b38ea967267d17505c05bd5805e6f3cf635487b"
       ]
     },
     "spacr.active_learning.disagreement": {
@@ -1220,6 +1292,18 @@
         "6f0ff3e032cfbbc44057851c044beb2f6e9bdfbac50d6d383e4a2325bc71d3bc",
         "ed2f40fe4a22a05412d6a8db91e4ede8abe21a2c0f67d1570c2d8162302be6c8",
         "223036a8ab7f5e27a2be8a2147493caf3a6ea9c35814b0c9c73e5d101cf9ec20"
+      ]
+    },
+    "spacr.active_learning.predict_probabilities._run": {
+      "source_blocks_sha256": [
+        "07b7b0b0016c15bedca321cc5d37ca709072f6cf58c5743add3ee52fb9601cac",
+        "b5777566b465cc3b5a3ee5ca9c3c37c03af353a35b58e3266c6a42f2572482b2"
+      ],
+      "source_sha256": "d0876e995d6977e68ae9ba4bc279726a4a72562abbb6c857feae3e8e89de84c6",
+      "text": "Pontua os batches capturados em ordem e acrescenta matrizes normalizadas.\n\nTuplas do carregador contribuem com seu elemento de entrada, e entradas móveis são transferidas para o dispositivo selecionado antes de o modelo ser chamado.",
+      "translation_source_blocks_sha256": [
+        "07b7b0b0016c15bedca321cc5d37ca709072f6cf58c5743add3ee52fb9601cac",
+        "b5777566b465cc3b5a3ee5ca9c3c37c03af353a35b58e3266c6a42f2572482b2"
       ]
     },
     "spacr.active_learning.probabilities_from_logits": {
@@ -11108,6 +11192,16 @@
         "0a5cbb24f01a8c0af6cff8617cd0c59db48d28d489eeb5c2c2d9ac5aadef73aa"
       ]
     },
+    "spacr.classifier_evaluation.fit_temperature.objective": {
+      "source_blocks_sha256": [
+        "ac9f970c4f3d1e47e4773704605627a6b144141cf6242fdec2c0d40ad0345c3d"
+      ],
+      "source_sha256": "ac9f970c4f3d1e47e4773704605627a6b144141cf6242fdec2c0d40ad0345c3d",
+      "text": "Retorna a perda logarítmica multiclasse após aplicar uma escala exponenciada.",
+      "translation_source_blocks_sha256": [
+        "ac9f970c4f3d1e47e4773704605627a6b144141cf6242fdec2c0d40ad0345c3d"
+      ]
+    },
     "spacr.classifier_evaluation.grouped_split": {
       "source_blocks_sha256": [
         "a93d4dd1046462997ad4064a7eb40a637a229778783cd33217110672f046cd08",
@@ -11140,6 +11234,16 @@
       "translation_source_blocks_sha256": [
         "5722433e286f9dc52e65c06908627d582431e6a27697c4ee6a8fc9118b4416b0",
         "3605221e0adad0629c2c71fc37f72d20b83130a872650f3b6d8007470668ac23"
+      ]
+    },
+    "spacr.classifier_evaluation.load_evaluation_bundle.read_csv": {
+      "source_blocks_sha256": [
+        "2a3e1d9750f79bb08285ed5232765a0e7e84f9a49fe7bfdea5aa823a8fc7137e"
+      ],
+      "source_sha256": "2a3e1d9750f79bb08285ed5232765a0e7e84f9a49fe7bfdea5aa823a8fc7137e",
+      "text": "Carrega um CSV nomeado no manifesto, ou uma tabela vazia quando ele está ausente.",
+      "translation_source_blocks_sha256": [
+        "2a3e1d9750f79bb08285ed5232765a0e7e84f9a49fe7bfdea5aa823a8fc7137e"
       ]
     },
     "spacr.classifier_evaluation.nested_group_folds": {
@@ -11246,6 +11350,26 @@
         "d2cbdc0dd6d4ce6ed9e5a366c4dbd3fbe37506d1196f640d4f17ba26c58cc086",
         "d9a69f7e5fe14395dcdcbe45f120b3ba92e9677093cada580a55b13b558b3acf",
         "f67cbca546f307ff60364b64e8965e0142259004cfc0ea2c420a475435e116b0"
+      ]
+    },
+    "spacr.classifier_evaluation.write_evaluation_bundle.write_csv": {
+      "source_blocks_sha256": [
+        "d7f913d224fbd2ba2fe2183205e25718307c67d21b8a80b92c8eea3d0908c92f"
+      ],
+      "source_sha256": "d7f913d224fbd2ba2fe2183205e25718307c67d21b8a80b92c8eea3d0908c92f",
+      "text": "Substitui atomicamente ``name`` por ``frame`` e um índice opcional.",
+      "translation_source_blocks_sha256": [
+        "d7f913d224fbd2ba2fe2183205e25718307c67d21b8a80b92c8eea3d0908c92f"
+      ]
+    },
+    "spacr.classifier_evaluation.write_evaluation_bundle.write_json": {
+      "source_blocks_sha256": [
+        "29dc5798717230a32fe52990591c7eb0fd0fec449bdd177719acf3363f845160"
+      ],
+      "source_sha256": "29dc5798717230a32fe52990591c7eb0fd0fec449bdd177719acf3363f845160",
+      "text": "Substitui atomicamente ``name`` por JSON estável e indentado.",
+      "translation_source_blocks_sha256": [
+        "29dc5798717230a32fe52990591c7eb0fd0fec449bdd177719acf3363f845160"
       ]
     },
     "spacr.classifier_evaluation.write_leakage_audit": {
@@ -21748,6 +21872,26 @@
         "bc4e272f9a3f0faa190a8c825bc78d120993597b161e3ed0ce16b7194c7b3870"
       ]
     },
+    "spacr.doctor._importable_spacr_dirs.add": {
+      "source_blocks_sha256": [
+        "38fa177e2fe310c24111364625459e0db2184775010ea538d06cba7f2b5e2de1"
+      ],
+      "source_sha256": "38fa177e2fe310c24111364625459e0db2184775010ea538d06cba7f2b5e2de1",
+      "text": "Resolve e acrescenta ``path`` uma única vez, ignorando caminhos que não podem ser resolvidos.",
+      "translation_source_blocks_sha256": [
+        "38fa177e2fe310c24111364625459e0db2184775010ea538d06cba7f2b5e2de1"
+      ]
+    },
+    "spacr.doctor._register.decorate": {
+      "source_blocks_sha256": [
+        "82ace831d448259c379c1e5c74b6e392ca8f76138d2aacf24625bb8f31086d09"
+      ],
+      "source_sha256": "82ace831d448259c379c1e5c74b6e392ca8f76138d2aacf24625bb8f31086d09",
+      "text": "Rotula e registra ``function`` e depois a devolve inalterada.",
+      "translation_source_blocks_sha256": [
+        "82ace831d448259c379c1e5c74b6e392ca8f76138d2aacf24625bb8f31086d09"
+      ]
+    },
     "spacr.doctor.build_parser": {
       "source_blocks_sha256": [
         "1d125f7ec1a5ea26a3ec216dc444a6cc4fd14540485158ced2e4dd3aa695917a"
@@ -21884,6 +22028,16 @@
       "translation_source_blocks_sha256": [
         "3bb165ea1eba854d3349c51e94bce594dae17064806695e83eabe08d14131f80",
         "3ff38082e485fb7d7b6ba6a2abfcaa291b6addb052b829885a4c21835ff67656"
+      ]
+    },
+    "spacr.doctor.check_gpu._result": {
+      "source_blocks_sha256": [
+        "2e13f368395187b2479c77af2b25fd6d006c028aae9c57114b1de6bb8c0a70df"
+      ],
+      "source_sha256": "2e13f368395187b2479c77af2b25fd6d006c028aae9c57114b1de6bb8c0a70df",
+      "text": "Acrescenta evidências de tarefas compartilhadas sem alterar o diagnóstico da GPU.",
+      "translation_source_blocks_sha256": [
+        "2e13f368395187b2479c77af2b25fd6d006c028aae9c57114b1de6bb8c0a70df"
       ]
     },
     "spacr.doctor.check_installer_backend": {
@@ -28678,6 +28832,20 @@
         "2290c42c46dbf71bdff7ac0f530da600383302ed9ccb8e551e4e8948242bde92"
       ]
     },
+    "spacr.foreign.ColumnMap.from_row._get": {
+      "source_blocks_sha256": [
+        "6c8a4f7d03d4ac30c5525db818a71bcef2651311398da2aa6dbd5fedfadff9c6",
+        "577cdcd595f322cb4de8682a7932bebdffe7d6cd14f22a24c5a8218282fc93d9",
+        "7fcaee25257ee22dae7cc99cbaa4589d7de57335dc730c2929a21401450884f3"
+      ],
+      "source_sha256": "0f8d4c3f624521cc8d9871faa7ee6059224967ffea8017e114c5c75b78d07a17",
+      "text": "Retorna um campo de mapeamento serializado como texto aparado.\n\n:param key: Nome do campo do mapa de colunas a ler de ``row``.\n:returns: Texto aparado, ou uma cadeia de caracteres vazia para um valor ausente, nulo ou NaN.",
+      "translation_source_blocks_sha256": [
+        "6c8a4f7d03d4ac30c5525db818a71bcef2651311398da2aa6dbd5fedfadff9c6",
+        "577cdcd595f322cb4de8682a7932bebdffe7d6cd14f22a24c5a8218282fc93d9",
+        "7fcaee25257ee22dae7cc99cbaa4589d7de57335dc730c2929a21401450884f3"
+      ]
+    },
     "spacr.foreign.ColumnMap.is_literal": {
       "source_blocks_sha256": [
         "d596087752ce89005d7b407e9f89326515487b417835988991742dee3aaba01b"
@@ -29226,6 +29394,32 @@
         "28e244bf204011c1608a2d71fe4af08b78e81bd1c448d5af5da018939765f1f7"
       ]
     },
+    "spacr.foreign._resolve_columns._foreign": {
+      "source_blocks_sha256": [
+        "997cade9766355c6f92c515f03b07a51cafe6af3e12ae2b241b9284287ef419f",
+        "c34cf03fecf174e29c82a2cab603595e62e5d326e08abbc27c595d63d0d86e10",
+        "87bbdf11907af57efdf55fc438e83ac6662788d8d688845978e775049061b621"
+      ],
+      "source_sha256": "00bbd44372443d4b97274f5e12531ceff14ac71bc0ef3b185b50dcf8823da6b0",
+      "text": "Constrói um destino prefixado não usado para uma coluna externa.\n\n:param source: Nome da coluna de origem externa a sanear.\n:returns: Destino prefixado seguro para SQL que não está em ``taken``.",
+      "translation_source_blocks_sha256": [
+        "997cade9766355c6f92c515f03b07a51cafe6af3e12ae2b241b9284287ef419f",
+        "c34cf03fecf174e29c82a2cab603595e62e5d326e08abbc27c595d63d0d86e10",
+        "87bbdf11907af57efdf55fc438e83ac6662788d8d688845978e775049061b621"
+      ]
+    },
+    "spacr.foreign._resolve_columns._note_shadow": {
+      "source_blocks_sha256": [
+        "1a8d5a318ff252945281bbc69075f4d58a1280f8fdf02dc25411e413ea0179ec",
+        "5dfb8a019e60f1c37b122511b20a943219e6bf271e96163417fd46185fd10ce0"
+      ],
+      "source_sha256": "fb446851035f173ac83ebd0ba1a22f354dd3b1072b7e2c3c1a195598055e1638",
+      "text": "Registra que a coluna deles tem *nome* igual ao de uma do spaCR.\n\nNão é bloqueante — o valor fica sob o prefixo externo, então nada é sobrescrito — mas um usuário que lê ``cell_area`` na tabela de origem e ``cell_area`` num banco de dados do spaCR precisa ser avisado de que são dois números diferentes.",
+      "translation_source_blocks_sha256": [
+        "1a8d5a318ff252945281bbc69075f4d58a1280f8fdf02dc25411e413ea0179ec",
+        "5dfb8a019e60f1c37b122511b20a943219e6bf271e96163417fd46185fd10ce0"
+      ]
+    },
     "spacr.foreign.default_settings": {
       "source_blocks_sha256": [
         "1aa98f3f9b18ae768783f0a3e253205a7ebd5fbbb61566deafbfb45b7afe290d",
@@ -29470,6 +29664,22 @@
         "957a16a46e1e13b3574486d9f8f086e679a97a69874ceabf3cbbc4353ada509a",
         "b62fdcb5144e51896597f6555e18b31f020c1c8ba3a5f0fc150ab78a9b1b42e0",
         "34b037d8520ed0bdfd81e98658b407768de99be0e301ccd48431e3af0143fa69"
+      ]
+    },
+    "spacr.foreign.run_import._step": {
+      "source_blocks_sha256": [
+        "c86884c34d19334af357689e6b5b07d5e1e8a2575113634eecd81ea733e53926",
+        "3b0ac9c099a7eb211edd21ce8e566e5a36abc1ab7d3fd71a2e215fd500bac5ba",
+        "27a7afa9bc4b5e7eca25f01fab169048b061ee830b1b74a995c6a4b73d0ff9fd",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
+      ],
+      "source_sha256": "2ec7b5f20bf7bb1041ade3893dc66c5444ba8fd300889c22e4de489a389e37ff",
+      "text": "Relata uma etapa de importação quando há uma função de progresso disponível.\n\n:param index: Posição da etapa concluída, contando a partir de um.\n:param message: Descrição legível da etapa atual.\n:returns: ``None``.",
+      "translation_source_blocks_sha256": [
+        "c86884c34d19334af357689e6b5b07d5e1e8a2575113634eecd81ea733e53926",
+        "3b0ac9c099a7eb211edd21ce8e566e5a36abc1ab7d3fd71a2e215fd500bac5ba",
+        "010f238f3a3c970bde92c757b84bc887eb020c42e25174f0fc6246028fac531c",
+        "19ccd0650c179313ee4cbd83c8934366e43399e557de86bef36b957f4709e1c3"
       ]
     },
     "spacr.foreign.save_column_map": {
@@ -35956,6 +36166,36 @@
       "text": "Triagem auditável da qualidade de imagem antes da segmentação, usando intensidades brutas.",
       "translation_source_blocks_sha256": [
         "7bdc0835ac2f57f9a499540bb8882a2e02e8a32d803a3b56ed3a73d8657a717e"
+      ]
+    },
+    "spacr.image_quality._qc_network.QCNet.__init__": {
+      "source_blocks_sha256": [
+        "6719ae23ef013e6dd96aa18653b1cb97cc620c4de0b75acbf3b03d30a66e2450"
+      ],
+      "source_sha256": "6719ae23ef013e6dd96aa18653b1cb97cc620c4de0b75acbf3b03d30a66e2450",
+      "text": "Constrói os dois troncos convolucionais e a cabeça compartilhada.",
+      "translation_source_blocks_sha256": [
+        "6719ae23ef013e6dd96aa18653b1cb97cc620c4de0b75acbf3b03d30a66e2450"
+      ]
+    },
+    "spacr.image_quality._qc_network.QCNet.forward": {
+      "source_blocks_sha256": [
+        "0622002194089725c1f20b7e56d6747e6959ece18b364cca2c823d5644483ec2"
+      ],
+      "source_sha256": "0622002194089725c1f20b7e56d6747e6959ece18b364cca2c823d5644483ec2",
+      "text": "Retorna os logits de classe para um lote de campos.",
+      "translation_source_blocks_sha256": [
+        "0622002194089725c1f20b7e56d6747e6959ece18b364cca2c823d5644483ec2"
+      ]
+    },
+    "spacr.image_quality._qc_network.trunk": {
+      "source_blocks_sha256": [
+        "3ddc7b677a9934834f1708ac3629f83ced41d74eb0ffe6856993c4d75cbfd051"
+      ],
+      "source_sha256": "3ddc7b677a9934834f1708ac3629f83ced41d74eb0ffe6856993c4d75cbfd051",
+      "text": "Quatro estágios de convolução 3x3 com a mesma forma nos dois ramos.",
+      "translation_source_blocks_sha256": [
+        "3ddc7b677a9934834f1708ac3629f83ced41d74eb0ffe6856993c4d75cbfd051"
       ]
     },
     "spacr.image_quality.assess_image": {
@@ -48102,6 +48342,28 @@
         "289c9dcc8a70493f5f9a24f09126dff76d72c9960372c19ef6696acab2665696"
       ]
     },
+    "spacr.model_zoo._default_segmenter._segment": {
+      "source_blocks_sha256": [
+        "2aa3b5b846bbd197fc28b5118f2cb317ea3833e81b9a68fdf5f09f4a1b0cf1cd"
+      ],
+      "source_sha256": "2aa3b5b846bbd197fc28b5118f2cb317ea3833e81b9a68fdf5f09f4a1b0cf1cd",
+      "text": "Segmenta ``images`` com o backend ao qual pertence o modelo da configuração.",
+      "translation_source_blocks_sha256": [
+        "2aa3b5b846bbd197fc28b5118f2cb317ea3833e81b9a68fdf5f09f4a1b0cf1cd"
+      ]
+    },
+    "spacr.model_zoo._refresh_shared_catalogue_in_background.run": {
+      "source_blocks_sha256": [
+        "d9e400840c34c9c79d93b93e8a5caf738254a29b6ec2f0c2a20a1a76a613f895",
+        "f598fb53451f0a945729ff58c8c7eb7ca50a4cc89b006a085e84b632594dc880"
+      ],
+      "source_sha256": "76ec13f00da9848eefd9bfc2166d487f6b40293868f191142cb494b9407e23dc",
+      "text": "Busca o catálogo fora da thread da GUI e sempre libera o sinalizador.\n\nO `finally` é o ponto principal: `_SHARED_CATALOGUE_FETCHING` é o que impede que uma segunda atualização comece enquanto esta está em andamento, então uma busca que lança uma exceção ainda precisa limpá-lo, senão nenhuma atualização posterior poderá começar.",
+      "translation_source_blocks_sha256": [
+        "6cc664047685fa73e5e13a561936d36d8eddd03772ca9504a1c86160e5631b1c",
+        "f598fb53451f0a945729ff58c8c7eb7ca50a4cc89b006a085e84b632594dc880"
+      ]
+    },
     "spacr.model_zoo.benchmark": {
       "source_blocks_sha256": [
         "e3cd8c31e890dfcd90e7f8f901b86925fdb8e74994eb0610a9a5ae549e1afdd6",
@@ -48144,6 +48406,22 @@
         "413be12d10fc058671f201819f38eccb82f5648ddb4d46a5f27150e3edb59f2b",
         "ee0e1c18a0dd96c31bcc68100165517d2ae93435cecb626fbeadde7c9750ee19",
         "1d52d1728c2f814b8f28a8f3be7dd4d9887bb515983b59e22c7cc81023d1903a"
+      ]
+    },
+    "spacr.model_zoo.benchmark._tick": {
+      "source_blocks_sha256": [
+        "9e39c3fe8d9dd8e814af49c524f9b9300255a76483d9251c4411ec10e2810f7b",
+        "5001dec6511cd122aa4a4d7fb140f2b39bd45204489b70fd431cad0ead2bee6f",
+        "ea2021ffc8ebdecf9f8c9748e72252b2376018943ee41f5d23fe1b4c63e8d1e0",
+        "9f9fa76fb9cf5d25700f71f5356caa04d80414a43e56e3d270a55d57f0a61397"
+      ],
+      "source_sha256": "ba829d9a48005b282ecc7563e5eb4d1d11edda07dcde1ba3ad71413e55de1d33",
+      "text": "Relata um marco do benchmark pela função de retorno capturada.\n\n:param message: descrição da etapa para a exibição de progresso.\n:param done: índice da etapa concluída, de zero a dois.\n:returns: None. Quando uma função de retorno foi fornecida, ela recebe a mensagem, o índice concluído e o total capturado de dois; caso contrário, isto não faz nada.",
+      "translation_source_blocks_sha256": [
+        "9e39c3fe8d9dd8e814af49c524f9b9300255a76483d9251c4411ec10e2810f7b",
+        "5001dec6511cd122aa4a4d7fb140f2b39bd45204489b70fd431cad0ead2bee6f",
+        "ea2021ffc8ebdecf9f8c9748e72252b2376018943ee41f5d23fe1b4c63e8d1e0",
+        "9f9fa76fb9cf5d25700f71f5356caa04d80414a43e56e3d270a55d57f0a61397"
       ]
     },
     "spacr.model_zoo.bioimageio_entries": {
@@ -48748,6 +49026,16 @@
         "49e15e3e04723280993a98113e2e957dd03f4b1ab98e82df0f4dd5fa0b11e028",
         "4e65a4c8aec894265c2f6576cbad61fab5175d45814be3e335e10d389034a691",
         "7abe5a3c0dadf3621b602f2f4cf65b01f353590750db7b686f9fb5e0ef32dfef"
+      ]
+    },
+    "spacr.model_zoo.scorecard_html.cell": {
+      "source_blocks_sha256": [
+        "1724c72a9405c9004a0a4f59fbcdbcb4d82cdcd9345fd7fe91a317991205bfad"
+      ],
+      "source_sha256": "1724c72a9405c9004a0a4f59fbcdbcb4d82cdcd9345fd7fe91a317991205bfad",
+      "text": "Um valor do quadro de pontuação como exibido, ou \"not recorded\" quando vazio.",
+      "translation_source_blocks_sha256": [
+        "1724c72a9405c9004a0a4f59fbcdbcb4d82cdcd9345fd7fe91a317991205bfad"
       ]
     },
     "spacr.model_zoo.sha256_file": {
@@ -53410,6 +53698,22 @@
         "36239f30993fc6a9951c608cceebe0315fe6edbc86b193dc8d4567aeb51ea748"
       ]
     },
+    "spacr.ops_accel.matmul.run": {
+      "source_blocks_sha256": [
+        "119b4ea243299144a9ae5a4281dddee6df6b807f3595f62a4935abc92a220078",
+        "581e693ea43cc6f1b94dc3ed9cc03e9b1e80669639d756819575b93b9a882011",
+        "e0a285aa925c6027e80be77caaef07c04f0cd9422659ab703b529948672c5494",
+        "cb043ee3a1cd6f5b62faf1a7e7012c7dc74700959b25044eb85549e266b44c8e"
+      ],
+      "source_sha256": "18e9e9cdcaeaa670bcce123e41ad20d05f6d9d0cf15b1fc65f9e80b45f90284b",
+      "text": "O produto de matrizes em um backend nomeado.\n\n:param name: \"torch\", \"cupy\" ou \"numpy\".\n:returns: o produto como NumPy float32, onde quer que tenha sido calculado.\n:raises RuntimeError: quando esse backend não está instalado.",
+      "translation_source_blocks_sha256": [
+        "119b4ea243299144a9ae5a4281dddee6df6b807f3595f62a4935abc92a220078",
+        "581e693ea43cc6f1b94dc3ed9cc03e9b1e80669639d756819575b93b9a882011",
+        "e0a285aa925c6027e80be77caaef07c04f0cd9422659ab703b529948672c5494",
+        "cb043ee3a1cd6f5b62faf1a7e7012c7dc74700959b25044eb85549e266b44c8e"
+      ]
+    },
     "spacr.ops_accel.maximum_filter": {
       "source_blocks_sha256": [
         "db53750c7ab8ead2bef60334a1c059898c48a5a60f6c289d7a38448ebfb113e7",
@@ -53432,6 +53736,22 @@
         "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
         "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
         "c9b9c7d65976728de27acfbc743e867b4dcd6464352b87ab8211e5d43ec34471"
+      ]
+    },
+    "spacr.ops_accel.maximum_filter.run": {
+      "source_blocks_sha256": [
+        "bbc5455585a8677b99ff5eaa1885fae9d69b243ff1e455654f29be000bea22b6",
+        "581e693ea43cc6f1b94dc3ed9cc03e9b1e80669639d756819575b93b9a882011",
+        "861dcdbb2761ed62d004fcda020021539dfb52699ee105ce8cbb7cd94e0cdf6a",
+        "afde8faa99db1073854291168d7e63f309c60527a257f74175c162c9ac967f22"
+      ],
+      "source_sha256": "c4766af786183f74abc0af0f04132709300afea17d14a32ae9d731a2c0c5ff1e",
+      "text": "O máximo em janelas em um backend nomeado.\n\n:param name: \"torch\", \"cupy\" ou \"numpy\".\n:returns: o campo filtrado como um array 2-D.\n:raises RuntimeError: quando esse backend não está instalado, que é o que `_try` lê para passar ao próximo.",
+      "translation_source_blocks_sha256": [
+        "bbc5455585a8677b99ff5eaa1885fae9d69b243ff1e455654f29be000bea22b6",
+        "581e693ea43cc6f1b94dc3ed9cc03e9b1e80669639d756819575b93b9a882011",
+        "861dcdbb2761ed62d004fcda020021539dfb52699ee105ce8cbb7cd94e0cdf6a",
+        "afde8faa99db1073854291168d7e63f309c60527a257f74175c162c9ac967f22"
       ]
     },
     "spacr.ops_accel.nearest_neighbours": {
@@ -53458,6 +53778,24 @@
         "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
         "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
         "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ]
+    },
+    "spacr.ops_accel.nearest_neighbours.run": {
+      "source_blocks_sha256": [
+        "7f7320310dbde2d678e36725a7cd1692a8cdf7dfe1c1e818ee7450308923a256",
+        "581e693ea43cc6f1b94dc3ed9cc03e9b1e80669639d756819575b93b9a882011",
+        "368252ac8abc9348c3548b309faebdcaca053db35461c1ddfd132d71b763b379",
+        "cb043ee3a1cd6f5b62faf1a7e7012c7dc74700959b25044eb85549e266b44c8e",
+        "8e1ab4f0f6310263bd776337cb6eab90fadf134fa755006fc69b4323b999929c"
+      ],
+      "source_sha256": "47259abd8cb85f11b8413a4a696d46f0c361dd3a6464a94da1e75741dc3226ba",
+      "text": "Vizinhos mais próximos em um backend nomeado.\n\n:param name: \"torch\", \"cupy\" ou \"numpy\".\n:returns: ``(indices, distances)``, uma linha por ponto de origem.\n:raises RuntimeError: quando esse backend não está instalado.\n\nDividido em blocos de :data:`CHUNK` em todos os backends, porque aqui o custo de memória é a matriz de distâncias par a par, e ela é quadrática.",
+      "translation_source_blocks_sha256": [
+        "7f7320310dbde2d678e36725a7cd1692a8cdf7dfe1c1e818ee7450308923a256",
+        "581e693ea43cc6f1b94dc3ed9cc03e9b1e80669639d756819575b93b9a882011",
+        "368252ac8abc9348c3548b309faebdcaca053db35461c1ddfd132d71b763b379",
+        "cb043ee3a1cd6f5b62faf1a7e7012c7dc74700959b25044eb85549e266b44c8e",
+        "8e1ab4f0f6310263bd776337cb6eab90fadf134fa755006fc69b4323b999929c"
       ]
     },
     "spacr.ops_compose": {
@@ -53734,6 +54072,60 @@
         "2c2458a62b571f8e72b70b8e635f8908f800ba1bc12bd66c9029a0483955d613",
         "5c9f270f641228d72fd06d281a396844c53f2d5761d8e13e1f0aaf3f4831a770",
         "bbfd27c77a3500bad2fba37cb41206f2f12ede8627480ed3aedc7c6d13f2c02f"
+      ]
+    },
+    "spacr.ops_engine._largest_component.find": {
+      "source_blocks_sha256": [
+        "bff7bdea9aa13fb4afefd4803c6d263df0352baf7fd4f745f24eea4c59de3229",
+        "7c8591055d6f41a1df040a9cdc53fe858820fae5d4080747de5cb33ca6f2d6d6",
+        "59c8dda336356652d440087a4945c12ccd58efcf6c4db3491b4bf67c3ea29a60"
+      ],
+      "source_sha256": "05c6b889f507a43bd14b954e3e19da3c0df6fd558de1d35fed620abe611410bd",
+      "text": "O representante do componente de ``site``.\n\n:param site: uma posição.\n:returns: sua raiz.",
+      "translation_source_blocks_sha256": [
+        "bff7bdea9aa13fb4afefd4803c6d263df0352baf7fd4f745f24eea4c59de3229",
+        "7c8591055d6f41a1df040a9cdc53fe858820fae5d4080747de5cb33ca6f2d6d6",
+        "59c8dda336356652d440087a4945c12ccd58efcf6c4db3491b4bf67c3ea29a60"
+      ]
+    },
+    "spacr.ops_engine._phenotype.seed_of": {
+      "source_blocks_sha256": [
+        "7de2ce085a3861b87e23b50529844afc447f0e855f43c88ec95d039485ceb0b6",
+        "033dcc7c1052f7211012fbf2bdfeb3d903a38f2554aca788efbe6d9acab2919f",
+        "1b33d878d599dd404007647e85d60c82573908dffda6f8d28094a5823712c000"
+      ],
+      "source_sha256": "f4649518155c980674574194cb5998712490bedc10c98b590c1221e31b42a622",
+      "text": "Onde se espera o centro de um campo de fenótipo, antes de alinhá-lo.\n\n:param site: a posição do fenótipo.\n:returns: a semente ``(y, x)`` no sistema de coordenadas do poço.",
+      "translation_source_blocks_sha256": [
+        "7de2ce085a3861b87e23b50529844afc447f0e855f43c88ec95d039485ceb0b6",
+        "033dcc7c1052f7211012fbf2bdfeb3d903a38f2554aca788efbe6d9acab2919f",
+        "69cdcdff0cdd12f8b1da465be4f788b8031d496fad9df3f119a22472636b901c"
+      ]
+    },
+    "spacr.ops_engine._phenotype.usable_under": {
+      "source_blocks_sha256": [
+        "59ba3d8da855be8754e06eb8f4851276f2772716ba835ec64c904b9d0dce9f76",
+        "e31a3859d8e338965715804d546c6e3712cc3addb9b6c3648654a4d7507fbb10",
+        "ff66fb05dd07adb70a97ec5e2da70944743d34b5c7fc185c1eb7fb5cd9ecfc4c",
+        "b3f6f307c7905d81b8efa4374e1320fd38117090015c4c40e605ff2d16963e4b"
+      ],
+      "source_sha256": "23ae1ca520d3491c91ef63fafea58ce42bc8fa9bc719a7ed3e469b648a2e0297",
+      "text": "Os blocos posicionados que tocam ``window`` e podem ser lidos.\n\n:param window: o retângulo prestes a ser composto.\n:returns: ``site -> (y, x)`` para :func:`~spacr.ops_compose.compose_window`.\n\nUM POÇO NÃO É ABERTO PARA COMPOR UMA JANELA DELE. Seis âncoras precisam de cerca de nove blocos cada; testar a legibilidade em cada posicionamento puxou todos os 333 blocos de sequenciamento do poço de referência, e ``tifffile`` lê o arquivo inteiro de cinco planos e 1,480 px para um único plano -- 22 MB cada, cerca de 7 GB via NFS por poço, antes que ``compose_window`` relesse os nove que queria. O teste de sobreposição usa o mesmo arredondamento que ``compose_window``, então um bloco é oferecido aqui exatamente quando teria sido usado lá; um bloco que não pode ser lido é descartado para que o compositor nunca veja um None.",
+      "translation_source_blocks_sha256": [
+        "59ba3d8da855be8754e06eb8f4851276f2772716ba835ec64c904b9d0dce9f76",
+        "e31a3859d8e338965715804d546c6e3712cc3addb9b6c3648654a4d7507fbb10",
+        "ff66fb05dd07adb70a97ec5e2da70944743d34b5c7fc185c1eb7fb5cd9ecfc4c",
+        "5ee0d51de6c831cbb149b08b40cc982bb4ed5e1bad4b599ce682df0af3f58be8"
+      ]
+    },
+    "spacr.ops_engine._st_register_intensity.shrink": {
+      "source_blocks_sha256": [
+        "4a50c5271572fb5b66105339d402065bd73d9c507e0c8009bd474d8d72330f26"
+      ],
+      "source_sha256": "4a50c5271572fb5b66105339d402065bd73d9c507e0c8009bd474d8d72330f26",
+      "text": "Retorna a imagem de registro em escala de cinza e seu fator de redução.",
+      "translation_source_blocks_sha256": [
+        "4a50c5271572fb5b66105339d402065bd73d9c507e0c8009bd474d8d72330f26"
       ]
     },
     "spacr.ops_engine.run_ops": {
@@ -68304,6 +68696,18 @@
         "d955aff8245c1684a20bcafa9c13d6652880d4f4e1f8b0e6263853a6b877d270"
       ]
     },
+    "spacr.qt.ask_for_the_path.a_folder_holding.check": {
+      "source_blocks_sha256": [
+        "ed778f6dbe4d18d5e49b912a7c7fd729d8bba3a02e39833d425675e2d8ba26a7",
+        "733354dd50a54aec08441e9789ba0a1c71f3162a1edafb39f07612d55b1fb698"
+      ],
+      "source_sha256": "672b41c3037567e193ba308c39c5c1a7f8e3ad0b743788644141184a10f171d6",
+      "text": "Diz o que há de errado com um caminho, ou ``None`` quando ele serve.\n\nRetorna a RECLAMAÇÃO em vez de um bool, para que quem chama possa mostrar o motivo em vez de uma recusa seca.",
+      "translation_source_blocks_sha256": [
+        "ed778f6dbe4d18d5e49b912a7c7fd729d8bba3a02e39833d425675e2d8ba26a7",
+        "733354dd50a54aec08441e9789ba0a1c71f3162a1edafb39f07612d55b1fb698"
+      ]
+    },
     "spacr.qt.ask_for_the_path.ask_for_a_database_column": {
       "source_blocks_sha256": [
         "5388bff00e0bcde667213e997dc99e57c325ca3ebbf9b7afa07630fc5876c3ac",
@@ -68328,6 +68732,26 @@
         "22f82b2139be6010b25d0ce8df6db42fd287c8dd0b0e7b37da51d296c216e037"
       ]
     },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column.chooser": {
+      "source_blocks_sha256": [
+        "49d7001f27c304520c831203b1fa3c966396f690305879badb955c8dc979b000"
+      ],
+      "source_sha256": "49d7001f27c304520c831203b1fa3c966396f690305879badb955c8dc979b000",
+      "text": "Abre o diálogo de arquivo do banco de dados. Injetado para testes.",
+      "translation_source_blocks_sha256": [
+        "49d7001f27c304520c831203b1fa3c966396f690305879badb955c8dc979b000"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_database_column.pick": {
+      "source_blocks_sha256": [
+        "89c5ba24c29af0ef00f753e45bd73efd484979db44d2a78b0831edd3f9bb568f"
+      ],
+      "source_sha256": "89c5ba24c29af0ef00f753e45bd73efd484979db44d2a78b0831edd3f9bb568f",
+      "text": "Pergunta qual coluna, entre as que o banco de dados realmente tem.",
+      "translation_source_blocks_sha256": [
+        "89c5ba24c29af0ef00f753e45bd73efd484979db44d2a78b0831edd3f9bb568f"
+      ]
+    },
     "spacr.qt.ask_for_the_path.ask_for_a_folder": {
       "source_blocks_sha256": [
         "210ec56d4a2818675435f11320ec1279c46d834dc1eea88304a1f37516c7ac0e",
@@ -68348,6 +68772,16 @@
         "f355cf3b6af4f4f770188d487917a3a35b9e203310589c414b05e87470df2946",
         "3e805522155df8dc11a7f03b95960a2a49322547b549107681c51a8bfa67c576",
         "d667546b5c81e4e91fc556474965e61e6c50c6ec175055fe1b0975ad50be0c3a"
+      ]
+    },
+    "spacr.qt.ask_for_the_path.ask_for_a_folder.chooser": {
+      "source_blocks_sha256": [
+        "b084294217fed811520dac6442de5ea1f24483fcd983fd603f947dd29968385d"
+      ],
+      "source_sha256": "b084294217fed811520dac6442de5ea1f24483fcd983fd603f947dd29968385d",
+      "text": "Abre o diálogo de pastas. Injetado para que o fluxo possa ser testado.",
+      "translation_source_blocks_sha256": [
+        "b084294217fed811520dac6442de5ea1f24483fcd983fd603f947dd29968385d"
       ]
     },
     "spacr.qt.ask_for_the_path.columns_in": {
@@ -68450,6 +68884,16 @@
         "26975143a68b2f5b811d0b1c546ead7858ce3f59e726f09a87a8507c40a54f98"
       ]
     },
+    "spacr.qt.assay_examples.download_assay_example._factory": {
+      "source_blocks_sha256": [
+        "3abd1a0ebc03f1756cc7b01f85325b9f56575463701e2b8aaaca9681452be128"
+      ],
+      "source_sha256": "3abd1a0ebc03f1756cc7b01f85325b9f56575463701e2b8aaaca9681452be128",
+      "text": "Constrói o trabalhador para o repositório deste conjunto.",
+      "translation_source_blocks_sha256": [
+        "3abd1a0ebc03f1756cc7b01f85325b9f56575463701e2b8aaaca9681452be128"
+      ]
+    },
     "spacr.qt.assay_examples.install_assay_example_button": {
       "source_blocks_sha256": [
         "16196dff96f829d6b1bc2ae8a839d9cbb9745a7839d19e940e90ab7f521ee2aa",
@@ -68484,6 +68928,26 @@
         "7c75d701505ffff7337e8c6914fd5d8abc264ea105ca022eff8015a46c6f8c65",
         "cc74d8eabf1703a8061a02ce63c33a3b93d417ecb277f851ff1b67e068d4ecba",
         "c04167960cb5ae1843a708ecf991f6dc900a058f32912faecb8dbb22cceedc6b"
+      ]
+    },
+    "spacr.qt.assay_examples.load_the_assay_example._done": {
+      "source_blocks_sha256": [
+        "8a8b2963866f3bae33783fa2758a93d32c01ddcc10c0a2b3c7b08ba6bc7fd8e5"
+      ],
+      "source_sha256": "8a8b2963866f3bae33783fa2758a93d32c01ddcc10c0a2b3c7b08ba6bc7fd8e5",
+      "text": "Restaura o botão e depois preenche as configurações ou diz por que não.",
+      "translation_source_blocks_sha256": [
+        "8a8b2963866f3bae33783fa2758a93d32c01ddcc10c0a2b3c7b08ba6bc7fd8e5"
+      ]
+    },
+    "spacr.qt.assay_examples.load_the_assay_example.ask": {
+      "source_blocks_sha256": [
+        "8eb07d8f0c4ea68d79e4744c7d9581ee78aa91a579c7520c1891f0b2f208b3ad"
+      ],
+      "source_sha256": "8eb07d8f0c4ea68d79e4744c7d9581ee78aa91a579c7520c1891f0b2f208b3ad",
+      "text": "Inicia o download deste módulo.",
+      "translation_source_blocks_sha256": [
+        "8eb07d8f0c4ea68d79e4744c7d9581ee78aa91a579c7520c1891f0b2f208b3ad"
       ]
     },
     "spacr.qt.assay_examples.put_the_assay_example_in_place": {
@@ -69258,6 +69722,60 @@
         "e9b9e1a99761767c295bc1f8bfb85bdabee259ef1d088718ae15056938d59303",
         "b30aa82a7d93c811d71d83522e1a9d56801fc12a4270017d624d66e4203eeddf",
         "7e70f055733bcd532fdc9ef859128105b81ccb670b2286335422fd6501335e2c"
+      ]
+    },
+    "spacr.qt.chaining.ChainingBar.__init__._let_go": {
+      "source_blocks_sha256": [
+        "fb69c373017a81c2663c28e8001bfbd37946238b8db1b97203ce18880fe46f68",
+        "b06c690f816a019afc83efd43fda87742564c5e861c93f7e366eb12f431fe47f",
+        "63d49736fc01c3929c739949127809279d0ace762439fd1630310d9805f3d90c"
+      ],
+      "source_sha256": "59ad5439fb39e759b8f45d903f0ea101a025b4e6ce706dc8c9a7eb9fa2cbdbbc",
+      "text": "Solta a conexão da sonda enquanto este invólucro ainda funciona.\n\nConectado a `destroyed` em vez de feito num destrutor: quando o Python coleta o invólucro, o objeto C++ já se foi e `disconnect` lança uma exceção a partir do que quer que o tenha emitido.\n\n:param _args: o que quer que `destroyed` envie; não usado.",
+      "translation_source_blocks_sha256": [
+        "fb69c373017a81c2663c28e8001bfbd37946238b8db1b97203ce18880fe46f68",
+        "b06c690f816a019afc83efd43fda87742564c5e861c93f7e366eb12f431fe47f",
+        "63d49736fc01c3929c739949127809279d0ace762439fd1630310d9805f3d90c"
+      ]
+    },
+    "spacr.qt.chaining.ChainingBar.__init__._root_answered": {
+      "source_blocks_sha256": [
+        "1dd74d323d98dd42ff16a5b9011312f42e83272c8d8a2868c5df2cef912f64aa",
+        "4ac6718674b92706f81f50c66bb8fec6c0db77d172cc114dd9ff39eea673c788",
+        "fe69a859c8175c0ea5786f57bcd0c7ace64bfbc2aa6b55065b8f0646a3bbe3f7",
+        "fab8082737168222b47b3c864177c828611b52a0b4ba8895cca1451e039fa0d5"
+      ],
+      "source_sha256": "42052cfe11a0b57affdb8cdda54ce49e7a31a63c4575480e5f385d46f3b9112c",
+      "text": "Redesenha quando uma sonda tem uma resposta para uma raiz.\n\nAmbos os argumentos são ignorados: a faixa relê toda raiz que lhe interessa, então QUAL caminho respondeu não muda o que precisa ser feito. `RuntimeError` significa que a faixa foi destruída e o sinal sobreviveu a ela, o que não é um erro que valha a pena lançar.\n\n:param _path: o caminho sondado; não usado.\n:param _answer: o que a sonda encontrou; não usado.",
+      "translation_source_blocks_sha256": [
+        "1dd74d323d98dd42ff16a5b9011312f42e83272c8d8a2868c5df2cef912f64aa",
+        "4ac6718674b92706f81f50c66bb8fec6c0db77d172cc114dd9ff39eea673c788",
+        "fe69a859c8175c0ea5786f57bcd0c7ace64bfbc2aa6b55065b8f0646a3bbe3f7",
+        "fab8082737168222b47b3c864177c828611b52a0b4ba8895cca1451e039fa0d5"
+      ]
+    },
+    "spacr.qt.chaining.ChainingBar._refresh.done": {
+      "source_blocks_sha256": [
+        "15af4da7fcd0d041106b43efa19221fb9351b03c63c09e60f2d073703629d91c",
+        "649f183001bfd6f22101c7cd3c2af1028a52c75c5bc747d8566a94b22579f929",
+        "b01e6158405a63e2e6b77fdd7eb1008f767ca4ce7973d0e8ba459e224c09cc9a"
+      ],
+      "source_sha256": "a118e5885a136d0fd98fdb0caa1e1d00643943338c6dbd4706f22fa23afcaec2",
+      "text": "Pinta o que o trabalhador resolveu, de volta na thread da GUI.\n\nLimpa `_resolving` PRIMEIRO, para que uma solicitação que chegou enquanto esta estava em andamento -- guardada em `_resolve_again` -- possa começar imediatamente em vez de ser recusada por um sinalizador que esta função ainda não limpou.\n\n:param payload: o ``(resolution, notes)`` do trabalhador, ou None quando ele não produziu nada para desenhar.",
+      "translation_source_blocks_sha256": [
+        "a300134ff1022589b1fcee7c7df9862f5e22414b9d7b23e2bf41a0c0060c78e3",
+        "649f183001bfd6f22101c7cd3c2af1028a52c75c5bc747d8566a94b22579f929",
+        "b01e6158405a63e2e6b77fdd7eb1008f767ca4ce7973d0e8ba459e224c09cc9a"
+      ]
+    },
+    "spacr.qt.chaining.ChainingBar._refresh.work": {
+      "source_blocks_sha256": [
+        "755f1fddccb92ffd6970c3c02f72a98ca31e73e71fdcef01b5f5abc158d2afdc"
+      ],
+      "source_sha256": "755f1fddccb92ffd6970c3c02f72a98ca31e73e71fdcef01b5f5abc158d2afdc",
+      "text": "Fora da thread da GUI. Não toca nenhum widget -- só retorna dados.",
+      "translation_source_blocks_sha256": [
+        "0267b8f51d65fb89a6a0db3e1cba7e2e773b5258af42aed06b4af2d40a561262"
       ]
     },
     "spacr.qt.chaining.ChainingBar.adopt": {
@@ -75710,6 +76228,28 @@
         "ab023e75bee2aa0dbcdc37148288d1971604d4e564acf0d5f273b31f444ca787"
       ]
     },
+    "spacr.qt.i18n._term_translation._inside_an_identifier": {
+      "source_blocks_sha256": [
+        "32a0e324d1299bc7334696cb48a4f54d54a5638da01435b2663fdd573ece9991",
+        "2577bca2c5ef7f5013a06421bbbab0581340d139ae5dcd33a0dbd7fdf9dcae65"
+      ],
+      "source_sha256": "d3b6884f46bc8faf191b3d54f8999b67c0e143ac493671b2305387a0d7ec64c9",
+      "text": "Se a palavra em ``start:end`` faz parte de um nome de código.\n\nUma palavra encostada em ``_`` ou em um dígito é um pedaço de identificador -- ``cell_area``, ``channel_1``, ``image_path`` -- e não uma palavra de prosa. Traduzi-la reescreve um nome de coluna, uma chave de configuração ou um exemplo SQL em algo que já não nomeia nada: o próprio predicado de exemplo do navegador de banco de dados, ``cell_area > 1000``, foi mostrado a um usuário sueco como ``Cell_area > 1000``, e a dica de busca oferecia ``'Kanal_1'`` para uma coluna chamada ``channel_1``.",
+      "translation_source_blocks_sha256": [
+        "32a0e324d1299bc7334696cb48a4f54d54a5638da01435b2663fdd573ece9991",
+        "e82d2db44888136a39096c2bef023cb48adf288c9d7bea91ca7b10b1b8fbbfaa"
+      ]
+    },
+    "spacr.qt.i18n._term_translation.replace": {
+      "source_blocks_sha256": [
+        "e6db9ae62208957603006bee26ca51a9d39af9d7f95cc820cce0ade1e2245879"
+      ],
+      "source_sha256": "e6db9ae62208957603006bee26ca51a9d39af9d7f95cc820cce0ade1e2245879",
+      "text": "Substitui um termo encontrado, registrando que algo mudou.",
+      "translation_source_blocks_sha256": [
+        "e6db9ae62208957603006bee26ca51a9d39af9d7f95cc820cce0ade1e2245879"
+      ]
+    },
     "spacr.qt.i18n.add_translation": {
       "source_blocks_sha256": [
         "4b182c1ddceee9cb1dbdc1d8df7893aa7ab2d493124a6b30c03b300be4c9f99b",
@@ -75782,6 +76322,16 @@
         "167f57d75210a08337cee5009ffcdaec6727a9f755ed959f480dd23df67aab1c",
         "165aa3ab40b7babebe3e2a7408778c526480e34fd03b0edd407217bf3293bbd9",
         "fcbd9a530c6da4aaecddc2f8008456e36c55be1aec6068c7f86760ebc10d2679"
+      ]
+    },
+    "spacr.qt.i18n.install_dialog_translation._DialogTranslationFilter.eventFilter": {
+      "source_blocks_sha256": [
+        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
+      ],
+      "source_sha256": "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b",
+      "text": "Retraduz a árvore de um diálogo na primeira vez que ele é exibido.",
+      "translation_source_blocks_sha256": [
+        "7527acef51edaa5142d17d242dc17ea3c56764d0856dd2cda2c66b6329e5749b"
       ]
     },
     "spacr.qt.i18n.install_qt_translations": {
@@ -76770,6 +77320,26 @@
         "5347daa4a9be075d0eb4c2981da8d68cd8cbd84abe952f09868ec2605198f757"
       ]
     },
+    "spacr.qt.import_demo._load_import_variant._done": {
+      "source_blocks_sha256": [
+        "04b7351bac56470b619f4601c2c827d3da6bce6678e4877f7a7a58be3f231e07"
+      ],
+      "source_sha256": "04b7351bac56470b619f4601c2c827d3da6bce6678e4877f7a7a58be3f231e07",
+      "text": "Restaura o botão e depois entrega a variante ou diz por que não.",
+      "translation_source_blocks_sha256": [
+        "04b7351bac56470b619f4601c2c827d3da6bce6678e4877f7a7a58be3f231e07"
+      ]
+    },
+    "spacr.qt.import_demo._load_import_variant._report": {
+      "source_blocks_sha256": [
+        "9dac2c3ef33f44e7223ab0985c93fda441a3985b00a832d4f8cf35e690b4c6cd"
+      ],
+      "source_sha256": "9dac2c3ef33f44e7223ab0985c93fda441a3985b00a832d4f8cf35e690b4c6cd",
+      "text": "Mostra ``message`` onde o proprietário pediu, ou o registra no log.",
+      "translation_source_blocks_sha256": [
+        "9dac2c3ef33f44e7223ab0985c93fda441a3985b00a832d4f8cf35e690b4c6cd"
+      ]
+    },
     "spacr.qt.import_demo.apply_variant": {
       "source_blocks_sha256": [
         "8218bf5fe027510b497ebd8cf299eb28be3ad9f132c1a50df1f6cfb97ff2da1b",
@@ -76842,6 +77412,16 @@
         "67512796339a0f7a7514bae864a51778fb42111f6a48ab00beac7d53dc47d91b",
         "7d7be2db2800f8ba2e2171c9443cc9f7fe84d6c905566b788d8b0846962ef7b1",
         "91765276e25c13ed8de4d6563f184ff5644c8b0ad9305a3fe1bb462f7c1da1e2"
+      ]
+    },
+    "spacr.qt.import_demo.load_import_test_data._done": {
+      "source_blocks_sha256": [
+        "2edd9b2739dd28d40132c750877b24c69c8c70af6d200e057609e4f71f7a3270"
+      ],
+      "source_sha256": "2edd9b2739dd28d40132c750877b24c69c8c70af6d200e057609e4f71f7a3270",
+      "text": "Restaura o botão e depois abre a variante ou diz por que não.",
+      "translation_source_blocks_sha256": [
+        "2edd9b2739dd28d40132c750877b24c69c8c70af6d200e057609e4f71f7a3270"
       ]
     },
     "spacr.qt.ingest_preview": {
@@ -78892,6 +79472,26 @@
         "3f697dcb45143a23029dd7fa31bc2f87d4e699b458963a5a0684393918bf7e92"
       ]
     },
+    "spacr.qt.make_masks_datasets.foreground_stems.download": {
+      "source_blocks_sha256": [
+        "4baebd526b82e11658b6fae87c3d26ddc5cafac025235e3cf98a1c1722ca9cf2"
+      ],
+      "source_sha256": "4baebd526b82e11658b6fae87c3d26ddc5cafac025235e3cf98a1c1722ca9cf2",
+      "text": "Baixa ``filename`` do conjunto de dados ``repo`` e retorna seu caminho local.",
+      "translation_source_blocks_sha256": [
+        "4baebd526b82e11658b6fae87c3d26ddc5cafac025235e3cf98a1c1722ca9cf2"
+      ]
+    },
+    "spacr.qt.make_masks_datasets.foreground_stems.tree": {
+      "source_blocks_sha256": [
+        "7eb1ea51ed274531834493dc9a61beb28b2384f4baba41773e06395b6ad60153"
+      ],
+      "source_sha256": "7eb1ea51ed274531834493dc9a61beb28b2384f4baba41773e06395b6ad60153",
+      "text": "Lista ``folder`` de ``repo`` como ``[(path, size)]``, apenas arquivos.",
+      "translation_source_blocks_sha256": [
+        "7eb1ea51ed274531834493dc9a61beb28b2384f4baba41773e06395b6ad60153"
+      ]
+    },
     "spacr.qt.make_masks_datasets.install_dataset_button": {
       "source_blocks_sha256": [
         "43148d6e86b02e5a0bde8b3a856ca2e3ab28cd796dd73a6702f78ec67681a495",
@@ -78950,6 +79550,16 @@
         "7643837c99b8aaa2b60328ac8d252646180867d08a6b48f1878c3f2a2a888c90",
         "8cf44b0c864a6b9e3b67bed32d2ab30ac6b6ca41402877ae3c04580663d2f42b",
         "e079a4e1d223db13d5a59aad88b0cf447c2ea0d07617bc5e381a55fecc3bd321"
+      ]
+    },
+    "spacr.qt.make_masks_datasets.open_a_training_dataset.done": {
+      "source_blocks_sha256": [
+        "dded6cabb36aa6f166a5644222af2885704d9bf413676aa55a68ca04d3e7f265"
+      ],
+      "source_sha256": "dded6cabb36aa6f166a5644222af2885704d9bf413676aa55a68ca04d3e7f265",
+      "text": "Reativa o botão e depois abre a pasta baixada ou informa por que não.",
+      "translation_source_blocks_sha256": [
+        "dded6cabb36aa6f166a5644222af2885704d9bf413676aa55a68ca04d3e7f265"
       ]
     },
     "spacr.qt.make_masks_datasets.pool_stems": {
@@ -81962,6 +82572,16 @@
         "7a8824c545d47dca4bd98c917f22a4f38fe4266aa960d774e82bff3c2abe3476"
       ]
     },
+    "spacr.qt.ops_stitch_demo._download.run": {
+      "source_blocks_sha256": [
+        "a915a431523a5880752155f72b9947f519db107c87df95460ae9e4105f6b51b0"
+      ],
+      "source_sha256": "a915a431523a5880752155f72b9947f519db107c87df95460ae9e4105f6b51b0",
+      "text": "Inicia o download por trás do diálogo de progresso compartilhado.",
+      "translation_source_blocks_sha256": [
+        "a915a431523a5880752155f72b9947f519db107c87df95460ae9e4105f6b51b0"
+      ]
+    },
     "spacr.qt.ops_stitch_demo.example_folder": {
       "source_blocks_sha256": [
         "aab706f595a5948e23dd36d1b0fed973cd535d0dab5ca79025988f930b08eb93",
@@ -82036,6 +82656,26 @@
         "ec34573fd93bd06bf042ecc20f678aee5444aa7fcff3dcb08bc1b6ef265e836c"
       ]
     },
+    "spacr.qt.ops_stitch_demo.load_align_test_data.report": {
+      "source_blocks_sha256": [
+        "0e9940d9fb522bda12163a4268a1d711914cf974bf3dc5f7b633031d5838dca4"
+      ],
+      "source_sha256": "0e9940d9fb522bda12163a4268a1d711914cf974bf3dc5f7b633031d5838dca4",
+      "text": "Mostra progresso e falhas na linha de status da vista.",
+      "translation_source_blocks_sha256": [
+        "11ef58f468b893d7149408e8313ab5742cba37846862aa120d8cc0725561f2ea"
+      ]
+    },
+    "spacr.qt.ops_stitch_demo.load_align_test_data.use": {
+      "source_blocks_sha256": [
+        "7f9b39e39cee7c75942d4fd22b7da1a758cf00375cbe4dc87efdc2201b3b02dd"
+      ],
+      "source_sha256": "7f9b39e39cee7c75942d4fd22b7da1a758cf00375cbe4dc87efdc2201b3b02dd",
+      "text": "Aplica as configurações do exemplo e diz o que pressionar em seguida.",
+      "translation_source_blocks_sha256": [
+        "7f9b39e39cee7c75942d4fd22b7da1a758cf00375cbe4dc87efdc2201b3b02dd"
+      ]
+    },
     "spacr.qt.ops_stitch_demo.load_the_test_data": {
       "source_blocks_sha256": [
         "91a4b491048fed201c0cb8c0db6155fbc623d69bb8283a2aa3925c6eb065177d",
@@ -82060,6 +82700,16 @@
         "9b3d187d7ec9b2ede20078b7687b098b157d2668d8d68546a0b68efd86882595",
         "393d9be290427e057c59f59d393eebd39b787e6b3429da23bb9b7dbe9535b29b",
         "0ee7dab58a9c40e2b319e7af8877a56cfcf6605c3082f3e17222bb4d8b0f2f04"
+      ]
+    },
+    "spacr.qt.ops_stitch_demo.load_the_test_data._done": {
+      "source_blocks_sha256": [
+        "b34b42ac1b7f520d7b9c78b1e3dbabea4b7d3fcd3e0dc1a7ca0ece83a8f73bf4"
+      ],
+      "source_sha256": "b34b42ac1b7f520d7b9c78b1e3dbabea4b7d3fcd3e0dc1a7ca0ece83a8f73bf4",
+      "text": "Restaura o botão e depois usa os dados ou diz por que não.",
+      "translation_source_blocks_sha256": [
+        "b34b42ac1b7f520d7b9c78b1e3dbabea4b7d3fcd3e0dc1a7ca0ece83a8f73bf4"
       ]
     },
     "spacr.qt.ops_stitch_demo.ops_settings_for": {
@@ -87512,6 +88162,30 @@
         "c98d540fe2d0f9330a297111fb4b611dfab16cac2ace83ce29af49f2f0621394"
       ]
     },
+    "spacr.qt.resource_cleanup._collect_budget_entries._drop": {
+      "source_blocks_sha256": [
+        "d55279717dfa727c8d9306aeb87935fe61e6b61fb36e790a7f217a86a54e7420",
+        "f95f414cb37a54304dcc8702f4baeb8b95eeb5edf3cd8c5b66a7a42038a9b974"
+      ],
+      "source_sha256": "58c50c83fdc642e302238f28520b597c59bb56c4e3d8cbba7a925086c5bb7aec",
+      "text": "Descarta o valor em cache desta entrada. Chave vinculada como argumento padrão.\n\nVinculada em vez de capturada: capturar a variável do laço daria a cada entrada a ÚLTIMA chave, de modo que uma remoção descartaria a coisa errada e relataria sucesso.",
+      "translation_source_blocks_sha256": [
+        "fb6c6ce0a6c1d76cb50b863e9a1a287cbfe63f4606fd5094cb1dbb00653b9b48",
+        "f95f414cb37a54304dcc8702f4baeb8b95eeb5edf3cd8c5b66a7a42038a9b974"
+      ]
+    },
+    "spacr.qt.resource_cleanup._readings_within_the_budget.measure": {
+      "source_blocks_sha256": [
+        "2f4d95699277ea45ae58db9b211d7d4fbaef001d68873c2bc7a8f1e84d381d47",
+        "2bcc20e6d1228e8d731cf7d862e3f6d9408ca0a3872b3d2bbf024787f346357d"
+      ],
+      "source_sha256": "418126fa0b418cb59092f18411e81b9e5bac05cca90adf6fcecdc80d98258142",
+      "text": "Lê uma pasta nesta thread auxiliar e registra a resposta.\n\n:param path: a pasta a medir. Nada é retornado: a resposta vai para ``answers``, que a thread em espera lê.",
+      "translation_source_blocks_sha256": [
+        "2f4d95699277ea45ae58db9b211d7d4fbaef001d68873c2bc7a8f1e84d381d47",
+        "2bcc20e6d1228e8d731cf7d862e3f6d9408ca0a3872b3d2bbf024787f346357d"
+      ]
+    },
     "spacr.qt.resource_cleanup.clear_cpu": {
       "source_blocks_sha256": [
         "a35a7efeb4cf27996bcd4a8a3f943b39e5ff61dce5af135dd474c8e4270da0c0",
@@ -87664,6 +88338,18 @@
         "93d81002c109df5852074ab4e952720e2159c2ff3d2ea919cf9cfec4dc426986"
       ]
     },
+    "spacr.qt.resource_cleanup.project_paths._add": {
+      "source_blocks_sha256": [
+        "d8569cd9db629792b2d4367361e56d4b92a067db97fb1873d1590cbb11081bea",
+        "dce555a02baaec0c9edbff2cfa38676a731ce80aac78d30a84728731bf6afaa5"
+      ],
+      "source_sha256": "83c7d3a8f8966a87392affba0b34b30e4f417c374be81c4f8e01a93089a92b68",
+      "text": "Adiciona um caminho, ignorando valores vazios e duplicados.\n\n``remembered`` é o que torna um caminho perigoso: significa que o usuário o escolheu e que ele pode, portanto, estar numa montagem adormecida. Os diretórios pessoal e temporário não são lembrados -- o spaCR os lê do ambiente e cada inicialização já fez stat neles --, então mantêm a verificação direta e nunca faltam num primeiro relatório.",
+      "translation_source_blocks_sha256": [
+        "d8569cd9db629792b2d4367361e56d4b92a067db97fb1873d1590cbb11081bea",
+        "dce555a02baaec0c9edbff2cfa38676a731ce80aac78d30a84728731bf6afaa5"
+      ]
+    },
     "spacr.qt.resource_cleanup.register": {
       "source_blocks_sha256": [
         "6aa3b6cd19ca3d9f18e64b35548b9d3b7a282064f9a17539ac9c58902d131051",
@@ -87748,6 +88434,18 @@
         "349c8047e8a02768323dd610585d1feb15ee490254c8c92d10cd24f9e3b9bfd3",
         "a5fd3628393565b63a0a7e64edf45524c64a939cbc53d7c67220f077796e7214",
         "f8b054bc8a1440c0ebb6f070fb608a62507590f23bcece849ad16dfac9d25184"
+      ]
+    },
+    "spacr.qt.resource_cleanup.sweep_memory_budget._evict": {
+      "source_blocks_sha256": [
+        "5cd968f2c296c85085edff228bd08a65eceb5f10499fde2b970c958b7cdf67eb",
+        "2054dc5195492599e14028966f7c76753de73da6abc5b6daae582c876026a010"
+      ],
+      "source_sha256": "3424fd0c61770c062b8c26ddb50bcc4031ebaa2916347163e38bb42bb3af8d8d",
+      "text": "Remove uma entrada, contando o que ela liberou. Falhas são toleradas.\n\nUm cache que se recusa a ser esvaziado não é motivo para abandonar a varredura -- o restante do orçamento ainda precisa ser recuperado.",
+      "translation_source_blocks_sha256": [
+        "5cd968f2c296c85085edff228bd08a65eceb5f10499fde2b970c958b7cdf67eb",
+        "2054dc5195492599e14028966f7c76753de73da6abc5b6daae582c876026a010"
       ]
     },
     "spacr.qt.roi_tool": {
@@ -88614,6 +89312,18 @@
         "3968fe929c95f39eec671daea22cce332fca83ce2a4331b4ae32221146070e6d"
       ]
     },
+    "spacr.qt.screens.align.AlignScreen._run_job._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca"
+      ],
+      "source_sha256": "8cd009032c2ce8bf9b501c063eb7544329141b557608b5a48bda15f5e2563dc9",
+      "text": "Chama a função envolvida e guarda seu resultado na carga útil.\n\nA carga útil é como um valor volta do trabalhador: um valor retornado seria engolido pelo executor.",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca"
+      ]
+    },
     "spacr.qt.screens.align.AlignScreen.active_jobs": {
       "source_blocks_sha256": [
         "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
@@ -88646,6 +89356,16 @@
       "translation_source_blocks_sha256": [
         "19cc93d885f7b143b6e78211339fd50a6e20719384679f9bc55c8f01c2b83e36",
         "5341e0a27cf4bbd207e4d81b39fb36c8a389a6fce373c91069dc1dae85559ac1"
+      ]
+    },
+    "spacr.qt.screens.align.AlignScreen.build_plan._work": {
+      "source_blocks_sha256": [
+        "6c03ed4a4e58f5c0974d1ba1bbc75b0f048ed8210c9f387aba89274212b564fa"
+      ],
+      "source_sha256": "6c03ed4a4e58f5c0974d1ba1bbc75b0f048ed8210c9f387aba89274212b564fa",
+      "text": "Varre os blocos e constrói o plano de junção. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "6ad6b8cbeac6d2645a46855e2aad60ef880436f3b413f5eecfe7cccc6e7cd33b"
       ]
     },
     "spacr.qt.screens.align.AlignScreen.is_busy": {
@@ -88728,6 +89448,16 @@
       "text": "Componha o plano atual para disco e, opcionalmente, para o banco de dados.",
       "translation_source_blocks_sha256": [
         "cfb38bfcdaa7311a7d18d230ee4d6ae14166a3d623ae5b03261fab8e943e4288"
+      ]
+    },
+    "spacr.qt.screens.align.AlignScreen.write_stack._work": {
+      "source_blocks_sha256": [
+        "e44beb5de07040ee82343b7af3908f1c08074f1dcb7e0d03d95307e1101a0c1f"
+      ],
+      "source_sha256": "e44beb5de07040ee82343b7af3908f1c08074f1dcb7e0d03d95307e1101a0c1f",
+      "text": "Grava a pilha unida. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "e5b2f1532b76890f7bd034f9ecacf1e4807d159510b08dc8f5188f9e1fe43c2f"
       ]
     },
     "spacr.qt.screens.align.TileLayoutWidget": {
@@ -90888,6 +91618,38 @@
         "f96b8306f6c1bcc530641ca6a4240dd67e303d9fe0eb7425d459a692a0b13d44"
       ]
     },
+    "spacr.qt.screens.control_chart.ControlChartScreen._build_hit_panel.combo": {
+      "source_blocks_sha256": [
+        "b8f819322443b9b7fd442ac4e67c5179222ed18973bc57c434fcf18d60d061c0"
+      ],
+      "source_sha256": "b8f819322443b9b7fd442ac4e67c5179222ed18973bc57c434fcf18d60d061c0",
+      "text": "Um seletor de opções ``(value, label)`` ligado a uma nova pontuação.",
+      "translation_source_blocks_sha256": [
+        "b8f819322443b9b7fd442ac4e67c5179222ed18973bc57c434fcf18d60d061c0"
+      ]
+    },
+    "spacr.qt.screens.control_chart.ControlChartScreen._recompute_chemistry.work": {
+      "source_blocks_sha256": [
+        "a772af0cefd436f625321c10ea6d8fcef897e59f489cf0ad9444107f88418b29"
+      ],
+      "source_sha256": "a772af0cefd436f625321c10ea6d8fcef897e59f489cf0ad9444107f88418b29",
+      "text": "Junta, agrupa e resume no trabalhador.",
+      "translation_source_blocks_sha256": [
+        "a772af0cefd436f625321c10ea6d8fcef897e59f489cf0ad9444107f88418b29"
+      ]
+    },
+    "spacr.qt.screens.control_chart.ControlChartScreen._refill_pickers.fill": {
+      "source_blocks_sha256": [
+        "7b6eef1fac3ed3201e90f2dd3f8dcd9222d382c635951e8bc1469239209fa1dc",
+        "65559eb07b139ad7c0965e29faaab928a42aa31b8396a9f3db693ec2cf5f5334"
+      ],
+      "source_sha256": "71632bbce3305fbfbad46925aff2a27c344be6bc93c8eee4b2f9a9bc54c2e875",
+      "text": "Repreenche um seletor, mantendo a escolha atual onde ela continuar existindo.\n\nOs sinais ficam bloqueados durante o preenchimento: repovoar uma caixa de combinação emite como se o usuário tivesse escolhido, e os manipuladores preencheriam uns aos outros.",
+      "translation_source_blocks_sha256": [
+        "7b6eef1fac3ed3201e90f2dd3f8dcd9222d382c635951e8bc1469239209fa1dc",
+        "65559eb07b139ad7c0965e29faaab928a42aa31b8396a9f3db693ec2cf5f5334"
+      ]
+    },
     "spacr.qt.screens.control_chart.ControlChartScreen.active_jobs": {
       "source_blocks_sha256": [
         "c9fede75071cb386ca4a93272a374180a134f389e86240c58eaa5cc99e2df1e8"
@@ -91730,6 +92492,32 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ]
     },
+    "spacr.qt.screens.data_manager.DataManagerScreen._follow_path_probes.redraw": {
+      "source_blocks_sha256": [
+        "587e9d02ba096ece5042576cf5efb620880a259d93d550a3e5cddc5e3a11e246",
+        "dcc39171498cad29aa69ed3dd43a6ee531a5b94b1c5bcb57f3587fe68b01aa04",
+        "4d6d6295bacd27e445fb8ed57dc4da536c5062ad4cf01326e061d4fe2232b7f2"
+      ],
+      "source_sha256": "8be337d9a4384a73f2367ecdee8ec2c20627d10a635a03415d13f97410a7a77e",
+      "text": "Executa de novo a passada de habilitação agora que o estado desta raiz é conhecido.\n\n:param path: o caminho cuja sonda acabou de responder.\n:param _answer: o que ela respondeu; não usado, porque `_update_controls` o relê do cache junto com tudo o mais de que depende.",
+      "translation_source_blocks_sha256": [
+        "587e9d02ba096ece5042576cf5efb620880a259d93d550a3e5cddc5e3a11e246",
+        "dcc39171498cad29aa69ed3dd43a6ee531a5b94b1c5bcb57f3587fe68b01aa04",
+        "4d6d6295bacd27e445fb8ed57dc4da536c5062ad4cf01326e061d4fe2232b7f2"
+      ]
+    },
+    "spacr.qt.screens.data_manager.DataManagerScreen._run._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca"
+      ],
+      "source_sha256": "8cd009032c2ce8bf9b501c063eb7544329141b557608b5a48bda15f5e2563dc9",
+      "text": "Chama a função envolvida e guarda seu resultado na carga útil.\n\nA carga útil é como um valor volta do trabalhador: um valor retornado seria engolido pelo executor.",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+        "8b4c4eaf404c4ddad5957860ae69b48c64e5d9048058f3cae44fb8d6f849d2ca"
+      ]
+    },
     "spacr.qt.screens.data_manager.DataManagerScreen.choose_destination": {
       "source_blocks_sha256": [
         "654e8152fb7252b1196676e0af7b0a34789a253631b4de4bc3590b625896f15e"
@@ -91826,6 +92614,16 @@
         "5a4030947a283646fb737a108e3623556c255f5f2695e007745d2d2c92af86a9"
       ]
     },
+    "spacr.qt.screens.data_manager.DataManagerScreen.plan_prune.plan": {
+      "source_blocks_sha256": [
+        "d9bf2012333080d51db4493c8bd077cb6a6d9929d0771a135d27b873419d130c"
+      ],
+      "source_sha256": "d9bf2012333080d51db4493c8bd077cb6a6d9929d0771a135d27b873419d130c",
+      "text": "O mesmo isdir do lado do trabalhador que scan(), pelo mesmo motivo.",
+      "translation_source_blocks_sha256": [
+        "d9bf2012333080d51db4493c8bd077cb6a6d9929d0771a135d27b873419d130c"
+      ]
+    },
     "spacr.qt.screens.data_manager.DataManagerScreen.project": {
       "source_blocks_sha256": [
         "4055a4b901a77ee361c845ec3d7bdb35fc793f3ca87762d364d91fff41a06d42"
@@ -91844,6 +92642,18 @@
       "text": "Meça o projeto. Fora do caminho de execução principal GUI, a menos que ``threaded=False``.",
       "translation_source_blocks_sha256": [
         "817652aa7557058dc5b93638aea35b9456acf818ac1a918a7c502ca1fe9ecf22"
+      ]
+    },
+    "spacr.qt.screens.data_manager.DataManagerScreen.scan.measure": {
+      "source_blocks_sha256": [
+        "46fbf3fb5d6f5315c50cbaddb2d8482b3ebe7f9e40d84f93c62c03ba54fce05e",
+        "6c7949c82aed8f86eacefb853525a4be0d1d775b43a0e296f00bc884cc197f76"
+      ],
+      "source_sha256": "e43ca6b29f39c598da0246d482184c7976ba985c7fb4f14b58509abfeb4f04b4",
+      "text": "Mede ``root``, depois de primeiro garantir que é uma pasta.\n\nO isdir que a guarda acima já não consegue fazer fica aqui, onde a thread que espera por ele é um trabalhador e esperar não custa nada. A frase que ele lança é a que a guarda sempre disse, porque uma raiz que não é uma pasta precisa ser lida da mesma forma pelo usuário, seja como for que o spaCR descobriu isso.",
+      "translation_source_blocks_sha256": [
+        "46fbf3fb5d6f5315c50cbaddb2d8482b3ebe7f9e40d84f93c62c03ba54fce05e",
+        "606a8f10405670bde99fad5575ca375b2bcb1e97c7e12f8ffbc740a31aa8cf2b"
       ]
     },
     "spacr.qt.screens.data_manager.DataManagerScreen.selected_kinds": {
@@ -91986,6 +92796,28 @@
         "deda5af5a02fafdb72b3fbad954c808adba767009ea7b8e8560bc033c6f937cd",
         "87524f8701e0e1f7de8bcab1294078a4437ab522b2aa6afa063b8a17455b98c2",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ]
+    },
+    "spacr.qt.screens.db_browser.DbBrowserScreen._fetch_chunk._job": {
+      "source_blocks_sha256": [
+        "19d1fae621f6240d412df97e56da3df74295edf6c2d88c80a02d368d5cda6960"
+      ],
+      "source_sha256": "19d1fae621f6240d412df97e56da3df74295edf6c2d88c80a02d368d5cda6960",
+      "text": "Lê um bloco da tabela. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "ee65e86826c72d32e53cdc364fd045c02b75cf7b8994f66b813782cefe9201f9"
+      ]
+    },
+    "spacr.qt.screens.db_browser.DbBrowserScreen._start_count._job": {
+      "source_blocks_sha256": [
+        "d60be377cb5768daa7a25e7b8d8c55ce1a713be2785b91cf4458aa319865da41",
+        "9bf5fde2b7bacf5400dacedfef886914a9dd00a97095a607dd1fc76ef299b94d"
+      ],
+      "source_sha256": "e54d70caeab9c2010323a8bce2bddd5fc5fff25d15a5a0b3d6d4e9e42573b1e8",
+      "text": "Conta as linhas correspondentes, levando o token que pediu a contagem.\n\nO token volta com a resposta para que uma contagem lenta de uma consulta que o usuário já mudou possa ser reconhecida e descartada.",
+      "translation_source_blocks_sha256": [
+        "d60be377cb5768daa7a25e7b8d8c55ce1a713be2785b91cf4458aa319865da41",
+        "9bf5fde2b7bacf5400dacedfef886914a9dd00a97095a607dd1fc76ef299b94d"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.active_jobs": {
@@ -92150,6 +92982,26 @@
         "52c5d02f1ea81b9504f6709bdfe375ecabdbeaa0acae45ec907a068389781e3a",
         "e850efa3c891a024c585ee9ec6c1c69501197aba030e87c92f3b46cb9d0bc30c",
         "21e70b0cee89c83db53ea786b8715828ea082ffe0be5aa594399eae88c45694f"
+      ]
+    },
+    "spacr.qt.screens.db_browser.DbBrowserScreen.export_csv._done": {
+      "source_blocks_sha256": [
+        "8d23dce5714dd97284117d32d5eefe1f93201d3505b67fa8f993bf190e030371"
+      ],
+      "source_sha256": "8d23dce5714dd97284117d32d5eefe1f93201d3505b67fa8f993bf190e030371",
+      "text": "Diz quantas linhas foram exportadas, e para onde.",
+      "translation_source_blocks_sha256": [
+        "8d23dce5714dd97284117d32d5eefe1f93201d3505b67fa8f993bf190e030371"
+      ]
+    },
+    "spacr.qt.screens.db_browser.DbBrowserScreen.export_csv._job": {
+      "source_blocks_sha256": [
+        "cc468d3e8375eca4b46e82b1a5cb69efcf42c533d2caa818ebfdb7f8ef798b6e"
+      ],
+      "source_sha256": "cc468d3e8375eca4b46e82b1a5cb69efcf42c533d2caa818ebfdb7f8ef798b6e",
+      "text": "Grava o CSV. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "866cace4931e047b2df0b44a12b9b84145346e78241b8621cbf2a6c7d5e32d7a"
       ]
     },
     "spacr.qt.screens.db_browser.DbBrowserScreen.fetch_more": {
@@ -95816,6 +96668,28 @@
         "bf66fdbd7c62a0e727e412a7035528af23a8bf8fb2319a6e2e4c52bb3c6c6a6d"
       ]
     },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_chart.done": {
+      "source_blocks_sha256": [
+        "b054df636c85c10f2cf4ba1d65e6a83081812ba198676d2078fd17f6d1bc14b4",
+        "5dc3f2ee99af7518ff2ce98d1ba7182a8330c128e919c280c4862ec2d2651e42"
+      ],
+      "source_sha256": "7f0912ca543d780355b0c2affb7b02f95b72a23e5d2f9c5ae7dea7fcb05958df",
+      "text": "Aplica a origem e o gráfico somente após uma reconstrução bem-sucedida.\n\n:param loaded: Tabela de origem revalidada e nomes de tabelas disponíveis.",
+      "translation_source_blocks_sha256": [
+        "b054df636c85c10f2cf4ba1d65e6a83081812ba198676d2078fd17f6d1bc14b4",
+        "5dc3f2ee99af7518ff2ce98d1ba7182a8330c128e919c280c4862ec2d2651e42"
+      ]
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_chart.work": {
+      "source_blocks_sha256": [
+        "ab0510b64d231c389232fe770dba98b4e740d619ea31c086011cd17c83eac025"
+      ],
+      "source_sha256": "ab0510b64d231c389232fe770dba98b4e740d619ea31c086011cd17c83eac025",
+      "text": "Reconstrói os dados salvos no trabalhador antes de o gráfico ser restaurado.",
+      "translation_source_blocks_sha256": [
+        "ab0510b64d231c389232fe770dba98b4e740d619ea31c086011cd17c83eac025"
+      ]
+    },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_path": {
       "source_blocks_sha256": [
         "d93ee4dfbd458d38d9367505d9b204695aad43b7d5967100b4af57909582dd10",
@@ -95832,6 +96706,20 @@
         "36961b6033648ac2e9634fedd13b1eb28d35269e9d0777ac8ee902b6972ca26c",
         "bfb132234e480cd41f6e340e1a33f2b88b42f6d3535308173a5837187fea80c0",
         "a7eb5abd381e612e4da3e40b491ec55df7eb16d0c5436f5e36d5ecadcf16f601"
+      ]
+    },
+    "spacr.qt.screens.graph_builder.GraphBuilderScreen.load_path.work": {
+      "source_blocks_sha256": [
+        "2b4168fc23e95a3251230d119ad3059a405d771eef63c66662cb1fcf9ed5ca34",
+        "6cbc8b0c7c41ca1c6240d492682124deef0c26b377fac230e2070af6745b8f7b",
+        "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa"
+      ],
+      "source_sha256": "9875d15a51fcc0dda0ffddb3978f13d1aa9fdf4f0913da3360d6592c1482432e",
+      "text": "Lista e lê em um único job. Thread de trabalho; nenhum widget aqui.\n\nA verificação de texto delimitado fica junto da listagem, não antes dela: `sqlite_master` não tem nada a dizer sobre um arquivo de texto, e perguntar a ele relataria \"could not read\" para um CSV que o pandas lê perfeitamente.\n\nAs duas metades falham separadamente de propósito. Uma listagem que falha significa que o arquivo não é um banco de dados e não há nada a oferecer; uma LEITURA que falha, em uma tabela de um banco cujas outras tabelas foram listadas sem problema, ainda precisa deixar o seletor preenchido -- é assim que o usuário chega à tabela que pode ser lida. Embutido, isso decorria da ordem em que o código antigo rodava; aqui é preciso dizê-lo.",
+      "translation_source_blocks_sha256": [
+        "2663d7215225a87cdf982b71e224b56582ff09db7e3dfce03dc077ec20ca285e",
+        "6cbc8b0c7c41ca1c6240d492682124deef0c26b377fac230e2070af6745b8f7b",
+        "c35dade78afa66c10d92b0612f04313dbbec9bc7fd8a75d30eb7113c4eb3b9fa"
       ]
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.open_condition_dialog": {
@@ -99578,6 +100466,46 @@
         "f6f10207dca43ac2404b337be8523dcf815eb6dcf8fdc941967585685e4cbd05"
       ]
     },
+    "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed": {
+      "source_blocks_sha256": [
+        "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0"
+      ],
+      "source_sha256": "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0",
+      "text": "Para o executor de jobs quando o objeto do painel é destruído.",
+      "translation_source_blocks_sha256": [
+        "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel._path_row.browse": {
+      "source_blocks_sha256": [
+        "bdca97e525ff313e35fe51f6a73403620666c06dc7ba173390f18b7844716c73"
+      ],
+      "source_sha256": "bdca97e525ff313e35fe51f6a73403620666c06dc7ba173390f18b7844716c73",
+      "text": "Preenche esta linha a partir do seu seletor de pasta, arquivo de entrada ou arquivo de saída.",
+      "translation_source_blocks_sha256": [
+        "bdca97e525ff313e35fe51f6a73403620666c06dc7ba173390f18b7844716c73"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel._start_action.work": {
+      "source_blocks_sha256": [
+        "4fa2fe58ed115a2c213faf325b00fea04e59bcf8f3b03212b6e3597fd0d3aa7b"
+      ],
+      "source_sha256": "4fa2fe58ed115a2c213faf325b00fea04e59bcf8f3b03212b6e3597fd0d3aa7b",
+      "text": "Carrega, registra e opcionalmente atribui numa thread de trabalho.",
+      "translation_source_blocks_sha256": [
+        "c716fd1f9d52192e4285d459d6cc054da4b4cb02ba21c59e573cd3e4cf3a9f2f"
+      ]
+    },
+    "spacr.qt.screens.map_barcodes._install_spatial_transcriptomics._show": {
+      "source_blocks_sha256": [
+        "3a2bafdb81ea2e6bb8f7cc993d528103c63c9565522c62dffb5b495be70518b2"
+      ],
+      "source_sha256": "3a2bafdb81ea2e6bb8f7cc993d528103c63c9565522c62dffb5b495be70518b2",
+      "text": "Constrói o painel na primeira exibição e depois mostra ou oculta o cartão.",
+      "translation_source_blocks_sha256": [
+        "3a2bafdb81ea2e6bb8f7cc993d528103c63c9565522c62dffb5b495be70518b2"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.build_barcode_search_card": {
       "source_blocks_sha256": [
         "3abbf5512678d10be2c930e031c9b78e41515c03661942a477b3acedb0f66020",
@@ -100554,6 +101482,16 @@
         "6a5a457ddc3a52b26bba7cc6ee31a680acd3658455756f8e34c7770b584abb26"
       ]
     },
+    "spacr.qt.screens.model_compare.ModelCompareScreen._run_job._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d"
+      ],
+      "source_sha256": "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+      "text": "Chama a função envolvida e guarda seu resultado na carga útil.",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d"
+      ]
+    },
     "spacr.qt.screens.model_compare.ModelCompareScreen.active_jobs": {
       "source_blocks_sha256": [
         "dda3e3209b429aa1dfa37a9317607a55f98fb8bce22ab2ef6cdf33a2d1957fff"
@@ -100586,6 +101524,16 @@
       "translation_source_blocks_sha256": [
         "d43fcd3c5679a89614f3aed500390182d0872855300864e9093d9c65a1183a65",
         "673593355b496e8db5ed96ea36df0f8beacf81a9ab7393433ae990e47bc428fe"
+      ]
+    },
+    "spacr.qt.screens.model_compare.ModelCompareScreen.compare._job": {
+      "source_blocks_sha256": [
+        "0f3d6f0b728c799467f3a206bc01fabc2acf36a10b9af4c18d4516f820f1ed6a"
+      ],
+      "source_sha256": "0f3d6f0b728c799467f3a206bc01fabc2acf36a10b9af4c18d4516f820f1ed6a",
+      "text": "Executa os dois modelos sobre os mesmos campos. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "aad82ce03c8142d2526fc967ca343842095c6492a59b93a456fe4b3b8cfbdf47"
       ]
     },
     "spacr.qt.screens.model_compare.ModelCompareScreen.configure": {
@@ -100742,6 +101690,16 @@
         "3823155a3040209cb81fe7e279a5352077b3204762d2ac3dbf1350e402c418eb",
         "88219ffd1e53185b23edb9bd12cb8048e1d16ee23f90f101fbf039dd9fb70e5a",
         "ca4c405fc8bf7881c15682a4bd46af9eecf382c4309ecd842321ca8ea074e459"
+      ]
+    },
+    "spacr.qt.screens.model_compare.ModelCompareScreen.set_source._job": {
+      "source_blocks_sha256": [
+        "a1663166202f4b390656ca6087d16086b559aadccf34fd390a5a7bc564ecbfee"
+      ],
+      "source_sha256": "a1663166202f4b390656ca6087d16086b559aadccf34fd390a5a7bc564ecbfee",
+      "text": "Carrega os campos de comparação. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "3aa1779689f3e16b355639cdc6662c8d00ef3319436724a2479cda46af6b30b0"
       ]
     },
     "spacr.qt.screens.model_compare.ModelCompareScreen.source_folder": {
@@ -102990,6 +103948,16 @@
         "37c1712f3c52a9c847ee1cc9d288012bd6b87194e24d96c3f826112ec1d45623"
       ]
     },
+    "spacr.qt.screens.power.PowerCurveView.paintEvent.to_px": {
+      "source_blocks_sha256": [
+        "244579b66c2ff95783df08c2309d6f9b56adb64d12a08da5ce5309c680656d1d"
+      ],
+      "source_sha256": "244579b66c2ff95783df08c2309d6f9b56adb64d12a08da5ce5309c680656d1d",
+      "text": "Coordenadas de dados para pixels, limitando a vertical ao eixo.",
+      "translation_source_blocks_sha256": [
+        "244579b66c2ff95783df08c2309d6f9b56adb64d12a08da5ce5309c680656d1d"
+      ]
+    },
     "spacr.qt.screens.power.PowerCurveView.set_curve": {
       "source_blocks_sha256": [
         "fb882d9c5d1239c6796676aabfc24fc1d5eba347d71ffc02f4f4724927c8ab35",
@@ -103256,6 +104224,28 @@
         "15b57874cd56ef91c0760c9f6cf97f024a30a5660b06696c14c64b7e9bcd9a11",
         "bd57ef7a07efc63bdecde08986ebc1dd63217686856dbc9e38b89ee70de4f64a",
         "a694815712404afb5e1d7c4c38f0caaf8b5dba0cc7f5a757a0d0b28098b564ba"
+      ]
+    },
+    "spacr.qt.screens.power.run_power_sweep._make_hook": {
+      "source_blocks_sha256": [
+        "cb2536af074fae4dc2bed826dfee356d7a19252080e8fb1c0b14b1041893b14e",
+        "83b84d331f15eb4d161471138eadbabcdcc43c66b7fce41f7a0e4bd1eb059171"
+      ],
+      "source_sha256": "7eb96df59e8169bdaa4fa69597da55f8541a2cf69d799973502e3b039bccafb3",
+      "text": "Um on_point de ``scan_parameters`` que relata o progresso e cancela.\n\nRetorna ``False`` — e somente ``False`` — quando o evento de cancelamento está definido, que é o contrato documentado por ``scan_parameters`` para parar uma varredura entre pontos.",
+      "translation_source_blocks_sha256": [
+        "cb2536af074fae4dc2bed826dfee356d7a19252080e8fb1c0b14b1041893b14e",
+        "83b84d331f15eb4d161471138eadbabcdcc43c66b7fce41f7a0e4bd1eb059171"
+      ]
+    },
+    "spacr.qt.screens.power.run_power_sweep._make_hook._hook": {
+      "source_blocks_sha256": [
+        "149a51e2178bb3f55e68b527d422228c4de52e0f08f07519bfc4a95d096e11c0"
+      ],
+      "source_sha256": "149a51e2178bb3f55e68b527d422228c4de52e0f08f07519bfc4a95d096e11c0",
+      "text": "Relata um ponto concluído de volta à barra de progresso.",
+      "translation_source_blocks_sha256": [
+        "149a51e2178bb3f55e68b527d422228c4de52e0f08f07519bfc4a95d096e11c0"
       ]
     },
     "spacr.qt.screens.power.spec_from_settings": {
@@ -104490,6 +105480,46 @@
         "24b5cf794015b02d94e577b4083819a6eed260c5be3b2891d12baa85db350e43",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "a15fdc8f8111427af8984e3dc0222a7cb3dd3fffd1b2be941462065aff1e816a"
+      ]
+    },
+    "spacr.qt.screens.report.ReportScreen._deposit_zenodo._job": {
+      "source_blocks_sha256": [
+        "702d0995ec2e62846679587b4795f2ff4b68565d11bec92803c52f75e82b425d"
+      ],
+      "source_sha256": "702d0995ec2e62846679587b4795f2ff4b68565d11bec92803c52f75e82b425d",
+      "text": "Prepara e envia o depósito; uma falha volta como texto.",
+      "translation_source_blocks_sha256": [
+        "702d0995ec2e62846679587b4795f2ff4b68565d11bec92803c52f75e82b425d"
+      ]
+    },
+    "spacr.qt.screens.report.ReportScreen._run_job._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d"
+      ],
+      "source_sha256": "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+      "text": "Chama a função envolvida e guarda seu resultado na carga útil.",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d"
+      ]
+    },
+    "spacr.qt.screens.report.ReportScreen._write_archive._job": {
+      "source_blocks_sha256": [
+        "0ec6159a6bc009989df09e943b21eca1efc430135a27e477b7c9a6bd9711ccfa"
+      ],
+      "source_sha256": "0ec6159a6bc009989df09e943b21eca1efc430135a27e477b7c9a6bd9711ccfa",
+      "text": "Grava o pacote e depois o verifica contra os modelos.",
+      "translation_source_blocks_sha256": [
+        "0ec6159a6bc009989df09e943b21eca1efc430135a27e477b7c9a6bd9711ccfa"
+      ]
+    },
+    "spacr.qt.screens.report.ReportScreen._zenodo_dialog._placeholder": {
+      "source_blocks_sha256": [
+        "05f3e38bcc03660a9421daa2b7346d1b52a8e268ef4c5792be4b23a32c0c55eb"
+      ],
+      "source_sha256": "05f3e38bcc03660a9421daa2b7346d1b52a8e268ef4c5792be4b23a32c0c55eb",
+      "text": "Diz se já há um token guardado para este Zenodo.",
+      "translation_source_blocks_sha256": [
+        "05f3e38bcc03660a9421daa2b7346d1b52a8e268ef4c5792be4b23a32c0c55eb"
       ]
     },
     "spacr.qt.screens.report.ReportScreen.active_jobs": {
@@ -106474,6 +107504,16 @@
         "a2c00ac5e9686ab06521a83463d7c0ed3361de6aaa4e05b73079af9206e04973"
       ]
     },
+    "spacr.qt.screens.train_compare.TrainCompareScreen._run_job._job": {
+      "source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d"
+      ],
+      "source_sha256": "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d",
+      "text": "Chama a função envolvida e guarda seu resultado na carga útil.",
+      "translation_source_blocks_sha256": [
+        "2fadbdce55882cb2cc0efb3ee9019a207857435cf27ef0d2b5d6a724feac703d"
+      ]
+    },
     "spacr.qt.screens.train_compare.TrainCompareScreen.active_jobs": {
       "source_blocks_sha256": [
         "0cfec806f88c5d18054a4dc95895ae2445b627bd119a63609ce0e5a7ba1780cd",
@@ -106696,6 +107736,16 @@
         "6cabf324ceb5a6dcc206c89e9a33dbbe1068d0ff23ec806eaca8fd0d0fdc9b3e"
       ]
     },
+    "spacr.qt.screens.train_compare.TrainCompareScreen.scan._job": {
+      "source_blocks_sha256": [
+        "6816d6875d189b3ddb2809f508d081399e260b49896d036ba6fb4ee57fa26d3e"
+      ],
+      "source_sha256": "6816d6875d189b3ddb2809f508d081399e260b49896d036ba6fb4ee57fa26d3e",
+      "text": "Encontra as execuções de treinamento sob uma pasta. Fora da thread da GUI.",
+      "translation_source_blocks_sha256": [
+        "8f11bb7902e9997aa6803e16de19f5790f6b8ed08a811e1f49a6929fc6a9e9cf"
+      ]
+    },
     "spacr.qt.screens.train_compare.TrainCompareScreen.select_runs": {
       "source_blocks_sha256": [
         "7ceb0169654ede27cd858016e66d986ffb77f6d8380e6b97af555d5f44b88570",
@@ -106804,6 +107854,26 @@
         "220fee3173620ccc4c79f923d97aa5e8f002a5db3bf57a303319de91df4527bc",
         "d957386cb552f3440bae5c54062c0441367844820bb7808e9fcf2051f06bc8a9",
         "c246e531c6d58e0db4690a30374d58af1b14e3e3860617c23d2bea3ef854a81c"
+      ]
+    },
+    "spacr.qt.screens.train_compare.panel_canvas_class.PanelCanvas.__init__": {
+      "source_blocks_sha256": [
+        "3318e196d78b7047d33aabfbd14044f41ab971ae85141c13b9e5521add9553b8"
+      ],
+      "source_sha256": "3318e196d78b7047d33aabfbd14044f41ab971ae85141c13b9e5521add9553b8",
+      "text": "Constrói a tela de desenho não opaca, para que o painel apareça através dela.",
+      "translation_source_blocks_sha256": [
+        "3318e196d78b7047d33aabfbd14044f41ab971ae85141c13b9e5521add9553b8"
+      ]
+    },
+    "spacr.qt.screens.train_compare.panel_canvas_class.PanelCanvas.paintEvent": {
+      "source_blocks_sha256": [
+        "ee928b43aed6826a291f0c0a64d0359d6a92dcb65bd47ef9fad922352ab9bf18"
+      ],
+      "source_sha256": "ee928b43aed6826a291f0c0a64d0359d6a92dcb65bd47ef9fad922352ab9bf18",
+      "text": "Desenha o painel e depois deixa o matplotlib desenhar por cima.",
+      "translation_source_blocks_sha256": [
+        "ee928b43aed6826a291f0c0a64d0359d6a92dcb65bd47ef9fad922352ab9bf18"
       ]
     },
     "spacr.qt.screens.trellis": {
@@ -117046,6 +118116,46 @@
         "ea1d1c58cc4a5e58304ffc31ec999076f30d59bb99e906d855c8eabe2f8ddeb5"
       ]
     },
+    "spacr.qt.widgets.calibration_preview._CalibrationPreview._start.done": {
+      "source_blocks_sha256": [
+        "616bdd1ead81a8dd64883c4495b31ee938204d0a60e8eea89da85166b2f5d8b3"
+      ],
+      "source_sha256": "616bdd1ead81a8dd64883c4495b31ee938204d0a60e8eea89da85166b2f5d8b3",
+      "text": "Mostra os ganhos planejados, a menos que uma varredura mais recente tenha substituído esta.",
+      "translation_source_blocks_sha256": [
+        "616bdd1ead81a8dd64883c4495b31ee938204d0a60e8eea89da85166b2f5d8b3"
+      ]
+    },
+    "spacr.qt.widgets.calibration_preview._CalibrationPreview._start.work": {
+      "source_blocks_sha256": [
+        "0064f50a328e5abeda317889c2a215292f75f6a818357bcd640d0ec7615b1f78"
+      ],
+      "source_sha256": "0064f50a328e5abeda317889c2a215292f75f6a818357bcd640d0ec7615b1f78",
+      "text": "Planeja os ganhos, retornando os relatórios ou o texto do erro.",
+      "translation_source_blocks_sha256": [
+        "0064f50a328e5abeda317889c2a215292f75f6a818357bcd640d0ec7615b1f78"
+      ]
+    },
+    "spacr.qt.widgets.calibration_preview._attach_preview.open_preview": {
+      "source_blocks_sha256": [
+        "5fa3e8ff04592b19ad9cabd1a6d547dca31df0c9ac230a883da6d77ecad07982"
+      ],
+      "source_sha256": "5fa3e8ff04592b19ad9cabd1a6d547dca31df0c9ac230a883da6d77ecad07982",
+      "text": "Abre a pré-visualização dos ganhos para as configurações atuais.",
+      "translation_source_blocks_sha256": [
+        "5fa3e8ff04592b19ad9cabd1a6d547dca31df0c9ac230a883da6d77ecad07982"
+      ]
+    },
+    "spacr.qt.widgets.calibration_preview._attach_preview.open_preview.retired": {
+      "source_blocks_sha256": [
+        "d4f88d83086514636bbf9c1e83419e3392cefdf57543c3b41c7e6ec0b785a745"
+      ],
+      "source_sha256": "d4f88d83086514636bbf9c1e83419e3392cefdf57543c3b41c7e6ec0b785a745",
+      "text": "Reativa o botão quando todas as threads de varredura anteriores tiverem terminado.",
+      "translation_source_blocks_sha256": [
+        "d4f88d83086514636bbf9c1e83419e3392cefdf57543c3b41c7e6ec0b785a745"
+      ]
+    },
     "spacr.qt.widgets.card": {
       "source_blocks_sha256": [
         "5eee6e10c6fa60b49efb9ccd8d312178270e53fb802af4ec2811432f343e50b5",
@@ -117216,6 +118326,26 @@
       "translation_source_blocks_sha256": [
         "d7595adab753bc3425f0c8b2963c2688f0d36f3daef99f0ec148109a10a7a47b",
         "24930468d396b41df07417b31a626fb17af948274297c853edcb601a2b0a6732"
+      ]
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.build.report": {
+      "source_blocks_sha256": [
+        "e8e56034746545ca9dcec5d74e5df9633994c56a5f6bb95bd1997e2f101ecdf3"
+      ],
+      "source_sha256": "e8e56034746545ca9dcec5d74e5df9633994c56a5f6bb95bd1997e2f101ecdf3",
+      "text": "Enfileira progresso só para uma solicitação ativa e cancela se seu receptor Qt tiver desaparecido.",
+      "translation_source_blocks_sha256": [
+        "39a21b862ddfb56e6d99b5c0a4631d10dd9a35102b480a4d3c5ca5c35911d970"
+      ]
+    },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.build.work": {
+      "source_blocks_sha256": [
+        "c4f0efac4641789b53dfeaae63977b62574458e48dcaf7a80505ad67680c8767"
+      ],
+      "source_sha256": "c4f0efac4641789b53dfeaae63977b62574458e48dcaf7a80505ad67680c8767",
+      "text": "Carrega a solicitação de montagem capturada e converte falhas num resultado de erro vinculado à solicitação.",
+      "translation_source_blocks_sha256": [
+        "c4f0efac4641789b53dfeaae63977b62574458e48dcaf7a80505ad67680c8767"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.build_every_selected": {
@@ -117766,6 +118896,16 @@
         "73d66b254c506cb858b30a2d6c725cff197c21c80ea6f76f741e6342922f6855"
       ]
     },
+    "spacr.qt.widgets.cell_montage_view._load._design_spelling": {
+      "source_blocks_sha256": [
+        "81ec830e5654eb2e177b0be0fbdcfa5ca70eeb7eb2b7854857b12c3013391581"
+      ],
+      "source_sha256": "81ec830e5654eb2e177b0be0fbdcfa5ca70eeb7eb2b7854857b12c3013391581",
+      "text": "A grafia própria do desenho para um nome, para exibição.",
+      "translation_source_blocks_sha256": [
+        "81ec830e5654eb2e177b0be0fbdcfa5ca70eeb7eb2b7854857b12c3013391581"
+      ]
+    },
     "spacr.qt.widgets.cell_montage_view.candidate_colour": {
       "source_blocks_sha256": [
         "ed94e0bdac1d1d8ba47a7d368f28f31bb3a1d5e81d27b93c982bbc56068d9254",
@@ -117862,6 +119002,16 @@
         "92d8841f750c490bdeb32d0e1c26fa83ea868135c1a9787cc38affe3d2aba5a3",
         "1a7d999b76786696bbd4b62a5649b26eb80fbec5444b48e5b79de5b91e098c1b",
         "1b8824408fbd9e711f7c9faaf623adabec8cab80d0ab990aa7e503d3858430ad"
+      ]
+    },
+    "spacr.qt.widgets.cell_montage_view.load.step": {
+      "source_blocks_sha256": [
+        "55abcd98ceb142997a46f49854efaa988616a16c6c1c109d4793cb0cc1dbdd3b"
+      ],
+      "source_sha256": "55abcd98ceb142997a46f49854efaa988616a16c6c1c109d4793cb0cc1dbdd3b",
+      "text": "Relata uma etapa de carregamento verificando o cancelamento antes e depois da função de retorno.",
+      "translation_source_blocks_sha256": [
+        "55abcd98ceb142997a46f49854efaa988616a16c6c1c109d4793cb0cc1dbdd3b"
       ]
     },
     "spacr.qt.widgets.cell_montage_view.montage_figure": {
@@ -120544,6 +121694,26 @@
         "0fd63081e91e7416e4aa2fcd83c8bb3d872c4b2c6e75f6e21703e9f90fc74cab"
       ]
     },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog._load_schema.work": {
+      "source_blocks_sha256": [
+        "b0621a4d52a0e66b09429246b8bf4fe41fa57b0912603f14af0b8cd39c8cc046"
+      ],
+      "source_sha256": "b0621a4d52a0e66b09429246b8bf4fe41fa57b0912603f14af0b8cd39c8cc046",
+      "text": "Carrega um esquema em um trabalhador e o aplica a uma cópia da tabela.",
+      "translation_source_blocks_sha256": [
+        "b0621a4d52a0e66b09429246b8bf4fe41fa57b0912603f14af0b8cd39c8cc046"
+      ]
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog._save_schema.work": {
+      "source_blocks_sha256": [
+        "4f43561b979f61f4017738edfd9c42a0795409bd91b677db724385fdafdb1214"
+      ],
+      "source_sha256": "4f43561b979f61f4017738edfd9c42a0795409bd91b677db724385fdafdb1214",
+      "text": "Salva o esquema em um trabalhador; retorna o caminho, as linhas e qualquer erro.",
+      "translation_source_blocks_sha256": [
+        "4f43561b979f61f4017738edfd9c42a0795409bd91b677db724385fdafdb1214"
+      ]
+    },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.accept": {
       "source_blocks_sha256": [
         "35d34ff5b298f18d766e98b25d84b9ad436645e3599ee0d4df7b9d9a039108bc"
@@ -120588,6 +121758,16 @@
       "translation_source_blocks_sha256": [
         "74b20049e70500611cfa288e905e2a4e3ca60b2cdefae02cd92743169cb97392",
         "5b90fed506681d69e2fd56844b0bf3cc233ce27b9e9204f87c0d0cf6b9f427e9"
+      ]
+    },
+    "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work": {
+      "source_blocks_sha256": [
+        "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb"
+      ],
+      "source_sha256": "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb",
+      "text": "Pré-visualiza o rascunho em um trabalhador e o aplica a uma cópia da tabela.",
+      "translation_source_blocks_sha256": [
+        "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb"
       ]
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.reject": {
@@ -120836,18 +122016,6 @@
       "translation_source_blocks_sha256": [
         "8fd21d07d04aa81be607cb68b3e94a0e7791307e6b9bbb834243acc3944b735f",
         "9d2793878d29017069194abe5315e9653ea7e721737a5bbdbffe3e660390ea11"
-      ]
-    },
-    "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel": {
-      "source_blocks_sha256": [
-        "2321b1e4b3ee0248fadb7fc6f1fedcac409c67f881b871c2b01edabf11e07ab4",
-        "d135d3a7f1ca9996c8742b82b6d5996a46cebd1e64e495165d793fd20952bf42"
-      ],
-      "source_sha256": "c1729daa3981b58d8e6e05044ae4aa3a217c9869761404b7c356f65a430100b4",
-      "text": "Mostra ``model`` com a ordenação compartilhada de três estados no cabeçalho.\n\n:param model: o proxy de filtro sobre as linhas de condições.",
-      "translation_source_blocks_sha256": [
-        "2321b1e4b3ee0248fadb7fc6f1fedcac409c67f881b871c2b01edabf11e07ab4",
-        "d135d3a7f1ca9996c8742b82b6d5996a46cebd1e64e495165d793fd20952bf42"
       ]
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.startDrag": {
@@ -131196,6 +132364,18 @@
         "af925a1443193c24af7311cb5c54c0e794f7288a648d1d70863705d48cd8487f"
       ]
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue._render_preview_async.work": {
+      "source_blocks_sha256": [
+        "5ceb44c14715fbfc0a754e1009e46ff8e8f40b8573bbfcaed27e34797f2ca58f",
+        "e459ea813c826e5548b9737f25f3df20cd69aeed92f79382f04ef3474d39dc67"
+      ],
+      "source_sha256": "ae8951702a0541f119a22650fc026933511b70031bf544b35c4294e0fe0e387f",
+      "text": "Renderiza uma pré-visualização fora da thread da GUI.\n\nTudo de que precisa é vinculado como ARGUMENTO PADRÃO em vez de capturado, para que uma pré-visualização iniciada enquanto o usuário rola renderize a figura pedida e não a que estiver atual quando ela rodar.",
+      "translation_source_blocks_sha256": [
+        "2b314891baf0ed636326530d5f54c5ee68fa0d892c619f97310855132e24ceda",
+        "8db4c48f1f5fe2e369ee193c00fcd6525b816ebfda95b3083e9a2088df92d217"
+      ]
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.active_jobs": {
       "source_blocks_sha256": [
         "6fc708a810638f75cbf1464a942c887bb13901eacd1dd4f6fd4647329ee732c6"
@@ -131358,6 +132538,16 @@
         "e3430046005a96ea30e06efe44021098e8bb5aa4fb17bb88ba424f7fbbabb1be",
         "882eab0458408c7e965c8621a83d3965cafdf239d7072f46b7e15772c2b7aac3",
         "6b40ebe178863ff57b467825b33b6462e76fe5fc58d34b12720e51966705e87f"
+      ]
+    },
+    "spacr.qt.widgets.figure_queue.FigureQueue.forget_run._shift": {
+      "source_blocks_sha256": [
+        "a4b8b1a39f3898e359381e8385501c88653f0927a53b7f7d131e8d37cab64265"
+      ],
+      "source_sha256": "a4b8b1a39f3898e359381e8385501c88653f0927a53b7f7d131e8d37cab64265",
+      "text": "Reindexa um mapeamento depois que uma execução é removida, mantendo seu tipo.",
+      "translation_source_blocks_sha256": [
+        "a4b8b1a39f3898e359381e8385501c88653f0927a53b7f7d131e8d37cab64265"
       ]
     },
     "spacr.qt.widgets.figure_queue.FigureQueue.has_live_figure": {
@@ -131546,6 +132736,18 @@
         "ff8b831da0c3d1aaae514bcb0d13c1152b4c78fe77458e14ccf79b2fb757fcac"
       ]
     },
+    "spacr.qt.widgets.figure_queue.FigureQueue.show_figure_menu._redraw": {
+      "source_blocks_sha256": [
+        "2ef28f1d3e9bc466fec71cc6e5216b20a6f3afa26af0b9cb7dda90d4253ed3df",
+        "669f771fad99b1bd03872ed07659327b7c3ea366b13345aefe89cdf6cb27c29c"
+      ],
+      "source_sha256": "73fb56cd5c696710294c15a7f8d507166944f8134a477907bc2dc333d30300f4",
+      "text": "Avisado de que houve uma alternância, ou recebe uma Figure totalmente nova.\n\n\"Show as\" produz uma figura NOVA (veja `figure_settings._replot`), então isto também serve como a troca: tudo o que não é um bool é o substituto, e tudo o que segura a antiga -- esta fila, o bloco da grade, a miniatura -- passa a apontar para ela ao mesmo tempo.",
+      "translation_source_blocks_sha256": [
+        "2ef28f1d3e9bc466fec71cc6e5216b20a6f3afa26af0b9cb7dda90d4253ed3df",
+        "f81472f6fcff05a63c90a739b8084b47711e29a1aa396161145a7e9df998c023"
+      ]
+    },
     "spacr.qt.widgets.figure_queue.FigureQueue.show_index": {
       "source_blocks_sha256": [
         "fa134edfe7773a631e39747bde635c0fe008476d0457d02b16dc82ee2a7a1981",
@@ -131684,6 +132886,18 @@
         "94b2ab8105bbcaa4a240c3adb4c0a61ed5e3e5dfab964a9a441f2ad628aa041f",
         "b3f45fde12ddff7a28f5d0820a44a58cbba1fffa6c91cd6f30a7a431a092e718",
         "57e9e9c521c643c51784a2ef3f0e5784f7a30faf8f4b0cc8e6d654bee77a0edc"
+      ]
+    },
+    "spacr.qt.widgets.figure_queue.render_pdf_to_image._page_rendered": {
+      "source_blocks_sha256": [
+        "fb8f51d83e609db6e2114f58a074c9a66e7e2bcd0dd9f34d8689b7de026c1894",
+        "394a11f38aaa21f02c60f9e861fb552009791a5652d43616235f06e3cc67cc9e"
+      ],
+      "source_sha256": "0da9b731509b5ab5c9c7075cb73585297ea17bb70413829ecbadc70c17d501df",
+      "text": "Recebe a página renderizada. Enfileirada de volta NESTA thread.\n\nÉ por isso que tem só algumas linhas: é o único Python segurando o GIL enquanto a thread de renderização do Qt trabalha.",
+      "translation_source_blocks_sha256": [
+        "fb8f51d83e609db6e2114f58a074c9a66e7e2bcd0dd9f34d8689b7de026c1894",
+        "73b0e5efbb08ec9c594f1f75fcae1da14676cf9ac83b65cf6dd6029d69efd03d"
       ]
     },
     "spacr.qt.widgets.figure_queue.set_figure_text_size_override": {
@@ -142428,6 +143642,18 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ]
     },
+    "spacr.qt.widgets.home.HomePage._build_hero._draw_mark": {
+      "source_blocks_sha256": [
+        "c977b7e1127b73ac51706713213e202997c24bbf2d5c909ba56fe2c66023a5c4",
+        "6c9993cc4dc375422b047bea67c982367b350f6166e25f14b4ff2669335787d7"
+      ],
+      "source_sha256": "205dbfe16e10a74781b8e3bd7cf17780e9b297b9f3139b2d845b83d3f1a6f817",
+      "text": "Redesenha a marca na proporção do monitor em que ela está.\n\nSempre a partir do original de 3334 px. Reescalar o que já está no rótulo acumularia uma reamostragem para cada tela pela qual a janela foi arrastada.",
+      "translation_source_blocks_sha256": [
+        "c977b7e1127b73ac51706713213e202997c24bbf2d5c909ba56fe2c66023a5c4",
+        "531d4ac51d1a1f918abb008abc8f7647e65eb2daf4572abf69d4cfcf454dbc0e"
+      ]
+    },
     "spacr.qt.widgets.home.HomePage.active_jobs": {
       "source_blocks_sha256": [
         "e4c99819c12942e30051c0bbe26fef5d6290670941073611d89fe8ddf3a0def1"
@@ -143196,6 +144422,26 @@
       "translation_source_blocks_sha256": [
         "86104146726dd29b9a677e4ac01b0ccb96d1301f9c65531eb543eaaed2c9469a",
         "ff5b6e9dc0710f1273c8b0eab01080bdb8b5d159ec0dc00b4841e8312d110826"
+      ]
+    },
+    "spacr.qt.widgets.home._scale_text_under.scaled": {
+      "source_blocks_sha256": [
+        "edea33fcdb0cdef30127d165096f6030a2d3198bb6e93b58eb2e4c4d6a2f0b4b"
+      ],
+      "source_sha256": "edea33fcdb0cdef30127d165096f6030a2d3198bb6e93b58eb2e4c4d6a2f0b4b",
+      "text": "``sheet`` com cada tamanho de fonte multiplicado por ``ratio``.",
+      "translation_source_blocks_sha256": [
+        "edea33fcdb0cdef30127d165096f6030a2d3198bb6e93b58eb2e4c4d6a2f0b4b"
+      ]
+    },
+    "spacr.qt.widgets.home._scale_text_under.scaled.one": {
+      "source_blocks_sha256": [
+        "b35cf4e51dfca9b9728a15112647f53ae620cfe9300cc9b6e19bb12ef78138a9"
+      ],
+      "source_sha256": "b35cf4e51dfca9b9728a15112647f53ae620cfe9300cc9b6e19bb12ef78138a9",
+      "text": "Uma declaração ``font-size``, escalada e arredondada para baixo.",
+      "translation_source_blocks_sha256": [
+        "b35cf4e51dfca9b9728a15112647f53ae620cfe9300cc9b6e19bb12ef78138a9"
       ]
     },
     "spacr.qt.widgets.home.active_palette": {
@@ -145528,6 +146774,18 @@
         "87d94d8d53008d8c423e3b8b8ce48fb9ec2d6d0a8d8aefaf57d6b57b376eefb9"
       ]
     },
+    "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.apply_settings._set": {
+      "source_blocks_sha256": [
+        "92d4bb53f1d7f932be208c96541aa6edae74e776239a6f7c22ed9d77874d7cee",
+        "18b5ebbcc9c949f55cf775cce42d586bde27c7ce2840cbfb476ad9dfe4cf2ac7"
+      ],
+      "source_sha256": "9b65e53d16efcd74ca8df0347b5f7d92819858a8111be43ef623a5128d0a96de",
+      "text": "Aplica uma configuração, pulando chaves ausentes ou com valor None.\n\nValores ausentes e None são DEIXADOS COMO ESTÃO em vez de aplicados como padrão: a pré-visualização mostra o que a execução vai fazer, e preencher uma lacuna aqui mostraria um valor que a execução não tem.",
+      "translation_source_blocks_sha256": [
+        "9fefd893889af75a5e466a0f6aa461368dc071fe1e56328f6e250f4126251a6f",
+        "2ee581540e9b589a4a7a34990bc7fa4bdad434d8c89be3a267b5b3f562136adf"
+      ]
+    },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.closeEvent": {
       "source_blocks_sha256": [
         "10be2b043a97990060c40a9b237a2cdeacb2de111ea8be6ff340fcfadb22494c",
@@ -145734,6 +146992,26 @@
       "text": "Abandone qualquer coisa em voo e não deixe nenhum QThread para trás.",
       "translation_source_blocks_sha256": [
         "7a021ff53b918928bb36c6e23cd8ee2615018e5dee087e0f5bb74c606a67f834"
+      ]
+    },
+    "spacr.qt.widgets.measure_preview._unmixed_crop_source.checkpoint": {
+      "source_blocks_sha256": [
+        "b5ff73f65cf58745cb2481912f580a9614cf5a227bcf45af04d4ae133064d335"
+      ],
+      "source_sha256": "b5ff73f65cf58745cb2481912f580a9614cf5a227bcf45af04d4ae133064d335",
+      "text": "Para entre controles e antes do processamento de exibição custoso.",
+      "translation_source_blocks_sha256": [
+        "b5ff73f65cf58745cb2481912f580a9614cf5a227bcf45af04d4ae133064d335"
+      ]
+    },
+    "spacr.qt.widgets.measure_preview._unmixed_crop_source.load_control": {
+      "source_blocks_sha256": [
+        "2ce35d0906d187c4120bd908fee9ffe563d92dff1f44a47aafc8c62c84fca94b"
+      ],
+      "source_sha256": "2ce35d0906d187c4120bd908fee9ffe563d92dff1f44a47aafc8c62c84fca94b",
+      "text": "Lê cada controle sem alterá-lo nem aceitar um layout errado.",
+      "translation_source_blocks_sha256": [
+        "2ce35d0906d187c4120bd908fee9ffe563d92dff1f44a47aafc8c62c84fca94b"
       ]
     },
     "spacr.qt.widgets.measure_preview.annotate_crops": {
@@ -157388,6 +158666,36 @@
         "150f61cd277994af9d47c5d3e95c1a7e4d1f32b02cb2684dd667a1f310e04bac"
       ]
     },
+    "spacr.qt.widgets.provider_marks._parse_svg_path.num": {
+      "source_blocks_sha256": [
+        "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563"
+      ],
+      "source_sha256": "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563",
+      "text": "Lê o próximo número da cadeia de caracteres do caminho, avançando o cursor.",
+      "translation_source_blocks_sha256": [
+        "696964b15b45648a03f5baf76eca4aa8f2c8c43ff6108c711906e530d0383563"
+      ]
+    },
+    "spacr.qt.widgets.provider_marks._svg_arc.ang": {
+      "source_blocks_sha256": [
+        "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6"
+      ],
+      "source_sha256": "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6",
+      "text": "O ângulo com sinal entre dois vetores, conforme a matemática de arcos do SVG o define.",
+      "translation_source_blocks_sha256": [
+        "ee076a6c3930d0f64b8376ce55a2c1fffe6add44dc4ca4305ad2f390e30ae4a6"
+      ]
+    },
+    "spacr.qt.widgets.provider_marks._svg_arc.pt": {
+      "source_blocks_sha256": [
+        "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac"
+      ],
+      "source_sha256": "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac",
+      "text": "Um ponto do arco, a partir do seu cosseno e seno.",
+      "translation_source_blocks_sha256": [
+        "aafd9e12180925afa89e859a84050092cc9344a0bbf1bc7c17e4461995fb85ac"
+      ]
+    },
     "spacr.qt.widgets.provider_marks.claude_path": {
       "source_blocks_sha256": [
         "9994c95b29a227d72172880bb8111377c37d7e706b472c8ceb52035227dd3e68",
@@ -157464,6 +158772,36 @@
       "translation_source_blocks_sha256": [
         "ae47fcbfa48daa5a577f1d3567f28f2d519f0c495480976bc6a90ed4dbe1a343",
         "3c979fea84f95ce29e2fc08210c3531a5998a637ef8c334ed0354a89f8611b65"
+      ]
+    },
+    "spacr.qt.widgets.psf_controls._PSFControls._load.work": {
+      "source_blocks_sha256": [
+        "be7960c07f849bb9035ccc6671611160cb43807430ff65fee779e144076ef9a3"
+      ],
+      "source_sha256": "be7960c07f849bb9035ccc6671611160cb43807430ff65fee779e144076ef9a3",
+      "text": "Valida a calibração capturada e retorna um kernel carregado ou gerado com seu erro.",
+      "translation_source_blocks_sha256": [
+        "be7960c07f849bb9035ccc6671611160cb43807430ff65fee779e144076ef9a3"
+      ]
+    },
+    "spacr.qt.widgets.psf_controls._PSFControls.infer_from.work": {
+      "source_blocks_sha256": [
+        "1250bb0532f7b166c2492783bb61a5f35c053569e1c6c28362305b5213fdd5de"
+      ],
+      "source_sha256": "1250bb0532f7b166c2492783bb61a5f35c053569e1c6c28362305b5213fdd5de",
+      "text": "Retorna a óptica inferida, ou o erro que impediu lê-la.",
+      "translation_source_blocks_sha256": [
+        "1250bb0532f7b166c2492783bb61a5f35c053569e1c6c28362305b5213fdd5de"
+      ]
+    },
+    "spacr.qt.widgets.psf_controls._PSFControls.mask_settings.pair": {
+      "source_blocks_sha256": [
+        "01e6916af989842c8971cc0a4c48af26b4ab33c8b6d4a53ddfb438216799d980"
+      ],
+      "source_sha256": "01e6916af989842c8971cc0a4c48af26b4ab33c8b6d4a53ddfb438216799d980",
+      "text": "Um par de comprimentos [Y, X], ou None enquanto algum dos lados não estiver definido.",
+      "translation_source_blocks_sha256": [
+        "01e6916af989842c8971cc0a4c48af26b4ab33c8b6d4a53ddfb438216799d980"
       ]
     },
     "spacr.qt.widgets.qc_field_browser": {
@@ -164556,6 +165894,50 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "66fc48a61b930f67f4589df91ccbbd05848327b39005f6b96e8d144bfd1db540",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ]
+    },
+    "spacr.qt.widgets.umap_explorer.ImageUmapExplorer._build_ui._OwnedTimerFigureCanvas.__init__": {
+      "source_blocks_sha256": [
+        "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
+        "a0b6a9f27b82f49a1d48cdbc860afced9dc53de481b5cce6ee3f25877ffb9d69"
+      ],
+      "source_sha256": "e213049d18f25bdf01e81bfcada10eed0e7731be98a6e5e1b7aa5046eae2adbd",
+      "text": "Envolve uma figura numa tela de desenho que possui seu próprio temporizador de redesenho.\n\n:param figure: a ``Figure`` do Matplotlib a desenhar. O temporizador é filho desta tela de desenho, então um redesenho enfileirado não pode sobreviver ao objeto em que desenharia -- é isso que o parágrafo acima quer dizer com próprio.",
+      "translation_source_blocks_sha256": [
+        "d1a35f47e412a12a5811975970e73d75b883b08718f318103beb4b19525a9897",
+        "a0b6a9f27b82f49a1d48cdbc860afced9dc53de481b5cce6ee3f25877ffb9d69"
+      ]
+    },
+    "spacr.qt.widgets.umap_explorer.ImageUmapExplorer._build_ui._OwnedTimerFigureCanvas._spacr_draw": {
+      "source_blocks_sha256": [
+        "c554c8c2b1b50c7fe39bb467e992e914cea287aecc097ee58dc00c41ddd5d8ef",
+        "2fa5ae63e5f0e8f06abf5b347d7a70bf1ad679f20b55fdbf1f0459149de09750"
+      ],
+      "source_sha256": "fc59cd3cb3d3942c43723b755d0c54ad2aef7125454e814df6ce8c905465f8d4",
+      "text": "Desenha uma vez, se ainda houver um desenho pendente.\n\nO sinalizador de pendente é limpo PRIMEIRO, para que um desenho que agenda outro não o perca.",
+      "translation_source_blocks_sha256": [
+        "c554c8c2b1b50c7fe39bb467e992e914cea287aecc097ee58dc00c41ddd5d8ef",
+        "2fa5ae63e5f0e8f06abf5b347d7a70bf1ad679f20b55fdbf1f0459149de09750"
+      ]
+    },
+    "spacr.qt.widgets.umap_explorer.ImageUmapExplorer._build_ui._OwnedTimerFigureCanvas.cancel_pending_draw": {
+      "source_blocks_sha256": [
+        "e84f0485066c1ee280189b8a401da260e65840083cf157150c524d4241c48afd"
+      ],
+      "source_sha256": "e84f0485066c1ee280189b8a401da260e65840083cf157150c524d4241c48afd",
+      "text": "Descarta qualquer redesenho enfileirado.",
+      "translation_source_blocks_sha256": [
+        "e84f0485066c1ee280189b8a401da260e65840083cf157150c524d4241c48afd"
+      ]
+    },
+    "spacr.qt.widgets.umap_explorer.ImageUmapExplorer._build_ui._OwnedTimerFigureCanvas.draw_idle": {
+      "source_blocks_sha256": [
+        "2efbddc7516ab569e7e527b901babcd1f79ef949eb9f353806cacd96a9ac93ae"
+      ],
+      "source_sha256": "2efbddc7516ab569e7e527b901babcd1f79ef949eb9f353806cacd96a9ac93ae",
+      "text": "Enfileira um redesenho no temporizador PRÓPRIO da tela de desenho.",
+      "translation_source_blocks_sha256": [
+        "626d5fdf01133e32448e53d9b413f2c2cf606b05a9fce875132ab5cad4c547c7"
       ]
     },
     "spacr.qt.widgets.umap_explorer.ImageUmapExplorer.apply_display": {
@@ -176238,6 +177620,18 @@
         "bf21941f84d108e7443b7d764a0d1008cda6623ed276b1f10ec3b229c049a905"
       ]
     },
+    "spacr.scorecard.read_scorecard_csv.number": {
+      "source_blocks_sha256": [
+        "77ff5990182be731199accc39fe1c908fda4bcc6613ac96f97d3af6d703071fe",
+        "21db5f067e77a95e0a9400dba493e4645042bc27b151ddf56427fa3767970ae1"
+      ],
+      "source_sha256": "a8734b608b137abad81bb6b1fde13b14a2de4c43c1e72086b476f4e1fd5f2fbf",
+      "text": "Uma célula como número, ou a cadeia de caracteres bruta quando não é um.\n\nUM NÚMERO INTEIRO VOLTA COMO int. O CSV não distingue uma contagem de uma medida, e ler tudo como float exibe \"on 12517.0 objects\" numa dica -- uma contagem com ponto decimal parece um arredondamento, o que ela não é.",
+      "translation_source_blocks_sha256": [
+        "77ff5990182be731199accc39fe1c908fda4bcc6613ac96f97d3af6d703071fe",
+        "8d8ec10a1dde54d54ee6c110d22b1eeff1806c84bf91173324e38a457fd10afa"
+      ]
+    },
     "spacr.scorecard.score_classifier": {
       "source_blocks_sha256": [
         "e784dddb8faf0f4706a2925f1ba06aaf8e7373edb838981daa432e3ee1ed7d3c",
@@ -176274,6 +177668,18 @@
         "50646980cccb565c858992a04a034a78fda830c735da43d8e8c5b3283dfcf42f"
       ]
     },
+    "spacr.scorecard.score_holdout.weighted": {
+      "source_blocks_sha256": [
+        "7962a8c3a08ddfadae7ee26d856ec00799d4e5a54cb9ed2243df66c3f0387fd9",
+        "614c8095747979816103b9f065bce487992cf0a9784d07f361e0f1336d329b8a"
+      ],
+      "source_sha256": "32f80e06b11c907b68c2ec7788ac20ec3bf461a9581532f1623e56d33293885a",
+      "text": "Faz a média de ``key`` entre campos, ponderada por quanto cada um contém.\n\nUma média simples faria um campo com quatro objetos contar tanto quanto um com quatrocentos, de modo que um canto esparso da placa poderia mover o número publicado mais do que a própria placa.",
+      "translation_source_blocks_sha256": [
+        "7962a8c3a08ddfadae7ee26d856ec00799d4e5a54cb9ed2243df66c3f0387fd9",
+        "dbfb7c878da197eab9f423974d69ed8634db556b75d80b12bd81b7b5b4f8ce7d"
+      ]
+    },
     "spacr.scorecard.score_model_on_holdout": {
       "source_blocks_sha256": [
         "59594e0fad24636fd0bdae625566b5a86ac11767cfcb0c1507dd2c34b722f074",
@@ -176290,6 +177696,18 @@
         "054196b7aa4347329dd3ad1c03881e93ef98d1e7f5df6cb9ead1367aad9b9463",
         "bf6ea1fa85158e9c3c1aee2e13b314fbf2ec3fa43aa626ad240b38b16475b389",
         "4a697bc6a027d42c36c287d9e2f65a0468f406c7df90e1e47d5afdcca148f703"
+      ]
+    },
+    "spacr.scorecard.score_model_on_holdout.read_mask": {
+      "source_blocks_sha256": [
+        "24559a77c86fe4e02f043533bcbb7df5317cf76c0a988a016beb0f39fba69059",
+        "b18bfe1b1f29b42cb954fc64c810d4abd4c010784a54ebd73ba0ae17fe0497d4"
+      ],
+      "source_sha256": "f5ed0c35cabe3cfaac3c8d1ec60cf1974a096c2192569306336bd589922b664a",
+      "text": "Lê uma imagem de rótulos do disco.\n\nO padrão, usado quando quem chama não passa nenhum. Importado aqui em vez de no escopo do módulo para que pontuar um par de arrays já carregado não exija tifffile.",
+      "translation_source_blocks_sha256": [
+        "24559a77c86fe4e02f043533bcbb7df5317cf76c0a988a016beb0f39fba69059",
+        "b18bfe1b1f29b42cb954fc64c810d4abd4c010784a54ebd73ba0ae17fe0497d4"
       ]
     },
     "spacr.scorecard.score_segmentation": {
@@ -178670,6 +180088,32 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
+    "spacr.sequencing_qc.derive_threshold.choice_at": {
+      "source_blocks_sha256": [
+        "c08a80aab0b873d61814965208838586c46bc69d7b4a19bb24296fd8a6fed9ad",
+        "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b"
+      ],
+      "source_sha256": "68e1c8103f42a108f2e0eda90744bba44ef964f410f26341331c7b6b09d54df2",
+      "text": "Constrói o resultado para o candidato ``index``, centrado em seu platô.\n\n``index`` é o candidato mais estrito que produz ``achieved``. O platô desce até logo acima do último candidato que produziu MAIS do que ``achieved``, encontrado por uma segunda bissecção sobre a mesma estatística monótona.",
+      "translation_source_blocks_sha256": [
+        "c08a80aab0b873d61814965208838586c46bc69d7b4a19bb24296fd8a6fed9ad",
+        "01ceb1428a1a8588a879b95906712a1d9dd7c06c54345727f9b0bdac5c987b1b"
+      ]
+    },
+    "spacr.sequencing_qc.derive_threshold.stat": {
+      "source_blocks_sha256": [
+        "07110193c3aa4428ebdf647917c91ed2218f79f8bcf6a4192e01985cff3b4442",
+        "a583577fa5e3776abeadee0758f442ed5e3548a31d2f6995c8534c2e418b769c",
+        "c5b88ba720093e036789f61f0091f199bbce6be26c73283227febdfbc525d567"
+      ],
+      "source_sha256": "018e0b285557bc77c664af769363566941ef50e1def47efe28bdeb41e0a6cbcd",
+      "text": "Avalia a estatística capturada de fração de poços em um limiar.\n\n:param value: limiar de fração de abundância a avaliar.\n:returns: a média ou mediana selecionada de gRNAs-per-well como float; os detalhes dos poços retidos retornados junto são descartados.",
+      "translation_source_blocks_sha256": [
+        "07110193c3aa4428ebdf647917c91ed2218f79f8bcf6a4192e01985cff3b4442",
+        "a583577fa5e3776abeadee0758f442ed5e3548a31d2f6995c8534c2e418b769c",
+        "c5b88ba720093e036789f61f0091f199bbce6be26c73283227febdfbc525d567"
+      ]
+    },
     "spacr.sequencing_qc.library_depth": {
       "source_blocks_sha256": [
         "6f3b01bbab5b052ae28136d8df2d012d8e9c42e794a881b4dc0c3c84b06900ef",
@@ -178734,6 +180178,20 @@
         "ed096933571e7404fcbb466a58dc066f2e401c83fe3eb81c9663d528ecd03fbb",
         "d970e87876e2e1fb9fb239c3162327ac6a2831ae18d5df4028d346c190c9bbff",
         "d0fac811b44c15d3b98e21bf5f2b66cc44b5988c67688faaada4161fa30194f4"
+      ]
+    },
+    "spacr.sequencing_qc.plot_barcode_qc._natural": {
+      "source_blocks_sha256": [
+        "f2fcf1b392bdf6f9aa6ba134a33b48f462bfc885b9c5a82bb5c9a56990313f54",
+        "4e14528dc478d7a7db1c53286e327634235c7beef75f41bbe310df533503fe12",
+        "84300df8088ddea42a4e935f281d6426bc697b67c6ec1531ed9e4bd7a375cda7"
+      ],
+      "source_sha256": "d694194413ce2b0f49d468d36a319269cf8fac2ce25ae3165b9c743014840388",
+      "text": "Divide um rótulo de posição em partes de ordenação textuais e numéricas.\n\n:param value: rótulo de posição de linha ou coluna a converter em string.\n:returns: todos os caracteres não numéricos seguidos dos dígitos concatenados como inteiro, ou zero quando não há nenhum, para que rótulos como ``c1``, ``c2`` e ``c10`` sigam a ordem física da placa.",
+      "translation_source_blocks_sha256": [
+        "f2fcf1b392bdf6f9aa6ba134a33b48f462bfc885b9c5a82bb5c9a56990313f54",
+        "4e14528dc478d7a7db1c53286e327634235c7beef75f41bbe310df533503fe12",
+        "84300df8088ddea42a4e935f281d6426bc697b67c6ec1531ed9e4bd7a375cda7"
       ]
     },
     "spacr.sequencing_qc.plot_threshold_sweep": {
@@ -180706,6 +182164,16 @@
         "dc249d9148915600362b8b17ca063a149dc5f7c318e4c08973dc792065ad8145"
       ]
     },
+    "spacr.sim._simulation_unit_bytes._largest": {
+      "source_blocks_sha256": [
+        "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e"
+      ],
+      "source_sha256": "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e",
+      "text": "O maior valor varrido para ``key``.",
+      "translation_source_blocks_sha256": [
+        "1ab961ccc90ca17a00a0e352b93a9f5242b713a996cfab37fea39875a225064e"
+      ]
+    },
     "spacr.sim.append_database": {
       "source_blocks_sha256": [
         "2ff59cadac7d374a7d4db320559597fa19b6bf2153323504fd4dd38295c82cbe",
@@ -180790,6 +182258,26 @@
         "5c93bb5644abe0fec3ec0ee5f666bf271389c86e14319b6f4e99d71a59c47d89",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "007038486175dba62eb8fb3fe11b2e338def9c50d0866e577fa6014bbc415a93"
+      ]
+    },
+    "spacr.sim.classifier.calc_alpha_beta": {
+      "source_blocks_sha256": [
+        "3be42ea544e1a1e459678d9439d20d40262a8152df1b06d0712c5e0d95b2519f"
+      ],
+      "source_sha256": "3be42ea544e1a1e459678d9439d20d40262a8152df1b06d0712c5e0d95b2519f",
+      "text": "Retorna ``(alpha, beta)`` para uma Beta com a média e a variância dadas.",
+      "translation_source_blocks_sha256": [
+        "3be42ea544e1a1e459678d9439d20d40262a8152df1b06d0712c5e0d95b2519f"
+      ]
+    },
+    "spacr.sim.classifier.get_score": {
+      "source_blocks_sha256": [
+        "e5decb17afc46a6d87934ad34952b10d875cae3116dc2a29acc8a8061ed0fe17"
+      ],
+      "source_sha256": "e5decb17afc46a6d87934ad34952b10d875cae3116dc2a29acc8a8061ed0fe17",
+      "text": "Retorna uma amostra Beta da distribuição da classe correta ou incorreta.",
+      "translation_source_blocks_sha256": [
+        "e5decb17afc46a6d87934ad34952b10d875cae3116dc2a29acc8a8061ed0fe17"
       ]
     },
     "spacr.sim.compute_precision_recall": {

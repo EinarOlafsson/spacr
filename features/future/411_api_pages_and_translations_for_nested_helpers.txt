@@ -2111,3 +2111,19 @@ stale en hashes), owned elsewhere. spacr.object_classifier stays out: a
 nightly helper (_train_real_classifier.estimator) has no docstring. The
 canonical denominator is now 1,157.
     BLOCKED / open: OPEN docs work: 967 of 1,157 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 39 MORE MODULES ENABLED (PARTIAL; 326 of 1,157)
+ENABLED_MODULES gains 20 three-helper and 19 four-helper modules (doctor,
+image_quality, ops_accel, sim, scorecard, sequencing_qc, _lineage_trees,
+active_learning, classifier_evaluation, foreign, model_zoo, ops_engine and
+27 spacr.qt modules, now including qt.import_demo). The API writer adds 136
+helper symbols in English and all nine locales; earlier locale records are
+byte-identical (nightly's 6a735c2d2 regenerated English, so the writer now
+only inserts the new keys and leaves upstream-stale locale entries for the
+next API pass). 165 unique blocks got direct AI translations with AI
+technical review, records in 2026-10-03-nested-batch{4,5}.json (every block of
+every new key, no native-speaker signoff); writer generated=0, decoded=0.
+Nightly removed ConditionSourceTable.setModel, so it leaves the catalogs and
+the batch3 records: pins 12,217 -> 12,352 (+136/-1). The documented-__init__
+set gains three local constructors. Help index regenerated.
+    BLOCKED / open: OPEN docs work: 831 of 1,157 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).

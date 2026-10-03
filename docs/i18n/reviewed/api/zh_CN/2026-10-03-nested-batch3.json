@@ -332,22 +332,6 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
-      "source": "Show ``model`` with the shared three-state header sorting.",
-      "source_sha256": "2321b1e4b3ee0248fadb7fc6f1fedcac409c67f881b871c2b01edabf11e07ab4",
-      "context": "Show ``model`` with the shared three-state header sorting.",
-      "translation": "使用共享的三态表头排序显示 ``model``。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
-    },
-    {
-      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#1",
-      "source": "the filter proxy over the condition rows.",
-      "source_sha256": "d135d3a7f1ca9996c8742b82b6d5996a46cebd1e64e495165d793fd20952bf42",
-      "context": "the filter proxy over the condition rows.",
-      "translation": "条件行之上的筛选代理。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
-    },
-    {
       "label": "spacr.qt.widgets.dna_rain.DnaRainWidget._coalesce.close#0",
       "source": "Close the run being accumulated and emit it.",
       "source_sha256": "8524dbde513e2481fc80010ddc02d96b60682b607e0ad4f6047e1c103f315a6e",
