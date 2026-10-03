@@ -222,5 +222,5 @@ close the remaining real parasite endodyogeny acceptance for F537.
       link_by_iou is O(objects^2 x pixels): 2.9 s for one 54-object frame
       pair, minutes per pair at ~300 objects. The run used an identical
       contingency-table linker (same matches on a checked frame pair).
-    Still open: post-Measure colouring, hours-per-frame, parasite
+    Not checked here: post-Measure colouring, hours-per-frame, parasite
     endodyogeny on real data.

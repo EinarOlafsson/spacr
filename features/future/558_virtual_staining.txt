@@ -153,3 +153,23 @@ WHAT IS LEFT
     Not trained on real data or GPU; no comparison vs plain U-Net yet.
     LEFT: label-free paired data set (BLOCKED, external); a pix2pix vs U-Net
     scorecard on real data; published pretrained models.
+
+2026-10-03 — LABEL-FREE PAIRED DATA, JUMP BRIGHTFIELD (lane 2, CPU)
+    Data: Cell Painting Gallery cpg0016-jump, source_4, batch
+    2021_04_26_Batch1 (CC0), U2OS, Opera Phenix 1080x1080 at 0.60 um/px.
+    Inputs: the 3 brightfield planes (ch6-8); target: Hoechst (ch5).
+    Split by PLATE: train BR00117035 (48 fields, 24 wells), test
+    BR00117036 (20 fields, 10 wells). _virtual_stain_from_folder, U-Net,
+    scale 2, crop 128, 32 crops/field, 20 epochs, base 16, depth 3, CPU.
+    Held-out means, threshold watershed (_vs_segment) on real and predicted
+    stain, real-stain objects as reference (item 532 matcher):
+                          Pearson  SSIM   F1@0.5  F1@0.75
+      predicted stain     0.926    0.904  0.945   0.697
+      brightfield alone   -0.02    0.02   0.001   0.000
+    (71 real vs 71 predicted nuclei per field.) Done-when met with the
+    watershed: predicted nuclei segment to F1 0.95 of the real stain at
+    IoU 0.5 on an unseen plate. The default Cellpose-cpsam scorecard was
+    stopped unfinished after ~2.5 h wall on a shared CPU (load ~110) and
+    is not reported. Script/results: /mnt/wd4tb/scratch/558/jump/
+    (get.py, run.py, ws.py, out/scores_watershed.csv, out/virtual_stain_c0.pt).
+    LEFT: Cellpose scorecard on GPU; a second source/cell line.
