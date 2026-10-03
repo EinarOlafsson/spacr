@@ -233,8 +233,8 @@ def test_every_tile_carries_the_stage_the_registry_gave_it(qtbot,
             "what the tests read — they have to be the same string")
 
 
-def test_the_stage_is_a_word_on_the_tile_not_only_a_colour(qtbot,
-                                                           qt_theme_applied):
+def test_the_stage_is_a_word_on_the_tile_not_only_a_colour(
+        qtbot, qt_theme_applied, immediate_hover_help):
     """WCAG 1.4.1: colour is never the only carrier of information.
 
     A screen reader gets "alpha" out of the accessible description; a
@@ -247,19 +247,25 @@ def test_the_stage_is_a_word_on_the_tile_not_only_a_colour(qtbot,
     taken the stage word with it -- so the word moved rather than going
     away, and this test moved with it.
     """
-    from PySide6.QtCore import QEvent
-
     page = make_home_page()
     qtbot.addWidget(page)
+    page.resize(1200, 860)
+    page.show()
+    qtbot.waitExposed(page)
     tiles = page.findChildren(AppTile)
     assert tiles, "no tiles to check"
+    hovered = 0
     for tile in tiles:
         word = theme.STAGE_LABEL[tile.stage]
         assert word in tile.accessibleDescription()
         assert not tile.toolTip(), (
             "the per-tile popup is deliberately gone; the hint bar says it")
-        page.eventFilter(tile, QEvent(QEvent.Enter))
-        assert word.lower() in page._hint_bar.text().lower()
+        if not tile.isVisible():
+            continue
+        immediate_hover_help(
+            tile, lambda w=word: w.lower() in page._hint_bar.text().lower())
+        hovered += 1
+    assert hovered, "no visible tile to hover"
 
 
 # ===========================================================================
