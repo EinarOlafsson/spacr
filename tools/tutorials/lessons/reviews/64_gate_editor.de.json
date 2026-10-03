@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Laden Sie das Annotate-Beispiel herunter und erstellen Sie eine Arbeitskopie von measurements.db. Gate Editor verwendet deren 2.341 Zellmessungen; es hat keine eigene Schaltfläche zum Herunterladen des Beispiels. Export gates schreibt die Zugehörigkeit in die gewählte Datenbank. Gate-Namen sollten die gewählten Messgrößen beschreiben, bis ihre biologische Bedeutung geklärt ist.",
   "scenes": [
     "Öffnen Sie von Home aus Tools und wählen Sie Gate Editor. Passen Sie die Trenner so an, dass Diagramm, Gate-Tabelle und seitliche Steuerelemente sichtbar sind. Verwenden Sie die Messdatenbank aus dem Annotate-Beispiel.",
-    "Klicken Sie auf Load table, öffnen Sie Ihre Arbeitskopie von measurements.db und wählen Sie cell. Das Beispiel enthält 2.341 Objekte. Bewahren Sie eine Kopie auf, da Export gates die Zugehörigkeit in diese Datenbank schreibt.",
+    "Klicken Sie auf Load table, öffnen Sie Ihre Arbeitskopie von measurements.db und wählen Sie cell. Das Beispiel enthält 2.341 Objekte. Bewahren Sie eine Kopie auf, da Export gates die Zugehörigkeit in diese Datenbank schreibt. Merge tables neben der Auswahl führt die Zelltabelle mit ihren Zellkern- oder Pathogentabellen zu einer neuen Tabelle zusammen, wie in Graph Builder; die Quelltabellen bleiben unverändert.",
     "Wählen Sie cell_area für X und cell_channel_1_mean_intensity für Y und dann Rectangle. Jeder Punkt steht für ein Objekt. Prüfen Sie Merkmalsnamen und Einheiten, bevor Sie zeichnen.",
     "Ziehen Sie über das Streudiagramm, lassen Sie los und geben Sie einen aussagekräftigen Gate-Namen ein. Das Gate speichert Grenzen in den beiden gewählten Messgrößen.",
     "Lesen Sie Anzahl und Prozentsatz neben dem Gate-Namen. Der gezeigte Bereich enthält 655 Objekte. Ihre Mauspositionen können andere Grenzen ergeben; speichern Sie eine Strategie, um eine exakte Auswahl zu wiederholen.",
@@ -32,6 +32,9 @@
     "Zeichnen Sie ein zweites Gate und geben Sie ihm einen neuen Namen. Neue Formen sind unabhängig vom ausgewählten Gate, daher kann das zweite Objekte außerhalb des ersten einschließen. Speichern Sie diese Strategie mit zwei Gates unter einem neuen Dateinamen.",
     "Wählen Sie 3D und setzen Sie Z auf cell_perimeter. Drehen Sie die Ansicht mit den Schaltflächen für die Drehachse. Kehren Sie zu 2D zurück, um die ursprünglichen Grenzen für Fläche und Intensität zu prüfen.",
     "Erstellen Sie mit From view eine benannte Box, die durch die drei angezeigten Messgrößen begrenzt ist. Prüfen Sie ihre Populationsgröße und speichern Sie die neue Strategie separat.",
+    "Wählen Sie Free unter spin, um das Volumen frei zu drehen: Ziehen Sie gleichzeitig seitlich und nach oben und unten, und die Ansicht bleibt genau dort, wo Sie loslassen. Drehen Sie sie, bis sich die gewünschte Population vom Rest abhebt.",
+    "Wählen Sie Polygon through view und stellen Sie drag auf Draw. Klicken Sie auf die Ecken rund um die Population auf dem Bildschirm; die Statuszeile zählt die Eckpunkte, und der Umriss wird im sichtbaren Winkel durch das gesamte Volumen gezogen.",
+    "Klicken Sie erneut auf die erste Ecke, um das Polygon zu schließen und das Gate zu benennen; hier enthält es 1.479 Objekte. Doppelklicken Sie auf ein Gate in der Gate-Tabelle, um es umzubenennen; seine untergeordneten Gates übernehmen den neuen Namen.",
     "Aktivieren Sie xD, um Hauptkomponenten aus geeigneten Messgrößen zu berechnen. Die Achsenbeschriftungen zeigen die erklärte Varianz jeder Komponente. Wählen Sie 2D oder 3D separat, um die Ansicht zu steuern.",
     "Wählen Sie beim Ausschalten von xD wieder die Achsen mit den Rohmesswerten. Speichern Sie die Projektionsdetails separat: Das Gate-JSON behält die angepasste Projektion nicht, und Grenzen auf Komponenten können sich zwischen unabhängig angepassten Datensätzen unterscheiden.",
     "Öffnen Sie Search und verbreitern Sie das Feld. Speichern und entfernen Sie temporäre Gates, wählen Sie die beiden Rohmerkmale, aktivieren Sie die Skalierung und setzen Sie mindestens 20 Nachbarn und 5 Walk steps. Klicken Sie auf Run walk und prüfen Sie die Bestätigungswerte.",

@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Hämta Annotate-exemplet och gör en arbetskopia av measurements.db. Gate Editor använder dess 2 341 cellmätningar; den har ingen egen knapp för att hämta exemplet. Export gates skriver tillhörigheten till den valda databasen. Grindnamn bör beskriva de valda mätningarna tills deras biologiska betydelse har fastställts.",
   "scenes": [
     "Från Home öppnar du Tools och väljer Gate Editor. Justera avdelarna så att du ser diagrammet, grindtabellen och sidokontrollerna. Använd mätdatabasen från Annotate-exemplet.",
-    "Klicka på Load table, öppna din arbetskopia av measurements.db och välj cell. Exemplet innehåller 2 341 objekt. Behåll en kopia eftersom Export gates skriver tillhörigheten till den här databasen.",
+    "Klicka på Load table, öppna din arbetskopia av measurements.db och välj cell. Exemplet innehåller 2 341 objekt. Behåll en kopia eftersom Export gates skriver tillhörigheten till den här databasen. Merge tables bredvid väljaren slår ihop celltabellen med dess kärn- eller patogentabeller till en ny tabell, som i Graph Builder; källtabellerna förblir oförändrade.",
     "Välj cell_area för X och cell_channel_1_mean_intensity för Y och välj sedan Rectangle. Varje punkt är ett objekt. Kontrollera egenskapsnamn och enheter innan du ritar.",
     "Dra över spridningsdiagrammet, släpp och ange ett beskrivande grindnamn. Grinden sparar gränser i de två valda mätningarna.",
     "Läs antalet och procentandelen bredvid grindnamnet. Det visade området innehåller 655 objekt. Dina muspositioner kan ge andra gränser; spara en strategi för att upprepa ett exakt urval.",
@@ -32,6 +32,9 @@
     "Rita en andra grind och ge den ett nytt namn. Nya former är oberoende av den valda grinden, så den andra kan innehålla objekt utanför den första. Spara strategin med två grindar under ett nytt filnamn.",
     "Välj 3D och sätt Z till cell_perimeter. Använd knapparna för rotationsaxel för att vrida vyn. Gå tillbaka till 2D för att granska de ursprungliga gränserna för area och intensitet.",
     "Använd From view för att skapa en namngiven låda som avgränsas av de tre visade mätningarna. Kontrollera dess populationsantal och spara den nya strategin separat.",
+    "Välj Free under spin för att kretsa runt volymen: dra i sidled och upp och ned samtidigt, så stannar vyn exakt där du släpper. Vrid den tills populationen du vill ha skiljer sig från resten.",
+    "Välj Polygon through view och växla drag till Draw. Klicka på hörnen runt populationen på skärmen; statusraden räknar hörnpunkterna, och konturen dras genom hela volymen i den vinkel du ser.",
+    "Klicka på det första hörnet igen för att stänga polygonen och namnge grinden; här rymmer den 1 479 objekt. Dubbelklicka på en grind i grindtabellen för att byta namn på den; dess undergrindar följer det nya namnet.",
     "Aktivera xD för att beräkna principalkomponenter från lämpliga mätningar. Axeletiketterna visar förklarad varians för varje komponent. Välj 2D eller 3D separat för att styra vyn.",
     "När du stänger av xD väljer du rådataaxlarna igen. Spara projektionsdetaljerna separat: grind-JSON behåller inte den anpassade projektionen, och gränser på komponenter kan skilja sig mellan datamängder som anpassats oberoende.",
     "Öppna Search och bredda panelen. Spara och ta bort tillfälliga grindar, välj de två råa egenskaperna, aktivera skalning och ange minst 20 grannar och 5 Walk steps. Klicka på Run walk och granska bekräftelsevärdena.",

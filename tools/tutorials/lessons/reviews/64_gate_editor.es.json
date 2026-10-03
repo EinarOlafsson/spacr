@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Descarga el ejemplo de Annotate y haz una copia de trabajo de measurements.db. Gate Editor usa sus 2341 mediciones de células; no tiene un botón propio para descargar el ejemplo. Export gates escribe la pertenencia en la base de datos elegida. Los nombres de las compuertas deben describir las mediciones seleccionadas hasta que se haya establecido su significado biológico.",
   "scenes": [
     "Desde Home, abre Tools y elige Gate Editor. Ajusta los divisores para ver el gráfico, la tabla de compuertas y los controles laterales. Usa la base de datos de mediciones del ejemplo de Annotate.",
-    "Haz clic en Load table, abre tu copia de trabajo de measurements.db y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos.",
+    "Haz clic en Load table, abre tu copia de trabajo de measurements.db y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos. Merge tables, junto al selector, combina la tabla de células con sus tablas de núcleos o de patógenos en una tabla nueva, como en Graph Builder; las tablas de origen no cambian.",
     "Elige cell_area para X y cell_channel_1_mean_intensity para Y, y luego selecciona Rectangle. Cada punto representa un objeto. Comprueba los nombres de las características y sus unidades antes de dibujar.",
     "Arrastra sobre el gráfico de dispersión, suelta e introduce un nombre descriptivo para la compuerta. La compuerta guarda los límites en las dos mediciones seleccionadas.",
     "Lee el recuento y el porcentaje junto al nombre de la compuerta. La región mostrada contiene seiscientos cincuenta y cinco objetos. Tus posiciones del ratón pueden dar límites distintos; guarda una estrategia para repetir una selección exacta.",
@@ -32,6 +32,9 @@
     "Dibuja una segunda compuerta y dale un nombre nuevo. Las formas nuevas son independientes de la compuerta seleccionada, así que la segunda puede incluir objetos fuera de la primera. Guarda esta estrategia de dos compuertas con un nombre de archivo nuevo.",
     "Elige tres D y pon Z en cell_perimeter. Usa los botones de eje de giro para rotar la vista. Vuelve a dos D para revisar los límites originales de área e intensidad.",
     "Usa From view para crear una caja con nombre delimitada por las tres mediciones mostradas. Comprueba el recuento de su población y guarda la nueva estrategia por separado.",
+    "Elige Free en spin para orbitar el volumen: arrastra a la vez hacia los lados y hacia arriba y abajo, y la vista se queda exactamente donde la sueltas. Gírala hasta que la población que quieres se separe del resto.",
+    "Elige Polygon through view y cambia drag a Draw. Haz clic en las esquinas alrededor de la población en pantalla; la línea de estado cuenta los vértices, y el contorno se extiende por todo el volumen con el ángulo que ves.",
+    "Vuelve a hacer clic en la primera esquina para cerrar el polígono y poner nombre a la compuerta; aquí contiene mil cuatrocientos setenta y nueve objetos. Haz doble clic en cualquier compuerta de la tabla de compuertas para cambiarle el nombre; sus compuertas hijas siguen el nuevo nombre.",
     "Activa x D para calcular componentes principales a partir de las mediciones aptas. Las etiquetas de los ejes muestran la varianza explicada de cada componente. Elige dos D o tres D por separado para controlar la vista.",
     "Al desactivar x D, vuelve a seleccionar los ejes de mediciones sin transformar. Guarda aparte los detalles de la proyección: el JSON de compuertas no conserva la proyección ajustada, y los límites en componentes pueden diferir entre conjuntos de datos ajustados por separado.",
     "Abre Search y ensancha su panel. Guarda y quita las compuertas temporales, elige las dos características sin transformar, activa el escalado y pon veinte vecinos mínimos y cinco en Walk steps. Haz clic en Run walk y revisa los valores de confirmación.",

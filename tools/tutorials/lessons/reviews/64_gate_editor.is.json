@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Sæktu Annotate-dæmið og gerðu vinnuafrit af measurements.db. Gate Editor notar 2.341 frumumælingu þess; það hefur engan eigin hnapp til að sækja dæmið. Export gates skrifar aðild í valinn gagnagrunn. Heiti hliða ættu að lýsa völdum mælingum þar til líffræðileg merking þeirra hefur verið staðfest.",
   "scenes": [
     "Frá Home opnarðu Tools og velur Gate Editor. Stilltu skilin svo að grafið, hliðataflan og hliðarstýringarnar sjáist. Notaðu mælingagagnagrunninn úr Annotate-dæminu.",
-    "Smelltu á Load table, opnaðu vinnuafritið þitt af measurements.db og veldu cell. Dæmið inniheldur 2.341 hlut. Geymdu afrit því að Export gates skrifar aðild í þennan gagnagrunn.",
+    "Smelltu á Load table, opnaðu vinnuafritið þitt af measurements.db og veldu cell. Dæmið inniheldur 2.341 hlut. Geymdu afrit því að Export gates skrifar aðild í þennan gagnagrunn. Merge tables við hlið valsins sameinar frumutöfluna og kjarna- eða sýklatöflur hennar í eina nýja töflu, eins og í Graph Builder; upprunatöflurnar haldast óbreyttar.",
     "Veldu cell_area fyrir X og cell_channel_1_mean_intensity fyrir Y og veldu svo Rectangle. Hver punktur táknar hlut. Athugaðu heiti eiginleika og einingar áður en þú teiknar.",
     "Dragðu yfir dreifiritið, slepptu og sláðu inn lýsandi heiti hliðsins. Hliðið geymir mörk í völdu mælingunum tveimur.",
     "Lestu fjöldann og hlutfallið við hlið heitis hliðsins. Svæðið sem sýnt er inniheldur 655 hluti. Músarstaðsetningar þínar geta gefið önnur mörk; vistaðu áætlun til að endurtaka nákvæmt val.",
@@ -32,6 +32,9 @@
     "Teiknaðu annað hlið og gefðu því nýtt heiti. Ný form eru óháð valda hliðinu, svo annað hliðið getur innihaldið hluti utan þess fyrsta. Vistaðu þessa tveggja hliða áætlun undir nýju skráarheiti.",
     "Veldu 3D og stilltu Z á cell_perimeter. Notaðu hnappana fyrir snúningsás til að snúa sýninni. Farðu aftur í 2D til að skoða upprunalegu mörkin fyrir flatarmál og styrk.",
     "Notaðu From view til að búa til nefndan kassa sem afmarkast af mælingunum þremur sem birtar eru. Athugaðu fjölda í þýði hans og vistaðu nýju áætlunina sérstaklega.",
+    "Veldu Free undir spin til að snúa rúmmálinu frjálst: dragðu til hliðar og upp og niður í einu og sýnin helst nákvæmlega þar sem þú sleppir. Snúðu henni þar til þýðið sem þú vilt sker sig frá hinum.",
+    "Veldu Polygon through view og skiptu drag yfir í Draw. Smelltu á hornin í kringum þýðið á skjánum; stöðulínan telur hornpunktana og útlínan er dregin í gegnum allt rúmmálið í horninu sem þú sérð.",
+    "Smelltu aftur á fyrsta hornið til að loka marghyrningnum og nefna hliðið; hér inniheldur það 1.479 hluti. Tvísmelltu á hlið í hliðatöflunni til að endurnefna það; undirhlið þess fylgja nýja nafninu.",
     "Virkjaðu xD til að reikna meginþætti úr gjaldgengum mælingum. Merki ásanna sýna útskýrða dreifni hvers þáttar. Veldu 2D eða 3D sérstaklega til að stýra sýninni.",
     "Þegar þú slekkur á xD velurðu aftur ása hráu mælinganna. Vistaðu upplýsingar um vörpunina sérstaklega: hliða-JSON geymir ekki aðlöguðu vörpunina og mörk á þáttum geta verið ólík milli gagnasafna sem aðlöguð eru hvort í sínu lagi.",
     "Opnaðu Search og breikkaðu spjaldið. Vistaðu og fjarlægðu tímabundin hlið, veldu hráu eiginleikana tvo, virkjaðu kvörðun og stilltu minnst 20 nágranna og 5 Walk steps. Smelltu á Run walk og skoðaðu staðfestingargildin.",

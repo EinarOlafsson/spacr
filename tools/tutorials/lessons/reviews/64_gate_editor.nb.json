@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Last ned Annotate-eksemplet og lag en arbeidskopi av measurements.db. Gate Editor bruker de 2 341 cellemålingene; den har ingen egen knapp for å laste ned eksemplet. Export gates skriver tilhørighet til den valgte databasen. Gatenavn bør beskrive de valgte målingene inntil den biologiske betydningen er fastslått.",
   "scenes": [
     "Fra Home åpner du Tools og velger Gate Editor. Juster skillelinjene slik at du ser plottet, gatetabellen og sidekontrollene. Bruk måledatabasen fra Annotate-eksemplet.",
-    "Klikk på Load table, åpne arbeidskopien av measurements.db og velg cell. Eksemplet inneholder 2 341 objekter. Behold en kopi, fordi Export gates skriver tilhørighet til denne databasen.",
+    "Klikk på Load table, åpne arbeidskopien av measurements.db og velg cell. Eksemplet inneholder 2 341 objekter. Behold en kopi, fordi Export gates skriver tilhørighet til denne databasen. Merge tables ved siden av velgeren slår sammen celletabellen med kjerne- eller patogentabellene til én ny tabell, som i Graph Builder; kildetabellene forblir uendret.",
     "Velg cell_area for X og cell_channel_1_mean_intensity for Y, og velg deretter Rectangle. Hvert punkt er et objekt. Kontroller egenskapsnavn og enheter før du tegner.",
     "Dra over spredningsplottet, slipp og skriv inn et beskrivende gatenavn. Gaten lagrer grenser i de to valgte målingene.",
     "Les antallet og prosentandelen ved siden av gatenavnet. Det viste området inneholder 655 objekter. Muspekerposisjonene dine kan gi andre grenser; lagre en strategi for å gjenta et nøyaktig utvalg.",
@@ -32,6 +32,9 @@
     "Tegn en ny gate og gi den et nytt navn. Nye former er uavhengige av den valgte gaten, så den andre kan inneholde objekter utenfor den første. Lagre denne strategien med to gater under et nytt filnavn.",
     "Velg 3D og sett Z til cell_perimeter. Bruk knappene for rotasjonsakse til å dreie visningen. Gå tilbake til 2D for å undersøke de opprinnelige grensene for areal og intensitet.",
     "Bruk From view til å lage en navngitt boks avgrenset av de tre viste målingene. Kontroller populasjonsantallet og lagre den nye strategien separat.",
+    "Velg Free under spin for å rotere rundt volumet: dra sidelengs og opp og ned samtidig, og visningen blir stående nøyaktig der du slipper. Drei den til populasjonen du vil ha, skiller seg ut fra resten.",
+    "Velg Polygon through view og bytt drag til Draw. Klikk på hjørnene rundt populasjonen på skjermen; statuslinjen teller hjørnepunktene, og omrisset føres gjennom hele volumet i vinkelen du ser.",
+    "Klikk på det første hjørnet igjen for å lukke polygonet og gi gaten et navn; her inneholder den 1 479 objekter. Dobbeltklikk på en gate i gatetabellen for å gi den nytt navn; undergatene følger det nye navnet.",
     "Aktiver xD for å beregne prinsipalkomponenter fra egnede målinger. Akseetikettene viser forklart varians for hver komponent. Velg 2D eller 3D separat for å styre visningen.",
     "Når du slår av xD, velger du råmålingsaksene igjen. Lagre projeksjonsdetaljene separat: gate-JSON beholder ikke den tilpassede projeksjonen, og grenser på komponenter kan variere mellom datasett som er tilpasset uavhengig.",
     "Åpne Search og gjør panelet bredere. Lagre og fjern midlertidige gater, velg de to råegenskapene, aktiver skalering og sett minst 20 naboer og 5 Walk steps. Klikk på Run walk og gå gjennom bekreftelsesverdiene.",

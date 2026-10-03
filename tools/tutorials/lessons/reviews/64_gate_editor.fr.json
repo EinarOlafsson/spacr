@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Téléchargez l’exemple Annotate et faites une copie de travail de measurements.db. Gate Editor utilise ses 2341 mesures de cellules ; il n’a pas de bouton propre de téléchargement d’exemple. Export gates écrit l’appartenance dans la base de données choisie. Les noms de portes doivent décrire les mesures sélectionnées tant que leur signification biologique n’est pas établie.",
   "scenes": [
     "Depuis Home, ouvrez Tools et choisissez Gate Editor. Ajustez les séparateurs pour voir le graphique, la table des portes et les commandes latérales. Utilisez la base de données de mesures de l’exemple Annotate.",
-    "Cliquez sur Load table, ouvrez votre copie de travail de measurements.db et choisissez cell. L’exemple contient deux mille trois cent quarante et un objets. Gardez une copie, car Export gates écrit l’appartenance dans cette base de données.",
+    "Cliquez sur Load table, ouvrez votre copie de travail de measurements.db et choisissez cell. L’exemple contient deux mille trois cent quarante et un objets. Gardez une copie, car Export gates écrit l’appartenance dans cette base de données. Merge tables, à côté du sélecteur, combine la table des cellules avec ses tables de noyaux ou de pathogènes en une nouvelle table, comme dans Graph Builder ; les tables sources restent inchangées.",
     "Choisissez cell_area pour X et cell_channel_1_mean_intensity pour Y, puis sélectionnez Rectangle. Chaque point représente un objet. Vérifiez les noms des caractéristiques et leurs unités avant de tracer.",
     "Faites glisser sur le nuage de points, relâchez et saisissez un nom de porte descriptif. La porte enregistre des limites sur les deux mesures sélectionnées.",
     "Lisez l’effectif et le pourcentage à côté du nom de la porte. La région illustrée contient six cent cinquante-cinq objets. Vos positions de souris peuvent donner des limites différentes ; enregistrez une stratégie pour répéter une sélection exacte.",
@@ -32,6 +32,9 @@
     "Tracez une deuxième porte et donnez-lui un nouveau nom. Les nouvelles formes sont indépendantes de la porte sélectionnée ; la deuxième peut donc inclure des objets hors de la première. Enregistrez cette stratégie à deux portes sous un nouveau nom de fichier.",
     "Choisissez trois D et réglez Z sur cell_perimeter. Utilisez les boutons d’axe de rotation pour faire tourner la vue. Revenez à deux D pour examiner les limites d’origine en aire et intensité.",
     "Utilisez From view pour créer une boîte nommée, bornée par les trois mesures affichées. Vérifiez l’effectif de sa population et enregistrez la nouvelle stratégie séparément.",
+    "Choisissez Free sous spin pour faire tourner le volume librement : faites glisser à la fois latéralement et verticalement, et la vue reste exactement où vous la relâchez. Tournez-la jusqu’à ce que la population voulue se détache du reste.",
+    "Choisissez Polygon through view et passez drag sur Draw. Cliquez sur les coins autour de la population à l’écran ; la ligne d’état compte les sommets, et le contour est projeté à travers tout le volume selon l’angle que vous voyez.",
+    "Cliquez de nouveau sur le premier coin pour fermer le polygone et nommer la porte ; ici, elle contient mille quatre cent soixante-dix-neuf objets. Double-cliquez sur une porte dans le tableau des portes pour la renommer ; ses portes enfants suivent le nouveau nom.",
     "Activez x D pour calculer des composantes principales à partir des mesures admissibles. Les étiquettes des axes indiquent la variance expliquée par chaque composante. Choisissez deux D ou trois D séparément pour contrôler la vue.",
     "En désactivant x D, sélectionnez de nouveau les axes de mesures brutes. Enregistrez à part les détails de la projection : le JSON des portes ne conserve pas la projection ajustée, et des limites en composantes peuvent différer entre des jeux de données ajustés indépendamment.",
     "Ouvrez Search et élargissez son panneau. Enregistrez puis retirez les portes temporaires, choisissez les deux caractéristiques brutes, activez la mise à l’échelle et réglez vingt voisins minimum et cinq Walk steps. Cliquez sur Run walk et examinez les valeurs de confirmation.",

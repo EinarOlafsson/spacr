@@ -24,7 +24,7 @@
     },
     {
       "visual": "02_real_database_picker",
-      "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+      "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database. Merge tables, beside the picker, combines the cell table with its nucleus or pathogen tables into one new table, as in Graph Builder; the source tables stay unchanged.",
       "hold_after": 0.7
     },
     {
@@ -98,6 +98,21 @@
     {
       "visual": "17c_actual_volume_gate",
       "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17e_free_orbit",
+      "narration": "Choose Free under spin to orbit the volume: drag sideways and up and down at once, and the view stays exactly where you let go. Turn it until the population you want stands apart from the rest.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17f_live_highlight",
+      "narration": "Choose Polygon through view and switch drag to Draw. Click the corners around the population on screen; the status line counts the vertices, and the outline is swept through the whole volume at the angle you see.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17h_rename_gate",
+      "narration": "Click the first corner again to close the polygon and name the gate; here it holds one thousand four hundred seventy-nine objects. Double-click any gate in the gate table to rename it; its child gates follow the new name.",
       "hold_after": 0.7
     },
     {

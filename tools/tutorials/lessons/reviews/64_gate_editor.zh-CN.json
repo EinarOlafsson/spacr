@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "下载Annotate示例，并为measurements.db制作一份工作副本。Gate Editor使用其中的2341个细胞测量值；它没有单独的示例下载按钮。Export gates会把归属写入所选数据库。在其生物学含义确定之前，门的名称应描述所选的测量值。",
   "scenes": [
     "从Home打开Tools并选择Gate Editor。调整分隔条，使图、门表和侧边控件都可见。使用Annotate示例中的测量数据库。",
-    "点击Load table，打开measurements.db的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。",
+    "点击Load table，打开measurements.db的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。选择器旁边的Merge tables会像在Graph Builder中一样，把细胞表与其细胞核表或病原体表合并成一张新表；源表保持不变。",
     "X选择cell_area，Y选择cell_channel_1_mean_intensity，然后选择Rectangle。每个点代表一个对象。绘制前请检查特征名称和单位。",
     "在散点图上拖动，松开后输入一个描述性的门名称。门会保存两个所选测量值上的边界。",
     "阅读门名称旁的计数和百分比。图示区域包含六百五十五个对象。您的鼠标位置可能得到不同的边界；如需重复精确的选择，请保存策略。",
@@ -32,6 +32,9 @@
     "绘制第二个门并为其取一个新名称。新的形状与当前选中的门相互独立，因此第二个门可以包含第一个门以外的对象。用新的文件名保存这个包含两个门的策略。",
     "选择三D，并把Z设为cell_perimeter。使用旋转轴按钮旋转视图。返回二D查看原始的面积与强度边界。",
     "使用From view创建一个由三个显示测量值界定的命名方框。检查其群体计数，并单独保存新策略。",
+    "在spin下选择Free即可环绕体积旋转：同时左右和上下拖动，视图会准确停在您松开的位置。旋转到想要的群体与其余部分分开为止。",
+    "选择Polygon through view，并将drag切换为Draw。在屏幕上点击群体周围的各个角；状态行会统计顶点数，轮廓会按您看到的角度贯穿整个体积。",
+    "再次点击第一个角即可闭合多边形并为门命名；这里它包含一千四百七十九个对象。在门表中双击任意门即可重命名；其子门会随新名称更新。",
     "开启x D，从符合条件的测量值计算主成分。坐标轴标签显示每个成分的解释方差。请另行选择二D或三D来控制视图。",
     "关闭x D时，请重新选择原始测量值坐标轴。请单独保存投影细节：门的JSON不保留拟合的投影，且在独立拟合的数据集之间，主成分上的边界可能不同。",
     "打开Search并加宽其面板。保存并移除临时门，选择两个原始特征，开启缩放，设置最少二十个邻居，Walk steps设为五。点击Run walk并检查确认值。",

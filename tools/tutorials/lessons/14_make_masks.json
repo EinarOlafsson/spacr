@@ -105,7 +105,7 @@
     },
     {
       "visual": "11_saved_restored_mask",
-      "narration": "After reviewing the edits, click Save mask under the image. Keep the source images together with the saved masks and their curation record.",
+      "narration": "After reviewing the edits, click Save mask in the toolbar. Keep the source images together with the saved masks and their curation record.",
       "hold_after": 0.7
     },
     {
@@ -137,7 +137,7 @@
     },
     {
       "visual": "13_child_and_recovery_archive",
-      "narration": "Click Next image, under the image, to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+      "narration": "Click Next image in the toolbar to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
       "hold_after": 0.7,
       "related_lessons": [
         "09_annotate"
@@ -220,7 +220,7 @@
     },
     {
       "visual": "25_organize_open",
-      "narration": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below.",
+      "narration": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below. If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table.",
       "hold_after": 0.7,
       "related_lessons": [
         "08_measure"
@@ -238,7 +238,7 @@
     },
     {
       "visual": "28_organize_images",
-      "narration": "Set Show to Image plus text to check the rows by eye. A cell that nothing matched stays empty and is flagged, and Apply waits until every row is complete.",
+      "narration": "Set Show to Image plus text and Thumbnail quality to High to check the rows by eye; the quality changes only the display, never the masks or measurements. A cell that nothing matched stays empty and is flagged, and Apply waits until every row is complete.",
       "hold_after": 0.7
     },
     {

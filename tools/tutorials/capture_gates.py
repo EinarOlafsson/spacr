@@ -88,7 +88,11 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
                 watchdog.timeout.connect(dialog.reject)
                 watchdog.start(12000)
                 dialog.accepted.connect(lambda: accepted.append(True))
-                fill(dialog.findChild(QLineEdit, 'fileNameEdit'), path)
+                # Browse to the folder, then type the name: a typed absolute
+                # path races the picker's completer.
+                dialog.setDirectory(str(Path(path).parent))
+                settle(0.4)
+                fill(dialog.findChild(QLineEdit, 'fileNameEdit'), Path(path).name)
                 capture(frame)
                 key = QDialogButtonBox.Save if save else QDialogButtonBox.Open
                 QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(key), Qt.LeftButton)
@@ -136,7 +140,8 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
             fill(dialog.findChild(QLineEdit), pending_name)
             capture({'tutorial_population': '05_name_drawn_gate',
                      'tutorial_second': '13_name_second_gate',
-                     'tutorial_volume': '17b_name_volume_gate'}[pending_name])
+                     'tutorial_volume': '17b_name_volume_gate',
+                     'tutorial_polygon': '17g_name_polygon_gate'}[pending_name])
             QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
         except Exception as exc:
             errors.append(str(exc))
@@ -277,6 +282,84 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         raise RuntimeError('The actual volume contains no measured objects')
     capture('17c_actual_volume_gate')
     file_dialog(screen._save_gates, work / 'three_gates.json', '17d_save_volume_strategy', save=True)
+
+    # Item 632: free orbit, a gate drawn at the angle on screen with a live
+    # highlight, and renaming by double-click.
+    QTest.mouseClick(screen.gates._spin_buttons[''], Qt.LeftButton)
+    settle(0.3)
+    before_orbit = (canvas.axes_at().elev, canvas.axes_at().azim, canvas.axes_at().roll)
+    QTest.mousePress(surface, Qt.LeftButton, pos=center)
+    QTest.mouseMove(surface, center + QPoint(-120, 60), delay=180)
+    QTest.mouseRelease(surface, Qt.LeftButton, pos=center + QPoint(-120, 60))
+    settle(0.6)
+    after_orbit = (canvas.axes_at().elev, canvas.axes_at().azim, canvas.axes_at().roll)
+    if after_orbit[:2] == before_orbit[:2] or abs(after_orbit[2]) > 1e-6:
+        raise RuntimeError('Free orbit did not turn the volume without rolling it')
+    capture('17e_free_orbit')
+    from spacr.qt.widgets.gate_editor import _screen_points
+    shape = screen.gates._volume_shape
+    shape.setCurrentIndex(shape.findData('view_polygon'))
+    QTest.mouseClick(screen.gates._drag_buttons['draw'], Qt.LeftButton)
+    settle(0.3)
+    columns = [screen._x.currentText(), screen._y.currentText(), screen._z.currentText()]
+    middle = frame[columns].median().to_numpy()
+    px, py = _screen_points(canvas.axes_at(), [middle])[0]
+    centre_px = QPoint(round(px), surface.height() - round(py))
+    corners = [centre_px + QPoint(dx, dy) for dx, dy in ((-70, -60), (70, -60), (70, 60), (-70, 60))]
+    pending_name = 'tutorial_polygon'
+    named.clear()
+    errors.clear()
+    for corner in corners:
+        QTest.mouseClick(surface, Qt.LeftButton, pos=corner)
+        settle(0.15)
+    QTest.mouseMove(surface, centre_px)
+    settle(0.6)
+    if getattr(canvas, '_live', None) is None:
+        raise RuntimeError('The polygon shows no live highlight while drawing')
+    capture('17f_live_highlight')
+    QTimer.singleShot(400, name_gate)
+    QTest.mouseClick(surface, Qt.LeftButton, pos=corners[0])
+    settle(1.0)
+    if errors or 'tutorial_polygon' not in screen.gates.gates.names:
+        raise RuntimeError('; '.join(errors) or 'The polygon gate was not created')
+    polygon_count = int(screen.gates.gates.mask(frame, 'tutorial_polygon').sum())
+    if polygon_count <= 0:
+        raise RuntimeError('The polygon holds no measured objects')
+    capture('17g_polygon_gate')
+    tree = screen.gates.tree.tree
+    items = [tree.topLevelItem(i) for i in range(tree.topLevelItemCount())]
+    stack = list(items)
+    while stack:
+        item = stack.pop()
+        stack.extend(item.child(i) for i in range(item.childCount()))
+        if str(item.data(0, Qt.UserRole) or item.text(0)).strip() == 'tutorial_polygon':
+            break
+    else:
+        raise RuntimeError('The polygon gate is not listed')
+    renamed = []
+    def rename():
+        dialog = app.activeModalWidget()
+        try:
+            if not isinstance(dialog, QInputDialog):
+                raise RuntimeError('Double-click did not open Rename gate')
+            fill(dialog.findChild(QLineEdit), 'dense_core')
+            capture('17h_rename_gate')
+            QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok), Qt.LeftButton)
+            renamed.append(True)
+        except Exception as exc:
+            errors.append(str(exc))
+            if dialog is not None:
+                dialog.reject()
+    tree.scrollToItem(item)
+    rect = tree.visualItemRect(item)
+    QTimer.singleShot(400, rename)
+    QTest.mouseClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
+    QTest.mouseDClick(tree.viewport(), Qt.LeftButton, pos=rect.center())
+    settle(0.8)
+    if errors or not renamed or 'dense_core' not in screen.gates.gates.names:
+        raise RuntimeError('; '.join(errors) or 'The gate was not renamed')
+    QTest.mouseClick(screen.gates._drag_buttons['spin'], Qt.LeftButton)
+    settle(0.3)
     three_gate_strategy = screen.gates.gates.to_dict()
     QTest.mouseClick(screen.gates._mode_buttons['2D'], Qt.LeftButton)
     settle(0.6)

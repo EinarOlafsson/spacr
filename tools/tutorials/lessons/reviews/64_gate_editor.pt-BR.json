@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Baixe o exemplo do Annotate e faça uma cópia de trabalho de measurements.db. O Gate Editor usa suas 2341 medições de células; ele não tem um botão próprio para baixar o exemplo. Export gates grava a associação no banco de dados escolhido. Os nomes dos gates devem descrever as medições selecionadas até que o significado biológico delas esteja estabelecido.",
   "scenes": [
     "Na tela Home, abra Tools e escolha Gate Editor. Ajuste os divisores para ver o gráfico, a tabela de gates e os controles laterais. Use o banco de dados de medições do exemplo do Annotate.",
-    "Clique em Load table, abra sua cópia de trabalho de measurements.db e escolha cell. O exemplo contém dois mil trezentos e quarenta e um objetos. Guarde uma cópia, porque Export gates grava a associação neste banco de dados.",
+    "Clique em Load table, abra sua cópia de trabalho de measurements.db e escolha cell. O exemplo contém dois mil trezentos e quarenta e um objetos. Guarde uma cópia, porque Export gates grava a associação neste banco de dados. Merge tables, ao lado do seletor, combina a tabela de células com as tabelas de núcleos ou de patógenos em uma nova tabela, como no Graph Builder; as tabelas de origem não mudam.",
     "Escolha cell_area para X e cell_channel_1_mean_intensity para Y e selecione Rectangle. Cada ponto representa um objeto. Confira os nomes das características e as unidades antes de desenhar.",
     "Arraste sobre o gráfico de dispersão, solte e digite um nome descritivo para o gate. O gate guarda limites nas duas medições selecionadas.",
     "Leia a contagem e a porcentagem ao lado do nome do gate. A região mostrada contém seiscentos e cinquenta e cinco objetos. As posições do seu mouse podem gerar limites diferentes; salve uma estratégia para repetir uma seleção exata.",
@@ -32,6 +32,9 @@
     "Desenhe um segundo gate e dê a ele um nome novo. Formas novas são independentes do gate selecionado, então o segundo pode incluir objetos fora do primeiro. Salve essa estratégia de dois gates com um nome de arquivo novo.",
     "Escolha três D e defina Z como cell_perimeter. Use os botões de eixo de giro para girar a visualização. Volte para dois D para inspecionar os limites originais de área e intensidade.",
     "Use From view para criar uma caixa com nome delimitada pelas três medições exibidas. Confira a contagem da população e salve a nova estratégia separadamente.",
+    "Escolha Free em spin para orbitar o volume: arraste para os lados e para cima e para baixo ao mesmo tempo, e a visualização fica exatamente onde você soltar. Gire até que a população desejada se destaque do restante.",
+    "Escolha Polygon through view e mude drag para Draw. Clique nos cantos ao redor da população na tela; a linha de status conta os vértices, e o contorno atravessa todo o volume no ângulo que você vê.",
+    "Clique de novo no primeiro canto para fechar o polígono e dar nome ao gate; aqui ele contém mil quatrocentos e setenta e nove objetos. Dê um clique duplo em qualquer gate na tabela de gates para renomeá-lo; os gates filhos seguem o novo nome.",
     "Ative x D para calcular componentes principais a partir das medições elegíveis. Os rótulos dos eixos mostram a variância explicada de cada componente. Escolha dois D ou três D separadamente para controlar a visualização.",
     "Ao desativar x D, selecione de novo os eixos de medições brutas. Salve à parte os detalhes da projeção: o JSON de gates não guarda a projeção ajustada, e limites em componentes podem diferir entre conjuntos de dados ajustados de forma independente.",
     "Abra Search e alargue o painel. Salve e remova os gates temporários, escolha as duas características brutas, ative o escalonamento e defina vinte vizinhos mínimos e cinco em Walk steps. Clique em Run walk e revise os valores de confirmação.",

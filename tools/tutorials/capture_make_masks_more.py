@@ -281,7 +281,9 @@ def record_organize(app, window, screen, export, masks, captures, capture, settl
         index = dialog.view_box.findData('both')
         dialog.view_box.setCurrentIndex(index)
         dialog.size_slider.setValue(dialog.size_slider.maximum())
-        settle(1.5)
+        # Item 611: High thumbnails for checking rows by eye (display only).
+        dialog.quality_box.setCurrentIndex(dialog.quality_box.findData('high'))
+        settle(2.5)
         capture('28_organize_images')
         _modal(app, settle, QMessageBox, confirm, errors)
         QTest.mouseClick(dialog.apply_button, Qt.LeftButton)

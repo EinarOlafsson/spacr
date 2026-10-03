@@ -1,10 +1,10 @@
 {
   "lesson": "64_gate_editor",
-  "english_sha256": "d0a31f3ae8ce73e5649d7892d62ff12b6db59366b284db7c96c714cab35fab76",
+  "english_sha256": "01f265ce50e8499d28c789048acefe1cbd065a681286e5807ea3bb0e815efb0f",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,7 +20,7 @@
   "prerequisite": "Scarica l’esempio di Annotate e crea una copia di lavoro di measurements.db. Gate Editor usa le sue 2341 misure di cellule; non ha un pulsante proprio per scaricare l’esempio. Export gates scrive l’appartenenza nel database scelto. I nomi dei gate devono descrivere le misure selezionate finché il loro significato biologico non è stato stabilito.",
   "scenes": [
     "Da Home, apri Tools e scegli Gate Editor. Regola i divisori in modo da vedere il grafico, la tabella dei gate e i comandi laterali. Usa il database di misure dell’esempio di Annotate.",
-    "Fai clic su Load table, apri la tua copia di lavoro di measurements.db e scegli cell. L’esempio contiene duemilatrecentoquarantuno oggetti. Tieni una copia, perché Export gates scrive l’appartenenza in questo database.",
+    "Fai clic su Load table, apri la tua copia di lavoro di measurements.db e scegli cell. L’esempio contiene duemilatrecentoquarantuno oggetti. Tieni una copia, perché Export gates scrive l’appartenenza in questo database. Merge tables, accanto al selettore, combina la tabella delle cellule con le sue tabelle dei nuclei o dei patogeni in un’unica nuova tabella, come in Graph Builder; le tabelle di origine restano invariate.",
     "Scegli cell_area per X e cell_channel_1_mean_intensity per Y, poi seleziona Rectangle. Ogni punto rappresenta un oggetto. Controlla i nomi delle caratteristiche e le unità prima di disegnare.",
     "Trascina sul grafico a dispersione, rilascia e inserisci un nome descrittivo per il gate. Il gate memorizza i confini nelle due misure selezionate.",
     "Leggi il conteggio e la percentuale accanto al nome del gate. La regione illustrata contiene seicentocinquantacinque oggetti. Le tue posizioni del mouse possono dare confini diversi; salva una strategia per ripetere una selezione esatta.",
@@ -32,6 +32,9 @@
     "Disegna un secondo gate e dagli un nuovo nome. Le nuove forme sono indipendenti dal gate selezionato, quindi il secondo può includere oggetti fuori dal primo. Salva questa strategia a due gate con un nuovo nome di file.",
     "Scegli tre D e imposta Z su cell_perimeter. Usa i pulsanti dell’asse di rotazione per ruotare la vista. Torna a due D per esaminare i confini originali di area e intensità.",
     "Usa From view per creare una scatola con nome delimitata dalle tre misure mostrate. Controlla il conteggio della sua popolazione e salva la nuova strategia separatamente.",
+    "Scegli Free sotto spin per ruotare attorno al volume: trascina contemporaneamente di lato e in su e in giù, e la vista resta esattamente dove la rilasci. Ruotala finché la popolazione che ti interessa non si stacca dal resto.",
+    "Scegli Polygon through view e porta drag su Draw. Fai clic sugli angoli attorno alla popolazione sullo schermo; la riga di stato conta i vertici, e il contorno viene esteso attraverso tutto il volume con l’angolazione che vedi.",
+    "Fai di nuovo clic sul primo angolo per chiudere il poligono e dare un nome al gate; qui contiene millequattrocentosettantanove oggetti. Fai doppio clic su un gate nella tabella dei gate per rinominarlo; i suoi gate figli seguono il nuovo nome.",
     "Attiva x D per calcolare le componenti principali dalle misure idonee. Le etichette degli assi mostrano la varianza spiegata da ciascuna componente. Scegli due D o tre D separatamente per controllare la vista.",
     "Quando disattivi x D, seleziona di nuovo gli assi delle misure grezze. Salva a parte i dettagli della proiezione: il JSON dei gate non conserva la proiezione adattata, e i confini sulle componenti possono differire tra insiemi di dati adattati in modo indipendente.",
     "Apri Search e allarga il suo pannello. Salva e rimuovi i gate temporanei, scegli le due caratteristiche grezze, attiva il ridimensionamento e imposta venti vicini minimi e cinque Walk steps. Fai clic su Run walk ed esamina i valori di conferma.",
