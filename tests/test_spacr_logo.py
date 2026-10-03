@@ -48,7 +48,7 @@ def test_readme_opens_with_the_info_deck_from_the_current_branch():
     assert ".. image:: docs/source/_static/deck/slides/slide_01.jpg" in text
     assert "logo_spacr_readme.png" not in text
     assert "   :width: 920" in text
-    assert "`← Back <docs/source/_static/deck/pages/56.md>`_" in text
+    assert "`← Back <docs/source/_static/deck/pages/57.md>`_" in text
     assert "`Next → <docs/source/_static/deck/pages/02.md>`_" in text
     assert "raw.githubusercontent.com/EinarOlafsson/spacr/main" not in text
 

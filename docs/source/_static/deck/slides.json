@@ -1,5 +1,5 @@
 {
- "count": 56,
+ "count": 57,
  "source": "spacr_overview.pptx",
  "title_line": {
   "x": 0.0525,
@@ -45,7 +45,7 @@
   {
    "image": "slides/slide_06.jpg",
    "thumb": "thumbs/slide_06.jpg",
-   "title": "22 modules in one desktop app",
+   "title": "21 modules in one desktop app",
    "animations": []
   },
   {
@@ -270,96 +270,102 @@
   {
    "image": "slides/slide_41.jpg",
    "thumb": "thumbs/slide_41.jpg",
-   "title": "Plaque Assay: count and size plaques",
+   "title": "One module per organism",
    "animations": []
   },
   {
    "image": "slides/slide_42.jpg",
    "thumb": "thumbs/slide_42.jpg",
-   "title": "Recruitment: marker at the vacuole",
+   "title": "Plaque Assay: count and size plaques",
    "animations": []
   },
   {
    "image": "slides/slide_43.jpg",
    "thumb": "thumbs/slide_43.jpg",
-   "title": "Invasion: attached or invaded?",
+   "title": "Recruitment: marker at the vacuole",
    "animations": []
   },
   {
    "image": "slides/slide_44.jpg",
    "thumb": "thumbs/slide_44.jpg",
-   "title": "Replication: parasites per vacuole",
+   "title": "Invasion: attached or invaded?",
    "animations": []
   },
   {
    "image": "slides/slide_45.jpg",
    "thumb": "thumbs/slide_45.jpg",
-   "title": "Project tools in the Help menu",
+   "title": "Replication: parasites per vacuole",
    "animations": []
   },
   {
    "image": "slides/slide_46.jpg",
    "thumb": "thumbs/slide_46.jpg",
-   "title": "Trained models",
+   "title": "Project tools in the Help menu",
    "animations": []
   },
   {
    "image": "slides/slide_47.jpg",
    "thumb": "thumbs/slide_47.jpg",
-   "title": "Seven models, one line in a settings file",
+   "title": "Trained models",
    "animations": []
   },
   {
    "image": "slides/slide_48.jpg",
    "thumb": "thumbs/slide_48.jpg",
-   "title": "Toxoplasma PV v3",
+   "title": "Seven models, one line in a settings file",
    "animations": []
   },
   {
    "image": "slides/slide_49.jpg",
    "thumb": "thumbs/slide_49.jpg",
-   "title": "Toxoplasma Plaque v2",
+   "title": "Toxoplasma PV v3",
    "animations": []
   },
   {
    "image": "slides/slide_50.jpg",
    "thumb": "thumbs/slide_50.jpg",
-   "title": "Plaque Well Detector v2",
+   "title": "Toxoplasma Plaque v2",
    "animations": []
   },
   {
    "image": "slides/slide_51.jpg",
    "thumb": "thumbs/slide_51.jpg",
-   "title": "Toxoplasma from Cell Mask",
+   "title": "Plaque Well Detector v2",
    "animations": []
   },
   {
    "image": "slides/slide_52.jpg",
    "thumb": "thumbs/slide_52.jpg",
-   "title": "Nuclei from Cell Mask",
+   "title": "Toxoplasma from Cell Mask",
    "animations": []
   },
   {
    "image": "slides/slide_53.jpg",
    "thumb": "thumbs/slide_53.jpg",
-   "title": "Cell from Hoechst",
+   "title": "Nuclei from Cell Mask",
    "animations": []
   },
   {
    "image": "slides/slide_54.jpg",
    "thumb": "thumbs/slide_54.jpg",
-   "title": "Toxoplasma from Hoechst",
+   "title": "Cell from Hoechst",
    "animations": []
   },
   {
    "image": "slides/slide_55.jpg",
    "thumb": "thumbs/slide_55.jpg",
-   "title": "Other models available in spaCR",
+   "title": "Toxoplasma from Hoechst",
    "animations": []
   },
   {
    "image": "slides/slide_56.jpg",
    "thumb": "thumbs/slide_56.jpg",
+   "title": "Other models available in spaCR",
+   "animations": []
+  },
+  {
+   "image": "slides/slide_57.jpg",
+   "thumb": "thumbs/slide_57.jpg",
    "title": "Get started",
    "animations": []
   }

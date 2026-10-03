@@ -63,7 +63,7 @@
    :width: 920
    :target: https://einarolafsson.github.io/spacr/_static/deck/
 
-`← Föregående <../../source/_static/deck/pages/56.md>`_   `Nästa → <../../source/_static/deck/pages/02.md>`_
+`← Föregående <../../source/_static/deck/pages/57.md>`_   `Nästa → <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====

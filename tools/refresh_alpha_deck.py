@@ -95,7 +95,12 @@ GROUPS = (
         (574, "Metadata and archive packages (REMBI, IDR)"),
         (579, "One-click Zenodo archive with a DOI"),
     )),
+    ("Organisms", (
+        (634, "Planned: Trypanosome, Leishmania, Giardia, virus, mammalian"),
+    )),
 )
+# Filed future alpha items that are listed before they enter the registry.
+PLANNED = frozenset({634})
 
 
 def _registry_ids(source):
@@ -111,7 +116,8 @@ def _registry_ids(source):
 
 def _check_registry(source):
     registered = _registry_ids(source)
-    listed = [number for _, rows in GROUPS for number, _ in rows]
+    listed = [number for _, rows in GROUPS for number, _ in rows
+              if number not in PLANNED or number in registered]
     if len(listed) != len(set(listed)) or set(listed) != registered:
         raise ValueError(
             f"Update alpha slide labels: missing {sorted(registered - set(listed))}; "
@@ -168,7 +174,7 @@ def _draw_pdf(target, count, page_size):
         painter.setBrush(QColor("#222932"))
         painter.drawRoundedRect(QRectF(2850, 118, 230, 76), 38, 38)
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
-        row_height = 44
+        row_height = 43
         for x, groups in ((120, GROUPS[:3]), (1640, GROUPS[3:])):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
@@ -183,8 +189,9 @@ def _draw_pdf(target, count, page_size):
                                      QColor("#191f27"))
                     label(caption, x + 388, y, 1038, row_height - 3)
                     y += row_height
-        label(f"{count} alpha features, hidden until Preferences → Show alpha features is on. "
-              "Early versions: expect changes.", 120, 1700, 2960, 62, 30, "#acb5be")
+        planned = len(PLANNED - set(_registry_ids(ROOT / "spacr/settings.py")))
+        label(f"{count} alpha features{f' and {planned} planned' if planned else ''}, hidden until "
+              "Preferences → Modules → Show alpha features is on. Early versions: expect changes.", 120, 1700, 2960, 62, 30, "#acb5be")
     finally:
         painter.end()
     # Keep the application alive until the paint device is finalized.
