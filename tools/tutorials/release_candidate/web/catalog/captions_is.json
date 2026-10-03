@@ -2625,14 +2625,8 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Frá Home opnarðu Mask og smellir á Timelapse-táknið efst til hægri til að kveikja á rakningu. Notaðu Timelapse til að tengja hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum síðan yfir stillingarnar til að vinna úr þinni eigin myndaröð.",
+          "narration": "Opnaðu Mask frá Home, kveiktu á Time í Actions-röðinni og kveiktu á Timelapse til að virkja rakningu. Timelapse tengir hluti milli samliggjandi mynda. Fyrst prófum við tengda dæmið í Track preview og förum svo yfir stillingarnar fyrir þína eigin myndaröð.",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
@@ -2821,12 +2815,18 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Frá Home opnarðu Measure og notar svo Time til að opna Motility Assay. Byrjaðu á eltum myndum úr Timelapse, eða sæktu dæmasafnið hér fyrir neðan til að fylgja með.",
+          "narration": "Frá Home opnarðu Measure og velur svo Motility Assay efst til hægri. Byrjaðu á eltum myndum úr Timelapse, eða sæktu dæmasafnið hér fyrir neðan til að fylgja með.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ]
         },
         {
           "visual": "03_actual_setting_src",
@@ -3440,11 +3440,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Opnaðu Model Zoo, finndu eða sæktu vistunarpunkt, skoðaðu upplýsingar hans og veldu lítið myndasafn til prófunar.",
+      "description": "Opnaðu Model Zoo, finndu eða sæktu vistunarpunkt, skoðaðu upplýsingar hans, prófaðu hann á litlu myndasafni og mældu þvermál hluta fyrir Mask.",
       "objectives": [
         "Opna Model Zoo og skanna staðbundna líkanamöppu.",
         "Velja líkanafjölskyldu og útgáfu og skoða upplýsingarnar.",
-        "Keyra litla myndprófun og skoða grímurnar og gæðasamantektirnar sem koma út."
+        "Keyra litla myndprófun og skoða grímurnar og gæðasamantektirnar sem koma út.",
+        "Mæla þvermál hluta á eigin sjónsviðum í Model Zoo-glugganum í Mask generation."
       ],
       "prerequisite": "Dragðu tengda dæmið út og notaðu möppuna images fyrir prófunina á þremur sjónsviðum. Veldu uppsett Cellpose-aðgreiningarlíkan eða sæktu hentugan vistunarpunkt í gegnum Model Zoo. Fyrir eigin prófun útbýrðu nokkrar dæmigerðar TIFF-, PNG-, NPY- eða NPZ-myndir.",
       "scenes": [
@@ -3458,7 +3459,17 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "Smelltu á Choose folder og veldu líkanamöppuna þína til að skanna hana. Ef þú slærð inn slóðina smellirðu á Scan. Kveiktu á þeim upprunafyrirsögnum sem þú vilt fletta í, til dæmis Cellpose eða staðbundnum líkönum.",
+          "narration": "Smelltu á Choose folder og veldu líkanamöppuna þína til að skanna hana. Ef þú slærð inn slóðina smellirðu á Scan. Fyrirsagnirnar fyrir ofan töfluna ráða því hvaða uppruni er sýndur; kveikt er á cellposeSAM fyrir staðalvigtirnar og spaCR fyrir líkönin sem eru þjálfuð hér í upphafi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "Kveiktu á cellpose3 til að sýna Cellpose 3-líkönin, til dæmis cyto3 og nuclei. Þau keyra í eigin Cellpose 3-umhverfi, svo líkan sem vantar uppsettan bakenda segir frá því og býður upp á uppsetningu þegar þú velur það.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "Kveiktu á bioimage.io til að sýna Cellpose-líkön sem eru birt á bioimage.io. Lestu á hverju hvert þeirra var þjálfað áður en þú velur; vigtirnar sækjast þegar þú biður um þær.",
           "hold_after": 0.7
         },
         {
@@ -3488,6 +3499,33 @@
           "related_lessons": [
             "21_model_compare",
             "14_make_masks"
+          ]
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "Sama skrá opnast inni í Mask generation, þar sem hún getur líka mælt hlutina þína. Stilltu Source á myndirnar þínar og fylltu út rásirnar fyrir frumu, kjarna og sýkil; þetta dæmi notar hráu myndirnar úr Measure-sýninu.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "Skiptu yfir í All settings og smelltu á Model name-reit hlutar í töflunni fyrir hvern hlut. Model Zoo-glugginn opnast og líkanið sem þú velur er skrifað í stillingar þess hlutar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "Smelltu á Measure diameters neðst til vinstri. Cellpose kvarðar hverja mynd eftir þvermálinu sem það fær, svo þvermál mælt á þínum eigin sjónsviðum er öruggara en ágiskun.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "Ýttu á Measure from my images. Hver hlutagerð fær mælt þvermál með rökstuðningi og öryggi. Use skrifar eitt í stillingar Mask og Use all skrifar öll; ekkert breytist fyrr en þú ýtir á þá.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
           ]
         }
       ],
@@ -5363,6 +5401,17 @@
           "hold_after": 0.7
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "Til að æfa þig frekar á birtum gögnum ýtirðu á Load test data. spaCR sækir níu skarandi reiti úr sjónrænni samsafnaðri skimun og fyllir út reitamöppuna, hnitanetið, röðina, skörunina og úttaksmöppuna, svo þú getur strax ýtt á Plan. Næstu skref nota stillingar dæmisins sem hægt er að sækja.",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "Stilltu hnitanetið á 3 × 3, línuröð og skörun 0,25 fyrir þetta dæmi. Samræmdu stillingarnar við myndatökuna; notaðu slönguröð þegar aðra hverja línu var tekið í gagnstæða átt.",
           "hold_after": 0.7,
@@ -6731,7 +6780,7 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Opnaðu Help og svo Run history til að fletta í keyrsluskrám sem vistaðar eru á þessari tölvu.",
+          "narration": "Opnaðu Help og svo Run History til að fletta í keyrsluskrám sem vistaðar eru á þessari tölvu.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -6948,6 +6997,20 @@
           "hold_after": 0.7
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "Essentials-yfirlitið geymir stillingarnar sem báðar fjölskyldurnar þurfa til þjálfunar. Þegar þú skiptir yfir í Tabular Machine Learning verða Computer Vision-stillingarnar gráar, svo þú fyllir aðeins út það sem valin fjölskylda notar.",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "Fyrir töfludæmið smellirðu á Load test data og velur Load. Veldu flokkamerki og stillingar eiginleika og fylgdu svo töflukennslustundinni til að þjálfa líkanið og vista spár.",
           "related_lessons": [
@@ -6960,10 +7023,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Eftir töflukeyrsluna skoðarðu hitakort spánna og vistuð stig hluta. Hlutir sem vantar nauðsynlegar mælingar geta verið án stiga. Farðu yfir matsniðurstöðurnar til að ákveða hvort breyta þurfi merkjum, eiginleikum eða stillingum líkans.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -6972,12 +7035,12 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "Fyrir myndflokkun fylgirðu Computer Vision-kennslustundinni til að útbúa merkt úrklipp, velja líkan og stilla skiptingu í þjálfun, staðfestingu og prófun. Eftir þjálfun skoðarðu matsmyndritin og vistuðu spárnar.",
+          "narration": "Fyrir myndflokkun fylgir þú Computer Vision-kennslustundinni til að undirbúa merktar úrklippur, velja líkan og stilla skiptingu í þjálfun, sannprófun og prófun. Eftir þjálfun skoðar þú tap- og nákvæmniferlana og síðan matsmyndirnar og vistaðar spár.",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
@@ -6988,10 +7051,10 @@
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "Opnaðu Classifier Evaluation úr tólunum efst til hægri. Veldu vistaðan matspakka til að skoða spár, mælikvarða og skiptingu gagna.",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7002,10 +7065,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "Opnaðu Explain CV til að tengja spár myndflokkara við mælda eiginleika. Leggðu fram spániðurstöður mynda og samsvarandi mælingar og skoðaðu svo hvaða eiginleikar skýra stigin.",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7016,10 +7079,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "Opnaðu Activation til að sjá hvaða svæði myndar hafa áhrif á svörun líkansins. Veldu þjálfaða vistunarpunktinn og notaðu sömu myndrásir og forvinnslu og í þjálfuninni.",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7030,10 +7093,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "Opnaðu Training Runs til að bera saman vistaða þjálfunarsögu. Veldu keyrslur með samhæfða mælikvarða og skiptingu gagna og skoðaðu svo námsferla þeirra og stillingar.",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7052,10 +7115,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Geymdu þjálfaða líkanið, spárnar og matsniðurstöðurnar í keyrslumöppunni. Þú getur notað stig hluta í Regression ásamt samsvarandi talningum leiðaraða. Tengdu kennslustundirnar um einingarnar sýna næstu skref.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7296,7 +7359,7 @@
       "objectives": [
         "Velja dæmigerð sjónsvið og styrkleikarásir.",
         "Meta og skoða lýsingarlíkan.",
-        "Endurnýta líkanið í Mask eða Measure."
+        "Beita vistaða líkaninu í Measure."
       ],
       "prerequisite": "Notaðu möppu sameinaðra mynda með dæmigerðum sjónsviðum úr hverjum myndatökuhópi. Dæmið notar sextán sjónsvið úr plötudæminu sem sótt var í Measure. Vittu hvaða vistuð lög innihalda styrk og hver innihalda merki.",
       "scenes": [
@@ -7304,10 +7367,10 @@
           "visual": "01_measure_host",
           "narration": "Opnaðu Measure og svo Illumination til að meta leiðréttingarlíkan fyrir ójafna birtu mynda.",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7441,7 +7504,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "Til að endurnýta líkanið tilgreinirðu slóð þess og virkjar leiðréttinguna í viðeigandi Mask- eða Measure-ferli. Geymdu rásir þess, auðkenni platna og stillingar með því og forðastu að leiðrétta sama styrk tvisvar.",
+          "narration": "Geymdu vistaða líkanið með rásum þess, auðkennum platna og stillingum. Beittu því einu sinni á hvert safn styrkgilda; ef sami styrkur er leiðréttur tvisvar skekkist hann.",
           "focus": [
             363,
             370,
@@ -7449,7 +7512,20 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "Til að beita líkaninu opnarðu Measure og leitar að illumination í stillingunum. Undir Image Preprocessing kveikirðu á Illumination correction og stillir Illumination model á vistuðu skrána. Measure deilir þá líkanrásunum með sviðinu áður en mælt er; grímurnar breytast ekki.",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
             "08_measure"
           ],
           "hold_after": 0.7
@@ -14385,7 +14461,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu FEATURES til að para hverja mynd við grímu sína og skrifa mælt verkefni, og þannig komast grímurnar til Measure; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara.",
+          "narration": "Stundum þurfa grímur mannshönd. Opnaðu Make Masks frá Home til að laga þær sjónsvið fyrir sjónsvið. Það sem þú vistar hér getur farið tvær leiðir. Til að þjálfa aðgreiningu ferðu yfir pör af myndum og grímum og heldur þeim saman sem þjálfunarsviðum. Til að mæla notarðu Organize for Measure, sem færir hverja mynd og grímur hennar í rásarmöppur og sameinar þær í fylkin sem Measure les; stök gríma er ekki sameinað fylki. Skellugrímur sem teiknaðar eru hér geta líka farið í Plaque Assay með samsvarandi upprunamyndum. Að vista grímu þjálfar engan flokkara.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

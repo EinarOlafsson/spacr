@@ -2852,19 +2852,13 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Da Home, apri Mask e fai clic sull’icona Timelapse in alto a destra per attivare il tracciamento. Usa Timelapse per collegare gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini.",
+          "narration": "Da Home apri Mask, attiva Time nella riga Actions e accendi Timelapse per attivare il tracciamento. Timelapse collega gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini.",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
           ],
-          "speech_text": "Da Home, apri Mask e fai clic sull’icona Timelapse in alto a destra per attivare il tracciamento. Usa Timelapse per collegare gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini."
+          "speech_text": "Da Home apri Mask, attiva Time nella riga Actions e accendi Timelapse per attivare il tracciamento. Timelapse collega gli oggetti tra immagini consecutive. Prima proveremo l’esempio collegato in Track preview, poi esamineremo le impostazioni per elaborare la tua sequenza di immagini."
         },
         {
           "visual": "09_actual_track_preview",
@@ -3060,13 +3054,19 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Da Home, apri Measure, poi usa Time per aprire Motility Assay. Parti da immagini tracciate con Timelapse, oppure scarica l’archivio di esempio qui sotto per seguire la lezione.",
+          "narration": "Da Home, apri Measure, poi scegli Motility Assay in alto a destra. Parti da immagini tracciate con Timelapse, oppure scarica l’archivio di esempio qui sotto per seguire la lezione.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
           "hold_after": 0.7,
-          "speech_text": "Da Home, apri Measure, poi usa Time per aprire Motility Assay. Parti da immagini tracciate con Timelapse, oppure scarica l’archivio di esempio qui sotto per seguire la lezione."
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ],
+          "speech_text": "Da Home, apri Measure, poi scegli Motility Assay in alto a destra. Parti da immagini tracciate con Timelapse, oppure scarica l’archivio di esempio qui sotto per seguire la lezione."
         },
         {
           "visual": "03_actual_setting_src",
@@ -3720,11 +3720,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Apri Model Zoo, trova o scarica un checkpoint, esaminane i dettagli e scegli un piccolo insieme di immagini per una prova.",
+      "description": "Apri Model Zoo, trova o scarica un checkpoint, esaminane i dettagli, provalo su un piccolo insieme di immagini e misura i diametri degli oggetti per Mask.",
       "objectives": [
         "Aprire Model Zoo e analizzare una cartella locale di modelli.",
         "Scegliere una famiglia e una versione di modello, poi esaminarne i dettagli.",
-        "Eseguire una piccola prova sulle immagini ed esaminare le maschere e i riepiloghi di qualità ottenuti."
+        "Eseguire una piccola prova sulle immagini ed esaminare le maschere e i riepiloghi di qualità ottenuti.",
+        "Misurare i diametri degli oggetti sui propri campi nella finestra di Model Zoo di Mask generation."
       ],
       "prerequisite": "Estrai l’esempio collegato e usa la sua cartella images per la prova su tre campi. Scegli un modello di segmentazione Cellpose installato, oppure scarica un checkpoint adatto tramite Model Zoo. Per una tua prova, prepara alcune immagini TIFF, PNG, NPY o NPZ rappresentative.",
       "scenes": [
@@ -3739,9 +3740,21 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "Fai clic su Choose folder e seleziona la directory dei modelli per analizzarla. Se digiti il percorso, fai clic su Scan. Attiva le intestazioni di origine che vuoi consultare, come Cellpose o i modelli locali.",
+          "narration": "Fai clic su Choose folder e seleziona la directory dei modelli per analizzarla. Se digiti il percorso, fai clic su Scan. Le intestazioni sopra la tabella scelgono quali origini elencare; cellposeSAM, per i pesi standard, e spaCR, per i modelli addestrati qui, sono attive all’inizio.",
           "hold_after": 0.7,
-          "speech_text": "Fai clic su Choose folder e seleziona la directory dei modelli per analizzarla. Se digiti il percorso, fai clic su Scan. Attiva le intestazioni di origine che vuoi consultare, come sel pòus o i modelli locali."
+          "speech_text": "Fai clic su Choose folder e seleziona la directory dei modelli per analizzarla. Se digiti il percorso, fai clic su Scan. Le intestazioni sopra la tabella scelgono quali origini elencare; sel pòusSAM, per i pesi standard, e spàker, per i modelli addestrati qui, sono attive all’inizio."
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "Attiva cellpose3 per elencare i modelli di Cellpose 3, come cyto3 e nuclei. Girano in un proprio ambiente Cellpose 3, quindi un modello il cui backend non è installato lo segnala, e sceglierlo propone l’installazione.",
+          "hold_after": 0.7,
+          "speech_text": "Attiva sel pòus3 per elencare i modelli di sel pòus 3, come cyto3 e nuclei. Girano in un proprio ambiente sel pòus 3, quindi un modello il cui backend non è installato lo segnala, e sceglierlo propone l’installazione."
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "Attiva bioimage.io per elencare i modelli Cellpose pubblicati su bioimage.io. Leggi su cosa è stato addestrato ciascuno prima di sceglierne uno; i suoi pesi vengono scaricati quando li richiedi.",
+          "hold_after": 0.7,
+          "speech_text": "Attiva bioimage.io per elencare i modelli sel pòus pubblicati su bioimage.io. Leggi su cosa è stato addestrato ciascuno prima di sceglierne uno; i suoi pesi vengono scaricati quando li richiedi."
         },
         {
           "visual": "04_actual_cpsam_provenance",
@@ -3776,6 +3789,37 @@
             "14_make_masks"
           ],
           "speech_text": "Esamina i riepiloghi dei campi, poi conserva il percorso del checkpoint scelto per il tuo modulo di analisi. Per confrontare due famiglie di modelli diverse sulle stesse immagini, seleziona entrambe le righe e scegli Compare the two selected. Usa il controllo della versione per provare un’altra versione della stessa famiglia."
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "Lo stesso catalogo si apre dentro Mask generation, dove può anche misurare i tuoi oggetti. Imposta Source sulle tue immagini e compila i canali di cellula, nucleo e patogeno; questo esempio usa le immagini grezze del campione di Measure.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ],
+          "speech_text": "Lo stesso catalogo si apre dentro Mask generation, dove può anche misurare i tuoi oggetti. Imposta Source sulle tue immagini e compila i canali di cellula, nucleo e patogeno; questo esempio usa le immagini grezze del campione di Measure."
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "Passa a All settings e fai clic sulla cella Model name di un oggetto nella tabella per oggetto. Si apre la finestra di Model Zoo, e il modello che scegli viene scritto nelle impostazioni di quell’oggetto.",
+          "hold_after": 0.7,
+          "speech_text": "Passa a All settings e fai clic sulla cella Model name di un oggetto nella tabella per oggetto. Si apre la finestra di Model Zoo, e il modello che scegli viene scritto nelle impostazioni di quell’oggetto."
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "Fai clic su Measure diameters in basso a sinistra. Cellpose ridimensiona ogni immagine in base al diametro che riceve, quindi un diametro misurato sui tuoi campi è più sicuro di una stima.",
+          "hold_after": 0.7,
+          "speech_text": "Fai clic su Measure diameters in basso a sinistra. sel pòus ridimensiona ogni immagine in base al diametro che riceve, quindi un diametro misurato sui tuoi campi è più sicuro di una stima."
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "Premi Measure from my images. Ogni tipo di oggetto riceve un diametro misurato con le relative prove e il livello di confidenza. Use ne scrive uno nelle impostazioni di Mask e Use all li scrive tutti; nulla cambia finché non li premi.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
+          ],
+          "speech_text": "Premi Measure from my images. Ogni tipo di oggetto riceve un diametro misurato con le relative prove e il livello di confidenza. Use ne scrive uno nelle impostazioni di Mask e Use all li scrive tutti; nulla cambia finché non li premi."
         }
       ],
       "example_files": [
@@ -5772,6 +5816,18 @@
           "speech_text": "Scarica e decomprimi l’esempio qui sotto, poi seleziona la sua cartella tiles. Contiene nove ritagli sovrapposti disposti in una griglia tre per tre. Per una tua acquisizione, tieni disponibili l’ordine originale delle tessere e i metadati del tavolino."
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "Per esercitarti invece su dati pubblicati, premi Load test data. spaCR scarica nove tessere sovrapposte da uno screening ottico in pool e compila la cartella delle tessere, la griglia, l’ordine, la sovrapposizione e la cartella di output, così puoi premere subito Plan. I passaggi successivi usano le impostazioni dell’esempio scaricabile.",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per esercitarti invece su dati pubblicati, premi Load test data. spàker scarica nove tessere sovrapposte da uno screening ottico in pool e compila la cartella delle tessere, la griglia, l’ordine, la sovrapposizione e la cartella di output, così puoi premere subito Plan. I passaggi successivi usano le impostazioni dell’esempio scaricabile."
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "Per questo esempio, imposta la griglia su tre per tre, ordine per righe e sovrapposizione di zero virgola due cinque. Adatta questi valori alla tua acquisizione; usa l’ordine a serpentina quando le righe alterne sono state acquisite in direzioni opposte.",
           "hold_after": 0.7,
@@ -7229,13 +7285,13 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Apri Help e poi Run history per scorrere i record di esecuzione salvati su questo computer.",
+          "narration": "Apri Help e poi Run History per scorrere i record di esecuzione salvati su questo computer.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
             "25_recruitment"
           ],
-          "speech_text": "Apri Help e poi Run history per scorrere i record di esecuzione salvati su questo computer."
+          "speech_text": "Apri Help e poi Run History per scorrere i record di esecuzione salvati su questo computer."
         },
         {
           "visual": "02_loaded_history",
@@ -7461,6 +7517,21 @@
           "speech_text": "Scegli Computer Vision per imparare dalle immagini degli oggetti. Scegli Tabular Machine Learning per imparare da colonne di caratteristiche misurate. Measure fornisce questi input e Annotate ti permette di aggiungere etichette agli oggetti."
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "La vista Essentials raccoglie le impostazioni di cui entrambe le famiglie hanno bisogno per l’addestramento. Quando passa a Tabular Machine Learning, le impostazioni di Computer Vision diventano grigie, così compila solo ciò che usa la famiglia scelta.",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "La vista Essentials raccoglie le impostazioni di cui entrambe le famiglie hanno bisogno per l’addestramento. Quando passa a Tabular Machine Learning, le impostazioni di Computer Vision diventano grigie, così compila solo ciò che usa la famiglia scelta."
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "Per l’esempio tabellare, fai clic su Load test data e scegli Load. Seleziona le etichette di classe e le impostazioni delle caratteristiche, poi segui la lezione tabellare per addestrare il modello e salvare le previsioni.",
           "related_lessons": [
@@ -7474,10 +7545,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Dopo l’esecuzione tabellare, esamina la mappa di calore delle previsioni e i punteggi salvati per oggetto. Gli oggetti privi di misure necessarie possono restare senza punteggio. Controlla i risultati della valutazione per decidere se rivedere etichette, caratteristiche o impostazioni del modello.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -7487,27 +7558,27 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "Per la classificazione di immagini, segui la lezione su Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, esamina le figure di valutazione e le previsioni salvate.",
+          "narration": "Per la classificazione di immagini, segua la lezione Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, controlli le curve di perdita e di accuratezza, poi esamini le figure di valutazione e le previsioni salvate.",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
           ],
           "hold_after": 0.7,
-          "speech_text": "Per la classificazione di immagini, segui la lezione su Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, esamina le figure di valutazione e le previsioni salvate."
+          "speech_text": "Per la classificazione di immagini, segua la lezione Computer Vision per preparare ritagli etichettati, scegliere un modello e impostare le suddivisioni di addestramento, validazione e test. Dopo l’addestramento, controlli le curve di perdita e di accuratezza, poi esamini le figure di valutazione e le previsioni salvate."
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "Apri Classifier Evaluation dagli strumenti in alto a destra. Seleziona un pacchetto di valutazione salvato per esaminare previsioni, metriche e suddivisione dei dati.",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7519,10 +7590,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "Apri Explain CV per collegare le previsioni di un classificatore di immagini alle caratteristiche misurate. Fornisci i risultati delle previsioni sulle immagini e le misure corrispondenti, poi esamina quali caratteristiche spiegano i punteggi.",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7534,10 +7605,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "Apri Activation per vedere quali regioni dell’immagine influenzano le risposte del modello. Seleziona il checkpoint addestrato e usa gli stessi canali e la stessa preelaborazione dell’addestramento.",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7549,10 +7620,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "Apri Training Runs per confrontare storici di addestramento salvati. Seleziona esecuzioni con metriche e suddivisioni dei dati compatibili, poi esamina le curve di apprendimento e le impostazioni.",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7573,10 +7644,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Conserva il modello addestrato, le previsioni e i risultati della valutazione nella cartella dell’esecuzione. Puoi usare i punteggi per oggetto in Regression insieme ai conteggi delle guide corrispondenti. Le lezioni collegate sui moduli mostrano i passi successivi.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7829,7 +7900,7 @@
       "objectives": [
         "Selezionare campi rappresentativi e canali di intensità.",
         "Stimare ed esaminare un modello di illuminazione.",
-        "Riusare il modello in Mask o Measure."
+        "Applicare il modello salvato in Measure."
       ],
       "prerequisite": "Usa una cartella di immagini unite con campi rappresentativi di ogni gruppo di acquisizione. L’esempio usa i sedici campi dell’esempio di piastra scaricato in Measure. Sappi quali piani salvati contengono intensità e quali etichette.",
       "scenes": [
@@ -7837,10 +7908,10 @@
           "visual": "01_measure_host",
           "narration": "Apri Measure e poi Illumination per stimare un modello di correzione della luminosità non uniforme delle immagini.",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7986,7 +8057,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "Per riusare il modello, imposta il suo percorso e attiva la correzione nel flusso di Mask o Measure previsto. Conserva con esso canali, identità delle piastre e impostazioni, ed evita di correggere due volte le stesse intensità.",
+          "narration": "Conserva il modello salvato con i suoi canali, le identità delle piastre e le impostazioni. Applicalo una sola volta a un insieme di intensità; correggere due volte le stesse intensità le distorce.",
           "focus": [
             363,
             370,
@@ -7994,11 +8065,25 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
             "08_measure"
           ],
           "hold_after": 0.7,
-          "speech_text": "Per riusare il modello, imposta il suo percorso e attiva la correzione nel flusso di Mask o Measure previsto. Conserva con esso canali, identità delle piastre e impostazioni, ed evita di correggere due volte le stesse intensità."
+          "speech_text": "Conserva il modello salvato con i suoi canali, le identità delle piastre e le impostazioni. Applicalo una sola volta a un insieme di intensità; correggere due volte le stesse intensità le distorce."
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "Per applicare il modello, apri Measure e cerca illumination nelle impostazioni. In Image Preprocessing attiva Illumination correction e imposta Illumination model sul file salvato. Measure divide quindi i canali modellati per il campo prima di misurare; le maschere non cambiano.",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
+            "08_measure"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Per applicare il modello, apri Measure e cerca illumination nelle impostazioni. In Image Preprocessing attiva Illumination correction e imposta Illumination model sul file salvato. Measure divide quindi i canali modellati per il campo prima di misurare; le maschere non cambiano."
         }
       ],
       "narration_voices": {
@@ -15455,14 +15540,14 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa FEATURES per abbinare ogni immagine alla sua maschera e scrivere un progetto misurato: è così che queste maschere arrivano a Measure; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore.",
+          "narration": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa Organize for Measure, che sposta ogni immagine e le sue maschere in cartelle di canale e le unisce negli array che Measure legge; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "14_make_masks",
             "24_plaque"
           ],
-          "speech_text": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa FEATURES per abbinare ogni immagine alla sua maschera e scrivere un progetto misurato: è così che queste maschere arrivano a Measure; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore."
+          "speech_text": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa Organize for Measure, che sposta ogni immagine e le sue maschere in cartelle di canale e le unisce negli array che Measure legge; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore."
         },
         {
           "visual": "module_measure",

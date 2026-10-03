@@ -2625,14 +2625,8 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Home에서 Mask를 열고 오른쪽 위의 Timelapse 아이콘을 클릭해 추적을 켜세요. Timelapse는 연속된 이미지 사이에서 객체를 연결합니다. 먼저 Track preview에서 연결된 예제를 시험해 보고, 이어서 자신의 이미지 시퀀스를 처리하기 위한 설정을 살펴보겠습니다.",
+          "narration": "Home에서 Mask를 열고 Actions 줄의 Time을 켠 뒤 Timelapse를 켜서 추적을 활성화하세요. Timelapse는 연속된 이미지 사이에서 객체를 연결합니다. 먼저 Track preview에서 링크된 예제를 사용해 보고, 그다음 자신의 이미지 시퀀스를 처리하기 위한 설정을 살펴봅니다.",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
@@ -2821,12 +2815,18 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Home에서 Measure를 열고 Time을 통해 Motility Assay를 여세요. Timelapse에서 추적한 이미지로 시작하거나, 아래의 예제 아카이브를 내려받아 따라 하세요.",
+          "narration": "Home에서 Measure를 연 뒤 오른쪽 위의 Motility Assay를 고르세요. Timelapse에서 추적한 이미지로 시작하거나, 아래의 예제 아카이브를 내려받아 따라 하세요.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ]
         },
         {
           "visual": "03_actual_setting_src",
@@ -3440,11 +3440,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Model Zoo를 열어 체크포인트를 찾거나 내려받고, 세부 정보를 확인한 뒤 시험용 소규모 이미지 세트를 고릅니다.",
+      "description": "Model Zoo를 열어 체크포인트를 찾거나 내려받고, 세부 정보를 확인하고, 소규모 이미지 세트로 시험한 뒤 Mask용 객체 직경을 측정합니다.",
       "objectives": [
         "Model Zoo를 열고 로컬 모델 폴더를 스캔합니다.",
         "모델 계열과 버전을 고른 뒤 세부 정보를 확인합니다.",
-        "소규모 이미지 시험을 실행하고 결과 마스크와 품질 요약을 확인합니다."
+        "소규모 이미지 시험을 실행하고 결과 마스크와 품질 요약을 확인합니다.",
+        "Mask generation의 Model Zoo 팝업에서 내 시야로 객체 직경을 측정합니다."
       ],
       "prerequisite": "연결된 예제의 압축을 풀고 시야 3개 시험에는 그 images 폴더를 쓰세요. 설치된 Cellpose 분할 모델을 고르거나, Model Zoo에서 알맞은 체크포인트를 내려받으세요. 직접 시험하려면 대표적인 TIFF, PNG, NPY, NPZ 이미지를 몇 개 준비하세요.",
       "scenes": [
@@ -3458,7 +3459,17 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "Choose folder를 클릭하고 모델 디렉터리를 선택해 스캔하세요. 경로를 직접 입력했다면 Scan을 클릭하세요. Cellpose나 로컬 모델처럼 살펴보려는 소스 제목을 켜세요.",
+          "narration": "Choose folder를 클릭하고 모델 디렉터리를 선택해 스캔하세요. 경로를 직접 입력했다면 Scan을 클릭하세요. 표 위의 제목으로 목록에 표시할 소스를 고릅니다. 기본 가중치용 cellposeSAM과 여기서 학습한 모델용 spaCR은 처음부터 켜져 있습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "cellpose3을 켜면 cyto3, nuclei 같은 Cellpose 3 모델이 목록에 나옵니다. 이 모델들은 별도의 Cellpose 3 환경에서 실행되므로, 백엔드가 설치되지 않은 모델은 그렇다고 알려 주고, 선택하면 설치를 제안합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "bioimage.io를 켜면 bioimage.io에 공개된 Cellpose 모델이 목록에 나옵니다. 모델을 고르기 전에 각각 무엇으로 학습했는지 읽어 보세요. 가중치는 요청할 때 내려받습니다.",
           "hold_after": 0.7
         },
         {
@@ -3488,6 +3499,33 @@
           "related_lessons": [
             "21_model_compare",
             "14_make_masks"
+          ]
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "같은 카탈로그가 Mask generation 안에서도 열리며, 여기서는 객체를 측정할 수도 있습니다. Source를 내 이미지로 설정하고 세포, 핵, 병원체 채널을 채우세요. 이 예제는 Measure 샘플의 원본 이미지를 사용합니다.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "All settings로 전환하고 객체별 표에서 객체의 Model name 칸을 클릭하세요. Model Zoo 팝업이 열리고, 고른 모델이 그 객체의 설정에 기록됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "왼쪽 아래의 Measure diameters를 클릭하세요. Cellpose는 주어진 직경에 맞춰 각 이미지의 배율을 조정하므로, 내 시야에서 측정한 직경이 추측보다 안전합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "Measure from my images를 누르세요. 객체 유형마다 근거와 신뢰도가 함께 표시된 측정 직경이 나옵니다. Use는 하나를 Mask 설정에 기록하고 Use all은 전부 기록합니다. 누르기 전에는 아무것도 바뀌지 않습니다.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
           ]
         }
       ],
@@ -5363,6 +5401,17 @@
           "hold_after": 0.7
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "공개된 데이터로 연습하려면 Load test data를 누르세요. spaCR이 광학 풀드 스크린에서 겹치는 타일 9개를 내려받고 타일 폴더, 그리드, 순서, 겹침, 출력 폴더를 채워 주므로 바로 Plan을 누를 수 있습니다. 다음 단계에서는 내려받을 수 있는 예제의 설정을 사용합니다.",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "이 예제에서는 그리드를 3 × 3, 행 우선 순서, 겹침 0.25로 두세요. 이 설정은 획득 조건에 맞추세요. 행마다 번갈아 반대 방향으로 획득했다면 지그재그 순서를 쓰세요.",
           "hold_after": 0.7,
@@ -6731,7 +6780,7 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Help를 연 뒤 Run history를 열어 이 컴퓨터에 저장된 실행 기록을 살펴보세요.",
+          "narration": "Help를 연 뒤 Run History를 열어 이 컴퓨터에 저장된 실행 기록을 살펴보세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -6948,6 +6997,20 @@
           "hold_after": 0.7
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "Essentials 보기에는 두 계열이 학습에 필요한 설정이 모여 있습니다. Tabular Machine Learning으로 전환하면 Computer Vision 설정이 회색으로 바뀌므로, 선택한 계열이 사용하는 항목만 채우면 됩니다.",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "표 형식 예제에서는 Load test data를 클릭하고 Load를 선택하세요. 클래스 라벨과 특징 설정을 고른 뒤, 표 형식 강의를 따라 모델을 학습하고 예측을 저장하세요.",
           "related_lessons": [
@@ -6960,10 +7023,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "표 형식 실행이 끝나면 예측 히트맵과 저장된 객체 점수를 확인하세요. 필요한 측정값이 없는 객체는 점수가 없을 수 있습니다. 평가 결과를 보고 라벨, 특징, 모델 설정을 고칠지 정하세요.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -6972,12 +7035,12 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "이미지 분류는 Computer Vision 강의를 따라 라벨이 붙은 크롭을 준비하고, 모델을 고르고, 학습·검증·테스트 분할을 설정하세요. 학습이 끝나면 평가 그림과 저장된 예측을 확인하세요.",
+          "narration": "이미지 분류의 경우 Computer Vision 강의를 따라 라벨이 지정된 크롭을 준비하고, 모델을 선택하고, 학습·검증·테스트 분할을 설정합니다. 학습이 끝나면 손실 및 정확도 곡선을 확인한 다음 평가 그림과 저장된 예측을 살펴봅니다.",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
@@ -6988,10 +7051,10 @@
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "오른쪽 위 도구에서 Classifier Evaluation을 여세요. 저장된 평가 번들을 선택하면 예측, 지표, 데이터 분할을 확인할 수 있습니다.",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7002,10 +7065,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "Explain CV를 열어 이미지 분류기의 예측을 측정된 특징과 연결하세요. 이미지 예측 결과와 해당 측정값을 제공한 뒤, 어떤 특징이 점수를 설명하는지 확인하세요.",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7016,10 +7079,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "Activation을 열어 이미지의 어느 영역이 모델 반응에 영향을 주는지 보세요. 학습된 체크포인트를 고르고, 학습 때와 같은 이미지 채널과 전처리를 쓰세요.",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7030,10 +7093,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "Training Runs를 열어 저장된 학습 기록을 비교하세요. 지표와 데이터 분할이 호환되는 실행을 고른 뒤 학습 곡선과 설정을 확인하세요.",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7052,10 +7115,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "학습된 모델, 예측, 평가 결과는 실행 폴더에 보관하세요. 객체 점수는 Regression에서 해당 가이드 카운트와 함께 쓸 수 있습니다. 다음 단계는 연결된 모듈 강의에서 보여 줍니다.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7296,7 +7359,7 @@
       "objectives": [
         "대표 시야와 강도 채널을 고릅니다.",
         "조명 모델을 추정하고 확인합니다.",
-        "모델을 Mask나 Measure에서 다시 씁니다."
+        "저장한 모델을 Measure에서 적용합니다."
       ],
       "prerequisite": "획득 그룹마다 대표 시야가 들어 있는 병합 이미지 폴더를 쓰세요. 예제는 Measure에서 내려받은 플레이트 예제의 시야 16개를 씁니다. 저장된 평면 중 어느 것이 강도이고 어느 것이 라벨인지 알아 두세요.",
       "scenes": [
@@ -7304,10 +7367,10 @@
           "visual": "01_measure_host",
           "narration": "Measure를 연 뒤 Illumination을 열어 고르지 않은 이미지 밝기를 보정하는 모델을 추정하세요.",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7441,7 +7504,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "모델을 다시 쓰려면 그 경로를 지정하고 원하는 Mask나 Measure 워크플로에서 보정을 켜세요. 채널, 플레이트 식별 정보, 설정을 모델과 함께 보관하고, 같은 강도를 두 번 보정하지 마세요.",
+          "narration": "저장한 모델은 채널, 플레이트 식별 정보, 설정과 함께 보관하세요. 한 세트의 강도에는 한 번만 적용하세요. 같은 강도를 두 번 보정하면 값이 왜곡됩니다.",
           "focus": [
             363,
             370,
@@ -7449,7 +7512,20 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "모델을 적용하려면 Measure를 열고 설정에서 illumination을 검색하세요. Image Preprocessing 아래에서 Illumination correction을 켜고 Illumination model을 저장한 파일로 지정하세요. 그러면 Measure가 측정하기 전에 모델링한 채널을 조명 필드로 나눕니다. 마스크는 바뀌지 않습니다.",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
             "08_measure"
           ],
           "hold_after": 0.7
@@ -14385,7 +14461,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "때로는 마스크에 사람의 손길이 필요합니다. Home에서 Make Masks를 열고 시야별로 고치세요. 여기서 저장한 것은 두 방향으로 갈 수 있습니다. 분할 모델을 학습시키려면 이미지-마스크 쌍을 정리해 학습 시야로 함께 보관하세요. 측정하려면 FEATURES로 각 이미지를 마스크와 짝지어 측정 프로젝트를 저장하세요. 이렇게 해야 마스크가 Measure에 도달합니다. 따로 떨어진 마스크는 병합 배열이 아닙니다. 여기서 그린 플라크 마스크는 대응하는 원본 이미지와 함께 Plaque Assay에도 쓸 수 있습니다. 마스크를 저장한다고 분류기가 학습되지는 않습니다.",
+          "narration": "때로는 마스크에 사람의 손길이 필요합니다. Home에서 Make Masks를 열고 시야별로 고치세요. 여기서 저장한 것은 두 방향으로 갈 수 있습니다. 분할 모델을 학습시키려면 이미지-마스크 쌍을 정리해 학습 시야로 함께 보관하세요. 측정하려면 Organize for Measure를 사용하세요. 각 이미지와 그 마스크를 채널 폴더로 옮기고 Measure가 읽는 배열로 병합합니다. 따로 떨어진 마스크는 병합 배열이 아닙니다. 여기서 그린 플라크 마스크는 대응하는 원본 이미지와 함께 Plaque Assay에도 쓸 수 있습니다. 마스크를 저장한다고 분류기가 학습되지는 않습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

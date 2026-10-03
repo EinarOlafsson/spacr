@@ -2625,14 +2625,8 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Från Home öppnar du Mask och klickar på Timelapse-ikonen uppe till höger för att slå på spårningen. Använd Timelapse för att länka objekt mellan på varandra följande bilder. Först provar vi det länkade exemplet i Track preview och går sedan igenom inställningarna för att bearbeta din egen bildsekvens.",
+          "narration": "Öppna Mask från Home, slå på Time i Actions-raden och slå på Timelapse för att aktivera spårning. Timelapse länkar objekt mellan på varandra följande bilder. Först provar vi det länkade exemplet i Track preview och går sedan igenom inställningarna för din egen bildserie.",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
@@ -2821,12 +2815,18 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Från Home öppnar du Measure och använder sedan Time för att öppna Motility Assay. Börja med spårade bilder från Timelapse, eller hämta exempelarkivet nedan för att följa med.",
+          "narration": "Från Home öppnar du Measure och väljer sedan Motility Assay uppe till höger. Börja med spårade bilder från Timelapse, eller hämta exempelarkivet nedan för att följa med.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ]
         },
         {
           "visual": "03_actual_setting_src",
@@ -3440,11 +3440,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Öppna Model Zoo, hitta eller hämta en kontrollpunkt, granska dess detaljer och välj en liten bilduppsättning för ett test.",
+      "description": "Öppna Model Zoo, hitta eller hämta en kontrollpunkt, granska dess detaljer, testa den på en liten bilduppsättning och mät objektdiametrar för Mask.",
       "objectives": [
         "Öppna Model Zoo och söka igenom en lokal modellmapp.",
         "Välja modellfamilj och version och granska detaljerna.",
-        "Köra ett litet bildtest och granska de resulterande maskerna och kvalitetssammanfattningarna."
+        "Köra ett litet bildtest och granska de resulterande maskerna och kvalitetssammanfattningarna.",
+        "Mäta objektdiametrar från dina egna synfält i Model Zoo-fönstret i Mask generation."
       ],
       "prerequisite": "Packa upp det länkade exemplet och använd dess mapp images för testet med tre synfält. Välj en installerad Cellpose-segmenteringsmodell, eller hämta en lämplig kontrollpunkt via Model Zoo. För ditt eget test förbereder du några representativa TIFF-, PNG-, NPY- eller NPZ-bilder.",
       "scenes": [
@@ -3458,7 +3459,17 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "Klicka på Choose folder och välj din modellkatalog för att söka igenom den. Om du skriver in sökvägen klickar du på Scan. Slå på de källrubriker du vill bläddra i, till exempel Cellpose eller lokala modeller.",
+          "narration": "Klicka på Choose folder och välj din modellkatalog för att söka igenom den. Om du skriver in sökvägen klickar du på Scan. Rubrikerna ovanför tabellen avgör vilka källor som listas; cellposeSAM för standardvikterna och spaCR för modellerna som tränats här är påslagna från början.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "Slå på cellpose3 för att lista Cellpose 3-modellerna, till exempel cyto3 och nuclei. De körs i en egen Cellpose 3-miljö, så en modell vars backend inte är installerad talar om det, och när du väljer den erbjuds installationen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "Slå på bioimage.io för att lista Cellpose-modeller som publicerats på bioimage.io. Läs vad varje modell tränades på innan du väljer en; dess vikter hämtas när du ber om dem.",
           "hold_after": 0.7
         },
         {
@@ -3488,6 +3499,33 @@
           "related_lessons": [
             "21_model_compare",
             "14_make_masks"
+          ]
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "Samma katalog öppnas inuti Mask generation, där den också kan mäta dina objekt. Ställ Source på dina bilder och fyll i kanalerna för cell, kärna och patogen; det här exemplet använder råbilderna från Measure-exemplet.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "Byt till All settings och klicka på ett objekts cell Model name i tabellen per objekt. Model Zoo-fönstret öppnas, och modellen du väljer skrivs in i objektets inställningar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "Klicka på Measure diameters längst ned till vänster. Cellpose skalar om varje bild efter den diameter den får, så en diameter uppmätt på dina egna synfält är säkrare än en gissning.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "Tryck på Measure from my images. Varje objekttyp får en uppmätt diameter med underlag och säkerhet. Use skriver in en i inställningarna för Mask och Use all skriver in alla; inget ändras förrän du trycker på dem.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
           ]
         }
       ],
@@ -5363,6 +5401,17 @@
           "hold_after": 0.7
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "Vill du hellre öva på publicerade data trycker du på Load test data. spaCR hämtar nio överlappande plattor från en optisk poolad screening och fyller i plattmappen, rutnätet, ordningen, överlappet och utdatamappen, så att du kan trycka på Plan direkt. Nästa steg använder inställningarna från exemplet som kan hämtas.",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "Ställ in rutnätet på 3 × 3, radvis ordning och överlapp 0,25 för det här exemplet. Anpassa inställningarna till ditt förvärv; använd serpentinordning när varannan rad förvärvades i motsatt riktning.",
           "hold_after": 0.7,
@@ -6731,7 +6780,7 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Öppna Help och sedan Run history för att bläddra bland de körposter som sparats på den här datorn.",
+          "narration": "Öppna Help och sedan Run History för att bläddra bland de körposter som sparats på den här datorn.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -6948,6 +6997,20 @@
           "hold_after": 0.7
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "Vyn Essentials samlar de inställningar som båda familjerna behöver för träning. När du byter till Tabular Machine Learning blir Computer Vision-inställningarna grå, så att du bara fyller i det som den valda familjen använder.",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "För tabellexemplet klickar du på Load test data och väljer Load. Välj klassetiketter och egenskapsinställningar och följ sedan tabellektionen för att träna modellen och spara prediktioner.",
           "related_lessons": [
@@ -6960,10 +7023,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Efter tabellkörningen granskar du prediktionsvärmekartan och de sparade objektpoängen. Objekt som saknar nödvändiga mätningar kan förbli utan poäng. Granska utvärderingsresultaten för att avgöra om du ska ändra etiketter, egenskaper eller modellinställningar.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -6972,12 +7035,12 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "För bildklassificering följer du Computer Vision-lektionen för att förbereda märkta utsnitt, välja modell och ställa in uppdelningen i träning, validering och test. Efter träningen granskar du utvärderingsfigurerna och de sparade prediktionerna.",
+          "narration": "För bildklassificering följer du Computer Vision-lektionen för att förbereda märkta utsnitt, välja en modell och ange uppdelningen i träning, validering och test. Efter träningen kontrollerar du förlust- och noggrannhetskurvorna och granskar sedan utvärderingsfigurerna och de sparade prediktionerna.",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
@@ -6988,10 +7051,10 @@
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "Öppna Classifier Evaluation från verktygen uppe till höger. Välj ett sparat utvärderingspaket för att granska prediktioner, mått och datauppdelning.",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7002,10 +7065,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "Öppna Explain CV för att relatera en bildklassificerares prediktioner till uppmätta egenskaper. Ange bildprediktionerna och motsvarande mätningar och granska sedan vilka egenskaper som förklarar poängen.",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7016,10 +7079,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "Öppna Activation för att se vilka bildområden som påverkar modellens svar. Välj den tränade kontrollpunkten och använd samma bildkanaler och förbehandling som vid träningen.",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7030,10 +7093,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "Öppna Training Runs för att jämföra sparade träningshistoriker. Välj körningar med kompatibla mått och datauppdelningar och granska sedan deras inlärningskurvor och inställningar.",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7052,10 +7115,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Behåll den tränade modellen, prediktionerna och utvärderingsresultaten i körmappen. Du kan använda objektpoäng i Regression tillsammans med motsvarande guideräkningar. De länkade modullektionerna visar nästa steg.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7296,7 +7359,7 @@
       "objectives": [
         "Välja representativa synfält och intensitetskanaler.",
         "Skatta och granska en belysningsmodell.",
-        "Återanvända modellen i Mask eller Measure."
+        "Använda den sparade modellen i Measure."
       ],
       "prerequisite": "Använd en mapp med sammanslagna bilder med representativa synfält från varje förvärvsgrupp. Exemplet använder de sexton synfälten från plattexemplet som hämtades i Measure. Ha koll på vilka sparade plan som innehåller intensiteter och vilka som innehåller etiketter.",
       "scenes": [
@@ -7304,10 +7367,10 @@
           "visual": "01_measure_host",
           "narration": "Öppna Measure och sedan Illumination för att skatta en korrektionsmodell för ojämn bildljusstyrka.",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7441,7 +7504,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "För att återanvända modellen anger du dess sökväg och aktiverar korrektionen i det avsedda Mask- eller Measure-flödet. Behåll dess kanaler, plattidentiteter och inställningar tillsammans med den, och undvik att korrigera samma intensiteter två gånger.",
+          "narration": "Behåll den sparade modellen tillsammans med dess kanaler, plattidentiteter och inställningar. Använd den en gång på en uppsättning intensiteter; korrigeras samma intensiteter två gånger förvrängs de.",
           "focus": [
             363,
             370,
@@ -7449,7 +7512,20 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "För att använda modellen öppnar du Measure och söker efter illumination i inställningarna. Under Image Preprocessing slår du på Illumination correction och sätter Illumination model till den sparade filen. Measure dividerar sedan de modellerade kanalerna med fältet innan mätningen; maskerna ändras inte.",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
             "08_measure"
           ],
           "hold_after": 0.7
@@ -14385,7 +14461,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Ibland behöver masker en mänsklig hand. Öppna Make Masks från Home för att rätta dem synfält för synfält. Det du sparar här kan gå två vägar. För att träna segmentering granskar du bild- och maskpar och håller ihop dem som träningsfält. För att mäta använder du FEATURES för att para varje bild med dess mask och skriva ett uppmätt projekt, vilket är hur maskerna når Measure; en fristående mask är ingen sammanslagen array. Plackmasker som ritas här kan också föras till Plaque Assay tillsammans med sina matchande källbilder. Att spara en mask tränar ingen klassificerare.",
+          "narration": "Ibland behöver masker en mänsklig hand. Öppna Make Masks från Home för att rätta dem synfält för synfält. Det du sparar här kan gå två vägar. För att träna segmentering granskar du bild- och maskpar och håller ihop dem som träningsfält. För att mäta använder du Organize for Measure, som flyttar varje bild och dess masker till kanalmappar och slår samman dem till de arrayer som Measure läser; en fristående mask är ingen sammanslagen array. Plackmasker som ritas här kan också föras till Plaque Assay tillsammans med sina matchande källbilder. Att spara en mask tränar ingen klassificerare.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

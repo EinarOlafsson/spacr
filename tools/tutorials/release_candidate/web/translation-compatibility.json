@@ -80,6 +80,162 @@
       "reason": null
     },
     {
+      "lesson": "02_conda_install",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "02_conda_install",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "03_pip_install",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "04_platform_installers",
       "language": "da",
       "status": "source_bound_review",
@@ -392,6 +548,318 @@
       "reason": null
     },
     {
+      "lesson": "10_classify_cv",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "10_classify_cv",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "11_classify_ml",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "13_regression",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "14_make_masks",
       "language": "da",
       "status": "source_bound_review",
@@ -626,6 +1094,162 @@
       "reason": null
     },
     {
+      "lesson": "17_timelapse",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "17_timelapse",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "18_motility",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "19_train_cellpose",
       "language": "da",
       "status": "source_bound_review",
@@ -777,6 +1401,162 @@
     },
     {
       "lesson": "20_cellpose_masks",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "21_model_compare",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "22_model_zoo",
       "language": "zh-CN",
       "status": "source_bound_review",
       "reason": null
@@ -1874,6 +2654,84 @@
       "reason": null
     },
     {
+      "lesson": "38_distributed_jobs",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "38_distributed_jobs",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "39_classifier_evaluation",
       "language": "da",
       "status": "source_bound_review",
@@ -2025,6 +2883,84 @@
     },
     {
       "lesson": "40_run_history",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "41_classify",
       "language": "zh-CN",
       "status": "source_bound_review",
       "reason": null
@@ -3200,6 +4136,84 @@
       "reason": null
     },
     {
+      "lesson": "59_anndata_export",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "59_anndata_export",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "60_pca",
       "language": "da",
       "status": "source_bound_review",
@@ -3356,6 +4370,84 @@
       "reason": null
     },
     {
+      "lesson": "62_feature_dictionary",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "62_feature_dictionary",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "63_small_multiples",
       "language": "da",
       "status": "source_bound_review",
@@ -3668,6 +4760,84 @@
       "reason": null
     },
     {
+      "lesson": "69_dose_response",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "69_dose_response",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
       "lesson": "70_explain_cv",
       "language": "da",
       "status": "source_bound_review",
@@ -4053,6 +5223,708 @@
     },
     {
       "lesson": "75_regression_diagnostics",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "76_ops",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "77_embeddings",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "78_spacr_screens",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "82_toxoplasma",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "83_plasmodium",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "84_candida",
+      "language": "zh-CN",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "da",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "de",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "es",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "fr",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "hi",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "is",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "it",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "ja",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "ko",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "nb",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "pt-BR",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
+      "language": "sv",
+      "status": "source_bound_review",
+      "reason": null
+    },
+    {
+      "lesson": "85_host_pathogen",
       "language": "zh-CN",
       "status": "source_bound_review",
       "reason": null

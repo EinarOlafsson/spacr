@@ -1,0 +1,7404 @@
+{
+ "item": "447",
+ "date": "2026-10-03",
+ "scope": "Poster plus evenly spaced frames of the streamed copy for every published lesson; OCR of overlapping 1080p tiles after a brightness lift, scanned for local/maintainer paths; luminance theme screen. A screen for review, not a visual sign-off.",
+ "ocr": "rapidocr_onnxruntime (CPU)",
+ "patterns": [
+  "macos_users",
+  "mounted_volume",
+  "unix_home",
+  "windows_drive",
+  "maintainer_account",
+  "maintainer_disk",
+  "maintainer_project",
+  "refresh_stage"
+ ],
+ "theme_limits": {
+  "dark_mean_below": 0.35,
+  "bright_fraction_below": 0.2,
+  "bright_level": 0.75
+ },
+ "lessons_checked": 85,
+ "images_checked": 510,
+ "path_offenders": [],
+ "generic_home_only_lessons": [
+  "02_conda_install",
+  "03_pip_install",
+  "04_platform_installers",
+  "07_mask",
+  "29_report",
+  "37_batch",
+  "40_run_history",
+  "43_illumination",
+  "47_barcode_qc",
+  "55_image_scatter",
+  "60_pca",
+  "70_explain_cv"
+ ],
+ "light_frame_lessons": [
+  "01_pypi_github",
+  "29_report",
+  "47_barcode_qc",
+  "72_volcano_explorer",
+  "75_regression_diagnostics"
+ ],
+ "errors": {},
+ "lessons": [
+  {
+   "lesson": "01_pypi_github",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/01_pypi_github/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/01_pypi_github/web/01_pypi_github_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.3408,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 79,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.98s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.3366,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 70,
+     "path_hits": []
+    },
+    {
+     "image": "video@29.94s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.3322,
+     "bright_fraction": 0.0269,
+     "dark": true,
+     "ocr_lines": 63,
+     "path_hits": []
+    },
+    {
+     "image": "video@49.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.027,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 155,
+     "path_hits": []
+    },
+    {
+     "image": "video@69.86s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.3937,
+     "bright_fraction": 0.0078,
+     "dark": false,
+     "ocr_lines": 75,
+     "path_hits": []
+    },
+    {
+     "image": "video@89.82s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.3366,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": [
+    "video@69.86s"
+   ]
+  },
+  {
+   "lesson": "02_conda_install",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/02_conda_install/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/02_conda_install/web/02_conda_install_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0764,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 10,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/miniforge3"
+      }
+     ]
+    },
+    {
+     "image": "video@11.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0731,
+     "bright_fraction": 0.0012,
+     "dark": true,
+     "ocr_lines": 6,
+     "path_hits": []
+    },
+    {
+     "image": "video@34.02s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0727,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 3,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/miniforge3/envs/spacr-conda"
+      }
+     ]
+    },
+    {
+     "image": "video@56.70s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0731,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 12,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "# packages in environment at /home/user/miniforge3/envs/spacr-conda:"
+      }
+     ]
+    },
+    {
+     "image": "video@79.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0941,
+     "bright_fraction": 0.0171,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/miniforge3/envs/spacr-conda/lib/python3.12/site-packages/spacr-1.5.0.8.dist-info"
+      },
+      {
+       "kind": "generic_home",
+       "text": "Not inside a spacR checkout; runs from /home/user/miniforge3/envs/spacr-conda/lib/python3.12/site-packages."
+      },
+      {
+       "kind": "generic_home",
+       "text": "One importable spacr package: /home/user/miniforge3/envs/spacr-conda/lib/python3.12/site-packages/spacr."
+      },
+      {
+       "kind": "generic_home",
+       "text": "fix: Desktop installers record their choice in /home/user/miniforge3/envs/install-profile.json."
+      },
+      {
+       "kind": "generic_home",
+       "text": "import spacr->/home/user/miniforge3/envs/spacr-conda/lib/python3.12/site-packages/spacr"
+      },
+      {
+       "kind": "generic_home",
+       "text": "interpreter: /home/user/miniforge3/envs/spacr-conda/bin/python3.12"
+      },
+      {
+       "kind": "generic_home",
+       "text": "spacr 1.5.0.8 imports from /home/user/miniforge3/envs/spacr-conda/lib/python3.12/site-packages/spacr."
+      },
+      {
+       "kind": "generic_home",
+       "text": "spacr-doctor` on PATH comes from /home/user/miniforge3/envs/spacr-conda."
+      }
+     ]
+    },
+    {
+     "image": "video@102.06s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0753,
+     "bright_fraction": 0.0027,
+     "dark": true,
+     "ocr_lines": 19,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "# packages in environment at /home/user/miniforge3/envs/spacr-conda:"
+      }
+     ]
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "03_pip_install",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/03_pip_install/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/03_pip_install/web/03_pip_install_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0757,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 3,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.62s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0726,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 4,
+     "path_hits": []
+    },
+    {
+     "image": "video@34.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.073,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 3,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "pip 25.0.1 from /home/user/spacr-project/.venv/lib/python3.12/site-packages/pip (python 3.12)"
+      }
+     ]
+    },
+    {
+     "image": "video@58.08s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0976,
+     "bright_fraction": 0.0197,
+     "dark": true,
+     "ocr_lines": 50,
+     "path_hits": []
+    },
+    {
+     "image": "video@81.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0924,
+     "bright_fraction": 0.0158,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "'spacr-doctor` on PATH comes from /home/user/spacr-project/.venv."
+      },
+      {
+       "kind": "generic_home",
+       "text": "/home/user/spacr-project/.venv/lib/python3.12/site-packages/spacr-1.5.1.0.dist-info"
+      },
+      {
+       "kind": "generic_home",
+       "text": "Not inside a spacR checkout; runs from /home/user/spacr-project/.venv/lib/python3.12/site-packages."
+      },
+      {
+       "kind": "generic_home",
+       "text": "One importable spacr package: /home/user/spacr-project/.venv/lib/python3.12/site-packages/spacr."
+      },
+      {
+       "kind": "generic_home",
+       "text": "fix: Desktop installers record their choice in /home/user/spacr-project/install-profile.json."
+      },
+      {
+       "kind": "generic_home",
+       "text": "import spacr->/home/user/spacr-project/.venv/lib/python3.12/site-packages/spacr"
+      },
+      {
+       "kind": "generic_home",
+       "text": "interpreter: /home/user/spacr-project/.venv/bin/python"
+      },
+      {
+       "kind": "generic_home",
+       "text": "spacr 1.5.1.0 imports from /home/user/spacr-project/.venv/lib/python3.12/site-packages/spacr."
+      }
+     ]
+    },
+    {
+     "image": "video@104.55s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1319,
+     "bright_fraction": 0.0453,
+     "dark": true,
+     "ocr_lines": 73,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "04_platform_installers",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/04_platform_installers/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/04_platform_installers/web/04_platform_installers_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0691,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.45s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0654,
+     "bright_fraction": 0.0027,
+     "dark": true,
+     "ocr_lines": 77,
+     "path_hits": []
+    },
+    {
+     "image": "video@49.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0624,
+     "bright_fraction": 0.0068,
+     "dark": true,
+     "ocr_lines": 9,
+     "path_hits": []
+    },
+    {
+     "image": "video@82.23s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0719,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 3,
+     "path_hits": []
+    },
+    {
+     "image": "video@115.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0748,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 106,
+     "path_hits": []
+    },
+    {
+     "image": "video@148.02s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0775,
+     "bright_fraction": 0.0043,
+     "dark": true,
+     "ocr_lines": 14,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "Launcher:/home/user/.local/bin/spacr"
+      }
+     ]
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "05_home",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/05_home/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/05_home/web/05_home_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1758,
+     "bright_fraction": 0.0034,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@20.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.073,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    },
+    {
+     "image": "video@60.44s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0717,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 50,
+     "path_hits": []
+    },
+    {
+     "image": "video@100.73s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.154,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 56,
+     "path_hits": []
+    },
+    {
+     "image": "video@141.03s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1522,
+     "bright_fraction": 0.0032,
+     "dark": true,
+     "ocr_lines": 87,
+     "path_hits": []
+    },
+    {
+     "image": "video@181.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.156,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 92,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "06_api",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/06_api/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/06_api/web/06_api_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0409,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 4,
+     "path_hits": []
+    },
+    {
+     "image": "video@10.27s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0379,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 4,
+     "path_hits": []
+    },
+    {
+     "image": "video@30.81s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0861,
+     "bright_fraction": 0.016,
+     "dark": true,
+     "ocr_lines": 82,
+     "path_hits": []
+    },
+    {
+     "image": "video@51.35s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0439,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 4,
+     "path_hits": []
+    },
+    {
+     "image": "video@71.89s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0545,
+     "bright_fraction": 0.0048,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@92.43s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0483,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 18,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "07_mask",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/07_mask/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/07_mask/web/07_mask_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1601,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": []
+    },
+    {
+     "image": "video@17.56s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1529,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 103,
+     "path_hits": []
+    },
+    {
+     "image": "video@52.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1568,
+     "bright_fraction": 0.0059,
+     "dark": true,
+     "ocr_lines": 138,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1"
+      },
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/plate1_E01_T0001F001L01A02z01c01.tif"
+      }
+     ]
+    },
+    {
+     "image": "video@87.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.129,
+     "bright_fraction": 0.0047,
+     "dark": true,
+     "ocr_lines": 137,
+     "path_hits": []
+    },
+    {
+     "image": "video@122.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1447,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 118,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1"
+      },
+      {
+       "kind": "generic_home",
+       "text": "Foundpath:/home/user/.cache/spacr/example_data/plate1"
+      }
+     ]
+    },
+    {
+     "image": "video@158.01s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0562,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 12,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "08_measure",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/08_measure/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/08_measure/web/08_measure_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1578,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 92,
+     "path_hits": []
+    },
+    {
+     "image": "video@15.89s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1481,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 81,
+     "path_hits": []
+    },
+    {
+     "image": "video@47.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1253,
+     "bright_fraction": 0.0031,
+     "dark": true,
+     "ocr_lines": 39,
+     "path_hits": []
+    },
+    {
+     "image": "video@79.45s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1233,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 39,
+     "path_hits": []
+    },
+    {
+     "image": "video@111.23s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1523,
+     "bright_fraction": 0.0023,
+     "dark": true,
+     "ocr_lines": 87,
+     "path_hits": []
+    },
+    {
+     "image": "video@143.01s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.151,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 85,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "09_annotate",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/09_annotate/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/09_annotate/web/09_annotate_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1805,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 56,
+     "path_hits": []
+    },
+    {
+     "image": "video@20.73s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0732,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@62.18s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1366,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 43,
+     "path_hits": []
+    },
+    {
+     "image": "video@103.63s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0527,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 60,
+     "path_hits": []
+    },
+    {
+     "image": "video@145.09s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0522,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@186.54s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1343,
+     "bright_fraction": 0.0045,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "10_classify_cv",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/10_classify_cv/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/10_classify_cv/web/10_classify_cv_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0799,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@17.54s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0626,
+     "bright_fraction": 0.0034,
+     "dark": true,
+     "ocr_lines": 14,
+     "path_hits": []
+    },
+    {
+     "image": "video@52.62s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0685,
+     "bright_fraction": 0.007,
+     "dark": true,
+     "ocr_lines": 18,
+     "path_hits": []
+    },
+    {
+     "image": "video@87.70s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0704,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@122.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0801,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@157.86s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1362,
+     "bright_fraction": 0.0031,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "11_classify_ml",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/11_classify_ml/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/11_classify_ml/web/11_classify_ml_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0978,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.83s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0591,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 124,
+     "path_hits": []
+    },
+    {
+     "image": "video@44.48s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0932,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 85,
+     "path_hits": []
+    },
+    {
+     "image": "video@74.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0886,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 63,
+     "path_hits": []
+    },
+    {
+     "image": "video@103.79s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1177,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@133.44s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1387,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 33,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "12_map_barcodes",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/12_map_barcodes/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/12_map_barcodes/web/12_map_barcodes_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1745,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1663,
+     "bright_fraction": 0.0037,
+     "dark": true,
+     "ocr_lines": 91,
+     "path_hits": []
+    },
+    {
+     "image": "video@50.86s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1862,
+     "bright_fraction": 0.0047,
+     "dark": true,
+     "ocr_lines": 130,
+     "path_hits": []
+    },
+    {
+     "image": "video@84.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0942,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 137,
+     "path_hits": []
+    },
+    {
+     "image": "video@118.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1834,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 111,
+     "path_hits": []
+    },
+    {
+     "image": "video@152.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1615,
+     "bright_fraction": 0.0021,
+     "dark": true,
+     "ocr_lines": 101,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "13_regression",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/13_regression/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/13_regression/web/13_regression_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.065,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 123,
+     "path_hits": []
+    },
+    {
+     "image": "video@19.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1525,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 112,
+     "path_hits": []
+    },
+    {
+     "image": "video@59.86s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.159,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@99.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1757,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 60,
+     "path_hits": []
+    },
+    {
+     "image": "video@139.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1388,
+     "bright_fraction": 0.0071,
+     "dark": true,
+     "ocr_lines": 151,
+     "path_hits": []
+    },
+    {
+     "image": "video@179.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1698,
+     "bright_fraction": 0.0076,
+     "dark": true,
+     "ocr_lines": 154,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "14_make_masks",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/14_make_masks/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/14_make_masks/web/14_make_masks_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.213,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 40,
+     "path_hits": []
+    },
+    {
+     "image": "video@42.52s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1302,
+     "bright_fraction": 0.0036,
+     "dark": true,
+     "ocr_lines": 144,
+     "path_hits": []
+    },
+    {
+     "image": "video@127.57s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0545,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 139,
+     "path_hits": []
+    },
+    {
+     "image": "video@212.62s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1204,
+     "bright_fraction": 0.0038,
+     "dark": true,
+     "ocr_lines": 146,
+     "path_hits": []
+    },
+    {
+     "image": "video@297.66s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1503,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 148,
+     "path_hits": []
+    },
+    {
+     "image": "video@382.71s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2462,
+     "bright_fraction": 0.1366,
+     "dark": true,
+     "ocr_lines": 142,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "15_image_umap",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/15_image_umap/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/15_image_umap/web/15_image_umap_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1639,
+     "bright_fraction": 0.0031,
+     "dark": true,
+     "ocr_lines": 92,
+     "path_hits": []
+    },
+    {
+     "image": "video@19.63s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1641,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@58.89s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1708,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 70,
+     "path_hits": []
+    },
+    {
+     "image": "video@98.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1662,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 81,
+     "path_hits": []
+    },
+    {
+     "image": "video@137.41s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1403,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 31,
+     "path_hits": []
+    },
+    {
+     "image": "video@176.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1234,
+     "bright_fraction": 0.0029,
+     "dark": true,
+     "ocr_lines": 93,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "16_activation",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/16_activation/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/16_activation/web/16_activation_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1579,
+     "bright_fraction": 0.0023,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.41s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1511,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@49.24s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1545,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    },
+    {
+     "image": "video@82.07s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1489,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 130,
+     "path_hits": []
+    },
+    {
+     "image": "video@114.89s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1508,
+     "bright_fraction": 0.0034,
+     "dark": true,
+     "ocr_lines": 128,
+     "path_hits": []
+    },
+    {
+     "image": "video@147.72s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.157,
+     "bright_fraction": 0.0029,
+     "dark": true,
+     "ocr_lines": 79,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "17_timelapse",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/17_timelapse/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/17_timelapse/web/17_timelapse_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1566,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 108,
+     "path_hits": []
+    },
+    {
+     "image": "video@18.40s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1227,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 77,
+     "path_hits": []
+    },
+    {
+     "image": "video@55.19s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1263,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 135,
+     "path_hits": []
+    },
+    {
+     "image": "video@91.98s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0935,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 84,
+     "path_hits": []
+    },
+    {
+     "image": "video@128.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0652,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 115,
+     "path_hits": []
+    },
+    {
+     "image": "video@165.57s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0589,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 113,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "18_motility",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/18_motility/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/18_motility/web/18_motility_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0655,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 93,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.93s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1456,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@50.79s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1104,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@84.65s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.116,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 93,
+     "path_hits": []
+    },
+    {
+     "image": "video@118.51s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1145,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 80,
+     "path_hits": []
+    },
+    {
+     "image": "video@152.37s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1432,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 143,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "19_train_cellpose",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/19_train_cellpose/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/19_train_cellpose/web/19_train_cellpose_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1578,
+     "bright_fraction": 0.0038,
+     "dark": true,
+     "ocr_lines": 105,
+     "path_hits": []
+    },
+    {
+     "image": "video@20.82s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1361,
+     "bright_fraction": 0.0028,
+     "dark": true,
+     "ocr_lines": 100,
+     "path_hits": []
+    },
+    {
+     "image": "video@62.45s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.064,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 100,
+     "path_hits": []
+    },
+    {
+     "image": "video@104.08s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0648,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": []
+    },
+    {
+     "image": "video@145.72s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0783,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 108,
+     "path_hits": []
+    },
+    {
+     "image": "video@187.35s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1233,
+     "bright_fraction": 0.0089,
+     "dark": true,
+     "ocr_lines": 85,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "20_cellpose_masks",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/20_cellpose_masks/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/20_cellpose_masks/web/20_cellpose_masks_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1624,
+     "bright_fraction": 0.0032,
+     "dark": true,
+     "ocr_lines": 84,
+     "path_hits": []
+    },
+    {
+     "image": "video@15.57s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1632,
+     "bright_fraction": 0.0021,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@46.71s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1624,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 75,
+     "path_hits": []
+    },
+    {
+     "image": "video@77.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1489,
+     "bright_fraction": 0.0031,
+     "dark": true,
+     "ocr_lines": 92,
+     "path_hits": []
+    },
+    {
+     "image": "video@108.99s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1139,
+     "bright_fraction": 0.0071,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@140.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1144,
+     "bright_fraction": 0.007,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "21_model_compare",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/21_model_compare/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/21_model_compare/web/21_model_compare_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0722,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0675,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@29.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0651,
+     "bright_fraction": 0.0131,
+     "dark": true,
+     "ocr_lines": 12,
+     "path_hits": []
+    },
+    {
+     "image": "video@48.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0578,
+     "bright_fraction": 0.0067,
+     "dark": true,
+     "ocr_lines": 7,
+     "path_hits": []
+    },
+    {
+     "image": "video@68.46s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1492,
+     "bright_fraction": 0.0912,
+     "dark": true,
+     "ocr_lines": 7,
+     "path_hits": []
+    },
+    {
+     "image": "video@88.02s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0695,
+     "bright_fraction": 0.0129,
+     "dark": true,
+     "ocr_lines": 16,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "22_model_zoo",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/22_model_zoo/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/22_model_zoo/web/22_model_zoo_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0713,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 76,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.62s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1522,
+     "bright_fraction": 0.0086,
+     "dark": true,
+     "ocr_lines": 127,
+     "path_hits": []
+    },
+    {
+     "image": "video@49.87s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1603,
+     "bright_fraction": 0.0084,
+     "dark": true,
+     "ocr_lines": 129,
+     "path_hits": []
+    },
+    {
+     "image": "video@83.12s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1609,
+     "bright_fraction": 0.0089,
+     "dark": true,
+     "ocr_lines": 130,
+     "path_hits": []
+    },
+    {
+     "image": "video@116.36s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1676,
+     "bright_fraction": 0.0099,
+     "dark": true,
+     "ocr_lines": 143,
+     "path_hits": []
+    },
+    {
+     "image": "video@149.61s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1094,
+     "bright_fraction": 0.0061,
+     "dark": true,
+     "ocr_lines": 207,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "23_agreement",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/23_agreement/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/23_agreement/web/23_agreement_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.2015,
+     "bright_fraction": 0.0018,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@13.91s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1549,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 65,
+     "path_hits": []
+    },
+    {
+     "image": "video@41.72s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1543,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@69.53s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1618,
+     "bright_fraction": 0.0045,
+     "dark": true,
+     "ocr_lines": 97,
+     "path_hits": []
+    },
+    {
+     "image": "video@97.35s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1624,
+     "bright_fraction": 0.0045,
+     "dark": true,
+     "ocr_lines": 100,
+     "path_hits": []
+    },
+    {
+     "image": "video@125.16s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1562,
+     "bright_fraction": 0.0044,
+     "dark": true,
+     "ocr_lines": 99,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "24_plaque",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/24_plaque/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/24_plaque/web/24_plaque_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0846,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 55,
+     "path_hits": []
+    },
+    {
+     "image": "video@21.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0695,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 39,
+     "path_hits": []
+    },
+    {
+     "image": "video@65.54s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0691,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 41,
+     "path_hits": []
+    },
+    {
+     "image": "video@109.23s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0832,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@152.93s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0998,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 117,
+     "path_hits": []
+    },
+    {
+     "image": "video@196.62s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0916,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "25_recruitment",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/25_recruitment/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/25_recruitment/web/25_recruitment_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1833,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 82,
+     "path_hits": []
+    },
+    {
+     "image": "video@25.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0865,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@75.96s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.083,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 76,
+     "path_hits": []
+    },
+    {
+     "image": "video@126.60s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0826,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@177.24s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0792,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    },
+    {
+     "image": "video@227.88s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1258,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "26_invasion",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/26_invasion/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/26_invasion/web/26_invasion_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0684,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 75,
+     "path_hits": []
+    },
+    {
+     "image": "video@21.59s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0663,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@64.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0696,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 50,
+     "path_hits": []
+    },
+    {
+     "image": "video@107.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0687,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@151.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1255,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 108,
+     "path_hits": []
+    },
+    {
+     "image": "video@194.31s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1579,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 112,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "27_replication",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/27_replication/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/27_replication/web/27_replication_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0647,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@17.79s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0643,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": []
+    },
+    {
+     "image": "video@53.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0636,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 46,
+     "path_hits": []
+    },
+    {
+     "image": "video@88.97s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0698,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@124.55s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0648,
+     "bright_fraction": 0.0047,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": []
+    },
+    {
+     "image": "video@160.14s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0651,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 48,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "28_training_runs",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/28_training_runs/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/28_training_runs/web/28_training_runs_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1452,
+     "bright_fraction": 0.0037,
+     "dark": true,
+     "ocr_lines": 122,
+     "path_hits": []
+    },
+    {
+     "image": "video@21.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1237,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 38,
+     "path_hits": []
+    },
+    {
+     "image": "video@63.44s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0734,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": []
+    },
+    {
+     "image": "video@105.73s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0727,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 94,
+     "path_hits": []
+    },
+    {
+     "image": "video@148.03s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0667,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 101,
+     "path_hits": []
+    },
+    {
+     "image": "video@190.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1549,
+     "bright_fraction": 0.0029,
+     "dark": true,
+     "ocr_lines": 98,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "29_report",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/29_report/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/29_report/web/29_report_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1869,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@12.98s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1712,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 76,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user"
+      }
+     ]
+    },
+    {
+     "image": "video@38.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0884,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 37,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/source_project_report.html"
+      }
+     ]
+    },
+    {
+     "image": "video@64.92s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0778,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 39,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/source_prolect_report.html"
+      }
+     ]
+    },
+    {
+     "image": "video@90.88s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.8456,
+     "bright_fraction": 0.8535,
+     "dark": false,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@116.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.9679,
+     "bright_fraction": 0.9903,
+     "dark": false,
+     "ocr_lines": 38,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": [
+    "video@90.88s",
+    "video@116.85s"
+   ]
+  },
+  {
+   "lesson": "30_plate_queue",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/30_plate_queue/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/30_plate_queue/web/30_plate_queue_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1572,
+     "bright_fraction": 0.0035,
+     "dark": true,
+     "ocr_lines": 119,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.60s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1524,
+     "bright_fraction": 0.0029,
+     "dark": true,
+     "ocr_lines": 105,
+     "path_hits": []
+    },
+    {
+     "image": "video@28.80s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1204,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 35,
+     "path_hits": []
+    },
+    {
+     "image": "video@48.00s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1199,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 38,
+     "path_hits": []
+    },
+    {
+     "image": "video@67.20s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1109,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 40,
+     "path_hits": []
+    },
+    {
+     "image": "video@86.40s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1202,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 36,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "31_external_masks",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/31_external_masks/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/31_external_masks/web/31_external_masks_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1619,
+     "bright_fraction": 0.0029,
+     "dark": true,
+     "ocr_lines": 100,
+     "path_hits": []
+    },
+    {
+     "image": "video@18.63s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1341,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 168,
+     "path_hits": []
+    },
+    {
+     "image": "video@55.89s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0639,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 120,
+     "path_hits": []
+    },
+    {
+     "image": "video@93.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0642,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 114,
+     "path_hits": []
+    },
+    {
+     "image": "video@130.41s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0688,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 121,
+     "path_hits": []
+    },
+    {
+     "image": "video@167.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0617,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 140,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "32_align_stitch",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/32_align_stitch/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/32_align_stitch/web/32_align_stitch_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1728,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1442,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    },
+    {
+     "image": "video@42.46s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0867,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 47,
+     "path_hits": []
+    },
+    {
+     "image": "video@70.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0719,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@99.07s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.136,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 78,
+     "path_hits": []
+    },
+    {
+     "image": "video@127.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1402,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 80,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "33_plate_viewer",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/33_plate_viewer/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/33_plate_viewer/web/33_plate_viewer_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1428,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.54s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0941,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@34.63s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0929,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 91,
+     "path_hits": []
+    },
+    {
+     "image": "video@57.72s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1705,
+     "bright_fraction": 0.0048,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@80.80s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1614,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 94,
+     "path_hits": []
+    },
+    {
+     "image": "video@103.89s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1455,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 94,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "34_database",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/34_database/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/34_database/web/34_database_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.196,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 43,
+     "path_hits": []
+    },
+    {
+     "image": "video@5.64s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0728,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 86,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.93s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0831,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 52,
+     "path_hits": []
+    },
+    {
+     "image": "video@28.22s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0918,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 122,
+     "path_hits": []
+    },
+    {
+     "image": "video@39.50s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0821,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 973,
+     "path_hits": []
+    },
+    {
+     "image": "video@50.79s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0815,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 971,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "35_converter",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/35_converter/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/35_converter/web/35_converter_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1943,
+     "bright_fraction": 0.0021,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.46s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1198,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 76,
+     "path_hits": []
+    },
+    {
+     "image": "video@43.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0737,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 75,
+     "path_hits": []
+    },
+    {
+     "image": "video@72.30s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0747,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 90,
+     "path_hits": []
+    },
+    {
+     "image": "video@101.22s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0747,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 90,
+     "path_hits": []
+    },
+    {
+     "image": "video@130.14s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0817,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 90,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "36_import",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/36_import/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/36_import/web/36_import_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.2074,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 61,
+     "path_hits": []
+    },
+    {
+     "image": "video@17.08s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0801,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": []
+    },
+    {
+     "image": "video@51.23s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1739,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 117,
+     "path_hits": []
+    },
+    {
+     "image": "video@85.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2067,
+     "bright_fraction": 0.0034,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    },
+    {
+     "image": "video@119.54s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1924,
+     "bright_fraction": 0.0036,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@153.69s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2045,
+     "bright_fraction": 0.0034,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "37_batch",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/37_batch/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/37_batch/web/37_batch_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1827,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.45s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.196,
+     "bright_fraction": 0.0028,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@34.35s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0922,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@57.25s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0987,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 60,
+     "path_hits": []
+    },
+    {
+     "image": "video@80.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2044,
+     "bright_fraction": 0.0038,
+     "dark": true,
+     "ocr_lines": 86,
+     "path_hits": []
+    },
+    {
+     "image": "video@103.05s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1259,
+     "bright_fraction": 0.0069,
+     "dark": true,
+     "ocr_lines": 122,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "2026-09-0923:57:07INForeproduclblltymanlfest/home/user/.spacr/runs/2026-09-10_035706_e2d6090c_convert"
+      }
+     ]
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "38_distributed_jobs",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/38_distributed_jobs/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/38_distributed_jobs/web/38_distributed_jobs_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0903,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.75s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0984,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 39,
+     "path_hits": []
+    },
+    {
+     "image": "video@29.26s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0584,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 65,
+     "path_hits": []
+    },
+    {
+     "image": "video@48.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0613,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@68.27s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0593,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 62,
+     "path_hits": []
+    },
+    {
+     "image": "video@87.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1608,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 39,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "39_classifier_evaluation",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/39_classifier_evaluation/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/39_classifier_evaluation/web/39_classifier_evaluation_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0632,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 127,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0594,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 86,
+     "path_hits": []
+    },
+    {
+     "image": "video@42.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.039,
+     "bright_fraction": 0.0012,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    },
+    {
+     "image": "video@71.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0412,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@100.22s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0672,
+     "bright_fraction": 0.0028,
+     "dark": true,
+     "ocr_lines": 132,
+     "path_hits": []
+    },
+    {
+     "image": "video@128.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1041,
+     "bright_fraction": 0.005,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "40_run_history",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/40_run_history/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/40_run_history/web/40_run_history_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1822,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 91,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.31s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.17,
+     "bright_fraction": 0.0046,
+     "dark": true,
+     "ocr_lines": 259,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "\"run_folder\":\"/home/user/.spacr/runs/2026-09-10_035706_e2d6090c_convert\","
+      },
+      {
+       "kind": "generic_home",
+       "text": "\"run_folder\":*/home/user/.spacr/runs/2026-09-10_035706_e2d6090c_convert\","
+      }
+     ]
+    },
+    {
+     "image": "video@33.92s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0777,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    },
+    {
+     "image": "video@56.53s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1132,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 82,
+     "path_hits": []
+    },
+    {
+     "image": "video@79.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0797,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@101.76s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1573,
+     "bright_fraction": 0.0018,
+     "dark": true,
+     "ocr_lines": 63,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "41_classify",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/41_classify/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/41_classify/web/41_classify_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0803,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.19s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1511,
+     "bright_fraction": 0.0031,
+     "dark": true,
+     "ocr_lines": 120,
+     "path_hits": []
+    },
+    {
+     "image": "video@42.57s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1499,
+     "bright_fraction": 0.0037,
+     "dark": true,
+     "ocr_lines": 127,
+     "path_hits": []
+    },
+    {
+     "image": "video@70.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1151,
+     "bright_fraction": 0.0021,
+     "dark": true,
+     "ocr_lines": 52,
+     "path_hits": []
+    },
+    {
+     "image": "video@99.33s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0601,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 118,
+     "path_hits": []
+    },
+    {
+     "image": "video@127.71s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1382,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 48,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "42_curate",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/42_curate/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/42_curate/web/42_curate_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1444,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    },
+    {
+     "image": "video@10.37s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1403,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    },
+    {
+     "image": "video@31.11s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.061,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 70,
+     "path_hits": []
+    },
+    {
+     "image": "video@51.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.166,
+     "bright_fraction": 0.0018,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@72.59s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0731,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 86,
+     "path_hits": []
+    },
+    {
+     "image": "video@93.33s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1636,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 85,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "43_illumination",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/43_illumination/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/43_illumination/web/43_illumination_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0655,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 93,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0702,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 62,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "Reproducibilitymanifest:/home/user/.spacr/runs/2026-09-10_172148_444fd78d_illumination"
+      }
+     ]
+    },
+    {
+     "image": "video@43.73s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0685,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "Reproducibilitymanifest/home/user/.spacr/runs/2026-09-10_172148_444fd78d_illumination"
+      }
+     ]
+    },
+    {
+     "image": "video@72.88s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0668,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "Reproducibilitymanifest/home/user/.spacr/runs/2026-09-10_172148_444fd78d_illumination"
+      }
+     ]
+    },
+    {
+     "image": "video@102.04s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2152,
+     "bright_fraction": 0.1103,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@131.19s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0653,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "44_data_manager",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/44_data_manager/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/44_data_manager/web/44_data_manager_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1864,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.081,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@35.02s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0653,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@58.37s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0648,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@81.71s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1481,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 79,
+     "path_hits": []
+    },
+    {
+     "image": "video@105.06s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0838,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 65,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "45_project_browser",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/45_project_browser/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/45_project_browser/web/45_project_browser_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1748,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 90,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.54s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0704,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 35,
+     "path_hits": []
+    },
+    {
+     "image": "video@28.61s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0819,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 63,
+     "path_hits": []
+    },
+    {
+     "image": "video@47.68s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0641,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 78,
+     "path_hits": []
+    },
+    {
+     "image": "video@66.76s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0611,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    },
+    {
+     "image": "video@85.83s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1476,
+     "bright_fraction": 0.0028,
+     "dark": true,
+     "ocr_lines": 78,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "46_napari_bridge",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/46_napari_bridge/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/46_napari_bridge/web/46_napari_bridge_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1278,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 47,
+     "path_hits": []
+    },
+    {
+     "image": "video@8.24s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.123,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 44,
+     "path_hits": []
+    },
+    {
+     "image": "video@24.71s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0453,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 30,
+     "path_hits": []
+    },
+    {
+     "image": "video@41.18s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0451,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 31,
+     "path_hits": []
+    },
+    {
+     "image": "video@57.66s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1031,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@74.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1132,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 41,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "47_barcode_qc",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/47_barcode_qc/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/47_barcode_qc/web/47_barcode_qc_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1649,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.42s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1443,
+     "bright_fraction": 0.0028,
+     "dark": true,
+     "ocr_lines": 82,
+     "path_hits": []
+    },
+    {
+     "image": "video@34.26s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1373,
+     "bright_fraction": 0.0029,
+     "dark": true,
+     "ocr_lines": 86,
+     "path_hits": []
+    },
+    {
+     "image": "video@57.10s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1491,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "Reproducibilitymanifest:/home/user/.spacr/runs/2026-09-11_044535_29d58e9a_barcode_qc"
+      }
+     ]
+    },
+    {
+     "image": "video@79.94s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.5115,
+     "bright_fraction": 0.4729,
+     "dark": false,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@102.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.5115,
+     "bright_fraction": 0.473,
+     "dark": false,
+     "ocr_lines": 44,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": [
+    "video@79.94s",
+    "video@102.78s"
+   ]
+  },
+  {
+   "lesson": "48_hit_list",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/48_hit_list/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/48_hit_list/web/48_hit_list_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.149,
+     "bright_fraction": 0.0057,
+     "dark": true,
+     "ocr_lines": 122,
+     "path_hits": []
+    },
+    {
+     "image": "video@13.81s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0426,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 34,
+     "path_hits": []
+    },
+    {
+     "image": "video@41.44s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0428,
+     "bright_fraction": 0.0012,
+     "dark": true,
+     "ocr_lines": 36,
+     "path_hits": []
+    },
+    {
+     "image": "video@69.07s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0531,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 495,
+     "path_hits": []
+    },
+    {
+     "image": "video@96.69s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0431,
+     "bright_fraction": 0.0012,
+     "dark": true,
+     "ocr_lines": 43,
+     "path_hits": []
+    },
+    {
+     "image": "video@124.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0546,
+     "bright_fraction": 0.0044,
+     "dark": true,
+     "ocr_lines": 521,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "49_methods_results",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/49_methods_results/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/49_methods_results/web/49_methods_results_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1603,
+     "bright_fraction": 0.0057,
+     "dark": true,
+     "ocr_lines": 124,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.94s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1555,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 111,
+     "path_hits": []
+    },
+    {
+     "image": "video@35.81s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0812,
+     "bright_fraction": 0.0043,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@59.68s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0373,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 92,
+     "path_hits": []
+    },
+    {
+     "image": "video@83.56s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0803,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@107.43s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0505,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "50_run_compare",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/50_run_compare/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/50_run_compare/web/50_run_compare_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0761,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 76,
+     "path_hits": []
+    },
+    {
+     "image": "video@7.87s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1475,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 35,
+     "path_hits": []
+    },
+    {
+     "image": "video@23.60s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1242,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 93,
+     "path_hits": []
+    },
+    {
+     "image": "video@39.33s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.084,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 193,
+     "path_hits": []
+    },
+    {
+     "image": "video@55.07s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0668,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 35,
+     "path_hits": []
+    },
+    {
+     "image": "video@70.80s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1496,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 114,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "51_control_charts",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/51_control_charts/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/51_control_charts/web/51_control_charts_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1448,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 29,
+     "path_hits": []
+    },
+    {
+     "image": "video@10.20s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0329,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@30.59s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.043,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 108,
+     "path_hits": []
+    },
+    {
+     "image": "video@50.98s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0492,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 116,
+     "path_hits": []
+    },
+    {
+     "image": "video@71.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0479,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 100,
+     "path_hits": []
+    },
+    {
+     "image": "video@91.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1063,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 101,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "52_pipeline_graph",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/52_pipeline_graph/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/52_pipeline_graph/web/52_pipeline_graph_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1699,
+     "bright_fraction": 0.0043,
+     "dark": true,
+     "ocr_lines": 86,
+     "path_hits": []
+    },
+    {
+     "image": "video@10.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0776,
+     "bright_fraction": 0.0012,
+     "dark": true,
+     "ocr_lines": 33,
+     "path_hits": []
+    },
+    {
+     "image": "video@30.96s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.068,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 48,
+     "path_hits": []
+    },
+    {
+     "image": "video@51.60s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0664,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 49,
+     "path_hits": []
+    },
+    {
+     "image": "video@72.24s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0749,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 43,
+     "path_hits": []
+    },
+    {
+     "image": "video@92.88s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0578,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 43,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "53_prediction_profiler",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/53_prediction_profiler/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/53_prediction_profiler/web/53_prediction_profiler_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0749,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 123,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.16s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.07,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 109,
+     "path_hits": []
+    },
+    {
+     "image": "video@27.49s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0732,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    },
+    {
+     "image": "video@45.82s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0934,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@64.14s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.089,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@82.47s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0907,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 53,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "54_qc_dashboard",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/54_qc_dashboard/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/54_qc_dashboard/web/54_qc_dashboard_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1493,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 31,
+     "path_hits": []
+    },
+    {
+     "image": "video@10.62s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.057,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 30,
+     "path_hits": []
+    },
+    {
+     "image": "video@31.85s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1477,
+     "bright_fraction": 0.0038,
+     "dark": true,
+     "ocr_lines": 60,
+     "path_hits": []
+    },
+    {
+     "image": "video@53.08s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1521,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 40,
+     "path_hits": []
+    },
+    {
+     "image": "video@74.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0763,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@95.55s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1643,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 56,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "55_image_scatter",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/55_image_scatter/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/55_image_scatter/web/55_image_scatter_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0666,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 95,
+     "path_hits": []
+    },
+    {
+     "image": "video@10.40s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0862,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/measurements"
+      },
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/measurements/measurements.db"
+      }
+     ]
+    },
+    {
+     "image": "video@31.19s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0397,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 34,
+     "path_hits": []
+    },
+    {
+     "image": "video@51.98s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0419,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 34,
+     "path_hits": []
+    },
+    {
+     "image": "video@72.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0411,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 34,
+     "path_hits": []
+    },
+    {
+     "image": "video@93.57s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.035,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 34,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "56_lineage",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/56_lineage/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/56_lineage/web/56_lineage_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.217,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 44,
+     "path_hits": []
+    },
+    {
+     "image": "video@15.59s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1439,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": []
+    },
+    {
+     "image": "video@46.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1571,
+     "bright_fraction": 0.0036,
+     "dark": true,
+     "ocr_lines": 128,
+     "path_hits": []
+    },
+    {
+     "image": "video@77.97s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1604,
+     "bright_fraction": 0.0046,
+     "dark": true,
+     "ocr_lines": 130,
+     "path_hits": []
+    },
+    {
+     "image": "video@109.15s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.146,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": []
+    },
+    {
+     "image": "video@140.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1018,
+     "bright_fraction": 0.0051,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "57_layer_viewer",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/57_layer_viewer/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/57_layer_viewer/web/57_layer_viewer_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1448,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 28,
+     "path_hits": []
+    },
+    {
+     "image": "video@19.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0987,
+     "bright_fraction": 0.0207,
+     "dark": true,
+     "ocr_lines": 35,
+     "path_hits": []
+    },
+    {
+     "image": "video@59.33s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0987,
+     "bright_fraction": 0.0066,
+     "dark": true,
+     "ocr_lines": 38,
+     "path_hits": []
+    },
+    {
+     "image": "video@98.88s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0986,
+     "bright_fraction": 0.0074,
+     "dark": true,
+     "ocr_lines": 38,
+     "path_hits": []
+    },
+    {
+     "image": "video@138.44s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0425,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 37,
+     "path_hits": []
+    },
+    {
+     "image": "video@177.99s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.099,
+     "bright_fraction": 0.0206,
+     "dark": true,
+     "ocr_lines": 34,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "58_graph_builder",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/58_graph_builder/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/58_graph_builder/web/58_graph_builder_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1321,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.42s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1202,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 106,
+     "path_hits": []
+    },
+    {
+     "image": "video@43.27s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1215,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@72.12s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1263,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 81,
+     "path_hits": []
+    },
+    {
+     "image": "video@100.96s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1216,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@129.81s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1276,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 46,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "59_anndata_export",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/59_anndata_export/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/59_anndata_export/web/59_anndata_export_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0655,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 93,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.94s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1646,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@44.82s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1612,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@74.70s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.16,
+     "bright_fraction": 0.0027,
+     "dark": true,
+     "ocr_lines": 108,
+     "path_hits": []
+    },
+    {
+     "image": "video@104.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1557,
+     "bright_fraction": 0.0027,
+     "dark": true,
+     "ocr_lines": 116,
+     "path_hits": []
+    },
+    {
+     "image": "video@134.46s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.16,
+     "bright_fraction": 0.0027,
+     "dark": true,
+     "ocr_lines": 117,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "60_pca",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/60_pca/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/60_pca/web/60_pca_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1534,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "Inputs:found measurements-db from measure at /home/u"
+      },
+      {
+       "kind": "generic_home",
+       "text": "sure at/home/user/.cache/spacr/example_data/plate1/measurements/measurements.db"
+      }
+     ]
+    },
+    {
+     "image": "video@23.48s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0718,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 109,
+     "path_hits": []
+    },
+    {
+     "image": "video@70.43s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0455,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 114,
+     "path_hits": []
+    },
+    {
+     "image": "video@117.38s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.038,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 118,
+     "path_hits": []
+    },
+    {
+     "image": "video@164.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0441,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 70,
+     "path_hits": []
+    },
+    {
+     "image": "video@211.29s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0882,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 177,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "61_tabulate",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/61_tabulate/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/61_tabulate/web/61_tabulate_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1897,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 45,
+     "path_hits": []
+    },
+    {
+     "image": "video@26.14s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0866,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 133,
+     "path_hits": []
+    },
+    {
+     "image": "video@78.42s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0385,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 113,
+     "path_hits": []
+    },
+    {
+     "image": "video@130.70s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0907,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 168,
+     "path_hits": []
+    },
+    {
+     "image": "video@182.98s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0567,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 131,
+     "path_hits": []
+    },
+    {
+     "image": "video@235.26s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0489,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 245,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "62_feature_dictionary",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/62_feature_dictionary/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/62_feature_dictionary/web/62_feature_dictionary_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1822,
+     "bright_fraction": 0.0042,
+     "dark": true,
+     "ocr_lines": 85,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.43s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.069,
+     "bright_fraction": 0.0081,
+     "dark": true,
+     "ocr_lines": 152,
+     "path_hits": []
+    },
+    {
+     "image": "video@28.30s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0584,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 146,
+     "path_hits": []
+    },
+    {
+     "image": "video@47.17s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0586,
+     "bright_fraction": 0.0041,
+     "dark": true,
+     "ocr_lines": 149,
+     "path_hits": []
+    },
+    {
+     "image": "video@66.03s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0558,
+     "bright_fraction": 0.0027,
+     "dark": true,
+     "ocr_lines": 139,
+     "path_hits": []
+    },
+    {
+     "image": "video@84.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2107,
+     "bright_fraction": 0.0094,
+     "dark": true,
+     "ocr_lines": 131,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "63_small_multiples",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/63_small_multiples/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/63_small_multiples/web/63_small_multiples_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.126,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@22.04s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0652,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 113,
+     "path_hits": []
+    },
+    {
+     "image": "video@66.12s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0839,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 166,
+     "path_hits": []
+    },
+    {
+     "image": "video@110.20s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0842,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 143,
+     "path_hits": []
+    },
+    {
+     "image": "video@154.28s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0366,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 173,
+     "path_hits": []
+    },
+    {
+     "image": "video@198.36s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0865,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 153,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "64_gate_editor",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/64_gate_editor/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/64_gate_editor/web/64_gate_editor_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1273,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@25.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1194,
+     "bright_fraction": 0.0014,
+     "dark": true,
+     "ocr_lines": 83,
+     "path_hits": []
+    },
+    {
+     "image": "video@75.96s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1227,
+     "bright_fraction": 0.0024,
+     "dark": true,
+     "ocr_lines": 127,
+     "path_hits": []
+    },
+    {
+     "image": "video@126.60s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1317,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 105,
+     "path_hits": []
+    },
+    {
+     "image": "video@177.24s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1251,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 80,
+     "path_hits": []
+    },
+    {
+     "image": "video@227.88s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1256,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 99,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "65_feature_explorer",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/65_feature_explorer/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/65_feature_explorer/web/65_feature_explorer_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0627,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 127,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0546,
+     "bright_fraction": 0.0014,
+     "dark": true,
+     "ocr_lines": 224,
+     "path_hits": []
+    },
+    {
+     "image": "video@50.30s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1003,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@83.83s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0467,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 484,
+     "path_hits": []
+    },
+    {
+     "image": "video@117.37s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0521,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 460,
+     "path_hits": []
+    },
+    {
+     "image": "video@150.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1111,
+     "bright_fraction": 0.0055,
+     "dark": true,
+     "ocr_lines": 476,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "66_outliers",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/66_outliers/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/66_outliers/web/66_outliers_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1408,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 28,
+     "path_hits": []
+    },
+    {
+     "image": "video@20.59s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0483,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 809,
+     "path_hits": []
+    },
+    {
+     "image": "video@61.76s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0307,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 117,
+     "path_hits": []
+    },
+    {
+     "image": "video@102.93s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0419,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 489,
+     "path_hits": []
+    },
+    {
+     "image": "video@144.11s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0328,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 112,
+     "path_hits": []
+    },
+    {
+     "image": "video@185.28s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0454,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 464,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "67_experiment_design",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/67_experiment_design/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/67_experiment_design/web/67_experiment_design_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1508,
+     "bright_fraction": 0.0026,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@15.26s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1461,
+     "bright_fraction": 0.0021,
+     "dark": true,
+     "ocr_lines": 83,
+     "path_hits": []
+    },
+    {
+     "image": "video@45.79s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1478,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@76.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0634,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@106.84s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1361,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 136,
+     "path_hits": []
+    },
+    {
+     "image": "video@137.37s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0635,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "68_power_design",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/68_power_design/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/68_power_design/web/68_power_design_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1566,
+     "bright_fraction": 0.0075,
+     "dark": true,
+     "ocr_lines": 105,
+     "path_hits": []
+    },
+    {
+     "image": "video@14.39s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1602,
+     "bright_fraction": 0.0073,
+     "dark": true,
+     "ocr_lines": 101,
+     "path_hits": []
+    },
+    {
+     "image": "video@43.17s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.158,
+     "bright_fraction": 0.0068,
+     "dark": true,
+     "ocr_lines": 103,
+     "path_hits": []
+    },
+    {
+     "image": "video@71.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.158,
+     "bright_fraction": 0.0068,
+     "dark": true,
+     "ocr_lines": 104,
+     "path_hits": []
+    },
+    {
+     "image": "video@100.73s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1695,
+     "bright_fraction": 0.0092,
+     "dark": true,
+     "ocr_lines": 175,
+     "path_hits": []
+    },
+    {
+     "image": "video@129.51s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1701,
+     "bright_fraction": 0.0096,
+     "dark": true,
+     "ocr_lines": 173,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "69_dose_response",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/69_dose_response/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/69_dose_response/web/69_dose_response_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0794,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@20.59s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0513,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@61.77s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0594,
+     "bright_fraction": 0.0004,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@102.95s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0643,
+     "bright_fraction": 0.0005,
+     "dark": true,
+     "ocr_lines": 84,
+     "path_hits": []
+    },
+    {
+     "image": "video@144.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0558,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 90,
+     "path_hits": []
+    },
+    {
+     "image": "video@185.31s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0673,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 95,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "70_explain_cv",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/70_explain_cv/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/70_explain_cv/web/70_explain_cv_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0632,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 125,
+     "path_hits": []
+    },
+    {
+     "image": "video@13.09s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1052,
+     "bright_fraction": 0.0045,
+     "dark": true,
+     "ocr_lines": 108,
+     "path_hits": []
+    },
+    {
+     "image": "video@39.26s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0488,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@65.43s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0595,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 57,
+     "path_hits": []
+    },
+    {
+     "image": "video@91.61s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0555,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    },
+    {
+     "image": "video@117.78s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0828,
+     "bright_fraction": 0.0099,
+     "dark": true,
+     "ocr_lines": 370,
+     "path_hits": [
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/data/"
+      },
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/data/.."
+      },
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/data/..."
+      },
+      {
+       "kind": "generic_home",
+       "text": "/home/user/.cache/spacr/example_data/plate1/datal.."
+      }
+     ]
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": true,
+   "light_images": []
+  },
+  {
+   "lesson": "71_investigate_hit",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/71_investigate_hit/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/71_investigate_hit/web/71_investigate_hit_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.063,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 123,
+     "path_hits": []
+    },
+    {
+     "image": "video@27.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1088,
+     "bright_fraction": 0.0023,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@82.75s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1245,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 89,
+     "path_hits": []
+    },
+    {
+     "image": "video@137.92s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1494,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@193.08s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1563,
+     "bright_fraction": 0.005,
+     "dark": true,
+     "ocr_lines": 82,
+     "path_hits": []
+    },
+    {
+     "image": "video@248.25s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1337,
+     "bright_fraction": 0.0058,
+     "dark": true,
+     "ocr_lines": 465,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "72_volcano_explorer",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/72_volcano_explorer/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/72_volcano_explorer/web/72_volcano_explorer_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1509,
+     "bright_fraction": 0.0044,
+     "dark": true,
+     "ocr_lines": 142,
+     "path_hits": []
+    },
+    {
+     "image": "video@15.47s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.4168,
+     "bright_fraction": 0.3766,
+     "dark": false,
+     "ocr_lines": 49,
+     "path_hits": []
+    },
+    {
+     "image": "video@46.41s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1796,
+     "bright_fraction": 0.0072,
+     "dark": true,
+     "ocr_lines": 115,
+     "path_hits": []
+    },
+    {
+     "image": "video@77.35s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.4255,
+     "bright_fraction": 0.3768,
+     "dark": false,
+     "ocr_lines": 109,
+     "path_hits": []
+    },
+    {
+     "image": "video@108.29s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.4257,
+     "bright_fraction": 0.3685,
+     "dark": false,
+     "ocr_lines": 127,
+     "path_hits": []
+    },
+    {
+     "image": "video@139.23s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.4326,
+     "bright_fraction": 0.3764,
+     "dark": false,
+     "ocr_lines": 149,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": [
+    "video@15.47s",
+    "video@77.35s",
+    "video@108.29s",
+    "video@139.23s"
+   ]
+  },
+  {
+   "lesson": "73_parameter_sweep",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/73_parameter_sweep/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/73_parameter_sweep/web/73_parameter_sweep_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.067,
+     "bright_fraction": 0.0006,
+     "dark": true,
+     "ocr_lines": 142,
+     "path_hits": []
+    },
+    {
+     "image": "video@12.10s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1366,
+     "bright_fraction": 0.0083,
+     "dark": true,
+     "ocr_lines": 248,
+     "path_hits": []
+    },
+    {
+     "image": "video@36.29s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0638,
+     "bright_fraction": 0.0003,
+     "dark": true,
+     "ocr_lines": 212,
+     "path_hits": []
+    },
+    {
+     "image": "video@60.48s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0687,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 249,
+     "path_hits": []
+    },
+    {
+     "image": "video@84.68s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0879,
+     "bright_fraction": 0.0038,
+     "dark": true,
+     "ocr_lines": 288,
+     "path_hits": []
+    },
+    {
+     "image": "video@108.87s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1534,
+     "bright_fraction": 0.0093,
+     "dark": true,
+     "ocr_lines": 250,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "74_import_images",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/74_import_images/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/74_import_images/web/74_import_images_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0847,
+     "bright_fraction": 0.0,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.45s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1628,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 77,
+     "path_hits": []
+    },
+    {
+     "image": "video@34.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1727,
+     "bright_fraction": 0.0034,
+     "dark": true,
+     "ocr_lines": 117,
+     "path_hits": []
+    },
+    {
+     "image": "video@57.23s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0862,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 115,
+     "path_hits": []
+    },
+    {
+     "image": "video@80.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1776,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 121,
+     "path_hits": []
+    },
+    {
+     "image": "video@103.02s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1776,
+     "bright_fraction": 0.0032,
+     "dark": true,
+     "ocr_lines": 110,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "75_regression_diagnostics",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/75_regression_diagnostics/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/75_regression_diagnostics/web/75_regression_diagnostics_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0649,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 136,
+     "path_hits": []
+    },
+    {
+     "image": "video@13.00s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.3649,
+     "bright_fraction": 0.0504,
+     "dark": false,
+     "ocr_lines": 47,
+     "path_hits": []
+    },
+    {
+     "image": "video@39.00s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.6396,
+     "bright_fraction": 0.5759,
+     "dark": false,
+     "ocr_lines": 66,
+     "path_hits": []
+    },
+    {
+     "image": "video@65.00s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.4378,
+     "bright_fraction": 0.3678,
+     "dark": false,
+     "ocr_lines": 44,
+     "path_hits": []
+    },
+    {
+     "image": "video@91.00s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.4378,
+     "bright_fraction": 0.3677,
+     "dark": false,
+     "ocr_lines": 47,
+     "path_hits": []
+    },
+    {
+     "image": "video@117.00s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1444,
+     "bright_fraction": 0.0051,
+     "dark": true,
+     "ocr_lines": 120,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": [
+    "video@13.00s",
+    "video@39.00s",
+    "video@65.00s",
+    "video@91.00s"
+   ]
+  },
+  {
+   "lesson": "77_embeddings",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/77_embeddings/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/77_embeddings/web/77_embeddings_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.0762,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 75,
+     "path_hits": []
+    },
+    {
+     "image": "video@11.76s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1044,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@35.29s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1043,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 41,
+     "path_hits": []
+    },
+    {
+     "image": "video@58.82s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1048,
+     "bright_fraction": 0.0008,
+     "dark": true,
+     "ocr_lines": 40,
+     "path_hits": []
+    },
+    {
+     "image": "video@82.34s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1885,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 135,
+     "path_hits": []
+    },
+    {
+     "image": "video@105.87s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1963,
+     "bright_fraction": 0.0049,
+     "dark": true,
+     "ocr_lines": 139,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "76_ops",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/76_ops/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/76_ops/web/76_ops_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1656,
+     "bright_fraction": 0.0013,
+     "dark": true,
+     "ocr_lines": 61,
+     "path_hits": []
+    },
+    {
+     "image": "video@17.21s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0695,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 61,
+     "path_hits": []
+    },
+    {
+     "image": "video@51.64s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0668,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@86.07s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0623,
+     "bright_fraction": 0.0001,
+     "dark": true,
+     "ocr_lines": 75,
+     "path_hits": []
+    },
+    {
+     "image": "video@120.49s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.0731,
+     "bright_fraction": 0.0002,
+     "dark": true,
+     "ocr_lines": 85,
+     "path_hits": []
+    },
+    {
+     "image": "video@154.92s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1409,
+     "bright_fraction": 0.0115,
+     "dark": true,
+     "ocr_lines": 612,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "78_spacr_screens",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/78_spacr_screens/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/78_spacr_screens/web/78_spacr_screens_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.2124,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 68,
+     "path_hits": []
+    },
+    {
+     "image": "video@24.24s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.2072,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 63,
+     "path_hits": []
+    },
+    {
+     "image": "video@72.73s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1614,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@121.22s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.144,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 88,
+     "path_hits": []
+    },
+    {
+     "image": "video@169.70s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1778,
+     "bright_fraction": 0.0018,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    },
+    {
+     "image": "video@218.19s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1486,
+     "bright_fraction": 0.003,
+     "dark": true,
+     "ocr_lines": 106,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "79_module_inputs_outputs",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/79_module_inputs_outputs/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/79_module_inputs_outputs/web/79_module_inputs_outputs_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1941,
+     "bright_fraction": 0.0035,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@330.63s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1643,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@991.90s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1627,
+     "bright_fraction": 0.0018,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@1653.17s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1977,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 31,
+     "path_hits": []
+    },
+    {
+     "image": "video@2314.43s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1762,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 72,
+     "path_hits": []
+    },
+    {
+     "image": "video@2975.70s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1329,
+     "bright_fraction": 0.0022,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "80_image_analysis_pathways",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/80_image_analysis_pathways/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/80_image_analysis_pathways/web/80_image_analysis_pathways_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1997,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    },
+    {
+     "image": "video@64.68s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1985,
+     "bright_fraction": 0.001,
+     "dark": true,
+     "ocr_lines": 30,
+     "path_hits": []
+    },
+    {
+     "image": "video@194.05s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1931,
+     "bright_fraction": 0.0012,
+     "dark": true,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@323.42s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1241,
+     "bright_fraction": 0.0009,
+     "dark": true,
+     "ocr_lines": 57,
+     "path_hits": []
+    },
+    {
+     "image": "video@452.78s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1693,
+     "bright_fraction": 0.0015,
+     "dark": true,
+     "ocr_lines": 51,
+     "path_hits": []
+    },
+    {
+     "image": "video@582.15s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1337,
+     "bright_fraction": 0.0019,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "81_sequencing_pathways",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/81_sequencing_pathways/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/81_sequencing_pathways/web/81_sequencing_pathways_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1753,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 73,
+     "path_hits": []
+    },
+    {
+     "image": "video@32.83s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1652,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@98.48s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1578,
+     "bright_fraction": 0.0007,
+     "dark": true,
+     "ocr_lines": 42,
+     "path_hits": []
+    },
+    {
+     "image": "video@164.13s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1593,
+     "bright_fraction": 0.0021,
+     "dark": true,
+     "ocr_lines": 80,
+     "path_hits": []
+    },
+    {
+     "image": "video@229.79s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1337,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 46,
+     "path_hits": []
+    },
+    {
+     "image": "video@295.44s",
+     "size": [
+      1920,
+      1080
+     ],
+     "mean_luma": 0.1242,
+     "bright_fraction": 0.0011,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "82_toxoplasma",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/82_toxoplasma/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/82_toxoplasma/web/82_toxoplasma_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1929,
+     "bright_fraction": 0.0035,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@9.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1881,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 73,
+     "path_hits": []
+    },
+    {
+     "image": "video@29.71s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2019,
+     "bright_fraction": 0.0087,
+     "dark": true,
+     "ocr_lines": 79,
+     "path_hits": []
+    },
+    {
+     "image": "video@49.52s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2011,
+     "bright_fraction": 0.0078,
+     "dark": true,
+     "ocr_lines": 76,
+     "path_hits": []
+    },
+    {
+     "image": "video@69.32s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1664,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@89.13s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1894,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 73,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "83_plasmodium",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/83_plasmodium/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/83_plasmodium/web/83_plasmodium_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1832,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 73,
+     "path_hits": []
+    },
+    {
+     "image": "video@5.58s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1781,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@16.74s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1989,
+     "bright_fraction": 0.0065,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    },
+    {
+     "image": "video@27.90s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2078,
+     "bright_fraction": 0.0081,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    },
+    {
+     "image": "video@39.06s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2083,
+     "bright_fraction": 0.0076,
+     "dark": true,
+     "ocr_lines": 69,
+     "path_hits": []
+    },
+    {
+     "image": "video@50.22s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.2135,
+     "bright_fraction": 0.0088,
+     "dark": true,
+     "ocr_lines": 67,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "84_candida",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/84_candida/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/84_candida/web/84_candida_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1832,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 73,
+     "path_hits": []
+    },
+    {
+     "image": "video@5.81s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1781,
+     "bright_fraction": 0.0025,
+     "dark": true,
+     "ocr_lines": 74,
+     "path_hits": []
+    },
+    {
+     "image": "video@17.43s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1904,
+     "bright_fraction": 0.0108,
+     "dark": true,
+     "ocr_lines": 78,
+     "path_hits": []
+    },
+    {
+     "image": "video@29.05s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1855,
+     "bright_fraction": 0.0079,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@40.67s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1855,
+     "bright_fraction": 0.0079,
+     "dark": true,
+     "ocr_lines": 71,
+     "path_hits": []
+    },
+    {
+     "image": "video@52.29s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1901,
+     "bright_fraction": 0.0084,
+     "dark": true,
+     "ocr_lines": 64,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  },
+  {
+   "lesson": "85_host_pathogen",
+   "poster": "/mnt/firecuda2/codex/repo/spacr/docs/source/_extra/tutorials/production/85_host_pathogen/poster.jpg",
+   "video": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/15a5537f995ab1920a3888633993b3c5e10c1d6f/85_host_pathogen/web/85_host_pathogen_silent.mp4",
+   "video_source": "hosted_web_copy",
+   "images": [
+    {
+     "image": "poster",
+     "size": [
+      3840,
+      2160
+     ],
+     "mean_luma": 0.1724,
+     "bright_fraction": 0.0033,
+     "dark": true,
+     "ocr_lines": 70,
+     "path_hits": []
+    },
+    {
+     "image": "video@20.25s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.153,
+     "bright_fraction": 0.002,
+     "dark": true,
+     "ocr_lines": 58,
+     "path_hits": []
+    },
+    {
+     "image": "video@60.75s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1574,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 54,
+     "path_hits": []
+    },
+    {
+     "image": "video@101.25s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1581,
+     "bright_fraction": 0.0016,
+     "dark": true,
+     "ocr_lines": 52,
+     "path_hits": []
+    },
+    {
+     "image": "video@141.75s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1574,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 56,
+     "path_hits": []
+    },
+    {
+     "image": "video@182.25s",
+     "size": [
+      2560,
+      1440
+     ],
+     "mean_luma": 0.1566,
+     "bright_fraction": 0.0017,
+     "dark": true,
+     "ocr_lines": 59,
+     "path_hits": []
+    }
+   ],
+   "errors": [],
+   "path_offender": false,
+   "generic_home_only": false,
+   "light_images": []
+  }
+ ]
+}

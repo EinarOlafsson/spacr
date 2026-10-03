@@ -2646,14 +2646,8 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "From Home, open Mask and click the Timelapse icon at the top right to turn tracking on. Use Timelapse to link objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
+          "narration": "From Home, open Mask, turn on Time in the Actions row and switch on Timelapse to turn tracking on. Timelapse links objects across consecutive images. We will first try the linked example in Track preview, then review the settings for processing your own image sequence.",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
@@ -2842,12 +2836,18 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "From Home, open Measure, then use Time to open Motility Assay. Start with tracked images from Timelapse, or download the example archive below to follow along.",
+          "narration": "From Home, open Measure, then choose Motility Assay at the upper right. Start with tracked images from Timelapse, or download the example archive below to follow along.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ]
         },
         {
           "visual": "03_actual_setting_src",
@@ -3461,11 +3461,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Open Model Zoo, find or download a checkpoint, inspect its details, and choose a small image set for a trial.",
+      "description": "Open Model Zoo, find or download a checkpoint, inspect its details, try it on a small image set and measure object diameters for Mask.",
       "objectives": [
         "Open Model Zoo and scan a local model folder.",
         "Choose a model family and version, then inspect its details.",
-        "Run a small image trial and inspect the resulting masks and quality summaries."
+        "Run a small image trial and inspect the resulting masks and quality summaries.",
+        "Measure object diameters from your own fields in the Model Zoo popup of Mask generation."
       ],
       "prerequisite": "Extract the linked example and use its images folder for the three-field trial. Choose an installed Cellpose segmentation model, or download a suitable checkpoint through Model Zoo. For your own trial, prepare a few representative TIFF, PNG, NPY or NPZ images.",
       "scenes": [
@@ -3479,7 +3480,17 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "Click Choose folder and select your model directory to scan it. If you type the path instead, click Scan. Turn on the source headings you want to browse, such as Cellpose or local models.",
+          "narration": "Click Choose folder and select your model directory to scan it. If you type the path instead, click Scan. The headings above the table choose which sources are listed; cellposeSAM for the stock weights and spaCR for the models trained here are on at first.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "Turn on cellpose3 to list the Cellpose 3 models, such as cyto3 and nuclei. They run in a Cellpose 3 environment of their own, so a model whose backend is not installed says so, and choosing it offers the install.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "Turn on bioimage.io to list Cellpose models published on bioimage.io. Read what each was trained on before you choose one; its weights download when you ask for them.",
           "hold_after": 0.7
         },
         {
@@ -3509,6 +3520,33 @@
           "related_lessons": [
             "21_model_compare",
             "14_make_masks"
+          ]
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "The same catalogue opens inside Mask generation, where it can also measure your objects. Set Source to your images and fill in the cell, nucleus and pathogen channels; this example uses the Measure sample's raw images.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "Switch to All settings and click an object's Model name cell in the per-object table. The Model Zoo popup opens, and the model you choose is written into that object's settings.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "Click Measure diameters at the bottom left. Cellpose rescales each image by the diameter it is given, so a diameter measured on your own fields is safer than a guess.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "Press Measure from my images. Each object type gets a measured diameter with its evidence and confidence. Use writes one into Mask's settings and Use all writes every one; nothing changes until you press them.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
           ]
         }
       ],
@@ -5384,6 +5422,17 @@
           "hold_after": 0.7
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "To practise on published data instead, press Load test data. spaCR downloads nine overlapping tiles from an optical pooled screen and fills in the tile folder, grid, order, overlap and output folder, so you can press Plan straight away. The next steps use the settings of the downloadable example.",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "Set the grid to three by three, row-major order and overlap zero point two five for this example. Match these settings to your acquisition; use serpentine order when alternate rows were acquired in opposite directions.",
           "hold_after": 0.7,
@@ -6752,7 +6801,7 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Open Help, then Run history to browse the run records saved on this computer.",
+          "narration": "Open Help, then Run History to browse the run records saved on this computer.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -6969,6 +7018,20 @@
           "hold_after": 0.7
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "The Essentials view holds the settings that both families need to train. When you switch to Tabular Machine Learning, the Computer Vision settings grey out, so you only fill in what the chosen family uses.",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
@@ -6981,10 +7044,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -6993,12 +7056,12 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, check the loss and accuracy curves, then inspect the evaluation figures and saved predictions.",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
@@ -7009,10 +7072,10 @@
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7023,10 +7086,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7037,10 +7100,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7051,10 +7114,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7073,10 +7136,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7317,7 +7380,7 @@
       "objectives": [
         "Select representative fields and intensity channels.",
         "Estimate and inspect an illumination model.",
-        "Reuse the model in Mask or Measure."
+        "Apply the saved model in Measure."
       ],
       "prerequisite": "Use a merged image folder with representative fields from each acquisition group. The example uses the sixteen fields from Measure’s downloaded plate example. Know which stored planes contain intensities and which contain labels.",
       "scenes": [
@@ -7325,10 +7388,10 @@
           "visual": "01_measure_host",
           "narration": "Open Measure, then Illumination to estimate a correction model for uneven image brightness.",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7462,7 +7525,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "To reuse the model, set its path and enable correction in the intended Mask or Measure workflow. Keep its channels, plate identities and settings with it, and avoid correcting the same intensities twice.",
+          "narration": "Keep the saved model with its channels, plate identities and settings. Apply it once to a set of intensities; correcting the same intensities twice distorts them.",
           "focus": [
             363,
             370,
@@ -7470,7 +7533,20 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "To apply the model, open Measure and search the settings for illumination. Under Image Preprocessing, turn on Illumination correction and set Illumination model to the saved file. Measure then divides the field out of the modelled channels before it measures; the masks are not changed.",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
             "08_measure"
           ],
           "hold_after": 0.7
@@ -14406,7 +14482,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use FEATURES to pair each image with its mask and write a measured project, which is how these masks reach Measure; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
+          "narration": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

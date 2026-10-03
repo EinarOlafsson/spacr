@@ -2625,14 +2625,8 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "Öffnen Sie von Home aus Mask und klicken Sie oben rechts auf das Timelapse-Symbol, um das Tracking einzuschalten. Mit Timelapse verknüpfen Sie Objekte über aufeinanderfolgende Bilder. Zuerst probieren wir das verlinkte Beispiel in Track preview aus und sehen uns dann die Einstellungen für Ihre eigene Bildsequenz an.",
+          "narration": "Öffnen Sie von Home aus Mask, schalten Sie in der Actions-Zeile Time ein und aktivieren Sie Timelapse, um das Tracking einzuschalten. Mit Timelapse verknüpfen Sie Objekte über aufeinanderfolgende Bilder. Zuerst probieren wir das verlinkte Beispiel in Track preview aus und sehen uns dann die Einstellungen für Ihre eigene Bildsequenz an.",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
@@ -2821,12 +2815,18 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "Öffnen Sie von Home aus Measure und dann über Time Motility Assay. Beginnen Sie mit verfolgten Bildern aus Timelapse oder laden Sie das Beispielarchiv unten herunter, um mitzumachen.",
+          "narration": "Öffnen Sie von Home aus Measure und wählen Sie dann oben rechts Motility Assay. Beginnen Sie mit verfolgten Bildern aus Timelapse oder laden Sie das Beispielarchiv unten herunter, um mitzumachen.",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
-          "hold_after": 0.7
+          "hold_after": 0.7,
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ]
         },
         {
           "visual": "03_actual_setting_src",
@@ -3440,11 +3440,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "Öffnen Sie Model Zoo, finden oder laden Sie einen Checkpoint, prüfen Sie seine Details und wählen Sie eine kleine Bildauswahl für einen Test.",
+      "description": "Öffnen Sie Model Zoo, finden oder laden Sie einen Checkpoint, prüfen Sie seine Details, testen Sie ihn an einer kleinen Bildauswahl und messen Sie Objektdurchmesser für Mask.",
       "objectives": [
         "Model Zoo öffnen und einen lokalen Modellordner durchsuchen.",
         "Modellfamilie und Version wählen und die Details prüfen.",
-        "Einen kleinen Bildtest ausführen und die entstandenen Masken und Qualitätsübersichten prüfen."
+        "Einen kleinen Bildtest ausführen und die entstandenen Masken und Qualitätsübersichten prüfen.",
+        "Objektdurchmesser an eigenen Bildfeldern im Model-Zoo-Fenster von Mask generation messen."
       ],
       "prerequisite": "Entpacken Sie das verlinkte Beispiel und verwenden Sie seinen Ordner images für den Test mit drei Bildfeldern. Wählen Sie ein installiertes Cellpose-Segmentierungsmodell oder laden Sie über Model Zoo einen geeigneten Checkpoint herunter. Bereiten Sie für einen eigenen Test einige repräsentative TIFF-, PNG-, NPY- oder NPZ-Bilder vor.",
       "scenes": [
@@ -3458,7 +3459,17 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "Klicken Sie auf Choose folder und wählen Sie Ihr Modellverzeichnis, um es zu durchsuchen. Wenn Sie den Pfad eintippen, klicken Sie auf Scan. Aktivieren Sie die Quellenüberschriften, die Sie durchsuchen möchten, etwa Cellpose oder lokale Modelle.",
+          "narration": "Klicken Sie auf Choose folder und wählen Sie Ihr Modellverzeichnis, um es zu durchsuchen. Wenn Sie den Pfad eintippen, klicken Sie auf Scan. Die Überschriften über der Tabelle legen fest, welche Quellen aufgeführt werden; cellposeSAM für die Standardgewichte und spaCR für die hier trainierten Modelle sind anfangs aktiviert.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "Aktivieren Sie cellpose3, um die Cellpose-3-Modelle wie cyto3 und nuclei aufzulisten. Sie laufen in einer eigenen Cellpose-3-Umgebung; ein Modell, dessen Backend nicht installiert ist, weist darauf hin, und wenn Sie es wählen, wird die Installation angeboten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "Aktivieren Sie bioimage.io, um auf bioimage.io veröffentlichte Cellpose-Modelle aufzulisten. Lesen Sie, womit jedes trainiert wurde, bevor Sie eines wählen; seine Gewichte werden heruntergeladen, wenn Sie sie anfordern.",
           "hold_after": 0.7
         },
         {
@@ -3488,6 +3499,33 @@
           "related_lessons": [
             "21_model_compare",
             "14_make_masks"
+          ]
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "Derselbe Katalog öffnet sich in Mask generation, wo er auch Ihre Objekte messen kann. Setzen Sie Source auf Ihre Bilder und füllen Sie die Kanäle für Zelle, Zellkern und Pathogen aus; dieses Beispiel verwendet die Rohbilder aus dem Measure-Beispiel.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "Wechseln Sie zu All settings und klicken Sie in der Tabelle pro Objekt auf die Zelle Model name eines Objekts. Das Model-Zoo-Fenster öffnet sich, und das gewählte Modell wird in die Einstellungen dieses Objekts geschrieben.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "Klicken Sie unten links auf Measure diameters. Cellpose skaliert jedes Bild anhand des angegebenen Durchmessers, daher ist ein an Ihren eigenen Bildfeldern gemessener Durchmesser sicherer als eine Schätzung.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "Drücken Sie Measure from my images. Jeder Objekttyp erhält einen gemessenen Durchmesser mit Belegen und Konfidenz. Use schreibt einen Wert in die Einstellungen von Mask, Use all schreibt alle; nichts ändert sich, bevor Sie darauf drücken.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
           ]
         }
       ],
@@ -5363,6 +5401,17 @@
           "hold_after": 0.7
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "Um stattdessen mit veröffentlichten Daten zu üben, drücken Sie Load test data. spaCR lädt neun überlappende Kacheln aus einem optischen gepoolten Screen herunter und füllt Kachelordner, Raster, Reihenfolge, Überlappung und Ausgabeordner aus, sodass Sie sofort Plan drücken können. Die nächsten Schritte verwenden die Einstellungen des herunterladbaren Beispiels.",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "Setzen Sie für dieses Beispiel das Raster auf 3 × 3, zeilenweise Reihenfolge und eine Überlappung von 0,25. Passen Sie diese Einstellungen an Ihre Aufnahme an; verwenden Sie die Serpentinenreihenfolge, wenn abwechselnde Zeilen in entgegengesetzter Richtung aufgenommen wurden.",
           "hold_after": 0.7,
@@ -6731,7 +6780,7 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "Öffnen Sie Help und dann Run history, um die auf diesem Computer gespeicherten Laufeinträge zu durchsuchen.",
+          "narration": "Öffnen Sie Help und dann Run History, um die auf diesem Computer gespeicherten Laufeinträge zu durchsuchen.",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
@@ -6948,6 +6997,20 @@
           "hold_after": 0.7
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "Die Ansicht Essentials enthält die Einstellungen, die beide Familien zum Training brauchen. Wenn Sie zu Tabular Machine Learning wechseln, werden die Computer-Vision-Einstellungen ausgegraut, sodass Sie nur ausfüllen, was die gewählte Familie verwendet.",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "Klicken Sie für das tabellarische Beispiel auf Load test data und wählen Sie Load. Wählen Sie Ihre Klassenlabels und Merkmalseinstellungen und folgen Sie dann der tabellarischen Lektion, um das Modell zu trainieren und Vorhersagen zu speichern.",
           "related_lessons": [
@@ -6960,10 +7023,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Prüfen Sie nach dem tabellarischen Lauf die Vorhersage-Heatmap und die gespeicherten Objektwerte. Objekte ohne erforderliche Messwerte können ohne Wert bleiben. Prüfen Sie die Evaluierungsergebnisse, um zu entscheiden, ob Sie Labels, Merkmale oder Modelleinstellungen überarbeiten.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -6972,12 +7035,12 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "Folgen Sie für die Bildklassifikation der Computer-Vision-Lektion, um beschriftete Ausschnitte vorzubereiten, ein Modell zu wählen und die Aufteilung in Training, Validierung und Test festzulegen. Prüfen Sie nach dem Training die Evaluierungsabbildungen und die gespeicherten Vorhersagen.",
+          "narration": "Folgen Sie für die Bildklassifikation der Computer-Vision-Lektion, um beschriftete Ausschnitte vorzubereiten, ein Modell zu wählen und die Aufteilung in Training, Validierung und Test festzulegen. Prüfen Sie nach dem Training die Verlust- und Genauigkeitskurven und danach die Evaluierungsabbildungen und die gespeicherten Vorhersagen.",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
@@ -6988,10 +7051,10 @@
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "Öffnen Sie Classifier Evaluation über die Werkzeuge oben rechts. Wählen Sie ein gespeichertes Evaluierungspaket, um Vorhersagen, Kennzahlen und Datenaufteilung zu prüfen.",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7002,10 +7065,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "Öffnen Sie Explain CV, um die Vorhersagen eines Bildklassifikators mit gemessenen Merkmalen in Beziehung zu setzen. Stellen Sie die Bildvorhersagen und die zugehörigen Messwerte bereit und prüfen Sie, welche Merkmale die Werte erklären.",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7016,10 +7079,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "Öffnen Sie Activation, um zu sehen, welche Bildbereiche die Modellantworten beeinflussen. Wählen Sie den trainierten Checkpoint und verwenden Sie dieselben Bildkanäle und dieselbe Vorverarbeitung wie beim Training.",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7030,10 +7093,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "Öffnen Sie Training Runs, um gespeicherte Trainingsverläufe zu vergleichen. Wählen Sie Läufe mit kompatiblen Kennzahlen und Datenaufteilungen und prüfen Sie dann ihre Lernkurven und Einstellungen.",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7052,10 +7115,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "Bewahren Sie trainiertes Modell, Vorhersagen und Evaluierungsergebnisse im Laufordner auf. Sie können Objektwerte in Regression zusammen mit passenden Guide-Zählungen verwenden. Die verlinkten Modullektionen zeigen die nächsten Schritte.",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7296,7 +7359,7 @@
       "objectives": [
         "Repräsentative Bildfelder und Intensitätskanäle auswählen.",
         "Ein Beleuchtungsmodell schätzen und prüfen.",
-        "Das Modell in Mask oder Measure wiederverwenden."
+        "Das gespeicherte Modell in Measure anwenden."
       ],
       "prerequisite": "Verwenden Sie einen Ordner zusammengeführter Bilder mit repräsentativen Bildfeldern aus jeder Aufnahmegruppe. Das Beispiel verwendet die sechzehn Bildfelder aus dem in Measure heruntergeladenen Plattenbeispiel. Sie sollten wissen, welche gespeicherten Ebenen Intensitäten und welche Labels enthalten.",
       "scenes": [
@@ -7304,10 +7367,10 @@
           "visual": "01_measure_host",
           "narration": "Öffnen Sie Measure und dann Illumination, um ein Korrekturmodell für ungleichmäßige Bildhelligkeit zu schätzen.",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7441,7 +7504,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "Um das Modell wiederzuverwenden, geben Sie seinen Pfad an und aktivieren die Korrektur im vorgesehenen Mask- oder Measure-Ablauf. Bewahren Sie Kanäle, Plattenkennungen und Einstellungen damit auf und vermeiden Sie, dieselben Intensitäten zweimal zu korrigieren.",
+          "narration": "Bewahren Sie das gespeicherte Modell mit seinen Kanälen, Plattenkennungen und Einstellungen auf. Wenden Sie es einmal auf einen Satz Intensitäten an; werden dieselben Intensitäten zweimal korrigiert, werden sie verfälscht.",
           "focus": [
             363,
             370,
@@ -7449,7 +7512,20 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
+            "08_measure"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "Um das Modell anzuwenden, öffnen Sie Measure und suchen in den Einstellungen nach illumination. Aktivieren Sie unter Image Preprocessing Illumination correction und setzen Sie Illumination model auf die gespeicherte Datei. Measure dividiert dann die modellierten Kanäle vor dem Messen durch das Feld; die Masken bleiben unverändert.",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
             "08_measure"
           ],
           "hold_after": 0.7
@@ -14385,7 +14461,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Manchmal brauchen Masken eine menschliche Hand. Öffnen Sie Make Masks von Home aus, um sie Bildfeld für Bildfeld zu korrigieren. Was Sie hier speichern, kann zwei Wege gehen. Für das Segmentierungstraining kuratieren Sie Bild-Masken-Paare und halten sie als Trainingsbildfelder zusammen. Zum Messen verwenden Sie FEATURES, um jedes Bild mit seiner Maske zu paaren und ein gemessenes Projekt zu schreiben – so erreichen diese Masken Measure; eine einzelne Maske ist kein zusammengeführtes Array. Hier gezeichnete Plaque-Masken können mit ihren passenden Quellbildern auch in Plaque Assay einfließen. Das Speichern einer Maske trainiert keinen Klassifikator.",
+          "narration": "Manchmal brauchen Masken eine menschliche Hand. Öffnen Sie Make Masks von Home aus, um sie Bildfeld für Bildfeld zu korrigieren. Was Sie hier speichern, kann zwei Wege gehen. Für das Segmentierungstraining kuratieren Sie Bild-Masken-Paare und halten sie als Trainingsbildfelder zusammen. Zum Messen verwenden Sie Organize for Measure, das jedes Bild und seine Masken in Kanalordner verschiebt und sie zu den Arrays zusammenführt, die Measure liest; eine einzelne Maske ist kein zusammengeführtes Array. Hier gezeichnete Plaque-Masken können mit ihren passenden Quellbildern auch in Plaque Assay einfließen. Das Speichern einer Maske trainiert keinen Klassifikator.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",

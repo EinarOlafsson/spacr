@@ -2852,19 +2852,13 @@
       "scenes": [
         {
           "visual": "02_timelapse_fold",
-          "narration": "从Home打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。",
+          "narration": "从 Home 打开 Mask，在 Actions 行打开 Time，再打开 Timelapse 以启用跟踪。Timelapse 会在连续图像之间链接对象。我们先在 Track preview 中试用链接的示例，然后查看处理您自己图像序列的设置。",
           "hold_after": 0.7,
-          "focus": [
-            3708,
-            33,
-            126,
-            116
-          ],
           "related_lessons": [
             "07_mask",
             "18_motility"
           ],
-          "speech_text": "从主页打开Mask，点击右上角的Timelapse图标开启跟踪。Timelapse用于在连续图像之间关联对象。我们先在Track preview中试用链接的示例，然后再查看处理您自己的图像序列所需的设置。"
+          "speech_text": "从 主页 打开 Mask，在 Actions 行打开 Time，再打开 Timelapse 以启用跟踪。Timelapse 会在连续图像之间链接对象。我们先在 Track preview 中试用链接的示例，然后查看处理您自己图像序列的设置。"
         },
         {
           "visual": "09_actual_track_preview",
@@ -3060,13 +3054,19 @@
       "scenes": [
         {
           "visual": "01_measure_host",
-          "narration": "从Home打开Measure，然后通过Time打开Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。",
+          "narration": "从Home打开Measure，然后选择右上角的Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。",
           "related_lessons": [
             "08_measure",
             "17_timelapse"
           ],
           "hold_after": 0.7,
-          "speech_text": "从主页打开Measure，然后通过Time打开Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。"
+          "focus": [
+            3724,
+            56,
+            116,
+            116
+          ],
+          "speech_text": "从主页打开Measure，然后选择右上角的Motility Assay。从Timelapse追踪过的图像开始，或下载下方的示例归档跟着操作。"
         },
         {
           "visual": "03_actual_setting_src",
@@ -3720,11 +3720,12 @@
       "app_key": "model_zoo",
       "host_app_key": "make_masks",
       "section": "Segmentation models",
-      "description": "打开Model Zoo，查找或下载检查点，查看其详细信息，并选择一小组图像进行试用。",
+      "description": "打开Model Zoo，查找或下载检查点，查看其详细信息，在一小组图像上试用，并为Mask测量对象直径。",
       "objectives": [
         "打开Model Zoo并扫描本地模型文件夹。",
         "选择模型系列和版本，然后查看其详细信息。",
-        "在少量图像上运行试用，并检查生成的掩膜和质量汇总。"
+        "在少量图像上运行试用，并检查生成的掩膜和质量汇总。",
+        "在Mask generation的Model Zoo弹窗中，根据您自己的视野测量对象直径。"
       ],
       "prerequisite": "解压链接中的示例，使用其中的images文件夹进行三个视野的试用。选择一个已安装的Cellpose分割模型，或通过Model Zoo下载合适的检查点。自行试用时，请准备几张有代表性的TIFF、PNG、NPY或NPZ图像。",
       "scenes": [
@@ -3739,9 +3740,21 @@
         },
         {
           "visual": "03_current_catalogue_and_local_models",
-          "narration": "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。开启想浏览的来源标题，例如Cellpose或本地模型。",
+          "narration": "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。表格上方的标题决定列出哪些来源；用于标准权重的cellposeSAM和用于此处训练模型的spaCR一开始就是开启的。",
           "hold_after": 0.7,
-          "speech_text": "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。开启想浏览的来源标题，例如塞尔波斯或本地模型。"
+          "speech_text": "点击Choose folder，选择您的模型目录进行扫描。如果是手动输入路径，请点击Scan。表格上方的标题决定列出哪些来源；用于标准权重的塞尔波斯SAM和用于此处训练模型的斯佩克尔一开始就是开启的。"
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "narration": "开启cellpose3即可列出Cellpose 3模型，例如cyto3和nuclei。它们在各自的Cellpose 3环境中运行，因此如果某个模型的后端尚未安装，会给出提示，选择它时会提供安装。",
+          "hold_after": 0.7,
+          "speech_text": "开启塞尔波斯3即可列出塞尔波斯 3模型，例如cyto3和nuclei。它们在各自的塞尔波斯 3环境中运行，因此如果某个模型的后端尚未安装，会给出提示，选择它时会提供安装。"
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "narration": "开启bioimage.io即可列出在bioimage.io上发布的Cellpose模型。选择之前，请先阅读每个模型的训练数据；只有在您请求时才会下载其权重。",
+          "hold_after": 0.7,
+          "speech_text": "开启bioimage.io即可列出在bioimage.io上发布的塞尔波斯模型。选择之前，请先阅读每个模型的训练数据；只有在您请求时才会下载其权重。"
         },
         {
           "visual": "04_actual_cpsam_provenance",
@@ -3776,6 +3789,37 @@
             "14_make_masks"
           ],
           "speech_text": "查看各视野的汇总，然后记下所选检查点的路径，供分析模块使用。要在同一组图像上比较两个不同的模型系列，请选中两行并选择Compare the two selected。要试用同一系列的其他版本，请使用版本控件。"
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "narration": "同一目录也会在Mask generation中打开，在那里它还可以测量您的对象。将Source设为您的图像，并填写细胞、细胞核和病原体通道；本例使用Measure示例的原始图像。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ],
+          "speech_text": "同一目录也会在Mask generation中打开，在那里它还可以测量您的对象。将Source设为您的图像，并填写细胞、细胞核和病原体通道；本例使用Measure示例的原始图像。"
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "narration": "切换到All settings，在按对象列出的表格中点击某个对象的Model name单元格。Model Zoo弹窗随即打开，您选择的模型会写入该对象的设置。",
+          "hold_after": 0.7,
+          "speech_text": "切换到All settings，在按对象列出的表格中点击某个对象的Model name单元格。Model Zoo弹窗随即打开，您选择的模型会写入该对象的设置。"
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "narration": "点击左下角的Measure diameters。Cellpose会按给定的直径缩放每张图像，因此在您自己的视野上测得的直径比猜测更可靠。",
+          "hold_after": 0.7,
+          "speech_text": "点击左下角的Measure diameters。塞尔波斯会按给定的直径缩放每张图像，因此在您自己的视野上测得的直径比猜测更可靠。"
+        },
+        {
+          "visual": "12_measured_diameters",
+          "narration": "按下Measure from my images。每种对象类型都会得到一个测量直径，并附有依据和置信度。Use把其中一个写入Mask的设置，Use all则全部写入；在按下它们之前不会有任何改变。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "21_model_compare"
+          ],
+          "speech_text": "按下Measure from my images。每种对象类型都会得到一个测量直径，并附有依据和置信度。Use把其中一个写入Mask的设置，Use all则全部写入；在按下它们之前不会有任何改变。"
         }
       ],
       "example_files": [
@@ -5772,6 +5816,18 @@
           "speech_text": "下载并解压下方的示例，然后选择其中的tiles文件夹。它包含九张相互重叠的裁剪图像，排列成三乘三的网格。对于您自己的采集，请保留原始的分块顺序和载物台元数据。"
         },
         {
+          "visual": "02b_align_test_data_loaded",
+          "narration": "如果想改用已发表的数据练习，请按Load test data。spaCR会从一项光学混池筛选中下载九个相互重叠的分块，并填好分块文件夹、网格、顺序、重叠和输出文件夹，您可以立即按Plan。后面的步骤使用可下载示例的设置。",
+          "focus": [
+            340,
+            170,
+            3490,
+            170
+          ],
+          "hold_after": 0.7,
+          "speech_text": "如果想改用已发表的数据练习，请按Load test data。斯佩克尔会从一项光学混池筛选中下载九个相互重叠的分块，并填好分块文件夹、网格、顺序、重叠和输出文件夹，您可以立即按Plan。后面的步骤使用可下载示例的设置。"
+        },
+        {
           "visual": "03_actual_layout_and_budget",
           "narration": "在本例中，把网格设为三乘三，按行顺序，重叠设为零点二五。请根据您的采集调整这些设置；如果相邻行是沿相反方向采集的，请使用蛇形顺序。",
           "hold_after": 0.7,
@@ -7229,13 +7285,13 @@
       "scenes": [
         {
           "visual": "01_help_history",
-          "narration": "打开Help，然后打开Run history，浏览这台电脑上保存的运行记录。",
+          "narration": "打开Help，然后打开Run History，浏览这台电脑上保存的运行记录。",
           "hold_after": 0.7,
           "related_lessons": [
             "37_batch",
             "25_recruitment"
           ],
-          "speech_text": "打开Help，然后打开Run history，浏览这台电脑上保存的运行记录。"
+          "speech_text": "打开Help，然后打开Run History，浏览这台电脑上保存的运行记录。"
         },
         {
           "visual": "02_loaded_history",
@@ -7461,6 +7517,21 @@
           "speech_text": "选择Computer Vision，从对象图像中学习。选择Tabular Machine Learning，从测量特征列中学习。这些输入由Measure提供，Annotate可以为对象添加标签。"
         },
         {
+          "visual": "main_03_tabular_family",
+          "narration": "Essentials 视图汇集了两类分类器训练所需的设置。切换到 Tabular Machine Learning 后，Computer Vision 的设置会变灰，您只需填写所选类别用到的内容。",
+          "focus": [
+            350,
+            520,
+            1150,
+            1600
+          ],
+          "related_lessons": [
+            "11_classify_ml"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Essentials 视图汇集了两类分类器训练所需的设置。切换到 Tabular Machine Learning 后，Computer Vision 的设置会变灰，您只需填写所选类别用到的内容。"
+        },
+        {
           "visual": "ml_02_data_choice_load",
           "narration": "对于表格示例，点击Load test data并选择Load。选择类别标签和特征设置，然后按照表格课程训练模型并保存预测。",
           "related_lessons": [
@@ -7474,10 +7545,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "表格运行完成后，检查预测热图和保存的对象分数。缺少必要测量值的对象可能没有分数。查看评估结果，决定是否需要修改标签、特征或模型设置。",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -7487,27 +7558,27 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "对于图像分类，请按照Computer Vision课程准备带标签的裁剪图像，选择模型，并设置训练、验证和测试的划分。训练完成后，检查评估图和保存的预测。",
+          "narration": "对于图像分类，请按照 Computer Vision 课程准备带标签的裁剪图像、选择模型，并设置训练、验证和测试划分。训练完成后，先查看损失和准确率曲线，再检查评估图和保存的预测结果。",
           "focus": [
-            2090,
-            180,
-            1720,
-            1320
+            360,
+            300,
+            3460,
+            1440
           ],
           "related_lessons": [
             "10_classify_cv"
           ],
           "hold_after": 0.7,
-          "speech_text": "对于图像分类，请按照Computer Vision课程准备带标签的裁剪图像，选择模型，并设置训练、验证和测试的划分。训练完成后，检查评估图和保存的预测。"
+          "speech_text": "对于图像分类，请按照 Computer Vision 课程准备带标签的裁剪图像、选择模型，并设置训练、验证和测试划分。训练完成后，先查看损失和准确率曲线，再检查评估图和保存的预测结果。"
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
           "narration": "从右上角的工具打开Classifier Evaluation。选择一个保存的评估包，检查预测、指标和数据划分。",
           "focus": [
-            2690,
-            65,
-            1120,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "39_classifier_evaluation"
@@ -7519,10 +7590,10 @@
           "visual": "main_05_explain_cv_tooltip",
           "narration": "打开Explain CV，把图像分类器的预测与测量特征联系起来。提供图像预测结果和对应的测量数据，然后查看哪些特征能解释这些分数。",
           "focus": [
-            2480,
-            65,
-            1330,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "70_explain_cv"
@@ -7534,10 +7605,10 @@
           "visual": "main_05_activation_tooltip",
           "narration": "打开Activation，查看哪些图像区域影响模型的响应。选择训练好的检查点，并使用与训练时相同的图像通道和预处理。",
           "focus": [
-            2930,
-            65,
-            880,
-            280
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "16_activation"
@@ -7549,10 +7620,10 @@
           "visual": "main_05_train_compare_tooltip",
           "narration": "打开Training Runs，比较保存的训练历史。选择指标和数据划分相容的运行，然后检查它们的学习曲线和设置。",
           "focus": [
-            2600,
-            65,
-            1210,
-            300
+            2880,
+            60,
+            950,
+            160
           ],
           "related_lessons": [
             "28_training_runs"
@@ -7573,10 +7644,10 @@
           "visual": "ml_25_ml_figure_02",
           "narration": "把训练好的模型、预测和评估结果保存在运行文件夹中。对象分数可以在Regression中与对应的向导序列计数一起使用。相关模块课程介绍了后续步骤。",
           "focus": [
-            2090,
-            190,
-            1720,
-            1200
+            1250,
+            330,
+            2050,
+            1520
           ],
           "related_lessons": [
             "06_api",
@@ -7829,7 +7900,7 @@
       "objectives": [
         "选择有代表性的视野和强度通道。",
         "估计并检查光照模型。",
-        "在Mask或Measure中重用该模型。"
+        "在Measure中应用保存的模型。"
       ],
       "prerequisite": "使用包含各采集组代表性视野的合并图像文件夹。示例使用Measure中下载的板示例的十六个视野。请清楚哪些保存的平面是强度，哪些是标签。",
       "scenes": [
@@ -7837,10 +7908,10 @@
           "visual": "01_measure_host",
           "narration": "打开Measure，然后打开Illumination，估计用于校正图像亮度不均的模型。",
           "focus": [
-            3625,
-            65,
-            110,
-            100
+            3548,
+            56,
+            116,
+            116
           ],
           "related_lessons": [
             "08_measure"
@@ -7986,7 +8057,7 @@
         },
         {
           "visual": "09_return_to_illumination",
-          "narration": "要重用模型，请设置其路径，并在目标Mask或Measure流程中启用校正。把通道、板标识和设置与模型放在一起，避免对同一强度校正两次。",
+          "narration": "把保存的模型与其通道、板标识和设置放在一起。对同一组强度只应用一次；对同一强度校正两次会使其失真。",
           "focus": [
             363,
             370,
@@ -7994,11 +8065,25 @@
             800
           ],
           "related_lessons": [
-            "07_mask",
             "08_measure"
           ],
           "hold_after": 0.7,
-          "speech_text": "要重用模型，请设置其路径，并在目标Mask或Measure流程中启用校正。把通道、板标识和设置与模型放在一起，避免对同一强度校正两次。"
+          "speech_text": "把保存的模型与其通道、板标识和设置放在一起。对同一组强度只应用一次；对同一强度校正两次会使其失真。"
+        },
+        {
+          "visual": "10_measure_apply_model",
+          "narration": "要应用该模型，请打开Measure，在设置中搜索illumination。在Image Preprocessing下打开Illumination correction，并把Illumination model设为保存的文件。Measure会在测量前将建模的通道除以照明场；掩膜不会改变。",
+          "focus": [
+            352,
+            440,
+            1150,
+            500
+          ],
+          "related_lessons": [
+            "08_measure"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "要应用该模型，请打开Measure，在设置中搜索illumination。在Image Preprocessing下打开Illumination correction，并把Illumination model设为保存的文件。Measure会在测量前将建模的通道除以照明场；掩膜不会改变。"
         }
       ],
       "narration_voices": {
@@ -15455,14 +15540,14 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "有时掩膜需要人工修正。从 Home 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请用 FEATURES 把每张图像与其掩膜配对并写出已测量的项目，这些掩膜正是这样进入 Measure 的；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。",
+          "narration": "有时掩膜需要人工修正。从 Home 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请使用 Organize for Measure，它会把每张图像及其掩膜移入通道文件夹，并合并为 Measure 读取的数组；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "14_make_masks",
             "24_plaque"
           ],
-          "speech_text": "有时掩膜需要人工修正。从 主页 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请用 FEATURES 把每张图像与其掩膜配对并写出已测量的项目，这些掩膜正是这样进入 Measure 的；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。"
+          "speech_text": "有时掩膜需要人工修正。从 主页 打开 Make Masks，逐个视野修正。您在这里保存的内容可以有两个去向。要训练分割模型，请整理图像与掩膜对，并把它们作为训练视野放在一起。要进行测量，请使用 Organize for Measure，它会把每张图像及其掩膜移入通道文件夹，并合并为 Measure 读取的数组；单独的掩膜并不是合并数组。在这里绘制的噬斑掩膜也可以连同对应的源图像用于 Plaque Assay。保存掩膜并不会训练分类器。"
         },
         {
           "visual": "module_measure",
