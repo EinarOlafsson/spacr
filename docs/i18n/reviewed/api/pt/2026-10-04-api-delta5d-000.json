@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.channel_sorting.build_plan#7",
+      "source": "``{image: mask path}`` naming each image's mask outright (the organizer's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "source_sha256": "067dd5913c1c6fa0fe861b7892a2e8259ed83f71fd01685ace0e408f65c03343",
+      "context": "``{image: mask path}`` naming each image's mask outright (the organizer's mask columns); an image missing from it has none. None looks each mask up with :func:`mask_for`.",
+      "translation": "``{image: mask path}`` que indica diretamente a máscara de cada imagem (as colunas de máscara do organizador); uma imagem ausente dele não tem nenhuma. None procura cada máscara com :func:`mask_for`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.object_classifier.segment_and_classify#1",
+      "source": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it. This function therefore wraps a model without knowing which model it has.",
+      "source_sha256": "807330236de3d6c2ee1418e3338b9c3f4d45eef13b4ca6226a8d871c56bbfd45",
+      "context": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it. This function therefore wraps a model without knowing which model it has.",
+      "translation": "O backend é qualquer coisa com o ``eval`` do Cellpose -- Cellpose-SAM, Cellpose 3, DINOCell e SAMCell respondem todos a ele. Esta função, portanto, envolve um modelo sem saber qual modelo tem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.app.tiled_apps#3",
+      "source": "An app registered with the alpha gate has no tile while Preferences > Show alpha features is off: Home does not draw it, so nothing that counts or lists Home's tiles may count it either.",
+      "source_sha256": "528efa653d912fd124de6cd30b354d27c0a1e50ceeac506e82a76612442fec01",
+      "context": "An app registered with the alpha data-selection boundary has no tile while Preferences > Show alpha features is off: Home does not draw it, so nothing that counts or lists Home's tiles may count it either.",
+      "translation": "Um aplicativo registrado com o bloqueio alfa não tem bloco enquanto Preferences > Show alpha features estiver desligado: a Home não o desenha, então nada que conte ou liste os blocos da Home pode contá-lo também.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.organisms.ORGANISMS#0",
+      "source": "Organism guides keyed by ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` and ``mammalian``.",
+      "source_sha256": "387f4cdb233d3ccbba5fe3a015a89eb1ce6f01a103b47dd7fd7f4664969d1216",
+      "context": "Organism guides keyed by ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` and ``mammalian``.",
+      "translation": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` e ``mammalian``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.organisms.ORGANISMS#1",
+      "source": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-key triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-key, title, description and icon-key tuples. A ``None`` route denotes an organism-specific assay with no pipeline of its own. ``workflows`` maps such a tile's icon key to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry key or segmentation backend. Display prose is translated at use; route keys, URLs and asset names stay fixed.",
+      "source_sha256": "a56d63eaada705a2dcd6146ee9c5b8c7258c0808f987e7579563e0290941850e",
+      "context": "Each record supplies a display name, description, biology source URL, bundled diagram filename and diagram note; ``source_label`` names the biology source when it is not the CDC. The last five pages are alpha features. ``sections`` contains heading, prose and linked assay-structured-data name triples; ``links`` contains display-label and URL pairs. ``modules`` contains route-structured-data name, title, description and icon-structured-data name tuples. A ``None`` route denotes an organism-specific assay with no workflow of its own. ``workflows`` maps such a tile's icon structured-data name to the existing module that measures its readout, a settings preset applied on opening, and a note on how to use it; a ``None`` tile absent from ``workflows`` is Coming soon. ``starplast`` launches an external app from the Toxoplasma page; it is not a spaCR analysis registry structured-data name or segmentation backend. Display prose is translated at use; route structured-data names, URLs and asset names stay fixed.",
+      "translation": "Cada registro fornece um nome de exibição, uma descrição, uma URL de fonte biológica, um nome de arquivo de diagrama incluído e uma nota do diagrama; ``source_label`` nomeia a fonte biológica quando ela não é o CDC. As cinco últimas páginas são recursos alfa. ``sections`` contém triplas de título, texto e chave de ensaio vinculada; ``links`` contém pares de rótulo de exibição e URL. ``modules`` contém tuplas de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` denota um ensaio específico do organismo sem pipeline próprio. ``workflows`` mapeia a chave de ícone de um bloco desses para o módulo existente que mede sua leitura, uma predefinição de configurações aplicada ao abrir e uma nota sobre como usá-lo; um bloco ``None`` ausente de ``workflows`` é Coming soon. ``starplast`` inicia um aplicativo externo a partir da página de Toxoplasma; não é uma chave do registro de análises do spaCR nem um backend de segmentação. O texto de exibição é traduzido no uso; chaves de rota, URLs e nomes de recursos permanecem fixos.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.organisms.workflow#1",
+      "source": "an organism page key from :data:`ORGANISMS`.",
+      "source_sha256": "b80310d1eda51f3bce3cd92a3af3b59766fb6b92501ed42b6a5798b8d350b5d5",
+      "context": "an organism page key from :data:`ORGANISMS`.",
+      "translation": "uma chave de página de organismo de :data:`ORGANISMS`.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun#3",
+      "source": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main screen.",
+      "source_sha256": "ae5ea440d84b44481b485c7d3230fe82f358f4c679cbc6aa0f04025bd64dea9d",
+      "context": "**The diameter.**  :mod:`spacr.diameter` measures characteristic object size from a handful of the user's own fields, without loading Cellpose or torch. ``diameter`` is the single most consequential Cellpose 4 setting spaCR exposes — ``CellposeModel.eval(diameter=...)`` rescales every image by ``30/diameter`` so objects land near the size ``cpsam`` works at — and it is the one users guess at.  The panel this module builds turns the guess into a measurement, per object type, and shows how many objects it measured so the number can be disbelieved.  It opens in a popup of its own from the *Measure diameters…* button in Mask generation's Model zoo popup, next to the choice of model it is the other half of, rather than on the main application view.",
+      "translation": "**O diâmetro.**  :mod:`spacr.diameter` mede o tamanho característico dos objetos a partir de um punhado de campos do próprio usuário, sem carregar o Cellpose nem o torch. ``diameter`` é a configuração do Cellpose 4 de maior consequência que o spaCR expõe — ``CellposeModel.eval(diameter=...)`` redimensiona cada imagem por ``30/diameter`` para que os objetos fiquem perto do tamanho em que o ``cpsam`` trabalha — e é aquela que os usuários chutam.  O painel que este módulo constrói transforma o chute em uma medição, por tipo de objeto, e mostra quantos objetos mediu para que o número possa ser posto em dúvida.  Ele abre em um popup próprio a partir do botão *Measure diameters…* no popup Model zoo do Mask generation, ao lado da escolha do modelo da qual é a outra metade, em vez de na tela principal.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.prerun.DiameterDialog#1",
+      "source": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the screen that opened the zoo.",
+      "source_sha256": "3d21b0ccd32c7abefdfede526b3a0dfa83dec855b2997e49dca774590e0335b8",
+      "context": "Asked for by a user: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main application view. pressing the button should bring another pupup with all the information in the current container.\" So this holds the whole :class:`DiameterPanel` -- the measure button, one row per object type with its evidence and note, *Use* per row and *Use all* -- and the panel still writes into the settings of the application view that opened the zoo.",
+      "translation": "Pedido por um usuário: \"in mask generation the, diamiter calculation should be a button in the model zoo button popup window not on the main screen. pressing the button should bring another pupup with all the information in the current container.\" Então isto contém todo o :class:`DiameterPanel` -- o botão de medir, uma linha por tipo de objeto com sua evidência e nota, *Use* por linha e *Use all* -- e o painel continua gravando nas configurações da tela que abriu o zoo.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.gate_editor.GateEditorScreen.save_graph#3",
+      "source": "THE FILE GETS THE PRINT STYLE. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on screen keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
+      "source_sha256": "cfe455c999987d2c217f44576c1a92f942f8cf8f8ff10f8f27951614d811a8a5",
+      "context": "The file gets the print style. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\". The render passes ``for_print=True``, which styles a detached copy white with dark ink, so the graph on application view keeps the theme's colours. The extension the user picked decides whether the PDF is written, so choosing PDF in the dialog under a PNG preference still gives a PDF.",
+      "translation": "O ARQUIVO RECEBE O ESTILO DE IMPRESSÃO. Decisão 2026-09-25: \"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\". A renderização passa ``for_print=True``, que estiliza uma cópia separada em branco com tinta escura, de modo que o gráfico na tela mantém as cores do tema. A extensão que o usuário escolheu decide se o PDF é gravado, então escolher PDF no diálogo com uma preferência por PNG ainda produz um PDF.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#8",
+      "source": "Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells",
+      "source_sha256": "d02ce41bc1e3f6e68fc57e302a6011d2e28a222e4cd5379e04999fe36231dcb5",
+      "context": "Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells",
+      "translation": "Trypanosoma, Leishmania, Giardia, infecção viral e células de mamífero",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen#9",
+      "source": "These five pages appear on Home only with Preferences > Show alpha features on. Each follows the same layout: an introduction, a SwissBioPics cell whose selectable compartments are the UniProt subcellular locations annotated for that taxon, four topic sections, and eight tiles. Live tiles open an existing module with a preset (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask or Measure), and the others say Coming soon. Giardia uses the generic eukaryotic cell, the virus page the host cell with a virion, and the mammalian page the animal cell. The pages need no input files; the opened module writes to its selected output folder.",
+      "source_sha256": "636f7995605beea6a62049349b797f2745b0174c4ae3e7d2a26e8578966a959d",
+      "context": "These five pages appear on Home only with Preferences > Show alpha features on. Each follows the same layout: an introduction, a SwissBioPics cell whose selectable compartments are the UniProt subcellular locations annotated for that taxon, four topic sections, and eight tiles. Live tiles open an existing module with a preset (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask or Measure), and the others say Coming soon. Giardia uses the generic eukaryotic cell, the virus page the host cell with a virion, and the mammalian page the animal cell. The pages need no input files; the opened module writes to its selected output folder.",
+      "translation": "Estas cinco páginas aparecem na Home apenas com Preferences > Show alpha features ligado. Cada uma segue o mesmo layout: uma introdução, uma célula do SwissBioPics cujos compartimentos selecionáveis são as localizações subcelulares do UniProt anotadas para aquele táxon, quatro seções temáticas e oito blocos. Blocos ativos abrem um módulo existente com uma predefinição (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask ou Measure), e os demais dizem Coming soon. Giardia usa a célula eucariótica genérica, a página do vírus a célula hospedeira com um vírion e a página de mamíferos a célula animal. As páginas não precisam de arquivos de entrada; o módulo aberto grava na pasta de saída selecionada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.organism_screen.OrganismScreen#1",
+      "source": "an organism page key from ``ORGANISMS``.",
+      "source_sha256": "88408bfeb3a0078a226bf4222087605a7e7a0df24871c7df5dc660c95301ca0e",
+      "context": "an organism page key from ``ORGANISMS``.",
+      "translation": "uma chave de página de organismo de ``ORGANISMS``.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.availability_panel.AvailabilityPanel.set_install_handler#1",
+      "source": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
+      "source_sha256": "98b235751b5e8db98eefc9c82854085342496c96353c59830a20c04da648e1f5",
+      "context": "The panel is a process-wide singleton with two callers. A plain ``connect`` on every show accumulates receivers, so one press would eventually run the regression picker's install AND the Image UMAP's; a plain ``disconnect()`` warns when nothing is connected yet. Holding the current slot and replacing it does neither. A previous slot bound to a widget that has since been deleted is simply dropped.",
+      "translation": "O painel é um singleton de todo o processo com dois chamadores. Um ``connect`` simples a cada exibição acumula receptores, então um clique acabaria executando a instalação do seletor de regressão E a do Image UMAP; um ``disconnect()`` simples avisa quando nada está conectado ainda. Guardar o slot atual e substituí-lo não faz nenhuma das duas coisas. Um slot anterior vinculado a um widget que já foi excluído é simplesmente descartado.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FocusCollapse#1",
+      "source": "Requested: \"when a live preview opens, it takes the whole screen height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "source_sha256": "49181f3cc9ec21f5b3f8f2b8a87d65566b432f1201b7d0f5ff3601363ea01c96",
+      "context": "Requested: \"when a live preview opens, it takes the whole application view height: the console, the System container and the button section below System auto-collapse, and the settings collapse to the left\", and the same whenever figures appear.",
+      "translation": "O pedido: \"quando uma pré-visualização ao vivo abre, ela ocupa a altura inteira da tela: o console, o contêiner System e a seção de botões abaixo de System se recolhem automaticamente, e as configurações se recolhem para a esquerda\", e o mesmo sempre que figuras aparecem.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.FoldSection#1",
+      "source": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside a screen gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "source_sha256": "bbad7853f2f4f796684fbb334f2c329a26250ede47403071d1a5bb2484beb7ef",
+      "context": "Requested: \"any sections inside the figures or live preview containers should also be colapseable ... evey GUI element be it a figure or a table\". This is the one way a section inside an application view gets a fold control, so every one of them looks and behaves alike: an arrow and a name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder` the console and System use), a click folds it, and a folded section is its heading locked to the BOTTOM of whatever room it is given (:func:`lock_folded_to_bottom`).",
+      "translation": "O pedido: \"quaisquer seções dentro dos contêineres de figuras ou de pré-visualização ao vivo também devem ser recolhíveis ... todo elemento da GUI, seja uma figura ou uma tabela\". Esta é a única forma de uma seção dentro de uma tela ganhar um controle de recolhimento, para que todas pareçam e se comportem da mesma maneira: uma seta e um nome acima do corpo (o mesmo :class:`~spacr.qt.widgets.foldable.Folder` que o console e o System usam), um clique a recolhe, e uma seção recolhida é seu título preso à parte de BAIXO de todo o espaço que recebe (:func:`lock_folded_to_bottom`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#0",
+      "source": "Show ``model`` with the shared three-state header sorting.",
+      "source_sha256": "2321b1e4b3ee0248fadb7fc6f1fedcac409c67f881b871c2b01edabf11e07ab4",
+      "context": "Show ``model`` with the shared three-state header sorting.",
+      "translation": "Mostra ``model`` com a ordenação compartilhada de três estados no cabeçalho.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionSourceTable.setModel#1",
+      "source": "the filter proxy over the condition rows.",
+      "source_sha256": "d135d3a7f1ca9996c8742b82b6d5996a46cebd1e64e495165d793fd20952bf42",
+      "context": "the filter proxy over the condition rows.",
+      "translation": "o proxy de filtro sobre as linhas de condições.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.render_figure_to_png#5",
+      "source": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the screen theme, are written from a detached copy so the figure on screen keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
+      "source_sha256": "5dcbf4b456afbc86ffd1c09b36c33fcc32d83637f0ab1d0cb0c74e297b43ba97",
+      "context": "True for a graph the user is SAVING to a file. The files get the white print style (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) whatever the application view theme, are written from a detached copy so the figure on application view keeps its colours, and the PNG is not display-capped. False (every gallery and canvas render) is unchanged: theme colours, applied to ``fig`` itself. Decision 2026-09-25: \"saved graphs (PDF/PNG) get a white print style (white background, dark text/axes/lines) whatever the application view theme\"; a file is opened by a PDF reader, a printer or a journal, and white text on a transparent page disappears on every one of them.",
+      "translation": "True para um gráfico que o usuário está SALVANDO em um arquivo. Os arquivos recebem o estilo de impressão branco (:data:`PRINT_BACKGROUND`, :data:`PRINT_INK`) qualquer que seja o tema da tela, são gravados a partir de uma cópia separada para que a figura na tela mantenha suas cores, e o PNG não é limitado ao tamanho de exibição. False (toda renderização de galeria e de tela de desenho) não muda: cores do tema, aplicadas ao próprio ``fig``. Decisão 2026-09-25: \"saved graphs (PDF/PNG) get a WHITE PRINT STYLE (white background, dark text/axes/lines) whatever the screen theme\"; um arquivo é aberto por um leitor de PDF, uma impressora ou uma revista, e texto branco em uma página transparente desaparece em todos eles.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.Folder.set_shut#2",
+      "source": "False when the program folds it on the user's behalf (for example, a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "source_sha256": "7d4924b31cfbebe8da8ce4f54ab2029e2eed9b464059d23244d77eebbe347f4e",
+      "context": "False when the program folds it on the user's behalf (for example, a live preview opening). Such a fold is not remembered across a restart, and the listeners are told so.",
+      "translation": "False quando o programa o recolhe em nome do usuário (por exemplo, quando uma pré-visualização ao vivo abre). Esse recolhimento não é lembrado entre reinicializações, e os ouvintes são informados disso.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#1",
+      "source": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan pages are drawn upright.",
+      "source_sha256": "2d912368194c3f03f0ac1c3aef08823d0c3251a5f0f12a157675546d8ceeed85",
+      "context": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan pages are drawn upright.",
+      "translation": "chave do organismo; apenas Toxoplasma utiliza rótulos hyperLOPIT, e apenas as páginas de apicomplexos são desenhadas na vertical.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#1",
+      "source": "One popup puts images and their masks into the layout Measure reads -- Yokogawa-named channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "source_sha256": "24fde80ec1f1ed4212183e40cbbd96190b9e89bf3b0b7a43d8f693164e51a89f",
+      "context": "One popup puts images and their masks into the layout Measure reads -- Yokogawa-named image data channel folders, the masks, and ``merged/*.npy`` -- through :mod:`spacr.channel_sorting` and :mod:`spacr.folder_consolidation`, which hold every decision:",
+      "translation": "UMA única janela pop-up coloca as imagens e suas máscaras na estrutura que o Measure lê -- pastas de canal com nomes Yokogawa, as máscaras e ``merged/*.npy`` -- por meio de :mod:`spacr.channel_sorting` e :mod:`spacr.folder_consolidation`, que tomam todas as decisões:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure#6",
+      "source": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the channels apart. If any image cannot be copied during consolidation, the popup reports the failed-file count and the manifest path and stops there: the source folder, the consolidation choice and the table stay as they were, so the problem can be fixed and the step retried. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the screen applies the plan off the GUI thread and every move is written to the manifest.",
+      "source_sha256": "dfc35b4dc96a918ed9c789575e5ef991079a9f55e6c5aa9b402c2cf5af4f6016",
+      "context": "Mode 1: fill the source, choose or test the regex, press \"Sort by regex\", Apply. Mode 2: fill the columns by dropping, Apply. Mode 3, \"Teach me…\": answer \"Which image data channel is this?\" for one image at a time while spaCR learns a regex from the answers (:func:`spacr.channel_sorting._teach_step`), until every image is placed. Each works without the others. A folder made by folder consolidation is read under its files' ORIGINAL names, from its ``rename_manifest.csv``, because the copies' names may have lost what told the image data channels apart. If any image cannot be copied during consolidation, the popup reports the failed-file count and the manifest path and stops there: the source folder, the consolidation choice and the table stay as they were, so the problem can be fixed and the step retried. Apply builds a :class:`spacr.channel_sorting.SortPlan`; incomplete rows block it (the regex box is where to fix them), RGB images and z-stacks are offered for conversion, and detected sets are shown three at a time before they are used. Nothing moves before Apply; the application view applies the plan off the main GUI execution path and every move is written to the manifest.",
+      "translation": "Modo 1: preencher a origem, escolher ou testar a expressão regular, clicar em \"Sort by regex\", Apply. Modo 2: preencher as colunas soltando arquivos, Apply. Modo 3, \"Teach me…\": responder \"Que canal é este?\" para uma imagem por vez enquanto o spaCR aprende uma expressão regular a partir das respostas (:func:`spacr.channel_sorting._teach_step`), até que todas as imagens estejam posicionadas. Cada modo funciona sem os outros. Uma pasta criada por consolidação de pastas é lida pelos nomes ORIGINAIS dos seus arquivos, a partir do seu ``rename_manifest.csv``, porque os nomes das cópias podem ter perdido o que distinguia os canais. Se alguma imagem não puder ser copiada durante a consolidação, a janela pop-up informa o número de arquivos com falha e o caminho do manifesto e para ali: a pasta de origem, a escolha de consolidação e a tabela ficam como estavam, para que o problema possa ser corrigido e a etapa repetida. Apply constrói um :class:`spacr.channel_sorting.SortPlan`; linhas incompletas o bloqueiam (é na caixa de regex que se corrigem), imagens RGB e pilhas z são oferecidas para conversão, e os conjuntos detectados são mostrados de três em três antes de serem usados. Nada é movido antes de Apply; a tela aplica o plano fora da thread da GUI e cada movimentação é gravada no manifesto.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well#1",
+      "source": "Runs on a worker thread; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the diameter: the crop is segmented at the model's own scale (:func:`_at_figure_scale`).",
+      "source_sha256": "a017c77627795cf426f2bdd28f9a5e2f7f6abf60e7765cca89da86c369f83ce9",
+      "context": "Executes on a background execution unit; touches no widget. The model and its thresholds are the Plaque settings, through the same :func:`spacr.plaque.segment_plaque_image` Plaque mode uses, except the diameter: the extracted image region is segmented at the model's own scale (:func:`_at_figure_scale`).",
+      "translation": "Roda em uma thread de worker; não toca em nenhum widget. O modelo e seus limiares são as configurações de Plaque, por meio da mesma :func:`spacr.plaque.segment_plaque_image` que o modo Plaque usa, exceto o diâmetro: o recorte é segmentado na escala do próprio modelo (:func:`_at_figure_scale`).",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_baseline#2",
+      "source": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking field already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "source_sha256": "05b7bc0f000a440aa7247a6c49ec65332c1dd6c4f67ce197bd6ca60773cd72a8",
+      "context": "Step 2 of the timeflows plan is a number, not a feature. Before a third Cellpose head is written, trained and maintained, there has to be a baseline: segment every frame independently, link the frames by mask overlap, and score the result against the ground truth with the measures the tracking microscope field of view already agrees on. Whatever the fork produces is then either better than this or it is not, and the plan says plainly that \"the plain stitcher is already good enough\" is a real possible outcome that should be accepted if it happens. That outcome is only visible if this number exists first.",
+      "translation": "A etapa 2 do plano do timeflows é um número, não uma funcionalidade. Antes que uma terceira cabeça do Cellpose seja escrita, treinada e mantida, é preciso haver uma referência: segmentar cada quadro de forma independente, ligar os quadros pela sobreposição das máscaras e pontuar o resultado contra a referência com as medidas com que a área de rastreamento já concorda. O que quer que a bifurcação produza é então melhor do que isto ou não é, e o plano diz claramente que \"o costurador simples já é bom o bastante\" é um resultado real possível, que deve ser aceito se acontecer. Esse resultado só fica visível se este número existir primeiro.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.timeflows_qc#2",
+      "source": "The timeflows plan rests on one claim about the training data: an object keeps the SAME LABEL in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
+      "source_sha256": "17c135e9bea67a789467a3aeb8c896fec475d00c0235e76683650a059a77c9f1",
+      "context": "The timeflows plan rests on one claim about the training data: an object keeps the same label in every frame it appears in. A time-flow head is trained to point from a pixel of an object in frame ``t`` at that object's centre in frame ``t+1``, and the only thing that says which object in ``t+1`` is the same object is the label. If the annotation recycles a label after its object dies or leaves, the model is trained to point at an unrelated cell, and no later score catches it -- the held-out check scrambles the same wrong labels and agrees with itself.",
+      "translation": "O plano do timeflows se apoia em uma única afirmação sobre os dados de treinamento: um objeto mantém o MESMO RÓTULO em todo quadro em que aparece. Uma cabeça de fluxo temporal é treinada para apontar de um pixel de um objeto no quadro ``t`` para o centro desse objeto no quadro ``t+1``, e a única coisa que diz qual objeto em ``t+1`` é o mesmo objeto é o rótulo. Se a anotação recicla um rótulo depois que seu objeto morre ou sai, o modelo é treinado para apontar para uma célula não relacionada, e nenhuma pontuação posterior detecta isso -- a verificação com dados separados embaralha os mesmos rótulos errados e concorda consigo mesma.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.utils.ImportedCopyNotReleased#1",
+      "source": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
+      "source_sha256": "d692aaf2d93012e0d7066b42cac2900decdd389f9dda5d46d0915ce40ce0e7ea",
+      "context": "``foreign.run_import`` copies the imported frame into the canonical ``cell`` / ``nucleus`` / ``pathogen`` table when the destination is empty, so a project built purely by import is readable by every spaCR tool. That copy is a convenience and it stops being one the moment spaCR measures the same field: :func:`_merge_and_save_to_database` *appends*, so its rows land beside theirs, in different columns, with nothing in the row marking the seam -- and every ``count_cell`` downstream becomes the sum of two populations.",
+      "translation": "``foreign.run_import`` copia o frame importado para a tabela canônica ``cell`` / ``nucleus`` / ``pathogen`` quando o destino está vazio, de modo que um projeto construído apenas por importação pode ser lido por qualquer ferramenta do spaCR. Essa cópia é uma conveniência e deixa de sê-lo no momento em que o spaCR mede o mesmo campo de visão: :func:`_merge_and_save_to_database` *acrescenta*, então suas linhas ficam ao lado das importadas, em colunas diferentes, sem nada na linha marcando a emenda -- e cada ``count_cell`` posterior passa a ser a soma de duas populações.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
