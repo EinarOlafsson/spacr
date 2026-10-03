@@ -173,3 +173,10 @@ def test_unknown_publication_has_the_official_idr_row(screen, tmp_path):
     assert "IDR study: 'Study Publication Title' row is missing" in (
         rep._validate_archive_package(package, verify_checksums=False)
     )
+
+
+def test_known_screen_terms_get_their_accessions(screen, tmp_path):
+    pkg = rep._write_archive_package(screen, tmp_path / "out", _form(screen))
+    study = rep._archive_read_kv(next((pkg / "idr").glob("*-study.txt")))
+    assert study["Screen Imaging Method Term Accession"][0] == "FBbi_00000246"
+    assert study["Screen Type Term Accession"][0] == "EFO_0007550"

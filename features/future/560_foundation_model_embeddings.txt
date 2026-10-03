@@ -85,3 +85,11 @@ WHAT IS LEFT
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: human-annotated set and GPU repeat (data, GPU); Cell-DINO weights (unpublished). OPEN code over 1 h: SubCell 4-channel model, scorecard wiring and UMAP/classifier pickers.
+
+2026-10-03 — SCORECARD WIRING (BACKEND)
+_scored_encoder_entry(spec, features, labels) in spacr/embeddings.py measures
+_retrieval_scorecard and attaches it to encoder_entry's metrics; unscoreable
+labels return the unscored entry. Test in
+test_the_encoder_is_in_the_zoo_like_any_other_model.py. Still open: calling
+it from the Embeddings screen once a label table is chosen, UMAP/classifier
+pickers, SubCell 4-channel model.

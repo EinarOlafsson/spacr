@@ -1699,3 +1699,25 @@ def encoder_entry(spec: Optional["EmbeddingSpec"] = None, *,
         notes=tuple(notes),
         verified=False,
     )
+
+
+def _scored_encoder_entry(spec: Optional["EmbeddingSpec"], features: Any,
+                          labels: Mapping[Any, Any], k: int = 10):
+    """The encoder's zoo entry with a retrieval scorecard measured here.
+
+    The scorecard is :func:`_retrieval_scorecard` on ``features`` against
+    ``labels``. When the labels cannot be scored (fewer than two labelled
+    crops or a single class) the entry is returned without one, and its
+    notes say so, rather than failing the run.
+
+    :param spec: the configuration to describe; the default spec when omitted.
+    :param features: numeric frame indexed by crop key.
+    :param labels: crop key to class.
+    :param k: neighbours per query.
+    :returns: a ``ModelEntry`` of kind ``'encoder'``.
+    """
+    try:
+        scorecard = _retrieval_scorecard(features, labels, k=k)
+    except ValueError:
+        scorecard = None
+    return encoder_entry(spec, scorecard=scorecard)

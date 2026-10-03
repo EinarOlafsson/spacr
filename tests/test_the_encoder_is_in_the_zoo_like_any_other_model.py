@@ -142,3 +142,21 @@ def test_provenance_never_reads_as_no_constraints():
     entry = encoder_entry()
     assert entry.trained_on and entry.trained_by
     assert entry.trained_on.strip() != ""
+
+
+def test_a_scorecard_can_be_measured_from_labelled_crops():
+    import numpy as np
+    import pandas as pd
+
+    from spacr.embeddings import _scored_encoder_entry
+
+    rng = np.random.default_rng(0)
+    keys = [f"c{i}" for i in range(20)]
+    values = np.vstack([rng.normal(0, 0.1, (10, 4)) + [5, 0, 0, 0],
+                        rng.normal(0, 0.1, (10, 4)) + [0, 5, 0, 0]])
+    features = pd.DataFrame(values, index=keys)
+    labels = {k: ("a" if i < 10 else "b") for i, k in enumerate(keys)}
+    entry = _scored_encoder_entry(None, features, labels, k=3)
+    assert entry.metrics["knn_accuracy"] == pytest.approx(1.0)
+    unscored = _scored_encoder_entry(None, features, {keys[0]: "a"})
+    assert unscored.metrics == {}

@@ -138,3 +138,12 @@ features/data/574_official_idr_probe_2026-10-02.json.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: IDR/BioStudies curator-assigned accessions (external curators). OPEN code: ontology enrichment, multi-screen studies.
+
+2026-10-03 — OFFLINE TERM ACCESSIONS
+The IDR study file now carries "Screen Imaging Method Term Accession" and
+"Screen Type Term Accession" from a small offline table (_ARCHIVE_TERMS in
+spacr/report.py: fluorescence/confocal/spinning-disk microscopy -> FBbi,
+primary/secondary screen -> EFO). Unknown terms stay blank for curators.
+Accessions should be confirmed by IDR curators. Test:
+test_known_screen_terms_get_their_accessions. Still open: multi-screen
+studies (code), curator checks (external).

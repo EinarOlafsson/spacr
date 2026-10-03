@@ -2508,6 +2508,14 @@ _ARCHIVE_IMAGE_DIRS = ("", "orig")
 
 _ARCHIVE_WALK_BUDGET = 5_000_000
 
+_ARCHIVE_TERMS = {
+    "fluorescence microscopy": "FBbi_00000246",
+    "confocal microscopy": "FBbi_00000251",
+    "spinning disk confocal microscopy": "FBbi_00000253",
+    "primary screen": "EFO_0007550",
+    "secondary screen": "EFO_0007551",
+}
+
 _ARCHIVE_TAXA = {
     "homo sapiens": "9606", "mus musculus": "10090",
     "rattus norvegicus": "10116", "danio rerio": "7955",
@@ -3036,10 +3044,14 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
          f"Total Tb: {sum(p.stat().st_size for p in images) / 1e12:.6f}"],
         ["Screen Imaging Method", values["imaging_method"]],
         ["Screen Imaging Method Term Source REF", "Fbbi"],
+        ["Screen Imaging Method Term Accession",
+         _ARCHIVE_TERMS.get(str(values["imaging_method"]).strip().lower(), "")],
         ["Screen Technology Type", values["technology"]],
         ["Screen Technology Type Term Source REF", "EFO"],
         ["Screen Type", values["screen_type"]],
         ["Screen Type Term Source REF", "EFO"],
+        ["Screen Type Term Accession",
+         _ARCHIVE_TERMS.get(str(values["screen_type"]).strip().lower(), "")],
         ["# Library"],
         ["Library File Name", library_name],
         ["Library File Format", "tab-delimited text"],
