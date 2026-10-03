@@ -706,3 +706,46 @@ The local packaging cohort passes 82 checks with three known skips.
 An attempted workflow update was rejected by GitHub because the current
 OAuth credential lacks the `workflow` scope; no workflow file was pushed.
 The already-dispatched native build on a327123b1 remains separate.
+
+2026-10-03 — UNATTENDED WINDOWS AND macOS FROZEN REPLACE/INTERRUPT/RESTART ON RUNNERS
+Workflow .github/workflows/native-stall-and-upgrade.yml, final run 37133747297
+(nightly). Old = 1.5.1.0 legacy build (run 36372926331, f9d5af988); new =
+either the released 1.5.1.1 build (run 36419911083, 64b733860) or the
+post-NSIS-fix nightly 1.5.1.2 build (run 37052970531, 2f3219307).
+
+Windows (windows-latest, NT 10.0.26100), tools/accept_frozen_windows_upgrade.ps1
+now with -InterruptAfterSeconds (kills the new installer as soon as the
+runtime starts changing, then launches, reruns, relaunches):
+  1.5.1.0 -> 1.5.1.1: FAIL. Replace leaves imageio-2.37.4 AND 2.38.0
+    dist-info in _internal (the stale runtime predicted above, now observed).
+    Restart Measure smoke passed anyway; prior analysis DB and unrelated
+    file preserved. Interrupted install: launch exits 1; rerun still mixed
+    runtime; relaunch Measure passed.
+  1.5.1.0 -> 1.5.1.2 (fixed NSIS): PASS. Only imageio-2.38.0 remains; DB and
+    unrelated file preserved; restart Measure passed. Interrupted install:
+    _internal already removed, launch times out (no usable app, as expected);
+    rerun restores a single 2.38.0 runtime; relaunch Measure passed.
+  So the 2026-10-02 NSIS guard works; 1.5.1.1 as shipped does not.
+
+macOS (macos-latest, macOS 26.6.2 arm64), tools/accept_frozen_macos_replace.sh:
+user-writable ~/Applications bundle, real atomic exchange through
+spacr/install_cleanup._macos_replace_user_bundle, then restart; process
+killed (os._exit 137) before and after the exchange, fresh-process
+_macos_recover_user_bundle, relaunch.
+  Both new builds: replace journal committed, installed 1.5.1.1 / 1.5.1.2,
+  full 1.5.1.0 bundle retained in .spacr-update-*, restart Measure passed.
+  Crash after exchange: journal prepared -> recovered rolled-back, 1.5.1.0,
+  Measure passed. Crash before exchange: same. PASS with one DEFECT:
+  NEW DEFECT: _macos_bundle_identity(..., version) refuses every real frozen
+  bundle ("the target distribution metadata is absent or ambiguous"): the
+  .app ships no spacr-<version>.dist-info (only third-party ones in
+  Contents/Frameworks). The in-app helper would therefore refuse every real
+  update. The driver records and bypasses only that check (version=None,
+  which also skips its codesign/lipo checks), so exchange/recovery/restart
+  are proven, the identity gate is not. Fix: copy_metadata("spacr") in the
+  PyInstaller spec, or relax the check for frozen bundles.
+
+Not run (maintainer): the in-app Help-update GUI path against a published
+DMG, kill -9 of the real spacr-update-helper, protected /Applications
+(admin prompt, standard user, ACL exit 71), Windows rollback (1.5.1.0 over
+1.5.1.1) and uninstall leftovers. Item stays OPEN.

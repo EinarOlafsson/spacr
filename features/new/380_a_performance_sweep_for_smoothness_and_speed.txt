@@ -2260,3 +2260,20 @@ at their worst (2026-09-25). So on Linux offscreen at moderate load, area
 3's 500 ms ceiling is now met. STILL OPEN: macOS and Windows checks (they
 need those machines), a real display with a compositor, and lower-end
 hardware. At load 35 and above, intervals still go over (see 284).
+
+2026-10-03 — AREA 3 ON HOSTED macOS AND WINDOWS RUNNERS (OFFSCREEN): NOT MET
+.github/workflows/native-stall-and-upgrade.yml (workflow_dispatch; also runs
+on a push that edits it) runs the calibrated harness unchanged:
+tools/spacr_startup_benchmark.py --runs 1 --record-only --offscreen, three
+fresh cold processes per job, Python 3.12, pip install -e ., byte-compiled.
+Five runs of the workflow on nightly (37131988811, 37132376432, 37132837065,
+37133244629, 37133747297), 15 cold processes per platform:
+  windows-latest (Server 2025)  worst 1,308 ms, median 603, 5/15 under 500
+  macos-latest (macOS 26 arm64) worst 2,154 ms, median 1,310, 0/15 under 500
+Linux offscreen on the same tree was 342-348 ms (2026-10-02). Hosted runners
+are shared 3-4 vCPU VMs, so this is an upper bound, not user hardware, and
+offscreen is still not a real compositor. The worst stall is always an
+"interactive module" open; per-module rows are in the stall-<os> artifacts.
+Item stays OPEN: macOS misses the 500 ms ceiling outright on every run;
+Windows misses it on two thirds. Next: profile the worst macOS module opens
+from the run artifacts.
