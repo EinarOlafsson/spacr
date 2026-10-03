@@ -749,3 +749,12 @@ Not run (maintainer): the in-app Help-update GUI path against a published
 DMG, kill -9 of the real spacr-update-helper, protected /Applications
 (admin prompt, standard user, ACL exit 71), Windows rollback (1.5.1.0 over
 1.5.1.1) and uninstall leftovers. Item stays OPEN.
+
+2026-10-03 FIX for the macOS identity DEFECT above: _macos_bundle_identity now
+delegates to _macos_frozen_version_check. A bundle with spacr-<v>.dist-info
+must carry exactly one matching it; a frozen bundle without it is identified
+by the exact SPACRPackageVersion/CFBundle* fields already checked in
+Info.plist, any bundled spacr/_version.py must agree, and dist-info for any
+other spaCR release is refused. lipo/codesign checks still run. Unit test:
+test_frozen_bundle_without_distribution_metadata_is_identified_by_its_versions.
+macOS acceptance rerun: PENDING.

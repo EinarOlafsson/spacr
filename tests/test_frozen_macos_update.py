@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import shutil
 import sys
 
 import pytest
@@ -866,3 +867,29 @@ def test_recovery_cli_refuses_wrong_platform_or_root_before_reading_a_journal(
                         lambda *a, **k: pytest.fail("read a journal before the entry guard"))
     assert cleanup._main(["recover-macos-frozen", "/does-not-exist"]) == 6
     assert "original normal user" in capsys.readouterr().out
+
+
+def test_frozen_bundle_without_distribution_metadata_is_identified_by_its_versions(tmp_path):
+    """Real frozen bundles ship no spaCR dist-info; Info.plist and bundled _version.py identify them.
+
+    :param tmp_path: pytest-owned bundle fixture directory.
+    """
+    app = _bundle(tmp_path / "spaCR.app", "1.5.1.2")
+    shutil.rmtree(app / "Contents" / "Resources" / "spacr-1.5.1.2.dist-info")
+    frameworks = app / "Contents" / "Frameworks"
+    (frameworks / "imageio-2.38.0.dist-info").mkdir(parents=True)
+    (frameworks / "imageio-2.38.0.dist-info" / "METADATA").write_text("Name: imageio\n", encoding="utf-8")
+    assert cleanup._macos_bundle_identity(str(app), "1.5.1.2", run=_native)["SPACRPackageVersion"] == "1.5.1.2"
+    source = frameworks / "spacr" / "_version.py"
+    source.parent.mkdir()
+    source.write_text('__version__ = "1.5.1.2"\n', encoding="utf-8")
+    assert cleanup._macos_bundle_identity(str(app), "1.5.1.2", run=_native)["CFBundleExecutable"] == "spacr"
+    source.write_text('__version__ = "1.5.1.1"\n', encoding="utf-8")
+    with pytest.raises(ValueError, match="bundle version"):
+        cleanup._macos_bundle_identity(str(app), "1.5.1.2", run=_native)
+    source.unlink()
+    stale = frameworks / "spacr-1.5.1.1.dist-info"
+    stale.mkdir()
+    (stale / "METADATA").write_text("Name: spacr\nVersion: 1.5.1.1\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="absent or ambiguous"):
+        cleanup._macos_bundle_identity(str(app), "1.5.1.2", run=_native)

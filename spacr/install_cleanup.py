@@ -1918,6 +1918,48 @@ def _macos_version_fields(version):
             "SPACRPackageVersion": version}
 
 
+def _macos_frozen_version_check(root, version):
+    """Confirm the bundled spaCR release when frozen bundles omit distribution metadata.
+
+    A bundle carrying ``spacr-<version>.dist-info`` must carry exactly one,
+    naming the requested release. A frozen bundle without it is identified by
+    the exact package version already confirmed in its Info.plist, any bundled
+    ``spacr/_version.py`` must agree, and metadata for any other spaCR release
+    is refused.
+
+    :param root: canonical application bundle path.
+    :param version: exact incoming release.
+    :raises ValueError: the bundled release is ambiguous or differs.
+    """
+    import re
+
+    matches, others, sources = set(), set(), set()
+    pattern = re.compile(r"spacr-(.+)\.dist-info", re.IGNORECASE)
+    for directory, _, files in os.walk(root, followlinks=False):
+        name = os.path.basename(directory)
+        found = pattern.fullmatch(name)
+        if found and "METADATA" in files:
+            target = matches if found.group(1).lower() == version.lower() else others
+            target.add(os.path.realpath(os.path.join(directory, "METADATA")))
+        if name == "spacr" and "_version.py" in files:
+            sources.add(os.path.realpath(os.path.join(directory, "_version.py")))
+    if others or len(matches) > 1:
+        raise ValueError("the target distribution metadata is absent or ambiguous")
+    for path in matches | sources:
+        if os.path.commonpath([root, path]) != root:
+            raise ValueError("the target distribution metadata escapes its application")
+    for metadata in matches:
+        with open(metadata, encoding="utf-8") as stream:
+            lines = stream.read().splitlines()
+        if "Name: spacr" not in lines or f"Version: {version}" not in lines:
+            raise ValueError("the frozen distribution version differs from the bundle version")
+    for source in sources:
+        with open(source, encoding="utf-8") as stream:
+            declared = re.findall(r"^__version__\s*=\s*[\"']([^\"']+)[\"']", stream.read(), re.MULTILINE)
+        if declared != [version]:
+            raise ValueError("the frozen distribution version differs from the bundle version")
+
+
 def _macos_bundle_identity(bundle, version=None, *, run=None):
     """Check actual native identity, version, executable and distribution metadata.
 
@@ -1944,19 +1986,7 @@ def _macos_bundle_identity(bundle, version=None, *, run=None):
     if os.path.commonpath([root, os.path.realpath(executable)]) != root:
         raise ValueError("the bundle executable escapes its application")
     if version is not None:
-        matches = set()
-        for directory, _, files in os.walk(root, followlinks=False):
-            if os.path.basename(directory).lower() == f"spacr-{version}.dist-info".lower() and "METADATA" in files:
-                matches.add(os.path.realpath(os.path.join(directory, "METADATA")))
-        if len(matches) != 1:
-            raise ValueError("the target distribution metadata is absent or ambiguous")
-        metadata = next(iter(matches))
-        if os.path.commonpath([root, metadata]) != root:
-            raise ValueError("the target distribution metadata escapes its application")
-        with open(metadata, encoding="utf-8") as stream:
-            lines = stream.read().splitlines()
-        if "Name: spacr" not in lines or f"Version: {version}" not in lines:
-            raise ValueError("the frozen distribution version differs from the bundle version")
+        _macos_frozen_version_check(root, version)
         architecture = invoke(["/usr/bin/uname", "-m"]).strip()
         if architecture not in {"arm64", "x86_64"}:
             raise ValueError("unsupported native macOS architecture")
