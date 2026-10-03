@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr._lineage_measurements#0",
+      "source": "Measured values on lineage trees.",
+      "source_sha256": "161b7cdc292552b3888f1eb49abd1be87606f66522a20ebbbb76466e127846a9",
+      "context": "Measured values on lineage trees.",
+      "translation": "Valores medidos sobre árboles de linaje.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_measurements#1",
+      "source": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
+      "source_sha256": "5f7ed57768207cbf5c5b112009b1307820357d8159a6cd800af318207e6a555e",
+      "context": "Records which images and label stacks a tracking run used, so a later Measure run can join its per-object measurements onto the same tracks and colour the lineage trees by a measured column.",
+      "translation": "Registra qué imágenes y pilas de etiquetas usó una ejecución de seguimiento, para que una ejecución posterior de Measure pueda unir sus mediciones por objeto a las mismas trayectorias y colorear los árboles de linaje según una columna medida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_trees#0",
+      "source": "Lineage trees built from tracked objects.",
+      "source_sha256": "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
+      "context": "Lineage trees built from tracked objects.",
+      "translation": "Árboles de linaje construidos a partir de objetos seguidos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._lineage_trees#1",
+      "source": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
+      "source_sha256": "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca",
+      "context": "Division events are read from explicit parent columns or inferred from nearby track starts, then drawn as tree figures, written as Newick text and summarised as per-lineage statistics, optionally calibrated to hours.",
+      "translation": "Los eventos de división se leen de columnas de padre explícitas o se infieren de inicios de trayectoria cercanos; después se dibujan como figuras de árbol, se escriben como texto Newick y se resumen como estadísticas por linaje, calibradas opcionalmente en horas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

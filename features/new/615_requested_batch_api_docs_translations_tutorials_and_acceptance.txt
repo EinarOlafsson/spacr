@@ -549,3 +549,18 @@ new alpha paragraphs, tutorials (tutorial lane), PyPI/platform checks.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: PyPI storage quota for 1.5.1.1 (maintainer). OPEN docs: translations and tutorial media (docs lane).
+
+2026-10-03 — API TRANSLATION LEFTOVERS CLOSED
+API: spacr.io.preprocess_img_data's three changed blocks (the volumetric TIFF
+route) and item 43's two module overviews (spacr._lineage_trees,
+spacr._lineage_measurements) now have AI-reviewed records in all nine
+locales (docs/i18n/reviewed/api/<lang>/2026-10-03-preprocess-img-data-*.json,
+2026-10-03-lineage-module-overviews.json). The eleven unchanged blocks of
+preprocess_img_data carry their accepted catalog text forward as records;
+two old records were reindexed and one retired with a reason. Writer used
+no model output; the strict audit passes for every block touched here
+(its remaining failures are pre-existing 634 contextualizer flags, see 411).
+Runtime ram_guard and the guide alpha paragraphs were settled on nightly
+(records retired in 8bce8174f; alpha passages removed from the guides), so
+no guide translation was needed.
+LEFT: tutorials (tutorial lane), PyPI/platform checks, native-speaker review.

@@ -2069,3 +2069,28 @@ F411 item is still PARTIAL. No human/native-speaker review is implied.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: OPEN docs work: 1,120 of 1,134 nested helpers (large, docs lane); native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 111 MORE MODULES ENABLED (PARTIAL; 145 of 1,153)
+tools/nested_helper_docs.ENABLED_MODULES grows from 4 to 115 modules: 68
+non-Qt modules with one or two helpers and 43 spacr.qt modules with one
+helper. Left out: settings, preferences, plaque and organism files (other
+lanes), spacr._v1_v2_bridge (module page not rendered), and
+spacr.object_classifier / spacr.qt.import_demo (nightly added undocumented
+or changed helpers there during this pass). The normal API writer adds
+exactly 131 helper symbols (12,040 -> 12,171) in English and all nine
+locales; every earlier record is unchanged except spacr.io.preprocess_img_data
+(see 615). 284 unique helper blocks got direct AI translations with AI
+technical review in every locale, in
+docs/i18n/reviewed/api/<lang>/2026-10-03-nested-batch{1,2}.json (no
+native-speaker signoff). Writer: generated=0, decoded=0 in every locale.
+Four symbol pins move +131; Help index regenerated.
+Strict nine-locale audit: every new and repaired block passes; the audit's
+only failures are pre-existing catalog entries (spacr.crops#1,
+spacr.qt.widgets.preview_contract#3-5) that nightly's 634 contextualizer
+change (eb2201537) now flags as contextual false friends -- untouched here.
+Nightly also carries 79 public docstrings changed upstream (d691dd9f2 item-
+number removals, 634 organism text) whose catalogs need the next API pass.
+The canonical documented-helper denominator is now 1,153 (source grew from
+1,134). Enabled: 145; 1,008 remain. Next: modules with 2-3 helpers, then the
+large ones (preferences, utils, plot, fractal_travel, gui_scale, ml).
+    BLOCKED / open: OPEN docs work: 1,008 of 1,153 nested helpers; 79 upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).

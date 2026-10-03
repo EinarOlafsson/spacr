@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.io.preprocess_img_data#1",
+      "source": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "source_sha256": "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
+      "context": "Usually invoked internally by :func:`spacr.core.preprocess_generate_masks`, but callable directly when you only want the preprocessing half. By default it converts z-stacks to MIPs, renames files into the Yokogawa/spacr layout, merges per-image data channel folders into stacked ``.npy`` arrays with optional background subtraction and percentile normalization, and (in ``test_mode``) emits example plots.",
+      "translation": "Er venjulega kallað innbyrðis af :func:`spacr.core.preprocess_generate_masks`, en má kalla beint þegar þú vilt aðeins forvinnsluhelminginn. Sjálfgefið breytir það z-stöflum í MIP, endurnefnir skrár í Yokogawa/spacr-skipanina, sameinar möppur fyrir hverja rás í staflað ``.npy``-fylki með valfrjálsum bakgrunnsfrádrætti og hundraðshlutastöðlun og (í ``test_mode``) býr til dæmigröf.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#2",
+      "source": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each field/channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the field and channel; ambiguous axes, duplicate channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one field at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "source_sha256": "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
+      "context": "With ``z_stack=True`` and ``z_segmentation_mode='volumetric'``, a separate raw TIFF route preserves Z. Each microscope field of view/image data channel must be one complete TIFF series explicitly labelled ``ZYX``. Filename metadata identifies the microscope field of view and image data channel; ambiguous axes, duplicate image data channels and missing companions are refused before any stack is written. This route retains the original files even if ``save_original_images`` is false, publishes canonical ``ZYXC`` stacks with a completion record, and normalises one microscope field of view at a time. Reuse verifies source and stack hashes and relevant processing settings. An old projected stack cannot be reused as a volume. Individual slice-file layouts, time-series, test-mode sampling and illumination or PSF preprocessing are not supported by this raw volumetric route.",
+      "translation": "Með ``z_stack=True`` og ``z_segmentation_mode='volumetric'`` varðveitir sérstök leið fyrir hráar TIFF-skrár Z. Hvert svið og hver rás verður að vera ein heil TIFF-röð sem er sérstaklega merkt ``ZYX``. Lýsigögn í skráarheiti ákvarða svið og rás; tvíræðum ásum, tvíteknum rásum og fylgiskrám sem vantar er hafnað áður en nokkur stafli er skrifaður. Þessi leið heldur upprunalegu skránum jafnvel þótt ``save_original_images`` sé ósatt, birtir staðlaða ``ZYXC``-stafla með lokafærslu og staðlar eitt svið í einu. Endurnýting sannreynir tætigildi uppruna og stafla og viðeigandi vinnslustillingar. Ekki er hægt að endurnýta gamlan varpaðan stafla sem rúmmál. Skipanir með einni skrá á hverja sneið, tímaraðir, sýnataka í prófunarham og forvinnsla lýsingar eða PSF eru ekki studdar af þessari hráu rúmmálsleið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.preprocess_img_data#9",
+      "source": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-field/channel projection behavior.",
+      "source_sha256": "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
+      "context": "``z_stack`` and ``z_segmentation_mode`` select the explicit volumetric TIFF route described above. Other raw layouts retain the existing per-microscope field of view/image data channel projection behavior.",
+      "translation": "``z_stack`` og ``z_segmentation_mode`` velja sérstöku rúmmáls-TIFF-leiðina sem lýst er hér að ofan. Aðrar hráar skipanir halda núverandi vörpun fyrir hvert svið og hverja rás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

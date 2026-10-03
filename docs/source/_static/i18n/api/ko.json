@@ -82,6 +82,40 @@
         "e58f48524edaca9aceb23294fce8b0ebe44d39a67b777cebe616ea8dfe3b2a6f"
       ]
     },
+    "spacr._lineage_measurements": {
+      "source_blocks_sha256": [
+        "161b7cdc292552b3888f1eb49abd1be87606f66522a20ebbbb76466e127846a9",
+        "5f7ed57768207cbf5c5b112009b1307820357d8159a6cd800af318207e6a555e"
+      ],
+      "source_sha256": "622f82e75d53a0a3174ee07e54b952333e8da4df5977f262fa02a39d1ac25272",
+      "text": "계보 트리 위의 측정값입니다.\n\n추적 실행이 어떤 이미지와 레이블 스택을 사용했는지 기록하여, 이후의 Measure 실행이 객체별 측정값을 같은 트랙에 결합하고 측정된 열에 따라 계보 트리를 색칠할 수 있게 합니다.",
+      "translation_source_blocks_sha256": [
+        "161b7cdc292552b3888f1eb49abd1be87606f66522a20ebbbb76466e127846a9",
+        "5f7ed57768207cbf5c5b112009b1307820357d8159a6cd800af318207e6a555e"
+      ]
+    },
+    "spacr._lineage_measurements._measured_lineage_options.number": {
+      "source_blocks_sha256": [
+        "f34e400cbd996ff882d6eb08b2e445ada007ddff2faa227f11bfa676d74fc9b9"
+      ],
+      "source_sha256": "f34e400cbd996ff882d6eb08b2e445ada007ddff2faa227f11bfa676d74fc9b9",
+      "text": "불리언, 숫자가 아닌 값, 표현할 수 없는 숫자 설정을 거부합니다.",
+      "translation_source_blocks_sha256": [
+        "f34e400cbd996ff882d6eb08b2e445ada007ddff2faa227f11bfa676d74fc9b9"
+      ]
+    },
+    "spacr._lineage_trees": {
+      "source_blocks_sha256": [
+        "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
+        "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca"
+      ],
+      "source_sha256": "867975db58e77240eae87032ff5d560adb914a8de6cb578e8e3486827d9c5145",
+      "text": "추적된 객체로 만든 계보 트리입니다.\n\n분열 이벤트는 명시적인 부모 열에서 읽거나 가까운 트랙 시작점에서 추론한 뒤, 트리 그림으로 그리고 Newick 텍스트로 기록하며 계보별 통계로 요약하고, 선택적으로 시간 단위로 보정합니다.",
+      "translation_source_blocks_sha256": [
+        "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
+        "85b6715bcd9d66c42c2d0d8254422d268d2d653b89431acc2043a872794b4dca"
+      ]
+    },
     "spacr._mask_workers": {
       "source_blocks_sha256": [
         "9e41da63cd3929f7da63a7ae052eaa9214ee928190dd980d2d8cbb1e59f71153"
@@ -226,6 +260,16 @@
         "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890"
       ]
     },
+    "spacr._starplast.install_starplast.line": {
+      "source_blocks_sha256": [
+        "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e"
+      ],
+      "source_sha256": "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e",
+      "text": "하위 프로세스의 모든 출력을 저장하고 마지막 줄을 Qt로 보냅니다.",
+      "translation_source_blocks_sha256": [
+        "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e"
+      ]
+    },
     "spacr._starplast.is_installed": {
       "source_blocks_sha256": [
         "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
@@ -294,6 +338,16 @@
         "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
         "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
         "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c"
+      ]
+    },
+    "spacr._starplast.upgrade_starplast.line": {
+      "source_blocks_sha256": [
+        "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c"
+      ],
+      "source_sha256": "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c",
+      "text": "pip 진단 정보를 저장하고 진행 상황 표시를 업데이트합니다.",
+      "translation_source_blocks_sha256": [
+        "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c"
       ]
     },
     "spacr._version": {
@@ -400,6 +454,40 @@
       "text": "``torch.device``에 대 한 :attr:`device`, 또는 CPU torch 완전히 사라진 경우.",
       "translation_source_blocks_sha256": [
         "cb6d8ac22b8e400273dd2974272c1df7665544eba4cfad6245e5ab0d1afe5dd6"
+      ]
+    },
+    "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu": {
+      "source_blocks_sha256": [
+        "a44ae08ddb00d112884880992a83b68ed28a42ec249ced2d404cbcb3b7bf1655",
+        "df02c0a299e96ed6a218c7d486cd33065ce86c1f70119b74c377339b36e54add",
+        "edf22d6669a1a43175cf129a9c18cd9702252b04995e0556df3a03a47e885f8f",
+        "82308d28c73b6dcab0ba26d652ef31bb9b9f88263847b920ccbe68c6c879b7a9",
+        "10607a4349d6038c482cf48d9412cfba0cfdbe2daf5eb45f1a169eb2ba4272be",
+        "004d06390aa3e758438e523f2362c5edea9ed033734a4a6267897b6212f68019"
+      ],
+      "source_sha256": "5b3c0b7df3e2d4f52494e1a90beb20e7247d16e1b99568d453edfd3219f0deeb",
+      "text": "Metal용으로 CPU에서 Cellpose 흐름 오차 필터링을 실행합니다.\n\n:param masks: Cellpose에 그대로 전달되는 레이블 마스크입니다.\n:param flows: Cellpose에 그대로 전달되는 흐름 필드입니다.\n:param threshold: Cellpose에 전달되는 흐름 오차 임계값입니다.\n:param device: 무시되는 호환성 인수입니다. 래핑된 호출은 항상 ``torch.device(\"cpu\")``를 받습니다.\n:returns: ``remove_bad_flow_masks``의 원래 반환값입니다.",
+      "translation_source_blocks_sha256": [
+        "a44ae08ddb00d112884880992a83b68ed28a42ec249ced2d404cbcb3b7bf1655",
+        "df02c0a299e96ed6a218c7d486cd33065ce86c1f70119b74c377339b36e54add",
+        "edf22d6669a1a43175cf129a9c18cd9702252b04995e0556df3a03a47e885f8f",
+        "82308d28c73b6dcab0ba26d652ef31bb9b9f88263847b920ccbe68c6c879b7a9",
+        "10607a4349d6038c482cf48d9412cfba0cfdbe2daf5eb45f1a169eb2ba4272be",
+        "004d06390aa3e758438e523f2362c5edea9ed033734a4a6267897b6212f68019"
+      ]
+    },
+    "spacr.accelerator._measure_dtypes.accepts": {
+      "source_blocks_sha256": [
+        "cfdf92399649399aab3dd4357891c57526e8ba868a2470f68475c4b84365107f",
+        "8adfe5ebc32fabe69ddbd8b8f58975ffad6afcdaa7c7f0108fa40a87681f1e5b",
+        "b64978e9b3ed0038ba072c538eac1baac6333574f99643f33c9dd6f7400f17f4"
+      ],
+      "source_sha256": "b18f13c1a51775639160e9c9e3018b17bed74d1f08e2665ade5f05eee7a1dbf8",
+      "text": "확인된 장치가 지정된 torch 데이터 유형 하나를 받아들이는지 검사합니다.\n\n:param name: ``\"float64\"`` 또는 ``\"bfloat16\"`` 같은 torch 데이터 유형 속성 이름입니다.\n:returns: 두 원소 텐서가 장치에 할당되면 ``True``, 지원되지 않는 데이터 유형에서 나는 오류이면 ``False``, torch에 해당 데이터 유형이 없거나 검사가 예기치 않게 실패하면 ``None``입니다.",
+      "translation_source_blocks_sha256": [
+        "cfdf92399649399aab3dd4357891c57526e8ba868a2470f68475c4b84365107f",
+        "8adfe5ebc32fabe69ddbd8b8f58975ffad6afcdaa7c7f0108fa40a87681f1e5b",
+        "b64978e9b3ed0038ba072c538eac1baac6333574f99643f33c9dd6f7400f17f4"
       ]
     },
     "spacr.accelerator.autocast_device_type": {
@@ -1804,6 +1892,26 @@
         "fb168f6a05f3e2d384b0e585c2ac72adcb49e6ffaa123640ba3fc8560e8dc260"
       ]
     },
+    "spacr.agreement.kappa_detail._pack": {
+      "source_blocks_sha256": [
+        "6a289ff0d0c6f94360b63a1ad20127164fe1b9f15c90b3dcda317fe3f9903137",
+        "a2733557ce9f92a5f63e312c03ad1259f0c8016037c4d10d094bf57a71f08d59",
+        "7e1266ad15c528f0da5d98de715ce851b36a6c8edd95a81cc9b97fea15b40ca7",
+        "03666b1ad1969877e61e52382f9cf281f858797220403cc27585456130663f9c",
+        "3444822f36a5578c188ef97c0d394b29f087b79b981d7ee2108cddea7c42037a",
+        "e59811648fdca22f996399b770a95e8ce0b7982ec84bd6df48e78eddb58184cf"
+      ],
+      "source_sha256": "f6ad64ad38b5af17be7e006a6fc393f4e35dfcd86630f08b4e0e59e617a79d1f",
+      "text": "캡처된 개수로 완전한 일치도 결과 하나를 만듭니다.\n\n:param kappa: 계산된 Cohen 카파이며, 정의되지 않으면 NaN입니다.\n:param p_o: 관측된 일치 비율입니다.\n:param p_e: 주변 분포로부터 기대되는 일치 비율입니다.\n:param note: 일반적인 결과 또는 퇴화된 결과에 대한 설명입니다.\n:returns: 제공된 통계와 함께 캡처된 주석자 이름, 개수, 레이블, 혼동 행렬, 해석을 담은 결과입니다.",
+      "translation_source_blocks_sha256": [
+        "6a289ff0d0c6f94360b63a1ad20127164fe1b9f15c90b3dcda317fe3f9903137",
+        "a2733557ce9f92a5f63e312c03ad1259f0c8016037c4d10d094bf57a71f08d59",
+        "7e1266ad15c528f0da5d98de715ce851b36a6c8edd95a81cc9b97fea15b40ca7",
+        "03666b1ad1969877e61e52382f9cf281f858797220403cc27585456130663f9c",
+        "3444822f36a5578c188ef97c0d394b29f087b79b981d7ee2108cddea7c42037a",
+        "e59811648fdca22f996399b770a95e8ce0b7982ec84bd6df48e78eddb58184cf"
+      ]
+    },
     "spacr.agreement.load_annotations": {
       "source_blocks_sha256": [
         "e3d12f1be753125c554932ec1a91cacd2a38876aed243b4febb9fac73114679b",
@@ -2246,6 +2354,20 @@
       "text": "픽셀의 넓이를 0으로 표시하면 알려지지 않습니다.",
       "translation_source_blocks_sha256": [
         "8f91f6cdaacefc99bdac8b93ad20e8431ccab33e441f808d5f5cca2900e252df"
+      ]
+    },
+    "spacr.align._count_components.find": {
+      "source_blocks_sha256": [
+        "20c4450539970f2d05262e283953059a61b333c46312dcc1592a50032671dd50",
+        "c64a3202673d1249f54e3d5efa66ea6bf2c19e69bdc29cc9f0fc4c51591a8d69",
+        "a024092130c4ab205da84d8b7a34a32da71c43cb0b212f75d80549d92d1510da"
+      ],
+      "source_sha256": "1db4ccfba9216cbc7f5ef2d08da3d44bc590bd3c303af26c62baa6fed208a622",
+      "text": "타일 하나의 캡처된 성분 부모를 찾고 압축합니다.\n\n:param a: union-find 대표가 필요한 타일 인덱스입니다.\n:returns: 캡처된 포레스트에서 거쳐 간 각 부모 링크를 경로 절반화한 뒤의 루트 인덱스입니다.",
+      "translation_source_blocks_sha256": [
+        "20c4450539970f2d05262e283953059a61b333c46312dcc1592a50032671dd50",
+        "c64a3202673d1249f54e3d5efa66ea6bf2c19e69bdc29cc9f0fc4c51591a8d69",
+        "a024092130c4ab205da84d8b7a34a32da71c43cb0b212f75d80549d92d1510da"
       ]
     },
     "spacr.align.align_folder": {
@@ -3166,6 +3288,22 @@
         "e0427ed88b5f37a8ff68b000ca023b1003812c5fe857c461a52252e3df09a6ff",
         "f7c6f7a80a6367180676a911c263ca1619d90ef36203c7311dddc163be7f4819",
         "d2f4752d8c36925972c40d1324048797830756e76eb37d878cbe1975bcd5a67e"
+      ]
+    },
+    "spacr.annotation_dataset.generate_annotation_dataset._write": {
+      "source_blocks_sha256": [
+        "6e6d13fc30931eef23b36a3fa8b4d97312e286f72fb6d082e3e04a777d9db07b",
+        "a0011258f296314d6f8cfa6a9ddef4a57a0bf977439e338c56da4475fb80b848",
+        "09e6775c7514f8e8a32dd106ac820836205e480a98b34c3a260d79e626dc9a2e",
+        "691fc128502fc8a66875905d6d28e97f74bf0142fceac5562c4d8deb18d781c1"
+      ],
+      "source_sha256": "5b818f3b4d01dba7ad73a6dfdc388e309f9bdb33326e2b55cdd8c5a3510a91a1",
+      "text": "Measure의 기록기로 스트리밍된 크롭 하나를 기록하고 등록합니다.\n\n:param path: 제안된 크롭 경로입니다. 확장자는 ``.png``로 바뀝니다.\n:param array: 정규화, 선택, 패딩, 크기 조정 후 저장할 크롭 배열입니다.\n:returns: None. 공유 기록기가 반환한 경로는 캡처된 채널과 PNG 크기를 사용해 캡처된 목록에 추가되며, 이후 등록되는 선택 행과의 대응이 유지됩니다.",
+      "translation_source_blocks_sha256": [
+        "d9b6379af04814ea6d05b332e7ad2c87e732314f7c7bcde22698ed295d40d2c1",
+        "45f649f146337e6231557c480b0fe36159366d48740f426aac04487c0052bfc7",
+        "66f9663dd23814898067a5bd0d1d20b684adf1c07bd9344bb63c9441eb161b0a",
+        "54d75f6512cffee74019ea184313f265adbda7f20ad242668f4ee18678dd70bb"
       ]
     },
     "spacr.annotation_dataset.next_png_table": {
@@ -6782,6 +6920,22 @@
         "1814e0f48d0ec831b9d31508709671b8498e5c4f010c5f5987df425820812a97"
       ]
     },
+    "spacr.batch._cycle_problems.walk": {
+      "source_blocks_sha256": [
+        "4e00e54470f967c49f3e200a7f578b87f35d04abf9198d6f381a5e1c4cabd78e",
+        "725a086c072d2419b819a01d535bfd4d860f715cec6fc6d96f8e18429c9ea06e",
+        "081492032cc839aadb2c00faf69bd9f67fa4ed99ff8f289cbbfc20164258fb42",
+        "4531b7e3ee4932e872ee43f4b02ca9e529598b0df41a36f815d00db64dc98914"
+      ],
+      "source_sha256": "4db9b9a3c528a6fb62279ea8aa5b5b3f8ea947cdfd9b2f9fb3a69ecdfba2eace",
+      "text": "캡처된 의존성 하위 그래프 하나를 깊이 우선 탐색하여 순환을 찾습니다.\n\n:param job_id: 알려진 의존성을 방문해야 하는 대기열 작업입니다.\n:param trail: 역방향 간선 순환을 재구성하는 데 쓰이는 활성 조상 ID입니다.\n:returns: None. 캡처된 상태는 활성 작업과 완료된 작업을 기록하고, 역방향 간선은 문제 하나를 추가합니다. 누락된 의존성 ID는 일반 의존성 검증이 그런 오타를 보고하므로 여기서는 무시됩니다.",
+      "translation_source_blocks_sha256": [
+        "4e00e54470f967c49f3e200a7f578b87f35d04abf9198d6f381a5e1c4cabd78e",
+        "3a46f33890dd2ea8c2b62cc2953ff4857fcd3a2b670af1c2727439d3f69bdd58",
+        "081492032cc839aadb2c00faf69bd9f67fa4ed99ff8f289cbbfc20164258fb42",
+        "4531b7e3ee4932e872ee43f4b02ca9e529598b0df41a36f815d00db64dc98914"
+      ]
+    },
     "spacr.batch.classify_failure": {
       "source_blocks_sha256": [
         "1fb1121afafd3d3508ff2c6143094705e1a30722546ad1084d11206b0ffea2df",
@@ -6976,6 +7130,16 @@
         "ad00a01060e287288b9a75fd5a86865f65086fe6dc95c1d3d40cde9b2b6ee2bb",
         "92218644229827b1d87fcbd1e12f1399be585bc572f4fb404a3af5ffefc1bd95",
         "84e3a683816aff544868525230ba96e1e8e54099e5b0287723ce9e8e6167fcc3"
+      ]
+    },
+    "spacr.batch.run_queue.persist": {
+      "source_blocks_sha256": [
+        "bf59dfeb662ba2b7e3869bdb650a7de806492e00d9def62a36f48c2fca98bdab"
+      ],
+      "source_sha256": "bf59dfeb662ba2b7e3869bdb650a7de806492e00d9def62a36f48c2fca98bdab",
+      "text": "상태 전환 후 대기열을 기록합니다. 결코 치명적이지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "37132d773e4b9922cb5129f0d802b79280453435cf3f6fb079ef7c220a93ab42"
       ]
     },
     "spacr.batch.save_queue": {
@@ -9422,6 +9586,20 @@
         "7aa535a2243868ebc582c357d5fe1f1aa3b8145203b68d9fffe7c65f135b992d"
       ]
     },
+    "spacr.chaining.same_path.flatten": {
+      "source_blocks_sha256": [
+        "af1b84e55764d01c35f452e64f29853ab51d1ff22c7f23329e54aa85f6cc023c",
+        "3fec1c490aa6b7f604619c825e0571d57f60a145c95175edd81016520f94384b",
+        "c1c449bb53825b34597e09f01570416532ab19388e371512e1f4cc3e3bed7f83"
+      ],
+      "source_sha256": "000ce5b73b5408c6f35fe67d82a96def522d89f7f02fe4d2b3bfc116f9967e8d",
+      "text": "경로와 비슷한 값 하나를 정규화된 경로 문자열로 평탄화합니다.\n\n:param value: 스칼라 경로, 중첩된 리스트나 튜플, ``None``, 또는 공백을 제거한 문자열 표현이 경로를 가리키는 다른 값입니다.\n:returns: 깊이 우선 순서의 경로 문자열입니다. 빈 값은 생략되고 유지된 각 값은 :func:`os.path.normpath`로 정규화됩니다.",
+      "translation_source_blocks_sha256": [
+        "af1b84e55764d01c35f452e64f29853ab51d1ff22c7f23329e54aa85f6cc023c",
+        "3fec1c490aa6b7f604619c825e0571d57f60a145c95175edd81016520f94384b",
+        "c1c449bb53825b34597e09f01570416532ab19388e371512e1f4cc3e3bed7f83"
+      ]
+    },
     "spacr.chaining.satisfies": {
       "source_blocks_sha256": [
         "0df9590e4c4a5eb7a799f292a160585db2630f8a74c2d8b83bd7cd8881d51d94",
@@ -11198,6 +11376,16 @@
         "036deeb603a2e831cf384be9d05ca34589aaed71d6fe7354c10170543f88812d"
       ]
     },
+    "spacr.classifier_quality.best_threshold.value": {
+      "source_blocks_sha256": [
+        "758679d10d44aac4ca1b1d9ef984f59424828fb12b9c4ca2844d3fc4306b229f"
+      ],
+      "source_sha256": "758679d10d44aac4ca1b1d9ef984f59424828fb12b9c4ca2844d3fc4306b229f",
+      "text": "Youden J를 반환하며, 유한하지 않은 결과는 마지막 순위로 둡니다.",
+      "translation_source_blocks_sha256": [
+        "758679d10d44aac4ca1b1d9ef984f59424828fb12b9c4ca2844d3fc4306b229f"
+      ]
+    },
     "spacr.classifier_quality.confusion": {
       "source_blocks_sha256": [
         "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
@@ -11226,6 +11414,18 @@
         "8531501efea4d5fe6f8e665cf465f112127ccb0c7d5c20a695767ad6ee266840",
         "abc3d38afe6d7ea43243db1c0afde31b346d124b15cf64c4e21e6c449dcc16fa",
         "ae32014d6da17b9be845d29a7a3c3794315b6bab82fa4f9cdf14ca1e74a8dc67"
+      ]
+    },
+    "spacr.classifier_quality.deconvolve.above": {
+      "source_blocks_sha256": [
+        "3c38d59b814f7fe1737fa1dc7ed8f8e0ef7aff8e9ace2b6ff254353665418bd7",
+        "343dfe200a00c0513b9afb4e7d9a3b20aef095ef282869a8ccbdc4b8ce13c738"
+      ],
+      "source_sha256": "c0c8ee0c08a0d9267e050968c40553fe0d2ac52c16f5ef2dcb347c92a8d2db5c",
+      "text": "적합된 중간점 위쪽의 가우스 확률을 추정합니다.\n\n폭이 0인 성분은 0으로 나누는 계산에 넘기지 않고 절단의 확정된 한쪽으로 취급합니다.",
+      "translation_source_blocks_sha256": [
+        "3c38d59b814f7fe1737fa1dc7ed8f8e0ef7aff8e9ace2b6ff254353665418bd7",
+        "343dfe200a00c0513b9afb4e7d9a3b20aef095ef282869a8ccbdc4b8ce13c738"
       ]
     },
     "spacr.classifier_quality.discover_test_splits": {
@@ -11814,6 +12014,22 @@
         "41542885f0ae36bcbe399cf70f8117a3f20f12a51fd4c4f63e8ffddb5c119a6c"
       ]
     },
+    "spacr.cli._NoShow.__enter__._close_instead": {
+      "source_blocks_sha256": [
+        "ec0e8514a220a56ee26ac4709c873672c485ae69087d366a514a6a20283d26c5",
+        "e5528c3cf25d396a3fe49c89eef96ce4d2c94d61f3e83b43f4cf2e1b4c2989f3",
+        "7a6940f04aea377119e4d92fee5973305582d4d9b64c4f6c1d12829f21eed7f7",
+        "9d39e44e788b532c65d3241c350ac3b2478bbf3a4d1e184060f3d4da52d8f301"
+      ],
+      "source_sha256": "6aef1a69dad71074fa38e894ced74f8eb7341a6c8a9cc7343c9dc7d2a0b935e9",
+      "text": "캡처된 현재 그림을 표시하지 않고 닫습니다.\n\n:param args: ``show`` 시그니처 호환을 위해 받아들이지만 무시하는 위치 인수입니다.\n:param kwargs: 호환성을 위해 받아들이지만 무시하는 키워드 인수입니다.\n:returns: None. 백엔드 오류와 닫기 오류는 의도적으로 무시되므로, 선택적 시각화 정리 때문에 화면 없는 실행이 실패하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "ec0e8514a220a56ee26ac4709c873672c485ae69087d366a514a6a20283d26c5",
+        "e5528c3cf25d396a3fe49c89eef96ce4d2c94d61f3e83b43f4cf2e1b4c2989f3",
+        "7a6940f04aea377119e4d92fee5973305582d4d9b64c4f6c1d12829f21eed7f7",
+        "9d39e44e788b532c65d3241c350ac3b2478bbf3a4d1e184060f3d4da52d8f301"
+      ]
+    },
     "spacr.cli.apply_overrides": {
       "source_blocks_sha256": [
         "f565f10ac24c3cab6d3aabaff60297352813526ef0ec13a685abe7f551ce0f0a",
@@ -12190,6 +12406,18 @@
       "translation_source_blocks_sha256": [
         "54192c75e5c5ece2abdffe42fbb3047a03b1f8e41bd27efe68d048da7f895d33",
         "fb4cc056c91c432dcbf071bc83524c3488c3ac99db28a61282d5c86e6cf984e8"
+      ]
+    },
+    "spacr.cli_download._progress.report": {
+      "source_blocks_sha256": [
+        "2e4a1ffffd24f71ff5b4a694d5c5701c8be2fd2b2f4c2c81277196cf8e8ba7a2",
+        "17210b18bb2c7c723e3785a999bfb9989d8aa547caf3a5f90c49e83bd763b40f"
+      ],
+      "source_sha256": "5a61273d9d21717485a23bd83acfaab2ef04951531793548e53b664ad4148f24",
+      "text": "정수 백분율이 바뀌면 터미널 줄을 다시 그립니다.\n\n알 수 없거나 0인 총계로는 유용한 백분율을 만들 수 없으므로 무시됩니다. 내보낸 각 업데이트는 즉시 보이도록 바로 플러시됩니다.",
+      "translation_source_blocks_sha256": [
+        "2e4a1ffffd24f71ff5b4a694d5c5701c8be2fd2b2f4c2c81277196cf8e8ba7a2",
+        "17210b18bb2c7c723e3785a999bfb9989d8aa547caf3a5f90c49e83bd763b40f"
       ]
     },
     "spacr.cli_download.build_parser": {
@@ -12998,6 +13226,16 @@
         "5f06a6f125201f1587a8a3881193cadd0480c05b395640d6b975c66034c3e317"
       ]
     },
+    "spacr.condition_annotations._extract_preview.extract": {
+      "source_blocks_sha256": [
+        "702e3637ed1ab5b9f9051b77bf4c4a6720d1c1a2d55323a02d83cc77b074ca5e"
+      ],
+      "source_sha256": "702e3637ed1ab5b9f9051b77bf4c4a6720d1c1a2d55323a02d83cc77b074ca5e",
+      "text": "값 하나에 대해 캡처된 그룹이며, 일치하는 것이 없으면 NA입니다.",
+      "translation_source_blocks_sha256": [
+        "702e3637ed1ab5b9f9051b77bf4c4a6720d1c1a2d55323a02d83cc77b074ca5e"
+      ]
+    },
     "spacr.condition_annotations.annotation_columns": {
       "source_blocks_sha256": [
         "8b47252404c18af241e69dddd6a33d4e7e68b7565be310cdd7aa04963d8605a9",
@@ -13098,6 +13336,16 @@
         "033a347f83a6feaba58b779bf3ec713c551f82c413b70ead2d4b86c78b89a517",
         "d47ca272b01984ee2223a33664357a8796a6e467fbf326817c5012b7e004de16",
         "4fdf992728b4c93e29c2ffbc49be4a882554fc4b91fdca68e7509d5efb71826b"
+      ]
+    },
+    "spacr.condition_annotations.save_annotated_table.scalar": {
+      "source_blocks_sha256": [
+        "c660fb4a74c16aae37d987212b8fb37565dfcf2498a267f81a3ab45d21de8738"
+      ],
+      "source_sha256": "c660fb4a74c16aae37d987212b8fb37565dfcf2498a267f81a3ab45d21de8738",
+      "text": "일반 JSON으로 나타낸 값 하나입니다: ISO 날짜, Python 숫자, 빈 칸은 None입니다.",
+      "translation_source_blocks_sha256": [
+        "c660fb4a74c16aae37d987212b8fb37565dfcf2498a267f81a3ab45d21de8738"
       ]
     },
     "spacr.condition_annotations.saved_table_annotation": {
@@ -13994,6 +14242,16 @@
       "text": "False :func:`scan`이 출처를 열 수 없을 때.",
       "translation_source_blocks_sha256": [
         "95f1d7c637c86bbe56e4f3d91865d0dd7b59acb450f3273bc0ecc6fb8201638c"
+      ]
+    },
+    "spacr.convert._parse_by_convention._number": {
+      "source_blocks_sha256": [
+        "fc43a4ef85c14eb4cc6c4c4f8114f24694846e3576af4d57907ae72ac177ff62"
+      ],
+      "source_sha256": "fc43a4ef85c14eb4cc6c4c4f8114f24694846e3576af4d57907ae72ac177ff62",
+      "text": "1부터 시작하는 정수로 나타낸 그룹이며, 숫자가 아니면 None입니다.",
+      "translation_source_blocks_sha256": [
+        "fc43a4ef85c14eb4cc6c4c4f8114f24694846e3576af4d57907ae72ac177ff62"
       ]
     },
     "spacr.convert.assign_wells": {
@@ -16746,6 +17004,32 @@
         "adb39a1cb911b19ca53d7d28dd828cc60dcc35d5c6774a6bb3382d0d1d999d70"
       ]
     },
+    "spacr.crops.migrate_crop_folder._flush": {
+      "source_blocks_sha256": [
+        "753b4f4e49a0b4b1401005ff0f25a894b6e1dae4f4087855c574435e38396f56",
+        "d1b8e8c9f809645cb4dfe8ec843552b0b53669ed649873e81c95fdea25a7bb4f",
+        "a1b53c091ffca9692af902f98bc8b69045bbe8a5447b9e16a35d12337c284fb2"
+      ],
+      "source_sha256": "a7a9aa9c0cb1a90fc23c15e70f88d67d085d82125ed71b19a787843c4c59ec59",
+      "text": "워터마크를 영구적으로 전진시킵니다. 크롭마다 작은 fsync 한 번은 의도된 것입니다.\n\n이것이 \"converted\"(변환됨)와 \"not converted yet\"(아직 변환되지 않음)을 추측이 아니라 디스크상의 사실로 만들며, 이것이 보호하는 PNG를 디코딩하고 다시 인코딩하는 것에 비하면 비용이 적습니다.\n\n재시도 실행에는 전진시킬 워터마크가 없습니다 -- 폴더는 이름이 명시된 남은 파일을 제외하면 이미 형식 2입니다 -- 따라서 대신 더 짧은 ``unconverted`` 목록으로 완료 표시를 다시 씁니다.",
+      "translation_source_blocks_sha256": [
+        "a9bb2b4dad9fbd613e5d21fb59c34a80ca616812b90c2b8e96c67dab50cd2364",
+        "d1b8e8c9f809645cb4dfe8ec843552b0b53669ed649873e81c95fdea25a7bb4f",
+        "a1b53c091ffca9692af902f98bc8b69045bbe8a5447b9e16a35d12337c284fb2"
+      ]
+    },
+    "spacr.crops.migrate_crop_folder._todo": {
+      "source_blocks_sha256": [
+        "62297dbf4589310b26df46a49a359cb370c2a15ac15a364fce39a1eac17c2ea1",
+        "61ebd23a61ca29bc641ba5a0b856a096af4642800e117b2448da6690058ee661"
+      ],
+      "source_sha256": "af3888f101d62ca860fd88bd5fd360739510c9a927161de1023d27acb1faac5c",
+      "text": "``name``을 아직 변환해야 하면 True입니다.\n\n스테이징된 파일은 두 모드 모두에서, 양방향 모두에서 다른 모든 것보다 우선합니다 -- 이는 :func:`crop_format_for_png`가 읽는 것과 같은 규칙이므로, 마이그레이터가 남았다고 생각하는 작업과 리더가 아직 구형식이라고 생각하는 것이 결코 어긋날 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "62297dbf4589310b26df46a49a359cb370c2a15ac15a364fce39a1eac17c2ea1",
+        "61ebd23a61ca29bc641ba5a0b856a096af4642800e117b2448da6690058ee661"
+      ]
+    },
     "spacr.crops.migrate_crop_tree": {
       "source_blocks_sha256": [
         "899ff7c1de5e9ff9ef7520228961e362596d7a9858de3c7fff259587e387854f",
@@ -18468,6 +18752,18 @@
         "cbb83b1ffdb5e69ef1480e7306590ed8822f1aba6963b7ba95a0aea2944cab80"
       ]
     },
+    "spacr.curation_queue.order_items.easy_key": {
+      "source_blocks_sha256": [
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "91a61af4b01fa9e2705da488437d064fa53b668fca37534e31b4305c320b9027"
+      ],
+      "source_sha256": "c85df886a915d02daf0a82ff5860774f037c702572f4e077632681ba79adedd8",
+      "text": ":param item: 현미경 시야 하나입니다.\n\n:returns: 그 ``easy`` 정렬 키이며, 채워진 초안이 먼저 옵니다.",
+      "translation_source_blocks_sha256": [
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "91a61af4b01fa9e2705da488437d064fa53b668fca37534e31b4305c320b9027"
+      ]
+    },
     "spacr.curation_queue.pending_items": {
       "source_blocks_sha256": [
         "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
@@ -19210,6 +19506,16 @@
         "7d0114a8568d4d24dab7236fded82c60e0c0ad08d9db4670dfab45caa618da0d"
       ]
     },
+    "spacr.data_manager._walk_project._note": {
+      "source_blocks_sha256": [
+        "bf38c1f39b97de4223e32e1f2eeda554859612e646a36ca263080ac51a78e295"
+      ],
+      "source_sha256": "bf38c1f39b97de4223e32e1f2eeda554859612e646a36ca263080ac51a78e295",
+      "text": "접근할 수 없는 탐색 항목을 스캔을 멈추지 않고 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "bf38c1f39b97de4223e32e1f2eeda554859612e646a36ca263080ac51a78e295"
+      ]
+    },
     "spacr.data_manager.archive": {
       "source_blocks_sha256": [
         "fcf04c16dcb21be61b349b23d5119f242f841caa7316d51da1ecfe746f1ac684",
@@ -19412,6 +19718,16 @@
         "ceb1163e3656a8ae599c5e16b47064cd9d3cba963bd94144e27d9ced278f65dc"
       ]
     },
+    "spacr.data_manager.scan_project._bucket": {
+      "source_blocks_sha256": [
+        "12188501160ae33e03560b6ccb3aaac7de03dbdb91da23e4d67ce1c7b40a781f"
+      ],
+      "source_sha256": "12188501160ae33e03560b6ccb3aaac7de03dbdb91da23e4d67ce1c7b40a781f",
+      "text": "``kind``에 대한 0으로 초기화된 공유 카운터를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "12188501160ae33e03560b6ccb3aaac7de03dbdb91da23e4d67ce1c7b40a781f"
+      ]
+    },
     "spacr.database_concurrency": {
       "source_blocks_sha256": [
         "658b2ce99adf1eb7384e32327f625c7ebd91e99c97f2fcdf88a1544a0d379b2c",
@@ -19550,6 +19866,30 @@
       "text": "JSON 시리얼 가능한 스냅샷을 반환합니다.",
       "translation_source_blocks_sha256": [
         "28c3f62814a0879bed1fc0cae72f02d421eb9026955356d09fa66d1bfd68939c"
+      ]
+    },
+    "spacr.database_concurrency._run_probe.reader_task": {
+      "source_blocks_sha256": [
+        "7befae695c5e32b346de0a9b313844ea864447ee90ac2132102435a31737e78e",
+        "d03f01ebe8119580eec9f1adca4b0e51863e91886a252cb36849f4f6ba9983eb"
+      ],
+      "source_sha256": "72c300dc0d6629057b1e0ce08ff2632631a545506bed44be4e7e78bc8bd63581",
+      "text": "기록 중에 폴링한 다음 이 리더의 쿼리 수를 보탭니다.\n\n마지막 쿼리는 완성된 데이터베이스를 확인합니다. 실패는 수집되고, 스레드 전용 읽기 전용 연결은 항상 닫힙니다.",
+      "translation_source_blocks_sha256": [
+        "7befae695c5e32b346de0a9b313844ea864447ee90ac2132102435a31737e78e",
+        "43339fe5f10b58187ca0ddd995089b23290a5a035e1212901230f7cb8c9bdfea"
+      ]
+    },
+    "spacr.database_concurrency._run_probe.writer_task": {
+      "source_blocks_sha256": [
+        "8c45b59273fe32c7bd6bafd56f4d1640c157262640f8766b4e4513106d7e0289",
+        "fa3865e32573b79b4bfbeecc6091898e25cb64e5837c0fa8f13d4051ca757a59"
+      ],
+      "source_sha256": "56c3cb837affc31952f992eb4a369490ce059b46b48da1d31ffe5a1bb36c75ce",
+      "text": "이 기록기의 행을 삽입하고 마지막 기록기가 끝나면 신호를 보냅니다.\n\n워커 프로세스 실패는 검사 결과를 위해 수집되며, 설정, 동기화, 기록 중 어느 것이 실패해도 스레드의 연결은 닫힙니다.",
+      "translation_source_blocks_sha256": [
+        "8c45b59273fe32c7bd6bafd56f4d1640c157262640f8766b4e4513106d7e0289",
+        "9f2644fe88d3fbaff2fe077a2a94367911e22b01ad31397e4b0636d6e5bf8a54"
       ]
     },
     "spacr.database_concurrency.connect": {
@@ -21310,6 +21650,20 @@
         "b003c5bf91d7c263221fb1f1252641d7fcfabf0abf5c7087aca02da46e08b03a"
       ]
     },
+    "spacr.diameter.format_estimates._line": {
+      "source_blocks_sha256": [
+        "6e89e59e414eb6342a342323de1ba5046a830d7ef8b2d2366d55182d596456fe",
+        "fc4845d3926e59eeaf03d72e7583667240272dfc91df26e584e0537f308c4fd6",
+        "2e360c1864f0dc2bd639f7b6326635a69669f49dcda97bce76a2c55666bc962f"
+      ],
+      "source_sha256": "d41c2d2193e19bcc73f0db5ab4984534829e8f1ad52be8f9f167303ce51f8f89",
+      "text": "보고서 행 하나를 캡처된 열 너비에 맞게 채웁니다.\n\n:param cells: ``header``와 같은 순서의 셀 텍스트입니다.\n:returns: 두 칸 들여쓰고 열을 맞춘 텍스트이며, 끝의 채움 공백은 제거됩니다.",
+      "translation_source_blocks_sha256": [
+        "6e89e59e414eb6342a342323de1ba5046a830d7ef8b2d2366d55182d596456fe",
+        "fc4845d3926e59eeaf03d72e7583667240272dfc91df26e584e0537f308c4fd6",
+        "2e360c1864f0dc2bd639f7b6326635a69669f49dcda97bce76a2c55666bc962f"
+      ]
+    },
     "spacr.doctor": {
       "source_blocks_sha256": [
         "72e5b7e4c9e69fd458f88622fe0d5841fba9bd4efb1c789b8e623d4b3ee4a270",
@@ -21756,6 +22110,18 @@
         "64da7e723f1d23c072e2c7138c88aa6bb3271e922c93123cf61eb5e4377ab28b",
         "c3d5dec4df2fe348a03c039a640574353a73745c8949f9593a7d96b3ff165ea1",
         "29cdf3f85d5a93da2d533c501d758624b87f861ae7eb7f089b664e92a1bae790"
+      ]
+    },
+    "spacr.drop_classification._spacr_output.npys": {
+      "source_blocks_sha256": [
+        "07308735ef99cb245fdfe4280c9ad265cb8a866161c9029039363cd9551c544b",
+        "db9aade428bf167bd1cd5c89378d6af5dcfdf97f732c313ffb9a208f840a166d"
+      ],
+      "source_sha256": "bc06e95f5f2cbc6a72ee541afa34a7cff8cbf8d7b039dfb8ac529380a3acd82e",
+      "text": "``.npy`` 파일 가운데 ``path`` 바로 아래에 있는 개수입니다.\n\n:param path: 폴더 하나입니다.",
+      "translation_source_blocks_sha256": [
+        "07308735ef99cb245fdfe4280c9ad265cb8a866161c9029039363cd9551c544b",
+        "db9aade428bf167bd1cd5c89378d6af5dcfdf97f732c313ffb9a208f840a166d"
       ]
     },
     "spacr.drop_classification.classify_drop": {
@@ -25144,6 +25510,22 @@
         "1d1f5a8766a5536f304d315392a34f9718c725828404046e77959020b47a9439"
       ]
     },
+    "spacr.figures.scene._plain_text._script": {
+      "source_blocks_sha256": [
+        "56d91a54f4df9307737430e159a61956194f5caf637eb961b421aa56fb9a8325",
+        "53bf6e350922fcc840589c71842d642a469cccd8952801a7ece02516efbc8fd3",
+        "32974c193d279fa0a86168b4594e9636dee6071869e5cee54da2d19876dbe979",
+        "ebae9084405c064a40edbcae639a2f4d0d2a399efeb4da98072dd79898cb1db4"
+      ],
+      "source_sha256": "d7df44bc8d7b696e8b0746863649b6415f69d20aceda1ad11ca323d7aa083655",
+      "text": "캡처된 정규식 위첨자 또는 아래첨자 구간 하나를 전부 변환하거나 전혀 변환하지 않습니다.\n\n:param match: 첫 번째 그룹이 위첨자 또는 아래첨자 구간인 정규식 일치입니다.\n:param table: 해당 첨자 위치에 대한 Unicode 변환 매핑입니다.\n:returns: 모든 문자가 지원되면 완전히 변환된 구간이고, 그렇지 않으면 원래 일치한 원문 그대로입니다. 이렇게 해서 호출자의 잔여 표식 검사가 지원되지 않는 mathtext를 거부할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "56d91a54f4df9307737430e159a61956194f5caf637eb961b421aa56fb9a8325",
+        "53bf6e350922fcc840589c71842d642a469cccd8952801a7ece02516efbc8fd3",
+        "32974c193d279fa0a86168b4594e9636dee6071869e5cee54da2d19876dbe979",
+        "ebae9084405c064a40edbcae639a2f4d0d2a399efeb4da98072dd79898cb1db4"
+      ]
+    },
     "spacr.figures.scene.build_scene": {
       "source_blocks_sha256": [
         "38100e2e85aab8b73651429f0255c3ef022d86ec6967afbdd64700cfd908271b",
@@ -26612,6 +26994,20 @@
         "97a8a59a0598630a226bb643931aaa6f3159b2d6cf6fe778d273a3365cd34881"
       ]
     },
+    "spacr.flowview.collector.Collector._fold_unlocked.add_metric": {
+      "source_blocks_sha256": [
+        "9a3371bd5f7d3758f534cc228018f265ec9e09f899ebc2d84ce2b1e394d4ebe8",
+        "a2324897e2eadd738bb9ce5b93d26485ab26c4237543bde9a9972b69aa99d3ae",
+        "d06c04900e01cae15d157e14c81bd26b473b71ea47447fde00467c66aa657656"
+      ],
+      "source_sha256": "5f707b4f54ddade2432625f50cd3850f154c41d38a5f1057427fc3e618e4eb7a",
+      "text": "캡처된 지표 이벤트를 담은 분리된 노드를 반환합니다.\n\n:param node: 업데이트할 기존 실행 그래프 노드입니다.\n:returns: 분리된 지표 매핑에서 캡처된 이벤트의 이름을 그 값으로 설정한 dataclass 복사본입니다. 입력 노드와 원래 매핑은 변경되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "9a3371bd5f7d3758f534cc228018f265ec9e09f899ebc2d84ce2b1e394d4ebe8",
+        "a2324897e2eadd738bb9ce5b93d26485ab26c4237543bde9a9972b69aa99d3ae",
+        "d06c04900e01cae15d157e14c81bd26b473b71ea47447fde00467c66aa657656"
+      ]
+    },
     "spacr.flowview.collector.Collector.clear_sampled": {
       "source_blocks_sha256": [
         "a234162ae8c8dfa4ca1397f120682d69a105f323f8e682b64099eb8660304272",
@@ -27264,6 +27660,24 @@
         "d08c0c9cedc7ac4693f2fca72889aadd46f8d48dd1d08695d5c77f9181a0a928"
       ]
     },
+    "spacr.flowview.layout._reorder.key": {
+      "source_blocks_sha256": [
+        "45c4715bf8a12b22116c5160191f1e0de2a1d1d7d3ea827e2c6a336ef9185d30",
+        "35977b3d57dec61b4d570d578222f6bf75b819ea1b58f2b28d17493252dd38cf",
+        "c506fbbae30a3a2d807894eea921347af37bd73be1e94e1a330a3954c41ebf00",
+        "0eb1ed7b486916de5bed79a597a1e89301c392671b0254b5318f80e0f8d539fd",
+        "b4410f6b607c5c88dad653262f4627f9155c40a32b016dbb23dc930844a5737d"
+      ],
+      "source_sha256": "79389f65fd8bf200cc1dd57284e605626a63f5b6f66a3134872fc7426a563e70",
+      "text": "현재 중앙값 스윕 레이어에서 노드 하나의 순위를 정합니다.\n\n:param node_id: 재정렬 중인 레이어 안에서 순위를 정할 노드입니다.\n:param current_layer: 이 키를 만들 때 캡처된 루프 레이어입니다.\n:param current_positions: 정렬 전 해당 레이어의 위치로, 동점과 고립된 노드에 대해 결정론적 순서를 유지하기 위해 캡처됩니다.\n:returns: 연결된 노드는 먼저 다른 레이어 이웃의 중앙값 위치로, 그다음 이전 위치와 식별자로 정렬되며, 연결되지 않은 노드는 이전의 결정론적 순서대로 뒤따릅니다.",
+      "translation_source_blocks_sha256": [
+        "45c4715bf8a12b22116c5160191f1e0de2a1d1d7d3ea827e2c6a336ef9185d30",
+        "35977b3d57dec61b4d570d578222f6bf75b819ea1b58f2b28d17493252dd38cf",
+        "c506fbbae30a3a2d807894eea921347af37bd73be1e94e1a330a3954c41ebf00",
+        "0eb1ed7b486916de5bed79a597a1e89301c392671b0254b5318f80e0f8d539fd",
+        "b4410f6b607c5c88dad653262f4627f9155c40a32b016dbb23dc930844a5737d"
+      ]
+    },
     "spacr.flowview.layout.layout_graph": {
       "source_blocks_sha256": [
         "27d627c6ad46018718ccee9601a0d072f7f228f4a05a6452c7f8a20b46384f28",
@@ -27864,6 +28278,22 @@
         "2bc01b48c6620971f91a6134f67c7138e37f69d1d979124900240b64e0661a5d"
       ]
     },
+    "spacr.flowview.trace._StageSpec.__call__.traced": {
+      "source_blocks_sha256": [
+        "727db0f3ab93841373db34f6113b63bfc153d54539c95f9c1443b0300c758478",
+        "f90fa52d96b526604236e2bee059e824be446209df9f5398d69fb471ad26a84d",
+        "583759d0a8584de1ada15b2a36292df2f906842f176cca6c6abc8f5f4050a450",
+        "383fbc27dac7204f9f35b37cf7458ca6e88ca6a4e3a7edfc0d0372dd17c71f56"
+      ],
+      "source_sha256": "ab4052907cf3236a7a5c3abe51e13722aea68687427facdcbd159258ccc38e78",
+      "text": "선택적 단계 추적과 함께 캡처된 함수를 호출합니다.\n\n:param args: 그대로 전달되는 위치 인수입니다.\n:param kwargs: 그대로 전달되는 키워드 인수입니다.\n:returns: 캡처된 함수의 결과입니다. 활성화 여부는 호출 시점에 다시 확인되며, 활성화된 호출은 새 단계 실행 환경 안에서 실행되어 완료나 실패를 기록하고 원래 예외를 보존합니다.",
+      "translation_source_blocks_sha256": [
+        "727db0f3ab93841373db34f6113b63bfc153d54539c95f9c1443b0300c758478",
+        "f90fa52d96b526604236e2bee059e824be446209df9f5398d69fb471ad26a84d",
+        "583759d0a8584de1ada15b2a36292df2f906842f176cca6c6abc8f5f4050a450",
+        "383fbc27dac7204f9f35b37cf7458ca6e88ca6a4e3a7edfc0d0372dd17c71f56"
+      ]
+    },
     "spacr.flowview.trace.disable": {
       "source_blocks_sha256": [
         "73d915273880f5c3f93695ef0015adcb4cf91e0b51093e3459b317980f1263c6"
@@ -28018,6 +28448,30 @@
         "97371ab6955aa002845b3a4526c365963a36aead7429a0d339f706ad9daf2c70",
         "c6307bcbc527349addd8b4898ed5e22767ccc758ff27e0038b7b33c49f767c7e",
         "bc953981765e6b4dc27f61e5bb7fb94cf20ceff5e9805075855da142e2ba6c08"
+      ]
+    },
+    "spacr.folder_consolidation.consolidate_folder.record": {
+      "source_blocks_sha256": [
+        "193e5a6ec9401ed51a1f712dcd41f4c7cee39764f32693c61c53edaab40ecda9",
+        "354f54444d6aa535ac233de1c65c4ef34e38fcb7bc6c9d8e77959a9fc6a5dd7f"
+      ],
+      "source_sha256": "90caba109317196f385a1ecf2583ae6629a2b8fcdd686020d42bc4cc9b65aa1f",
+      "text": "매니페스트 행 하나를 기록하고 결과에 유지합니다.\n\n:param row: ``(original, new name, status, error)``.",
+      "translation_source_blocks_sha256": [
+        "193e5a6ec9401ed51a1f712dcd41f4c7cee39764f32693c61c53edaab40ecda9",
+        "354f54444d6aa535ac233de1c65c4ef34e38fcb7bc6c9d8e77959a9fc6a5dd7f"
+      ]
+    },
+    "spacr.folder_consolidation.consolidate_folder.walk_error": {
+      "source_blocks_sha256": [
+        "3812c916ab54e8af7fbbf9355f24d5a31f2eedbcc46470e0ca77d9dd45f9604d",
+        "2231d27aedcd3211cd80c3e2e2972a6d7ac676a56845685d64f7ac8e3a8c6c5d"
+      ],
+      "source_sha256": "1fa0d0dc5130add422eb95f9f28327aae56ae27fec4d9a0ae937fe98bb8b868d",
+      "text": "``os.walk``가 읽지 못한 폴더를 기록합니다.\n\n:param error: 그것이 발생시킨 OSError입니다.",
+      "translation_source_blocks_sha256": [
+        "3812c916ab54e8af7fbbf9355f24d5a31f2eedbcc46470e0ca77d9dd45f9604d",
+        "2231d27aedcd3211cd80c3e2e2972a6d7ac676a56845685d64f7ac8e3a8c6c5d"
       ]
     },
     "spacr.folder_consolidation.copy_and_rename": {
@@ -29606,6 +30060,28 @@
         "453c90b6924360f73ec6761fa9999ad9f07286730da2a6ba73c29353a05a84e5"
       ]
     },
+    "spacr.gene_facts._segment_index.collect": {
+      "source_blocks_sha256": [
+        "e0c7fbd6d1c55ee2c36c8659131abb6e924ff4b10e4f88105cd7f2517ee9651a",
+        "1f3a3077ad43e4c14fef81839bad065976801c7142212a66c7d53056513886e8",
+        "109427afd3b940bd70335c5b62b457257199395650d4c6925826e69fa16b5374",
+        "891d31fd8b69565b4f2bdd45b7cfe9599adf88c10acb863735314944a39204bb",
+        "aabc7d1a2181330d43cb69d88044e10a0fbf016e9bee1a9f57b1ac95947e5590",
+        "be4c72fcc44a09c5a7224aaf1b25018736a0053823a0f014558119a9dbfef83f",
+        "59caed2f0c5185290f396246ad533afc357853dd1946ea4bc603b787b7eece22"
+      ],
+      "source_sha256": "c6053b0877be0fe9cdc34d63e91bad6b7461686091dbd0ecb79e859ece4b2774",
+      "text": "보충 표의 세그먼트 자리 하나를 유전자별로 수집합니다.\n\n:param kind: 각 결과에 기록되는 세그먼트 계열입니다.\n:param index: 해당 계열 안에서 1부터 시작하는 위치입니다.\n:param start: 첫 번째 잔기를 담은 보충 열입니다.\n:param end: 마지막 잔기를 담은 보충 열입니다.\n:param length: 세그먼트 범위를 담은 선택적 보충 열입니다.\n:returns: None. 누락된 좌표 열과 잘못된 유전자 ID는 건너뜁니다. 유효한 행은 유한한 기록된 숫자 길이 또는 양 끝을 포함하는 대체값 ``end - start + 1``을 사용해 캡처된 인덱스에 추가됩니다.",
+      "translation_source_blocks_sha256": [
+        "e0c7fbd6d1c55ee2c36c8659131abb6e924ff4b10e4f88105cd7f2517ee9651a",
+        "1f3a3077ad43e4c14fef81839bad065976801c7142212a66c7d53056513886e8",
+        "109427afd3b940bd70335c5b62b457257199395650d4c6925826e69fa16b5374",
+        "891d31fd8b69565b4f2bdd45b7cfe9599adf88c10acb863735314944a39204bb",
+        "aabc7d1a2181330d43cb69d88044e10a0fbf016e9bee1a9f57b1ac95947e5590",
+        "be4c72fcc44a09c5a7224aaf1b25018736a0053823a0f014558119a9dbfef83f",
+        "59caed2f0c5185290f396246ad533afc357853dd1946ea4bc603b787b7eece22"
+      ]
+    },
     "spacr.gene_facts.available": {
       "source_blocks_sha256": [
         "7d09f6b8cf64639c9ad42555431a254d53e5ae286c68ffa924dcbfc3b7694897",
@@ -30116,6 +30592,20 @@
       "translation_source_blocks_sha256": [
         "821a2934035484b89bcd09189c36269f264cd3d82c7a151640129787b576ffdb",
         "b264109b691e7994aeb59b082d15bfe26fba3955d2561f5739b47ef5bf13c243"
+      ]
+    },
+    "spacr.gene_measurement_sweep._order_like_neighbours.order": {
+      "source_blocks_sha256": [
+        "33b6cd1d52858ae1ffc07f7ac0e8d4056c0b091241e8aa93e9f18e8e56d2ae58",
+        "b0a04ccdf0bea42f3886e3c15d98fb7e2ee35fd0314e3420cf896d7e2cbc5634",
+        "30505fd513005ee83d86b49f34dc79fac91d2f3e457953f661b0fb7c6f22c623"
+      ],
+      "source_sha256": "aaf5574b83f5ae4352f5066c61350cd60515b52cc7ccf0e37a10d649b8a57fba",
+      "text": "상관 군집 이웃에 따라 행렬 축 하나를 정렬합니다.\n\n:param matrix: 배열할 2차원 숫자 행입니다.\n:returns: 행이 세 개 미만이면 항등 인덱스이고, 그렇지 않으면 상관 거리로 계산한 평균 연결 군집의 잎 인덱스입니다. 유한하지 않은 행렬 값은 거리 계산을 위해 정규화되고, 정의되지 않은 거리는 1.0이 됩니다. 군집화 실패는 모두 부모 호출의 평균 순서 대체 방식이 처리합니다.",
+      "translation_source_blocks_sha256": [
+        "33b6cd1d52858ae1ffc07f7ac0e8d4056c0b091241e8aa93e9f18e8e56d2ae58",
+        "b0a04ccdf0bea42f3886e3c15d98fb7e2ee35fd0314e3420cf896d7e2cbc5634",
+        "30505fd513005ee83d86b49f34dc79fac91d2f3e457953f661b0fb7c6f22c623"
       ]
     },
     "spacr.gene_measurement_sweep.gene_fractions": {
@@ -31006,6 +31496,20 @@
         "3e1de6ff51fffc9a432a872e26f2a3aaf904fdcefcb8d31e468b7c4e62a35563"
       ]
     },
+    "spacr.graph_types.shape_of.kind": {
+      "source_blocks_sha256": [
+        "867dd5072e2fe0279cf562e0744e58d479dfec00b428bb073d5498bb64019872",
+        "e415f05e0bd6a7089fe9c0e22ec6b4fbe3d9f161ddf9e59b4c547ddb04a0dc5f",
+        "9b60affcbe94d1ccbe2f3ffcff7bd0f7686a6e817dcec096d0ae476a60118a68"
+      ],
+      "source_sha256": "4aea6dfa78ecf283b651e8f5d442a5947921a2415bebfe11217f3c974c5df27d",
+      "text": "캡처된 데이터 프레임을 기준으로 후보 축 하나를 분류합니다.\n\n:param name: 축에 할당된 열 이름이며, 할당되지 않은 축이면 빈 문자열입니다.\n:returns: 열을 사용할 수 없으면 ``'absent'``, 숫자 열이면 ``'continuous'``, 그 밖에 존재하는 모든 열이면 ``'categorical'``입니다.",
+      "translation_source_blocks_sha256": [
+        "867dd5072e2fe0279cf562e0744e58d479dfec00b428bb073d5498bb64019872",
+        "e415f05e0bd6a7089fe9c0e22ec6b4fbe3d9f161ddf9e59b4c547ddb04a0dc5f",
+        "9b60affcbe94d1ccbe2f3ffcff7bd0f7686a6e817dcec096d0ae476a60118a68"
+      ]
+    },
     "spacr.graph_types.start_for": {
       "source_blocks_sha256": [
         "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
@@ -31148,6 +31652,18 @@
         "ae7b6cab54c01d19732657a12f59fcefee697d7c4d09e8fdb95385e3119dbf78",
         "f3b8b2a62a9b1ab24df00096613986746242748f6cfe18dbf7aa16382fa00ffe",
         "f9a7cc8d7b02b4e27c9832f4abf2c4b45926997342d8afa2f989c10435a6317f"
+      ]
+    },
+    "spacr.group_lasso.choose_lambda.score": {
+      "source_blocks_sha256": [
+        "de2afd9ac420ca06ccf25bdfa3dbc2e0762689a6a90ab01d2e791c4716b86090",
+        "c4e83c9ea6fcfd27d4f4a3c274db0ca8a7eaf98255eee25714e173743276f2c0"
+      ],
+      "source_sha256": "af2880b6464d284ab685a19cd3d7c0a4695da5c38f8d292c8903fa14b523170a",
+      "text": "경로 하나에 대한 (errors, selects)이며, 둘 다 ``candidates``에 맞춰 정렬됩니다.\n\n오차는 홀드아웃 데이터로 측정하지만 선택은 그렇지 않습니다. 벌점이 예측을 잘하는지는 보지 못한 웰에 관한 질문이고, 그것이 무언가를 선택하는지는 호출자가 받게 될 적합에 관한 질문인데, 그 적합은 모든 웰로 이루어집니다. 대신 폴드에서 선택을 읽었더니 웰의 5분의 4가 각각 유전자 하나를 유지하면서도 전체로는 하나도 유지하지 않는 벌점이 골라졌습니다 -- tsg101 스크린에서 측정했으며, 이때 0.000183이 선택되었고 전체 적합은 비어 있었습니다.",
+      "translation_source_blocks_sha256": [
+        "de2afd9ac420ca06ccf25bdfa3dbc2e0762689a6a90ab01d2e791c4716b86090",
+        "aebc6eeae5b6fe43ef35f458df912e15e54143aad722c83e41c090115044fd75"
       ]
     },
     "spacr.group_lasso.describe": {
@@ -34546,6 +35062,16 @@
         "6a99b3b50301518b399f47d67180d70d0eb9b7f52b0791b31d3162395725e186"
       ]
     },
+    "spacr.illumination._lenient_profile_json._value": {
+      "source_blocks_sha256": [
+        "6b97aebca3d788acd35ce841acf4156029b5c802e731422bd986576a0d3416cc"
+      ],
+      "source_sha256": "6b97aebca3d788acd35ce841acf4156029b5c802e731422bd986576a0d3416cc",
+      "text": "JSON 불리언과 null은 보존하면서 따옴표 없는 프로필 값에 따옴표를 붙입니다.",
+      "translation_source_blocks_sha256": [
+        "6b97aebca3d788acd35ce841acf4156029b5c802e731422bd986576a0d3416cc"
+      ]
+    },
     "spacr.illumination.disable_illumination_correction": {
       "source_blocks_sha256": [
         "c23c7db47a3820eeb74ab7a347410a3bd6fcfeb8526e8fbd142e636a5a442b11",
@@ -35608,6 +36134,28 @@
         "2c1591a69334286c9f1119e949dcb9c9259fb074436aa946596ce21a4535f695"
       ]
     },
+    "spacr.image_stitch._position_from._first": {
+      "source_blocks_sha256": [
+        "0532ed3e03a22edf946dd1a2c13acb6a1b7eca45e78d34a81d9ff03da44009c9",
+        "f49527a59e613d9bef10f733043e6ce3e6606966432196b4b475fe836a9c8c7f"
+      ],
+      "source_sha256": "c51ff7ae05b7ed66c80905d6e47ab0b431f49df13a6275dfc79d22cf76e75ea8",
+      "text": "OME 블록에서 ``pattern``이 캡처한 첫 번째 숫자이며, 없으면 None입니다.\n\nXML을 파싱하지 않고 정규식으로 읽는 이유는 스키마 버전이 달라지는 문서에서 속성 하나만 필요하기 때문이며, 네임스페이스를 알아야 하는 파서는 알려 주지 않은 버전에서 실패합니다.",
+      "translation_source_blocks_sha256": [
+        "0532ed3e03a22edf946dd1a2c13acb6a1b7eca45e78d34a81d9ff03da44009c9",
+        "f49527a59e613d9bef10f733043e6ce3e6606966432196b4b475fe836a9c8c7f"
+      ]
+    },
+    "spacr.image_stitch._sliding_ncc._prefix": {
+      "source_blocks_sha256": [
+        "763402fb17632ef7350aeaf8e3c274dae9629d14b698b1f414bb8c5c0183385a"
+      ],
+      "source_sha256": "c42e086dd64edf52f93ad580bee2d3720107506908935d5366363997069d1de9",
+      "text": "앞에 0을 둔 누적 합으로, 창마다 루프를 돌지 않고도 ``p[b] - p[a]``가 모든 창에 대해 ``[a, b)`` 구간의 합이 됩니다.",
+      "translation_source_blocks_sha256": [
+        "763402fb17632ef7350aeaf8e3c274dae9629d14b698b1f414bb8c5c0183385a"
+      ]
+    },
     "spacr.image_stitch.arrangement_of": {
       "source_blocks_sha256": [
         "2299df9598d93b84ddaa3d3554aa7156a3a6df05187f43bbec8bf58b0357cfe9",
@@ -36096,6 +36644,26 @@
         "b790a62d2260c5db0b0c4e03416f9eaea88c26c4644cb6f4f203afebe1ac0c6a"
       ]
     },
+    "spacr.infection.infection_report.add": {
+      "source_blocks_sha256": [
+        "a17190c9459fcd18437987dfe28c03d9410c0e9acb5ea40efc1b32949e5c0082",
+        "c70297f2e56690a74dbffe70fd0d59ad10879d4a23c69840c8407b3fc868f777",
+        "39975e2fd079b89fc95607aefa57cee19d3eb4456fe6bf5724c0cc897f535cf8",
+        "d080f694483fedcdcf5b24a366fd589df6dbb49424068bb3d891d33ccb02da9d",
+        "216845f0444df37cfec42cfadb57474ce8537849a90f78e76730d6880f612901",
+        "5c3d63da4ba08342b60700ba1f340f24688da43c0bc24be036451da309506374"
+      ],
+      "source_sha256": "76ef42a6703a15215b83978571bc0d6457273ba466f41d58ee9eb68afe2ce57e",
+      "text": "지표 하나를 그 지표가 대상으로 하는 모집단과 함께 기록합니다.\n\n분모를 지표 이름으로 암시하지 않고 값과 함께 전달하는 이유는, 그중 두 개가 서로 다른 모집단에 대한 비율이고 분모를 추측해야 하는 비율은 읽는 사람이 검증할 수 없기 때문입니다.\n\n:param metric: 지표의 이름입니다.\n:param value: 이 그룹에 대한 그 값입니다.\n:param denominator: 값이 무엇을 대상으로 계산되었는지를 말로 나타낸 것입니다.\n:param n: 그 분모에 포함된 항목 수입니다.",
+      "translation_source_blocks_sha256": [
+        "a17190c9459fcd18437987dfe28c03d9410c0e9acb5ea40efc1b32949e5c0082",
+        "c70297f2e56690a74dbffe70fd0d59ad10879d4a23c69840c8407b3fc868f777",
+        "39975e2fd079b89fc95607aefa57cee19d3eb4456fe6bf5724c0cc897f535cf8",
+        "d080f694483fedcdcf5b24a366fd589df6dbb49424068bb3d891d33ccb02da9d",
+        "216845f0444df37cfec42cfadb57474ce8537849a90f78e76730d6880f612901",
+        "5c3d63da4ba08342b60700ba1f340f24688da43c0bc24be036451da309506374"
+      ]
+    },
     "spacr.infection.multiplicity_distribution": {
       "source_blocks_sha256": [
         "8c98d10f568d0961d2e45bfee7bbeff564a3eb971e83777f9563645d6a5e4811",
@@ -36526,6 +37094,20 @@
         "003548f5b966148286d4478f78ef5e4c1491bbdcf26f91d6696670bbbdcad42b",
         "dbc03449bd5bce2cba36f2f6a20b5ec543a8f8d1da669fb8449e818d47b29e89",
         "6e4e8d94df4a9627c302c10028b642ff5211a3c24681890736f42d77bdeb03a8"
+      ]
+    },
+    "spacr.intensity_rescale.build_plate_plan._inspect": {
+      "source_blocks_sha256": [
+        "abfccc3ba4a898f8ea539ef6226ac5e315d35d39d616ff2572a08ca4e4838c57",
+        "590fbbf5d3b2a90995488b633a8bcfc1e3a2cc76b56e2331c292109622a485e0",
+        "6144968fb0d287042ce59b5ad372cddf3fe7e12b7b3cf41e43b18ea49f11f9af"
+      ],
+      "source_sha256": "7a6674d0497087637f8fc14415be735d280c9456646489922fbfabfb6165ad2c",
+      "text": "필드 하나의 데이터 유형, 강도 최댓값, 파일 통계를 읽습니다.\n\n:param filename: ``src`` 안의 병합된 배열 파일 이름입니다.\n:returns: ``(filename, record, None)`` 또는 ``(filename, None, error)``입니다.",
+      "translation_source_blocks_sha256": [
+        "abfccc3ba4a898f8ea539ef6226ac5e315d35d39d616ff2572a08ca4e4838c57",
+        "590fbbf5d3b2a90995488b633a8bcfc1e3a2cc76b56e2331c292109622a485e0",
+        "6144968fb0d287042ce59b5ad372cddf3fe7e12b7b3cf41e43b18ea49f11f9af"
       ]
     },
     "spacr.intensity_rescale.fallback_record": {
@@ -37771,14 +38353,15 @@
     "spacr.io.preprocess_img_data": {
       "source_blocks_sha256": [
         "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
-        "547b983d306832040d4e4116f2e39af793f676c6790ace4d7b8c16feea1dc824",
+        "5ff2f96dd29fcebdc9e171a5ac2ad0117d6e7b0882e65621a13b3895ff5bf5d0",
+        "752807844ac418ff55cfa383ec1a2190c279d287b9ced37e767630f6844add35",
         "e0b4f88c95f256c5431b20b0ae14c186ab132a4d8d0491a1d63535a9828b9031",
         "82a7443a521f22d0db1efbef111005193ec33029a94f36fb95cd53315789be28",
         "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
         "6b3a051f3b59d057f3ca118adfb628f6bf235e9d2311247cc3178744631fc603",
         "3207a085ee8822704e20bd63ced3ca2b47332b6d54e9a1ca4de170009f36807e",
         "56edd9d16e46c33f077f13ce3455e67369d51009b3cf22dd34f6f80b74946344",
-        "abf9effb7f938c803f206cb0bc0351fa19ea1f586a2ec837b05e6e84b46c6ddb",
+        "4482e2824d99fb361e767cfbc3bfaf8e2dab751d99920f89e95931613ad6c318",
         "cdd0b8c3efbfe6bf476deff04e36fe8861ad85e1a21d586f3c503290ed9b0ceb",
         "957eec1d2e6e629ab2aad949436067bb55702dcfcc1736fa327ae4a9b971a9ef",
         "1f364cbdcb9750dcf7d4a5509934ea653a748d79f485a694676f75ffc1c40b64",
@@ -37786,18 +38369,19 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "5d5edbec44cd72e43ff860526e1ed2f6c29c8e9bcf9f661009474779072cfbee"
       ],
-      "source_sha256": "a6d3a2fc34d44a9f1a70f1e3ad12e49a143c4c8bdc8d1a3609ce6667582c1632",
-      "text": "원료 미생물 이미지를 정상화 된 이미지 데이터 채널 혼합 ``.npy`` 스택으로 변환하여 마스크 생성 준비가되어 있습니다.\n\n일반적으로 :func:`spacr.core.preprocess_generate_masks`에 의해 내부적으로 호출되지만, 사전 처리 절반만 원할 때 직접 호출됩니다. z-stacks를 MIP로 변환하고, 파일을 Yokogawa/spacr 레이아웃으로 다시 이름을 지정하고, 이미지 당 데이터 채널 폴더를 ``.npy`` 옵션 배경 서트레이션과 퍼센티일 표준화가있는 스테이크로 결합하고, (``test_mode``에서) 예제 플로트를 발행합니다.\n\n이미 처리한 마이크로플레이트 폴더에서 다시 실행하면 처음부터 시작하지 않고 재개합니다. 이전 처리 세션이 ``orig/`` 로 옮긴 원시 이미지는 그곳에서 읽으며, ``stack/`` 에 없는 현미경 시야만 만듭니다. 이전 처리 세션이 남긴 모든 ``stack/*.npy`` 와 ``masks/*.npz`` 는 재사용 전에 검사합니다. 잘린 파일은 ``<name>.damaged`` 로 이름을 바꾸고 로그에 명시한 뒤 다시 만듭니다. 현미경 시야 스택은 원시 이미지나 채널 폴더에서, 아카이브는 ``stack/`` 에서 만듭니다. 만들 재료가 남아 있지 않은 현미경 시야 스택은 실패로 기록되므로, 처리 세션은 그 현미경 시야가 조용히 빠진 채 끝나지 않고 미완료로 끝나며, 만들 재료가 남아 있지 않은 아카이브는 그것을 명시하는 오류로 처리 세션을 중지합니다. 만들 수 있는 현미경 시야가 전혀 없으면 오류 메시지에 폴더에 실제로 있는 내용을 알려 줍니다. ``test_mode`` 에서는 원시 이미지가 없어진 마이크로플레이트를 대신 ``stack/`` 에서 샘플링합니다.\n\n:param settings: :func:`spacr.settings.set_default_settings_preprocess_img_data`을 통해 캐논화된 핵심 가치 맵링을 위한 사전 처리 설정.\n\n    - ``src`` - 원료 이미지의 폴더 (``.tif/.nd2/.czi/.lif`` 등)\n    - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; 파일 이름 regex를 입력합니다.\n    - ``custom_regex`` - 내장된 레지크스를 초과합니다.\n    - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — 채널 선택.\n    - z 스택은 ``_rename_and_organize_image_files`` 동안 미크로스코프 시각 및 채널 필드에 대 한 최대 프로젝트, 아무것도 ``stack/``에 도달하기 전에, 그래서 설정 데이터 선택의 한계가 없습니다.\n    - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` 및 각 객체의 ``*_background``, ``*_signal_to_noise`` 값입니다. 처리 세션에서 활성화된 모든 소기관 슬롯은 자체 쌍을 사용합니다(예: ``organelleb_background``).\n    - ``normalize``, ``lower_percentile``, ``save_dtype``.\n    - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.\n\n:returns: ``(settings, src)`` - ``settings``을 두 배로 적용하고 ``src``을 생성 된 ``stack/`` / ``channel_stack/`` 출력을 포함하는 폴더에 표시합니다 (아래 스트림 마스크 단계는 여기에서 읽습니다).\n\n예시:\n    .. code-block:: python\n\n        from spacr.io import preprocess_img_data\n        settings = {\n            'src': '/data/plate01',\n            'metadata_type': 'cellvoyager',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'channels': [0, 1, 2, 3], 'normalize': True,\n        }\n        settings, src = preprocess_img_data(settings)\n\n또한 참조: :func:`spacr.core.preprocess_generate_masks` - 이것을 부르는 완전한 작업 흐름 포장기 다음 마스크를 생성합니다.",
+      "source_sha256": "943da9a7ef5dc1626f4b464aa397e2201ba868db19437f230207deaeb665f953",
+      "text": "원료 미생물 이미지를 정상화 된 이미지 데이터 채널 혼합 ``.npy`` 스택으로 변환하여 마스크 생성 준비가되어 있습니다.\n\n보통 :func:`spacr.core.preprocess_generate_masks`가 내부적으로 호출하지만, 전처리 절반만 원할 때는 직접 호출할 수 있습니다. 기본적으로 z 스택을 MIP로 변환하고, 파일 이름을 Yokogawa/spacr 레이아웃으로 바꾸고, 채널별 폴더를 선택적 배경 제거 및 백분위수 정규화와 함께 쌓인 ``.npy`` 배열로 병합하며, (``test_mode``에서는) 예시 그림을 출력합니다.\n\n``z_stack=True``이고 ``z_segmentation_mode='volumetric'``이면 별도의 원시 TIFF 경로가 Z를 보존합니다. 각 필드와 채널은 ``ZYX``로 명시적으로 표시된 완전한 TIFF 시리즈 하나여야 합니다. 파일 이름 메타데이터로 필드와 채널을 식별하며, 모호한 축, 중복 채널, 누락된 짝 파일은 스택을 쓰기 전에 거부됩니다. 이 경로는 ``save_original_images``가 거짓이어도 원본 파일을 유지하고, 완료 기록과 함께 표준 ``ZYXC`` 스택을 게시하며, 한 번에 한 필드씩 정규화합니다. 재사용 시 원본과 스택 해시 및 관련 처리 설정을 검증합니다. 오래된 투영 스택은 볼륨으로 재사용할 수 없습니다. 개별 슬라이스 파일 레이아웃, 시계열, 테스트 모드 샘플링, 조명 또는 PSF 전처리는 이 원시 볼륨 경로에서 지원되지 않습니다.\n\n이미 처리한 마이크로플레이트 폴더에서 다시 실행하면 처음부터 시작하지 않고 재개합니다. 이전 처리 세션이 ``orig/`` 로 옮긴 원시 이미지는 그곳에서 읽으며, ``stack/`` 에 없는 현미경 시야만 만듭니다. 이전 처리 세션이 남긴 모든 ``stack/*.npy`` 와 ``masks/*.npz`` 는 재사용 전에 검사합니다. 잘린 파일은 ``<name>.damaged`` 로 이름을 바꾸고 로그에 명시한 뒤 다시 만듭니다. 현미경 시야 스택은 원시 이미지나 채널 폴더에서, 아카이브는 ``stack/`` 에서 만듭니다. 만들 재료가 남아 있지 않은 현미경 시야 스택은 실패로 기록되므로, 처리 세션은 그 현미경 시야가 조용히 빠진 채 끝나지 않고 미완료로 끝나며, 만들 재료가 남아 있지 않은 아카이브는 그것을 명시하는 오류로 처리 세션을 중지합니다. 만들 수 있는 현미경 시야가 전혀 없으면 오류 메시지에 폴더에 실제로 있는 내용을 알려 줍니다. ``test_mode`` 에서는 원시 이미지가 없어진 마이크로플레이트를 대신 ``stack/`` 에서 샘플링합니다.\n\n:param settings: :func:`spacr.settings.set_default_settings_preprocess_img_data`을 통해 캐논화된 핵심 가치 맵링을 위한 사전 처리 설정.\n\n    - ``src`` - 원료 이미지의 폴더 (``.tif/.nd2/.czi/.lif`` 등)\n    - ``metadata_type`` — ``'cellvoyager'`` / ``'auto'``; 파일 이름 regex를 입력합니다.\n    - ``custom_regex`` - 내장된 레지크스를 초과합니다.\n    - ``cell_channel``, ``nucleus_channel``, ``pathogen_channel``, ``organelle_channel``, ``channels`` — 채널 선택.\n    - ``z_stack``과 ``z_segmentation_mode``는 위에서 설명한 명시적 볼륨 TIFF 경로를 선택합니다. 다른 원시 레이아웃은 기존의 필드 및 채널별 투영 동작을 유지합니다.\n    - ``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` 및 각 객체의 ``*_background``, ``*_signal_to_noise`` 값입니다. 처리 세션에서 활성화된 모든 소기관 슬롯은 자체 쌍을 사용합니다(예: ``organelleb_background``).\n    - ``normalize``, ``lower_percentile``, ``save_dtype``.\n    - ``batch_size``, ``randomize``, ``test_mode``, ``test_images``, ``plot``, ``cmap``, ``figuresize``.\n\n:returns: ``(settings, src)`` - ``settings``을 두 배로 적용하고 ``src``을 생성 된 ``stack/`` / ``channel_stack/`` 출력을 포함하는 폴더에 표시합니다 (아래 스트림 마스크 단계는 여기에서 읽습니다).\n\n예시:\n    .. code-block:: python\n\n        from spacr.io import preprocess_img_data\n        settings = {\n            'src': '/data/plate01',\n            'metadata_type': 'cellvoyager',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'channels': [0, 1, 2, 3], 'normalize': True,\n        }\n        settings, src = preprocess_img_data(settings)\n\n또한 참조: :func:`spacr.core.preprocess_generate_masks` - 이것을 부르는 완전한 작업 흐름 포장기 다음 마스크를 생성합니다.",
       "translation_source_blocks_sha256": [
         "29074d25b4de61f84b9da910a77b5a61a9653e661848262f92271a0fdbd3b127",
-        "400839e6c6cef44b24b3d79de596502a74af4212f4c81d6be3d4368699558d39",
+        "042f9846bcefde87aada383075cb164b4e2b122e4b569f35b3df4b58601a2ad2",
+        "a9e769313965732d1eeebe52dc7add98f9b9680eb27fff1f1d4995d57336208e",
         "31136f01dd5786ca9e51386c20af7d9ae5bb4f26ef9493b898fbedbf8059add1",
         "1a0ec09de83e6025fcdb54e72a33d3b22a5a8c40d81aa0b8bac1ad4e7d377954",
         "340c36cf1289b5b38407c3a9a9a6f43c511b691e9a9a7ede69db5e8f48acee4b",
         "6b3a051f3b59d057f3ca118adfb628f6bf235e9d2311247cc3178744631fc603",
         "3207a085ee8822704e20bd63ced3ca2b47332b6d54e9a1ca4de170009f36807e",
         "56edd9d16e46c33f077f13ce3455e67369d51009b3cf22dd34f6f80b74946344",
-        "3749e198d9cea93a3e8a895d2119bdd89eef63eeccf435d20b6b37e856b1ff0f",
+        "0789d1ad16dfd3b35bc9d9083b9e2dd86ba7bff21a35c35889d1fc664a002a06",
         "cdd0b8c3efbfe6bf476deff04e36fe8861ad85e1a21d586f3c503290ed9b0ceb",
         "957eec1d2e6e629ab2aad949436067bb55702dcfcc1736fa327ae4a9b971a9ef",
         "1f364cbdcb9750dcf7d4a5509934ea653a748d79f485a694676f75ffc1c40b64",
@@ -40180,6 +40764,16 @@
         "f10f1cd7872e27ee4e017750b64fec470d44663c8cda31f391c3e7a851b26f85"
       ]
     },
+    "spacr.layers.OrthoViews.covering._canvas": {
+      "source_blocks_sha256": [
+        "a842638eadc0115f9328f68d771180bdac215875eac46883d94c9f4a45ce7628"
+      ],
+      "source_sha256": "a842638eadc0115f9328f68d771180bdac215875eac46883d94c9f4a45ce7628",
+      "text": "공유 스케일 ``Canvas``를 반환하며, 대상은 ``pair``와 ``shape``입니다.",
+      "translation_source_blocks_sha256": [
+        "a842638eadc0115f9328f68d771180bdac215875eac46883d94c9f4a45ce7628"
+      ]
+    },
     "spacr.layers.OrthoViews.describe": {
       "source_blocks_sha256": [
         "fa1dd13fdf09560d690ec676f5d891cf6b02db81c22aac2d454c01909bcaf3f1"
@@ -41204,6 +41798,24 @@
         "5a6e881c5df32a94325279c3d061882dfd3787708dfc5e5c71fae4cb1fe78318"
       ]
     },
+    "spacr.lineage.lineage_frame.visit": {
+      "source_blocks_sha256": [
+        "4d9a700cc7b34bd062df132f7df0e86c73c4b7ec3951e3a3ee946dc562cb8c72",
+        "5f01e607a8d6cbe4376270a204572629982cf6c261fbda29f22fc72639fb744c",
+        "34cd61ada97b8c0b16c7b010d78ac89fdc9c2aa8d773c05a12d115871a5acd7b",
+        "a072f0a0379ae96a39817b077eb0ca560daf5f8f2badf02b408fbcc2d2b9c987",
+        "d9c14a3b39067443ec69f49a872b89a2678edbcd045507059f90cd54090288e4"
+      ],
+      "source_sha256": "46e9747850ce47179c28691c5b749a9970e37235eacca1fbe9313cb4dd28e036",
+      "text": "노드 하나를 추가하고 그 자손을 재귀적으로 평탄화합니다.\n\n:param node: 자식을 방문하기 전에 기록할 계보 노드입니다.\n:param parent: 호출자가 제공한 부모의 키이며, 루트이면 빈 문자열입니다.\n:param depth: 이 노드에 저장할 0부터 시작하는 깊이입니다.\n:returns: None. 노드 메타데이터와 현재 자식 수를 담은 행이 캡처된 목록에 추가된 다음, 이 노드를 부모로 하여 자식들을 기존 순서대로 방문합니다.",
+      "translation_source_blocks_sha256": [
+        "4d9a700cc7b34bd062df132f7df0e86c73c4b7ec3951e3a3ee946dc562cb8c72",
+        "5f01e607a8d6cbe4376270a204572629982cf6c261fbda29f22fc72639fb744c",
+        "34cd61ada97b8c0b16c7b010d78ac89fdc9c2aa8d773c05a12d115871a5acd7b",
+        "a072f0a0379ae96a39817b077eb0ca560daf5f8f2badf02b408fbcc2d2b9c987",
+        "d9c14a3b39067443ec69f49a872b89a2678edbcd045507059f90cd54090288e4"
+      ]
+    },
     "spacr.lineage.node_key": {
       "source_blocks_sha256": [
         "93aa8c7768e3fe68988c580b0466d96089d64d922eff58e61055d00c46b9a188",
@@ -41392,6 +42004,16 @@
         "3cb967d2aca81aa7b74e684a5fa4e553af4480aee7f7da6e948946a9635e7f24",
         "7e191fca61accd4c49ea12a30b6cc65c4b9c4f37efde77ec0045948e894f308a",
         "6b764b296051373faacfd1867118ff0c89f5fd0c8ffafdabe74a6b5ee43b5881"
+      ]
+    },
+    "spacr.logger.log_function_call.wrapper": {
+      "source_blocks_sha256": [
+        "d6852d59f9a44244b4b4a5ad4e32b9797bc6ed80a286194a4220ce06542923d1"
+      ],
+      "source_sha256": "d6852d59f9a44244b4b4a5ad4e32b9797bc6ed80a286194a4220ce06542923d1",
+      "text": "래핑된 호출 전후로 호출, 반환, 예외 로그 줄을 출력합니다.",
+      "translation_source_blocks_sha256": [
+        "d6852d59f9a44244b4b4a5ad4e32b9797bc6ed80a286194a4220ce06542923d1"
       ]
     },
     "spacr.logging_util": {
@@ -41754,6 +42376,26 @@
         "4d037763a4d53d8f9663d77f02562e937e4c4c2cdb669e6413a04ee7c6c878d2",
         "e70e4663c00f54a9f5f4e493d49b6bf6613ff71970d489583a586283e0d98bbf",
         "033b522a3569523b3a3bbdab2141082498c36cf8811e2224a41378e3f394e1a4"
+      ]
+    },
+    "spacr.logging_util.timed._decorate": {
+      "source_blocks_sha256": [
+        "aeed4222ba2579c83759f2c387d5ced839a49440be6d25bc93ab459d23f2208f"
+      ],
+      "source_sha256": "aeed4222ba2579c83759f2c387d5ced839a49440be6d25bc93ab459d23f2208f",
+      "text": "선택한 레이블, 로거, 타이밍 표시로 ``inner``를 래핑합니다.",
+      "translation_source_blocks_sha256": [
+        "aeed4222ba2579c83759f2c387d5ced839a49440be6d25bc93ab459d23f2208f"
+      ]
+    },
+    "spacr.logging_util.timed._decorate._wrapped": {
+      "source_blocks_sha256": [
+        "03548b0f942646e308d4ca385788dc32393da8928f4f58d95e4bdbd96bbe48c3"
+      ],
+      "source_sha256": "03548b0f942646e308d4ca385788dc32393da8928f4f58d95e4bdbd96bbe48c3",
+      "text": "``inner``를 호출하고 조건에 맞는 경과 시간을 오류가 나도 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "03548b0f942646e308d4ca385788dc32393da8928f4f58d95e4bdbd96bbe48c3"
       ]
     },
     "spacr.macro": {
@@ -44290,6 +44932,38 @@
         "b3fbbacee171ea83cbd50c3b283d3b74da556814d12c3b2c54568bca5114c20d"
       ]
     },
+    "spacr.metadata_resolution.build_metadata_request.comparable": {
+      "source_blocks_sha256": [
+        "8b204d35d700537f277db56cac5c7cb1c69d1daa9372076ddefbcf8dba891c3f",
+        "46e9c3c4406bc6689395106baab4fdeb49bf47322ba18826174726140ef79281",
+        "112f7f71fd691ef5ee767aeff5dfb1e185cd6e27ead90ed2852f178225c9e955"
+      ],
+      "source_sha256": "c0a495082c256da9db5d059cecf3cc2a1058f63294ae6c4fdbfb94cde27a0c34",
+      "text": "메타데이터 이름을 대소문자를 구분하지 않는 영숫자 텍스트로 줄입니다.\n\n:param value: 비교할 표준 열 이름 또는 원본 열 이름입니다.\n:returns: 소문자로 바꾸고 문장 부호와 공백을 제거한 이름입니다.",
+      "translation_source_blocks_sha256": [
+        "8b204d35d700537f277db56cac5c7cb1c69d1daa9372076ddefbcf8dba891c3f",
+        "46e9c3c4406bc6689395106baab4fdeb49bf47322ba18826174726140ef79281",
+        "112f7f71fd691ef5ee767aeff5dfb1e185cd6e27ead90ed2852f178225c9e955"
+      ]
+    },
+    "spacr.metadata_resolution.build_metadata_request.guess_score": {
+      "source_blocks_sha256": [
+        "a82bc8e7c9eb14bec8a4bb9ae917960a06996e68adcc850dabab5837a112b564",
+        "295b455e62376ee27dec17ad4acef9de87428e8881d98dc89ebfeb03f288d65f",
+        "c5c3a73117d07e8152a83919e25e7547cbb3068b9204554e81844774b50cf779",
+        "9b7b5d2de1ea46466addf249d3f6864938610ec42a56765eb6fb3599987b6f28",
+        "fe60fe51af78e880150940a6d78216c91a341cbbfc1785ba3eae409e22e3a9cc"
+      ],
+      "source_sha256": "f0cbb532695dd1012f970c402d3e761a8c20f073b0ca3f9c1609cdbcca276cbf",
+      "text": "현재 누락된 대상에 대해 사용 가능한 열 하나의 점수를 매깁니다.\n\n:param source: 순위를 매길 사용 가능한 원본 열 이름입니다.\n:param target_key: 정규화된 현재 대상으로, 점수 함수를 만들 때 바인딩되어 바깥 루프가 바꿀 수 없습니다.\n:param target_root: ``id`` 또는 ``label`` 접미사가 없는 대상으로, 이 점수 함수에 대해 마찬가지로 바인딩됩니다.\n:returns: 시퀀스 유사도에, ``id`` 또는 ``label`` 접미사가 없는 대상이 정규화된 원본 이름에 나타나면 어근 이름 보너스를 더한 값입니다.",
+      "translation_source_blocks_sha256": [
+        "a82bc8e7c9eb14bec8a4bb9ae917960a06996e68adcc850dabab5837a112b564",
+        "295b455e62376ee27dec17ad4acef9de87428e8881d98dc89ebfeb03f288d65f",
+        "c5c3a73117d07e8152a83919e25e7547cbb3068b9204554e81844774b50cf779",
+        "9b7b5d2de1ea46466addf249d3f6864938610ec42a56765eb6fb3599987b6f28",
+        "fe60fe51af78e880150940a6d78216c91a341cbbfc1785ba3eae409e22e3a9cc"
+      ]
+    },
     "spacr.metadata_resolution.clear_run_metadata_decisions": {
       "source_blocks_sha256": [
         "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8"
@@ -44798,6 +45472,30 @@
         "b3061d913eb2d480d8b35b5998c0d862f664c14484f873b7ded7a510186dd753",
         "b54fd49f9b77794509f7997fd7712679a43b3f5993742dbe179ab45ded1b1023",
         "936578ce86bcc75111cb3bb61bba26605518996665cdb9019077c860e05f19e9"
+      ]
+    },
+    "spacr.mixed_gpu.fit_mixed_reml_torch._solve": {
+      "source_blocks_sha256": [
+        "cee5e421a6edc99a511d664b7e769af85e78cc6f56a4f7eca8718de80eee073d",
+        "ca2b82e19e6e9a1048195e2a42e8a6f9bde7fa9fb73ec2a4bc17b8b095f1e336"
+      ],
+      "source_sha256": "9afc52add8278a9bcad80d55bb3c28884c5c593da54b7c80eea7ff38368bda9d",
+      "text": "``theta = exp(log_theta)``에서의 프로파일 REML 이탈도입니다.\n\n이탈도와 함께 호출자가 이후에 필요로 하는 모든 것을 반환하므로, 최종 값들은 다를 수 있는 재풀이가 아니라 최종 theta를 평가한 바로 그 분해에서 나옵니다.",
+      "translation_source_blocks_sha256": [
+        "cee5e421a6edc99a511d664b7e769af85e78cc6f56a4f7eca8718de80eee073d",
+        "ca2b82e19e6e9a1048195e2a42e8a6f9bde7fa9fb73ec2a4bc17b8b095f1e336"
+      ]
+    },
+    "spacr.mixed_gpu.fit_mixed_reml_torch.closure": {
+      "source_blocks_sha256": [
+        "09d559bd09ab75a3338fc51b2424cc3ef2f1537140fd1ac5e4c348deb63e42cd",
+        "67b915088074149794aa3ad06a7c19b84673ed9da5a7376e5f64a87391eae5b7"
+      ],
+      "source_sha256": "e003fb4490f573585b5870dfb5199df75e5bdf4aa1cef8e6871fe9c0163028f1",
+      "text": "캡처된 LBFGS 목적 함수를 평가하고 미분합니다.\n\n:returns: 현재 캡처된 log-theta에서의 미분 가능한 프로파일 REML 이탈도입니다. 기존 최적화기 기울기를 지우고 이탈도를 역전파하며, 상세 모드에서는 그 숫자 값을 지수 변환된 분산 매개변수와 함께 보고합니다.",
+      "translation_source_blocks_sha256": [
+        "09d559bd09ab75a3338fc51b2424cc3ef2f1537140fd1ac5e4c348deb63e42cd",
+        "67b915088074149794aa3ad06a7c19b84673ed9da5a7376e5f64a87391eae5b7"
       ]
     },
     "spacr.mixed_gpu.mixedlm_torch": {
@@ -46848,6 +47546,16 @@
         "f0c15e9efceade21ed64185045651a3b92045992a117338933a5c77888190b75",
         "95eec2cc755826958ef0ffa630c4723cd6469a95fd93c11128fc600b7b31a046",
         "561e7628b999cd03e57c7b703697b913dc0c9b04d83dcb8c53111b03620d706d"
+      ]
+    },
+    "spacr.model_compare.compare_models._tick": {
+      "source_blocks_sha256": [
+        "7fd61a5061c935fdfadd8ec8f2b322311db01061477c16c0db337aee9f645586"
+      ],
+      "source_sha256": "7fd61a5061c935fdfadd8ec8f2b322311db01061477c16c0db337aee9f645586",
+      "text": "고정된 총계와 함께 ``message``와 ``done``을 전달하고 ``None``을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "7fd61a5061c935fdfadd8ec8f2b322311db01061477c16c0db337aee9f645586"
       ]
     },
     "spacr.model_compare.format_comparison": {
@@ -50936,6 +51644,22 @@
         "f805ea36cebaaa71340b96f18320671d8a12f2c08d5003b1665a29ecf44f4953"
       ]
     },
+    "spacr.ome_zarr._compose._pair": {
+      "source_blocks_sha256": [
+        "911034e5ea6bc3214c4714633f4076636319699dd4a24fcdb52c6c423baa5394",
+        "9b06f4c4178dd6577df6db8099bcd50e99b500fc765313bfb753641262141384",
+        "281b1ea31b8113dc1513ed28b7e0d89c64e24ce4c3ae3114ac7484cae1c0f891",
+        "f2170dde9137c56dfc48ccf1d56fa4d07027f7d054294a5e4b5e8b00a5a50858"
+      ],
+      "source_sha256": "5ecd3e7fae0da58cffea18ebbcdd870321ee33b00f049f1621612c714e824852",
+      "text": "캡처된 차원의 NGFF 변환 시퀀스 하나를 축약합니다.\n\n:param transforms: 항등, 스케일, 평행 이동 매핑이며, 거짓 같은 시퀀스는 항등 변환을 나타냅니다.\n:returns: 캡처된 길이 ``ndim``의 변경 가능한 스케일 및 평행 이동 목록입니다. 반복된 스케일은 성분별로 곱하고 반복된 평행 이동은 성분별로 더합니다.\n:raises OmeZarrError: 항목이 매핑이 아니거나, 스케일 또는 평행 이동의 항 수가 잘못되었거나, 변환 유형이 지원되지 않을 때입니다. 메시지에는 캡처된 원본 위치가 포함됩니다.",
+      "translation_source_blocks_sha256": [
+        "911034e5ea6bc3214c4714633f4076636319699dd4a24fcdb52c6c423baa5394",
+        "9b06f4c4178dd6577df6db8099bcd50e99b500fc765313bfb753641262141384",
+        "281b1ea31b8113dc1513ed28b7e0d89c64e24ce4c3ae3114ac7484cae1c0f891",
+        "f2170dde9137c56dfc48ccf1d56fa4d07027f7d054294a5e4b5e8b00a5a50858"
+      ]
+    },
     "spacr.ome_zarr.axes_from_spacing": {
       "source_blocks_sha256": [
         "74a7ef89c19b28e2e2d2b89d2e5f69198e5bd43208256728b622c24eaf3ec789",
@@ -54398,6 +55122,22 @@
         "e07ef893ee680af6adc17fd6580c96ab8518acb0af427504140c5209a079caa3"
       ]
     },
+    "spacr.ops_solve.solve_placements.find": {
+      "source_blocks_sha256": [
+        "8f60b3b363dcba39be41b6fbec28f7376bcd7be40c3cd71fd29b7a75dbe4ff44",
+        "e0611ea339aabb9d5e5c76eb34b0dfb8a0b3d27c337a950689293b015e3ee206",
+        "e8b7734fdb12c74c06c86e9088a3cc5df7259b29301e1ef9d0f4858aecf52bc7",
+        "08001127a43976ae26fce819bf8796ba4d45ff98b40f326ad0766faa18bab924"
+      ],
+      "source_sha256": "26ba24b1961bac2ff4a608b4b8a497895d2f4dcfb62c8739fd2e0044cd60cad9",
+      "text": "``node``가 속한 성분의 대표이며, 경로 압축이 적용됩니다.\n\n:param node: 타일 인덱스입니다.\n:returns: 연결 성분을 대표하는 인덱스입니다.\n\n따라가면서 절반으로 줄입니다 -- ``parent[node] = parent[parent[node]]`` -- 그래서 긴 사슬은 이후 조회 때마다가 아니라 한 번만 그 길이만큼 비용이 듭니다. 성분이 핀이 놓일 위치를 정하며, 두 이름으로 두 번 발견된 성분은 한 자리에 핀 두 개를 놓고 다른 자리는 비워 둡니다.",
+      "translation_source_blocks_sha256": [
+        "8f60b3b363dcba39be41b6fbec28f7376bcd7be40c3cd71fd29b7a75dbe4ff44",
+        "e0611ea339aabb9d5e5c76eb34b0dfb8a0b3d27c337a950689293b015e3ee206",
+        "e8b7734fdb12c74c06c86e9088a3cc5df7259b29301e1ef9d0f4858aecf52bc7",
+        "08001127a43976ae26fce819bf8796ba4d45ff98b40f326ad0766faa18bab924"
+      ]
+    },
     "spacr.ops_stitch": {
       "source_blocks_sha256": [
         "844455288d4f68f13e53d9197cfa5409cea7fb2195a50d8adf13d0789f19eb25",
@@ -55564,6 +56304,20 @@
         "00bcc2e005ae654cb5d56148eb157c28eb4be94a424521bbe040ffc56c5bae8e",
         "73b3933a3bc39a4a95373d27949b91edf9b5bee942494dbaabfdc4fa10b07342",
         "3fadf0f904c7b3f8af9eca74710435e00bf79cc3c4d96390fa71cf849a1aa315"
+      ]
+    },
+    "spacr.permutation_qc.plot_residual_by_position._distance": {
+      "source_blocks_sha256": [
+        "1ad6162ed54f922f927ec615fa412b3aae92ba3f16c3e002656d0a3d82bbe693",
+        "107e6e3719612c8e7d54d5673b5ea319496f7b9e839117c2fd55501d5b2780de",
+        "856ac63fe91e206672868cee670145756caeff9d237bd849949cf9fb44267478"
+      ],
+      "source_sha256": "8df859bed618274c1c18a15b0a6d75204cd6f4365bc1614812cbd382f0fef263",
+      "text": "블록의 Durbin-Watson이 2에서 얼마나 떨어져 있는지이며, 없으면 -1입니다.\n\n:param block: ``labels``의 블록 레이블입니다.\n:returns: ``|DW - 2|``이므로 자기상관이 가장 큰 블록이 먼저 정렬됩니다. 보고서에 유한한 통계가 없으면 -1.0입니다.",
+      "translation_source_blocks_sha256": [
+        "1ad6162ed54f922f927ec615fa412b3aae92ba3f16c3e002656d0a3d82bbe693",
+        "107e6e3719612c8e7d54d5673b5ea319496f7b9e839117c2fd55501d5b2780de",
+        "856ac63fe91e206672868cee670145756caeff9d237bd849949cf9fb44267478"
       ]
     },
     "spacr.permutation_qc.position_effect": {
@@ -58364,6 +59118,26 @@
         "f531e03b9caa9484f271951a7bd28d0fdc0a75571cbd6d664bb18f3cab54b951"
       ]
     },
+    "spacr.plate_qc._default_lims_fetch.SameOriginRedirect.redirect_request": {
+      "source_blocks_sha256": [
+        "362b869b3d48eecb5759c1725874447787245fd27868d7c8e684fd8fb0d1798f"
+      ],
+      "source_sha256": "362b869b3d48eecb5759c1725874447787245fd27868d7c8e684fd8fb0d1798f",
+      "text": "LIMS 출처를 바꾸는 리디렉션 요청을 거부합니다.",
+      "translation_source_blocks_sha256": [
+        "362b869b3d48eecb5759c1725874447787245fd27868d7c8e684fd8fb0d1798f"
+      ]
+    },
+    "spacr.plate_qc._locate_records.whole": {
+      "source_blocks_sha256": [
+        "86c55b48f5c89ceeece0155c4ba7dd1f3fc08b4f6e0a7c50efdd5189091c82d0"
+      ],
+      "source_sha256": "86c55b48f5c89ceeece0155c4ba7dd1f3fc08b4f6e0a7c50efdd5189091c82d0",
+      "text": "웰 레이블을 파싱하기 전에 정수 값을 가진 부동소수점 수를 정수로 변환합니다.",
+      "translation_source_blocks_sha256": [
+        "86c55b48f5c89ceeece0155c4ba7dd1f3fc08b4f6e0a7c50efdd5189091c82d0"
+      ]
+    },
     "spacr.plate_qc.colour_limits": {
       "source_blocks_sha256": [
         "17aae3cee11482a7db7793ce19195c0b9109a9dee5daf990a87d652a64185bfe",
@@ -60686,6 +61460,16 @@
         "52de28c82f077d776bf79ab24086c9f7a7092a55faa9b17cce3030c36c872da6"
       ]
     },
+    "spacr.point_spread.infer_optics.pick": {
+      "source_blocks_sha256": [
+        "8237ac535efefc13f8dd7109847ed013adb5d4f7347606bb1070267e67ff23d8"
+      ],
+      "source_sha256": "8237ac535efefc13f8dd7109847ed013adb5d4f7347606bb1070267e67ff23d8",
+      "text": "값 하나를 결정합니다: 인수, 그다음 메타데이터, 그다음 표의 행 순입니다.",
+      "translation_source_blocks_sha256": [
+        "8237ac535efefc13f8dd7109847ed013adb5d4f7347606bb1070267e67ff23d8"
+      ]
+    },
     "spacr.point_spread.lateral_fwhm_um": {
       "source_blocks_sha256": [
         "47eae275461b1980de8fe758712d2ac856b2cf2901eac845d5a86bbfd7969cbc",
@@ -62624,6 +63408,26 @@
         "b861939ecbeb09b90ea871de468cd72c2c902c0291c235586c798f1a6eb43dbc"
       ]
     },
+    "spacr.predictions.crop_name_metadata.bare_object_label": {
+      "source_blocks_sha256": [
+        "2734eee7e58aaaeb1b506c9888ee81fd7329205a849eb218c38a65273c3468c8"
+      ],
+      "source_sha256": "2734eee7e58aaaeb1b506c9888ee81fd7329205a849eb218c38a65273c3468c8",
+      "text": "파싱된 객체 레이블을 정규화하고 앞의 ``o`` 하나를 제거합니다.",
+      "translation_source_blocks_sha256": [
+        "2734eee7e58aaaeb1b506c9888ee81fd7329205a849eb218c38a65273c3468c8"
+      ]
+    },
+    "spacr.predictions.crop_name_metadata.convert": {
+      "source_blocks_sha256": [
+        "1a5fe4c204afc3833dac4ef8b61bc0f0e162851d33192682f7162a34d38d2634"
+      ],
+      "source_sha256": "1a5fe4c204afc3833dac4ef8b61bc0f0e162851d33192682f7162a34d38d2634",
+      "text": "크롭 기본 이름 하나를 파싱하고 캐시하거나, 모두 누락된 메타데이터를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "2f0ce7e9a6c92b2de94236c4c81c6c4437504e809964a35a3f086ec047d9b15d"
+      ]
+    },
     "spacr.predictions.first_present": {
       "source_blocks_sha256": [
         "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
@@ -63458,6 +64262,22 @@
         "30fd684b02fff214dcb5dcaf2e23eaece7a5f69df305dd978ea16674dcf7f918"
       ]
     },
+    "spacr.projects.discover._walk": {
+      "source_blocks_sha256": [
+        "13a736905f5a6d03b2279588090fba3769611e1342cdd5ebdf3f2eaf454b5358",
+        "69f72aebf8005ba7d46dd39727af1840839051935a43f6cabb757420eb10ed82",
+        "17584986275a5a5f68eb27c77afdbf81c3aa4cefe50fc9560c2c5c1532de96a5",
+        "e6283b5c9ff646cb0cf1e5f0f7d4d4c16fc20a6efe84e1e7b3e03a7e0b020b61"
+      ],
+      "source_sha256": "05bcba94e1777ae3924d8613eb8d8fe3594d10191e5320be54aadc69b0ad49f2",
+      "text": "캡처된 탐색 한도 안에서 디렉터리 하나를 순회합니다.\n\n:param path: 프로젝트가 있는지 검사하거나 아래로 내려갈 디렉터리입니다.\n:param level: 호출자가 제공한 현재 루트 아래로의 거리입니다.\n:returns: ``None``입니다. 발견된 프로젝트 경로는 ``found``에 추가되고 확인된 디렉터리는 ``seen``에 기록됩니다. 순회는 프로젝트, 깊이 또는 결과 한도, 읽을 수 없는 폴더에서 멈춥니다.",
+      "translation_source_blocks_sha256": [
+        "13a736905f5a6d03b2279588090fba3769611e1342cdd5ebdf3f2eaf454b5358",
+        "69f72aebf8005ba7d46dd39727af1840839051935a43f6cabb757420eb10ed82",
+        "17584986275a5a5f68eb27c77afdbf81c3aa4cefe50fc9560c2c5c1532de96a5",
+        "e6283b5c9ff646cb0cf1e5f0f7d4d4c16fc20a6efe84e1e7b3e03a7e0b020b61"
+      ]
+    },
     "spacr.projects.evidence_ports": {
       "source_blocks_sha256": [
         "40e53e82b801870e7228ad9513c74776958e0148c7644fecb6b9bad1e1e3b79c",
@@ -64004,6 +64824,16 @@
         "9bf9570ddb9b1d1b600c85d8eaa69ae816440aab5d37fdff48b050f93fc9bdfb",
         "6797c54a8ab1291fb675e05a6622391cf568f71960020bb5220882f672f88bc9",
         "2317156d748af06bf6ccf8af277c7f8d71fb5bca008ed6d94da3083c579a0375"
+      ]
+    },
+    "spacr.qt._install_quiet_qt_logging.handler": {
+      "source_blocks_sha256": [
+        "48df2e5cdc97ea8d6457d12def1424303d85dddfd9f7ec840f614a6ff6569532"
+      ],
+      "source_sha256": "48df2e5cdc97ea8d6457d12def1424303d85dddfd9f7ec840f614a6ff6569532",
+      "text": "Qt의 알려진 잡음성 메시지는 버리고 나머지는 그대로 통과시킵니다.",
+      "translation_source_blocks_sha256": [
+        "48df2e5cdc97ea8d6457d12def1424303d85dddfd9f7ec840f614a6ff6569532"
       ]
     },
     "spacr.qt.ai": {
@@ -69508,6 +70338,18 @@
         "be44daec0bebc9a01921727f9b5fd32a3135308454a54cf24892fa2cf4c6ee0a"
       ]
     },
+    "spacr.qt.crop_thumbs.crop_paths_for_keys.resolve": {
+      "source_blocks_sha256": [
+        "0a85cac894e2d781352aceeddda3e2ef8132a857acbc8e787b862128b80d22c3",
+        "175d13bd889125a892f7edb8b43a122466e592b89d75f7cc9c689775b6d3cd77"
+      ],
+      "source_sha256": "ccde7abd8c455d9e9a2748b6c13f1b482e2682e36bdc9081491bc2ddb3ee6aac",
+      "text": "키 묶음 하나를 확인하며, 일부가 없으면 이분합니다.\n\n빈 묶음으로는 결코 호출되지 않습니다: 호출자가 빈 키 목록을 거부하며, 둘 이상을 이분하면 빈 절반이 나올 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "0a85cac894e2d781352aceeddda3e2ef8132a857acbc8e787b862128b80d22c3",
+        "175d13bd889125a892f7edb8b43a122466e592b89d75f7cc9c689775b6d3cd77"
+      ]
+    },
     "spacr.qt.crop_thumbs.live_thumbnail_caches": {
       "source_blocks_sha256": [
         "4b4d80b211c5b58368eabc28d517d2d331236bad89c2abec9f9e9a823cf936eb"
@@ -70160,6 +71002,16 @@
         "cd31c05c09354eba773023b6481ba77fb03c6f52e1299826fed80e930346a304",
         "1e463c0f2c619814243f108f7230aeddd1db20227273d8815436d00c7e1be222",
         "3776c55de19a5437406c74c6c1bbb7412186af032e59be86f79ca53ee970a78e"
+      ]
+    },
+    "spacr.qt.detect_chain.prepare.check": {
+      "source_blocks_sha256": [
+        "7db809ef398fa74211a7cf4dd9eee5bad3eb1475e6b650e7124061ce7ce455fe"
+      ],
+      "source_sha256": "7db809ef398fa74211a7cf4dd9eee5bad3eb1475e6b650e7124061ce7ce455fe",
+      "text": "제공된 콜백이나 이벤트가 취소되면 향상 단계 사이에서 멈춥니다.",
+      "translation_source_blocks_sha256": [
+        "7db809ef398fa74211a7cf4dd9eee5bad3eb1475e6b650e7124061ce7ce455fe"
       ]
     },
     "spacr.qt.detect_chain.provenance": {
@@ -75106,6 +75958,16 @@
         "7977109eb14e5eb82cc9376f52db12aa89ef2ef82dc7b6d518411e2f4d69f917"
       ]
     },
+    "spacr.qt.iconset._blend.ch": {
+      "source_blocks_sha256": [
+        "53ff02617e4a681c146358fc9ff11e9b97b05bc3fccefc224854c35cdd1117d3"
+      ],
+      "source_sha256": "53ff02617e4a681c146358fc9ff11e9b97b05bc3fccefc224854c35cdd1117d3",
+      "text": "16진수 색 하나를 세 개의 정수 채널로 나타낸 것입니다.",
+      "translation_source_blocks_sha256": [
+        "53ff02617e4a681c146358fc9ff11e9b97b05bc3fccefc224854c35cdd1117d3"
+      ]
+    },
     "spacr.qt.iconset.accent_icon": {
       "source_blocks_sha256": [
         "45a6a0e9c74d8ba961fd61d15b4632ab9b8b20fe2f07bfe0501f268959b677c6",
@@ -78130,6 +78992,16 @@
         "a0ee89a4efc7e57417aacc21f331182a406b947daffdb5e59c52da5a85ad6f7a"
       ]
     },
+    "spacr.qt.make_masks_demo.load_the_test_data._done": {
+      "source_blocks_sha256": [
+        "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
+      ],
+      "source_sha256": "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3",
+      "text": "버튼을 되돌린 다음 데이터를 열거나 열지 못한 이유를 알려 줍니다.",
+      "translation_source_blocks_sha256": [
+        "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
+      ]
+    },
     "spacr.qt.make_masks_demo.make_masks_example_folder": {
       "source_blocks_sha256": [
         "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
@@ -79956,6 +80828,18 @@
         "964c9b6db319f835efd83ca8ae29c2dbae41ef5128973248f14bc29f4c908201"
       ]
     },
+    "spacr.qt.mask_thumbnail_quality.quality_combo._Sync.update": {
+      "source_blocks_sha256": [
+        "16025a3832080c7e9c1094c8bdd338ff8817dd9fe8e24d3476a0eec48a072ec3",
+        "d8532a6016d9fb25fcd57d9876f037d9061159e445b85ac764f049d9489d8314"
+      ],
+      "source_sha256": "3c387f44a6972b7a71ceb53d0015d4a94fffd5bfd79ddc0a38484b20bf1411f2",
+      "text": "다른 보기에서 품질을 바꾼 뒤 선택기를 동기화합니다.\n\n:param value: 안정적인 품질 키입니다.",
+      "translation_source_blocks_sha256": [
+        "16025a3832080c7e9c1094c8bdd338ff8817dd9fe8e24d3476a0eec48a072ec3",
+        "d8532a6016d9fb25fcd57d9876f037d9061159e445b85ac764f049d9489d8314"
+      ]
+    },
     "spacr.qt.mask_thumbnail_quality.set_quality": {
       "source_blocks_sha256": [
         "b2049d707c54b9d057605cdb4803b8511c2a9b4d1371c682705971871698ff17",
@@ -81580,6 +82464,18 @@
         "b9e760b41e26dc371462657d9d4a4e95c5f8033ddcd5e8e15414dc305839df76",
         "efce23f4d01066d37fde6633f1c3fe6e530988fe4c5156ec00654f53a855a613",
         "5d56956a8e776213bb15d0fea21a54d7058302f16a95957c35b73ef6218b0a6d"
+      ]
+    },
+    "spacr.qt.path_probe._stat_with_timeout.run": {
+      "source_blocks_sha256": [
+        "66e5d6135a2871af63e4dce2909aeacfec708a21251d7ec046c71ba0262c1925",
+        "f05c6fda7888e848639dc31c1b975dc2a512d37858c400ad2ae253fa3f564284"
+      ],
+      "source_sha256": "7f0998670a64e500967197bd5a9582e01aa6af0ac5c3d8ffd2aaa8a595f926b1",
+      "text": "차단되어도 괜찮은 질문을 파일 시스템에 묻습니다.\n\n이 본문이 모듈이 존재하는 이유입니다: 작업자에서 실행되므로, 깨어나는 데 20초가 걸리는 `autofs` 마운트가 있어도 누구의 창도 멈추지 않습니다. `OSError`는 실패가 아니라 \"no\"(아니요)라는 답입니다 -- stat할 수 없는 경로는 사용자도 쓸 수 없는 경로입니다.",
+      "translation_source_blocks_sha256": [
+        "66e5d6135a2871af63e4dce2909aeacfec708a21251d7ec046c71ba0262c1925",
+        "ca5fa53e540b1dc3486ea059843487ca8694d5d8bb9965d172f295fb9ec7ecc5"
       ]
     },
     "spacr.qt.path_probe.exists": {
@@ -85824,6 +86720,16 @@
         "c041a3c10059ee159d9bd0747008638532e8852fdc47d58161377ce393cef388"
       ]
     },
+    "spacr.qt.regex_detect.tabulate_records._row": {
+      "source_blocks_sha256": [
+        "eae8b823e8f4b80c2b79cf465485de2fcc3d6a2fbe0e8fca09366c99a69e3619"
+      ],
+      "source_sha256": "eae8b823e8f4b80c2b79cf465485de2fcc3d6a2fbe0e8fca09366c99a69e3619",
+      "text": "열 너비에 맞게 채운 표의 한 행입니다.",
+      "translation_source_blocks_sha256": [
+        "eae8b823e8f4b80c2b79cf465485de2fcc3d6a2fbe0e8fca09366c99a69e3619"
+      ]
+    },
     "spacr.qt.regex_detect.validate_records": {
       "source_blocks_sha256": [
         "0bac1c461d8707a5dad4bcca75f26cc9cfd91cb18ebca8391f13c20464535709",
@@ -89364,6 +90270,16 @@
       "translation_source_blocks_sha256": [
         "2a551ec911ca190fe11f9a88a0c5af8776f5797ef56d551e662fb9e8b5780d9e",
         "a4b4e3908b228419d7aeba175b94a373c0ed6f5547e31fb27adbfb8c7d43aaff"
+      ]
+    },
+    "spacr.qt.screens.batch.BatchScreen.run._job": {
+      "source_blocks_sha256": [
+        "14b927df06bcc734cbed84884b679d315aad8be4206f03f7efaf7c5b065b484d"
+      ],
+      "source_sha256": "14b927df06bcc734cbed84884b679d315aad8be4206f03f7efaf7c5b065b484d",
+      "text": "플레이트 대기열 전체를 실행합니다. GUI 스레드 밖에서 실행됩니다.",
+      "translation_source_blocks_sha256": [
+        "39383554dcf427717ded3c190bf7e70a2eb714a9ea2d97af10e2246a8dd4cb75"
       ]
     },
     "spacr.qt.screens.batch.BatchScreen.save_queue_to": {
@@ -94976,6 +95892,16 @@
         "14f36c29d7a00366215871af62f659cbc115906aea7780efd842f6ff324d6041"
       ]
     },
+    "spacr.qt.screens.hit_list.HitListScreen.load_folder.build": {
+      "source_blocks_sha256": [
+        "f9b515c56e5762938857894f7425266e08b4d9186d43f7a83ea3f6b24f393f9f"
+      ],
+      "source_sha256": "f9b515c56e5762938857894f7425266e08b4d9186d43f7a83ea3f6b24f393f9f",
+      "text": "표를 읽는 작업 안에서 데이터 백엔드를 불러옵니다.",
+      "translation_source_blocks_sha256": [
+        "f9b515c56e5762938857894f7425266e08b4d9186d43f7a83ea3f6b24f393f9f"
+      ]
+    },
     "spacr.qt.screens.hit_list.HitListScreen.metadata_files": {
       "source_blocks_sha256": [
         "057d9694c3620cd428d5a4ad49c6050e9dffabf5f7706fef06a36ead9f1e2aa2"
@@ -99044,6 +99970,18 @@
         "aa47097fb42092c08862cb2ef12f098b4837750189560d59128f649e94504d52"
       ]
     },
+    "spacr.qt.screens.measure_inputs.MeasureInputsScreen.run.work": {
+      "source_blocks_sha256": [
+        "42389f7d8c445c791056f3a3903e0294a6c53653569e219a85cf349753dd5d0a",
+        "b028d92ff849cf6c6bd748919babd270f8ddcb8c67bd5811b173601a9c1ab952"
+      ],
+      "source_sha256": "e64c410044856507ad07d5830a375998ba882b637e8e0f206dcc247f72634a7c",
+      "text": "측정을 실행합니다. 워커 프로세스 스레드이며 위젯을 건드리지 않습니다.\n\n측정하는 표는 위에서 찍은 스냅샷이지 위젯의 실시간 모델이 아닙니다. 측정 실행은 몇 분이 걸리고 그동안 다음 묶음을 준비하는 것이 자연스러우므로, GUI 스레드가 그 아래에서 행을 추가하고 채널 및 마스크 키를 삭제할 수 있습니다 -- 이는 작업자에게 기록 도중의 ``KeyError``나 아무도 요청하지 않은 반쪽짜리 필드로 전달됩니다. 스냅샷은 단순한 데이터이므로 복사 비용이 적고 어디에서도 편집할 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "664b0eec4d8f0ab0dbcaba412e93b8b62ac75336ed9545a61af8759ddbb7e4dc",
+        "9df684f143f67ecb6556da5b661ec86910bc9521d4078ce4b3ab7273cde7ecae"
+      ]
+    },
     "spacr.qt.screens.measure_inputs.MeasureInputsScreen.set_destination": {
       "source_blocks_sha256": [
         "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee",
@@ -102714,6 +103652,18 @@
         "0936a4baa9f0ae86a3ae2fc59cc37f9e22bf886b7e20af85df2da3460d7d4391"
       ]
     },
+    "spacr.qt.screens.qc_dashboard.QCDashboardScreen.refresh.work": {
+      "source_blocks_sha256": [
+        "e099b781990bc9ff026fa42c9044824099bde955584a68184b638fa682d638ed",
+        "fdfb8393c4bb63e015a1537aaec7d60e52e87fa62e1adfbd0a7f0c8b81835d31"
+      ],
+      "source_sha256": "f322df4aff9fb506012dca981f54cf7a4246f967a48b1bf734a49f4499b4e1ed",
+      "text": "GUI 스레드 밖에서 실행됩니다. 위젯을 건드리지 않고 판정을 반환합니다.\n\n캐시 비교도 뒤에 남지 않고 함께 옵니다: 비교하는 키가 곧 디스크 탐색이므로, 비교를 GUI 스레드에 남겨 두면 탐색도 그곳에 남게 됩니다.",
+      "translation_source_blocks_sha256": [
+        "f30d8274e4fca85ca9d99be09a63cd1f1f00b652241dfdfaad01b7961cfc6c58",
+        "6623aea9c68ef25eac3d40caecfb4ecec3d62e965a1af51ce5b1ec22d8bf779a"
+      ]
+    },
     "spacr.qt.screens.qc_dashboard.QCDashboardScreen.set_source": {
       "source_blocks_sha256": [
         "7514a3615103a25134c635bf5543b0897a9d3cdeb8e994243ae2088ecec87a3c",
@@ -102900,6 +103850,16 @@
         "a62027510d57cce74741c4abc4c97c9e9be107e6d8ef6f1281c465a125cafde1",
         "c50cdb73d9e72a7db04c3de5787da52e5e2e79c0a1a825f4bada9ad7278d4c3c",
         "b3ddafb9bd900db99572cc7b2d97b210d25accae118030f54841cb3d4ccd8f76"
+      ]
+    },
+    "spacr.qt.screens.queue.QueueScreen.wire_add_current._on_click": {
+      "source_blocks_sha256": [
+        "998c5479d2c420e74fcf8355c8ef226f3ff16b6fab51bf74800ba4f086ee436a"
+      ],
+      "source_sha256": "998c5479d2c420e74fcf8355c8ef226f3ff16b6fab51bf74800ba4f086ee436a",
+      "text": "현재 화면의 설정을 대기열에 추가합니다.",
+      "translation_source_blocks_sha256": [
+        "5127a16106036eff46abadd2cac15b3cdfa973116de14c6f2f96314cb32fde2a"
       ]
     },
     "spacr.qt.screens.regression": {
@@ -103628,6 +104588,16 @@
       "text": "주요 GUI 실행 경로를 차단하지 않고 각 실행 기록을 다시 업로드합니다.",
       "translation_source_blocks_sha256": [
         "e52130b95a38471a0e1606579637fbff6a1927b0abe0d2ea6ec8a090a40aa0dc"
+      ]
+    },
+    "spacr.qt.screens.run_history.RunHistoryScreen.refresh._load": {
+      "source_blocks_sha256": [
+        "c39ea695decd0789a82fe1041aa13a5033f0520e22d21d2f4625dd5261ffd9a9"
+      ],
+      "source_sha256": "c39ea695decd0789a82fe1041aa13a5033f0520e22d21d2f4625dd5261ffd9a9",
+      "text": "실행 기록을 읽습니다. GUI 스레드 밖에서 실행됩니다.",
+      "translation_source_blocks_sha256": [
+        "d0aeba418fddb1d14fa9858b25ae3179f76d8e0b0b2d7f9b5b57731e1eab780a"
       ]
     },
     "spacr.qt.screens.run_history.RunHistoryScreen.select_run": {
@@ -106794,6 +107764,16 @@
         "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893"
       ]
     },
+    "spacr.qt.setup_screen.questions.choices_of": {
+      "source_blocks_sha256": [
+        "14a6b184167ed4f6dafbfd469a21479a46909f7df23c240aee775f7c8ed26d4b"
+      ],
+      "source_sha256": "14a6b184167ed4f6dafbfd469a21479a46909f7df23c240aee775f7c8ed26d4b",
+      "text": "선택기용으로 읽기 쉬운 표기와 짝지은 이름입니다.",
+      "translation_source_blocks_sha256": [
+        "14a6b184167ed4f6dafbfd469a21479a46909f7df23c240aee775f7c8ed26d4b"
+      ]
+    },
     "spacr.qt.setup_screen.should_open": {
       "source_blocks_sha256": [
         "1e43715d5f6ffc50a774f81755ab178f671ff98021292edce5dd44341924d188",
@@ -108130,6 +109110,18 @@
         "5a8b77616a1d40789394c437d4bf6abb4cba4e2f5e9ef007730a7a087f3847cd"
       ]
     },
+    "spacr.qt.space._bilinear_upsample._axis": {
+      "source_blocks_sha256": [
+        "981174f2fbe6e5fa844803660f9c9590e68a7352ad028d1d5ac6d006f3903c7f",
+        "4194a4df131dd324cff46ef83dc035991669ffa125631227036214192f37dfec"
+      ],
+      "source_sha256": "29d1f8153e14a9b2780f21243be69142f3f6205f7c517c967b7cf4ec17d10200",
+      "text": "업샘플의 한 축에 대한 샘플 위치와 가중치입니다.\n\n입력 샘플이 하나뿐이면 따로 처리합니다: 한 점과 자기 자신 사이를 보간하면 0으로 나누게 됩니다.",
+      "translation_source_blocks_sha256": [
+        "981174f2fbe6e5fa844803660f9c9590e68a7352ad028d1d5ac6d006f3903c7f",
+        "4194a4df131dd324cff46ef83dc035991669ffa125631227036214192f37dfec"
+      ]
+    },
     "spacr.qt.space.attribution_text": {
       "source_blocks_sha256": [
         "140f6c855ff2dd13ebbe3f5059f03dc7e22e7807cdbcb7fcb89e276983b9332e"
@@ -108744,6 +109736,16 @@
         "539a155ccf3f8b948c4d22390a7c97755ab7274d47b4b8d52b247bba0bd8a071",
         "2bc20af886873b1f06055ac11ccf2894edfc5e9c0055bc23de9ddfcea2cc7a1b",
         "bd6a040d8d24b4b34483f02dabae95b8fae7d543f5d03baf03fde99cd4143721"
+      ]
+    },
+    "spacr.qt.synthetic._synth_field._peak": {
+      "source_blocks_sha256": [
+        "85ebafbe4cf80fe67ad0f58d60f23f27b5018e4c468bbd46f85fe1de8a3911ad"
+      ],
+      "source_sha256": "85ebafbe4cf80fe67ad0f58d60f23f27b5018e4c468bbd46f85fe1de8a3911ad",
+      "text": "공칭값 주변에서 무작위로 흔든 객체 하나의 최고 강도입니다.",
+      "translation_source_blocks_sha256": [
+        "85ebafbe4cf80fe67ad0f58d60f23f27b5018e4c468bbd46f85fe1de8a3911ad"
       ]
     },
     "spacr.qt.synthetic.barcode_pool": {
@@ -111318,6 +112320,18 @@
         "b2ab8123770a4423a484ca08b822961a230eafc78d134683b38c73922fb8fc0a"
       ]
     },
+    "spacr.qt.verbose_logger.log_call.wrapper": {
+      "source_blocks_sha256": [
+        "f43e3591b730f72109d387d5f0ec043e223c40f1bc8a48e913f5c8bbabaa9ad6",
+        "a1fd83315bf1466d76f9b85b43867afafa3ffb0cf51b64c2029cf0f8249c4234"
+      ],
+      "source_sha256": "ed240cef91e5e813cf716e0957a9ebad7f39bf4bffc63e647c21e7b0d107d5dc",
+      "text": "함수를 호출하며, 상세 모드가 켜져 있을 때만 로그를 남깁니다.\n\n검사가 데코레이션 시점이 아니라 내부에 있으므로, 세션 도중 상세 모드를 켜도 아무것도 다시 만들지 않고 적용됩니다.",
+      "translation_source_blocks_sha256": [
+        "f43e3591b730f72109d387d5f0ec043e223c40f1bc8a48e913f5c8bbabaa9ad6",
+        "a1fd83315bf1466d76f9b85b43867afafa3ffb0cf51b64c2029cf0f8249c4234"
+      ]
+    },
     "spacr.qt.verbose_logger.log_dir": {
       "source_blocks_sha256": [
         "20d4a80cf58ffc0658f6929fa0a29776d1fd98ed69f5aa79c162ec43cde8f365",
@@ -111718,6 +112732,16 @@
         "6499406cb1405c2fbc30d165767badc60ad338423b6d71cce0d0100381272041",
         "e779ebd4fea6a30dcfddb3388021435b5b5cc6749911dbbb6028c83c332d54d2",
         "3e2a28039292254a326ceef9c00af240e1de6509d13961145526d8f0161381d5"
+      ]
+    },
+    "spacr.qt.widget_cleanup.retire_pyqtgraph_menus.retire": {
+      "source_blocks_sha256": [
+        "2006eec46b5272683df7513a8a876c99ccd783424f0e0144a3d8ccc0db9e7dec"
+      ],
+      "source_sha256": "2006eec46b5272683df7513a8a876c99ccd783424f0e0144a3d8ccc0db9e7dec",
+      "text": "메뉴 하나를 한 번만 정리합니다. 이미 본 메뉴는 건너뜁니다.",
+      "translation_source_blocks_sha256": [
+        "2006eec46b5272683df7513a8a876c99ccd783424f0e0144a3d8ccc0db9e7dec"
       ]
     },
     "spacr.qt.widgets": {
@@ -113496,6 +114520,16 @@
         "1cc99551438e5196875f2e80537d89d4ed75e7a340fea453c367fb57c0c85dad"
       ]
     },
+    "spacr.qt.widgets.ambient.DriftEngine._configure.roll": {
+      "source_blocks_sha256": [
+        "87fadf21b9499e28c155af0c547442de1f8628f049f75afe649a989ac5ec216b"
+      ],
+      "source_sha256": "87fadf21b9499e28c155af0c547442de1f8628f049f75afe649a989ac5ec216b",
+      "text": "인덱스가 속하는 드리프트 레이어 위의 입자 하나입니다.",
+      "translation_source_blocks_sha256": [
+        "87fadf21b9499e28c155af0c547442de1f8628f049f75afe649a989ac5ec216b"
+      ]
+    },
     "spacr.qt.widgets.ambient.DriftEngine.alpha_scale": {
       "source_blocks_sha256": [
         "d6076a8fed021d19ae15795fb6afca6e5f69fc2808b721da9322f9d3129df656",
@@ -114780,6 +115814,16 @@
         "80150aeeb2fcdb06ae06cdaea2e775e5e5e250280a3f26a267214c7298b906e2"
       ]
     },
+    "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.run.work": {
+      "source_blocks_sha256": [
+        "56eb359fc05f9b2d007690cee97b0b3fb2cd4636891fe6b1ffebc9d3a7ada9aa"
+      ],
+      "source_sha256": "56eb359fc05f9b2d007690cee97b0b3fb2cd4636891fe6b1ffebc9d3a7ada9aa",
+      "text": "어노테이션 전략을 실행합니다. GUI 스레드 밖에서 실행됩니다.",
+      "translation_source_blocks_sha256": [
+        "ee9d08fd36e96bf2db4dc832f91fad690539f21d4033cc0a9df63abde3a506cb"
+      ]
+    },
     "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.save": {
       "source_blocks_sha256": [
         "9a9c50ac35817706c4dc37998b3df0af6b8e7de900be69c18cc48f8c16fee9d7",
@@ -115730,6 +116774,16 @@
         "1e74ff7cd596a4b3acf00609ed7b5ff33755b4696a8a994835423fe0d6249ab1",
         "e63c383100ffb1f4997bc997b3a2b572782992547748ed2e7041138579ed6174",
         "373da990fb11b9c9307b2c6bfb75acf74507f19a818434789b6f98acc835fbc8"
+      ]
+    },
+    "spacr.qt.widgets.card.Card.follow_fold.apply": {
+      "source_blocks_sha256": [
+        "c045ebdcfdbfa00a22a5e3d31e5e0be947e5f781884420e55a8a49fbc464ed53"
+      ],
+      "source_sha256": "c045ebdcfdbfa00a22a5e3d31e5e0be947e5f781884420e55a8a49fbc464ed53",
+      "text": "본문의 늘림을 접힘 상태에 맞춥니다.",
+      "translation_source_blocks_sha256": [
+        "c045ebdcfdbfa00a22a5e3d31e5e0be947e5f781884420e55a8a49fbc464ed53"
       ]
     },
     "spacr.qt.widgets.cell_montage_view": {
@@ -118022,6 +119076,16 @@
         "696b8d8621727c667247f142f574e61457e8e15c3e3f71e0ce40fd840f08c4e3",
         "d8e934de7c14a219edaac49e48429601cb7e6e343084f6785aee664a0632112f",
         "db173ab1b5d523b63e42d330427790bae4bbffc0a04719cacd88e3b35658db54"
+      ]
+    },
+    "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom.apply": {
+      "source_blocks_sha256": [
+        "6a2343393cb771b777ddf13ed1d98acf854dacc585fbd88bfe906aa6dcad538a"
+      ],
+      "source_sha256": "6a2343393cb771b777ddf13ed1d98acf854dacc585fbd88bfe906aa6dcad538a",
+      "text": "제목 앞의 늘림을 추가하거나 제거합니다.",
+      "translation_source_blocks_sha256": [
+        "6a2343393cb771b777ddf13ed1d98acf854dacc585fbd88bfe906aa6dcad538a"
       ]
     },
     "spacr.qt.widgets.collapsible_splitter.set_pane_extents": {
@@ -120542,6 +121606,18 @@
         "755e03f40d3650284545c2fd4ac3e06807af1fa5b528320b777e3b070689d341"
       ]
     },
+    "spacr.qt.widgets.control_chart.control_chart._finish": {
+      "source_blocks_sha256": [
+        "c6d59ac0a54cb2287c2b793e57aa77fd9e611798784665ba580db200bf3fd9c5",
+        "583c5126738fc2d71d73b7e5242748d4866ac3007d59d0e4bf5133e1bde3261a"
+      ],
+      "source_sha256": "2438ba772733ccf647dc7b84454f69999eafbb51736067ba70a4e40e869b786b",
+      "text": "결과를 조립하고 퇴화된 산포를 표시합니다.\n\n허용 오차 이하의 시그마는 모든 점이 위반이라는 뜻이므로, 차트로 그리지 않고 DEGENERATE로 보고합니다 -- 산포 없이 얻은 한계는 공정에 대해 아무것도 말해 주지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "c6d59ac0a54cb2287c2b793e57aa77fd9e611798784665ba580db200bf3fd9c5",
+        "583c5126738fc2d71d73b7e5242748d4866ac3007d59d0e4bf5133e1bde3261a"
+      ]
+    },
     "spacr.qt.widgets.control_chart.sd_reference_limits": {
       "source_blocks_sha256": [
         "03708c77632f5cc678a99afc6d5d1911ec3a73418dec959a1c4c930775a3b35c",
@@ -121148,6 +122224,16 @@
       "translation_source_blocks_sha256": [
         "2c6e2ccdce35e8b3c8b97b4623f064e9c5d3aeb82cdc02f6b678f6cc0368109b",
         "ee17b708341bc8da79a0943a412bf5e58fa6943b435bfee272cbe534b6e01a3d"
+      ]
+    },
+    "spacr.qt.widgets.derived_table_source.DerivedTableSource.use_derived_table.work": {
+      "source_blocks_sha256": [
+        "521b0aa9c51db5b5f01b0dca3103c6c3f1da2c16450ebc0f55f0ab76c15d8bf3"
+      ],
+      "source_sha256": "521b0aa9c51db5b5f01b0dca3103c6c3f1da2c16450ebc0f55f0ab76c15d8bf3",
+      "text": "작업자에서 원본에 결합된 정의를 검증하고 저장합니다.",
+      "translation_source_blocks_sha256": [
+        "521b0aa9c51db5b5f01b0dca3103c6c3f1da2c16450ebc0f55f0ab76c15d8bf3"
       ]
     },
     "spacr.qt.widgets.divider": {
@@ -128200,6 +129286,16 @@
         "35ae9a3e190eb544530b096d46b44a16bb33a1f0d404797927edf562febd6c43"
       ]
     },
+    "spacr.qt.widgets.feature_dictionary._doc_html.field": {
+      "source_blocks_sha256": [
+        "ef6779f576cc1c11cb0093a66884992d335e33f68830d35d544e8a80cb269480"
+      ],
+      "source_sha256": "ef6779f576cc1c11cb0093a66884992d335e33f68830d35d544e8a80cb269480",
+      "text": "빈 값을 건너뛰며 항목에 필드 하나를 추가합니다.",
+      "translation_source_blocks_sha256": [
+        "ef6779f576cc1c11cb0093a66884992d335e33f68830d35d544e8a80cb269480"
+      ]
+    },
     "spacr.qt.widgets.feature_dictionary.close_feature_dictionary": {
       "source_blocks_sha256": [
         "b9d8effaa810f72b4cab6bd4124352094d80b24dc92218bc237531837a393ff2"
@@ -129356,6 +130452,16 @@
         "f7f803cfe593311ad7fb11b803782df1ed2846bd5d7ba789d3ff75a4c8aecae6",
         "a868013dd40c39024c044dcdfd337341c8aa7cc0ef7ab7c8fae63e69a88f5707",
         "a1d0b82e7074ee22cb6f367df9da36dece4cc653174e7d68e491332c8091729a"
+      ]
+    },
+    "spacr.qt.widgets.figure_grid.axis_layout.distinct": {
+      "source_blocks_sha256": [
+        "bade947307b84885ab90f594a3417d47ce4b987431def1451032370681fa9d71"
+      ],
+      "source_sha256": "bade947307b84885ab90f594a3417d47ce4b987431def1451032370681fa9d71",
+      "text": "한 열의 서로 다른 값으로, 처음 나타난 순서를 따릅니다.",
+      "translation_source_blocks_sha256": [
+        "bade947307b84885ab90f594a3417d47ce4b987431def1451032370681fa9d71"
       ]
     },
     "spacr.qt.widgets.figure_grid.cell_caption": {
@@ -131492,6 +132598,18 @@
         "e636f44d017342a95f62df3e9a11756f218546e9b9592390578660fdc2c2c274"
       ]
     },
+    "spacr.qt.widgets.fold_strip._host_declarations._as_string": {
+      "source_blocks_sha256": [
+        "b85a795f6b697a50bc7619c03548f3966515603b29b4a1151ce0f2971adb30fd",
+        "4a9312cb205ec581776d9d601221838df5e6879583615a910b843f55ea0af580"
+      ],
+      "source_sha256": "66ec1dd9e71cf8eee682b92fa10c60de06c5c1393e593f6be2b52d3cc8c980f0",
+      "text": "AST 노드가 나타내는 문자열이며, 문자열이 아니면 ``None``입니다.\n\n리터럴, 이 모듈의 상수, 가져온 형제 모듈을 통해 도달한 상수를 처리합니다 -- 정의하는 모듈을 가져오지 않고 소스 코드에서 읽습니다.",
+      "translation_source_blocks_sha256": [
+        "b85a795f6b697a50bc7619c03548f3966515603b29b4a1151ce0f2971adb30fd",
+        "4a9312cb205ec581776d9d601221838df5e6879583615a910b843f55ea0af580"
+      ]
+    },
     "spacr.qt.widgets.fold_strip.fold_label": {
       "source_blocks_sha256": [
         "b06275875ca00e2b001850eea8bbe937d78919b267a54111a2f54d64afc72f0d",
@@ -131706,6 +132824,18 @@
         "ec2222cb59ae6cbb6c53b544638e73e8c58e2683108291f0ae4b306d857fa018"
       ]
     },
+    "spacr.qt.widgets.foldable.make_foldable.remember": {
+      "source_blocks_sha256": [
+        "9387914e4f9ee31983e50077f33329f7e386e41d46290d4b4325f51357fd6f2d",
+        "0c85cbfaa92859a886bc2d25c165730a350c17a43119608dd0dd7f9633d4ff1e"
+      ],
+      "source_sha256": "d7d12ca2f4de9d4a365a76c69b95c5867f7fe354d344f6ef081fa08a92df2e5b",
+      "text": "이 섹션에 저장할 키가 있으면 접힘 상태를 저장합니다.\n\n사용자가 직접 접은 경우만 저장됩니다: :attr:`Folder.last_change_by_user`를 참조하세요.",
+      "translation_source_blocks_sha256": [
+        "9387914e4f9ee31983e50077f33329f7e386e41d46290d4b4325f51357fd6f2d",
+        "0c85cbfaa92859a886bc2d25c165730a350c17a43119608dd0dd7f9633d4ff1e"
+      ]
+    },
     "spacr.qt.widgets.folding_summary": {
       "source_blocks_sha256": [
         "121d47111e85f93ececd6e7a6509397056f393470b68d260c1e4e5f7adba1994",
@@ -131738,6 +132868,16 @@
         "93023c3d17493f4f8f4e297e6c4b504b5b57a929009f7e567aaa7b40b11a3040",
         "60654e4bd59eb8dcf9177fa5e845dd42bd088846a9ba277b0356d716d11d199e",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView._table._tint": {
+      "source_blocks_sha256": [
+        "576c9be62bf0089b4f29a8c9e64d8f83aa59cf58551dc460d48385147c5b7248"
+      ],
+      "source_sha256": "576c9be62bf0089b4f29a8c9e64d8f83aa59cf58551dc460d48385147c5b7248",
+      "text": "행이 경보일 때만 색을 입히는 셀 하나입니다.",
+      "translation_source_blocks_sha256": [
+        "576c9be62bf0089b4f29a8c9e64d8f83aa59cf58551dc460d48385147c5b7248"
       ]
     },
     "spacr.qt.widgets.folding_summary.FoldingSummaryView.copy_to_clipboard": {
@@ -140048,6 +141188,16 @@
         "4ac2cd885c90b7e77d768713665e41a2b691e5fe3776cdba9fe2409beff6e9f2"
       ]
     },
+    "spacr.qt.widgets.graph_spec.facet_grid.axis": {
+      "source_blocks_sha256": [
+        "fd39e0e0cac8b750869b1ef7e10c925bed5af42aa3473fffa92128d7cf1f73bd"
+      ],
+      "source_sha256": "fd39e0e0cac8b750869b1ef7e10c925bed5af42aa3473fffa92128d7cf1f73bd",
+      "text": "패싯 축 하나의 수준과 그 개수입니다.",
+      "translation_source_blocks_sha256": [
+        "fd39e0e0cac8b750869b1ef7e10c925bed5af42aa3473fffa92128d7cf1f73bd"
+      ]
+    },
     "spacr.qt.widgets.graph_spec.infer_kind": {
       "source_blocks_sha256": [
         "054de26d2c52d34cbe969a797287be327a3b4c348e11bff649ba3cc3269ba0b7",
@@ -141724,6 +142874,16 @@
       "text": "범위가 제한된 현미경 시야를 읽고 Run 과 같은 비율/개수를 계산합니다.",
       "translation_source_blocks_sha256": [
         "846854a868477f23ea7b008ae451d547c19179c26171431d16ad2acca2b14c7d"
+      ]
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview.work": {
+      "source_blocks_sha256": [
+        "b41d86f18c1393fe0a0a824da18e9ecd356cbd5b3a8cb6aa7c26ee18841f7cbf"
+      ],
+      "source_sha256": "b41d86f18c1393fe0a0a824da18e9ecd356cbd5b3a8cb6aa7c26ee18841f7cbf",
+      "text": "GUI 스레드 밖에서 사용 가능한 필드를 읽고 캡처된 필드 및 평면 선택을 분석합니다.",
+      "translation_source_blocks_sha256": [
+        "acdba75f26e0aa2d16561104adf984bc622072a7d1f8aa1cff4df467fb0de053"
       ]
     },
     "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown": {
@@ -144552,6 +145712,16 @@
         "494f58f0ecd180674f127aa5bf35a6c53395bfc7a9812bbe46ee302e7e36b359"
       ]
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.join_the_tables.work": {
+      "source_blocks_sha256": [
+        "14eb6b3e3e98f3ea2c62d3710babf239926367dd8f658383d8ea558d1719d72a"
+      ],
+      "source_sha256": "dc184e44e0f25bc3c4146b97dbc3e06b0d6c1808545985ea1f2079dffd5a8c1f",
+      "text": "GUI 스레드 밖에서 실행됩니다. 반환만 하고 예외를 던지지 않습니다: 실패한 결합은 콘솔의 트레이스백이 아니라 패널의 메시지입니다.",
+      "translation_source_blocks_sha256": [
+        "81549022965206034be4682cde01a41474db84608fe6f304638bf98e11057af1"
+      ]
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.nothing_to_compare_against": {
       "source_blocks_sha256": [
         "6490296c9eb59d1f570cff377f95fdb7f8ebf973251f94ff3573484e9ca1ee92",
@@ -146168,6 +147338,16 @@
         "9cca0331bd208707539e61dfc9a933607a1320295cf5b0ef41eebb87d0dcb08a"
       ]
     },
+    "spacr.qt.widgets.measurements_example.load_test_data._done": {
+      "source_blocks_sha256": [
+        "3c0c06aa91aeceec823b74961aa9c532239f5f07bdb84075c4823ae003cc53f3"
+      ],
+      "source_sha256": "3c0c06aa91aeceec823b74961aa9c532239f5f07bdb84075c4823ae003cc53f3",
+      "text": "버튼을 되돌린 다음 플레이트를 넘기거나 넘길 수 없는 이유를 알려 줍니다.",
+      "translation_source_blocks_sha256": [
+        "3c0c06aa91aeceec823b74961aa9c532239f5f07bdb84075c4823ae003cc53f3"
+      ]
+    },
     "spacr.qt.widgets.merge_tables_dialog": {
       "source_blocks_sha256": [
         "8017f7ce98c8e516f57960f94c6911f1aa379a4938980b811c8e8df37023cfe7",
@@ -146344,6 +147524,16 @@
         "873efe415f0b681394cbc738656992d102b74e57aeb3bf3ddeb71e3ccee9207e",
         "a3cddb25fd32cf99354233d5fdc0ff81c1c174d4c43e1c9746089b6dbcb58c23",
         "eefbc134515a14a27abceca61b75aaa3b761134c16d7592175bc2e8dc5ea0bab"
+      ]
+    },
+    "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog.prompt": {
+      "source_blocks_sha256": [
+        "6e85c278face52147e83eb6d70f107489c9af6eadc6f754378a90fd5992ab98e"
+      ],
+      "source_sha256": "6e85c278face52147e83eb6d70f107489c9af6eadc6f754378a90fd5992ab98e",
+      "text": "메타데이터 열 하나를 어떻게 매핑할지 사용자에게 묻습니다.",
+      "translation_source_blocks_sha256": [
+        "6e85c278face52147e83eb6d70f107489c9af6eadc6f754378a90fd5992ab98e"
       ]
     },
     "spacr.qt.widgets.metadata_table": {
@@ -147852,6 +149042,16 @@
       "text": "하나의 단 공간 블록 : 계산, 그 다음 속도 *그들의 단위*로.",
       "translation_source_blocks_sha256": [
         "a70f43caae26934011791d5e297034ba567f7653722fb6cfbfff7edd1d7f52fc"
+      ]
+    },
+    "spacr.qt.widgets.motility_preview.MotilitySummary.summary._f": {
+      "source_blocks_sha256": [
+        "9f36bf537c2428015eee63998ea35e46baf841d33d892d42a2384746323de44a"
+      ],
+      "source_sha256": "9f36bf537c2428015eee63998ea35e46baf841d33d892d42a2384746323de44a",
+      "text": "숫자 하나를 서식화하며, 유한하지 않으면 \"n/a\"입니다.",
+      "translation_source_blocks_sha256": [
+        "9f36bf537c2428015eee63998ea35e46baf841d33d892d42a2384746323de44a"
       ]
     },
     "spacr.qt.widgets.motility_preview.build_motility_preview_card": {
@@ -150238,6 +151438,16 @@
         "04db7eab40f6691db2020ee1c1a3eab65b5fa1b686349dbf5222e8745f8187ea"
       ]
     },
+    "spacr.qt.widgets.pca_view.PCAPanel.recompute._fit": {
+      "source_blocks_sha256": [
+        "56fdae328447c38527452788687a45f34f7e8c58b0cab93872c973b09222992c"
+      ],
+      "source_sha256": "56fdae328447c38527452788687a45f34f7e8c58b0cab93872c973b09222992c",
+      "text": "분해를 적합합니다. 스레드를 쓸 때는 GUI 스레드 밖에서 실행됩니다.",
+      "translation_source_blocks_sha256": [
+        "db09f5a1ad460b75e219aad49c1604be823eeedcd10f94db8d07a460332e3a8a"
+      ]
+    },
     "spacr.qt.widgets.pca_view.PCAPanel.result": {
       "source_blocks_sha256": [
         "37bcb618befcd2e37cab529fae43dd4c54783832eafd192a145a2d329b89dd0d",
@@ -150644,6 +151854,18 @@
         "3f27ec484fd6874758cbaef90bd54fc8e585eae5649d08ec739290518d172cec",
         "ba2b8e6f8d41436b57d345131c416e8dc38d90383f75c6c5c5f333a0f256ed11",
         "90be78060899965463fd2f87be06b3657c739b9f648678078efa8c1e6afb359a"
+      ]
+    },
+    "spacr.qt.widgets.picture_export.install_picture_save._menu": {
+      "source_blocks_sha256": [
+        "1049e543421d64e48495276762dfff6b4fd561fa434c5e88d1297eeedda1a18e",
+        "d57d75fbe401a3139f87d1e8fe8ff4e946a04254bd07310b651a6d7872b055eb"
+      ],
+      "source_sha256": "b8009fd437a87894067079b0f12ff9d0cef4665c822e5484cb47ffe6e0571dbf",
+      "text": "``point``에서 저장 메뉴를 제공하며, 기록된 경로 또는 ``\"\"``를 반환합니다.\n\n:param point: 오른쪽 클릭이 일어난 위치로, ``view`` 좌표입니다.",
+      "translation_source_blocks_sha256": [
+        "1049e543421d64e48495276762dfff6b4fd561fa434c5e88d1297eeedda1a18e",
+        "d57d75fbe401a3139f87d1e8fe8ff4e946a04254bd07310b651a6d7872b055eb"
       ]
     },
     "spacr.qt.widgets.picture_export.picture_dpi": {
@@ -153608,6 +154830,26 @@
         "ea4374c48412220f4e071627f75a0654e4e2b5f4d4f6cc67ed029b2ab6a54c15",
         "a407b80af7178b119e7a55c078c2eb37af5faa16d51a186d87d51549b910c0dc",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis": {
+      "source_blocks_sha256": [
+        "29f40a01bb592a9dda89e34545e6e56841c0878a5f214a16c5268b3834c753c4",
+        "fff0a0247a91c1d3f1ccf3ca2a982b110c40f94dc891aecbe32e029f9d2d94bf",
+        "e5a94992f939c8f3357cc4c79d63d3984ddd26f34041357c987612e182d418b7",
+        "fceb5c0b6fbfac7b6dfc67546b2a1ffd6b4dcc588901f91a6f709f8a19135467",
+        "215040e541e3fd7fb57cabdbbed014af072a63ca1ac38cb94b8e244c83320747",
+        "3ee7b5b523818c3d72dc3727aaa77d2871147da96caba04fdbc2784d3e21703f"
+      ],
+      "source_sha256": "b629ed0fd4faeb3fd17d23a67ecf04c8614263e3350899089bc4eb54dbfd67b8",
+      "text": "한 축을 따른 부호 있는 스크롤 단계입니다.\n\n:param value: 이 축에서의 포인터 좌표입니다.\n:param low: 이 축에서 뷰포트의 낮은 쪽 가장자리입니다.\n:param high: 이 축에서 뷰포트의 높은 쪽 가장자리입니다.\n:param bar: 이 축의 스크롤 막대입니다.\n:returns: 가장자리 띠 밖이거나 ``bar``를 스크롤할 수 없으면 0이고, 그렇지 않으면 가장자리 쪽으로의 한 단계이며 :data:`AUTOSCROLL_MAX_STEP`으로 제한됩니다.",
+      "translation_source_blocks_sha256": [
+        "29f40a01bb592a9dda89e34545e6e56841c0878a5f214a16c5268b3834c753c4",
+        "fff0a0247a91c1d3f1ccf3ca2a982b110c40f94dc891aecbe32e029f9d2d94bf",
+        "e5a94992f939c8f3357cc4c79d63d3984ddd26f34041357c987612e182d418b7",
+        "fceb5c0b6fbfac7b6dfc67546b2a1ffd6b4dcc588901f91a6f709f8a19135467",
+        "215040e541e3fd7fb57cabdbbed014af072a63ca1ac38cb94b8e244c83320747",
+        "3ee7b5b523818c3d72dc3727aaa77d2871147da96caba04fdbc2784d3e21703f"
       ]
     },
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.ask_for_layout": {
@@ -157244,6 +158486,16 @@
         "dcbab94d258fdab88b8f2ac4b8ac73166e7c5dcb0a298b6e63164f42ae4b19cf"
       ]
     },
+    "spacr.qt.widgets.restoration_controls._RestorationControls._load.work": {
+      "source_blocks_sha256": [
+        "32677f2e0adb3cef1e797fa77c80dfc469cb3a96e048b463eea6e999543e676f"
+      ],
+      "source_sha256": "32677f2e0adb3cef1e797fa77c80dfc469cb3a96e048b463eea6e999543e676f",
+      "text": "캡처된 모델 식별 정보 또는 원래의 로딩 오류를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "32677f2e0adb3cef1e797fa77c80dfc469cb3a96e048b463eea6e999543e676f"
+      ]
+    },
     "spacr.qt.widgets.row_exclusion": {
       "source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
@@ -159206,6 +160458,16 @@
         "a25f2a2a88ce13f0d638ce4ce3d89d3f2b1af9456f3c51637275d6c1d9ba7795",
         "41ac45aae1520d8bcb672c44a8bac9e4fff00d60953ac198fadf33020bb9257b",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
+      ]
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides._what_this_machine_can_do._answer": {
+      "source_blocks_sha256": [
+        "8df30532b3fe356c5cb8c1764e6043c66bb7757154f1d9c24d9f652a0d81be06"
+      ],
+      "source_sha256": "8df30532b3fe356c5cb8c1764e6043c66bb7757154f1d9c24d9f652a0d81be06",
+      "text": "작업이 ``prefix``로 시작하는 첫 번째 답입니다.",
+      "translation_source_blocks_sha256": [
+        "8df30532b3fe356c5cb8c1764e6043c66bb7757154f1d9c24d9f652a0d81be06"
       ]
     },
     "spacr.qt.widgets.setup_slides.SetupSlides.accept": {
@@ -163552,6 +164814,18 @@
         "26f3c33d6b55dd7c17ad7903633273e499637ccf83771a693a57d1518a7c8acc"
       ]
     },
+    "spacr.qt.widgets.umap_search_viewer.axis_frame.projected": {
+      "source_blocks_sha256": [
+        "eae7e57ce3beb335f61f3f318b07ecb87a9d83830e04616ca56ff92093c755c3",
+        "e5bc817dcf687c0723b6b0e315b83fe1c2c8d1b2c0de1b313ed942c1e16e9741"
+      ],
+      "source_sha256": "6de341cc0216cef081bc656b9c3ac00e2dfbd7887c840ae186d861f7aaede358",
+      "text": "점을 프레임에 투영하며, 픽셀 좌표를 사용합니다.\n\n화면의 y는 아래로 커지지만 데이터의 y는 그렇지 않으므로 세로 방향을 뒤집습니다 -- 그러지 않으면 그림이 위아래가 뒤집힌 채로 그려져도 그럴듯해 보입니다.",
+      "translation_source_blocks_sha256": [
+        "eae7e57ce3beb335f61f3f318b07ecb87a9d83830e04616ca56ff92093c755c3",
+        "e5bc817dcf687c0723b6b0e315b83fe1c2c8d1b2c0de1b313ed942c1e16e9741"
+      ]
+    },
     "spacr.qt.widgets.umap_search_viewer.colors_for_labels": {
       "source_blocks_sha256": [
         "7d65e5bb5c9e2e6b84dd3eb56e74153e54650d93362a9d24ab04acec5c23ca62",
@@ -163742,6 +165016,16 @@
         "4d6c11cfdc8287542338e446c7cae07bb05798bb2c00376b7763ee3248783d40",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "dfa11446560eddf7d01af79563bee0fc8c6950213040bef927cc8bb394eb9150"
+      ]
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.build_style_menu.changed": {
+      "source_blocks_sha256": [
+        "2b673924be169bb54f81ae384ec3fa427288b1fa5f609cf80b8f1c89f893803f"
+      ],
+      "source_sha256": "2b673924be169bb54f81ae384ec3fa427288b1fa5f609cf80b8f1c89f893803f",
+      "text": "메뉴 항목이 스타일을 바꾼 뒤 스타일을 다시 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "2b673924be169bb54f81ae384ec3fa427288b1fa5f609cf80b8f1c89f893803f"
       ]
     },
     "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.compartments": {
@@ -164862,6 +166146,24 @@
         "18a3ee34663bea6d10025c4abce3ec1584567b4091d40a699f97ddfe1247fadd"
       ]
     },
+    "spacr.regex_infer._assign_roles.claim": {
+      "source_blocks_sha256": [
+        "c2e809471b8cd48a8a283b86b79ec6c247efc23f3f05c1b8bb82f89df5277b10",
+        "e62ef9ade615161826346ce27740ba16989138e485c128c066325a7f10da9685",
+        "d380a1716bcb2294217c7dc2fde5315e815d0363edaaf974a8e9022772220f39",
+        "3c27aa790a4c8e5e598e6813fcac39413819add9f3cf445a21c6fedcfa8e9389",
+        "03927569f90a2157018673bacc87b275f61655bf1e3ecfc44abb257b417bfce8"
+      ],
+      "source_sha256": "080c1b107eb2a40a28bf6ffadcb63733a483b4dd3a4888588bc385b901304273",
+      "text": "아직 사용 가능한 역할 하나를 슬롯에 할당합니다.\n\n:param info: 할당 요청이 성공하면 업데이트할 필드 근거입니다.\n:param role: 제안된 정규식 그룹 역할이며, 거짓 같은 역할은 거부됩니다.\n:param because: 성공한 할당과 함께 기록되는 설명입니다.\n:returns: 이전에 사용되지 않은 역할을 할당하고 예약한 뒤에는 True이고, 그렇지 않으면 근거나 캡처된 집합을 바꾸지 않고 False입니다.",
+      "translation_source_blocks_sha256": [
+        "c2e809471b8cd48a8a283b86b79ec6c247efc23f3f05c1b8bb82f89df5277b10",
+        "e62ef9ade615161826346ce27740ba16989138e485c128c066325a7f10da9685",
+        "d380a1716bcb2294217c7dc2fde5315e815d0363edaaf974a8e9022772220f39",
+        "3c27aa790a4c8e5e598e6813fcac39413819add9f3cf445a21c6fedcfa8e9389",
+        "03927569f90a2157018673bacc87b275f61655bf1e3ecfc44abb257b417bfce8"
+      ]
+    },
     "spacr.regex_infer.hint_for": {
       "source_blocks_sha256": [
         "face4c213a58a6c1d5098f014b5ca69f3d570dc19bca2a7c2bd227e376fee3f2",
@@ -165772,6 +167074,22 @@
         "85b71e9e5d482bfe59e8a048e7e99bcf15ee25bb4a3cc700913f02dc75aecf89"
       ]
     },
+    "spacr.regression_backends.backend_status.refuse": {
+      "source_blocks_sha256": [
+        "f63ca91f49d30b0bb7b8b512b1ea5a56ba82751d590a258dbd66e917b98c219b",
+        "ecc305dbc416c7f64bbe4225c2cac1bed00ccc61b3ca13909302ca2cf43bfc62",
+        "4fb1e9d8cfa5197da4dc4308d1528f4cadef8d52cf63a239e57eb540c5220a25",
+        "f39851e467952727b6f8673d8e9e00efb2f87d98c9d43032497330ee10d0622f"
+      ],
+      "source_sha256": "36c0a79bc478fc1e6000e55b2bded23bfcf85248ef9630935d5295a6cebe059c",
+      "text": "캡처된 백엔드 상태를 비활성화하고 그 이유를 설명합니다.\n\n:param reason: 사용자에게 보여 줄 거부에 대한 전체 설명입니다.\n:param short: 같은 설명을 콤보 항목 길이에 맞춘 형태입니다.\n:returns: ``enabled``를 거짓으로 설정하고 두 설명을 저장한 뒤의 캡처된 상태 매핑입니다.",
+      "translation_source_blocks_sha256": [
+        "f63ca91f49d30b0bb7b8b512b1ea5a56ba82751d590a258dbd66e917b98c219b",
+        "ecc305dbc416c7f64bbe4225c2cac1bed00ccc61b3ca13909302ca2cf43bfc62",
+        "4fb1e9d8cfa5197da4dc4308d1528f4cadef8d52cf63a239e57eb540c5220a25",
+        "f39851e467952727b6f8673d8e9e00efb2f87d98c9d43032497330ee10d0622f"
+      ]
+    },
     "spacr.regression_backends.backend_supports": {
       "source_blocks_sha256": [
         "da8a6b10dc2668d7ff6d00788fed1c2bc904e1741147a4967e34da872309ca75",
@@ -166106,6 +167424,24 @@
         "159f6a110150dcc3a7edb342cf63820bab8a098d537a7aeee3370fa3a1ae7c24",
         "2950008439c840b3f4156f55a8eb858c5959aaa1539cc2f744a6f89f0af8ae54",
         "0f7336055bae2fd9ef006d5c84aabfb0b58ed8c3ade4289a4541ce3ce5524012"
+      ]
+    },
+    "spacr.regression_diagnostics.write_diagnostic_suite._emit": {
+      "source_blocks_sha256": [
+        "b5639a124bf541f4129193d2f499610e4a0e6894ca91fe8cf58637579910f9c2",
+        "e983706862841605daf98732e34404f63df559e6bc5073804d8080c1a2cd94ff",
+        "9fd8852a5146c0f71f9ee804ee443125b95928da81d68de8619966f3b21c65da",
+        "15f253e23cbe804562b295bef86eb30179b07cf04611132a3743dadab9d4fa26",
+        "402063e05f32eb1a50feb990f3c4fcd82b85483a13ca6277689110af14a0b80b"
+      ],
+      "source_sha256": "1c93483f5327bb92aa249787b060abea7fea6b6ed6403a906a381af39473dee4",
+      "text": "캡처된 요청 형식마다 진단 하나를 기록합니다.\n\n:param name: 경로와 매니페스트 키에 쓰이는 안정적인 패널 이름입니다.\n:param function: ``(written_path, report)``를 반환하는 기록기입니다.\n:param kwargs: 기록기에 전달되는 진단 입력입니다.\n:returns: None. 성공한 산출물은 실제 출력 확장자를 키로 저장되고 보고서가 유지됩니다. 권고성 실패는 남은 기록기를 멈추지 않고 형식별 오류 항목이 됩니다.",
+      "translation_source_blocks_sha256": [
+        "b5639a124bf541f4129193d2f499610e4a0e6894ca91fe8cf58637579910f9c2",
+        "e983706862841605daf98732e34404f63df559e6bc5073804d8080c1a2cd94ff",
+        "9fd8852a5146c0f71f9ee804ee443125b95928da81d68de8619966f3b21c65da",
+        "15f253e23cbe804562b295bef86eb30179b07cf04611132a3743dadab9d4fa26",
+        "402063e05f32eb1a50feb990f3c4fcd82b85483a13ca6277689110af14a0b80b"
       ]
     },
     "spacr.regression_failure": {
@@ -166810,6 +168146,16 @@
         "6970abe2616ff6fcba42eb40231d47fe272cf4bb127b5106ee7bac436af8cf3e"
       ]
     },
+    "spacr.regression_qc._write_qc_numbers._plain": {
+      "source_blocks_sha256": [
+        "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034"
+      ],
+      "source_sha256": "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034",
+      "text": "JSON이 담을 수 있는 것은 그대로, 그 밖의 모든 것은 문자열로 나타냅니다.",
+      "translation_source_blocks_sha256": [
+        "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034"
+      ]
+    },
     "spacr.regression_qc.build_context": {
       "source_blocks_sha256": [
         "7917ffdfe5170bb710d8cdb7750b8fcdb3b2b300c91ff1ff9594323f6056603e",
@@ -166888,6 +168234,20 @@
         "96bbf1f45fe4cafbbb457e6e02398cbe2f1d6f1ca8f5d96cc8cf74d6764ab766",
         "1138a33f5aebf3390657244cdded4d9eb019136ce233097261e1ad1ff4852618",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
+    "spacr.regression_qc.condition_number._ratio": {
+      "source_blocks_sha256": [
+        "01d272c03c9ef616f2f8bca354e903b1471e01eff1a3a1983d72127dc6bdd149",
+        "8f5767cd7074d63f061564d1ce81867da5ae0a7020eb65abd82e442b509e1e01",
+        "75765d27f27fbc998a71a96c7348213309025e8217a60028155a3e0d2d7b886f"
+      ],
+      "source_sha256": "979600b929abe3bfd7488e24923573b368ed10efefc33a45e5e591c24fdaa1d5",
+      "text": "내림차순 특잇값을 안정적인 조건수로 변환합니다.\n\n:param sv: 설계 행렬에서 얻은 비어 있지 않은 내림차순 특잇값 배열입니다.\n:returns: 가장 큰 값을 가장 작은 값으로 나눈 float이며, 가장 작은 값이 그 데이터 유형과 캡처된 설계 형태로 계산한 NumPy 수치 계수 허용 오차 이하이면 무한대입니다.",
+      "translation_source_blocks_sha256": [
+        "01d272c03c9ef616f2f8bca354e903b1471e01eff1a3a1983d72127dc6bdd149",
+        "8f5767cd7074d63f061564d1ce81867da5ae0a7020eb65abd82e442b509e1e01",
+        "75765d27f27fbc998a71a96c7348213309025e8217a60028155a3e0d2d7b886f"
       ]
     },
     "spacr.regression_qc.condition_verdict": {
@@ -168232,6 +169592,16 @@
         "c3c7f0bb00465629d17990820a77f7991388a7b05655c6c6e395351dd452132f"
       ]
     },
+    "spacr.report._zenodo_opener._NoRedirect.redirect_request": {
+      "source_blocks_sha256": [
+        "1b8cb99eb14fe066bdad228e311ea2f71feb6c58c7d51b13cd19c626bf67133c"
+      ],
+      "source_sha256": "1b8cb99eb14fe066bdad228e311ea2f71feb6c58c7d51b13cd19c626bf67133c",
+      "text": "``None``을 반환합니다: 리디렉션을 따르지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "1b8cb99eb14fe066bdad228e311ea2f71feb6c58c7d51b13cd19c626bf67133c"
+      ]
+    },
     "spacr.report.build_report": {
       "source_blocks_sha256": [
         "12f5390b44ea5498cb86d1db285663ed0ca3764f7f46dab24c8edcb4ab6336b7",
@@ -168672,6 +170042,20 @@
       "translation_source_blocks_sha256": [
         "d486ddbd1d86375a2ab8be49968afd89765c40bf24c74cdf8b5c2114fa9fa78a",
         "1e244d7ac356d80ad6aea3dc934b6426b32735f8feda7feeb25608813b4e53bf"
+      ]
+    },
+    "spacr.response_distribution.caption.one": {
+      "source_blocks_sha256": [
+        "0b43e7c848d06dff81e813e5e6be329c33c83cff705833db206344069da87640",
+        "bb2eea7f1eb970c7a39e79b93876e8dadff89fe73585dad691efee33b9073f5b",
+        "3520c9792371f316547bbc97f0870121ac009d5abb83a82345151baa651c4303"
+      ],
+      "source_sha256": "8044faccc93ecb91a972f4a9805ceab207a2c13f8b1217b525539ebcb9049cbb",
+      "text": "캡처된 전후 비교의 한쪽을 서식화합니다.\n\n:param part: :func:`describe`가 반환한 분포 요약입니다.\n:returns: 분포 계열과 유한한 통계가 없으면 표시 이름만이고, 그렇지 않으면 이름 뒤에 유한한 정규성 및 왜도 통계가 붙습니다.",
+      "translation_source_blocks_sha256": [
+        "0b43e7c848d06dff81e813e5e6be329c33c83cff705833db206344069da87640",
+        "bb2eea7f1eb970c7a39e79b93876e8dadff89fe73585dad691efee33b9073f5b",
+        "3520c9792371f316547bbc97f0870121ac009d5abb83a82345151baa651c4303"
       ]
     },
     "spacr.response_distribution.compare": {
@@ -172078,6 +173462,16 @@
         "6b6dfb967ccad334a33c343e4648b257916d6ca6e506cb1e25b12248850f2e56"
       ]
     },
+    "spacr.runctx.install_run_id_logging._factory": {
+      "source_blocks_sha256": [
+        "63153f052b849f999a255dcab7f4d3b07ad75c3cf998b5505a0c6fdbaa582f3d"
+      ],
+      "source_sha256": "63153f052b849f999a255dcab7f4d3b07ad75c3cf998b5505a0c6fdbaa582f3d",
+      "text": "레코드를 만들고 현재 실행의 id를 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "63153f052b849f999a255dcab7f4d3b07ad75c3cf998b5505a0c6fdbaa582f3d"
+      ]
+    },
     "spacr.runctx.new_run_id": {
       "source_blocks_sha256": [
         "22f89f4620a93ea06e88ad026dc47cba5f7af5d0745d80b733dafcdaebc70ee0",
@@ -172736,6 +174130,18 @@
       "text": "마이크로 플레이트 샘플 위치 식별자는 순서와 열로 변환 할 수 없습니다.",
       "translation_source_blocks_sha256": [
         "f4897205f8b05c64b0a1a96534072400bbc1127f685c8df7c087b13878c4ff99"
+      ]
+    },
+    "spacr.schema._non_numeric_feature_error.diagnostic_dtype": {
+      "source_blocks_sha256": [
+        "27ea035243c0292afe18579af1254ba33928446e3caa9d6a348e286f9a8f0cfd",
+        "da49b748d70a86792be95d9f7be64fe134aa9e297b651523a739cb356d9c17b2"
+      ],
+      "source_sha256": "76db87a5c00d4aaaf94c8db4f37e1bfa0c83739a95b5890e77882eb3aae796b2",
+      "text": "pandas 특징 데이터 유형에 대한 안정적인 사용자용 텍스트를 반환합니다.\n\nPandas ``StringDtype``은 확립된 ``object`` 표현으로 보고되며, 다른 확장 데이터 유형과 NumPy 데이터 유형은 각자의 이름을 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "27ea035243c0292afe18579af1254ba33928446e3caa9d6a348e286f9a8f0cfd",
+        "da49b748d70a86792be95d9f7be64fe134aa9e297b651523a739cb356d9c17b2"
       ]
     },
     "spacr.schema.add_identity_columns": {
@@ -173910,6 +175316,18 @@
         "767f2fd3b8f1a03c087778968b82f067db40ca3abe7c530ac5a8f2f008f3fde1",
         "eb3de115f1a7a9f59527b81fc244ffd5e8c14d9d1ff3b0be8ad05247aab4abe3",
         "e0924fc1f7113ab6fbebfe1d721c00c272c85d1836dba1c63f1625497c2c566e"
+      ]
+    },
+    "spacr.schema.validate_object_table_frame._validate_positive_integer": {
+      "source_blocks_sha256": [
+        "3c1a3e84f5e43fce16e7b60915e500fc0ca4460e45f1d644cbd5dab1020127d3",
+        "87d3af58d003bf3ee24ec75111519d792bae061d24d0114a8c1a6e9fd82187ae"
+      ],
+      "source_sha256": "5be5ccc20975e7e61bbbaee529eab1309ffac8fa8e047604895bcb74edc7b3b1",
+      "text": "표준 키 열 하나에 양의 정수 값을 요구합니다.\n\n``nullable``이 참이면 null 값은 무시되지만 채워진 값은 모두 여전히 검사됩니다. 실패 메시지에는 표, 열, 예시가 명시됩니다.",
+      "translation_source_blocks_sha256": [
+        "114e55bcb12245205417abd885b3195f5ef07f36b139b07b016397d3ed09a2cb",
+        "87d3af58d003bf3ee24ec75111519d792bae061d24d0114a8c1a6e9fd82187ae"
       ]
     },
     "spacr.schema.well_id": {
@@ -175182,6 +176600,20 @@
         "593ac733c437c9a49e813d0b91f9a996a6d546ae1fba3dc6dc3029dbe09b7f5f"
       ]
     },
+    "spacr.seg_qc.qc_roots._add": {
+      "source_blocks_sha256": [
+        "4589f9a1c8b33c188d359522d7eda0185da508f70d73550021ff0540ad753a80",
+        "15ba52a7dd15cde585e7eb5e13d4b39ebf1d997ed7d7ae4bb7f3a1da62eb20fe",
+        "0429e29cb2476df27fd171e2ada9ceeca1785880bb56f0671378d3cbbd2d03a7"
+      ],
+      "source_sha256": "a6901714b6f1c517d9e7ab50ef8ecb3e1914c0d1aa4c0ded069d91d6dd4f368f",
+      "text": "중복되지 않는 기존 디렉터리 하나를 캡처된 후보에 추가합니다.\n\n:param path: 후보 디렉터리 경로입니다. 거짓 같은 값, 없는 값, 디렉터리가 아닌 값, 이미 기록된 값은 무시됩니다.\n:returns: None. 받아들인 경로는 발견 순서를 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "4589f9a1c8b33c188d359522d7eda0185da508f70d73550021ff0540ad753a80",
+        "15ba52a7dd15cde585e7eb5e13d4b39ebf1d997ed7d7ae4bb7f3a1da62eb20fe",
+        "0429e29cb2476df27fd171e2ada9ceeca1785880bb56f0671378d3cbbd2d03a7"
+      ]
+    },
     "spacr.seg_qc.read_digest": {
       "source_blocks_sha256": [
         "85acb16f19995beddfbb8fcbe1bcfffbf9bb0a985a6d440e190b5560aa43e9f2",
@@ -175364,6 +176796,20 @@
       "translation_source_blocks_sha256": [
         "823d1ba0ea7d3fe43d4086f91dadf983a003880b7630f5f420831ae8e43c697b",
         "e3c5f13f921b0ded5883b53f6d74a7ec942be3e7459392514a57da150e3908c0"
+      ]
+    },
+    "spacr.segmentation_uncertainty._make_segmenter.segment": {
+      "source_blocks_sha256": [
+        "c057e638b609a3f3b7a80efad43030ab801c41c600b7ddfb225cf9feb7bb31c7",
+        "bd6b98d8d7f1c3f6d6a533e5df80e9372335ceed38765b21a341b5f7bc0638b9",
+        "1dda7536bab3fdf54b223f8958c574f9be0bbdd99d3efa85e14bd8f7c3cc1ac5"
+      ],
+      "source_sha256": "7929b496beeec6e2bfcd41af3dbc47557398365b8fcc5ddbeccb345e4c61c835",
+      "text": "공유 출력 파서를 통해 변환된 필드 하나를 추론합니다.\n\n:param image: TTA 점수 함수가 제공한 2-D 필드입니다.\n:returns: 입력 방향 기준의 레이블, 로짓, 벡터 흐름입니다.",
+      "translation_source_blocks_sha256": [
+        "c057e638b609a3f3b7a80efad43030ab801c41c600b7ddfb225cf9feb7bb31c7",
+        "bd6b98d8d7f1c3f6d6a533e5df80e9372335ceed38765b21a341b5f7bc0638b9",
+        "1dda7536bab3fdf54b223f8958c574f9be0bbdd99d3efa85e14bd8f7c3cc1ac5"
       ]
     },
     "spacr.segmentation_uncertainty.compute_queue_uncertainty": {
@@ -175718,6 +177164,22 @@
         "f3dfa7c4f9b5ee34da8da98c88e5fe821e770e78325d51e4f3a65a3f48c55e0d",
         "85009398aef7a4821579f0fcb57d1f9a8c539f62fde66e1904f8ca81a7307d35",
         "4d9d8a80e7dca18dd56407a5fc4fb3d1aec25529eb181084126033a69c34e47a"
+      ]
+    },
+    "spacr.selection.ObjectRequest.select_from.rank": {
+      "source_blocks_sha256": [
+        "cc5f740badeee9eaa433642f61f6aaa22c16e08b4b4af515d3b4e0904c5497ec",
+        "bca754aac53d8a32f7eb451eb8d2b069ea0a0841235879ee8004a8ff36afa2db",
+        "34f93dd291b288f44289d6d2fb7f97d0a5754e4448a8ae439cc37d39d0637b23",
+        "3ba15d757ed66ad2ac7394b0effcf43dd82268ac69c9639088050ec4012890f2"
+      ],
+      "source_sha256": "fa28d5e541d31903e168c06dc482e0e1c8cd32355c3350b03ab3b84d59458f1c",
+      "text": "캡처된 요청에서 행 키의 위치를 찾습니다.\n\n:param typed: 사용 가능한 경우 객체 유형을 포함한 행 키입니다.\n:param plain: 객체 유형이 없는 같은 행 키입니다.\n:returns: 정확한 유형 지정, 느슨한 무유형, 그다음 좁혀진 유형 지정 요청 순의 우선순위에 따른 요청 위치입니다. 좁히기는 무유형 행(``typed == plain``)에만 허용되며, 없는 키는 -1을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "a28c6ba723c77a15632f418c2b719849e628310d653839fba8a97a8dbab1559f",
+        "106ea15b6866496de5a4b4467e5b881f375bcd224955d7c6b3d12f6dcbc784c6",
+        "e7826b0c3698821aa0a6202493ab753cbbdb044251ff7ae9676f461f1b3a2115",
+        "d7b1f65918ba343a2ab4b23c2f5d801d8f162df69d6e40059657e9d8bd1b1d8d"
       ]
     },
     "spacr.selection.RangeFilter": {
@@ -177142,6 +178604,20 @@
         "bec88a9ed1985a9c2453215f3f106f6e50402d6353d42c4d1ec35af8ffb301dd",
         "cdc11ac10c254b6dac8ed2d6c58c08e3c29b44798678e91ea9113b9540e16076",
         "df8b9a9a750c4efba59160d765c08b3d760d6b8be0a958663ccc39e1324c62bf"
+      ]
+    },
+    "spacr.setting_animations.measure_border_artifact.perimeter": {
+      "source_blocks_sha256": [
+        "6b568afd806eb2332ab34985013bc83c69d32d3f715bea597e7bc6ba625ad127",
+        "3237bdc3a607e53ac1a795e724fb35d713ddf63891d2ae45393b66a2f87c7c5c",
+        "a68aa76edef7eadce128ba02e7ccb3c63f021878f99b76f37bcb89e0d8910508"
+      ],
+      "source_sha256": "42b1a4f3c2341cc4b9b7ee929bbee0530f2d9eb89f919d04d023bcb3fc585b2a",
+      "text": "모든 테두리 픽셀을 정확히 한 번씩 RGB 행으로 평탄화합니다.\n\n:param frame: 샘플링할 캡처된 애니메이션의 RGB 프레임입니다.\n:returns: 위쪽과 아래쪽 띠 다음에 왼쪽과 오른쪽 안쪽 띠가 옵니다. 옆쪽 띠에서 모서리를 빼면 이중 계산을 막고 안정적인 비교 순서를 유지합니다.",
+      "translation_source_blocks_sha256": [
+        "6b568afd806eb2332ab34985013bc83c69d32d3f715bea597e7bc6ba625ad127",
+        "3237bdc3a607e53ac1a795e724fb35d713ddf63891d2ae45393b66a2f87c7c5c",
+        "a68aa76edef7eadce128ba02e7ccb3c63f021878f99b76f37bcb89e0d8910508"
       ]
     },
     "spacr.setting_animations.measure_border_object_removal": {
@@ -179678,6 +181154,16 @@
         "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722"
       ]
     },
+    "spacr.sp_stats._score_anomalies._cross_fitted": {
+      "source_blocks_sha256": [
+        "7fb96d30f089348d2a203c28ae0657643ee10ff4286ed9c7caba6280fc85885f"
+      ],
+      "source_sha256": "7fb96d30f089348d2a203c28ae0657643ee10ff4286ed9c7caba6280fc85885f",
+      "text": "두 절반 적합을 결합하여 각 절반이 다른 절반의 적합으로 점수가 매겨지게 합니다.",
+      "translation_source_blocks_sha256": [
+        "7fb96d30f089348d2a203c28ae0657643ee10ff4286ed9c7caba6280fc85885f"
+      ]
+    },
     "spacr.sp_stats.b_scores": {
       "source_blocks_sha256": [
         "b473cecad9843f404a206419361d9f450d5cba41c12bae2e537a0226ccca8cc1",
@@ -180416,6 +181902,22 @@
         "e7edf9eb70b826fc1b8f4cfd799966f2c1de6c855fb07c369cecbd945dee3068"
       ]
     },
+    "spacr.sra.runs_for.cell": {
+      "source_blocks_sha256": [
+        "97b996f61423ae3243d3ee8307e7b25c6b148d8cd8306f8d7f570bf9204469d4",
+        "1a7a09568b9eda5340701e077da315adb79bc2821940588ae8675c59ced70279",
+        "5353fdabddad57c932f4d2195729be0f44f90533ddb31ea35abce55981e525a6",
+        "d3166cd2b4e1bb2de2a93fc9fb78562735ad3f56053e6f2484402c37efd73f3d"
+      ],
+      "source_sha256": "f8e4bd434b2a8e330e6fe8d8c5926167143b42114a6c3378ec6cc7e74953387b",
+      "text": "바인딩된 포털 행에서 이름이 지정된 값 하나를 읽습니다.\n\n:param name: 캡처된 인덱스에서 찾을 ENA 헤더 이름입니다.\n:param row_cells: 이 행의 보조 함수를 만들 때 바인딩된 셀로, 이후 루프 반복이 원본 행을 바꾸지 못하게 합니다.\n:returns: 인덱스로 찾은 셀이며, 열이 없거나 행이 너무 짧으면 빈 문자열입니다.",
+      "translation_source_blocks_sha256": [
+        "97b996f61423ae3243d3ee8307e7b25c6b148d8cd8306f8d7f570bf9204469d4",
+        "1a7a09568b9eda5340701e077da315adb79bc2821940588ae8675c59ced70279",
+        "5353fdabddad57c932f4d2195729be0f44f90533ddb31ea35abce55981e525a6",
+        "d3166cd2b4e1bb2de2a93fc9fb78562735ad3f56053e6f2484402c37efd73f3d"
+      ]
+    },
     "spacr.sra.total_bytes": {
       "source_blocks_sha256": [
         "8a08f447b2aa0fce67204e70cf6e9752ccd6e104a4ce012926e5a9afc1160566",
@@ -180600,6 +182102,22 @@
         "ea0aeb71bcf0f21dcfdd123aff9006ae2c3c2b4e09e26da9c24480ee3e3e4056",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "d05fb007590118d26c125f672163e7ef6de42616176c255108da4970efcda917"
+      ]
+    },
+    "spacr.stream_dataset.stream.write": {
+      "source_blocks_sha256": [
+        "47616239e71a2962d68bd64213399c1de12428622631bcfcc89180dd02887383",
+        "d6ea107ed0731bc629ce40e2335cfb0f2dd4e1e75b4b391f4f601ab4ea4c96d3",
+        "918f7bf944104e3379331ceddd93c6f03612c3941a503812c01b8aebd88a4277",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "40b7ad4aab37a1d0fa40a9910e5a677386413897540acdc2a5b4c9994c0cbf53",
+      "text": "추출한 크롭 하나를 NumPy 기본 형식으로 저장합니다.\n\n:param path: 제안된 출력 경로입니다. 확장자는 ``.npy``로 바뀝니다.\n:param array: 저장 전에 배열로 변환할 크롭 데이터입니다.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "ac75662356c9c2e613a4c3e3358a5e998957ba6e9f29784d099588821c312c8c",
+        "d6ea107ed0731bc629ce40e2335cfb0f2dd4e1e75b4b391f4f601ab4ea4c96d3",
+        "4d0f297545f49c0bda01d6062f8e9ef40cefe1656d7f971587c7619c376bea8b",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
     "spacr.stream_dataset.stream_dataset": {
@@ -181644,6 +183162,16 @@
         "c8de6c566196a9e44eeca2d6d09994bd7a86e8f847ad8b91ebfb539676844683"
       ]
     },
+    "spacr.suggest._score_columns.index": {
+      "source_blocks_sha256": [
+        "f0d055e1c998f3e38c00c4fcd873a397ca3daf14d29fd6b905458d418e35b1d0"
+      ],
+      "source_sha256": "f0d055e1c998f3e38c00c4fcd873a397ca3daf14d29fd6b905458d418e35b1d0",
+      "text": "정렬에 쓰는 점수 열의 정수 접미사입니다.",
+      "translation_source_blocks_sha256": [
+        "f0d055e1c998f3e38c00c4fcd873a397ca3daf14d29fd6b905458d418e35b1d0"
+      ]
+    },
     "spacr.suggest.ensure_verdict_column": {
       "source_blocks_sha256": [
         "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
@@ -181974,6 +183502,16 @@
         "3be0a293e9b7588c8aa93af549e7cee88acdf18aeea98cd1631023941dbaae30"
       ]
     },
+    "spacr.surrogate._kernel_shap_values._predict": {
+      "source_blocks_sha256": [
+        "7ba336410954ba20a2f2317ee06b27b964ccdc6ee3a7e1670cd4600c4a0a93c5"
+      ],
+      "source_sha256": "7ba336410954ba20a2f2317ee06b27b964ccdc6ee3a7e1670cd4600c4a0a93c5",
+      "text": "학습 때의 열 이름을 가진 데이터 프레임으로 모델을 호출합니다.",
+      "translation_source_blocks_sha256": [
+        "7ba336410954ba20a2f2317ee06b27b964ccdc6ee3a7e1670cd4600c4a0a93c5"
+      ]
+    },
     "spacr.surrogate.available_backends": {
       "source_blocks_sha256": [
         "1015dfad15fee969ea6e3f1bcb907fcd3222ebd76c4e40ffdb32c3329fbdcfe6",
@@ -182188,6 +183726,24 @@
         "7258cacc10a079e807b0a3f2cef8710ae24d01939ef3d1b0517c1a959a5a02c6",
         "d930caad552ec325387ba420da2a0ec2f771415eb746bd751a714d5f534e0172",
         "31686ba26e4302d344d2c4624b82957dc996dd7fde720fd16d7c0a42627b6b4e"
+      ]
+    },
+    "spacr.surrogate.write_surrogate_result._csv": {
+      "source_blocks_sha256": [
+        "10d2ffe0dbbc9acde6b4cd54fd939ac0dddbf8fe2cec75b08373e0425903b37f",
+        "cff534eea9474d56c49d31ac1d51868369a9823971a6ebd468140f7f424f19ad",
+        "8c30c1832c6e205634a8d232d76d896e5946151c8071fd26211c8f5d9c46af58",
+        "89147a721b6691172b593d9701081db8a80f83f7cd6b48b1a454c0cbd5d408c1",
+        "d1527ee2e39d2dcc9073410b8da836afba091f3ff6ed92768ec8a87a4d233e20"
+      ],
+      "source_sha256": "25ef616b07622c3e4b45242a49191b81480bec62ae084c743a7acb330405ea9d",
+      "text": "비어 있지 않은 결과 표 하나를 기록하고 등록합니다.\n\n:param role: 캡처된 경로 매핑에 추가할 산출물 키입니다.\n:param name: 캡처된 출력 디렉터리 아래의 CSV 파일 이름입니다.\n:param frame: 인덱스와 함께 기록할 결과 표입니다. None과 빈 표는 의도적으로 생략됩니다.\n:returns: None. 기록된 표의 절대 경로는 캡처된 산출물 매핑에 저장됩니다.",
+      "translation_source_blocks_sha256": [
+        "10d2ffe0dbbc9acde6b4cd54fd939ac0dddbf8fe2cec75b08373e0425903b37f",
+        "5ab673fb6686d6a536476e1dfca698e31d1685b92e2a19c5b80a4d5419522a89",
+        "8c30c1832c6e205634a8d232d76d896e5946151c8071fd26211c8f5d9c46af58",
+        "89147a721b6691172b593d9701081db8a80f83f7cd6b48b1a454c0cbd5d408c1",
+        "d1527ee2e39d2dcc9073410b8da836afba091f3ff6ed92768ec8a87a4d233e20"
       ]
     },
     "spacr.sweep_child": {
@@ -183680,6 +185236,16 @@
         "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
       ]
     },
+    "spacr.timeflows_validation.summarise.group": {
+      "source_blocks_sha256": [
+        "af8a4ec2d376327bbd1f8699ad24c5504780b27e15ced0d30ae4691c647c1724"
+      ],
+      "source_sha256": "af8a4ec2d376327bbd1f8699ad24c5504780b27e15ced0d30ae4691c647c1724",
+      "text": "선택한 정답 객체에 대해 올바른 후속 연결과 판단 보류를 요약합니다.",
+      "translation_source_blocks_sha256": [
+        "af8a4ec2d376327bbd1f8699ad24c5504780b27e15ced0d30ae4691c647c1724"
+      ]
+    },
     "spacr.timeflows_validation.temporal_assignment_policy": {
       "source_blocks_sha256": [
         "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
@@ -184250,6 +185816,16 @@
         "c1485d210b2e9dfd78a80275b22d32aa002039a14aa20b16f8f53e8e47b3a5f0"
       ]
     },
+    "spacr.toxo.plot_gene_heatmaps.extract_gene_id": {
+      "source_blocks_sha256": [
+        "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2"
+      ],
+      "source_sha256": "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2",
+      "text": "``TGGT1_<id>`` 태그의 숫자 부분을 반환하며, 아니면 ``gene`` 자체를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2"
+      ]
+    },
     "spacr.toxo.plot_gene_phenotypes": {
       "source_blocks_sha256": [
         "b4c4acdc3c95d7336b6639fed238eab6059f3f074042daa61522c54be60acec1",
@@ -184266,6 +185842,16 @@
         "d7cc8e6a21d2cff20e782f291accda3c3fbdbbcbf4c45c671595d2f8010845fc",
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "a6fc66bdbe7b37ff9055a0c37bcfc1a7b47bc6af09ea57038932e3c0ac9a2ca4"
+      ]
+    },
+    "spacr.toxo.plot_gene_phenotypes.extract_gene_id": {
+      "source_blocks_sha256": [
+        "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2"
+      ],
+      "source_sha256": "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2",
+      "text": "``TGGT1_<id>`` 태그의 숫자 부분을 반환하며, 아니면 ``gene`` 자체를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2"
       ]
     },
     "spacr.train_compare": {
@@ -189834,6 +191420,28 @@
         "ff1df79e4808ebce594f965a60dfca677052595c7553369b783a3415bb773be0"
       ]
     },
+    "spacr.validate._check_required_paths._require_file": {
+      "source_blocks_sha256": [
+        "5ce367b860a85b651d5d8b81c991aff07f9371ee827d5836db12627f63fdcde3",
+        "9c3d7d7881cc9ae07b0db7782d755839bc448afcdb55bffe24e401adf88e8bcc"
+      ],
+      "source_sha256": "b5d634871d0605f38d7d3172e0550016e3b60320240c2b49a81e9e2ce20bdd24",
+      "text": "누락되었거나 설정되지 않은 경로를 거부하고, 그것이 무엇을 위해 필요했는지 알려 줍니다.\n\n목적과 해결 방법이 모두 메시지에 담깁니다: \"not set\"(설정되지 않음)만으로는 사용자에게 무슨 일이 일어났는지는 알려 주지만 어떻게 해야 하는지는 알려 주지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "5ce367b860a85b651d5d8b81c991aff07f9371ee827d5836db12627f63fdcde3",
+        "9c3d7d7881cc9ae07b0db7782d755839bc448afcdb55bffe24e401adf88e8bcc"
+      ]
+    },
+    "spacr.validate._describe_regression_plan.paths": {
+      "source_blocks_sha256": [
+        "10fb81801b0a1d56c507481f3fcf048412e40da9c1ef30144b6ca92c152f19e9"
+      ],
+      "source_sha256": "10fb81801b0a1d56c507481f3fcf048412e40da9c1ef30144b6ca92c152f19e9",
+      "text": "선택적 스칼라 또는 시퀀스 원본을 항목을 지어내지 않고 리스트로 정규화합니다.",
+      "translation_source_blocks_sha256": [
+        "10fb81801b0a1d56c507481f3fcf048412e40da9c1ef30144b6ca92c152f19e9"
+      ]
+    },
     "spacr.validate.coerce_expected_types": {
       "source_blocks_sha256": [
         "316c2c9415f488ff22f8ea4344c14f8d01c19d74b5d3c64ca2cea5d921a90d8f",
@@ -190582,6 +192190,24 @@
         "bf48378e9b52499b23a077fa9e10034a6240a8b0172530c353dc8205e6bf9f3f",
         "f67d4092f0437678d8071630852cfcda3defc0bcf0777ca2bd3f1d2c28411056",
         "a6a0e4158ab85498b618c5351991318a2bb5ba097f472644fb65d99c5da5faa8"
+      ]
+    },
+    "spacr.workspace.inventory.add": {
+      "source_blocks_sha256": [
+        "78d0cefdb55b7d9c7abbdafb247fd7dbb2a92b900728ad40b161b4d62653494c",
+        "cb7fbf52f86f1fd222f09db2f6481a9721f0a77b2a1334c43463ad022351c7d8",
+        "7131ded1f3aca55cf3d234eb2c9818ff5e0eaf323042bc3f1dc25dcf6de84685",
+        "38c07ace063d3ef4022b951d32ce256abdc7f6127561753d3008e6b469ff2226",
+        "ab72bdd958dba241c24afc1ec9891b6ee874036d3997fcd19debae98b92c13ef"
+      ],
+      "source_sha256": "8ae101649c46f984295e955fad24387a8838a9d59d670e3005c2228b45b65862",
+      "text": "캡처된 목록에 경로 하나를 추가하거나 승격합니다.\n\n:param role: 경로를 처음 보았을 때 기록되는 원본 역할입니다.\n:param raw: 확장하고 검사할 경로 텍스트입니다.\n:param carry: 파일을 번들에 반드시 포함해야 하는지 여부입니다.\n:returns: None. 잘못된 경로와 없는 경로는 무시됩니다. 반복된 경로는 첫 번째 레코드를 재사용하며, 어느 한 번이라도 포함을 요청하면 승격됩니다. 파일 해싱은 캡처된 ``hash_files`` 정책을 따릅니다.",
+      "translation_source_blocks_sha256": [
+        "78d0cefdb55b7d9c7abbdafb247fd7dbb2a92b900728ad40b161b4d62653494c",
+        "cb7fbf52f86f1fd222f09db2f6481a9721f0a77b2a1334c43463ad022351c7d8",
+        "7131ded1f3aca55cf3d234eb2c9818ff5e0eaf323042bc3f1dc25dcf6de84685",
+        "38c07ace063d3ef4022b951d32ce256abdc7f6127561753d3008e6b469ff2226",
+        "ab72bdd958dba241c24afc1ec9891b6ee874036d3997fcd19debae98b92c13ef"
       ]
     },
     "spacr.workspace.inventory_text": {
@@ -191374,6 +193000,24 @@
         "b104cfcbd136010b9552edb4af171f6159a1b546cc579a3115e1e2feb0404fbf",
         "85867327aadd596eabc247666afc75598910d679af99054c6ec99e9056af00a1",
         "3a143f59de5ff5a980346a7a7ab90fe74293ef58b877a6ab6d5c6fcc9ab8aec9"
+      ]
+    },
+    "spacr.zstack.detect_axes._order": {
+      "source_blocks_sha256": [
+        "0d4a0440352f0c0ba511435f288bf84b71d98d84a8afa8a7aa922721c0d6f30d",
+        "cdbf706340da78ada0dd383260fcb89e370e00fa7cb2a87ba78a2a15f275eecc",
+        "2ff02eaff153d9423f752f6a11861eb6b1722ecc95730d165e80d5e0e7919186",
+        "2c35d76ad85152d9c91d89ae610e154d8167f801abda87e82d290aed056bbb39",
+        "1e06d569a4f89ff21467d3009fd7ab1b4867eed7c037568267af4ae8f14510d2"
+      ],
+      "source_sha256": "f76e77d9b1b5de0c2727f85267c7c31a54e93e3d560d3c162391e7d05d07f750",
+      "text": "캡처된 이미지 축으로 축 순서 후보 하나를 만듭니다.\n\n:param t_axis: 제안된 시간 축 인덱스입니다.\n:param z_axis: 제안된 깊이 축 인덱스입니다.\n:param source: 제안이 어떻게 선택되었는지 설명하는 근거 레이블입니다.\n:returns: 제안을 캡처된 Y, X 및 정규화된 선택적 채널 축과 결합한 축 순서입니다.",
+      "translation_source_blocks_sha256": [
+        "0d4a0440352f0c0ba511435f288bf84b71d98d84a8afa8a7aa922721c0d6f30d",
+        "cdbf706340da78ada0dd383260fcb89e370e00fa7cb2a87ba78a2a15f275eecc",
+        "2ff02eaff153d9423f752f6a11861eb6b1722ecc95730d165e80d5e0e7919186",
+        "2c35d76ad85152d9c91d89ae610e154d8167f801abda87e82d290aed056bbb39",
+        "1e06d569a4f89ff21467d3009fd7ab1b4867eed7c037568267af4ae8f14510d2"
       ]
     },
     "spacr.zstack.detect_z_axis": {

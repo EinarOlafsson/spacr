@@ -1328,7 +1328,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
     # and spacr._lineage_measurements (the API docstring contract requires
     # one per module); all 12,038 prior symbols unchanged.
-    expected = 12_040
+    # 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
+    expected = 12_171
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1375,7 +1377,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,816 -> 11,834 with `expected` above.
     # 11,865 -> 11,929 with `expected` above, for item 593's 64.
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_040
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_171
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

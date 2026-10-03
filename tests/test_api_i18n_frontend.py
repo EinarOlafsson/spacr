@@ -147,7 +147,9 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # 2026-10-02 item 43: +2/-0, the module overviews of spacr._lineage_trees
 # and spacr._lineage_measurements (the API docstring contract requires
 # one per module); all 12,038 prior symbols unchanged.
-REAL_SYMBOL_COUNT = 12_040
+# 2026-10-03 F411: +131/-0, documented nested helpers of 111 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,040 prior symbols unchanged.
+REAL_SYMBOL_COUNT = 12_171
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

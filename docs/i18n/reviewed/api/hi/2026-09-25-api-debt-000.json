@@ -4109,7 +4109,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.io.preprocess_img_data#2",
+      "label": "spacr.io.preprocess_img_data#3",
       "source": "Running it again on a plate folder it has already processed resumes rather than starting over. Raw images an earlier run moved into ``orig/`` are read from there, and only the fields ``stack/`` lacks are built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is checked before it is reused: a file cut short is renamed to ``<name>.damaged``, named in the log, and built again, a field stack from the raw images or channel folders and an archive from ``stack/``. A field stack with nothing left to build it from is recorded as a failure, so the run ends incomplete instead of quietly short of that field, and an archive with nothing left to build it from stops the run with an error that names it. When no field can be built at all, the error says what the folder does hold. In ``test_mode`` a plate whose raw images are gone is sampled from its ``stack/`` instead.",
       "source_sha256": "e0b4f88c95f256c5431b20b0ae14c186ab132a4d8d0491a1d63535a9828b9031",
       "context": "Executing it again on a laboratory microplate folder it has already processed resumes rather than starting over. Raw images an earlier run moved into ``orig/`` are read from there, and only the microscope fields of view ``stack/`` lacks are built. Every ``stack/*.npy`` and ``masks/*.npz`` an earlier run left is checked before it is reused: a file cut short is renamed to ``<name>.damaged``, named in the log, and built again, a microscope field of view stack from the raw images or image data channel folders and an archive from ``stack/``. A microscope field of view stack with nothing left to build it from is recorded as a failure, so the processing session ends incomplete instead of quietly short of that microscope field of view, and an archive with nothing left to build it from stops the processing session with an error that names it. When no microscope field of view can be built at all, the error says what the folder does hold. In ``test_mode`` a laboratory microplate whose raw images are gone is sampled from its ``stack/`` instead.",
@@ -4117,7 +4117,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.io.preprocess_img_data#9",
+      "label": "spacr.io.preprocess_img_data#10",
       "source": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` and each object's ``*_background`` and ``*_signal_to_noise`` values. Every organelle slot the run enables uses its own pair, e.g. ``organelleb_background``.",
       "source_sha256": "cdd0b8c3efbfe6bf476deff04e36fe8861ad85e1a21d586f3c503290ed9b0ceb",
       "context": "``remove_background_cell`` / ``_nucleus`` / ``_pathogen`` / ``_organelle`` and each object's ``*_background`` and ``*_signal_to_noise`` values. Every organelle slot the run enables uses its own pair, e.g. ``organelleb_background``.",

@@ -60,6 +60,13 @@
       "source_sha256": "622f82e75d53a0a3174ee07e54b952333e8da4df5977f262fa02a39d1ac25272",
       "text": "Measured values on lineage trees.\n\nRecords which images and label stacks a tracking run used, so a later\nMeasure run can join its per-object measurements onto the same tracks and\ncolour the lineage trees by a measured column."
     },
+    "spacr._lineage_measurements._measured_lineage_options.number": {
+      "source_blocks_sha256": [
+        "f34e400cbd996ff882d6eb08b2e445ada007ddff2faa227f11bfa676d74fc9b9"
+      ],
+      "source_sha256": "f34e400cbd996ff882d6eb08b2e445ada007ddff2faa227f11bfa676d74fc9b9",
+      "text": "Reject boolean, nonnumeric and unrepresentable numeric settings."
+    },
     "spacr._lineage_trees": {
       "source_blocks_sha256": [
         "c32fcc377f0527dae4669d3d2050b4a5640eee5174e3b496fe6ce69e8addfcef",
@@ -160,6 +167,13 @@
       "source_sha256": "126a4914c173ed19878a392214a751217b8ac98f515229d635e0b7b6335e91be",
       "text": "Build an isolated environment, install Starplast and check its bundled data.\n\nLocal Git sources are archived from committed HEAD into temporary storage;\npip never writes build files into the original checkout. A failed install\nremoves only the environment created here, and retains ``starplast-install.log``.\n\n:param source: starplast on PyPI, or an explicit local Git checkout or\n    repository URL; default_source otherwise. PyPI resolves the latest\n    compatible stable release at installation time, without a version pin.\n:param root: external-application folder.\n:param progress: callback ``(step, steps, text)``; called off the GUI thread.\n:param cancel: threading.Event; cancels commands and their descendants.\n:param runner: optional subprocess-runner substitute for focused tests.\n:param preflight: optional interpreter-preflight substitute for focused tests.\n:returns: completed environment path.\n:raises RuntimeError: installation failed, was cancelled, or folder is unowned.\n:raises ValueError: the selected source is neither a suitable local Git\n    checkout, the PyPI package, nor an allowed official repository URL."
     },
+    "spacr._starplast.install_starplast.line": {
+      "source_blocks_sha256": [
+        "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e"
+      ],
+      "source_sha256": "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e",
+      "text": "Persist all subprocess output and send the latest line to Qt."
+    },
     "spacr._starplast.is_installed": {
       "source_blocks_sha256": [
         "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
@@ -202,6 +216,13 @@
       ],
       "source_sha256": "928ec9f05a8dc5685ba38167dc043a4a28ca8965257e565873796dc6b1b52340",
       "text": "Upgrade the owned environment using pip and PyPI, then verify its data.\n\n:param source: ignored; upgrades always use the PyPI Starplast package.\n:param root: external-application folder.\n:param progress: optional ``(step, total, text)`` callback.\n:param cancel: optional subprocess cancellation event.\n:param runner: optional command runner for tests.\n:returns: verified environment path.\n:raises RuntimeError: upgrade failed or was cancelled. Files and logs remain\n    for diagnosis; an interrupted environment must be repaired before launch."
+    },
+    "spacr._starplast.upgrade_starplast.line": {
+      "source_blocks_sha256": [
+        "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c"
+      ],
+      "source_sha256": "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c",
+      "text": "Persist pip diagnostics and update the progress display."
     },
     "spacr._version": {
       "source_blocks_sha256": [
@@ -267,6 +288,27 @@
       ],
       "source_sha256": "ccbd0918a3838f05bdbf83e756f06f7499ee7a418857648c39093eaa0be697cb",
       "text": "A ``torch.device`` for :attr:`device`, or the CPU if torch is\nmissing entirely."
+    },
+    "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu": {
+      "source_blocks_sha256": [
+        "a44ae08ddb00d112884880992a83b68ed28a42ec249ced2d404cbcb3b7bf1655",
+        "df02c0a299e96ed6a218c7d486cd33065ce86c1f70119b74c377339b36e54add",
+        "edf22d6669a1a43175cf129a9c18cd9702252b04995e0556df3a03a47e885f8f",
+        "82308d28c73b6dcab0ba26d652ef31bb9b9f88263847b920ccbe68c6c879b7a9",
+        "10607a4349d6038c482cf48d9412cfba0cfdbe2daf5eb45f1a169eb2ba4272be",
+        "004d06390aa3e758438e523f2362c5edea9ed033734a4a6267897b6212f68019"
+      ],
+      "source_sha256": "5b3c0b7df3e2d4f52494e1a90beb20e7247d16e1b99568d453edfd3219f0deeb",
+      "text": "Run Cellpose flow-error filtering on the CPU for Metal.\n\n:param masks: label masks forwarded unchanged to Cellpose.\n:param flows: flow field forwarded unchanged to Cellpose.\n:param threshold: flow-error threshold forwarded to Cellpose.\n:param device: ignored compatibility argument; the wrapped call\n    always receives ``torch.device(\"cpu\")``.\n:returns: the original ``remove_bad_flow_masks`` return value."
+    },
+    "spacr.accelerator._measure_dtypes.accepts": {
+      "source_blocks_sha256": [
+        "cfdf92399649399aab3dd4357891c57526e8ba868a2470f68475c4b84365107f",
+        "8adfe5ebc32fabe69ddbd8b8f58975ffad6afcdaa7c7f0108fa40a87681f1e5b",
+        "b64978e9b3ed0038ba072c538eac1baac6333574f99643f33c9dd6f7400f17f4"
+      ],
+      "source_sha256": "b18f13c1a51775639160e9c9e3018b17bed74d1f08e2665ade5f05eee7a1dbf8",
+      "text": "Probe whether the resolved device accepts one named torch dtype.\n\n:param name: torch dtype attribute name, such as ``\"float64\"`` or\n    ``\"bfloat16\"``.\n:returns: ``True`` when a two-element tensor allocates on the device,\n    ``False`` for the errors used by unsupported dtypes, or ``None``\n    when torch lacks the dtype or the probe fails unexpectedly."
     },
     "spacr.accelerator.autocast_device_type": {
       "source_blocks_sha256": [
@@ -1111,6 +1153,18 @@
       "source_sha256": "4c83db580f6d1ef5d66b98e6f1abfe9e602f8cd925ce17e32a3543c19b76b12c",
       "text": "Compute Cohen's κ for ``a`` vs ``b`` and everything around it.\n\nOnly rows both annotators labelled enter the calculation. Rows where\nexactly one of them abstained are counted into\n:attr:`PairAgreement.n_abstained`; they are *not* disagreements.\n\n:param a: first annotator's labels (``None``/NaN/\"\" = abstention).\n:param b: second annotator's labels, row-aligned with ``a``.\n:param labels: label universe; inferred from the compared rows when\n    omitted. Passing it keeps confusion matrices comparable across pairs.\n:param missing_values: extra values that count as abstentions, e.g.\n    ``(0,)`` for legacy databases where 0 meant \"not looked at\".\n:param name_a: name to record for the first column.\n:param name_b: name to record for the second column.\n:returns: a :class:`PairAgreement`.\n:raises ValueError: when the two sequences differ in length."
     },
+    "spacr.agreement.kappa_detail._pack": {
+      "source_blocks_sha256": [
+        "6a289ff0d0c6f94360b63a1ad20127164fe1b9f15c90b3dcda317fe3f9903137",
+        "a2733557ce9f92a5f63e312c03ad1259f0c8016037c4d10d094bf57a71f08d59",
+        "7e1266ad15c528f0da5d98de715ce851b36a6c8edd95a81cc9b97fea15b40ca7",
+        "03666b1ad1969877e61e52382f9cf281f858797220403cc27585456130663f9c",
+        "3444822f36a5578c188ef97c0d394b29f087b79b981d7ee2108cddea7c42037a",
+        "e59811648fdca22f996399b770a95e8ce0b7982ec84bd6df48e78eddb58184cf"
+      ],
+      "source_sha256": "f6ad64ad38b5af17be7e006a6fc393f4e35dfcd86630f08b4e0e59e617a79d1f",
+      "text": "Build one complete agreement result from the captured counts.\n\n:param kappa: computed Cohen's kappa, or NaN when it is undefined.\n:param p_o: observed agreement fraction.\n:param p_e: agreement fraction expected from the marginals.\n:param note: explanation of the ordinary or degenerate result.\n:returns: a result containing the supplied statistics together with\n    the captured annotator names, counts, labels, confusion matrix,\n    and interpretation."
+    },
     "spacr.agreement.load_annotations": {
       "source_blocks_sha256": [
         "e3d12f1be753125c554932ec1a91cacd2a38876aed243b4febb9fac73114679b",
@@ -1386,6 +1440,15 @@
       ],
       "source_sha256": "8f91f6cdaacefc99bdac8b93ad20e8431ccab33e441f808d5f5cca2900e252df",
       "text": "Tile width in pixels, 0 when unknown."
+    },
+    "spacr.align._count_components.find": {
+      "source_blocks_sha256": [
+        "20c4450539970f2d05262e283953059a61b333c46312dcc1592a50032671dd50",
+        "c64a3202673d1249f54e3d5efa66ea6bf2c19e69bdc29cc9f0fc4c51591a8d69",
+        "a024092130c4ab205da84d8b7a34a32da71c43cb0b212f75d80549d92d1510da"
+      ],
+      "source_sha256": "1db4ccfba9216cbc7f5ef2d08da3d44bc590bd3c303af26c62baa6fed208a622",
+      "text": "Resolve and compress one tile's captured component parent.\n\n:param a: tile index whose union-find representative is required.\n:returns: root index after path-halving each traversed parent link in\n    the captured forest."
     },
     "spacr.align.align_folder": {
       "source_blocks_sha256": [
@@ -1928,6 +1991,16 @@
       ],
       "source_sha256": "59f2cd0093ea396bfa842af89e45a40c8fa1abf6a9b55cf63bdbf731f9bd61a5",
       "text": "Stream a set of crops and register it for annotation.\n\n:param settings: needs ``src`` (the plate folder) and accepts\n    ``stream_source`` (:data:`STREAM_SOURCES`), ``object_array``,\n    ``channel_arrays``, ``bounding_box``, the filtration keys\n    :func:`filter_selection` reads, and ``dst`` for where the crops go.\n:returns: the streaming report, plus ``table`` naming what was written."
+    },
+    "spacr.annotation_dataset.generate_annotation_dataset._write": {
+      "source_blocks_sha256": [
+        "6e6d13fc30931eef23b36a3fa8b4d97312e286f72fb6d082e3e04a777d9db07b",
+        "a0011258f296314d6f8cfa6a9ddef4a57a0bf977439e338c56da4475fb80b848",
+        "09e6775c7514f8e8a32dd106ac820836205e480a98b34c3a260d79e626dc9a2e",
+        "691fc128502fc8a66875905d6d28e97f74bf0142fceac5562c4d8deb18d781c1"
+      ],
+      "source_sha256": "5b818f3b4d01dba7ad73a6dfdc388e309f9bdb33326e2b55cdd8c5a3510a91a1",
+      "text": "Write and register one streamed crop through Measure's writer.\n\n:param path: proposed crop path; its extension is replaced with\n    ``.png``.\n:param array: crop array to normalize, select, pad, resize, and save.\n:returns: None. The shared writer's returned path is appended to the\n    captured list using the captured channels and PNG size, preserving\n    alignment with the subsequently registered selection rows."
     },
     "spacr.annotation_dataset.next_png_table": {
       "source_blocks_sha256": [
@@ -4152,6 +4225,16 @@
       "source_sha256": "4e39e5841c7fc6d8241e15145ec48ceac3010cc60b67002ab302f18a4856ae54",
       "text": "Render the end-of-queue report.\n\nWhat ran, what failed and why (identical failures grouped), what was\nskipped and because of which upstream job, what is only partial, and\nhow long each took. This is the thing a user reads over coffee\ninstead of scrolling four thousand lines of interleaved log."
     },
+    "spacr.batch._cycle_problems.walk": {
+      "source_blocks_sha256": [
+        "4e00e54470f967c49f3e200a7f578b87f35d04abf9198d6f381a5e1c4cabd78e",
+        "725a086c072d2419b819a01d535bfd4d860f715cec6fc6d96f8e18429c9ea06e",
+        "081492032cc839aadb2c00faf69bd9f67fa4ed99ff8f289cbbfc20164258fb42",
+        "4531b7e3ee4932e872ee43f4b02ca9e529598b0df41a36f815d00db64dc98914"
+      ],
+      "source_sha256": "4db9b9a3c528a6fb62279ea8aa5b5b3f8ea947cdfd9b2f9fb3a69ecdfba2eace",
+      "text": "Depth-first search one captured dependency subgraph for cycles.\n\n:param job_id: queue job whose known dependencies should be visited.\n:param trail: active ancestor IDs used to reconstruct a back-edge cycle.\n:returns: None. Captured state records active and completed jobs, and a\n    back edge appends one problem; missing dependency IDs are ignored\n    here because ordinary dependency validation reports those typos."
+    },
     "spacr.batch.classify_failure": {
       "source_blocks_sha256": [
         "1fb1121afafd3d3508ff2c6143094705e1a30722546ad1084d11206b0ffea2df",
@@ -4269,6 +4352,13 @@
       ],
       "source_sha256": "e948fe693cd5891f63b6e3ff3c7d5d3700b09676fe22fb00143aa0c451befcb8",
       "text": "Run the queue, one job at a time, and report on all of it.\n\nJobs run **sequentially and only sequentially** — they compete for one\nGPU. The queue is validated in full before the first job starts, its state\nis written to ``path`` after every transition, and a job whose dependency\ndid not succeed is skipped rather than run against a half-written input.\n\n:param queue: the queue to run. Mutated in place: each job's status,\n    timestamps, exit code, log path and run_status are filled in.\n:param path: queue file kept up to date after every transition. Without\n    it the run cannot be resumed, which is a real loss on a long night.\n:param on_error: ``'continue'`` (default) runs the jobs that do not depend\n    on the failed one; ``'stop'`` halts the queue immediately.\n:param log_dir: folder for per-job logs; defaults to ``<queue file>_logs``\n    or a temp folder.\n:param max_consecutive_failures: halt after this many failures in a row.\n    Continue-on-error is meant to save a night from one bad plate, not to\n    spend it repeating one systematic mistake twelve times. ``None`` or\n    ``0`` disables the check.\n:param on_progress: called with a :class:`Progress` on every transition,\n    so a GUI can show the queue moving. Exceptions from it are logged and\n    swallowed.\n:param runner: ``(job, settings_path, log_path) -> exit_code``;\n    :func:`subprocess_runner` by default. Injected by the tests, and by\n    anyone who wants to submit jobs to a scheduler instead.\n:param stop_flag: polled between jobs; return True to stop the queue after\n    the running job finishes (the GUI's Stop button).\n:param force: run even though validation found errors. The escape hatch\n    for a check that is wrong about your data — it is not the default for\n    a reason.\n:param echo: print the summary at the end. Always logged either way.\n:returns: the :class:`QueueResult`.\n:raises QueueError: when validation found errors and ``force`` is False —\n    with *every* problem in the message, not just the first."
+    },
+    "spacr.batch.run_queue.persist": {
+      "source_blocks_sha256": [
+        "bf59dfeb662ba2b7e3869bdb650a7de806492e00d9def62a36f48c2fca98bdab"
+      ],
+      "source_sha256": "bf59dfeb662ba2b7e3869bdb650a7de806492e00d9def62a36f48c2fca98bdab",
+      "text": "Write the queue after a transition. Never fatal."
     },
     "spacr.batch.save_queue": {
       "source_blocks_sha256": [
@@ -5782,6 +5872,15 @@
       "source_sha256": "02d2ba6487f6cacc7ded2678021f687fbc221d85468d67d4c282bf5cb9e13bd8",
       "text": "Compare two settings values as paths, list-insensitively.\n\n:param left: first scalar or nested list or tuple of path values.\n:param right: second path value or collection to compare.\n\n``[\"/plate\"]`` and ``\"/plate\"`` name the same folder; Classify keeps its\nsource in a list and every other module keeps it as a string, so a\ncomparison that called those different would record a pin every time a\nClassify screen was seeded with its own auto-chained value."
     },
+    "spacr.chaining.same_path.flatten": {
+      "source_blocks_sha256": [
+        "af1b84e55764d01c35f452e64f29853ab51d1ff22c7f23329e54aa85f6cc023c",
+        "3fec1c490aa6b7f604619c825e0571d57f60a145c95175edd81016520f94384b",
+        "c1c449bb53825b34597e09f01570416532ab19388e371512e1f4cc3e3bed7f83"
+      ],
+      "source_sha256": "000ce5b73b5408c6f35fe67d82a96def522d89f7f02fe4d2b3bfc116f9967e8d",
+      "text": "Flatten one path-like value into normalised path strings.\n\n:param value: scalar path, nested list or tuple, ``None``, or another\n    value whose stripped string representation names a path.\n:returns: depth-first path strings with empty values omitted and each\n    retained value normalised with :func:`os.path.normpath`."
+    },
     "spacr.chaining.satisfies": {
       "source_blocks_sha256": [
         "0df9590e4c4a5eb7a799f292a160585db2630f8a74c2d8b83bd7cd8881d51d94",
@@ -6884,6 +6983,13 @@
       "source_sha256": "0de75918d8c25e46d7db6d6666c7d7c80cf434d27b9dd248806ac24a0605956d",
       "text": "Select an operating point for annotation.\n\n:param scores: classifier score for each labelled cell.\n:param labels: true for cells belonging to the positive class, aligned\n    one-to-one with ``scores``.\n:param criterion: ``'youden'`` maximises ``se + sp - 1``, which is the\n    denominator of the Rogan--Gladen correction and therefore favours\n    stable prevalence correction."
     },
+    "spacr.classifier_quality.best_threshold.value": {
+      "source_blocks_sha256": [
+        "758679d10d44aac4ca1b1d9ef984f59424828fb12b9c4ca2844d3fc4306b229f"
+      ],
+      "source_sha256": "758679d10d44aac4ca1b1d9ef984f59424828fb12b9c4ca2844d3fc4306b229f",
+      "text": "Return Youden's J, ranking a non-finite result last."
+    },
     "spacr.classifier_quality.confusion": {
       "source_blocks_sha256": [
         "7865eb90c95017cf097b58e1b9963c036275237bbb207356b3d76847833b6b70",
@@ -6902,6 +7008,14 @@
       ],
       "source_sha256": "1967366ac74339c44874efb949f17f6665116e041e79cb912cba570937f27368",
       "text": "Estimate two class distributions from unlabelled scores.\n\n:param scores: unlabelled classifier scores to model as a two-component\n    mixture; non-finite values are ignored.\n\nA two-component Gaussian mixture estimates prevalence, sensitivity,\nspecificity, and a midpoint threshold. ``separation`` is the distance\nbetween component means in pooled standard deviations; the result marks\nestimates trustworthy only when separation is at least two. This is a\nmodel-based fallback and is weaker evidence than a labelled test split."
+    },
+    "spacr.classifier_quality.deconvolve.above": {
+      "source_blocks_sha256": [
+        "3c38d59b814f7fe1737fa1dc7ed8f8e0ef7aff8e9ace2b6ff254353665418bd7",
+        "343dfe200a00c0513b9afb4e7d9a3b20aef095ef282869a8ccbdc4b8ce13c738"
+      ],
+      "source_sha256": "c0c8ee0c08a0d9267e050968c40553fe0d2ac52c16f5ef2dcb347c92a8d2db5c",
+      "text": "Estimate the Gaussian probability above the fitted midpoint.\n\nA zero-width component is treated as a definite side of the cut\nrather than passed to a division by zero."
     },
     "spacr.classifier_quality.discover_test_splits": {
       "source_blocks_sha256": [
@@ -7266,6 +7380,16 @@
       "source_sha256": "cb8df988284c67ca601aefa5ca4f46fc3eab5bfd2e832fd3fb7161216dc84818",
       "text": "A settings file, an override or a module name the user got wrong.\n\nAlways maps to exit code 2: the run never started, so it is an argument\nproblem rather than a runtime failure."
     },
+    "spacr.cli._NoShow.__enter__._close_instead": {
+      "source_blocks_sha256": [
+        "ec0e8514a220a56ee26ac4709c873672c485ae69087d366a514a6a20283d26c5",
+        "e5528c3cf25d396a3fe49c89eef96ce4d2c94d61f3e83b43f4cf2e1b4c2989f3",
+        "7a6940f04aea377119e4d92fee5973305582d4d9b64c4f6c1d12829f21eed7f7",
+        "9d39e44e788b532c65d3241c350ac3b2478bbf3a4d1e184060f3d4da52d8f301"
+      ],
+      "source_sha256": "6aef1a69dad71074fa38e894ced74f8eb7341a6c8a9cc7343c9dc7d2a0b935e9",
+      "text": "Close the captured current figure instead of displaying it.\n\n:param args: ignored positional arguments accepted for ``show``\n    signature compatibility.\n:param kwargs: ignored keyword arguments accepted for compatibility.\n:returns: None. Backend and close errors are deliberately swallowed\n    so optional visualization cleanup cannot fail a headless run."
+    },
     "spacr.cli.apply_overrides": {
       "source_blocks_sha256": [
         "f565f10ac24c3cab6d3aabaff60297352813526ef0ec13a685abe7f551ce0f0a",
@@ -7502,6 +7626,14 @@
       ],
       "source_sha256": "707b5807929cc78080cc91a1c7a51d4a1779648cd0e701cca1a53a602e84e7e4",
       "text": "A name, kind or plate number the user got wrong.\n\nAlways exit code 2: nothing was attempted, so it is an argument problem\nrather than a failed download."
+    },
+    "spacr.cli_download._progress.report": {
+      "source_blocks_sha256": [
+        "2e4a1ffffd24f71ff5b4a694d5c5701c8be2fd2b2f4c2c81277196cf8e8ba7a2",
+        "17210b18bb2c7c723e3785a999bfb9989d8aa547caf3a5f90c49e83bd763b40f"
+      ],
+      "source_sha256": "5a61273d9d21717485a23bd83acfaab2ef04951531793548e53b664ad4148f24",
+      "text": "Redraw the terminal line when the integer percentage changes.\n\nAn unknown or zero total cannot yield a useful percentage and is\nignored; every emitted update is flushed so it is immediately visible."
     },
     "spacr.cli_download.build_parser": {
       "source_blocks_sha256": [
@@ -8010,6 +8142,13 @@
       "source_sha256": "5180687aa41b5d8e15e082c0e1f0eb678979f263a728a1979413f673ae9b60b3",
       "text": "Validated membership counts and row labels before application.\n\n:param values: Final output labels in source row order; conflicts are diagnostic.\n:param counts: Final output row counts per distinct label.\n:param unmatched: Rows missing a value in the final output.\n:param overlaps: Union of positions assigned different labels within any output.\n:param column_values: Candidate values for every ordered output column.\n:param column_previews: Per-column membership and conflict reports.\n:param rule_counts: Individual rule counts before same-label unions."
     },
+    "spacr.condition_annotations._extract_preview.extract": {
+      "source_blocks_sha256": [
+        "702e3637ed1ab5b9f9051b77bf4c4a6720d1c1a2d55323a02d83cc77b074ca5e"
+      ],
+      "source_sha256": "702e3637ed1ab5b9f9051b77bf4c4a6720d1c1a2d55323a02d83cc77b074ca5e",
+      "text": "The captured group for one value, or NA when nothing matched."
+    },
     "spacr.condition_annotations.annotation_columns": {
       "source_blocks_sha256": [
         "8b47252404c18af241e69dddd6a33d4e7e68b7565be310cdd7aa04963d8605a9",
@@ -8070,6 +8209,13 @@
       ],
       "source_sha256": "eb1658bd473227057bb715da90dc5175d49a0806ac6b3ab2eb7d72e8b5c5cae6",
       "text": "Atomically save a new physical table plus its source and editable rules.\n\n:param path: Existing SQLite source database, never a delimited input file.\n:param name: New table name; physical, view and saved-derived collisions fail.\n:param frame: Working frame including every annotation output column.\n:param definition: Validated annotation rules used for the working frame.\n:param source: Original annotation source context.\n:param merge_definition: Original merged-source configuration, if applicable.\n:returns: Saved table name. A failure rolls back both table and provenance."
+    },
+    "spacr.condition_annotations.save_annotated_table.scalar": {
+      "source_blocks_sha256": [
+        "c660fb4a74c16aae37d987212b8fb37565dfcf2498a267f81a3ab45d21de8738"
+      ],
+      "source_sha256": "c660fb4a74c16aae37d987212b8fb37565dfcf2498a267f81a3ab45d21de8738",
+      "text": "One value as plain JSON: ISO dates, Python numbers, None for blanks."
     },
     "spacr.condition_annotations.saved_table_annotation": {
       "source_blocks_sha256": [
@@ -8626,6 +8772,13 @@
       ],
       "source_sha256": "95f1d7c637c86bbe56e4f3d91865d0dd7b59acb450f3273bc0ecc6fb8201638c",
       "text": "False when :func:`scan` could not open this source."
+    },
+    "spacr.convert._parse_by_convention._number": {
+      "source_blocks_sha256": [
+        "fc43a4ef85c14eb4cc6c4c4f8114f24694846e3576af4d57907ae72ac177ff62"
+      ],
+      "source_sha256": "fc43a4ef85c14eb4cc6c4c4f8114f24694846e3576af4d57907ae72ac177ff62",
+      "text": "The group as a 1-based integer, or None when it is not a number."
     },
     "spacr.convert.assign_wells": {
       "source_blocks_sha256": [
@@ -10320,6 +10473,23 @@
       "source_sha256": "356f1c932d8f344bd622915d7ea502a50c1bbc144bf18451b604da276200b14d",
       "text": "Repair reversed format-2 crops and stamp the folder. Idempotent.\n\nFormat 2 stores three-channel crops in the reverse of their declared\nchannel mapping. Formats 1 and 3, as well as unmarked folders, already\nuse declared order and require no pixel rewrite.\n\n``mode='rewrite'`` (the default) rewrites every 3-channel PNG of a\n**format-2** folder with its channels put back, and marks the folder\nformat 3. A folder that is format 1, format 3 or unmarked is already in\ndeclared order, so it is an immediate no-op -- which is the answer for\nalmost every folder that exists.\n\n``mode='mark'`` touches no pixels and only records that the folder is\nformat 1 -- use it when something outside spaCR reads those exact bytes\nand must keep seeing them (a classifier trained on legacy crops, for\ninstance).\n\nInterruption safety, which is the whole design:\n\n* each file is converted into a durable staging file ``<name>.spacr_v2``\n  (itself written temp-then-``os.replace``, per ``io._save_array_atomic``)\n  and only then ``os.replace``-d over the original, so the crop at its\n  real name is always a complete PNG -- the old one or the new one;\n* the folder marker carries a ``migration`` block with a ``done_through``\n  watermark, advanced *before* the install, so the rule\n  **\"a staging file exists ⇒ the crop beside it is still legacy\"**\n  resolves every file at every point in the sequence. That is what\n  :func:`crop_format_for_png` reads, and it is why a killed migration is\n  still read correctly and can be run again.\n\nRunning it on an already-converted folder is an immediate no-op: nothing\nis decoded, nothing is written, and ``result.already`` is True. Running it\ntwice therefore cannot double-reverse anything.\n\nThe one exception is a folder finished with ``on_error='skip'``: its\nmarker names the files that could not be rewritten, those stay legacy (and\nare read as legacy) inside an otherwise format-2 folder, and a later run\nretries **only** them.\n\n:param folder: the crop folder (``.../<well>/cell_png`` and friends).\n:param mode: ``'rewrite'`` or ``'mark'``.\n:param dry_run: report what would happen; write nothing.\n:param on_error: ``'raise'`` (default) or ``'skip'``, which records the\n    file in the marker's ``unconverted`` list and keeps reading it as\n    legacy.\n:param db_path: also stamp ``png_list.crop_format`` in this database.\n:param progress: optional callable ``(done, total, name)``.\n:returns: a :class:`MigrationResult`.\n:raises CropError: bad arguments, or a file that cannot be converted when\n    ``on_error='raise'``."
     },
+    "spacr.crops.migrate_crop_folder._flush": {
+      "source_blocks_sha256": [
+        "753b4f4e49a0b4b1401005ff0f25a894b6e1dae4f4087855c574435e38396f56",
+        "d1b8e8c9f809645cb4dfe8ec843552b0b53669ed649873e81c95fdea25a7bb4f",
+        "a1b53c091ffca9692af902f98bc8b69045bbe8a5447b9e16a35d12337c284fb2"
+      ],
+      "source_sha256": "a7a9aa9c0cb1a90fc23c15e70f88d67d085d82125ed71b19a787843c4c59ec59",
+      "text": "Advance the watermark durably. One small fsync per crop, on purpose.\n\nIt is what makes \"converted\" and \"not converted yet\" a fact on disk\nrather than a guess, and it is cheap next to decoding and re-encoding\nthe PNG it guards.\n\nA retry run has no watermark to advance -- the folder is already\nformat 2 apart from the named leftovers -- so it rewrites the finished\nmarker with a shorter ``unconverted`` list instead."
+    },
+    "spacr.crops.migrate_crop_folder._todo": {
+      "source_blocks_sha256": [
+        "62297dbf4589310b26df46a49a359cb370c2a15ac15a364fce39a1eac17c2ea1",
+        "61ebd23a61ca29bc641ba5a0b856a096af4642800e117b2448da6690058ee661"
+      ],
+      "source_sha256": "af3888f101d62ca860fd88bd5fd360739510c9a927161de1023d27acb1faac5c",
+      "text": "True when ``name`` still has to be converted.\n\nA staged file outranks everything else, in both modes and in both\ndirections -- it is the same rule :func:`crop_format_for_png` reads,\nso what the migrator thinks is left to do and what a reader thinks is\nstill legacy can never disagree."
+    },
     "spacr.crops.migrate_crop_tree": {
       "source_blocks_sha256": [
         "899ff7c1de5e9ff9ef7520228961e362596d7a9858de3c7fff259587e387854f",
@@ -11385,6 +11555,14 @@
       "source_sha256": "df83eb193a2f3e80b02f1f20e3b79d23b2fad186c1b4f63fbbad0d2edcb80fbb",
       "text": "Order a queue, with the external tool's semantics.\n\n``name``\n    By stem, and nothing else is read — not the probabilities, not the\n    drafts. By stem rather than by file name so that the order does not\n    change when one field is a PNG and the next a TIFF.\n\n``prob``\n    Most likely first: the key is ``-probs.get(stem, -1.0)``. The\n    default is the point. An unscored field yields ``+1.0``, larger than\n    any real negated probability, so it sorts LAST rather than\n    pretending to be probability zero.\n\n``easy``\n    ``(0 if n > 0 else 1, -probs.get(stem, -1.0), -n)``. A populated\n    draft is accept-or-light-edit; an EMPTY draft means drawing from\n    scratch, so empty ones go last REGARDLESS of probability. Within\n    each group, most likely first, then most objects.\n\n``value``\n    By :func:`value_key`: how much draft there is to correct.\n\n``uncertain``\n    Most uncertain segmentation first, the key being\n    ``-probs.get(stem, -1.0)`` with ``probs`` carrying each field's\n    uncertainty from ``curate_uncertainty.csv``. An unscored field sorts\n    last.\n\nTies are broken by stem, because the list is sorted by stem before any\nof this and Python's sort is stable.\n\n:param items: the fields to order.\n:param order: one of :data:`ORDERS`.\n:param probs: ``{stem: probability}``, or a callable returning one, or\n    ``None`` for none available; for ``uncertain``, ``{stem:\n    uncertainty}``.\n:param counts: ``{stem: n_objects}``, or a callable returning one. When\n    ``None``, ``easy`` reads the drafts itself.\n:param announce: where the fallback notice goes; defaults to\n    :func:`print`, so it lands on stdout as the external tool's does.\n:param min_objects: passed to :func:`value_key`.\n:param min_diameter: passed to :func:`value_key`.\n:param scores_hint: the scores file named in the fallback notice.\n:returns: a new list, ordered.\n:raises ValueError: when ``order`` is not one of :data:`ORDERS`."
     },
+    "spacr.curation_queue.order_items.easy_key": {
+      "source_blocks_sha256": [
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "91a61af4b01fa9e2705da488437d064fa53b668fca37534e31b4305c320b9027"
+      ],
+      "source_sha256": "c85df886a915d02daf0a82ff5860774f037c702572f4e077632681ba79adedd8",
+      "text": ":param item: one field.\n\n:returns: its ``easy`` sort key, populated drafts first."
+    },
     "spacr.curation_queue.pending_items": {
       "source_blocks_sha256": [
         "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
@@ -11840,6 +12018,13 @@
       "source_sha256": "e1e2791f7219b6801072d427a0d370453078b384344103b9b3cc8c6061f5ced9",
       "text": "One thing that was considered and kept, and why.\n\n:param path: the file or folder.\n:param kind: its kind, as far as anything knows.\n:param size_bytes: what keeping it costs.\n:param reason: the rule that kept it, in a sentence a user can act on.\n:param artifact_id: the registry row, when there was one."
     },
+    "spacr.data_manager._walk_project._note": {
+      "source_blocks_sha256": [
+        "bf38c1f39b97de4223e32e1f2eeda554859612e646a36ca263080ac51a78e295"
+      ],
+      "source_sha256": "bf38c1f39b97de4223e32e1f2eeda554859612e646a36ca263080ac51a78e295",
+      "text": "Record an inaccessible walk entry without stopping the scan."
+    },
     "spacr.data_manager.archive": {
       "source_blocks_sha256": [
         "fcf04c16dcb21be61b349b23d5119f242f841caa7316d51da1ecfe746f1ac684",
@@ -11959,6 +12144,13 @@
       "source_sha256": "4d707aa0eaf16f155c1dbd500ad44a8ebaaab217e8c66d4a30d334c1b3b61ae9",
       "text": "Measure a project and reconcile it against the artifact registry.\n\nOne walk of the tree, then every file is attributed to the registered\nartifact whose path contains it — longest path wins — or to nobody. The\nper-kind numbers come from the filesystem; the registry's own\n``size_bytes`` is reported alongside so drift between the two is visible\nrather than assumed away.\n\n:param root: the project root.\n:param registry: an open :class:`spacr.artifacts.Registry`. Omit and one\n    is opened for ``root`` when a registry file exists — including the\n    shared one :data:`spacr.artifacts.ARTIFACTS_DB_ENV` points at. A\n    project with no registry is scanned anyway, and reports every byte as\n    unregistered, which is the correct answer and the reason nothing in\n    it is prunable.\n:returns: a :class:`ProjectUsage`.\n:raises DataManagerError: when ``root`` is not a directory."
     },
+    "spacr.data_manager.scan_project._bucket": {
+      "source_blocks_sha256": [
+        "12188501160ae33e03560b6ccb3aaac7de03dbdb91da23e4d67ce1c7b40a781f"
+      ],
+      "source_sha256": "12188501160ae33e03560b6ccb3aaac7de03dbdb91da23e4d67ce1c7b40a781f",
+      "text": "Return the shared zero-initialized counters for ``kind``."
+    },
     "spacr.database_concurrency": {
       "source_blocks_sha256": [
         "658b2ce99adf1eb7384e32327f625c7ebd91e99c97f2fcdf88a1544a0d379b2c",
@@ -12044,6 +12236,22 @@
       ],
       "source_sha256": "28c3f62814a0879bed1fc0cae72f02d421eb9026955356d09fa66d1bfd68939c",
       "text": "Return a JSON-serializable snapshot."
+    },
+    "spacr.database_concurrency._run_probe.reader_task": {
+      "source_blocks_sha256": [
+        "7befae695c5e32b346de0a9b313844ea864447ee90ac2132102435a31737e78e",
+        "d03f01ebe8119580eec9f1adca4b0e51863e91886a252cb36849f4f6ba9983eb"
+      ],
+      "source_sha256": "72c300dc0d6629057b1e0ce08ff2632631a545506bed44be4e7e78bc8bd63581",
+      "text": "Poll during writes, then contribute this reader's query count.\n\nA final query observes the completed database; failures are collected\nand the thread-owned read-only connection is always closed."
+    },
+    "spacr.database_concurrency._run_probe.writer_task": {
+      "source_blocks_sha256": [
+        "8c45b59273fe32c7bd6bafd56f4d1640c157262640f8766b4e4513106d7e0289",
+        "fa3865e32573b79b4bfbeecc6091898e25cb64e5837c0fa8f13d4051ca757a59"
+      ],
+      "source_sha256": "56c3cb837affc31952f992eb4a369490ce059b46b48da1d31ffe5a1bb36c75ce",
+      "text": "Insert this writer's rows and signal when the last writer exits.\n\nWorker failures are collected for the probe result, and the thread's\nconnection is closed whether setup, synchronization, or writing fails."
     },
     "spacr.database_concurrency.connect": {
       "source_blocks_sha256": [
@@ -13086,6 +13294,15 @@
       "source_sha256": "2e60da4cc20fc408b632c44bfaa6579d32cbe24735d6b12af123a37d42efd08a",
       "text": "Render :func:`estimate_diameters` output as a printable block.\n\n:param estimates: the mapping returned by :func:`estimate_diameters`.\n:returns: a multi-line string: one table row per object type carrying the\n    proposed diameter, its plausible range, object and field counts,\n    confidence and method, followed by the note behind each row."
     },
+    "spacr.diameter.format_estimates._line": {
+      "source_blocks_sha256": [
+        "6e89e59e414eb6342a342323de1ba5046a830d7ef8b2d2366d55182d596456fe",
+        "fc4845d3926e59eeaf03d72e7583667240272dfc91df26e584e0537f308c4fd6",
+        "2e360c1864f0dc2bd639f7b6326635a69669f49dcda97bce76a2c55666bc962f"
+      ],
+      "source_sha256": "d41c2d2193e19bcc73f0db5ab4984534829e8f1ad52be8f9f167303ce51f8f89",
+      "text": "Pad one report row to the captured column widths.\n\n:param cells: cell text in the same order as ``header``.\n:returns: two-space-indented, column-aligned text with trailing\n    padding removed."
+    },
     "spacr.doctor": {
       "source_blocks_sha256": [
         "72e5b7e4c9e69fd458f88622fe0d5841fba9bd4efb1c789b8e623d4b3ee4a270",
@@ -13371,6 +13588,14 @@
       ],
       "source_sha256": "4cb3c873659ff25ef81cfa7e53f515ef8adc84383e551489fe9e8ef5696b142a",
       "text": "What a drop on Make Masks is, and everything needed to act on it.\n\n:ivar kind: one of ``images``, ``folder``, ``nested``, ``folders``,\n    ``images_with_masks``, ``spacr_output`` or ``nothing``.\n:ivar images: image files, absolute, in drop order (``images`` and\n    ``images_with_masks``).\n:ivar folders: the folder dropped (``folder``, ``nested``), the folders\n    (``folders``) or the folders dropped with loose images (``images``).\n:ivar channel_folders: the subfolders of a ``nested`` folder that hold\n    images, naturally sorted; for ``folders``, the dropped folders.\n:ivar channel_like: whether :attr:`channel_folders` look like one\n    channel each -- names such as DAPI or ch1, or the same fields in\n    every one.\n:ivar masks: ``{image path: mask path}`` for ``images_with_masks``.\n:ivar unpaired_masks: masks that no dropped image claims.\n:ivar open_folder: for ``spacr_output``, the image folder to open, or\n    None when there is none.\n:ivar description: one plain sentence saying what a ``spacr_output``\n    drop is.\n:ivar unrecognised: dropped paths used for nothing, each with the reason."
+    },
+    "spacr.drop_classification._spacr_output.npys": {
+      "source_blocks_sha256": [
+        "07308735ef99cb245fdfe4280c9ad265cb8a866161c9029039363cd9551c544b",
+        "db9aade428bf167bd1cd5c89378d6af5dcfdf97f732c313ffb9a208f840a166d"
+      ],
+      "source_sha256": "bc06e95f5f2cbc6a72ee541afa34a7cff8cbf8d7b039dfb8ac529380a3acd82e",
+      "text": "How many ``.npy`` files sit directly in ``path``.\n\n:param path: a folder."
     },
     "spacr.drop_classification.classify_drop": {
       "source_blocks_sha256": [
@@ -15479,6 +15704,16 @@
       "source_sha256": "1d1f5a8766a5536f304d315392a34f9718c725828404046e77959020b47a9439",
       "text": "Return one sentence naming what stopped scene output."
     },
+    "spacr.figures.scene._plain_text._script": {
+      "source_blocks_sha256": [
+        "56d91a54f4df9307737430e159a61956194f5caf637eb961b421aa56fb9a8325",
+        "53bf6e350922fcc840589c71842d642a469cccd8952801a7ece02516efbc8fd3",
+        "32974c193d279fa0a86168b4594e9636dee6071869e5cee54da2d19876dbe979",
+        "ebae9084405c064a40edbcae639a2f4d0d2a399efeb4da98072dd79898cb1db4"
+      ],
+      "source_sha256": "d7df44bc8d7b696e8b0746863649b6415f69d20aceda1ad11ca323d7aa083655",
+      "text": "Translate an entire captured regex script run or none of it.\n\n:param match: regex match whose first group is a super/subscript run.\n:param table: Unicode translation mapping for that script position.\n:returns: the fully translated run when every character is supported;\n    otherwise the original matched source unchanged, allowing the\n    caller's leftover-marker check to reject unsupported mathtext."
+    },
     "spacr.figures.scene.build_scene": {
       "source_blocks_sha256": [
         "38100e2e85aab8b73651429f0255c3ef022d86ec6967afbdd64700cfd908271b",
@@ -16391,6 +16626,15 @@
       "source_sha256": "b1f82e9e5c1f5ac02d7abb135976b020b81f51fa1a3a8b575ab4dae53d4e6983",
       "text": "Own the event queue and the only mutable copy of a run graph.\n\nProducers call :meth:`emit`, which never waits for queue capacity but may\nbriefly contend for the queue lock. A saturated queue drops its oldest\nevent and records that the resulting display is sampled. Renderers consume\nrecursively detached graph snapshots rather than sharing the collector's\ndictionaries.\n\n:param graph: run graph to copy recursively; later changes to the caller's\n    node parameter dictionaries cannot alter collector state.\n:param max_queue_size: positive integer count of events that may wait\n    before the oldest is dropped. It is a bound on memory, not on\n    throughput: a producer never waits for capacity, so this is the number\n    of events a slow renderer may fall behind by before the display becomes\n    sampled rather than complete.\n:raises ValueError: when ``max_queue_size`` is not a positive integer.\nCopy one graph and initialize its bounded event stream.\n\n:param graph: run graph whose nodes, metrics, parameters, and edge\n    container are detached from caller-owned state.\n:param max_queue_size: positive integer maximum of pending events\n    retained before the oldest is discarded and :attr:`sampled`\n    becomes true.\n:raises ValueError: if ``max_queue_size`` is not a positive integer.\n\nRecursive-copy errors from caller-provided node payloads propagate."
     },
+    "spacr.flowview.collector.Collector._fold_unlocked.add_metric": {
+      "source_blocks_sha256": [
+        "9a3371bd5f7d3758f534cc228018f265ec9e09f899ebc2d84ce2b1e394d4ebe8",
+        "a2324897e2eadd738bb9ce5b93d26485ab26c4237543bde9a9972b69aa99d3ae",
+        "d06c04900e01cae15d157e14c81bd26b473b71ea47447fde00467c66aa657656"
+      ],
+      "source_sha256": "5f707b4f54ddade2432625f50cd3850f154c41d38a5f1057427fc3e618e4eb7a",
+      "text": "Return a detached node carrying the captured metric event.\n\n:param node: existing run-graph node to update.\n:returns: a dataclass copy whose detached metrics mapping sets\n    the captured event's name to its value. The input node and\n    its original mapping are not mutated."
+    },
     "spacr.flowview.collector.Collector.clear_sampled": {
       "source_blocks_sha256": [
         "a234162ae8c8dfa4ca1397f120682d69a105f323f8e682b64099eb8660304272",
@@ -16811,6 +17055,17 @@
       "source_sha256": "d08c0c9cedc7ac4693f2fca72889aadd46f8d48dd1d08695d5c77f9181a0a928",
       "text": "Vertical centre used when routing edges."
     },
+    "spacr.flowview.layout._reorder.key": {
+      "source_blocks_sha256": [
+        "45c4715bf8a12b22116c5160191f1e0de2a1d1d7d3ea827e2c6a336ef9185d30",
+        "35977b3d57dec61b4d570d578222f6bf75b819ea1b58f2b28d17493252dd38cf",
+        "c506fbbae30a3a2d807894eea921347af37bd73be1e94e1a330a3954c41ebf00",
+        "0eb1ed7b486916de5bed79a597a1e89301c392671b0254b5318f80e0f8d539fd",
+        "b4410f6b607c5c88dad653262f4627f9155c40a32b016dbb23dc930844a5737d"
+      ],
+      "source_sha256": "79389f65fd8bf200cc1dd57284e605626a63f5b6f66a3134872fc7426a563e70",
+      "text": "Rank one node for the current median-sweep layer.\n\n:param node_id: node to rank within the layer being reordered.\n:param current_layer: loop layer captured when this key is built.\n:param current_positions: that layer's pre-sort positions, captured\n    to preserve deterministic ordering for ties and isolated nodes.\n:returns: connected nodes first by the median position of their\n    cross-layer neighbours, then prior position and identifier;\n    unconnected nodes follow in their prior deterministic order."
+    },
     "spacr.flowview.layout.layout_graph": {
       "source_blocks_sha256": [
         "27d627c6ad46018718ccee9601a0d072f7f228f4a05a6452c7f8a20b46384f28",
@@ -17193,6 +17448,16 @@
       "source_sha256": "2bc01b48c6620971f91a6134f67c7138e37f69d1d979124900240b64e0661a5d",
       "text": "Low-cost, failure-isolated instrumentation for FlowView stages."
     },
+    "spacr.flowview.trace._StageSpec.__call__.traced": {
+      "source_blocks_sha256": [
+        "727db0f3ab93841373db34f6113b63bfc153d54539c95f9c1443b0300c758478",
+        "f90fa52d96b526604236e2bee059e824be446209df9f5398d69fb471ad26a84d",
+        "583759d0a8584de1ada15b2a36292df2f906842f176cca6c6abc8f5f4050a450",
+        "383fbc27dac7204f9f35b37cf7458ca6e88ca6a4e3a7edfc0d0372dd17c71f56"
+      ],
+      "source_sha256": "ab4052907cf3236a7a5c3abe51e13722aea68687427facdcbd159258ccc38e78",
+      "text": "Call the captured function with optional stage tracing.\n\n:param args: positional arguments forwarded unchanged.\n:param kwargs: keyword arguments forwarded unchanged.\n:returns: the captured function's result. Enablement is rechecked\n    at invocation time; enabled calls run inside a fresh stage\n    runtime, which records completion or failure while preserving\n    the original exception."
+    },
     "spacr.flowview.trace.disable": {
       "source_blocks_sha256": [
         "73d915273880f5c3f93695ef0015adcb4cf91e0b51093e3459b317980f1263c6"
@@ -17288,6 +17553,22 @@
       ],
       "source_sha256": "385ffd21193a996871fba4838c5cf35fe624f2477f38ccee71ac6aa2065d9887",
       "text": "Copy every file under ``source`` into one new folder, named by folder path.\n\nEach copy is named after the folder path it came from, from ``source``'s\nown name down, parts joined by ``_``; a file directly in ``source`` is\nnamed after ``source``. Several files in one folder are numbered\n``_2``, ``_3``..., in sorted file-name order. The originals are never\ntouched.\n\n:param source: the folder to consolidate.\n:param output: the NEW folder to create; default\n    :func:`default_output_folder`.\n:param extensions: copy only these extensions (e.g. image types); None,\n    the script's behaviour, copies every file.\n:param skip_dirs: folder names not descended into, case-insensitively\n    and with or without a numbered ``_2`` suffix.\n:param log: called with progress lines; default prints them.\n:returns: a :class:`ConsolidationResult`.\n:raises ValueError: when ``source`` is not a folder or ``output`` exists."
+    },
+    "spacr.folder_consolidation.consolidate_folder.record": {
+      "source_blocks_sha256": [
+        "193e5a6ec9401ed51a1f712dcd41f4c7cee39764f32693c61c53edaab40ecda9",
+        "354f54444d6aa535ac233de1c65c4ef34e38fcb7bc6c9d8e77959a9fc6a5dd7f"
+      ],
+      "source_sha256": "90caba109317196f385a1ecf2583ae6629a2b8fcdd686020d42bc4cc9b65aa1f",
+      "text": "Write one manifest row and keep it on the result.\n\n:param row: ``(original, new name, status, error)``."
+    },
+    "spacr.folder_consolidation.consolidate_folder.walk_error": {
+      "source_blocks_sha256": [
+        "3812c916ab54e8af7fbbf9355f24d5a31f2eedbcc46470e0ca77d9dd45f9604d",
+        "2231d27aedcd3211cd80c3e2e2972a6d7ac676a56845685d64f7ac8e3a8c6c5d"
+      ],
+      "source_sha256": "1fa0d0dc5130add422eb95f9f28327aae56ae27fec4d9a0ae937fe98bb8b868d",
+      "text": "Record a folder ``os.walk`` could not read.\n\n:param error: the OSError it raised."
     },
     "spacr.folder_consolidation.copy_and_rename": {
       "source_blocks_sha256": [
@@ -18266,6 +18547,19 @@
       "source_sha256": "453c90b6924360f73ec6761fa9999ad9f07286730da2a6ba73c29353a05a84e5",
       "text": "``residues 62-78 (17 aa)``."
     },
+    "spacr.gene_facts._segment_index.collect": {
+      "source_blocks_sha256": [
+        "e0c7fbd6d1c55ee2c36c8659131abb6e924ff4b10e4f88105cd7f2517ee9651a",
+        "1f3a3077ad43e4c14fef81839bad065976801c7142212a66c7d53056513886e8",
+        "109427afd3b940bd70335c5b62b457257199395650d4c6925826e69fa16b5374",
+        "891d31fd8b69565b4f2bdd45b7cfe9599adf88c10acb863735314944a39204bb",
+        "aabc7d1a2181330d43cb69d88044e10a0fbf016e9bee1a9f57b1ac95947e5590",
+        "be4c72fcc44a09c5a7224aaf1b25018736a0053823a0f014558119a9dbfef83f",
+        "59caed2f0c5185290f396246ad533afc357853dd1946ea4bc603b787b7eece22"
+      ],
+      "source_sha256": "c6053b0877be0fe9cdc34d63e91bad6b7461686091dbd0ecb79e859ece4b2774",
+      "text": "Collect one supplementary-table segment slot by gene.\n\n:param kind: segment family recorded on each result.\n:param index: one-based position within that family.\n:param start: supplementary column holding the first residue.\n:param end: supplementary column holding the last residue.\n:param length: optional supplementary column holding the segment span.\n:returns: None. Missing coordinate columns and invalid gene IDs are\n    skipped; valid rows append to the captured index using a finite\n    recorded numeric length or the inclusive ``end - start + 1``\n    fallback."
+    },
     "spacr.gene_facts.available": {
       "source_blocks_sha256": [
         "7d09f6b8cf64639c9ad42555431a254d53e5ae286c68ffa924dcbfc3b7694897",
@@ -18579,6 +18873,15 @@
       ],
       "source_sha256": "f7047566c877285d152c7ffc312ebbd168d17e71282c409fd2c214184b419929",
       "text": "Rows past the correction, optionally past a circularity bar too.\n\n:raises ValueError: a circularity bar was asked for and the score\n    never joined to the wells. Filtering on a column of NaN returns\n    nothing and looks like a result."
+    },
+    "spacr.gene_measurement_sweep._order_like_neighbours.order": {
+      "source_blocks_sha256": [
+        "33b6cd1d52858ae1ffc07f7ac0e8d4056c0b091241e8aa93e9f18e8e56d2ae58",
+        "b0a04ccdf0bea42f3886e3c15d98fb7e2ee35fd0314e3420cf896d7e2cbc5634",
+        "30505fd513005ee83d86b49f34dc79fac91d2f3e457953f661b0fb7c6f22c623"
+      ],
+      "source_sha256": "aaf5574b83f5ae4352f5066c61350cd60515b52cc7ccf0e37a10d649b8a57fba",
+      "text": "Order one matrix axis by correlation-cluster neighbours.\n\n:param matrix: numeric two-dimensional rows to arrange.\n:returns: identity indices below three rows; otherwise average-\n    linkage leaf indices from correlation distances. Non-finite\n    matrix values are normalized for distance calculation and\n    undefined distances become 1.0. Any clustering failure is\n    handled by the parent's mean-order fallback."
     },
     "spacr.gene_measurement_sweep.gene_fractions": {
       "source_blocks_sha256": [
@@ -19134,6 +19437,15 @@
       "source_sha256": "c8514b7e7f5a331999a2b8be379dda300ce70b3a776a5b4f4bb7e99677a488e2",
       "text": "Classify the axis structure of a data frame.\n\nParameters\n----------\nframe : pandas.DataFrame\n    Source data.\nx, y : str, optional\n    Column names assigned to the horizontal and vertical axes. An empty\n    ``x`` represents an ungrouped continuous distribution.\n\nReturns\n-------\nstr\n    Key from :data:`DATA_SHAPES`. A numeric, unique, monotonically\n    increasing x-axis is classified as ordered continuous data."
     },
+    "spacr.graph_types.shape_of.kind": {
+      "source_blocks_sha256": [
+        "867dd5072e2fe0279cf562e0744e58d479dfec00b428bb073d5498bb64019872",
+        "e415f05e0bd6a7089fe9c0e22ec6b4fbe3d9f161ddf9e59b4c547ddb04a0dc5f",
+        "9b60affcbe94d1ccbe2f3ffcff7bd0f7686a6e817dcec096d0ae476a60118a68"
+      ],
+      "source_sha256": "4aea6dfa78ecf283b651e8f5d442a5947921a2415bebfe11217f3c974c5df27d",
+      "text": "Classify one candidate axis against the captured data frame.\n\n:param name: column name assigned to the axis, or an empty string for\n    an unassigned axis.\n:returns: ``'absent'`` when the column is unavailable,\n    ``'continuous'`` for a numeric column, or ``'categorical'`` for\n    every other present column."
+    },
     "spacr.graph_types.start_for": {
       "source_blocks_sha256": [
         "4e6a1c02338bb9254f85633364a21ca3b6bd3be5f1d1c2087745ef83624739b6",
@@ -19219,6 +19531,14 @@
       ],
       "source_sha256": "33b21af87a7a4d56b18ce9ff32ecd95087c5b24305ea6f3dc4dc6375a89b28b9",
       "text": "Select a group-lasso penalty by held-out prediction error.\n\nA candidate is eligible only when its fit on the complete dataset selects\nat least one column allowed by ``required`` and its held-out error is\nfinite. If a penalty path contains no eligible candidate, progressively\nsmaller penalties are evaluated for up to :data:`PATH_EXTENSIONS`\nadditional ranges. If no eligible candidate is found, the smallest\npenalty evaluated is returned.\n\n:param X: two-dimensional design matrix with one row per well and one\n    column per guide.\n:param y: response values aligned to the rows of ``X``.\n:param labels: group label for every column of ``X``; guides sharing a\n    label are selected or dropped as one block.\n:param folds: how many held-out splits. Wells, not guides.\n:param required: optional boolean mask over COLUMNS. A penalty counts as\n    selecting only when one of these columns is non-zero. Defaults to\n    every column.\n:param seed: fixes the split, so two runs of one screen agree.\n:returns: the chosen penalty, as a float."
+    },
+    "spacr.group_lasso.choose_lambda.score": {
+      "source_blocks_sha256": [
+        "de2afd9ac420ca06ccf25bdfa3dbc2e0762689a6a90ab01d2e791c4716b86090",
+        "c4e83c9ea6fcfd27d4f4a3c274db0ca8a7eaf98255eee25714e173743276f2c0"
+      ],
+      "source_sha256": "af2880b6464d284ab685a19cd3d7c0a4695da5c38f8d292c8903fa14b523170a",
+      "text": "(errors, selects) for one path, both aligned to ``candidates``.\n\nTHE ERROR IS HELD-OUT AND THE SELECTION IS NOT. Whether a penalty\npredicts well is a question about unseen wells; whether it selects\nanything is a question about THE FIT THE CALLER WILL GET, which is\nfitted on every well. Reading selection off the folds instead picked\na penalty at which four fifths of the wells kept a gene and all of\nthem together kept none -- measured on the tsg101 screen, where it\nchose 0.000183 and the full fit was empty."
     },
     "spacr.group_lasso.describe": {
       "source_blocks_sha256": [
@@ -21294,6 +21614,13 @@
       "source_sha256": "090860059500be940ee2ab9b126bc6ed449a2e9c37be2efb9c1201263ba887ab",
       "text": "Persist ``field_id`` after its corrected pipeline output is durable.\n\n:param field_id: identifier of a field already passed to\n    :meth:`correct`, compared as a string; an uncorrected field raises\n    :class:`IlluminationError`.\n:returns: ``True`` when the record changed, ``False`` when the same\n    completed field was marked again."
     },
+    "spacr.illumination._lenient_profile_json._value": {
+      "source_blocks_sha256": [
+        "6b97aebca3d788acd35ce841acf4156029b5c802e731422bd986576a0d3416cc"
+      ],
+      "source_sha256": "6b97aebca3d788acd35ce841acf4156029b5c802e731422bd986576a0d3416cc",
+      "text": "Quote a bare profile value while preserving JSON booleans and null."
+    },
     "spacr.illumination.disable_illumination_correction": {
       "source_blocks_sha256": [
         "c23c7db47a3820eeb74ab7a347410a3bd6fcfeb8526e8fbd142e636a5a442b11",
@@ -21949,6 +22276,21 @@
       "source_sha256": "a39596617b313eaa6d59e3ebc9817212325715d1f02b10ebfb50175217c4f811",
       "text": "Where one tile goes in the mosaic.\n\n:param tile: the tile's own index, as the filename gave it.\n:param row: its row in the grid.\n:param col: its column in the grid.\n:param y: top edge in mosaic pixels.\n:param x: left edge in mosaic pixels."
     },
+    "spacr.image_stitch._position_from._first": {
+      "source_blocks_sha256": [
+        "0532ed3e03a22edf946dd1a2c13acb6a1b7eca45e78d34a81d9ff03da44009c9",
+        "f49527a59e613d9bef10f733043e6ce3e6606966432196b4b475fe836a9c8c7f"
+      ],
+      "source_sha256": "c51ff7ae05b7ed66c80905d6e47ab0b431f49df13a6275dfc79d22cf76e75ea8",
+      "text": "The first number ``pattern`` captures in the OME block, or None.\n\nThe XML is read with a regular expression rather than parsed because\none attribute is wanted from a document whose schema version varies,\nand a parser that must know the namespace fails on the versions it\nhas not been told about."
+    },
+    "spacr.image_stitch._sliding_ncc._prefix": {
+      "source_blocks_sha256": [
+        "763402fb17632ef7350aeaf8e3c274dae9629d14b698b1f414bb8c5c0183385a"
+      ],
+      "source_sha256": "c42e086dd64edf52f93ad580bee2d3720107506908935d5366363997069d1de9",
+      "text": "Running totals with a leading zero, so ``p[b] - p[a]`` is the sum\nover ``[a, b)`` for every window without a loop over windows."
+    },
     "spacr.image_stitch.arrangement_of": {
       "source_blocks_sha256": [
         "2299df9598d93b84ddaa3d3554aa7156a3a6df05187f43bbec8bf58b0357cfe9",
@@ -22251,6 +22593,18 @@
       "source_sha256": "93b38e09a38564f280420b1047a2f5c16cc571a55f73c90ad607e75b77ef3107",
       "text": "Infection metrics per well, each with the denominator it was computed over.\n\nEVERY ROW CARRIES ITS DENOMINATOR because that is where these numbers go\nwrong. ``infection rate`` over \"cells\" and ``parasites per infected`` over\n\"infected cells\" are different populations, and a table that reports only\nthe ratios cannot be checked.\n\n:param db_path: path to a ``measurements.db``.\n:param by_field: group by field as well as well, which is what shows a\n    settling gradient a well mean hides.\n:returns: tidy frame -- identity columns, then ``metric``, ``value``,\n    ``denominator`` and ``n_denominator``. Empty when there is no cell\n    table to count."
     },
+    "spacr.infection.infection_report.add": {
+      "source_blocks_sha256": [
+        "a17190c9459fcd18437987dfe28c03d9410c0e9acb5ea40efc1b32949e5c0082",
+        "c70297f2e56690a74dbffe70fd0d59ad10879d4a23c69840c8407b3fc868f777",
+        "39975e2fd079b89fc95607aefa57cee19d3eb4456fe6bf5724c0cc897f535cf8",
+        "d080f694483fedcdcf5b24a366fd589df6dbb49424068bb3d891d33ccb02da9d",
+        "216845f0444df37cfec42cfadb57474ce8537849a90f78e76730d6880f612901",
+        "5c3d63da4ba08342b60700ba1f340f24688da43c0bc24be036451da309506374"
+      ],
+      "source_sha256": "76ef42a6703a15215b83978571bc0d6457273ba466f41d58ee9eb68afe2ce57e",
+      "text": "Record one metric together with the population it is over.\n\nThe denominator travels with the value rather than being implied\nby the metric's name, because two of these are ratios over\ndifferent populations and a reader cannot check a ratio whose\ndenominator they have to guess.\n\n:param metric: the metric's name.\n:param value: its value for this group.\n:param denominator: what the value was computed over, in words.\n:param n: how many things that denominator contained."
+    },
     "spacr.infection.multiplicity_distribution": {
       "source_blocks_sha256": [
         "8c98d10f568d0961d2e45bfee7bbeff564a3eb971e83777f9563645d6a5e4811",
@@ -22514,6 +22868,15 @@
       ],
       "source_sha256": "512670cb55ba3a124c69360a72c7efd3e053d2eea071ee693dac59db8d8228f1",
       "text": "Inspect all fields and return a JSON/pickle-safe plate scaling plan.\n\n:param src: directory containing the merged array files.\n:param filenames: merged-array filenames to inspect as one plate set.\n:param settings: resolved parsing and mask-plane settings.\n\nRaw-valued fields on a plate share ``65535 / plate_max`` when any one of\nthem exceeds the uint16 ceiling.  Normalised floating-point fields retain\ntheir well-defined fixed conversion of ``x65535``.  A file that cannot be\ninspected is left in ``failures`` and its worker will make (and record) a\nper-field fallback decision."
+    },
+    "spacr.intensity_rescale.build_plate_plan._inspect": {
+      "source_blocks_sha256": [
+        "abfccc3ba4a898f8ea539ef6226ac5e315d35d39d616ff2572a08ca4e4838c57",
+        "590fbbf5d3b2a90995488b633a8bcfc1e3a2cc76b56e2331c292109622a485e0",
+        "6144968fb0d287042ce59b5ad372cddf3fe7e12b7b3cf41e43b18ea49f11f9af"
+      ],
+      "source_sha256": "7a6674d0497087637f8fc14415be735d280c9456646489922fbfabfb6165ad2c",
+      "text": "Read one field's dtype, intensity maximum and file stats.\n\n:param filename: merged-array filename inside ``src``.\n:returns: ``(filename, record, None)`` or ``(filename, None, error)``."
     },
     "spacr.intensity_rescale.fallback_record": {
       "source_blocks_sha256": [
@@ -24816,6 +25179,13 @@
       "source_sha256": "38ab0b9527d14c2e549cfa27a66fe62dfe25c37d9c3e081a74e691f6bb3d6c63",
       "text": "Three canvases showing all of ``source``, crossing at ``point``.\n\n:param source: a :class:`LayerStack`, a :class:`Layer` or a\n    ``{axis: (low, high)}`` extent mapping.\n:param width: the top view's width in pixels. Every other panel size\n    follows from it and from the world extents, so that the layout\n    lines up and nothing is squashed.\n:param point: where the crosshair starts, ``{axis: world}``. Defaults\n    to the middle of the volume, which is the slice a user opening a\n    stack wants to see first — slice 0 of a confocal stack is usually\n    empty.\n:param axes: the three world axes, depth first.\n:param margin: fraction of the extent to add on every side.\n:raises LayerError: if the source does not span all three axes — an\n    orthogonal view of a 2-D field is not a view, it is a mistake, and\n    silently drawing one plane would hide it."
     },
+    "spacr.layers.OrthoViews.covering._canvas": {
+      "source_blocks_sha256": [
+        "a842638eadc0115f9328f68d771180bdac215875eac46883d94c9f4a45ce7628"
+      ],
+      "source_sha256": "a842638eadc0115f9328f68d771180bdac215875eac46883d94c9f4a45ce7628",
+      "text": "Return a shared-scale ``Canvas`` for ``pair`` and ``shape``."
+    },
     "spacr.layers.OrthoViews.describe": {
       "source_blocks_sha256": [
         "fa1dd13fdf09560d690ec676f5d891cf6b02db81c22aac2d454c01909bcaf3f1"
@@ -25476,6 +25846,17 @@
       "source_sha256": "ac09d0d0a6534603dbd35728dc05ad845f06b2bf10ad041d65f4fd3f9a560063",
       "text": "The forest flattened: one row per node, with its parent and depth.\n\nFor export, for a table view, and for the tests — a tree is awkward to\nassert on and this is the same information in a shape pandas can compare.\n\n:param forest: root nodes as returned by :func:`build_forest`, flattened\n    depth-first in order; roots get an empty ``parent_key`` and depth 0."
     },
+    "spacr.lineage.lineage_frame.visit": {
+      "source_blocks_sha256": [
+        "4d9a700cc7b34bd062df132f7df0e86c73c4b7ec3951e3a3ee946dc562cb8c72",
+        "5f01e607a8d6cbe4376270a204572629982cf6c261fbda29f22fc72639fb744c",
+        "34cd61ada97b8c0b16c7b010d78ac89fdc9c2aa8d773c05a12d115871a5acd7b",
+        "a072f0a0379ae96a39817b077eb0ca560daf5f8f2badf02b408fbcc2d2b9c987",
+        "d9c14a3b39067443ec69f49a872b89a2678edbcd045507059f90cd54090288e4"
+      ],
+      "source_sha256": "46e9747850ce47179c28691c5b749a9970e37235eacca1fbe9313cb4dd28e036",
+      "text": "Append one node and recursively flatten its descendants.\n\n:param node: lineage node to record before visiting its children.\n:param parent: key of the caller-supplied parent, or an empty string\n    for a root.\n:param depth: zero-based depth to store for this node.\n:returns: None. A row containing node metadata and its current child\n    count is appended to the captured list, then children are visited\n    in their existing order with this node as parent."
+    },
     "spacr.lineage.node_key": {
       "source_blocks_sha256": [
         "93aa8c7768e3fe68988c580b0466d96089d64d922eff58e61055d00c46b9a188",
@@ -25594,6 +25975,13 @@
       ],
       "source_sha256": "c82ce3f478be54c86982fdaf5b34fb070203edd5f024fd5d0a7062877129bb21",
       "text": "Decorator that logs call arguments, return value, and exceptions.\n\n:param func: Callable to wrap.\n:returns: Wrapped callable that emits INFO-level trace entries."
+    },
+    "spacr.logger.log_function_call.wrapper": {
+      "source_blocks_sha256": [
+        "d6852d59f9a44244b4b4a5ad4e32b9797bc6ed80a286194a4220ce06542923d1"
+      ],
+      "source_sha256": "d6852d59f9a44244b4b4a5ad4e32b9797bc6ed80a286194a4220ce06542923d1",
+      "text": "Emit call/return/exception log lines around the wrapped call."
     },
     "spacr.logging_util": {
       "source_blocks_sha256": [
@@ -25821,6 +26209,20 @@
       ],
       "source_sha256": "ce4db1df9c6c25e9eb5cacaa7d525c6e6736f293d6d1d0fbcceab58953234b5d",
       "text": "Decorator that logs wall-clock time for every call to ``fn``.\n\nUsable as ``@timed`` or ``@timed(name=\"…\", level=DEBUG)``::\n\n    @timed\n    def preprocess_generate_masks(settings):\n        ...\n\n    @timed(name=\"cellpose.batch\", level=logging.DEBUG)\n    def _run_batch(...):\n        ...\n\nLog line format: ``func_name took 1234.5 ms``. The logger name is\n``spacr.timing`` unless the wrapped function's module starts with\n``spacr.``, in which case that module's logger is reused so\ntimings interleave with the function's own log records.\n\n:param fn: the function to wrap (when used as ``@timed``).\n:param name: override the label used in the log line.\n:param level: logging level for the \"took Xms\" line."
+    },
+    "spacr.logging_util.timed._decorate": {
+      "source_blocks_sha256": [
+        "aeed4222ba2579c83759f2c387d5ced839a49440be6d25bc93ab459d23f2208f"
+      ],
+      "source_sha256": "aeed4222ba2579c83759f2c387d5ced839a49440be6d25bc93ab459d23f2208f",
+      "text": "Wrap ``inner`` with the selected label, logger, and timing marks."
+    },
+    "spacr.logging_util.timed._decorate._wrapped": {
+      "source_blocks_sha256": [
+        "03548b0f942646e308d4ca385788dc32393da8928f4f58d95e4bdbd96bbe48c3"
+      ],
+      "source_sha256": "03548b0f942646e308d4ca385788dc32393da8928f4f58d95e4bdbd96bbe48c3",
+      "text": "Call ``inner`` and log qualifying elapsed time, even on error."
     },
     "spacr.macro": {
       "source_blocks_sha256": [
@@ -27357,6 +27759,26 @@
       "source_sha256": "d5188c6de9307d25d9801dcdbdc5271816dee1207bf9eaee18a00f900b9cf84b",
       "text": "Build the single request a GUI displays for every missing column.\n\n:param frame: metadata frame whose current columns and examples are shown.\n:param required: canonical columns that the calling workflow requires."
     },
+    "spacr.metadata_resolution.build_metadata_request.comparable": {
+      "source_blocks_sha256": [
+        "8b204d35d700537f277db56cac5c7cb1c69d1daa9372076ddefbcf8dba891c3f",
+        "46e9c3c4406bc6689395106baab4fdeb49bf47322ba18826174726140ef79281",
+        "112f7f71fd691ef5ee767aeff5dfb1e185cd6e27ead90ed2852f178225c9e955"
+      ],
+      "source_sha256": "c0a495082c256da9db5d059cecf3cc2a1058f63294ae6c4fdbfb94cde27a0c34",
+      "text": "Reduce a metadata name to case-insensitive alphanumeric text.\n\n:param value: canonical or source column name to compare.\n:returns: case-folded name with punctuation and whitespace removed."
+    },
+    "spacr.metadata_resolution.build_metadata_request.guess_score": {
+      "source_blocks_sha256": [
+        "a82bc8e7c9eb14bec8a4bb9ae917960a06996e68adcc850dabab5837a112b564",
+        "295b455e62376ee27dec17ad4acef9de87428e8881d98dc89ebfeb03f288d65f",
+        "c5c3a73117d07e8152a83919e25e7547cbb3068b9204554e81844774b50cf779",
+        "9b7b5d2de1ea46466addf249d3f6864938610ec42a56765eb6fb3599987b6f28",
+        "fe60fe51af78e880150940a6d78216c91a341cbbfc1785ba3eae409e22e3a9cc"
+      ],
+      "source_sha256": "f0cbb532695dd1012f970c402d3e761a8c20f073b0ca3f9c1609cdbcca276cbf",
+      "text": "Score one available column against the current missing target.\n\n:param source: available source-column name to rank.\n:param target_key: normalized current target, bound when the scorer\n    is created so the surrounding loop cannot change it.\n:param target_root: target without an ``id`` or ``label`` suffix,\n    likewise bound for this scorer.\n:returns: sequence similarity plus a root-name bonus when the\n    target without an ``id`` or ``label`` suffix occurs in the\n    normalized source name."
+    },
     "spacr.metadata_resolution.clear_run_metadata_decisions": {
       "source_blocks_sha256": [
         "6514e4a39d036aed9bad87a7b50a07715f00a51e35a17a577d0e7e93ec320ac8"
@@ -27669,6 +28091,22 @@
       ],
       "source_sha256": "05be30b03dd042401e59e8c9137e3c7f61dbb7f492c443782a0c44709d1dd272",
       "text": "Fit ``y ~ X + (1 | groups) + variance components`` by profiled REML.\n\nParameters\n----------\ny : array-like\n    Response values with shape ``(n_observations,)``.\nX : array-like\n    Fixed-effects design with shape\n    ``(n_observations, n_fixed_effects)``. A DataFrame preserves its\n    column names in :attr:`TorchMixedResults.fe_params`.\ngroups : array-like\n    Outer grouping labels with shape ``(n_observations,)``. A random\n    intercept is always included, equivalent to ``re_formula='1'``.\nvc : mapping of str to array-like, optional\n    Additional grouping labels. Each entry defines one variance component\n    nested within ``groups``, matching statsmodels ``vc_formula``\n    semantics.\ndevice : str, optional\n    PyTorch device. Requesting CUDA raises instead of falling back to CPU\n    when no CUDA device is available.\nmax_iter : int, optional\n    Maximum L-BFGS iterations. Typical screen-sized fits use 20--40; the\n    default of 400 is a safety limit.\nverbose : bool, optional\n    Print the deviance at each optimizer evaluation.\n\nReturns\n-------\nTorchMixedResults\n    Fixed effects, variance components, conditional fitted values and\n    residuals, BLUPs, convergence diagnostics, and timing information.\n\nRaises\n------\nMixedBackendUnavailable\n    If PyTorch or the requested device is unavailable.\nValueError\n    If input dimensions disagree or the fixed-effects design is not\n    identifiable.\nMemoryError\n    If the dense random-effects design exceeds the configured share of\n    available device memory.\n\nNotes\n-----\nValidation against statsmodels ``MixedLM(...).fit()`` produced the\nfollowing differences:\n\n==================== ================== ==========================\nquantity             nested fixture     screen-shaped fixture\n                     (1,620 rows)       (1,830 rows, p=388,\n                                        q=1,097)\n==================== ================== ==========================\nfixed effects        1.20e-7 absolute   2.39e-4 absolute\n                                        (2.0e-4 of one SE)\nvariance components  1.29e-3 relative   2.02e-4 relative\nresidual scale       4.12e-6 relative   1.94e-5 relative\nstandard errors      3.88e-4 relative   1.04e-3 median; 1.80e-2\n                                        maximum across 388\nguide BLUPs          7.64e-5 absolute   not evaluated\n==================== ================== ==========================\n\nBoth backends maximize the same REML criterion. On the screen-shaped\nfixture, this fit ended at gradient norm 1.3e-11 and log-likelihood\n-804.143968098; the default statsmodels fit returned -804.143968682.\nSetting statsmodels ``gtol=1e-12`` reduced fixed-effect disagreement to\n1.52e-8 absolute and fixture variance-component disagreement to 1.02e-4\nrelative.\n\nReference end-to-end times for that fixture were 11.3 s for statsmodels,\n0.80 s for this backend on CPU, and 0.47 s on an RTX 3090. Under concurrent\nCPU load, statsmodels took 21.3 s and the CUDA backend 0.57 s."
+    },
+    "spacr.mixed_gpu.fit_mixed_reml_torch._solve": {
+      "source_blocks_sha256": [
+        "cee5e421a6edc99a511d664b7e769af85e78cc6f56a4f7eca8718de80eee073d",
+        "ca2b82e19e6e9a1048195e2a42e8a6f9bde7fa9fb73ec2a4bc17b8b095f1e336"
+      ],
+      "source_sha256": "9afc52add8278a9bcad80d55bb3c28884c5c593da54b7c80eea7ff38368bda9d",
+      "text": "The profiled REML deviance at ``theta = exp(log_theta)``.\n\nReturns the deviance plus everything the caller needs afterwards, so\nthe final quantities come from the same factorisation that scored the\nfinal theta rather than from a re-solve that could differ."
+    },
+    "spacr.mixed_gpu.fit_mixed_reml_torch.closure": {
+      "source_blocks_sha256": [
+        "09d559bd09ab75a3338fc51b2424cc3ef2f1537140fd1ac5e4c348deb63e42cd",
+        "67b915088074149794aa3ad06a7c19b84673ed9da5a7376e5f64a87391eae5b7"
+      ],
+      "source_sha256": "e003fb4490f573585b5870dfb5199df75e5bdf4aa1cef8e6871fe9c0163028f1",
+      "text": "Evaluate and differentiate the captured LBFGS objective.\n\n:returns: differentiable profiled REML deviance at the current\n    captured log-theta. Existing optimizer gradients are cleared,\n    the deviance is backpropagated, and verbose mode reports its\n    numeric value with the exponentiated variance parameters."
     },
     "spacr.mixed_gpu.mixedlm_torch": {
       "source_blocks_sha256": [
@@ -28884,6 +29322,13 @@
       ],
       "source_sha256": "7d5ecfe16c6cd36edc455f37089c1cce1f3e93281680a41c0e91d228085e5c86",
       "text": "Run two models over the same fields and compare what they produced.\n\nEach model is loaded once and run over every field, A first, then B — one\nmodel in memory at a time, and the per-model wall clock in the report is\ntherefore a fair (if small-sample) comparison of their cost.\n\nThe segmentation call is an argument. That is what makes this reusable: the\nModel Zoo can hand in a different backend, and a test can hand in a stub, so\nnothing about this function needs Cellpose to be exercised.\n\n:param images: one array per field.\n:param model_a: a :class:`ModelConfig` or a mapping (see\n    :meth:`ModelConfig.from_mapping`).\n:param model_b: the other side.\n:param field_names: names for the rows; defaults to ``field_0000…``.\n:param segment_fn: ``fn(images, config) -> masks``; defaults to\n    :func:`segment_with_cellpose`.\n:param iou_threshold: passed to :func:`compare_masks`.\n:param containment: passed to :func:`compare_masks`.\n:param object_type: what is being segmented, for the seg_qc scorecards.\n:param qc: score each model's masks with :mod:`spacr.seg_qc` as well.\n:param keep_images: keep the images and masks on the report so a GUI can\n    draw them. Pass False for a headless sweep over many fields.\n:param progress: ``fn(message, done, total)``, called as the run proceeds.\n:returns: a :class:`ComparisonReport`.\n:raises ValueError: when there is no field, or a model returns the wrong\n    number of masks."
+    },
+    "spacr.model_compare.compare_models._tick": {
+      "source_blocks_sha256": [
+        "7fd61a5061c935fdfadd8ec8f2b322311db01061477c16c0db337aee9f645586"
+      ],
+      "source_sha256": "7fd61a5061c935fdfadd8ec8f2b322311db01061477c16c0db337aee9f645586",
+      "text": "Forward ``message`` and ``done`` with the fixed total; return ``None``."
     },
     "spacr.model_compare.format_comparison": {
       "source_blocks_sha256": [
@@ -31398,6 +31843,16 @@
       "source_sha256": "2fc7f7b50f1e28224fe23a08a51a77593e2ef2eac04bef426463ef3101cbc71e",
       "text": "The optional ``zarr`` extra is needed here and is not installed.\n\nBoth parents are deliberate. It is an :class:`ImportError` because a caller\nguarding an optional feature writes ``except ImportError``; it is an\n:class:`OmeZarrError` because callers experience this as another file\nthat could not be read, and code that wraps a whole read in\n``except OmeZarrError`` should not miss it."
     },
+    "spacr.ome_zarr._compose._pair": {
+      "source_blocks_sha256": [
+        "911034e5ea6bc3214c4714633f4076636319699dd4a24fcdb52c6c423baa5394",
+        "9b06f4c4178dd6577df6db8099bcd50e99b500fc765313bfb753641262141384",
+        "281b1ea31b8113dc1513ed28b7e0d89c64e24ce4c3ae3114ac7484cae1c0f891",
+        "f2170dde9137c56dfc48ccf1d56fa4d07027f7d054294a5e4b5e8b00a5a50858"
+      ],
+      "source_sha256": "5ecd3e7fae0da58cffea18ebbcdd870321ee33b00f049f1621612c714e824852",
+      "text": "Reduce one captured-dimension NGFF transform sequence.\n\n:param transforms: identity, scale, and translation mappings; a falsey\n    sequence represents the identity transform.\n:returns: mutable scale and translation lists of captured length\n    ``ndim``. Repeated scales multiply componentwise and repeated\n    translations add componentwise.\n:raises OmeZarrError: when an entry is not a mapping, a scale or\n    translation has the wrong arity, or the transform type is not\n    supported; messages include the captured source location."
+    },
     "spacr.ome_zarr.axes_from_spacing": {
       "source_blocks_sha256": [
         "74a7ef89c19b28e2e2d2b89d2e5f69198e5bd43208256728b622c24eaf3ec789",
@@ -33473,6 +33928,16 @@
       "source_sha256": "3aec2a3c4b8bc802f15bb834c0743094f978114426c08c82b0e6f9ef85e269e9",
       "text": "Absolute tile positions from the pairwise displacements.\n\nA LEAST-SQUARES SOLVE, NOT A WALK. Chaining placements from a seed\ngives every tile the accumulated error of whatever path reached it,\nand on a round well the paths are long; solving all the edges at once\nspreads the residual instead and gives one answer no matter which\ntile is called the origin.\n\nThe origin is pinned to the lowest-numbered site of each connected\ncomponent, so a well that registers in two pieces still returns both\nrather than failing -- the caller can see the components in the\nresult and say so.\n\n:param edges: ``(a, b) -> (dy, dx)``, b's position minus a's.\n:param sites: every site to place, including any with no edge.\n:returns: ``site -> (y, x)`` in pixels, one component pinned at the\n    origin and the others pinned at their own lowest site."
     },
+    "spacr.ops_solve.solve_placements.find": {
+      "source_blocks_sha256": [
+        "8f60b3b363dcba39be41b6fbec28f7376bcd7be40c3cd71fd29b7a75dbe4ff44",
+        "e0611ea339aabb9d5e5c76eb34b0dfb8a0b3d27c337a950689293b015e3ee206",
+        "e8b7734fdb12c74c06c86e9088a3cc5df7259b29301e1ef9d0f4858aecf52bc7",
+        "08001127a43976ae26fce819bf8796ba4d45ff98b40f326ad0766faa18bab924"
+      ],
+      "source_sha256": "26ba24b1961bac2ff4a608b4b8a497895d2f4dcfb62c8739fd2e0044cd60cad9",
+      "text": "The representative of ``node``'s component, path-compressed.\n\n:param node: a tile index.\n:returns: the index that stands for its connected component.\n\nHalving as it walks -- ``parent[node] = parent[parent[node]]`` --\nso a long chain costs its length once rather than on every later\nlookup. The components are what decide where the pins go, and a\ncomponent that is found twice under two names puts two pins in\none place and leaves another with none."
+    },
     "spacr.ops_stitch": {
       "source_blocks_sha256": [
         "844455288d4f68f13e53d9197cfa5409cea7fb2195a50d8adf13d0789f19eb25",
@@ -34198,6 +34663,15 @@
       ],
       "source_sha256": "79fe8b98b2cd7dbd75768d0537d08d129f8e5b02f1de56cfbb0d3f423d452e24",
       "text": "Draw the permuted residual against plate position, one row per block.\n\n:param residuals: the residuals that WERE PERMUTED.\n:param blocks: the block of each residual; the shuffle happens inside it.\n:param positions: ``{'rowID': [...], 'columnID': [...]}``, aligned to\n    ``residuals``.\n:param report: :func:`block_residual_report` for the same residuals; when\n    given, each block's Durbin-Watson and each column's pooled p-value\n    are drawn on the panel they describe.\n:param verdict: :func:`exchangeability_verdict` of ``report``; its remedy\n    is written under the panels, so the setting that removes a gradient\n    is named where the gradient is seen.\n:param removed: nuisance columns already removed before residualisation,\n    named on the figure so a run with position removed can be told from\n    one without.\n:param title: the figure's title, normally the outcome column.\n:returns: a :class:`matplotlib.figure.Figure`.\n:raises ValueError: if ``positions`` is empty or a column is misaligned.\n\nA GRADIENT ACROSS THE PLATE IS WHAT THIS SHOWS AND NO OTHER PANEL DOES.\nResiduals-vs-fitted shows spread and Q-Q shows shape; neither shows that\nrow A sits above row P inside one plate, which is exactly what makes the\nwells in that plate not swappable."
+    },
+    "spacr.permutation_qc.plot_residual_by_position._distance": {
+      "source_blocks_sha256": [
+        "1ad6162ed54f922f927ec615fa412b3aae92ba3f16c3e002656d0a3d82bbe693",
+        "107e6e3719612c8e7d54d5673b5ea319496f7b9e839117c2fd55501d5b2780de",
+        "856ac63fe91e206672868cee670145756caeff9d237bd849949cf9fb44267478"
+      ],
+      "source_sha256": "8df859bed618274c1c18a15b0a6d75204cd6f4365bc1614812cbd382f0fef263",
+      "text": "How far a block's Durbin-Watson sits from 2, or -1 without one.\n\n:param block: a block label from ``labels``.\n:returns: ``|DW - 2|``, so the most autocorrelated blocks sort\n    first; -1.0 when the report has no finite statistic."
     },
     "spacr.permutation_qc.position_effect": {
       "source_blocks_sha256": [
@@ -35912,6 +36386,20 @@
       "source_sha256": "da6486efc9614c8ed13e95f11f8e97ff8302f913147fd93a86802159c2194338",
       "text": "One concentric ring of the plate, compared against its core.\n\n:param ring: zero-based distance from the plate edge: zero is the\n    outermost ring, one is one well inward, and so on.\n:param n_wells: number of usable wells in this ring after minimum-count\n    and missing-value filtering.\n:param median: finite median of the per-well values in this ring, or\n    ``None`` when it is unavailable.\n:param mean: finite mean of the per-well values in this ring, or ``None``\n    when it is unavailable.\n:param delta: ring median minus the selected core median, or ``None`` when\n    either median is unavailable.\n:param pct: ``delta`` as a percentage of the absolute core median, or\n    ``None`` when the difference or baseline is unavailable or zero.\n:param p_value: two-sided Mann-Whitney U p-value comparing this ring with\n    the selected core, or ``None`` when the comparison is unavailable.\n:param cliffs_delta: signed Cliff's delta for the same comparison, in\n    ``[-1, 1]``; positive values mean this ring reads higher than the core,\n    or ``None`` when unavailable."
     },
+    "spacr.plate_qc._default_lims_fetch.SameOriginRedirect.redirect_request": {
+      "source_blocks_sha256": [
+        "362b869b3d48eecb5759c1725874447787245fd27868d7c8e684fd8fb0d1798f"
+      ],
+      "source_sha256": "362b869b3d48eecb5759c1725874447787245fd27868d7c8e684fd8fb0d1798f",
+      "text": "Refuse a redirected request that changes the LIMS origin."
+    },
+    "spacr.plate_qc._locate_records.whole": {
+      "source_blocks_sha256": [
+        "86c55b48f5c89ceeece0155c4ba7dd1f3fc08b4f6e0a7c50efdd5189091c82d0"
+      ],
+      "source_sha256": "86c55b48f5c89ceeece0155c4ba7dd1f3fc08b4f6e0a7c50efdd5189091c82d0",
+      "text": "Convert whole-valued floats to integers before parsing well labels."
+    },
     "spacr.plate_qc.colour_limits": {
       "source_blocks_sha256": [
         "17aae3cee11482a7db7793ce19195c0b9109a9dee5daf990a87d652a64185bfe",
@@ -37299,6 +37787,13 @@
       "source_sha256": "dcbaf4b08847559719165d7ee3c264c2d1e8484728ccd67a7b0b57803198ea04",
       "text": "Infer PSF calibration from image metadata, a chosen objective and defaults.\n\nEvery returned value carries its source. Precedence, highest first: a\nvalue passed here (``chosen``), the image's own metadata (ignored for the\nobjective's own magnification, NA and immersion once an objective is\nchosen), the objective table (the chosen row, else the row nearest a\nstated magnification), then the defaults: a 20x/0.75 air objective, a\n6.5 µm sCMOS pixel and 520 nm (GFP) emission. Immersion refractive\nindices are air 1.0, water 1.33 and oil 1.515.\n\nFormulae: pixel size = camera pixel / magnification (:func:`pixel_size_um`);\nlateral Gaussian FWHM = 0.51 λ / NA (:func:`lateral_fwhm_um`; Born and\nWolf §8.5.2; Zhang, Zerubia and Olivo-Marin 2007). A pixel size stated\nin metadata wins over the calculated one because it already includes\nbinning and adapters.\n\n:param source: an image file, a folder (its first TIFF, or ``orig/``'s)\n    or an iterable of paths; None uses the table and defaults only.\n:param objective_name: an :data:`OBJECTIVES` row name, or None/``'auto'``.\n:param camera_pixel_um: camera pixel pitch in micrometers.\n:param emission_nm: emission wavelength in nanometers.\n:param magnification: total magnification.\n:param numerical_aperture: objective NA.\n:param refractive_index: immersion refractive index.\n:param image_pixel_um: image pixel size in micrometers, one value or (Y, X).\n:returns: dict of :class:`OpticalValue` for ``objective``, ``magnification``,\n    ``numerical_aperture``, ``refractive_index``, ``emission_nm``,\n    ``camera_pixel_um``, ``pixel_size_um`` (Y, X), ``fwhm_um`` (Y, X) and,\n    when an image was read, ``image`` and ``image_shape`` (Y, X).\n:raises ValueError: for an unknown objective or implausible optics."
     },
+    "spacr.point_spread.infer_optics.pick": {
+      "source_blocks_sha256": [
+        "8237ac535efefc13f8dd7109847ed013adb5d4f7347606bb1070267e67ff23d8"
+      ],
+      "source_sha256": "8237ac535efefc13f8dd7109847ed013adb5d4f7347606bb1070267e67ff23d8",
+      "text": "Resolve one value: the argument, then metadata, then the table row."
+    },
     "spacr.point_spread.lateral_fwhm_um": {
       "source_blocks_sha256": [
         "47eae275461b1980de8fe758712d2ac856b2cf2901eac845d5a86bbfd7969cbc",
@@ -38452,6 +38947,20 @@
       "source_sha256": "8af0e054220db9882697e95c5eb81f2e7914c22d5d780d1dc14ecc0b08f06b63",
       "text": "Parse spaCR crop file names into the metadata ``prcfo`` is built from.\n\nEvery consumer of a classifier's results has to answer the same question --\nwhich object is this crop? -- and there is exactly one right way to answer\nit: :func:`spacr.utils._map_wells_png`, the parser\n:func:`spacr.utils.filepaths_to_database` used to write these very columns\nonto ``png_list``. Re-deriving them with the writer's own parser is what\nguarantees the two sides cannot drift apart.\n\nIt also recovers what a positional guess gets wrong.\n:func:`spacr.utils.process_vision_results` takes the object id as\n``path.split('_')[3]``, which on a *timelapse* crop\n(``plate_well_field_time_object``) is the **timepoint**, not the object.\n\n:param names: crop names or paths; only the basename is parsed.\n:param timelapse: whether the names carry a timepoint component.\n:returns: a DataFrame aligned to ``names`` with ``plateID``, ``rowID``,\n    ``columnID``, ``fieldID``, ``timeID`` (only when ``timelapse``),\n    ``object_label`` (the bare integer id, no ``'o'`` prefix) and\n    ``prcfo``. A name that cannot be parsed gives ``None`` throughout."
     },
+    "spacr.predictions.crop_name_metadata.bare_object_label": {
+      "source_blocks_sha256": [
+        "2734eee7e58aaaeb1b506c9888ee81fd7329205a849eb218c38a65273c3468c8"
+      ],
+      "source_sha256": "2734eee7e58aaaeb1b506c9888ee81fd7329205a849eb218c38a65273c3468c8",
+      "text": "Normalize a parsed object label and remove one leading ``o``."
+    },
+    "spacr.predictions.crop_name_metadata.convert": {
+      "source_blocks_sha256": [
+        "1a5fe4c204afc3833dac4ef8b61bc0f0e162851d33192682f7162a34d38d2634"
+      ],
+      "source_sha256": "1a5fe4c204afc3833dac4ef8b61bc0f0e162851d33192682f7162a34d38d2634",
+      "text": "Parse and cache one crop basename, or return all-missing metadata."
+    },
     "spacr.predictions.first_present": {
       "source_blocks_sha256": [
         "c686180bef83ed8e68f66d24f897336fc9a3f285b4640854fabfd34500a2379d"
@@ -38959,6 +39468,16 @@
       "source_sha256": "abc2524aa90112995f392c9ffe53560b5e34da8f3b49d851c23ea96169b87672",
       "text": "Find project folders under ``roots``.\n\nDescent **stops at a project**: a project's ``merged/`` holds ``.npy``\nfiles and would otherwise be reported as a project of its own, which is\nboth wrong and the kind of wrong that fills a table with noise.\n\n:param roots: folders to search. A root that is itself a project is\n    returned as one.\n:param depth: how many levels below each root to look. 0 means \"test the\n    roots themselves and nothing under them\".\n:param limit: stop after this many projects. A browser pointed at a home\n    directory must return *something* rather than walk a filesystem.\n:returns: absolute paths, sorted, de-duplicated."
     },
+    "spacr.projects.discover._walk": {
+      "source_blocks_sha256": [
+        "13a736905f5a6d03b2279588090fba3769611e1342cdd5ebdf3f2eaf454b5358",
+        "69f72aebf8005ba7d46dd39727af1840839051935a43f6cabb757420eb10ed82",
+        "17584986275a5a5f68eb27c77afdbf81c3aa4cefe50fc9560c2c5c1532de96a5",
+        "e6283b5c9ff646cb0cf1e5f0f7d4d4c16fc20a6efe84e1e7b3e03a7e0b020b61"
+      ],
+      "source_sha256": "05bcba94e1777ae3924d8613eb8d8fe3594d10191e5320be54aadc69b0ad49f2",
+      "text": "Traverse one directory within the captured discovery limits.\n\n:param path: directory to inspect for a project or descend through.\n:param level: distance below the current caller-supplied root.\n:returns: ``None``; discovered project paths are appended to ``found``\n    and resolved directories are recorded in ``seen``. Traversal stops\n    at a project, the depth or result limit, or an unreadable folder."
+    },
     "spacr.projects.evidence_ports": {
       "source_blocks_sha256": [
         "40e53e82b801870e7228ad9513c74776958e0148c7644fecb6b9bad1e1e3b79c",
@@ -39300,6 +39819,13 @@
       ],
       "source_sha256": "99556d0a422177d067fdb8895edc4dd035e6853bdbe860bdf750184c90084bc6",
       "text": "PySide6 (Qt 6) desktop interface for spaCR.\n\nLaunch the application with ``spacr``, ``spacr-qt``,\n``python -m spacr.qt`` or ``python -m spacr``. The last command also accepts\nsubcommands such as ``mask`` and ``measure`` to open a specific application\ntab.\n\nThe interface uses ``theme.py`` for its palette and QSS stylesheet,\n``widgets/`` for reusable widgets, ``screens/`` for application screens,\nand ``app.py`` for the main window and QApplication bootstrap."
+    },
+    "spacr.qt._install_quiet_qt_logging.handler": {
+      "source_blocks_sha256": [
+        "48df2e5cdc97ea8d6457d12def1424303d85dddfd9f7ec840f614a6ff6569532"
+      ],
+      "source_sha256": "48df2e5cdc97ea8d6457d12def1424303d85dddfd9f7ec840f614a6ff6569532",
+      "text": "Drop Qt's known-noisy messages and pass the rest through."
     },
     "spacr.qt.ai": {
       "source_blocks_sha256": [
@@ -42782,6 +43308,14 @@
       "source_sha256": "35354573dc1445629d0990fe8d8c445adf6f7a48c1914f4f304bf78ad4e3b94a",
       "text": "``{object key: crop path}``, resolved ONCE for a whole plot.\n\n:func:`spacr.active_learning.crops_for_object_keys` scans the crop table\nper call — right for opening a subset, ruinous once per hover event. This\nis the plot-time call: resolve every plotted point up front and let hover\nbe a dict lookup.\n\nThat function keeps the caller's order but *drops* keys it cannot resolve,\nso when everything resolves the answer is a zip and costs one scan. When\nsome keys miss, the returned list is a subsequence and no longer lines up,\nso the range is bisected: each half is asked separately until a half is\neither fully resolved (zip it) or a single key (resolve it or record the\nmiss). That is a handful of extra scans for a handful of missing crops,\nrather than one scan per key.\n\nKeys with no crop are absent from the result rather than mapped to ``\"\"``\n— \"this object has no crop\" and \"this object's crop is at nowhere\" are\ndifferent claims and only the first one is true."
     },
+    "spacr.qt.crop_thumbs.crop_paths_for_keys.resolve": {
+      "source_blocks_sha256": [
+        "0a85cac894e2d781352aceeddda3e2ef8132a857acbc8e787b862128b80d22c3",
+        "175d13bd889125a892f7edb8b43a122466e592b89d75f7cc9c689775b6d3cd77"
+      ],
+      "source_sha256": "ccde7abd8c455d9e9a2748b6c13f1b482e2682e36bdc9081491bc2ddb3ee6aac",
+      "text": "Resolve one batch of keys, bisecting when some are missing.\n\nNever called with an empty batch: the caller refuses an empty key list\nand a bisection of two or more cannot produce an empty half."
+    },
     "spacr.qt.crop_thumbs.live_thumbnail_caches": {
       "source_blocks_sha256": [
         "4b4d80b211c5b58368eabc28d517d2d331236bad89c2abec9f9e9a823cf936eb"
@@ -43190,6 +43724,13 @@
       ],
       "source_sha256": "5144746f59a57032358253e4c00243f2fe54308ef04133e0d2ef09163229ca31",
       "text": "The image a detector is to read, with optional cooperative cancellation.\n\nBackground, PSF, deep restoration, denoise, contrast, then sharpen --\n:data:`CHAIN_ORDER`, whose docstring says why that order and not\nanother. The percentile stretch is the screen's, applied to the whole\nfield before ``image`` was cut from it.\n\nLegacy filter failures are logged and skipped unless ``strict`` is set.\nPSF/restoration failures and cancellation\npropagate so detection cannot silently use an unprocessed image when an\nexplicitly calibrated operation was requested. This is reached from a\nmouse-move (the readout under the cursor) and from the magnifier, so\nan exception here is one per mouse event: a missing optional package\nfilled the console with tracebacks once (PyWavelets, 2026-09-22) and\nmade the screen unusable. The detector then reads the image as far as\nthe chain got, and the log says which step was dropped. A plate run\npasses ``strict=True``: a mask made from an image a step was silently\ndropped from would be presented as the mask the settings asked for.\n\n:param image: the field, or the magnifier's box region cut from it.\n    Never modified.\n:param chain: what to do to it.\n:param cancel: callable or Event; checked between stages, inside PSF\n    iterations and while awaiting restoration. Cancellation raises\n    :class:`spacr.point_spread.ProcessingCancelled`.\n:param strict: raise a failing step's error instead of logging it and\n    handing on the image as far as the chain got.\n:returns: ``image`` itself when nothing is switched on -- so a detector\n    reading an untouched field reads the very array and not a float\n    copy -- and otherwise a new float32 array of the same shape."
+    },
+    "spacr.qt.detect_chain.prepare.check": {
+      "source_blocks_sha256": [
+        "7db809ef398fa74211a7cf4dd9eee5bad3eb1475e6b650e7124061ce7ce455fe"
+      ],
+      "source_sha256": "7db809ef398fa74211a7cf4dd9eee5bad3eb1475e6b650e7124061ce7ce455fe",
+      "text": "Stop between enhancement stages when the supplied callback or event is cancelled."
     },
     "spacr.qt.detect_chain.provenance": {
       "source_blocks_sha256": [
@@ -46329,6 +46870,13 @@
       "source_sha256": "8ac8fdc45bffedb49eebbb147a8017c052883279b2de53cbf6f5d7311a5d62f8",
       "text": "Central icon lookup for the spacr Qt GUI.\n\nTwo sources of icons, both made theme-aware here:\n\n* **qtawesome glyphs** — vector, painted in whatever colour we ask for.\n  Wrapped so callers stay decoupled from Font Awesome glyph names. When the\n  optional font is unavailable a bundled, theme-aware glyph is returned;\n  toolbar affordances never silently turn into blank buttons.\n* **bundled PNGs** in ``spacr/resources/icons`` — flat monochrome\n  artwork baked at a fixed colour.\n\nThe bundled PNGs were *theme-blind*, and it showed: ``convert.png``\n(Format Converter) shipped as solid black with an alpha mask, so on the\nblack home page it rendered as nothing at all. The other twenty-odd were\nsolid white, which is the same bug pointed the other way — invisible on\nthe light theme, nobody had noticed because nobody used it. A third\ntheme made this unavoidable, so :func:`themed_qimage` now re-inks every\nbundled PNG for the active theme. **This is what makes the artwork\nswappable**: seventeen icons were redrawn and reinstalled without a line\nof change here, because nothing in this module knows what any of them\nlook like.\n\n* the artwork's ink polarity is detected from its own alpha-weighted\n  mean luminance, so black-on-transparent and white-on-transparent are\n  both handled without a per-file table;\n* the ink is remapped onto a band running from the theme's foreground\n  down to a ``veil`` colour computed to clear :data:`MIN_ICON_CONTRAST`\n  against the *hardest* surface the icon can land on, so internal shading\n  survives instead of being flattened to a silhouette;\n* genuinely polychrome artwork keeps its hue and is only re-levelled.\n\n:func:`icon_contrast` exposes the measured ratio so the test suite can\nassert visibility numerically rather than checking that a file exists."
     },
+    "spacr.qt.iconset._blend.ch": {
+      "source_blocks_sha256": [
+        "53ff02617e4a681c146358fc9ff11e9b97b05bc3fccefc224854c35cdd1117d3"
+      ],
+      "source_sha256": "53ff02617e4a681c146358fc9ff11e9b97b05bc3fccefc224854c35cdd1117d3",
+      "text": "One hex colour as its three integer channels."
+    },
     "spacr.qt.iconset.accent_icon": {
       "source_blocks_sha256": [
         "45a6a0e9c74d8ba961fd61d15b4632ab9b8b20fe2f07bfe0501f268959b677c6",
@@ -48245,6 +48793,13 @@
       "source_sha256": "e7046c05e9fb32747bcc92ef239169b2b543fd9965d5ab79ccf63c94a2ba11fc",
       "text": "Open the test data in Make Masks, downloading it first when needed.\n\nA cached copy opens at once. Otherwise the button is disabled, the status\nline says a download is running, and the download runs on a worker thread\nbehind a progress dialog. When it finishes, the folder opens on its first\nimage by name. A failure is reported with the reason the downloader gave,\non the status line and, when there is a display to show one, in a warning.\n\n:param screen: the Make Masks screen to open the data in.\n:param ask: replaces :func:`download_make_masks_example`, for tests. It is\n    called as ``ask(screen, folder, on_done)``.\n:param folder: replaces :func:`make_masks_example_folder`, for tests.\n:returns: whether this call opened the data. ``False`` while a download is\n    still running, and after a failure."
     },
+    "spacr.qt.make_masks_demo.load_the_test_data._done": {
+      "source_blocks_sha256": [
+        "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3"
+      ],
+      "source_sha256": "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3",
+      "text": "Put the button back, then open the data or say why it did not."
+    },
     "spacr.qt.make_masks_demo.make_masks_example_folder": {
       "source_blocks_sha256": [
         "346e0b8cd42b8163c7f23f5afec4d23d754c8469c276266ffda313872be1e9b9",
@@ -49354,6 +49909,14 @@
       "source_sha256": "eb6876f6e193a7128f7f3d6f7dfb40def75e296ad931321c86900cf1efc246d5",
       "text": "Build a live synchronized quality selector.\n\n:param parent: owning widget, if any.\n:returns: a combo whose item data uses stable untranslated quality keys."
     },
+    "spacr.qt.mask_thumbnail_quality.quality_combo._Sync.update": {
+      "source_blocks_sha256": [
+        "16025a3832080c7e9c1094c8bdd338ff8817dd9fe8e24d3476a0eec48a072ec3",
+        "d8532a6016d9fb25fcd57d9876f037d9061159e445b85ac764f049d9489d8314"
+      ],
+      "source_sha256": "3c387f44a6972b7a71ceb53d0015d4a94fffd5bfd79ddc0a38484b20bf1411f2",
+      "text": "Synchronize the selector after another view changed quality.\n\n:param value: the stable quality key."
+    },
     "spacr.qt.mask_thumbnail_quality.set_quality": {
       "source_blocks_sha256": [
         "b2049d707c54b9d057605cdb4803b8511c2a9b4d1371c682705971871698ff17",
@@ -50368,6 +50931,14 @@
       ],
       "source_sha256": "f2ec533ed1ec5eab267e32191a7d58557fa1e09acfe89c3fd5d50ecbcd45b7d6",
       "text": "Answer \"is this path there?\" without ever blocking the interface.\n\nWHY THIS EXISTS. `spacr/qt/widgets/file_list.py` asked `os.path.exists` for\nevery remembered path, on the GUI thread, to colour the missing ones red.\nThat is free for a local disk and it is not free for a network one: measured\non one workstation, ``os.path.exists`` on a path under\n``/nas_mnt`` -- an ``autofs`` mount with ``timeout=600`` -- had not returned\nafter TWENTY SECONDS, because the stat is what triggers the automount and the\nshare was asleep.\n\nA blocked GUI thread does not look like a slow path check. It looks like\nthis, and every one of these was reported as a separate defect on 2026-09-04:\n\n  * \"opening map barcodes crashes spacr\" -- it is not a crash, it is a\n    freeze with no traceback, which is why nothing reached the logs. The\n    journal shows `automount request ... triggered by spacr` immediately\n    before each force-quit.\n  * \"it kind of flickers ... several events are happening upon hover and\n    they sometimes lag for a couple of seconds\" -- hover events queue while\n    the thread is stalled and then replay in a burst.\n  * \"i see millisecond glimmers of parts of the module screens on the home\n    screen\" -- repaints are deferred, so the stack shows what it has not\n    been given time to paint over.\n  * \"it seems to happen ... after i have opened one or two moduals\" -- each\n    module adds its own remembered paths, so there is more to stat.\n\nSo the rule is absolute: NOTHING on the GUI thread may touch the\nfilesystem for a path the user supplied. This module is how that is kept.\n\nHOW IT ANSWERS. From a cache, immediately. A path it has not seen is\nreported as PRESENT and queued for a background check; when the answer\narrives the cache is updated and :data:`probes` emits, so a widget can\nredraw. Optimistic on purpose: a path drawn as missing for a moment and\nthen corrected is a widget that cried wolf, while a path drawn as present\nand then corrected is one that simply learned something."
+    },
+    "spacr.qt.path_probe._stat_with_timeout.run": {
+      "source_blocks_sha256": [
+        "66e5d6135a2871af63e4dce2909aeacfec708a21251d7ec046c71ba0262c1925",
+        "f05c6fda7888e848639dc31c1b975dc2a512d37858c400ad2ae253fa3f564284"
+      ],
+      "source_sha256": "7f0998670a64e500967197bd5a9582e01aa6af0ac5c3d8ffd2aaa8a595f926b1",
+      "text": "Ask the filesystem the question that is allowed to block.\n\nThis body is the reason the module exists: it runs on a worker, where\nan `autofs` mount taking twenty seconds to wake costs nobody a frozen\nwindow. `OSError` is an answer of \"no\", not a failure -- a path that\ncannot be stat-ed is a path the user cannot use either."
     },
     "spacr.qt.path_probe.exists": {
       "source_blocks_sha256": [
@@ -53092,6 +53663,13 @@
       "source_sha256": "7f93dfe8eabcb9adda33dd0c79ec424fcb618593b180bfaf5eeb559fca0f7edb",
       "text": "Render a small aligned-column table of records for the Console.\n\n:param records: list of parsed records.\n:param columns: which group names to include; auto-inferred from\n    the first record when None.\n:param max_rows: cap on rows; sampled at random if exceeded.\n:param random_sample: True → pick ``max_rows`` at random when the\n    list is longer; False → take the first ``max_rows``.\n:param seed: RNG seed so the sample is reproducible between runs.\n:returns: multi-line string ready to feed to\n    :py:meth:`ConsolePanel.append_stdout`."
     },
+    "spacr.qt.regex_detect.tabulate_records._row": {
+      "source_blocks_sha256": [
+        "eae8b823e8f4b80c2b79cf465485de2fcc3d6a2fbe0e8fca09366c99a69e3619"
+      ],
+      "source_sha256": "eae8b823e8f4b80c2b79cf465485de2fcc3d6a2fbe0e8fca09366c99a69e3619",
+      "text": "One row of the table, padded to the column widths."
+    },
     "spacr.qt.regex_detect.validate_records": {
       "source_blocks_sha256": [
         "0bac1c461d8707a5dad4bcca75f26cc9cfd91cb18ebca8391f13c20464535709",
@@ -55354,6 +55932,13 @@
       ],
       "source_sha256": "12409acad867f98ad10921c7b7b02aa430e2b3dd190e0c23c02a46e4d93df8fe",
       "text": "Validate, then run the queue off the GUI thread.\n\n:returns: True when the run started (or, unthreaded, completed)."
+    },
+    "spacr.qt.screens.batch.BatchScreen.run._job": {
+      "source_blocks_sha256": [
+        "14b927df06bcc734cbed84884b679d315aad8be4206f03f7efaf7c5b065b484d"
+      ],
+      "source_sha256": "14b927df06bcc734cbed84884b679d315aad8be4206f03f7efaf7c5b065b484d",
+      "text": "Run the whole plate queue. Off the GUI thread."
     },
     "spacr.qt.screens.batch.BatchScreen.save_queue_to": {
       "source_blocks_sha256": [
@@ -58986,6 +59571,13 @@
       "source_sha256": "d44d7de0b5c2c475f766a2a00b3bfc1eae930ead7f04ad7823e8bc07797b5ccc",
       "text": "Build the hit list for ``folder``, off the GUI thread.\n\n:param folder: the regression results folder, shown in the folder field\n    and read by :func:`spacr.hits.build_hit_list` on a worker. An empty\n    value only asks the user to choose one."
     },
+    "spacr.qt.screens.hit_list.HitListScreen.load_folder.build": {
+      "source_blocks_sha256": [
+        "f9b515c56e5762938857894f7425266e08b4d9186d43f7a83ea3f6b24f393f9f"
+      ],
+      "source_sha256": "f9b515c56e5762938857894f7425266e08b4d9186d43f7a83ea3f6b24f393f9f",
+      "text": "Load the data backend in the job that reads the table."
+    },
     "spacr.qt.screens.hit_list.HitListScreen.metadata_files": {
       "source_blocks_sha256": [
         "057d9694c3620cd428d5a4ad49c6050e9dffabf5f7706fef06a36ead9f1e2aa2"
@@ -61588,6 +62180,14 @@
       "source_sha256": "86f9333646ac6e11dea830d5286da8e0388d65c9fbb9a668fa84d0f048a13f2d",
       "text": "Measure the table, off the GUI thread.\n\n:returns: whether a run was started. A table with problems in it\n    starts nothing and says what they are."
     },
+    "spacr.qt.screens.measure_inputs.MeasureInputsScreen.run.work": {
+      "source_blocks_sha256": [
+        "42389f7d8c445c791056f3a3903e0294a6c53653569e219a85cf349753dd5d0a",
+        "b028d92ff849cf6c6bd748919babd270f8ddcb8c67bd5811b173601a9c1ab952"
+      ],
+      "source_sha256": "e64c410044856507ad07d5830a375998ba882b637e8e0f206dcc247f72634a7c",
+      "text": "Run the measurement. Worker thread; touches no widget.\n\nThe table it measures is a SNAPSHOT taken above, not the widget's\nlive model. A measure run takes minutes and preparing the next\nbatch while it runs is the natural thing to do, so the GUI thread\ncan append rows and delete channel and mask keys underneath this\n-- which reaches the worker as a ``KeyError`` in the middle of\nwriting, or as half a field that nobody asked for. The snapshot\nis plain data, so copying it is cheap and it cannot be edited\nfrom anywhere."
+    },
     "spacr.qt.screens.measure_inputs.MeasureInputsScreen.set_destination": {
       "source_blocks_sha256": [
         "891a347da062d557ededeed5753ce556b86c40e5ce3debabf3bf51891d0f3bee",
@@ -63951,6 +64551,14 @@
       "source_sha256": "22d93fda842a47c766b369c3acb10fdf2b5a79fa99435c91573cd45a36367576",
       "text": "Re-read the verdicts. Off the GUI thread -- all of it, now.\n\nSPLIT IN TWO, and the split is the fix for a frozen application.\nOnly the parse used to be handed to the runner; the two decisions in\nfront of it -- \"is this a folder?\" and \"has anything changed?\" --\nwere taken inline, and both of them touch the disk at a path the\nuser typed. `os.path.isdir` was one call, and `_fingerprint` is a\n`find_scorecards` listing plus a stat per artifact.\n\nMeasured on one workstation: a single\n`os.path.exists` under `/nas_mnt`, an `autofs` mount whose share was\nasleep, had not returned after TWENTY SECONDS -- the stat is what\ntriggers the automount. A project folder on that mount is exactly\nwhat this screen is for, and the whole interface stopped the moment\none was dropped on it, browsed to, or simply refreshed. It left no\ntraceback, because a stalled event loop is not a crash.\n\n`path_probe` is deliberately NOT used for the folder guard. It\nanswers optimistically, so it could only ever say \"go on and read\",\nwhich the worker then decides properly anyway; a second guard on the\nGUI thread would add a way for the two answers to disagree and buy\nnothing. Every message the screen showed still appears -- a moment\nlater, and that is the only difference the user can see.\n\n:param force: read even when the fingerprint says nothing changed.\n:returns: whether a read of the disk was started. Reading inline\n    (``threaded=False``) that is exact, because the worker half has\n    already run and reported by the time this returns. Threaded, it\n    means the job was started: the fingerprint is not taken yet, so\n    \"nothing changed\" arrives later, on the status line."
     },
+    "spacr.qt.screens.qc_dashboard.QCDashboardScreen.refresh.work": {
+      "source_blocks_sha256": [
+        "e099b781990bc9ff026fa42c9044824099bde955584a68184b638fa682d638ed",
+        "fdfb8393c4bb63e015a1537aaec7d60e52e87fa62e1adfbd0a7f0c8b81835d31"
+      ],
+      "source_sha256": "f322df4aff9fb506012dca981f54cf7a4246f967a48b1bf734a49f4499b4e1ed",
+      "text": "Off the GUI thread. Touches no widget -- returns a verdict.\n\nThe cache comparison comes with it rather than staying behind:\nthe key it compares IS the walk of the disk, so leaving the\ncomparison on the GUI thread would leave the walk there too."
+    },
     "spacr.qt.screens.qc_dashboard.QCDashboardScreen.set_source": {
       "source_blocks_sha256": [
         "7514a3615103a25134c635bf5543b0897a9d3cdeb8e994243ae2088ecec87a3c",
@@ -64074,6 +64682,13 @@
       ],
       "source_sha256": "2bd993ad2af058fdf3d6f750c5a21c83d53068366c9b76be72ce22666def1e8d",
       "text": "Route the \"Add current plate\" button through ``callback``.\n\nMainWindow supplies a callback that snapshots the currently\nactive AppScreen's settings dict and returns\n``(app_key, settings_dict)``. This screen calls\n:meth:`add_item` with that pair.\n\n:param callback: a no-argument callable returning ``(app_key,\n    settings_dict)``. It is called on every click; an exception it\n    raises, or a settings dict without ``src``, is shown in a message\n    box instead of adding an item."
+    },
+    "spacr.qt.screens.queue.QueueScreen.wire_add_current._on_click": {
+      "source_blocks_sha256": [
+        "998c5479d2c420e74fcf8355c8ef226f3ff16b6fab51bf74800ba4f086ee436a"
+      ],
+      "source_sha256": "998c5479d2c420e74fcf8355c8ef226f3ff16b6fab51bf74800ba4f086ee436a",
+      "text": "Add the current screen's settings to the queue."
     },
     "spacr.qt.screens.regression": {
       "source_blocks_sha256": [
@@ -64540,6 +65155,13 @@
       ],
       "source_sha256": "a1529621a43d8251f7a3a3e19df800b73e0fc794df7f905f45a4f807ce04183b",
       "text": "Reload every run record without blocking the GUI thread."
+    },
+    "spacr.qt.screens.run_history.RunHistoryScreen.refresh._load": {
+      "source_blocks_sha256": [
+        "c39ea695decd0789a82fe1041aa13a5033f0520e22d21d2f4625dd5261ffd9a9"
+      ],
+      "source_sha256": "c39ea695decd0789a82fe1041aa13a5033f0520e22d21d2f4625dd5261ffd9a9",
+      "text": "Read the run journal. Off the GUI thread."
     },
     "spacr.qt.screens.run_history.RunHistoryScreen.select_run": {
       "source_blocks_sha256": [
@@ -66555,6 +67177,13 @@
       "source_sha256": "eff20f72f34bfea12652d749ae84c870e74abd1fdb265f7e3b9f0434ead05893",
       "text": "Build the question list against the live preference module."
     },
+    "spacr.qt.setup_screen.questions.choices_of": {
+      "source_blocks_sha256": [
+        "14a6b184167ed4f6dafbfd469a21479a46909f7df23c240aee775f7c8ed26d4b"
+      ],
+      "source_sha256": "14a6b184167ed4f6dafbfd469a21479a46909f7df23c240aee775f7c8ed26d4b",
+      "text": "Names paired with their readable spellings, for a picker."
+    },
     "spacr.qt.setup_screen.should_open": {
       "source_blocks_sha256": [
         "1e43715d5f6ffc50a774f81755ab178f671ff98021292edce5dd44341924d188",
@@ -67379,6 +68008,14 @@
       "source_sha256": "30edb611098c31839eb87673a2e12e2057f5d3d9a85a23eb2569251e597a1d17",
       "text": "Procedural deep-space imagery for the Space theme.\n\nWhy generate instead of ship a JPEG\n-----------------------------------\nTwo things rule out bundling a photograph:\n\n* a multi-megabyte image per aspect ratio bloats the wheel, and\n* a fixed 1920x1080 asset is *soft* on a 5K display — the one place a\n  space background actually needs to look good.\n\nSo the background is synthesised with numpy at the display's native\npixel size and cached to the user's config directory, keyed by\n``(width, height, variant, seed, CACHE_VERSION)``. It is computed once\nper screen size and reloaded from disk on every later launch.\n\nEverything here is **seeded and deterministic**: the same\n``(width, height, variant, seed)`` always produces byte-identical\npixels, which is what lets the test suite assert on the output.\n\nThree generators, composed\n--------------------------\n``starfield``\n    A magnitude distribution drawn from the Euclidean number-count law\n    (``N(>F) ∝ F^-3/2``) — many faint stars, very few bright ones — with\n    stellar colour sampled from a blackbody locus spanning hot blue O/B\n    through white A/F/G to cool red K/M, and 4-way diffraction spikes on\n    only the handful of brightest stars.\n\n``galaxy``\n    A two-arm logarithmic spiral (``r = a·e^(bθ)``) rendered as an\n    analytic field, with dust lanes trailing the arms, a warm Sérsic-ish\n    core bulge and an exponential disc falloff, projected at an\n    inclination.\n\n``sun``\n    A star disc with classic linear limb darkening\n    (``I(µ) = 1 − u(1 − µ)``), value-noise granulation on the\n    photosphere, and a corona that falls off smoothly with radial\n    streamers.\n\nThey are *composed* rather than offered as three separate wallpapers because\none sky containing all three reads as a photograph of space; separate wallpapers read\nas three clip-art assets. ``variant`` re-weights the composition\n(which element is the subject) rather than switching elements on and\noff, so no variant ever loses the stars.\n\nLegibility is solved here too, not only for the photographs\n-----------------------------------------------------------\n:mod:`spacr.qt.imagery` has always run every photographic master\nthrough :func:`spacr.qt.imagery.solve_dim` against\n:func:`spacr.qt.imagery.exposure_target` — the brightest a bare window\nbackground may be before white text on it drops under WCAG AA. The\ngenerated sky never went through it, and it showed: measured at\n1440x900, the brightest text-line-sized region of the ``galaxy`` sky was\n0.4879 against a 0.0586 limit (8.3x over), ``sun`` 0.8201 (14.0x) and\n``stars`` 0.5041 (8.6x). Bare white text over that measured 1.20-1.96:1\nwhere 4.5:1 is required — the \"AI\" toggle in the title bar sat on the\nsun's halo. :func:`render` now solves it, and :func:`legibility` reports\nthe same measured dict :func:`spacr.qt.imagery.legibility` returns for a\nphotograph.\n\nReconciling the limit with the 40th-percentile anchor\n-----------------------------------------------------\n:data:`TARGET_SKY_PERCENTILE` exposes the frame so that *empty sky* —\nnot the mean — lands on :data:`TARGET_SKY_LUMA`, deliberately, so that a\nsun stays blown out instead of dragging the whole frame to black. Taken\nas a statement about one global exposure that is now flatly incompatible\nwith the limit, and both of the obvious ways to force it are ruined\npictures. Re-solving the exposure, or dimming the finished frame with\n:func:`spacr.qt.imagery.solve_dim`, needs a factor of 0.064-0.108; both\ntake the sky's own 40th percentile from 0.00091 to 0.00000, i.e. every\nfaint star and the whole nebula go to pure black, and the peak pixel\nfalls from 236-252 to 67-90. Measured, rendered and looked at: a dark\ngrey smudge.\n\nThe reconciliation is that the two rules are about different things.\nThe exposure anchor is about a *pixel with nothing in it*; the WCAG\nlimit is about the mean over a **region the size of a line of text**\n(:data:`spacr.qt.imagery.TEXT_WINDOW`), which is the point\n:mod:`spacr.qt.imagery` already makes about photographs — every\nphotograph has a white pixel somewhere and it is a bright *patch* that\nmakes a caption unreadable. A 3 px star inside a 202x48 px text window\nmoves that window's mean by a quarter of one per cent; the whole\nstarfield measured on its own comes to 0.0007-0.0067, i.e. 1-11 % of the\nlimit. A 207 px sun disc fills the window completely and cannot.\n\nSo the exposure anchor is kept exactly as it was — the sky background is\nunchanged, to the byte — and the limit is enforced where it is actually\nviolated, by compressing the highlights of the **smooth** layers only\n(:func:`_compress_highlights`, applied to nebula + galaxy + sun + bloom,\nnever to the starfield). The sun therefore does get noticeably darker,\nwhich is the accepted cost; the galaxy is barely touched because it was\nnever the offender; the stars keep white cores and diffraction spikes.\n:func:`_enforce_legibility` then measures the finished frame with the\nsame :func:`spacr.qt.imagery.brightest_window` used on the photographs\nand applies whatever residual dim is left, so the guarantee is a\nmeasurement and not an argument.\n\nReal imagery\n------------\n:func:`download_nasa_background` optionally fetches a public-domain\nNASA/ESA image instead. NASA media is public domain (see\nhttps://www.nasa.gov/nasa-brand-center/images-and-media/) and the\ncredit line is recorded so the UI can display it. Nothing here touches\nthe network at import time or from any code path other than that one\nfunction, so an offline machine silently gets the procedural sky."
     },
+    "spacr.qt.space._bilinear_upsample._axis": {
+      "source_blocks_sha256": [
+        "981174f2fbe6e5fa844803660f9c9590e68a7352ad028d1d5ac6d006f3903c7f",
+        "4194a4df131dd324cff46ef83dc035991669ffa125631227036214192f37dfec"
+      ],
+      "source_sha256": "29d1f8153e14a9b2780f21243be69142f3f6205f7c517c967b7cf4ec17d10200",
+      "text": "Sample positions and weights for one axis of the upsample.\n\nA single input sample is handled separately: interpolating between one\npoint and itself is a division by zero."
+    },
     "spacr.qt.space.attribution_text": {
       "source_blocks_sha256": [
         "140f6c855ff2dd13ebbe3f5059f03dc7e22e7807cdbcb7fcb89e276983b9332e"
@@ -67766,6 +68403,13 @@
       ],
       "source_sha256": "99c72ab38e024b43cb9eead7049bec0b74bd0ed04b7a5f27927c7d5283769e08",
       "text": "What a demo generator produced. Absolute paths only.\n\n``merged_files`` replaces the old ``mask_files``: nothing in spaCR reads a\nfolder of standalone label tiffs, and the measure/crop demos now ship the\n``merged/*.npy`` stacks measure_crop actually opens — the label planes are\nthe trailing planes of those arrays.\n\n:param src: absolute path of the demo folder, the value the demo's settings\n    use as ``src``.\n:param image_dir: absolute path of the folder holding the generated raw\n    images; the same as ``src`` except for demos that put them in a\n    ``data`` subfolder."
+    },
+    "spacr.qt.synthetic._synth_field._peak": {
+      "source_blocks_sha256": [
+        "85ebafbe4cf80fe67ad0f58d60f23f27b5018e4c468bbd46f85fe1de8a3911ad"
+      ],
+      "source_sha256": "85ebafbe4cf80fe67ad0f58d60f23f27b5018e4c468bbd46f85fe1de8a3911ad",
+      "text": "One object's peak intensity, jittered around the nominal."
     },
     "spacr.qt.synthetic.barcode_pool": {
       "source_blocks_sha256": [
@@ -69389,6 +70033,14 @@
       "source_sha256": "19532da1abf9c2af4dfc3052b844af2a99c6694c08c7b7fed6621c23caa87a21",
       "text": "Decorator: log entry + return of ``fn`` when verbose mode is on.\n\nZero cost when verbose is off (the wrapper does one attribute\ncheck and forwards). When on, emits:\n\n    [class.func] args=… kwargs=…\n    [class.func] -> return-repr\n\nTruncates giant reprs to 240 chars so a settings dict with 100\nentries doesn't wreck the console.\n\n:param fn: the function or method to wrap; its arguments, return value or\n    raised exception are logged to ``spacr.trace`` while verbose mode is\n    on."
     },
+    "spacr.qt.verbose_logger.log_call.wrapper": {
+      "source_blocks_sha256": [
+        "f43e3591b730f72109d387d5f0ec043e223c40f1bc8a48e913f5c8bbabaa9ad6",
+        "a1fd83315bf1466d76f9b85b43867afafa3ffb0cf51b64c2029cf0f8249c4234"
+      ],
+      "source_sha256": "ed240cef91e5e813cf716e0957a9ebad7f39bf4bffc63e647c21e7b0d107d5dc",
+      "text": "Call the function, logging it only when verbose is on.\n\nThe check is INSIDE rather than at decoration time, so switching verbose\non mid-session takes effect without rebuilding anything."
+    },
     "spacr.qt.verbose_logger.log_dir": {
       "source_blocks_sha256": [
         "20d4a80cf58ffc0658f6929fa0a29776d1fd98ed69f5aa79c162ec43cde8f365",
@@ -69635,6 +70287,13 @@
       ],
       "source_sha256": "a542c35e251bf89e5038299b7cd284d1a46696f6de544b934d59bfdc2ba8e916",
       "text": "Queue deletion of parentless pyqtgraph menus owned by ``owner``.\n\n:param owner: widget whose child ``QGraphicsView`` objects are searched\n    for pyqtgraph plot and view-box menus; when it is a ``QWidget``,\n    parentless menus are reparented to it before deletion.\n:returns: number of distinct menu roots retired. ``0`` also covers an\n    environment without pyqtgraph or an owner whose C++ object is gone."
+    },
+    "spacr.qt.widget_cleanup.retire_pyqtgraph_menus.retire": {
+      "source_blocks_sha256": [
+        "2006eec46b5272683df7513a8a876c99ccd783424f0e0144a3d8ccc0db9e7dec"
+      ],
+      "source_sha256": "2006eec46b5272683df7513a8a876c99ccd783424f0e0144a3d8ccc0db9e7dec",
+      "text": "Retire one menu, once. Already-seen menus are skipped."
     },
     "spacr.qt.widgets": {
       "source_blocks_sha256": [
@@ -70766,6 +71425,13 @@
       "source_sha256": "6e024304146d7ab9b1e23613f0a5d1a6f1969f65672c4c4f9335c2028ba67cb6",
       "text": "A slow starfield in three parallax layers.\n\nThe one theme painted at full resolution, because dots have to be crisp\nto read as dots — and it is affordable exactly because a couple of\nhundred dots of 1-4 px touch almost no pixels (0.65 % of the page).\nEverything is batched into one ``drawPoints`` call per (colour, layer,\nalpha step) bucket with a cached pen; the per-call overhead of a pen\nchange dominates this theme, not the pixels.\n\n:meth:`geometry` yields ``(x, y, diameter)`` per painted particle, in\npixels.\nRoll the starfield's three parallax layers."
     },
+    "spacr.qt.widgets.ambient.DriftEngine._configure.roll": {
+      "source_blocks_sha256": [
+        "87fadf21b9499e28c155af0c547442de1f8628f049f75afe649a989ac5ec216b"
+      ],
+      "source_sha256": "87fadf21b9499e28c155af0c547442de1f8628f049f75afe649a989ac5ec216b",
+      "text": "One particle, on the drift layer its index falls in."
+    },
     "spacr.qt.widgets.ambient.DriftEngine.alpha_scale": {
       "source_blocks_sha256": [
         "d6076a8fed021d19ae15795fb6afca6e5f69fc2808b721da9322f9d3129df656",
@@ -71594,6 +72260,13 @@
       "source_sha256": "7538355c2abf2eec2274494899e708b4939cb22ea97a11b51eb10aceca297ec3",
       "text": "Run the selected strategy in the configured job runner.\n\n:returns: ``True`` if execution was submitted; otherwise ``False``."
     },
+    "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.run.work": {
+      "source_blocks_sha256": [
+        "56eb359fc05f9b2d007690cee97b0b3fb2cd4636891fe6b1ffebc9d3a7ada9aa"
+      ],
+      "source_sha256": "56eb359fc05f9b2d007690cee97b0b3fb2cd4636891fe6b1ffebc9d3a7ada9aa",
+      "text": "Run the annotation strategy. Off the GUI thread."
+    },
     "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.save": {
       "source_blocks_sha256": [
         "9a9c50ac35817706c4dc37998b3df0af6b8e7de900be69c18cc48f8c16fee9d7",
@@ -72203,6 +72876,13 @@
       ],
       "source_sha256": "443b837904406f125ad807a2b26fd9385769dc23d1da6975871e696b0fe0ea83",
       "text": "Let the card shrink to its heading while ``folder`` is shut.\n\nThe body is laid out with a stretch, and a layout counts that stretch\neven while the body is hidden, so a folded card still asked for room\nand shared it evenly with the stretch that locks a folded heading to\nthe bottom of its pane (item 515): the folded Console came out half\nthe pane tall. Folded, the body gives its stretch up; opened, it takes\nit back.\n\n:param folder: the :class:`~spacr.qt.widgets.foldable.Folder` that\n    folds :attr:`body`."
+    },
+    "spacr.qt.widgets.card.Card.follow_fold.apply": {
+      "source_blocks_sha256": [
+        "c045ebdcfdbfa00a22a5e3d31e5e0be947e5f781884420e55a8a49fbc464ed53"
+      ],
+      "source_sha256": "c045ebdcfdbfa00a22a5e3d31e5e0be947e5f781884420e55a8a49fbc464ed53",
+      "text": "Match the body's stretch to the fold."
     },
     "spacr.qt.widgets.cell_montage_view": {
       "source_blocks_sha256": [
@@ -73655,6 +74335,13 @@
       ],
       "source_sha256": "f9c5649a20b18105fb9bef98f57d307d5b8c221900c04fa7972f0e55b8813b5f",
       "text": "Keep ``container``'s heading at the bottom of its room while folded.\n\nA folded panel given more room than its heading needs -- the last pane\nin a splitter, a section stretched by its column -- used to lay its\nheading out in the middle of that room, which is the bug item 471 names\n(\"when i collapse the console it collapses to the middle\"). A stretch\nput ABOVE the heading while it is folded takes the spare room instead.\n\n:param container: the widget whose layout holds the heading (first) and\n    the body.\n:param folder: its :class:`~spacr.qt.widgets.foldable.Folder`.\n:param orientation: ``Qt.Horizontal`` locks it to the left instead, for a\n    panel that folds sideways.\n\nCalled twice for one container and folder -- a :class:`FoldSection`\nlocks itself and :meth:`CollapsibleSplitter.add_pane` locks every HEADER\npane -- the second call does nothing, so there is only ever one stretch\nand the first orientation asked for wins."
+    },
+    "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom.apply": {
+      "source_blocks_sha256": [
+        "6a2343393cb771b777ddf13ed1d98acf854dacc585fbd88bfe906aa6dcad538a"
+      ],
+      "source_sha256": "6a2343393cb771b777ddf13ed1d98acf854dacc585fbd88bfe906aa6dcad538a",
+      "text": "Add or take away the stretch in front of the heading."
     },
     "spacr.qt.widgets.collapsible_splitter.set_pane_extents": {
       "source_blocks_sha256": [
@@ -75263,6 +75950,14 @@
       "source_sha256": "ee1fa10cc437a308ee3099f6acc2f725a54a1aef1f0b8880a1c289dbf387fb33",
       "text": "Chart ``spec``'s control value plate by plate over run order.\n\nThe whole policy is in the module docstring; the short version is that one\npoint is drawn per plate in run order, sigma comes from short-term\nvariation and never from the SD of the series, the limits are estimated\nfrom a stated baseline and applied forward, and every rule that fires is\nreported by number, in words, and with the plates it fired on.\n\n:param frame: the per-well table holding the spec's value, plate, order and\n    control columns.\n:raises ControlChartError: whenever the chart would be meaningless — with\n    the reason and the way out in the message."
     },
+    "spacr.qt.widgets.control_chart.control_chart._finish": {
+      "source_blocks_sha256": [
+        "c6d59ac0a54cb2287c2b793e57aa77fd9e611798784665ba580db200bf3fd9c5",
+        "583c5126738fc2d71d73b7e5242748d4866ac3007d59d0e4bf5133e1bde3261a"
+      ],
+      "source_sha256": "2438ba772733ccf647dc7b84454f69999eafbb51736067ba70a4e40e869b786b",
+      "text": "Assemble the result, flagging a degenerate spread.\n\nA sigma at or below the tolerance means every point is a violation, so\nit is reported as DEGENERATE rather than charted -- limits drawn from\nno spread say nothing about the process."
+    },
     "spacr.qt.widgets.control_chart.sd_reference_limits": {
       "source_blocks_sha256": [
         "03708c77632f5cc678a99afc6d5d1911ec3a73418dec959a1c4c930775a3b35c",
@@ -75650,6 +76345,13 @@
       ],
       "source_sha256": "c9289b8fdb4829a0fb85ccf94452c9483b236211a1b7db844c4d72407e4b546e",
       "text": "Validate and persist a definition, then use the screen's ordinary loader.\n\n:param definition: Named definition bound to the currently loaded database."
+    },
+    "spacr.qt.widgets.derived_table_source.DerivedTableSource.use_derived_table.work": {
+      "source_blocks_sha256": [
+        "521b0aa9c51db5b5f01b0dca3103c6c3f1da2c16450ebc0f55f0ab76c15d8bf3"
+      ],
+      "source_sha256": "521b0aa9c51db5b5f01b0dca3103c6c3f1da2c16450ebc0f55f0ab76c15d8bf3",
+      "text": "Validate and persist the source-bound definition on a worker."
     },
     "spacr.qt.widgets.divider": {
       "source_blocks_sha256": [
@@ -80114,6 +80816,13 @@
       "source_sha256": "a28dbb152c208d4e35e8a135c4f7d84aaa37566212bc3fd32371e47b5490d427",
       "text": "Watch the widgets this filter is installed on.\n\nTHE EVENT TYPE IS READ FIRST, and the liveness checks follow it.\nThis filter is on the QApplication, so both `_still_alive` calls\nused to run for every event in the process -- 94,431 of them\nduring one Regression open, and a profile counted the pair at\n839,906 calls in one Mask open. Reading the type of an object\nwhose C++ half has gone raises, which the `except` below already\nanswers with the same `False`, so the order costs nothing and the\nchecks now run only for a context menu.\n\n:param obj: the object the event is for.\n:param event: the event.\n:returns: True to stop the event going further."
     },
+    "spacr.qt.widgets.feature_dictionary._doc_html.field": {
+      "source_blocks_sha256": [
+        "ef6779f576cc1c11cb0093a66884992d335e33f68830d35d544e8a80cb269480"
+      ],
+      "source_sha256": "ef6779f576cc1c11cb0093a66884992d335e33f68830d35d544e8a80cb269480",
+      "text": "Add one field to the entry, skipping empty values."
+    },
     "spacr.qt.widgets.feature_dictionary.close_feature_dictionary": {
       "source_blocks_sha256": [
         "b9d8effaa810f72b4cab6bd4124352094d80b24dc92218bc237531837a393ff2"
@@ -80854,6 +81563,13 @@
       ],
       "source_sha256": "691dd202f18895cdf00a8a22e159febb26d26a82f8fb00d68de211fb400a893e",
       "text": "Place each trial on a grid whose axes are the searched parameters.\n\nWith ONE searched parameter the grid is a single row ordered by it.\nWith two it is the familiar table: one parameter across, the other\ndown. With more than two there is no honest two-dimensional picture, so\nthe widest parameter goes across and every distinct combination of the\nrest gets its own row -- a small multiple of small multiples. That is\nthe arrangement that keeps the promise the position makes: two cells in\nthe same row differ in exactly one parameter.\n\nTrials whose coordinates repeat (a resumed search, a duplicate) share a\ncell; the caller decides which figure wins.\n\n:param coordinates: one mapping of parameter values per figure, in\n    arrival order.\n:param parameters: the searched parameter names. Order decides which\n    axis is which; the caller passes them in the order the user chose.\n:returns: ``(row_parameters, column_values, cells)`` where ``cells[i]``\n    is ``(row, column)`` for ``coordinates[i]``. ``row_parameters`` is\n    empty when there is only one axis."
+    },
+    "spacr.qt.widgets.figure_grid.axis_layout.distinct": {
+      "source_blocks_sha256": [
+        "bade947307b84885ab90f594a3417d47ce4b987431def1451032370681fa9d71"
+      ],
+      "source_sha256": "bade947307b84885ab90f594a3417d47ce4b987431def1451032370681fa9d71",
+      "text": "The distinct values of a column, in first-seen order."
     },
     "spacr.qt.widgets.figure_grid.cell_caption": {
       "source_blocks_sha256": [
@@ -82210,6 +82926,14 @@
       "source_sha256": "e636f44d017342a95f62df3e9a11756f218546e9b9592390578660fdc2c2c274",
       "text": "The registry keys this strip carries, in the order shown."
     },
+    "spacr.qt.widgets.fold_strip._host_declarations._as_string": {
+      "source_blocks_sha256": [
+        "b85a795f6b697a50bc7619c03548f3966515603b29b4a1151ce0f2971adb30fd",
+        "4a9312cb205ec581776d9d601221838df5e6879583615a910b843f55ea0af580"
+      ],
+      "source_sha256": "66ec1dd9e71cf8eee682b92fa10c60de06c5c1393e593f6be2b52d3cc8c980f0",
+      "text": "The string an AST node stands for, or ``None`` if it is not one.\n\nHandles a literal, a constant in this module, and a constant reached\nthrough an imported sibling -- read from the source rather than by\nimporting the module that defines it."
+    },
     "spacr.qt.widgets.fold_strip.fold_label": {
       "source_blocks_sha256": [
         "b06275875ca00e2b001850eea8bbe937d78919b267a54111a2f54d64afc72f0d",
@@ -82343,6 +83067,14 @@
       "source_sha256": "54c6c6c5940c2d57eb20bfb9aaec2039a944ed4a958be578227e19d3d29f2560",
       "text": "Make clicking ``heading`` fold ``body`` away. Returns the Folder.\n\nThe Folder is returned so the caller can hold it: it owns the event\nfilter, and a Folder nobody keeps stops working silently.\n\n:param heading: label that receives the click event filter and displays\n    the open or shut marker.\n:param body: panel whose visibility the heading toggles.\n:param persist_key: ``\"<module>/<panel>\"``. Given, the fold survives a\n    restart. Empty means it does not, which is what a bare panel in a\n    test wants -- a test that wrote to the real preferences would fold a\n    panel on the user's next launch.\n:param shut_by_default: start folded unless the user opened this panel\n    before (item 509: advanced rows that most people never change)."
     },
+    "spacr.qt.widgets.foldable.make_foldable.remember": {
+      "source_blocks_sha256": [
+        "9387914e4f9ee31983e50077f33329f7e386e41d46290d4b4325f51357fd6f2d",
+        "0c85cbfaa92859a886bc2d25c165730a350c17a43119608dd0dd7f9633d4ff1e"
+      ],
+      "source_sha256": "d7d12ca2f4de9d4a365a76c69b95c5867f7fe354d344f6ef081fa08a92df2e5b",
+      "text": "Store the fold state, if this section has a key to store it under.\n\nOnly a fold the user made is stored: see\n:attr:`Folder.last_change_by_user`."
+    },
     "spacr.qt.widgets.folding_summary": {
       "source_blocks_sha256": [
         "121d47111e85f93ececd6e7a6509397056f393470b68d260c1e4e5f7adba1994",
@@ -82363,6 +83095,13 @@
       ],
       "source_sha256": "968d609ba6457031bce62978725d9572374a490dcb5d27f65a7dd37f9bb4b531",
       "text": "A drop-in for the Summary tab's ``QPlainTextEdit``.\n\nKeeps ``setPlainText`` and ``toPlainText`` so the panel that fills it does\nnot have to know which it got, and so the text a test reads is the text\nthe file holds.\n\n:param parent: parent widget.\nBuild the scrolling summary view with its copy and save actions.\n\nThe action row is held as one widget rather than as a bare layout, and\nthat is load-bearing: the rebuild empties the body by taking items out\nand deleting them, and it only finds widgets. A bare layout was taken\nout and dropped while the buttons inside it stayed children of the body\nwith nothing laying them out -- still visible, still clickable, stuck at\ntheir last geometry and painted under everything added afterwards, which\nis the giant save button reachable only where no text covered it.\n\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.widgets.folding_summary.FoldingSummaryView._table._tint": {
+      "source_blocks_sha256": [
+        "576c9be62bf0089b4f29a8c9e64d8f83aa59cf58551dc460d48385147c5b7248"
+      ],
+      "source_sha256": "576c9be62bf0089b4f29a8c9e64d8f83aa59cf58551dc460d48385147c5b7248",
+      "text": "One cell, coloured only when the row is an alarm."
     },
     "spacr.qt.widgets.folding_summary.FoldingSummaryView.copy_to_clipboard": {
       "source_blocks_sha256": [
@@ -87644,6 +88383,13 @@
       "source_sha256": "c67cbb3d65ded4db96630b95222ed715577588440c72833c2508bd53507aa4e8",
       "text": "Split ``frame`` into the grid ``spec``'s facet channels describe.\n\n:param frame: the rows to place into panels (post-filter, post-sample).\n:param spec: graph channels and facet columns that define the grid.\n:param levels_source: where the *levels* come from, when that is not\n    ``frame``. The renderer passes the pre-sample frame, so a level that\n    exists in the population but drew no rows in the sample still gets its\n    panel — drawn empty, which is the honest picture — instead of the grid\n    silently changing shape with the sample.\n:param max_levels: per axis; beyond it levels are cut and counted.\n:param max_panels: hard ceiling on rows × columns.\n:returns: a :class:`FacetGrid` whose ``panels`` are the **full** cartesian\n    product in row-major order."
     },
+    "spacr.qt.widgets.graph_spec.facet_grid.axis": {
+      "source_blocks_sha256": [
+        "fd39e0e0cac8b750869b1ef7e10c925bed5af42aa3473fffa92128d7cf1f73bd"
+      ],
+      "source_sha256": "fd39e0e0cac8b750869b1ef7e10c925bed5af42aa3473fffa92128d7cf1f73bd",
+      "text": "One facet axis's levels and how many there are."
+    },
     "spacr.qt.widgets.graph_spec.infer_kind": {
       "source_blocks_sha256": [
         "054de26d2c52d34cbe969a797287be327a3b4c348e11bff649ba3cc3269ba0b7",
@@ -88712,6 +89458,13 @@
       ],
       "source_sha256": "846854a868477f23ea7b008ae451d547c19179c26171431d16ad2acca2b14c7d",
       "text": "Read a bounded field and calculate the same ratios/counts as Run."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview.work": {
+      "source_blocks_sha256": [
+        "b41d86f18c1393fe0a0a824da18e9ecd356cbd5b3a8cb6aa7c26ee18841f7cbf"
+      ],
+      "source_sha256": "b41d86f18c1393fe0a0a824da18e9ecd356cbd5b3a8cb6aa7c26ee18841f7cbf",
+      "text": "Read available fields and analyze the captured field and plane selection off the GUI thread."
     },
     "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown": {
       "source_blocks_sha256": [
@@ -90522,6 +91275,13 @@
       "source_sha256": "16b67eb2d2b39428a2a32f97621e4885b6cf8dcd09331f5ae014bed52eac5be1",
       "text": "Join attached measurement tables into the panel's object rows.\n\nReturns\n-------\nstr\n    Empty after a clean join, or a user-facing explanation when a\n    database or object row could not be joined."
     },
+    "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.join_the_tables.work": {
+      "source_blocks_sha256": [
+        "14eb6b3e3e98f3ea2c62d3710babf239926367dd8f658383d8ea558d1719d72a"
+      ],
+      "source_sha256": "dc184e44e0f25bc3c4146b97dbc3e06b0d6c1808545985ea1f2079dffd5a8c1f",
+      "text": "Off the GUI thread. Returns, never raises: a failed join is\na message in the panel, not a traceback in the console."
+    },
     "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.nothing_to_compare_against": {
       "source_blocks_sha256": [
         "6490296c9eb59d1f570cff377f95fdb7f8ebf973251f94ff3573484e9ca1ee92",
@@ -91554,6 +92314,13 @@
       "source_sha256": "e7835f55e078c26aef8d32051481acd883d701b7b7c72fca8818c274e56d9bc1",
       "text": "Reuse or fetch the example plate, then hand it to the screen.\n\n:param screen: a screen :func:`install_test_data_button` was called on.\n:param ask: replaces :func:`spacr.qt.hf_download.download_annotate_example`,\n    with the same ``(parent, destination, on_done)`` signature. For tests.\n:returns: ``{\"folder\": ..., \"db\": ...}`` when the plate was handed over\n    before returning -- always, when it was already cached -- and an\n    empty mapping while a download is still running or after it failed."
     },
+    "spacr.qt.widgets.measurements_example.load_test_data._done": {
+      "source_blocks_sha256": [
+        "3c0c06aa91aeceec823b74961aa9c532239f5f07bdb84075c4823ae003cc53f3"
+      ],
+      "source_sha256": "3c0c06aa91aeceec823b74961aa9c532239f5f07bdb84075c4823ae003cc53f3",
+      "text": "Restore the button, then hand over the plate or say why not."
+    },
     "spacr.qt.widgets.merge_tables_dialog": {
       "source_blocks_sha256": [
         "8017f7ce98c8e516f57960f94c6911f1aa379a4938980b811c8e8df37023cfe7",
@@ -91666,6 +92433,13 @@
       ],
       "source_sha256": "a5bf798fb25ec91f14bf1a401ee81484777ec89721b4f0ad03ece241aea29e53",
       "text": "Resolve a frame interactively; cancellation remains an explicit stop.\n\n:param frame: source metadata frame, passed to\n    :func:`spacr.metadata_resolution.resolve_metadata_columns`.\n:param required: canonical columns that must be present in the result; a\n    dialog asks for the mapping of each one that cannot be resolved, and\n    cancelling it raises :class:`MetadataResolutionRequired`."
+    },
+    "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog.prompt": {
+      "source_blocks_sha256": [
+        "6e85c278face52147e83eb6d70f107489c9af6eadc6f754378a90fd5992ab98e"
+      ],
+      "source_sha256": "6e85c278face52147e83eb6d70f107489c9af6eadc6f754378a90fd5992ab98e",
+      "text": "Ask the user how to map one metadata column."
     },
     "spacr.qt.widgets.metadata_table": {
       "source_blocks_sha256": [
@@ -92630,6 +93404,13 @@
       ],
       "source_sha256": "a70f43caae26934011791d5e297034ba567f7653722fb6cfbfff7edd1d7f52fc",
       "text": "One monospace block: counts, then velocities *with their unit*."
+    },
+    "spacr.qt.widgets.motility_preview.MotilitySummary.summary._f": {
+      "source_blocks_sha256": [
+        "9f36bf537c2428015eee63998ea35e46baf841d33d892d42a2384746323de44a"
+      ],
+      "source_sha256": "9f36bf537c2428015eee63998ea35e46baf841d33d892d42a2384746323de44a",
+      "text": "Format one number, or \"n/a\" when it is not finite."
     },
     "spacr.qt.widgets.motility_preview.build_motility_preview_card": {
       "source_blocks_sha256": [
@@ -94139,6 +94920,13 @@
       "source_sha256": "f21cf0bd130438ab2112c926c8cfd07c34e12cd6c6f05210eb892a1b87550cfb",
       "text": "Decompose and redraw. Refusals become a message, never a traceback.\n\nTHE CONTRACT, and how it was resolved. This method returned its\n``PCAResult`` synchronously, and the sklearn fit behind it is **1.63 s\non a 200 000-row x 48-column table** -- measured, and recorded as\n``PCA_STALL_BUDGET_S`` in ``tests/qt/test_gui_responsiveness.py``\nrather than hidden, because that is a 1.63 s frozen window on every\noption change and every filter change.\n\nThe fit now runs on a worker, and this returns ``None`` while it does.\nRather than pretend that is the same thing, the panel takes a\n``threaded`` flag:\n\n* ``threaded=False`` (the default, and what a directly-constructed\n  panel gets) runs the fit inline through :class:`JobRunner`'s\n  unthreaded path and returns the ``PCAResult`` exactly as before.\n* ``threaded=True`` -- what ``PCAScreen`` passes, so the application\n  gets it -- dispatches and returns ``None``. The result arrives at\n  :meth:`_on_computed`, which is where the drawing was already done,\n  and ``computed`` is emitted from there as it always was.\n\nA host that wants the result asynchronously has always had\n``computed``; nothing that listens to it changed. A caller that reads\nthe return value gets the old behaviour by not asking for threading,\nwhich is honest about the fact that a value cannot be returned before\nit has been computed.\n\n:returns: the decomposition, or ``None`` when it was refused or is\n    still running."
     },
+    "spacr.qt.widgets.pca_view.PCAPanel.recompute._fit": {
+      "source_blocks_sha256": [
+        "56fdae328447c38527452788687a45f34f7e8c58b0cab93872c973b09222992c"
+      ],
+      "source_sha256": "56fdae328447c38527452788687a45f34f7e8c58b0cab93872c973b09222992c",
+      "text": "Fit the decomposition. Off the GUI thread when threaded."
+    },
     "spacr.qt.widgets.pca_view.PCAPanel.result": {
       "source_blocks_sha256": [
         "37bcb618befcd2e37cab529fae43dd4c54783832eafd192a145a2d329b89dd0d",
@@ -94400,6 +95188,14 @@
       ],
       "source_sha256": "d18f03786ef1513c840affd97c5b7d39e6fe7b9bd2cdbe2f1fec21da3afcb5ef",
       "text": "Give ``view`` a right-click menu that saves what it is showing.\n\n:param view: the widget the user right-clicks.\n:param picture: called when the menu is used; returns the ``QPixmap`` or\n    ``QImage`` to write. Called AT SAVE TIME rather than now, so the\n    menu always writes the picture currently on screen.\n:param stem: the file name offered, without a suffix. A callable is\n    asked at save time, so a view whose contents change -- Overlay one\n    moment, Flows the next -- offers the name of what is on it now.\n:param unless: asked first; ``True`` means the right button belongs to\n    something else at this moment and no menu is shown. The live\n    preview's ruler is cleared with a right-click while it is active,\n    and a menu appearing over that would take a tool away to add a file\n    dialog nobody asked for.\n:returns: whether the menu was installed."
+    },
+    "spacr.qt.widgets.picture_export.install_picture_save._menu": {
+      "source_blocks_sha256": [
+        "1049e543421d64e48495276762dfff6b4fd561fa434c5e88d1297eeedda1a18e",
+        "d57d75fbe401a3139f87d1e8fe8ff4e946a04254bd07310b651a6d7872b055eb"
+      ],
+      "source_sha256": "b8009fd437a87894067079b0f12ff9d0cef4665c822e5484cb47ffe6e0571dbf",
+      "text": "Offer the save menu at ``point``; the path written, or ``\"\"``.\n\n:param point: where the right-click landed, in ``view`` coordinates."
     },
     "spacr.qt.widgets.picture_export.picture_dpi": {
       "source_blocks_sha256": [
@@ -96276,6 +97072,18 @@
       ],
       "source_sha256": "f061ee39007085cda582cc26024bfcf3bdd2acf92ac3b89398112137ed2359f8",
       "text": "Display a plate map and return its selection as a well specification.\n\n:param value: the wells already chosen, as a well specification. Parsed\n    against ``layout``, so wells outside it are dropped rather than\n    silently kept.\n:param layout: how many wells the plate has -- one of the sizes\n    :data:`spacr.well_spec.LAYOUTS` knows (6, 12, 24, 96, 384, 1536).\n    Defaults to 384.\n:param parent: parent widget.\nBuild the well picker over a plate layout.\n\n:param value: the wells to start selected, in the text form the settings\n    field holds.\n:param layout: the plate format, in wells.\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis": {
+      "source_blocks_sha256": [
+        "29f40a01bb592a9dda89e34545e6e56841c0878a5f214a16c5268b3834c753c4",
+        "fff0a0247a91c1d3f1ccf3ca2a982b110c40f94dc891aecbe32e029f9d2d94bf",
+        "e5a94992f939c8f3357cc4c79d63d3984ddd26f34041357c987612e182d418b7",
+        "fceb5c0b6fbfac7b6dfc67546b2a1ffd6b4dcc588901f91a6f709f8a19135467",
+        "215040e541e3fd7fb57cabdbbed014af072a63ca1ac38cb94b8e244c83320747",
+        "3ee7b5b523818c3d72dc3727aaa77d2871147da96caba04fdbc2784d3e21703f"
+      ],
+      "source_sha256": "b629ed0fd4faeb3fd17d23a67ecf04c8614263e3350899089bc4eb54dbfd67b8",
+      "text": "The signed scroll step along one axis.\n\n:param value: the pointer coordinate on this axis.\n:param low: the viewport's low edge on this axis.\n:param high: the viewport's high edge on this axis.\n:param bar: the scroll bar for this axis.\n:returns: 0 outside the edge band or when ``bar`` cannot scroll;\n    otherwise a step toward the edge, capped at\n    :data:`AUTOSCROLL_MAX_STEP`."
     },
     "spacr.qt.widgets.plate_map_picker.PlateMapPicker.ask_for_layout": {
       "source_blocks_sha256": [
@@ -98552,6 +99360,13 @@
       "source_sha256": "dcbab94d258fdab88b8f2ac4b8ac73166e7c5dcb0a298b6e63164f42ae4b19cf",
       "text": "Asynchronous Cellpose 3 restoration controls for Make Masks enhancement."
     },
+    "spacr.qt.widgets.restoration_controls._RestorationControls._load.work": {
+      "source_blocks_sha256": [
+        "32677f2e0adb3cef1e797fa77c80dfc469cb3a96e048b463eea6e999543e676f"
+      ],
+      "source_sha256": "32677f2e0adb3cef1e797fa77c80dfc469cb3a96e048b463eea6e999543e676f",
+      "text": "Return captured model identity or the original loading error."
+    },
     "spacr.qt.widgets.row_exclusion": {
       "source_blocks_sha256": [
         "e661151a82e49a520f2fb700b3b930098651856e62e8723951917d32738f9b0b",
@@ -99813,6 +100628,13 @@
       ],
       "source_sha256": "39d1854e124f0a24a1100579b76fd13f71ad662e752117ce02e12b6ca50251bd",
       "text": "The setup screen: one question per slide, over a moving backdrop.\n\n:param parent: parent widget.\nBuild the first-run slide deck.\n\nFrameless, like the rest of the shell: the card it draws has rounded\ncorners, and a square window frame around them is the seam this avoids.\n\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.widgets.setup_slides.SetupSlides._what_this_machine_can_do._answer": {
+      "source_blocks_sha256": [
+        "8df30532b3fe356c5cb8c1764e6043c66bb7757154f1d9c24d9f652a0d81be06"
+      ],
+      "source_sha256": "8df30532b3fe356c5cb8c1764e6043c66bb7757154f1d9c24d9f652a0d81be06",
+      "text": "The first answer whose task starts with ``prefix``."
     },
     "spacr.qt.widgets.setup_slides.SetupSlides.accept": {
       "source_blocks_sha256": [
@@ -102586,6 +103408,14 @@
       "source_sha256": "d3b9113962f0782044b69a69e50bafc5292c527c5b6684af95084fc54032d87b",
       "text": "Return projected grid lines and exactly two or three primary axes.\n\n:param coords: the embedding, an array of shape (n, 2) or (n, 3); a 2-D map\n    gets a zero third axis, and an empty, NaN-holding or otherwise shaped\n    array raises :class:`ValueError`.\n:param width: width of the drawing area, in pixels.\n:param height: height of the drawing area, in pixels.\n:param yaw: rotation about the vertical axis, in radians.\n:param pitch: rotation about the horizontal axis, in radians.\n:param zoom: magnification of the fitted view, floored at 0.05."
     },
+    "spacr.qt.widgets.umap_search_viewer.axis_frame.projected": {
+      "source_blocks_sha256": [
+        "eae7e57ce3beb335f61f3f318b07ecb87a9d83830e04616ca56ff92093c755c3",
+        "e5bc817dcf687c0723b6b0e315b83fe1c2c8d1b2c0de1b313ed942c1e16e9741"
+      ],
+      "source_sha256": "6de341cc0216cef081bc656b9c3ac00e2dfbd7887c840ae186d861f7aaede358",
+      "text": "Project points into the frame, in PIXEL coordinates.\n\nThe vertical is negated because screen y grows downward and the data's\ndoes not -- without it the plot is drawn upside down and still looks\nplausible."
+    },
     "spacr.qt.widgets.umap_search_viewer.colors_for_labels": {
       "source_blocks_sha256": [
         "7d65e5bb5c9e2e6b84dd3eb56e74153e54650d93362a9d24ab04acec5c23ca62",
@@ -102703,6 +103533,13 @@
       ],
       "source_sha256": "0cb5703b6d5768fa24854ab96788e3d0df9fb34bc65e60c01bce2813bb253b02",
       "text": "Build the context menu for styling the current volcano plot.\n\nReturns\n-------\nPySide6.QtWidgets.QMenu\n    A menu containing live style controls and style-file actions.\n    Changes update both the plot and its side-panel controls."
+    },
+    "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.build_style_menu.changed": {
+      "source_blocks_sha256": [
+        "2b673924be169bb54f81ae384ec3fa427288b1fa5f609cf80b8f1c89f893803f"
+      ],
+      "source_sha256": "2b673924be169bb54f81ae384ec3fa427288b1fa5f609cf80b8f1c89f893803f",
+      "text": "Re-apply the style after any menu entry changes it."
     },
     "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.compartments": {
       "source_blocks_sha256": [
@@ -103413,6 +104250,17 @@
       "source_sha256": "18a3ee34663bea6d10025c4abce3ec1584567b4091d40a699f97ddfe1247fadd",
       "text": "Format coverage, field samples, role evidence, and unmatched files."
     },
+    "spacr.regex_infer._assign_roles.claim": {
+      "source_blocks_sha256": [
+        "c2e809471b8cd48a8a283b86b79ec6c247efc23f3f05c1b8bb82f89df5277b10",
+        "e62ef9ade615161826346ce27740ba16989138e485c128c066325a7f10da9685",
+        "d380a1716bcb2294217c7dc2fde5315e815d0363edaaf974a8e9022772220f39",
+        "3c27aa790a4c8e5e598e6813fcac39413819add9f3cf445a21c6fedcfa8e9389",
+        "03927569f90a2157018673bacc87b275f61655bf1e3ecfc44abb257b417bfce8"
+      ],
+      "source_sha256": "080c1b107eb2a40a28bf6ffadcb63733a483b4dd3a4888588bc385b901304273",
+      "text": "Assign one still-available role to a slot.\n\n:param info: field evidence to update when the claim succeeds.\n:param role: proposed regex-group role; false-like roles are rejected.\n:param because: explanation recorded with a successful assignment.\n:returns: True after assigning and reserving a previously unused role;\n    otherwise False without changing the evidence or captured set."
+    },
     "spacr.regex_infer.hint_for": {
       "source_blocks_sha256": [
         "face4c213a58a6c1d5098f014b5ca69f3d570dc19bca2a7c2bd227e376fee3f2",
@@ -103974,6 +104822,16 @@
       "source_sha256": "dd115162a395f07570f2552b99e8da96547ed42c9db397a5c2eecaa00648a4db",
       "text": "Whether a backend is choosable right now, and the reason if not.\n\n:param name: backend name or label.\n:param regression_type: what the user is asking it to fit. ``None``\n    skips the compatibility half of the question.\n:returns: ``{name, label, device, enabled, reason, short_reason, url,\n    summary, cost, differs, pip}``. ``reason`` is ``''`` when enabled -- a\n    disabled entry always carries the sentence that says why, and it is\n    written to be shown ON the control, not logged.\n\n``short_reason`` IS THE SAME REFUSAL AT COMBO-ENTRY LENGTH, and it exists\nbecause a reason nobody can read is a reason nobody has. A greyed-out\nrow in a dropdown says only \"not this one\"; Qt shows an item tooltip\nlazily and only while the popup is open, so the sentence was reachable\nbut missable. The short form goes IN the entry's own text and in the box\nunder it, where it cannot be hovered past."
     },
+    "spacr.regression_backends.backend_status.refuse": {
+      "source_blocks_sha256": [
+        "f63ca91f49d30b0bb7b8b512b1ea5a56ba82751d590a258dbd66e917b98c219b",
+        "ecc305dbc416c7f64bbe4225c2cac1bed00ccc61b3ca13909302ca2cf43bfc62",
+        "4fb1e9d8cfa5197da4dc4308d1528f4cadef8d52cf63a239e57eb540c5220a25",
+        "f39851e467952727b6f8673d8e9e00efb2f87d98c9d43032497330ee10d0622f"
+      ],
+      "source_sha256": "36c0a79bc478fc1e6000e55b2bded23bfcf85248ef9630935d5295a6cebe059c",
+      "text": "Disable and explain the captured backend status.\n\n:param reason: full user-facing explanation of the refusal.\n:param short: combo-entry-length form of the same explanation.\n:returns: the captured status mapping after setting ``enabled`` false\n    and storing both explanations."
+    },
     "spacr.regression_backends.backend_supports": {
       "source_blocks_sha256": [
         "da8a6b10dc2668d7ff6d00788fed1c2bc904e1741147a4967e34da872309ca75",
@@ -104181,6 +105039,17 @@
       ],
       "source_sha256": "ad17f1384bf39cdb505dcac981c136f5d56cc5a6943fe9e51b2b6dbbf2a67409",
       "text": "Write every diagnostic the supplied inputs can support.\n\nNothing is required: pass what a given analysis mode has. The permutation\ntest has a design and P values but no fitted values; a simultaneous fit has\nall of them. Each block is skipped silently when its inputs are absent, and\na block that raises is recorded as an error rather than aborting the run --\na diagnostic that fails must never take the analysis down with it.\n\nEvery sheet also SCORES itself -- see :func:`score_design`,\n:func:`score_residuals` and :func:`score_inference` -- and wears its own\nbadge. The verdicts are rows in ``diagnostic_summary.csv``, per sheet and\nfor the suite (its worst), rather than entries in the returned mapping:\nthat mapping's contract is \"key -> a file that exists\". A reader is told\nwhether the numbers are fine rather than expected to know.\n\n:param destination: output directory created as needed for all diagnostic\n    figures, CSV tables, and the optional suite summary.\n:param formats: force particular formats, one file per format. ``None``,\n    the default, writes ONE file per panel in the format the user's figure\n    preference asks for.\n\n    IT USED TO DEFAULT TO ``(\"pdf\", \"png\")``, and that was wrong twice\n    over. Each entry re-runs the whole panel -- the same numbers computed\n    and the same picture drawn a second time -- and the pair ignored the\n    figure-format preference completely, so a user who had chosen PNG got\n    a PDF anyway. It also broke the rule the design sets, that a\n    saved figure and a visible one are the same event: two files for one\n    panel is two tiles in the gallery for one picture."
+    },
+    "spacr.regression_diagnostics.write_diagnostic_suite._emit": {
+      "source_blocks_sha256": [
+        "b5639a124bf541f4129193d2f499610e4a0e6894ca91fe8cf58637579910f9c2",
+        "e983706862841605daf98732e34404f63df559e6bc5073804d8080c1a2cd94ff",
+        "9fd8852a5146c0f71f9ee804ee443125b95928da81d68de8619966f3b21c65da",
+        "15f253e23cbe804562b295bef86eb30179b07cf04611132a3743dadab9d4fa26",
+        "402063e05f32eb1a50feb990f3c4fcd82b85483a13ca6277689110af14a0b80b"
+      ],
+      "source_sha256": "1c93483f5327bb92aa249787b060abea7fea6b6ed6403a906a381af39473dee4",
+      "text": "Write one diagnostic in every captured requested format.\n\n:param name: stable panel name used for paths and manifest keys.\n:param function: writer returning ``(written_path, report)``.\n:param kwargs: diagnostic inputs forwarded to the writer.\n:returns: None. Successful artifacts are keyed by their actual output\n    extension and their report is retained; advisory failures become\n    per-format error entries without stopping the remaining writers."
     },
     "spacr.regression_failure": {
       "source_blocks_sha256": [
@@ -104615,6 +105484,13 @@
       "source_sha256": "c765da77018d0d52a22ab4409dd4d3625e713cf6e833f5795d4851d7d3318f65",
       "text": "How a fit's residuals are put on a comparable scale, or why they are not.\n\n``std_resid = base / sqrt(variance * (1 - h))``. Both halves of that matter\nand both are model-class-dependent: ``base`` is a Pearson residual for a\nGLM and for beta regression, ``sqrt(w) * (y - fitted)`` for WLS and\n``y - fitted`` for OLS; ``variance`` is ``model.scale`` for OLS, its\n*square* for RLM, and does not exist at all for quantile regression.\n\n:param available: True when a correct error scale exists for this fit.\n    When it is False, ``base`` and ``variance`` are ``None``/``NaN`` and\n    ``reason`` says why — the panels that need a standardised residual\n    skip with that reason rather than standardise by a number that\n    happens to be there.\n:param metric: What ``base`` is, in words, for the axis and the report.\n:param source: Where ``variance`` came from, in words.\n:param base: The residual that is standardised, length ``n``.\n:param variance: The error variance in the metric of ``base``.\n:param reason: Why no standardisation exists, when ``available`` is False."
     },
+    "spacr.regression_qc._write_qc_numbers._plain": {
+      "source_blocks_sha256": [
+        "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034"
+      ],
+      "source_sha256": "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034",
+      "text": "Whatever JSON can hold, and a string for everything else."
+    },
     "spacr.regression_qc.build_context": {
       "source_blocks_sha256": [
         "7917ffdfe5170bb710d8cdb7750b8fcdb3b2b300c91ff1ff9594323f6056603e",
@@ -104660,6 +105536,15 @@
       ],
       "source_sha256": "a8ab2de0479a2eab81db3e10fab465e1adc876a88d64a7fe78380f2c7e1db99a",
       "text": "Return the condition number of a design matrix, scaled and unscaled.\n\nTwo numbers, because they answer different questions. The *unscaled*\ncondition number is what ``statsmodels`` prints in a summary, and it is\ndominated by the units of the columns: a predictor measured in cells rather\nthan thousands of cells changes it by 1000 with no change in the science.\nThe *scaled* one (each column normalised to unit length first, the\nBelsley-Kuh-Welsch definition) is unit-free and is the one whose thresholds\n— 30, 100, 1000 — mean anything.\n\n:param X: Design matrix, array-like ``(n, p)``.\n:returns: ``(scaled, unscaled, singular_values)`` where ``singular_values``\n    are those of the column-scaled matrix, largest first.\n\nExample:\n    >>> import numpy as np\n    >>> ortho = np.eye(3)\n    >>> round(condition_number(ortho)[0], 6)\n    1.0"
+    },
+    "spacr.regression_qc.condition_number._ratio": {
+      "source_blocks_sha256": [
+        "01d272c03c9ef616f2f8bca354e903b1471e01eff1a3a1983d72127dc6bdd149",
+        "8f5767cd7074d63f061564d1ce81867da5ae0a7020eb65abd82e442b509e1e01",
+        "75765d27f27fbc998a71a96c7348213309025e8217a60028155a3e0d2d7b886f"
+      ],
+      "source_sha256": "979600b929abe3bfd7488e24923573b368ed10efefc33a45e5e591c24fdaa1d5",
+      "text": "Convert descending singular values to a stable condition number.\n\n:param sv: non-empty descending singular-value array from the design.\n:returns: largest divided by smallest as a float, or infinity when the\n    smallest is at or below NumPy's numerical-rank tolerance computed\n    from its dtype and the captured design shape."
     },
     "spacr.regression_qc.condition_verdict": {
       "source_blocks_sha256": [
@@ -105486,6 +106371,13 @@
       "source_sha256": "c3c7f0bb00465629d17990820a77f7991388a7b05655c6c6e395351dd452132f",
       "text": "Rows the source had that are not shown."
     },
+    "spacr.report._zenodo_opener._NoRedirect.redirect_request": {
+      "source_blocks_sha256": [
+        "1b8cb99eb14fe066bdad228e311ea2f71feb6c58c7d51b13cd19c626bf67133c"
+      ],
+      "source_sha256": "1b8cb99eb14fe066bdad228e311ea2f71feb6c58c7d51b13cd19c626bf67133c",
+      "text": "Return ``None``: the redirect is not followed."
+    },
     "spacr.report.build_report": {
       "source_blocks_sha256": [
         "12f5390b44ea5498cb86d1db285663ed0ca3764f7f46dab24c8edcb4ab6336b7",
@@ -105760,6 +106652,15 @@
       ],
       "source_sha256": "e4bfe30f9bc0f58d4ce6bebb25d8597a5c55cbc53c043219fad9663dedaf9873",
       "text": "Format a statistical caption for a :func:`compare` result.\n\n:param result: response-distribution comparison result to render."
+    },
+    "spacr.response_distribution.caption.one": {
+      "source_blocks_sha256": [
+        "0b43e7c848d06dff81e813e5e6be329c33c83cff705833db206344069da87640",
+        "bb2eea7f1eb970c7a39e79b93876e8dadff89fe73585dad691efee33b9073f5b",
+        "3520c9792371f316547bbc97f0870121ac009d5abb83a82345151baa651c4303"
+      ],
+      "source_sha256": "8044faccc93ecb91a972f4a9805ceab207a2c13f8b1217b525539ebcb9049cbb",
+      "text": "Format one side of the captured before/after comparison.\n\n:param part: distribution summary returned by :func:`describe`.\n:returns: the display name alone when no family or finite statistics\n    are available; otherwise the name followed by finite normality\n    and skewness statistics."
     },
     "spacr.response_distribution.compare": {
       "source_blocks_sha256": [
@@ -107879,6 +108780,13 @@
       "source_sha256": "992007f6271a49c053267491395ffba44cb66de64eaf07280122394c0c565f44",
       "text": "Stamp ``run_id`` onto every :class:`logging.LogRecord` in this process.\n\nDone with :func:`logging.setLogRecordFactory` rather than a filter on\nthe root logger, because a filter attached to a *logger* is consulted\nonly for records logged through that logger — records propagating up\nfrom ``spacr.measure`` never see it, which is every record that\nmatters. The factory sees them all, whichever handler is attached and\nwhenever it was attached.\n\nIdempotent, and chains onto whatever factory is already installed\ninstead of replacing it."
     },
+    "spacr.runctx.install_run_id_logging._factory": {
+      "source_blocks_sha256": [
+        "63153f052b849f999a255dcab7f4d3b07ad75c3cf998b5505a0c6fdbaa582f3d"
+      ],
+      "source_sha256": "63153f052b849f999a255dcab7f4d3b07ad75c3cf998b5505a0c6fdbaa582f3d",
+      "text": "Create a record and stamp the ambient run id onto it."
+    },
     "spacr.runctx.new_run_id": {
       "source_blocks_sha256": [
         "22f89f4620a93ea06e88ad026dc47cba5f7af5d0745d80b733dafcdaebc70ee0",
@@ -108300,6 +109208,14 @@
       ],
       "source_sha256": "62be6d8daafba1e425dab2f43fb35482982f7dce18167a7b5028d232e89999f5",
       "text": "A well identifier could not be turned into a row and a column."
+    },
+    "spacr.schema._non_numeric_feature_error.diagnostic_dtype": {
+      "source_blocks_sha256": [
+        "27ea035243c0292afe18579af1254ba33928446e3caa9d6a348e286f9a8f0cfd",
+        "da49b748d70a86792be95d9f7be64fe134aa9e297b651523a739cb356d9c17b2"
+      ],
+      "source_sha256": "76db87a5c00d4aaaf94c8db4f37e1bfa0c83739a95b5890e77882eb3aae796b2",
+      "text": "Return stable user-facing text for a pandas feature dtype.\n\nPandas ``StringDtype`` is reported as the established ``object``\nwording; other extension and NumPy dtypes retain their own names."
     },
     "spacr.schema.add_identity_columns": {
       "source_blocks_sha256": [
@@ -109005,6 +109921,14 @@
       ],
       "source_sha256": "359dbed136a61a092f7658c72fac8126d13c813d3f7fb0a6b9de5cc789af8700",
       "text": "Validate an object-table frame against its canonical contract.\n\nValidation is deliberately strict at the writer boundary and\ncompatibility-preserving in shape:\n\n* required identity/provenance columns must exist and be non-null;\n* labels (and present parent links) must be positive integers;\n* ``prcf`` must exactly match the component key columns;\n* one write batch may contain at most one row per object key;\n* measurement stamps are all present or all absent;\n* features from another compartment are rejected, and this table's own\n  feature namespace must be numeric.\n\nExtra columns are allowed because annotation columns are user-defined and\nhistorical databases contain extensions. Legacy metadata spellings are\ncanonicalised on the returned copy before validation.\n\npandas is imported only when this function is called. Importing\n:mod:`spacr.schema` itself remains standard-library-only for CLI,\nmultiprocessing, and resume preflight paths.\n\n:param frame: pandas DataFrame to validate.\n:param table: one of :data:`CANONICAL_OBJECT_TABLES`.\n:param timelapse: require/forbid ``timeID``; ``None`` infers it.\n:returns: canonical-column DataFrame copy.\n:raises ObjectTableSchemaError: on any contract violation."
+    },
+    "spacr.schema.validate_object_table_frame._validate_positive_integer": {
+      "source_blocks_sha256": [
+        "3c1a3e84f5e43fce16e7b60915e500fc0ca4460e45f1d644cbd5dab1020127d3",
+        "87d3af58d003bf3ee24ec75111519d792bae061d24d0114a8c1a6e9fd82187ae"
+      ],
+      "source_sha256": "5be5ccc20975e7e61bbbaee529eab1309ffac8fa8e047604895bcb74edc7b3b1",
+      "text": "Require positive integral values in one canonical key column.\n\nWhen ``nullable`` is true, nulls are ignored while every populated\nvalue is still checked; failures name the table, column, and examples."
     },
     "spacr.schema.well_id": {
       "source_blocks_sha256": [
@@ -109797,6 +110721,15 @@
       "source_sha256": "43fa08401ff072e6e8d36fa97aa5a86ecdb2eb0713abe8210f864fb20bb1a074",
       "text": "Project folders to look for scorecards under, best first.\n\nHandles the shapes ``settings['src']`` actually takes:\n\n* a plate folder — cards are in ``<src>/qc``;\n* the merged folder Measure is usually pointed at (``<plate>/merged``) —\n  cards are one level up, the same hop\n  :func:`spacr.ports.project_root` makes;\n* a list of plates, which is how several plates are run at once;\n* a project root holding plate subfolders, each with its own ``qc/``.\n\n:param src: a path, a list of paths, or None.\n:returns: existing folders, de-duplicated, in the order above."
     },
+    "spacr.seg_qc.qc_roots._add": {
+      "source_blocks_sha256": [
+        "4589f9a1c8b33c188d359522d7eda0185da508f70d73550021ff0540ad753a80",
+        "15ba52a7dd15cde585e7eb5e13d4b39ebf1d997ed7d7ae4bb7f3a1da62eb20fe",
+        "0429e29cb2476df27fd171e2ada9ceeca1785880bb56f0671378d3cbbd2d03a7"
+      ],
+      "source_sha256": "a6901714b6f1c517d9e7ab50ef8ecb3e1914c0d1aa4c0ded069d91d6dd4f368f",
+      "text": "Append one unique existing directory to the captured candidates.\n\n:param path: candidate directory path; false-like, missing, non-directory,\n    and already-recorded values are ignored.\n:returns: None. Accepted paths retain discovery order."
+    },
     "spacr.seg_qc.read_digest": {
       "source_blocks_sha256": [
         "85acb16f19995beddfbb8fcbe1bcfffbf9bb0a985a6d440e190b5560aa43e9f2",
@@ -109908,6 +110841,15 @@
       ],
       "source_sha256": "8b51c24969ef4e74fbee93e4c96fa15329b2ff8c5f0328f54fae2e97f4fe334e",
       "text": "Headless segmentation-uncertainty scoring and lossless map export.\n\nFour test-time transforms of the primary model define reference objects.\nAn optional second model contributes four equally weighted label sets;\nnear-miss probabilities and flow diagnostics remain those of the primary\nmodel, whose threshold and object identities the user selected. Scores rank\nreview effort; they are not calibrated probabilities of biological error."
+    },
+    "spacr.segmentation_uncertainty._make_segmenter.segment": {
+      "source_blocks_sha256": [
+        "c057e638b609a3f3b7a80efad43030ab801c41c600b7ddfb225cf9feb7bb31c7",
+        "bd6b98d8d7f1c3f6d6a533e5df80e9372335ceed38765b21a341b5f7bc0638b9",
+        "1dda7536bab3fdf54b223f8958c574f9be0bbdd99d3efa85e14bd8f7c3cc1ac5"
+      ],
+      "source_sha256": "7929b496beeec6e2bfcd41af3dbc47557398365b8fcc5ddbeccb345e4c61c835",
+      "text": "Infer one transformed field through the shared output parser.\n\n:param image: 2-D field supplied by the TTA scorer.\n:returns: labels, logits and vector flows in the input orientation."
     },
     "spacr.segmentation_uncertainty.compute_queue_uncertainty": {
       "source_blocks_sha256": [
@@ -110129,6 +111071,16 @@
       ],
       "source_sha256": "07aeaa0aa6bb73f2375381f61d66544a1eec94aae84b890b1a64954739698c65",
       "text": "The rows of ``df`` this request names, **in the request's order**.\n\nNot a mask, and not ``df``'s order: the caller's order is the answer\nfor a request built worst-first, and a boolean mask would silently\nre-sort it back into table order. Keys with no row in ``df`` are\ndropped — a request can name objects a narrower table does not carry,\nand that is a smaller result, not an error.\n\nTypes are matched by specificity, exactly as\n:meth:`Selection.mask_for` describes: an exact match first, then a key\nthat states no type, then a typed key against a row that states none.\nTrying them in that order is what keeps a request naming both a\nnucleus 1 and a pathogen 1 opening as two rows rather than one.\n\n:param df: object table to filter and reorder according to the\n    request's key order.\n:param object_type: the table ``df`` came from, when the frame does\n    not carry :data:`OBJECT_TYPE_COLUMN` itself."
+    },
+    "spacr.selection.ObjectRequest.select_from.rank": {
+      "source_blocks_sha256": [
+        "cc5f740badeee9eaa433642f61f6aaa22c16e08b4b4af515d3b4e0904c5497ec",
+        "bca754aac53d8a32f7eb451eb8d2b069ea0a0841235879ee8004a8ff36afa2db",
+        "34f93dd291b288f44289d6d2fb7f97d0a5754e4448a8ae439cc37d39d0637b23",
+        "3ba15d757ed66ad2ac7394b0effcf43dd82268ac69c9639088050ec4012890f2"
+      ],
+      "source_sha256": "fa28d5e541d31903e168c06dc482e0e1c8cd32355c3350b03ab3b84d59458f1c",
+      "text": "Find a row key's position in the captured request.\n\n:param typed: row key including its object type when available.\n:param plain: the same row key without an object type.\n:returns: request position using exact typed, loose untyped, then\n    narrowed typed-request precedence. Narrowing is allowed only\n    for an untyped row (``typed == plain``); absent keys return -1."
     },
     "spacr.selection.RangeFilter": {
       "source_blocks_sha256": [
@@ -110985,6 +111937,15 @@
       ],
       "source_sha256": "999e14c4679de83b28b1aadfdd69b5357128607f5f09500b94e65056c1db88ea",
       "text": "Largest fraction of the frame border that changes after the first frame.\n\nThis measures an ENCODING fault rather than a drawing one. Saving a GIF\nwith ``disposal=2`` tells a decoder to clear each frame to the background\ncolour before drawing the next; when the encoder then optimises a frame\ndown to the sub-rectangle that actually changed, everything outside that\nrectangle is left showing the background. The animation plays with a\nbright ring flashing around it once per loop, and Qt's ``QMovie`` renders\nit exactly as described -- this was measured through the GUI path, not\ninferred from the file.\n\nIt also corrupts :func:`measure_visible_change`, because a ring around a\n360x360 frame is 9.75% of it: an animation that shows almost nothing\nscores over 10% and clears the threshold on the artifact alone.\n\n:param path: the GIF to measure.\n:returns: 0.0 to 1.0, where 1.0 means an entire frame border changed.\n    Returns 0.0 when the file cannot be read, so a caller sees the other\n    animations rather than a traceback."
+    },
+    "spacr.setting_animations.measure_border_artifact.perimeter": {
+      "source_blocks_sha256": [
+        "6b568afd806eb2332ab34985013bc83c69d32d3f715bea597e7bc6ba625ad127",
+        "3237bdc3a607e53ac1a795e724fb35d713ddf63891d2ae45393b66a2f87c7c5c",
+        "a68aa76edef7eadce128ba02e7ccb3c63f021878f99b76f37bcb89e0d8910508"
+      ],
+      "source_sha256": "42b1a4f3c2341cc4b9b7ee929bbee0530f2d9eb89f919d04d023bcb3fc585b2a",
+      "text": "Flatten every border pixel into RGB rows exactly once.\n\n:param frame: captured-animation RGB frame to sample.\n:returns: top and bottom bands followed by the left and right interior\n    bands. Omitting corners from the side bands prevents double\n    counting while preserving a stable comparison order."
     },
     "spacr.setting_animations.measure_border_object_removal": {
       "source_blocks_sha256": [
@@ -112567,6 +113528,13 @@
       "source_sha256": "2a6de3ac9cc2e8d60260014b815684441db4bfd77b0af06d4b3edf627ad9b722",
       "text": "The additive fit ``overall + row + column`` on the full grid."
     },
+    "spacr.sp_stats._score_anomalies._cross_fitted": {
+      "source_blocks_sha256": [
+        "7fb96d30f089348d2a203c28ae0657643ee10ff4286ed9c7caba6280fc85885f"
+      ],
+      "source_sha256": "7fb96d30f089348d2a203c28ae0657643ee10ff4286ed9c7caba6280fc85885f",
+      "text": "Join two half fits so each half is scored by the fit of the other half."
+    },
     "spacr.sp_stats.b_scores": {
       "source_blocks_sha256": [
         "b473cecad9843f404a206419361d9f450d5cba41c12bae2e537a0226ccca8cc1",
@@ -113006,6 +113974,16 @@
       "source_sha256": "0bc4986274a6837163880456379dd18bd7744ab2cca3290a4e4d3e89de84555d",
       "text": "Every FASTQ in ``accession``, newest ENA metadata.\n\n:param accession: a BioProject (``PRJNA...``) or a single run (``SRR...``).\n:param opener: replaces the network call; receives the URL and returns a\n    file-like object of TSV bytes.\n:returns: one :class:`RunFile` per mate per run, ordered by run then mate."
     },
+    "spacr.sra.runs_for.cell": {
+      "source_blocks_sha256": [
+        "97b996f61423ae3243d3ee8307e7b25c6b148d8cd8306f8d7f570bf9204469d4",
+        "1a7a09568b9eda5340701e077da315adb79bc2821940588ae8675c59ced70279",
+        "5353fdabddad57c932f4d2195729be0f44f90533ddb31ea35abce55981e525a6",
+        "d3166cd2b4e1bb2de2a93fc9fb78562735ad3f56053e6f2484402c37efd73f3d"
+      ],
+      "source_sha256": "f8e4bd434b2a8e330e6fe8d8c5926167143b42114a6c3378ec6cc7e74953387b",
+      "text": "Read one named value from the bound portal row.\n\n:param name: ENA header name to look up in the captured index.\n:param row_cells: cells bound when this row's helper is created,\n    preventing later loop iterations from changing the source row.\n:returns: the indexed cell, or an empty string when the column is\n    absent or the row is too short."
+    },
     "spacr.sra.total_bytes": {
       "source_blocks_sha256": [
         "8a08f447b2aa0fce67204e70cf6e9752ccd6e104a4ce012926e5a9afc1160566",
@@ -113118,6 +114096,16 @@
       ],
       "source_sha256": "136e6f31f7baf00ce04a918a44657bcb5e3d5195ab4d273c5dcdff7292b65546",
       "text": "Write crops described by a saved selection table.\n\nEach merged field is loaded once and all selected objects from that field\nare extracted before advancing. Missing or ambiguous field matches are\nreported as missing crops; a different field is never used as a fallback.\n\nParameters\n----------\nselection : pandas.DataFrame\n    Selection produced by :func:`build_selection`.\nmerged_folder : str\n    Directory containing merged ``.npy`` arrays.\ndst : str\n    Destination for split-specific crop directories.\nchannel_arrays : sequence of int, default=(0, 1, 2)\n    Image channels to retain.\nmask_index : int, optional\n    Mask plane index. The final plane is used when omitted.\nbounding_box : bool, default=True\n    Whether crops retain every pixel in the object bounding box.\ncrop_mode : str, default=\"cell\"\n    Object type used for crop naming.\nwrite : callable, optional\n    Function accepting ``(path, array)``. The default writes NumPy arrays.\n\nReturns\n-------\ndict\n    Written and missing crop counts, processed field count, destination\n    folders, and per-field problems."
+    },
+    "spacr.stream_dataset.stream.write": {
+      "source_blocks_sha256": [
+        "47616239e71a2962d68bd64213399c1de12428622631bcfcc89180dd02887383",
+        "d6ea107ed0731bc629ce40e2335cfb0f2dd4e1e75b4b391f4f601ab4ea4c96d3",
+        "918f7bf944104e3379331ceddd93c6f03612c3941a503812c01b8aebd88a4277",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "40b7ad4aab37a1d0fa40a9910e5a677386413897540acdc2a5b4c9994c0cbf53",
+      "text": "Save one extracted crop using the default NumPy format.\n\n:param path: proposed output path; its extension is replaced with\n    ``.npy``.\n:param array: crop data to coerce to an array before saving.\n:returns: None."
     },
     "spacr.stream_dataset.stream_dataset": {
       "source_blocks_sha256": [
@@ -113734,6 +114722,13 @@
       "source_sha256": "c4ee533ef981b9122f6547eacff6d6e0547a7a3047d55b16aa59d2799f340074",
       "text": "What a suggestion run proposes, and how far to trust it.\n\n:param frame: one row per unannotated crop with ``png_path``,\n    ``suggested``, ``stored`` and ``confidence``, most confident first.\n:param note: what a reader must be told before accepting in bulk.\n:param scored: how many crops carried usable scores.\n:param classes: the class values the scores describe, in column order."
     },
+    "spacr.suggest._score_columns.index": {
+      "source_blocks_sha256": [
+        "f0d055e1c998f3e38c00c4fcd873a397ca3daf14d29fd6b905458d418e35b1d0"
+      ],
+      "source_sha256": "f0d055e1c998f3e38c00c4fcd873a397ca3daf14d29fd6b905458d418e35b1d0",
+      "text": "The integer suffix of a score column, for ordering."
+    },
     "spacr.suggest.ensure_verdict_column": {
       "source_blocks_sha256": [
         "00c0342135c5fb537853a28f40c9ec4e70011a5bdc76a4b6777ce20ff199fbbd",
@@ -113931,6 +114926,13 @@
       "source_sha256": "073039add77bff5a2643d7e819bbe06a3062152a02bbe6729ff5ee8dd1dbf7ef",
       "text": "The ``n`` most important features by one measure.\n\n:param n: how many rows.\n:param by: ``'permutation'``, ``'shap'`` or ``'gain'``. Falls back to\n    whichever was computed, rather than raising, so a run without\n    SHAP still reports something."
     },
+    "spacr.surrogate._kernel_shap_values._predict": {
+      "source_blocks_sha256": [
+        "7ba336410954ba20a2f2317ee06b27b964ccdc6ee3a7e1670cd4600c4a0a93c5"
+      ],
+      "source_sha256": "7ba336410954ba20a2f2317ee06b27b964ccdc6ee3a7e1670cd4600c4a0a93c5",
+      "text": "Call the model on a frame with the training column names."
+    },
     "spacr.surrogate.available_backends": {
       "source_blocks_sha256": [
         "1015dfad15fee969ea6e3f1bcb907fcd3222ebd76c4e40ffdb32c3329fbdcfe6",
@@ -114060,6 +115062,17 @@
       ],
       "source_sha256": "e1632a2d27af1c436bf4504e9400e259fbcade2db67dbea4d76ccc4f75dbdf50",
       "text": "Write the complete, provenance-bearing surrogate result bundle.\n\nImportance tables are always retained as source data, but plots are only\npresented when the held-out fidelity clears the declared improvement gate.\n\n:param result: fitted :class:`SurrogateResult`.\n:param destination: new or existing output directory.\n:returns: mapping of artifact role to absolute path."
+    },
+    "spacr.surrogate.write_surrogate_result._csv": {
+      "source_blocks_sha256": [
+        "10d2ffe0dbbc9acde6b4cd54fd939ac0dddbf8fe2cec75b08373e0425903b37f",
+        "cff534eea9474d56c49d31ac1d51868369a9823971a6ebd468140f7f424f19ad",
+        "8c30c1832c6e205634a8d232d76d896e5946151c8071fd26211c8f5d9c46af58",
+        "89147a721b6691172b593d9701081db8a80f83f7cd6b48b1a454c0cbd5d408c1",
+        "d1527ee2e39d2dcc9073410b8da836afba091f3ff6ed92768ec8a87a4d233e20"
+      ],
+      "source_sha256": "25ef616b07622c3e4b45242a49191b81480bec62ae084c743a7acb330405ea9d",
+      "text": "Write and register one non-empty result table.\n\n:param role: artifact key to add to the captured path mapping.\n:param name: CSV filename beneath the captured output directory.\n:param frame: result table to write with its index; None and empty\n    tables are deliberately omitted.\n:returns: None. A written table's absolute path is stored in the\n    captured artifact mapping."
     },
     "spacr.sweep_child": {
       "source_blocks_sha256": [
@@ -114962,6 +115975,13 @@
       "source_sha256": "15b886b22ab832957c8d0eb59b23c486ef245d976c570f72804195ec077c12e1",
       "text": "Aggregate object-weighted results with explicit missing-data denominators.\n\n:param rows: per-object records from :func:`score_pair`.\n:returns: overall, motion, density and joint-stratum summaries. Successor\n    accuracy is ``None`` where no true successors are available; false\n    links and abstentions are counts with their population sizes retained."
     },
+    "spacr.timeflows_validation.summarise.group": {
+      "source_blocks_sha256": [
+        "af8a4ec2d376327bbd1f8699ad24c5504780b27e15ced0d30ae4691c647c1724"
+      ],
+      "source_sha256": "af8a4ec2d376327bbd1f8699ad24c5504780b27e15ced0d30ae4691c647c1724",
+      "text": "Summarize correct successor links and abstentions for the selected ground-truth objects."
+    },
     "spacr.timeflows_validation.temporal_assignment_policy": {
       "source_blocks_sha256": [
         "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
@@ -115309,6 +116329,13 @@
       "source_sha256": "c7ab7ffe575f8351bcc974783390dbed25b12667e5f0b5e3ceafdd3df380caae",
       "text": "Render a heatmap for selected genes across selected metadata columns.\n\nTHE RAMP IS SINGLE-HUE. It was viridis, a rainbow that reads as five\ncategories where the quantity is one ordered score; the house style's\n``Blues`` runs light to dark, so \"more\" is one direction rather than a\ntour of the spectrum. A diverging map would be right only if the values\nwere signed, and after ``normalize`` they run 0 to 1.\n\n:param data: DataFrame containing per-gene rows. Copied before use -- the\n    row-key column this adds used to appear on the caller's frame.\n:param gene_list: Genes to include as heatmap rows.\n:param columns: Column names to include as heatmap columns.\n:param x_column: Column holding gene identifiers for row matching.\n:param normalize: When True, min-max scale each gene's row to [0, 1].\n:param save_path: Optional destination for the figure. Saving goes through\n    :func:`spacr.figures.scene.write_figure` and, on its fallback,\n    :func:`spacr.plot.save_figure`, so the format and the file extension\n    follow the figure preference rather than always being PDF.\n:returns: None. Displays the Matplotlib figure."
     },
+    "spacr.toxo.plot_gene_heatmaps.extract_gene_id": {
+      "source_blocks_sha256": [
+        "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2"
+      ],
+      "source_sha256": "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2",
+      "text": "Return the numeric portion of a ``TGGT1_<id>`` tag, or ``gene`` itself."
+    },
     "spacr.toxo.plot_gene_phenotypes": {
       "source_blocks_sha256": [
         "b4c4acdc3c95d7336b6639fed238eab6059f3f074042daa61522c54be60acec1",
@@ -115319,6 +116346,13 @@
       ],
       "source_sha256": "7ad0630593cc784f6341adead8dbc43fb1ed788d65cd47feea2b1e6667152376",
       "text": "Plot ranked mean phenotype with SE shading and highlight selected genes.\n\nParameters\n----------\ndata : pandas.DataFrame\n    Gene identifiers and phenotype/error columns. The frame is copied\n    before numeric conversion.\ngene_list : iterable of str\n    Gene names or ``TGGT1_<id>`` identifiers to highlight.\nx_column : str, default='Gene ID'\n    Column used to match gene identifiers.\ndata_column : str\n    Mean phenotype column plotted on the y-axis.\nerror_column : str\n    Standard-error column used for the uncertainty band.\nsave_path : path-like, optional\n    Figure destination. The configured figure format controls the final\n    extension.\n\nNotes\n-----\nThe complete ranked phenotype curve is drawn in grey and selected genes\nuse the spaCR accent colour. The figure is displayed after optional save."
+    },
+    "spacr.toxo.plot_gene_phenotypes.extract_gene_id": {
+      "source_blocks_sha256": [
+        "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2"
+      ],
+      "source_sha256": "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2",
+      "text": "Return the numeric portion of a ``TGGT1_<id>`` tag, or ``gene`` itself."
     },
     "spacr.train_compare": {
       "source_blocks_sha256": [
@@ -118763,6 +119797,21 @@
       "source_sha256": "ff1df79e4808ebce594f965a60dfca677052595c7553369b783a3415bb773be0",
       "text": "True when this problem would break or corrupt the run."
     },
+    "spacr.validate._check_required_paths._require_file": {
+      "source_blocks_sha256": [
+        "5ce367b860a85b651d5d8b81c991aff07f9371ee827d5836db12627f63fdcde3",
+        "9c3d7d7881cc9ae07b0db7782d755839bc448afcdb55bffe24e401adf88e8bcc"
+      ],
+      "source_sha256": "b5d634871d0605f38d7d3172e0550016e3b60320240c2b49a81e9e2ce20bdd24",
+      "text": "Refuse a missing or unset path, saying what it was needed FOR.\n\nBoth the purpose and the fix are carried into the message: \"not set\" on\nits own tells a user what happened and not what to do about it."
+    },
+    "spacr.validate._describe_regression_plan.paths": {
+      "source_blocks_sha256": [
+        "10fb81801b0a1d56c507481f3fcf048412e40da9c1ef30144b6ca92c152f19e9"
+      ],
+      "source_sha256": "10fb81801b0a1d56c507481f3fcf048412e40da9c1ef30144b6ca92c152f19e9",
+      "text": "Normalize an optional scalar or sequence source into a list without inventing entries."
+    },
     "spacr.validate.coerce_expected_types": {
       "source_blocks_sha256": [
         "316c2c9415f488ff22f8ea4344c14f8d01c19d74b5d3c64ca2cea5d921a90d8f",
@@ -119237,6 +120286,17 @@
       ],
       "source_sha256": "5a236b3e9b343cce34f7396b7996ccf85ab188ea91eee245e04506236667677a",
       "text": "Build metadata records for files referenced by workspace sections.\n\nString values that resolve to existing paths are discovered recursively.\nA section may also list files under the reserved carry key to request that\ntheir bytes be included in the bundle.\n\n:param sections: workspace state keyed by section name.\n:param hash_files: compute SHA-256 for regular files when true.\n:returns: deterministic file records ordered by source path."
+    },
+    "spacr.workspace.inventory.add": {
+      "source_blocks_sha256": [
+        "78d0cefdb55b7d9c7abbdafb247fd7dbb2a92b900728ad40b161b4d62653494c",
+        "cb7fbf52f86f1fd222f09db2f6481a9721f0a77b2a1334c43463ad022351c7d8",
+        "7131ded1f3aca55cf3d234eb2c9818ff5e0eaf323042bc3f1dc25dcf6de84685",
+        "38c07ace063d3ef4022b951d32ce256abdc7f6127561753d3008e6b469ff2226",
+        "ab72bdd958dba241c24afc1ec9891b6ee874036d3997fcd19debae98b92c13ef"
+      ],
+      "source_sha256": "8ae101649c46f984295e955fad24387a8838a9d59d670e3005c2228b45b65862",
+      "text": "Add or promote one path in the captured inventory.\n\n:param role: source role recorded when the path is first seen.\n:param raw: path text to expand and inspect.\n:param carry: whether the file must be included in a bundle.\n:returns: None. Invalid and missing paths are ignored; repeated paths\n    reuse their first record and are promoted when any occurrence\n    requests carrying. File hashing follows the captured\n    ``hash_files`` policy."
     },
     "spacr.workspace.inventory_text": {
       "source_blocks_sha256": [
@@ -119733,6 +120793,17 @@
       ],
       "source_sha256": "2bffd19b932364ed0e8603e25890cdac3f86a4d5aa3738421f986790f2225036",
       "text": "Work out which leading axis is t and which is z, or refuse to.\n\nThe trailing two axes are taken to be ``(Y, X)``. That is not a guess:\n:data:`AXIS_ORDER_TZYX` and :data:`AXIS_ORDER_ZTYX` agree on it, so there\nis nothing to choose between, and it is checked -- if either of them is\nshorter than ``xy_min`` the array is not ``(..., Y, X)`` at all and that is\nan error rather than a silent transposition.\n\nThe two *leading* axes are ``t`` and ``z`` in an order the shape cannot\nreveal. This function settles it only from evidence:\n\n* ``n_t`` and/or ``n_z`` given, and exactly one assignment matches -> that\n  assignment;\n* a hint given that matches *both* assignments (``n_t == n_z``, or the two\n  leading axes are the same length) -> ambiguous, ``None``;\n* a hint given that matches *neither* -> :class:`TStackError`, because the\n  user's belief about the data and the data disagree;\n* no hint at all -> ambiguous, ``None``.\n\nThere is deliberately no heuristic on the leading lengths. \"Time series are\nlonger than z stacks\" is true often enough to be dangerous and false often\nenough to ruin an experiment -- a 5-timepoint acquisition of 40-plane\nstacks is an ordinary thing to collect.\n\n:param array: a 4-D array (or a shape tuple).\n:param n_t: number of timepoints, if known independently of the array.\n:param n_z: number of z planes, if known independently of the array.\n:param xy_min: smallest side length still considered an image axis.\n:param channel_axis: index of a channel axis to ignore, if present.\n:param strict: raise instead of returning ``None`` when ambiguous.\n:returns: an :class:`AxisOrder`, or ``None`` when it cannot be settled.\n:raises ValueError: when the array is not 4-D (after removing any channel\n    axis), or its trailing two axes are not an image plane.\n:raises TStackError: when a supplied ``n_t``/``n_z`` matches neither\n    reading.\n:raises AmbiguousAxisOrderError: when ``strict`` and the order is\n    ambiguous."
+    },
+    "spacr.zstack.detect_axes._order": {
+      "source_blocks_sha256": [
+        "0d4a0440352f0c0ba511435f288bf84b71d98d84a8afa8a7aa922721c0d6f30d",
+        "cdbf706340da78ada0dd383260fcb89e370e00fa7cb2a87ba78a2a15f275eecc",
+        "2ff02eaff153d9423f752f6a11861eb6b1722ecc95730d165e80d5e0e7919186",
+        "2c35d76ad85152d9c91d89ae610e154d8167f801abda87e82d290aed056bbb39",
+        "1e06d569a4f89ff21467d3009fd7ab1b4867eed7c037568267af4ae8f14510d2"
+      ],
+      "source_sha256": "f76e77d9b1b5de0c2727f85267c7c31a54e93e3d560d3c162391e7d05d07f750",
+      "text": "Build one axis-order candidate with captured image axes.\n\n:param t_axis: proposed time-axis index.\n:param z_axis: proposed depth-axis index.\n:param source: evidence label explaining how the proposal was chosen.\n:returns: an axis order combining the proposal with the captured Y, X,\n    and normalized optional channel axes."
     },
     "spacr.zstack.detect_z_axis": {
       "source_blocks_sha256": [

@@ -1,0 +1,1799 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr._lineage_measurements._measured_lineage_options.number#0",
+      "source": "Reject boolean, nonnumeric and unrepresentable numeric settings.",
+      "source_sha256": "f34e400cbd996ff882d6eb08b2e445ada007ddff2faa227f11bfa676d74fc9b9",
+      "context": "Reject boolean, nonnumeric and unrepresentable numeric settings.",
+      "translation": "बूलियन, गैर-संख्यात्मक और अप्रदर्शनीय संख्यात्मक सेटिंग्स को अस्वीकार करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._starplast.install_starplast.line#0",
+      "source": "Persist all subprocess output and send the latest line to Qt.",
+      "source_sha256": "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e",
+      "context": "Persist all subprocess output and send the latest line to Qt.",
+      "translation": "उपप्रक्रिया का पूरा आउटपुट सहेजता है और नवीनतम पंक्ति Qt को भेजता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr._starplast.upgrade_starplast.line#0",
+      "source": "Persist pip diagnostics and update the progress display.",
+      "source_sha256": "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c",
+      "context": "Persist pip diagnostics and update the progress display.",
+      "translation": "pip निदान सहेजता है और प्रगति प्रदर्शन को अपडेट करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu#0",
+      "source": "Run Cellpose flow-error filtering on the CPU for Metal.",
+      "source_sha256": "a44ae08ddb00d112884880992a83b68ed28a42ec249ced2d404cbcb3b7bf1655",
+      "context": "Run Cellpose flow-error filtering on the CPU for Metal.",
+      "translation": "Metal के लिए CPU पर Cellpose की फ़्लो-त्रुटि फ़िल्टरिंग चलाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu#1",
+      "source": "label masks forwarded unchanged to Cellpose.",
+      "source_sha256": "df02c0a299e96ed6a218c7d486cd33065ce86c1f70119b74c377339b36e54add",
+      "context": "label masks forwarded unchanged to Cellpose.",
+      "translation": "Cellpose को बिना बदले भेजे गए लेबल मास्क।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu#2",
+      "source": "flow field forwarded unchanged to Cellpose.",
+      "source_sha256": "edf22d6669a1a43175cf129a9c18cd9702252b04995e0556df3a03a47e885f8f",
+      "context": "flow field forwarded unchanged to Cellpose.",
+      "translation": "Cellpose को बिना बदले भेजा गया फ़्लो फ़ील्ड।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu#3",
+      "source": "flow-error threshold forwarded to Cellpose.",
+      "source_sha256": "82308d28c73b6dcab0ba26d652ef31bb9b9f88263847b920ccbe68c6c879b7a9",
+      "context": "flow-error threshold forwarded to Cellpose.",
+      "translation": "Cellpose को भेजी गई फ़्लो-त्रुटि सीमा।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu#4",
+      "source": "ignored compatibility argument; the wrapped call always receives ``torch.device(\"cpu\")``.",
+      "source_sha256": "10607a4349d6038c482cf48d9412cfba0cfdbe2daf5eb45f1a169eb2ba4272be",
+      "context": "ignored compatibility argument; the wrapped call always receives ``torch.device(\"cpu\")``.",
+      "translation": "अनदेखा किया गया संगतता तर्क; लपेटी गई कॉल को हमेशा ``torch.device(\"cpu\")`` मिलता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._keep_cellpose_flows_off_metal.on_the_cpu#5",
+      "source": "the original ``remove_bad_flow_masks`` return value.",
+      "source_sha256": "004d06390aa3e758438e523f2362c5edea9ed033734a4a6267897b6212f68019",
+      "context": "the original ``remove_bad_flow_masks`` return value.",
+      "translation": "``remove_bad_flow_masks`` का मूल रिटर्न मान।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._measure_dtypes.accepts#0",
+      "source": "Probe whether the resolved device accepts one named torch dtype.",
+      "source_sha256": "cfdf92399649399aab3dd4357891c57526e8ba868a2470f68475c4b84365107f",
+      "context": "Probe whether the resolved device accepts one named torch dtype.",
+      "translation": "जाँचता है कि हल किया गया डिवाइस किसी एक नामित torch डेटा प्रकार को स्वीकार करता है या नहीं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._measure_dtypes.accepts#1",
+      "source": "torch dtype attribute name, such as ``\"float64\"`` or ``\"bfloat16\"``.",
+      "source_sha256": "8adfe5ebc32fabe69ddbd8b8f58975ffad6afcdaa7c7f0108fa40a87681f1e5b",
+      "context": "torch dtype attribute name, such as ``\"float64\"`` or ``\"bfloat16\"``.",
+      "translation": "torch डेटा प्रकार की विशेषता का नाम, जैसे ``\"float64\"`` या ``\"bfloat16\"``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.accelerator._measure_dtypes.accepts#2",
+      "source": "``True`` when a two-element tensor allocates on the device, ``False`` for the errors used by unsupported dtypes, or ``None`` when torch lacks the dtype or the probe fails unexpectedly.",
+      "source_sha256": "b64978e9b3ed0038ba072c538eac1baac6333574f99643f33c9dd6f7400f17f4",
+      "context": "``True`` when a two-element tensor allocates on the device, ``False`` for the errors used by unsupported dtypes, or ``None`` when torch lacks the dtype or the probe fails unexpectedly.",
+      "translation": "जब दो तत्वों वाला टेंसर डिवाइस पर आवंटित हो जाए तो ``True``, असमर्थित डेटा प्रकारों से आने वाली त्रुटियों पर ``False``, या जब torch में वह डेटा प्रकार न हो या जाँच अप्रत्याशित रूप से विफल हो तो ``None``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail._pack#0",
+      "source": "Build one complete agreement result from the captured counts.",
+      "source_sha256": "6a289ff0d0c6f94360b63a1ad20127164fe1b9f15c90b3dcda317fe3f9903137",
+      "context": "Build one complete agreement result from the captured counts.",
+      "translation": "कैप्चर की गई गणनाओं से एक पूरा सहमति परिणाम बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail._pack#1",
+      "source": "computed Cohen's kappa, or NaN when it is undefined.",
+      "source_sha256": "a2733557ce9f92a5f63e312c03ad1259f0c8016037c4d10d094bf57a71f08d59",
+      "context": "computed Cohen's kappa, or NaN when it is undefined.",
+      "translation": "गणना किया गया Cohen kappa, या अपरिभाषित होने पर NaN।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail._pack#2",
+      "source": "observed agreement fraction.",
+      "source_sha256": "7e1266ad15c528f0da5d98de715ce851b36a6c8edd95a81cc9b97fea15b40ca7",
+      "context": "observed agreement fraction.",
+      "translation": "देखा गया सहमति अनुपात।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail._pack#3",
+      "source": "agreement fraction expected from the marginals.",
+      "source_sha256": "03666b1ad1969877e61e52382f9cf281f858797220403cc27585456130663f9c",
+      "context": "agreement fraction expected from the marginals.",
+      "translation": "सीमांत वितरणों से अपेक्षित सहमति अनुपात।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail._pack#4",
+      "source": "explanation of the ordinary or degenerate result.",
+      "source_sha256": "3444822f36a5578c188ef97c0d394b29f087b79b981d7ee2108cddea7c42037a",
+      "context": "explanation of the ordinary or degenerate result.",
+      "translation": "सामान्य या अपभ्रष्ट परिणाम की व्याख्या।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.agreement.kappa_detail._pack#5",
+      "source": "a result containing the supplied statistics together with the captured annotator names, counts, labels, confusion matrix, and interpretation.",
+      "source_sha256": "e59811648fdca22f996399b770a95e8ce0b7982ec84bd6df48e78eddb58184cf",
+      "context": "a result containing the supplied statistics together with the captured annotator names, counts, labels, confusion matrix, and interpretation.",
+      "translation": "एक परिणाम जिसमें दिए गए आँकड़ों के साथ कैप्चर किए गए एनोटेटर नाम, गणनाएँ, लेबल, कन्फ़्यूज़न मैट्रिक्स और व्याख्या होती है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.align._count_components.find#0",
+      "source": "Resolve and compress one tile's captured component parent.",
+      "source_sha256": "20c4450539970f2d05262e283953059a61b333c46312dcc1592a50032671dd50",
+      "context": "Resolve and compress one tile's captured component parent.",
+      "translation": "एक टाइल के कैप्चर किए गए घटक पैरेंट को हल और संपीड़ित करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.align._count_components.find#1",
+      "source": "tile index whose union-find representative is required.",
+      "source_sha256": "c64a3202673d1249f54e3d5efa66ea6bf2c19e69bdc29cc9f0fc4c51591a8d69",
+      "context": "tile index whose union-find representative is required.",
+      "translation": "वह टाइल इंडेक्स जिसका union-find प्रतिनिधि चाहिए।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.align._count_components.find#2",
+      "source": "root index after path-halving each traversed parent link in the captured forest.",
+      "source_sha256": "a024092130c4ab205da84d8b7a34a32da71c43cb0b212f75d80549d92d1510da",
+      "context": "root index after path-halving each traversed parent link in the captured forest.",
+      "translation": "कैप्चर किए गए वन में पार किए गए हर पैरेंट लिंक के पथ-आधाकरण के बाद का रूट इंडेक्स।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.annotation_dataset.generate_annotation_dataset._write#0",
+      "source": "Write and register one streamed crop through Measure's writer.",
+      "source_sha256": "6e6d13fc30931eef23b36a3fa8b4d97312e286f72fb6d082e3e04a777d9db07b",
+      "context": "Write and register one streamed extracted image region through Measure's writer.",
+      "translation": "Measure के राइटर से एक स्ट्रीम किया गया क्रॉप लिखता और पंजीकृत करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.annotation_dataset.generate_annotation_dataset._write#1",
+      "source": "proposed crop path; its extension is replaced with ``.png``.",
+      "source_sha256": "a0011258f296314d6f8cfa6a9ddef4a57a0bf977439e338c56da4475fb80b848",
+      "context": "proposed extracted-image-region path; its extension is replaced with ``.png``.",
+      "translation": "प्रस्तावित क्रॉप पथ; इसका एक्सटेंशन ``.png`` से बदल दिया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.annotation_dataset.generate_annotation_dataset._write#2",
+      "source": "crop array to normalize, select, pad, resize, and save.",
+      "source_sha256": "09e6775c7514f8e8a32dd106ac820836205e480a98b34c3a260d79e626dc9a2e",
+      "context": "extracted image region array to normalize, select, pad, resize, and save.",
+      "translation": "सामान्यीकृत, चयनित, पैड, आकार-परिवर्तित और सहेजा जाने वाला क्रॉप ऐरे।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.annotation_dataset.generate_annotation_dataset._write#3",
+      "source": "None. The shared writer's returned path is appended to the captured list using the captured channels and PNG size, preserving alignment with the subsequently registered selection rows.",
+      "source_sha256": "691fc128502fc8a66875905d6d28e97f74bf0142fceac5562c4d8deb18d781c1",
+      "context": "None. The shared writer's returned path is appended to the captured list using the captured image data channels and PNG size, preserving alignment with the subsequently registered selection rows.",
+      "translation": "None. साझा राइटर द्वारा लौटाया गया पथ कैप्चर किए गए चैनलों और PNG आकार के साथ कैप्चर की गई सूची में जोड़ा जाता है, जिससे बाद में पंजीकृत चयन पंक्तियों से मेल बना रहता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.batch._cycle_problems.walk#0",
+      "source": "Depth-first search one captured dependency subgraph for cycles.",
+      "source_sha256": "4e00e54470f967c49f3e200a7f578b87f35d04abf9198d6f381a5e1c4cabd78e",
+      "context": "Depth-first search one captured dependency subgraph for cycles.",
+      "translation": "एक कैप्चर किए गए निर्भरता उपग्राफ़ में चक्रों के लिए गहराई-प्रथम खोज करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.batch._cycle_problems.walk#1",
+      "source": "queue job whose known dependencies should be visited.",
+      "source_sha256": "725a086c072d2419b819a01d535bfd4d860f715cec6fc6d96f8e18429c9ea06e",
+      "context": "schedule job whose known dependencies should be visited.",
+      "translation": "कतार का वह कार्य जिसकी ज्ञात निर्भरताओं पर जाना है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.batch._cycle_problems.walk#2",
+      "source": "active ancestor IDs used to reconstruct a back-edge cycle.",
+      "source_sha256": "081492032cc839aadb2c00faf69bd9f67fa4ed99ff8f289cbbfc20164258fb42",
+      "context": "active ancestor IDs used to reconstruct a back-edge cycle.",
+      "translation": "सक्रिय पूर्वजों की ID, जिनसे बैक-एज चक्र फिर से बनाया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.batch._cycle_problems.walk#3",
+      "source": "None. Captured state records active and completed jobs, and a back edge appends one problem; missing dependency IDs are ignored here because ordinary dependency validation reports those typos.",
+      "source_sha256": "4531b7e3ee4932e872ee43f4b02ca9e529598b0df41a36f815d00db64dc98914",
+      "context": "None. Captured state records active and completed jobs, and a back edge appends one problem; missing dependency IDs are ignored here because ordinary dependency validation reports those typos.",
+      "translation": "None. कैप्चर की गई स्थिति सक्रिय और पूर्ण कार्यों को दर्ज करती है, और एक बैक-एज एक समस्या जोड़ता है; अनुपस्थित निर्भरता ID को यहाँ अनदेखा किया जाता है क्योंकि सामान्य निर्भरता सत्यापन उन टाइपो की रिपोर्ट करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.batch.run_queue.persist#0",
+      "source": "Write the queue after a transition. Never fatal.",
+      "source_sha256": "bf59dfeb662ba2b7e3869bdb650a7de806492e00d9def62a36f48c2fca98bdab",
+      "context": "Write the work list after a transition. Never fatal.",
+      "translation": "किसी संक्रमण के बाद कतार लिखता है। कभी घातक नहीं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.chaining.same_path.flatten#0",
+      "source": "Flatten one path-like value into normalised path strings.",
+      "source_sha256": "af1b84e55764d01c35f452e64f29853ab51d1ff22c7f23329e54aa85f6cc023c",
+      "context": "Flatten one path-like value into normalised path strings.",
+      "translation": "एक पथ-जैसे मान को सामान्यीकृत पथ स्ट्रिंग में समतल करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.chaining.same_path.flatten#1",
+      "source": "scalar path, nested list or tuple, ``None``, or another value whose stripped string representation names a path.",
+      "source_sha256": "3fec1c490aa6b7f604619c825e0571d57f60a145c95175edd81016520f94384b",
+      "context": "scalar path, nested list or tuple, ``None``, or another value whose stripped string representation names a path.",
+      "translation": "अदिश पथ, नेस्टेड सूची या टपल, ``None``, या कोई अन्य मान जिसका छँटा हुआ स्ट्रिंग प्रतिनिधित्व किसी पथ को दर्शाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.chaining.same_path.flatten#2",
+      "source": "depth-first path strings with empty values omitted and each retained value normalised with :func:`os.path.normpath`.",
+      "source_sha256": "c1c449bb53825b34597e09f01570416532ab19388e371512e1f4cc3e3bed7f83",
+      "context": "depth-first path strings with empty values omitted and each retained value normalised with :func:`os.path.normpath`.",
+      "translation": "गहराई-प्रथम क्रम में पथ स्ट्रिंग, जिनमें खाली मान छोड़ दिए जाते हैं और हर रखे गए मान को :func:`os.path.normpath` से सामान्यीकृत किया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.classifier_quality.best_threshold.value#0",
+      "source": "Return Youden's J, ranking a non-finite result last.",
+      "source_sha256": "758679d10d44aac4ca1b1d9ef984f59424828fb12b9c4ca2844d3fc4306b229f",
+      "context": "Return Youden's J, ranking a non-finite result last.",
+      "translation": "Youden J लौटाता है और अपरिमित परिणाम को अंत में रखता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.classifier_quality.deconvolve.above#0",
+      "source": "Estimate the Gaussian probability above the fitted midpoint.",
+      "source_sha256": "3c38d59b814f7fe1737fa1dc7ed8f8e0ef7aff8e9ace2b6ff254353665418bd7",
+      "context": "Estimate the Gaussian probability above the fitted midpoint.",
+      "translation": "फ़िट किए गए मध्यबिंदु से ऊपर की गॉसियन प्रायिकता का अनुमान लगाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.classifier_quality.deconvolve.above#1",
+      "source": "A zero-width component is treated as a definite side of the cut rather than passed to a division by zero.",
+      "source_sha256": "343dfe200a00c0513b9afb4e7d9a3b20aef095ef282869a8ccbdc4b8ce13c738",
+      "context": "A zero-width component is treated as a definite side of the cut rather than passed to a division by zero.",
+      "translation": "शून्य चौड़ाई वाले घटक को शून्य से भाग में भेजने के बजाय कट का निश्चित पक्ष माना जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli._NoShow.__enter__._close_instead#0",
+      "source": "Close the captured current figure instead of displaying it.",
+      "source_sha256": "ec0e8514a220a56ee26ac4709c873672c485ae69087d366a514a6a20283d26c5",
+      "context": "Close the captured current figure instead of displaying it.",
+      "translation": "कैप्चर किए गए वर्तमान चित्र को दिखाने के बजाय बंद करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli._NoShow.__enter__._close_instead#1",
+      "source": "ignored positional arguments accepted for ``show`` signature compatibility.",
+      "source_sha256": "e5528c3cf25d396a3fe49c89eef96ce4d2c94d61f3e83b43f4cf2e1b4c2989f3",
+      "context": "ignored positional arguments accepted for ``show`` signature compatibility.",
+      "translation": "``show`` सिग्नेचर की संगतता के लिए स्वीकार किए गए पर अनदेखे स्थितीय तर्क।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli._NoShow.__enter__._close_instead#2",
+      "source": "ignored keyword arguments accepted for compatibility.",
+      "source_sha256": "7a6940f04aea377119e4d92fee5973305582d4d9b64c4f6c1d12829f21eed7f7",
+      "context": "ignored keyword arguments accepted for compatibility.",
+      "translation": "संगतता के लिए स्वीकार किए गए पर अनदेखे कीवर्ड तर्क।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli._NoShow.__enter__._close_instead#3",
+      "source": "None. Backend and close errors are deliberately swallowed so optional visualization cleanup cannot fail a headless run.",
+      "source_sha256": "9d39e44e788b532c65d3241c350ac3b2478bbf3a4d1e184060f3d4da52d8f301",
+      "context": "None. Backend and close errors are deliberately swallowed so optional visualization cleanup cannot fail a headless run.",
+      "translation": "None. बैकएंड और बंद करने की त्रुटियाँ जानबूझकर दबा दी जाती हैं ताकि वैकल्पिक विज़ुअलाइज़ेशन सफ़ाई बिना डिस्प्ले वाले रन को विफल न कर सके।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli_download._progress.report#0",
+      "source": "Redraw the terminal line when the integer percentage changes.",
+      "source_sha256": "2e4a1ffffd24f71ff5b4a694d5c5701c8be2fd2b2f4c2c81277196cf8e8ba7a2",
+      "context": "Redraw the terminal line when the integer percentage changes.",
+      "translation": "पूर्णांक प्रतिशत बदलने पर टर्मिनल पंक्ति फिर से बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.cli_download._progress.report#1",
+      "source": "An unknown or zero total cannot yield a useful percentage and is ignored; every emitted update is flushed so it is immediately visible.",
+      "source_sha256": "17210b18bb2c7c723e3785a999bfb9989d8aa547caf3a5f90c49e83bd763b40f",
+      "context": "An unknown or zero total cannot yield a useful percentage and is ignored; every emitted update is flushed so it is immediately visible.",
+      "translation": "अज्ञात या शून्य कुल से उपयोगी प्रतिशत नहीं बन सकता, इसलिए उसे अनदेखा किया जाता है; हर भेजा गया अपडेट तुरंत फ़्लश किया जाता है ताकि वह तुरंत दिखे।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.condition_annotations._extract_preview.extract#0",
+      "source": "The captured group for one value, or NA when nothing matched.",
+      "source_sha256": "702e3637ed1ab5b9f9051b77bf4c4a6720d1c1a2d55323a02d83cc77b074ca5e",
+      "context": "The captured group for one value, or NA when nothing matched.",
+      "translation": "एक मान के लिए कैप्चर किया गया समूह, या कुछ मेल न खाने पर NA।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.condition_annotations.save_annotated_table.scalar#0",
+      "source": "One value as plain JSON: ISO dates, Python numbers, None for blanks.",
+      "source_sha256": "c660fb4a74c16aae37d987212b8fb37565dfcf2498a267f81a3ab45d21de8738",
+      "context": "One value as plain JSON: ISO dates, Python numbers, None for blanks.",
+      "translation": "सादे JSON के रूप में एक मान: ISO तिथियाँ, Python संख्याएँ, खाली के लिए None।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.convert._parse_by_convention._number#0",
+      "source": "The group as a 1-based integer, or None when it is not a number.",
+      "source_sha256": "fc43a4ef85c14eb4cc6c4c4f8114f24694846e3576af4d57907ae72ac177ff62",
+      "context": "The group as a 1-based integer, or None when it is not a number.",
+      "translation": "1 से शुरू होने वाले पूर्णांक के रूप में समूह, या संख्या न होने पर None।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder._flush#0",
+      "source": "Advance the watermark durably. One small fsync per crop, on purpose.",
+      "source_sha256": "753b4f4e49a0b4b1401005ff0f25a894b6e1dae4f4087855c574435e38396f56",
+      "context": "Advance the watermark durably. One small fsync per extracted image region, on purpose.",
+      "translation": "वॉटरमार्क को स्थायी रूप से आगे बढ़ाता है। हर क्रॉप पर एक छोटा fsync, जानबूझकर।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder._flush#1",
+      "source": "It is what makes \"converted\" and \"not converted yet\" a fact on disk rather than a guess, and it is cheap next to decoding and re-encoding the PNG it guards.",
+      "source_sha256": "d1b8e8c9f809645cb4dfe8ec843552b0b53669ed649873e81c95fdea25a7bb4f",
+      "context": "It is what makes \"converted\" and \"not converted yet\" a fact on disk rather than a guess, and it is cheap next to decoding and re-encoding the PNG it guards.",
+      "translation": "यही \"converted\" (परिवर्तित) और \"not converted yet\" (अभी परिवर्तित नहीं) को अनुमान के बजाय डिस्क पर एक तथ्य बनाता है, और जिस PNG की यह रक्षा करता है उसे डिकोड और फिर से एन्कोड करने की तुलना में यह सस्ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder._flush#2",
+      "source": "A retry run has no watermark to advance -- the folder is already format 2 apart from the named leftovers -- so it rewrites the finished marker with a shorter ``unconverted`` list instead.",
+      "source_sha256": "a1b53c091ffca9692af902f98bc8b69045bbe8a5447b9e16a35d12337c284fb2",
+      "context": "A retry run has no watermark to advance -- the folder is already format 2 apart from the named leftovers -- so it rewrites the finished marker with a shorter ``unconverted`` list instead.",
+      "translation": "पुनः प्रयास वाले रन के पास आगे बढ़ाने के लिए कोई वॉटरमार्क नहीं होता -- नामित बचे हुए फ़ाइलों को छोड़कर फ़ोल्डर पहले से फ़ॉर्मेट 2 में है -- इसलिए वह इसके बजाय छोटी ``unconverted`` सूची के साथ समाप्ति मार्कर फिर से लिखता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder._todo#0",
+      "source": "True when ``name`` still has to be converted.",
+      "source_sha256": "62297dbf4589310b26df46a49a359cb370c2a15ac15a364fce39a1eac17c2ea1",
+      "context": "True when ``name`` still has to be converted.",
+      "translation": "जब ``name`` को अभी भी परिवर्तित करना हो तो True।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder._todo#1",
+      "source": "A staged file outranks everything else, in both modes and in both directions -- it is the same rule :func:`crop_format_for_png` reads, so what the migrator thinks is left to do and what a reader thinks is still legacy can never disagree.",
+      "source_sha256": "61ebd23a61ca29bc641ba5a0b856a096af4642800e117b2448da6690058ee661",
+      "context": "A staged file outranks everything else, in both modes and in both directions -- it is the same rule :func:`crop_format_for_png` reads, so what the migrator thinks is left to do and what a reader thinks is still legacy can never disagree.",
+      "translation": "स्टेज की गई फ़ाइल हर चीज़ से ऊपर है, दोनों मोड में और दोनों दिशाओं में -- यह वही नियम है जिसे :func:`crop_format_for_png` पढ़ता है, इसलिए माइग्रेटर जो बचा हुआ काम मानता है और रीडर जिसे अभी भी पुराना मानता है, वे कभी अलग नहीं हो सकते।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.curation_queue.order_items.easy_key#0",
+      "source": "one field.",
+      "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+      "context": "one field.",
+      "translation": "एक फ़ील्ड।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.curation_queue.order_items.easy_key#1",
+      "source": "its ``easy`` sort key, populated drafts first.",
+      "source_sha256": "91a61af4b01fa9e2705da488437d064fa53b668fca37534e31b4305c320b9027",
+      "context": "its ``easy`` sort key, populated drafts first.",
+      "translation": "इसकी ``easy`` सॉर्ट कुंजी, भरे गए ड्राफ़्ट पहले।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.data_manager._walk_project._note#0",
+      "source": "Record an inaccessible walk entry without stopping the scan.",
+      "source_sha256": "bf38c1f39b97de4223e32e1f2eeda554859612e646a36ca263080ac51a78e295",
+      "context": "Record an inaccessible walk entry without stopping the scan.",
+      "translation": "स्कैन रोके बिना एक दुर्गम वॉक प्रविष्टि दर्ज करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.data_manager.scan_project._bucket#0",
+      "source": "Return the shared zero-initialized counters for ``kind``.",
+      "source_sha256": "12188501160ae33e03560b6ccb3aaac7de03dbdb91da23e4d67ce1c7b40a781f",
+      "context": "Return the shared zero-initialized counters for ``kind``.",
+      "translation": "``kind`` के लिए साझा, शून्य से आरंभ किए गए काउंटर लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.database_concurrency._run_probe.reader_task#0",
+      "source": "Poll during writes, then contribute this reader's query count.",
+      "source_sha256": "7befae695c5e32b346de0a9b313844ea864447ee90ac2132102435a31737e78e",
+      "context": "Poll during writes, then contribute this reader's query count.",
+      "translation": "लेखन के दौरान पोल करता है, फिर इस रीडर की क्वेरी गणना जोड़ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.database_concurrency._run_probe.reader_task#1",
+      "source": "A final query observes the completed database; failures are collected and the thread-owned read-only connection is always closed.",
+      "source_sha256": "d03f01ebe8119580eec9f1adca4b0e51863e91886a252cb36849f4f6ba9983eb",
+      "context": "A final query observes the completed database; failures are collected and the independent execution path-owned read-only connection is always closed.",
+      "translation": "अंतिम क्वेरी पूर्ण डेटाबेस देखती है; विफलताएँ एकत्र की जाती हैं और थ्रेड का अपना केवल-पढ़ने वाला कनेक्शन हमेशा बंद किया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.database_concurrency._run_probe.writer_task#0",
+      "source": "Insert this writer's rows and signal when the last writer exits.",
+      "source_sha256": "8c45b59273fe32c7bd6bafd56f4d1640c157262640f8766b4e4513106d7e0289",
+      "context": "Insert this writer's rows and signal when the last writer exits.",
+      "translation": "इस राइटर की पंक्तियाँ डालता है और अंतिम राइटर के निकलने पर संकेत देता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.database_concurrency._run_probe.writer_task#1",
+      "source": "Worker failures are collected for the probe result, and the thread's connection is closed whether setup, synchronization, or writing fails.",
+      "source_sha256": "fa3865e32573b79b4bfbeecc6091898e25cb64e5837c0fa8f13d4051ca757a59",
+      "context": "Worker failures are collected for the probe result, and the independent execution path's connection is closed whether setup, synchronization, or writing fails.",
+      "translation": "वर्कर विफलताएँ जाँच परिणाम के लिए एकत्र की जाती हैं, और थ्रेड का कनेक्शन बंद किया जाता है चाहे सेटअप, समन्वयन या लेखन विफल हो।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.diameter.format_estimates._line#0",
+      "source": "Pad one report row to the captured column widths.",
+      "source_sha256": "6e89e59e414eb6342a342323de1ba5046a830d7ef8b2d2366d55182d596456fe",
+      "context": "Pad one report row to the captured column widths.",
+      "translation": "एक रिपोर्ट पंक्ति को कैप्चर की गई स्तंभ चौड़ाइयों तक पैड करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.diameter.format_estimates._line#1",
+      "source": "cell text in the same order as ``header``.",
+      "source_sha256": "fc4845d3926e59eeaf03d72e7583667240272dfc91df26e584e0537f308c4fd6",
+      "context": "cell text in the same order as ``header``.",
+      "translation": "``header`` के समान क्रम में सेल टेक्स्ट।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.diameter.format_estimates._line#2",
+      "source": "two-space-indented, column-aligned text with trailing padding removed.",
+      "source_sha256": "2e360c1864f0dc2bd639f7b6326635a69669f49dcda97bce76a2c55666bc962f",
+      "context": "two-space-indented, column-aligned text with trailing padding removed.",
+      "translation": "दो रिक्त स्थान से इंडेंट किया गया, स्तंभों में संरेखित टेक्स्ट, जिसके अंत की पैडिंग हटा दी गई है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.drop_classification._spacr_output.npys#0",
+      "source": "How many ``.npy`` files sit directly in ``path``.",
+      "source_sha256": "07308735ef99cb245fdfe4280c9ad265cb8a866161c9029039363cd9551c544b",
+      "context": "How many ``.npy`` files sit directly in ``path``.",
+      "translation": "कितनी ``.npy`` फ़ाइलें सीधे ``path`` में हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.drop_classification._spacr_output.npys#1",
+      "source": "a folder.",
+      "source_sha256": "db9aade428bf167bd1cd5c89378d6af5dcfdf97f732c313ffb9a208f840a166d",
+      "context": "a folder.",
+      "translation": "एक फ़ोल्डर।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.figures.scene._plain_text._script#0",
+      "source": "Translate an entire captured regex script run or none of it.",
+      "source_sha256": "56d91a54f4df9307737430e159a61956194f5caf637eb961b421aa56fb9a8325",
+      "context": "Translate an entire captured regex script run or none of it.",
+      "translation": "एक कैप्चर किए गए regex लिपि-क्रम का पूरा अनुवाद करता है या बिल्कुल नहीं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.figures.scene._plain_text._script#1",
+      "source": "regex match whose first group is a super/subscript run.",
+      "source_sha256": "53bf6e350922fcc840589c71842d642a469cccd8952801a7ece02516efbc8fd3",
+      "context": "regex match whose first group is a super/subscript run.",
+      "translation": "regex मिलान जिसका पहला समूह सुपरस्क्रिप्ट या सबस्क्रिप्ट क्रम है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.figures.scene._plain_text._script#2",
+      "source": "Unicode translation mapping for that script position.",
+      "source_sha256": "32974c193d279fa0a86168b4594e9636dee6071869e5cee54da2d19876dbe979",
+      "context": "Unicode translation mapping for that script position.",
+      "translation": "उस लिपि स्थिति के लिए Unicode अनुवाद मैपिंग।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.figures.scene._plain_text._script#3",
+      "source": "the fully translated run when every character is supported; otherwise the original matched source unchanged, allowing the caller's leftover-marker check to reject unsupported mathtext.",
+      "source_sha256": "ebae9084405c064a40edbcae639a2f4d0d2a399efeb4da98072dd79898cb1db4",
+      "context": "the fully translated run when every character is supported; otherwise the original matched source unchanged, allowing the caller's leftover-marker check to reject unsupported mathtext.",
+      "translation": "हर वर्ण समर्थित होने पर पूरी तरह अनूदित क्रम; अन्यथा मूल मिलान किया गया स्रोत बिना बदले, जिससे कॉलर की बचे-मार्कर जाँच असमर्थित mathtext को अस्वीकार कर सके।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.collector.Collector._fold_unlocked.add_metric#0",
+      "source": "Return a detached node carrying the captured metric event.",
+      "source_sha256": "9a3371bd5f7d3758f534cc228018f265ec9e09f899ebc2d84ce2b1e394d4ebe8",
+      "context": "Return a detached node carrying the captured metric event.",
+      "translation": "कैप्चर की गई मीट्रिक घटना वाला एक अलग नोड लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.collector.Collector._fold_unlocked.add_metric#1",
+      "source": "existing run-graph node to update.",
+      "source_sha256": "a2324897e2eadd738bb9ce5b93d26485ab26c4237543bde9a9972b69aa99d3ae",
+      "context": "existing run-graph node to update.",
+      "translation": "अपडेट किया जाने वाला मौजूदा रन-ग्राफ़ नोड।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.collector.Collector._fold_unlocked.add_metric#2",
+      "source": "a dataclass copy whose detached metrics mapping sets the captured event's name to its value. The input node and its original mapping are not mutated.",
+      "source_sha256": "d06c04900e01cae15d157e14c81bd26b473b71ea47447fde00467c66aa657656",
+      "context": "a dataclass copy whose detached metrics mapping sets the captured event's name to its value. The input node and its original mapping are not mutated.",
+      "translation": "एक dataclass प्रति, जिसकी अलग मीट्रिक मैपिंग कैप्चर की गई घटना के नाम को उसके मान पर सेट करती है। इनपुट नोड और उसकी मूल मैपिंग नहीं बदली जाती।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.layout._reorder.key#0",
+      "source": "Rank one node for the current median-sweep layer.",
+      "source_sha256": "45c4715bf8a12b22116c5160191f1e0de2a1d1d7d3ea827e2c6a336ef9185d30",
+      "context": "Rank one node for the current median-sweep layer.",
+      "translation": "वर्तमान माध्यिका-स्वीप परत के लिए एक नोड की रैंक तय करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.layout._reorder.key#1",
+      "source": "node to rank within the layer being reordered.",
+      "source_sha256": "35977b3d57dec61b4d570d578222f6bf75b819ea1b58f2b28d17493252dd38cf",
+      "context": "node to rank within the layer being reordered.",
+      "translation": "पुनः क्रमित की जा रही परत के भीतर रैंक किया जाने वाला नोड।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.layout._reorder.key#2",
+      "source": "loop layer captured when this key is built.",
+      "source_sha256": "c506fbbae30a3a2d807894eea921347af37bd73be1e94e1a330a3954c41ebf00",
+      "context": "loop layer captured when this key is built.",
+      "translation": "यह कुंजी बनाते समय कैप्चर की गई लूप परत।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.layout._reorder.key#3",
+      "source": "that layer's pre-sort positions, captured to preserve deterministic ordering for ties and isolated nodes.",
+      "source_sha256": "0eb1ed7b486916de5bed79a597a1e89301c392671b0254b5318f80e0f8d539fd",
+      "context": "that layer's pre-sort positions, captured to preserve deterministic ordering for ties and isolated nodes.",
+      "translation": "उस परत की सॉर्ट से पहले की स्थितियाँ, जो बराबरी और अलग-थलग नोड के लिए निर्धारक क्रम बनाए रखने हेतु कैप्चर की जाती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.layout._reorder.key#4",
+      "source": "connected nodes first by the median position of their cross-layer neighbours, then prior position and identifier; unconnected nodes follow in their prior deterministic order.",
+      "source_sha256": "b4410f6b607c5c88dad653262f4627f9155c40a32b016dbb23dc930844a5737d",
+      "context": "connected nodes first by the median position of their cross-layer neighbours, then prior position and identifier; unconnected nodes follow in their prior deterministic order.",
+      "translation": "जुड़े हुए नोड पहले अन्य परतों के अपने पड़ोसियों की माध्यिका स्थिति से, फिर पिछली स्थिति और पहचानकर्ता से; न जुड़े नोड अपने पिछले निर्धारक क्रम में बाद में आते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.trace._StageSpec.__call__.traced#0",
+      "source": "Call the captured function with optional stage tracing.",
+      "source_sha256": "727db0f3ab93841373db34f6113b63bfc153d54539c95f9c1443b0300c758478",
+      "context": "Call the captured function with optional stage tracing.",
+      "translation": "वैकल्पिक चरण ट्रेसिंग के साथ कैप्चर किए गए फ़ंक्शन को कॉल करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.trace._StageSpec.__call__.traced#1",
+      "source": "positional arguments forwarded unchanged.",
+      "source_sha256": "f90fa52d96b526604236e2bee059e824be446209df9f5398d69fb471ad26a84d",
+      "context": "positional arguments forwarded unchanged.",
+      "translation": "बिना बदले आगे भेजे गए स्थितीय तर्क।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.trace._StageSpec.__call__.traced#2",
+      "source": "keyword arguments forwarded unchanged.",
+      "source_sha256": "583759d0a8584de1ada15b2a36292df2f906842f176cca6c6abc8f5f4050a450",
+      "context": "keyword arguments forwarded unchanged.",
+      "translation": "बिना बदले आगे भेजे गए कीवर्ड तर्क।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.flowview.trace._StageSpec.__call__.traced#3",
+      "source": "the captured function's result. Enablement is rechecked at invocation time; enabled calls run inside a fresh stage runtime, which records completion or failure while preserving the original exception.",
+      "source_sha256": "383fbc27dac7204f9f35b37cf7458ca6e88ca6a4e3a7edfc0d0372dd17c71f56",
+      "context": "the captured function's result. Enablement is rechecked at invocation time; enabled calls run inside a fresh stage runtime, which records completion or failure while preserving the original exception.",
+      "translation": "कैप्चर किए गए फ़ंक्शन का परिणाम। सक्षमता की जाँच कॉल के समय फिर से होती है; सक्षम कॉल एक नए चरण रनटाइम में चलती हैं, जो मूल अपवाद को सुरक्षित रखते हुए पूर्णता या विफलता दर्ज करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder.record#0",
+      "source": "Write one manifest row and keep it on the result.",
+      "source_sha256": "193e5a6ec9401ed51a1f712dcd41f4c7cee39764f32693c61c53edaab40ecda9",
+      "context": "Write one manifest row and keep it on the result.",
+      "translation": "एक मैनिफ़ेस्ट पंक्ति लिखता है और उसे परिणाम में रखता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder.record#1",
+      "source": "``(original, new name, status, error)``.",
+      "source_sha256": "354f54444d6aa535ac233de1c65c4ef34e38fcb7bc6c9d8e77959a9fc6a5dd7f",
+      "context": "``(original, new name, status, error)``.",
+      "translation": "``(original, new name, status, error)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder.walk_error#0",
+      "source": "Record a folder ``os.walk`` could not read.",
+      "source_sha256": "3812c916ab54e8af7fbbf9355f24d5a31f2eedbcc46470e0ca77d9dd45f9604d",
+      "context": "Record a folder ``os.walk`` could not read.",
+      "translation": "वह फ़ोल्डर दर्ज करता है जिसे ``os.walk`` पढ़ नहीं सका।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.folder_consolidation.consolidate_folder.walk_error#1",
+      "source": "the OSError it raised.",
+      "source_sha256": "2231d27aedcd3211cd80c3e2e2972a6d7ac676a56845685d64f7ac8e3a8c6c5d",
+      "context": "the OSError it raised.",
+      "translation": "उसके द्वारा उठाया गया OSError।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#0",
+      "source": "Collect one supplementary-table segment slot by gene.",
+      "source_sha256": "e0c7fbd6d1c55ee2c36c8659131abb6e924ff4b10e4f88105cd7f2517ee9651a",
+      "context": "Collect one supplementary-table segment slot by gene.",
+      "translation": "पूरक तालिका के एक खंड स्थान को जीन के अनुसार एकत्र करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#1",
+      "source": "segment family recorded on each result.",
+      "source_sha256": "1f3a3077ad43e4c14fef81839bad065976801c7142212a66c7d53056513886e8",
+      "context": "segment family recorded on each result.",
+      "translation": "हर परिणाम पर दर्ज खंड परिवार।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#2",
+      "source": "one-based position within that family.",
+      "source_sha256": "109427afd3b940bd70335c5b62b457257199395650d4c6925826e69fa16b5374",
+      "context": "one-based position within that family.",
+      "translation": "उस परिवार के भीतर एक से शुरू होने वाली स्थिति।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#3",
+      "source": "supplementary column holding the first residue.",
+      "source_sha256": "891d31fd8b69565b4f2bdd45b7cfe9599adf88c10acb863735314944a39204bb",
+      "context": "supplementary column holding the first residue.",
+      "translation": "पहला अवशेष रखने वाला पूरक स्तंभ।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#4",
+      "source": "supplementary column holding the last residue.",
+      "source_sha256": "aabc7d1a2181330d43cb69d88044e10a0fbf016e9bee1a9f57b1ac95947e5590",
+      "context": "supplementary column holding the last residue.",
+      "translation": "अंतिम अवशेष रखने वाला पूरक स्तंभ।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#5",
+      "source": "optional supplementary column holding the segment span.",
+      "source_sha256": "be4c72fcc44a09c5a7224aaf1b25018736a0053823a0f014558119a9dbfef83f",
+      "context": "optional supplementary column holding the segment span.",
+      "translation": "खंड का विस्तार रखने वाला वैकल्पिक पूरक स्तंभ।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_facts._segment_index.collect#6",
+      "source": "None. Missing coordinate columns and invalid gene IDs are skipped; valid rows append to the captured index using a finite recorded numeric length or the inclusive ``end - start + 1`` fallback.",
+      "source_sha256": "59caed2f0c5185290f396246ad533afc357853dd1946ea4bc603b787b7eece22",
+      "context": "None. Missing coordinate columns and invalid gene IDs are skipped; valid rows append to the captured index using a finite recorded numeric length or the inclusive ``end - start + 1`` fallback.",
+      "translation": "None. अनुपस्थित निर्देशांक स्तंभ और अमान्य जीन ID छोड़ दिए जाते हैं; मान्य पंक्तियाँ किसी परिमित दर्ज संख्यात्मक लंबाई या समावेशी विकल्प ``end - start + 1`` का उपयोग करके कैप्चर किए गए इंडेक्स में जोड़ी जाती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_measurement_sweep._order_like_neighbours.order#0",
+      "source": "Order one matrix axis by correlation-cluster neighbours.",
+      "source_sha256": "33b6cd1d52858ae1ffc07f7ac0e8d4056c0b091241e8aa93e9f18e8e56d2ae58",
+      "context": "Order one matrix axis by correlation-cluster neighbours.",
+      "translation": "सहसंबंध-क्लस्टर पड़ोसियों के अनुसार एक मैट्रिक्स अक्ष को क्रमित करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_measurement_sweep._order_like_neighbours.order#1",
+      "source": "numeric two-dimensional rows to arrange.",
+      "source_sha256": "b0a04ccdf0bea42f3886e3c15d98fb7e2ee35fd0314e3420cf896d7e2cbc5634",
+      "context": "numeric two-dimensional rows to arrange.",
+      "translation": "व्यवस्थित की जाने वाली संख्यात्मक द्वि-आयामी पंक्तियाँ।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.gene_measurement_sweep._order_like_neighbours.order#2",
+      "source": "identity indices below three rows; otherwise average- linkage leaf indices from correlation distances. Non-finite matrix values are normalized for distance calculation and undefined distances become 1.0. Any clustering failure is handled by the parent's mean-order fallback.",
+      "source_sha256": "30505fd513005ee83d86b49f34dc79fac91d2f3e457953f661b0fb7c6f22c623",
+      "context": "identity indices below three rows; otherwise average- linkage leaf indices from correlation distances. Non-finite matrix values are normalized for distance calculation and undefined distances become 1.0. Any clustering failure is handled by the parent's mean-order fallback.",
+      "translation": "तीन से कम पंक्तियों पर पहचान इंडेक्स; अन्यथा सहसंबंध दूरियों से औसत-लिंकेज लीफ़ इंडेक्स। अपरिमित मैट्रिक्स मान दूरी गणना के लिए सामान्यीकृत किए जाते हैं और अपरिभाषित दूरियाँ 1.0 हो जाती हैं। कोई भी क्लस्टरिंग विफलता पैरेंट कॉल के माध्य-क्रम विकल्प द्वारा सँभाली जाती है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.graph_types.shape_of.kind#0",
+      "source": "Classify one candidate axis against the captured data frame.",
+      "source_sha256": "867dd5072e2fe0279cf562e0744e58d479dfec00b428bb073d5498bb64019872",
+      "context": "Classify one candidate axis against the captured data frame.",
+      "translation": "कैप्चर किए गए डेटा फ़्रेम के आधार पर एक उम्मीदवार अक्ष को वर्गीकृत करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.graph_types.shape_of.kind#1",
+      "source": "column name assigned to the axis, or an empty string for an unassigned axis.",
+      "source_sha256": "e415f05e0bd6a7089fe9c0e22ec6b4fbe3d9f161ddf9e59b4c547ddb04a0dc5f",
+      "context": "column name assigned to the axis, or an empty string for an unassigned axis.",
+      "translation": "अक्ष को सौंपा गया स्तंभ नाम, या असौंपे अक्ष के लिए खाली स्ट्रिंग।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.graph_types.shape_of.kind#2",
+      "source": "``'absent'`` when the column is unavailable, ``'continuous'`` for a numeric column, or ``'categorical'`` for every other present column.",
+      "source_sha256": "9b60affcbe94d1ccbe2f3ffcff7bd0f7686a6e817dcec096d0ae476a60118a68",
+      "context": "``'absent'`` when the column is unavailable, ``'continuous'`` for a numeric column, or ``'categorical'`` for every other present column.",
+      "translation": "स्तंभ उपलब्ध न होने पर ``'absent'``, संख्यात्मक स्तंभ के लिए ``'continuous'``, या हर अन्य मौजूद स्तंभ के लिए ``'categorical'``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.group_lasso.choose_lambda.score#0",
+      "source": "(errors, selects) for one path, both aligned to ``candidates``.",
+      "source_sha256": "de2afd9ac420ca06ccf25bdfa3dbc2e0762689a6a90ab01d2e791c4716b86090",
+      "context": "(errors, selects) for one path, both aligned to ``candidates``.",
+      "translation": "एक पथ के लिए (errors, selects), दोनों ``candidates`` के साथ संरेखित।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.group_lasso.choose_lambda.score#1",
+      "source": "THE ERROR IS HELD-OUT AND THE SELECTION IS NOT. Whether a penalty predicts well is a question about unseen wells; whether it selects anything is a question about THE FIT THE CALLER WILL GET, which is fitted on every well. Reading selection off the folds instead picked a penalty at which four fifths of the wells kept a gene and all of them together kept none -- measured on the tsg101 screen, where it chose 0.000183 and the full fit was empty.",
+      "source_sha256": "c4e83c9ea6fcfd27d4f4a3c274db0ca8a7eaf98255eee25714e173743276f2c0",
+      "context": "The error is held-out and the selection is not. Whether a penalty predicts well is a question about unseen microplate sample positions; whether it selects anything is a question about the fit the caller will get, which is fitted on every well. Reading selection off the folds instead picked a penalty at which four fifths of the microplate sample positions kept a gene and all of them together kept none -- measured on the tsg101 screening experiment, where it chose 0.000183 and the full fit was empty.",
+      "translation": "त्रुटि अलग रखे गए डेटा पर मापी जाती है और चयन नहीं। कोई दंड अच्छा पूर्वानुमान करता है या नहीं, यह अनदेखे वेल के बारे में प्रश्न है; वह कुछ भी चुनता है या नहीं, यह उस फ़िट के बारे में प्रश्न है जो कॉलर को मिलेगा, और वह हर वेल पर फ़िट किया जाता है। इसके बजाय फ़ोल्ड से चयन पढ़ने पर ऐसा दंड चुना गया जिसमें चार-पाँचवें वेल ने एक-एक जीन रखा और सबने मिलकर कोई नहीं -- यह tsg101 स्क्रीनिंग पर मापा गया, जहाँ उसने 0.000183 चुना और पूरा फ़िट खाली था।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.illumination._lenient_profile_json._value#0",
+      "source": "Quote a bare profile value while preserving JSON booleans and null.",
+      "source_sha256": "6b97aebca3d788acd35ce841acf4156029b5c802e731422bd986576a0d3416cc",
+      "context": "Quote a bare profile value while preserving JSON booleans and null.",
+      "translation": "JSON बूलियन और null को बनाए रखते हुए खुले प्रोफ़ाइल मान को उद्धरण चिह्नों में रखता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.image_stitch._position_from._first#0",
+      "source": "The first number ``pattern`` captures in the OME block, or None.",
+      "source_sha256": "0532ed3e03a22edf946dd1a2c13acb6a1b7eca45e78d34a81d9ff03da44009c9",
+      "context": "The first number ``pattern`` captures in the OME block, or None.",
+      "translation": "OME ब्लॉक में ``pattern`` द्वारा कैप्चर की गई पहली संख्या, या None।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.image_stitch._position_from._first#1",
+      "source": "The XML is read with a regular expression rather than parsed because one attribute is wanted from a document whose schema version varies, and a parser that must know the namespace fails on the versions it has not been told about.",
+      "source_sha256": "f49527a59e613d9bef10f733043e6ce3e6606966432196b4b475fe836a9c8c7f",
+      "context": "The XML is read with a regular expression rather than parsed because one attribute is wanted from a document whose schema version varies, and a parser that must know the namespace fails on the versions it has not been told about.",
+      "translation": "XML को पार्स करने के बजाय रेगुलर एक्सप्रेशन से पढ़ा जाता है, क्योंकि ऐसे दस्तावेज़ से केवल एक विशेषता चाहिए जिसका स्कीमा संस्करण बदलता रहता है, और जिस पार्सर को नेमस्पेस जानना ज़रूरी हो वह उन संस्करणों पर विफल होता है जिनके बारे में उसे बताया नहीं गया।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.image_stitch._sliding_ncc._prefix#0",
+      "source": "Running totals with a leading zero, so ``p[b] - p[a]`` is the sum over ``[a, b)`` for every window without a loop over windows.",
+      "source_sha256": "763402fb17632ef7350aeaf8e3c274dae9629d14b698b1f414bb8c5c0183385a",
+      "context": "Running totals with a leading zero, so ``p[b] - p[a]`` is the sum over ``[a, b)`` for every window without a loop over windows.",
+      "translation": "अग्रणी शून्य वाले चालू योग, ताकि खिड़कियों पर लूप के बिना हर खिड़की के लिए ``p[b] - p[a]`` ``[a, b)`` पर योग हो।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.infection.infection_report.add#0",
+      "source": "Record one metric together with the population it is over.",
+      "source_sha256": "a17190c9459fcd18437987dfe28c03d9410c0e9acb5ea40efc1b32949e5c0082",
+      "context": "Record one metric together with the population it is over.",
+      "translation": "एक मीट्रिक को उस जनसंख्या के साथ दर्ज करता है जिस पर वह आधारित है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.infection.infection_report.add#1",
+      "source": "The denominator travels with the value rather than being implied by the metric's name, because two of these are ratios over different populations and a reader cannot check a ratio whose denominator they have to guess.",
+      "source_sha256": "c70297f2e56690a74dbffe70fd0d59ad10879d4a23c69840c8407b3fc868f777",
+      "context": "The denominator travels with the value rather than being implied by the metric's name, because two of these are ratios over different populations and a reader cannot check a ratio whose denominator they have to guess.",
+      "translation": "हर मान के साथ उसका हर चलता है, न कि मीट्रिक के नाम से निहित होता है, क्योंकि इनमें से दो अलग-अलग जनसंख्याओं पर अनुपात हैं और पाठक ऐसे अनुपात की जाँच नहीं कर सकता जिसका हर उसे अनुमान लगाना पड़े।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.infection.infection_report.add#2",
+      "source": "the metric's name.",
+      "source_sha256": "39975e2fd079b89fc95607aefa57cee19d3eb4456fe6bf5724c0cc897f535cf8",
+      "context": "the metric's name.",
+      "translation": "मीट्रिक का नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.infection.infection_report.add#3",
+      "source": "its value for this group.",
+      "source_sha256": "d080f694483fedcdcf5b24a366fd589df6dbb49424068bb3d891d33ccb02da9d",
+      "context": "its value for this group.",
+      "translation": "इस समूह के लिए उसका मान।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.infection.infection_report.add#4",
+      "source": "what the value was computed over, in words.",
+      "source_sha256": "216845f0444df37cfec42cfadb57474ce8537849a90f78e76730d6880f612901",
+      "context": "what the value was computed over, in words.",
+      "translation": "मान किस पर गणना किया गया, शब्दों में।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.infection.infection_report.add#5",
+      "source": "how many things that denominator contained.",
+      "source_sha256": "5c3d63da4ba08342b60700ba1f340f24688da43c0bc24be036451da309506374",
+      "context": "how many things that denominator contained.",
+      "translation": "उस हर में कितनी चीज़ें थीं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.intensity_rescale.build_plate_plan._inspect#0",
+      "source": "Read one field's dtype, intensity maximum and file stats.",
+      "source_sha256": "abfccc3ba4a898f8ea539ef6226ac5e315d35d39d616ff2572a08ca4e4838c57",
+      "context": "Read one field's dtype, intensity maximum and file stats.",
+      "translation": "एक फ़ील्ड का डेटा प्रकार, तीव्रता अधिकतम और फ़ाइल आँकड़े पढ़ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.intensity_rescale.build_plate_plan._inspect#1",
+      "source": "merged-array filename inside ``src``.",
+      "source_sha256": "590fbbf5d3b2a90995488b633a8bcfc1e3a2cc76b56e2331c292109622a485e0",
+      "context": "merged-array filename inside ``src``.",
+      "translation": "``src`` के भीतर विलय किए गए ऐरे का फ़ाइल नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.intensity_rescale.build_plate_plan._inspect#2",
+      "source": "``(filename, record, None)`` or ``(filename, None, error)``.",
+      "source_sha256": "6144968fb0d287042ce59b5ad372cddf3fe7e12b7b3cf41e43b18ea49f11f9af",
+      "context": "``(filename, record, None)`` or ``(filename, None, error)``.",
+      "translation": "``(filename, record, None)`` या ``(filename, None, error)``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.layers.OrthoViews.covering._canvas#0",
+      "source": "Return a shared-scale ``Canvas`` for ``pair`` and ``shape``.",
+      "source_sha256": "a842638eadc0115f9328f68d771180bdac215875eac46883d94c9f4a45ce7628",
+      "context": "Return a shared-scale ``Canvas`` for ``pair`` and ``shape``.",
+      "translation": "साझा पैमाने वाला ``Canvas`` लौटाता है, ``pair`` और ``shape`` के लिए।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.lineage.lineage_frame.visit#0",
+      "source": "Append one node and recursively flatten its descendants.",
+      "source_sha256": "4d9a700cc7b34bd062df132f7df0e86c73c4b7ec3951e3a3ee946dc562cb8c72",
+      "context": "Append one node and recursively flatten its descendants.",
+      "translation": "एक नोड जोड़ता है और उसके वंशजों को पुनरावर्ती रूप से समतल करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.lineage.lineage_frame.visit#1",
+      "source": "lineage node to record before visiting its children.",
+      "source_sha256": "5f01e607a8d6cbe4376270a204572629982cf6c261fbda29f22fc72639fb744c",
+      "context": "lineage node to record before visiting its children.",
+      "translation": "वंशावली नोड जिसे उसके बच्चों पर जाने से पहले दर्ज करना है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.lineage.lineage_frame.visit#2",
+      "source": "key of the caller-supplied parent, or an empty string for a root.",
+      "source_sha256": "34cd61ada97b8c0b16c7b010d78ac89fdc9c2aa8d773c05a12d115871a5acd7b",
+      "context": "key of the caller-supplied parent, or an empty string for a root.",
+      "translation": "कॉलर द्वारा दिए गए पैरेंट की कुंजी, या रूट के लिए खाली स्ट्रिंग।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.lineage.lineage_frame.visit#3",
+      "source": "zero-based depth to store for this node.",
+      "source_sha256": "a072f0a0379ae96a39817b077eb0ca560daf5f8f2badf02b408fbcc2d2b9c987",
+      "context": "zero-based depth to store for this node.",
+      "translation": "इस नोड के लिए संग्रहीत शून्य से शुरू होने वाली गहराई।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.lineage.lineage_frame.visit#4",
+      "source": "None. A row containing node metadata and its current child count is appended to the captured list, then children are visited in their existing order with this node as parent.",
+      "source_sha256": "d9c14a3b39067443ec69f49a872b89a2678edbcd045507059f90cd54090288e4",
+      "context": "None. A row containing node metadata and its current child count is appended to the captured list, then children are visited in their existing order with this node as parent.",
+      "translation": "None. नोड मेटाडेटा और उसकी वर्तमान संतान गणना वाली एक पंक्ति कैप्चर की गई सूची में जोड़ी जाती है, फिर इस नोड को पैरेंट मानकर बच्चों पर उनके मौजूदा क्रम में जाया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.logger.log_function_call.wrapper#0",
+      "source": "Emit call/return/exception log lines around the wrapped call.",
+      "source_sha256": "d6852d59f9a44244b4b4a5ad4e32b9797bc6ed80a286194a4220ce06542923d1",
+      "context": "Emit call/return/exception log lines around the wrapped call.",
+      "translation": "लपेटी गई कॉल के आसपास कॉल, रिटर्न और अपवाद लॉग पंक्तियाँ जारी करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.logging_util.timed._decorate#0",
+      "source": "Wrap ``inner`` with the selected label, logger, and timing marks.",
+      "source_sha256": "aeed4222ba2579c83759f2c387d5ced839a49440be6d25bc93ab459d23f2208f",
+      "context": "Wrap ``inner`` with the selected label, logger, and timing marks.",
+      "translation": "``inner`` को चयनित लेबल, लॉगर और समय चिह्नों के साथ लपेटता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.logging_util.timed._decorate._wrapped#0",
+      "source": "Call ``inner`` and log qualifying elapsed time, even on error.",
+      "source_sha256": "03548b0f942646e308d4ca385788dc32393da8928f4f58d95e4bdbd96bbe48c3",
+      "context": "Call ``inner`` and log qualifying elapsed time, even on error.",
+      "translation": "``inner`` को कॉल करता है और योग्य बीता समय लॉग करता है, त्रुटि होने पर भी।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.comparable#0",
+      "source": "Reduce a metadata name to case-insensitive alphanumeric text.",
+      "source_sha256": "8b204d35d700537f277db56cac5c7cb1c69d1daa9372076ddefbcf8dba891c3f",
+      "context": "Reduce a metadata name to case-insensitive alphanumeric text.",
+      "translation": "मेटाडेटा नाम को केस-असंवेदी अक्षरांकीय टेक्स्ट में घटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.comparable#1",
+      "source": "canonical or source column name to compare.",
+      "source_sha256": "46e9c3c4406bc6689395106baab4fdeb49bf47322ba18826174726140ef79281",
+      "context": "canonical or source column name to compare.",
+      "translation": "तुलना के लिए मानक या स्रोत स्तंभ नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.comparable#2",
+      "source": "case-folded name with punctuation and whitespace removed.",
+      "source_sha256": "112f7f71fd691ef5ee767aeff5dfb1e185cd6e27ead90ed2852f178225c9e955",
+      "context": "case-folded name with punctuation and whitespace removed.",
+      "translation": "छोटे अक्षरों में बदला गया नाम, जिससे विराम चिह्न और रिक्त स्थान हटा दिए गए हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.guess_score#0",
+      "source": "Score one available column against the current missing target.",
+      "source_sha256": "a82bc8e7c9eb14bec8a4bb9ae917960a06996e68adcc850dabab5837a112b564",
+      "context": "Score one available column against the current missing target.",
+      "translation": "वर्तमान अनुपस्थित लक्ष्य के विरुद्ध एक उपलब्ध स्तंभ को अंक देता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.guess_score#1",
+      "source": "available source-column name to rank.",
+      "source_sha256": "295b455e62376ee27dec17ad4acef9de87428e8881d98dc89ebfeb03f288d65f",
+      "context": "available source-column name to rank.",
+      "translation": "रैंक किया जाने वाला उपलब्ध स्रोत स्तंभ नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.guess_score#2",
+      "source": "normalized current target, bound when the scorer is created so the surrounding loop cannot change it.",
+      "source_sha256": "c5c3a73117d07e8152a83919e25e7547cbb3068b9204554e81844774b50cf779",
+      "context": "normalized current target, bound when the scorer is created so the surrounding loop cannot change it.",
+      "translation": "सामान्यीकृत वर्तमान लक्ष्य, जो स्कोरर बनाते समय बाँधा जाता है ताकि बाहरी लूप उसे बदल न सके।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.guess_score#3",
+      "source": "target without an ``id`` or ``label`` suffix, likewise bound for this scorer.",
+      "source_sha256": "9b7b5d2de1ea46466addf249d3f6864938610ec42a56765eb6fb3599987b6f28",
+      "context": "target without an ``id`` or ``label`` suffix, likewise bound for this scorer.",
+      "translation": "``id`` या ``label`` प्रत्यय के बिना लक्ष्य, जो इसी तरह इस स्कोरर के लिए बाँधा जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.metadata_resolution.build_metadata_request.guess_score#4",
+      "source": "sequence similarity plus a root-name bonus when the target without an ``id`` or ``label`` suffix occurs in the normalized source name.",
+      "source_sha256": "fe60fe51af78e880150940a6d78216c91a341cbbfc1785ba3eae409e22e3a9cc",
+      "context": "sequence similarity plus a root-name bonus when the target without an ``id`` or ``label`` suffix occurs in the normalized source name.",
+      "translation": "अनुक्रम समानता, और जब ``id`` या ``label`` प्रत्यय के बिना लक्ष्य सामान्यीकृत स्रोत नाम में आता है तब मूल-नाम बोनस।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.mixed_gpu.fit_mixed_reml_torch._solve#0",
+      "source": "The profiled REML deviance at ``theta = exp(log_theta)``.",
+      "source_sha256": "cee5e421a6edc99a511d664b7e769af85e78cc6f56a4f7eca8718de80eee073d",
+      "context": "The profiled REML deviance at ``theta = exp(log_theta)``.",
+      "translation": "``theta = exp(log_theta)`` पर प्रोफ़ाइल्ड REML डेविएंस।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.mixed_gpu.fit_mixed_reml_torch._solve#1",
+      "source": "Returns the deviance plus everything the caller needs afterwards, so the final quantities come from the same factorisation that scored the final theta rather than from a re-solve that could differ.",
+      "source_sha256": "ca2b82e19e6e9a1048195e2a42e8a6f9bde7fa9fb73ec2a4bc17b8b095f1e336",
+      "context": "Returns the deviance plus everything the caller needs afterwards, so the final quantities come from the same factorisation that scored the final theta rather than from a re-solve that could differ.",
+      "translation": "डेविएंस के साथ वह सब लौटाता है जिसकी कॉलर को बाद में ज़रूरत होती है, ताकि अंतिम मात्राएँ उसी गुणनखंडन से आएँ जिसने अंतिम theta को अंक दिए, न कि किसी पुनः हल से जो अलग हो सकता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.mixed_gpu.fit_mixed_reml_torch.closure#0",
+      "source": "Evaluate and differentiate the captured LBFGS objective.",
+      "source_sha256": "09d559bd09ab75a3338fc51b2424cc3ef2f1537140fd1ac5e4c348deb63e42cd",
+      "context": "Evaluate and differentiate the captured LBFGS objective.",
+      "translation": "कैप्चर किए गए LBFGS उद्देश्य का मूल्यांकन और अवकलन करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.mixed_gpu.fit_mixed_reml_torch.closure#1",
+      "source": "differentiable profiled REML deviance at the current captured log-theta. Existing optimizer gradients are cleared, the deviance is backpropagated, and verbose mode reports its numeric value with the exponentiated variance parameters.",
+      "source_sha256": "67b915088074149794aa3ad06a7c19b84673ed9da5a7376e5f64a87391eae5b7",
+      "context": "differentiable profiled REML deviance at the current captured log-theta. Existing optimizer gradients are cleared, the deviance is backpropagated, and verbose mode reports its numeric value with the exponentiated variance parameters.",
+      "translation": "वर्तमान कैप्चर किए गए log-theta पर अवकलनीय प्रोफ़ाइल्ड REML डेविएंस। मौजूदा ऑप्टिमाइज़र ग्रेडिएंट साफ़ किए जाते हैं, डेविएंस को बैकप्रोपेगेट किया जाता है, और विस्तृत मोड घातांकित प्रसरण पैरामीटर के साथ उसका संख्यात्मक मान बताता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.model_compare.compare_models._tick#0",
+      "source": "Forward ``message`` and ``done`` with the fixed total; return ``None``.",
+      "source_sha256": "7fd61a5061c935fdfadd8ec8f2b322311db01061477c16c0db337aee9f645586",
+      "context": "Forward ``message`` and ``done`` with the fixed total; return ``None``.",
+      "translation": "निश्चित कुल के साथ ``message`` और ``done`` आगे भेजता है; ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ome_zarr._compose._pair#0",
+      "source": "Reduce one captured-dimension NGFF transform sequence.",
+      "source_sha256": "911034e5ea6bc3214c4714633f4076636319699dd4a24fcdb52c6c423baa5394",
+      "context": "Reduce one captured-dimension NGFF transform sequence.",
+      "translation": "कैप्चर किए गए आयाम के एक NGFF रूपांतरण अनुक्रम को घटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ome_zarr._compose._pair#1",
+      "source": "identity, scale, and translation mappings; a falsey sequence represents the identity transform.",
+      "source_sha256": "9b06f4c4178dd6577df6db8099bcd50e99b500fc765313bfb753641262141384",
+      "context": "identity, scale, and translation mappings; a falsey sequence represents the identity transform.",
+      "translation": "पहचान, स्केल और स्थानांतरण मैपिंग; असत्य-जैसा अनुक्रम पहचान रूपांतरण दर्शाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ome_zarr._compose._pair#2",
+      "source": "mutable scale and translation lists of captured length ``ndim``. Repeated scales multiply componentwise and repeated translations add componentwise.",
+      "source_sha256": "281b1ea31b8113dc1513ed28b7e0d89c64e24ce4c3ae3114ac7484cae1c0f891",
+      "context": "mutable scale and translation lists of captured length ``ndim``. Repeated scales multiply componentwise and repeated translations add componentwise.",
+      "translation": "कैप्चर की गई लंबाई ``ndim`` की परिवर्तनीय स्केल और स्थानांतरण सूचियाँ। दोहराए गए स्केल घटकवार गुणा होते हैं और दोहराए गए स्थानांतरण घटकवार जुड़ते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ome_zarr._compose._pair#3",
+      "source": "when an entry is not a mapping, a scale or translation has the wrong arity, or the transform type is not supported; messages include the captured source location.",
+      "source_sha256": "f2170dde9137c56dfc48ccf1d56fa4d07027f7d054294a5e4b5e8b00a5a50858",
+      "context": "when an entry is not a mapping, a scale or translation has the wrong arity, or the transform type is not supported; messages include the captured source location.",
+      "translation": "जब कोई प्रविष्टि मैपिंग न हो, किसी स्केल या स्थानांतरण की एरिटी गलत हो, या रूपांतरण प्रकार समर्थित न हो; संदेशों में कैप्चर किया गया स्रोत स्थान शामिल होता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ops_solve.solve_placements.find#0",
+      "source": "The representative of ``node``'s component, path-compressed.",
+      "source_sha256": "8f60b3b363dcba39be41b6fbec28f7376bcd7be40c3cd71fd29b7a75dbe4ff44",
+      "context": "The representative of ``node``'s component, path-compressed.",
+      "translation": "``node`` के घटक का प्रतिनिधि, पथ-संपीड़न सहित।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ops_solve.solve_placements.find#1",
+      "source": "a tile index.",
+      "source_sha256": "e0611ea339aabb9d5e5c76eb34b0dfb8a0b3d27c337a950689293b015e3ee206",
+      "context": "a tile index.",
+      "translation": "एक टाइल इंडेक्स।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ops_solve.solve_placements.find#2",
+      "source": "the index that stands for its connected component.",
+      "source_sha256": "e8b7734fdb12c74c06c86e9088a3cc5df7259b29301e1ef9d0f4858aecf52bc7",
+      "context": "the index that stands for its connected component.",
+      "translation": "वह इंडेक्स जो उसके संबद्ध घटक का प्रतिनिधित्व करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ops_solve.solve_placements.find#3",
+      "source": "Halving as it walks -- ``parent[node] = parent[parent[node]]`` -- so a long chain costs its length once rather than on every later lookup. The components are what decide where the pins go, and a component that is found twice under two names puts two pins in one place and leaves another with none.",
+      "source_sha256": "08001127a43976ae26fce819bf8796ba4d45ff98b40f326ad0766faa18bab924",
+      "context": "Halving as it walks -- ``parent[node] = parent[parent[node]]`` -- so a long chain costs its length once rather than on every later lookup. The components are what decide where the pins go, and a component that is found twice under two names puts two pins in one place and leaves another with none.",
+      "translation": "चलते हुए आधा करता है -- ``parent[node] = parent[parent[node]]`` -- ताकि लंबी शृंखला की लागत हर बाद की खोज पर नहीं, केवल एक बार उसकी लंबाई जितनी हो। घटक तय करते हैं कि पिन कहाँ लगेंगे, और जो घटक दो नामों से दो बार मिलता है वह एक जगह दो पिन लगा देता है और दूसरी जगह कोई नहीं छोड़ता।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.permutation_qc.plot_residual_by_position._distance#0",
+      "source": "How far a block's Durbin-Watson sits from 2, or -1 without one.",
+      "source_sha256": "1ad6162ed54f922f927ec615fa412b3aae92ba3f16c3e002656d0a3d82bbe693",
+      "context": "How far a block's Durbin-Watson sits from 2, or -1 without one.",
+      "translation": "किसी ब्लॉक का Durbin-Watson 2 से कितना दूर है, या न होने पर -1।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.permutation_qc.plot_residual_by_position._distance#1",
+      "source": "a block label from ``labels``.",
+      "source_sha256": "107e6e3719612c8e7d54d5673b5ea319496f7b9e839117c2fd55501d5b2780de",
+      "context": "a block label from ``labels``.",
+      "translation": "``labels`` से एक ब्लॉक लेबल।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.permutation_qc.plot_residual_by_position._distance#2",
+      "source": "``|DW - 2|``, so the most autocorrelated blocks sort first; -1.0 when the report has no finite statistic.",
+      "source_sha256": "856ac63fe91e206672868cee670145756caeff9d237bd849949cf9fb44267478",
+      "context": "``|DW - 2|``, so the most autocorrelated blocks sort first; -1.0 when the report has no finite statistic.",
+      "translation": "``|DW - 2|``, ताकि सबसे अधिक स्वसहसंबद्ध ब्लॉक पहले सॉर्ट हों; रिपोर्ट में कोई परिमित आँकड़ा न होने पर -1.0।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plate_qc._default_lims_fetch.SameOriginRedirect.redirect_request#0",
+      "source": "Refuse a redirected request that changes the LIMS origin.",
+      "source_sha256": "362b869b3d48eecb5759c1725874447787245fd27868d7c8e684fd8fb0d1798f",
+      "context": "Refuse a redirected request that changes the LIMS origin.",
+      "translation": "LIMS मूल बदलने वाले पुनर्निर्देशित अनुरोध को अस्वीकार करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plate_qc._locate_records.whole#0",
+      "source": "Convert whole-valued floats to integers before parsing well labels.",
+      "source_sha256": "86c55b48f5c89ceeece0155c4ba7dd1f3fc08b4f6e0a7c50efdd5189091c82d0",
+      "context": "Convert whole-valued floats to integers before parsing well labels.",
+      "translation": "वेल लेबल पार्स करने से पहले पूर्णांक-मान वाले फ़्लोट को पूर्णांक में बदलता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.point_spread.infer_optics.pick#0",
+      "source": "Resolve one value: the argument, then metadata, then the table row.",
+      "source_sha256": "8237ac535efefc13f8dd7109847ed013adb5d4f7347606bb1070267e67ff23d8",
+      "context": "Resolve one value: the argument, then metadata, then the table row.",
+      "translation": "एक मान हल करता है: तर्क, फिर मेटाडेटा, फिर तालिका पंक्ति।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.predictions.crop_name_metadata.bare_object_label#0",
+      "source": "Normalize a parsed object label and remove one leading ``o``.",
+      "source_sha256": "2734eee7e58aaaeb1b506c9888ee81fd7329205a849eb218c38a65273c3468c8",
+      "context": "Normalize a parsed object label and remove one leading ``o``.",
+      "translation": "पार्स किए गए ऑब्जेक्ट लेबल को सामान्यीकृत करता है और एक अग्रणी ``o`` हटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.predictions.crop_name_metadata.convert#0",
+      "source": "Parse and cache one crop basename, or return all-missing metadata.",
+      "source_sha256": "1a5fe4c204afc3833dac4ef8b61bc0f0e162851d33192682f7162a34d38d2634",
+      "context": "Parse and cache one extracted image region basename, or return all-missing metadata.",
+      "translation": "एक क्रॉप बेसनेम को पार्स और कैश करता है, या पूरी तरह अनुपस्थित मेटाडेटा लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.projects.discover._walk#0",
+      "source": "Traverse one directory within the captured discovery limits.",
+      "source_sha256": "13a736905f5a6d03b2279588090fba3769611e1342cdd5ebdf3f2eaf454b5358",
+      "context": "Traverse one directory within the captured discovery limits.",
+      "translation": "कैप्चर की गई खोज सीमाओं के भीतर एक निर्देशिका में भ्रमण करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.projects.discover._walk#1",
+      "source": "directory to inspect for a project or descend through.",
+      "source_sha256": "69f72aebf8005ba7d46dd39727af1840839051935a43f6cabb757420eb10ed82",
+      "context": "directory to inspect for a project or descend through.",
+      "translation": "प्रोजेक्ट के लिए जाँची जाने वाली या भीतर उतरने वाली निर्देशिका।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.projects.discover._walk#2",
+      "source": "distance below the current caller-supplied root.",
+      "source_sha256": "17584986275a5a5f68eb27c77afdbf81c3aa4cefe50fc9560c2c5c1532de96a5",
+      "context": "distance below the current caller-supplied root.",
+      "translation": "कॉलर द्वारा दिए गए वर्तमान रूट के नीचे की दूरी।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.projects.discover._walk#3",
+      "source": "``None``; discovered project paths are appended to ``found`` and resolved directories are recorded in ``seen``. Traversal stops at a project, the depth or result limit, or an unreadable folder.",
+      "source_sha256": "e6283b5c9ff646cb0cf1e5f0f7d4d4c16fc20a6efe84e1e7b3e03a7e0b020b61",
+      "context": "``None``; discovered project paths are appended to ``found`` and resolved directories are recorded in ``seen``. Traversal stops at a project, the depth or result limit, or an unreadable folder.",
+      "translation": "``None``; मिले प्रोजेक्ट पथ ``found`` में जोड़े जाते हैं और हल की गई निर्देशिकाएँ ``seen`` में दर्ज होती हैं। भ्रमण किसी प्रोजेक्ट, गहराई या परिणाम सीमा, या अपठनीय फ़ोल्डर पर रुकता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regex_infer._assign_roles.claim#0",
+      "source": "Assign one still-available role to a slot.",
+      "source_sha256": "c2e809471b8cd48a8a283b86b79ec6c247efc23f3f05c1b8bb82f89df5277b10",
+      "context": "Assign one still-available role to a slot.",
+      "translation": "किसी स्लॉट को एक अभी भी उपलब्ध भूमिका सौंपता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regex_infer._assign_roles.claim#1",
+      "source": "field evidence to update when the claim succeeds.",
+      "source_sha256": "e62ef9ade615161826346ce27740ba16989138e485c128c066325a7f10da9685",
+      "context": "field evidence to update when the claim succeeds.",
+      "translation": "दावा सफल होने पर अपडेट किया जाने वाला फ़ील्ड साक्ष्य।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regex_infer._assign_roles.claim#2",
+      "source": "proposed regex-group role; false-like roles are rejected.",
+      "source_sha256": "d380a1716bcb2294217c7dc2fde5315e815d0363edaaf974a8e9022772220f39",
+      "context": "proposed regex-group role; false-like roles are rejected.",
+      "translation": "प्रस्तावित regex-समूह भूमिका; असत्य-जैसी भूमिकाएँ अस्वीकार की जाती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regex_infer._assign_roles.claim#3",
+      "source": "explanation recorded with a successful assignment.",
+      "source_sha256": "3c27aa790a4c8e5e598e6813fcac39413819add9f3cf445a21c6fedcfa8e9389",
+      "context": "explanation recorded with a successful assignment.",
+      "translation": "सफल आवंटन के साथ दर्ज की गई व्याख्या।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regex_infer._assign_roles.claim#4",
+      "source": "True after assigning and reserving a previously unused role; otherwise False without changing the evidence or captured set.",
+      "source_sha256": "03927569f90a2157018673bacc87b275f61655bf1e3ecfc44abb257b417bfce8",
+      "context": "True after assigning and reserving a previously unused role; otherwise False without changing the evidence or captured set.",
+      "translation": "पहले से अप्रयुक्त भूमिका सौंपने और आरक्षित करने के बाद True; अन्यथा साक्ष्य या कैप्चर किए गए समुच्चय को बदले बिना False।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_backends.backend_status.refuse#0",
+      "source": "Disable and explain the captured backend status.",
+      "source_sha256": "f63ca91f49d30b0bb7b8b512b1ea5a56ba82751d590a258dbd66e917b98c219b",
+      "context": "Disable and explain the captured backend status.",
+      "translation": "कैप्चर की गई बैकएंड स्थिति को अक्षम करता है और उसका कारण बताता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_backends.backend_status.refuse#1",
+      "source": "full user-facing explanation of the refusal.",
+      "source_sha256": "ecc305dbc416c7f64bbe4225c2cac1bed00ccc61b3ca13909302ca2cf43bfc62",
+      "context": "full user-facing explanation of the refusal.",
+      "translation": "अस्वीकृति की पूरी उपयोगकर्ता-उन्मुख व्याख्या।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_backends.backend_status.refuse#2",
+      "source": "combo-entry-length form of the same explanation.",
+      "source_sha256": "4fb1e9d8cfa5197da4dc4308d1528f4cadef8d52cf63a239e57eb540c5220a25",
+      "context": "combo-entry-length form of the same explanation.",
+      "translation": "उसी व्याख्या का कॉम्बो-प्रविष्टि लंबाई वाला रूप।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_backends.backend_status.refuse#3",
+      "source": "the captured status mapping after setting ``enabled`` false and storing both explanations.",
+      "source_sha256": "f39851e467952727b6f8673d8e9e00efb2f87d98c9d43032497330ee10d0622f",
+      "context": "the captured status mapping after setting ``enabled`` false and storing both explanations.",
+      "translation": "``enabled`` को असत्य करने और दोनों व्याख्याएँ संग्रहीत करने के बाद कैप्चर की गई स्थिति मैपिंग।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_diagnostics.write_diagnostic_suite._emit#0",
+      "source": "Write one diagnostic in every captured requested format.",
+      "source_sha256": "b5639a124bf541f4129193d2f499610e4a0e6894ca91fe8cf58637579910f9c2",
+      "context": "Write one diagnostic in every captured requested format.",
+      "translation": "हर कैप्चर किए गए अनुरोधित फ़ॉर्मेट में एक निदान लिखता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_diagnostics.write_diagnostic_suite._emit#1",
+      "source": "stable panel name used for paths and manifest keys.",
+      "source_sha256": "e983706862841605daf98732e34404f63df559e6bc5073804d8080c1a2cd94ff",
+      "context": "stable panel name used for paths and manifest keys.",
+      "translation": "पथों और मैनिफ़ेस्ट कुंजियों के लिए प्रयुक्त स्थिर पैनल नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_diagnostics.write_diagnostic_suite._emit#2",
+      "source": "writer returning ``(written_path, report)``.",
+      "source_sha256": "9fd8852a5146c0f71f9ee804ee443125b95928da81d68de8619966f3b21c65da",
+      "context": "writer returning ``(written_path, report)``.",
+      "translation": "``(written_path, report)`` लौटाने वाला राइटर।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_diagnostics.write_diagnostic_suite._emit#3",
+      "source": "diagnostic inputs forwarded to the writer.",
+      "source_sha256": "15f253e23cbe804562b295bef86eb30179b07cf04611132a3743dadab9d4fa26",
+      "context": "diagnostic inputs forwarded to the writer.",
+      "translation": "राइटर को आगे भेजे गए निदान इनपुट।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_diagnostics.write_diagnostic_suite._emit#4",
+      "source": "None. Successful artifacts are keyed by their actual output extension and their report is retained; advisory failures become per-format error entries without stopping the remaining writers.",
+      "source_sha256": "402063e05f32eb1a50feb990f3c4fcd82b85483a13ca6277689110af14a0b80b",
+      "context": "None. Successful artifacts are keyed by their actual output extension and their report is retained; advisory failures become per-format error entries without stopping the remaining writers.",
+      "translation": "None. सफल आर्टिफ़ैक्ट उनके वास्तविक आउटपुट एक्सटेंशन से कुंजीबद्ध होते हैं और उनकी रिपोर्ट रखी जाती है; परामर्शी विफलताएँ बाकी राइटरों को रोके बिना प्रति-फ़ॉर्मेट त्रुटि प्रविष्टियाँ बन जाती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_qc._write_qc_numbers._plain#0",
+      "source": "Whatever JSON can hold, and a string for everything else.",
+      "source_sha256": "11b716bd27348d42ec9f8797f2b9d72d6ce2706c3e1d296823fa8ea3ed1e4034",
+      "context": "Whatever JSON can hold, and a string for everything else.",
+      "translation": "JSON जो रख सकता है वह, और बाकी सब के लिए एक स्ट्रिंग।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_qc.condition_number._ratio#0",
+      "source": "Convert descending singular values to a stable condition number.",
+      "source_sha256": "01d272c03c9ef616f2f8bca354e903b1471e01eff1a3a1983d72127dc6bdd149",
+      "context": "Convert descending singular values to a stable condition number.",
+      "translation": "अवरोही एकवचन मानों को स्थिर कंडीशन संख्या में बदलता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_qc.condition_number._ratio#1",
+      "source": "non-empty descending singular-value array from the design.",
+      "source_sha256": "8f5767cd7074d63f061564d1ce81867da5ae0a7020eb65abd82e442b509e1e01",
+      "context": "non-empty descending singular-value array from the design.",
+      "translation": "डिज़ाइन से अवरोही एकवचन मानों का गैर-खाली ऐरे।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.regression_qc.condition_number._ratio#2",
+      "source": "largest divided by smallest as a float, or infinity when the smallest is at or below NumPy's numerical-rank tolerance computed from its dtype and the captured design shape.",
+      "source_sha256": "75765d27f27fbc998a71a96c7348213309025e8217a60028155a3e0d2d7b886f",
+      "context": "largest divided by smallest as a float, or infinity when the smallest is at or below NumPy's numerical-rank tolerance computed from its dtype and the captured design shape.",
+      "translation": "सबसे बड़े को सबसे छोटे से भाग देकर float, या अनंत जब सबसे छोटा मान उसके डेटा प्रकार और कैप्चर किए गए डिज़ाइन आकार से गणना की गई NumPy संख्यात्मक-रैंक सहनशीलता पर या उससे नीचे हो।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.report._zenodo_opener._NoRedirect.redirect_request#0",
+      "source": "Return ``None``: the redirect is not followed.",
+      "source_sha256": "1b8cb99eb14fe066bdad228e311ea2f71feb6c58c7d51b13cd19c626bf67133c",
+      "context": "Return ``None``: the redirect is not followed.",
+      "translation": "``None`` लौटाता है: पुनर्निर्देशन का पालन नहीं किया जाता।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.response_distribution.caption.one#0",
+      "source": "Format one side of the captured before/after comparison.",
+      "source_sha256": "0b43e7c848d06dff81e813e5e6be329c33c83cff705833db206344069da87640",
+      "context": "Format one side of the captured before/after comparison.",
+      "translation": "कैप्चर की गई पहले/बाद की तुलना के एक पक्ष को फ़ॉर्मेट करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.response_distribution.caption.one#1",
+      "source": "distribution summary returned by :func:`describe`.",
+      "source_sha256": "bb2eea7f1eb970c7a39e79b93876e8dadff89fe73585dad691efee33b9073f5b",
+      "context": "distribution summary returned by :func:`describe`.",
+      "translation": ":func:`describe` द्वारा लौटाया गया वितरण सारांश।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.response_distribution.caption.one#2",
+      "source": "the display name alone when no family or finite statistics are available; otherwise the name followed by finite normality and skewness statistics.",
+      "source_sha256": "3520c9792371f316547bbc97f0870121ac009d5abb83a82345151baa651c4303",
+      "context": "the display name alone when no family or finite statistics are available; otherwise the name followed by finite normality and skewness statistics.",
+      "translation": "जब कोई परिवार या परिमित आँकड़े उपलब्ध न हों तो केवल प्रदर्शन नाम; अन्यथा नाम के बाद परिमित सामान्यता और विषमता आँकड़े।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.runctx.install_run_id_logging._factory#0",
+      "source": "Create a record and stamp the ambient run id onto it.",
+      "source_sha256": "63153f052b849f999a255dcab7f4d3b07ad75c3cf998b5505a0c6fdbaa582f3d",
+      "context": "Create a record and stamp the ambient run id onto it.",
+      "translation": "एक रिकॉर्ड बनाता है और उस पर चालू रन की id अंकित करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.schema._non_numeric_feature_error.diagnostic_dtype#0",
+      "source": "Return stable user-facing text for a pandas feature dtype.",
+      "source_sha256": "27ea035243c0292afe18579af1254ba33928446e3caa9d6a348e286f9a8f0cfd",
+      "context": "Return stable user-facing text for a pandas feature dtype.",
+      "translation": "pandas फ़ीचर डेटा प्रकार के लिए स्थिर उपयोगकर्ता-उन्मुख टेक्स्ट लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.schema._non_numeric_feature_error.diagnostic_dtype#1",
+      "source": "Pandas ``StringDtype`` is reported as the established ``object`` wording; other extension and NumPy dtypes retain their own names.",
+      "source_sha256": "da49b748d70a86792be95d9f7be64fe134aa9e297b651523a739cb356d9c17b2",
+      "context": "Pandas ``StringDtype`` is reported as the established ``object`` wording; other extension and NumPy dtypes retain their own names.",
+      "translation": "Pandas ``StringDtype`` को स्थापित ``object`` शब्दावली से बताया जाता है; अन्य एक्सटेंशन और NumPy डेटा प्रकार अपने नाम बनाए रखते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.schema.validate_object_table_frame._validate_positive_integer#0",
+      "source": "Require positive integral values in one canonical key column.",
+      "source_sha256": "3c1a3e84f5e43fce16e7b60915e500fc0ca4460e45f1d644cbd5dab1020127d3",
+      "context": "Require positive integral values in one canonical identifier column.",
+      "translation": "एक मानक कुंजी स्तंभ में धनात्मक पूर्णांक मान आवश्यक करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.schema.validate_object_table_frame._validate_positive_integer#1",
+      "source": "When ``nullable`` is true, nulls are ignored while every populated value is still checked; failures name the table, column, and examples.",
+      "source_sha256": "87d3af58d003bf3ee24ec75111519d792bae061d24d0114a8c1a6e9fd82187ae",
+      "context": "When ``nullable`` is true, nulls are ignored while every populated value is still checked; failures name the table, column, and examples.",
+      "translation": "जब ``nullable`` सत्य हो, तो null अनदेखे होते हैं जबकि हर भरा हुआ मान फिर भी जाँचा जाता है; विफलताएँ तालिका, स्तंभ और उदाहरण बताती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.seg_qc.qc_roots._add#0",
+      "source": "Append one unique existing directory to the captured candidates.",
+      "source_sha256": "4589f9a1c8b33c188d359522d7eda0185da508f70d73550021ff0540ad753a80",
+      "context": "Append one unique existing directory to the captured candidates.",
+      "translation": "कैप्चर किए गए उम्मीदवारों में एक अद्वितीय मौजूदा निर्देशिका जोड़ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.seg_qc.qc_roots._add#1",
+      "source": "candidate directory path; false-like, missing, non-directory, and already-recorded values are ignored.",
+      "source_sha256": "15ba52a7dd15cde585e7eb5e13d4b39ebf1d997ed7d7ae4bb7f3a1da62eb20fe",
+      "context": "candidate directory path; false-like, missing, non-directory, and already-recorded values are ignored.",
+      "translation": "उम्मीदवार निर्देशिका पथ; असत्य-जैसे, अनुपस्थित, गैर-निर्देशिका और पहले से दर्ज मान अनदेखे किए जाते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.seg_qc.qc_roots._add#2",
+      "source": "None. Accepted paths retain discovery order.",
+      "source_sha256": "0429e29cb2476df27fd171e2ada9ceeca1785880bb56f0671378d3cbbd2d03a7",
+      "context": "None. Accepted paths retain discovery order.",
+      "translation": "None. स्वीकृत पथ खोज का क्रम बनाए रखते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.segmentation_uncertainty._make_segmenter.segment#0",
+      "source": "Infer one transformed field through the shared output parser.",
+      "source_sha256": "c057e638b609a3f3b7a80efad43030ab801c41c600b7ddfb225cf9feb7bb31c7",
+      "context": "Infer one transformed field through the shared output parser.",
+      "translation": "साझा आउटपुट पार्सर के माध्यम से एक रूपांतरित फ़ील्ड का अनुमान लगाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.segmentation_uncertainty._make_segmenter.segment#1",
+      "source": "2-D field supplied by the TTA scorer.",
+      "source_sha256": "bd6b98d8d7f1c3f6d6a533e5df80e9372335ceed38765b21a341b5f7bc0638b9",
+      "context": "2-D field supplied by the TTA scorer.",
+      "translation": "TTA स्कोरर द्वारा दिया गया 2-D फ़ील्ड।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.segmentation_uncertainty._make_segmenter.segment#2",
+      "source": "labels, logits and vector flows in the input orientation.",
+      "source_sha256": "1dda7536bab3fdf54b223f8958c574f9be0bbdd99d3efa85e14bd8f7c3cc1ac5",
+      "context": "labels, logits and vector flows in the input orientation.",
+      "translation": "इनपुट अभिविन्यास में लेबल, logits और सदिश फ़्लो।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.selection.ObjectRequest.select_from.rank#0",
+      "source": "Find a row key's position in the captured request.",
+      "source_sha256": "cc5f740badeee9eaa433642f61f6aaa22c16e08b4b4af515d3b4e0904c5497ec",
+      "context": "Find a row identifier's position in the captured request.",
+      "translation": "कैप्चर किए गए अनुरोध में एक पंक्ति कुंजी की स्थिति ढूँढता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.selection.ObjectRequest.select_from.rank#1",
+      "source": "row key including its object type when available.",
+      "source_sha256": "bca754aac53d8a32f7eb451eb8d2b069ea0a0841235879ee8004a8ff36afa2db",
+      "context": "row identifier including its object type when available.",
+      "translation": "उपलब्ध होने पर ऑब्जेक्ट प्रकार सहित पंक्ति कुंजी।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.selection.ObjectRequest.select_from.rank#2",
+      "source": "the same row key without an object type.",
+      "source_sha256": "34f93dd291b288f44289d6d2fb7f97d0a5754e4448a8ae439cc37d39d0637b23",
+      "context": "the same row identifier without an object type.",
+      "translation": "ऑब्जेक्ट प्रकार के बिना वही पंक्ति कुंजी।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.selection.ObjectRequest.select_from.rank#3",
+      "source": "request position using exact typed, loose untyped, then narrowed typed-request precedence. Narrowing is allowed only for an untyped row (``typed == plain``); absent keys return -1.",
+      "source_sha256": "3ba15d757ed66ad2ac7394b0effcf43dd82268ac69c9639088050ec4012890f2",
+      "context": "request position using exact typed, loose untyped, then narrowed typed-request precedence. Narrowing is allowed only for an untyped row (``typed == plain``); absent structured-data names return -1.",
+      "translation": "सटीक टाइप किए गए, ढीले बिना टाइप वाले, फिर संकुचित टाइप किए गए अनुरोध की प्राथमिकता से अनुरोध स्थिति। संकुचन केवल बिना टाइप वाली पंक्ति (``typed == plain``) के लिए अनुमत है; अनुपस्थित कुंजियाँ -1 लौटाती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.setting_animations.measure_border_artifact.perimeter#0",
+      "source": "Flatten every border pixel into RGB rows exactly once.",
+      "source_sha256": "6b568afd806eb2332ab34985013bc83c69d32d3f715bea597e7bc6ba625ad127",
+      "context": "Flatten every border pixel into RGB rows exactly once.",
+      "translation": "हर किनारे के पिक्सेल को ठीक एक बार RGB पंक्तियों में समतल करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.setting_animations.measure_border_artifact.perimeter#1",
+      "source": "captured-animation RGB frame to sample.",
+      "source_sha256": "3237bdc3a607e53ac1a795e724fb35d713ddf63891d2ae45393b66a2f87c7c5c",
+      "context": "captured-animation RGB frame to sample.",
+      "translation": "नमूना लिया जाने वाला कैप्चर किए गए एनिमेशन का RGB फ़्रेम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.setting_animations.measure_border_artifact.perimeter#2",
+      "source": "top and bottom bands followed by the left and right interior bands. Omitting corners from the side bands prevents double counting while preserving a stable comparison order.",
+      "source_sha256": "a68aa76edef7eadce128ba02e7ccb3c63f021878f99b76f37bcb89e0d8910508",
+      "context": "top and bottom bands followed by the left and right interior bands. Omitting corners from the side bands prevents double counting while preserving a stable comparison order.",
+      "translation": "ऊपरी और निचली पट्टियाँ, उसके बाद बाईं और दाईं भीतरी पट्टियाँ। साइड पट्टियों से कोने हटाने से दोहरी गिनती रुकती है और स्थिर तुलना क्रम बना रहता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.sp_stats._score_anomalies._cross_fitted#0",
+      "source": "Join two half fits so each half is scored by the fit of the other half.",
+      "source_sha256": "7fb96d30f089348d2a203c28ae0657643ee10ff4286ed9c7caba6280fc85885f",
+      "context": "Join two half fits so each half is scored by the fit of the other half.",
+      "translation": "दो अर्ध फ़िट को जोड़ता है ताकि हर आधे को दूसरे आधे के फ़िट से अंक मिलें।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.sra.runs_for.cell#0",
+      "source": "Read one named value from the bound portal row.",
+      "source_sha256": "97b996f61423ae3243d3ee8307e7b25c6b148d8cd8306f8d7f570bf9204469d4",
+      "context": "Read one named value from the bound portal row.",
+      "translation": "बाँधी गई पोर्टल पंक्ति से एक नामित मान पढ़ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.sra.runs_for.cell#1",
+      "source": "ENA header name to look up in the captured index.",
+      "source_sha256": "1a7a09568b9eda5340701e077da315adb79bc2821940588ae8675c59ced70279",
+      "context": "ENA header name to look up in the captured index.",
+      "translation": "कैप्चर किए गए इंडेक्स में खोजा जाने वाला ENA हेडर नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.sra.runs_for.cell#2",
+      "source": "cells bound when this row's helper is created, preventing later loop iterations from changing the source row.",
+      "source_sha256": "5353fdabddad57c932f4d2195729be0f44f90533ddb31ea35abce55981e525a6",
+      "context": "cells bound when this row's helper is created, preventing later loop iterations from changing the source row.",
+      "translation": "इस पंक्ति का सहायक फ़ंक्शन बनाते समय बाँधे गए सेल, जिससे बाद की लूप पुनरावृत्तियाँ स्रोत पंक्ति न बदल सकें।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.sra.runs_for.cell#3",
+      "source": "the indexed cell, or an empty string when the column is absent or the row is too short.",
+      "source_sha256": "d3166cd2b4e1bb2de2a93fc9fb78562735ad3f56053e6f2484402c37efd73f3d",
+      "context": "the indexed cell, or an empty string when the column is absent or the row is too short.",
+      "translation": "इंडेक्स किया गया सेल, या स्तंभ अनुपस्थित होने या पंक्ति बहुत छोटी होने पर खाली स्ट्रिंग।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.stream_dataset.stream.write#0",
+      "source": "Save one extracted crop using the default NumPy format.",
+      "source_sha256": "47616239e71a2962d68bd64213399c1de12428622631bcfcc89180dd02887383",
+      "context": "Save one extracted extracted image region using the default NumPy format.",
+      "translation": "NumPy के डिफ़ॉल्ट फ़ॉर्मेट में एक निकाला गया क्रॉप सहेजता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.stream_dataset.stream.write#1",
+      "source": "proposed output path; its extension is replaced with ``.npy``.",
+      "source_sha256": "d6ea107ed0731bc629ce40e2335cfb0f2dd4e1e75b4b391f4f601ab4ea4c96d3",
+      "context": "proposed output path; its extension is replaced with ``.npy``.",
+      "translation": "प्रस्तावित आउटपुट पथ; इसका एक्सटेंशन ``.npy`` से बदल दिया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.stream_dataset.stream.write#2",
+      "source": "crop data to coerce to an array before saving.",
+      "source_sha256": "918f7bf944104e3379331ceddd93c6f03612c3941a503812c01b8aebd88a4277",
+      "context": "extracted image region data to coerce to an array before saving.",
+      "translation": "सहेजने से पहले ऐरे में बदला जाने वाला क्रॉप डेटा।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.stream_dataset.stream.write#3",
+      "source": "None.",
+      "source_sha256": "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f",
+      "context": "None.",
+      "translation": "None.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.suggest._score_columns.index#0",
+      "source": "The integer suffix of a score column, for ordering.",
+      "source_sha256": "f0d055e1c998f3e38c00c4fcd873a397ca3daf14d29fd6b905458d418e35b1d0",
+      "context": "The integer suffix of a score column, for ordering.",
+      "translation": "क्रम के लिए एक स्कोर स्तंभ का पूर्णांक प्रत्यय।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.surrogate._kernel_shap_values._predict#0",
+      "source": "Call the model on a frame with the training column names.",
+      "source_sha256": "7ba336410954ba20a2f2317ee06b27b964ccdc6ee3a7e1670cd4600c4a0a93c5",
+      "context": "Call the model on a frame with the training column names.",
+      "translation": "प्रशिक्षण के स्तंभ नामों वाले डेटा फ़्रेम पर मॉडल को कॉल करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.surrogate.write_surrogate_result._csv#0",
+      "source": "Write and register one non-empty result table.",
+      "source_sha256": "10d2ffe0dbbc9acde6b4cd54fd939ac0dddbf8fe2cec75b08373e0425903b37f",
+      "context": "Write and register one non-empty result table.",
+      "translation": "एक गैर-खाली परिणाम तालिका लिखता और पंजीकृत करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.surrogate.write_surrogate_result._csv#1",
+      "source": "artifact key to add to the captured path mapping.",
+      "source_sha256": "cff534eea9474d56c49d31ac1d51868369a9823971a6ebd468140f7f424f19ad",
+      "context": "artifact structured-data name to add to the captured path mapping.",
+      "translation": "कैप्चर की गई पथ मैपिंग में जोड़ी जाने वाली आर्टिफ़ैक्ट कुंजी।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.surrogate.write_surrogate_result._csv#2",
+      "source": "CSV filename beneath the captured output directory.",
+      "source_sha256": "8c30c1832c6e205634a8d232d76d896e5946151c8071fd26211c8f5d9c46af58",
+      "context": "CSV filename beneath the captured output directory.",
+      "translation": "कैप्चर की गई आउटपुट निर्देशिका के नीचे CSV फ़ाइल नाम।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.surrogate.write_surrogate_result._csv#3",
+      "source": "result table to write with its index; None and empty tables are deliberately omitted.",
+      "source_sha256": "89147a721b6691172b593d9701081db8a80f83f7cd6b48b1a454c0cbd5d408c1",
+      "context": "result table to write with its index; None and empty tables are deliberately omitted.",
+      "translation": "अपने इंडेक्स के साथ लिखी जाने वाली परिणाम तालिका; None और खाली तालिकाएँ जानबूझकर छोड़ी जाती हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.surrogate.write_surrogate_result._csv#4",
+      "source": "None. A written table's absolute path is stored in the captured artifact mapping.",
+      "source_sha256": "d1527ee2e39d2dcc9073410b8da836afba091f3ff6ed92768ec8a87a4d233e20",
+      "context": "None. A written table's absolute path is stored in the captured artifact mapping.",
+      "translation": "None. लिखी गई तालिका का निरपेक्ष पथ कैप्चर की गई आर्टिफ़ैक्ट मैपिंग में संग्रहीत होता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timeflows_validation.summarise.group#0",
+      "source": "Summarize correct successor links and abstentions for the selected ground-truth objects.",
+      "source_sha256": "af8a4ec2d376327bbd1f8699ad24c5504780b27e15ced0d30ae4691c647c1724",
+      "context": "Summarize correct successor links and abstentions for the selected ground-truth objects.",
+      "translation": "चयनित ground truth ऑब्जेक्ट के लिए सही उत्तराधिकारी लिंक और परहेज़ का सारांश देता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.toxo.plot_gene_heatmaps.extract_gene_id#0",
+      "source": "Return the numeric portion of a ``TGGT1_<id>`` tag, or ``gene`` itself.",
+      "source_sha256": "253706623e12a18c337f8926a4bbd1225a8c5ea301c13c39fb02790c85d75ac2",
+      "context": "Return the numeric portion of a ``TGGT1_<id>`` tag, or ``gene`` itself.",
+      "translation": "``TGGT1_<id>`` टैग का संख्यात्मक भाग लौटाता है, या स्वयं ``gene``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.validate._check_required_paths._require_file#0",
+      "source": "Refuse a missing or unset path, saying what it was needed FOR.",
+      "source_sha256": "5ce367b860a85b651d5d8b81c991aff07f9371ee827d5836db12627f63fdcde3",
+      "context": "Refuse a missing or unset path, saying what it was needed FOR.",
+      "translation": "अनुपस्थित या असेट पथ को अस्वीकार करता है और बताता है कि वह किसलिए चाहिए था।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.validate._check_required_paths._require_file#1",
+      "source": "Both the purpose and the fix are carried into the message: \"not set\" on its own tells a user what happened and not what to do about it.",
+      "source_sha256": "9c3d7d7881cc9ae07b0db7782d755839bc448afcdb55bffe24e401adf88e8bcc",
+      "context": "Both the purpose and the fix are carried into the message: \"not set\" on its own tells a user what happened and not what to do about it.",
+      "translation": "उद्देश्य और समाधान दोनों संदेश में जाते हैं: केवल \"not set\" (सेट नहीं) उपयोगकर्ता को बताता है कि क्या हुआ, यह नहीं कि उसके बारे में क्या करें।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.validate._describe_regression_plan.paths#0",
+      "source": "Normalize an optional scalar or sequence source into a list without inventing entries.",
+      "source_sha256": "10fb81801b0a1d56c507481f3fcf048412e40da9c1ef30144b6ca92c152f19e9",
+      "context": "Normalize an optional scalar or sequence source into a list without inventing entries.",
+      "translation": "किसी वैकल्पिक अदिश या अनुक्रम स्रोत को प्रविष्टियाँ गढ़े बिना सूची में सामान्यीकृत करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.workspace.inventory.add#0",
+      "source": "Add or promote one path in the captured inventory.",
+      "source_sha256": "78d0cefdb55b7d9c7abbdafb247fd7dbb2a92b900728ad40b161b4d62653494c",
+      "context": "Add or promote one path in the captured inventory.",
+      "translation": "कैप्चर की गई सूची में एक पथ जोड़ता या उन्नत करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.workspace.inventory.add#1",
+      "source": "source role recorded when the path is first seen.",
+      "source_sha256": "cb7fbf52f86f1fd222f09db2f6481a9721f0a77b2a1334c43463ad022351c7d8",
+      "context": "source role recorded when the path is first seen.",
+      "translation": "पथ पहली बार दिखने पर दर्ज स्रोत भूमिका।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.workspace.inventory.add#2",
+      "source": "path text to expand and inspect.",
+      "source_sha256": "7131ded1f3aca55cf3d234eb2c9818ff5e0eaf323042bc3f1dc25dcf6de84685",
+      "context": "path text to expand and inspect.",
+      "translation": "विस्तार और जाँच के लिए पथ टेक्स्ट।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.workspace.inventory.add#3",
+      "source": "whether the file must be included in a bundle.",
+      "source_sha256": "38c07ace063d3ef4022b951d32ce256abdc7f6127561753d3008e6b469ff2226",
+      "context": "whether the file must be included in a bundle.",
+      "translation": "क्या फ़ाइल को बंडल में शामिल करना आवश्यक है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.workspace.inventory.add#4",
+      "source": "None. Invalid and missing paths are ignored; repeated paths reuse their first record and are promoted when any occurrence requests carrying. File hashing follows the captured ``hash_files`` policy.",
+      "source_sha256": "ab72bdd958dba241c24afc1ec9891b6ee874036d3997fcd19debae98b92c13ef",
+      "context": "None. Invalid and missing paths are ignored; repeated paths reuse their first record and are promoted when any occurrence requests carrying. File hashing follows the captured ``hash_files`` policy.",
+      "translation": "None. अमान्य और अनुपस्थित पथ अनदेखे किए जाते हैं; दोहराए गए पथ अपना पहला रिकॉर्ड पुनः उपयोग करते हैं और जब कोई भी उपस्थिति साथ ले जाने का अनुरोध करे तो उन्नत किए जाते हैं। फ़ाइल हैशिंग कैप्चर की गई ``hash_files`` नीति का पालन करती है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.zstack.detect_axes._order#0",
+      "source": "Build one axis-order candidate with captured image axes.",
+      "source_sha256": "0d4a0440352f0c0ba511435f288bf84b71d98d84a8afa8a7aa922721c0d6f30d",
+      "context": "Build one axis-order candidate with captured image axes.",
+      "translation": "कैप्चर किए गए छवि अक्षों के साथ एक अक्ष-क्रम उम्मीदवार बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.zstack.detect_axes._order#1",
+      "source": "proposed time-axis index.",
+      "source_sha256": "cdbf706340da78ada0dd383260fcb89e370e00fa7cb2a87ba78a2a15f275eecc",
+      "context": "proposed time-axis index.",
+      "translation": "प्रस्तावित समय-अक्ष इंडेक्स।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.zstack.detect_axes._order#2",
+      "source": "proposed depth-axis index.",
+      "source_sha256": "2ff02eaff153d9423f752f6a11861eb6b1722ecc95730d165e80d5e0e7919186",
+      "context": "proposed depth-axis index.",
+      "translation": "प्रस्तावित गहराई-अक्ष इंडेक्स।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.zstack.detect_axes._order#3",
+      "source": "evidence label explaining how the proposal was chosen.",
+      "source_sha256": "2c35d76ad85152d9c91d89ae610e154d8167f801abda87e82d290aed056bbb39",
+      "context": "evidence label explaining how the proposal was chosen.",
+      "translation": "साक्ष्य लेबल जो बताता है कि प्रस्ताव कैसे चुना गया।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.zstack.detect_axes._order#4",
+      "source": "an axis order combining the proposal with the captured Y, X, and normalized optional channel axes.",
+      "source_sha256": "1e06d569a4f89ff21467d3009fd7ab1b4867eed7c037568267af4ae8f14510d2",
+      "context": "an axis order combining the proposal with the captured Y, X, and normalized optional channel axes.",
+      "translation": "एक अक्ष क्रम जो प्रस्ताव को कैप्चर किए गए Y, X और सामान्यीकृत वैकल्पिक चैनल अक्षों के साथ जोड़ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

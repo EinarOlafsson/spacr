@@ -1,0 +1,487 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.qt._install_quiet_qt_logging.handler#0",
+      "source": "Drop Qt's known-noisy messages and pass the rest through.",
+      "source_sha256": "48df2e5cdc97ea8d6457d12def1424303d85dddfd9f7ec840f614a6ff6569532",
+      "context": "Drop Qt's known-noisy messages and pass the rest through.",
+      "translation": "Fleygir þekktum hávaðasömum skilaboðum Qt og hleypir restinni í gegn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.crop_paths_for_keys.resolve#0",
+      "source": "Resolve one batch of keys, bisecting when some are missing.",
+      "source_sha256": "0a85cac894e2d781352aceeddda3e2ef8132a857acbc8e787b862128b80d22c3",
+      "context": "Resolve one batch of keys, bisecting when some are missing.",
+      "translation": "Leysir upp eina lotu lykla og helmingar hana þegar einhverja vantar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.crop_thumbs.crop_paths_for_keys.resolve#1",
+      "source": "Never called with an empty batch: the caller refuses an empty key list and a bisection of two or more cannot produce an empty half.",
+      "source_sha256": "175d13bd889125a892f7edb8b43a122466e592b89d75f7cc9c689775b6d3cd77",
+      "context": "Never called with an empty batch: the caller refuses an empty key list and a bisection of two or more cannot produce an empty half.",
+      "translation": "Er aldrei kallað með tóma lotu: kallarinn hafnar tómum lyklalista og helmingun tveggja eða fleiri getur ekki gefið tóman helming.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.detect_chain.prepare.check#0",
+      "source": "Stop between enhancement stages when the supplied callback or event is cancelled.",
+      "source_sha256": "7db809ef398fa74211a7cf4dd9eee5bad3eb1475e6b650e7124061ce7ce455fe",
+      "context": "Stop between enhancement stages when the supplied callback or event is cancelled.",
+      "translation": "Stöðvar milli bætingarþrepa þegar uppgefið svarkall eða atburður hefur verið afturkallaður.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.iconset._blend.ch#0",
+      "source": "One hex colour as its three integer channels.",
+      "source_sha256": "53ff02617e4a681c146358fc9ff11e9b97b05bc3fccefc224854c35cdd1117d3",
+      "context": "One hex colour as its three integer channels.",
+      "translation": "Einn hex-litur sem þrjár heiltölurásir hans.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.make_masks_demo.load_the_test_data._done#0",
+      "source": "Put the button back, then open the data or say why it did not.",
+      "source_sha256": "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3",
+      "context": "Put the button back, then open the data or say why it did not.",
+      "translation": "Setur hnappinn aftur á sinn stað og opnar síðan gögnin eða segir hvers vegna það tókst ekki.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.mask_thumbnail_quality.quality_combo._Sync.update#0",
+      "source": "Synchronize the selector after another view changed quality.",
+      "source_sha256": "16025a3832080c7e9c1094c8bdd338ff8817dd9fe8e24d3476a0eec48a072ec3",
+      "context": "Synchronize the selector after another view changed quality.",
+      "translation": "Samstillir valtólið eftir að önnur sýn breytti gæðum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.mask_thumbnail_quality.quality_combo._Sync.update#1",
+      "source": "the stable quality key.",
+      "source_sha256": "d8532a6016d9fb25fcd57d9876f037d9061159e445b85ac764f049d9489d8314",
+      "context": "the stable quality key.",
+      "translation": "stöðugi gæðalykillinn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.path_probe._stat_with_timeout.run#0",
+      "source": "Ask the filesystem the question that is allowed to block.",
+      "source_sha256": "66e5d6135a2871af63e4dce2909aeacfec708a21251d7ec046c71ba0262c1925",
+      "context": "Ask the filesystem the question that is allowed to block.",
+      "translation": "Spyr skráakerfið þeirrar spurningar sem má stöðva framvindu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.path_probe._stat_with_timeout.run#1",
+      "source": "This body is the reason the module exists: it runs on a worker, where an `autofs` mount taking twenty seconds to wake costs nobody a frozen window. `OSError` is an answer of \"no\", not a failure -- a path that cannot be stat-ed is a path the user cannot use either.",
+      "source_sha256": "f05c6fda7888e848639dc31c1b975dc2a512d37858c400ad2ae253fa3f564284",
+      "context": "This body is the reason the module exists: it executes on a worker, where an `autofs` mount taking twenty seconds to wake costs nobody a frozen window. `OSError` is an answer of \"no\", not a failure -- a path that cannot be stat-ed is a path the user cannot use either.",
+      "translation": "Þessi meginhluti er ástæða þess að einingin er til: hann keyrir í vinnuþræði, þar sem `autofs`-tenging sem tekur tuttugu sekúndur að vakna frystir ekki glugga neins. `OSError` er svarið \"no\" (nei), ekki villa -- slóð sem ekki er hægt að keyra stat á er líka slóð sem notandinn getur ekki notað.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.regex_detect.tabulate_records._row#0",
+      "source": "One row of the table, padded to the column widths.",
+      "source_sha256": "eae8b823e8f4b80c2b79cf465485de2fcc3d6a2fbe0e8fca09366c99a69e3619",
+      "context": "One row of the table, padded to the column widths.",
+      "translation": "Ein röð töflunnar, fyllt upp í dálkabreiddirnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.batch.BatchScreen.run._job#0",
+      "source": "Run the whole plate queue. Off the GUI thread.",
+      "source_sha256": "14b927df06bcc734cbed84884b679d315aad8be4206f03f7efaf7c5b065b484d",
+      "context": "Run the whole plate-processing list. Off the main GUI execution path.",
+      "translation": "Keyrir alla plötubiðröðina. Utan GUI-þráðarins.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.hit_list.HitListScreen.load_folder.build#0",
+      "source": "Load the data backend in the job that reads the table.",
+      "source_sha256": "f9b515c56e5762938857894f7425266e08b4d9186d43f7a83ea3f6b24f393f9f",
+      "context": "Load the data backend in the job that reads the table.",
+      "translation": "Hleður gagnabakendanum inn í verkið sem les töfluna.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.run.work#0",
+      "source": "Run the measurement. Worker thread; touches no widget.",
+      "source_sha256": "42389f7d8c445c791056f3a3903e0294a6c53653569e219a85cf349753dd5d0a",
+      "context": "Execute the measurement. Background execution unit; touches no widget.",
+      "translation": "Keyrir mælinguna. Vinnuþráður; snertir engar græjur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.measure_inputs.MeasureInputsScreen.run.work#1",
+      "source": "The table it measures is a SNAPSHOT taken above, not the widget's live model. A measure run takes minutes and preparing the next batch while it runs is the natural thing to do, so the GUI thread can append rows and delete channel and mask keys underneath this -- which reaches the worker as a ``KeyError`` in the middle of writing, or as half a field that nobody asked for. The snapshot is plain data, so copying it is cheap and it cannot be edited from anywhere.",
+      "source_sha256": "b028d92ff849cf6c6bd748919babd270f8ddcb8c67bd5811b173601a9c1ab952",
+      "context": "The table it measures is a SNAPSHOT taken above, not the widget's live model. A measure run takes minutes and preparing the next batch while it executes is the natural thing to do, so the main GUI execution path can append rows and delete image data channel and mask structured-data names underneath this -- which reaches the worker as a ``KeyError`` in the middle of writing, or as half a microscope field of view that nobody asked for. The snapshot is plain data, so copying it is cheap and it cannot be edited from anywhere.",
+      "translation": "Taflan sem hún mælir er SKYNDIMYND tekin hér að ofan, ekki lifandi líkan græjunnar. Mælikeyrsla tekur mínútur og eðlilegt er að undirbúa næstu lotu á meðan hún keyrir, svo GUI-þráðurinn getur bætt við röðum og eytt rása- og grímulyklum undir henni -- sem berst vinnuþræðinum sem ``KeyError`` í miðjum skrifum, eða sem hálft svið sem enginn bað um. Skyndimyndin er einföld gögn, svo það er ódýrt að afrita hana og ekki er hægt að breyta henni neins staðar frá.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.qc_dashboard.QCDashboardScreen.refresh.work#0",
+      "source": "Off the GUI thread. Touches no widget -- returns a verdict.",
+      "source_sha256": "e099b781990bc9ff026fa42c9044824099bde955584a68184b638fa682d638ed",
+      "context": "Off the main GUI execution path. Touches no widget -- returns a verdict.",
+      "translation": "Utan GUI-þráðarins. Snertir engar græjur -- skilar úrskurði.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.qc_dashboard.QCDashboardScreen.refresh.work#1",
+      "source": "The cache comparison comes with it rather than staying behind: the key it compares IS the walk of the disk, so leaving the comparison on the GUI thread would leave the walk there too.",
+      "source_sha256": "fdfb8393c4bb63e015a1537aaec7d60e52e87fa62e1adfbd0a7f0c8b81835d31",
+      "context": "The cache comparison comes with it rather than staying behind: the structured-data name it compares IS the walk of the disk, so leaving the comparison on the main GUI execution path would leave the walk there too.",
+      "translation": "Samanburðurinn við skyndiminnið fylgir með í stað þess að verða eftir: lykillinn sem hann ber saman ER yfirferðin um diskinn, svo ef samanburðurinn yrði eftir í GUI-þræðinum yrði yfirferðin það líka.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.queue.QueueScreen.wire_add_current._on_click#0",
+      "source": "Add the current screen's settings to the queue.",
+      "source_sha256": "998c5479d2c420e74fcf8355c8ef226f3ff16b6fab51bf74800ba4f086ee436a",
+      "context": "Add the current application view's settings to the work list.",
+      "translation": "Bætir stillingum núverandi skjás við biðröðina.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.run_history.RunHistoryScreen.refresh._load#0",
+      "source": "Read the run journal. Off the GUI thread.",
+      "source_sha256": "c39ea695decd0789a82fe1041aa13a5033f0520e22d21d2f4625dd5261ffd9a9",
+      "context": "Read the run journal. Off the main GUI execution path.",
+      "translation": "Les keyrsludagbókina. Utan GUI-þráðarins.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.setup_screen.questions.choices_of#0",
+      "source": "Names paired with their readable spellings, for a picker.",
+      "source_sha256": "14a6b184167ed4f6dafbfd469a21479a46909f7df23c240aee775f7c8ed26d4b",
+      "context": "Names paired with their readable spellings, for a picker.",
+      "translation": "Heiti pöruð við læsilega rithátt sinn, fyrir valtól.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.space._bilinear_upsample._axis#0",
+      "source": "Sample positions and weights for one axis of the upsample.",
+      "source_sha256": "981174f2fbe6e5fa844803660f9c9590e68a7352ad028d1d5ac6d006f3903c7f",
+      "context": "Sample positions and weights for one axis of the upsample.",
+      "translation": "Sýnatökustöður og vægi fyrir einn ás uppskölunarinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.space._bilinear_upsample._axis#1",
+      "source": "A single input sample is handled separately: interpolating between one point and itself is a division by zero.",
+      "source_sha256": "4194a4df131dd324cff46ef83dc035991669ffa125631227036214192f37dfec",
+      "context": "A single input sample is handled separately: interpolating between one point and itself is a division by zero.",
+      "translation": "Eitt inntakssýni er meðhöndlað sérstaklega: að brúa milli punkts og hans sjálfs er deiling með núlli.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.synthetic._synth_field._peak#0",
+      "source": "One object's peak intensity, jittered around the nominal.",
+      "source_sha256": "85ebafbe4cf80fe67ad0f58d60f23f27b5018e4c468bbd46f85fe1de8a3911ad",
+      "context": "One object's peak intensity, jittered around the nominal.",
+      "translation": "Hámarksstyrkur eins hlutar, slembidreifður kringum nafngildið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.verbose_logger.log_call.wrapper#0",
+      "source": "Call the function, logging it only when verbose is on.",
+      "source_sha256": "f43e3591b730f72109d387d5f0ec043e223c40f1bc8a48e913f5c8bbabaa9ad6",
+      "context": "Call the function, logging it only when verbose is on.",
+      "translation": "Kallar á fallið og skráir það aðeins í annál þegar ítarlegur hamur er á.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.verbose_logger.log_call.wrapper#1",
+      "source": "The check is INSIDE rather than at decoration time, so switching verbose on mid-session takes effect without rebuilding anything.",
+      "source_sha256": "a1fd83315bf1466d76f9b85b43867afafa3ffb0cf51b64c2029cf0f8249c4234",
+      "context": "The check is INSIDE rather than at decoration time, so switching verbose on mid-session takes effect without rebuilding anything.",
+      "translation": "Athugunin er INNI frekar en við skreytingu, svo að kveikja á ítarlegum ham í miðri lotu tekur gildi án þess að neitt sé endurbyggt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widget_cleanup.retire_pyqtgraph_menus.retire#0",
+      "source": "Retire one menu, once. Already-seen menus are skipped.",
+      "source_sha256": "2006eec46b5272683df7513a8a876c99ccd783424f0e0144a3d8ccc0db9e7dec",
+      "context": "Retire one menu, once. Already-seen menus are skipped.",
+      "translation": "Leggur eina valmynd af, einu sinni. Valmyndum sem þegar hafa sést er sleppt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.DriftEngine._configure.roll#0",
+      "source": "One particle, on the drift layer its index falls in.",
+      "source_sha256": "87fadf21b9499e28c155af0c547442de1f8628f049f75afe649a989ac5ec216b",
+      "context": "One particle, on the drift layer its index falls in.",
+      "translation": "Ein ögn, á rekslaginu sem vísir hennar fellur í.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_strategy_panel.AnnotationStrategyPanel.run.work#0",
+      "source": "Run the annotation strategy. Off the GUI thread.",
+      "source_sha256": "56eb359fc05f9b2d007690cee97b0b3fb2cd4636891fe6b1ffebc9d3a7ada9aa",
+      "context": "Run the annotation strategy. Off the main GUI execution path.",
+      "translation": "Keyrir skráningarstefnuna. Utan GUI-þráðarins.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.card.Card.follow_fold.apply#0",
+      "source": "Match the body's stretch to the fold.",
+      "source_sha256": "c045ebdcfdbfa00a22a5e3d31e5e0be947e5f781884420e55a8a49fbc464ed53",
+      "context": "Match the body's stretch to the fold.",
+      "translation": "Lagar teygju meginmálsins að brotinu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.lock_folded_to_bottom.apply#0",
+      "source": "Add or take away the stretch in front of the heading.",
+      "source_sha256": "6a2343393cb771b777ddf13ed1d98acf854dacc585fbd88bfe906aa6dcad538a",
+      "context": "Add or take away the stretch in front of the heading.",
+      "translation": "Bætir við eða fjarlægir teygjuna framan við fyrirsögnina.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.control_chart._finish#0",
+      "source": "Assemble the result, flagging a degenerate spread.",
+      "source_sha256": "c6d59ac0a54cb2287c2b793e57aa77fd9e611798784665ba580db200bf3fd9c5",
+      "context": "Assemble the result, flagging a degenerate spread.",
+      "translation": "Setur niðurstöðuna saman og merkir úrkynjaða dreifingu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.control_chart.control_chart._finish#1",
+      "source": "A sigma at or below the tolerance means every point is a violation, so it is reported as DEGENERATE rather than charted -- limits drawn from no spread say nothing about the process.",
+      "source_sha256": "583c5126738fc2d71d73b7e5242748d4866ac3007d59d0e4bf5133e1bde3261a",
+      "context": "A sigma at or below the tolerance means every point is a violation, so it is reported as DEGENERATE rather than charted -- limits drawn from no spread say nothing about the process.",
+      "translation": "Sigma á eða undir vikmörkunum þýðir að hver punktur er brot, svo það er tilkynnt sem DEGENERATE í stað þess að vera teiknað -- mörk sem dregin eru af engri dreifingu segja ekkert um ferlið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.derived_table_source.DerivedTableSource.use_derived_table.work#0",
+      "source": "Validate and persist the source-bound definition on a worker.",
+      "source_sha256": "521b0aa9c51db5b5f01b0dca3103c6c3f1da2c16450ebc0f55f0ab76c15d8bf3",
+      "context": "Validate and persist the source-bound definition on a worker.",
+      "translation": "Staðfestir og vistar upprunabundnu skilgreininguna í vinnuþræði.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.feature_dictionary._doc_html.field#0",
+      "source": "Add one field to the entry, skipping empty values.",
+      "source_sha256": "ef6779f576cc1c11cb0093a66884992d335e33f68830d35d544e8a80cb269480",
+      "context": "Add one field to the entry, skipping empty values.",
+      "translation": "Bætir einu sviði við færsluna og sleppir tómum gildum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_grid.axis_layout.distinct#0",
+      "source": "The distinct values of a column, in first-seen order.",
+      "source_sha256": "bade947307b84885ab90f594a3417d47ce4b987431def1451032370681fa9d71",
+      "context": "The distinct values of a column, in first-seen order.",
+      "translation": "Ólík gildi dálks, í þeirri röð sem þau sjást fyrst.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fold_strip._host_declarations._as_string#0",
+      "source": "The string an AST node stands for, or ``None`` if it is not one.",
+      "source_sha256": "b85a795f6b697a50bc7619c03548f3966515603b29b4a1151ce0f2971adb30fd",
+      "context": "The string an AST node stands for, or ``None`` if it is not one.",
+      "translation": "Strengurinn sem AST-hnútur stendur fyrir, eða ``None`` ef hann stendur ekki fyrir neinn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fold_strip._host_declarations._as_string#1",
+      "source": "Handles a literal, a constant in this module, and a constant reached through an imported sibling -- read from the source rather than by importing the module that defines it.",
+      "source_sha256": "4a9312cb205ec581776d9d601221838df5e6879583615a910b843f55ea0af580",
+      "context": "Handles a literal, a constant in this module, and a constant reached through an imported sibling -- read from the source rather than by importing the module that defines it.",
+      "translation": "Meðhöndlar lesgildi, fasta í þessari einingu og fasta sem náð er í gegnum innflutta systureiningu -- lesið úr frumkóðanum frekar en með því að flytja inn eininguna sem skilgreinir hann.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.make_foldable.remember#0",
+      "source": "Store the fold state, if this section has a key to store it under.",
+      "source_sha256": "9387914e4f9ee31983e50077f33329f7e386e41d46290d4b4325f51357fd6f2d",
+      "context": "Store the fold state, if this section has a key to store it under.",
+      "translation": "Vistar brotsstöðuna, ef þessi hluti hefur lykil til að vista hana undir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.foldable.make_foldable.remember#1",
+      "source": "Only a fold the user made is stored: see :attr:`Folder.last_change_by_user`.",
+      "source_sha256": "0c85cbfaa92859a886bc2d25c165730a350c17a43119608dd0dd7f9633d4ff1e",
+      "context": "Only a fold the user made is stored: see :attr:`Folder.last_change_by_user`.",
+      "translation": "Aðeins brot sem notandinn gerði er vistað: sjá :attr:`Folder.last_change_by_user`.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.folding_summary.FoldingSummaryView._table._tint#0",
+      "source": "One cell, coloured only when the row is an alarm.",
+      "source_sha256": "576c9be62bf0089b4f29a8c9e64d8f83aa59cf58551dc460d48385147c5b7248",
+      "context": "One cell, coloured only when the row is an alarm.",
+      "translation": "Einn reitur, litaður aðeins þegar röðin er viðvörun.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_spec.facet_grid.axis#0",
+      "source": "One facet axis's levels and how many there are.",
+      "source_sha256": "fd39e0e0cac8b750869b1ef7e10c925bed5af42aa3473fffa92128d7cf1f73bd",
+      "context": "One facet axis's levels and how many there are.",
+      "translation": "Stig eins flötunaráss og hve mörg þau eru.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview.work#0",
+      "source": "Read available fields and analyze the captured field and plane selection off the GUI thread.",
+      "source_sha256": "b41d86f18c1393fe0a0a824da18e9ecd356cbd5b3a8cb6aa7c26ee18841f7cbf",
+      "context": "Read available microscope fields of view and analyze the captured microscope field of view and image layer selection off the main GUI execution path.",
+      "translation": "Les tiltæk svið og greinir fangað val sviðs og lags utan GUI-þráðarins.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_compare_dialog.MeasurementComparePanel.join_the_tables.work#0",
+      "source": "Off the GUI thread. Returns, never raises: a failed join is a message in the panel, not a traceback in the console.",
+      "source_sha256": "14eb6b3e3e98f3ea2c62d3710babf239926367dd8f658383d8ea558d1719d72a",
+      "context": "Off the main GUI execution path. Returns, never throws: a failed join is a message in the panel, not a traceback in the console.",
+      "translation": "Utan GUI-þráðarins. Skilar, kastar aldrei: misheppnuð sameining er skilaboð í spjaldinu, ekki rakning í stjórnborðinu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.measurements_example.load_test_data._done#0",
+      "source": "Restore the button, then hand over the plate or say why not.",
+      "source_sha256": "3c0c06aa91aeceec823b74961aa9c532239f5f07bdb84075c4823ae003cc53f3",
+      "context": "Restore the button, then hand over the plate or say why not.",
+      "translation": "Setur hnappinn aftur á sinn stað og afhendir síðan plötuna eða segir hvers vegna ekki.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.metadata_mapper.resolve_metadata_with_dialog.prompt#0",
+      "source": "Ask the user how to map one metadata column.",
+      "source_sha256": "6e85c278face52147e83eb6d70f107489c9af6eadc6f754378a90fd5992ab98e",
+      "context": "Ask the user how to map one metadata column.",
+      "translation": "Spyr notandann hvernig eigi að varpa einum lýsigagnadálki.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilitySummary.summary._f#0",
+      "source": "Format one number, or \"n/a\" when it is not finite.",
+      "source_sha256": "9f36bf537c2428015eee63998ea35e46baf841d33d892d42a2384746323de44a",
+      "context": "Format one number, or \"n/a\" when it is not finite.",
+      "translation": "Sniðsetur eina tölu, eða \"n/a\" þegar hún er ekki endanleg.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.pca_view.PCAPanel.recompute._fit#0",
+      "source": "Fit the decomposition. Off the GUI thread when threaded.",
+      "source_sha256": "56fdae328447c38527452788687a45f34f7e8c58b0cab93872c973b09222992c",
+      "context": "Fit the decomposition. Off the main GUI execution path when executed in a worker.",
+      "translation": "Aðlagar sundurliðunina. Utan GUI-þráðarins þegar þræðir eru notaðir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save._menu#0",
+      "source": "Offer the save menu at ``point``; the path written, or ``\"\"``.",
+      "source_sha256": "1049e543421d64e48495276762dfff6b4fd561fa434c5e88d1297eeedda1a18e",
+      "context": "Offer the save menu at ``point``; the path written, or ``\"\"``.",
+      "translation": "Býður vistunarvalmyndina við ``point``; slóðin sem var skrifuð, eða ``\"\"``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.picture_export.install_picture_save._menu#1",
+      "source": "where the right-click landed, in ``view`` coordinates.",
+      "source_sha256": "d57d75fbe401a3139f87d1e8fe8ff4e946a04254bd07310b651a6d7872b055eb",
+      "context": "where the right-click landed, in ``view`` coordinates.",
+      "translation": "hvar hægrismellurinn lenti, í hnitum ``view``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis#0",
+      "source": "The signed scroll step along one axis.",
+      "source_sha256": "29f40a01bb592a9dda89e34545e6e56841c0878a5f214a16c5268b3834c753c4",
+      "context": "The signed scroll step along one axis.",
+      "translation": "Formerkta skrunskrefið eftir einum ás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis#1",
+      "source": "the pointer coordinate on this axis.",
+      "source_sha256": "fff0a0247a91c1d3f1ccf3ca2a982b110c40f94dc891aecbe32e029f9d2d94bf",
+      "context": "the pointer coordinate on this axis.",
+      "translation": "hnit bendilsins á þessum ás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis#2",
+      "source": "the viewport's low edge on this axis.",
+      "source_sha256": "e5a94992f939c8f3357cc4c79d63d3984ddd26f34041357c987612e182d418b7",
+      "context": "the viewport's low edge on this axis.",
+      "translation": "neðri brún skoðunarsvæðisins á þessum ás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis#3",
+      "source": "the viewport's high edge on this axis.",
+      "source_sha256": "fceb5c0b6fbfac7b6dfc67546b2a1ffd6b4dcc588901f91a6f709f8a19135467",
+      "context": "the viewport's high edge on this axis.",
+      "translation": "efri brún skoðunarsvæðisins á þessum ás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis#4",
+      "source": "the scroll bar for this axis.",
+      "source_sha256": "215040e541e3fd7fb57cabdbbed014af072a63ca1ac38cb94b8e244c83320747",
+      "context": "the scroll bar for this axis.",
+      "translation": "skrunstikan fyrir þennan ás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plate_map_picker.PlateMapPicker._edge_step._axis#5",
+      "source": "0 outside the edge band or when ``bar`` cannot scroll; otherwise a step toward the edge, capped at :data:`AUTOSCROLL_MAX_STEP`.",
+      "source_sha256": "3ee7b5b523818c3d72dc3727aaa77d2871147da96caba04fdbc2784d3e21703f",
+      "context": "0 outside the edge band or when ``bar`` cannot scroll; otherwise a step toward the edge, capped at :data:`AUTOSCROLL_MAX_STEP`.",
+      "translation": "0 utan jaðarbandsins eða þegar ``bar`` getur ekki skrunað; annars skref í átt að jaðrinum, takmarkað við :data:`AUTOSCROLL_MAX_STEP`.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.restoration_controls._RestorationControls._load.work#0",
+      "source": "Return captured model identity or the original loading error.",
+      "source_sha256": "32677f2e0adb3cef1e797fa77c80dfc469cb3a96e048b463eea6e999543e676f",
+      "context": "Return captured model identity or the original loading error.",
+      "translation": "Skilar fangaðri auðkenningu líkans eða upprunalegu hleðsluvillunni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.setup_slides.SetupSlides._what_this_machine_can_do._answer#0",
+      "source": "The first answer whose task starts with ``prefix``.",
+      "source_sha256": "8df30532b3fe356c5cb8c1764e6043c66bb7757154f1d9c24d9f652a0d81be06",
+      "context": "The first answer whose task starts with ``prefix``.",
+      "translation": "Fyrsta svarið þar sem verkefnið byrjar á ``prefix``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame.projected#0",
+      "source": "Project points into the frame, in PIXEL coordinates.",
+      "source_sha256": "eae7e57ce3beb335f61f3f318b07ecb87a9d83830e04616ca56ff92093c755c3",
+      "context": "Project points into the frame, in PIXEL coordinates.",
+      "translation": "Varpar punktum inn í rammann, í PIXEL-hnitum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.axis_frame.projected#1",
+      "source": "The vertical is negated because screen y grows downward and the data's does not -- without it the plot is drawn upside down and still looks plausible.",
+      "source_sha256": "e5bc817dcf687c0723b6b0e315b83fe1c2c8d1b2c0de1b313ed942c1e16e9741",
+      "context": "The vertical is negated because screen y grows downward and the data's does not -- without it the plot is drawn upside down and still looks plausible.",
+      "translation": "Lóðrétta ásnum er snúið við því y skjásins vex niður á við en y gagnanna ekki -- án þess er myndritið teiknað á hvolfi og lítur samt trúverðuglega út.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.volcano_explorer.VolcanoExplorer.build_style_menu.changed#0",
+      "source": "Re-apply the style after any menu entry changes it.",
+      "source_sha256": "2b673924be169bb54f81ae384ec3fa427288b1fa5f609cf80b8f1c89f893803f",
+      "context": "Re-apply the style after any menu entry changes it.",
+      "translation": "Beitir stílnum aftur eftir að einhver valmyndarfærsla breytir honum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}
