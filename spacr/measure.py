@@ -8853,6 +8853,37 @@ def _wait_for_measure_job(result, psf_cancel=None):
                     checkpoint()
 
 
+def _measure_merged_folder(src):
+    """Resolve one ``src`` to the merged folder measure reads, or say why not.
+
+    A plate folder gains ``merged``; a ``merged`` folder is kept; a plate
+    output subfolder such as ``measurements`` resolves to that plate's
+    ``merged`` folder. Each move is printed to the console.
+
+    :param src: one ``src`` path.
+    :returns: the merged folder holding the ``.npy`` arrays.
+    :raises ConfigurationError: when ``src`` or its merged folder does not
+        exist, with what to set instead.
+    """
+    from .validate import _resolve_measure_src
+    merged, note = _resolve_measure_src(src)
+    if note:
+        print(f"[measure] {note}")
+    elif os.path.normpath(merged) != os.path.normpath(src):
+        print(f"[measure] Reading the merged arrays in {merged}")
+    if os.path.isdir(merged):
+        return merged
+    if not os.path.exists(src):
+        raise ConfigurationError(
+            f"Measure cannot start: src does not exist: {src}. Set src to "
+            "the plate folder that Make Masks wrote, the one holding "
+            "merged/, and check that the drive or share is mounted.")
+    raise ConfigurationError(
+        f"Measure cannot start: there is no merged folder at {merged}. "
+        "Set src to the plate folder that Make Masks wrote (the one holding "
+        "merged/), or run Make Masks on this plate first.")
+
+
 def measure_crop(settings):
     """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
 
@@ -8968,13 +8999,8 @@ def measure_crop(settings):
                 source_folder = format_path_for_system(source_folder)
                 settings['src'] = source_folder
 
-                src_fldr = settings['src']
-            
-                if not os.path.basename(src_fldr).endswith('merged'):
-                    print(f"WARNING: Source folder, settings: src: {src_fldr} should end with '/merged'")
-                    src_fldr = os.path.join(src_fldr, 'merged')
-                    settings['src'] = src_fldr
-                    print(f"Changed source folder to: {src_fldr}")
+                src_fldr = _measure_merged_folder(settings['src'])
+                settings['src'] = src_fldr
 
                 explicit_mask_keys = {
                     f'{role}_mask_dim' for role in SEGMENTED_ROLES

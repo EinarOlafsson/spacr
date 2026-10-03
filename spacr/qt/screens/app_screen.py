@@ -8839,12 +8839,56 @@ class AppScreen(QWidget):
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
         always = bool(enabled) and self._reporting_is_set_to_always()
+        self._report_is_a_settings_path = False
+        if always and self._is_a_settings_path_error(
+                tb, self._settings_snapshot()):
+            always = False
+            self._report_is_a_settings_path = True
         agreed = always and self._the_terms_allow_automatic_filing()
         self._report_files_itself = agreed
         self._report_awaits_the_terms = always and not agreed
         self._report_waits_for_a_click = (
             bool(enabled) and not always
             and self._reporting_is_not_set_to_never())
+
+    @staticmethod
+    def _is_a_settings_path_error(tb: str, settings: dict) -> bool:
+        """Whether a failure is a wrong path in the settings, not a bug.
+
+        A :class:`spacr.errors.ConfigurationError` always is. A
+        ``FileNotFoundError`` is when the missing path is one of the
+        settings' own paths or lies inside one. Such a failure is never
+        filed automatically; File as issue still sends it on request.
+
+        :param tb: the formatted traceback.
+        :param settings: the settings the run was started with.
+        :returns: ``True`` for a settings path error.
+        """
+        lines = [line.strip() for line in (tb or "").splitlines() if line.strip()]
+        if not lines:
+            return False
+        last = lines[-1]
+        if last.startswith(("ConfigurationError", "spacr.errors.ConfigurationError")):
+            return True
+        if not last.startswith("FileNotFoundError"):
+            return False
+        match = re.search(r"No such file or directory: '([^']+)'", last)
+        if not match:
+            return False
+        missing = os.path.normpath(match.group(1))
+        values = []
+        for value in (settings or {}).values():
+            if isinstance(value, (list, tuple)):
+                values.extend(value)
+            else:
+                values.append(value)
+        for value in values:
+            if not isinstance(value, str) or os.sep not in value:
+                continue
+            root = os.path.normpath(value.strip())
+            if missing == root or missing.startswith(root + os.sep):
+                return True
+        return False
 
     @staticmethod
     def _the_terms_allow_automatic_filing() -> bool:
@@ -8939,6 +8983,15 @@ class AppScreen(QWidget):
         if failed and files_itself:
             self._report_waits_for_a_click = False
             self._file_the_report_automatically()
+            return
+        if failed and getattr(self, "_report_is_a_settings_path", False):
+            self._report_is_a_settings_path = False
+            self._report_waits_for_a_click = False
+            self._console.append_notice(
+                "[issue] Nothing was sent to GitHub: this run stopped on a "
+                "path in its settings, not on a fault in spaCR. Correct the "
+                "path and run again. To send a report anyway, press File as "
+                "issue.\n")
             return
         if failed and awaits_the_terms:
             self._report_waits_for_a_click = False

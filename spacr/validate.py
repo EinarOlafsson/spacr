@@ -335,6 +335,7 @@ class _Inventory:
     merged_dir: Optional[str] = None
     merged_exists: bool = False
     merged_files: int = 0
+    merged_note: Optional[str] = None
 
     stack_dir: Optional[str] = None
     stack_files: int = 0
@@ -388,6 +389,45 @@ def _resolve_merged_dir(src: str) -> str:
     if os.path.basename(os.path.normpath(src)).endswith("merged"):
         return src
     return os.path.join(src, "merged")
+
+
+_PLATE_OUTPUT_FOLDERS = frozenset({
+    "merged", "measure", "measurements", "masks", "datasets", "data",
+    "settings", "plots", "results", "stack", "norm_channel_stack",
+    "channel_stack", "orig", "png", "crops", "figures"})
+
+
+def _holds_npy(directory: str) -> bool:
+    """Whether ``directory`` is a folder with at least one visible ``.npy``."""
+    return os.path.isdir(directory) and any(
+        name.endswith(".npy") for name in _listdir(directory))
+
+
+def _resolve_measure_src(src: str) -> Tuple[str, Optional[str]]:
+    """The merged folder measure reads for ``src``, and why it was moved.
+
+    A plate root or a ``merged`` folder is read as it always was. When
+    ``src`` names one of spaCR's own output subfolders of a plate
+    (``measurements``, ``measure``, ``masks``, ...) and that plate's
+    ``merged`` folder holds ``.npy`` arrays, measure reads that folder
+    instead, whether or not the subfolder itself exists.
+
+    :param src: the ``src`` setting, one path.
+    :returns: ``(merged_folder, note)``. ``note`` is None when nothing was
+        moved, otherwise one sentence saying what was used instead.
+    """
+    path = os.path.normpath(src)
+    direct = _resolve_merged_dir(path)
+    if _holds_npy(direct):
+        return direct, None
+    name = os.path.basename(path)
+    if name.lower() in _PLATE_OUTPUT_FOLDERS:
+        candidate = os.path.join(os.path.dirname(path), "merged")
+        if os.path.normpath(candidate) != os.path.normpath(direct) and _holds_npy(candidate):
+            return candidate, (
+                f"src points at {path}, the plate's '{name}' output folder; "
+                f"measure reads the merged arrays in {candidate} instead.")
+    return direct, None
 
 
 def _peek_planes(directory: str) -> Tuple[Optional[int], str, int]:
@@ -499,6 +539,11 @@ def _inventory(src: Any, settings: Dict[str, Any], app: str) -> _Inventory:
     inv = _Inventory()
     if not isinstance(src, str):
         return inv
+    if app in MERGED_APPS:
+        resolved, note = _resolve_measure_src(src)
+        if note:
+            inv.merged_note = note
+            src = os.path.dirname(resolved)
     inv.src = src
     inv.exists = os.path.exists(src)
     inv.is_dir = os.path.isdir(src)
@@ -695,6 +740,10 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
             continue
 
         if app in MERGED_APPS:
+            if inv.merged_note:
+                problems.append(Problem(
+                    WARNING, "src", inv.merged_note,
+                    "Set src to the plate folder, or to its merged folder, to silence this."))
             if not inv.merged_exists:
                 problems.append(Problem(
                     ERROR, "src",
