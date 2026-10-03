@@ -327,7 +327,7 @@ def object_type_summary(roles: Sequence[str]) -> str:
         This changes presentation only, never stored identifiers or parsing.
     """
     values = list(dict.fromkeys(str(role) for role in roles))
-    slots = [role for role in values if role in ORGANELLE_ROLES]
+    slots = [role for role in values if role in _ORGANELLE_ROLE_SET]
     if not slots:
         return ", ".join(values)
     suffixes = {role[len('organelle'):] for role in slots}
@@ -350,9 +350,10 @@ def object_type_summary(roles: Sequence[str]) -> str:
         pattern += '(?:' + suffix + ')' if len(alternatives) > 1 or '' in suffixes else suffix
         if '' in suffixes:
             pattern += '?'
+    slot_set = set(slots)
     result = []
     for role in values:
-        if role in slots:
+        if role in slot_set:
             if pattern not in result:
                 result.append(pattern)
         else:

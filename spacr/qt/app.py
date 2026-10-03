@@ -332,7 +332,8 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
 
 
-_DATA_LIBRARIES = ("pandas", "matplotlib.figure", "spacr.train_compare")
+_DATA_LIBRARIES = ("pandas", "matplotlib.figure", "scipy.stats",
+                   "scipy.optimize", "spacr.train_compare")
 _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
@@ -358,7 +359,9 @@ def _import_the_data_libraries_off_the_gui_thread():
     yet (a first launch, or a new Matplotlib) that is a scan of every system
     font: measured at 1.0-2.2 s inside Dose-Response's first open on hosted
     macOS, the worst freeze of the whole sweep there. ``spacr.train_compare``
-    is the local model scan Make Masks runs while it builds its Mode box. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
+    is the local model scan Make Masks runs while it builds its Mode box.
+    ``scipy.stats`` and ``scipy.optimize`` were most of Dose-Response's first
+    open on hosted macOS (1.3-1.6 s) once the font list was ruled out. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
     seconds after a module screen is on show, so the import does not share
     the interpreter lock with the open that has just finished painting.
 

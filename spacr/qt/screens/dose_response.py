@@ -553,13 +553,10 @@ class DoseResponseScreen(QWidget):
         body = CollapsibleSplitter(Qt.Horizontal, self,
                                    persist_key="dose_response::body")
 
-        from .. import timing as _timing
-        with _timing.span("import", "matplotlib.figure"):
-            from matplotlib.figure import Figure
+        from matplotlib.figure import Figure
         palette = active_palette()
-        with _timing.span("figure canvas", APP_KEY):
-            self._figure = Figure(figsize=(6.5, 4.6))
-            self.canvas = _canvas_class()(self._figure)
+        self._figure = Figure(figsize=(6.5, 4.6))
+        self.canvas = _canvas_class()(self._figure)
         self.canvas.setObjectName("DoseResponseCanvas")
         body.add_section(self.canvas, "Dose-response curves",
                          persist_key="dose_response/Dose-response curves",
@@ -593,8 +590,7 @@ class DoseResponseScreen(QWidget):
         self._body_splitter = body
         outer.addWidget(body, 1)
         from ..dnd import install_for
-        with _timing.span("drop targets", APP_KEY):
-            install_for(self, "dose_response")
+        install_for(self, "dose_response")
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
