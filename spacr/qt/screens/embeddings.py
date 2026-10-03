@@ -376,6 +376,7 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(self._run)
         self._add_well_mil_button(controls)
         self._add_dino_button(controls)
+        self._add_use_for_pickers(controls)
         outer.addLayout(controls)
 
         self._table = install_sorting(QTableWidget(0, 0, self))
@@ -439,6 +440,141 @@ class EmbeddingsScreen(QWidget):
         controls.addWidget(self._foundation)
         _apply_alpha_widgets(label)
         _apply_alpha_widgets(self._foundation)
+
+    def _add_use_for_pickers(self, controls) -> None:
+        """Alpha controls that score the embedding and feed it onward.
+
+        A label table gives the retrieval scorecard of the chosen backbone;
+        the picker then runs an image UMAP or a classifier on the vectors.
+        """
+        from ..preferences import _apply_alpha_widgets
+
+        self._labels: Dict[str, str] = {}
+        self._labels_button = QPushButton(tr("Labels…"), self)
+        self._labels_button.setObjectName("EmbeddingsLabelsButton")
+        self._labels_button.setToolTip(tr(
+            "Choose a table with one row per embedded crop, in crop order, "
+            "and a 'label' column (else the first column). The backbone is "
+            "scored on it: kNN accuracy, mean average precision and "
+            "precision at 10 against chance, and the classifier uses the "
+            "same labels. Default no labels."))
+        self._labels_button.clicked.connect(lambda: self._choose_labels())
+        controls.addWidget(self._labels_button)
+        label = QLabel(tr("Use for:"), self)
+        label.setObjectName("EmbeddingsUseForLabel")
+        controls.addWidget(label)
+        self._use_for = QComboBox(self)
+        self._use_for.setObjectName("EmbeddingsUseForPicker")
+        self._use_for.addItem(tr("Image UMAP"), "umap")
+        self._use_for.addItem(tr("Classifier"), "classifier")
+        self._use_for.setToolTip(tr(
+            "What to do with the embedding of the chosen backbone or "
+            "foundation model. Image UMAP maps every crop to two "
+            "dimensions; Classifier cross-validates a logistic regression "
+            "on the labels. Default Image UMAP."))
+        controls.addWidget(self._use_for)
+        self._use_for_run = QPushButton(tr("Run"), self)
+        self._use_for_run.setObjectName("EmbeddingsUseForRun")
+        self._use_for_run.setToolTip(tr(
+            "Run the chosen use on the last embedding. Default off until "
+            "an embedding exists."))
+        self._use_for_run.clicked.connect(lambda: self._use_embeddings())
+        controls.addWidget(self._use_for_run)
+        for widget in (self._labels_button, label, self._use_for,
+                       self._use_for_run):
+            _apply_alpha_widgets(widget)
+
+    def _choose_labels(self, path: str = "") -> str:
+        """Read a label table and score the last embedding against it.
+
+        :param path: the table; asks for one when empty.
+        :returns: the table used, or ``''`` when nothing was chosen or the
+            table does not fit the embedding.
+        """
+        from ...tabular import read_table
+
+        if not path:
+            path, _filter = QFileDialog.getOpenFileName(
+                self, tr("Choose a label table"), "",
+                tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+        if not path:
+            return ""
+        frame = read_table(str(path), report=None)
+        column = "label" if "label" in frame.columns else frame.columns[0]
+        values = frame[column].tolist()
+        embedded = getattr(self, "_frame", None)
+        if embedded is not None and len(values) != len(embedded):
+            self._status.setText(tr(
+                "The label table has {rows} rows but {crops} crops were "
+                "embedded.").format(rows=len(values), crops=len(embedded)))
+            return ""
+        self._labels = {str(i): ("" if pd.isna(v) else str(v))
+                        for i, v in enumerate(values)}
+        if embedded is not None:
+            self._show_scorecard()
+        return str(path)
+
+    def _show_scorecard(self) -> None:
+        """Measure the encoder's retrieval scorecard on the labels."""
+        from ...embeddings import _scored_encoder_entry
+
+        entry = _scored_encoder_entry(self.spec(), self._frame, self._labels)
+        self._entry = entry
+        card = entry.metrics
+        if not card:
+            self._status.setText(tr(
+                "The labels cannot be scored: two classes with labelled "
+                "crops are needed."))
+            return
+        self._status.setText(tr(
+            "Encoder {name}: kNN accuracy {knn:.2f}, mAP {map:.2f} (chance "
+            "{chance:.2f}), precision at 10 {prec:.2f}, over {n} crops in "
+            "{classes} classes.").format(
+                name=entry.name, knn=card["knn_accuracy"], map=card["map"],
+                chance=card["chance_map"], prec=card["precision_at_k"],
+                n=int(card["n"]), classes=int(card["classes"])))
+
+    def _use_embeddings(self) -> None:
+        """Run the picked use (image UMAP or classifier) on the embedding."""
+        frame = getattr(self, "_frame", None)
+        if frame is None:
+            self._status.setText(tr("Embed the crops first."))
+            return
+        use = str(self._use_for.currentData())
+        labels = dict(self._labels)
+        if use == "classifier" and not labels:
+            self._status.setText(tr("Choose labels first."))
+            return
+
+        def work():
+            """Map or classify off the GUI thread."""
+            from ... import embeddings as emb
+
+            if use == "umap":
+                return use, emb._embedding_umap(frame)
+            return use, emb._embedding_classifier_scorecard(frame, labels)
+
+        self._status.setText(tr("Running on the embedding…"))
+        self._jobs.submit(work, self._on_used)
+
+    def _on_used(self, result) -> None:
+        """Show the UMAP coordinates or the classifier scorecard."""
+        use, answer = result
+        if use == "umap":
+            self._umap = answer
+            self._fill_preview(answer)
+            self._status.setText(tr(
+                "Image UMAP of {n} crops from {name}.").format(
+                    n=len(answer), name=self.spec().backbone))
+            return
+        self._status.setText(tr(
+            "Classifier on {name}: accuracy {acc:.2f} ± {sd:.2f} over "
+            "{folds} folds (chance {chance:.2f}), {n} crops in {classes} "
+            "classes.").format(
+                name=self.spec().backbone, acc=answer["accuracy"],
+                sd=answer["accuracy_sd"], folds=int(answer["folds"]),
+                chance=answer["chance"], n=int(answer["n"]),
+                classes=int(answer["classes"])))
 
     def _add_well_mil_button(self, controls) -> None:
         """The alpha button that learns which cells carry a well label."""
@@ -1144,6 +1280,8 @@ class EmbeddingsScreen(QWidget):
         self._status.setText(
             f"{len(frame)} objects x {len(frame.columns)} dimensions. "
             f"Encoder {entry.name}, weights {digest}.")
+        if self._labels and len(self._labels) == len(frame):
+            self._show_scorecard()
 
     def _fill_preview(self, frame: pd.DataFrame) -> None:
         """Show the first few dimensions, and only the first few.

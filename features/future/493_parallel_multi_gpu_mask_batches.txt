@@ -237,3 +237,16 @@ checkbox DistributedAllocatedGpus, the progress label MaskGpuProgress.
 
 2026-10-02 — WHAT-IS-LEFT AUDIT
     BLOCKED / open: step 5 on two or more physical GPUs (machine has one shared GPU). OPEN code: resolved-model contracts for non-Cellpose backends (over 1 h).
+
+2026-10-03 — Resolved-model contracts for non-Cellpose-SAM backends
+_resolved_backend_model(settings, object_type, root=None) in
+spacr/_mask_workers.py returns (prepared, signature, identity) like
+_prepare_mask_model for Cellpose 3, Cellpose-DINO, the prefixed backends and
+DINOCell/SAMCell. Checkpoint files and model folders are signed by content
+(_artifact_digest: sorted relative paths + SHA256, changed-while-read
+refused); stock names by name plus the backend environment's install record.
+Missing paths and uninstalled environments are refused; GPU selection does
+not change the signature. 8 CPU tests with stand-in files and records in
+tests/test_mask_worker_backend_contracts.py. Dispatch still refuses these
+backends (_prepare_mask_model): their worker segmenters are not wired yet.
+Still open: per-backend worker segmenters and step 5 on two physical GPUs.

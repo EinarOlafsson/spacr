@@ -1331,8 +1331,10 @@ class _FieldQCDialog(QDialog):
             return
         self._index = max(0, min(int(index), len(self._fields) - 1))
         name = self._fields[self._index]
-        self._image.setPixmap(QPixmap.fromImage(self._field_image(name)).scaled(
-            self._image.minimumSize(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        from ..hidpi import scaled_for
+        self._image.setPixmap(scaled_for(
+            QPixmap.fromImage(self._field_image(name)), self._image,
+            self._image.minimumSize()))
         scores = self._suggested.get(name, {})
         chosen = self._labels.get(name)
         if chosen is None:

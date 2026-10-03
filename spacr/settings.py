@@ -7411,7 +7411,9 @@ ALPHA_FEATURES = {
         'widgets': ('AnnotateFindSimilar', 'AnnotateSimilarityOptions'),
     },
     560: {
-        'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker'),
+        'widgets': ('EmbeddingsFoundationLabel', 'EmbeddingsFoundationPicker',
+                    'EmbeddingsLabelsButton', 'EmbeddingsUseForLabel',
+                    'EmbeddingsUseForPicker', 'EmbeddingsUseForRun'),
     },
     562: {
         'widgets': ('EmbeddingsWellMilButton',),

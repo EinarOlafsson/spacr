@@ -1721,3 +1721,96 @@ def _scored_encoder_entry(spec: Optional["EmbeddingSpec"], features: Any,
     except ValueError:
         scorecard = None
     return encoder_entry(spec, scorecard=scorecard)
+
+
+def _embedding_umap(features: Any, *, n_neighbors: int = 15,
+                    min_dist: float = 0.1, seed: int = 0):
+    """A two-dimensional UMAP of an embedding matrix.
+
+    Features are median-centred and scaled by their standard deviation
+    before the map, so no single dimension dominates. ``n_neighbors`` is
+    capped below the number of rows, so a small set still maps.
+
+    :param features: numeric frame, one row per crop.
+    :param n_neighbors: UMAP neighbourhood size.
+    :param min_dist: UMAP minimum distance between mapped points.
+    :param seed: random state, so a rerun draws the same map.
+    :returns: a frame with ``umap_1`` and ``umap_2``, indexed like
+        ``features``.
+    :raises ValueError: with fewer than three rows.
+    """
+    import pandas as pd
+
+    frame = pd.DataFrame(features)
+    values = frame.to_numpy(dtype=np.float64)
+    if values.shape[0] < 3:
+        raise ValueError("a UMAP needs at least three crops")
+    values = values - np.median(values, axis=0)
+    spread = values.std(axis=0)
+    values = values / np.where(spread > 0, spread, 1.0)
+    try:
+        import umap
+    except ImportError as exc:
+        raise ImportError(
+            "The embedding UMAP needs umap-learn: pip install "
+            "'umap-learn>=0.5.11,<1.0'") from exc
+    reducer = umap.UMAP(n_components=2,
+                        n_neighbors=max(2, min(int(n_neighbors),
+                                               values.shape[0] - 1)),
+                        min_dist=float(min_dist), random_state=int(seed),
+                        init="random")
+    mapped = reducer.fit_transform(values)
+    return pd.DataFrame(mapped, index=frame.index,
+                        columns=["umap_1", "umap_2"])
+
+
+def _embedding_classifier_scorecard(features: Any, labels: Mapping[Any, Any],
+                                    *, folds: int = 5,
+                                    seed: int = 0) -> Dict[str, float]:
+    """Cross-validated accuracy of a linear classifier on embeddings.
+
+    A standardised logistic regression is scored with stratified folds over
+    the labelled crops; ``chance`` is the share of the largest class, which
+    a classifier that always guesses it would reach.
+
+    :param features: numeric frame indexed by crop key.
+    :param labels: crop key to class; blanks and unknown keys are dropped.
+    :param folds: folds, capped by the smallest class.
+    :param seed: fold shuffling seed.
+    :returns: ``accuracy``, ``accuracy_sd``, ``chance``, ``n``, ``classes``
+        and ``folds``.
+    :raises ValueError: with fewer than two crops per class or one class.
+    """
+    import pandas as pd
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import StratifiedKFold, cross_val_score
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    frame = pd.DataFrame(features)
+    frame.index = frame.index.map(str)
+    pairs = [(str(key), str(value)) for key, value in labels.items()
+             if value is not None and str(value) != ""
+             and str(key) in frame.index]
+    classes = np.asarray([p[1] for p in pairs], dtype=object)
+    counts = pd.Series(classes).value_counts() if len(pairs) else None
+    if counts is None or len(counts) < 2 or int(counts.min()) < 2:
+        raise ValueError(
+            "a classifier scorecard needs two classes with at least two "
+            "labelled crops each")
+    values = frame.loc[[p[0] for p in pairs]].to_numpy(dtype=np.float64)
+    folds = max(2, min(int(folds), int(counts.min())))
+    model = make_pipeline(StandardScaler(),
+                          LogisticRegression(max_iter=1000))
+    scores = cross_val_score(
+        model, values, classes,
+        cv=StratifiedKFold(n_splits=folds, shuffle=True,
+                           random_state=int(seed)))
+    return {
+        "accuracy": float(np.mean(scores)),
+        "accuracy_sd": float(np.std(scores)),
+        "chance": float(counts.max() / len(pairs)),
+        "n": float(len(pairs)),
+        "classes": float(len(counts)),
+        "folds": float(folds),
+    }

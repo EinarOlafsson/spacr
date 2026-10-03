@@ -49,7 +49,7 @@ def test_the_picker_follows_the_alpha_switch(screen, alpha):
     from spacr.qt.preferences import _apply_alpha_widgets
     from spacr.settings import ALPHA_FEATURES
 
-    assert set(_NAMES) == set(ALPHA_FEATURES[560]["widgets"])
+    assert set(_NAMES) <= set(ALPHA_FEATURES[560]["widgets"])
     widgets = _widgets(screen)
     assert all(w is not None and w.isHidden() for w in widgets)
     alpha["on"] = True

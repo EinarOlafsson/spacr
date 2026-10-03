@@ -78,6 +78,110 @@ def _prepare_mask_model(settings, object_type):
     return prepared, signature, identity
 
 
+def _artifact_digest(path):
+    """SHA256 and byte count of a model file or of a model folder's files.
+
+    A folder's digest covers every regular file's relative path and bytes in
+    sorted order, so renaming, adding or editing a file changes it. Files
+    that change while being read are refused.
+    """
+    from .model_zoo import sha256_file
+
+    path = Path(path).resolve()
+    if path.is_file():
+        files = [(path.name, path)]
+    elif path.is_dir():
+        files = sorted((item.relative_to(path).as_posix(), item)
+                       for item in path.rglob('*') if item.is_file())
+    else:
+        raise ValueError(f'Model artifact is missing: {path}')
+    if not files:
+        raise ValueError(f'Model folder holds no files: {path}')
+    digest = hashlib.sha256()
+    total = 0
+    for name, item in files:
+        before = item.stat()
+        content = sha256_file(item)
+        after = item.stat()
+        if any(getattr(before, key) != getattr(after, key)
+               for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
+            raise ValueError(f'Model changed while preparing workers: {item}')
+        digest.update(f'{name}\0{content}\0'.encode())
+        total += after.st_size
+    if total == 0:
+        raise ValueError(f'Model artifact is empty: {path}')
+    return digest.hexdigest(), total
+
+
+def _resolved_backend_model(settings, object_type, *, root=None):
+    """Resolve a non-Cellpose-SAM backend's model and sign it with settings.
+
+    Covers Cellpose 3, Cellpose-DINO, the prefixed backends (InstanSeg,
+    Omnipose, Spotiflow and the others with a model prefix) and
+    the DINOCell and SAMCell backends. A model file or folder is signed by
+    its content; a stock model name is signed by the name together with the
+    backend environment's install record, which pins the package that ships
+    those weights. A missing path or an uninstalled environment is refused.
+    No model is built and the caller's settings are unchanged.
+
+    :param settings: run settings.
+    :param object_type: ``cell``, ``nucleus`` or ``pathogen``.
+    :param root: backends folder; the configured one when ``None``.
+    :returns: ``(prepared, signature, identity)`` like
+        :func:`_prepare_mask_model`, with ``identity['backend']`` set.
+    :raises ValueError: for the Cellpose-SAM backend, an unsupported role,
+        a missing model or an uninstalled environment.
+    """
+    from . import _segmentation_backends as sb
+    from .artifacts import material_settings
+    from .checkpoint import fingerprint
+    from .settings import _get_object_settings, set_default_settings_preprocess_generate_masks
+
+    if object_type not in ('cell', 'nucleus', 'pathogen'):
+        raise ValueError('Unsupported parallel mask object type')
+    prepared = set_default_settings_preprocess_generate_masks(copy.deepcopy(settings))
+    key = f'{object_type}_model_name'
+    value = _get_object_settings(object_type, prepared)['model_name']
+    if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
+        key, value = 'pathogen_model', prepared['pathogen_model']
+    backend = sb._backend_name(prepared.get('segmentation_backend'))
+    try:
+        if sb._cellpose3_choice(value) is not None or backend == sb._CELLPOSE3:
+            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type)
+        elif sb._cellpose_dino_choice(value) is not None:
+            backend, model = sb._CELLPOSE_DINO, sb._cellpose_dino_choice(value)
+            if not model or not os.path.exists(os.path.expanduser(model)):
+                raise FileNotFoundError(f'no Cellpose-DINO checkpoint at {model!r}')
+        elif sb._prefixed_backend(value) is not None:
+            backend = sb._prefixed_backend(value)
+            model = sb._prefixed_model(backend, value)
+        elif backend in (sb._DINOCELL, sb._SAMCELL):
+            text = str(value or '').strip()
+            model = (os.path.abspath(os.path.expanduser(text))
+                     if text and os.path.exists(os.path.expanduser(text)) else backend)
+        else:
+            raise ValueError('Cellpose-SAM models are resolved by _prepare_mask_model')
+    except FileNotFoundError as error:
+        raise ValueError(str(error)) from error
+    identity = {'backend': backend}
+    if os.path.isabs(str(model)) and os.path.exists(model):
+        digest, size = _artifact_digest(model)
+        identity.update(path=str(Path(model).resolve()), sha256=digest, bytes=size)
+    else:
+        env = os.path.join(sb._backends_root(root), backend)
+        record = sb._read_marker(env)
+        if record is None:
+            raise ValueError(f'The {backend} environment is not installed, so its '
+                             f'stock model {model!r} cannot be resolved')
+        identity.update(model=str(model), environment=fingerprint(record))
+    material = material_settings(prepared)
+    for name in ('mask_parallel', 'mask_gpu_indices'):
+        material.pop(name, None)
+    signature = fingerprint({'settings': material, 'model': identity,
+                             'object_type': object_type})
+    return prepared, signature, identity
+
+
 def _mask_output_digest(path):
     """Validate a saved array and fingerprint its complete bytes in bounded memory."""
     from .resume import validate_merged_field

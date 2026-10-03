@@ -1250,6 +1250,32 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # catalogued or retired with their source captions. No translation bypass remains.
 # 558, 2026-10-02: the Apply virtual stain button on Mask and Make Masks.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    # item 560: Embeddings labels, scorecard and Use-for picker
+    "Choose a label table",
+    "Choose a table with one row per embedded crop, in crop order, and a "
+    "'label' column (else the first column). The backbone is scored on it: "
+    "kNN accuracy, mean average precision and precision at 10 against "
+    "chance, and the classifier uses the same labels. Default no labels.",
+    "Choose labels first.",
+    "Classifier on {name}: accuracy {acc:.2f} ± {sd:.2f} over {folds} folds "
+    "(chance {chance:.2f}), {n} crops in {classes} classes.",
+    "Embed the crops first.",
+    "Encoder {name}: kNN accuracy {knn:.2f}, mAP {map:.2f} (chance "
+    "{chance:.2f}), precision at 10 {prec:.2f}, over {n} crops in {classes} "
+    "classes.",
+    "Image UMAP of {n} crops from {name}.",
+    "Labels…",
+    "Run the chosen use on the last embedding. Default off until an "
+    "embedding exists.",
+    "Running on the embedding…",
+    "The label table has {rows} rows but {crops} crops were embedded.",
+    "The labels cannot be scored: two classes with labelled crops are "
+    "needed.",
+    "Use for:",
+    "What to do with the embedding of the chosen backbone or foundation "
+    "model. Image UMAP maps every crop to two dimensions; Classifier "
+    "cross-validates a logistic regression on the labels. Default Image "
+    "UMAP.",
     # item 564: counterfactual sequence viewer on Activation Maps
     "Counterfactuals…", "Choose a counterfactuals folder",
     "Counterfactual sequences",

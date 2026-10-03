@@ -93,3 +93,19 @@ labels return the unscored entry. Test in
 test_the_encoder_is_in_the_zoo_like_any_other_model.py. Still open: calling
 it from the Embeddings screen once a label table is chosen, UMAP/classifier
 pickers, SubCell 4-channel model.
+
+2026-10-03 — SCREEN WIRING, UMAP AND CLASSIFIER PICKERS
+ALPHA: 2026-10-03 -- Embeddings screen widgets EmbeddingsLabelsButton,
+EmbeddingsUseForLabel, EmbeddingsUseForPicker and EmbeddingsUseForRun
+(ALPHA_FEATURES[560]), hidden until Show alpha features is on. Labels...
+reads a table (spacr.tabular, 'label' column else the first, rows in crop
+order) and shows _scored_encoder_entry's kNN accuracy / mAP / precision@10
+for the chosen backbone or foundation model; a later Embed rescores. Use for:
+Image UMAP (_embedding_umap, standardised, umap-learn) fills the preview with
+umap_1/umap_2; Classifier (_embedding_classifier_scorecard, stratified CV
+logistic regression vs majority-class chance). Tests:
+tests/test_embedding_downstream_helpers.py,
+tests/qt/test_embedding_use_for_alpha_gate.py (CPU, stub encoder).
+Still open: SubCell 4-channel (rybg) model (needs its weights; skipped),
+human-annotated / GPU benchmark, Cell-DINO weights, saving UMAP coordinates
+and a plot from the screen.
