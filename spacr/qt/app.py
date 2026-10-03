@@ -5209,13 +5209,13 @@ class MainWindow(QMainWindow):
                 self._breathe_while_opening()
                 with _timing.span("polish", key):
                     self._screens[key].ensurePolished()
-                self._breathe_while_opening()
+                self._breathe_while_opening(force=True)
             with _timing.span("show screen", key):
                 self._stack.setCurrentWidget(self._screens[key])
         finally:
             self._hide_preparing(card)
         if built_now:
-            self._breathe_while_opening()
+            self._breathe_while_opening(force=True)
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
             started_at=interaction_started,
@@ -5234,7 +5234,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
 
     @staticmethod
-    def _breathe_while_opening() -> None:
+    def _breathe_while_opening(force: bool = False) -> None:
         """Let the event loop run once between two steps of a module open.
 
         User input is held back, as in the settings panel's own breaths
@@ -5247,7 +5247,7 @@ class MainWindow(QMainWindow):
         """
         from .screens import _breathe_while_a_window_opens
 
-        _breathe_while_a_window_opens()
+        _breathe_while_a_window_opens(force)
 
     def _on_zoo_compare_requested(self, request: dict) -> None:
         """Open Model Compare preloaded with the two models the zoo selected.
@@ -6268,6 +6268,22 @@ def _start_the_font_cache_in_a_child():
         return None
 
 
+def _warm_the_glyph_font() -> None:
+    """Load the icon glyph font before Home is first painted.
+
+    Qt registers an application font on the GUI thread, and on a cold
+    hosted Windows runner the glyph font took 0.7 s there -- inside the
+    first module screen that drew an icon, as one freeze. ``launch`` queues
+    this for the first turn of the event loop, so it is paid while the
+    window first appears rather than when a module opens.
+    """
+    try:
+        with _timing.span("warm", "glyph font"):
+            iconset.icon("settings")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("Could not load the glyph font early", exc_info=True)
+
+
 _ICON_WARM_AFTER_MS = 1500
 
 
@@ -6277,9 +6293,7 @@ def _start_icon_prewarm() -> Optional[threading.Thread]:
     See :func:`spacr.qt.iconset._warm_the_bundled_icons` for what this saves:
     the icon decoding that a module's first open otherwise pays inside its
     freeze. The theme is resolved here, on the GUI thread, because it reads
-    preferences, and the glyph font loads here too, because Qt registers
-    fonts on the GUI thread and the first module screen otherwise pays for
-    it. ``launch`` starts this :data:`_ICON_WARM_AFTER_MS` after
+    preferences. ``launch`` starts this :data:`_ICON_WARM_AFTER_MS` after
     the window is shown, the same wait the pipeline preloader uses, so Home
     paints first.
     """
@@ -6287,11 +6301,6 @@ def _start_icon_prewarm() -> Optional[threading.Thread]:
         theme = iconset.active_theme()
     except Exception:                                        # noqa: BLE001
         return None
-    try:
-        with _timing.span("warm", "glyph font"):
-            iconset.icon("settings", theme=theme)
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("Could not load the glyph font early", exc_info=True)
 
     def warm():
         """Fill the icon caches, and never let a bad file reach the GUI."""
@@ -6482,6 +6491,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _start_settings_prewarm()
         from PySide6.QtCore import QTimer
 
+        QTimer.singleShot(0, _warm_the_glyph_font)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
 
     def _drain_ai():

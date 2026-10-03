@@ -12888,13 +12888,19 @@ class MakeMasksScreen(QWidget):
         self._method_note.setWordWrap(True)
         card.body_layout.addWidget(self._method_note)
 
-        self._method_groups = {
-            "threshold": self._build_otsu_card(),
-            "organelle": self._build_methods_card(),
-            "propagate": self._build_propagate_card(),
-            "secondary": self._build_propagate_card(secondary=True),
-            "cellpose": self._build_cellpose_card(),
-        }
+        from .. import screens as _screens_package
+
+        builders = (
+            ("threshold", self._build_otsu_card),
+            ("organelle", self._build_methods_card),
+            ("propagate", self._build_propagate_card),
+            ("secondary", partial(self._build_propagate_card, secondary=True)),
+            ("cellpose", self._build_cellpose_card),
+        )
+        self._method_groups = {}
+        for name, build in builders:
+            _screens_package._breathe_while_a_window_opens()
+            self._method_groups[name] = build()
         for group in self._method_groups.values():
             card.body_layout.addWidget(group)
         card.body_layout.addWidget(self._build_uncertainty_ensemble_setting())

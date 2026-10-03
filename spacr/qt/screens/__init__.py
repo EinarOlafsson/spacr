@@ -56,7 +56,7 @@ def _stop_breathing_while_a_window_opens() -> None:
     _a_window_is_opening_a_screen = False
 
 
-def _breathe_while_a_window_opens() -> None:
+def _breathe_while_a_window_opens(force: bool = False) -> None:
     """Run the event loop, if the window has asked for breaths and it is due.
 
     FOR THE LARGE STEPS OF A SCREEN'S CONSTRUCTION, not for every widget:
@@ -77,13 +77,18 @@ def _breathe_while_a_window_opens() -> None:
     stylesheet, or the late caption pass. That work then joined the next
     step in one freeze (measured on a Mask open: the sheet and the
     translation pass after it in one gap, with no timer between them).
+
+    :param force: breathe even when the step before was shorter than
+        :data:`BREATH_AFTER_S`; for the turn just before and just after a
+        page is put on show, where a short step is followed by the page's
+        whole first layout and paint.
     """
     global _last_breath_at
     if not _a_window_is_opening_a_screen:
         return
     import time
 
-    if time.perf_counter() - _last_breath_at < BREATH_AFTER_S:
+    if not force and time.perf_counter() - _last_breath_at < BREATH_AFTER_S:
         return
     from PySide6.QtCore import QCoreApplication, QEventLoop
 
