@@ -5592,7 +5592,14 @@ class AmbientWidget(QWidget):
         offset = self.mapTo(window, QPoint(0, 0))
         return QPoint(x - offset.x(), y - offset.y())
 
-    def paintEvent(self, event):
+    def paintEvent(self, event) -> None:
+        """Paint, timed on the timing timeline when timing is on."""
+        from .. import timing as _timing
+
+        with _timing.span("paint", "ambient"):
+            self._paint_ambient(event)
+
+    def _paint_ambient(self, event):
         """Put the page down, then the newest frame the shading thread has.
 
         **This method never waits for anything.** That is the requirement the

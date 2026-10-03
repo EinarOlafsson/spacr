@@ -359,6 +359,13 @@ class _CellArtwork(QWidget):
                 self.clicked.emit(location)
 
     def paintEvent(self, event) -> None:
+        """Paint, timed on the timing timeline when timing is on."""
+        from .. import timing as _timing
+
+        with _timing.span("paint", "organism artwork"):
+            self._paint_organism_artwork(event)
+
+    def _paint_organism_artwork(self, event) -> None:
         """Paint colored masks under white outlines on a translucent black panel."""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)

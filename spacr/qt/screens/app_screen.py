@@ -7723,9 +7723,12 @@ class AppScreen(QWidget):
         row.addWidget(self._watch_progress)
 
         _breathe_while_a_window_opens()
+        from .. import timing as _timing
         from ..widgets import AiToggleLabel
 
-        self._install_dimension_switches(row, AiToggleLabel)
+        with _timing.span("dimension switches", self.app_key):
+            self._install_dimension_switches(row, AiToggleLabel)
+        _breathe_while_a_window_opens()
 
         preview_controls = {
             "mask": (

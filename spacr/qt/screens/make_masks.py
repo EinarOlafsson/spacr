@@ -8450,6 +8450,8 @@ class MakeMasksScreen(QWidget):
 
     def _build_ui(self):
         """Lay out the canvas, the tool panel and the navigation row."""
+        from .. import screens as _screens_package
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                   SPACING["lg"], SPACING["lg"])
@@ -8467,11 +8469,13 @@ class MakeMasksScreen(QWidget):
         self._src_label.setMinimumWidth(0)
         self._header.add_trailing(self._src_label)
         self._folds = self._build_fold_strip()
+        _screens_package._breathe_while_a_window_opens()
         self._header.add_trailing(self._folds)
         outer.addWidget(self._header)
         outer.addWidget(Divider())
 
         self._tool_row = self._build_tool_row()
+        _screens_package._breathe_while_a_window_opens()
         outer.addWidget(self._tool_row)
 
         from ..i18n import tr
@@ -8537,6 +8541,7 @@ class MakeMasksScreen(QWidget):
         self._prompter.said.connect(self._on_prompt_said)
         self._prompter.accept_requested.connect(self._accept_prompt)
         self._view_tabs = self._build_view_tabs()
+        _screens_package._breathe_while_a_window_opens()
 
         self._settings_scroll = QScrollArea()
         self._settings_scroll.setWidgetResizable(True)
@@ -8580,6 +8585,7 @@ class MakeMasksScreen(QWidget):
         # Save mask, Prev and Next share the editor action toolbar above.
         from ..i18n import tr
 
+        _screens_package._breathe_while_a_window_opens()
         nav = QWidget()
         outer_row = QHBoxLayout(nav)
         outer_row.setContentsMargins(0, 0, 0, 0)
