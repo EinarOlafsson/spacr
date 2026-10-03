@@ -85,3 +85,19 @@ WHAT IS LEFT
     GPU). Tooltip of measure_gpu not yet updated to mention cuCIM.
     LEFT: GPU timing and real-plate on/off comparison (GPU, data); blur,
     periphery/outside intensity, radial distribution, correlation on CPU.
+
+2026-10-03 — GPU ACCEPTANCE RUN SCRIPTED, NOT RUN (lane 3)
+    GPU card held by cellposetime-r1-train (another session; epoch 14/100 at
+    08:25, ~31 min/epoch, so ~44 h left). Queued with tools/gpu_turn.sh at
+    08:26 and withdrawn at 08:50; not run. Rerun by itself: tools/gpu_turn.sh
+    <label> timeout 30m /mnt/wd4tb/scratch/566/... (all eight turns in order:
+    /mnt/wd4tb/scratch/lane3_driver.sh). cuCIM: pip install cucim-cu12
+    cupy-cuda12x (the gpu extra) into the spacr env succeeded (cucim
+    26.08.00, cupy 14.2.0, 2026-10-03); import and regionprops_table load.
+    Side effect: pip moved the cuda-toolkit metadata package 13.0.3 -> 12.9.2
+    (torch 2.13+cu130 keeps its cu13 libs and still imports; torch CUDA not
+    rechecked on the card). Script: /mnt/wd4tb/scratch/566/timing2.py (torch
+    intensity/homogeneity and cuCIM morphology vs CPU, 2048 px, 3000 objects)
+    then run_plate.sh gpu, compare_db.py. Real-plate CPU reference done: 4
+    plate1 fields (1994 px, cell/nucleus/pathogen), measure_gpu off, n_jobs
+    2: 177 s wall, plate/cpu/measurements/measurements.db.
