@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-03: the ram_guard tooltip, rewritten on nightly for every module's worker pool, re-translated from the earlier reviewed wording and technically reviewed by AI against the new English. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "ram_guard",
+      "source": "Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+      "source_sha256": "e83d50d6a26a00a167d571939b86dcfbcd7e6a6490af81c6237a1f2c3192ab38",
+      "translation": "防止工作进程池占满 RAM。在任何模块启动其工作进程之前，spaCR 会根据一个输入（一个视野、一个掩膜、一批裁剪图像或一张表）估算每个工作进程的内存，并将 n_jobs 降至可保留 12.5% RAM 空闲的数量，同时打印警告；GUI 会先询问。关闭则保留您的 n_jobs，且当空闲 RAM 低于该预留量时，Measure 的视野仍会等待。默认值 True。"
+    }
+  ]
+}
