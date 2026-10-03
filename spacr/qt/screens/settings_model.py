@@ -1275,7 +1275,6 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_qc", "illumination_on_missing",
             "illumination_vendor_profile", "illumination_vendor_channel_map",
         )),
-        ("Image Enhancement", ("@Image Enhancement",)),
         ("Intensity Calibration α", ("@Intensity Calibration α",)),
         ("Plate Barcode Linkage α", ("@Plate Barcode Linkage α",)),
         ("Features", (
@@ -2034,7 +2033,7 @@ _APP_CATEGORY_PARENTS["measure"] = {
     **{title: "Image Preprocessing" for title in (
         "Bleach Correction α", "Spectral Unmixing α",
         "Image Deconvolution (PSF)", "Illumination Correction",
-        "Image Enhancement", "Intensity Calibration α",
+        "Intensity Calibration α",
         "Plate Barcode Linkage α")},
     **{title: "Features" for title in (
         "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
@@ -11354,7 +11353,10 @@ class SettingsWidgets:
         A heading whose rows all belong to a nucleus or a pathogen whose
         channel names no plane is hidden the same way. Without that, clearing
         the pathogen channel left "Pathogen Segmentation" on the form as a
-        heading over no rows. Cell is never gated, so its headings stay.
+        heading over no rows. Cell is never gated by its channel, but a
+        heading whose every row the per-object grid or the module's mode has
+        taken off the form is hidden too: Mask's "Cell Segmentation" was
+        left as a heading over nothing once the grid held all its rows.
         """
         from ..preferences import maturity_is_visible
         from ...organelle_types import active_organelle_roles
@@ -11379,9 +11381,12 @@ class SettingsWidgets:
                     _names_a_plane(settings.get(key)) for key in switches)
             return switched_off[role]
 
+        elsewhere = set(getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
+            getattr(self, "_hidden_by_the_mode", ()) or ())
         for ident, (section, keys) in headings.items():
-            roles = {object_of_setting(key) for key in keys}
-            gone = bool(roles) and all(absent(role) for role in roles)
+            gone = bool(keys) and all(
+                key in elsewhere or absent(object_of_setting(key))
+                for key in keys)
             try:
                 if gone:
                     if not section.isHidden():

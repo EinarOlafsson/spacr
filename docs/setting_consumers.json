@@ -9083,7 +9083,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 4008,
+    "line": 4028,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel.apply_settings"
@@ -9092,7 +9092,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 4273,
+    "line": 4293,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel.run_preview"
@@ -9671,7 +9671,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confirm_annotations",
-    "line": 1243,
+    "line": 1260,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "prepare_figure_review"
@@ -10224,7 +10224,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5128,
+    "line": 5127,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -14721,7 +14721,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_confidence",
-    "line": 1150,
+    "line": 1167,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "figure_pass"
@@ -14730,7 +14730,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_confidence",
-    "line": 1302,
+    "line": 1319,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "detect_figure"
@@ -14739,7 +14739,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_confidence",
-    "line": 3165,
+    "line": 3185,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
@@ -14768,7 +14768,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detector",
-    "line": 1130,
+    "line": 1145,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "figure_pass"
@@ -14777,7 +14777,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detector",
-    "line": 1296,
+    "line": 1313,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "detect_figure"
@@ -14786,7 +14786,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detector",
-    "line": 3159,
+    "line": 3179,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
@@ -14815,7 +14815,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_imgsz",
-    "line": 1149,
+    "line": 1166,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "figure_pass"
@@ -14824,7 +14824,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_imgsz",
-    "line": 1301,
+    "line": 1318,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "detect_figure"
@@ -14833,7 +14833,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_imgsz",
-    "line": 3164,
+    "line": 3184,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"
@@ -14862,7 +14862,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_read_text",
-    "line": 1153,
+    "line": 1170,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "figure_pass"
@@ -14871,7 +14871,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_read_text",
-    "line": 1305,
+    "line": 1322,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "detect_figure"
@@ -35270,7 +35270,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5121,
+    "line": 5120,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -38121,7 +38121,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 4847,
+    "line": 4867,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "PlaquePreviewPanel._growth_values"
@@ -38541,7 +38541,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 1256,
+    "line": 1273,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "prepare_figure_review"
@@ -48090,7 +48090,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1130,
+    "line": 1145,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "figure_pass"
@@ -48099,7 +48099,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 1296,
+    "line": 1313,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "detect_figure"
@@ -48108,7 +48108,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3159,
+    "line": 3179,
     "module": "spacr.qt.widgets.plaque_preview",
     "nested": false,
     "qualname": "seed_well_boxes"

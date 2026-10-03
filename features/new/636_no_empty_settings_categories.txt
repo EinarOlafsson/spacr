@@ -1,0 +1,32 @@
+636 -- No empty settings categories
+
+Status: DONE 2026-10-03
+
+Request (maintainer, verbatim):
+"In mask generation there are some setting categories related to cell that
+now have no settings in them, delete any empty settings classes, this goes
+for all settings categories , check all moduals"
+
+Done when:
+- No module renders a settings heading with zero visible settings, with
+  Preferences -> Show alpha features off or on.
+- Category definitions empty in every state are deleted; headings empty only
+  at runtime are hidden.
+- A test iterates every module in both alpha states.
+
+What was done (2026-10-03):
+- Every module was built offscreen in both alpha states with every closed
+  heading opened. One heading rendered empty: Mask generation's "Cell
+  Segmentation" (all its rows are held by the Per-object settings grid).
+  Nucleus/Pathogen Segmentation would do the same once their channels are set.
+- Runtime: the object-rule heading pass (SettingsWidgets.
+  _hide_the_headings_of_slots_the_run_lacks) now also hides a heading whose
+  every row is taken off the form by the per-object grid or by the module's
+  mode (Plaque Assay).
+- Deleted: Measure's "Image Enhancement" layout heading (and its parent
+  entry); none of its keys are Measure settings, so it was empty in every state.
+- Alpha-only headings were already hidden by AppScreen._alpha_hidden_sections;
+  the new test confirms none renders empty.
+- Test: tests/qt/test_no_empty_settings_categories.py.
+
+Left: nothing.
