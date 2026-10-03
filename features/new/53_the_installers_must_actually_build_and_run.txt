@@ -761,4 +761,9 @@ Rerun 37135785013 (45b1e1556): metadata gate passed on real bundles, then
 lipo failed: argv had -verify_arch before the input file ("unknown
 architecture specification flag"). Fixed order in the Python gate and the
 protected shell transaction; the test runner now pins lipo argv.
-macOS acceptance rerun: PENDING.
+macOS acceptance rerun 37136981353 (e2bebcf4c): macos-replace PASS for
+both 1.5.1.0 -> 1.5.1.1 and 1.5.1.0 -> 1.5.1.2 with the full identity gate
+(metadata, lipo, codesign --deep --strict) live: metadata_check_bypassed=0.
+Stall jobs and windows-upgrade 1.5.1.2 pass; windows-upgrade 1.5.1.1 fails
+as already recorded (stale imageio runtime in the shipped 1.5.1.1 NSIS).
+The macOS identity DEFECT is closed. Maintainer items above remain; OPEN.
