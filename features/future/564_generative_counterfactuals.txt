@@ -107,3 +107,14 @@ PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
     diffusion/StyleGAN generator in its own env; picking the target
     condition (now the next one in sorted order); i18n catalog entries for
     the new captions and tooltip.
+
+2026-10-03 — DIFFUSION GENERATOR GPU RUN: SKIPPED (lane 3)
+    Skipped under the lane's 2-hour GPU cap. spaCR has no diffusion or
+    StyleGAN generator code, and no own-env backend exists for one. A
+    photorealistic generator at full crop size would need its own
+    environment, a class/condition-conditioned model trained from scratch
+    on screen crops (or fine-tuned from a pretrained latent-diffusion
+    checkpoint), and guided sampling for each sequence step. Training
+    alone is many GPU-hours on a 24 GB card, well past 2 h. The tiny
+    autoencoder result from 2026-09-30 still stands. Still open as before:
+    the generator, and real screen crops with a known phenotype.
