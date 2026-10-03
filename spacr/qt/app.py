@@ -6158,6 +6158,16 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     return tuple(installed)
 
 
+_FIRST_OPEN_LIBRARIES = ("psutil", "GPUtil", "qtawesome", "tifffile",
+                         "imageio", "imagecodecs", "PySide6.QtOpenGL",
+                         "PySide6.QtOpenGLWidgets",
+                         "PySide6.QtDataVisualization")
+"""Optional libraries the first settings screen imports, warmed after the
+spaCR modules. On a cold hosted Windows runner the first Mask open spent
+1.9 s in one uninterrupted step loading these from disk (0.18 s once warm).
+"""
+
+
 def _start_settings_prewarm() -> threading.Thread:
     """Own the path-notification QObject on the GUI thread before importing.
 
@@ -6173,10 +6183,17 @@ def _start_settings_prewarm() -> threading.Thread:
         try:
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery"):
+                        "spacr.qt.imagery",
+                        "spacr.qt.screens.app_screen",
+                        "spacr.qt.screens.mask"):
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
+        for mod in _FIRST_OPEN_LIBRARIES:
+            try:
+                _importlib.import_module(mod)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("Could not prewarm %s", mod, exc_info=True)
 
     thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
     thread.start()

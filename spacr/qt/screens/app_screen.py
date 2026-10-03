@@ -2021,6 +2021,7 @@ class AppScreen(QWidget):
         _screens_package._breathe_while_a_window_opens()
         body.add_pane(self._build_runtime_panel(), "Runtime", stretch=2,
                       extent=800)
+        _screens_package._breathe_while_a_window_opens()
 
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 2)
