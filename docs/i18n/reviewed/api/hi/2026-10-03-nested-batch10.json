@@ -1,0 +1,655 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._analysis_lock_dialog._lock#0",
+      "source": "Persist the displayed analysis plan and show its immutable identity.",
+      "source_sha256": "2a003e828bfc2a84d103cdd9e9286c2cd70094bdfb0d34e1e5bf7500ca3f81c1",
+      "context": "Persist the displayed analysis plan and show its immutable identity.",
+      "translation": "दिखाई गई विश्लेषण योजना सहेजता है और उसकी अपरिवर्तनीय पहचान दिखाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._confirm_ram_guard.plan_for#0",
+      "source": "This module's estimate for ``n_jobs`` workers.",
+      "source_sha256": "9e4ae838814e8d87ec904a50fcf980422f3dd8bd6a8a79b28762f687789ba4c0",
+      "context": "This module's estimate for ``n_jobs`` workers.",
+      "translation": "``n_jobs`` workers के लिए इस मॉड्यूल का अनुमान।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._on_file_issue._file#0",
+      "source": "Submit the report, returning the failure AS DATA rather than raising.",
+      "source_sha256": "1215041f6047d4f40f4decfdab545df2b35d427f0eb8dbca505299142bf226c1",
+      "context": "Submit the report, returning the failure as data rather than throwing.",
+      "translation": "रिपोर्ट भेजता है, विफलता को त्रुटि उठाने के बजाय डेटा के रूप में लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._on_file_issue._file#1",
+      "source": "The call is asynchronous, so an ``except`` around the caller can no longer see it -- and a report that silently fails to send is worse than one that fails loudly.",
+      "source_sha256": "b455747238aa2366093d2e3360f1ac0a592b3c6d1aa97576001668f02957ae1c",
+      "context": "The call is asynchronous, so an ``except`` around the caller can no longer see it -- and a report that silently fails to send is worse than one that fails loudly.",
+      "translation": "कॉल असिंक्रोनस है, इसलिए कॉलर के चारों ओर का ``except`` उसे अब नहीं देख सकता -- और चुपचाप न भेजी जा सकी रिपोर्ट ज़ोर से विफल होने वाली रिपोर्ट से बदतर है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._post_the_report._file#0",
+      "source": "Build, redact and post the report. Off the GUI thread.",
+      "source_sha256": "cbf2da6e9535c46b7b441cd87e69d5cc355985fb4c581f3d52038a682c3f2a3f",
+      "context": "Build, redact and post the report. Off the main GUI execution path.",
+      "translation": "रिपोर्ट बनाता है, संवेदनशील अंश छिपाता है और भेजता है। GUI थ्रेड से बाहर।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._refresh_model_explainer.value#0",
+      "source": "One widget's value, or the fallback when there is no such widget.",
+      "source_sha256": "05920bc9d1edcc29898b4ace898ca56cb944ac84fd6997cc1f3cec2bcab6567e",
+      "context": "One widget's value, or the fallback when there is no such widget.",
+      "translation": "एक विजेट का मान, या ऐसा विजेट न होने पर वैकल्पिक मान।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._remember_runtime_splitter._save#0",
+      "source": "Store this splitter's layout under its key.",
+      "source_sha256": "dcab0dd0ea8644cd37e18269f29f01bcf044db0205ec04b651dc971750bf7182",
+      "context": "Store this splitter's layout under its key.",
+      "translation": "इस स्प्लिटर का लेआउट उसकी कुंजी के अंतर्गत सहेजता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._section_holds_anything.already_built_rows#0",
+      "source": "Iterate registered rows without forcing deferred captions.",
+      "source_sha256": "cbd07648b023b13b806545ab0a6bc0e3360b26941b73b09a2a3aad165b988697",
+      "context": "Iterate registered rows without forcing deferred captions.",
+      "translation": "स्थगित कैप्शन को बाध्य किए बिना पंजीकृत पंक्तियों पर पुनरावृत्ति करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._section_holds_anything.holds_an_active_slot#0",
+      "source": "Whether deferred rows belong to a count-requested organelle.",
+      "source_sha256": "5d56c3d1bdf047ad304329d962da73db4759784dada4c824759ce48be8fa4b6a",
+      "context": "Whether deferred rows belong to a count-requested organelle.",
+      "translation": "क्या स्थगित पंक्तियाँ ऐसे कोशिकांग की हैं जिसकी गिनती माँगी गई है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._with_the_controls.swap#0",
+      "source": "``node`` rebuilt with its stand-ins replaced by controls.",
+      "source_sha256": "88c7bd989089dd0c16f0daccd69164402c0d595dba6b735d5eb34fde3f7db572",
+      "context": "``node`` rebuilt with its stand-ins replaced by controls.",
+      "translation": "``node``, जिसके प्लेसहोल्डर नियंत्रणों से बदलकर उसे फिर से बनाया गया है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_annotate_example._done#0",
+      "source": "Restore the button whether the load worked or failed.",
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "context": "Restore the button whether the load worked or failed.",
+      "translation": "लोड सफल हो या विफल, बटन को पुनर्स्थापित करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_images.ask#0",
+      "source": "Start the demo download with the tar-aware worker.",
+      "source_sha256": "1e359ee8c69c282dab910c0259455f2f8b583c64cd2ce74eadf7cccc4100ac18",
+      "context": "Start the demo download with the tar-aware worker.",
+      "translation": "tar समझने वाले worker के साथ डेमो डाउनलोड शुरू करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_images.done#0",
+      "source": "Re-enable the button whether the download worked or failed.",
+      "source_sha256": "d0fe7907f547d134ee3a38ba59066d84e4e4aa4f678cb1e5144727ed41090d00",
+      "context": "Re-enable the button whether the download worked or failed.",
+      "translation": "डाउनलोड सफल हो या विफल, बटन फिर से सक्षम करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_measure_example._done#0",
+      "source": "Restore the button whether the load worked or failed.",
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "context": "Restore the button whether the load worked or failed.",
+      "translation": "लोड सफल हो या विफल, बटन को पुनर्स्थापित करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example.report#0",
+      "source": "Put progress and failures in the console.",
+      "source_sha256": "13f386029c9d8bfba8b4f8793f22093ed3e008865efef26426773876ce6ced0b",
+      "context": "Put progress and failures in the console.",
+      "translation": "प्रगति और विफलताओं को कंसोल में डालता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example.use#0",
+      "source": "Apply the sample's settings and say so in the console.",
+      "source_sha256": "7af95f25e7a5907e92de4a7630ce1350a212b5fd11ac500dc3c7aebd04002ef4",
+      "context": "Apply the sample's settings and say so in the console.",
+      "translation": "उदाहरण की सेटिंग्स लागू करता है और कंसोल में यह बताता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_screen_data._done#0",
+      "source": "Restore the button whether the load worked or failed.",
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "context": "Restore the button whether the load worked or failed.",
+      "translation": "लोड सफल हो या विफल, बटन को पुनर्स्थापित करता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome#0",
+      "source": "Repoint every path in a value, whatever shape it is.",
+      "source_sha256": "b4f2027cf293178c1d294bb3d6dcb36a14f33d2481d3251464ceb656adf8f25b",
+      "context": "Repoint every path in a value, whatever shape it is.",
+      "translation": "किसी मान के हर पथ को नई जगह की ओर करता है, उसका आकार जो भी हो।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome#1",
+      "source": "Recurses through lists and tuples: a settings value may be one path or a list of them, and rehoming only the string case leaves the list pointing at a folder that is not there.",
+      "source_sha256": "1ec6de1dc7e4a1b274c383e587a2560daaa1a0b4cf98da0f529fa73040a5f345",
+      "context": "Recurses through lists and tuples: a settings value may be one path or a list of them, and rehoming only the string case leaves the list pointing at a folder that is not there.",
+      "translation": "सूचियों और टपल में पुनरावर्ती रूप से जाता है: सेटिंग मान एक पथ या पथों की सूची हो सकता है, और केवल स्ट्रिंग वाले मामले को बदलने से सूची ऐसे फ़ोल्डर की ओर इशारा करती रह जाती है जो मौजूद नहीं है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome_text#0",
+      "source": "Repoint one path string at the folder the example now lives in.",
+      "source_sha256": "4494b90644523d7f0a5d13f6dfd0c1ad035ff254b36eb9cd37f6398f3e103246",
+      "context": "Repoint one path string at the folder the example now lives in.",
+      "translation": "एक पथ स्ट्रिंग को उस फ़ोल्डर की ओर करता है जिसमें उदाहरण अब है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen._fit_to_lines.wrapped_lines#0",
+      "source": "How many lines ``candidate`` wraps to at the measured width.",
+      "source_sha256": "24e1cdb52877e466cbd61888c83b00ba490caab1dcb542a22ec111e9488b5f1c",
+      "context": "How many lines ``candidate`` wraps to at the measured width.",
+      "translation": "मापी गई चौड़ाई पर ``candidate`` कितनी पंक्तियों में टूटता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen._fit_to_lines.wrapped_lines#1",
+      "source": "Measured against the font Qt is actually painting, so it stays right at any font scale rather than at the one this was written on.",
+      "source_sha256": "fb5876c773669c2894cc3f04ebdf8843e3c61f48e58b048396b3a5f8d4d990a0",
+      "context": "Measured against the font Qt is actually painting, so it stays right at any font scale rather than at the one this was written on.",
+      "translation": "उस फ़ॉन्ट से मापा गया जिसे Qt वास्तव में बना रहा है, इसलिए यह किसी भी फ़ॉन्ट स्केल पर सही रहता है, केवल उस पर नहीं जिस पर यह लिखा गया था।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__#0",
+      "source": "Stand in for the panel without building it.",
+      "source_sha256": "f9c2a21829547c89c9991d4d55215ce2f5fdbc76a3e63c0305b6d7ee17e10697",
+      "context": "Stand in for the panel without building it.",
+      "translation": "पैनल को बनाए बिना उसकी जगह लेता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__#1",
+      "source": "the ``AppScreen`` the real panel is built for.",
+      "source_sha256": "6798b0203fabf809156e5346d80c632e9364b301996e2915006db39e634dd4b9",
+      "context": "the ``AppScreen`` the real panel is built for.",
+      "translation": "वह ``AppScreen`` जिसके लिए असली पैनल बनाया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.apply_settings#0",
+      "source": "Seed the real panel when the user opens the sweep card.",
+      "source_sha256": "31457cccd334b350f6b9e4041ebbd6236dfac88828a88ba21662f0998596c9ba",
+      "context": "Seed the real panel when the user opens the sweep card.",
+      "translation": "जब उपयोगकर्ता स्वीप कार्ड खोलता है तब असली पैनल में प्रारंभिक मान भरता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.built#0",
+      "source": "Whether the real panel exists yet. For tests and diagnostics.",
+      "source_sha256": "2190c71ea7934a12f9ec1d2d0fdae56021cf3415974f319d993f33b1dfe513c9",
+      "context": "Whether the real panel exists yet. For tests and diagnostics.",
+      "translation": "क्या असली पैनल अभी मौजूद है। परीक्षणों और निदान के लिए।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.count_data#0",
+      "source": "The real panel's count-file list, built on first use.",
+      "source_sha256": "2b49f7582852e921caab405053ec9bd791ff3b4f5e190e01abd21342cc6ff0cd",
+      "context": "The real panel's count-file list, built on first use.",
+      "translation": "असली पैनल की गिनती-फ़ाइल सूची, पहले उपयोग पर बनाई गई।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.destination#0",
+      "source": "The real panel's output-folder editor, built on first use.",
+      "source_sha256": "4c3abf5a757a8e634d409b150a66ecccd6bfab811d1d8e700496a31b5dcddd7d",
+      "context": "The real panel's output-folder editor, built on first use.",
+      "translation": "असली पैनल का आउटपुट-फ़ोल्डर संपादक, पहले उपयोग पर बनाया गया।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.panel#0",
+      "source": "The real panel, built on the first ask.",
+      "source_sha256": "38943e50b8d9e8670d1b12a403f02333552165c22486f7082ca9cb85f603ff91",
+      "context": "The real panel, built on the first ask.",
+      "translation": "असली पैनल, पहली माँग पर बनाया गया।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.score_data#0",
+      "source": "The real panel's score-file list, built on first use.",
+      "source_sha256": "3cd7ff21e5efb43aab87c4d020f184e8fd379796fa565a2bb41392602a0522a6",
+      "context": "The real panel's score-file list, built on first use.",
+      "translation": "असली पैनल की स्कोर-फ़ाइल सूची, पहले उपयोग पर बनाई गई।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.showEvent#0",
+      "source": "Build the real panel the first time the screen is shown.",
+      "source_sha256": "ca6eab5788858e032c790962af3daadf753033fea2db30a80cb19a8dea50d0f1",
+      "context": "Build the real panel the first time the screen is shown.",
+      "translation": "दृश्य पहली बार दिखाए जाने पर असली पैनल बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.showEvent#1",
+      "source": "That is the whole point of the placeholder: the sweep panel is expensive and a user who never opens this screen never pays for it.",
+      "source_sha256": "08771361e72d3f2bfd40c047879bbfb263d6b2b1a1dc17edb4536214611cf87d",
+      "context": "That is the whole point of the placeholder: the sweep panel is expensive and a user who never opens this screen never pays for it.",
+      "translation": "प्लेसहोल्डर का पूरा उद्देश्य यही है: स्वीप पैनल महँगा है और जो उपयोगकर्ता यह दृश्य कभी नहीं खोलता वह कभी उसकी कीमत नहीं चुकाता।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.space#0",
+      "source": "The real panel's sweep-space model, built on first use.",
+      "source_sha256": "9fcbb39dd63c9cfa32a82b2acb405549b8204437f72dfda1c19592a00f776d26",
+      "context": "The real panel's sweep-space model, built on first use.",
+      "translation": "असली पैनल का स्वीप-स्पेस मॉडल, पहले उपयोग पर बनाया गया।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.__init__#0",
+      "source": "Build the sweep screen. ``host`` is the window, not a Qt parent.",
+      "source_sha256": "3f6bb94c47a33e356c5b2a79d45f9ddd7979bdd80c6c3903de14c6c4731dca6c",
+      "context": "Build the sweep application view. ``host`` is the window, not a Qt parent.",
+      "translation": "स्वीप दृश्य बनाता है। ``host`` विंडो है, Qt पैरेंट नहीं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated#0",
+      "source": "Re-run the selected trial and show its figures, editable.",
+      "source_sha256": "b29ae36424b831be2c4c465ffb368559dd31f6c509011eefa9dd035e4661342b",
+      "context": "Re-run the selected trial and show its figures, editable.",
+      "translation": "चुने गए परीक्षण को फिर से चलाता है और उसके चित्र संपादन योग्य रूप में दिखाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated#1",
+      "source": "Off the GUI thread: this is a full regression, not a lookup. The row keeps its own settings, so what comes back is that trial and not a fresh one built from whatever the controls happen to say now -- which is the point of being able to compare conditions.",
+      "source_sha256": "1927b1a5916282c61019aa450b7ac9ed7bc008665fac614b0ca22288e91085a5",
+      "context": "Off the main GUI execution path: this is a full regression, not a lookup. The row keeps its own settings, so what comes back is that trial and not a fresh one built from whatever the controls happen to say now -- which is the point of being able to compare conditions.",
+      "translation": "GUI थ्रेड से बाहर: यह पूरा रिग्रेशन है, कोई खोज नहीं। पंक्ति अपनी सेटिंग्स रखती है, इसलिए जो लौटता है वह वही परीक्षण है, न कि नियंत्रण अभी जो दिखा रहे हैं उससे बना नया परीक्षण -- स्थितियों की तुलना कर पाने का यही उद्देश्य है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated.job#0",
+      "source": "Re-run one trial from the table. Called on a worker thread.",
+      "source_sha256": "135634b5dec75b5c8fbcfa49965957f4c8ef8ea81f6bedbdc93b64b872aa4290",
+      "context": "Execute again one trial from the table. Called on a background execution unit.",
+      "translation": "तालिका से एक परीक्षण फिर से चलाता है। worker थ्रेड पर कॉल होता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._set_worker_note#0",
+      "source": "Show the worker calculation through translatable templates.",
+      "source_sha256": "23e113e4c2f44172de11fe0097d29cb854ac6cae16caf4a406990770d94039c0",
+      "context": "Show the worker calculation through translatable templates.",
+      "translation": "worker की गणना को अनुवाद योग्य टेम्पलेट के माध्यम से दिखाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._show#0",
+      "source": "Put the results in the table, useful columns first.",
+      "source_sha256": "4a139f33bd56ecfb22ca77d73da23a2576fcfde2a196dadbbdb00c36a9fc2b0b",
+      "context": "Put the results in the table, useful columns first.",
+      "translation": "परिणामों को तालिका में रखता है, उपयोगी स्तंभ पहले।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._show#1",
+      "source": "A VIEW AND NOT A FILTER: every column is still in the CSV. The order is settings, then what went in, then what came out -- a hit count means little without the size of the design it came from, and two trials differing only by a filtration cutoff can fit completely different data.",
+      "source_sha256": "9c8cb6c8332077a881ac9cda988e0ad0f39b02282da60ea6db77df966026dad7",
+      "context": "A view and not a filter: every column is still in the CSV. The order is settings, then what went in, then what came out -- a hit count means little without the size of the design it came from, and two trials differing only by a filtration cutoff can fit completely different data.",
+      "translation": "यह एक दृश्य है, फ़िल्टर नहीं: हर स्तंभ अब भी CSV में है। क्रम है सेटिंग्स, फिर क्या अंदर गया, फिर क्या बाहर आया -- हिट गिनती का उस डिज़ाइन के आकार के बिना कम अर्थ है जिससे वह आई, और केवल एक फ़िल्ट्रेशन सीमा में भिन्न दो परीक्षण पूरी तरह अलग डेटा फ़िट कर सकते हैं।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._sweep_finished#0",
+      "source": "Show the results and give the controls back.",
+      "source_sha256": "5a24b0480934e0381603247f51f2ffb9e9a93c3585b44bc8067f7d0e5427c7c1",
+      "context": "Show the results and give the controls back.",
+      "translation": "परिणाम दिखाता है और नियंत्रण वापस देता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._trial_figures_ready#0",
+      "source": "Put a re-run trial's figures on screen. On the GUI thread.",
+      "source_sha256": "221b81910230d03d3925aa428b382bebb6ef78323522e09b75664f0ee9fac25d",
+      "context": "Put a re-run trial's figures on application view. On the main GUI execution path.",
+      "translation": "फिर से चलाए गए परीक्षण के चित्र स्क्रीन पर रखता है। GUI थ्रेड पर।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.apply_settings#0",
+      "source": "Seed the sweep from the module's settings panel.",
+      "source_sha256": "a87fe6fed6baa45283c0a8fbf40380dcc0cd7df06550eebe58d9bcf84b04fc44",
+      "context": "Seed the sweep from the module's settings panel.",
+      "translation": "मॉड्यूल के सेटिंग्स पैनल से स्वीप में प्रारंभिक मान भरता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.apply_settings#1",
+      "source": "Opening the sweep should not mean retyping the inputs that are already on screen. The score/count CSVs, the response column and the output folder come straight across; every swept axis is additionally PINNED to the value the user currently has, so an unticked axis reproduces their run rather than a default.",
+      "source_sha256": "c112baee75a14f01bd525e258e072969742ac3fcb6a6aa5b9e7600685252467d",
+      "context": "Opening the sweep should not mean retyping the inputs that are already on application view. The score/count CSVs, the response column and the output folder come straight across; every swept axis is additionally PINNED to the value the user currently has, so an unticked axis reproduces their run rather than a default.",
+      "translation": "स्वीप खोलने का अर्थ यह नहीं होना चाहिए कि जो इनपुट पहले से स्क्रीन पर हैं उन्हें फिर से टाइप किया जाए। स्कोर/गिनती CSV, प्रतिक्रिया स्तंभ और आउटपुट फ़ोल्डर सीधे आ जाते हैं; साथ ही हर स्वीप किया गया अक्ष उपयोगकर्ता के वर्तमान मान पर स्थिर कर दिया जाता है, ताकि अनचेक अक्ष डिफ़ॉल्ट के बजाय उनके रन को दोहराए।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.base_settings#0",
+      "source": "The settings every trial in the sweep starts from.",
+      "source_sha256": "68ce20bdeda113c58901e0b68ff9b090a4e5857224e7f32691d07a2ae3762c20",
+      "context": "The settings every trial in the sweep starts from.",
+      "translation": "वे सेटिंग्स जिनसे स्वीप का हर परीक्षण शुरू होता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.estimate#0",
+      "source": "Say how many trials the current space would run, without running them.",
+      "source_sha256": "b746d91a6d26335d4cb2c37c7c6fd49b0da169d98fc219f1221ae1d8bb05ab8b",
+      "context": "Say how many trials the current space would execute, without executing them.",
+      "translation": "बताता है कि वर्तमान स्पेस कितने परीक्षण चलाएगा, उन्हें चलाए बिना।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.load_results#0",
+      "source": "Read the table from disk, so a running sweep can be watched.",
+      "source_sha256": "34bae3d36d47bb80bde59a372f5f9b4d75ab768eaced014b2c599be28b26d658",
+      "context": "Read the table from disk, so a running sweep can be watched.",
+      "translation": "डिस्क से तालिका पढ़ता है, ताकि चल रहे स्वीप को देखा जा सके।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space#0",
+      "source": "Build the sweep space from the ticked axes.",
+      "source_sha256": "12148522a32fa0e9c4da4b10f8e169ffcdb087403320acdbfe998e0d76291da5",
+      "context": "Build the sweep space from the ticked axes.",
+      "translation": "चेक किए गए अक्षों से स्वीप स्पेस बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space#1",
+      "source": "An unticked axis is not dropped -- it is PINNED to its first value and applied to every trial, so the settings a sweep ran under are always fully recorded rather than left to defaults that might change.",
+      "source_sha256": "143636c2d561482ad5806ddcbb58c1a261c8910b8888e6760fe6780f783b347e",
+      "context": "An unticked axis is not dropped -- it is PINNED to its first value and applied to every trial, so the settings a sweep ran under are always fully recorded rather than left to defaults that might change.",
+      "translation": "अनचेक अक्ष हटाया नहीं जाता -- उसे उसके पहले मान पर स्थिर करके हर परीक्षण पर लागू किया जाता है, ताकि स्वीप जिन सेटिंग्स के साथ चला वे हमेशा पूरी तरह दर्ज रहें, न कि बदल सकने वाले डिफ़ॉल्ट पर छोड़ी जाएँ।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space.parse#0",
+      "source": "Read one comma-separated field as a list of values.",
+      "source_sha256": "0d5ae8115db5908a31f6f715ff6548aa7dcabf5540ed3f5f78c5ac5c37438dd5",
+      "context": "Read one comma-separated field as a list of values.",
+      "translation": "अल्पविराम से अलग एक फ़ील्ड को मानों की सूची के रूप में पढ़ता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.start#0",
+      "source": "Refuse an incomplete design, else run the sweep off the GUI thread.",
+      "source_sha256": "b3f73b729ce8a157746eb0283c45fd5fbd56167d8226a3e4afbc3b3a8e406dee",
+      "context": "Refuse an incomplete design, else run the sweep off the main GUI execution path.",
+      "translation": "अधूरे डिज़ाइन को अस्वीकार करता है, अन्यथा स्वीप को GUI थ्रेड से बाहर चलाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.start.job#0",
+      "source": "Run the whole sweep. Called on a worker thread.",
+      "source_sha256": "a22e3774aa6aa8c64d64e6997affaebfb56d44f22bc3856dab1b11fee1ad10ec",
+      "context": "Execute the whole sweep. Called on a background execution unit.",
+      "translation": "पूरा स्वीप चलाता है। worker थ्रेड पर कॉल होता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._event_network._EventNet.__init__#0",
+      "source": "Build temporal features and the optional per-frame crop encoder.",
+      "source_sha256": "34167f2fb9047058ae7e70f4421c8d0e6e2a3dd0397a4c6f4d6aae7a6bda4705",
+      "context": "Build temporal features and the optional per-frame extracted image region encoder.",
+      "translation": "कालिक फ़ीचर और वैकल्पिक प्रति-फ़्रेम क्रॉप एनकोडर बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._event_network._EventNet.forward#0",
+      "source": "Class scores for a batch of windows.",
+      "source_sha256": "71564efb79ccb8f2f329726f52e98695ce579685de70c3e7c22a55dde63c2e5d",
+      "context": "Class scores for a batch of windows.",
+      "translation": "विंडो के एक बैच के लिए क्लास स्कोर।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._event_partner_columns.count#0",
+      "source": "Number of ``points`` within ``radius`` of ``(x, y)``.",
+      "source_sha256": "3038146f3a33e290e12e1c35905ed9889b3e54def46efde54374ce7dab7b9692",
+      "context": "Number of ``points`` within ``radius`` of ``(x, y)``.",
+      "translation": "``points`` की वह संख्या जो ``radius`` के भीतर ``(x, y)`` के चारों ओर है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._feature_velocity_correlations._corr_subset#0",
+      "source": "Return correlations for at least five finite-velocity rows, else ``None``.",
+      "source_sha256": "af41a59404185ebed3919415ab13f612ed01c5d02db7b28a4bdd2019fcec7db7",
+      "context": "Return correlations for at least five finite-velocity rows, else ``None``.",
+      "translation": "कम से कम पाँच परिमित-वेग पंक्तियों के लिए सहसंबंध लौटाता है, अन्यथा ``None``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#0",
+      "source": "Compute:",
+      "source_sha256": "8e534e9c326faec11c6d5aa44e70494c406ef1aa79e4b697f2c9f38595fa859e",
+      "context": "Compute:",
+      "translation": "गणना करता है:",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#1",
+      "source": "infected/uninfected cluster mapping using GT sets",
+      "source_sha256": "c1e33f2a1354c7a09b307ec92854781af5fd4737a3aa6cd4f86d98ebee75fc05",
+      "context": "infected/uninfected cluster mapping using GT sets",
+      "translation": "GT सेट का उपयोग करके संक्रमित/असंक्रमित क्लस्टर मैपिंग",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#2",
+      "source": "GT separation score",
+      "source_sha256": "b53410a7fe3fc2106892776d299c9d5bc0aa01466148f16a3209808a2f2235aa",
+      "context": "GT separation score",
+      "translation": "GT पृथक्करण स्कोर",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#3",
+      "source": "silhouette score",
+      "source_sha256": "cd9186a91c0bd30d50d7ae25172eec50a514df248d347d2db91f683dba11b7d0",
+      "context": "silhouette score",
+      "translation": "सिल्हूट स्कोर",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#4",
+      "source": "centroid distance between the two clusters",
+      "source_sha256": "ab33db74fe469b1822b88b7963bba5edfd803c680c8a178d9286dc8dde1410bb",
+      "context": "centroid distance between the two clusters",
+      "translation": "दोनों क्लस्टरों के केंद्रकों के बीच की दूरी",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#5",
+      "source": "original infected fractions in each cluster",
+      "source_sha256": "9f1d312502bd172d402ec3f77068210fbfaabff251281bf755bd336d37edd93b",
+      "context": "original infected fractions in each cluster",
+      "translation": "हर क्लस्टर में मूल संक्रमित अंश",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#6",
+      "source": "overall score = centroid_distance * GT separation",
+      "source_sha256": "2fa86af3b02224940d9b95bd263f344c57fe395a448f81b8f441fcfd8543fa7a",
+      "context": "overall score = centroid_distance * GT separation",
+      "translation": "समग्र स्कोर = centroid_distance * GT पृथक्करण",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._search_tsne#0",
+      "source": "Return coordinates, labels, statistics, and parameters from t-SNE.",
+      "source_sha256": "ba7621dc7e2a9922eadbcd9d98aa9b03a803db758a77e34aafac5ab649dec955",
+      "context": "Return coordinates, labels, statistics, and parameters from t-SNE.",
+      "translation": "t-SNE से निर्देशांक, लेबल, सांख्यिकी और पैरामीटर लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._search_tsne._run_tsne#0",
+      "source": "Return coordinates, labels, and statistics for one t-SNE pair.",
+      "source_sha256": "eaef5e146dd291d415913db90eb9068783fa5da63415f48bcaaddd9cc58e90f0",
+      "context": "Return coordinates, labels, and statistics for one t-SNE pair.",
+      "translation": "एक t-SNE जोड़ी के लिए निर्देशांक, लेबल और सांख्यिकी लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._search_umap#0",
+      "source": "Return coordinates, labels, statistics, and parameters from UMAP.",
+      "source_sha256": "c9b67cc8c9aaea27472db03b8fc1460b7b04c637bff5dbbd0ca11c567d8657dd",
+      "context": "Return coordinates, labels, statistics, and parameters from UMAP.",
+      "translation": "UMAP से निर्देशांक, लेबल, सांख्यिकी और पैरामीटर लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_all_tracks#0",
+      "source": "Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``.",
+      "source_sha256": "6808f195e849634700608f828730073fdf0943cd0afcbabf33c49818034435ca",
+      "context": "Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``.",
+      "translation": "``ax`` पर ट्रैक को निरपेक्ष पिक्सेल या कैलिब्रेटेड निर्देशांकों में प्लॉट करता है; ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#0",
+      "source": "Draw infected vs uninfected intensity histogram.",
+      "source_sha256": "b0486a1f66796e231ef184a1e3bf8011b8d08e91200a7216a08d2698cb918113",
+      "context": "Draw infected vs uninfected intensity histogram.",
+      "translation": "संक्रमित बनाम असंक्रमित तीव्रता हिस्टोग्राम बनाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#1",
+      "source": "`source` can be:",
+      "source_sha256": "20e8714da9c03e23d159db185f64d4c9b8ff0799088181a754d780786b6083ac",
+      "context": "`source` can be:",
+      "translation": "`source` हो सकता है:",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#2",
+      "source": "a dict payload (settings['infection_hist_data']) with keys: 'intensities_inf', 'intensities_uninf', 'bin_edges', 'thr_val' (optional), 'intensity_col' (optional)",
+      "source_sha256": "de4a8a6612bfa6cf93915b9eafff0ab03ece579a7a6230fd02356870be45da26",
+      "context": "a key-value mapping payload (settings['infection_hist_data']) with structured-data names: 'intensities_inf', 'intensities_uninf', 'bin_edges', 'thr_val' (optional), 'intensity_col' (optional)",
+      "translation": "एक dict पेलोड (settings['infection_hist_data']) जिसकी कुंजियाँ हैं: 'intensities_inf', 'intensities_uninf', 'bin_edges', 'thr_val' (वैकल्पिक), 'intensity_col' (वैकल्पिक)",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#3",
+      "source": "or a DataFrame (df_well), in which case the histogram is computed on the fly using a reasonable intensity column and `infection_intensity_n_bins`.",
+      "source_sha256": "d0dd6a15ceb8d001004ea4abe9aa1336427d82e96a841d4f0ee5873b56bb36e4",
+      "context": "or a DataFrame (df_well), in which case the histogram is computed on the fly using a reasonable intensity column and `infection_intensity_n_bins`.",
+      "translation": "या एक DataFrame (df_well), जिस स्थिति में हिस्टोग्राम एक उचित तीव्रता स्तंभ और `infection_intensity_n_bins` से तुरंत गणना किया जाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_inf_uninf_bar#0",
+      "source": "Helper to plot infected vs uninfected distributions for the given column, using violin plots (with mean markers) instead of barplots.",
+      "source_sha256": "cdfb95649febaf18201fe5fb275b515e6bce996baf939d977a0dffa60127995c",
+      "context": "Helper to plot infected vs uninfected distributions for the given column, using violin plots (with mean markers) instead of barplots.",
+      "translation": "दिए गए स्तंभ के लिए संक्रमित बनाम असंक्रमित वितरण प्लॉट करने वाला सहायक, बार प्लॉट के बजाय वायलिन प्लॉट (माध्य चिह्नकों के साथ) का उपयोग करते हुए।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_origin#0",
+      "source": "Plot the selected group on ``ax`` relative to its origins; return ``None``.",
+      "source_sha256": "acb714c3cfedc6c0a6bed1afb3b01dc1dc9a97a5f3114ef258af90a0c76a7ceb",
+      "context": "Plot the selected group on ``ax`` relative to its origins; return ``None``.",
+      "translation": "चुने गए समूह को उसके मूल बिंदुओं के सापेक्ष ``ax`` पर प्लॉट करता है; ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_pca_qc#0",
+      "source": "Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``.",
+      "source_sha256": "70980862cf69ea4d99f3eee095b8b98c9ab99baa2c3f81b2d24c693a0b621a25",
+      "context": "Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``.",
+      "translation": "``pdata`` के 2-D एम्बेडिंग को ``ax`` पर प्लॉट करता है, या उसे छिपाता है, फिर ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_xgb_importance_qc#0",
+      "source": "Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``.",
+      "source_sha256": "48e9dfd13df11efebc0109e63ac136724e74bcb00552380b999095de4782c85b",
+      "context": "Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``.",
+      "translation": "``xdata`` के महत्व को ``ax`` पर प्लॉट करता है, या उसे छिपाता है, फिर ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_xgb_prob_qc#0",
+      "source": "Per-cell probability distribution by adjusted infection label.",
+      "source_sha256": "a3838f89649485c007bffa81abbef026e65570db78d0896c47ac79dcb19ad56d",
+      "context": "Per-cell probability distribution by adjusted infection label.",
+      "translation": "समायोजित संक्रमण लेबल के अनुसार प्रति-कोशिका संभाव्यता वितरण।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_xgb_prob_qc#1",
+      "source": "Uses settings['infection_xgb_proba_column'] if available, otherwise falls back through a few common column names.",
+      "source_sha256": "736374e90f3bd18ba0e17e21ba6af3ca6e44e8fccf6f4a0d5494c1ba5c3ca585",
+      "context": "Uses settings['infection_xgb_proba_column'] if available, otherwise falls back through a few common column names.",
+      "translation": "उपलब्ध होने पर settings['infection_xgb_proba_column'] का उपयोग करता है, अन्यथा कुछ सामान्य स्तंभ नामों पर लौटता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_motility_plots._apply_axis_limits#0",
+      "source": "Apply valid two-value limits to ``ax`` and return ``None``.",
+      "source_sha256": "e1a708132979e4dae3f023995f2e748ae788d7173bd19ae8ff2dd8277a4aaefe",
+      "context": "Apply valid two-value limits to ``ax`` and return ``None``.",
+      "translation": "``ax`` पर मान्य दो-मान सीमाएँ लागू करता है और ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_motility_plots._fmt_vel#0",
+      "source": "Return finite ``val`` to two decimals, or ``n/a`` when non-finite.",
+      "source_sha256": "7a85207477758961e49c5035dd8b11d37eae8268657a6ca81e0ed652f5356811",
+      "context": "Return finite ``val`` to two decimals, or ``n/a`` when non-finite.",
+      "translation": "परिमित ``val`` को दो दशमलव तक लौटाता है, या अपरिमित होने पर ``n/a``।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._masks_to_gif._display_gif#0",
+      "source": "Read ``path`` into an IPython image, display it, and return ``None``.",
+      "source_sha256": "4d6185f37f1b5b76bb778f4bce684012b2e3f4028f916ad50b77ef80f868a336",
+      "context": "Read ``path`` into an IPython image, display it, and return ``None``.",
+      "translation": "``path`` को IPython छवि में पढ़ता है, उसे दिखाता है और ``None`` लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._summarise_child_features_per_parent._agg_for_feature#0",
+      "source": "Return sum for area, minimum for distance, otherwise mean.",
+      "source_sha256": "be3da039339aed98ba1cb4971f351129fb885de5691bfb9f115fb8a9c2fa24e8",
+      "context": "Return sum for area, minimum for distance, otherwise mean.",
+      "translation": "क्षेत्रफल के लिए योग, दूरी के लिए न्यूनतम, अन्यथा माध्य लौटाता है।",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

@@ -1,0 +1,655 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._analysis_lock_dialog._lock#0",
+      "source": "Persist the displayed analysis plan and show its immutable identity.",
+      "source_sha256": "2a003e828bfc2a84d103cdd9e9286c2cd70094bdfb0d34e1e5bf7500ca3f81c1",
+      "context": "Persist the displayed analysis plan and show its immutable identity.",
+      "translation": "Enregistre le plan d'analyse affiché et montre son identité immuable.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._confirm_ram_guard.plan_for#0",
+      "source": "This module's estimate for ``n_jobs`` workers.",
+      "source_sha256": "9e4ae838814e8d87ec904a50fcf980422f3dd8bd6a8a79b28762f687789ba4c0",
+      "context": "This module's estimate for ``n_jobs`` workers.",
+      "translation": "L'estimation de ce module pour ``n_jobs`` workers.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._on_file_issue._file#0",
+      "source": "Submit the report, returning the failure AS DATA rather than raising.",
+      "source_sha256": "1215041f6047d4f40f4decfdab545df2b35d427f0eb8dbca505299142bf226c1",
+      "context": "Submit the report, returning the failure as data rather than throwing.",
+      "translation": "Soumet le rapport en renvoyant l'échec SOUS FORME DE DONNÉES au lieu de lever une erreur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._on_file_issue._file#1",
+      "source": "The call is asynchronous, so an ``except`` around the caller can no longer see it -- and a report that silently fails to send is worse than one that fails loudly.",
+      "source_sha256": "b455747238aa2366093d2e3360f1ac0a592b3c6d1aa97576001668f02957ae1c",
+      "context": "The call is asynchronous, so an ``except`` around the caller can no longer see it -- and a report that silently fails to send is worse than one that fails loudly.",
+      "translation": "L'appel est asynchrone, donc un ``except`` autour de l'appelant ne peut plus le voir -- et un rapport dont l'envoi échoue en silence est pire qu'un rapport qui échoue bruyamment.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._post_the_report._file#0",
+      "source": "Build, redact and post the report. Off the GUI thread.",
+      "source_sha256": "cbf2da6e9535c46b7b441cd87e69d5cc355985fb4c581f3d52038a682c3f2a3f",
+      "context": "Build, redact and post the report. Off the main GUI execution path.",
+      "translation": "Construit, expurge et envoie le rapport. Hors du thread de la GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._refresh_model_explainer.value#0",
+      "source": "One widget's value, or the fallback when there is no such widget.",
+      "source_sha256": "05920bc9d1edcc29898b4ace898ca56cb944ac84fd6997cc1f3cec2bcab6567e",
+      "context": "One widget's value, or the fallback when there is no such widget.",
+      "translation": "La valeur d'un widget, ou la valeur de repli lorsque ce widget n'existe pas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._remember_runtime_splitter._save#0",
+      "source": "Store this splitter's layout under its key.",
+      "source_sha256": "dcab0dd0ea8644cd37e18269f29f01bcf044db0205ec04b651dc971750bf7182",
+      "context": "Store this splitter's layout under its key.",
+      "translation": "Enregistre la disposition de ce séparateur sous sa clé.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._section_holds_anything.already_built_rows#0",
+      "source": "Iterate registered rows without forcing deferred captions.",
+      "source_sha256": "cbd07648b023b13b806545ab0a6bc0e3360b26941b73b09a2a3aad165b988697",
+      "context": "Iterate registered rows without forcing deferred captions.",
+      "translation": "Parcourt les lignes enregistrées sans forcer les libellés différés.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._section_holds_anything.holds_an_active_slot#0",
+      "source": "Whether deferred rows belong to a count-requested organelle.",
+      "source_sha256": "5d56c3d1bdf047ad304329d962da73db4759784dada4c824759ce48be8fa4b6a",
+      "context": "Whether deferred rows belong to a count-requested organelle.",
+      "translation": "Indique si des lignes différées appartiennent à un organite dont le comptage est demandé.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen._with_the_controls.swap#0",
+      "source": "``node`` rebuilt with its stand-ins replaced by controls.",
+      "source_sha256": "88c7bd989089dd0c16f0daccd69164402c0d595dba6b735d5eb34fde3f7db572",
+      "context": "``node`` rebuilt with its stand-ins replaced by controls.",
+      "translation": "``node`` reconstruit avec ses substituts remplacés par des contrôles.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_annotate_example._done#0",
+      "source": "Restore the button whether the load worked or failed.",
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "context": "Restore the button whether the load worked or failed.",
+      "translation": "Restaure le bouton, que le chargement ait réussi ou échoué.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_images.ask#0",
+      "source": "Start the demo download with the tar-aware worker.",
+      "source_sha256": "1e359ee8c69c282dab910c0259455f2f8b583c64cd2ce74eadf7cccc4100ac18",
+      "context": "Start the demo download with the tar-aware worker.",
+      "translation": "Lance le téléchargement de la démo avec le worker compatible tar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_example_images.done#0",
+      "source": "Re-enable the button whether the download worked or failed.",
+      "source_sha256": "d0fe7907f547d134ee3a38ba59066d84e4e4aa4f678cb1e5144727ed41090d00",
+      "context": "Re-enable the button whether the download worked or failed.",
+      "translation": "Réactive le bouton, que le téléchargement ait fonctionné ou échoué.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_measure_example._done#0",
+      "source": "Restore the button whether the load worked or failed.",
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "context": "Restore the button whether the load worked or failed.",
+      "translation": "Restaure le bouton, que le chargement ait réussi ou échoué.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example.report#0",
+      "source": "Put progress and failures in the console.",
+      "source_sha256": "13f386029c9d8bfba8b4f8793f22093ed3e008865efef26426773876ce6ced0b",
+      "context": "Put progress and failures in the console.",
+      "translation": "Écrit la progression et les échecs dans la console.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example.use#0",
+      "source": "Apply the sample's settings and say so in the console.",
+      "source_sha256": "7af95f25e7a5907e92de4a7630ce1350a212b5fd11ac500dc3c7aebd04002ef4",
+      "context": "Apply the sample's settings and say so in the console.",
+      "translation": "Applique les paramètres de l'exemple et l'indique dans la console.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.load_the_screen_data._done#0",
+      "source": "Restore the button whether the load worked or failed.",
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "context": "Restore the button whether the load worked or failed.",
+      "translation": "Restaure le bouton, que le chargement ait réussi ou échoué.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome#0",
+      "source": "Repoint every path in a value, whatever shape it is.",
+      "source_sha256": "b4f2027cf293178c1d294bb3d6dcb36a14f33d2481d3251464ceb656adf8f25b",
+      "context": "Repoint every path in a value, whatever shape it is.",
+      "translation": "Redirige chaque chemin d'une valeur, quelle que soit sa forme.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome#1",
+      "source": "Recurses through lists and tuples: a settings value may be one path or a list of them, and rehoming only the string case leaves the list pointing at a folder that is not there.",
+      "source_sha256": "1ec6de1dc7e4a1b274c383e587a2560daaa1a0b4cf98da0f529fa73040a5f345",
+      "context": "Recurses through lists and tuples: a settings value may be one path or a list of them, and rehoming only the string case leaves the list pointing at a folder that is not there.",
+      "translation": "Parcourt récursivement listes et tuples : une valeur de paramètre peut être un chemin ou une liste de chemins, et ne relocaliser que le cas de la chaîne laisse la liste pointer vers un dossier qui n'existe pas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome_text#0",
+      "source": "Repoint one path string at the folder the example now lives in.",
+      "source_sha256": "4494b90644523d7f0a5d13f6dfd0c1ad035ff254b36eb9cd37f6398f3e103246",
+      "context": "Repoint one path string at the folder the example now lives in.",
+      "translation": "Redirige une chaîne de chemin vers le dossier où se trouve désormais l'exemple.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen._fit_to_lines.wrapped_lines#0",
+      "source": "How many lines ``candidate`` wraps to at the measured width.",
+      "source_sha256": "24e1cdb52877e466cbd61888c83b00ba490caab1dcb542a22ec111e9488b5f1c",
+      "context": "How many lines ``candidate`` wraps to at the measured width.",
+      "translation": "Sur combien de lignes ``candidate`` se répartit à la largeur mesurée.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen._fit_to_lines.wrapped_lines#1",
+      "source": "Measured against the font Qt is actually painting, so it stays right at any font scale rather than at the one this was written on.",
+      "source_sha256": "fb5876c773669c2894cc3f04ebdf8843e3c61f48e58b048396b3a5f8d4d990a0",
+      "context": "Measured against the font Qt is actually painting, so it stays right at any font scale rather than at the one this was written on.",
+      "translation": "Mesuré avec la police que Qt dessine réellement, il reste donc juste à toute échelle de police et pas seulement à celle avec laquelle il a été écrit.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__#0",
+      "source": "Stand in for the panel without building it.",
+      "source_sha256": "f9c2a21829547c89c9991d4d55215ce2f5fdbc76a3e63c0305b6d7ee17e10697",
+      "context": "Stand in for the panel without building it.",
+      "translation": "Remplace le panneau sans le construire.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__#1",
+      "source": "the ``AppScreen`` the real panel is built for.",
+      "source_sha256": "6798b0203fabf809156e5346d80c632e9364b301996e2915006db39e634dd4b9",
+      "context": "the ``AppScreen`` the real panel is built for.",
+      "translation": "le ``AppScreen`` pour lequel le vrai panneau est construit.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.apply_settings#0",
+      "source": "Seed the real panel when the user opens the sweep card.",
+      "source_sha256": "31457cccd334b350f6b9e4041ebbd6236dfac88828a88ba21662f0998596c9ba",
+      "context": "Seed the real panel when the user opens the sweep card.",
+      "translation": "Initialise le vrai panneau lorsque l'utilisateur ouvre la carte du balayage.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.built#0",
+      "source": "Whether the real panel exists yet. For tests and diagnostics.",
+      "source_sha256": "2190c71ea7934a12f9ec1d2d0fdae56021cf3415974f319d993f33b1dfe513c9",
+      "context": "Whether the real panel exists yet. For tests and diagnostics.",
+      "translation": "Indique si le vrai panneau existe déjà. Pour les tests et le diagnostic.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.count_data#0",
+      "source": "The real panel's count-file list, built on first use.",
+      "source_sha256": "2b49f7582852e921caab405053ec9bd791ff3b4f5e190e01abd21342cc6ff0cd",
+      "context": "The real panel's count-file list, built on first use.",
+      "translation": "La liste des fichiers de comptage du vrai panneau, construite à la première utilisation.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.destination#0",
+      "source": "The real panel's output-folder editor, built on first use.",
+      "source_sha256": "4c3abf5a757a8e634d409b150a66ecccd6bfab811d1d8e700496a31b5dcddd7d",
+      "context": "The real panel's output-folder editor, built on first use.",
+      "translation": "L'éditeur du dossier de sortie du vrai panneau, construit à la première utilisation.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.panel#0",
+      "source": "The real panel, built on the first ask.",
+      "source_sha256": "38943e50b8d9e8670d1b12a403f02333552165c22486f7082ca9cb85f603ff91",
+      "context": "The real panel, built on the first ask.",
+      "translation": "Le vrai panneau, construit à la première demande.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.score_data#0",
+      "source": "The real panel's score-file list, built on first use.",
+      "source_sha256": "3cd7ff21e5efb43aab87c4d020f184e8fd379796fa565a2bb41392602a0522a6",
+      "context": "The real panel's score-file list, built on first use.",
+      "translation": "La liste des fichiers de scores du vrai panneau, construite à la première utilisation.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.showEvent#0",
+      "source": "Build the real panel the first time the screen is shown.",
+      "source_sha256": "ca6eab5788858e032c790962af3daadf753033fea2db30a80cb19a8dea50d0f1",
+      "context": "Build the real panel the first time the screen is shown.",
+      "translation": "Construit le vrai panneau la première fois que la vue est affichée.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.showEvent#1",
+      "source": "That is the whole point of the placeholder: the sweep panel is expensive and a user who never opens this screen never pays for it.",
+      "source_sha256": "08771361e72d3f2bfd40c047879bbfb263d6b2b1a1dc17edb4536214611cf87d",
+      "context": "That is the whole point of the placeholder: the sweep panel is expensive and a user who never opens this screen never pays for it.",
+      "translation": "C'est tout l'intérêt de l'espace réservé : le panneau de balayage est coûteux et un utilisateur qui n'ouvre jamais cette vue n'en paie jamais le prix.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.space#0",
+      "source": "The real panel's sweep-space model, built on first use.",
+      "source_sha256": "9fcbb39dd63c9cfa32a82b2acb405549b8204437f72dfda1c19592a00f776d26",
+      "context": "The real panel's sweep-space model, built on first use.",
+      "translation": "Le modèle d'espace de balayage du vrai panneau, construit à la première utilisation.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.__init__#0",
+      "source": "Build the sweep screen. ``host`` is the window, not a Qt parent.",
+      "source_sha256": "3f6bb94c47a33e356c5b2a79d45f9ddd7979bdd80c6c3903de14c6c4731dca6c",
+      "context": "Build the sweep application view. ``host`` is the window, not a Qt parent.",
+      "translation": "Construit la vue du balayage. ``host`` est la fenêtre, pas un parent Qt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated#0",
+      "source": "Re-run the selected trial and show its figures, editable.",
+      "source_sha256": "b29ae36424b831be2c4c465ffb368559dd31f6c509011eefa9dd035e4661342b",
+      "context": "Re-run the selected trial and show its figures, editable.",
+      "translation": "Relance l'essai sélectionné et affiche ses figures, modifiables.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated#1",
+      "source": "Off the GUI thread: this is a full regression, not a lookup. The row keeps its own settings, so what comes back is that trial and not a fresh one built from whatever the controls happen to say now -- which is the point of being able to compare conditions.",
+      "source_sha256": "1927b1a5916282c61019aa450b7ac9ed7bc008665fac614b0ca22288e91085a5",
+      "context": "Off the main GUI execution path: this is a full regression, not a lookup. The row keeps its own settings, so what comes back is that trial and not a fresh one built from whatever the controls happen to say now -- which is the point of being able to compare conditions.",
+      "translation": "Hors du thread de la GUI : c'est une régression complète, pas une consultation. La ligne garde ses propres paramètres, donc ce qui revient est cet essai et non un nouveau construit à partir de ce que disent les contrôles à ce moment -- c'est tout l'intérêt de pouvoir comparer des conditions.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated.job#0",
+      "source": "Re-run one trial from the table. Called on a worker thread.",
+      "source_sha256": "135634b5dec75b5c8fbcfa49965957f4c8ef8ea81f6bedbdc93b64b872aa4290",
+      "context": "Execute again one trial from the table. Called on a background execution unit.",
+      "translation": "Relance un essai de la table. Appelé sur un thread de worker.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._set_worker_note#0",
+      "source": "Show the worker calculation through translatable templates.",
+      "source_sha256": "23e113e4c2f44172de11fe0097d29cb854ac6cae16caf4a406990770d94039c0",
+      "context": "Show the worker calculation through translatable templates.",
+      "translation": "Affiche le calcul du worker au moyen de modèles traduisibles.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._show#0",
+      "source": "Put the results in the table, useful columns first.",
+      "source_sha256": "4a139f33bd56ecfb22ca77d73da23a2576fcfde2a196dadbbdb00c36a9fc2b0b",
+      "context": "Put the results in the table, useful columns first.",
+      "translation": "Place les résultats dans la table, les colonnes utiles d'abord.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._show#1",
+      "source": "A VIEW AND NOT A FILTER: every column is still in the CSV. The order is settings, then what went in, then what came out -- a hit count means little without the size of the design it came from, and two trials differing only by a filtration cutoff can fit completely different data.",
+      "source_sha256": "9c8cb6c8332077a881ac9cda988e0ad0f39b02282da60ea6db77df966026dad7",
+      "context": "A view and not a filter: every column is still in the CSV. The order is settings, then what went in, then what came out -- a hit count means little without the size of the design it came from, and two trials differing only by a filtration cutoff can fit completely different data.",
+      "translation": "UNE VUE ET NON UN FILTRE : chaque colonne reste dans le CSV. L'ordre est paramètres, puis ce qui est entré, puis ce qui est sorti -- un nombre de hits a peu de sens sans la taille du plan dont il provient, et deux essais qui ne diffèrent que par un seuil de filtration peuvent ajuster des données complètement différentes.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._sweep_finished#0",
+      "source": "Show the results and give the controls back.",
+      "source_sha256": "5a24b0480934e0381603247f51f2ffb9e9a93c3585b44bc8067f7d0e5427c7c1",
+      "context": "Show the results and give the controls back.",
+      "translation": "Affiche les résultats et rend les contrôles.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._trial_figures_ready#0",
+      "source": "Put a re-run trial's figures on screen. On the GUI thread.",
+      "source_sha256": "221b81910230d03d3925aa428b382bebb6ef78323522e09b75664f0ee9fac25d",
+      "context": "Put a re-run trial's figures on application view. On the main GUI execution path.",
+      "translation": "Affiche à l'écran les figures d'un essai relancé. Sur le thread de la GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.apply_settings#0",
+      "source": "Seed the sweep from the module's settings panel.",
+      "source_sha256": "a87fe6fed6baa45283c0a8fbf40380dcc0cd7df06550eebe58d9bcf84b04fc44",
+      "context": "Seed the sweep from the module's settings panel.",
+      "translation": "Initialise le balayage à partir du panneau de paramètres du module.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.apply_settings#1",
+      "source": "Opening the sweep should not mean retyping the inputs that are already on screen. The score/count CSVs, the response column and the output folder come straight across; every swept axis is additionally PINNED to the value the user currently has, so an unticked axis reproduces their run rather than a default.",
+      "source_sha256": "c112baee75a14f01bd525e258e072969742ac3fcb6a6aa5b9e7600685252467d",
+      "context": "Opening the sweep should not mean retyping the inputs that are already on application view. The score/count CSVs, the response column and the output folder come straight across; every swept axis is additionally PINNED to the value the user currently has, so an unticked axis reproduces their run rather than a default.",
+      "translation": "Ouvrir le balayage ne devrait pas obliger à retaper les entrées déjà à l'écran. Les CSV de scores/comptages, la colonne de réponse et le dossier de sortie sont repris tels quels ; chaque axe balayé est en outre FIXÉ à la valeur actuelle de l'utilisateur, de sorte qu'un axe non coché reproduit son exécution plutôt qu'une valeur par défaut.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.base_settings#0",
+      "source": "The settings every trial in the sweep starts from.",
+      "source_sha256": "68ce20bdeda113c58901e0b68ff9b090a4e5857224e7f32691d07a2ae3762c20",
+      "context": "The settings every trial in the sweep starts from.",
+      "translation": "Les paramètres dont part chaque essai du balayage.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.estimate#0",
+      "source": "Say how many trials the current space would run, without running them.",
+      "source_sha256": "b746d91a6d26335d4cb2c37c7c6fd49b0da169d98fc219f1221ae1d8bb05ab8b",
+      "context": "Say how many trials the current space would execute, without executing them.",
+      "translation": "Indique combien d'essais l'espace actuel exécuterait, sans les exécuter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.load_results#0",
+      "source": "Read the table from disk, so a running sweep can be watched.",
+      "source_sha256": "34bae3d36d47bb80bde59a372f5f9b4d75ab768eaced014b2c599be28b26d658",
+      "context": "Read the table from disk, so a running sweep can be watched.",
+      "translation": "Lit la table depuis le disque, afin de pouvoir suivre un balayage en cours.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space#0",
+      "source": "Build the sweep space from the ticked axes.",
+      "source_sha256": "12148522a32fa0e9c4da4b10f8e169ffcdb087403320acdbfe998e0d76291da5",
+      "context": "Build the sweep space from the ticked axes.",
+      "translation": "Construit l'espace de balayage à partir des axes cochés.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space#1",
+      "source": "An unticked axis is not dropped -- it is PINNED to its first value and applied to every trial, so the settings a sweep ran under are always fully recorded rather than left to defaults that might change.",
+      "source_sha256": "143636c2d561482ad5806ddcbb58c1a261c8910b8888e6760fe6780f783b347e",
+      "context": "An unticked axis is not dropped -- it is PINNED to its first value and applied to every trial, so the settings a sweep ran under are always fully recorded rather than left to defaults that might change.",
+      "translation": "Un axe non coché n'est pas abandonné -- il est FIXÉ à sa première valeur et appliqué à chaque essai, de sorte que les paramètres d'un balayage sont toujours entièrement enregistrés au lieu d'être laissés à des valeurs par défaut susceptibles de changer.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space.parse#0",
+      "source": "Read one comma-separated field as a list of values.",
+      "source_sha256": "0d5ae8115db5908a31f6f715ff6548aa7dcabf5540ed3f5f78c5ac5c37438dd5",
+      "context": "Read one comma-separated field as a list of values.",
+      "translation": "Lit un champ séparé par des virgules comme une liste de valeurs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.start#0",
+      "source": "Refuse an incomplete design, else run the sweep off the GUI thread.",
+      "source_sha256": "b3f73b729ce8a157746eb0283c45fd5fbd56167d8226a3e4afbc3b3a8e406dee",
+      "context": "Refuse an incomplete design, else run the sweep off the main GUI execution path.",
+      "translation": "Refuse un plan incomplet, sinon exécute le balayage hors du thread de la GUI.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.start.job#0",
+      "source": "Run the whole sweep. Called on a worker thread.",
+      "source_sha256": "a22e3774aa6aa8c64d64e6997affaebfb56d44f22bc3856dab1b11fee1ad10ec",
+      "context": "Execute the whole sweep. Called on a background execution unit.",
+      "translation": "Exécute tout le balayage. Appelé sur un thread de worker.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._event_network._EventNet.__init__#0",
+      "source": "Build temporal features and the optional per-frame crop encoder.",
+      "source_sha256": "34167f2fb9047058ae7e70f4421c8d0e6e2a3dd0397a4c6f4d6aae7a6bda4705",
+      "context": "Build temporal features and the optional per-frame extracted image region encoder.",
+      "translation": "Construit les caractéristiques temporelles et l'encodeur optionnel de découpes par image.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._event_network._EventNet.forward#0",
+      "source": "Class scores for a batch of windows.",
+      "source_sha256": "71564efb79ccb8f2f329726f52e98695ce579685de70c3e7c22a55dde63c2e5d",
+      "context": "Class scores for a batch of windows.",
+      "translation": "Scores de classe pour un lot de fenêtres.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._event_partner_columns.count#0",
+      "source": "Number of ``points`` within ``radius`` of ``(x, y)``.",
+      "source_sha256": "3038146f3a33e290e12e1c35905ed9889b3e54def46efde54374ce7dab7b9692",
+      "context": "Number of ``points`` within ``radius`` of ``(x, y)``.",
+      "translation": "Nombre de ``points`` à moins de ``radius`` de ``(x, y)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._feature_velocity_correlations._corr_subset#0",
+      "source": "Return correlations for at least five finite-velocity rows, else ``None``.",
+      "source_sha256": "af41a59404185ebed3919415ab13f612ed01c5d02db7b28a4bdd2019fcec7db7",
+      "context": "Return correlations for at least five finite-velocity rows, else ``None``.",
+      "translation": "Renvoie les corrélations pour au moins cinq lignes à vitesse finie, sinon ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#0",
+      "source": "Compute:",
+      "source_sha256": "8e534e9c326faec11c6d5aa44e70494c406ef1aa79e4b697f2c9f38595fa859e",
+      "context": "Compute:",
+      "translation": "Calcule :",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#1",
+      "source": "infected/uninfected cluster mapping using GT sets",
+      "source_sha256": "c1e33f2a1354c7a09b307ec92854781af5fd4737a3aa6cd4f86d98ebee75fc05",
+      "context": "infected/uninfected cluster mapping using GT sets",
+      "translation": "correspondance des clusters infectés/non infectés à l'aide des ensembles GT",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#2",
+      "source": "GT separation score",
+      "source_sha256": "b53410a7fe3fc2106892776d299c9d5bc0aa01466148f16a3209808a2f2235aa",
+      "context": "GT separation score",
+      "translation": "score de séparation GT",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#3",
+      "source": "silhouette score",
+      "source_sha256": "cd9186a91c0bd30d50d7ae25172eec50a514df248d347d2db91f683dba11b7d0",
+      "context": "silhouette score",
+      "translation": "score de silhouette",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#4",
+      "source": "centroid distance between the two clusters",
+      "source_sha256": "ab33db74fe469b1822b88b7963bba5edfd803c680c8a178d9286dc8dde1410bb",
+      "context": "centroid distance between the two clusters",
+      "translation": "distance entre les centroïdes des deux clusters",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#5",
+      "source": "original infected fractions in each cluster",
+      "source_sha256": "9f1d312502bd172d402ec3f77068210fbfaabff251281bf755bd336d37edd93b",
+      "context": "original infected fractions in each cluster",
+      "translation": "fractions infectées d'origine dans chaque cluster",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding#6",
+      "source": "overall score = centroid_distance * GT separation",
+      "source_sha256": "2fa86af3b02224940d9b95bd263f344c57fe395a448f81b8f441fcfd8543fa7a",
+      "context": "overall score = centroid_distance * GT separation",
+      "translation": "score global = centroid_distance * séparation GT",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._search_tsne#0",
+      "source": "Return coordinates, labels, statistics, and parameters from t-SNE.",
+      "source_sha256": "ba7621dc7e2a9922eadbcd9d98aa9b03a803db758a77e34aafac5ab649dec955",
+      "context": "Return coordinates, labels, statistics, and parameters from t-SNE.",
+      "translation": "Renvoie les coordonnées, étiquettes, statistiques et paramètres issus de t-SNE.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._search_tsne._run_tsne#0",
+      "source": "Return coordinates, labels, and statistics for one t-SNE pair.",
+      "source_sha256": "eaef5e146dd291d415913db90eb9068783fa5da63415f48bcaaddd9cc58e90f0",
+      "context": "Return coordinates, labels, and statistics for one t-SNE pair.",
+      "translation": "Renvoie les coordonnées, étiquettes et statistiques pour une paire t-SNE.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._infection_qc_pca_clustering._search_umap#0",
+      "source": "Return coordinates, labels, statistics, and parameters from UMAP.",
+      "source_sha256": "c9b67cc8c9aaea27472db03b8fc1460b7b04c637bff5dbbd0ca11c567d8657dd",
+      "context": "Return coordinates, labels, statistics, and parameters from UMAP.",
+      "translation": "Renvoie les coordonnées, étiquettes, statistiques et paramètres issus d'UMAP.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_all_tracks#0",
+      "source": "Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``.",
+      "source_sha256": "6808f195e849634700608f828730073fdf0943cd0afcbabf33c49818034435ca",
+      "context": "Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``.",
+      "translation": "Trace les trajectoires sur ``ax`` en coordonnées pixel absolues ou calibrées ; renvoie ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#0",
+      "source": "Draw infected vs uninfected intensity histogram.",
+      "source_sha256": "b0486a1f66796e231ef184a1e3bf8011b8d08e91200a7216a08d2698cb918113",
+      "context": "Draw infected vs uninfected intensity histogram.",
+      "translation": "Dessine l'histogramme d'intensité infectés contre non infectés.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#1",
+      "source": "`source` can be:",
+      "source_sha256": "20e8714da9c03e23d159db185f64d4c9b8ff0799088181a754d780786b6083ac",
+      "context": "`source` can be:",
+      "translation": "`source` peut être :",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#2",
+      "source": "a dict payload (settings['infection_hist_data']) with keys: 'intensities_inf', 'intensities_uninf', 'bin_edges', 'thr_val' (optional), 'intensity_col' (optional)",
+      "source_sha256": "de4a8a6612bfa6cf93915b9eafff0ab03ece579a7a6230fd02356870be45da26",
+      "context": "a key-value mapping payload (settings['infection_hist_data']) with structured-data names: 'intensities_inf', 'intensities_uninf', 'bin_edges', 'thr_val' (optional), 'intensity_col' (optional)",
+      "translation": "un dict (settings['infection_hist_data']) avec les clés : 'intensities_inf', 'intensities_uninf', 'bin_edges', 'thr_val' (optionnelle), 'intensity_col' (optionnelle)",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc#3",
+      "source": "or a DataFrame (df_well), in which case the histogram is computed on the fly using a reasonable intensity column and `infection_intensity_n_bins`.",
+      "source_sha256": "d0dd6a15ceb8d001004ea4abe9aa1336427d82e96a841d4f0ee5873b56bb36e4",
+      "context": "or a DataFrame (df_well), in which case the histogram is computed on the fly using a reasonable intensity column and `infection_intensity_n_bins`.",
+      "translation": "ou un DataFrame (df_well), auquel cas l'histogramme est calculé à la volée avec une colonne d'intensité raisonnable et `infection_intensity_n_bins`.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_inf_uninf_bar#0",
+      "source": "Helper to plot infected vs uninfected distributions for the given column, using violin plots (with mean markers) instead of barplots.",
+      "source_sha256": "cdfb95649febaf18201fe5fb275b515e6bce996baf939d977a0dffa60127995c",
+      "context": "Helper to plot infected vs uninfected distributions for the given column, using violin plots (with mean markers) instead of barplots.",
+      "translation": "Fonction d'aide qui trace les distributions infectés contre non infectés pour la colonne donnée, avec des diagrammes en violon (avec marqueurs de moyenne) au lieu de diagrammes en barres.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_origin#0",
+      "source": "Plot the selected group on ``ax`` relative to its origins; return ``None``.",
+      "source_sha256": "acb714c3cfedc6c0a6bed1afb3b01dc1dc9a97a5f3114ef258af90a0c76a7ceb",
+      "context": "Plot the selected group on ``ax`` relative to its origins; return ``None``.",
+      "translation": "Trace le groupe sélectionné sur ``ax`` par rapport à ses origines ; renvoie ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_pca_qc#0",
+      "source": "Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``.",
+      "source_sha256": "70980862cf69ea4d99f3eee095b8b98c9ab99baa2c3f81b2d24c693a0b621a25",
+      "context": "Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``.",
+      "translation": "Trace le plongement 2-D de ``pdata`` sur ``ax``, ou le masque, puis renvoie ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_xgb_importance_qc#0",
+      "source": "Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``.",
+      "source_sha256": "48e9dfd13df11efebc0109e63ac136724e74bcb00552380b999095de4782c85b",
+      "context": "Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``.",
+      "translation": "Trace les importances de ``xdata`` sur ``ax``, ou les masque, puis renvoie ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_xgb_prob_qc#0",
+      "source": "Per-cell probability distribution by adjusted infection label.",
+      "source_sha256": "a3838f89649485c007bffa81abbef026e65570db78d0896c47ac79dcb19ad56d",
+      "context": "Per-cell probability distribution by adjusted infection label.",
+      "translation": "Distribution de probabilité par cellule selon l'étiquette d'infection ajustée.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_intensity_motility_panel._plot_xgb_prob_qc#1",
+      "source": "Uses settings['infection_xgb_proba_column'] if available, otherwise falls back through a few common column names.",
+      "source_sha256": "736374e90f3bd18ba0e17e21ba6af3ca6e44e8fccf6f4a0d5494c1ba5c3ca585",
+      "context": "Uses settings['infection_xgb_proba_column'] if available, otherwise falls back through a few common column names.",
+      "translation": "Utilise settings['infection_xgb_proba_column'] si disponible, sinon se rabat sur quelques noms de colonnes courants.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_motility_plots._apply_axis_limits#0",
+      "source": "Apply valid two-value limits to ``ax`` and return ``None``.",
+      "source_sha256": "e1a708132979e4dae3f023995f2e748ae788d7173bd19ae8ff2dd8277a4aaefe",
+      "context": "Apply valid two-value limits to ``ax`` and return ``None``.",
+      "translation": "Applique des limites valides à deux valeurs à ``ax`` et renvoie ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._make_motility_plots._fmt_vel#0",
+      "source": "Return finite ``val`` to two decimals, or ``n/a`` when non-finite.",
+      "source_sha256": "7a85207477758961e49c5035dd8b11d37eae8268657a6ca81e0ed652f5356811",
+      "context": "Return finite ``val`` to two decimals, or ``n/a`` when non-finite.",
+      "translation": "Renvoie ``val`` fini avec deux décimales, ou ``n/a`` s'il n'est pas fini.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._masks_to_gif._display_gif#0",
+      "source": "Read ``path`` into an IPython image, display it, and return ``None``.",
+      "source_sha256": "4d6185f37f1b5b76bb778f4bce684012b2e3f4028f916ad50b77ef80f868a336",
+      "context": "Read ``path`` into an IPython image, display it, and return ``None``.",
+      "translation": "Lit ``path`` dans une image IPython, l'affiche et renvoie ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.timelapse._summarise_child_features_per_parent._agg_for_feature#0",
+      "source": "Return sum for area, minimum for distance, otherwise mean.",
+      "source_sha256": "be3da039339aed98ba1cb4971f351129fb885de5691bfb9f115fb8a9c2fa24e8",
+      "context": "Return sum for area, minimum for distance, otherwise mean.",
+      "translation": "Renvoie la somme pour l'aire, le minimum pour la distance, sinon la moyenne.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

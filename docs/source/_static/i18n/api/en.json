@@ -3164,6 +3164,69 @@
       "source_sha256": "0386c36aafb0f46db9593d884d51ed57aa93cf0e349eda25b73b163d0a9a6ac7",
       "text": "Raised for a method name that is not registered."
     },
+    "spacr.attribution._ablation_cam._ablate": {
+      "source_blocks_sha256": [
+        "1f29255f920a5d9acce1166c0c4336a116732ea7f7fac0b12bfa2c688fbc071f"
+      ],
+      "source_sha256": "1f29255f920a5d9acce1166c0c4336a116732ea7f7fac0b12bfa2c688fbc071f",
+      "text": "Record the clean feature maps, or zero one channel per batch row."
+    },
+    "spacr.attribution._ask_for_attention_weights._wrap": {
+      "source_blocks_sha256": [
+        "a993fdaeba7a4655d5346d651926c93915dfc3f80e41c9a292e7e75424d710ae"
+      ],
+      "source_sha256": "a993fdaeba7a4655d5346d651926c93915dfc3f80e41c9a292e7e75424d710ae",
+      "text": "Install the attention-weight adapter and return the original call."
+    },
+    "spacr.attribution._ask_for_attention_weights._wrap.forward": {
+      "source_blocks_sha256": [
+        "344a65f821af724d8b9e7fe8a75b61bd634a096ec6a9dea028c6e2ca6cda36b6"
+      ],
+      "source_sha256": "344a65f821af724d8b9e7fe8a75b61bd634a096ec6a9dea028c6e2ca6cda36b6",
+      "text": "Request per-head weights unless a positional request owns them."
+    },
+    "spacr.attribution._ask_for_attention_weights.restore": {
+      "source_blocks_sha256": [
+        "c5505cdab868fbea5b3ae2dc6e8bcb399f1631519750ae34a7b6f6515102868b"
+      ],
+      "source_sha256": "c5505cdab868fbea5b3ae2dc6e8bcb399f1631519750ae34a7b6f6515102868b",
+      "text": "Restore every block's exact original bound forward method."
+    },
+    "spacr.attribution._check_spatial_activation._attn_hook": {
+      "source_blocks_sha256": [
+        "e4e886979704b275b526583e6fc23335de60ac689480e80c5e85eb65c766f33d"
+      ],
+      "source_sha256": "e4e886979704b275b526583e6fc23335de60ac689480e80c5e85eb65c766f33d",
+      "text": "Record that an attention block ran."
+    },
+    "spacr.attribution._check_spatial_activation._target_hook": {
+      "source_blocks_sha256": [
+        "9029973b4d19b293c608b9278766cfb2a6afe9f73b918611d62fd4a825c2f953"
+      ],
+      "source_sha256": "9029973b4d19b293c608b9278766cfb2a6afe9f73b918611d62fd4a825c2f953",
+      "text": "Capture the target layer's output and its position in the pass."
+    },
+    "spacr.attribution._eigen_cam._hook": {
+      "source_blocks_sha256": [
+        "e9fec59db1419f9d84ae7bb609b7cd91a6aa9674106f339a35fa5534ec2d912a"
+      ],
+      "source_sha256": "e9fec59db1419f9d84ae7bb609b7cd91a6aa9674106f339a35fa5534ec2d912a",
+      "text": "Capture the target layer's feature maps."
+    },
+    "spacr.attribution._layer_activation_and_gradient._hook": {
+      "source_blocks_sha256": [
+        "4201da28b3575511f69ddce8275a8767524db56265e877636acf5a89bb043319"
+      ],
+      "source_sha256": "4201da28b3575511f69ddce8275a8767524db56265e877636acf5a89bb043319",
+      "text": "Copy the feature maps and ask for their gradient."
+    },
+    "spacr.attribution._layer_activation_and_gradient._keep_gradient": {
+      "source_blocks_sha256": [
+        "eeaae9952715943d01e460791ba3c5ec45af086459576d3ff17067e1d179eb3f"
+      ],
+      "source_sha256": "eeaae9952715943d01e460791ba3c5ec45af086459576d3ff17067e1d179eb3f",
+      "text": "Store the gradient that reaches the hooked feature map."
+    },
     "spacr.attribution.applicable_methods": {
       "source_blocks_sha256": [
         "68fcf0be6e95d447179c88cdaf96cde4fe0d3cfac9558a064380e3d5500f1a2a"
@@ -3198,6 +3261,13 @@
       ],
       "source_sha256": "d58c9a22e56d9333eafbb0eda3b10e74d9b2d4eeeee68d353d43a58c4e73a92a",
       "text": "Attention rollout (Abnar & Zuidema 2020) for transformer backbones.\n\nA CAM needs a convolutional feature map. A pure transformer has none, so\nthis is the substitute: the per-layer attention matrices are averaged over\nheads, mixed with the identity to account for the residual stream, row-\nnormalised and multiplied together, giving how much each input token\ncontributes to the class token.\n\nIt reads spaCR's :class:`torch.nn.MultiheadAttention` blocks, which return\ntheir attention weights from ``forward``. Backbones whose attention is a\nfused kernel (timm's ViT via ``scaled_dot_product_attention``) expose no\nweights, and this raises rather than inventing a map.\n\n**Rollout is not class-conditional.** The result is the same for every\n``target``: it describes where information flowed, not what the model\nconcluded. It cannot show the model separated your classes; a gradient or\nperturbation method can.\n\n:param model: the transformer classifier.\n:param image: one image, ``(C, H, W)`` or ``(1, C, H, W)``.\n:param target: recorded on the result; does not change the map.\n:param head_fusion: ``'mean'``, ``'max'`` or ``'min'`` over attention heads.\n:param discard_ratio: fraction of the lowest attention weights zeroed per\n    layer before rollout, which sharpens the map and is pure cosmetics.\n:param model_type: architecture name for the error messages.\n:returns: the :class:`Attribution`.\n:raises NoSpatialLayerError: when the model exposes no attention weights."
+    },
+    "spacr.attribution.attention_rollout._hook": {
+      "source_blocks_sha256": [
+        "3ae567427a02c7a09038bd9c8f3939ee7b2fad3910ad65003e218a6effe8bcb7"
+      ],
+      "source_sha256": "3ae567427a02c7a09038bd9c8f3939ee7b2fad3910ad65003e218a6effe8bcb7",
+      "text": "Capture the (B, L, S) attention weights an MHA block returns."
     },
     "spacr.attribution.attribute": {
       "source_blocks_sha256": [
@@ -3252,6 +3322,13 @@
       ],
       "source_sha256": "114ecafddfdf4ff86a13c092f1366c6a6ef26d025b9f646b8d64c0ab65240a18",
       "text": "Class-specific transformer relevance (Chefer, Gur & Wolf 2021).\n\nRollout multiplies raw attention and so gives one map whatever class is\nasked about. This weights every head's attention by the class score's\ngradient on it, keeps the positive part, averages the heads and\naccumulates the result through the residual stream, ``R <- R + A_bar R``\nfrom the identity. The class token's row of ``R`` is the relevance of each\npatch *for the target class*, so asking for the other class gives a\ndifferent map.\n\nIt reads :class:`torch.nn.MultiheadAttention` blocks (torchvision's ViT and\nspaCR's own), asking each for per-head weights the way\n:func:`attention_rollout` does.\n\n:param model: the transformer classifier.\n:param image: one image, ``(C, H, W)`` or ``(1, C, H, W)``.\n:param target: class to explain; defaults to the prediction.\n:param model_type: architecture name for the error messages.\n:returns: the :class:`Attribution`.\n:raises NoSpatialLayerError: when the model has no attention blocks whose\n    weights sit on the gradient path, or its tokens do not form a grid."
+    },
+    "spacr.attribution.chefer_relevance._hook": {
+      "source_blocks_sha256": [
+        "c62a8ad58c9b80488fe0dafb9bf622f829b9bac2ad0d35f5561ac67dd1539f97"
+      ],
+      "source_sha256": "c62a8ad58c9b80488fe0dafb9bf622f829b9bac2ad0d35f5561ac67dd1539f97",
+      "text": "Keep the attention weights an MHA block returns, graph attached."
     },
     "spacr.attribution.class_scores": {
       "source_blocks_sha256": [
@@ -3420,6 +3497,13 @@
       ],
       "source_sha256": "d7ef795a5ea44be8c442e8938bcdac9ecc58ad95cce7b711a4c8bd96a7fb748b",
       "text": "Adebayo et al. 2018: does the map change when the weights are destroyed?\n\nRandomise the model's parameters layer by layer, from the output backwards,\nre-attribute at every stage, and correlate each map with the map from the\ntrained model. A method that depends on what the model learned produces an\nuncorrelated map once the weights are noise. Several widely used methods do\nnot: guided backprop and guided Grad-CAM are the canonical failures, and a\nmethod that fails this is an edge detector being read as an explanation.\n\n**This is the most informative check in the module.** A map that passes\ndeletion and insertion but fails this one is describing the image; a method\nthat fails here cannot be rescued by smoothing, a better colormap or a\ndifferent target layer.\n\n:param model: the trained classifier. Deep-copied — the original is never\n    modified.\n:param image: one image.\n:param method: a registered method name, or any callable when\n    ``attribute_fn`` is not given.\n:param target: class to explain, resolved once against the trained model and\n    held fixed, so a stage's map is not silently for a different class.\n:param layer: CAM target layer.\n:param model_type: architecture name for the error messages.\n:param mode: ``'cascading'`` (default, the paper's) or ``'independent'``.\n:param threshold: rank correlation below which the method passes.\n:param seed: RNG seed for the randomisation, so the check reproduces.\n:param max_stages: cap on the number of layers randomised, from the output\n    backwards. The final stage always randomises everything regardless.\n:param attribute_fn: ``fn(model, image, target=...) -> map or Attribution``,\n    for testing a method that is not in the registry.\n:param kw: forwarded to the attribution call.\n:returns: the :class:`SanityCheck`.\n:raises AttributionError: for an unknown mode, or a model with no\n    parameters to randomise."
+    },
+    "spacr.attribution.randomization_sanity_check._run": {
+      "source_blocks_sha256": [
+        "d5606c89c26267cc1a277b1884bc5583e8dcef55dfd026c4555149711d523957"
+      ],
+      "source_sha256": "d5606c89c26267cc1a277b1884bc5583e8dcef55dfd026c4555149711d523957",
+      "text": "Attribute ``image`` with the method under test on model ``m``."
     },
     "spacr.attribution.recommended_layer": {
       "source_blocks_sha256": [
@@ -14006,6 +14090,98 @@
       "source_sha256": "97c654834fb5174e6980c7f519c1a37535b120de2e7f4d69ba6072a90a8a223c",
       "text": "A short digest of everything that changes the numbers.\n\nTwo matrices with the same fingerprint were produced the same way.\nA scorecard can quote it, and a cached matrix can be invalidated by\nit rather than by a timestamp."
     },
+    "spacr.embeddings._dino_encoder.run": {
+      "source_blocks_sha256": [
+        "3c13f9973e023830a028114f092b87b73d36c278f1724e2dd3c23e11216c714f",
+        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
+      ],
+      "source_sha256": "7d14cd7d84e8aa0f1714e310440bd25e4e5e92848fdf92f9adc4001e3fb1a5f6",
+      "text": "Encode ``(n, h, w, k)`` crops in batches at the training size.\n\n:param stack: float32 in [0, 1], channels last.\n:returns: ``(n, dims)`` float32 features."
+    },
+    "spacr.embeddings._dino_network.Head.__init__": {
+      "source_blocks_sha256": [
+        "42581f0d91d1f7396ac43e0e46331a43f9327e355dd847410c499219b91897b0"
+      ],
+      "source_sha256": "42581f0d91d1f7396ac43e0e46331a43f9327e355dd847410c499219b91897b0",
+      "text": "Build the MLP and the prototype layer."
+    },
+    "spacr.embeddings._dino_network.Head.forward": {
+      "source_blocks_sha256": [
+        "ea450072cb3ca0ac172fd587db1881c7af3b78de23ccbfe2bcc87b67d5a04019"
+      ],
+      "source_sha256": "ea450072cb3ca0ac172fd587db1881c7af3b78de23ccbfe2bcc87b67d5a04019",
+      "text": "``(n, dim)`` features to ``(n, out_dim)`` prototype scores."
+    },
+    "spacr.embeddings._dino_views.uniform": {
+      "source_blocks_sha256": [
+        "8568e1fa06be18463037ba96a2a3f8be1ca1a2acbd708aeed1e14fbc8fe13016"
+      ],
+      "source_sha256": "8568e1fa06be18463037ba96a2a3f8be1ca1a2acbd708aeed1e14fbc8fe13016",
+      "text": "Uniform draws from the run's generator, on the batch's device."
+    },
+    "spacr.embeddings._foundation_encoder.run": {
+      "source_blocks_sha256": [
+        "6232df384397cd204ba3032485fc4b4bc3156636b10bcdadfb52e0d3172884df",
+        "514e068f86c1cceb33aa335094eec501c38c3df7cdf15a94595223389c4cc427",
+        "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
+      ],
+      "source_sha256": "8d5bc9a747a252bf07d552909f6ad88a66a4a105e6826b9b84dbaf8aff1f77a9",
+      "text": "Encode ``(n, h, w, k)`` crops in batches, resized to the model's size.\n\n:param stack: float32 in [0, 1], channels last.\n:returns: ``(n, dims)`` float32 features."
+    },
+    "spacr.embeddings._hub_model.forward": {
+      "source_blocks_sha256": [
+        "a556508313b6b277113cc7237a0826be017cf506dcf59bb2e4169111e6b285b7",
+        "5731a8c39e300d68d5b31abb3a72539ee672cfc77c5c3d207bbb289ca76129b0"
+      ],
+      "source_sha256": "0396e20c54eb2618c57d8989bbfa67c15b6c6aeda6e57083fa0fefd3de8ea508",
+      "text": "OpenPhenom's mean patch token; it rescales 0-255 itself.\n\nChAda-ViT's class token, each crop's channels as one sequence."
+    },
+    "spacr.embeddings._mil_fit._Attention.__init__": {
+      "source_blocks_sha256": [
+        "6c244e7e1dcf772af882093693dfa1a9e00e1087b95a0a42530de454ab7e4879"
+      ],
+      "source_sha256": "6c244e7e1dcf772af882093693dfa1a9e00e1087b95a0a42530de454ab7e4879",
+      "text": "Build the cell projection, attention gate and binary well head."
+    },
+    "spacr.embeddings._mil_fit._Attention.forward": {
+      "source_blocks_sha256": [
+        "8347f1ba81831692fa4e54fb4483eb46bf28e0c805ad161cbe98d0fb0c0282ff"
+      ],
+      "source_sha256": "8347f1ba81831692fa4e54fb4483eb46bf28e0c805ad161cbe98d0fb0c0282ff",
+      "text": "Return well logits, attention and cell evidence, excluding padding."
+    },
+    "spacr.embeddings._subcell_model.Pooled.__init__": {
+      "source_blocks_sha256": [
+        "b30df7fa4dfc1a6702352199849751373b80d33765fcb418be84a2abd3664501"
+      ],
+      "source_sha256": "b30df7fa4dfc1a6702352199849751373b80d33765fcb418be84a2abd3664501",
+      "text": "Build the ViT and the pooler the checkpoint expects."
+    },
+    "spacr.embeddings._subcell_model.Pooled.forward": {
+      "source_blocks_sha256": [
+        "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2"
+      ],
+      "source_sha256": "8d38b877387678d2ff217a18bdf92aa975c98fb32f6fa07b8f9fee94a56617f2",
+      "text": "``(n, 2, h, w)`` to ``(n, 1536)``, the two heads joined."
+    },
+    "spacr.embeddings._subcell_model.forward": {
+      "source_blocks_sha256": [
+        "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754"
+      ],
+      "source_sha256": "1741db6b2e169d70ba50e9ee5fb390ca963231c87546e97923fcc7eff1b0c754",
+      "text": "Min-max scale each crop channel, then encode."
+    },
+    "spacr.embeddings._timm_encoder.run": {
+      "source_blocks_sha256": [
+        "6493d8a61be599555887fd0a0cfff8434755dafe001881a4ca39e42111691807",
+        "58e01fe4a9324a0cfe4888d0bbe4c67b1593d97f32d6b8c85bc68fbc4a048049",
+        "025f80d6067541141705ba991ee28f76bc6bbd83c26bd37c7406e63d58bfc936",
+        "adb0caf99af4581c52e90dfe111d416a443695d270837d8d3d01ec66fbb04cb6"
+      ],
+      "source_sha256": "5cfb62c2fc7d772d8d9889b292c5f56f10e9052782e6b6712f6613a592e5c2df",
+      "text": "Encode one three-channel stack, in batches, under no_grad.\n\nBatched here rather than by the caller because the batch size belongs\nto the DEVICE, not to the channel policy: the per-channel policy calls\nthis once per channel and each call must fit the same GPU.\n\n:param stack: ``(n, height, width, 3)`` float32 in [0, 1].\n:returns: ``(n, dims)`` float32 features."
+    },
     "spacr.embeddings.channel_of_column": {
       "source_blocks_sha256": [
         "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
@@ -21368,6 +21544,20 @@
       "source_sha256": "0ffce08561b96e8a288a889f7a27a802686ad70c54f7b80bb0d1a7d893a2e110",
       "text": "Build the ``fit_fn(params)`` an Activation sweep evaluates.\n\nEvery trial attributes each image once and then measures that map four\nways — deletion AUC, insertion AUC, the pointing game (when masks exist)\nand the randomisation sanity check — so the table can be re-ranked by any\ncriterion without re-running the sweep. **All four are reported for every\ntrial precisely because they disagree**; a sweep that reported only the one\nit ranked by would hide the disagreement, which is the informative part.\n\n:param data: the model and images to score on.\n:param criterion: which of :data:`ACTIVATION_CRITERIA` drives the ranking.\n:param n_steps: perturbation steps in the deletion / insertion curves.\n:param baseline: what removed pixels become — ``'blur'`` (least\n    out-of-distribution), ``'zero'``, ``'mean'`` or ``'uniform'``.\n:param sanity_threshold: rank correlation below which a method passes the\n    randomisation check.\n:param run_sanity_check: run the check on the first image only. It costs one\n    extra attribution per parameterised layer, so it is the expensive part\n    of a trial; turning it off removes the most valuable number here.\n:param keep_maps: keep each trial's first map so the panel can draw it.\n:param attribute_fn: override for the attribution call, used by tests.\n:returns: the fit function.\n:raises ValueError: for an unknown criterion or an empty image set."
     },
+    "spacr.hyperparam.activation_fit_fn._attribute": {
+      "source_blocks_sha256": [
+        "d7b7cf6866704f87648cd19a076e64188129942ce2a2c8de9e18a24c962fdd75"
+      ],
+      "source_sha256": "d7b7cf6866704f87648cd19a076e64188129942ce2a2c8de9e18a24c962fdd75",
+      "text": "Attribute one image with one trial's configuration."
+    },
+    "spacr.hyperparam.activation_fit_fn._fit": {
+      "source_blocks_sha256": [
+        "e0bcb773c8c7616d51c630ba1eeea0dcf3bc51f56840e77335e261b61f017931"
+      ],
+      "source_sha256": "e0bcb773c8c7616d51c630ba1eeea0dcf3bc51f56840e77335e261b61f017931",
+      "text": "Score one configuration on every image, reporting every criterion."
+    },
     "spacr.hyperparam.activation_search": {
       "source_blocks_sha256": [
         "dc9309ed8c677dd92e262a6d03dd56196eb494b4f2a7060348aa868a06b3f60b",
@@ -21438,6 +21628,27 @@
       "source_sha256": "8fca6a781861fafebcf3d953a435f16aad5288b6c1096ece892460560aa23ce3",
       "text": "Build a ``fit_fn(params)`` that trains one deep model per fold.\n\nThe Classify (CV) app trains Torch CNNs, so the search does not roll its\nown folds: it hands each configuration to :func:`spacr.deep_spacr.\ntrain_test_model` with ``cross_validation_folds`` forced to at least two and\n``cv_group_by`` left alone, then reads the per-fold CSV that run writes.\nThat keeps a single implementation of grouped k-fold — spaCR's — and means\nthe search splits the data exactly the way the training run will.\n\nEach trial trains ``n_folds`` models, so a grid of ``g`` configurations\ntrains ``g × n_folds`` models. That is the honest cost; there is no cheap\nproxy for it.\n\n:param settings: base Classify (CV) settings dict; each trial's parameters\n    are layered on top.\n:param criterion: metric column to read from the per-fold CSV.\n:param n_folds: cross-validation folds per trial; forced to at least 2.\n:param train_fn: override for ``train_test_model`` (used by tests so no\n    real CNN is trained).\n:param read_fold_csv: override for the CSV reader.\n:returns: the fit function.\n:raises ValueError: when ``n_folds`` < 2."
     },
+    "spacr.hyperparam.classify_cv_fit_fn._default_read": {
+      "source_blocks_sha256": [
+        "ca74abfe37b38fedc39c32f7cd9e005ed00a6b303a14856356ea9550b6ff11f8"
+      ],
+      "source_sha256": "ca74abfe37b38fedc39c32f7cd9e005ed00a6b303a14856356ea9550b6ff11f8",
+      "text": "Read the per-fold CSV a cross-validated training run wrote."
+    },
+    "spacr.hyperparam.classify_cv_fit_fn._default_train": {
+      "source_blocks_sha256": [
+        "e3611c35fb644165a7e1ca42e2f2139e32665eb44bcb771329caef8d018d3624"
+      ],
+      "source_sha256": "e3611c35fb644165a7e1ca42e2f2139e32665eb44bcb771329caef8d018d3624",
+      "text": "Run spaCR's own cross-validated training for one configuration."
+    },
+    "spacr.hyperparam.classify_cv_fit_fn._fit": {
+      "source_blocks_sha256": [
+        "3e957d08f93eac2315f17b84bc69300bcdd15e4e60c4621f0739a4abd363afe4"
+      ],
+      "source_sha256": "3e957d08f93eac2315f17b84bc69300bcdd15e4e60c4621f0739a4abd363afe4",
+      "text": "Train one configuration across the folds and average the metric."
+    },
     "spacr.hyperparam.cv_search": {
       "source_blocks_sha256": [
         "d38e46b69f5608170eb25dd28a5dead58c5375019dfd668419667db4b5d97b9b",
@@ -21462,6 +21673,13 @@
       ],
       "source_sha256": "669d9405b56e35641c95090d4c2a962d08d94a1c0decaec7217502f09dc7f461",
       "text": "Search hyperparameters by cross-validation, never by scoring on test.\n\nEvery configuration is fitted once per fold on that fold's training indices\nand scored on that fold's validation indices; the trial score is the mean\nacross folds and the fold-to-fold standard deviation becomes the noise\nyardstick for :meth:`SearchResult.within_noise`. Indices listed in\n``test_idx`` are removed before the folds are built and are never handed to\n``fit_fn`` — selecting a configuration on data reserved for the final\nestimate makes that estimate meaningless.\n\n:param fit_fn: called as ``fit_fn(params, train_idx, val_idx)``; returns the\n    validation score, a ``(score, metrics)`` pair, or a dict with ``score``.\n:param space: the :class:`SearchSpace` to search.\n:param labels: per-sample class labels (used to stratify the folds).\n:param groups: explicit per-sample group ids.\n:param filenames: crop filenames to parse group ids from.\n:param group_by: grouping level, ``'well'`` by default.\n:param n_folds: number of cross-validation folds.\n:param seed: seed for the folds and for random sampling.\n:param test_idx: indices of the held-out test split, excluded from every\n    fold.\n:param folds: pre-built ``(train_idx, val_idx)`` pairs, bypassing\n    :func:`build_folds`. Validated against ``test_idx``.\n:param metric: name of the score ``fit_fn`` returns.\n:param higher_is_better: direction of ``metric``.\n:param n_trials: when given, sample this many configurations at random\n    instead of running the full grid.\n:param on_trial: progress callback ``(trial, completed, total)``.\n:param should_stop: polled before each trial.\n:returns: the :class:`SearchResult`.\n:raises ValueError: when supplied ``folds`` touch ``test_idx``."
+    },
+    "spacr.hyperparam.cv_search._call": {
+      "source_blocks_sha256": [
+        "f37ccd3d4cdcf9d5e669ff4738363577141127f82accbc45a5849035e2913c64"
+      ],
+      "source_sha256": "f37ccd3d4cdcf9d5e669ff4738363577141127f82accbc45a5849035e2913c64",
+      "text": "Fan one configuration out over the folds and average the scores."
     },
     "spacr.hyperparam.embedding_stability": {
       "source_blocks_sha256": [
@@ -21622,6 +21840,13 @@
       "source_sha256": "7f8efaead937b8fe88a886d34828794abf04699345b628dab74a3e4f1cc8b2d2",
       "text": "Build the ``fit_fn(params, train_idx, val_idx)`` :func:`cv_search` wants.\n\nThe estimator is fitted on the fold's training indices and scored on the\nfold's validation indices — the function is never given any other indices,\nso it structurally cannot score on the held-out test split.\n\n:param features: 2-D numeric feature matrix.\n:param labels: per-row class labels.\n:param model_type: which classifier to build (see\n    :func:`build_sklearn_model`).\n:param criterion: ``'accuracy'``, ``'roc_auc'`` or ``'f1'``.\n:param seed: ``random_state`` for the estimator.\n:param n_jobs: worker count where supported.\n:returns: the fit function."
     },
+    "spacr.hyperparam.sklearn_cv_fit_fn._fit": {
+      "source_blocks_sha256": [
+        "ec75e6b7f2396a543b8ddc2ceee48d90a9d408ec7a4d723bf4c12da5904f91dc"
+      ],
+      "source_sha256": "ec75e6b7f2396a543b8ddc2ceee48d90a9d408ec7a4d723bf4c12da5904f91dc",
+      "text": "Fit on the fold's training rows, score on its validation rows."
+    },
     "spacr.hyperparam.umap_available": {
       "source_blocks_sha256": [
         "a107ca3f9cb37c9515a388ea32740b0b4340b3533ebdee95ae4e764dd3632014",
@@ -21699,6 +21924,21 @@
       "source_sha256": "fcf1c8b3eee1c3662f606402cb5ea52cecd139e987e0ae82869086b4fbef07e6",
       "text": "Sweep UMAP parameters, scoring each embedding with a named criterion.\n\nThe honest deliverable is the panel of embeddings, not the top row of the\ntable. Every trial keeps its embedding (unless ``keep_embeddings`` is off)\nso the caller can draw small multiples, and every criterion is computed for\nevery trial so the caller can see how the ranking changes when the criterion\ndoes.\n\n:param features: 2-D numeric feature matrix, ``(n_samples, n_features)``.\n:param space: UMAP parameters to sweep (``n_neighbors``, ``min_dist``,\n    ``metric``, ...).\n:param metric: which criterion drives the ranking; one of\n    :data:`UMAP_CRITERIA`.\n:param labels: optional class labels; required for ``'silhouette'``.\n:param seed: ``random_state`` for the reducer, so the sweep reproduces.\n:param n_components: fixed display dimensionality, 2 or 3. It is retained\n    on every row even when it is not one of the searched axes.\n:param neighbourhood_k: neighbourhood size for trustworthiness/continuity.\n:param adaptive: run a Walk -- iterative local optimization from one\n    starting point -- instead of a grid. See :func:`walk_search`.\n:param walk_parameters: which UMAP parameters the Walk searches.\n    Defaults to n_neighbors and min_dist, the two it has always\n    used; any subset of :data:`UMAP_WALK_PARAMETERS` is accepted.\n:param walk_resolutions: per-axis grid resolution, ``{name: n}``.\n    2 is the classic +/-step pair. Missing axes get 2.\n:param walk_steps: per-axis step override, ``{name: size}``.\n:param n_trials: maximum complete Walk rounds; blank or\n    None means 100.\n:param n_neighbors_step: local step along the n_neighbors axis.\n:param min_dist_step: local step along the min_dist axis.\n:param min_improvement: score gain required to continue after a round.\n:param stability_repeats: reproducible UMAP fits per configuration when\n    ``metric='multi_objective'``; must be at least 2.\n:param objective_weights: optional weights for\n    ``neighborhood_preservation``, ``stability`` and\n    ``cluster_structure``. Values are normalized to sum to one.\n:param embed_fn: ``embed_fn(features, params) -> embedding`` override; when\n    omitted, umap-learn is used.\n:param backend: ``'cpu'`` for umap-learn or ``'cuml'`` for the optional\n    RAPIDS implementation. Every successful trial records the backend that\n    actually drew it because the two libraries make different maps.\n:param cluster_during_search: run the HDBSCAN scale walk against every\n    completed embedding and retain its best labels beside the coordinates.\n:param cluster_sizes: ``min_cluster_size`` values for that walk.\n:param keep_embeddings: store each trial's embedding in its extra metrics.\n:param on_trial: progress callback ``(trial, completed, total)``.\n:param should_stop: polled before each trial.\n:param checkpoint_path: optional atomic checkpoint JSON. Embeddings are\n    stored as adjacent ``.npy`` artifacts after each completed trial.\n:param resume: load a compatible checkpoint. Input features, labels,\n    search space, criterion, seed and material search settings must match.\n:returns: the :class:`SearchResult`. When umap-learn is missing and no\n    ``embed_fn`` was given, this returns an empty result whose notes lead\n    with :data:`UMAP_MISSING_MESSAGE` rather than raising ImportError.\n:raises ValueError: when ``metric`` is not a known criterion, or\n    ``'silhouette'`` is requested without labels."
     },
+    "spacr.hyperparam.umap_search._fit": {
+      "source_blocks_sha256": [
+        "66fe478e451fddaf7bf9afbeb44f1ba25640733c2f369aaa8322c21eb97463d6"
+      ],
+      "source_sha256": "66fe478e451fddaf7bf9afbeb44f1ba25640733c2f369aaa8322c21eb97463d6",
+      "text": "Embed one configuration and score it with every criterion."
+    },
+    "spacr.hyperparam.umap_search.embed_fn": {
+      "source_blocks_sha256": [
+        "c8ae825f1cbf90cb2d42499c31aa56f7547662689655bce7e7a9a075dad30b7a",
+        "7eb292bc6df3776898ce3c5d8d943648fbac3ffe87ffdef7238b0595b4169425"
+      ],
+      "source_sha256": "25d1b039e52515701de7a3d943bfce21bc6a1696e2f8f8b7ccd2ec1889e8aaa6",
+      "text": "Default embedder — umap-learn with a pinned random_state.\n\ncuML embedder; no silent CPU downgrade for a checked GPU run."
+    },
     "spacr.hyperparam.umap_walk_axes": {
       "source_blocks_sha256": [
         "ce7c7aab319897ff2e23d1d22469ca6ea11799ffda972c7a96411ff11e31fc56",
@@ -21736,6 +21976,13 @@
       ],
       "source_sha256": "314d0b25578ab02bdf60d5d85c9a8b0476990af32e9cbba7287b7adcc33e1496",
       "text": "Walk N-dimensional hyperparameter space toward a better score.\n\nEach round scores the neighbourhood around the current centre -- see\n:func:`walk_neighbourhood` -- and moves to the best configuration found,\nstopping when a round fails to improve on the best score by more than\n``min_improvement``. The starting point is a *centre*, not a trial: it\nis never fitted, because a walk asks \"which way is better from here\",\nand \"here\" is where the user already is.\n\nWith two numeric axes at resolution 2 this is the 2-by-2 search that\npreceded it, corner for corner. It is not restricted to two: any\nparameter the fit function accepts can be an axis, and each axis\ncarries its own step and resolution.\n\n:param fit_fn: callable invoked with each candidate parameter mapping. It\n    returns a number, ``(score, metrics)`` pair, or mapping containing a\n    ``score`` key, exactly as :func:`_normalise_outcome` accepts.\n:param start: one value per axis, plus any parameters held fixed --\n    anything not named by an axis is passed to every fit unchanged.\n:param axes: the search space. Empty raises.\n:param n_trials: maximum complete rounds (100 when blank/None). NOT the\n    number of fits, which is rounds times the neighbourhood size.\n:param max_candidates_per_round: past this, a round varies one axis at\n    a time instead of taking the full product. Recorded in the notes."
+    },
+    "spacr.hyperparam.walk_search._persisted_state": {
+      "source_blocks_sha256": [
+        "920d032565a13752ea92b038a1576a54065624e06e4b51e6a711f8279e313553"
+      ],
+      "source_sha256": "920d032565a13752ea92b038a1576a54065624e06e4b51e6a711f8279e313553",
+      "text": "Return a fresh walk checkpoint with legacy two-axis centre keys."
     },
     "spacr.illumination": {
       "source_blocks_sha256": [
@@ -42109,6 +42356,34 @@
       "source_sha256": "051d91f098ec8ec19b7ada90938d602cbc322d62a9c9a7fa56c7ff6a58080274",
       "text": "Top-level window: sidebar + stacked screens + status bar.\n\n:param initial_app: optional app key to navigate to on show; when\n    omitted the window opens on the Home startup page.\nBuild the main window: the dock slot, the screen stack and the status bar.\n\nThe window is frameless and the menu bar is what you drag it by. Its\nfirst backing store is filled with the splash colour so the compositor\ncannot expose stale desktop pixels before anything has drawn --\ndeliberately without ``WA_OpaquePaintEvent``, which is a promise to\npaint every pixel that this window cannot keep once the application\nstylesheet clears ``autoFillBackground`` again. Claiming it left\nwhatever was already on screen underneath, and transparent children drew\non top: overlapping text in the corner, and flicker on every text\nsurface over the animated backdrop.\n\nThe dock slot exists in every dock mode, because a ``QMainWindow``'s\ncentral widget cannot be swapped without re-parenting the stack, and\nre-parenting a stack holding live screens is how locking the dock would\ncost you the screen you were looking at.\n\n:param initial_app: the module to open on startup; ``None`` opens Home."
     },
+    "spacr.qt.app.MainWindow.__init__._finish_installer_onboarding": {
+      "source_blocks_sha256": [
+        "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac"
+      ],
+      "source_sha256": "64ed656720ca90e3041a9126dcf4c43e77063a1c306794f70178fa384dca15ac",
+      "text": "Show the installer consent, then start the tour after it closes."
+    },
+    "spacr.qt.app.MainWindow._retry_screen_backdrop.again": {
+      "source_blocks_sha256": [
+        "1e7a20a830fa336f99dfea6f4c40b95b7a244d0789e501178c5079717439c897"
+      ],
+      "source_sha256": "1e7a20a830fa336f99dfea6f4c40b95b7a244d0789e501178c5079717439c897",
+      "text": "Try the backdrop once more, if the screen is still alive."
+    },
+    "spacr.qt.app.MainWindow._show_about._line": {
+      "source_blocks_sha256": [
+        "b29b43e63877b0f95c711a16ca233b73afd317a284bb8b29ca091411842041f2"
+      ],
+      "source_sha256": "b29b43e63877b0f95c711a16ca233b73afd317a284bb8b29ca091411842041f2",
+      "text": "One centred line of the About box, at the given size."
+    },
+    "spacr.qt.app.MainWindow._start_a_sample_project.open_it": {
+      "source_blocks_sha256": [
+        "9cd73ed34f74e5b41e9b927ba45169fffc051cc5d04aa79e8cb354fba0bca4a5"
+      ],
+      "source_sha256": "9cd73ed34f74e5b41e9b927ba45169fffc051cc5d04aa79e8cb354fba0bca4a5",
+      "text": "Open the actual module, including its page inside a host screen."
+    },
     "spacr.qt.app.MainWindow.apply_dock_mode": {
       "source_blocks_sha256": [
         "bd5cc67a904d16feb630bfa8d450104bc3f003abadaeea7474612ec87a09ae5e",
@@ -42297,6 +42572,49 @@
       "source_sha256": "2a909027253d8a76de1e04404d5df7620179397c1e3620c10409851582294cdc",
       "text": "The application's navigation dock.\n\nThe behaviour lives in :class:`spacr.qt.widgets.dock.Dock`, rewritten on\n2026-09-03 after four rounds of fixes to the old one had not settled it.\nThis is only the binding to the registry, and it keeps the old NAME\nbecause the theme's ``#Sidebar`` rules, the tutorial highlighter, the\nhome-variant generators and the tests all reach the dock by it.\n\nWhat used to be here was 1,095 lines of ``_DockRow`` and ``Sidebar``:\na translucent slab painted in ``paintEvent`` (the \"black box\" four\ncommits chased), a per-row icon-size model that relaid the column out\nunder the pointer, a name drawn only while hovered, and a folded second\nlevel with its own expand state. See the module docstring of\n:mod:`spacr.qt.widgets.dock` for what replaced each one.\n\n:param parent: parent widget; ownership only.\nBuild the dock with Home above the registered module rows.\n\n:param parent: parent widget, or ``None``."
     },
+    "spacr.qt.app._collect_paint_diagnostics.failed": {
+      "source_blocks_sha256": [
+        "c7bb7f63566c14e88af63866b2d2697a7bd790e4d6607adc14dbe6353082feb2"
+      ],
+      "source_sha256": "c7bb7f63566c14e88af63866b2d2697a7bd790e4d6607adc14dbe6353082feb2",
+      "text": "Log the exception being handled and name it in ``errors``."
+    },
+    "spacr.qt.app._declared_folds._as_string": {
+      "source_blocks_sha256": [
+        "b85a795f6b697a50bc7619c03548f3966515603b29b4a1151ce0f2971adb30fd",
+        "a6995f0d1dd0c4bf4c9ffdbb0645a6e940a4f0ee87e5435615702da621274a89"
+      ],
+      "source_sha256": "0ede4d372c00029d5d2205c6ff52ddf561240e15e9e7178e7f51edcfe999e4cf",
+      "text": "The string an AST node stands for, or ``None`` if it is not one.\n\nResolves a literal, a module constant, and another module's constant\nread the same way rather than by importing it. ``_depth`` bounds\nthat indirection so a constant defined in terms of itself stops\ninstead of recursing."
+    },
+    "spacr.qt.app._import_the_data_libraries_off_the_gui_thread._work": {
+      "source_blocks_sha256": [
+        "2fc77169e3c2610ce99b92be1eb3970fc889dc42fba302f66b8b9838c0d7b471"
+      ],
+      "source_sha256": "2fc77169e3c2610ce99b92be1eb3970fc889dc42fba302f66b8b9838c0d7b471",
+      "text": "Import each library, logging rather than raising a failure."
+    },
+    "spacr.qt.app._start_icon_prewarm.warm": {
+      "source_blocks_sha256": [
+        "00d64ec5644d36e95175ab602af27a34d63354b5eeb797713565945f5a070c97"
+      ],
+      "source_sha256": "00d64ec5644d36e95175ab602af27a34d63354b5eeb797713565945f5a070c97",
+      "text": "Fill the icon caches, and never let a bad file reach the GUI."
+    },
+    "spacr.qt.app._start_settings_prewarm._warm_the_settings_imports": {
+      "source_blocks_sha256": [
+        "6842af94ca4a66580c24e1a7677107201dd104693d2e210a9ca4a2f6cab3340a"
+      ],
+      "source_sha256": "6842af94ca4a66580c24e1a7677107201dd104693d2e210a9ca4a2f6cab3340a",
+      "text": "Import each module, logging rather than raising a failure."
+    },
+    "spacr.qt.app._start_settings_prewarm.warm": {
+      "source_blocks_sha256": [
+        "e1cf1b3ee1b574213814cec149924a73831856ea7a17674948b4c59713d79a62"
+      ],
+      "source_sha256": "e1cf1b3ee1b574213814cec149924a73831856ea7a17674948b4c59713d79a62",
+      "text": "Import the remaining settings dependencies without building widgets."
+    },
     "spacr.qt.app.app_is_visible": {
       "source_blocks_sha256": [
         "7ab2e09dbf84e069029f814bf7f4e3fd80cad5f6b4264b96a824d761a6f77081",
@@ -42391,6 +42709,14 @@
       ],
       "source_sha256": "5f0966b985ea49143b3b08e76ad1c9a80644508a1dd10f60c66b1c4d13f72865",
       "text": "Bootstrap QApplication and show the main window."
+    },
+    "spacr.qt.app.launch._drain_ai": {
+      "source_blocks_sha256": [
+        "98f6773a017a1b61d80df106e9149c5d0987f98c539a45d6d7e88c78bcca06ca",
+        "d81bd158dd85ee7bd7a411ff28b1efcb74ff035a8ecede5535783884ad615e01"
+      ],
+      "source_sha256": "9f35ccde97ec59e54ebc65afb4cd6433e1950c96fae8b7c23e0fbf5c650750d0",
+      "text": "Stop every job runner before Qt starts destroying widgets.\n\nConnected to ``aboutToQuit``, which fires however the application\nexits. See the comment below for why this covers every runner and\nnot only the consoles."
     },
     "spacr.qt.app.make_home_page": {
       "source_blocks_sha256": [
@@ -56100,6 +56426,61 @@
       "source_sha256": "5e7f36db79c122bb8840cbd3c84a18168273d9e5025aec9784cc2583e74c361e",
       "text": "Main Qt widget for the annotate app.\n\n:param parent: parent widget.\nBuild the annotation grid, its controls and its shortcuts.\n\n:param parent: parent widget."
     },
+    "spacr.qt.screens.annotate.AnnotateScreen._build_ui._append_error_and_offer_the_report": {
+      "source_blocks_sha256": [
+        "19569a10d3bf63711a8ccdab2f98f6a114b87b45074770aab5378fcb6b9fabf1",
+        "f71fe71bdb29537b0e769b0a1f2ff6c28880ad88084c22d80a077f6d8386f0aa"
+      ],
+      "source_sha256": "23a68cd37f5eb8c21176092606a8d0429ca68bc5928707ab498888fd3db6505e",
+      "text": "Show the error as before, then offer to file it.\n\nWRAPS rather than replaces, so the original behaviour is unchanged even\nif the offer fails -- an error message must still appear when the thing\nthat would report it is broken."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen._choose_the_test_data._next": {
+      "source_blocks_sha256": [
+        "16a6030028f40438bf863fec491ce151491903b124b90fada685c8bfc810ce66"
+      ],
+      "source_sha256": "16a6030028f40438bf863fec491ce151491903b124b90fada685c8bfc810ce66",
+      "text": "Start the next missing half, or open the plate after the last."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen._choose_the_test_data._restore": {
+      "source_blocks_sha256": [
+        "3267a9c101f36bbd77d82ecd485218ad0b023ab44e1e739f42ac0909ded2fdcf"
+      ],
+      "source_sha256": "3267a9c101f36bbd77d82ecd485218ad0b023ab44e1e739f42ac0909ded2fdcf",
+      "text": "Give the button back, whether the download worked or not."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen._end_blind.ask": {
+      "source_blocks_sha256": [
+        "ed5d58c902dc441373077e70a2580f206e175179a8ff92af21b6d7899a3f0d2a"
+      ],
+      "source_sha256": "ed5d58c902dc441373077e70a2580f206e175179a8ff92af21b6d7899a3f0d2a",
+      "text": "Confirm revealing crop origins and recording the unblind event."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen._follow_path_probes.landed": {
+      "source_blocks_sha256": [
+        "f40c16f5295a33b3fda9339a553519bb8a73f1581a10f9b9dac0e7ee0fcc5348",
+        "2079197a49dd45cd0256c2472d0d641422868380c01501db236be4ee4380008f",
+        "1378a0baed769c8ab364f514e520750b1fbf2d5861fba0ab3bf45e525a693f03",
+        "493b759a641f27a0abfaa2570f0a2f05ec5984282b59be9520b94f3055c6a7fa"
+      ],
+      "source_sha256": "e7833e00e3e1116dd203ae47b04d09fbe68636ae1528953fe983b2ad5bae3340",
+      "text": "Re-run the suggestion when the probe answers about its path.\n\n:param path: the path whose answer just changed. Every probe in\n    the process arrives here, so anything but this screen's own\n    remembered source is ignored.\n:param answer: what the probe now says. Only True is acted on --\n    a folder that is gone leaves the placeholder standing.\n:returns: nothing; the subtitle is the output."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen._follow_path_probes.let_go": {
+      "source_blocks_sha256": [
+        "d1bda9f77a5412e70b29e6d0bac63b44181698e4671b0511e36bd8b42b8ff06e",
+        "652b8bbbf98ca4461eb2525f86ae98068f7aae9860683876a8cec4ab85e500c0",
+        "3c28ee3f008d1eecb6d2cd5f16b5618c25d00e07b8ceecd4df3ba7dad4a46710"
+      ],
+      "source_sha256": "0340de51432e94456cc3b8ddd7009740d775be450d30340a64686a49b3d81065",
+      "text": "Withdraw this screen from the process-wide probe signal.\n\n:param _args: whatever the caller passes. ``destroyed`` carries\n    the dying QObject and ``closeEvent`` passes nothing, and this\n    reads neither.\n:returns: nothing. Safe to call twice: the second call is a\n    no-op rather than a disconnect of an absent slot."
+    },
+    "spacr.qt.screens.annotate.AnnotateScreen._on_file_issue._send": {
+      "source_blocks_sha256": [
+        "6fb94a8505c47703243e6b09154a89e2f45e84aa3429b0a717ed8406b1024c47"
+      ],
+      "source_sha256": "6fb94a8505c47703243e6b09154a89e2f45e84aa3429b0a717ed8406b1024c47",
+      "text": "Post the approved report. Off the GUI thread; never raises."
+    },
     "spacr.qt.screens.annotate.AnnotateScreen.active_jobs": {
       "source_blocks_sha256": [
         "f92200e5acf28321b16616e0c15e8d25168a6dccf40f976a8e36abb972709b77"
@@ -56212,6 +56593,34 @@
       "source_sha256": "b32163b95b6329d0893a11e0022f0e962ba12187ec57525ce871310fe0ffec1f",
       "text": "Re-render the captions this screen composes from live state."
     },
+    "spacr.qt.screens.annotate._SettingsDialog._load_the_example_data._done": {
+      "source_blocks_sha256": [
+        "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256"
+      ],
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "text": "Restore the button whether the load worked or failed."
+    },
+    "spacr.qt.screens.annotate._SettingsDialog._load_the_streaming_example._done": {
+      "source_blocks_sha256": [
+        "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256"
+      ],
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "text": "Restore the button whether the load worked or failed."
+    },
+    "spacr.qt.screens.annotate._blind_order.position": {
+      "source_blocks_sha256": [
+        "a6204fea7f355b60a4dfee3723d76674de4e3ea9df868fc07c0186a7a174061b"
+      ],
+      "source_sha256": "a6204fea7f355b60a4dfee3723d76674de4e3ea9df868fc07c0186a7a174061b",
+      "text": "Order known crops by the blind key and unseen crops by path hash."
+    },
+    "spacr.qt.screens.annotate._blind_scrub.token": {
+      "source_blocks_sha256": [
+        "a5c54c0bfbefb4c20e799eb5a42d85042152249cd5bfc830356ac6f25a8fd831"
+      ],
+      "source_sha256": "a5c54c0bfbefb4c20e799eb5a42d85042152249cd5bfc830356ac6f25a8fd831",
+      "text": "One token's stand-in, keeping trailing punctuation outside it."
+    },
     "spacr.qt.screens.annotate.badge_colors": {
       "source_blocks_sha256": [
         "d02a905e93a98f5bd4c6dd39bb06a520a75083b66caf6e4fea42f458dbd3e3eb",
@@ -56311,6 +56720,70 @@
       ],
       "source_sha256": "d5666b8936dda4b17eb16502327f6edc3c8b3492e79b05a72268e8d55f07b633",
       "text": "Generic settings + runtime screen used by every non-interactive app.\n\nComposes the settings model on the left with the console, usage bars,\nfigures card, and actions row on the right.\n\n:param app_key: id of the app (see ``APPS`` in ``spacr.qt.app``).\n:param parent: parent widget; ownership only.\n:ivar error_explain_requested: emitted with ``(traceback, app_key)``\n    when the user clicks \"Explain error\"; MainWindow routes it to\n    the AI Console for backward compatibility.\nBuild one module page: the settings column beside the runtime panel.\n\nOrdering matters throughout and is the reason for the length. The live\npreview watches ``src`` and can only be wired once both panels exist,\nbecause the settings panel owns the field and the runtime panel owns the\npreview. The category hints have the same constraint in reverse. The\npage-surface sweep runs on every route, not only where a backdrop was\ninstalled: with the ambient preference off, skipping it left every\nlayout container carrying the blanket window fill, which is what made\nthe settings half a solid slab.\n\n:param app_key: which module this page is; it selects the title, the\n    blurb, the settings schema, the drop handler and the backdrop.\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._analysis_lock_dialog._lock": {
+      "source_blocks_sha256": [
+        "2a003e828bfc2a84d103cdd9e9286c2cd70094bdfb0d34e1e5bf7500ca3f81c1"
+      ],
+      "source_sha256": "2a003e828bfc2a84d103cdd9e9286c2cd70094bdfb0d34e1e5bf7500ca3f81c1",
+      "text": "Persist the displayed analysis plan and show its immutable identity."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._confirm_ram_guard.plan_for": {
+      "source_blocks_sha256": [
+        "9e4ae838814e8d87ec904a50fcf980422f3dd8bd6a8a79b28762f687789ba4c0"
+      ],
+      "source_sha256": "9e4ae838814e8d87ec904a50fcf980422f3dd8bd6a8a79b28762f687789ba4c0",
+      "text": "This module's estimate for ``n_jobs`` workers."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._on_file_issue._file": {
+      "source_blocks_sha256": [
+        "1215041f6047d4f40f4decfdab545df2b35d427f0eb8dbca505299142bf226c1",
+        "b455747238aa2366093d2e3360f1ac0a592b3c6d1aa97576001668f02957ae1c"
+      ],
+      "source_sha256": "de14bf02be71be48a92625620577b34d79e2ac6156277b0ccfe3c473fdbebb42",
+      "text": "Submit the report, returning the failure AS DATA rather than raising.\n\nThe call is asynchronous, so an ``except`` around the caller can no\nlonger see it -- and a report that silently fails to send is worse than\none that fails loudly."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._post_the_report._file": {
+      "source_blocks_sha256": [
+        "cbf2da6e9535c46b7b441cd87e69d5cc355985fb4c581f3d52038a682c3f2a3f"
+      ],
+      "source_sha256": "cbf2da6e9535c46b7b441cd87e69d5cc355985fb4c581f3d52038a682c3f2a3f",
+      "text": "Build, redact and post the report. Off the GUI thread."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._refresh_model_explainer.value": {
+      "source_blocks_sha256": [
+        "05920bc9d1edcc29898b4ace898ca56cb944ac84fd6997cc1f3cec2bcab6567e"
+      ],
+      "source_sha256": "05920bc9d1edcc29898b4ace898ca56cb944ac84fd6997cc1f3cec2bcab6567e",
+      "text": "One widget's value, or the fallback when there is no such widget."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._remember_runtime_splitter._save": {
+      "source_blocks_sha256": [
+        "dcab0dd0ea8644cd37e18269f29f01bcf044db0205ec04b651dc971750bf7182"
+      ],
+      "source_sha256": "dcab0dd0ea8644cd37e18269f29f01bcf044db0205ec04b651dc971750bf7182",
+      "text": "Store this splitter's layout under its key."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._section_holds_anything.already_built_rows": {
+      "source_blocks_sha256": [
+        "cbd07648b023b13b806545ab0a6bc0e3360b26941b73b09a2a3aad165b988697"
+      ],
+      "source_sha256": "cbd07648b023b13b806545ab0a6bc0e3360b26941b73b09a2a3aad165b988697",
+      "text": "Iterate registered rows without forcing deferred captions."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._section_holds_anything.holds_an_active_slot": {
+      "source_blocks_sha256": [
+        "5d56c3d1bdf047ad304329d962da73db4759784dada4c824759ce48be8fa4b6a"
+      ],
+      "source_sha256": "5d56c3d1bdf047ad304329d962da73db4759784dada4c824759ce48be8fa4b6a",
+      "text": "Whether deferred rows belong to a count-requested organelle."
+    },
+    "spacr.qt.screens.app_screen.AppScreen._with_the_controls.swap": {
+      "source_blocks_sha256": [
+        "88c7bd989089dd0c16f0daccd69164402c0d595dba6b735d5eb34fde3f7db572"
+      ],
+      "source_sha256": "88c7bd989089dd0c16f0daccd69164402c0d595dba6b735d5eb34fde3f7db572",
+      "text": "``node`` rebuilt with its stand-ins replaced by controls."
     },
     "spacr.qt.screens.app_screen.AppScreen.active_jobs": {
       "source_blocks_sha256": [
@@ -56511,6 +56984,13 @@
       "source_sha256": "3962e7234cf4456e814805d652d529fe26638b803d00282cfc8bfbff2e0f8115",
       "text": "Download the annotation example and fill this module's settings in.\n\n:param ask: optional download function used in place of\n    :func:`spacr.qt.hf_download.download_annotate_example`.\n:returns: the settings that were applied, or an empty mapping."
     },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_annotate_example._done": {
+      "source_blocks_sha256": [
+        "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256"
+      ],
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "text": "Restore the button whether the load worked or failed."
+    },
     "spacr.qt.screens.app_screen.AppScreen.load_the_example_images": {
       "source_blocks_sha256": [
         "0ce003e6d773c0705fd2b6ba41a33c154fc134078bef5d5349005e33c4a0b15b",
@@ -56519,6 +56999,20 @@
       ],
       "source_sha256": "d0534e009d1e6527bd549ec8f135da38af2c9f75b69ede156a6188abd94c1971",
       "text": "Download the example plate and populate the ``src`` setting.\n\n:param ask: Optional download function used in place of\n    :func:`spacr.qt.hf_download.download_toxo_mito_demo`.\n:returns: A mapping containing the selected source directory and the\n    downloaded settings path. Returns an empty mapping if the\n    download fails or has not completed."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_example_images.ask": {
+      "source_blocks_sha256": [
+        "1e359ee8c69c282dab910c0259455f2f8b583c64cd2ce74eadf7cccc4100ac18"
+      ],
+      "source_sha256": "1e359ee8c69c282dab910c0259455f2f8b583c64cd2ce74eadf7cccc4100ac18",
+      "text": "Start the demo download with the tar-aware worker."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_example_images.done": {
+      "source_blocks_sha256": [
+        "d0fe7907f547d134ee3a38ba59066d84e4e4aa4f678cb1e5144727ed41090d00"
+      ],
+      "source_sha256": "d0fe7907f547d134ee3a38ba59066d84e4e4aa4f678cb1e5144727ed41090d00",
+      "text": "Re-enable the button whether the download worked or failed."
     },
     "spacr.qt.screens.app_screen.AppScreen.load_the_example_screen": {
       "source_blocks_sha256": [
@@ -56538,6 +57032,13 @@
       "source_sha256": "1145f27d0e102967f7c1378cb827de1c26a2b0441c489aa58d896f2612c6a770",
       "text": "Download Measure's example plate and point ``src`` at it.\n\n:param ask: optional download function used in place of\n    :func:`spacr.qt.hf_download.download_measure_example`.\n:returns: a mapping with the source directory, or empty when the\n    download failed or was cancelled."
     },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_measure_example._done": {
+      "source_blocks_sha256": [
+        "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256"
+      ],
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "text": "Restore the button whether the load worked or failed."
+    },
     "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example": {
       "source_blocks_sha256": [
         "d1faefdfb9001b443829b7bc97fc69078a5a7afe8b985e3050052cff8ed766b1",
@@ -56547,6 +57048,20 @@
       ],
       "source_sha256": "192f8323c132c564d9e94530195406bf73c7637a20641d298423196e14a9c81d",
       "text": "Fill the OPS settings with the test data, fetching it when needed.\n\n:param ask: replaces the downloader, for tests.\n:param folder: replaces the cache folder, for tests.\n:returns: the settings that were applied; empty while a download is\n    still running or after a failure."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example.report": {
+      "source_blocks_sha256": [
+        "13f386029c9d8bfba8b4f8793f22093ed3e008865efef26426773876ce6ced0b"
+      ],
+      "source_sha256": "13f386029c9d8bfba8b4f8793f22093ed3e008865efef26426773876ce6ced0b",
+      "text": "Put progress and failures in the console."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_ops_example.use": {
+      "source_blocks_sha256": [
+        "7af95f25e7a5907e92de4a7630ce1350a212b5fd11ac500dc3c7aebd04002ef4"
+      ],
+      "source_sha256": "7af95f25e7a5907e92de4a7630ce1350a212b5fd11ac500dc3c7aebd04002ef4",
+      "text": "Apply the sample's settings and say so in the console."
     },
     "spacr.qt.screens.app_screen.AppScreen.load_the_screen_data": {
       "source_blocks_sha256": [
@@ -56558,6 +57073,13 @@
       ],
       "source_sha256": "2e07367c1cb2f8faad28d56974e94d2898c288914615ed7f2522db47f9a65895",
       "text": "Ask which pieces of the screen to fetch, then fetch them.\n\n:param kind: ``\"measurements\"`` or ``\"crops\"``, so the Feature and\n    Image-crops buttons each show only their own. Filtered rather than\n    greyed: a Feature download listing eight rows and refusing four of\n    them would be four chances to start a 30 GB transfer by mistake.\n:param choose: replaces the picker, for tests.\n:param ask: replaces the downloader, for tests.\n:returns: what was set on the panel, or an empty mapping."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.load_the_screen_data._done": {
+      "source_blocks_sha256": [
+        "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256"
+      ],
+      "source_sha256": "d93d6177a0e48ffce4335e881f2803022748c42fd8c38ef2929a0eeced7b1256",
+      "text": "Restore the button whether the load worked or failed."
     },
     "spacr.qt.screens.app_screen.AppScreen.load_the_sequencing_example": {
       "source_blocks_sha256": [
@@ -56640,6 +57162,21 @@
       ],
       "source_sha256": "98da2d8ddcb7b507686dfd52ce5b5943898b1ae9e9239bab329fbb12976606ef",
       "text": "Re-root every absolute path in ``loaded`` onto ``destination``.\n\nA shipped example settings file records the paths of the machine\nthat GENERATED it, which on any other machine names a user that does\nnot exist::\n\n    gen_masks_settings.csv    src,/home/carruthers/datasets/plate1\n    crop_measure_settings.csv src,/home/carruthers/datasets/plate1/merged\n\nBoth lines matter. The first is why the path is wrong; the second is\nwhy substituting the destination outright is not the fix -- the Measure\nset points at a SUBFOLDER, and collapsing it to the plate root would\nquietly measure the wrong directory rather than fail.\n\nLISTS AND TUPLES ARE NOT A CORNER CASE. Classify's ``src`` is\nlist-valued and regression's ``count_data``, ``score_data`` and\n``paired_data`` are too, and ``utils.load_settings`` turns any CSV cell\nstarting with ``[``, ``(`` or ``{`` into a real Python container. An\nearlier version of this method tested ``isinstance(value, str)`` and\nskipped everything else, which skipped exactly the two modules whose\nloaders never write a local path as a fallback -- so for those the\npublisher's path was the panel's only source of truth. Containers are\nwalked.\n\nMost of the per-path work is not new. :func:`spacr.portable_paths.reroot_crop_path`\nalready picks the deepest recorded suffix that EXISTS below the current\nroot, so a rewrite is only made when the reconstructed path is really\nthere; it is tried first and its answer preferred. What it cannot do is\nthe root itself -- its resolution needs a suffix to match, and ``src``\npointing at the plate folder has none, which is the reported case. That\none gap is filled by matching the destination's own folder name.\n\nA path that already resolves on this machine is left ALONE: a user who\nimported an example, edited ``src`` to their own data and saved would\notherwise have that edit undone by the next example load.\n\n:param loaded: the settings as read from the shipped file.\n:param destination: the local folder the example actually unpacked to.\n:returns: a new mapping; the input is not modified."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome": {
+      "source_blocks_sha256": [
+        "b4f2027cf293178c1d294bb3d6dcb36a14f33d2481d3251464ceb656adf8f25b",
+        "1ec6de1dc7e4a1b274c383e587a2560daaa1a0b4cf98da0f529fa73040a5f345"
+      ],
+      "source_sha256": "a91d8b2d1e098ec139a19c8bfdad9a9397a32d43ee70f5831af7b65357fdf692",
+      "text": "Repoint every path in a value, whatever shape it is.\n\nRecurses through lists and tuples: a settings value may be one path or a\nlist of them, and rehoming only the string case leaves the list pointing\nat a folder that is not there."
+    },
+    "spacr.qt.screens.app_screen.AppScreen.reanchor_example_paths.rehome_text": {
+      "source_blocks_sha256": [
+        "4494b90644523d7f0a5d13f6dfd0c1ad035ff254b36eb9cd37f6398f3e103246"
+      ],
+      "source_sha256": "4494b90644523d7f0a5d13f6dfd0c1ad035ff254b36eb9cd37f6398f3e103246",
+      "text": "Repoint one path string at the folder the example now lives in."
     },
     "spacr.qt.screens.app_screen.AppScreen.refresh_ambient_background": {
       "source_blocks_sha256": [
@@ -56883,6 +57420,14 @@
       ],
       "source_sha256": "e8195ec4490dd1b12e8ec9f7fb72a0953e3e3398cae989379c859075f949251e",
       "text": "Build a :class:`QListWidgetItem` with a thumbnail render of ``fig``.\n\nUsed in the figures panel's history strip. ``target`` is the widget the\nstrip is on; the render is sized for that screen's pixel density, and\nfalls back to the primary screen when no widget is given.\n\n:param fig: the Matplotlib figure to render as a PNG thumbnail; a render\n    failure leaves the item without an icon.\n:param idx: zero-based position in the history; the item's text is\n    ``#<idx + 1>``."
+    },
+    "spacr.qt.screens.app_screen._fit_to_lines.wrapped_lines": {
+      "source_blocks_sha256": [
+        "24e1cdb52877e466cbd61888c83b00ba490caab1dcb542a22ec111e9488b5f1c",
+        "fb5876c773669c2894cc3f04ebdf8843e3c61f48e58b048396b3a5f8d4d990a0"
+      ],
+      "source_sha256": "de9c74a593db19b7fca1a120def5a4f09f45bd4aaaa012174e6890409a453919",
+      "text": "How many lines ``candidate`` wraps to at the measured width.\n\nMeasured against the font Qt is actually painting, so it stays right at\nany font scale rather than at the one this was written on."
     },
     "spacr.qt.screens.app_screen.dimension_settings": {
       "source_blocks_sha256": [
@@ -64835,6 +65380,180 @@
       "source_sha256": "5242d4022daf38fb8299a6a6dafa5027490b267e1280ddef651c7edee230448b",
       "text": "Interactive regression parameter sweeps.\n\nThe screen runs a regression under multiple defensible settings combinations\nand compares the resulting hits and control ranks. Each trial writes to its\nown folder, and the results table is updated as trials finish so interrupted\nsweeps can be resumed.\n\nWorker recommendations account for available memory and trials run at low\nCPU and I/O priority. On systems that support ``systemd-run --user``, each\ntrial also receives kernel-enforced resource limits. The Containment row\nstates whether those limits are active; memory-based scheduling alone cannot\nguarantee containment."
     },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__": {
+      "source_blocks_sha256": [
+        "f9c2a21829547c89c9991d4d55215ce2f5fdbc76a3e63c0305b6d7ee17e10697",
+        "6798b0203fabf809156e5346d80c632e9364b301996e2915006db39e634dd4b9"
+      ],
+      "source_sha256": "3a6d684edf857541cae39395df1a344a2318a1f0d87d4042b4764d85adeadc18",
+      "text": "Stand in for the panel without building it.\n\n:param host: the ``AppScreen`` the real panel is built for."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.apply_settings": {
+      "source_blocks_sha256": [
+        "31457cccd334b350f6b9e4041ebbd6236dfac88828a88ba21662f0998596c9ba"
+      ],
+      "source_sha256": "31457cccd334b350f6b9e4041ebbd6236dfac88828a88ba21662f0998596c9ba",
+      "text": "Seed the real panel when the user opens the sweep card."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.built": {
+      "source_blocks_sha256": [
+        "2190c71ea7934a12f9ec1d2d0fdae56021cf3415974f319d993f33b1dfe513c9"
+      ],
+      "source_sha256": "2190c71ea7934a12f9ec1d2d0fdae56021cf3415974f319d993f33b1dfe513c9",
+      "text": "Whether the real panel exists yet. For tests and diagnostics."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.count_data": {
+      "source_blocks_sha256": [
+        "2b49f7582852e921caab405053ec9bd791ff3b4f5e190e01abd21342cc6ff0cd"
+      ],
+      "source_sha256": "2b49f7582852e921caab405053ec9bd791ff3b4f5e190e01abd21342cc6ff0cd",
+      "text": "The real panel's count-file list, built on first use."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.destination": {
+      "source_blocks_sha256": [
+        "4c3abf5a757a8e634d409b150a66ecccd6bfab811d1d8e700496a31b5dcddd7d"
+      ],
+      "source_sha256": "4c3abf5a757a8e634d409b150a66ecccd6bfab811d1d8e700496a31b5dcddd7d",
+      "text": "The real panel's output-folder editor, built on first use."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.panel": {
+      "source_blocks_sha256": [
+        "38943e50b8d9e8670d1b12a403f02333552165c22486f7082ca9cb85f603ff91"
+      ],
+      "source_sha256": "38943e50b8d9e8670d1b12a403f02333552165c22486f7082ca9cb85f603ff91",
+      "text": "The real panel, built on the first ask."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.score_data": {
+      "source_blocks_sha256": [
+        "3cd7ff21e5efb43aab87c4d020f184e8fd379796fa565a2bb41392602a0522a6"
+      ],
+      "source_sha256": "3cd7ff21e5efb43aab87c4d020f184e8fd379796fa565a2bb41392602a0522a6",
+      "text": "The real panel's score-file list, built on first use."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.showEvent": {
+      "source_blocks_sha256": [
+        "ca6eab5788858e032c790962af3daadf753033fea2db30a80cb19a8dea50d0f1",
+        "08771361e72d3f2bfd40c047879bbfb263d6b2b1a1dc17edb4536214611cf87d"
+      ],
+      "source_sha256": "d9e06fe17406cb5b385edb6cbc3166861a801971cf909c8f517dbe32af5c265e",
+      "text": "Build the real panel the first time the screen is shown.\n\nThat is the whole point of the placeholder: the sweep panel is expensive\nand a user who never opens this screen never pays for it."
+    },
+    "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.space": {
+      "source_blocks_sha256": [
+        "9fcbb39dd63c9cfa32a82b2acb405549b8204437f72dfda1c19592a00f776d26"
+      ],
+      "source_sha256": "9fcbb39dd63c9cfa32a82b2acb405549b8204437f72dfda1c19592a00f776d26",
+      "text": "The real panel's sweep-space model, built on first use."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.__init__": {
+      "source_blocks_sha256": [
+        "3f6bb94c47a33e356c5b2a79d45f9ddd7979bdd80c6c3903de14c6c4731dca6c"
+      ],
+      "source_sha256": "3f6bb94c47a33e356c5b2a79d45f9ddd7979bdd80c6c3903de14c6c4731dca6c",
+      "text": "Build the sweep screen. ``host`` is the window, not a Qt parent."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated": {
+      "source_blocks_sha256": [
+        "b29ae36424b831be2c4c465ffb368559dd31f6c509011eefa9dd035e4661342b",
+        "1927b1a5916282c61019aa450b7ac9ed7bc008665fac614b0ca22288e91085a5"
+      ],
+      "source_sha256": "f84ab5f7b7710dbb7ff948a769cad075385406834a02d3507ce123feaedfd0ec",
+      "text": "Re-run the selected trial and show its figures, editable.\n\nOff the GUI thread: this is a full regression, not a lookup. The\nrow keeps its own settings, so what comes back is that trial and\nnot a fresh one built from whatever the controls happen to say\nnow -- which is the point of being able to compare conditions."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._on_row_activated.job": {
+      "source_blocks_sha256": [
+        "135634b5dec75b5c8fbcfa49965957f4c8ef8ea81f6bedbdc93b64b872aa4290"
+      ],
+      "source_sha256": "135634b5dec75b5c8fbcfa49965957f4c8ef8ea81f6bedbdc93b64b872aa4290",
+      "text": "Re-run one trial from the table. Called on a worker thread."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._set_worker_note": {
+      "source_blocks_sha256": [
+        "23e113e4c2f44172de11fe0097d29cb854ac6cae16caf4a406990770d94039c0"
+      ],
+      "source_sha256": "23e113e4c2f44172de11fe0097d29cb854ac6cae16caf4a406990770d94039c0",
+      "text": "Show the worker calculation through translatable templates."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._show": {
+      "source_blocks_sha256": [
+        "4a139f33bd56ecfb22ca77d73da23a2576fcfde2a196dadbbdb00c36a9fc2b0b",
+        "9c8cb6c8332077a881ac9cda988e0ad0f39b02282da60ea6db77df966026dad7"
+      ],
+      "source_sha256": "72b42b2f7f67628277d2090784799de99e4a6bdd595674fd8e5586cc62d4eb6b",
+      "text": "Put the results in the table, useful columns first.\n\nA VIEW AND NOT A FILTER: every column is still in the CSV. The order is\nsettings, then what went in, then what came out -- a hit count means\nlittle without the size of the design it came from, and two trials\ndiffering only by a filtration cutoff can fit completely different data."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._sweep_finished": {
+      "source_blocks_sha256": [
+        "5a24b0480934e0381603247f51f2ffb9e9a93c3585b44bc8067f7d0e5427c7c1"
+      ],
+      "source_sha256": "5a24b0480934e0381603247f51f2ffb9e9a93c3585b44bc8067f7d0e5427c7c1",
+      "text": "Show the results and give the controls back."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen._trial_figures_ready": {
+      "source_blocks_sha256": [
+        "221b81910230d03d3925aa428b382bebb6ef78323522e09b75664f0ee9fac25d"
+      ],
+      "source_sha256": "221b81910230d03d3925aa428b382bebb6ef78323522e09b75664f0ee9fac25d",
+      "text": "Put a re-run trial's figures on screen. On the GUI thread."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.apply_settings": {
+      "source_blocks_sha256": [
+        "a87fe6fed6baa45283c0a8fbf40380dcc0cd7df06550eebe58d9bcf84b04fc44",
+        "c112baee75a14f01bd525e258e072969742ac3fcb6a6aa5b9e7600685252467d"
+      ],
+      "source_sha256": "e6c0190bf39bddc7a55f23101b73f1ba114ea487cf9dfd71e0b7a5661d643463",
+      "text": "Seed the sweep from the module's settings panel.\n\nOpening the sweep should not mean retyping the inputs that are\nalready on screen. The score/count CSVs, the response column and\nthe output folder come straight across; every swept axis is\nadditionally PINNED to the value the user currently has, so an\nunticked axis reproduces their run rather than a default."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.base_settings": {
+      "source_blocks_sha256": [
+        "68ce20bdeda113c58901e0b68ff9b090a4e5857224e7f32691d07a2ae3762c20"
+      ],
+      "source_sha256": "68ce20bdeda113c58901e0b68ff9b090a4e5857224e7f32691d07a2ae3762c20",
+      "text": "The settings every trial in the sweep starts from."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.estimate": {
+      "source_blocks_sha256": [
+        "b746d91a6d26335d4cb2c37c7c6fd49b0da169d98fc219f1221ae1d8bb05ab8b"
+      ],
+      "source_sha256": "b746d91a6d26335d4cb2c37c7c6fd49b0da169d98fc219f1221ae1d8bb05ab8b",
+      "text": "Say how many trials the current space would run, without running them."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.load_results": {
+      "source_blocks_sha256": [
+        "34bae3d36d47bb80bde59a372f5f9b4d75ab768eaced014b2c599be28b26d658"
+      ],
+      "source_sha256": "34bae3d36d47bb80bde59a372f5f9b4d75ab768eaced014b2c599be28b26d658",
+      "text": "Read the table from disk, so a running sweep can be watched."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space": {
+      "source_blocks_sha256": [
+        "12148522a32fa0e9c4da4b10f8e169ffcdb087403320acdbfe998e0d76291da5",
+        "143636c2d561482ad5806ddcbb58c1a261c8910b8888e6760fe6780f783b347e"
+      ],
+      "source_sha256": "e65fc4fb830ffd709f7f69e6d8402da390b797a10bd36968f4382c860d9ff082",
+      "text": "Build the sweep space from the ticked axes.\n\nAn unticked axis is not dropped -- it is PINNED to its first\nvalue and applied to every trial, so the settings a sweep ran\nunder are always fully recorded rather than left to defaults that\nmight change."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.space.parse": {
+      "source_blocks_sha256": [
+        "0d5ae8115db5908a31f6f715ff6548aa7dcabf5540ed3f5f78c5ac5c37438dd5"
+      ],
+      "source_sha256": "0d5ae8115db5908a31f6f715ff6548aa7dcabf5540ed3f5f78c5ac5c37438dd5",
+      "text": "Read one comma-separated field as a list of values."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.start": {
+      "source_blocks_sha256": [
+        "b3f73b729ce8a157746eb0283c45fd5fbd56167d8226a3e4afbc3b3a8e406dee"
+      ],
+      "source_sha256": "b3f73b729ce8a157746eb0283c45fd5fbd56167d8226a3e4afbc3b3a8e406dee",
+      "text": "Refuse an incomplete design, else run the sweep off the GUI thread."
+    },
+    "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.start.job": {
+      "source_blocks_sha256": [
+        "a22e3774aa6aa8c64d64e6997affaebfb56d44f22bc3856dab1b11fee1ad10ec"
+      ],
+      "source_sha256": "a22e3774aa6aa8c64d64e6997affaebfb56d44f22bc3856dab1b11fee1ad10ec",
+      "text": "Run the whole sweep. Called on a worker thread."
+    },
     "spacr.qt.screens.parameter_sweep.build_parameter_sweep_card": {
       "source_blocks_sha256": [
         "2aa02a349089d1c64373bd71d13d106ea0fce389da9eb86c0fcab917ec785f2c",
@@ -71520,6 +72239,20 @@
       "source_sha256": "1879f4925170b91878151d99e837e568b0857a100d2172ff1761cec2568deec8",
       "text": "What the application actually did, and when, with nothing inferred.\n\nSwitched on with ``SPACR_TIMING=1``. Off, every function here is a few\nattribute lookups and nothing is imported, allocated or written.\n\nWHY THIS EXISTS. Every measurement of spaCR's start-up so far was taken in\na script that imitated the application -- built a MainWindow, called a\nmethod, timed it -- and each one answered a question next to the one being\nasked. A script cannot see the preloader thread competing with a click, a\nstylesheet reapplied four times, or a lazy import that fires the first time\na user opens a panel. This records the real process.\n\nFOUR THINGS ARE RECORDED, all with real wall-clock times:\n\n* SPANS -- named, nested regions of work. ``with span(\"build mask\"):``\n* IMPORTS -- every module import over a threshold, with the importing frame,\n  through a `sys.meta_path` finder rather than by patching ``__import__``.\n* GUI STALLS -- a timer that should fire every 16 ms, recording every time\n  it is late. This is the only honest measure of \"the app froze\": it is the\n  event loop reporting on itself.\n* MARKS -- instants worth a line, like \"window shown\".\n\nThe report is a TIMELINE, not a profile. A profile says which function used\nthe CPU; this says what the user was waiting for and for how long, which is\na different question and the one being asked."
     },
+    "spacr.qt.timing._install_import_timer._timed": {
+      "source_blocks_sha256": [
+        "5d3b44c7abe04dbb39500ed0c2eb380a61939894ca690d9b0f624f38a9239e0f"
+      ],
+      "source_sha256": "5d3b44c7abe04dbb39500ed0c2eb380a61939894ca690d9b0f624f38a9239e0f",
+      "text": "Wrap a loader's ``exec_module`` so each import is measured."
+    },
+    "spacr.qt.timing._install_import_timer._timed.exec_module": {
+      "source_blocks_sha256": [
+        "b2cf71eeeb650750fdac6a68f64ed2470e0a81db94a51d1056b0bcdaa1fd7e35"
+      ],
+      "source_sha256": "b2cf71eeeb650750fdac6a68f64ed2470e0a81db94a51d1056b0bcdaa1fd7e35",
+      "text": "Import the module, recording how long it took."
+    },
     "spacr.qt.timing.begin": {
       "source_blocks_sha256": [
         "47880a1c03bf766365fdf7d042168757ee596498e5ccba2408352b65038c9097",
@@ -71645,6 +72378,58 @@
       "source_sha256": "b83bd7ae5729d97e235d5d1817f63b56b00040371878eeffaa57c40c9d6572a2",
       "text": "Observe when ``widget`` is genuinely painted and operable.\n\nReadiness requires all of the following, observed rather than inferred:\n\n* Qt has delivered a callback after the application event loop began;\n* the screen's visible widget tree has delivered a paint event;\n* at least one enabled, visible, non-zero-sized input control has painted;\n* one further event-loop turn has run after those paint events.\n\nThe observer is installed after construction but before the new page can\npaint.  It removes itself at the first valid state and is parented to the\nobserved widget, so neither a report nor a failed screen keeps a window\nalive.  PySide6 is imported only while timing is explicitly enabled.\n\n:param widget: the screen to observe; it and its input controls get the\n    paint filter, and ``None`` records nothing.\n:param name: the readiness record's label; an unfinished probe with the\n    same name and detail is retired first."
     },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe.__init__": {
+      "source_blocks_sha256": [
+        "6dde041816681efdcf5df44679dcc49a88748b4ec3ee9aa2fdc010516327ef98"
+      ],
+      "source_sha256": "6dde041816681efdcf5df44679dcc49a88748b4ec3ee9aa2fdc010516327ef98",
+      "text": "Watch ``widget`` and its controls until the screen settles."
+    },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe._queue_settle": {
+      "source_blocks_sha256": [
+        "0999c73cc8b6b0029665ee9db6afb4a79ea1c29bd6297db9d63faef366dc98d1",
+        "e83da95f7acff068fe12bbe1e0306f4a048e202d07716c313dd093cea770ce8c"
+      ],
+      "source_sha256": "96cbb9dab65cfc994c4f462285780cfef54e3e4ce9db3971f84107102c8f751d",
+      "text": "Ask for one settle check on the next event-loop turn.\n\nCoalesced: a burst of paints during layout would otherwise queue a check\nper paint, and the answer is the same for all of them."
+    },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe._retire": {
+      "source_blocks_sha256": [
+        "15c4225e35f0351278f3d3ff25301556704430a4cb3219fc97d73f872b36190e"
+      ],
+      "source_sha256": "15c4225e35f0351278f3d3ff25301556704430a4cb3219fc97d73f872b36190e",
+      "text": "Stop watching. Idempotent, so a second call costs nothing."
+    },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe._settle": {
+      "source_blocks_sha256": [
+        "342be537a32d5be8ce799baf621e72ed7df6b4c70d5a4d222b78f236ed0aadfe"
+      ],
+      "source_sha256": "342be537a32d5be8ce799baf621e72ed7df6b4c70d5a4d222b78f236ed0aadfe",
+      "text": "Decide whether the screen is interactive yet, and report if so."
+    },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe._usable": {
+      "source_blocks_sha256": [
+        "e56b15bb5d6859666b2382a6a6491b09cdb3d4fb0a591060afe855b2bd200134",
+        "359acd2410a5ac42eab8b5dd9e097e37157dca8962758b8dcd190ca71889f062"
+      ],
+      "source_sha256": "f2793e6ae9cb0a943c1141963b4af887d383df69ef776b7a8550452467fd0486",
+      "text": "Whether a control is really there to be pressed.\n\nEnabled, visible AND non-empty. A widget with a zero size is laid out but\nnot yet given room, and counting it as usable reports a screen ready\nbefore anything can be clicked. A deleted control answers False rather\nthan raising."
+    },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe.eventFilter": {
+      "source_blocks_sha256": [
+        "a9d21232d1ad20622db490db79451c25a2dd18b680eaf2e0f527ac10f0f4af58"
+      ],
+      "source_sha256": "a9d21232d1ad20622db490db79451c25a2dd18b680eaf2e0f527ac10f0f4af58",
+      "text": "Note a paint on a watched widget, ignoring every other event."
+    },
+    "spacr.qt.timing.watch_interactive._InteractivePaintProbe.event_loop_started": {
+      "source_blocks_sha256": [
+        "cf834a33f6b50bf4d70ff5a23391e0d6d330f39b26a32790f73ea7bf1ded57dc",
+        "894d7173e9c722a35f351e036d54d54d7df6718c9204bec659af237bd77c13a7"
+      ],
+      "source_sha256": "5f8153024fc6ec0b6c895e38c26e313c36e29a71dbdf94e9ba8dbbfaae80e35a",
+      "text": "Discard paints that arrived before the loop began.\n\nA paint delivered by ``show()`` before ``exec()`` is evidence about the\nwidget but not about THIS contract: readiness begins only once the\napplication event loop has actually dispatched a callback."
+    },
     "spacr.qt.timing.watch_the_gui_thread": {
       "source_blocks_sha256": [
         "1bfc6f2f9af41d138328ddf859f1a57dd1c21efca44197217761f702248bdea3",
@@ -71652,6 +72437,14 @@
       ],
       "source_sha256": "89a3c61be925137d894b4c2201b612b11218fd3bf79c1aec422c84fccce57618",
       "text": "Start the stall watchdog. Returns the timer, or None when off.\n\nA QTimer asked for 16 ms records how late it actually was. THIS IS THE\nONLY HONEST FREEZE MEASUREMENT: it is the event loop reporting on\nitself, from inside the real application, so it cannot miss a stall the\nway an outside script can."
+    },
+    "spacr.qt.timing.watch_the_gui_thread._beat": {
+      "source_blocks_sha256": [
+        "ffccf0866dc657fd82704cf59a900d91b31b1ad76cac0c9fe244cc763b3978ed",
+        "ce873fc15b957d729639c71d1df5304ced8faf3642663721c9f2d527dfc06110"
+      ],
+      "source_sha256": "4f5ed3bcffe832524fa83226498f563f3ad27123e6cb9d61238f0cf96b15372a",
+      "text": "Record that the GUI thread is still answering.\n\nThe gap between beats is what a stall is measured as, so this has to be\ncheap enough that it is never itself the delay."
     },
     "spacr.qt.timing.write_json": {
       "source_blocks_sha256": [
@@ -81257,6 +82050,50 @@
       "source_sha256": "ddc443f37746bdd01edc8304f1a3e212ee4bc3c5b38aa9272b90ac1fa5f13e1e",
       "text": "A pyqtgraph plot with the controls every plot here wants.\n\n:ivar point_clicked: emitted with the position of a clicked point IN THIS\n    PLOT'S OWN FRAME. It is not an index into anyone else's table; see\n    :attr:`key_selected` for the link that survives sorting and filtering.\n:ivar key_selected: emitted with the identifier of a clicked point.\n:ivar keys_selected: emitted with the identifiers of EVERY row behind the\n    thing that was clicked. A scatter point is one row and emits both; a\n    histogram bar is a hundred rows and can only honestly emit this one.\n\n:param title: heading above the plot.\n:param x_label: caption under the horizontal axis.\n:param y_label: caption beside the vertical axis.\n:param parent: parent widget.\n\nConstructing this without pyqtgraph installed does NOT raise: the widget\nlays itself out, sets :attr:`plots_available` to False and says why it is\nempty, because a missing optional plotting library should not take a\nscreen down with it.\nBuild the plot, its axes and its context menu.\n\n:param title: the plot's title.\n:param x_label: the x axis's label.\n:param y_label: the y axis's label.\n:param parent: parent widget."
     },
+    "spacr.qt.widgets.fast_plots.FastPlot._install_axis_hooks._add": {
+      "source_blocks_sha256": [
+        "4619fb4a9b5f927874b28b64148a8a67efbb546cf70c1f26d6181826a131f7a4"
+      ],
+      "source_sha256": "4619fb4a9b5f927874b28b64148a8a67efbb546cf70c1f26d6181826a131f7a4",
+      "text": "Add the item AND record it, so the canvas can clear its own drawings."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot._install_axis_hooks._label": {
+      "source_blocks_sha256": [
+        "e12af19be0bb92a27954bcab868b1c7c2f6052c69382126e2fc46b4d521073a2"
+      ],
+      "source_sha256": "e12af19be0bb92a27954bcab868b1c7c2f6052c69382126e2fc46b4d521073a2",
+      "text": "Set an axis label and remember it for the style round-trip."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot._install_rubber_band.drag": {
+      "source_blocks_sha256": [
+        "92eae16271c83ec4a5a8c0b03eda4f9edb5de856359bdec61737648bb31926da"
+      ],
+      "source_sha256": "92eae16271c83ec4a5a8c0b03eda4f9edb5de856359bdec61737648bb31926da",
+      "text": "Interpret a drag: rubber-band select, or pan with a modifier."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot._install_split_ticks.tick_strings": {
+      "source_blocks_sha256": [
+        "9f4fb503687069c6149efa5a3860cc22100f25e1e1152f1cd8a13392d0c0fe53",
+        "94509b045d7cbcbff1fa4d99230ac7a25f7a0c3cea5b68f2e87b9b114f1cd1fa"
+      ],
+      "source_sha256": "7681d2277eca34daabd172a5c40e2c577cdf3182f671c76e55a6594844473ba6",
+      "text": "Tick labels for a split axis, in the ORIGINAL data's values.\n\nThe axis is drawn on a compressed coordinate, so labelling it with the\ndrawn position would put numbers on it that the data never had."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot._install_split_ticks.tick_values": {
+      "source_blocks_sha256": [
+        "992ebfead4c2e248de16cb7f8af78d4a874522c42d4dc1a219f90a3f24ab7efc",
+        "86d0c427adba61891d885211c53f5d1b2a546ac816f686903ba6b6b90e5f7a46"
+      ],
+      "source_sha256": "6228f1c0183af1f4a5edf662f3c069ef7f39eca3cd2b013134e0c6ef3d0ab30b",
+      "text": "Tick positions, split around the break when there is one.\n\nFalls through to the original when no split is set, so an ordinary axis\nis untouched rather than routed through the split code."
+    },
+    "spacr.qt.widgets.fast_plots.FastPlot._wear_the_print_look.repaint": {
+      "source_blocks_sha256": [
+        "d8e93690d82677fea7852437a923b19d4fd10dbed46277cbfa6ef20efedf612c"
+      ],
+      "source_sha256": "d8e93690d82677fea7852437a923b19d4fd10dbed46277cbfa6ef20efedf612c",
+      "text": "Swap one chrome colour for its print equivalent, if there is one."
+    },
     "spacr.qt.widgets.fast_plots.FastPlot.add_beeswarm": {
       "source_blocks_sha256": [
         "e3c21a29772947ba8bcb9a2b5003e9687fc3fd48b3217f78419db7cfffc1c8de",
@@ -82432,6 +83269,14 @@
       "source_sha256": "4c3d3d43cb03f7ca0b42947736b14945a7342f136d90e3a6a7b779b57514cc3e",
       "text": "Effect against -log10(p), with the FDR carried by colour and a line.\n\nThe y axis is the raw P value and is continuous. The reasoning is worth\nkeeping beside the code because the\nobservation that produced it looked like a bug and was not.\n\nBenjamini-Hochberg's adjusted P is a cumulative minimum taken from the\nlargest P downwards -- ``q_(i) = min over j >= i of (n * p_(j) / j)`` --\nand the ``min`` is both what enforces monotonicity and what creates ties:\nthe moment a later rank produces a smaller value, EVERY earlier rank is\npulled down onto it. Measured on reference runs: 823 q values\nwith 31 distinct, 19 tied levels covering 811 coefficients, GRA14 and\n225160 both at 4.1150e-03. A volcano drawn against that has a staircase\nfor a y-axis, and no transform can separate two tests that hold the same\nnumber.\n\nSo the height is the RAW P, which is continuous and is the evidence per\ntest, and the correction decides the COLOUR and the LINE, which is the\ndiscrete thing it actually is. The same two numbers are on the plot, each\ndoing the job it can do, and nothing is invented -- which is also why the\none thing this plot will not do is jitter the y axis to separate ties.\nThat moves a point away from its own value, and this class exists because\na plot was showing something the data did not say.\n\n:param parent: parent widget.\nBuild the plot and its controls."
     },
+    "spacr.qt.widgets.fast_plots.VolcanoPlot._q_ramp._brush": {
+      "source_blocks_sha256": [
+        "a1b90e7edc2d481f1617d50c9af9e57feed4e83a08c21ace481a3ff9d6032a41",
+        "ae4649de125eaceba7620e9f4daec2972164f8c7574ca1b8df25dbdc2811f922"
+      ],
+      "source_sha256": "68d2e46b3d8dac645753b6497a545beb8e663b6f8b512aca571dcdfdab26c95d",
+      "text": "One step of the ramp as a brush, cached.\n\nCached because a scatter asks for a brush PER POINT: building them fresh\nallocates one QBrush per point per repaint, which is the whole cost of\ndrawing a large scatter."
+    },
     "spacr.qt.widgets.fast_plots.VolcanoPlot.caption": {
       "source_blocks_sha256": [
         "18c141a20c399f38fb886c2784219c6e9e9ed3e5c8d5287b615f13cb508d0fb1"
@@ -82556,6 +83401,13 @@
       "source_sha256": "858e14f999e9789ab091d8d60b56c0a2c6f98a9b9dd121901469abbdf8b286ad",
       "text": "Draw ``frame``. Returns the number of points actually plotted.\n\n:param frame: the coefficient table. Rows without a finite effect and\n    raw p-value are left off the plot, while their original positions\n    remain the identifiers used for linked selections.\n:param symbol_column: optional categorical column encoded by marker\n    shape, independently of colour.\n:param opacity_column: optional categorical column encoded by opacity.\n    Encodings are applied in the stable order colour, shape, opacity.\n    The caller rejects requests for additional visual channels.\n\n:param p_column: the RAW P value. Not the corrected one -- the height\n    is the raw P by default and the correction is recomputed here.\n:param q_column: the run's own corrected column, for the plot to\n    check itself against. Found in the table when omitted.\n:param run_method: which correction the run used. Read off the\n    table's ``multiple_testing_method`` column when omitted.\n:param compartment: one TAGM/LOPIT compartment to pick out against\n    grey. ONE, not all 27 -- see :mod:`spacr.localisation`. It\n    REPLACES any category colouring rather than combining with it: a\n    volcano where a coloured dot might be coloured for its condition\n    or for its compartment has no sentence."
     },
+    "spacr.qt.widgets.fast_plots._add_style_entry._shown": {
+      "source_blocks_sha256": [
+        "928df5a8732a362d4d862f3de5fa25878d4c93baaedeea0607d7ce1bf4dd9b74"
+      ],
+      "source_sha256": "928df5a8732a362d4d862f3de5fa25878d4c93baaedeea0607d7ce1bf4dd9b74",
+      "text": "The label for one option: its friendly name, or \"automatic\" for None."
+    },
     "spacr.qt.widgets.fast_plots.add_style_entries": {
       "source_blocks_sha256": [
         "4e08534ac5c1d75127f58d62db5e160cc7ba8f60c534a564f4ab0aad9940089d",
@@ -82586,6 +83438,49 @@
       ],
       "source_sha256": "ff0d87617571d73b9c08eef71361fe8c3a5af303d9b01ae1702e90f2ad92c169",
       "text": "Save, load and default a whole style -- the design.\n\n:param menu: the \"Figure style\" group to add to.\n:param style: the style dataclass the figure is drawn from.\n:param on_change: called ``(None, style)`` when a load or a default\n    changes it, i.e. where the host redraws.\n:param parent: the widget file dialogs are parented to.\n:param note: called with one sentence saying what happened, for the\n    plot's status line. A save that says nothing is a save the user\n    repeats because they cannot tell whether it worked.\n:param ask_path: ``(mode, suggested) -> path`` for a test to answer\n    instead of a modal. ``None`` uses ``QFileDialog``.\n:returns: the actions added, in menu order.\n\nTHE DEFAULT IS PER STYLE KIND, not per figure. That is what makes it a\nhouse style: every volcano this project draws from now on starts from it,\nwhich is the difference between saving a style and re-picking one."
+    },
+    "spacr.qt.widgets.fast_plots.add_style_file_entries._ask": {
+      "source_blocks_sha256": [
+        "85820bf2e04d21f0f856b594dd8e851860b3c61f9abf64bc2d233742f3d3df3d",
+        "0bfcf0c7caa4c640ad34eac0412911e09b8d28bc084adcb82b8dc8e84beb5d33"
+      ],
+      "source_sha256": "7964b685437f62118137e2c72067464a09a0d971399b36d651599b6d043579e7",
+      "text": "Ask for a path, through the injected picker or a file dialog.\n\nINJECTED so the menu can be exercised without a modal dialog, which is\notherwise the only way to reach these entries in a test."
+    },
+    "spacr.qt.widgets.fast_plots.add_style_file_entries._clear_default": {
+      "source_blocks_sha256": [
+        "151ef71febe7594d55b9cf0c4112a8c32afab40b947781fdec545eed85fdaf8a"
+      ],
+      "source_sha256": "151ef71febe7594d55b9cf0c4112a8c32afab40b947781fdec545eed85fdaf8a",
+      "text": "Forget the saved default, so new figures use the built-in one."
+    },
+    "spacr.qt.widgets.fast_plots.add_style_file_entries._load": {
+      "source_blocks_sha256": [
+        "46e08f946a62e43157c54019a2ce2ecad0fa1e2345b665383d5a24d0484309da"
+      ],
+      "source_sha256": "46e08f946a62e43157c54019a2ce2ecad0fa1e2345b665383d5a24d0484309da",
+      "text": "Read a style from a chosen file and apply it."
+    },
+    "spacr.qt.widgets.fast_plots.add_style_file_entries._make_default": {
+      "source_blocks_sha256": [
+        "0aa6d463f7ebe52dbf74f3d4693e9849b527f85a482b92823cc679d75c53359c"
+      ],
+      "source_sha256": "0aa6d463f7ebe52dbf74f3d4693e9849b527f85a482b92823cc679d75c53359c",
+      "text": "Make the current style the one new figures start from."
+    },
+    "spacr.qt.widgets.fast_plots.add_style_file_entries._save": {
+      "source_blocks_sha256": [
+        "c1073450644c90c0137500e91f671898e254d6386e6d8ca59161d729ed2bac63"
+      ],
+      "source_sha256": "c1073450644c90c0137500e91f671898e254d6386e6d8ca59161d729ed2bac63",
+      "text": "Write the current style to a chosen file."
+    },
+    "spacr.qt.widgets.fast_plots.add_style_file_entries._say": {
+      "source_blocks_sha256": [
+        "a9a475174c514a406ba6e70268827f6471386c88e0c2ffa771904333683c2a5f"
+      ],
+      "source_sha256": "a9a475174c514a406ba6e70268827f6471386c88e0c2ffa771904333683c2a5f",
+      "text": "Report progress through the caller's note, if one was given."
     },
     "spacr.qt.widgets.fast_plots.apply_default_style": {
       "source_blocks_sha256": [
@@ -95343,6 +96238,14 @@
       "source_sha256": "d8701dc7e7c59e68c54c41ae77299f56ca7ed118aa8055153c570e1d040fd9c7",
       "text": "Install, or uninstall, one segmentation backend, with progress and\nCancel.\n\nWHAT IT CHANGES, SAID BEFORE IT CHANGES IT. A backend installs into an\nenvironment of its own under ``~/.spacr/backends``; spaCR's own\nenvironment is never touched, so nothing here can stop spaCR starting.\nThe dialog says where it goes, what it downloads, how large it is and\nunder what licence before Install is pressed.\n\nTHE WINDOW KEEPS RESPONDING. The install -- a venv, then pip, often for\nminutes -- runs on a worker thread; the dialog shows which step it is on\nand pip's latest line, and Cancel stops pip and everything it started\nand removes the half-built environment. A failure shows the failing\ncommand's own output, verbatim.\n\n:param name: the backend, e.g. ``'cellpose3'``.\n:param parent: the widget that opened it; the dialog's parent is its\n    window.\n:param uninstall: remove the backend's environment instead.\n:param job: ``job(progress=..., cancel=...)``; the real install or\n    uninstall when None. Tests pass their own.\n:param reinstall: build an installed backend's environment again,\n    for a backend installed before a package it now needs\n    was pinned; the dialog says so and its button says Reinstall.\n:param why: a sentence saying why the install is offered, shown first\n    in the description.\n:ivar error: the last failure's message, verbatim; empty until one.\n\nTHE SCREEN BEHIND IT CAN FOLLOW IT. :attr:`job_started`,\n:attr:`job_progressed`, :attr:`job_failed` and :attr:`job_cancelled`\ntell the widget that opened the dialog what the install is doing, so a\nbutton can say \"installing\" while it runs and a console can say why it\nfailed after the dialog has gone.\n\nIT BELONGS TO THE WINDOW, NOT THE WIDGET THAT ASKED. A dialog\ninherits the style sheet of every widget above it, and Plaque Assay asks\nfrom its preview, whose own scale slider re-states the application sheet\nat that preview's scale: at 150 % Install and Cancel were 59 px tall,\nnot the 40 px of every other button. Parented to ``parent.window()`` it\nis themed like every other dialog and still centred on, and modal to,\nthe window that opened it.\n\nTHE BAR SITS ON THE BUTTONS. The progress line is the last thing above\nthe buttons and the status keeps four lines' room while a job runs, so\nthe bar does not move as the status line grows and shrinks.\nDescribe the backend and wait for the button."
     },
+    "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.__init__.job": {
+      "source_blocks_sha256": [
+        "1b273d4c6a7b066f1aede7546193ad3ef4001e0d55d793693586a1dc8ae542f8",
+        "8cc0412e9dcf0f0e9d75be59a13e771b27ce169198346a4c5fe3cd438a66e5b0"
+      ],
+      "source_sha256": "fddcb4be831e6aca8fe28ee7646e3269dbf37982a611370a254c0ed3fe20b229",
+      "text": "Remove the environment; there is nothing to cancel.\n\nBuild the environment and install into it."
+    },
     "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.closeEvent": {
       "source_blocks_sha256": [
         "210f7467f9a72973379c29d079ccb64c29768c5c2047eb93594329000a856ea8",
@@ -95383,6 +96286,41 @@
       ],
       "source_sha256": "ee84f14cee247de7a3f152453cab4da4c307ff357897e9a9fd0e0555e417749f",
       "text": "Pick a model from the zoo; returns a local path.\n\n:param kinds: restrict the list to these :data:`spacr.model_zoo.KINDS`.\n    A pathogen-model field wants ``(\"cellpose\",)`` -- offering a detector\n    there would be offering something that cannot be loaded.\n:param parent: the widget that opened this.\nBuild the model zoo dialog.\n\n:param kinds: restrict the listing to these model kinds; ``None`` lists\n    everything spaCR knows about.\n:param parent: parent widget, or ``None``."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker._probe_backends._landed": {
+      "source_blocks_sha256": [
+        "c3fcef51248d89aec213d5c1501f9728d530b11375dfce096bb6784364bb913d"
+      ],
+      "source_sha256": "c3fcef51248d89aec213d5c1501f9728d530b11375dfce096bb6784364bb913d",
+      "text": "Once the probe has finished, stop polling and redraw if it found any."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker._probe_backends._probe": {
+      "source_blocks_sha256": [
+        "cce71bdd1890b64f22a447c2607b64d16385cb1a51d58c3964bc47e1321c01f4"
+      ],
+      "source_sha256": "cce71bdd1890b64f22a447c2607b64d16385cb1a51d58c3964bc47e1321c01f4",
+      "text": "Record which backends cannot be installed here, then signal done."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker._sources_changed._warm": {
+      "source_blocks_sha256": [
+        "d8fffe889caace6a330335e48b7f8b6687b040701dbb3128d334ac21e5e371e2"
+      ],
+      "source_sha256": "d8fffe889caace6a330335e48b7f8b6687b040701dbb3128d334ac21e5e371e2",
+      "text": "Fetch the community catalogue into its cache."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker._warm_bioimageio._warm": {
+      "source_blocks_sha256": [
+        "8d59520e4be80490c199b87b476dacb85f98772e13b71533700539e0b7b3468c"
+      ],
+      "source_sha256": "6cc846c4186f8256f96b85b20d223d686fda76610ebe81c0438937c9e8184a8d",
+      "text": "Fetch the collection on this worker thread; signal a redraw\nonly when what the table would show changed. Any failure is\nsilent: the cached rows stay on screen."
+    },
+    "spacr.qt.widgets.model_zoo_picker.ModelZooPicker._warm_bioimageio._warm.seen": {
+      "source_blocks_sha256": [
+        "ba7d997540ec5dde63b5ddf8277bc0be722fbdde99bef335f060b48f62ef1637"
+      ],
+      "source_sha256": "45fee500ba1786afb2131efd8316b033e06a950084c5da84164475c5bbd323ae",
+      "text": "What the table shows of ``rows``: one\n``(key, uri, notes, size_bytes)`` tuple per entry, so\ntwo fetches compare by what a user would see."
     },
     "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.chosen_path": {
       "source_blocks_sha256": [
@@ -95475,6 +96413,41 @@
       "source_sha256": "997e5134507cf317d78c00255cbcd45369c2887e839953332e6897a148df6cce",
       "text": "Turn one heading on or off, asking :attr:`_guard` first.\n\n:param name: the heading.\n:param on: the state wanted.\n:returns: the state it actually ended in."
     },
+    "spacr.qt.widgets.model_zoo_picker._BackendInstallButton._watch.cancelled": {
+      "source_blocks_sha256": [
+        "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad"
+      ],
+      "source_sha256": "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad",
+      "text": "Say that nothing was installed and nothing was left."
+    },
+    "spacr.qt.widgets.model_zoo_picker._BackendInstallButton._watch.failure": {
+      "source_blocks_sha256": [
+        "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658"
+      ],
+      "source_sha256": "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658",
+      "text": "Say why, in the installer's own words."
+    },
+    "spacr.qt.widgets.model_zoo_picker._BackendInstallButton._watch.progressed": {
+      "source_blocks_sha256": [
+        "797738cf2ae2d03cecf529ab8fbf32df8fc043d8c62c409e700dde9f94be17fd"
+      ],
+      "source_sha256": "12cca3c8500f67374e4b3b6dc412a22495a59cde695c8028219522822f330d9c",
+      "text": "One line of the install's output (pip's included), rewritten\nin place and throttled by whoever shows it."
+    },
+    "spacr.qt.widgets.model_zoo_picker._BackendInstallButton._watch.started": {
+      "source_blocks_sha256": [
+        "8e5f69f8a3f1b4c98c8f502b415e4f92112966fb90370f1e0b9dd748799f55b3"
+      ],
+      "source_sha256": "8e5f69f8a3f1b4c98c8f502b415e4f92112966fb90370f1e0b9dd748799f55b3",
+      "text": "The job began: the button says so and is greyed."
+    },
+    "spacr.qt.widgets.model_zoo_picker._BackendInstallButton._watch.stopped": {
+      "source_blocks_sha256": [
+        "b2b8dfba61c30188617a3ad83af34324ae16e14b242316426cfca239b005ffc5"
+      ],
+      "source_sha256": "b2b8dfba61c30188617a3ad83af34324ae16e14b242316426cfca239b005ffc5",
+      "text": "Cancelled or failed: the button is back to what the disk says."
+    },
     "spacr.qt.widgets.model_zoo_picker.choose_model": {
       "source_blocks_sha256": [
         "9e575e4f2cdd92bc1aa257f0f7e9e52854c825b83c883b08db60ca3018f91866",
@@ -95494,6 +96467,13 @@
       ],
       "source_sha256": "45ca571adb6ede8e6b5d81833c06be36cee8a037dea4f95a7ad5f53d76386d6d",
       "text": "A :class:`SourceStrip` guard that warns once about community uploads.\n\nShared by the picker and the Model Zoo page so the two say the same\nthing, once each, rather than one of them quietly listing unvetted rows.\nThe \"once\" is per window, which is what the checkbox did.\n\n:param owner: the widget the warning belongs to; it carries the flag."
+    },
+    "spacr.qt.widgets.model_zoo_picker.community_guard.guard": {
+      "source_blocks_sha256": [
+        "98d2464a0dd923449126683b45acdd502184ccb9c674f14be8ab57ad8a4196d8"
+      ],
+      "source_sha256": "98d2464a0dd923449126683b45acdd502184ccb9c674f14be8ab57ad8a4196d8",
+      "text": "Allow every heading but community, which asks first."
     },
     "spacr.qt.widgets.model_zoo_picker.confirm_community_uploads": {
       "source_blocks_sha256": [
@@ -118832,6 +119812,149 @@
       ],
       "source_sha256": "0cd7b52838dce55e8f184aeb61484592a17ff37e910210d78cce2666fff07821",
       "text": "Time-series tracking, motility analysis, and trajectory utilities."
+    },
+    "spacr.timelapse._event_network._EventNet.__init__": {
+      "source_blocks_sha256": [
+        "34167f2fb9047058ae7e70f4421c8d0e6e2a3dd0397a4c6f4d6aae7a6bda4705"
+      ],
+      "source_sha256": "34167f2fb9047058ae7e70f4421c8d0e6e2a3dd0397a4c6f4d6aae7a6bda4705",
+      "text": "Build temporal features and the optional per-frame crop encoder."
+    },
+    "spacr.timelapse._event_network._EventNet.forward": {
+      "source_blocks_sha256": [
+        "71564efb79ccb8f2f329726f52e98695ce579685de70c3e7c22a55dde63c2e5d"
+      ],
+      "source_sha256": "71564efb79ccb8f2f329726f52e98695ce579685de70c3e7c22a55dde63c2e5d",
+      "text": "Class scores for a batch of windows."
+    },
+    "spacr.timelapse._event_partner_columns.count": {
+      "source_blocks_sha256": [
+        "3038146f3a33e290e12e1c35905ed9889b3e54def46efde54374ce7dab7b9692"
+      ],
+      "source_sha256": "3038146f3a33e290e12e1c35905ed9889b3e54def46efde54374ce7dab7b9692",
+      "text": "Number of ``points`` within ``radius`` of ``(x, y)``."
+    },
+    "spacr.timelapse._feature_velocity_correlations._corr_subset": {
+      "source_blocks_sha256": [
+        "af41a59404185ebed3919415ab13f612ed01c5d02db7b28a4bdd2019fcec7db7"
+      ],
+      "source_sha256": "af41a59404185ebed3919415ab13f612ed01c5d02db7b28a4bdd2019fcec7db7",
+      "text": "Return correlations for at least five finite-velocity rows, else ``None``."
+    },
+    "spacr.timelapse._infection_qc_pca_clustering._evaluate_embedding": {
+      "source_blocks_sha256": [
+        "8e534e9c326faec11c6d5aa44e70494c406ef1aa79e4b697f2c9f38595fa859e",
+        "c1e33f2a1354c7a09b307ec92854781af5fd4737a3aa6cd4f86d98ebee75fc05",
+        "b53410a7fe3fc2106892776d299c9d5bc0aa01466148f16a3209808a2f2235aa",
+        "cd9186a91c0bd30d50d7ae25172eec50a514df248d347d2db91f683dba11b7d0",
+        "ab33db74fe469b1822b88b7963bba5edfd803c680c8a178d9286dc8dde1410bb",
+        "9f1d312502bd172d402ec3f77068210fbfaabff251281bf755bd336d37edd93b",
+        "2fa86af3b02224940d9b95bd263f344c57fe395a448f81b8f441fcfd8543fa7a"
+      ],
+      "source_sha256": "29ae03795930faa3bf604d4a1131510e9f7fbf3ade9090dce6fbdfeb9870c2d8",
+      "text": "Compute:\n  - infected/uninfected cluster mapping using GT sets\n  - GT separation score\n  - silhouette score\n  - centroid distance between the two clusters\n  - original infected fractions in each cluster\n  - overall score = centroid_distance * GT separation"
+    },
+    "spacr.timelapse._infection_qc_pca_clustering._search_tsne": {
+      "source_blocks_sha256": [
+        "ba7621dc7e2a9922eadbcd9d98aa9b03a803db758a77e34aafac5ab649dec955"
+      ],
+      "source_sha256": "ba7621dc7e2a9922eadbcd9d98aa9b03a803db758a77e34aafac5ab649dec955",
+      "text": "Return coordinates, labels, statistics, and parameters from t-SNE."
+    },
+    "spacr.timelapse._infection_qc_pca_clustering._search_tsne._run_tsne": {
+      "source_blocks_sha256": [
+        "eaef5e146dd291d415913db90eb9068783fa5da63415f48bcaaddd9cc58e90f0"
+      ],
+      "source_sha256": "eaef5e146dd291d415913db90eb9068783fa5da63415f48bcaaddd9cc58e90f0",
+      "text": "Return coordinates, labels, and statistics for one t-SNE pair."
+    },
+    "spacr.timelapse._infection_qc_pca_clustering._search_umap": {
+      "source_blocks_sha256": [
+        "c9b67cc8c9aaea27472db03b8fc1460b7b04c637bff5dbbd0ca11c567d8657dd"
+      ],
+      "source_sha256": "c9b67cc8c9aaea27472db03b8fc1460b7b04c637bff5dbbd0ca11c567d8657dd",
+      "text": "Return coordinates, labels, statistics, and parameters from UMAP."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_all_tracks": {
+      "source_blocks_sha256": [
+        "6808f195e849634700608f828730073fdf0943cd0afcbabf33c49818034435ca"
+      ],
+      "source_sha256": "6808f195e849634700608f828730073fdf0943cd0afcbabf33c49818034435ca",
+      "text": "Plot tracks on ``ax`` in absolute pixel or calibrated coordinates; return ``None``."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_hist_qc": {
+      "source_blocks_sha256": [
+        "b0486a1f66796e231ef184a1e3bf8011b8d08e91200a7216a08d2698cb918113",
+        "20e8714da9c03e23d159db185f64d4c9b8ff0799088181a754d780786b6083ac",
+        "de4a8a6612bfa6cf93915b9eafff0ab03ece579a7a6230fd02356870be45da26",
+        "d0dd6a15ceb8d001004ea4abe9aa1336427d82e96a841d4f0ee5873b56bb36e4"
+      ],
+      "source_sha256": "6ba9a88772fe11f33cf4a41519a27bf7ece46bfd13e5890f6512d57dca4978db",
+      "text": "Draw infected vs uninfected intensity histogram.\n\n`source` can be:\n  - a dict payload (settings['infection_hist_data']) with keys:\n        'intensities_inf', 'intensities_uninf', 'bin_edges',\n        'thr_val' (optional), 'intensity_col' (optional)\n  - or a DataFrame (df_well), in which case the histogram\n        is computed on the fly using a reasonable intensity\n        column and `infection_intensity_n_bins`."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_inf_uninf_bar": {
+      "source_blocks_sha256": [
+        "cdfb95649febaf18201fe5fb275b515e6bce996baf939d977a0dffa60127995c"
+      ],
+      "source_sha256": "70b73e7e5f12f6bbfae25235e9ced6df3dbe6e4835321e1cbf2c5811b9dc5070",
+      "text": "Helper to plot infected vs uninfected distributions for the given column,\nusing violin plots (with mean markers) instead of barplots."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_origin": {
+      "source_blocks_sha256": [
+        "acb714c3cfedc6c0a6bed1afb3b01dc1dc9a97a5f3114ef258af90a0c76a7ceb"
+      ],
+      "source_sha256": "acb714c3cfedc6c0a6bed1afb3b01dc1dc9a97a5f3114ef258af90a0c76a7ceb",
+      "text": "Plot the selected group on ``ax`` relative to its origins; return ``None``."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_pca_qc": {
+      "source_blocks_sha256": [
+        "70980862cf69ea4d99f3eee095b8b98c9ab99baa2c3f81b2d24c693a0b621a25"
+      ],
+      "source_sha256": "70980862cf69ea4d99f3eee095b8b98c9ab99baa2c3f81b2d24c693a0b621a25",
+      "text": "Plot ``pdata``'s 2-D embedding on ``ax``, or hide it, then return ``None``."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_xgb_importance_qc": {
+      "source_blocks_sha256": [
+        "48e9dfd13df11efebc0109e63ac136724e74bcb00552380b999095de4782c85b"
+      ],
+      "source_sha256": "48e9dfd13df11efebc0109e63ac136724e74bcb00552380b999095de4782c85b",
+      "text": "Plot ``xdata`` importances on ``ax``, or hide it, then return ``None``."
+    },
+    "spacr.timelapse._make_intensity_motility_panel._plot_xgb_prob_qc": {
+      "source_blocks_sha256": [
+        "a3838f89649485c007bffa81abbef026e65570db78d0896c47ac79dcb19ad56d",
+        "736374e90f3bd18ba0e17e21ba6af3ca6e44e8fccf6f4a0d5494c1ba5c3ca585"
+      ],
+      "source_sha256": "5e4724320f1887239782a8b8160b5bb1b42bdaee2bc6deef6331775f93fd5379",
+      "text": "Per-cell probability distribution by adjusted infection label.\n\nUses settings['infection_xgb_proba_column'] if available,\notherwise falls back through a few common column names."
+    },
+    "spacr.timelapse._make_motility_plots._apply_axis_limits": {
+      "source_blocks_sha256": [
+        "e1a708132979e4dae3f023995f2e748ae788d7173bd19ae8ff2dd8277a4aaefe"
+      ],
+      "source_sha256": "e1a708132979e4dae3f023995f2e748ae788d7173bd19ae8ff2dd8277a4aaefe",
+      "text": "Apply valid two-value limits to ``ax`` and return ``None``."
+    },
+    "spacr.timelapse._make_motility_plots._fmt_vel": {
+      "source_blocks_sha256": [
+        "7a85207477758961e49c5035dd8b11d37eae8268657a6ca81e0ed652f5356811"
+      ],
+      "source_sha256": "7a85207477758961e49c5035dd8b11d37eae8268657a6ca81e0ed652f5356811",
+      "text": "Return finite ``val`` to two decimals, or ``n/a`` when non-finite."
+    },
+    "spacr.timelapse._masks_to_gif._display_gif": {
+      "source_blocks_sha256": [
+        "4d6185f37f1b5b76bb778f4bce684012b2e3f4028f916ad50b77ef80f868a336"
+      ],
+      "source_sha256": "4d6185f37f1b5b76bb778f4bce684012b2e3f4028f916ad50b77ef80f868a336",
+      "text": "Read ``path`` into an IPython image, display it, and return ``None``."
+    },
+    "spacr.timelapse._summarise_child_features_per_parent._agg_for_feature": {
+      "source_blocks_sha256": [
+        "be3da039339aed98ba1cb4971f351129fb885de5691bfb9f115fb8a9c2fa24e8"
+      ],
+      "source_sha256": "be3da039339aed98ba1cb4971f351129fb885de5691bfb9f115fb8a9c2fa24e8",
+      "text": "Return sum for area, minimum for distance, otherwise mean."
     },
     "spacr.timelapse.analyze_calcium_oscillations": {
       "source_blocks_sha256": [

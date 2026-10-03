@@ -2161,3 +2161,20 @@ Help index regenerated. Guards: only nightly's stale OrganismDiagram en hash
 fails. Held back: qt.screens.make_masks (nightly helper
 _Sam2SeedDialog.run.work has no docstring).
     BLOCKED / open: OPEN docs work: 638 of 1,158 nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 11 MORE MODULES ENABLED (PARTIAL; 674 of 1,158)
+ENABLED_MODULES gains hyperparam, qt.timing, qt.app, qt.screens.annotate,
+attribution, embeddings, qt.widgets.model_zoo_picker, qt.widgets.fast_plots,
+qt.screens.app_screen, timelapse and qt.screens.parameter_sweep (154
+helpers). The writer adds 154 symbols (12,546 -> 12,700) in English and nine
+locales from 203 AI-reviewed blocks (2026-10-03-nested-batch{9,10}.json,
+direct AI translation with AI technical review, no native-speaker signoff);
+generated=0, decoded=0; earlier locale records byte-identical. Seven local
+__init__ helpers join the documented-__init__ set; Help index regenerated.
+Guards: all pass (307 passed, 13 report-only xfails). Held back:
+spacr._segmentation_backends (AUTOAPI_NON_RENDERED_MODULES: no page, so its
+11 helpers can never be enabled and should leave the denominator),
+spacr.submodules (one block's capitalised "WHERE" is a protected product
+token every locale would have to keep), qt.screens.make_masks (undocumented
+nightly helper).
+    BLOCKED / open: OPEN docs work: 484 of 1,158 nested helpers (11 unrenderable); upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
