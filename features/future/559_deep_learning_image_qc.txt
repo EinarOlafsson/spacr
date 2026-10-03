@@ -123,3 +123,30 @@ precision/recall acceptance remain open; this note does not close item 559.
     CPU only; tests/qt/test_image_qc_field_view_and_card.py uses a stub model.
     WHAT IS LEFT: only the blocked points (public QC pretraining / shipped
     weights; real labelled bubble fields; real-data acceptance).
+
+2026-10-03 — REAL LABELLED QC SET, BBBC006 (lane 2, CPU)
+    Data: BBBC006 v1 (Broad, CC0; U2OS, 384-well, 34 z-planes, z16 = best
+    focus). 300 fields (site 1, Hoechst + phalloidin as 2 channels): 120 at
+    z16 = good, 30 each at z00/z08/z24/z32 = out_of_focus (labelled 240),
+    30 each at z12/z20 unlabelled (mild blur). Only blur is labelled; no
+    public bubble/debris labels were found. Scripts:
+    /mnt/wd4tb/scratch/559/work/ (prep.py, run.py, run.log).
+    A) Built-in synthetic model, screen_fields exclude mode, default policy:
+       classifier any-reason P 0.54 / R 1.00 (280 of 300 quarantined);
+       its out_of_focus class alone P 0.77 / R 0.99. The default rule
+       policy flags nothing (P n/a, R 0.00). False flags on the 120 good
+       fields: debris 76, bubble 60, out_of_focus 36 -> the built-in model
+       is NOT usable as shipped on this real data.
+    B) image_qc_classifier_labels with the 240 labels (5-fold CV
+       fine-tuning, qc/image_qc_benchmark.csv):
+         method              P      R      (any defect = out_of_focus)
+         classifier          0.967  0.967
+         rule_tuned          0.791  0.917
+         rule_saved_policy   n/a    0.000
+       Done-when met for blur after fine-tuning: beats the tuned rule
+       metrics in precision and recall, and exclude mode quarantines
+       flagged fields. Not met for the built-in model (over-flags debris
+       and bubble on real fields). Runtime: 7 min A (incl. built-in
+       training), 3 min B, CPU only.
+    LEFT: real labelled debris/bubble/saturation/empty fields; retrain or
+    calibrate the built-in model on real good fields before shipping weights.
