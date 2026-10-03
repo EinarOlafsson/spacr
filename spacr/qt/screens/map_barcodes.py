@@ -3107,16 +3107,20 @@ class _SpatialTranscriptomicsPanel(QWidget):
 def _install_spatial_transcriptomics(screen: QWidget):
     """Attach the Visium and Xenium panel to the Map Barcodes screen.
 
-    It starts hidden behind a toggle, and both are alpha features.
+    It starts hidden behind a toggle, and both are alpha features. Only the
+    card and the toggle are made here; the panel inside the card, with its
+    figure and file pickers, is built by :func:`_spatial_panel_of` the first
+    time the toggle opens the card, so a Map Barcodes open that never shows
+    it does not pay for it.
 
     :param screen: the screen to install into; anything but Map Barcodes is
         left alone.
-    :returns: the panel, or None when not installed.
+    :returns: the card, or None when not installed.
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return None
-    existing = getattr(screen, "_spatial_panel", None)
-    if isinstance(existing, _SpatialTranscriptomicsPanel):
+    existing = getattr(screen, "_spatial_card", None)
+    if existing is not None:
         return existing
     try:
         from ..widgets.card import Card
@@ -3126,8 +3130,6 @@ def _install_spatial_transcriptomics(screen: QWidget):
             "image and count each gene per cell, nucleus, pathogen and "
             "vacuole."))
         card.setObjectName("MapBarcodesSpatialCard")
-        panel = _SpatialTranscriptomicsPanel(screen, card)
-        card.body_layout.addWidget(panel)
     except Exception:
         LOG.debug("could not build the spatial transcriptomics panel",
                   exc_info=True)
@@ -3149,14 +3151,20 @@ def _install_spatial_transcriptomics(screen: QWidget):
             "per object beside the measurements. Default hidden.")
     toggle.setProperty("_spacr_i18n_tooltip", hint)
     toggle.setToolTip(tr(hint))
-    toggle.toggled.connect(card.setVisible)
+    def _show(on: bool) -> None:
+        """Build the panel on its first showing, then show or hide the card."""
+        if on:
+            _spatial_panel_of(screen)
+        card.setVisible(on)
+
+    toggle.toggled.connect(_show)
     bar = getattr(screen, "_settings_search", None)
     if bar is not None and hasattr(bar, "add_trailing_widget"):
         bar.add_trailing_widget(toggle)
     else:
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
-    screen._spatial_panel = panel
+    screen._spatial_panel = None
     screen._spatial_card = card
     screen._spatial_toggle = toggle
     try:
@@ -3165,4 +3173,29 @@ def _install_spatial_transcriptomics(screen: QWidget):
         _apply_alpha_widgets(toggle)
     except Exception:
         LOG.debug("alpha gate not applied", exc_info=True)
+    return card
+
+
+def _spatial_panel_of(screen: QWidget):
+    """Return ``screen``'s spatial transcriptomics panel, building it once.
+
+    :param screen: a Map Barcodes screen that went through
+        :func:`_install_spatial_transcriptomics`.
+    :returns: the panel, or None when the screen has no spatial card or the
+        panel could not be built.
+    """
+    panel = getattr(screen, "_spatial_panel", None)
+    if isinstance(panel, _SpatialTranscriptomicsPanel):
+        return panel
+    card = getattr(screen, "_spatial_card", None)
+    if card is None:
+        return None
+    try:
+        panel = _SpatialTranscriptomicsPanel(screen, card)
+        card.body_layout.addWidget(panel)
+    except Exception:
+        LOG.debug("could not build the spatial transcriptomics panel",
+                  exc_info=True)
+        return None
+    screen._spatial_panel = panel
     return panel

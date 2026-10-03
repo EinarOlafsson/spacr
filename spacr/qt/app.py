@@ -332,7 +332,7 @@ class _DragsTheWindowByTheMenuBar(QObject):
             return False
 
 
-_DATA_LIBRARIES = ("pandas",)
+_DATA_LIBRARIES = ("pandas", "matplotlib.figure")
 _DATA_LIBRARIES_AFTER_S = 1.0
 
 _DATA_LIBRARIES_STARTED = False
@@ -353,7 +353,11 @@ def _import_the_data_libraries_off_the_gui_thread():
     running waits on Python's import lock rather than importing twice.
 
     The libraries are :data:`_DATA_LIBRARIES`, those a data screen imports at
-    module scope. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
+    module scope or on its first build. ``matplotlib.figure`` is among them
+    because its import loads Matplotlib's font list, and with no font cache
+    yet (a first launch, or a new Matplotlib) that is a scan of every system
+    font: measured at 1.0-2.2 s inside Dose-Response's first open on hosted
+    macOS, the worst freeze of the whole sweep there. The window starts this :data:`_DATA_LIBRARIES_AFTER_S`
     seconds after a module screen is on show, so the import does not share
     the interpreter lock with the open that has just finished painting.
 

@@ -174,9 +174,11 @@ def test_the_data_libraries_come_in_off_the_gui_thread_once():
               and thread is not threading.main_thread())
         thread.join(120)
         print("after:", "pandas" in sys.modules)
+        print("figure:", "matplotlib.figure" in sys.modules)
         print("again:", A._import_the_data_libraries_off_the_gui_thread())
     """)
     assert "before: False" in out, out
     assert "worker: True" in out, out
     assert "after: True" in out, out
+    assert "figure: True" in out, out
     assert "again: None" in out, out

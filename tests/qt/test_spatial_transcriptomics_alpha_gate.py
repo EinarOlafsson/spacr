@@ -57,7 +57,10 @@ def test_registered_alpha_and_follows_the_switch(screen, gate):
     gate._set_show_alpha_features(True)
     gate._apply_alpha_widgets(screen)
     assert not toggle.isHidden()
+    assert screen._spatial_panel is None
     toggle.setChecked(True)
+    assert isinstance(screen._spatial_panel,
+                      map_barcodes._SpatialTranscriptomicsPanel)
     assert not screen.findChild(QObject, "MapBarcodesSpatialCard").isHidden()
     gate._set_show_alpha_features(False)
     gate._apply_alpha_widgets(screen)
@@ -68,7 +71,7 @@ def test_registered_alpha_and_follows_the_switch(screen, gate):
 def test_a_panel_filled_while_hidden_still_runs(screen, gate, tmp_path):
     from spacr.tabular import read_table
 
-    panel = screen._spatial_panel
+    panel = map_barcodes._spatial_panel_of(screen)
     assert screen._spatial_toggle.isHidden()
     folder = xenium_bundle(tmp_path / "x")
     cell, _nucleus, pathogen = _masks()
@@ -90,7 +93,7 @@ def test_a_panel_filled_while_hidden_still_runs(screen, gate, tmp_path):
 
 
 def test_missing_inputs_are_named(screen):
-    panel = screen._spatial_panel
+    panel = map_barcodes._spatial_panel_of(screen)
     assert panel.load() is False
     assert panel.status.text()
     assert panel.run() is None
