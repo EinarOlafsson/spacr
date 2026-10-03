@@ -127,3 +127,15 @@ Not done
     the labels. To correct, click the object on a wrong frame and propagate
     again (all seeds are re-sent). Tests stub the worker (no GPU).
     Left: saving the dialog's labels/tracks to the project.
+
+2026-10-03 — GPU ACCEPTANCE RUN SCRIPTED, NOT RUN (lane 3)
+    GPU card held by cellposetime-r1-train (another session; epoch 14/100 at
+    08:25, ~31 min/epoch, so ~44 h left). Queued with tools/gpu_turn.sh at
+    08:26 and withdrawn at 08:50; not run. Rerun by itself: tools/gpu_turn.sh
+    556-sam2 timeout 30m /mnt/wd4tb/scratch/556/gpu.sh <npz> <name>, one turn
+    per movie. Whole movies prepared: PhC-C2DH-U373 seq 01, 115 frames (8 GT
+    tracks), u373_01_115.npz; DIC-C2DH-HeLa seq 01, 84 frames (38 GT tracks),
+    hela_01_84.npz (CTC training sets, ST/SEG seeds). A CUDA SAM2 backend was
+    installed for it (spaCR _install_backend, torch 2.11.0+cu128, 1089 s) at
+    /mnt/wd4tb/scratch/556/backends; run_eval_gpu.py scores the IoU stitcher
+    and SAM2 tiny on cuda with DET/TRA.
