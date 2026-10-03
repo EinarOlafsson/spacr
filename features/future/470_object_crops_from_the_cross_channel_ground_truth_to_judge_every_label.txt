@@ -2,8 +2,8 @@
 OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL
 ================================================================================
 
-Status:    CROPS CUT AND TESTED 2026-09-27 (tooling only, no GUI or settings,
-           so no alpha keys). Annotation, classifiers and cleanup remain.
+Status:    IMPLEMENTED AS ALPHA 2026-10-03 (code parts); BLOCKED on the
+           maintainer's annotation for training, publishing and cleanup.
 
 Requested: 2026-09-21, verbatim -- "ok i need you to take the ground truth
            cell hoechst and toxoplasma masks and cut out for each objec:
@@ -255,3 +255,48 @@ classifier per type (Classify, three channels, split by well), score on
 held-out wells, publish to the Model Zoo and add the alpha option to drop
 objects after detection; remove the labels called not real, republish the
 datasets as a new version, retrain and rescore the cross-channel models.
+
+--------------------------------------------------------------------------------
+2026-10-03 -- CLASSIFIER CODE, CLI AND THE ALPHA DROP OPTION
+--------------------------------------------------------------------------------
+
+ALPHA: Mask generation settings real_object_classifier (a saved classifier,
+or a folder of cell.joblib / nucleus.joblib / pathogen.joblib) and
+real_object_threshold (default 0.5), registered in ALPHA_FEATURES[470],
+filed under "Object filtration" beside object_filters, hidden in Timelapse.
+After the masks are made and before cell adjustment and merging, each object
+is cut from stack/<field>.npy with the cell, pathogen and nucleus channels
+(the 470 crops' CellMask / Toxoplasma / Hoechst order), padded by the
+recorded rim (PV 1.5, nucleus 0.5, cell 0.3 x sqrt(area)), and erased from
+masks/<type>_mask_stack when called not real; ids are not renumbered, and
+every verdict goes to qc/real_object_filter_<type>.csv. A missing channel
+skips that type. Not applied to timelapse runs.
+
+CODE (spacr/object_classifier.py, private): _real_features (per-channel
+1-99 percentile scaling, so 8-bit PNG crops and 16-bit fields agree; 24 px
+thumbnail + mean/std/bright fraction), _RealObjectHead (head protocol),
+_annotated_real_crops (png_list `real` 1/2, grouped by plate|well),
+_train_real_classifier (scaled logistic regression, balanced classes,
+GroupShuffleSplit by well, scorecard on held-out wells, refit on all),
+_real_classifier_bundles, _drop_unreal_objects.
+
+CLI: tools/train_real_object_classifier.py
+  train --type pathogen --db <annotation_sample/pathogen>/measurements/measurements.db
+        --out <models>/pathogen.joblib   (+ pathogen.scorecard.json)
+  score --model <models>/pathogen.joblib --db <later round>.db [--out card.json]
+
+Tests: tests/test_470_real_object_classifier.py (synthetic crops: grouping,
+refusals, CLI train/score on held-out wells, erase-with-ids-kept, missing
+channel, the Mask run calling it) and
+tests/qt/test_real_object_classifier_alpha_gate.py. CPU only.
+
+Design note: a scikit-learn model on crop features was chosen over spaCR's
+torch Classify for the alpha because 1,000 crops per type is small and the
+head must run inside Mask generation without a GPU; a Classify-trained
+model can replace it behind the same head protocol later.
+
+BLOCKED on annotation (maintainer): annotate the sample (272 PV calls so far,
+cell and nucleus none), then run the CLI per type, publish the three
+classifiers to the Model Zoo with their scorecards (alpha), remove the
+labels called not real, republish the datasets and retrain/rescore the
+cross-channel models.

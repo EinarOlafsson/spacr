@@ -2,7 +2,7 @@
 spaCR FEATURES -- NEW, AND FUTURE
 ================================================================================
 
-Regenerated 2026-10-01 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-10-03 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/future/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-542 in features/new, 74 in features/future. NEITHER LIST BLOCKS A RELEASE.
+547 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -263,6 +263,9 @@ FUTURE FEATURES
 
   587  AN OFFLINE / AIR-GAPPED INSTALLER
        587_offline_air_gapped_installer.txt
+
+  634  MORE ORGANISM MODULES: TRYPANOSOME, LEISHMANIA, GIARDIA, VIRUS, MAMMALIAN
+       634_more_organism_modules_trypanosome_leishmania_giardia_virus_mammalian.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -810,3 +813,8 @@ NEW FEATURES
   628  628. Build metadata columns from extraction rules and compose labels with draggable tokens
   629  629. Save and load reusable annotation schemas in Graph Builder
   630  630. Bump spaCR to 1.5.1.2 when the release is ready
+  631  631. RAM-aware worker guard for Measure
+  632  632. Gate editor 3D mode is usable
+  633  633 Test data for every module and submodule
+  635  PLAQUE FIGURE MODE FINDS NO PLAQUES ON PAPER FIGURES
+  636  636 -- No empty settings categories

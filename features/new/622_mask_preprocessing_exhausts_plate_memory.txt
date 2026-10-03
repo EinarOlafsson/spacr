@@ -38,3 +38,18 @@ and unchanged saved masks. Batch sizes and scientific/model settings are
 unchanged. Primary preprocessing and downstream buffer fixes are complete
 on nightly. Full-plate segmentation remains an operational run, not a
 claimed automated acceptance test.
+
+2026-10-03 -- WHOLE-PIPELINE MEMORY TEST. tests/test_622_mask_plate_memory_tracemalloc.py
+runs preprocess_generate_masks end to end (ingest, normalisation, Cellpose
+for cell, nucleus and pathogen with a CPU stand-in, cell adjustment, merge)
+under tracemalloc on synthetic 3-field and 12-field plates and requires the
+peak to grow by less than a quarter of the extra fields' float32 pixels. A
+CPU probe on 512 x 512 three-channel plates showed a flat peak: 35.5 MB at
+8 fields, 35.8 MB at 32 (overlay plots on: 819 MB at 8, 818 MB at 32 --
+constant per figure, not per plate). A mutation that kept every merged
+stack in RAM failed the test (peak +13.4 MB for 7.1 MB of extra fields), so
+it catches plate-wide retention. No further downstream retention was found;
+mask generation holds one batch, never the plate.
+
+Status: COMPLETE 2026-10-03. Full-plate rerun on the reported NAS plate
+remains an operational check for the maintainer, not an automated test.

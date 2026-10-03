@@ -994,6 +994,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'random_test',
     'randomize',
     'rank_by',
+    'real_object_classifier',
+    'real_object_threshold',
     'recursive',
     'reduction_method',
     'reference_channel',

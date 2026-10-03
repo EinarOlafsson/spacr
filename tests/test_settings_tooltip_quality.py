@@ -983,7 +983,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_631_all = {(app, "ram_guard") for app in
                     ("mask", "umap", "map_barcodes", "classify_merged")}
     assert item_631_all <= compared_pairs
-    assert comparisons == 914
+    # 914 -> 916 on 2026-10-03, +2/-0 (item 470): real_object_classifier
+    # (None) and real_object_threshold (0.5), the alpha real / not-real
+    # object classifier, each resolved by Make Masks only.
+    item_470 = {("mask", key) for key in ("real_object_classifier",
+                                          "real_object_threshold")}
+    assert item_470 <= compared_pairs
+    assert comparisons == 916
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1029,6 +1035,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_536_threshold) + len(item_537_lineage)
             + len(item_583_channel_map) + len(item_631)
             + len(item_631_all)
+            + len(item_470)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

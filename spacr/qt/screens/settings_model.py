@@ -290,7 +290,8 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
                   "robustness_report", "robustness_fields", "robustness_crop",
                   "robustness_diameter_factors", "robustness_flow_thresholds",
                   "robustness_cellprob_thresholds", "robustness_enhancement",
-                  "robustness_tolerance"},
+                  "robustness_tolerance", "real_object_classifier",
+                  "real_object_threshold"},
     "classify": {
         "png_type", "crop_source", "file_metadata", "file_type",
         "path_string", "extract_channels", "coordinate_columns",

@@ -922,6 +922,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "robustness_diameter_factors", "robustness_flow_thresholds",
     "robustness_cellprob_thresholds", "robustness_enhancement",
     "robustness_tolerance",
+    # NEW SETTINGS, not a regrouping (item 470, 2026-10-03): the alpha
+    # real / not-real object classifier Make Masks applies after detection
+    # and its threshold, under "Object filtration" beside object_filters.
+    "real_object_classifier", "real_object_threshold",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six

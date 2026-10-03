@@ -8,7 +8,7 @@ states without raising. Clearing then rebinding restores plotting without
 discarding the selected plot kind. Validate every channel and preserve valid
 plot behaviors. Include regression tests for pinned bar and other plot kinds.
 
-Status: IN PROGRESS. Shared UI agent owns widget/spec/tests.
+Status: COMPLETE on nightly (see below); publication is tracked separately.
 
 Implemented and validated 2026-10-01: GraphSpec.binding_error checks incomplete
 and incompatible bindings before plotting. Canvas empty states clear stale

@@ -1086,6 +1086,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('robustness_cellprob_thresholds', [-2.0, 2.0])
     settings.setdefault('robustness_enhancement', True)
     settings.setdefault('robustness_tolerance', 0.2)
+    settings.setdefault('real_object_classifier', None)
+    settings.setdefault('real_object_threshold', 0.5)
     settings.setdefault('seg_qc_min_objects', 10)
     settings.setdefault('seg_qc_count_ratio', 0.25)
     settings.setdefault('seg_qc_size_ratio', 1.4)
@@ -3988,6 +3990,8 @@ expected_types = {
     "robustness_cellprob_thresholds": (list, str),
     "robustness_enhancement": bool,
     "robustness_tolerance": (float, int),
+    "real_object_classifier": (str, type(None)),
+    "real_object_threshold": (float, int),
     "seg_qc_count_ratio":float,
     "seg_qc_size_ratio":float,
     "seg_qc_border_fraction":float,
@@ -4595,6 +4599,8 @@ tooltips = {
     "robustness_flow_thresholds": "(list) - Flow thresholds the robustness report tries in place of the run's own, one at a time. Higher keeps objects whose flows are less consistent. Default [0.2, 0.6].",
     "robustness_cellprob_thresholds": "(list) - Cell-probability thresholds the robustness report tries in place of the run's own, one at a time. Lower grows objects and finds faint ones; higher shrinks or drops them. Default [-2.0, 2.0].",
     "robustness_enhancement": "(bool) - Also re-segment each sampled field after contrast-limited adaptive histogram equalisation (CLAHE), to see whether contrast enhancement changes what the model finds. Default True.",
+    "real_object_classifier": "(str or None) - A trained real / not-real classifier, or a folder holding cell.joblib, nucleus.joblib and pathogen.joblib, as written by tools/train_real_object_classifier.py. After the masks are made, each object is cut from the field with the cell, pathogen and nucleus channels and erased from its mask when the classifier calls it not real; the other ids are kept. Verdicts go to qc/real_object_filter_<object>.csv. Not applied to timelapse runs. Default None.",
+    "real_object_threshold": "(float) - Probability of being real below which the real / not-real classifier erases an object. Higher removes more objects. Only used with real_object_classifier. Default 0.5.",
     "robustness_tolerance": "(float) - Largest median relative change in object count, median area or mean intensity, or share of the run's objects not found again, that still counts as stable. A grid point beyond it is flagged fragile. Default 0.2.",
     "seg_qc_min_objects": "(int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.",
     "seg_qc_count_ratio": "(float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.",
@@ -5484,7 +5490,7 @@ organelle_basic_settings.insert(0, NUMBER_OF_ORGANELLES)
 categories = {
     "Paths": ["src", "mask_src", "test_src", "test_mask_src", "save_path", "custom_model_path", "resume_checkpoint", "dataset", "model_path", "tar_path", "grna_csv", "row_csv", "column_csv", "metadata_files", "paired_data", "score_data", "count_data"],
 
-    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters"],
+    "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected", "object_filters", "real_object_classifier", "real_object_threshold"],
 
     "Cellpose": ["channel_axis", "min_train_masks", "max_train_images",
         "nimg_per_epoch", "nimg_test_per_epoch", "scale_range",
@@ -5779,12 +5785,16 @@ _ADVANCED_FAMILIES = (
     ), ()),
 )
 
-_FAMILY_SHARED_KEYS = {"Object filtration": ("object_filters",)}
+_FAMILY_SHARED_KEYS = {"Object filtration": ("object_filters",
+                                             "real_object_classifier",
+                                             "real_object_threshold")}
 """Keys a family heading takes whole rather than one per object.
 
 ``object_filters`` (item 511) holds every object type's filter list in one
 mapping, so it has no object prefix for the suffix match to find, and it
-belongs beside the per-object area and intensity bounds it extends.
+belongs beside the per-object area and intensity bounds it extends. The
+real / not-real classifier and its threshold remove objects after
+detection too, for every object type at once.
 """
 
 #: Which heading each category nests under when the panel can draw a tree.
@@ -7521,6 +7531,9 @@ ALPHA_FEATURES = {
     568: {
         'widgets': ('MakeMasksUncertaintyButton', 'MakeMasksUncertaintySetting',
                     'MakeMasksUncertaintyEnsembleSetting'),
+    },
+    470: {
+        'settings': ('real_object_classifier', 'real_object_threshold'),
     },
     578: {
         'settings': ('robustness_report', 'robustness_fields',

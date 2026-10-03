@@ -570,6 +570,11 @@ def preprocess_generate_masks(settings):
                                     cancellation_checkpoint()
                                     _run_robustness_report(mask_src, settings, robust_role)
 
+                        if settings.get('real_object_classifier') and not settings['timelapse']:
+                            from .object_classifier import _drop_unreal_objects
+                            cancellation_checkpoint()
+                            _drop_unreal_objects(src, settings)
+
                         adjusted_cells = None
                         if settings['adjust_cells']:
                             if not settings['timelapse']:

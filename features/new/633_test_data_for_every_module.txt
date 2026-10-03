@@ -1,6 +1,6 @@
 633 Test data for every module and submodule
 
-Status: IMPLEMENTED AS ALPHA 2026-10-03 (partial: see "Left")
+Status: IMPLEMENTED AS ALPHA 2026-10-03; remaining screens BLOCKED on dose data
 
 Request (maintainer, verbatim):
 "have an agent pass over each modular and sub modal, and check if there is any
@@ -127,3 +127,9 @@ Left:
 - Dose-Response: needs a multi-dose plate (see above).
 - Profiler / Investigate Hit: chain from Regression's test data.
 - run_compare, run_history, train_compare: a published demo registry.
+
+2026-10-03: the remaining screens in "Left" are BLOCKED on dose data: no
+multi-dose plate with a concentration column exists on HF or on disk.
+Dose-Response needs one directly, and the Profiler / Investigate Hit and
+compare/history demos are to be chained from the same plate once the
+maintainer supplies it (or picks a public set such as cpg0004 LINCS).

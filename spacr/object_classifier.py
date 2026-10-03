@@ -36,6 +36,7 @@ from __future__ import annotations
 import logging
 import math
 import operator
+import os
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -481,3 +482,283 @@ def segment_and_classify(backend: Any, image: np.ndarray, *,
     if mask.ndim != 2:
         raise ValueError("the backend must return one mask for one image")
     return classify_objects(image, mask, **classify_kwargs)
+
+
+_REAL_SIDE = 24
+_REAL_ROLES: Tuple[str, ...] = ("cell", "pathogen", "nucleus")
+_REAL_PADDING: Dict[str, float] = {"pathogen": 1.5, "nucleus": 0.5, "cell": 0.3}
+_REAL_TYPES: Tuple[str, ...] = ("cell", "nucleus", "pathogen")
+
+
+def _real_features(crop: np.ndarray) -> np.ndarray:
+    """Describe one crop for the real / not-real classifier.
+
+    Each channel is scaled between its own 1st and 99th percentiles, so an
+    8-bit annotation crop and a 16-bit field crop of the same object give
+    the same features. The scaled crop is shrunk to a small square and
+    joined with the per-channel mean, spread and bright fraction.
+    """
+    from skimage.transform import resize
+
+    array = np.asarray(crop, dtype=np.float32)
+    if array.ndim == 2:
+        array = array[:, :, None]
+    low, high = np.percentile(array, (1, 99), axis=(0, 1))
+    scaled = np.clip((array - low) / np.maximum(high - low, 1e-6), 0, 1)
+    small = resize(scaled, (_REAL_SIDE, _REAL_SIDE, scaled.shape[2]),
+                   order=1, anti_aliasing=True, preserve_range=True)
+    stats = np.concatenate([scaled.mean(axis=(0, 1)), scaled.std(axis=(0, 1)),
+                            (scaled > 0.5).mean(axis=(0, 1))])
+    return np.concatenate([small.ravel(), stats]).astype(np.float32)
+
+
+def _read_real_crop(path: str) -> np.ndarray:
+    """An annotation crop as ``(H, W, 3)``, CellMask / parasite / Hoechst."""
+    from PIL import Image
+
+    with Image.open(path) as image:
+        array = np.asarray(image.convert("RGB"))
+    return array
+
+
+class _RealObjectHead:
+    """A trained real / not-real classifier answering the head protocol.
+
+    Each crop gets ``real`` when the probability of being real reaches
+    ``threshold`` and ``not real`` otherwise, with the probability of the
+    class given.
+    """
+
+    def __init__(self, bundle: Mapping[str, Any], threshold: float = 0.5):
+        self.estimator = bundle["estimator"]
+        self.threshold = float(threshold)
+        if not 0 <= self.threshold <= 1:
+            raise ValueError("real_object_threshold must be between 0 and 1")
+
+    def real_probability(self, crops: Sequence[np.ndarray]) -> np.ndarray:
+        """Probability that each crop shows a real object."""
+        features = np.stack([_real_features(crop) for crop in crops])
+        classes = list(self.estimator.classes_)
+        return self.estimator.predict_proba(features)[:, classes.index(1)]
+
+    def predict(self, crops: Sequence[np.ndarray]) -> List[Dict[str, Any]]:
+        """``{"class", "probability"}`` per crop."""
+        if not len(crops):
+            return []
+        answers = []
+        for probability in self.real_probability(crops):
+            real = probability >= self.threshold
+            answers.append({"class": "real" if real else "not real",
+                            "probability": float(probability if real
+                                                 else 1 - probability)})
+        return answers
+
+
+def _annotated_real_crops(databases: Sequence[str], column: str = "real"):
+    """Annotated crops from Annotate's ``png_list`` tables.
+
+    :param databases: ``measurements.db`` files whose ``png_list`` has the
+        annotation column, 1 meaning real and 2 not real.
+    :param column: the annotation column.
+    :returns: a frame with ``png_path``, ``real`` (True or False) and
+        ``group``, the plate and well each crop came from, so a split by
+        group never puts one well on both sides.
+    :raises ValueError: a database without the column.
+    """
+    import pandas as pd
+
+    from .tabular import read_table
+
+    frames = []
+    for database in databases:
+        frame = read_table(database, table="png_list", report=None)
+        if column not in frame.columns:
+            raise ValueError(f"{database} has no {column!r} column in "
+                             f"png_list; annotate it in Annotate first")
+        calls = pd.to_numeric(frame[column], errors="coerce")
+        frame = frame.loc[calls.isin([1, 2])].copy()
+        frame["real"] = calls.loc[frame.index] == 1
+        names = frame["png_path"].map(lambda p: os.path.splitext(
+            os.path.basename(str(p)))[0].rsplit("_", 3))
+        plates = (frame["dataset_plate"].astype(str)
+                  if "dataset_plate" in frame.columns
+                  else names.map(lambda parts: parts[0]))
+        wells = names.map(lambda parts: parts[1] if len(parts) > 1 else "")
+        frame["group"] = plates + "|" + wells
+        frames.append(frame[["png_path", "real", "group"]])
+    if not frames:
+        return pd.DataFrame(columns=["png_path", "real", "group"])
+    return pd.concat(frames, ignore_index=True)
+
+
+def _real_scorecard(truth: np.ndarray, probability: np.ndarray,
+                    threshold: float) -> Dict[str, Any]:
+    """Held-out scores, with "not real" as the class being detected."""
+    from sklearn.metrics import (balanced_accuracy_score, precision_score,
+                                 recall_score, roc_auc_score)
+
+    truth = np.asarray(truth, dtype=bool)
+    called_real = np.asarray(probability) >= threshold
+    both = truth.any() and (~truth).any()
+    return {
+        "n": int(truth.size), "n_not_real": int((~truth).sum()),
+        "accuracy": float((called_real == truth).mean()) if truth.size else None,
+        "balanced_accuracy": (float(balanced_accuracy_score(truth, called_real))
+                              if both else None),
+        "not_real_precision": float(precision_score(
+            ~truth, ~called_real, zero_division=0)),
+        "not_real_recall": float(recall_score(~truth, ~called_real,
+                                              zero_division=0)),
+        "roc_auc": float(roc_auc_score(truth, probability)) if both else None,
+        "threshold": float(threshold),
+    }
+
+
+def _train_real_classifier(frame, object_type: str, *,
+                           test_fraction: float = 0.2, seed: int = 0,
+                           threshold: float = 0.5) -> Dict[str, Any]:
+    """Train one real / not-real classifier and score it on held-out wells.
+
+    :param frame: what :func:`_annotated_real_crops` returns.
+    :param object_type: ``cell``, ``nucleus`` or ``pathogen``.
+    :param test_fraction: share of the wells held out for the score.
+    :param seed: the split's seed.
+    :param threshold: the probability of real below which an object is
+        called not real when scoring.
+    :returns: the bundle to save: the estimator refitted on every crop, the
+        channel roles its crops carry, the padding used to cut field crops
+        and the held-out ``scorecard``.
+    :raises ValueError: an unknown object type, one class only, or fewer
+        than two wells.
+    """
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.model_selection import GroupShuffleSplit
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    if object_type not in _REAL_TYPES:
+        raise ValueError(f"object type must be one of {list(_REAL_TYPES)}")
+    truth = np.asarray(frame["real"], dtype=bool)
+    groups = np.asarray(frame["group"])
+    if truth.all() or not truth.any():
+        raise ValueError("training needs crops called real and not real")
+    if len(set(groups)) < 2:
+        raise ValueError("training needs annotated crops from two wells or more")
+    features = np.stack([_real_features(_read_real_crop(path))
+                         for path in frame["png_path"]])
+
+    def estimator():
+        return make_pipeline(StandardScaler(), LogisticRegression(
+            C=0.1, max_iter=2000, class_weight="balanced"))
+
+    split = GroupShuffleSplit(n_splits=1, test_size=test_fraction,
+                              random_state=seed)
+    train, test = next(split.split(features, truth, groups))
+    scorecard = {"n_train": int(len(train)),
+                 "wells_held_out": sorted(set(groups[test].tolist()))}
+    if len(set(truth[train])) == 2:
+        held_out = estimator().fit(features[train], truth[train].astype(int))
+        probability = held_out.predict_proba(features[test])[
+            :, list(held_out.classes_).index(1)]
+        scorecard.update(_real_scorecard(truth[test], probability, threshold))
+    else:
+        scorecard["note"] = "the training wells held one class only; no score"
+    final = estimator().fit(features, truth.astype(int))
+    return {"version": 1, "estimator": final, "object_type": object_type,
+            "roles": _REAL_ROLES, "padding_fraction": _REAL_PADDING[object_type],
+            "scorecard": scorecard}
+
+
+def _real_classifier_bundles(location: str) -> Dict[str, Dict[str, Any]]:
+    """Load the classifiers a run names, keyed by object type.
+
+    :param location: one saved classifier, or a folder holding
+        ``cell.joblib``, ``nucleus.joblib`` and/or ``pathogen.joblib``.
+    :raises ValueError: nothing loadable there.
+    """
+    import joblib
+
+    location = os.path.expanduser(str(location))
+    if os.path.isdir(location):
+        paths = [os.path.join(location, f"{kind}.joblib") for kind in _REAL_TYPES]
+        paths = [path for path in paths if os.path.isfile(path)]
+    elif os.path.isfile(location):
+        paths = [location]
+    else:
+        raise ValueError(f"real_object_classifier not found: {location}")
+    bundles = {}
+    for path in paths:
+        bundle = joblib.load(path)
+        if not isinstance(bundle, Mapping) or bundle.get("object_type") not in _REAL_TYPES:
+            raise ValueError(f"{path} is not a real / not-real classifier")
+        bundles[bundle["object_type"]] = dict(bundle)
+    if not bundles:
+        raise ValueError(f"no cell, nucleus or pathogen classifier in {location}")
+    return bundles
+
+
+def _drop_unreal_objects(src: str, settings: Mapping[str, Any]) -> Dict[str, int]:
+    """Erase the objects a real / not-real classifier rejects from each mask.
+
+    For every object type with a classifier and a mask folder, each field's
+    objects are cut from ``stack/<field>.npy`` with the channels the
+    classifier was trained on, and those called not real are set to
+    background in ``masks/<type>_mask_stack/<field>.npy``. Remaining ids
+    are kept. Every verdict goes to ``qc/real_object_filter_<type>.csv``.
+
+    :param src: the plate folder holding ``stack`` and ``masks``.
+    :param settings: reads ``real_object_classifier``,
+        ``real_object_threshold`` and the ``*_channel`` settings.
+    :returns: objects removed per object type.
+    """
+    import pandas as pd
+
+    from .io import _save_array_atomic
+    from .tabular import write_table
+
+    bundles = _real_classifier_bundles(settings["real_object_classifier"])
+    threshold = float(settings.get("real_object_threshold", 0.5))
+    removed_counts: Dict[str, int] = {}
+    for object_type, bundle in bundles.items():
+        folder = os.path.join(src, "masks", f"{object_type}_mask_stack")
+        planes = [settings.get(f"{role}_channel") for role in bundle["roles"]]
+        if not os.path.isdir(folder):
+            print(f"No {object_type} masks; its real / not-real classifier is skipped.")
+            continue
+        if any(plane is None for plane in planes):
+            print(f"The {object_type} real / not-real classifier needs the "
+                  f"{', '.join(bundle['roles'])} channels; it is skipped.")
+            continue
+        head = _RealObjectHead(bundle, threshold)
+        rows: List[Dict[str, Any]] = []
+        for name in sorted(f for f in os.listdir(folder)
+                           if f.endswith(".npy") and not f.startswith(".")):
+            image_path = os.path.join(src, "stack", name)
+            mask_path = os.path.join(folder, name)
+            mask = np.load(mask_path)
+            if mask.ndim != 2 or not os.path.isfile(image_path):
+                continue
+            image = np.load(image_path, mmap_mode="r")
+            if image.ndim == 2:
+                image = image[:, :, None]
+            labels, areas = np.unique(mask[mask > 0], return_counts=True)
+            crops = [crop_object(np.asarray(image), mask, int(label),
+                                 channels=planes, padding=int(round(
+                                     bundle["padding_fraction"] * math.sqrt(area))))
+                     for label, area in zip(labels, areas)]
+            verdicts = list(_predictions(head, crops))
+            dropped = [int(label) for label, verdict in zip(labels, verdicts)
+                       if verdict["class"] == "not real"]
+            if dropped:
+                _save_array_atomic(mask_path, remove_labels(mask, dropped))
+            rows.extend({"field": os.path.splitext(name)[0],
+                         "label": int(label), "class": verdict["class"],
+                         "probability": verdict["probability"]}
+                        for label, verdict in zip(labels, verdicts))
+            del image, mask, crops
+        removed_counts[object_type] = sum(row["class"] == "not real" for row in rows)
+        write_table(pd.DataFrame(rows, columns=["field", "label", "class", "probability"]),
+                    os.path.join(src, "qc", f"real_object_filter_{object_type}.csv"))
+        print(f"Real / not-real classifier removed {removed_counts[object_type]} "
+              f"of {len(rows)} {object_type} objects.")
+    return removed_counts
