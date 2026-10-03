@@ -1588,7 +1588,7 @@ FILTER_BOUNDS = ("min_area", "max_area", "min_intensity", "max_intensity")
 """The four legacy bounds, named as :func:`filter_report`'s keywords are.
 
 They are no longer a second filter. :func:`legacy_filters` turns them into
-entries of the one filter list (item 511), so a caller that still passes
+entries of the one filter list, so a caller that still passes
 ``min_area=20`` is judged by the same regionprops pass as a user who added
 an ``area`` row, and a :class:`FilterRemoval` still names the legacy bound
 an object failed so the older ledgers read the same.
