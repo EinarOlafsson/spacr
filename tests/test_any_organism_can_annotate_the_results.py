@@ -30,9 +30,19 @@ from spacr.uniprot import (ACCESSION, BUNDLED_NAMES, ORGANISMS, Resolution,
 
 
 def _has_network() -> bool:
+    """UniProt answers a one-entry search, not merely accepts a socket.
+
+    A UniProt outage still accepts TCP and then answers 503 to every query,
+    which would fail these tests on UniProt's state rather than spaCR's.
+    """
+    import urllib.request
+
     try:
         socket.create_connection(("rest.uniprot.org", 443), timeout=4).close()
-        return True
+        with urllib.request.urlopen(
+                "https://rest.uniprot.org/uniprotkb/search?query=P04637"
+                "&fields=accession&size=1", timeout=10) as response:
+            return response.status == 200
     except Exception:                                        # noqa: BLE001
         return False
 
