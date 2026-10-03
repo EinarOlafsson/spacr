@@ -1,0 +1,35 @@
+================================================================================
+MORE ORGANISM MODULES: TRYPANOSOME, LEISHMANIA, GIARDIA, VIRUS, MAMMALIAN
+================================================================================
+
+Status:    OPEN, filed 2026-10-03.
+Requested: 2026-10-03, by the maintainer, verbatim:
+
+  "Also add to future features list to add in addition to candida, toxo and
+   plasmodium, to add trypanosome, leishmania, giardia, virus, and mammalian
+   modals with the same setup as toxo, candida and plasmodium. All of these
+   modular should be under the alpha flag in preferences (so not visible
+   unless alpha is toggled, with no tutorials etcetera) and with the same
+   internal structure as the toxo, plas, and candida moduals, with uniprot
+   schematics with organelles and so on."
+
+WHAT TO BUILD
+  Five new organism modules -- Trypanosoma, Leishmania, Giardia, Virus and
+  Mammalian -- each mirroring the existing Toxoplasma, Plasmodium and Candida
+  modules: same internal structure, settings, workflows and API (see item 474),
+  and a UniProt-backed schematic of the organism with its organelles and
+  subcellular locations.
+
+CONSTRAINTS
+  * ALPHA: every module, setting and widget registered in
+    ALPHA_FEATURES[634] (spacr/settings.py); hidden unless Preferences ->
+    Show alpha features is on.
+  * No tutorials or lessons (alpha rule).
+  * Schematic organelle lists come from UniProt subcellular-location
+    vocabulary for each organism; cite the UniProt release used.
+
+DONE WHEN
+  Each of the five modules opens from the home screen with alpha on, matches
+  the Toxoplasma/Plasmodium/Candida structure (same tabs, settings
+  categories, workflows), shows its UniProt organelle schematic, and is
+  absent with alpha off; tests pin both states.
