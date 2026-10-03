@@ -1,6 +1,6 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,9 @@
     "Voici la palette CMY. Vous pouvez revenir à RGB dans les mêmes paramètres. Gardez le même affichage pendant que vous comparez et étiquetez les objets.",
     "Ouvrez Annotator Agreement depuis l’icône en haut à droite pour comparer des colonnes d’annotation. Utilisez-le pour trouver les objets auxquels des relecteurs ont attribué des étiquettes différentes.",
     "Quand vos étiquettes sont prêtes, ouvrez Train. Choisissez des images pour un classificateur d’images, ou des caractéristiques mesurées pour un classificateur tabulaire. Les leçons Classify associées expliquent les paramètres d’entraînement.",
-    "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; il lui faut donc d’abord des exemples des deux classes. Étiquetez-en quelques-unes de chaque, ici dix de la classe un et dix de la classe deux, puis passez à la page suivante pour les enregistrer.",
-    "Ouvrez ensuite Suggest et choisissez Suggest for the images on this page. Chaque découpe suggérée porte un point d’interrogation : cliquez dessus ou appuyez sur Y pour confirmer, faites un clic droit ou appuyez sur N pour rejeter. Les deux réponses sont enregistrées, les rejets entraînent la manche suivante, et Rounds montre comment le modèle progresse au fil du travail.",
+    "Suggest propose des étiquettes pour les découpes auxquelles vous n’avez pas encore répondu ; donnez-lui d’abord des exemples des deux classes provenant de plusieurs puits. Ici, quelques découpes de chaque classe sont étiquetées dans quatre puits, puis Next les enregistre.",
+    "Ouvrez Suggest et choisissez Suggest for the images on this page. La manche prend quelques secondes, puis chaque découpe de la page porte un point d’interrogation. La barre au-dessus de la grille compte les suggestions qui restent à juger.",
+    "Cliquez sur une découpe suggérée ou appuyez sur Y pour la confirmer, faites un clic droit ou appuyez sur N pour la rejeter. Les deux réponses sont enregistrées, les rejets entraînent la manche suivante, et Confirm the rest of the page règle le reste une fois que vous l’avez vérifié.",
     "Generate annotation database crée un ensemble de vignettes à partir de données sources adaptées. Utilisez-le pour préparer un nouveau projet d’annotation ; l’exemple téléchargé contient déjà les vignettes et la base de données nécessaires ici.",
     "Ouvrez Console pour vérifier les messages de chargement de la source et d’enregistrement. Votre colonne d’annotation est stockée dans la base de données du projet et peut être sélectionnée lorsque vous préparez les données d’entraînement dans Classify.",
     "Pour obtenir de l’aide sur un paramètre, ouvrez spaCR AI dans Console après avoir configuré un fournisseur dans Preferences. Une fois l’étiquetage terminé, passez à Classify avec votre projet et la colonne d’annotation choisie."

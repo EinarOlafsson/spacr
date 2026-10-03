@@ -1,6 +1,6 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,9 @@
     "Esta é a paleta CMY. Você pode voltar para RGB nas mesmas configurações. Mantenha a mesma visualização enquanto compara e rotula objetos.",
     "Abra o Annotator Agreement pelo ícone no canto superior direito para comparar colunas de anotação. Use-o para encontrar objetos que revisores rotularam de formas diferentes.",
     "Quando seus rótulos estiverem prontos, abra Train. Escolha imagens para um classificador de imagens ou características medidas para um classificador tabular. As aulas de Classify indicadas explicam as configurações de treinamento.",
-    "Suggest propõe rótulos para os recortes que você ainda não respondeu, por isso precisa primeiro de exemplos das duas classes. Rotule alguns de cada, aqui dez da classe um e dez da classe dois, e vá para a próxima página para que sejam salvos.",
-    "Depois abra Suggest e escolha Suggest for the images on this page. Cada recorte sugerido recebe um ponto de interrogação: clique nele ou pressione Y para confirmar, clique com o botão direito ou pressione N para rejeitar. As duas respostas são registradas, as rejeições treinam a próxima rodada e Rounds mostra como o modelo melhora ao longo do trabalho.",
+    "Suggest propõe rótulos para os recortes que você ainda não respondeu, então dê a ele primeiro exemplos das duas classes vindos de vários poços. Aqui alguns recortes de cada classe são rotulados em quatro poços, e Next os salva.",
+    "Abra Suggest e escolha Suggest for the images on this page. A rodada leva alguns segundos, e cada recorte da página passa a ter um ponto de interrogação. A barra acima da grade conta quantas sugestões faltam julgar.",
+    "Clique em um recorte sugerido ou pressione Y para confirmá-lo, e clique com o botão direito ou pressione N para rejeitá-lo. As duas respostas são registradas, as rejeições treinam a próxima rodada e Confirm the rest of the page resolve o restante depois que você o conferir.",
     "Generate annotation database cria um conjunto de recortes a partir de dados de origem adequados. Use-o ao preparar um novo projeto de anotação; o exemplo baixado já inclui os recortes e o banco de dados necessários aqui.",
     "Abra o Console para conferir as mensagens de carregamento da origem e de salvamento. Sua coluna de anotação fica guardada no banco de dados do projeto e pode ser selecionada quando você preparar os dados de treinamento no Classify.",
     "Para obter ajuda com uma configuração, abra o spaCR AI no Console depois de configurar um provedor em Preferences. Quando terminar de rotular, continue no Classify com seu projeto e a coluna de anotação escolhida."

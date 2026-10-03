@@ -1,6 +1,6 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,9 @@
     "Das ist die CMY-Palette. Über dieselben Einstellungen gelangen Sie zurück zu RGB. Behalten Sie beim Vergleichen und Beschriften dieselbe Ansicht bei.",
     "Öffnen Sie Annotator Agreement über das Symbol oben rechts, um Annotationsspalten zu vergleichen. Damit finden Sie Objekte, denen verschiedene Prüfer unterschiedliche Labels gegeben haben.",
     "Wenn Ihre Labels fertig sind, öffnen Sie Train. Wählen Sie Bilder für einen Bildklassifikator oder gemessene Merkmale für einen tabellarischen Klassifikator. Die verlinkten Classify-Lektionen erklären die Trainingseinstellungen.",
-    "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben, und braucht dafür zuerst Beispiele beider Klassen. Beschriften Sie einige von jeder, hier zehn in Klasse eins und zehn in Klasse zwei, und wechseln Sie zur nächsten Seite, damit sie gespeichert werden.",
-    "Öffnen Sie dann Suggest und wählen Sie Suggest for the images on this page. Jeder vorgeschlagene Ausschnitt trägt ein Fragezeichen: Klicken Sie ihn an oder drücken Sie Y, um zu bestätigen, oder klicken Sie mit der rechten Maustaste bzw. drücken N, um abzulehnen. Beide Antworten werden festgehalten, Ablehnungen trainieren die nächste Runde, und Rounds zeigt, wie sich das Modell dabei verbessert.",
+    "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben. Geben Sie ihm daher zuerst Beispiele beider Klassen aus mehreren Wells. Hier werden in vier Wells einige Ausschnitte jeder Klasse beschriftet, und Next speichert sie.",
+    "Öffnen Sie Suggest und wählen Sie Suggest for the images on this page. Die Runde dauert einige Sekunden, danach trägt jeder Ausschnitt der Seite ein Fragezeichen. Die Leiste über dem Raster zählt, wie viele Vorschläge noch zu beurteilen sind.",
+    "Klicken Sie auf einen vorgeschlagenen Ausschnitt oder drücken Sie Y, um ihn zu bestätigen, und klicken Sie mit der rechten Maustaste oder drücken Sie N, um ihn abzulehnen. Beide Antworten werden festgehalten, Ablehnungen trainieren die nächste Runde, und Confirm the rest of the page erledigt den Rest, sobald Sie ihn geprüft haben.",
     "Generate annotation database erstellt einen Satz von Ausschnitten aus geeigneten Quelldaten. Verwenden Sie es beim Vorbereiten eines neuen Annotationsprojekts; das heruntergeladene Beispiel enthält die hier benötigten Ausschnitte und die Datenbank bereits.",
     "Öffnen Sie Console, um Meldungen zum Laden der Quelle und zum Speichern zu prüfen. Ihre Annotationsspalte wird in der Projektdatenbank gespeichert und kann beim Vorbereiten der Trainingsdaten in Classify ausgewählt werden.",
     "Für Hilfe zu einer Einstellung öffnen Sie spaCR AI in Console, nachdem Sie in Preferences einen Anbieter eingerichtet haben. Wenn Sie mit dem Beschriften fertig sind, fahren Sie mit Classify, Ihrem Projekt und der gewählten Annotationsspalte fort."

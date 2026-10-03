@@ -1,6 +1,6 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,9 @@
     "Hér er CMY-litaspjaldið. Þú getur farið aftur í RGB í sömu stillingum. Haltu sama yfirliti meðan þú berð saman og merkir hluti.",
     "Opnaðu Annotator Agreement frá tákninu efst til hægri til að bera saman merkingardálka. Notaðu það til að finna hluti þar sem yfirlesarar settu mismunandi merki.",
     "Þegar merkin eru tilbúin opnarðu Train. Veldu myndir fyrir myndflokkara eða mælda eiginleika fyrir töfluflokkara. Tengdu Classify-kennslustundirnar útskýra þjálfunarstillingarnar.",
-    "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo það þarf fyrst dæmi um báða flokkana. Merktu nokkrar af hvorum, hér tíu í flokki eitt og tíu í flokki tvö, og farðu á næstu síðu svo þær vistist.",
-    "Opnaðu svo Suggest og veldu Suggest for the images on this page. Hver tillaga fær spurningarmerki: smelltu á hana eða ýttu á Y til að staðfesta, hægrismelltu eða ýttu á N til að hafna. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Rounds sýnir hvernig líkanið batnar jafnóðum.",
+    "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+    "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+    "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
     "Generate annotation database býr til safn úrklippa úr hentugum upprunagögnum. Notaðu það þegar þú undirbýrð nýtt merkingarverkefni; sótta dæmið inniheldur þegar úrklippin og gagnagrunninn sem þarf hér.",
     "Opnaðu Console til að athuga skilaboð um innlestur upprunans og vistun. Merkingardálkurinn þinn er geymdur í gagnagrunni verkefnisins og hægt er að velja hann þegar þú undirbýrð þjálfunargögn í Classify.",
     "Til að fá hjálp með stillingu opnarðu spaCR AI í Console eftir að hafa sett upp þjónustuaðila í Preferences. Þegar þú hefur lokið merkingunni heldurðu áfram í Classify með verkefnið og valda merkingardálkinn."

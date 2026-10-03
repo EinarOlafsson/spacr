@@ -154,7 +154,7 @@
     },
     {
       "visual": "19_labels_for_suggest",
-      "narration": "Suggest proposes labels for the crops you have not answered yet, so it needs examples of both classes first. Label a handful of each, here ten of class one and ten of class two, and move to the next page so they are saved.",
+      "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in four wells, then Next saves them.",
       "focus": [
         360,
         380,
@@ -165,13 +165,24 @@
       "hold_after": 0.7
     },
     {
-      "visual": "19_suggest_menu",
-      "narration": "Then open Suggest and choose Suggest for the images on this page. Each suggested crop wears a question-mark badge: click it or press Y to confirm, right-click it or press N to reject. Both answers are recorded, rejections train the next round, and Rounds shows how the model improves as you go.",
+      "visual": "20_suggestions",
+      "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and every crop on the page now wears a question-mark badge. The bar above the grid counts how many suggestions are left to judge.",
       "focus": [
-        1600,
-        190,
-        450,
-        110
+        350,
+        250,
+        3460,
+        1150
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_judged",
+      "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers are recorded, rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
+      "focus": [
+        350,
+        250,
+        3460,
+        700
       ],
       "hold_after": 0.7
     },

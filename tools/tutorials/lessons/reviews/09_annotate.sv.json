@@ -1,6 +1,6 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,9 @@
     "Här är CMY-paletten. Du kan gå tillbaka till RGB via samma inställningar. Håll vyn densamma medan du jämför och märker objekt.",
     "Öppna Annotator Agreement från ikonen uppe till höger för att jämföra annoteringskolumner. Använd det för att hitta objekt där granskare har satt olika etiketter.",
     "När etiketterna är klara öppnar du Train. Välj bilder för en bildklassificerare eller uppmätta egenskaper för en tabellklassificerare. De länkade Classify-lektionerna förklarar träningsinställningarna.",
-    "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så den behöver först exempel på båda klasserna. Märk en handfull av varje, här tio i klass ett och tio i klass två, och gå till nästa sida så att de sparas.",
-    "Öppna sedan Suggest och välj Suggest for the images on this page. Varje föreslaget utsnitt får ett frågetecken: klicka på det eller tryck Y för att bekräfta, högerklicka eller tryck N för att avvisa. Båda svaren registreras, avvisningar tränar nästa omgång och Rounds visar hur modellen förbättras under arbetets gång.",
+    "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så ge den först exempel på båda klasserna från flera brunnar. Här märks några utsnitt av varje klass i fyra brunnar, och Next sparar dem.",
+    "Öppna Suggest och välj Suggest for the images on this page. Omgången tar några sekunder, och varje utsnitt på sidan får nu ett frågetecken. Fältet ovanför rutnätet räknar hur många förslag som återstår att bedöma.",
+    "Klicka på ett föreslaget utsnitt eller tryck Y för att bekräfta det, och högerklicka eller tryck N för att avvisa det. Båda svaren registreras, avvisningar tränar nästa omgång och Confirm the rest of the page avgör resten när du har kontrollerat det.",
     "Generate annotation database skapar en uppsättning utsnitt från lämpliga källdata. Använd det när du förbereder ett nytt annoteringsprojekt; det hämtade exemplet innehåller redan de utsnitt och den databas som behövs här.",
     "Öppna Console för att kontrollera meddelanden om inläsning av källan och sparande. Din annoteringskolumn lagras i projektdatabasen och kan väljas när du förbereder träningsdata i Classify.",
     "För hjälp med en inställning öppnar du spaCR AI i Console efter att ha konfigurerat en leverantör i Preferences. När du är klar med märkningen fortsätter du till Classify med ditt projekt och den valda annoteringskolumnen."

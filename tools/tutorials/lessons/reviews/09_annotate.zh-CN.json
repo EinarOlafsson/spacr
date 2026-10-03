@@ -1,6 +1,6 @@
 {
   "lesson": "09_annotate",
-  "english_sha256": "a50d37d501f4474692d0f611543d9f52c9a96e203e4e0136aedb6eaa530befd4",
+  "english_sha256": "ecb8a3ab30f7f521a1f85aba81119cf3b185e2f032c3917f33caac40346461b9",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,9 @@
     "这是CMY调色板。可以在同一设置中切换回RGB。在比较和标注对象时，请保持视图一致。",
     "从右上角的图标打开Annotator Agreement，比较不同的标注列。用它找出不同审阅者给出不同标签的对象。",
     "标签准备好后，打开Train。为图像分类器选择图像，或为表格分类器选择测得的特征。相关的Classify课程会讲解训练设置。",
-    "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此它首先需要两个类别的示例。为每个类别标注几个，这里类别一标注十个、类别二标注十个，然后翻到下一页以保存它们。",
-    "然后打开 Suggest，选择 Suggest for the images on this page。每个建议的裁剪图像都会带有问号标记：单击或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮，Rounds 则显示模型在过程中如何改进。",
+    "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
+    "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
+    "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
     "Generate annotation database会从合适的源数据生成一组裁剪图像。准备新的标注项目时使用它；下载的示例已经包含这里所需的裁剪图像和数据库。",
     "打开Console，检查源数据加载和保存的消息。您的标注列保存在项目数据库中，在Classify中准备训练数据时可以选择它。",
     "如需某个设置的帮助，请先在Preferences中配置服务提供商，然后在Console中打开spaCR AI。完成标注后，请带着您的项目和所选的标注列继续使用Classify。"

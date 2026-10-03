@@ -336,29 +336,48 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
 
 def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
                              wait_for, page_ready, query, annotation):
-    """Label a few crops, Suggest for this page, then confirm and reject (512).
+    """Label both classes in several wells, run a real Suggest round, judge two (512, 610).
 
     Runs after the preserving tour on the private copy only; the labels and
     suggestions stay in the tutorial column of that copy.
     """
+    import re
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QMenu
+    from PySide6.QtWidgets import QMenu, QMessageBox
 
-    thumbs = screen._thumbs
-    if len(thumbs) < 30:
-        raise RuntimeError('Too few crops on the page for a suggestion round')
-    for index in range(10):
-        QTest.mouseClick(thumbs[index], Qt.LeftButton)
-        settle(.05)
-    for index in range(10, 20):
-        QTest.mouseClick(thumbs[index], Qt.RightButton)
-        settle(.05)
+    def well(path):
+        match = re.search(r'plate\d+_([A-Z]\d{2})_', Path(path).name)
+        return match.group(1) if match else None
+
+    labelled_wells = set()
+    for _ in range(12):
+        paths = [p for p, _ in screen._page_paths]
+        wells = {}
+        for index, path in enumerate(paths):
+            wells.setdefault(well(path), []).append(index)
+        for key, indices in wells.items():
+            if key is None or key in labelled_wells or len(indices) < 6:
+                continue
+            for index in indices[:3]:
+                QTest.mouseClick(screen._thumbs[index], Qt.LeftButton)
+                settle(.05)
+            for index in indices[3:6]:
+                QTest.mouseClick(screen._thumbs[index], Qt.RightButton)
+                settle(.05)
+            labelled_wells.add(key)
+        if len(labelled_wells) >= 3:
+            break
+        QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+        wait_for(page_ready, 'Next did not load while labelling')
+    if len(labelled_wells) < 2:
+        raise RuntimeError('Could not label crops from at least two wells')
     QTest.mouseClick(screen._btn_next, Qt.LeftButton)
     wait_for(page_ready, 'Next did not load after labelling')
     QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
     wait_for(page_ready, 'Back did not reload the labelled page')
-    wait_for(lambda: query(f'SELECT count(*) FROM png_list WHERE "{annotation}" IN (1, 2)')[0][0] >= 20,
+    wait_for(lambda: query(f'SELECT count(*) FROM png_list WHERE "{annotation}" = 1')[0][0] >= 6
+             and query(f'SELECT count(*) FROM png_list WHERE "{annotation}" = 2')[0][0] >= 6,
              'The labels were not saved')
     capture('19_labels_for_suggest')
     seen = {}
@@ -385,7 +404,19 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
     settle(.5)
     if not seen.get('ok'):
         raise RuntimeError(seen.get('error', 'Suggest menu not handled'))
-    wait_for(lambda: screen._suggest_worker is None, 'The suggestion round did not finish')
+    settle(1.5)
+    if screen._suggest_worker is not None:
+        capture('19_suggest_running')
+    boxes = []
+
+    def no_hidden_box():
+        for box in app.topLevelWidgets():
+            if isinstance(box, QMessageBox) and box.isVisible():
+                boxes.append(box.text())
+                raise RuntimeError('Suggest raised a message box: ' + box.text())
+        return screen._suggest_worker is None
+
+    wait_for(no_hidden_box, 'The suggestion round did not finish')
     settle(2)
     wait_for(page_ready, 'The page did not reload with suggestions')
     suggested = [i for i in range(len(screen._page_paths))
@@ -393,12 +424,13 @@ def record_suggest_judgement(app, screen, captures, capture, settle, write_json,
     if len(suggested) < 2:
         raise RuntimeError(f'Too few suggestions on the page: {screen._status_label.text()}')
     capture('20_suggestions')
-    QTest.mouseClick(thumbs[suggested[0]], Qt.LeftButton)
+    QTest.mouseClick(screen._thumbs[suggested[0]], Qt.LeftButton)
     settle(.3)
-    QTest.mouseClick(thumbs[suggested[1]], Qt.RightButton)
+    QTest.mouseClick(screen._thumbs[suggested[1]], Qt.RightButton)
     settle(.6)
     capture('21_judged')
     write_json(captures / 'suggest_tour.json', {
-        'accepted': True, 'labels': {'1': 10, '2': 10}, 'suggested_on_page': len(suggested),
+        'accepted': True, 'labelled_wells': sorted(labelled_wells),
+        'suggested_on_page': len(suggested),
         'confirmed_index': suggested[0], 'rejected_index': suggested[1],
-        'status': screen._status_label.text()})
+        'status': screen._status_label.text(), 'message_boxes': boxes})
