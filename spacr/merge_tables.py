@@ -250,12 +250,16 @@ def mergeable_tables(db_path: str) -> Tuple[str, ...]:
 
 
 def _read(db_path: str, table: str) -> pd.DataFrame:
-    """Read every row and column from one quoted database table."""
+    """Read every row and column from one quoted database table.
+
+    Column names are kept as stored, because merge definitions name the
+    columns the database schema reports.
+    """
     from .tabular import _read_query
 
     with _connect(db_path) as db:
         return _read_query(db, 'SELECT * FROM "' + table.replace('"', '""') + '"',
-                           report=None)
+                           canonicalise=False, report=None)
 
 
 def _keys_in(frame: pd.DataFrame) -> List[str]:

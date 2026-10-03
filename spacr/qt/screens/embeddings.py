@@ -741,6 +741,7 @@ class EmbeddingsScreen(QWidget):
             text = (f"{value:.3f}" if isinstance(value, float)
                     else str(value))
             table.setItem(row, 1, table_item(text))
+        install_sorting(table)
         layout.addWidget(table)
         montage = QLabel(dialog)
         montage.setObjectName("EmbeddingsWellMilMontage")

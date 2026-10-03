@@ -229,7 +229,8 @@ class AvailabilityPanel(QFrame):
         ``connect`` on every show accumulates receivers, so one press would
         eventually run the regression picker's install AND the Image UMAP's;
         a plain ``disconnect()`` warns when nothing is connected yet. Holding
-        the current slot and replacing it does neither.
+        the current slot and replacing it does neither. A previous slot bound
+        to a widget that has since been deleted is simply dropped.
 
         :param slot: callable taking the current entry's ``offer``, or
             ``None`` to leave the signal with no receiver.
@@ -238,7 +239,7 @@ class AvailabilityPanel(QFrame):
         if previous is not None:
             try:
                 self.install_requested.disconnect(previous)
-            except (RuntimeError, TypeError):
+            except (RuntimeError, TypeError, SystemError):
                 pass
         self._install_handler = slot
         if slot is not None:

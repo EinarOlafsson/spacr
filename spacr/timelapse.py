@@ -1789,6 +1789,7 @@ def _event_partner_columns(df, other, name, radius):
     empty = np.zeros((0, 2))
 
     def count(points, x, y):
+        """Number of ``points`` within ``radius`` of ``(x, y)``."""
         return int((np.hypot(points[:, 0] - x, points[:, 1] - y) <= radius).sum())
 
     near, born, gone = [], [], []
