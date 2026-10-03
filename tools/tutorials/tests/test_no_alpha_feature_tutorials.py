@@ -339,3 +339,68 @@ def test_a_preferences_lesson_may_mention_the_toggle_but_nothing_behind_it(examp
     found = alpha_references(lesson)
     assert found and all(item.startswith(".scenes[1].narration") for item in found)
     assert any("confluency" in item.lower() for item in found)
+
+
+#: Organisms behind Preferences -> Show alpha species (634, e86e25966), by the
+#: names a narration or caption would use, plus their page object names.
+#: Toxoplasma is not alpha. "Candida" is matched as a whole word, so
+#: "candidate" is not caught.
+ALPHA_SPECIES_TERMS = ("Plasmodium", "malaria", "Candida", "Trypanosoma",
+                       "Leishmania", "Giardia", "Virus infection",
+                       "virus-infected", "Mammalian cells")
+
+
+def _species_terms():
+    terms = [(term, term) for term in ALPHA_SPECIES_TERMS]
+    for entry in spacr_settings.ALPHA_SPECIES.values():
+        terms += [(name, name) for name in entry.get("widgets", ())]
+        terms += [(key, f"module {key}") for key in entry.get("apps", ())]
+    return [(_pattern(term), what) for term, what in sorted(set(terms))]
+
+
+def species_references(lesson):
+    """Every place ``lesson`` names an alpha-species organism.
+
+    A retiring organism lesson (``_SPECIES_WITH_PUBLISHED_LESSONS``) may name
+    its own organism until it is withdrawn; no other lesson may.
+    """
+    own = lesson.get("app_key") if lesson.get("app_key") in PUBLISHED_SPECIES_LESSONS else None
+    if own:
+        return []
+    return [f"{where}: {what}" for where, text in _strings(lesson)
+            for pattern, what in _species_terms() if pattern.search(text)]
+
+
+#: Lessons whose species mentions are routed and not yet fixed, as
+#: {lesson id: number of findings}. Each must still be found, so a fixed
+#: lesson fails until its entry is removed.
+#: - 05_home scene 5 (Assays: Toxoplasma, Plasmodium or Candida) is recorder
+#:   A's lesson.
+#: - 79_module_inputs_outputs scenes 75-76 are the Plasmodium and Candida
+#:   chapters of the module workflow map, which keeps them until lessons 83
+#:   and 84 retire (_SPECIES_WITH_PUBLISHED_LESSONS).
+SPECIES_PENDING = {"05_home": 8, "79_module_inputs_outputs": 5}
+
+
+@pytest.mark.parametrize("path", LESSONS, ids=[path.stem for path in LESSONS])
+def test_no_lesson_names_an_alpha_species(path):
+    lesson = json.loads(path.read_text(encoding="utf-8"))
+    found = species_references(lesson)
+    pending = SPECIES_PENDING.get(path.stem)
+    if pending is not None:
+        assert len(found) == pending, (
+            f"{path.name}: species findings changed ({len(found)}, expected "
+            f"{pending}); update or remove its SPECIES_PENDING entry:\n  "
+            + "\n  ".join(found))
+        return
+    assert not found, (
+        f"{path.name} names an organism shown only with Show alpha species:\n  "
+        + "\n  ".join(found))
+
+
+def test_the_species_guard_spares_toxoplasma_and_candidate():
+    lesson = {"id": "x", "scenes": [{"narration":
+              "Open Toxoplasma; fifty-seven candidates remain."}]}
+    assert species_references(lesson) == []
+    lesson["scenes"][0]["narration"] = "Open Assays and choose Candida."
+    assert species_references(lesson)

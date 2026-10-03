@@ -17,6 +17,10 @@ _PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users
 #: runs with it off. Only a Preferences-lesson scene that shows the toggle
 #: itself may opt in (``allow_alpha_toggle_scene``).
 ALPHA_FEATURES_KEY = "prefs/show_alpha_features"
+#: Preferences -> Show alpha species (e86e25966): the alpha organism pages
+#: (Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus, Mammalian).
+#: Every recording runs with it off too; only Toxoplasma may appear.
+ALPHA_SPECIES_KEY = "prefs/show_alpha_species"
 
 
 def _alpha_features_shown():
@@ -38,6 +42,9 @@ def force_alpha_features_off():
     """
     from spacr.qt import preferences as prefs
 
+    species = getattr(prefs, "_set_show_alpha_species", None)
+    if species is not None:
+        species(False)
     setter = getattr(prefs, "_set_show_alpha_features", None)
     if setter is None:
         return False
@@ -63,6 +70,7 @@ def force_alpha_features_off_in_profiles(config_homes):
         path.parent.mkdir(parents=True, exist_ok=True)
         store = QSettings(str(path), QSettings.IniFormat)
         store.setValue(ALPHA_FEATURES_KEY, False)
+        store.setValue(ALPHA_SPECIES_KEY, False)
         store.sync()
         if store.status() != QSettings.NoError:
             raise RuntimeError(f"Cannot turn alpha features off in {path}")
@@ -78,6 +86,13 @@ def verify_alpha_features_off(*, allow_alpha_toggle_scene=False):
     :returns: whether alpha features are shown (only ever True with the
         opt-in).
     """
+    from spacr.qt import preferences as prefs
+
+    species = getattr(prefs, "_get_show_alpha_species", None)
+    if species is not None and species():
+        raise RuntimeError(
+            "Capture refused: Preferences -> Show alpha species is on. Only "
+            "Toxoplasma may appear in a tutorial; record with it off")
     shown = _alpha_features_shown()
     if shown and not allow_alpha_toggle_scene:
         raise RuntimeError(

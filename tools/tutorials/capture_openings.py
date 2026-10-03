@@ -23,6 +23,7 @@ HELP_ITEMS = (
     ('01_help_project_browser', 'Project Browser'),
     ('01_help_pipeline_graph', 'Pipeline Graph'),
     ('01_help_dictionary', 'Feature Dictionary'),
+    ('01_help_history', 'Run History'),
 )
 
 HOSTS = (
