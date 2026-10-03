@@ -6214,11 +6214,13 @@ def _start_settings_prewarm() -> threading.Thread:
     return thread
 
 
-def _matplotlib_cache_dir() -> "pathlib.Path":
+def _matplotlib_cache_dir():
     """The folder Matplotlib keeps its font list in, without importing it.
 
     The same rule as ``matplotlib.get_cachedir``: ``MPLCONFIGDIR`` when set,
     the XDG cache folder on Linux, ``~/.matplotlib`` elsewhere.
+
+    :returns: the cache folder as a :class:`pathlib.Path`.
     """
     from pathlib import Path
 
