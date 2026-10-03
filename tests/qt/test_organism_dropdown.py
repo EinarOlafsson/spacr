@@ -17,7 +17,11 @@ def test_assays_menu_groups_children_under_the_three_organisms(window):
     keys = [action.property('moduleAppKey') or
             (action.menu().property('moduleAppKey') if action.menu() else None)
             for action in menu.actions()]
-    assert keys[:3] == list(ORGANISMS)
+    # 634 (eb2201537) adds five alpha organism pages after the first three;
+    # they are hidden while Preferences keeps alpha features off.
+    assert keys[:len(ORGANISMS)] == list(ORGANISMS)
+    visible = [action.isVisible() for action in menu.actions()[:len(ORGANISMS)]]
+    assert visible == [True] * 3 + [False] * (len(ORGANISMS) - 3)
     assert 'analyze_plaques' not in keys and 'host_pathogen' not in keys
     for key, guide in ORGANISMS.items():
         actions = [a for a in window._organism_menus[key].actions() if not a.isSeparator()]
@@ -60,7 +64,10 @@ def test_workflow_actions_open_the_shared_module_with_its_preset(window, monkeyp
     opened = []
     monkeypatch.setattr(organism_screen, 'open_workflow',
                         lambda host, route, fallback=None: opened.append((host, route)))
-    for key, guide in ORGANISMS.items():
+    # The three released organisms; the 634 alpha pages (eb2201537) route
+    # their own workflows and are not pinned here.
+    for key in list(ORGANISMS)[:3]:
+        guide = ORGANISMS[key]
         actions = [a for a in window._organism_menus[key].actions() if not a.isSeparator()]
         for action, (route, _title, _description, icon) in zip(actions[1:], guide['modules']):
             if not route and workflow(key, icon):
