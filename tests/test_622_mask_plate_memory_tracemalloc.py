@@ -89,9 +89,28 @@ def _peak_bytes(src):
         tracemalloc.stop()
 
 
+def _coverage_is_tracing() -> bool:
+    """Whether coverage.py is recording this process.
+
+    Coverage keeps its arc data in Python objects that tracemalloc counts,
+    and they grow with every newly executed branch, so a peak measured under
+    coverage is coverage's memory as much as spaCR's.
+    """
+    import sys
+
+    monitoring = getattr(sys, "monitoring", None)
+    if monitoring is not None and monitoring.get_tool(
+            getattr(monitoring, "COVERAGE_ID", 1)) is not None:
+        return True
+    return "coverage" in type(sys.gettrace()).__module__
+
+
 @pytest.mark.slow
 def test_mask_generation_peak_memory_does_not_scale_with_the_plate(
         tmp_path, fake_cellpose):
+    if _coverage_is_tracing():
+        pytest.skip("tracemalloc peaks are not spaCR's own under coverage; "
+                    "the Slow suite measures this")
     _peak_bytes(_plate(tmp_path / "warmup", 2))
     small_fields, large_fields = 3, 12
     small = _peak_bytes(_plate(tmp_path / "small", small_fields))
