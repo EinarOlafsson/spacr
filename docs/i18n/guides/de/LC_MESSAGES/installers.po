@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 09:02-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: de\n"
@@ -49,8 +49,50 @@ msgstr "|Windows|"
 msgid "Windows 10/11"
 msgstr "Windows 10/11"
 
-msgid "1.5.1.0 (current)"
-msgstr "1.5.1.0 (aktuell)"
+msgid "1.5.1.3 (current)"
+msgstr "1.5.1.3 (aktuell)"
+
+msgid "|Linux-1-5-1-3|"
+msgstr "|Linux-1-5-1-3|"
+
+msgid "Download spaCR 1.5.1.3 for 64-bit Linux"
+msgstr "spaCR 1.5.1.3 für Linux (64 Bit) herunterladen"
+
+msgid "|MacOS-1-5-1-3|"
+msgstr "|MacOS-1-5-1-3|"
+
+msgid "Download spaCR 1.5.1.3 for macOS 11+ (Intel and Apple silicon)"
+msgstr "spaCR 1.5.1.3 für macOS 11+ (Intel und Apple Silicon) herunterladen"
+
+msgid "|Windows-1-5-1-3|"
+msgstr "|Windows-1-5-1-3|"
+
+msgid "Download spaCR 1.5.1.3 for Windows 10/11"
+msgstr "spaCR 1.5.1.3 für Windows 10/11 herunterladen"
+
+msgid "1.5.1.2"
+msgstr "1.5.1.2"
+
+msgid "|Linux-1-5-1-2|"
+msgstr "|Linux-1-5-1-2|"
+
+msgid "Download spaCR 1.5.1.2 for 64-bit Linux"
+msgstr "spaCR 1.5.1.2 für Linux (64 Bit) herunterladen"
+
+msgid "|MacOS-1-5-1-2|"
+msgstr "|MacOS-1-5-1-2|"
+
+msgid "Download spaCR 1.5.1.2 for macOS 11+ (Intel and Apple silicon)"
+msgstr "spaCR 1.5.1.2 für macOS 11+ (Intel und Apple Silicon) herunterladen"
+
+msgid "|Windows-1-5-1-2|"
+msgstr "|Windows-1-5-1-2|"
+
+msgid "Download spaCR 1.5.1.2 for Windows 10/11"
+msgstr "spaCR 1.5.1.2 für Windows 10/11 herunterladen"
+
+msgid "1.5.1.0"
+msgstr "1.5.1.0"
 
 msgid "|Linux-1-5-1-0|"
 msgstr "|Linux-1-5-1-0|"
