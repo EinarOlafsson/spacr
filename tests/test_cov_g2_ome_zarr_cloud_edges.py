@@ -122,3 +122,21 @@ def test_a_cloud_folder_of_images_is_mirrored(plate_in_memory, tmp_path):  # noq
         f"memory://{bucket.lstrip('/')}/images",
         {"cloud_cache": str(tmp_path / "cache")}, "mask", report=None)
     assert (tmp_path / "cache").exists() and local
+
+
+def test_an_http_address_keeps_its_query_out_of_the_key(monkeypatch):
+    monkeypatch.setattr(ome_zarr, "_cloud_filesystem",
+                        lambda protocol, options: object())
+    path = ome_zarr._cloud_path("https://host/a/plate.zarr?sig=1#frag")
+    assert path.key == "https://host/a/plate.zarr"
+    assert path.url == path.key
+
+
+def test_a_filesystem_whose_backend_fails_to_import_names_the_library(
+        monkeypatch):
+    def missing(protocol, **kwargs):
+        raise ImportError("no backend", name="s3fs")
+
+    monkeypatch.setattr(fsspec, "filesystem", missing)
+    with pytest.raises(ome_zarr._CloudLibraryMissing):
+        ome_zarr._cloud_filesystem("memory", ome_zarr._CloudOptions())
