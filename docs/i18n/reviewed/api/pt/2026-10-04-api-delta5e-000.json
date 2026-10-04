@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.paintEvent#0",
+      "source": "Paint, timed on the timing timeline when timing is on.",
+      "source_sha256": "9b40c56412e0f8007de3db2ea5526a13c1ef4b4823622d308ad35e47e219b1ea",
+      "context": "Paint, timed on the timing timeline when timing is on.",
+      "translation": "Desenha, cronometrado na linha do tempo de medição quando a medição de tempo está ligada.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.AmbientWidget.paintEvent#1",
+      "source": "the Qt paint event, passed on to the painter.",
+      "source_sha256": "5244039e2ac6e27154b7126ddab051fc78767a7c7a3d21592ac3e648f7a78b35",
+      "context": "the Qt paint event, passed on to the painter.",
+      "translation": "o evento de pintura do Qt, repassado ao painter.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.organism_diagram.OrganismDiagram#1",
+      "source": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan and Leishmania pages are turned upright.",
+      "source_sha256": "aa90c80e0002f2baa3f52d37453f87d8cdfd7e50fd666248e347f0d61eeeb973",
+      "context": "organism key; only Toxoplasma uses hyperLOPIT labels, and only the apicomplexan and Leishmania pages are turned upright.",
+      "translation": "chave do organismo; apenas Toxoplasma utiliza rótulos hyperLOPIT, e apenas as páginas de apicomplexos e de Leishmania são giradas para a vertical.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
