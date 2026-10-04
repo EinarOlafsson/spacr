@@ -887,7 +887,12 @@ def _isolated_dot_spacr_store(monkeypatch):
         monkeypatch.setattr(run_journal, "runs_root", lambda: root,
                             raising=False)
         # Run-finished notification secrets: never the real OS keyring, and
-        # never the real ~/.spacr file.
+        # never the real ~/.spacr file. The real two are stashed, as
+        # `runs_root` is, so their own tests can reach them deliberately.
+        monkeypatch.setattr(run_journal, "unsandboxed_notify_secrets_path",
+                            run_journal._notify_secrets_path, raising=False)
+        monkeypatch.setattr(run_journal, "unsandboxed_notify_keyring",
+                            run_journal._notify_keyring, raising=False)
         monkeypatch.setattr(
             run_journal, "_notify_secrets_path",
             lambda: _DOT_SPACR_SANDBOX / "notification_secrets.json",
