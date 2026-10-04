@@ -27919,6 +27919,13 @@
       "source_sha256": "de55060650b92a8e1eb79e6cffae105f35b7e5fa5321c5936fd75f119cb4937f",
       "text": "A fresh classifier with the fixed phase-calling parameters."
     },
+    "spacr.measure._pin_cupy_cudart_headers._pinned": {
+      "source_blocks_sha256": [
+        "0e3022285d5af1215038aa8862c4e6c1bf3591a8266600421c53ac35240843bc"
+      ],
+      "source_sha256": "0e3022285d5af1215038aa8862c4e6c1bf3591a8266600421c53ac35240843bc",
+      "text": "The pinned runtime header directory for ``cudart``, else the finder's answer."
+    },
     "spacr.measure._save_viability_figures._keep": {
       "source_blocks_sha256": [
         "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614"
@@ -32802,10 +32809,12 @@
         "a09553f688ccd113ec765ba8d5aeb24d54d04a5c7f2d5b1fc33f911b42f0ada1",
         "eda5dccb67be6e7772a30d5f94684dc856d333a012f737695fd9751135e96beb",
         "74f762cbf62d608294266ffbc49609264467634b48086b7a442691f911ba80b3",
+        "a47e77e2d65b720062000e800bab33244f6835f82334f102f14de7966f1b3aa9",
+        "3bda373563984627dc62144f438fb53c07a8ac51527e1fa8c77a87e06c4069c3",
         "c24ee8882cd9e4fb050c80c4f42380dce4ec26058bffd70a732064783d6983b8"
       ],
-      "source_sha256": "d9a509070f64ff5f96ec4f195979f6d4988399c81b64a0fe5f527a5e2f283d1d",
-      "text": "Coordinates of the intensity peaks inside one object.\n\n:param image: intensity image aligned with ``mask``.\n:param mask: labelled object image that limits the peak search.\n:param label: object label whose interior is searched.\n:returns: an ``(n, ndim)`` array, possibly empty."
+      "source_sha256": "2297804489389a2b0273e4a13ea2dbb93ff502062205ab7ef2c95c79348cee6a",
+      "text": "Coordinates of the intensity peaks inside one object.\n\n:param image: intensity image aligned with ``mask``.\n:param mask: labelled object image that limits the peak search.\n:param label: object label whose interior is searched.\n:param window: optional tuple of slices (the object's bounding box, as\n    from ``scipy.ndimage.find_objects``). The search then runs on that\n    window only, which gives the same peaks as the whole image in a\n    fraction of the time; coordinates are still in whole-image indices.\n:param threshold: optional lowest intensity a peak must exceed. Pass the\n    whole image's minimum with ``window`` so the window gives the same\n    peaks as the whole image. ``None`` uses the searched image's minimum.\n:returns: an ``(n, ndim)`` array, possibly empty."
     },
     "spacr.object_distances.maxima_distances": {
       "source_blocks_sha256": [

@@ -898,6 +898,17 @@
       "source_sha256": "d701193d43ee0a8f1b3bfc6f83e791164c217950f19a6ceb12e6e01085256298",
       "text": "One image view that fits, zooms, pans -- and can be tied to another.\n\nspaCR had a fit-on-load, wheel-zoom, drag-pan image canvas already: the QC\nfield browser's own ``_FieldView``. Item 473's raw-versus-enhanced window\nneeded the same thing twice over, and a third copy of \"a QGraphicsView with\na pixmap in it\" is how a codebase ends up with three that behave subtly\ndifferently. So the field browser's view moved here unchanged, under a name\nthat says it is shared, and the browser goes on using it under its old one.\n\nWHAT IS NEW HERE IS THE TIE. Two views of the same region are only worth\nputting side by side if they stay in register: a curator comparing a field\nwith its enhanced self is looking for a difference between them, and a\ndifference in where the two are pointing is the one difference that is not\ninformation. :meth:`ZoomableImageView.link_to` makes a group of views share\none zoom and one scroll position, so zooming or panning any of them moves\nall of them.\n\nThe tie is on the VIEW and not on the window, because what has to match is\nthe transform and the two scroll bars -- the things a view owns. Views in a\ngroup must show images of the same size for the tie to mean anything; the\ncompare window builds both of its pictures from one region, so they do."
     },
+    "d9a509070f64ff5f96ec4f195979f6d4988399c81b64a0fe5f527a5e2f283d1d": {
+      "source_blocks_sha256": [
+        "b8d69a0750234302a44fe0c949f2759ea14ec64a0453d32064b37bdfc4a1b621",
+        "a09553f688ccd113ec765ba8d5aeb24d54d04a5c7f2d5b1fc33f911b42f0ada1",
+        "eda5dccb67be6e7772a30d5f94684dc856d333a012f737695fd9751135e96beb",
+        "74f762cbf62d608294266ffbc49609264467634b48086b7a442691f911ba80b3",
+        "c24ee8882cd9e4fb050c80c4f42380dce4ec26058bffd70a732064783d6983b8"
+      ],
+      "source_sha256": "d9a509070f64ff5f96ec4f195979f6d4988399c81b64a0fe5f527a5e2f283d1d",
+      "text": "Coordinates of the intensity peaks inside one object.\n\n:param image: intensity image aligned with ``mask``.\n:param mask: labelled object image that limits the peak search.\n:param label: object label whose interior is searched.\n:returns: an ``(n, ndim)`` array, possibly empty."
+    },
     "e04c595ff5d5193cedb14ccd9b7d1d1e019540ecbeb1c3fabac86456699f8251": {
       "source_blocks_sha256": [
         "9312ce4278b3c81871304169221e74cee28493b8523b3d9f3e7760549f547f2a",
