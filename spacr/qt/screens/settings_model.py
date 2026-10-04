@@ -10230,7 +10230,8 @@ class SettingsWidgets:
         else:
             # Composite fields may emit value_changed on each typed character.
             # Their focused text editors commit on editingFinished instead.
-            for edit in widget.findChildren(QLineEdit):
+            find = getattr(widget, "findChildren", None)
+            for edit in (find(QLineEdit) if callable(find) else ()):
                 edit.editingFinished.connect(callback)
             for name in ("value_changed", "valueChanged", "changed", "toggled"):
                 signal = getattr(widget, name, None)
