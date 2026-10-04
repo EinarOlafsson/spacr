@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -1753,30 +1753,6 @@ msgstr ":doc:`API संदर्भ </api/spacr/qt/screens/organism_screen/inde
 
 msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
 msgstr "`मॉड्यूल ट्यूटोरियल <tutorials/#lesson=82_toxoplasma>`__।"
-
-msgid "Plasmodium spp."
-msgstr "Plasmodium spp."
-
-msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "नियोजित मलेरिया इमेजिंग कार्यप्रवाह पढ़ने और साझा एपिकॉम्प्लेक्सन आरेख देखने के लिए Home से जीव मार्गदर्शिका खोलें। सभी आठ असे टाइल Coming soon हैं; कोई विश्लेषण शुरू नहीं करती या परिणाम नहीं बनाती।"
-
-msgid "**Open:** Home → Plasmodium spp.."
-msgstr "**खोलें:** मुखपृष्ठ → Plasmodium spp.।"
-
-msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
-msgstr "`मॉड्यूल ट्यूटोरियल <tutorials/#lesson=83_plasmodium>`__।"
-
-msgid "Candida spp."
-msgstr "Candida spp."
-
-msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "नियोजित कवकीय इमेजिंग कार्यप्रवाह पढ़ने और सामान्य कलिका बनाने वाले यीस्ट का आरेख देखने के लिए Home से जीव मार्गदर्शिका खोलें। सभी आठ असे टाइल Coming soon हैं; कोई विश्लेषण शुरू नहीं करती या परिणाम नहीं बनाती।"
-
-msgid "**Open:** Home → Candida spp.."
-msgstr "**खोलें:** मुखपृष्ठ → Candida spp.।"
-
-msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
-msgstr "`मॉड्यूल ट्यूटोरियल <tutorials/#lesson=84_candida>`__।"
 
 msgid "Endodyogeny size proxy"
 msgstr "एंडोडायोजेनी आकार प्रॉक्सी"

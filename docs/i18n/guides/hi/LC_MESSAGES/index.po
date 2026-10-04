@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -40,8 +40,8 @@ msgstr "उच्च-क्षमता सूक्ष्मदर्शी स
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "यह उन कोशिका जीवविज्ञानियों के लिए बनाया गया है जो पूल्ड या ऐरेड CRISPR स्क्रीन चलाते हैं और जिन्हें प्लेट छवियों से प्रति-कोशिका मापन चाहिए। GUI मार्ग के लिए प्रोग्रामिंग की आवश्यकता नहीं है; वही प्रसंस्करण चरण स्क्रिप्ट किए गए और पुनरुत्पादनीय कार्यप्रवाहों के लिए Python API के माध्यम से उपलब्ध हैं।"
 
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "GUI अपने एप्लिकेशनों को चार श्रेणियों में समूहित करता है: विभाजन-मापन-वर्गीकरण पाइपलाइन के लिए *मुख्य*, छवियाँ और तालिकाएँ लाने और उन्हें बड़े पैमाने पर चलाने के लिए *डेटा*, किसी प्रोजेक्ट पर लगाए जाने वाले साधनों — हाथ से मास्क सुधार, स्टिचिंग, एम्बेडिंग, गेट, प्लॉट और गुणवत्ता नियंत्रण — के लिए *उपकरण*, और टोक्सोप्लाज़्मा, प्लास्मोडियम और कैंडिडा जीव मार्गदर्शिकाओं के लिए *एसे*। उपलब्ध एसे देखने के लिए कोई जीव चुनें; नियोजित विश्लेषण जल्द आ रहा है के रूप में चिह्नित हैं। नीचे “एप्लिकेशन और कार्यप्रवाह” के अंतर्गत पट्टियाँ यही श्रेणियाँ हैं, इसी क्रम में, और हर एक में उसकी टाइलें हैं।"
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "GUI अपने एप्लिकेशनों को चार श्रेणियों में समूहित करता है: विभाजन-मापन-वर्गीकरण पाइपलाइन के लिए *मुख्य*, छवियाँ और तालिकाएँ लाने और उन्हें बड़े पैमाने पर चलाने के लिए *डेटा*, किसी प्रोजेक्ट पर लगाए जाने वाले साधनों — हाथ से मास्क सुधार, स्टिचिंग, एम्बेडिंग, गेट, प्लॉट और गुणवत्ता नियंत्रण — के लिए *उपकरण*, और टोक्सोप्लाज़्मा जीव मार्गदर्शिका के लिए *एसे*, जो उसके उपलब्ध एसे सूचीबद्ध करती है; नियोजित विश्लेषण जल्द आ रहा है के रूप में चिह्नित हैं। नीचे “एप्लिकेशन और कार्यप्रवाह” के अंतर्गत पट्टियाँ यही श्रेणियाँ हैं, इसी क्रम में, और हर एक में उसकी टाइलें हैं।"
 
 msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
 msgstr "हर स्क्रीन की टाइल नहीं होती, इसलिए यहाँ उनकी संख्या नहीं दी गई है। जो काम केवल किसी दूसरे चरण के भीतर अर्थपूर्ण है, वह उस चरण की शीर्षपट्टी से खुलता है — जैसे मास्क से **टाइमलैप्स**, मापन से **प्रकाश** और **गतिशीलता परीक्षण**, वर्गीकरण से **वर्गीकारक मूल्यांकन** और **CV मॉडल समझाएँ**, एनोटेशन से **एनोटेटर सहमति**, और मास्क बनाएँ से **Cellpose वर्कबेंच**, **मॉडल तुलना**, **मॉडल संग्रह** और **क्यूरेट** — इसलिए नीचे बिना टाइल वाली स्क्रीन गायब नहीं, बल्कि एक चरण और भीतर है। मुखपृष्ठ वह सब सूचीबद्ध करता है जो चल रहा बिल्ड प्रदान करता है।"
@@ -178,17 +178,11 @@ msgstr "एसे"
 msgid "Quantitative readouts for biological assays."
 msgstr "जैविक विश्लेषण के लिए मात्रात्मक पुनरावृत्ति।"
 
-msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
-msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgid "|DocModule_toxoplasma|"
+msgstr "|DocModule_toxoplasma|"
 
 msgid "Open the Toxoplasma API"
 msgstr "टोक्सोप्लाज़्मा API खोलें"
-
-msgid "Open the Plasmodium spp. API"
-msgstr "Plasmodium spp. API खोलें"
-
-msgid "Open the Candida spp. API"
-msgstr "Candida spp. API खोलें"
 
 msgid "Installation"
 msgstr "स्थापना"

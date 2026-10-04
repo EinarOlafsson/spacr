@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -40,8 +40,8 @@ msgstr "一个用于量化和可视化高通量显微筛选中表型变化的 Py
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "它专为开展混合或阵列 CRISPR 筛选、需要从孔板图像中获得单细胞测量结果的细胞生物学家而构建。图形界面路线无需编程；同样的处理步骤也可通过 Python API 使用，以实现脚本化和可重复的工作流程。"
 
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "图形界面将其应用分为四个类别：*核心* 用于分割-测量-分类流程，*数据* 用于导入图像和表格并进行大规模运行，*工具* 是您用于处理项目的工具——手动掩膜校正、拼接、嵌入、门控、绘图和质量控制——*实验分析* 用于弓形虫、疟原虫和念珠菌等生物体指南。选择一种生物体即可查看其可用的实验分析；计划中的分析标记为即将推出。下方“应用与工作流程”下的各个区块即这些类别，按此顺序排列，并包含各自的磁贴。"
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "图形界面将其应用分为四个类别：*核心* 用于分割-测量-分类流程，*数据* 用于导入图像和表格并进行大规模运行，*工具* 是您用于处理项目的工具——手动掩膜校正、拼接、嵌入、门控、绘图和质量控制——*实验分析* 用于弓形虫生物体指南，其中列出了可用的实验分析；计划中的分析标记为即将推出。下方“应用与工作流程”下的各个区块即这些类别，按此顺序排列，并包含各自的磁贴。"
 
 msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
 msgstr "并非每个屏幕都有磁贴，因此这里不列出其数量。仅在另一个步骤中才有意义的工作会从该步骤的标题栏打开——例如从掩膜打开 **延时成像**，从测量打开 **照明** 和 **运动性分析**，从分类打开 **分类器评估** 和 **解释 CV 模型**，从标注打开 **标注者一致性**，以及从创建掩膜打开 **Cellpose 工作台**、**模型比较**、**模型库** 和 **校正**——因此，下方没有磁贴的屏幕只是位于更深一层，而不是不存在。主页会列出当前运行版本提供的所有内容。"
@@ -178,17 +178,11 @@ msgstr "实验分析"
 msgid "Quantitative readouts for biological assays."
 msgstr "对生物分析的定量回报。"
 
-msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
-msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgid "|DocModule_toxoplasma|"
+msgstr "|DocModule_toxoplasma|"
 
 msgid "Open the Toxoplasma API"
 msgstr "打开弓形虫 API"
-
-msgid "Open the Plasmodium spp. API"
-msgstr "打开 Plasmodium spp. API"
-
-msgid "Open the Candida spp. API"
-msgstr "打开 Candida spp. API"
 
 msgid "Installation"
 msgstr "安装"

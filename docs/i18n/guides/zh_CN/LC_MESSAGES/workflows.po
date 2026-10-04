@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -1753,30 +1753,6 @@ msgstr ":doc:`API 参考 </api/spacr/qt/screens/organism_screen/index>`。"
 
 msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
 msgstr "`模块教程 <tutorials/#lesson=82_toxoplasma>`__。"
-
-msgid "Plasmodium spp."
-msgstr "Plasmodium spp."
-
-msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "从 Home 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。"
-
-msgid "**Open:** Home → Plasmodium spp.."
-msgstr "**打开：** 主页 → Plasmodium spp.。"
-
-msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
-msgstr "`模块教程 <tutorials/#lesson=83_plasmodium>`__。"
-
-msgid "Candida spp."
-msgstr "Candida spp."
-
-msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "从 Home 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。"
-
-msgid "**Open:** Home → Candida spp.."
-msgstr "**打开：** 主页 → Candida spp.。"
-
-msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
-msgstr "`模块教程 <tutorials/#lesson=84_candida>`__。"
 
 msgid "Endodyogeny size proxy"
 msgstr "内二芽殖面积代理"

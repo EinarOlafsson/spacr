@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -40,8 +40,8 @@ msgstr "Python-verkfærasafn til að magngreina og sjónræna svipgerðarbreytin
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "Það er smíðað fyrir frumulíffræðinga sem keyra samsafns- eða raðaðar CRISPR-skimanir og þurfa mælingar á hverri frumu úr plötumyndum. Leiðin um myndræna viðmótið krefst engrar forritunar; sömu vinnsluskref eru tiltæk í gegnum Python API fyrir skriftuð og endurtakanleg verkflæði."
 
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "Myndræna viðmótið flokkar forrit sín í fjóra flokka: *Kjarni* fyrir vinnslukeðjuna hlutun-mæling-flokkun, *Gögn* til að koma myndum og töflum inn og keyra þær í stórum stíl, *Verkfæri* fyrir tækin sem þú beinir að verkefni — handvirka grímuleiðréttingu, saumun, innfellingar, hlið, myndrit og gæðaeftirlit — og *Prófanir* fyrir lífveruleiðbeiningarnar um Toxoplasma, Plasmodium og Candida. Veldu lífveru til að sjá tiltæk próf hennar; fyrirhugaðar greiningar eru merktar Væntanlegt. Böndin undir „Forrit og verkflæði“ hér að neðan eru þessir flokkar, í þessari röð, með reitunum sem hver þeirra geymir."
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "Myndræna viðmótið flokkar forrit sín í fjóra flokka: *Kjarni* fyrir vinnslukeðjuna hlutun-mæling-flokkun, *Gögn* til að koma myndum og töflum inn og keyra þær í stórum stíl, *Verkfæri* fyrir tækin sem þú beinir að verkefni — handvirka grímuleiðréttingu, saumun, innfellingar, hlið, myndrit og gæðaeftirlit — og *Prófanir* fyrir lífveruleiðbeiningarnar um Toxoplasma, sem telja upp tiltæk próf hennar; fyrirhugaðar greiningar eru merktar Væntanlegt. Böndin undir „Forrit og verkflæði“ hér að neðan eru þessir flokkar, í þessari röð, með reitunum sem hver þeirra geymir."
 
 msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
 msgstr "Ekki er hver skjár reitur og þess vegna er enginn fjöldi þeirra prentaður hér. Vinna sem aðeins er skynsamleg innan annars skrefs opnast í staðinn úr haus þess skrefs — **Tímaraðir** úr Grímur, **Lýsing** og **Hreyfanleikapróf** úr Mæling, **Mat á flokkara** og **Skýra CV-líkan** úr Flokkun, **Samræmi merkjara** úr Merking, og **Cellpose-vinnuborð**, **Líkansamanburður**, **Líkanasafn** og **Grisja** úr Búa til grímur, meðal annarra — þannig að skjár sem hefur engan reit hér að neðan er einu skrefi innar frekar en horfinn. Heim sýnir allt sem keyrandi útgáfan býður upp á."
@@ -178,17 +178,11 @@ msgstr "Prófanir"
 msgid "Quantitative readouts for biological assays."
 msgstr "Kvantitætur readouts fyrir biológar rannsóknir."
 
-msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
-msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgid "|DocModule_toxoplasma|"
+msgstr "|DocModule_toxoplasma|"
 
 msgid "Open the Toxoplasma API"
 msgstr "Opna API fyrir Toxoplasma"
-
-msgid "Open the Plasmodium spp. API"
-msgstr "Opna API fyrir Plasmodium spp."
-
-msgid "Open the Candida spp. API"
-msgstr "Opna API fyrir Candida spp."
 
 msgid "Installation"
 msgstr "Uppsetning"

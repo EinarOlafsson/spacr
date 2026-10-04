@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: de\n"
@@ -40,8 +40,8 @@ msgstr "Ein Python-Toolkit zur Quantifizierung und Visualisierung phänotypische
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "Es ist für Zellbiologinnen und Zellbiologen gedacht, die gepoolte oder arrayförmige CRISPR-Screens durchführen und Messungen pro Zelle aus Plattenbildern benötigen. Der Weg über die GUI erfordert keine Programmierung; dieselben Verarbeitungsschritte stehen über die Python-API für skriptgesteuerte und reproduzierbare Workflows zur Verfügung."
 
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "Die GUI gruppiert ihre Anwendungen in vier Kategorien: *Kern* für die Pipeline aus Segmentieren, Messen und Klassifizieren, *Daten* zum Einlesen von Bildern und Tabellen und zu ihrer Verarbeitung im großen Maßstab, *Werkzeuge* für die Instrumente, die Sie auf ein Projekt anwenden — manuelle Maskenkorrektur, Zusammenfügen, Einbettungen, Gates, Diagramme und Qualitätskontrolle — und *Assays* für die Organismenübersichten zu Toxoplasma, Plasmodium und Candida. Wählen Sie einen Organismus, um seine verfügbaren Assays zu sehen; geplante Analysen sind mit „Demnächst verfügbar“ gekennzeichnet. Die Bänder unter „Anwendungen und Workflow“ weiter unten sind diese Kategorien, in dieser Reihenfolge, mit den jeweils enthaltenen Kacheln."
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "Die GUI gruppiert ihre Anwendungen in vier Kategorien: *Kern* für die Pipeline aus Segmentieren, Messen und Klassifizieren, *Daten* zum Einlesen von Bildern und Tabellen und zu ihrer Verarbeitung im großen Maßstab, *Werkzeuge* für die Instrumente, die Sie auf ein Projekt anwenden — manuelle Maskenkorrektur, Zusammenfügen, Einbettungen, Gates, Diagramme und Qualitätskontrolle — und *Assays* für die Organismenübersicht zu Toxoplasma, die ihre verfügbaren Assays auflistet; geplante Analysen sind mit „Demnächst verfügbar“ gekennzeichnet. Die Bänder unter „Anwendungen und Workflow“ weiter unten sind diese Kategorien, in dieser Reihenfolge, mit den jeweils enthaltenen Kacheln."
 
 msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
 msgstr "Nicht jeder Bildschirm ist eine Kachel, weshalb hier keine Anzahl angegeben ist. Arbeiten, die nur innerhalb eines anderen Schritts sinnvoll sind, werden stattdessen aus der Kopfleiste dieses Schritts geöffnet — darunter **Zeitraffer** aus Masken, **Beleuchtung** und der **Motilitätsassay** aus Messen, **Klassifikatorauswertung** und **CV-Modell erklären** aus Klassifizieren, **Annotatorenübereinstimmung** aus Annotieren sowie **Cellpose-Werkbank**, **Modellvergleich**, **Modellzoo** und **Kuratieren** aus Masken erstellen —, sodass ein Bildschirm ohne Kachel unten nur einen Schritt tiefer liegt und nicht fehlt. Die Startseite listet alles auf, was der laufende Build anbietet."
@@ -178,17 +178,11 @@ msgstr "Assays"
 msgid "Quantitative readouts for biological assays."
 msgstr "Quantitative Ausleseergebnisse für biologische Assays."
 
-msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
-msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgid "|DocModule_toxoplasma|"
+msgstr "|DocModule_toxoplasma|"
 
 msgid "Open the Toxoplasma API"
 msgstr "API von Toxoplasma öffnen"
-
-msgid "Open the Plasmodium spp. API"
-msgstr "API von Plasmodium spp. öffnen"
-
-msgid "Open the Candida spp. API"
-msgstr "API von Candida spp. öffnen"
 
 msgid "Installation"
 msgstr "Installation"

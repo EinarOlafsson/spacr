@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -1753,30 +1753,6 @@ msgstr ":doc:`API 참조 </api/spacr/qt/screens/organism_screen/index>`."
 
 msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
 msgstr "`모듈 튜토리얼 <tutorials/#lesson=82_toxoplasma>`__."
-
-msgid "Plasmodium spp."
-msgstr "Plasmodium spp."
-
-msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "홈에서 생물종 가이드를 열어 계획된 말라리아 이미징 워크플로를 읽고 공통 정단복합체 도식을 살펴보세요. 8개 어세이 타일은 모두 출시 예정이며, 어느 것도 분석을 시작하거나 결과를 생성하지 않습니다."
-
-msgid "**Open:** Home → Plasmodium spp.."
-msgstr "**열기:** 홈 → Plasmodium spp.."
-
-msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=83_plasmodium>`__."
-
-msgid "Candida spp."
-msgstr "Candida spp."
-
-msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "홈에서 생물종 가이드를 열어 계획된 진균 이미징 워크플로를 읽고 일반적인 출아 효모 도식을 살펴보세요. 8개 어세이 타일은 모두 출시 예정이며, 어느 것도 분석을 시작하거나 결과를 생성하지 않습니다."
-
-msgid "**Open:** Home → Candida spp.."
-msgstr "**열기:** 홈 → Candida spp.."
-
-msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
-msgstr "`모듈 튜토리얼 <tutorials/#lesson=84_candida>`__."
 
 msgid "Endodyogeny size proxy"
 msgstr "내분열 크기 대리 지표"

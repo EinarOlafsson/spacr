@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -1753,30 +1753,6 @@ msgstr ":doc:`Référence de l’API </api/spacr/qt/screens/organism_screen/inde
 
 msgid "`Module tutorial <tutorials/#lesson=82_toxoplasma>`__."
 msgstr "`Tutoriel du module <tutorials/#lesson=82_toxoplasma>`__."
-
-msgid "Plasmodium spp."
-msgstr "Plasmodium spp."
-
-msgid "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "Ouvrez le guide de l’organisme depuis Home pour lire les parcours d’imagerie du paludisme prévus et examiner le schéma commun des apicomplexés. Les huit tuiles d’essai portent la mention Coming soon ; aucune ne lance d’analyse ni ne produit de résultat."
-
-msgid "**Open:** Home → Plasmodium spp.."
-msgstr "**Ouvrir :** Accueil → Plasmodium spp.."
-
-msgid "`Module tutorial <tutorials/#lesson=83_plasmodium>`__."
-msgstr "`Tutoriel du module <tutorials/#lesson=83_plasmodium>`__."
-
-msgid "Candida spp."
-msgstr "Candida spp."
-
-msgid "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-msgstr "Ouvrez le guide de l’organisme depuis Home pour lire les parcours d’imagerie fongique prévus et examiner le schéma générique de levure bourgeonnante. Les huit tuiles d’essai portent la mention Coming soon ; aucune ne lance d’analyse ni ne produit de résultat."
-
-msgid "**Open:** Home → Candida spp.."
-msgstr "**Ouvrir :** Accueil → Candida spp.."
-
-msgid "`Module tutorial <tutorials/#lesson=84_candida>`__."
-msgstr "`Tutoriel du module <tutorials/#lesson=84_candida>`__."
 
 msgid "Endodyogeny size proxy"
 msgstr "Approximation de la taille par endodyogénie"

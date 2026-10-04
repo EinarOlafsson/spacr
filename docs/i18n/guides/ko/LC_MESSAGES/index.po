@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 21:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -40,8 +40,8 @@ msgstr "고처리량 현미경 스크린에서 표현형 변화를 정량화하�
 msgid "It is built for cell biologists running pooled or arrayed CRISPR screens who need per-cell measurements from plate images. The GUI route needs no programming; the same processing steps are available through the Python API for scripted and reproducible workflows."
 msgstr "풀드 또는 어레이 CRISPR 스크린을 수행하며 플레이트 이미지에서 세포별 측정값이 필요한 세포생물학자를 위해 만들어졌습니다. GUI 경로는 프로그래밍이 필요 없으며, 같은 처리 단계를 Python API로도 사용할 수 있어 스크립트 기반의 재현 가능한 워크플로를 구성할 수 있습니다."
 
-msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida organism guides. Choose an organism to see its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
-msgstr "GUI는 애플리케이션을 네 범주로 묶습니다. *핵심* 은 분할-측정-분류 파이프라인, *데이터* 는 이미지와 표를 가져오고 대규모로 실행하는 기능, *도구* 는 수동 마스크 수정, 스티칭, 임베딩, 게이트, 그래프, 품질 관리처럼 프로젝트에 대고 사용하는 도구, *어세이* 는 톡소플라스마, 플라스모디움, 칸디다 생물종 가이드입니다. 생물종을 선택하면 사용 가능한 어세이가 표시되며, 계획된 분석은 출시 예정으로 표시됩니다. 아래 “애플리케이션과 워크플로”의 띠들이 바로 이 범주이며, 같은 순서로 각 범주의 타일을 담고 있습니다."
+msgid "The GUI groups its applications into four categories: *Core* for the segment-measure-classify pipeline, *Data* for getting images and tables in and running them at scale, *Tools* for the instruments you point at a project — hand mask correction, stitching, embeddings, gates, plots and quality control — and *Assays* for the Toxoplasma organism guide, which lists its available assays; planned analyses are marked Coming soon. The bands under \"Applications and workflow\" below are those categories, in that order, with the tiles each one holds."
+msgstr "GUI는 애플리케이션을 네 범주로 묶습니다. *핵심* 은 분할-측정-분류 파이프라인, *데이터* 는 이미지와 표를 가져오고 대규모로 실행하는 기능, *도구* 는 수동 마스크 수정, 스티칭, 임베딩, 게이트, 그래프, 품질 관리처럼 프로젝트에 대고 사용하는 도구, *어세이* 는 사용 가능한 어세이를 나열하는 톡소플라스마 생물종 가이드이며, 계획된 분석은 출시 예정으로 표시됩니다. 아래 “애플리케이션과 워크플로”의 띠들이 바로 이 범주이며, 같은 순서로 각 범주의 타일을 담고 있습니다."
 
 msgid "Not every screen is a tile, which is why no count of them is printed here. Work that only makes sense inside another step opens from that step's masthead instead — **Timelapse** from Mask, **Illumination** and the **Motility Assay** from Measure, **Classifier Evaluation** and **Explain CV Model** from Classify, **Annotator Agreement** from Annotate, and the **Cellpose Workbench**, **Model Compare**, **Model Zoo** and **Curate** from Make Masks, among them — so a screen with no tile below is one step further in rather than gone. Home lists whatever the running build offers."
 msgstr "모든 화면에 타일이 있는 것은 아니므로 여기에는 그 수를 적지 않습니다. 다른 단계 안에서만 의미가 있는 작업은 그 단계의 헤더에서 열립니다. 예를 들어 마스크에서 **타임랩스**, 측정에서 **조명** 과 **운동성 분석**, 분류에서 **분류기 평가** 와 **CV 모델 설명**, 어노테이션에서 **주석자 일치도**, 마스크 만들기에서 **Cellpose 워크벤치**, **모델 비교**, **모델 라이브러리**, **큐레이트** 가 열립니다. 따라서 아래에 타일이 없는 화면은 사라진 것이 아니라 한 단계 더 안쪽에 있는 것입니다. 홈에는 실행 중인 빌드가 제공하는 모든 것이 나열됩니다."
@@ -178,17 +178,11 @@ msgstr "어세이"
 msgid "Quantitative readouts for biological assays."
 msgstr "생물학적 검사에 대한 양적 재구성."
 
-msgid "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
-msgstr "|DocModule_toxoplasma|\\ |DocModule_plasmodium|\\ |DocModule_candida|"
+msgid "|DocModule_toxoplasma|"
+msgstr "|DocModule_toxoplasma|"
 
 msgid "Open the Toxoplasma API"
 msgstr "톡소플라스마 API 열기"
-
-msgid "Open the Plasmodium spp. API"
-msgstr "Plasmodium spp. API 열기"
-
-msgid "Open the Candida spp. API"
-msgstr "Candida spp. API 열기"
 
 msgid "Installation"
 msgstr "설치"
