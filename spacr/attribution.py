@@ -2576,6 +2576,12 @@ class _CfResBlock(nn.Module):
     """A residual block conditioned on a time-plus-class embedding."""
 
     def __init__(self, cin: int, cout: int, emb: int):
+        """Two normalised convolutions with the embedding added between them.
+
+        :param cin: input channels.
+        :param cout: output channels.
+        :param emb: length of the time-plus-class embedding.
+        """
         super().__init__()
         self.norm1 = nn.GroupNorm(min(8, cin), cin)
         self.conv1 = nn.Conv2d(cin, cout, 3, padding=1)
@@ -2585,6 +2591,7 @@ class _CfResBlock(nn.Module):
         self.skip = nn.Conv2d(cin, cout, 1) if cin != cout else nn.Identity()
 
     def forward(self, x: torch.Tensor, e: torch.Tensor) -> torch.Tensor:
+        """The block's output for features ``x`` under embedding ``e``."""
         h = self.conv1(F.silu(self.norm1(x)))
         h = h + self.emb(e)[:, :, None, None]
         h = self.conv2(F.silu(self.norm2(h)))
@@ -2670,6 +2677,7 @@ class _CounterfactualDiffusion(nn.Module):
         self.register_buffer('std', torch.ones(1, channels, 1, 1))
 
     def _time(self, t: torch.Tensor) -> torch.Tensor:
+        """The sinusoidal embedding of diffusion steps ``t``, through the MLP."""
         half = self.width // 2
         freqs = torch.exp(-torch.log(torch.tensor(10000.0)) *
                           torch.arange(half, device=t.device) / max(1, half - 1))
@@ -2677,6 +2685,7 @@ class _CounterfactualDiffusion(nn.Module):
         return self.time_mlp(torch.cat([ang.sin(), ang.cos()], dim=1))
 
     def _cond(self, code: Optional[torch.Tensor], n: int) -> torch.Tensor:
+        """The class embedding of ``code``, or the null one for ``n`` crops."""
         if code is None:
             return self.null_emb.expand(n, -1)
         return code.float() @ self.class_emb
@@ -2716,6 +2725,7 @@ class _CounterfactualDiffusion(nn.Module):
         return sorted({int(round(v)) for v in np.linspace(0, top, n + 1)})
 
     def _guided(self, x, t, code):
+        """Classifier-free guided noise at step ``t``; unguided without a code."""
         tt = torch.full((x.shape[0],), int(t), device=x.device, dtype=torch.long)
         uncond = self(x, tt, None)
         if code is None:
@@ -2724,6 +2734,7 @@ class _CounterfactualDiffusion(nn.Module):
         return uncond + self.guidance_scale * (cond - uncond)
 
     def _ddim_step(self, x, eps, t_from, t_to):
+        """One deterministic DDIM move of ``x`` from step ``t_from`` to ``t_to``."""
         a0, a1 = self.abar[t_from], self.abar[t_to]
         x0 = (x - (1 - a0).sqrt() * eps) / a0.sqrt()
         return a1.sqrt() * x0 + (1 - a1).sqrt() * eps
