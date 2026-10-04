@@ -2568,6 +2568,267 @@ class _CounterfactualGenerator(nn.Module):
         return self.decoder(h)
 
 
+#: Generators ``counterfactual_generator`` can name.
+COUNTERFACTUAL_GENERATORS = ('autoencoder', 'diffusion')
+
+
+class _CfResBlock(nn.Module):
+    """A residual block conditioned on a time-plus-class embedding."""
+
+    def __init__(self, cin: int, cout: int, emb: int):
+        super().__init__()
+        self.norm1 = nn.GroupNorm(min(8, cin), cin)
+        self.conv1 = nn.Conv2d(cin, cout, 3, padding=1)
+        self.emb = nn.Linear(emb, cout)
+        self.norm2 = nn.GroupNorm(min(8, cout), cout)
+        self.conv2 = nn.Conv2d(cout, cout, 3, padding=1)
+        self.skip = nn.Conv2d(cin, cout, 1) if cin != cout else nn.Identity()
+
+    def forward(self, x: torch.Tensor, e: torch.Tensor) -> torch.Tensor:
+        h = self.conv1(F.silu(self.norm1(x)))
+        h = h + self.emb(e)[:, :, None, None]
+        h = self.conv2(F.silu(self.norm2(h)))
+        return h + self.skip(x)
+
+
+class _CounterfactualDiffusion(nn.Module):
+    """A class-conditional denoising diffusion model with the generator's API.
+
+    A small U-Net predicts the noise in a crop at a diffusion step, told the
+    step and a class code. The code enters through one learned vector per
+    class, mixed by the code's weights, so a code between two classes is a
+    blend of their embeddings and the class can be moved continuously; a
+    learned null vector stands for "no class" and is what classifier-free
+    guidance contrasts against.
+
+    It offers the same ``encode`` / ``decode`` / ``side`` / ``n_classes`` as
+    :class:`_CounterfactualGenerator`, so ``_cf_edit``,
+    ``_counterfactual_sequences`` and the report use it unchanged:
+
+    * ``encode`` runs deterministic DDIM inversion WITHOUT a class, from the
+      crop to the noise level ``strength`` (a fraction of the schedule). What
+      survives that far is the cell's layout; what the noise has erased is
+      what a class can redraw.
+    * ``decode`` runs guided DDIM sampling back to a crop under a class code.
+
+    Unlike the autoencoder, nothing here is trained against the classifier,
+    so a flip under the classifier is not something training optimised for:
+    it has to come from the model having learned how the classes look.
+
+    Crops are standardised per channel with the training mean and standard
+    deviation, held as buffers so they travel with the weights.
+    """
+
+    def __init__(self, channels: int, side: int, n_classes: int,
+                 width: int = 64, timesteps: int = 1000,
+                 strength: float = 0.95, sample_steps: int = 50,
+                 guidance_scale: float = 4.0):
+        """Build the U-Net and the noise schedule.
+
+        :param side: crop side the model works at; a multiple of 4.
+        :param width: channels of the first U-Net level (doubled below).
+        :param timesteps: length of the training noise schedule.
+        :param strength: noise level ``encode`` inverts to, 0..1. The
+            defaults (0.95, guidance 4, 50 steps, width 64) are the setting
+            chosen on held-out BBBC014 crops: below about 0.8 too little is
+            erased for the class to redraw anything and the classifier
+            barely moves; at 1.0 the cell's own layout is lost and the
+            phenotype overshoots the real hits.
+        :param sample_steps: DDIM steps over the whole schedule; inversion
+            and sampling use the share of them below ``strength``.
+        :param guidance_scale: classifier-free guidance weight at sampling.
+        """
+        super().__init__()
+        self.side = int(side)
+        self.n_classes = int(n_classes)
+        self.channels = int(channels)
+        self.width = int(width)
+        self.timesteps = int(timesteps)
+        self.strength = float(strength)
+        self.sample_steps = int(sample_steps)
+        self.guidance_scale = float(guidance_scale)
+        w, emb = self.width, 4 * self.width
+        self.time_mlp = nn.Sequential(nn.Linear(w, emb), nn.SiLU(),
+                                      nn.Linear(emb, emb))
+        self.class_emb = nn.Parameter(torch.randn(self.n_classes, emb) * 0.02)
+        self.null_emb = nn.Parameter(torch.zeros(emb))
+        self.inp = nn.Conv2d(channels, w, 3, padding=1)
+        self.d1 = _CfResBlock(w, w, emb)
+        self.d2 = _CfResBlock(w, 2 * w, emb)
+        self.d3 = _CfResBlock(2 * w, 2 * w, emb)
+        self.mid = _CfResBlock(2 * w, 2 * w, emb)
+        self.u3 = _CfResBlock(4 * w, 2 * w, emb)
+        self.u2 = _CfResBlock(4 * w, w, emb)
+        self.u1 = _CfResBlock(2 * w, w, emb)
+        self.out = nn.Sequential(nn.GroupNorm(min(8, w), w), nn.SiLU(),
+                                 nn.Conv2d(w, channels, 3, padding=1))
+        steps = torch.arange(self.timesteps + 1, dtype=torch.float64)
+        f = torch.cos((steps / self.timesteps + 0.008) / 1.008 * torch.pi / 2) ** 2
+        abar = (f / f[0]).clamp(1e-5, 1.0)[1:].float()
+        self.register_buffer('abar', abar)
+        self.register_buffer('mean', torch.zeros(1, channels, 1, 1))
+        self.register_buffer('std', torch.ones(1, channels, 1, 1))
+
+    def _time(self, t: torch.Tensor) -> torch.Tensor:
+        half = self.width // 2
+        freqs = torch.exp(-torch.log(torch.tensor(10000.0)) *
+                          torch.arange(half, device=t.device) / max(1, half - 1))
+        ang = t.float()[:, None] * freqs[None]
+        return self.time_mlp(torch.cat([ang.sin(), ang.cos()], dim=1))
+
+    def _cond(self, code: Optional[torch.Tensor], n: int) -> torch.Tensor:
+        if code is None:
+            return self.null_emb.expand(n, -1)
+        return code.float() @ self.class_emb
+
+    def forward(self, x: torch.Tensor, t: torch.Tensor,
+                code: Optional[torch.Tensor],
+                drop: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """Predicted noise in ``x`` at steps ``t`` under ``code`` (or none).
+
+        :param drop: optional per-crop booleans; a True crop is given the null
+            class instead of its code, which is how training teaches the
+            unconditional model classifier-free guidance contrasts against.
+        """
+        cond = self._cond(code, x.shape[0])
+        if drop is not None:
+            cond = torch.where(drop[:, None], self.null_emb.expand_as(cond), cond)
+        e = self._time(t) + cond
+        h1 = self.d1(self.inp(x), e)
+        h2 = self.d2(F.avg_pool2d(h1, 2), e)
+        h3 = self.d3(F.avg_pool2d(h2, 2), e)
+        h = self.mid(h3, e)
+        h = self.u3(torch.cat([h, h3], 1), e)
+        h = self.u2(torch.cat([F.interpolate(h, scale_factor=2.0), h2], 1), e)
+        h = self.u1(torch.cat([F.interpolate(h, scale_factor=2.0), h1], 1), e)
+        return self.out(h)
+
+    def _schedule(self) -> List[int]:
+        """The DDIM steps from 0 up to the ``strength`` noise level.
+
+        A strength of zero is no step at all, so encode and decode return
+        the crop unchanged.
+        """
+        if self.strength <= 0:
+            return [0]
+        top = max(1, int(round(self.strength * (self.timesteps - 1))))
+        n = max(1, int(round(self.sample_steps * self.strength)))
+        return sorted({int(round(v)) for v in np.linspace(0, top, n + 1)})
+
+    def _guided(self, x, t, code):
+        tt = torch.full((x.shape[0],), int(t), device=x.device, dtype=torch.long)
+        uncond = self(x, tt, None)
+        if code is None:
+            return uncond
+        cond = self(x, tt, code)
+        return uncond + self.guidance_scale * (cond - uncond)
+
+    def _ddim_step(self, x, eps, t_from, t_to):
+        a0, a1 = self.abar[t_from], self.abar[t_to]
+        x0 = (x - (1 - a0).sqrt() * eps) / a0.sqrt()
+        return a1.sqrt() * x0 + (1 - a1).sqrt() * eps
+
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        """Invert crops, without a class, to the ``strength`` noise level."""
+        z = (x - self.mean) / self.std
+        sched = self._schedule()
+        with torch.no_grad():
+            for t_from, t_to in zip(sched[:-1], sched[1:]):
+                z = self._ddim_step(z, self._guided(z, t_from, None), t_from, t_to)
+        return z
+
+    def decode(self, z: torch.Tensor, code: torch.Tensor) -> torch.Tensor:
+        """Sample crops back from inverted ``z`` under class ``code``."""
+        sched = self._schedule()
+        x = z
+        with torch.no_grad():
+            for t_from, t_to in zip(sched[::-1][:-1], sched[::-1][1:]):
+                x = self._ddim_step(x, self._guided(x, t_from, code), t_from, t_to)
+        return x * self.std + self.mean
+
+
+def _train_counterfactual_diffusion(model: nn.Module, crops: torch.Tensor, *,
+                                    epochs: int = 30, batch_size: int = 64,
+                                    lr: float = 2e-4, width: int = 64,
+                                    timesteps: int = 1000,
+                                    strength: float = 0.95,
+                                    sample_steps: int = 50,
+                                    guidance_scale: float = 4.0,
+                                    drop_class: float = 0.15,
+                                    seed: int = 0, device: Any = 'cpu',
+                                    labels: Optional[torch.Tensor] = None,
+                                    target_probs: Optional[torch.Tensor] = None,
+                                    augment: bool = True):
+    """Train a class-conditional diffusion generator on crops.
+
+    The classifier only LABELS the crops (its predicted class, or the given
+    condition ``labels``); it does not guide training, so the flip rate this
+    generator later scores is not something it was optimised for. Each step
+    noises a batch to random diffusion steps and fits the noise; the class is
+    dropped with probability ``drop_class`` so the same network also learns
+    the unconditional model classifier-free guidance needs. With ``augment``
+    crops are randomly flipped and rotated by multiples of 90 degrees, which
+    is a symmetry of a centred single-cell crop.
+
+    :returns: ``(generator, history)`` as :func:`_train_counterfactual_generator`
+        gives them. The last history entry also holds ``reconstruction``:
+        the mean squared error of decoding a crop's inversion under its own
+        class, on up to 256 training crops, which is how far the round trip
+        alone moves a crop.
+    """
+    device = torch.device(device)
+    torch.manual_seed(int(seed))
+    rng = torch.Generator().manual_seed(int(seed))
+    wrapped = ClassScoreModel(model).to(device).eval()
+    crops = crops.float()
+    labels, target_probs = _cf_codes(wrapped, crops.to(device), labels, target_probs)
+    n_codes = target_probs.shape[0]
+    side = _cf_side(crops.shape[-1])
+    small_all = _cf_resize(crops, side)
+    gen = _CounterfactualDiffusion(crops.shape[1], side, n_codes, width=width,
+                                   timesteps=timesteps, strength=strength,
+                                   sample_steps=sample_steps,
+                                   guidance_scale=guidance_scale)
+    gen.mean.copy_(small_all.mean(dim=(0, 2, 3), keepdim=True))
+    gen.std.copy_(small_all.std(dim=(0, 2, 3), keepdim=True).clamp_min(1e-6))
+    gen = gen.to(device)
+    optimiser = torch.optim.AdamW(gen.parameters(), lr=lr)
+    history = []
+    n = small_all.shape[0]
+    for _epoch in range(int(epochs)):
+        gen.train()
+        order = torch.randperm(n, generator=rng)
+        total = 0.0
+        for start in range(0, n, int(batch_size)):
+            idx = order[start:start + int(batch_size)]
+            x = ((small_all[idx].to(device) - gen.mean) / gen.std)
+            if augment:
+                k = int(torch.randint(0, 4, (1,), generator=rng))
+                x = torch.rot90(x, k, dims=(2, 3))
+                if bool(torch.randint(0, 2, (1,), generator=rng)):
+                    x = x.flip(3)
+            code = F.one_hot(labels[idx], n_codes).float().to(device)
+            drop = (torch.rand(len(idx), generator=rng) < drop_class).to(device)
+            t = torch.randint(0, gen.timesteps, (len(idx),), generator=rng).to(device)
+            noise = torch.randn(x.shape, generator=rng).to(device)
+            a = gen.abar[t][:, None, None, None]
+            noisy = a.sqrt() * x + (1 - a).sqrt() * noise
+            loss = F.mse_loss(gen(noisy, t, code, drop=drop), noise)
+            optimiser.zero_grad()
+            loss.backward()
+            optimiser.step()
+            total += loss.item() * len(idx) / n
+        history.append({'denoising': total})
+    gen.eval()
+    probe = small_all[:256].to(device)
+    with torch.no_grad():
+        back = gen.decode(gen.encode(probe),
+                          F.one_hot(labels[:probe.shape[0]], n_codes).float().to(device))
+    if history:
+        history[-1]['reconstruction'] = float(F.mse_loss(back, probe))
+    return gen, history
+
+
 def _cf_side(size: int) -> int:
     """The generator's working side for crops ``size`` pixels across."""
     return max(8, (min(int(size), _CF_SIDE) // 4) * 4)
@@ -2764,7 +3025,7 @@ def _counterfactual_sequences(model: nn.Module,
                               steps: int = 7, keep: int = 0,
                               monotone_tolerance: float = 0.02,
                               device: Any = 'cpu', labels=None,
-                              target_probs=None):
+                              target_probs=None, finals: Optional[list] = None):
     """Morph each crop toward another class and score every step.
 
     The code moves in ``steps`` equal steps from the crop's own code to its
@@ -2786,6 +3047,8 @@ def _counterfactual_sequences(model: nn.Module,
     :param device: torch device.
     :param labels: per-crop condition index, or ``None``.
     :param target_probs: per-condition class probabilities, or ``None``.
+    :param finals: when a list is given, every crop's last frame is appended
+        to it (CPU tensors), which is what the realism score compares.
     :returns: ``(rows, frames)``: a list of one dict per crop (source and
         target class, target score at every step, Spearman correlation of
         score with step, whether the score is monotone, whether the final
@@ -2812,9 +3075,14 @@ def _counterfactual_sequences(model: nn.Module,
             one_src = F.one_hot(src[i:i + 1], n).float().to(device)
             one_tgt = F.one_hot(tgt[i:i + 1], n).float().to(device)
             base = generator.decode(z, one_src)
-            seq = torch.cat([_cf_edit(generator, x, z, base,
-                                      (1 - a) * one_src + a * one_tgt)
-                             for a in alphas], dim=0)
+            # ALL STEPS IN ONE BATCH. The same latent decoded under every
+            # interpolated code at once gives exactly the frames one decode
+            # per step would, in one pass -- which matters for the diffusion
+            # generator, where a decode is a whole guided sampling run.
+            codes = torch.cat([(1 - a) * one_src + a * one_tgt for a in alphas])
+            seq = _cf_edit(generator, x.expand(len(alphas), -1, -1, -1),
+                           z.expand(len(alphas), *z.shape[1:]),
+                           base.expand(len(alphas), -1, -1, -1), codes)
             probs = torch.softmax(wrapped(seq), dim=-1)
             want = target_probs[int(tgt[i])]
             score = ((probs @ want) / (want @ want)).cpu().numpy()
@@ -2830,6 +3098,8 @@ def _counterfactual_sequences(model: nn.Module,
                 'edit_l1': float(change.mean()),
                 'changed_fraction': float((change > 0.1).float().mean()),
             })
+            if finals is not None:
+                finals.append(seq[-1:].cpu())
             if i < int(keep):
                 frames.append(seq.cpu().numpy())
     return rows, (np.stack(frames) if frames else np.zeros((0,)))
@@ -2875,6 +3145,55 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     return float(flipped), float(l1.median())
 
 
+def _cf_features(x: torch.Tensor) -> np.ndarray:
+    """Interpretable per-crop features for the realism score.
+
+    Per channel: mean, standard deviation, the mean of a central disk over
+    the mean of the ring around it (where a stain sits relative to the
+    centred object -- for a translocation assay, the phenotype itself), and
+    the mean gradient magnitude (texture and sharpness, which a blurry
+    generator gets wrong first). Hand features rather than an ImageNet
+    network's, because a microscopy crop is not an ImageNet picture and a
+    distance in that space says little about cells.
+    """
+    x = x.float()
+    n, c, h, w = x.shape
+    if n == 0:
+        return np.zeros((0, 4 * c))
+    yy, xx = torch.meshgrid(torch.arange(h, dtype=torch.float32),
+                            torch.arange(w, dtype=torch.float32), indexing='ij')
+    r = ((yy - (h - 1) / 2) ** 2 + (xx - (w - 1) / 2) ** 2).sqrt()
+    disk = (r <= min(h, w) / 6).float()
+    ring = ((r > min(h, w) / 6) & (r <= min(h, w) / 3)).float()
+    flat = x.reshape(n, c, -1)
+    feats = [flat.mean(-1), flat.std(-1)]
+    feats.append((x * disk).sum((2, 3)) / disk.sum()
+                 / ((x * ring).sum((2, 3)) / ring.sum()).clamp_min(1e-6))
+    gy = (x[:, :, 1:, :] - x[:, :, :-1, :]).abs().mean((2, 3))
+    gx = (x[:, :, :, 1:] - x[:, :, :, :-1]).abs().mean((2, 3))
+    feats.append(gx + gy)
+    return torch.cat(feats, dim=1).numpy().astype(np.float64)
+
+
+def _cf_frechet(a: np.ndarray, b: np.ndarray) -> float:
+    """Frechet distance between Gaussians fitted to two feature sets.
+
+    The FID formula on :func:`_cf_features`; features are standardised by
+    ``b`` first so no feature dominates by its units. NaN with fewer than two
+    rows in either set.
+    """
+    from scipy import linalg
+
+    if len(a) < 2 or len(b) < 2:
+        return float('nan')
+    mu, sd = b.mean(0), b.std(0) + 1e-8
+    a, b = (a - mu) / sd, (b - mu) / sd
+    ma, mb = a.mean(0), b.mean(0)
+    ca, cb = np.cov(a, rowvar=False), np.cov(b, rowvar=False)
+    root = np.real(linalg.sqrtm(ca @ cb))
+    return float(((ma - mb) ** 2).sum() + np.trace(ca + cb - 2 * root))
+
+
 def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
     """The code index of a chosen counterfactual target.
 
@@ -2906,7 +3225,8 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                            seed: int = 0, device: Any = 'cpu',
                            out_dir: Optional[str] = None,
                            conditions: Optional[Sequence[str]] = None,
-                           target: Any = None):
+                           target: Any = None, generator: str = 'autoencoder',
+                           generator_options: Optional[Dict[str, Any]] = None):
     """Train a counterfactual generator on crops and score it on held-out ones.
 
     The crops are split, seeded, into a training part and a held-out part.
@@ -2938,6 +3258,14 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         condition name with ``conditions``, otherwise a class index.
         Held-out crops already in the target are left out. ``None`` or an
         empty string morphs each crop to the next class or condition.
+    :param generator: one of :data:`COUNTERFACTUAL_GENERATORS`:
+        ``'autoencoder'`` (the classifier-guided conditional autoencoder) or
+        ``'diffusion'`` (a class-conditional diffusion model, not trained
+        against the classifier; see :class:`_CounterfactualDiffusion`). With
+        ``out_dir`` the diffusion weights are saved there as
+        ``counterfactual_diffusion.pt``.
+    :param generator_options: extra keyword arguments for the generator's
+        trainer, for example ``width`` or ``strength`` for diffusion.
     :returns: ``(summary, rows, frames)``: a dict of summary metrics, the
         held-out rows of ``_counterfactual_sequences`` and their frames.
     :raises ValueError: for fewer than four crops, fewer than two
@@ -2981,16 +3309,26 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         if not len(test_idx):
             raise ValueError('every held-out crop is already in the target '
                              f'{target!r}')
-    generator, history = _train_counterfactual_generator(
+    kind = str(generator or 'autoencoder').strip().lower()
+    if kind not in COUNTERFACTUAL_GENERATORS:
+        raise ValueError(f'counterfactual generator {generator!r} is not one of '
+                         f'{list(COUNTERFACTUAL_GENERATORS)}')
+    trainer = (_train_counterfactual_diffusion if kind == 'diffusion'
+               else _train_counterfactual_generator)
+    generator, history = trainer(
         model, crops[train_idx], epochs=epochs, seed=seed, device=device,
         labels=None if codes['labels'] is None else codes['labels'][train_idx],
-        target_probs=codes['target_probs'])
+        target_probs=codes['target_probs'], **dict(generator_options or {}))
     goals = None if goal is None else [goal] * len(test_idx)
+    finals: list = []
     rows, frames = _counterfactual_sequences(
         model, generator, crops[test_idx], targets=goals, steps=steps,
         keep=show, device=device,
         labels=None if codes['labels'] is None else codes['labels'][test_idx],
-        target_probs=codes['target_probs'])
+        target_probs=codes['target_probs'], finals=finals)
+    realism, realism_source = _cf_realism(
+        model, crops[train_idx], crops[test_idx], finals, rows, device=device,
+        train_labels=None if codes['labels'] is None else codes['labels'][train_idx])
     names = list(names) if names is not None else [str(i) for i in range(n)]
     for row, i in zip(rows, test_idx.tolist()):
         row['name'] = names[i]
@@ -3015,10 +3353,62 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         'baseline_flip_rate': base_flip, 'baseline_median_edit_l1': base_l1,
         'conditions': len(levels),
         'target': '' if goal is None else (levels[goal] if levels else str(goal)),
+        'generator': kind,
+        'realism_fd': realism, 'realism_fd_unedited': realism_source,
     }
     if out_dir:
         _write_counterfactual_outputs(out_dir, summary, rows, frames)
+        if kind == 'diffusion':
+            import os
+            torch.save({'state_dict': generator.state_dict(),
+                        'config': {'channels': generator.channels,
+                                   'side': generator.side,
+                                   'n_classes': generator.n_classes,
+                                   'width': generator.width,
+                                   'timesteps': generator.timesteps,
+                                   'strength': generator.strength,
+                                   'sample_steps': generator.sample_steps,
+                                   'guidance_scale': generator.guidance_scale},
+                        'levels': list(levels)},
+                       os.path.join(out_dir, 'counterfactual_diffusion.pt'))
     return summary, rows, frames
+
+
+def _cf_realism(model: nn.Module, train: torch.Tensor, test: torch.Tensor,
+                finals: List[torch.Tensor], rows: List[Dict[str, Any]], *,
+                device: Any = 'cpu', train_labels=None):
+    """How close counterfactuals look to real crops of their target.
+
+    For each target code, the Frechet distance (:func:`_cf_frechet` on
+    :func:`_cf_features`) between the counterfactuals aimed at it and the
+    real training crops that carry it, weighted by how many counterfactuals
+    aimed there; and the same for the UNEDITED source crops, which is the
+    distance the edit started from. A useful edit brings the first well
+    below the second.
+
+    :returns: ``(realism_fd, realism_fd_unedited)``; NaN when a target has
+        too few real crops to compare against.
+    """
+    if not finals:
+        return float('nan'), float('nan')
+    wrapped = ClassScoreModel(model).to(torch.device(device)).eval()
+    codes = (_cf_scores(wrapped, train.float().to(torch.device(device))).argmax(1).cpu()
+             if train_labels is None else torch.as_tensor(train_labels).long())
+    edited = torch.cat(finals, dim=0)
+    targets = np.array([r['target_class'] for r in rows])
+    total = weight = 0.0
+    total_src = 0.0
+    for code in np.unique(targets):
+        real = train[(codes == int(code)).cpu()]
+        pick = targets == code
+        d = _cf_frechet(_cf_features(edited[pick]), _cf_features(real))
+        d0 = _cf_frechet(_cf_features(test.float().cpu()[pick]), _cf_features(real))
+        if not (np.isfinite(d) and np.isfinite(d0)):
+            return float('nan'), float('nan')
+        total += d * pick.sum()
+        total_src += d0 * pick.sum()
+        weight += pick.sum()
+    return float(total / weight), float(total_src / weight)
 
 
 def _write_counterfactual_outputs(out_dir: str, summary: Dict[str, Any],

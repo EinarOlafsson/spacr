@@ -3209,10 +3209,12 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
     file names, instead of between the classifier's classes; fewer than two
     conditions print a note and write nothing. ``counterfactual_target``
     names one class index or condition every crop morphs toward; empty
-    morphs each crop to the next one.
+    morphs each crop to the next one. ``counterfactual_generator`` picks the
+    model that draws them, ``autoencoder`` or ``diffusion``.
 
     :param settings: the activation-map settings (``counterfactual_epochs``,
-        ``counterfactual_condition``, ``counterfactual_target``).
+        ``counterfactual_condition``, ``counterfactual_target``,
+        ``counterfactual_generator``).
     :param model: the loaded classifier, in eval mode.
     :param crops: list of ``(B, C, H, W)`` tensors in model input space.
     :param names: one file name per crop.
@@ -3234,7 +3236,8 @@ def _run_counterfactuals(settings, model, crops, names, out_dir, device):
             model, batch, names=names,
             epochs=int(settings.get('counterfactual_epochs') or 30),
             device=device, out_dir=out_dir, conditions=conditions,
-            target=settings.get('counterfactual_target') or None)
+            target=settings.get('counterfactual_target') or None,
+            generator=settings.get('counterfactual_generator') or 'autoencoder')
     except ValueError as exc:
         print(f"Counterfactuals skipped: {exc}")
         return None

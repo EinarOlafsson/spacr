@@ -13106,6 +13106,7 @@ SETTING_CONSUMERS = {
     'count_grna_column': (('spacr.settings', 'get_perform_regression_default_settings'),),
     'count_value_column': (('spacr.settings', 'get_perform_regression_default_settings'),),
     'counterfactual_condition': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
+    'counterfactual_generator': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_crops': (('spacr.deep_spacr', 'generate_activation_map'), ('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_epochs': (('spacr.settings', 'get_default_generate_activation_map_settings'),),
     'counterfactual_target': (('spacr.settings', 'get_default_generate_activation_map_settings'),),

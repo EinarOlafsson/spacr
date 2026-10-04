@@ -18,7 +18,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QSettings                              # noqa: E402
 
 KEYS = ("counterfactuals", "counterfactual_crops", "counterfactual_epochs",
-        "counterfactual_condition", "counterfactual_target")
+        "counterfactual_condition", "counterfactual_target",
+        "counterfactual_generator")
 
 
 @pytest.fixture

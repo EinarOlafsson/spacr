@@ -148,3 +148,76 @@ PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
     hidden reaches collect()).
     Left: diffusion/StyleGAN generator (GPU, own env); catalog entries for
     the new label and tooltip (catalog lane).
+
+2026-10-04 — DIFFUSION GENERATOR (alpha, GPU-validated on BBBC014)
+    ALPHA: new setting counterfactual_generator (ALPHA_FEATURES[564],
+    Counterfactuals heading, default 'autoencoder'): 'autoencoder' as before
+    or 'diffusion'. spacr/attribution.py gains _CounterfactualDiffusion and
+    _train_counterfactual_diffusion, no new module. It is a class-
+    conditional DDPM (cosine schedule, small U-Net, width 64) with
+    classifier-free guidance (class dropped 15% in training); the class
+    code mixes learned class embeddings, so codes interpolate. It offers the
+    autoencoder's encode/decode API: encode is unconditional DDIM inversion
+    to noise level `strength`, decode is guided DDIM sampling under a code,
+    so _cf_edit (residual, exactly zero at the own class), the sequences,
+    the baseline and the report are unchanged. The classifier only labels
+    the training crops; nothing is trained against it. Sequences now decode
+    all steps in one batch. The report gains generator, realism_fd and
+    realism_fd_unedited: Frechet distance on hand features (per channel
+    mean, std, central disk/ring ratio, gradient magnitude) between the
+    counterfactuals and real training crops of their target, and the same
+    for the unedited sources. With out_dir the diffusion weights are saved
+    as counterfactual_diffusion.pt. Defaults (strength 0.95, guidance 4,
+    50 DDIM steps, width 64) are the setting chosen below.
+
+    Data: BBBC014 MCF7 (CC BY 3.0), 2-channel 64 px nucleus-centred crops
+    (Hoechst, NF-kB); control = TNF-a columns 10-12, hit = columns 1-3; train
+    rows A-C (8,553 crops), held-out row D (2,906): 100 crops to tune
+    strength/guidance, 2,806 to test, disjoint. Classifier (3-layer CNN)
+    row-D accuracy 0.980. Diffusion: 400 epochs, 2,547 s on the RTX 3090 Ti,
+    final denoising loss 0.042.
+    Tune (100 crops): strength 0.3-0.7 barely edits (flip <= 0.01, edit
+    <= 0.005); flip/realism FD (unedited 5.62) at guidance 2 / 4:
+    0.80: 0.09/5.42, 0.38/5.02   0.85: 0.34/4.96, 0.71/4.24
+    0.90: 0.77/3.93, 0.94/3.15   0.95: 0.93/2.80, 0.99/2.32
+    Chosen 0.95 / 4 (flip >= 0.8, lowest FD). At 1.0 (probe on 48 control
+    crops) the NF-kB ratio overshoots to 3.2 (real hits 1.6): the cell is
+    lost.
+    Held-out test, 2,806 crops, both directions:
+                              diffusion   autoencoder   class-mean shift
+        flip rate             0.990       0.9996        0.013
+        monotone / Spearman   0.979/0.980 0.999/1.000   -
+        median edit L1        0.089       0.018         0.041
+        pixels changed >10%   29%         1.5%          -
+        realism FD            1.94        31.65         (unedited 4.83)
+        NF-kB disk/ring, control -> hit: before 1.20, real hits 1.58
+                              1.68 (rose  1.26 (rose
+                              in 97%)     in 100%)
+    Conclusion: both flip the classifier, but the autoencoder does it with
+    a tiny edit that is visible as speckle (counterfactual_sequences.pdf),
+    moves NF-kB only 15% of the way to real hits and makes the crops much
+    less like real cells (FD 4.8 -> 31.7): an adversarial edit. The
+    diffusion edits move NF-kB into the nucleus all the way to the real
+    hits' level and are closer to real target cells than the sources were
+    (FD 4.8 -> 1.9), without ever being trained against the classifier.
+    Their price: the edit is not minimal; at strength 0.95 the model
+    redraws the neighbourhood (neighbouring nuclei move), so a sequence
+    shows "a cell like this, in the target class", not the same cell.
+    Scale matters: through _counterfactual_report on 600 random crops
+    (450 train, 60 epochs, width 32) diffusion flips only 0.13 and FD
+    worsens (8.1 -> 9.3); the app defaults (256 crops, 30 epochs) are far
+    too small for it, and the tooltip says so.
+    Outputs: /media/carruthers/mnt3/claude/564data/out/ (validation.json,
+    run.log, {diffusion,autoencoder}_test/counterfactual_{cells,summary}
+    .csv, counterfactual_sequences.pdf, counterfactual_frames.npy,
+    report_api/). Weights (LOCAL ONLY, not uploaded; HF upload needs the
+    maintainer's OK): out/diffusion_bbbc014_e400.pt (7.9 MB). Scripts:
+    564data/prep.py (crops), 564data/gpu_run.py.
+    Tests (CPU, tiny stub model): tests/test_generative_counterfactuals.py
+    (report with diffusion, first frame is the crop, zero strength is the
+    identity, unknown generator refused, realism distance, the run passes
+    the setting); the alpha gate test covers the new key.
+    Left: a pretrained or larger latent-diffusion backbone so it works at
+    app scale; a lower-strength mode with a structure-preserving term for
+    minimal edits; catalog entries for the new label and tooltip (catalog
+    lane).

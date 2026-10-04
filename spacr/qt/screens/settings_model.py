@@ -1531,6 +1531,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Counterfactuals", (
             "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
             "counterfactual_condition", "counterfactual_target",
+            "counterfactual_generator",
         )),
         ("Output & Runtime", (
             "save", "shuffle", "batch_size", "n_jobs", "ram_guard",

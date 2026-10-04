@@ -13,8 +13,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from spacr.attribution import (_counterfactual_report,
+from spacr.attribution import (_CounterfactualDiffusion, _cf_features,
+                               _cf_frechet, _counterfactual_report,
                                _counterfactual_sequences,
+                               _train_counterfactual_diffusion,
                                _train_counterfactual_generator)
 
 
@@ -274,3 +276,75 @@ def test_the_activation_run_passes_the_target_setting(trained, tmp_path,
          "counterfactual_target": "c9"},
         model, [x[:12]], names, str(tmp_path / "cf2"), "cpu") is None
     assert "not among" in capsys.readouterr().out
+
+
+# A diffusion model this small learns little in two epochs; these tests pin
+# the plumbing (interface, exact zero edit at the own class, outputs, saved
+# weights, the setting), not the quality, which the GPU run in the item file
+# measures on real crops.
+TINY = {"width": 8, "timesteps": 50, "sample_steps": 6}
+
+
+def test_the_diffusion_generator_runs_through_the_report(trained, tmp_path):
+    model, x = trained
+    summary, rows, frames = _counterfactual_report(
+        model, x[:48], epochs=2, show=2, out_dir=str(tmp_path),
+        generator="diffusion", generator_options=TINY)
+    assert summary["generator"] == "diffusion"
+    assert summary["heldout_crops"] == len(rows) == 12
+    for key in ("flip_rate", "monotone_fraction", "median_edit_l1",
+                "reconstruction_mse"):
+        assert np.isfinite(summary[key])
+    assert frames.shape == (2, 7, 1, 32, 32)
+    saved = torch.load(tmp_path / "counterfactual_diffusion.pt")
+    fresh = _CounterfactualDiffusion(**saved["config"])
+    fresh.load_state_dict(saved["state_dict"])
+    assert (tmp_path / "counterfactual_summary.csv").exists()
+
+
+def test_the_first_diffusion_frame_is_the_unedited_crop(trained):
+    model, x = trained
+    generator, history = _train_counterfactual_diffusion(model, x[:32],
+                                                         epochs=1, **TINY)
+    assert set(history[-1]) == {"denoising", "reconstruction"}
+    rows, frames = _counterfactual_sequences(model, generator, x[:3], keep=3)
+    # Batched against single decodes differ only by float rounding.
+    assert np.allclose(frames[:, 0], x[:3].numpy(), atol=1e-4)
+    assert all(r["score_path"].count(";") == 6 for r in rows)
+
+
+def test_diffusion_inversion_to_no_noise_is_the_identity(trained):
+    model, x = trained
+    generator, _ = _train_counterfactual_diffusion(
+        model, x[:16], epochs=1, strength=0.0, **TINY)
+    with torch.no_grad():
+        back = generator.decode(generator.encode(x[:4]),
+                                F.one_hot(torch.ones(4).long(), 2).float())
+    assert torch.allclose(back, x[:4], atol=1e-5)
+
+
+def test_an_unknown_generator_is_refused(trained):
+    model, x = trained
+    with pytest.raises(ValueError, match="not one of"):
+        _counterfactual_report(model, x[:8], epochs=1, generator="stylegan")
+
+
+def test_the_realism_distance_grows_with_the_gap(trained):
+    _model, x = trained
+    a, b = _cf_features(x[:80:2]), _cf_features(x[1:80:2])
+    assert _cf_frechet(a, a) == pytest.approx(0.0, abs=1e-6)
+    assert _cf_frechet(_cf_features(x[:80:2] * 1.5), a) > _cf_frechet(b, a)
+    assert _cf_features(x[:0]).shape == (0, 4)
+    assert np.isnan(_cf_frechet(a[:1], a))
+
+
+def test_the_activation_run_passes_the_generator_setting(trained, tmp_path):
+    from spacr.deep_spacr import _run_counterfactuals
+
+    model, x = trained
+    names = [f"p1_A0{1 + i % 2}_1_{i}.png" for i in range(12)]
+    summary = _run_counterfactuals(
+        {"counterfactual_epochs": 1, "counterfactual_generator": "diffusion"},
+        model, [x[:12]], names, str(tmp_path / "cf"), "cpu")
+    assert summary["generator"] == "diffusion"
+    assert (tmp_path / "cf" / "counterfactual_diffusion.pt").exists()

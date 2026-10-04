@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-548 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+549 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -819,3 +819,4 @@ NEW FEATURES
   635  PLAQUE FIGURE MODE FINDS NO PLAQUES ON PAPER FIGURES
   636  636 -- No empty settings categories
   637  637 -- Graph Builder: loaded schema rules overlap
+  640  640. Measure adds original_* filename columns from the conversion manifest
