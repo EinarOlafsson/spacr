@@ -12,8 +12,8 @@ assertions still check real artefacts:
   * the batch shapes/dtypes produced by the channel-selection branches
   * the progress lines printed for skipped files and re-cut timelapse batches
 
-Two tests are ``xfail(strict=True)`` and assert the CORRECT behaviour of paths
-that are currently broken (see ``suspected_bugs`` in the run report).
+Two tests assert the correct behaviour of paths that used to be broken; their
+``xfail(strict=True)`` markers were retired when the paths were fixed.
 """
 from __future__ import annotations
 
