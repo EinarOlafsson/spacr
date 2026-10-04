@@ -1942,7 +1942,7 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
             mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
             range_intensity.append(np.ptp(intens))
             upper_quartile, lower_quartile = _percentiles_of(intens, [75, 25])
-            iqr_intensity.append(float(upper_quartile - lower_quartile))
+            iqr_intensity.append(upper_quartile - lower_quartile)
             cv_intensity.append(np.std(intens) / np.mean(intens) if np.mean(intens) != 0 else np.nan)
             gini_intensity.append(_gini(intens))
             frac_high90.append(np.mean(intens > field_p90) if np.isfinite(field_p90) else np.nan)
@@ -2195,6 +2195,7 @@ def _torch_intensity_table(labels, image, field_percentiles, device):
         return tensor.detach().cpu().numpy()
 
     narrow = np.float32 if image.dtype == np.float32 else np.float64
+    quantile = np.percentile(np.zeros(2, dtype=image.dtype), 50).dtype
     df = pd.DataFrame({
         'label': host(segments['labels']),
         'centroid_weighted-0': host(cy),
@@ -2212,7 +2213,7 @@ def _torch_intensity_table(labels, image, field_percentiles, device):
         'kurtosis_intensity': host(kurt_v),
         'mode_intensity': host(mode_v),
         'range_intensity': host(vmax - vmin).astype(image.dtype),
-        'iqr_intensity': host(pct[75] - pct[25]),
+        'iqr_intensity': host(pct[75] - pct[25]).astype(quantile),
         'cv_intensity': host(torch.where(mean != 0, std / mean, nan)).astype(narrow),
         'gini_intensity': host(gini),
         'frac_high90': host(high) if torch.is_tensor(high) else np.nan,
@@ -2220,7 +2221,7 @@ def _torch_intensity_table(labels, image, field_percentiles, device):
         'entropy_intensity': host(entropy),
     })
     for q in (5, 10, 25, 75, 85, 95):
-        df[f'percentile_{q}'] = host(pct[q])
+        df[f'percentile_{q}'] = host(pct[q]).astype(quantile)
     return df
 
 
