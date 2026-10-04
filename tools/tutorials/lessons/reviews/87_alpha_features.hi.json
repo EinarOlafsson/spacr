@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "दूसरे alpha विकल्प बदलते हैं कि Measure क्या लिखता है: प्रति वेल इमेज-आधारित प्रोफ़ाइल, मापन के बाद चलने वाली CellProfiler पाइपलाइन, GPU पर मापन, बहुत बड़े रन के लिए अतिरिक्त स्टोरेज फ़ॉर्मेट, और इमेजिंग सत्रों के बीच तीव्रता अंशांकन।",
     "AnnData Export में मापे गए ऑब्जेक्ट के आउटपुट फ़ॉर्मेट का चुनाव जुड़ता है।",
     "Make Masks अपनी निचली पंक्तियों में alpha टूल दिखाता है: Uncertainty, यह खोजने के लिए कि मॉडल किन ऑब्जेक्ट के बारे में सबसे कम आश्वस्त है, Blind मोड जो क्यूरेशन के दौरान स्थितियों के नाम छिपाता है, ROI का आयात और निर्यात, किसी फ़िल्म में SAM2 tracking, और Apply virtual stain।",
+    "Make Masks से Model Zoo भी खुलता है। Scan दबाएँ; alpha फ़ीचर चालू होने पर यह alpha बैकएंड दिखाता है: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics और CellProfiler, और नीचे उनके अपने मॉडल। ये प्रयोगात्मक मॉडल हैं जिनका मूल्यांकन अभी चल रहा है, इसलिए इन पर भरोसा करने से पहले इनके मास्क जाँच लें।",
     "Cellpose Workbench में Virtual staining है, जो आपकी मौजूदा इमेज से एक रंजन चैनल का अनुमान लगाता है।",
     "Annotate में Blind मोड, लेबल किए जा रहे क्रॉप जैसे क्रॉप खोजने के लिए Like this, और Field QC जुड़ते हैं, जहाँ आप पूरे फ़ील्ड को अच्छा, फ़ोकस से बाहर या संतृप्त लेबल करते हैं।",
     "Plaque Analysis में प्लेट की तस्वीरों पर कॉलोनी गिनना और प्रायोगिक वृद्धि अनुमान जुड़ते हैं, जो सबसे बड़े प्लाक और मानी गई रैखिक वृद्धि से समय या पैमाना सुझाते हैं।",

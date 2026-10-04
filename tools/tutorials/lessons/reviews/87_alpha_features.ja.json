@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "そのほかのalphaのオプションは、Measureが書き出す内容を変えます。ウェルごとの画像ベースのプロファイル、測定後に実行するCellProfilerパイプライン、GPUでの測定、非常に大きな実行のための追加の保存形式、撮影セッション間の強度キャリブレーションです。",
     "AnnData Exportには、測定した物体の出力形式の選択が加わります。",
     "Make Masksの下の列にはalphaのツールが表示されます。モデルが最も自信のない物体を探すUncertainty、整理の間は条件の名前を隠すBlindモード、ROIの読み込みと書き出し、動画を通してのSAM2 tracking、そしてApply virtual stainです。",
+    "Make MasksからはModel Zooも開けます。Scanを押すと、alpha機能がオンのときはalphaのバックエンドが一覧に出ます。StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics、CellProfilerで、その下にそれぞれのモデルが並びます。これらはまだ評価中の実験的なモデルなので、頼る前にマスクを確認してください。",
     "Cellpose WorkbenchにはVirtual stainingがあり、手元の画像から染色チャネルを予測します。",
     "Annotateには、Blindモード、ラベル付け中のクロップに似たクロップを探すLike this、そして視野全体を良好、ピンぼけ、飽和としてラベル付けするField QCが加わります。",
     "Plaque Analysisには、プレート写真でのコロニーの計数と、最も大きなプラークと線形の成長という仮定から時間やスケールを提案する実験的な成長推定が加わります。",

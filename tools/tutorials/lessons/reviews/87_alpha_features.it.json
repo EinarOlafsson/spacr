@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "Altre opzioni alpha cambiano ciò che Measure scrive: profili basati sulle immagini per pozzetto, una pipeline di CellProfiler dopo la misura, misura su GPU, formati di archiviazione aggiuntivi per esecuzioni molto grandi e calibrazione dell’intensità tra sessioni di acquisizione.",
     "AnnData Export aggiunge una scelta del formato di uscita per gli oggetti misurati.",
     "Make Masks mostra strumenti alpha nelle file in basso: Uncertainty, per trovare gli oggetti di cui un modello è meno sicuro, la modalità Blind che nasconde i nomi delle condizioni durante la cura, importazione ed esportazione di ROI, SAM2 tracking lungo un filmato e Apply virtual stain.",
+    "Make Masks apre anche il Model Zoo. Premi Scan e, con le funzionalità alpha attive, elenca i backend alpha: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics e CellProfiler, con i loro modelli più in basso. Sono modelli sperimentali ancora in fase di valutazione, quindi controlla le loro maschere prima di affidarti a esse.",
     "Cellpose Workbench offre Virtual staining, che prevede un canale di colorazione dalle immagini che hai già.",
     "Annotate aggiunge la modalità Blind, Like this per trovare ritagli simili a quello che stai etichettando, e Field QC, dove etichetti interi campi come buoni, sfocati o saturi.",
     "Plaque Analysis aggiunge il conteggio delle colonie su foto di piastre e stime di crescita sperimentali, che propongono un tempo o una scala dalle placche più grandi e da una crescita supposta lineare.",

@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "D’autres options alpha changent ce que Measure écrit : profils d’images agrégés par puits, un pipeline CellProfiler exécuté après la mesure, mesure sur GPU, formats de stockage supplémentaires pour les très grandes exécutions et calibration des intensités entre sessions d’acquisition.",
     "AnnData Export ajoute un choix du format de sortie pour les objets mesurés.",
     "Make Masks affiche des outils alpha dans ses rangées du bas : Uncertainty, pour trouver les objets dont un modèle est le moins sûr, le mode Blind qui masque les noms des conditions pendant la curation, l’import et l’export de ROI, SAM2 tracking à travers un film, et Apply virtual stain.",
+    "Make Masks ouvre aussi le Model Zoo. Appuyez sur Scan : avec les fonctionnalités alpha activées, il liste les backends alpha, StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics et CellProfiler, avec leurs propres modèles plus bas. Ce sont des modèles expérimentaux encore en cours d'évaluation, vérifiez donc leurs masques avant de vous y fier.",
     "Cellpose Workbench propose Virtual staining, qui prédit un canal de marquage à partir des images dont vous disposez déjà.",
     "Annotate ajoute le mode Blind, Like this pour trouver des vignettes semblables à celle que vous étiquetez, et Field QC, où vous étiquetez des champs entiers comme bons, flous ou saturés.",
     "Plaque Analysis ajoute le comptage de colonies sur des photos de boîtes et des estimations de croissance expérimentales, qui proposent une durée ou une échelle à partir des plus grandes plages et d’une croissance supposée linéaire.",

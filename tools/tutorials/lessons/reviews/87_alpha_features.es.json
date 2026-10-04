@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "Otras opciones alpha cambian lo que escribe Measure: perfiles basados en imagen por pocillo, un pipeline de CellProfiler tras la medición, medición en la GPU, formatos de almacenamiento adicionales para ejecuciones muy grandes y calibración de intensidad entre sesiones de imagen.",
     "AnnData Export añade una elección del formato de salida para los objetos medidos.",
     "Make Masks muestra herramientas alpha en sus filas inferiores: Uncertainty, para encontrar los objetos de los que un modelo está menos seguro, el modo Blind para ocultar los nombres de las condiciones mientras curas, importación y exportación de ROI, SAM2 tracking a lo largo de una película y Apply virtual stain.",
+    "Make Masks también abre el Model Zoo. Pulse Scan y, con las funciones alpha activadas, muestra los backends alpha: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics y CellProfiler, con sus propios modelos más abajo. Son modelos experimentales que todavía se están evaluando, así que revise sus máscaras antes de confiar en ellas.",
     "Cellpose Workbench ofrece Virtual staining, que predice un canal de tinción a partir de las imágenes que ya tienes.",
     "Annotate añade el modo Blind, Like this para encontrar recortes parecidos al que estás etiquetando, y Field QC, donde etiquetas campos completos como buenos, desenfocados o saturados.",
     "Plaque Analysis añade el recuento de colonias en fotos de placas y estimaciones experimentales de crecimiento, que proponen un tiempo o una escala a partir de las placas más grandes y un crecimiento lineal supuesto.",

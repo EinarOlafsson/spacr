@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "Aðrir alpha-valkostir breyta því sem Measure skrifar: myndtengdum sniðum fyrir hverja holu, CellProfiler-ferli eftir mælingu, mælingu á GPU, viðbótargeymslusniðum fyrir mjög stórar keyrslur og kvörðun styrks milli myndatökulota.",
     "AnnData Export bætir við vali á úttakssniði fyrir mældu hlutina.",
     "Make Masks sýnir alpha-tól í neðstu röðunum: Uncertainty til að finna hlutina sem líkan er síst visst um, Blind-ham sem felur heiti aðstæðna meðan þú yfirferð, inn- og útflutning ROI, SAM2 tracking í gegnum myndskeið og Apply virtual stain.",
+    "Make Masks opnar líka Model Zoo. Ýttu á Scan, og þegar kveikt er á alpha-eiginleikum sýnir hann alpha-bakendana: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics og CellProfiler, með eigin líkönum neðar. Þetta eru tilraunalíkön sem enn er verið að meta, svo athugaðu grímurnar þeirra áður en þú treystir á þær.",
     "Cellpose Workbench býður Virtual staining, sem spáir fyrir um litunarrás út frá myndunum sem þú átt þegar.",
     "Annotate bætir við Blind-ham, Like this til að finna búta sem líkjast þeim sem þú merkir, og Field QC, þar sem þú merkir heil sjónsvið sem góð, úr fókus eða mettuð.",
     "Plaque Analysis bætir við talningu kóloníu á myndum af plötum og tilraunamati á vexti, sem stingur upp á tíma eða kvarða út frá stærstu skellunum og gefnum línulegum vexti.",

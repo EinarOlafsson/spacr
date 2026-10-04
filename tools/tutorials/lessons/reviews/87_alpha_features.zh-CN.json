@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "其他alpha选项会改变Measure写出的内容：按孔汇总的基于图像的特征谱、测量后运行的CellProfiler流程、在GPU上测量、适用于超大规模运行的额外存储格式，以及跨成像批次的强度校准。",
     "AnnData Export增加了测量物体的输出格式选择。",
     "Make Masks在底部几行显示alpha工具：用于找出模型最不确定的物体的Uncertainty、整理时隐藏条件名称的Blind模式、ROI的导入和导出、贯穿整段影片的SAM2 tracking，以及Apply virtual stain。",
+    "Make Masks还可以打开Model Zoo。按下Scan后，在开启alpha功能时，它会列出alpha后端：StarDist、InstanSeg、Omnipose、Spotiflow、DINOCell、SAMCell、micro-SAM、SAM2、SpotNet、CAREamics和CellProfiler，下方还有它们各自的模型。这些是仍在评估中的实验性模型，因此在依赖它们之前请先检查其掩膜。",
     "Cellpose Workbench提供Virtual staining，它根据您已有的图像预测一个染色通道。",
     "Annotate增加了Blind模式、用于查找与当前标注的裁剪图相似的裁剪图的Like this，以及Field QC，可将整个视野标注为良好、失焦或饱和。",
     "Plaque Analysis增加了在平板照片上计数菌落，以及实验性的生长估计，它根据最大的噬斑和假定的线性生长给出时间或比例尺的建议。",

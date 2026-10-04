@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "Andre alpha-valg endrer det Measure skriver: bildebaserte profiler per brønn, en CellProfiler-pipeline etter målingen, måling på GPU, ekstra lagringsformater for svært store kjøringer og intensitetskalibrering på tvers av opptaksøkter.",
     "AnnData Export legger til et valg av utdataformat for de målte objektene.",
     "Make Masks viser alpha-verktøy i de nederste radene: Uncertainty for å finne objektene en modell er minst sikker på, Blind-modus som skjuler betingelsesnavnene mens du kuraterer, import og eksport av ROI-er, SAM2 tracking gjennom en film og Apply virtual stain.",
+    "Make Masks åpner også Model Zoo. Trykk på Scan, og med alpha-funksjoner slått på viser den alpha-backendene: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics og CellProfiler, med sine egne modeller lenger ned. Dette er eksperimentelle modeller som fortsatt blir evaluert, så sjekk maskene deres før du stoler på dem.",
     "Cellpose Workbench tilbyr Virtual staining, som forutsier en fargekanal ut fra bildene du allerede har.",
     "Annotate legger til Blind-modus, Like this for å finne utsnitt som ligner det du merker, og Field QC, der du merker hele synsfelt som gode, uskarpe eller mettede.",
     "Plaque Analysis legger til telling av kolonier på platebilder og eksperimentelle vekstestimater, som foreslår en tid eller en skala ut fra de største plakkene og en antatt lineær vekst.",

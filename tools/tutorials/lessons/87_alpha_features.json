@@ -119,6 +119,17 @@
       ]
     },
     {
+      "visual": "09b_model_zoo_alpha_models",
+      "narration": "Make Masks also opens the Model Zoo. Press Scan, and with alpha features on it lists the alpha backends: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics and CellProfiler, with their own models further down. These are experimental models that are still being evaluated, so check their masks before you rely on them.",
+      "hold_after": 0.7,
+      "focus": [
+        34,
+        571,
+        3762,
+        340
+      ]
+    },
+    {
       "visual": "10_workbench_virtual_stain",
       "narration": "The Cellpose Workbench offers Virtual staining, which predicts a stain channel from the images you already have.",
       "hold_after": 0.7,

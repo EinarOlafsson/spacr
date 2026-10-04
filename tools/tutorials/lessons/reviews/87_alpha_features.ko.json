@@ -1,6 +1,6 @@
 {
   "lesson": "87_alpha_features",
-  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "english_sha256": "5d4dd9b97ea61701d23f04606f8792404483d65774b5b0d5191f97631e04a29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -29,6 +29,7 @@
     "다른 alpha 옵션은 Measure가 쓰는 내용을 바꿉니다. 웰별 이미지 기반 프로파일, 측정 후 실행하는 CellProfiler 파이프라인, GPU 측정, 매우 큰 실행을 위한 추가 저장 형식, 촬영 세션 간 강도 보정입니다.",
     "AnnData Export에는 측정한 객체의 출력 형식 선택이 추가됩니다.",
     "Make Masks의 아래쪽 줄에는 alpha 도구가 보입니다. 모델이 가장 확신하지 못하는 객체를 찾는 Uncertainty, 큐레이션하는 동안 조건 이름을 숨기는 Blind 모드, ROI 가져오기와 내보내기, 동영상 전체에 걸친 SAM2 tracking, 그리고 Apply virtual stain입니다.",
+    "Make Masks에서 Model Zoo도 열 수 있습니다. Scan을 누르면 alpha 기능이 켜져 있을 때 alpha 백엔드가 나열됩니다. StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics, CellProfiler가 있고 그 아래에 각각의 모델이 있습니다. 아직 평가 중인 실험적 모델이므로, 믿고 쓰기 전에 마스크를 확인하세요.",
     "Cellpose Workbench에는 이미 있는 이미지로부터 염색 채널을 예측하는 Virtual staining이 있습니다.",
     "Annotate에는 Blind 모드, 레이블을 붙이는 중인 크롭과 비슷한 크롭을 찾는 Like this, 그리고 필드 전체를 양호, 초점 이탈, 포화로 레이블을 붙이는 Field QC가 추가됩니다.",
     "Plaque Analysis에는 플레이트 사진에서 콜로니를 세는 기능과, 가장 큰 플라크와 선형 성장 가정으로 시간이나 축척을 제안하는 실험적 성장 추정이 추가됩니다.",
