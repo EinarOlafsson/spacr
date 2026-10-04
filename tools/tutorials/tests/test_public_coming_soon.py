@@ -20,8 +20,8 @@ CHECKPOINT = Path(__file__).resolve().parents[1] / 'release_candidate'
 PROMOTED = {'12_map_barcodes', '21_model_compare', '22_model_zoo', OPS, EMBEDDINGS}
 REMAINING = [identity for identity in PLACEHOLDERS if identity not in PROMOTED]
 HOST = 'https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/'
-# Changed with the catalogs it versions, 2026-09-29 (candidate d8ze6mec).
-CATALOG_KEY = 'fix0929-20260929-d8ze6mec'
+# Changed with the catalogs it versions, 2026-10-03 (candidate me1282u_).
+CATALOG_KEY = 'wave2b-20261003-me1282u_'
 
 
 @pytest.mark.parametrize('filename', CATALOGS)
@@ -69,8 +69,8 @@ def test_public_player_pins_the_verified_media_revision_and_exposes_coming_soon(
     assert docs_media_budget.NARRATION_HOST == root
     assert 'data-production-root="production"' in index
     assert '<h3 id="planned-title">Coming soon</h3>' in index
-    assert 'app_v2.js?v=voices-b4p-20260926-5bd5m2eg' in index
-    assert 'styles.css?v=20260911-coming-soon' in index
+    assert 'app_v2.js?v=20261002-home-landscape' in index
+    assert 'styles.css?v=20261002-home-landscape' in index
     for name in ('lesson_catalog.js', 'module_navigation.js'):
         assert name + '?v=' + CATALOG_KEY in index
     for name in ('lesson_catalog.js', 'module_navigation.js', 'app_v2.js', 'styles.css'):
