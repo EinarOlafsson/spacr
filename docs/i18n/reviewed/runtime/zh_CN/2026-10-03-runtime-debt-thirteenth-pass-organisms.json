@@ -650,13 +650,6 @@
     },
     {
       "table": "ui",
-      "key": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
-      "source": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
-      "source_sha256": "b01612a5173d17b1e46e05eb30fe46c1338d7abddb0a4143be3eec272b5435a9",
-      "translation": "巨噬细胞感染、巨噬细胞结合、前鞭毛体运动性和药物反应成像会打开现有的 spaCR 模块；其余四个图块为计划功能，标记为“即将推出”。TriTrypDB 提供基因组背景信息，UniProt 提供蛋白质注释。该示意图与 Trypanosoma 共用，展示的是 UniProt 术语，而不是 Leishmania 蛋白的测量位置。"
-    },
-    {
-      "table": "ui",
       "key": "Measure amastigote clearance across compound concentrations.",
       "source": "Measure amastigote clearance across compound concentrations.",
       "source_sha256": "e48c53277b70d908b79baa0c6cb6da93ae2db860430252b979ee16270b6c5de5",
@@ -1056,38 +1049,10 @@
     },
     {
       "table": "ui",
-      "key": "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
-      "source": "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
-      "source_sha256": "f6797673c598cf48fdac87226232411ad6f06a63200f42e0af2680a54295c881",
-      "translation": "SwissBioPics 没有 Giardia 的图示，因此这里使用其通用真核细胞。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为 Giardia 蛋白注释、并在此处绘出的定位。Giardia 有两个细胞核，以纽带体代替线粒体，且没有堆叠的高尔基体，因此不提供这些选项。"
-    },
-    {
-      "table": "ui",
       "key": "Syncytium formation",
       "source": "Syncytium formation",
       "source_sha256": "7379ab7fc79340fe46e65274c5ed653e9bc78582c68c13af2ed8a63521b0ca23",
       "translation": "合胞体形成"
-    },
-    {
-      "table": "ui",
-      "key": "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
-      "source": "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
-      "source_sha256": "ad490304e3aaa50cb93265d4034cb43c3fae86832c136b6f998f2be0bc954226",
-      "translation": "SwissBioPics 动物细胞。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为哺乳动物蛋白注释、且该图稿绘出的亚细胞定位。细胞形状和细胞器排列因细胞类型而异。"
-    },
-    {
-      "table": "ui",
-      "key": "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
-      "source": "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
-      "source_sha256": "fb884f428ba8ef8c4a5533bc283f2399b465e860462bc5b89847e69a9ef0621a",
-      "translation": "带有病毒粒子的 SwissBioPics 宿主动物细胞。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为病毒蛋白注释、且该图稿绘出的病毒粒子和宿主细胞定位。该图是通用的：病毒粒子结构和复制位点因病毒科而异。"
-    },
-    {
-      "table": "ui",
-      "key": "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
-      "source": "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
-      "source_sha256": "c7fd8a8cb8057bbb3609a18cae8c1e5c5f44f0c238e69f7c8c4b8461fed71bda",
-      "translation": "SwissBioPics 锥虫科细胞，与 Trypanosoma 页面共用。悬停可查看 UniProt 定位描述，勾选多个区室可使其保持高亮。标签是 UniProt 为 Leishmania 蛋白注释、且该图稿绘出的亚细胞定位。前鞭毛体和圆形无鞭毛体在形状和鞭毛长度上不同。"
     },
     {
       "table": "ui",

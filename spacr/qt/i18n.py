@@ -89,17 +89,6 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Candida spp.", "Candida spp.", "Candida spp.", "Candida spp.",
         "Candida spp.", "Candida spp.", "Candida spp.", "Candida spp.",
         "Candida spp."),
-    # 634, 2026-10-03: the alpha organism pages registered as modules.
-    "Giardia duodenalis": _row(
-        "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis", "Giardia duodenalis"),
-    "Leishmania spp.": _row(
-        "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp.", "Leishmania spp."),
-    "Trypanosoma spp.": _row(
-        "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp.", "Trypanosoma spp."),
-    "Mammalian cells": _row(
-        "Däggdjursceller", "Säugerzellen", "Células de mamífero", "哺乳动物细胞", "Células de mamíferos", "स्तनधारी कोशिकाएँ", "포유류 세포", "Spendýrafrumur", "Cellules de mammifère"),
-    "Virus infection": _row(
-        "Virusinfektion", "Virusinfektion", "Infección viral", "病毒感染", "Infecção viral", "विषाणु संक्रमण", "바이러스 감염", "Veirusýking", "Infection virale"),
     "Plasmodium spp.": _row(
         "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.",
         "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.", "Plasmodium spp.",

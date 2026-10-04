@@ -650,13 +650,6 @@
     },
     {
       "table": "ui",
-      "key": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
-      "source": "Macrophage infection, Macrophage binding, Promastigote motility and Drug response imaging open existing spaCR modules; the other four tiles are planned and marked Coming soon. TriTrypDB provides genome context and UniProt supplies protein annotations. The diagram is shared with Trypanosoma and shows UniProt vocabulary, not the measured location of a Leishmania protein.",
-      "source_sha256": "b01612a5173d17b1e46e05eb30fe46c1338d7abddb0a4143be3eec272b5435a9",
-      "translation": "महाभक्षक कोशिका संक्रमण, महाभक्षक कोशिका बंधन, प्रोमास्टिगोट गतिशीलता और दवा प्रतिक्रिया की इमेजिंग मौजूदा spaCR मॉड्यूल खोलते हैं; अन्य चार टाइलें नियोजित हैं और “जल्द आ रहा है” चिह्नित हैं। TriTrypDB जीनोम संदर्भ देता है और UniProt प्रोटीन एनोटेशन प्रदान करता है। आरेख Trypanosoma के साथ साझा है और UniProt शब्दावली दिखाता है, न कि किसी Leishmania प्रोटीन का मापा गया स्थान।"
-    },
-    {
-      "table": "ui",
       "key": "Measure amastigote clearance across compound concentrations.",
       "source": "Measure amastigote clearance across compound concentrations.",
       "source_sha256": "e48c53277b70d908b79baa0c6cb6da93ae2db860430252b979ee16270b6c5de5",
@@ -1056,38 +1049,10 @@
     },
     {
       "table": "ui",
-      "key": "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
-      "source": "SwissBioPics has no Giardia drawing, so this is its generic eukaryotic cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt locations annotated for Giardia proteins and drawn here. Giardia has two nuclei, mitosomes instead of mitochondria and no stacked Golgi, so those are not offered.",
-      "source_sha256": "f6797673c598cf48fdac87226232411ad6f06a63200f42e0af2680a54295c881",
-      "translation": "SwissBioPics में Giardia का कोई चित्र नहीं है, इसलिए यह उसकी सामान्य यूकैरियोटिक कोशिका है। UniProt के स्थान विवरण के लिए पॉइंटर रखें और कई कक्षों को हाइलाइट बनाए रखने के लिए उन पर चिह्न लगाएँ। लेबल UniProt के वे स्थान हैं जो Giardia प्रोटीनों के लिए एनोटेट हैं और यहाँ बनाए गए हैं। Giardia में दो नाभिक, माइटोकॉन्ड्रिया के स्थान पर माइटोसोम होते हैं और कोई परतदार गॉल्जी नहीं होता, इसलिए ये विकल्प नहीं दिए जाते।"
-    },
-    {
-      "table": "ui",
       "key": "Syncytium formation",
       "source": "Syncytium formation",
       "source_sha256": "7379ab7fc79340fe46e65274c5ed653e9bc78582c68c13af2ed8a63521b0ca23",
       "translation": "संकोशिका (सिंसिटियम) निर्माण"
-    },
-    {
-      "table": "ui",
-      "key": "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
-      "source": "The SwissBioPics animal cell. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are UniProt subcellular locations annotated for mammalian proteins that this artwork draws. Cell shape and organelle arrangement vary between cell types.",
-      "source_sha256": "ad490304e3aaa50cb93265d4034cb43c3fae86832c136b6f998f2be0bc954226",
-      "translation": "SwissBioPics की जंतु कोशिका। UniProt के स्थान विवरण के लिए पॉइंटर रखें और कई कक्षों को हाइलाइट बनाए रखने के लिए उन पर चिह्न लगाएँ। लेबल UniProt के वे उपकोशिकीय स्थान हैं जो स्तनधारी प्रोटीनों के लिए एनोटेट हैं और जिन्हें यह चित्र दर्शाता है। कोशिका का आकार और कोशिकांगों की व्यवस्था कोशिका प्रकारों के बीच भिन्न होती है।"
-    },
-    {
-      "table": "ui",
-      "key": "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
-      "source": "The SwissBioPics host animal cell with a virion. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the virion and host-cell locations UniProt annotates for viral proteins that this artwork draws. It is generic: virion structure and replication sites differ between virus families.",
-      "source_sha256": "fb884f428ba8ef8c4a5533bc283f2399b465e860462bc5b89847e69a9ef0621a",
-      "translation": "एक विरिऑन के साथ SwissBioPics की मेज़बान जंतु कोशिका। UniProt के स्थान विवरण के लिए पॉइंटर रखें और कई कक्षों को हाइलाइट बनाए रखने के लिए उन पर चिह्न लगाएँ। लेबल विरिऑन और मेज़बान-कोशिका के वे स्थान हैं जिन्हें UniProt विषाणु प्रोटीनों के लिए एनोटेट करता है और जिन्हें यह चित्र दर्शाता है। यह सामान्य है: विरिऑन संरचना और प्रतिकृति स्थल विषाणु कुलों के बीच भिन्न होते हैं।"
-    },
-    {
-      "table": "ui",
-      "key": "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
-      "source": "The SwissBioPics trypanosomatid cell, shared with the Trypanosoma page. Hover for a UniProt location description and check several compartments to keep them highlighted. The labels are the UniProt subcellular locations annotated for Leishmania proteins that this artwork draws. Promastigotes and the rounded amastigote differ in shape and flagellum length.",
-      "source_sha256": "c7fd8a8cb8057bbb3609a18cae8c1e5c5f44f0c238e69f7c8c4b8461fed71bda",
-      "translation": "SwissBioPics की ट्रिपैनोसोमैटिड कोशिका, जो Trypanosoma पृष्ठ के साथ साझा है। UniProt के स्थान विवरण के लिए पॉइंटर रखें और कई कक्षों को हाइलाइट बनाए रखने के लिए उन पर चिह्न लगाएँ। लेबल UniProt के वे उपकोशिकीय स्थान हैं जो Leishmania प्रोटीनों के लिए एनोटेट हैं और जिन्हें यह चित्र दर्शाता है। प्रोमास्टिगोट और गोल एमास्टिगोट आकार और कशाभिका की लंबाई में भिन्न होते हैं।"
     },
     {
       "table": "ui",
