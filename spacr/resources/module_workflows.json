@@ -2806,8 +2806,6 @@
         "ml_analyze",
         "parameter_sweep",
         "toxoplasma",
-        "plasmodium",
-        "candida",
         "endodyogeny",
         "cellpose_masks",
         "simulation"

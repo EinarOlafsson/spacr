@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "es",
-  "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
+  "workflow_map_sha256": "acc2262b70bdca85df02692ab4190b8856e9002e1878c5b1b81c3eae7ed7a392",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,

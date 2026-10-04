@@ -140,7 +140,11 @@ def test_generated_api_and_tutorial_contracts_match_the_map():
     for relative, content in workflow.outputs(data).items():
         assert (workflow.ROOT / relative).read_text(encoding="utf-8") == content, relative
     module_keys = set(data["modules"])
-    assert set(data["tutorials"]["79_module_inputs_outputs"]["modules"]) == module_keys
+    # Lesson 79 covers every module a user can see with Show alpha species
+    # off; alpha-species organism chapters (634) are left out.
+    from spacr.settings import _alpha_species_names
+    visible = module_keys - set(_alpha_species_names("apps"))
+    assert set(data["tutorials"]["79_module_inputs_outputs"]["modules"]) == visible
     for key, lesson in data["tutorials"].items():
         contract = json.loads((workflow.ROOT / f"tools/tutorials/workflows/{key}.json").read_text())
         script = json.loads((workflow.ROOT / f"tools/tutorials/lessons/{key}.json").read_text())

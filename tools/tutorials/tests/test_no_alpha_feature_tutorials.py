@@ -377,10 +377,7 @@ def species_references(lesson):
 #: lesson fails until its entry is removed.
 #: - 05_home scene 5 (Assays: Toxoplasma, Plasmodium or Candida) is recorder
 #:   A's lesson.
-#: - 79_module_inputs_outputs scenes 75-76 are the Plasmodium and Candida
-#:   chapters of the module workflow map, which keeps them until lessons 83
-#:   and 84 retire (_SPECIES_WITH_PUBLISHED_LESSONS).
-SPECIES_PENDING = {"05_home": 8, "79_module_inputs_outputs": 5}
+SPECIES_PENDING = {"05_home": 8}
 
 
 @pytest.mark.parametrize("path", LESSONS, ids=[path.stem for path in LESSONS])

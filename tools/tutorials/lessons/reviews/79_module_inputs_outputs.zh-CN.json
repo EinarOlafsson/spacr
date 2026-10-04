@@ -1,7 +1,7 @@
 {
   "language": "zh-CN",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "841aa1c4f0d9024d551b8c5b4693a3d894e0f2ad90a3d6f8abfa71acc62db0ce",
+  "english_sha256": "74ffb2780312b1dbb6be41c4d4f8489af7431d43e7013377af9aa04070613aed",
   "title": "模块输入与输出",
   "section": "工作流程",
   "description": "查找每个当前模块的输入数据、保存的输出、上游生成模块和下游使用模块，包括嵌套在 Home 模块中的工具。",
@@ -86,8 +86,6 @@
     "从 Home 打开 Classify，然后选择 Tabular Machine Learning。 根据已测量对象和标签训练基于特征的分类器。使用评分前，检查因缺失特征而被排除的对象，以及按组留出评估的性能。 Tabular Machine Learning 读取 已测量的对象 和 训练注释。 Tabular Machine Learning 据此生成 对象分类分数, 拟合好的特征分类器 和 分类器评估包。",
     "从 Home 打开 Regression，然后选择 Parameter Sweep。 运行明确选定的回归设置并比较其诊断。保持输入数据和评估问题不变。 Parameter Sweep 读取 对象分类分数 和 每孔向导计数。 Parameter Sweep 据此生成 运行与模型比较 以及 回归结果和命中。",
     "从 Home 打开 Toxoplasma。 从 Home 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Invasion Assay 或 Replication Assay。四个标记为即将推出的入口描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。 Toxoplasma 读取 内置的生物参考资料。 内置的生物参考资料 在这里： 已安装的生物体描述和 SwissBioPics 细胞示意图；无需项目输入。 Toxoplasma 据此生成 生物指南和检测选择。 您可以在这里找到 生物指南和检测选择： 仅在 GUI 中显示的区室高亮及可用实验分析的导航；不会生成测量值或文件。",
-    "从 Home 打开 Plasmodium spp.。 从 Home 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 Plasmodium spp. 读取 内置的生物参考资料。 Plasmodium spp. 据此生成 生物指南和检测选择。",
-    "从 Home 打开 Candida spp.。 从 Home 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 Candida spp. 读取 内置的生物参考资料。 Candida spp. 据此生成 生物指南和检测选择。",
     "在 Python 中通过 spacr.submodules.analyze_endodyogeny 使用 Endodyogeny size proxy。这条仅限 API 的工作流程没有 Home 入口或菜单项。 读取实测区室面积，标注条件，并将 area ** 1.5 按 log2 大小倍增区间分箱。默认按宿主细胞汇总病原体面积，而非按液泡：同一细胞中的多个液泡会合并计算。这是由面积推算的大小代理指标，并非实测体积或寄生虫数量。如需每个液泡的寄生虫计数，请使用 Replication Assay 并提供明确的液泡标识。调用 API 前配置 compartment、面积过滤、标定、条件和分组；保存结果是可选的。 Endodyogeny size proxy 读取 按宿主细胞汇总的区室面积。 按宿主细胞汇总的区室面积 在这里： 每个 src 项目根目录下的 measurements/measurements.db；tables 默认为 cell、nucleus、pathogen 和 cytoplasm，并加入 png_list 用于合并。compartment 设置选择面积列；默认按宿主细胞汇总 pathogen_area。 根据所走的路径，重要的表是 cell, nucleus, pathogen, cytoplasm, png_list。 需要留意的列是 cell_id, pathogen_area。 Endodyogeny size proxy 据此生成 基于面积的大小替代指标结果。 您可以在这里找到 基于面积的大小替代指标结果： 返回 data 和 chi_squared DataFrames；save=True 还会在第一个项目根目录的 results/analyze_endodyogeny/ 下写出 data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv 和图形。 需要留意的列是 pathogen_area, pathogen_volume, pathogen_volume_bin, bin_index。 Measure 可以提供 已测量的对象。 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。",
     "在 Python 中通过 spacr.spacr_cellpose.identify_masks_finetune 使用 Direct Cellpose mask generation。这条仅限 API 的工作流程没有 Home 入口或菜单项。 通过 Python API，在 TIFF 视野上运行标准或自定义 Cellpose 模型。尽管其历史名称为 identify_masks_finetune，该函数执行的是推理而非训练。检查归一化、通道、尺寸调整和模型参数；只有启用 save 时才会写出掩膜。在 Measure 前通过 External Masks 导入兼容的图像与掩膜对，或在训练前整理这些配对。本调用不会创建可直接用于 Measure 的合并项目。 Direct Cellpose mask generation 读取 用于 Cellpose 直接推断的 TIFF 视野 和 分割检查点。 用于 Cellpose 直接推断的 TIFF 视野 在这里： src 顶层中扩展名为小写 .tif 的文件；跳过 src/masks 中已存在同名文件的图像。提供配置的通道及兼容的标准 model_name 或 custom_model 检查点。 Direct Cellpose mask generation 据此生成 Cellpose 直接生成的 TIFF 掩膜。 您可以在这里找到 Cellpose 直接生成的 TIFF 掩膜： 当 save=True 时，src/masks/<image-name>.tif 包含整数标签。调用返回 None，不会生成合并数组或 measurements.db。 Cellpose Workbench 可以提供 分割检查点。 将训练好的检查点作为 custom_model 传入，并匹配图像通道和预处理配置。 接下来由 External Masks 接收 Cellpose 直接生成的 TIFF 掩膜。 向 External Masks 提供保存的标签 TIFF 文件及其原始图像，指定对象角色，并在 Measure 前创建合并项目。",
     "在 Python 中通过 spacr.sim.run_multiple_simulations 使用 Pooled-screen simulation sweep。这条仅限 API 的工作流程没有 Home 入口或菜单项。 使用 Python 扫描 API 探索明确陈述的筛选设计假设。它展开参数组合，在进程池中运行模拟，并写出合成汇总统计；返回值为 None。运行前设置明确且较小的 max_workers 值和有界参数网格。输出不能代替实验 Regression 所需的测量值或条形码计数。将结果作为规划依据，并记录其假设。选择规划假设时，检查合成摘要；手动将这些假设转入 Power / Design 或 Experiment Design。两个工具都不导入此模拟数据库，也不导出模拟设置网格。 Pooled-screen simulation sweep 读取 混池筛选模拟的假设。 混池筛选模拟的假设 在这里： Python 设置字典：筛选规模、占据率、分类器准确率和测序假设的可迭代扫描值，以及 replicates、src、name、variable、plot 和 max_workers。generate_parameters 展开它们的笛卡尔积；请从小规模扫描和明确的工作进程上限开始。 Pooled-screen simulation sweep 据此生成 合成筛选模拟摘要。 您可以在这里找到 合成筛选模拟摘要： src/<YYMMDD>/<name>/simulations.db；扫描将汇总行追加到 simulations，并可选地写出图形。这些是合成的性能估计，并非实测实验命中结果。 根据所走的路径，重要的表是 simulations。",
@@ -96,8 +94,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
-    "phrase_bank_sha256": "44c0acf922feaab341973f75cf1916495d5e679acd02feeabe23c295d8b6092d",
+    "workflow_map_sha256": "acc2262b70bdca85df02692ab4190b8856e9002e1878c5b1b81c3eae7ed7a392",
+    "phrase_bank_sha256": "68d7e5c34e5a3c8b4a786b0a17c6a048609dea2f810ae6c2d53bad84e3a8bf61",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
