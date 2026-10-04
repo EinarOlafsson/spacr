@@ -55,7 +55,8 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` | one of
+* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
+  ``"high_contrast"`` | one of
   the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
   ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
   system color scheme, and only once somebody has picked it: a stored
@@ -542,7 +543,8 @@ _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
 #: rather than written out again, because that module is Qt-free for
 #: exactly this reason: it can be imported here without QtGui, and it
 #: cannot then drift from what :data:`spacr.qt.theme.THEMES` holds.
-PALETTE_THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
+PALETTE_THEMES = ("dark", "light", "cell", "glass",
+                  "high_contrast") + NIGHT_THEME_KEYS
 
 #: Persisted values. An existing install has ``prefs/theme`` set to one
 #: of dark/light/system/space; those keep resolving exactly as before,
@@ -1689,6 +1691,7 @@ def theme_choices() -> tuple:
         ("Dark", "dark"),
         ("Light", "light"),
         ("Glass", "glass"),
+        ("High contrast", "high_contrast"),
         ("Follow system", "system"),
     ]
     choices.extend(
@@ -1708,13 +1711,16 @@ def theme_description(token: str) -> str:
     control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.
 
     :param token: a token from :func:`theme_choices`.
-    :returns: the theme's sentence, or ``""`` for the four themes that
-        predate the family and for any token without one. The caller
+    :returns: the theme's sentence (the high-contrast theme has one too),
+        or ``""`` for the four themes that predate the family and for any token without one. The caller
         passes the result through :func:`tr` and sets no tooltip when it
         is empty.
     """
     from .night_themes import NIGHT_THEMES
 
+    if token == "high_contrast":
+        return ("White text and outlines on black with a yellow accent, "
+                "for low vision and bright rooms.")
     theme = NIGHT_THEMES.get(token)
     return theme.description if theme is not None else ""
 

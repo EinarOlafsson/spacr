@@ -7104,6 +7104,7 @@ class _CsvColumnField(QWidget):
         row.addWidget(self.edit, 1)
         row.addWidget(self.button, 0)
         self.setFocusProxy(self.edit)
+        QWidget.setTabOrder(self.edit, self.button)
 
 
     def get_value(self) -> Optional[str]:

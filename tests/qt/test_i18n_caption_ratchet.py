@@ -1275,6 +1275,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 649, 2026-10-04: undo and redo in the settings panel, the gate editor and
 # Annotate.
 # 653, 2026-10-04: About spaCR's portable-mode line.
+# 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
+# and its tooltip sentence.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'A template called {name} already exists.',
     'A template needs a name.',
@@ -1334,6 +1336,9 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "You are running spaCR {new}.",
     "spaCR was updated from {old} to {new}.",
     "Giardia duodenalis",
+    "High contrast",
+    "White text and outlines on black with a yellow accent, for low vision "
+    "and bright rooms.",
     "Leishmania spp.",
     "Mammalian cells",
     "Trypanosoma spp.",

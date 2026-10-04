@@ -2,8 +2,8 @@
 
 Use :func:`active_palette` for colors shown by a live widget and
 :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains
-the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, ``"glass"`` and
-the ten night themes of :mod:`spacr.qt.night_themes`; the ``"system"``
+the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, ``"glass"``,
+``"high_contrast"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``"system"``
 preference resolves to dark or light before palette lookup. A legacy
 ``"space"`` palette can still be read from persisted settings but is not
 selectable.
@@ -167,6 +167,34 @@ GLASS_PALETTE = {
 }
 
 
+#: The high-contrast theme: pure white ink and outlines on black, with a
+#: yellow accent, for low vision and bright rooms. Every text role clears
+#: 7:1 on every surface it is painted on, which is the enhanced (AAA) level
+#: rather than the 4.5:1 the other themes are held to.
+HIGH_CONTRAST_PALETTE = {
+    "bg":          "#000000",
+    "page":        "#2b2b2b",
+    "surface":     "#000000",
+    "surface_alt": "#0a0a0a",
+    "surface_hi":  "#1a1a1a",
+    "border":      "#ffffff",
+    "border_soft": "#bfbfbf",
+    "fg":          "#ffffff",
+    "fg_muted":    "#f0f0f0",
+    "fg_dim":      "#e0e0e0",
+    "accent":      "#ffd400",
+    "accent_hi":   "#ffe866",
+    "accent_lo":   "#e6bf00",
+    "accent_soft": "#3d3300",
+    "success":     "#5cff8a",
+    "chip_class":  "#33ffff",
+    "chip_value":  "#5cff8a",
+    "warning":     "#ffb84d",
+    "error":       "#ff8080",
+    "info":        "#80d4ff",
+}
+
+
 #: The themes with a palette of their own. ``"system"`` is a
 #: *preference* value that resolves to one of these, not an entry here.
 #: "space" was retired: the generated skies were a lot of machinery for a
@@ -180,7 +208,7 @@ GLASS_PALETTE = {
 #: colour through :func:`palette_for` reach them without a branch. They are
 #: flat themes, not :data:`IMAGE_THEMES`, so no scrim is solved for them and
 #: nothing is composited over a wallpaper.
-THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
+THEMES = ("dark", "light", "cell", "glass", "high_contrast") + NIGHT_THEME_KEYS
 
 _PALETTES = {
     "dark": DARK_PALETTE,
@@ -188,6 +216,7 @@ _PALETTES = {
     "space": SPACE_PALETTE,
     "cell": CELL_PALETTE,
     "glass": GLASS_PALETTE,
+    "high_contrast": HIGH_CONTRAST_PALETTE,
 }
 _PALETTES.update(night_palettes())
 

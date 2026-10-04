@@ -2,7 +2,10 @@
 ACCESSIBILITY PASS
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04 — accessible names through one central helper,
+           a High contrast theme in Preferences > Appearance, an a11y lint
+           over all 48 module screens and a Tab-order check on the Core
+           screens. Not alpha: accessibility is not an experiment.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +16,43 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+WHAT WAS BUILT (2026-10-04)
+  Names. `spacr.qt.i18n._name_for_assistive_tech` runs at the end of every
+  language pass (`retranslate_widget_tree`), which already reaches every
+  module screen when it is built, every dialog when shown and every subtree
+  that arrives later. A control assistive technology would announce with no
+  name (icon-only buttons, fields, spin boxes, combos, sliders, text boxes)
+  is named after, in order: its tooltip's first sentence, its placeholder,
+  the spin box or combo it is the editor of, its settings-row label, the
+  label a layout puts in front of it, the tab it is the page of, and its
+  object name read as words. A table's corner button is "Select all". A
+  control with no tooltip is described with its label's help. Names set by
+  code are never replaced; derived ones are recomputed on every pass, so
+  they follow language changes. Buttons with a caption are left to Qt,
+  which names them after the caption and follows it when it changes.
+  Measured with QAccessible on the 48 screens: 207 of 902 visible controls
+  had no name before, 0 after.
+
+  Keyboard. The same pass sets Tab to leave text boxes and tables (Qt's
+  defaults typed a tab or stepped between cells, trapping Tab on Mask,
+  Classify, Map barcodes and Regression). `a11yKeepsTab` opts a widget
+  out. The CSV column field's picker button was unreachable by Tab; its
+  tab order is now edit then button.
+
+  High contrast. `HIGH_CONTRAST_PALETTE` in spacr/qt/theme.py ("high_contrast"
+  in THEMES and PALETTE_THEMES), offered as "High contrast" in Preferences >
+  Appearance > Theme with a tooltip sentence. Every text role clears 7:1 on
+  every surface. The theme-invariant button roles (CONSTANT_ROLES) stay
+  blue at 4.75-6.96:1.
+
+  Tests: tests/qt/test_accessibility_pass.py (lint per module screen, Tab
+  traversal per Core screen, helper unit tests, theme contrast and choice).
+
+WHAT IS LEFT
+  - "High contrast" and its tooltip sentence await the nine-locale catalog
+    rebuild (_AWAITING_CATALOG_REBUILD).
+  - The lint covers buttons and inputs; item views, the MainWindow chrome
+    and Preferences are named by the same pass but not linted.
+  - A user-guide paragraph on the theme and screen-reader support goes
+    with the next docs pass (docs last).

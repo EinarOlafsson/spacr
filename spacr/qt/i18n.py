@@ -4001,6 +4001,295 @@ def _pass_stamp(code: str) -> str:
     return f"{code}@{_CATALOG_GENERATION}"
 
 
+#: Marks an accessible name or description the language pass derived rather
+#: than one application code set. A derived value is recomputed on every pass,
+#: so it follows the caption, tooltip or label it came from; one set by code
+#: never is.
+_A11Y_DERIVED_NAME = "_spacr_a11y_derived_name"
+_A11Y_DERIVED_DESCRIPTION = "_spacr_a11y_derived_description"
+
+_A11Y_TAG = re.compile(r"<[^>]+>")
+_A11Y_SPACE = re.compile(r"\s+")
+_A11Y_CAMEL = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+
+
+def _a11y_plain(text, limit: int = 0) -> str:
+    """Return ``text`` as one line of plain text, without markup or mnemonics.
+
+    :param text: a caption, tooltip or label, possibly rich text.
+    :param limit: when positive, cut at the first sentence end and then at
+        this many characters, which is what a name wants; ``0`` keeps the
+        whole text, which is what a description wants.
+    :returns: the plain text, or ``""``.
+    """
+    if not text:
+        return ""
+    import html as _html
+    plain = str(text)
+    if "<" in plain:
+        plain = _A11Y_TAG.sub(" ", plain.replace("<br>", ". "))
+    plain = _A11Y_SPACE.sub(" ", _html.unescape(plain)).strip()
+    plain = plain.replace("&&", "\0").replace("&", "").replace("\0", "&")
+    if limit > 0 and plain:
+        for stop in (". ", "? ", "! ", " — ", "\n"):
+            head = plain.split(stop, 1)[0]
+            if head and len(head) < len(plain):
+                plain = head.rstrip(".")
+        if len(plain) > limit:
+            plain = plain[:limit].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    return plain
+
+
+def _a11y_interactive_types():
+    """The Qt classes a person operates, and so the ones that need a name."""
+    from PySide6.QtWidgets import (
+        QAbstractButton,
+        QAbstractSlider,
+        QAbstractSpinBox,
+        QComboBox,
+        QLineEdit,
+        QPlainTextEdit,
+        QTextEdit,
+    )
+    return (QAbstractButton, QComboBox, QLineEdit, QAbstractSpinBox,
+            QAbstractSlider, QTextEdit, QPlainTextEdit)
+
+
+def _a11y_layout_holding(layout, child):
+    """The layout, ``layout`` itself or one nested in it, that holds ``child``.
+
+    :param layout: the outermost layout to search.
+    :param child: the widget to look for as a direct item.
+    :returns: the layout with ``child`` as a direct item, or ``None``.
+    """
+    if layout.indexOf(child) >= 0:
+        return layout
+    for position in range(layout.count()):
+        item = layout.itemAt(position)
+        inner = item.layout() if item is not None else None
+        if inner is not None:
+            found_in = _a11y_layout_holding(inner, child)
+            if found_in is not None:
+                return found_in
+    return None
+
+
+def _a11y_label_beside(widget):
+    """The caption a layout places in front of ``widget``, if any.
+
+    Looks at the form label, the cell to the left in a grid, or the item
+    before it in a box, climbing through up to three wrapping containers so
+    that an editor inside a composite field finds the row's label.
+
+    :param widget: the widget to find a caption for.
+    :returns: a ``QLabel`` with text, or ``None``.
+    """
+    from PySide6.QtWidgets import QBoxLayout, QFormLayout, QGridLayout, QLabel
+
+    current = widget
+    for _depth in range(4):
+        parent = current.parentWidget()
+        layout = parent.layout() if parent is not None else None
+        if layout is not None:
+            layout = _a11y_layout_holding(layout, current)
+        if layout is None:
+            return None
+        found = None
+        index = layout.indexOf(current)
+        if index >= 0:
+            if isinstance(layout, QFormLayout):
+                found = layout.labelForField(current)
+            elif isinstance(layout, QGridLayout):
+                row, column, _rs, _cs = layout.getItemPosition(index)
+                for left in range(column - 1, -1, -1):
+                    item = layout.itemAtPosition(row, left)
+                    if item is not None and item.widget() is not None:
+                        found = item.widget()
+                        break
+            elif isinstance(layout, QBoxLayout):
+                for before in range(index - 1, -1, -1):
+                    item = layout.itemAt(before)
+                    if item is not None and item.widget() is not None:
+                        found = item.widget()
+                        break
+        if isinstance(found, QLabel) and _a11y_plain(found.text()):
+            return found
+        if found is not None:
+            return None
+        current = parent
+    return None
+
+
+def _a11y_setting_label(widget, labels_by_key):
+    """The settings-row label for the field ``widget`` belongs to, if any."""
+    current = widget
+    for _depth in range(4):
+        if current is None:
+            return None
+        try:
+            key = current.property("settingKey")
+        except (AttributeError, RuntimeError):
+            return None
+        if key:
+            return labels_by_key.get(str(key))
+        current = current.parentWidget()
+    return None
+
+
+def _a11y_effective_name(widget) -> str:
+    """The name assistive technology is given for ``widget`` right now."""
+    try:
+        from PySide6.QtGui import QAccessible
+        interface = QAccessible.queryAccessibleInterface(widget)
+        if interface is not None:
+            return str(interface.text(QAccessible.Name) or "")
+    except (ImportError, RuntimeError, AttributeError):
+        pass
+    return str(widget.accessibleName() or "")
+
+
+def _a11y_source(widget, labels_by_key):
+    """Choose the caption ``widget`` is named after and the help it carries.
+
+    In order: the tooltip, the placeholder text, the field an embedded editor
+    belongs to, the settings row's label, the label a layout puts in front of
+    it, the tab it is the page of, and finally its object name read as
+    words.
+
+    :returns: ``(name, description)``; either may be ``""``.
+    """
+    from PySide6.QtWidgets import (
+        QAbstractSpinBox,
+        QComboBox,
+        QTableView,
+        QTabWidget,
+    )
+
+    if (isinstance(widget.parentWidget(), QTableView)
+            and not widget.objectName() and not widget.toolTip()):
+        return tr("Select all"), ""
+    label = _a11y_setting_label(widget, labels_by_key)
+    if label is None:
+        label = _a11y_label_beside(widget)
+    label_help = ""
+    if label is not None:
+        label_help = _a11y_plain(
+            label.property("apiTooltipHtml") or label.toolTip())
+    tip = widget.toolTip()
+    name = _a11y_plain(tip, 80)
+    if not name:
+        placeholder = getattr(widget, "placeholderText", None)
+        name = _a11y_plain(placeholder() if callable(placeholder) else "", 80)
+    if not name:
+        owner = widget.parentWidget()
+        if isinstance(owner, (QAbstractSpinBox, QComboBox)):
+            name = _a11y_plain(_a11y_effective_name(owner), 80)
+    if not name and label is not None:
+        name = _a11y_plain(label.text(), 80)
+    if not name:
+        stack = widget.parentWidget()
+        tabs = stack.parentWidget() if stack is not None else None
+        if isinstance(tabs, QTabWidget) and tabs.indexOf(widget) >= 0:
+            name = _a11y_plain(tabs.tabText(tabs.indexOf(widget)), 80)
+    if not name:
+        words = _A11Y_CAMEL.sub(" ", widget.objectName().strip("_"))
+        words = words.replace("_", " ").strip()
+        if words and not words.startswith("qt "):
+            name = tr(words[:1].upper() + words[1:].lower())
+    description = "" if tip else label_help
+    return name, description
+
+
+def _keep_tab_moving_focus(widget) -> None:
+    """Let Tab leave ``widget`` instead of being consumed inside it.
+
+    A text box would otherwise type a tab character and a table would step
+    between its cells, so a keyboard user who tabbed in could not tab out.
+    Arrow keys still move inside a table, and no spaCR text box takes a
+    literal tab. A widget with the ``a11yKeepsTab`` property keeps Qt's
+    behaviour.
+    """
+    from PySide6.QtWidgets import QAbstractItemView, QPlainTextEdit, QTextEdit
+
+    if widget.property("a11yKeepsTab"):
+        return
+    if isinstance(widget, (QTextEdit, QPlainTextEdit)):
+        if not widget.tabChangesFocus():
+            widget.setTabChangesFocus(True)
+    elif isinstance(widget, QAbstractItemView):
+        if widget.tabKeyNavigation():
+            widget.setTabKeyNavigation(False)
+
+
+def _name_for_assistive_tech(widgets) -> int:
+    """Give each unnamed control in ``widgets`` an accessible name.
+
+    A control a screen reader would announce with no name -- an icon-only
+    button, a field, a list, a spin box or a slider whose caption lives on a
+    neighbouring label -- is named after its tooltip, placeholder or label
+    (see :func:`_a11y_source`), and a control without a tooltip is described
+    with its label's help. Qt already names a button after its caption, so
+    such a button is left alone and follows its text when that changes.
+    Text boxes and tables are also set so that Tab moves on to the next
+    control (see :func:`_keep_tab_moving_focus`).
+
+    A name or description set by application code is never replaced. One this
+    pass set is recomputed on every pass, so it follows a language change.
+
+    :param widgets: the widgets of one language pass.
+    :returns: how many names or descriptions were set or refreshed.
+    """
+    try:
+        from PySide6.QtWidgets import QAbstractItemView, QLabel
+        interactive = _a11y_interactive_types()
+    except Exception:
+        return 0
+    labels_by_key = {}
+    targets = []
+    for widget in widgets:
+        try:
+            if isinstance(widget, QLabel):
+                key = widget.property("settingKey")
+                if key and widget.text():
+                    labels_by_key.setdefault(str(key), widget)
+            elif isinstance(widget, interactive):
+                targets.append(widget)
+            if isinstance(widget, interactive + (QAbstractItemView,)):
+                _keep_tab_moving_focus(widget)
+        except (AttributeError, RuntimeError):
+            continue
+    changed = 0
+    for widget in targets:
+        try:
+            current = str(widget.accessibleName() or "")
+            derived = widget.property(_A11Y_DERIVED_NAME)
+            owned = bool(current) and current != derived
+            current_description = str(widget.accessibleDescription() or "")
+            derived_description = widget.property(_A11Y_DERIVED_DESCRIPTION)
+            owned_description = (bool(current_description)
+                                 and current_description
+                                 != derived_description)
+            if owned and owned_description:
+                continue
+            if not owned and derived:
+                widget.setAccessibleName("")
+            needs_name = not owned and not _a11y_effective_name(widget).strip()
+            if not needs_name and owned_description:
+                continue
+            name, description = _a11y_source(widget, labels_by_key)
+            if needs_name and name:
+                widget.setAccessibleName(name)
+                widget.setProperty(_A11Y_DERIVED_NAME, name)
+                changed += 1
+            if not owned_description and description != current_description:
+                widget.setAccessibleDescription(description)
+                widget.setProperty(_A11Y_DERIVED_DESCRIPTION, description)
+                changed += 1
+        except (AttributeError, RuntimeError, TypeError):
+            continue
+    return changed
+
+
 def retranslate_widget_tree(root, language: Optional[str] = None, *,
                             only_new: bool = False) -> None:
     """Retranslate static text in ``root`` and all existing descendants.
@@ -4084,12 +4373,15 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
             _translate_qt_text(
                 widget, "toolTip", "setToolTip",
                 "_spacr_i18n_tooltip", code)
-            _translate_qt_text(
-                widget, "accessibleName", "setAccessibleName",
-                "_spacr_i18n_accessible_name", code)
-            _translate_qt_text(
-                widget, "accessibleDescription", "setAccessibleDescription",
-                "_spacr_i18n_accessible_description", code)
+            if widget.property(_A11Y_DERIVED_NAME) is None:
+                _translate_qt_text(
+                    widget, "accessibleName", "setAccessibleName",
+                    "_spacr_i18n_accessible_name", code)
+            if widget.property(_A11Y_DERIVED_DESCRIPTION) is None:
+                _translate_qt_text(
+                    widget, "accessibleDescription",
+                    "setAccessibleDescription",
+                    "_spacr_i18n_accessible_description", code)
 
         dynamic_text = _refresh_dynamic_text(widget, code)
         semantic_setting_text = False
@@ -4206,6 +4498,8 @@ def retranslate_widget_tree(root, language: Optional[str] = None, *,
                 widget.setProperty(_PASS_STAMP, stamp)
         except (AttributeError, RuntimeError):
             pass
+
+    _name_for_assistive_tech(widgets)
 
     actions = []
     try:
