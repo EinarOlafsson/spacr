@@ -1,7 +1,11 @@
 Measure: preview checked images and verify mask planes
 ======================================================
 
-Open **Measure** with a run folder or its ``merged`` folder. The **Live**
+Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points
+at one of the plate's output subfolders, such as ``measurements`` or
+``masks``, Measure reads that plate's ``merged`` folder and says so in the
+console. If there is no ``merged`` folder to read, Measure does not start and
+its message names the missing folder and what to set instead. The **Live**
 view loads a field and shows crops from its configured object mask. Use
 **Crop settings…** to choose the object, mask planes, image channels, crop
 size and filters before measuring the whole experiment.

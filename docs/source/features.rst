@@ -192,9 +192,11 @@ Arranging the window
   resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it
   to make its text larger or smaller; **Ctrl+0** over the column returns to
   the default size.
-- **Tooltips** appear after the pointer rests for two seconds and stay
-  while the pointer is on them. Turn them all off with **Preferences →
-  Appearance → Tooltips**.
+- **Tooltips** appear once the pointer has rested on a control for the
+  **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default;
+  0 shows them at once) and stay while the pointer is on them. The same
+  delay applies to setting help, hint strips and other hover help. Turn
+  tooltips off with **Show tooltips** on the same page.
 
 These sizes are remembered between sessions.
 
@@ -255,6 +257,24 @@ anisotropy and voxel size -- and stops with an error rather than guessing
 which axis is z. ``timelapse`` declares a time axis and reveals tracking; a
 single-timepoint plate ignores it. The 4D settings apply only when the data is
 both a z-stack and a time series, and appear only then.
+
+Workers and free memory
+-----------------------
+
+Before a module starts its workers, spaCR estimates how much memory each
+worker needs from one input, such as a field, mask, crop batch or table. If
+the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM
+free, a popup shows the estimate, the free memory and the number of workers
+that fit. Choose **Use N workers (recommended)** to run with that
+number, or keep your own number; Measure then pauses new fields whenever
+free memory drops below the reserve. **Free RAM by closing applications…**
+lists your own largest programs. Nothing is ticked at first, and only the
+programs you tick are asked to quit, after you confirm; they can usually
+save first, but unsaved work in them may still be lost.
+
+Runs started without the GUI lower ``n_jobs`` to the safe number and print a
+warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs``
+unchanged; Measure still waits while free memory is below the reserve.
 
 Maturity labels
 ---------------

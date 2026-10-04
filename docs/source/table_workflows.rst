@@ -156,6 +156,32 @@ that a histogram needs a continuous column, or names a column that the
 current table does not contain. The plot kind stays selected, so placing
 suitable columns draws the chart again.
 
+Gate Editor in three dimensions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Choose **3D** in Gate Editor and pick a third measurement for **Z**. Drag with
+the right mouse button to orbit the volume: the view keeps the angle you
+leave it at and does not snap back to an axis. The mouse wheel zooms about
+the pointer, and points outside the zoomed box are hidden.
+
+In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:
+
+* **Polygon through view**: click the corners on screen, then click the
+  first corner again or double-click to close the outline. The gate keeps
+  every object whose position in the current view falls inside the outline,
+  through the whole depth of the volume. **Lasso through view** and
+  **Rectangle through view** select through the depth in the same way;
+  drag to draw them.
+* **Ellipsoid with handles** and **Box with handles**: drag a rectangle over
+  a population and the shape is fitted to the objects it frames. Pull a face
+  or radius handle to resize it, or drag the centre handle to move it.
+  Gates drawn through the view also move by their centre handle.
+
+While you draw or adjust a shape, the objects inside it are highlighted.
+Double-click a gate's name in the gate table to rename it; gates built from
+it follow the new name. Gates drawn in 3D are saved, loaded and exported like
+2D gates, with the same membership columns.
+
 The named definition is stored beside its database. For ``measurements.db``,
 the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening
 the source makes the result available again and recalculates it from the
