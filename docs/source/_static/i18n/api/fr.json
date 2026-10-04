@@ -46944,6 +46944,184 @@
         "47307fb934b234d81b2a3a16a0ddf2d4af1a4e1b795d6f837ab14ed191de229f"
       ]
     },
+    "spacr.ml._answering_stop.loglike": {
+      "source_blocks_sha256": [
+        "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672"
+      ],
+      "source_sha256": "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672",
+      "text": "Vérifie une éventuelle annulation, puis renvoie le résultat de vraisemblance d'origine.",
+      "translation_source_blocks_sha256": [
+        "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672"
+      ]
+    },
+    "spacr.ml._calculate_similarity.safe_similarity": {
+      "source_blocks_sha256": [
+        "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd"
+      ],
+      "source_sha256": "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd",
+      "text": "Appelle ``func(row, control, ...)`` et absorbe les erreurs (renvoie ``NaN``).",
+      "translation_source_blocks_sha256": [
+        "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd"
+      ]
+    },
+    "spacr.ml._check_score_count_pairing._plates": {
+      "source_blocks_sha256": [
+        "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb"
+      ],
+      "source_sha256": "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb",
+      "text": "Renvoie les préfixes de plaque triés extraits de la colonne des puits du tableau.",
+      "translation_source_blocks_sha256": [
+        "53c4e42cef0caf90818c9cf172cf09f76fc7ea2bdefb5677bf316646437be622"
+      ]
+    },
+    "spacr.ml._flowview_pipeline.decorate": {
+      "source_blocks_sha256": [
+        "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b"
+      ],
+      "source_sha256": "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b",
+      "text": "Renvoie une enveloppe de cycle de vie qui conserve les métadonnées de ``function``.",
+      "translation_source_blocks_sha256": [
+        "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b"
+      ]
+    },
+    "spacr.ml._flowview_pipeline.decorate.observed": {
+      "source_blocks_sha256": [
+        "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7"
+      ],
+      "source_sha256": "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7",
+      "text": "Appelle sans modification, en signalant la réussite ou l'échec à une trace active.",
+      "translation_source_blocks_sha256": [
+        "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7"
+      ]
+    },
+    "spacr.ml._perform_regression._count_variable_instances": {
+      "source_blocks_sha256": [
+        "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc"
+      ],
+      "source_sha256": "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc",
+      "text": "Renvoie ``df`` et des tables de comptage des valeurs pour les deux colonnes nommées.",
+      "translation_source_blocks_sha256": [
+        "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc"
+      ]
+    },
+    "spacr.ml._perform_regression._perform_regression_read_data": {
+      "source_blocks_sha256": [
+        "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90"
+      ],
+      "source_sha256": "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90",
+      "text": "Charge des entrées appariées, valide l'analyse et renvoie les deux tableaux.",
+      "translation_source_blocks_sha256": [
+        "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90"
+      ]
+    },
+    "spacr.ml._perform_regression._qc_plot": {
+      "source_blocks_sha256": [
+        "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+        "badc4317b65d69c3bcbdb0bb95e037b486d92a455a11604be7c46a86cb0b5763"
+      ],
+      "source_sha256": "cbbc0533c893bca8685b1ee01e174152fbf3fefa964d71ca6b70c92a0f6e75a8",
+      "text": "Dessine un graphique de QC, en signalant l'échec plutôt qu'en le levant.\n\nLes tables de QC écrites entre ces appels sont des sorties de données, donc un échec de tracé ne doit pas les coûter. spacrGraph effectue une comparaison de groupes, que scipy rejette avec \"Must enter at least two input sample vectors\" lors de l'exécution très courante sur une seule plaque.",
+      "translation_source_blocks_sha256": [
+        "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+        "d6a1f12b5a20496f52e4885ac2d3664c03470883853181c0ea3d728682373ca5"
+      ]
+    },
+    "spacr.ml._perform_regression._stack": {
+      "source_blocks_sha256": [
+        "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4"
+      ],
+      "source_sha256": "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4",
+      "text": "Concatène les tableaux non vides, ou renvoie le modèle de résultat vide.",
+      "translation_source_blocks_sha256": [
+        "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4"
+      ]
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies": {
+      "source_blocks_sha256": [
+        "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+        "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+        "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+        "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+        "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+        "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+        "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+        "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+        "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+        "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+        "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+        "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+        "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d"
+      ],
+      "source_sha256": "cdef053582427790348c89a5cc41d3df756ff2f05c785bb6625df0f6c5f8ba16",
+      "text": "Renvoie les fréquences de sélection par variable issues d'un bootstrap non paramétrique.\n\nLa sortie classe les variables selon la fréquence à laquelle leur coefficient est non nul sur l'ensemble des rééchantillonnages ; c'est un score de stabilité, pas un test d'hypothèse.\n\n:param X: DataFrame au format long ; la matrice de plan est construite à chaque rééchantillonnage à partir de ``formula`` pour que les niveaux des facteurs restent stables.\n:param y: Tableau de réponse aligné sur ``X`` par index.\n:param formula: Formule Patsy pour ``dmatrices``.\n:param alpha: Intensité de régularisation ; ``'auto'``/``None`` exécute l'estimateur à validation croisée à chaque rééchantillonnage.\n:param n_boot: Nombre de rééchantillonnages bootstrap. Par défaut ``200``.\n:param random_state: Graine du générateur aléatoire du rééchantillonnage.\n:param regression_type: ``'lasso'``, ``'elasticnet'`` ou ``'group_lasso'`` - la même pénalité que celle avec laquelle les coefficients rapportés ont été ajustés ; sinon, les fréquences décriraient un modèle différent de celui de ``results.csv``.\n:param l1_ratio: Mélange ``elasticnet`` ; ignoré pour ``'lasso'``.\n:param group_lasso_lambda: la pénalité par blocs, pour ``'group_lasso'``. C'est un argument distinct de ``alpha`` parce que c'est un paramètre distinct : ce backend ne lit pas du tout ``alpha``, donc un rééchantillonnage ajusté avec ``alpha`` serait un modèle différent de celui dont les coefficients sont ici classés.\n:returns: DataFrame avec les colonnes ``feature``, ``selection_frequency`` et ``mean_coefficient``.\n:raises RuntimeError: si aucun rééchantillonnage ne parvient à être ajusté.",
+      "translation_source_blocks_sha256": [
+        "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+        "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+        "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+        "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+        "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+        "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+        "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+        "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+        "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+        "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+        "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+        "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+        "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d"
+      ]
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies._estimator": {
+      "source_blocks_sha256": [
+        "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a"
+      ],
+      "source_sha256": "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a",
+      "text": "Renvoie l'estimateur sklearn configuré, lasso ou elastic net.",
+      "translation_source_blocks_sha256": [
+        "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a"
+      ]
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies._resample_coefficients": {
+      "source_blocks_sha256": [
+        "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8"
+      ],
+      "source_sha256": "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8",
+      "text": "Renvoie les coefficients group lasso ou sklearn pour un rééchantillonnage.",
+      "translation_source_blocks_sha256": [
+        "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8"
+      ]
+    },
+    "spacr.ml._perform_regression.get_outlier_reference_values": {
+      "source_blocks_sha256": [
+        "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+        "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+        "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+        "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+        "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0"
+      ],
+      "source_sha256": "f4e482d55ad2c9f18aaf166496238a1d8a9445b38312c6ee9d0c90f76b607c76",
+      "text": "Renvoie les valeurs uniques de ``return_col`` dont ``outlier_col`` se situe hors de 1.5*IQR.\n\n:param df: DataFrame d'entrée.\n:param outlier_col: Colonne numérique examinée à la recherche de valeurs aberrantes.\n:param return_col: Colonne dont les valeurs distinctes sont renvoyées.\n:returns: Liste des valeurs de référence uniques pour les lignes aberrantes.",
+      "translation_source_blocks_sha256": [
+        "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+        "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+        "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+        "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+        "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0"
+      ]
+    },
+    "spacr.ml._perform_regression.grna_metricks": {
+      "source_blocks_sha256": [
+        "76bccf9be1d31583d00b2994d4308d6dc4e7c8f238663018dfa4b22f1d519230",
+        "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+        "219ab97e2804f3a58c972df932a43bd31176a3687a927a989867ce0f162adf06"
+      ],
+      "source_sha256": "e351e979f7009874a1df9f66481b1e432a05ccad5fd256c72777b3289d878164",
+      "text": "Renvoie des comptages de couverture par gRNA et par puits, dérivés d'un DataFrame ``prc`` au format long.\n\n:param df: DataFrame avec les colonnes ``prc``, ``grna`` et ``gene``.\n:returns: ``(final_grna_df, prc_gene_count_df)`` — comptages de puits par gRNA et comptages de gènes distincts par puits.",
+      "translation_source_blocks_sha256": [
+        "99c26d11cd90f2b2c41edd56a7f359f1eecef7571e452608d10c6d3287791e25",
+        "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+        "63b9d3d6bdfa1b97dd3a593ade024d5fd961bbb051eaccc289577308a32db513"
+      ]
+    },
     "spacr.ml.apply_transformation": {
       "source_blocks_sha256": [
         "860c064535278adbd6a967103c36af2e0e63723206216f2cbc5b639c64cb2210",
@@ -47068,6 +47246,36 @@
         "40c7aaa88a1bdd1604a8b46da43df0c226f29e8af37fb946d4c062159a99871e",
         "e7d89c499460d9ecf673a550b344227504424077014966c2b226203d5e05fe0d",
         "46cd83400801cdf67a91332ff4de196b914668033814c20011f1d061a4e3f7e7"
+      ]
+    },
+    "spacr.ml.check_and_clean_data.check_collinearity": {
+      "source_blocks_sha256": [
+        "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80"
+      ],
+      "source_sha256": "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80",
+      "text": "Vérifie la colinéarité à l'aide du VIF (facteur d'inflation de la variance).",
+      "translation_source_blocks_sha256": [
+        "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80"
+      ]
+    },
+    "spacr.ml.check_and_clean_data.ensure_valid_types": {
+      "source_blocks_sha256": [
+        "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68"
+      ],
+      "source_sha256": "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68",
+      "text": "Garantit que les colonnes indiquées sont catégorielles.",
+      "translation_source_blocks_sha256": [
+        "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68"
+      ]
+    },
+    "spacr.ml.check_and_clean_data.handle_missing_values": {
+      "source_blocks_sha256": [
+        "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce"
+      ],
+      "source_sha256": "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce",
+      "text": "Traite les valeurs manquantes dans les colonnes indiquées.",
+      "translation_source_blocks_sha256": [
+        "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce"
       ]
     },
     "spacr.ml.check_distribution": {
@@ -47308,6 +47516,38 @@
         "4e6240e0a06e23ec4d12023e66ac2435f9f5451747e98be6e623681707ce8130"
       ]
     },
+    "spacr.ml.interpret_vision_model.create_extended_radar_plot": {
+      "source_blocks_sha256": [
+        "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+        "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582"
+      ],
+      "source_sha256": "24e7a5875208dafb388fb81ce4e1b5eb7065f71139bd3bef83de923da407bec2",
+      "text": "Dessine un radar rempli pour ``values``, étiqueté par ``labels``.\n\nUN RADAR EST UN POLYGONE, PAS UN AXE. C'était la dernière figure du chemin d'explication qui ne pouvait pas passer au moteur de rendu de la vue, au motif que pyqtgraph n'a pas de vue polaire -- ce qui est vrai et n'a jamais été l'obstacle : chaque étiquette prend un angle, chaque valeur un rayon, et `FastPlot.add_radar` dessine ses propres anneaux, car un radar lu sur une grille carrée est illisible.",
+      "translation_source_blocks_sha256": [
+        "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+        "2d7622cca3983be06cd87c7b5e0d83f6bf9a9dc868e1245defb2bcdcf655ad09"
+      ]
+    },
+    "spacr.ml.interpret_vision_model.extract_compartment_channel": {
+      "source_blocks_sha256": [
+        "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166"
+      ],
+      "source_sha256": "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166",
+      "text": "Renvoie ``(compartment, channel)`` extrait du nom d'une colonne de variable.",
+      "translation_source_blocks_sha256": [
+        "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166"
+      ]
+    },
+    "spacr.ml.interpret_vision_model.read_and_preprocess_data": {
+      "source_blocks_sha256": [
+        "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210"
+      ],
+      "source_sha256": "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210",
+      "text": "Fusionne les tables de la base de mesures avec un CSV de scores et sépare en ``(X, y, merged_df)``.",
+      "translation_source_blocks_sha256": [
+        "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210"
+      ]
+    },
     "spacr.ml.label_control_condition": {
       "source_blocks_sha256": [
         "d0105641863615401edb83c5d7a7eba6ee752a0c73764810580814ac42b29249",
@@ -47350,6 +47590,26 @@
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
         "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+      ]
+    },
+    "spacr.ml.load_regression_input_pairs.plates": {
+      "source_blocks_sha256": [
+        "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca"
+      ],
+      "source_sha256": "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca",
+      "text": "Renvoie sous forme de chaînes les identifiants de plaque non nuls du tableau.",
+      "translation_source_blocks_sha256": [
+        "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca"
+      ]
+    },
+    "spacr.ml.load_regression_input_pairs.read": {
+      "source_blocks_sha256": [
+        "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a"
+      ],
+      "source_sha256": "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a",
+      "text": "Renvoie un tableau corrigé mis en cache pour ``path``, ou ``None`` s'il est vide.",
+      "translation_source_blocks_sha256": [
+        "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a"
       ]
     },
     "spacr.ml.mcfadden_note": {
@@ -47478,6 +47738,20 @@
         "fdafafab1593af5d5d1e19413bef494addfec93348222d77104827f48778748e"
       ]
     },
+    "spacr.ml.ml_analysis._match_control_values": {
+      "source_blocks_sha256": [
+        "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+        "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+        "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9"
+      ],
+      "source_sha256": "b48d1a0d1d6661ffa5e60e0569cc42b8fecff3fd0a6c8e26146c9996038d3c1f",
+      "text": "Renvoie un masque booléen sélectionnant les lignes de `series` qui correspondent à `control`.\n\nLa correspondance est tentée dans cet ordre : 1. correspondance exacte de valeur 2. correspondance après conversion numérique 3. correspondance de chaînes nettoyées des espaces\n\n`control` peut être un scalaire ou une liste/un tuple/un ensemble de valeurs.",
+      "translation_source_blocks_sha256": [
+        "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+        "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+        "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9"
+      ]
+    },
     "spacr.ml.normalize_regression_input_pairs": {
       "source_blocks_sha256": [
         "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
@@ -47494,6 +47768,26 @@
         "ce38e21774d723ad15d42f36db26b99ddb036eb1255ac568573b3b4faae76c06",
         "399983aa21b9c52ad243eaac474fe8e555ad56ac932bfcb79719b19a092c159f",
         "2cc092022d5830df41736fda3a8bf041c76d92843b2ec28135c1e285634c1f2e"
+      ]
+    },
+    "spacr.ml.normalize_regression_input_pairs.paths": {
+      "source_blocks_sha256": [
+        "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6"
+      ],
+      "source_sha256": "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6",
+      "text": "Renvoie ``value`` sous forme de nouvelle liste de chemins, ``None`` valant vide.",
+      "translation_source_blocks_sha256": [
+        "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6"
+      ]
+    },
+    "spacr.ml.normalize_regression_input_pairs.unique": {
+      "source_blocks_sha256": [
+        "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b"
+      ],
+      "source_sha256": "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b",
+      "text": "Renvoie les chemins ``key`` non vides une fois chacun, dans l'ordre de première apparition des paires.",
+      "translation_source_blocks_sha256": [
+        "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b"
       ]
     },
     "spacr.ml.perform_mixed_model": {
@@ -47882,6 +48176,184 @@
         "503e174033dbf98c2bc0d5070b43a0257ff672f28e7968a91f6421c70ea1b479",
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
+    "spacr.ml.regression_model._find_best_alpha": {
+      "source_blocks_sha256": [
+        "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b"
+      ],
+      "source_sha256": "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b",
+      "text": "Ajuste et renvoie l'estimateur pénalisé à validation croisée demandé.",
+      "translation_source_blocks_sha256": [
+        "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b"
+      ]
+    },
+    "spacr.ml.regression_model._find_best_hinge_alpha": {
+      "source_blocks_sha256": [
+        "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+        "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+        "00900ab1b27e97ef042fa22571d2c9c61a5a66aeee1a7ebb8f7d7a13fcd84eb3"
+      ],
+      "source_sha256": "69518d98d771a90d8e8b01e1e77d15b07a360e7d9994f6f26479acc4b4c9ccb6",
+      "text": "Choisit la pénalité hinge par validation croisée stratifiée sur l'exactitude équilibrée.\n\nLa même structure à 5 plis que celle utilisée par ``_find_best_alpha`` pour les backends des moindres carrés pénalisés. L'exactitude équilibrée plutôt que l'exactitude : sur un criblage déséquilibré, l'exactitude simple est maximisée par l'ajustement dégénéré qui déclare tout négatif, donc évaluer avec elle conduirait la validation croisée tout droit vers l'échec que ``class_weight='balanced'`` est censé empêcher.\n\nSe rabat sur la valeur par défaut d'échelle non pénalisée ``C = 1`` lorsque la réponse a trop peu de puits dans une classe pour une division en cinq — une validation croisée à deux plis sur trois puits positifs n'est que du bruit, et choisir une pénalité à partir du bruit est pire que de ne pas en choisir.",
+      "translation_source_blocks_sha256": [
+        "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+        "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+        "e90236d7b490620ee35d1ee3927d82408fbdb8de283bc8cc6e18b9ac833a98c0"
+      ]
+    },
+    "spacr.ml.regression_model._glm_auto": {
+      "source_blocks_sha256": [
+        "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823"
+      ],
+      "source_sha256": "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823",
+      "text": "Renvoie un ajustement forcé à lien identité ou le GLM adapté à la réponse.",
+      "translation_source_blocks_sha256": [
+        "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823"
+      ]
+    },
+    "spacr.ml.regression_model._glm_binomial": {
+      "source_blocks_sha256": [
+        "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b"
+      ],
+      "source_sha256": "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b",
+      "text": "Ajuste et renvoie un GLM binomial, éventuellement pondéré, pour ``link`` et ``scale``.",
+      "translation_source_blocks_sha256": [
+        "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b"
+      ]
+    },
+    "spacr.ml.regression_model._glm_poisson": {
+      "source_blocks_sha256": [
+        "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201"
+      ],
+      "source_sha256": "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201",
+      "text": "Valide les comptages et renvoie un ajustement Poisson-log avec l'éventuel offset d'exposition.",
+      "translation_source_blocks_sha256": [
+        "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201"
+      ]
+    },
+    "spacr.ml.regression_model._group_lasso": {
+      "source_blocks_sha256": [
+        "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164"
+      ],
+      "source_sha256": "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164",
+      "text": "Ajuste le plan nommé groupé par gène et renvoie des résultats compatibles.",
+      "translation_source_blocks_sha256": [
+        "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164"
+      ]
+    },
+    "spacr.ml.regression_model._hinge": {
+      "source_blocks_sha256": [
+        "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e"
+      ],
+      "source_sha256": "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e",
+      "text": "Renvoie un classifieur hinge avec validation croisée automatique ou ``C = 1 / alpha`` fixe.",
+      "translation_source_blocks_sha256": [
+        "c7cce298bfd18b591201463e523a6f46f3ead478500f9d784b680e011d324fb6"
+      ]
+    },
+    "spacr.ml.regression_model._hinge_estimator": {
+      "source_blocks_sha256": [
+        "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+        "932a793a1d1fb478318a2050a938ed1f23246549338765643e39502460615eff"
+      ],
+      "source_sha256": "4b63eb373b3e50b338b650c48ffb21708f0948778253d2e814c1ab835c8b0e30",
+      "text": "Un LinearSVC à l'intensité de régularisation ``strength`` (``C = 1 / strength``).\n\n``class_weight='balanced'``, car la classe positive d'un criblage est couramment une petite minorité des puits : un hinge non pondéré sur une répartition 95/5 minimise sa perte en déclarant chaque puits négatif, ce qui renvoie un vecteur de coefficients de ~0 pour chaque gRNA et se lit en aval comme \"no hits\". L'équilibrage repondère chaque classe par sa fréquence inverse, de sorte que la frontière de décision est ajustée pour séparer les classes plutôt que pour les compter.",
+      "translation_source_blocks_sha256": [
+        "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+        "2fe80f6557d2981f01b30a64bade1ada91f0d4740ecd467113f1929493f9d22e"
+      ]
+    },
+    "spacr.ml.regression_model._horseshoe": {
+      "source_blocks_sha256": [
+        "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762"
+      ],
+      "source_sha256": "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762",
+      "text": "Renvoie un ajustement horseshoe-Poisson pour le plan et l'exposition capturés.",
+      "translation_source_blocks_sha256": [
+        "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762"
+      ]
+    },
+    "spacr.ml.regression_model._named_design": {
+      "source_blocks_sha256": [
+        "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+        "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4"
+      ],
+      "source_sha256": "bb2d231acf80cff29ff74055ac79aab5e1b4ce6889bccf238f2ddb7afc7002de",
+      "text": "Les noms de colonnes du plan, ou un refus qui explique pourquoi ils comptent.\n\nLes backends sensibles aux gènes retrouvent le gène derrière chaque prédicteur à partir du nom de colonne produit par patsy. Un tableau sans noms est refusé, car le group lasso traiterait sinon chaque colonne comme un gène distinct et se réduirait à un lasso ordinaire sous une autre étiquette.",
+      "translation_source_blocks_sha256": [
+        "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+        "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4"
+      ]
+    },
+    "spacr.ml.regression_model._poisson_offset": {
+      "source_blocks_sha256": [
+        "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+        "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
+        "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+        "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8"
+      ],
+      "source_sha256": "b0a8556d3421569dbead25b8f39df783ed376bdcdd93fadbefbf39b5f14afbf5",
+      "text": "``log(exposure)``, ou None avec un avertissement lorsqu'il n'y a pas d'exposition.\n\nUn COMPTAGE POSITIF par puits n'est pas comparable entre puits de tailles différentes : ``process_scores`` somme la réponse pour les modèles de comptage, de sorte qu'un puits de 2000 cellules contribue environ quatre fois le comptage d'un puits de 500 à taux sous-jacent identique. Modéliser ce comptage sans ``offset(log(Ntotal))`` demande aux covariables d'expliquer la taille du puits, et toute covariable corrélée à celle-ci ressort comme un hit. Mesuré sur une simulation de 400 puits avec une covariable de nuisance qui détermine la taille du puits et rien d'autre, et un vrai coefficient de taux de +1.5 : sans l'offset, le terme de nuisance est ressorti à +1.88 avec p = 0, devant l'effet réel ; avec lui, +0.002 avec p = 0.90.\n\n:returns: ``log(exposure)`` aligné sur ``y``, ou None.\n:raises ValueError: lorsque l'exposition n'est pas positive et finie — son ``log`` vaudrait NaN/-inf et tous les nombres en aval suivraient en silence.",
+      "translation_source_blocks_sha256": [
+        "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+        "e5d205eba6750e278c71fb75c06e91faf839290f638a9eb0bba2f97a121d971e",
+        "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+        "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8"
+      ]
+    },
+    "spacr.ml.regression_model._quantile": {
+      "source_blocks_sha256": [
+        "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379"
+      ],
+      "source_sha256": "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379",
+      "text": "Valide le quantile capturé et renvoie sa régression ajustée.",
+      "translation_source_blocks_sha256": [
+        "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379"
+      ]
+    },
+    "spacr.ml.regression_model._rlm": {
+      "source_blocks_sha256": [
+        "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6"
+      ],
+      "source_sha256": "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6",
+      "text": "Renvoie un ajustement linéaire robuste avec la constante de réglage de Huber capturée.",
+      "translation_source_blocks_sha256": [
+        "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6"
+      ]
+    },
+    "spacr.ml.regression_model._rra": {
+      "source_blocks_sha256": [
+        "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3"
+      ],
+      "source_sha256": "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3",
+      "text": "Classe les pentes marginales du plan et renvoie des résultats alpha-RRA au niveau du gène.",
+      "translation_source_blocks_sha256": [
+        "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3"
+      ]
+    },
+    "spacr.ml.regression_model._spline": {
+      "source_blocks_sha256": [
+        "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+        "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+        "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538"
+      ],
+      "source_sha256": "149462a293b054eb3482d60193ea4b7b880147cbae28558d50ff2bca03d24756",
+      "text": "OLS sur un plan dont les COVARIABLES portent une base de splines.\n\nLes colonnes de guides ne sont pas touchées, si bien qu'un coefficient et une valeur P par guide subsistent. Le volcano, la liste des hits et l'attribution peuvent donc lire le résultat sans cas particulier. Ce qui devient libre de se courber, c'est la tendance de nuisance que la droite supposait absente.\n\nUne colonne est traitée comme covariable lorsqu'elle est CONTINUE et n'est pas un terme de guide ou de gène -- un indicateur n'a rien à travers quoi se courber, et le développer dépenserait des degrés de liberté pour rien.",
+      "translation_source_blocks_sha256": [
+        "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+        "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+        "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538"
+      ]
+    },
+    "spacr.ml.regression_model._wls": {
+      "source_blocks_sha256": [
+        "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314"
+      ],
+      "source_sha256": "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314",
+      "text": "Valide les poids par puits capturés et renvoie le modèle WLS ajusté.",
+      "translation_source_blocks_sha256": [
+        "41b4db0d2509c10093c5d6630aada90cbaa8a35313fee2a96822898b2a5dd19d"
       ]
     },
     "spacr.ml.resolve_auto_inference": {
@@ -51828,12 +52300,12 @@
     },
     "spacr.object_classifier._train_real_classifier.estimator": {
       "source_blocks_sha256": [
-        "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3"
+        "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958"
       ],
-      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
-      "text": "Renvoie un nouveau pipeline de régression logistique, mis à l'échelle et équilibré par classe.",
+      "source_sha256": "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958",
+      "text": "Une nouvelle régression logistique, mise à l'échelle et équilibrée par classe.",
       "translation_source_blocks_sha256": [
-        "8f7cebe852dea0c128f22ba749e743444899966f3c1aa22e37e89d4981c42f15"
+        "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958"
       ]
     },
     "spacr.object_classifier.bin_parasite_count": {
@@ -91094,22 +91566,22 @@
     },
     "spacr.qt.screens.activation._add_counterfactual_viewer_button._open": {
       "source_blocks_sha256": [
-        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+        "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced"
       ],
-      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
-      "text": "Demande un dossier de contrefactuels et ouvre sa visionneuse.",
+      "source_sha256": "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced",
+      "text": "Demande un dossier de contrefactuels et affiche ce qu'il contient.",
       "translation_source_blocks_sha256": [
-        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+        "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced"
       ]
     },
     "spacr.qt.screens.activation._counterfactual_viewer._show": {
       "source_blocks_sha256": [
-        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
+        "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a"
       ],
-      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
-      "text": "Affiche les images de la séquence à ``index`` sous forme de bande d'images.",
+      "source_sha256": "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a",
+      "text": "Remplace la bande par la séquence à ``index``.",
       "translation_source_blocks_sha256": [
-        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
+        "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a"
       ]
     },
     "spacr.qt.screens.activation.apply_seed": {
@@ -102576,12 +103048,12 @@
     },
     "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work": {
       "source_blocks_sha256": [
-        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+        "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0"
       ],
-      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
-      "text": "Propage les germes à travers les images et émet les étiquettes ou l'erreur.",
+      "source_sha256": "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0",
+      "text": "Propage les germes hors du thread de la GUI et signale les étiquettes.",
       "translation_source_blocks_sha256": [
-        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+        "a41b0064c1a426e00bb9a239e32ec0c6600e98220e3b7e85d6f824030fb49f7e"
       ]
     },
     "spacr.qt.screens.make_masks._counting_tiles.before_a_tile": {
@@ -136870,6 +137342,182 @@
         "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
       ]
     },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge": {
+      "source_blocks_sha256": [
+        "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628"
+      ],
+      "source_sha256": "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628",
+      "text": "Définit la largeur du contour de chaque série qui en a un.",
+      "translation_source_blocks_sha256": [
+        "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_opacity": {
+      "source_blocks_sha256": [
+        "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d"
+      ],
+      "source_sha256": "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d",
+      "text": "Définit l'alpha de chaque série.",
+      "translation_source_blocks_sha256": [
+        "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_palette": {
+      "source_blocks_sha256": [
+        "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e"
+      ],
+      "source_sha256": "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e",
+      "text": "Recolore chaque série à partir de la palette choisie.",
+      "translation_source_blocks_sha256": [
+        "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_size": {
+      "source_blocks_sha256": [
+        "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213"
+      ],
+      "source_sha256": "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213",
+      "text": "Redimensionne chaque série qui a une taille à définir.",
+      "translation_source_blocks_sha256": [
+        "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid": {
+      "source_blocks_sha256": [
+        "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+        "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04"
+      ],
+      "source_sha256": "7cfad477c1755bb4347aa4fee7e6dabf9c9c43d27c6a6b96d7122f65f3a29909",
+      "text": "Affiche ou masque la grille, en transmettant les propriétés de ligne UNIQUEMENT à l'activation.\n\nmatplotlib avertit \"First parameter to grid() is false, but line properties are supplied\" puis ACTIVE la grille malgré tout -- les transmettre sans condition rendait donc la case incapable de désactiver la grille, soit l'inverse de ce qu'elle annonce.",
+      "translation_source_blocks_sha256": [
+        "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+        "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_legend": {
+      "source_blocks_sha256": [
+        "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7"
+      ],
+      "source_sha256": "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7",
+      "text": "Reconstruit la légende à partir des choix actuels.",
+      "translation_source_blocks_sha256": [
+        "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits": {
+      "source_blocks_sha256": [
+        "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+        "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684"
+      ],
+      "source_sha256": "46b7a6a1bf658460ad12d31ba3feef6b0fd0ec89711a14b0276e45dad77c756a",
+      "text": "Applique les limites d'un axe, en refusant une plage de largeur nulle.\n\nDes bornes égales écrasent l'axe et matplotlib ne dessine rien, donc la valeur est laissée telle quelle au lieu d'être appliquée.",
+      "translation_source_blocks_sha256": [
+        "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+        "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.do_autoscale": {
+      "source_blocks_sha256": [
+        "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d"
+      ],
+      "source_sha256": "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d",
+      "text": "Recalcule les limites à partir des données actuellement sur l'axe.",
+      "translation_source_blocks_sha256": [
+        "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour": {
+      "source_blocks_sha256": [
+        "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+        "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002"
+      ],
+      "source_sha256": "345dc1311f8959bb9cab1a4e3e82b53c21e6248b0d2e59b6da8c06a8b0a43e05",
+      "text": "Recolore un objet artist. L'artist est lié comme argument par défaut.\n\nLié à la définition plutôt que capturé par fermeture : une variable de boucle capturée donne à chaque callback le DERNIER artist, ce qui est la manière classique dont une rangée de contrôles par artist finit par modifier tous le même.",
+      "translation_source_blocks_sha256": [
+        "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+        "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_spines": {
+      "source_blocks_sha256": [
+        "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33"
+      ],
+      "source_sha256": "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33",
+      "text": "Définit la largeur de chaque bordure d'axe, ou les masque toutes à zéro.",
+      "translation_source_blocks_sha256": [
+        "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_top_right": {
+      "source_blocks_sha256": [
+        "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef"
+      ],
+      "source_sha256": "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef",
+      "text": "Masque ou affiche ensemble les bordures supérieure et droite.",
+      "translation_source_blocks_sha256": [
+        "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.resize": {
+      "source_blocks_sha256": [
+        "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d"
+      ],
+      "source_sha256": "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d",
+      "text": "Redimensionne la figure à la largeur et à la hauteur affichées.",
+      "translation_source_blocks_sha256": [
+        "69c49ec890797656ce989161eae695d505adcff4737f9f44f27adaee9a04af87"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_all_text": {
+      "source_blocks_sha256": [
+        "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e"
+      ],
+      "source_sha256": "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e",
+      "text": "Définit une taille de police sur chaque élément de texte de la figure.",
+      "translation_source_blocks_sha256": [
+        "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_face": {
+      "source_blocks_sha256": [
+        "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655"
+      ],
+      "source_sha256": "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655",
+      "text": "Définit la couleur de fond propre de la figure.",
+      "translation_source_blocks_sha256": [
+        "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_font_ink": {
+      "source_blocks_sha256": [
+        "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4"
+      ],
+      "source_sha256": "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4",
+      "text": "Recolore chaque élément de texte de la figure.",
+      "translation_source_blocks_sha256": [
+        "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_line_ink": {
+      "source_blocks_sha256": [
+        "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039"
+      ],
+      "source_sha256": "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039",
+      "text": "Recolore chaque ligne de la figure.",
+      "translation_source_blocks_sha256": [
+        "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._statistics_tab._recompute": {
+      "source_blocks_sha256": [
+        "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050"
+      ],
+      "source_sha256": "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050",
+      "text": "Relance le test avec les choix actuels et redessine.",
+      "translation_source_blocks_sha256": [
+        "7b0e74e1fd067912fc5600999b3385f16ed644de63678e8da048c7f12395bc19"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog.closeEvent": {
       "source_blocks_sha256": [
         "8003ca95f5734af1e2b42f5b531ad5829d60bfd51766b2f04a6fe54e39954d09",
@@ -136946,6 +137594,66 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_colour": {
+      "source_blocks_sha256": [
+        "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0"
+      ],
+      "source_sha256": "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0",
+      "text": "Enregistre une couleur et repeint la pastille qui l'affiche.",
+      "translation_source_blocks_sha256": [
+        "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_combo": {
+      "source_blocks_sha256": [
+        "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98"
+      ],
+      "source_sha256": "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98",
+      "text": "Sélectionne l'entrée dont les données valent ``v``, si la liste en contient une.",
+      "translation_source_blocks_sha256": [
+        "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._get": {
+      "source_blocks_sha256": [
+        "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298"
+      ],
+      "source_sha256": "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298",
+      "text": "Le fond : la valeur sentinelle transparente, ou la couleur choisie.",
+      "translation_source_blocks_sha256": [
+        "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._paint_button": {
+      "source_blocks_sha256": [
+        "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497"
+      ],
+      "source_sha256": "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497",
+      "text": "Affiche la couleur de fond sur le bouton, en pastille et en texte.",
+      "translation_source_blocks_sha256": [
+        "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._set": {
+      "source_blocks_sha256": [
+        "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08"
+      ],
+      "source_sha256": "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08",
+      "text": "Applique un fond, en cochant transparent lorsque c'est ce qu'il signifie.",
+      "translation_source_blocks_sha256": [
+        "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._sync": {
+      "source_blocks_sha256": [
+        "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10"
+      ],
+      "source_sha256": "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10",
+      "text": "Grise le bouton de couleur tant que transparent est coché.",
+      "translation_source_blocks_sha256": [
+        "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.FigureStylePreferences.apply_values": {
       "source_blocks_sha256": [
         "d694ceafc19289d65d859c55d8723fcb828f80253b6e74ec7b9b624013e4c0f5",
@@ -137002,6 +137710,46 @@
         "80565bd6f72213921f450b0363eb8ada99db89b2dfda5c1c11a701c9d7ef2127"
       ]
     },
+    "spacr.qt.widgets.figure_settings._add_bundle_save._save": {
+      "source_blocks_sha256": [
+        "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae"
+      ],
+      "source_sha256": "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae",
+      "text": "Demande un dossier et y écrit l'ensemble du lot.",
+      "translation_source_blocks_sha256": [
+        "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings._add_group_colours._recolour": {
+      "source_blocks_sha256": [
+        "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d"
+      ],
+      "source_sha256": "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d",
+      "text": "Choisit une couleur pour un groupe et l'enregistre dans la recette.",
+      "translation_source_blocks_sha256": [
+        "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings._colour_button._choose": {
+      "source_blocks_sha256": [
+        "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a"
+      ],
+      "source_sha256": "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a",
+      "text": "Demande une couleur et la conserve si la boîte de dialogue en a renvoyé une.",
+      "translation_source_blocks_sha256": [
+        "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings._colour_button._paint": {
+      "source_blocks_sha256": [
+        "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f"
+      ],
+      "source_sha256": "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f",
+      "text": "Affiche la couleur actuelle sur le bouton, en pastille et en texte.",
+      "translation_source_blocks_sha256": [
+        "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.add_graph_style_file_entries": {
       "source_blocks_sha256": [
         "f662b805a8da3fb713caa9d4c6e131541cfad6c8231c0f9b67c2f665763e5fba",
@@ -137014,6 +137762,26 @@
         "f662b805a8da3fb713caa9d4c6e131541cfad6c8231c0f9b67c2f665763e5fba",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "05ac5e3a67684f2ca9fddbc357009e385fa58b0770328f80eb7ff09a4f9152d0"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._load": {
+      "source_blocks_sha256": [
+        "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723"
+      ],
+      "source_sha256": "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723",
+      "text": "Relit un style de graphique et l'applique.",
+      "translation_source_blocks_sha256": [
+        "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._save": {
+      "source_blocks_sha256": [
+        "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c"
+      ],
+      "source_sha256": "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c",
+      "text": "Écrit le style de graphique actuel dans un fichier JSON.",
+      "translation_source_blocks_sha256": [
+        "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c"
       ]
     },
     "spacr.qt.widgets.figure_settings.apply_font_colour": {
@@ -137086,6 +137854,50 @@
         "632c419eea8be3a5e11a0600fafee3ea0507b4096f338450f8938fd9df7ff2fe",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "9b6fabcfadd3b1251e53fd436f87478ed9c74f8b3440b91940d81af28cef0790"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._apply": {
+      "source_blocks_sha256": [
+        "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4"
+      ],
+      "source_sha256": "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4",
+      "text": "Exécute ``func`` sur chaque axe de la figure.",
+      "translation_source_blocks_sha256": [
+        "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify": {
+      "source_blocks_sha256": [
+        "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+        "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+        "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326"
+      ],
+      "source_sha256": "048d41c00a47b7e7323ce4c6d4ee83ad68f8f74927e02e50c8498a833bd8ef0e",
+      "text": "Redessine après une bascule de menu, de façon ÉCONOMIQUE.\n\nUne bascule du menu contextuel est le même type de modification que celle de la boîte de dialogue des paramètres, et la boîte de dialogue a appris depuis longtemps à utiliser l'aperçu : un rendu en pleine qualité réécrit le raster ET la page vectorielle, mesuré à ~263 ms sur un volcano de 823 points, et l'utilisateur est en plein geste. Aperçu ici aussi, et laissons le prochain rendu complet -- un redimensionnement, un export, la fermeture de la boîte de dialogue des paramètres -- rattraper.\n\n`on_change` peut être un appelable antérieur au rendu d'aperçu, donc le mot-clé est proposé puis retiré plutôt que supposé.",
+      "translation_source_blocks_sha256": [
+        "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+        "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+        "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._pick_ink": {
+      "source_blocks_sha256": [
+        "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3"
+      ],
+      "source_sha256": "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3",
+      "text": "Choisit une couleur et l'applique via ``apply_to``.",
+      "translation_source_blocks_sha256": [
+        "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu.toggle_legend": {
+      "source_blocks_sha256": [
+        "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c"
+      ],
+      "source_sha256": "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c",
+      "text": "Affiche ou masque la légende sur chaque axe.",
+      "translation_source_blocks_sha256": [
+        "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c"
       ]
     },
     "spacr.qt.widgets.figure_settings.derive_replot_recipe": {
@@ -137232,6 +138044,16 @@
         "512359b3d51a1aafc38193401f4fc7fcd3e3d9affbff5e6627341fef52ea1e36"
       ]
     },
+    "spacr.qt.widgets.figure_settings.save_figure_as.figure_bg_is_transparent": {
+      "source_blocks_sha256": [
+        "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f"
+      ],
+      "source_sha256": "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f",
+      "text": "Indique si une valeur de fond enregistrée signifie \"no background at all\".",
+      "translation_source_blocks_sha256": [
+        "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
         "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
@@ -137250,6 +138072,18 @@
         "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
         "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
         "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.save_figure_bundle._render": {
+      "source_blocks_sha256": [
+        "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+        "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719"
+      ],
+      "source_sha256": "3bd51a677226b1a562191209c20cd0686fd093b47e572a29d28e584f93ec5a09",
+      "text": "Effectue le rendu d'un fichier du lot par le chemin d'export PARTAGÉ.\n\nLes deux formats passent par `save_figure` plutôt que de se dessiner chacun eux-mêmes, afin que les couleurs d'impression, les polices incorporées et la résolution DPI du raster correspondent à toutes les autres figures que l'utilisateur conserve.",
+      "translation_source_blocks_sha256": [
+        "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+        "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -189478,6 +190312,46 @@
         "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
       ]
     },
+    "spacr.submodules._cellpose_training_pairs.files": {
+      "source_blocks_sha256": [
+        "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751"
+      ],
+      "source_sha256": "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751",
+      "text": "Ignore les fichiers annexes de métadonnées et les caches de flux générés par Cellpose.",
+      "translation_source_blocks_sha256": [
+        "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751"
+      ]
+    },
+    "spacr.submodules._invasion_field_thresholds._auto": {
+      "source_blocks_sha256": [
+        "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a"
+      ],
+      "source_sha256": "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a",
+      "text": "Renvoie un seuil calculé sur des données finies, ou NaN sous le plancher du nombre d'objets.",
+      "translation_source_blocks_sha256": [
+        "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a"
+      ]
+    },
+    "spacr.submodules._resolve_invasion_intensity_column._candidates": {
+      "source_blocks_sha256": [
+        "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2"
+      ],
+      "source_sha256": "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2",
+      "text": "Produit la colonne de mesure actuelle et toute colonne historique pour ``name``.",
+      "translation_source_blocks_sha256": [
+        "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2"
+      ]
+    },
+    "spacr.submodules._resolve_invasion_intensity_column._template": {
+      "source_blocks_sha256": [
+        "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec"
+      ],
+      "source_sha256": "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec",
+      "text": "Renvoie la colonne de mesure formatée de la statistique demandée.",
+      "translation_source_blocks_sha256": [
+        "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec"
+      ]
+    },
     "spacr.submodules.analyze_class_proportion": {
       "source_blocks_sha256": [
         "86afde6b6c618b1b640436134da848bb66ea09da2c2c588d808d304e1d934a01",
@@ -189520,6 +190394,16 @@
         "448067e071957c5ace96b5e22cd9be0c8f4fce49e9ae49b6b16a2cb6375af123",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "8fad9277b33d1df20a72adbc31073ff86ceb6a0bb79b119424d800b2fa787051"
+      ]
+    },
+    "spacr.submodules.analyze_endodyogeny._calculate_volume_bins": {
+      "source_blocks_sha256": [
+        "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487"
+      ],
+      "source_sha256": "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487",
+      "text": "Affecte chaque ligne à une classe log2 de doublement de volume et renvoie les catégories ordonnées.",
+      "translation_source_blocks_sha256": [
+        "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487"
       ]
     },
     "spacr.submodules.analyze_invasion": {
@@ -189600,6 +190484,44 @@
         "698ef1c56a6b933a07e62c6692c0f5695aebcaae67e585f93960f88681c64a53",
         "2922b5afd657233b4397bdf97e845714f55825b5ed408d50f7e448824a5bacca",
         "ff8d5a5b0e007a3f0682a88b0944ab6b0096662f3bafa05c73cdcc6b45d1d9d3"
+      ]
+    },
+    "spacr.submodules.analyze_percent_positive.annotate_and_summarize": {
+      "source_blocks_sha256": [
+        "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+        "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+        "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+        "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+        "4770944d71540f40fc18a135d8797bf434c8aed3ca78adeacdceaf2b9627d205",
+        "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+        "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+        "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9"
+      ],
+      "source_sha256": "1ab37e16aebff716537887cd95a95c49ad3792240fc22093e7f272e45391c390",
+      "text": "Annote les lignes comme ``above``/``below`` par rapport à un seuil et résume par condition et par puits.\n\n:param df: DataFrame de mesures annoté sur place.\n:param value_col: colonne dont les valeurs sont comparées à ``threshold``.\n:param condition_col: colonne de condition expérimentale utilisée pour le regroupement.\n:param well_col: colonne d'identifiant de puits utilisée pour le regroupement.\n:param threshold: seuil numérique ; les valeurs au-dessus deviennent ``above``.\n:param annotation_col: nom de la nouvelle colonne d'annotation. Par défaut ``'annotation'``.\n:returns: tuple ``(df, summary_df)`` avec les lignes annotées et une table de comptages/fractions par (condition, puits).",
+      "translation_source_blocks_sha256": [
+        "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+        "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+        "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+        "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+        "f09587a95ae391260c034e40d1ba649713efab70fe4445912e76cac3ebbf4352",
+        "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+        "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+        "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9"
+      ]
+    },
+    "spacr.submodules.analyze_percent_positive.translate_well_in_df": {
+      "source_blocks_sha256": [
+        "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+        "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+        "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2"
+      ],
+      "source_sha256": "380ad9c5dda45c2c3cef075ee50b1e142150733cb5b9ec5f046ff2553ef71663",
+      "text": "Renvoie un dataframe lu depuis ``csv_loc`` avec les colonnes ``plateID`` / ``well`` séparées de ``Renamed TIFF``.\n\n:param csv_loc: chemin vers un CSV contenant une colonne ``Renamed TIFF``.\n:returns: :class:`pandas.DataFrame` avec les colonnes ``plateID`` et ``well`` extraites.",
+      "translation_source_blocks_sha256": [
+        "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+        "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+        "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2"
       ]
     },
     "spacr.submodules.analyze_plaques": {
@@ -189740,6 +190662,28 @@
         "90a84b9a74b94e797b6e63131b4e4084972513e7f53b6004f864403dde75bc92"
       ]
     },
+    "spacr.submodules.apply_cellpose_model.plot_cellpose_result": {
+      "source_blocks_sha256": [
+        "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ],
+      "source_sha256": "f0b956c1d8d619c49e0ed519f26b7c682b3c92cb5d3691d399b5d0281a00f973",
+      "text": "Dessine un diagnostic à 4 panneaux (image / prédiction / flux) pour un résultat d'application Cellpose.\n\n:param i: index d'image externe utilisé dans le nom du fichier de sortie.\n:param j: index de lot interne utilisé dans le nom du fichier de sortie.\n:param results_dir: dossier où le PNG composite est écrit.\n:param img: tableau de l'image source.\n:param pred: tableau du masque prédit.\n:param flow: champ de flux Cellpose.",
+      "translation_source_blocks_sha256": [
+        "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ]
+    },
     "spacr.submodules.compare_reads_to_scores": {
       "source_blocks_sha256": [
         "aaed3eb912b621e9b6a804c76e09d7846004d5ee425ef2a95cfb14598d731b27",
@@ -189772,6 +190716,102 @@
         "0f52de0c2cf17f557d4d5538d8041f01ab4bcc7851c8d9efffc3067bb06b1dd3",
         "96cc14838337cde03c2c1ad104e6f170d4b9d09a7b89474a85b35a53a8f6e030",
         "730cbd97cd60f8ea5b8c8cbc96fbb3003da6e727a9d8185e44c408e44bc547a3"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio": {
+      "source_blocks_sha256": [
+        "4abc8ac96b64415e9ad2be542e9e11668212b32814b7c9d43dd83ef0fff3f54c",
+        "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+        "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+        "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+        "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e"
+      ],
+      "source_sha256": "57cec38c6fb4dc0ffd3a7877d984ff52cc5031ea67d60db9b18a2c2b85e0d2c2",
+      "text": "Calcule par puits le rapport des fractions de lectures entre deux gRNAs.\n\n:param df: dataframe avec les colonnes ``prc``, ``grna_name`` et ``count``.\n:param grna1: gRNA du numérateur.\n:param grna2: gRNA du dénominateur.\n:returns: dataframe avec une valeur de rapport par ``prc``.",
+      "translation_source_blocks_sha256": [
+        "31a7112e75378b100941ed60c793f9944c8fef0f364b5d0198f2c36f98829466",
+        "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+        "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+        "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+        "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction": {
+      "source_blocks_sha256": [
+        "739115c24975cf00434d59c75a2dc850c76f1fdcfb978df9eb1e6d6d4d6bcb35",
+        "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+        "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+        "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48"
+      ],
+      "source_sha256": "8ed048e5bb71ec2cf4fe93558ec7cbea5d099b1912c1947fc832492f5f5cd04e",
+      "text": "Calcule par puits la fraction des lectures de chaque gRNA.\n\n:param df: dataframe avec ``plateID``/``rowID``/``columnID`` (ou ``prc``), ``grna_name`` et une colonne de comptage des lectures.\n:param count_column: nom de la colonne de comptage des lectures.\n:returns: dataframe avec une colonne ``fraction`` par ``(prc, grna_name)``.",
+      "translation_source_blocks_sha256": [
+        "079f1b3b4d98b065a64409b484e786ee9f425dc0c6f1e62477b1176f88ea1b74",
+        "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+        "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+        "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions": {
+      "source_blocks_sha256": [
+        "429705c544b1a0793cdc215a46fb5bb3aae7da3d89dc213a93e2851da42f5933",
+        "654be8775693de460ecb493b29c10f0cd2ed414be450119f0a90df994ba47401",
+        "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+        "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613"
+      ],
+      "source_sha256": "4a931e1a96765ab04ed66eee6d0f9c47819c73d74b96658a1789ba4395169d16",
+      "text": "Agrège les prédictions du classifieur par objet en fractions de classe par puits.\n\n:param df: dataframe de mesures avec un identifiant de puits ``prc`` et une colonne de prédiction du classifieur.\n:param class_columns: nom de la colonne de prédiction à résumer.\n:returns: dataframe indexé par ``prc`` avec une colonne de fraction par classe.",
+      "translation_source_blocks_sha256": [
+        "b542825770e3032cfc749e3ee44a69641ef7e6d75595ba928eb648ffacbbe912",
+        "a27e5a78bdff8208eb3b5a44934988b66c86b5853ff7e357f1d9f86536ab69df",
+        "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+        "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.plot_line": {
+      "source_blocks_sha256": [
+        "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+        "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+        "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+        "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+        "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+        "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+        "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+        "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+        "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+        "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+        "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+        "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58"
+      ],
+      "source_sha256": "77e0c93a2704c49a71283eb2a87dd76bcec6d45f2325dc7f39ea12c1319f7cd6",
+      "text": "Trace une ligne par colonne y (ou par valeur de ``group_column``) en fonction de ``x_column``.\n\n:param df: DataFrame contenant les colonnes x et y.\n:param x_column: colonne utilisée pour l'axe x.\n:param y_columns: str ou liste de colonnes à tracer comme lignes.\n:param group_column: colonne de teinte facultative lorsque ``y_columns`` est une seule colonne.\n:param xlabel: libellé de l'axe x ; à défaut, ``x_column``.\n:param ylabel: libellé de l'axe y ; à défaut, ``'Value'``.\n:param title: titre du graphique ; à défaut, ``'Line Plot'``.\n:param figsize: taille de la figure en pouces. Par défaut ``(10, 6)``.\n:param save_path: chemin PDF facultatif pour enregistrer la figure.\n:param theme: nom de palette Seaborn. Par défaut ``'deep'``.\n:returns: la Figure matplotlib créée.",
+      "translation_source_blocks_sha256": [
+        "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+        "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+        "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+        "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+        "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+        "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+        "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+        "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+        "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+        "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+        "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+        "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.plot_line._set_theme": {
+      "source_blocks_sha256": [
+        "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+        "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+        "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610"
+      ],
+      "source_sha256": "ea43203e7699003425aa87c059495b61765cfc96f9c5fa875bb21c26ee0cfafb",
+      "text": "Les couleurs dans lesquelles les lignes sont tracées, la palette maison d'abord.\n\nUNE LIGNE PAR COLONNE MESURÉE EST UN CAS OÙ LES CATÉGORIES SONT VRAIMENT LES DONNÉES, donc ces séries gardent des teintes distinctes -- mais elles viennent de la palette publiée dans un ordre fixe, et non de la gamme 'deep' de 100 couleurs de seaborn réordonnée par une liste d'indices. Cent teintes, ce sont cent séries que personne ne peut distinguer, et la huitième était un pastel qui disparaissait sur le fond sombre.\n\nUn ``theme`` explicite non par défaut l'emporte toujours, pour un appelant qui a délibérément demandé une palette seaborn.",
+      "translation_source_blocks_sha256": [
+        "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+        "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+        "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610"
       ]
     },
     "spacr.submodules.count_phenotypes": {
@@ -189836,6 +190876,96 @@
         "b7138ceb53897684fddf91ef4bb08646274bfb7f088d6aca3fe1d7ca0834ac4e"
       ]
     },
+    "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition": {
+      "source_blocks_sha256": [
+        "f18d75c4d33acf204e9d09416090ad59091ed59bc6eb135271b4c8b68b51e8d3",
+        "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+        "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
+        "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+        "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+        "dee159cc317d3a1c32c08016bcfb59c31081bfb79fdf731d0f0a2fcb2cabb3fb"
+      ],
+      "source_sha256": "187776b3abf6a8b372ab2c40d789e7f74434d20452cf12cc32c9cea413e58016",
+      "text": "Renvoie les fractions de lectures par puits limitées aux sgRNA témoins indiqués.\n\n:param csv: chemin vers le CSV des lectures ; nécessite ``grna_name``, ``count``, ``rowID`` et ``columnID`` (un ``column_name`` historique est renommé).\n:param plate: un NUMÉRO de plaque, pas un nom de colonne. Toute valeur autre que ``None`` réécrit chaque ``plateID`` en ``plate<plate>`` ; ``None`` conserve la valeur propre de chaque ligne. Par défaut ``1``.\n:param column: valeur conservée de ``columnID``. Par défaut ``'c3'``.\n:param control_sgrnas: ``None`` sélectionne la paire intégrée ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactement les deux premières entrées sont lues, donc une liste plus longue ignore le reste en silence et une plus courte (ou vide) lève ``IndexError``. Les entrées sont interpolées dans une expression régulière ancrée : les métacaractères sont actifs, et un nom qui n'est qu'un préfixe du vrai sgRNA ne correspond à rien.\n:returns: les lignes correspondantes plus ``total_count``, ``fraction`` (la part de ce sgRNA dans le comptage combiné des deux témoins -- les lectures non témoins n'entrent jamais dans le dénominateur) et une clé ``prc``. Des témoins absents du CSV donnent un tableau vide, pas une erreur.",
+      "translation_source_blocks_sha256": [
+        "bb05baa96d560789c84208fa7444fe3aec2327924886c5b88ad6927f5e746c92",
+        "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+        "96118c3c689a36366b114594dd64be9991d2340ddbb665e737927cf06c7a3d95",
+        "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+        "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+        "b6453bf457774224dd73f236de604bd1b23cd693173e60cbb5c8ea01eda2b611"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.calculate_mae": {
+      "source_blocks_sha256": [
+        "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63"
+      ],
+      "source_sha256": "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63",
+      "text": "Renvoie la MAE par canal et par ligne entre les prédictions et la colonne ``fraction``.",
+      "translation_source_blocks_sha256": [
+        "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.combine_classification_scores": {
+      "source_blocks_sha256": [
+        "e4453b943f5183d362a1ca5fc3de57382a4d62da893d9dd78e17bd37110455ec",
+        "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+        "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+        "4c5ac8f7d20ff4f205af2cf2c6c2db004fb4ef1e269ce0c8c1406a3cce109e39",
+        "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
+        "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+        "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7"
+      ],
+      "source_sha256": "540da1d3e4aa4f3d3c587678ede4aa8b460a60a9a88c3d8a5f8c033200d14142",
+      "text": "Fusionne une ``data_column`` par sous-dossier en un DataFrame large par puits.\n\n:param folders: répertoire parent, ou une liste de répertoires ; une chaîne seule est placée dans une liste. Seuls les sous-répertoires immédiats sont parcourus, donc un CSV situé dans le parent lui-même, ou un autre imbriqué deux niveaux plus bas, n'est jamais trouvé. Un chemin inexistant lève ``FileNotFoundError``.\n:param csv_name: nom de fichier recherché dans chaque sous-répertoire. Les absences sont affichées, pas levées -- si aucun n'est trouvé, l'accumulateur reste ``None`` et l'appel se termine par ``TypeError: 'NoneType' object is not subscriptable``.\n:param data_column: colonne moyennée par puits. Sa colonne de sortie porte le nom du sous-répertoire qui la contient (``<sub-folder>_<data_column>``), donc deux parents ayant des sous-dossiers de même nom entrent en collision et pandas ajoute ``_x`` / ``_y``.\n:param plate: un NUMÉRO de plaque, pas un nom de colonne. Toute valeur autre que ``None`` réécrit chaque ``plateID`` en ``plate<plate>`` ; ``None`` conserve la valeur propre de chaque CSV. Par défaut ``1``.\n:param column: valeur conservée de ``columnID`` ; un CSV dépourvu de cette colonne lève ``KeyError``. Par défaut ``'c3'``.\n:returns: le tableau puits-par-canal en jointure externe, avec une clé ``prc``.",
+      "translation_source_blocks_sha256": [
+        "801cb0e10fa4b5ab5cca1e6644cde59c7012af1b6b16e2fadf2ba9cebde873cd",
+        "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+        "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+        "7f7aff3933f38a0e48f1625b5e2867d2f2bbf33ff4fd8cd1e0f1cbfe7611be56",
+        "51b95f4fc503352b6a519b0204ec414ee061054f43ebc10b0e3afa5f9b6ebaa4",
+        "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+        "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.group_cv_score": {
+      "source_blocks_sha256": [
+        "85e526f875c4d8c1ecccfd9fa5646ff45eecf4ae56d3371549abf81fc70aa90a",
+        "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+        "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
+        "b1affc08af1755c67b0b8b0ff35f619f72b0b1c8d26b69ef5b53d3ad744a1f26",
+        "2f2d2455b59da1c6052de72921325e51ac8636b9f1c57284936660a46d379b52",
+        "5c27ff352ce91d4e922bce785de20a9e1e30637630f2fa8b80d43f7380606e6e"
+      ],
+      "source_sha256": "532ab9d7a790c778fddb375f11a4bc43a4edfd1d3cb819199fcf80307bf1dbca",
+      "text": "Agrège un CSV de prédictions de validation croisée en une moyenne par (plaque, rangée, colonne).\n\n:param csv: chemin vers le CSV des prédictions de validation croisée.\n:param plate: un NUMÉRO de plaque, pas un nom de colonne. Toute valeur autre que ``None`` réécrit le ``plateID`` de chaque ligne en ``plate<plate>``, en écartant la plaque enregistrée par le CSV lui-même ; ``None`` conserve la valeur propre du CSV et lève ``KeyError`` s'il n'a pas de colonne ``plateID``. Par défaut ``1``.\n:param column: valeur conservée de ``columnID``, ou d'une colonne historique ``column`` copiée d'abord vers ``columnID``. Une valeur ne correspondant à aucune ligne renvoie un tableau vide au lieu de lever une erreur ; un CSV sans aucune des deux clés saute le filtre en silence puis échoue au groupby avec ``KeyError: 'columnID'``. Par défaut ``'c3'``.\n:param data_column: colonne moyennée dans chaque puits. Un nom absent du CSV lève ``KeyError``, un nom non numérique ``TypeError``. Par défaut ``'pred'``.\n:returns: une ligne par puits, plus une clé ``prc`` de la forme ``plateID_rowID_columnID``.",
+      "translation_source_blocks_sha256": [
+        "0d5ca51e251c385328616dfcbee6a98262720a5d509b226791001582764ad362",
+        "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+        "c4aa7c8857d3146733d44cedda62538d49dfa0d6e01ad05e8ca96755896e6e0f",
+        "32ff8a691c58a550a295927f4ed1f8bf4b419b70bf3727f32d71b3d782de5880",
+        "25d04e9cfa2b23e826890bf3d0a62972edc6a611bc20dd132c78bf0b0a8710d7",
+        "f8ed0b4b768c88ab2c5767b0903ce9538ecc431d9ccb8c21831491e8ea0efcd9"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap": {
+      "source_blocks_sha256": [
+        "ff218d56e1c31c07a8628f995afa85a3cd34aa182bfa68e51733135817e77554",
+        "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+        "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+        "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+        "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58"
+      ],
+      "source_sha256": "046866b18c3efeb63e02e24a409ff581a460f977784f6a888c4e3e590ff06002",
+      "text": "Trace une carte thermique par puits avec chaque canal du classifieur en colonne.\n\n:param df: DataFrame avec des colonnes de scores indexées par canal.\n:param column: valeur de ``columnID`` utilisée pour filtrer les lignes. Par défaut ``'c3'``.\n:param cmap: carte de couleurs matplotlib/seaborn. Par défaut ``'coolwarm'``.\n:returns: la Figure matplotlib.",
+      "translation_source_blocks_sha256": [
+        "b780edaceeea04f4f99d46fdc45b750fa0ef92d1913366f271d5c73eb8889054",
+        "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+        "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+        "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+        "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58"
+      ]
+    },
     "spacr.submodules.interpret_vision_model": {
       "source_blocks_sha256": [
         "7c5e2104208a0b54b7adc80aac0acb8394a8622203bc4d048c286cf1c92ec049",
@@ -189874,6 +191004,96 @@
         "2f09b88df89c09ede610330c7394c9f9389018b05c591064fe742f58f72b9e4d"
       ]
     },
+    "spacr.submodules.interpret_vision_model.create_extended_radar_plot": {
+      "source_blocks_sha256": [
+        "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+        "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+        "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+        "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af"
+      ],
+      "source_sha256": "0867daa5f77c55f24c072e4199d6cddd97a32e42952aa25f6f20c8786b65f4ff",
+      "text": "Dessine un graphique radar polaire de ``values`` en fonction de ``labels``.\n\n:param values: valeurs numériques par axe (une par étiquette).\n:param labels: étiquettes des axes.\n:param title: titre du graphique.",
+      "translation_source_blocks_sha256": [
+        "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+        "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+        "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+        "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.extract_compartment_channel": {
+      "source_blocks_sha256": [
+        "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+        "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+        "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3"
+      ],
+      "source_sha256": "5c51dbb6c828c85ddf49b2a179f2fc6372e957f55baef61a933c1c58f15c0d54",
+      "text": "Sépare ``feature_name`` en ``(compartment, channel)`` selon le jeton initial séparé par un trait de soulignement.\n\n:param feature_name: clé de la variable de mesure, p. ex. ``\"cell_ch0_mean\"``.\n:returns: couple ``(compartment, channel)`` — l'un ou l'autre peut valoir ``None``.",
+      "translation_source_blocks_sha256": [
+        "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+        "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+        "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.generate_comparison_columns": {
+      "source_blocks_sha256": [
+        "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+        "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+        "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+        "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc"
+      ],
+      "source_sha256": "53bcd45eac54c21bda9b4fe11adcc039aad9cd1f410c761038a9e25434a3745e",
+      "text": "Ajoute comme nouvelles colonnes des rapports de variables entre compartiments (p. ex. noyau/cellule).\n\n:param df: DataFrame de mesures ; colonnes préfixées par chaque compartiment.\n:param compartments: préfixes de compartiment à comparer. Par défaut ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.\n:returns: tuple ``(df, comparison_dict)`` avec le DataFrame étendu et une correspondance des colonnes sources vers leurs rapports dérivés.",
+      "translation_source_blocks_sha256": [
+        "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+        "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+        "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+        "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.group_feature_class": {
+      "source_blocks_sha256": [
+        "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+        "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+        "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+        "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+        "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+        "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5"
+      ],
+      "source_sha256": "5cea91edb2394c4de209f5339698295fdf4600b7c915ce4b7ed4b464ec7f3b79",
+      "text": "Additionne l'importance des variables par groupe de compartiments ou de canaux.\n\n:param df: DataFrame avec les colonnes ``feature`` et ``importance``.\n:param feature_groups: sous-chaînes identifiant chaque groupe (compartiments ou canaux).\n:param name: nom de la colonne de regroupement à créer. Par défaut ``'compartment'``.\n:param include_all: ajoute une ligne ``all`` qui additionne tous les groupes. Par défaut ``False``.\n:returns: DataFrame de l'importance additionnée par groupe.",
+      "translation_source_blocks_sha256": [
+        "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+        "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+        "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+        "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+        "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+        "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.group_feature_class.find_feature_class": {
+      "source_blocks_sha256": [
+        "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d"
+      ],
+      "source_sha256": "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d",
+      "text": "Renvoie le ou les compartiments dont le nom correspond à ``feature``.",
+      "translation_source_blocks_sha256": [
+        "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.read_and_preprocess_data": {
+      "source_blocks_sha256": [
+        "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+        "9b54d98cc249adac80b763c0ae28848ba6dc143d86f2daab09c11c31a87317bd",
+        "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4"
+      ],
+      "source_sha256": "0a478a3991a46e3f99d8ea3ba96893830bd476dc5eac6ad6fb76041a313f2e4a",
+      "text": "Charge la base de mesures désignée par ``settings`` et renvoie le dataframe fusionné.\n\n:param settings: dict de paramètres ; doit contenir ``src`` (dossier contenant ``measurements/measurements.db``).\n:returns: dataframe des mesures d'objets fusionnées.",
+      "translation_source_blocks_sha256": [
+        "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+        "707373ce66bcb543355b84c3c6af704483da00ee712308fd02c4cdd1b405a855",
+        "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4"
+      ]
+    },
     "spacr.submodules.plot_cellpose_batch": {
       "source_blocks_sha256": [
         "2c1a6915a7c80d4c5c49dee8985f3aa44e69601b09816b1e42ab767b2605e1e4",
@@ -189910,6 +191130,26 @@
         "98af194ee73bf5e4fa252936e134ddd9da525c2cc0024887b3ffae77059b366b"
       ]
     },
+    "spacr.submodules.post_regression_analysis._analyze_and_visualize_grna_correlation": {
+      "source_blocks_sha256": [
+        "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2"
+      ],
+      "source_sha256": "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2",
+      "text": "Renvoie et trace la matrice de corrélation pivotée des fractions de gRNA par puits.",
+      "translation_source_blocks_sha256": [
+        "42a1441b1619af96a486b54511940bd5ee16bad3d4395eb0aefb2b17986fd571"
+      ]
+    },
+    "spacr.submodules.post_regression_analysis._compute_effect_sizes": {
+      "source_blocks_sha256": [
+        "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666"
+      ],
+      "source_sha256": "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666",
+      "text": "Renvoie des tailles d'effet par gRNA propagées depuis des gRNAs d'ancrage via la matrice de corrélation.",
+      "translation_source_blocks_sha256": [
+        "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666"
+      ]
+    },
     "spacr.submodules.split_wells": {
       "source_blocks_sha256": [
         "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
@@ -189944,6 +191184,30 @@
         "3378d0f78f2703267a78c46948ece5e0129a9bf8b510ce50230b3b121b53c82d",
         "80a0088b243b04d3adcf35b862adcff4c98a71ff2d9e62c30109202fb83fe292",
         "18c3f09f13237427fba1e7a49ada74e705bae7e25e20992a1210e6cc8e4b87e4"
+      ]
+    },
+    "spacr.submodules.test_cellpose_model.plot_cellpose_resilts": {
+      "source_blocks_sha256": [
+        "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ],
+      "source_sha256": "7092c95fb77e33ad8118724cecb1fdf871829295574eb1058f9766eedd2d598c",
+      "text": "Dessine un diagnostic à 5 panneaux (image / étiquette / prédiction / flux) pour un résultat Cellpose.\n\n:param i: index d'image externe utilisé dans le nom du fichier de sortie.\n:param j: index de lot interne utilisé dans le nom du fichier de sortie.\n:param results_dir: dossier où le PNG composite est écrit.\n:param img: tableau de l'image source.\n:param lbl: tableau des étiquettes de vérité terrain.\n:param pred: tableau du masque prédit.\n:param flow: champ de flux Cellpose.",
+      "translation_source_blocks_sha256": [
+        "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
       ]
     },
     "spacr.submodules.train_cellpose": {

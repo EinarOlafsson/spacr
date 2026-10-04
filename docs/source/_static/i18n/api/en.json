@@ -29087,6 +29087,123 @@
       "source_sha256": "8b280eda2c35e3bfc4256636abbfde9be32476144cf37fba94ca9d6d0b30ef4c",
       "text": "Adjust the variance with the dispersion parameter.\n\n:param mu: fitted mean probabilities, scalar or array; the binomial\n    variance of ``mu`` is multiplied by ``dispersion``."
     },
+    "spacr.ml._answering_stop.loglike": {
+      "source_blocks_sha256": [
+        "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672"
+      ],
+      "source_sha256": "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672",
+      "text": "Check for cancellation, then return the original likelihood result."
+    },
+    "spacr.ml._calculate_similarity.safe_similarity": {
+      "source_blocks_sha256": [
+        "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd"
+      ],
+      "source_sha256": "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd",
+      "text": "Call ``func(row, control, ...)`` and swallow errors (return ``NaN``)."
+    },
+    "spacr.ml._check_score_count_pairing._plates": {
+      "source_blocks_sha256": [
+        "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb"
+      ],
+      "source_sha256": "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb",
+      "text": "Return sorted plate prefixes parsed from the frame's well column."
+    },
+    "spacr.ml._flowview_pipeline.decorate": {
+      "source_blocks_sha256": [
+        "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b"
+      ],
+      "source_sha256": "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b",
+      "text": "Return a metadata-preserving lifecycle wrapper for ``function``."
+    },
+    "spacr.ml._flowview_pipeline.decorate.observed": {
+      "source_blocks_sha256": [
+        "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7"
+      ],
+      "source_sha256": "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7",
+      "text": "Call unchanged, reporting success or failure to an active trace."
+    },
+    "spacr.ml._perform_regression._count_variable_instances": {
+      "source_blocks_sha256": [
+        "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc"
+      ],
+      "source_sha256": "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc",
+      "text": "Return ``df`` and value-count tables for both named columns."
+    },
+    "spacr.ml._perform_regression._perform_regression_read_data": {
+      "source_blocks_sha256": [
+        "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90"
+      ],
+      "source_sha256": "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90",
+      "text": "Load paired inputs, validate the analysis, and return both frames."
+    },
+    "spacr.ml._perform_regression._qc_plot": {
+      "source_blocks_sha256": [
+        "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+        "badc4317b65d69c3bcbdb0bb95e037b486d92a455a11604be7c46a86cb0b5763"
+      ],
+      "source_sha256": "cbbc0533c893bca8685b1ee01e174152fbf3fefa964d71ca6b70c92a0f6e75a8",
+      "text": "Render one QC plot, reporting - not raising - on failure.\n\nThe QC tables written between these calls are data outputs, so a\nplotting failure must not cost them. spacrGraph runs a group\ncomparison, which scipy rejects with \"Must enter at least two input\nsample vectors\" on the very common single-plate run."
+    },
+    "spacr.ml._perform_regression._stack": {
+      "source_blocks_sha256": [
+        "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4"
+      ],
+      "source_sha256": "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4",
+      "text": "Concatenate nonempty frames, or return the empty result template."
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies": {
+      "source_blocks_sha256": [
+        "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+        "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+        "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+        "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+        "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+        "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+        "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+        "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+        "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+        "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+        "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+        "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+        "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d"
+      ],
+      "source_sha256": "cdef053582427790348c89a5cc41d3df756ff2f05c785bb6625df0f6c5f8ba16",
+      "text": "Return per-feature selection frequencies from a nonparametric bootstrap.\n\nOutput ranks features by how often their coefficient is non-zero\nacross resamples; this is a stability score, not a hypothesis test.\n\n:param X: Long-form DataFrame; design matrix is built per resample\n    from ``formula`` for stable factor levels.\n:param y: Response array aligned with ``X`` by index.\n:param formula: Patsy formula for ``dmatrices``.\n:param alpha: Regularisation strength; ``'auto'``/``None`` runs the\n    cross-validated estimator per resample.\n:param n_boot: Number of bootstrap resamples. Default ``200``.\n:param random_state: Seed for the resampling RNG.\n:param regression_type: ``'lasso'``, ``'elasticnet'`` or\n    ``'group_lasso'`` - the same penalty the reported coefficients\n    were fitted with, or the frequencies would describe a different\n    model from the one in ``results.csv``.\n:param l1_ratio: ``elasticnet`` mix; ignored for ``'lasso'``.\n:param group_lasso_lambda: the block penalty, for ``'group_lasso'``.\n    It is a separate argument from ``alpha`` because it is a separate\n    setting: ``alpha`` is not read by that backend at all, so a\n    resample fitted at ``alpha`` would be a different model from the\n    one whose coefficients this is ranking.\n:returns: DataFrame with columns ``feature``,\n    ``selection_frequency`` and ``mean_coefficient``.\n:raises RuntimeError: if every resample fails to fit."
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies._estimator": {
+      "source_blocks_sha256": [
+        "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a"
+      ],
+      "source_sha256": "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a",
+      "text": "Return the configured sklearn lasso or elastic-net estimator."
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies._resample_coefficients": {
+      "source_blocks_sha256": [
+        "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8"
+      ],
+      "source_sha256": "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8",
+      "text": "Return group-lasso or sklearn coefficients for one resample."
+    },
+    "spacr.ml._perform_regression.get_outlier_reference_values": {
+      "source_blocks_sha256": [
+        "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+        "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+        "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+        "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+        "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0"
+      ],
+      "source_sha256": "f4e482d55ad2c9f18aaf166496238a1d8a9445b38312c6ee9d0c90f76b607c76",
+      "text": "Return unique ``return_col`` values whose ``outlier_col`` falls outside 1.5*IQR.\n\n:param df: Input DataFrame.\n:param outlier_col: Numeric column screened for outliers.\n:param return_col: Column whose distinct values are returned.\n:returns: List of unique reference values for outlier rows."
+    },
+    "spacr.ml._perform_regression.grna_metricks": {
+      "source_blocks_sha256": [
+        "76bccf9be1d31583d00b2994d4308d6dc4e7c8f238663018dfa4b22f1d519230",
+        "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+        "219ab97e2804f3a58c972df932a43bd31176a3687a927a989867ce0f162adf06"
+      ],
+      "source_sha256": "e351e979f7009874a1df9f66481b1e432a05ccad5fd256c72777b3289d878164",
+      "text": "Return per-gRNA and per-well coverage counts derived from a long ``prc`` DataFrame.\n\n:param df: DataFrame with ``prc``, ``grna`` and ``gene`` columns.\n:returns: ``(final_grna_df, prc_gene_count_df)`` — per-gRNA\n    well counts and per-well distinct-gene counts."
+    },
     "spacr.ml.apply_transformation": {
       "source_blocks_sha256": [
         "860c064535278adbd6a967103c36af2e0e63723206216f2cbc5b639c64cb2210",
@@ -29161,6 +29278,27 @@
       ],
       "source_sha256": "c03f010afb7f680551570ec2f66e40ac3e084303866692226a4fb67a34def5a1",
       "text": "Prepare the merged count / score frame for model fitting.\n\nDrops rows with a missing ``fraction`` or dependent variable, casts\nthe identifier columns to categorical and reports (without dropping)\ncollinear columns via VIF. The returned frame keeps only\n``fraction``, the dependent variable, ``gene``, ``grna``, ``prc``,\n``plateID``, ``rowID``, ``columnID``, and ``cell_count`` and ``screenID``\nwhen present, plus a computed ``gene_fraction`` column: the sum of the gene's gRNA\nfractions within each well, which the regression formula regresses on.\n\n:param df: Merged DataFrame of counts and scores.\n:param dependent_variable: Name of the response column.\n:returns: The cleaned DataFrame used as the model input.\n:raises ValueError: if a ``(prc, grna)`` pair carries more than one\n    ``fraction``, which makes ``gene_fraction`` ambiguous."
+    },
+    "spacr.ml.check_and_clean_data.check_collinearity": {
+      "source_blocks_sha256": [
+        "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80"
+      ],
+      "source_sha256": "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80",
+      "text": "Check for collinearity using VIF (Variance Inflation Factor)."
+    },
+    "spacr.ml.check_and_clean_data.ensure_valid_types": {
+      "source_blocks_sha256": [
+        "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68"
+      ],
+      "source_sha256": "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68",
+      "text": "Ensure that specified columns are categorical."
+    },
+    "spacr.ml.check_and_clean_data.handle_missing_values": {
+      "source_blocks_sha256": [
+        "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce"
+      ],
+      "source_sha256": "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce",
+      "text": "Handle missing values in specified columns."
     },
     "spacr.ml.check_distribution": {
       "source_blocks_sha256": [
@@ -29303,6 +29441,28 @@
       "source_sha256": "972479829694da6a3e5af23fd459b47cfd9c43e0225247f18b2b9ce90c61d606",
       "text": "Explain a spacr vision-model score using RF, permutation and SHAP importance, with per-compartment / per-channel radar plots.\n\nMerges per-object measurements from ``measurements.db`` with a CSV of\npredicted scores, runs any combination of RF feature importance,\npermutation importance and SHAP over the top features, then\naggregates SHAP contributions into compartment and channel radar\nplots so you can see which region (cell / nucleus / pathogen /\ncytoplasm) and which fluorescence channel drives the model.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_interpret_vision_model_defaults`.\n    Key entries:\n\n    - ``src`` — folder containing ``measurements/measurements.db``.\n    - ``scores`` — CSV of per-object predictions to explain.\n    - ``score_column`` — column of ``scores`` holding the score.\n    - ``tables`` — DB tables to merge (default\n      ``['cell','nucleus','pathogen','cytoplasm']``).\n    - ``feature_importance`` / ``permutation_importance`` / ``shap``\n      — enable each explainer.\n    - ``top_features`` — cap on features shown.\n    - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps.\n    - ``n_jobs``, ``save``.\n\n:returns: The merged per-object DataFrame — the measurement tables\n    joined to the scores CSV — that the explainers were fitted on.\n    Radar and importance plots are rendered, and with ``save=True``\n    importance CSVs are written alongside the DB, as side effects.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import interpret_vision_model\n        interpret_vision_model({\n            'src': '/data/plate01',\n            'scores': '/data/plate01/results/pred.csv',\n            'score_column': 'pred',\n            'shap': True, 'top_features': 30,\n        })\n\nSee Also:\n    :func:`spacr.submodules.interpret_vision_model` — legacy /\n    alternative entry point returning a dict of importance\n    DataFrames instead of the merged measurements."
     },
+    "spacr.ml.interpret_vision_model.create_extended_radar_plot": {
+      "source_blocks_sha256": [
+        "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+        "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582"
+      ],
+      "source_sha256": "24e7a5875208dafb388fb81ce4e1b5eb7065f71139bd3bef83de923da407bec2",
+      "text": "Draw a filled radar for ``values`` labelled by ``labels``.\n\nA RADAR IS A POLYGON, NOT AN AXIS. This was the last figure on the\nexplanation path that could not move to the screen's renderer, on\nthe grounds that pyqtgraph has no polar view -- which is true and\nwas never the obstacle: each label takes an angle, each value a\nradius, and `FastPlot.add_radar` draws its own rings because a\nradar read against a square grid is unreadable."
+    },
+    "spacr.ml.interpret_vision_model.extract_compartment_channel": {
+      "source_blocks_sha256": [
+        "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166"
+      ],
+      "source_sha256": "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166",
+      "text": "Return ``(compartment, channel)`` parsed from a feature column name."
+    },
+    "spacr.ml.interpret_vision_model.read_and_preprocess_data": {
+      "source_blocks_sha256": [
+        "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210"
+      ],
+      "source_sha256": "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210",
+      "text": "Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``."
+    },
     "spacr.ml.label_control_condition": {
       "source_blocks_sha256": [
         "d0105641863615401edb83c5d7a7eba6ee752a0c73764810580814ac42b29249",
@@ -29328,6 +29488,20 @@
       ],
       "source_sha256": "64e2d6a847a7e26e3e5a918dae1ae92104ced69f13a832eea5ab5c2d2762ee63",
       "text": "Read paired inputs and resolve plate identity without filename guesses.\n\nResolution order is own column, partner column, then pair-row order.\nConflicting declarations are refused. Returns ``(count_frame,\nscore_frame, audit_rows)``.\n\n:param pairs: sequence of mappings with ``'score'`` and ``'count'`` table\n    paths (either may be empty), as returned by\n    :func:`normalize_regression_input_pairs`. Each mapping's ``'plate'``\n    is overwritten with the resolved plate label."
+    },
+    "spacr.ml.load_regression_input_pairs.plates": {
+      "source_blocks_sha256": [
+        "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca"
+      ],
+      "source_sha256": "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca",
+      "text": "Return the frame's non-null plate identifiers as strings."
+    },
+    "spacr.ml.load_regression_input_pairs.read": {
+      "source_blocks_sha256": [
+        "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a"
+      ],
+      "source_sha256": "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a",
+      "text": "Return a cached corrected frame for ``path``, or ``None`` when blank."
     },
     "spacr.ml.mcfadden_note": {
       "source_blocks_sha256": [
@@ -29398,6 +29572,15 @@
       "source_sha256": "39ff1d739b49bac80fcdc9bd335a9b05085b36e24d8cca0dc891eedcc8cb8e07",
       "text": "Train a per-object classifier on positive/negative control wells and score every row of the input DataFrame.\n\nCalled directly for one-off ML work, and internally by\n:func:`generate_ml_scores`. Filters features by channel, drops\nlow-variance and highly correlated columns, splits (or CVs) train /\ntest, fits the requested model, computes permutation and native\nfeature importances, tunes an optimal decision threshold and writes\npredictions + probabilities back onto the returned DataFrame.\n\n:param df: Per-object feature DataFrame as produced by merging the\n    cell/nucleus/pathogen/cytoplasm tables of a\n    :func:`spacr.measure.measure_crop` database.\n:param channel_of_interest: Channel index used to select features.\n:param location_column: Column identifying wells / plate columns.\n    Default ``'columnID'``.\n:param positive_control: Value(s) in ``location_column`` treated as\n    the positive class. Default ``'c2'``.\n:param negative_control: Value(s) treated as the negative class.\n    Default ``'c1'``.\n:param exclude: Columns to remove from feature space.\n:param n_repeats: Repeats for permutation importance. Default ``10``.\n:param top_features: Feature cap when ``prune_features=True``.\n:param reg_alpha: XGBoost L1 penalty.\n:param reg_lambda: XGBoost L2 penalty.\n:param learning_rate: XGBoost learning rate.\n:param n_estimators: Tree count for tree-based models.\n:param test_size: Test-split fraction. Default ``0.2``.\n:param model_type: ``'random_forest'``, ``'logistic_regression'``,\n    ``'gradient_boosting'`` or ``'xgboost'``.\n:param n_jobs: Parallel job count where applicable. Default ``-1``.\n:param remove_low_variance_features: Drop low-variance features.\n:param remove_highly_correlated_features: Drop highly correlated features.\n:param prune_features: If True, apply ``SelectKBest`` before training.\n:param cross_validation: If True, run 5-fold stratified CV.\n:param verbose: Log progress details.\n:param split_by: Independent acquisition unit for train/test splitting:\n    ``'cell'``, ``'field'``, ``'well'`` (default), or ``'plate'``.\n    Legacy ``'none'`` is an alias for ``'cell'``.\n:param batch_correction: plate correction method from\n    :mod:`spacr.batch_correction`.\n:param batch_column: metadata column identifying plates/batches.\n:param batch_control_column: metadata column holding reference-control\n    labels for ``control_center``.\n:param batch_control_values: negative/reference control value(s).\n:param batch_min_samples: minimum rows or controls per plate.\n:param batch_covariate_column: Metadata column containing a biological\n    covariate that ComBat must preserve, such as treatment, cell line, or\n    time point. Required when ``batch_correction=\"combat\"``; its\n    coefficients remain in the corrected data while estimated batch\n    effects are removed.\n:param batch_combat_mean_only: If ``True``, ComBat adjusts batch means\n    without scaling batch variances. This can be appropriate when batches\n    differ primarily by location or contain too few observations for\n    stable variance estimates. Default ``False`` adjusts both means and\n    variances.\n:param batch_missing_control: ``error`` or ``skip`` for missing controls.\n:returns: Tuple ``(output, figs)`` where ``output`` is a positional\n    tuple of ``(scored_df, permutation_df, feature_importance_df,\n    model, X_train, X_test, y_train, y_test, metrics_df,\n    train_features)`` and ``figs`` is\n    ``(permutation_fig, feature_importance_fig)``.\n:raises ValueError: on unsupported ``model_type`` or when positive /\n    negative control rows cannot be located in ``location_column``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.ml import ml_analysis\n        output, figs = ml_analysis(\n            df, channel_of_interest=3,\n            positive_control='c2', negative_control='c1',\n            model_type='xgboost',\n        )\n        scored_df = output[0]\n\nSee Also:\n    :func:`generate_ml_scores` — wraps this call with DB I/O."
     },
+    "spacr.ml.ml_analysis._match_control_values": {
+      "source_blocks_sha256": [
+        "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+        "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+        "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9"
+      ],
+      "source_sha256": "b48d1a0d1d6661ffa5e60e0569cc42b8fecff3fd0a6c8e26146c9996038d3c1f",
+      "text": "Return a boolean mask selecting rows in `series` that match `control`.\n\nMatching is attempted in this order:\n1. exact value match\n2. numeric coercion match\n3. stripped string match\n\n`control` can be a scalar or a list/tuple/set of values."
+    },
     "spacr.ml.normalize_regression_input_pairs": {
       "source_blocks_sha256": [
         "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
@@ -29408,6 +29591,20 @@
       ],
       "source_sha256": "ba2eab4af3fc14e87a64b4881b442c00c1b3371cc084a6babaec0de198db7db1",
       "text": "Return explicit ``score``/``count`` rows, migrating legacy lists.\n\nNew settings store ``paired_data``. Older files remain valid: their flat\nlists are zipped positionally, exactly matching the former behaviour, and\nthe migration is reported so the invisible legacy assumption is visible.\n\n:param settings: regression settings dictionary. ``paired_data`` is read\n    when present, otherwise the legacy ``score_data`` and ``count_data``\n    lists; the dictionary is updated in place with the normalised\n    ``paired_data`` and de-duplicated ``score_data``/``count_data`` lists.\n:returns: ``(pairs, migrated)``, where ``migrated`` is ``True`` when the\n    rows came from the legacy lists.\n:raises ValueError: when ``paired_data`` is malformed or there is not at\n    least one score path and one count path."
+    },
+    "spacr.ml.normalize_regression_input_pairs.paths": {
+      "source_blocks_sha256": [
+        "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6"
+      ],
+      "source_sha256": "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6",
+      "text": "Return ``value`` as a fresh path list, treating ``None`` as empty."
+    },
+    "spacr.ml.normalize_regression_input_pairs.unique": {
+      "source_blocks_sha256": [
+        "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b"
+      ],
+      "source_sha256": "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b",
+      "text": "Return truthy ``key`` paths once each in first-seen pair order."
     },
     "spacr.ml.perform_mixed_model": {
       "source_blocks_sha256": [
@@ -29622,6 +29819,127 @@
       ],
       "source_sha256": "477a28715fe87631446c82803c9b1dc62555dfc5b395bee2f6441f97889fad9c",
       "text": "Dispatch to the requested regression backend and return the fitted model.\n\nEvery name in :data:`REGRESSION_TYPES` is fittable here, and every one of\nthem has a matching branch in :func:`process_model_coefficients`, so a\nmodel that fits can always be turned into a coefficient table.\n\nThe backends, and what each is for:\n\n==================================  ========================================================\n``ols``                             Ordinary least squares on a continuous well response.\n``wls``                             Weighted least squares; ``weights`` is the well's cell\n                                    count, so a well of 400 cells outweighs one of 30.\n``rlm``/``huber``                   Robust M-estimation (Huber loss). For outlier-heavy\n                                    wells: a handful of runaway wells no longer drag the\n                                    fit.\n``glm``                             GLM with the family auto-selected from the response by\n                                    :func:`pick_glm_family_and_link`.\n``poisson``                         Poisson GLM with a log link and\n                                    ``offset(log(exposure))``, for per-well counts - so the\n                                    coefficients are effects on the per-cell RATE, not on\n                                    the well's headcount.\n``quasi_binomial``                  Binomial GLM whose dispersion is estimated from the\n                                    Pearson chi-square, for overdispersed fractions.\n``beta``                            Beta regression, for a fraction strictly inside (0, 1).\n``logit``/``probit``                GLM-binomial on a fraction, weighted by cell count.\n``quantile``                        Quantile regression at ``quantile``; fits the tail of\n                                    the response rather than its mean.\n``mixed``                           Mixed-effects linear model with ``groups`` as the random\n                                    intercept.\n``lasso``/``ridge``/``elasticnet``  Penalised least squares.\n``hinge``                           Linear SVM (hinge loss) on a binarised response.\n``horseshoe``                       Sparse Poisson GLM with a horseshoe prior (spaCRPower's\n                                    power-analysis model), via :mod:`spacr.power_model`.\n``group_lasso``                     Penalised least squares with a gene's guide columns\n                                    penalised as ONE block, so a gene is selected or dropped\n                                    as a set rather than one guide at a time - the penalised\n                                    analogue of the mixed model's nesting, via\n                                    :mod:`spacr.group_lasso`.\n``rra``                             MAGeCK-style robust rank aggregation: guides ranked by\n                                    their marginal effect, aggregated to the gene BY RANK\n                                    with a permutation P value, via :mod:`spacr.rra`. It\n                                    forms no joint fit, so the collinearity and the p >> n\n                                    width that constrain every backend above do not reach it.\n==================================  ========================================================\n\nSettings a backend cannot read are REFUSED, not ignored — see\n:data:`REGRESSION_SETTINGS_USED`.\n\n:param X: Design matrix (DataFrame; column names become feature names).\n:param y: Response variable.\n:param regression_type: One of :data:`REGRESSION_TYPES`.\n:param regression_backend: WHO fits it -- one of\n    :data:`REGRESSION_BACKEND_ORDER`. Default ``'statsmodels'``, which\n    produced every existing result. A backend that cannot fit\n    ``regression_type`` is REFUSED here with the reason, not ignored:\n    the two controls constrain each other in both directions\n   , and a settings CSV reaches this function\n    without passing a panel that could have greyed the entry out.\n:param groups: Cluster identifiers for the mixed model.\n:param alpha: Penalty weight for ``lasso``/``ridge``/``elasticnet`` and\n    the inverse SVM margin for ``hinge``; ``'auto'`` / ``None`` picks it by\n    5-fold cross-validation for all four (mean squared error for the\n    penalised least-squares three, balanced accuracy for ``hinge``).\n:param cov_type: Covariance estimator for the likelihood fits\n    (``'HC0'..'HC3'``); ``None`` for classical standard errors.\n:param weights: Per-observation weights - the well's cell count. Used as\n    ``var_weights`` by ``logit``/``probit``/``quasi_binomial`` and as the\n    WLS weights by ``wls``.\n:param l1_ratio: ``elasticnet`` mix; 1.0 is lasso, 0.0 is ridge.\n:param quantile: Quantile fitted by ``quantile`` regression, in (0, 1).\n:param hinge_threshold: Cut used to binarise a continuous response for\n    ``hinge``; see :func:`binarise_response`.\n:param spline_knots: Knots per continuous covariate for ``spline``.\n:param spline_degree: Polynomial degree of that basis; 3 is cubic.\n:param huber_t: Huber tuning constant for ``rlm``/``huber``, in units of\n    the estimated residual scale. 1.345 gives 95% efficiency under\n    normality.\n:param exposure: Per-observation exposure (the well's cell count) used as\n    ``offset(log(exposure))`` by ``horseshoe`` and by ``poisson`` (and by\n    ``glm`` when it auto-selects a Poisson family).\n:param group_lasso_lambda: The block penalty for ``group_lasso``. Its own\n    key rather than ``alpha`` because it is compared against\n    :func:`spacr.group_lasso.max_lambda`, which is a property of the\n    design, so a value carried over from a lasso run would mean something\n    else here.\n:param rra_alpha: The top fraction of the guide ranking alpha-RRA\n    aggregates over. MAGeCK's 0.25, which is what keeps a gene with one\n    strong guide and three that did not cut findable.\n:param rra_permutations: Draws per distinct guide count in RRA's\n    permutation null; 10,000 puts the smallest reportable P value at 1e-4.\n:returns: Fitted statsmodels / sklearn estimator.\n:raises ValueError: on an unsupported ``regression_type``, or when a\n    setting the chosen backend cannot read was set to a non-default value.\n\nExample:\n    .. code-block:: python\n\n        import pandas as pd\n        X = pd.DataFrame({'Intercept': 1.0, 'fraction': [0.1, 0.5, 0.9]})\n        model = regression_model(X, pd.Series([0.2, 0.4, 0.7]), 'ols')\n        model.params['fraction']   # the recovered slope"
+    },
+    "spacr.ml.regression_model._find_best_alpha": {
+      "source_blocks_sha256": [
+        "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b"
+      ],
+      "source_sha256": "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b",
+      "text": "Fit and return the requested cross-validated penalty estimator."
+    },
+    "spacr.ml.regression_model._find_best_hinge_alpha": {
+      "source_blocks_sha256": [
+        "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+        "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+        "00900ab1b27e97ef042fa22571d2c9c61a5a66aeee1a7ebb8f7d7a13fcd84eb3"
+      ],
+      "source_sha256": "69518d98d771a90d8e8b01e1e77d15b07a360e7d9994f6f26479acc4b4c9ccb6",
+      "text": "Pick the hinge penalty by stratified CV on balanced accuracy.\n\nThe same 5-fold shape ``_find_best_alpha`` uses for the penalised\nleast-squares backends. Balanced accuracy rather than accuracy: on an\nimbalanced screen plain accuracy is maximised by the degenerate\nall-negative fit, so scoring on it would cross-validate its way to the\nvery failure ``class_weight='balanced'`` exists to prevent.\n\nFalls back to the unpenalised-scale default ``C = 1`` when the response\nhas too few wells in a class to split five ways — a two-fold CV on\nthree positive wells is noise, and choosing a penalty from noise is\nworse than not choosing one."
+    },
+    "spacr.ml.regression_model._glm_auto": {
+      "source_blocks_sha256": [
+        "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823"
+      ],
+      "source_sha256": "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823",
+      "text": "Return a forced identity-link fit or the response-appropriate GLM."
+    },
+    "spacr.ml.regression_model._glm_binomial": {
+      "source_blocks_sha256": [
+        "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b"
+      ],
+      "source_sha256": "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b",
+      "text": "Fit and return an optionally weighted binomial GLM for ``link`` and ``scale``."
+    },
+    "spacr.ml.regression_model._glm_poisson": {
+      "source_blocks_sha256": [
+        "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201"
+      ],
+      "source_sha256": "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201",
+      "text": "Validate counts and return a Poisson-log fit with any exposure offset."
+    },
+    "spacr.ml.regression_model._group_lasso": {
+      "source_blocks_sha256": [
+        "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164"
+      ],
+      "source_sha256": "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164",
+      "text": "Fit the named gene-grouped design and return compatible results."
+    },
+    "spacr.ml.regression_model._hinge": {
+      "source_blocks_sha256": [
+        "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e"
+      ],
+      "source_sha256": "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e",
+      "text": "Return a hinge classifier using auto-CV or fixed ``C = 1 / alpha``."
+    },
+    "spacr.ml.regression_model._hinge_estimator": {
+      "source_blocks_sha256": [
+        "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+        "932a793a1d1fb478318a2050a938ed1f23246549338765643e39502460615eff"
+      ],
+      "source_sha256": "4b63eb373b3e50b338b650c48ffb21708f0948778253d2e814c1ab835c8b0e30",
+      "text": "A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).\n\n``class_weight='balanced'`` because a screen's positive class is\nroutinely a small minority of wells: an unweighted hinge on a 95/5\nsplit minimises its loss by calling every well negative, which returns\na coefficient vector of ~0 for every gRNA and reads downstream as \"no\nhits\". Balancing reweights each class by its inverse frequency, so the\ndecision boundary is fitted to separate the classes rather than to\ncount them."
+    },
+    "spacr.ml.regression_model._horseshoe": {
+      "source_blocks_sha256": [
+        "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762"
+      ],
+      "source_sha256": "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762",
+      "text": "Return a horseshoe-Poisson fit for the captured design and exposure."
+    },
+    "spacr.ml.regression_model._named_design": {
+      "source_blocks_sha256": [
+        "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+        "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4"
+      ],
+      "source_sha256": "bb2d231acf80cff29ff74055ac79aab5e1b4ce6889bccf238f2ddb7afc7002de",
+      "text": "The design's column names, or a refusal that says why they matter.\n\nGene-aware backends recover the gene behind each predictor from the\ncolumn name produced by patsy. Refuse an unnamed array because group\nlasso would otherwise treat every column as a separate gene and\nreduce to ordinary lasso under a different label."
+    },
+    "spacr.ml.regression_model._poisson_offset": {
+      "source_blocks_sha256": [
+        "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+        "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
+        "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+        "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8"
+      ],
+      "source_sha256": "b0a8556d3421569dbead25b8f39df783ed376bdcdd93fadbefbf39b5f14afbf5",
+      "text": "``log(exposure)``, or None with a warning when there is no exposure.\n\nA per-well POSITIVE COUNT is not comparable between wells of different\nsize: ``process_scores`` sums the response for the count models, so a\nwell of 2000 cells contributes roughly four times the count of a well\nof 500 at the identical underlying rate. Modelling that count without\n``offset(log(Ntotal))`` asks the covariates to explain well size, and\nany covariate correlated with it comes back as a hit. Measured on a\n400-well simulation with a nuisance covariate that drives well size and\nnothing else, and a true rate coefficient of +1.5: without the offset\nthe nuisance term came back at +1.88 with p = 0, ahead of the real\neffect; with it, +0.002 with p = 0.90.\n\n:returns: ``log(exposure)`` aligned with ``y``, or None.\n:raises ValueError: when the exposure is not positive and finite —\n    ``log`` of it would be NaN/-inf and every downstream number would\n    silently follow."
+    },
+    "spacr.ml.regression_model._quantile": {
+      "source_blocks_sha256": [
+        "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379"
+      ],
+      "source_sha256": "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379",
+      "text": "Validate the captured quantile and return its fitted regression."
+    },
+    "spacr.ml.regression_model._rlm": {
+      "source_blocks_sha256": [
+        "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6"
+      ],
+      "source_sha256": "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6",
+      "text": "Return a robust linear fit using the captured Huber tuning constant."
+    },
+    "spacr.ml.regression_model._rra": {
+      "source_blocks_sha256": [
+        "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3"
+      ],
+      "source_sha256": "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3",
+      "text": "Rank marginal design slopes and return gene-level alpha-RRA results."
+    },
+    "spacr.ml.regression_model._spline": {
+      "source_blocks_sha256": [
+        "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+        "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+        "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538"
+      ],
+      "source_sha256": "149462a293b054eb3482d60193ea4b7b880147cbae28558d50ff2bca03d24756",
+      "text": "OLS on a design whose COVARIATES carry a spline basis.\n\nThe guide columns are untouched, so one coefficient and one P value\nper guide survive. The volcano, hit list and attribution can therefore\nread the result with no special case. What becomes free to bend is the\nnuisance trend that the straight line was assuming away.\n\nA column is treated as a covariate when it is CONTINUOUS and is not\na guide or gene term -- an indicator has nothing to bend through,\nand expanding one would spend degrees of freedom on nothing."
+    },
+    "spacr.ml.regression_model._wls": {
+      "source_blocks_sha256": [
+        "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314"
+      ],
+      "source_sha256": "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314",
+      "text": "Validate captured per-well weights and return the fitted WLS model."
     },
     "spacr.ml.resolve_auto_inference": {
       "source_blocks_sha256": [
@@ -32040,10 +32358,10 @@
     },
     "spacr.object_classifier._train_real_classifier.estimator": {
       "source_blocks_sha256": [
-        "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3"
+        "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958"
       ],
-      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
-      "text": "Return a fresh scaled, class-balanced logistic-regression pipeline."
+      "source_sha256": "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958",
+      "text": "A fresh scaled, class-balanced logistic regression."
     },
     "spacr.object_classifier.bin_parasite_count": {
       "source_blocks_sha256": [
@@ -56592,17 +56910,17 @@
     },
     "spacr.qt.screens.activation._add_counterfactual_viewer_button._open": {
       "source_blocks_sha256": [
-        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+        "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced"
       ],
-      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
-      "text": "Ask for a counterfactuals folder and open its viewer."
+      "source_sha256": "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced",
+      "text": "Ask for a counterfactuals folder and show what it holds."
     },
     "spacr.qt.screens.activation._counterfactual_viewer._show": {
       "source_blocks_sha256": [
-        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
+        "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a"
       ],
-      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
-      "text": "Show the frames of the sequence at ``index`` as a strip of images."
+      "source_sha256": "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a",
+      "text": "Replace the strip with the sequence at ``index``."
     },
     "spacr.qt.screens.activation.apply_seed": {
       "source_blocks_sha256": [
@@ -64043,10 +64361,10 @@
     },
     "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work": {
       "source_blocks_sha256": [
-        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+        "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0"
       ],
-      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
-      "text": "Propagate the seeds through the frames and emit the labels or the error."
+      "source_sha256": "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0",
+      "text": "Propagate the seeds off the GUI thread and report the labels."
     },
     "spacr.qt.screens.make_masks._counting_tiles.before_a_tile": {
       "source_blocks_sha256": [
@@ -85928,6 +86246,128 @@
       "source_sha256": "82717ccf340d914e78889a9386998d2bb7183b62d8c8c64376d422d2bcb88839",
       "text": "Edit the supported appearance settings of a live figure.\n\nControls are created from the figure's current axes, artists, legends, and\noptional spaCR metadata. Changes are previewed after a short debounce;\nrejecting the dialog restores the opening state when it could be captured.\nBuild the figure settings dialog with a live preview.\n\nA pickled snapshot of the figure is taken so Cancel has something to go\nback to: live apply with no way out is a trap -- the user drags a spin\nbox to see what it does and there is no longer an \"as it was\". The\nper-figure text-size override is kept separately, because Cancel\nrestores the figure by copying axes out of the snapshot rather than by\nswapping the object, so that attribute would otherwise survive an undo\nof everything it applies to.\n\nThe Statistics tab appears only for a figure that compares groups: one\noffering a t-test on a Q-Q plot would be an invitation to report a\nnumber that means nothing. The UMAP tab appears only for a figure\ncarrying the embedding it was drawn from -- without it, \"live\" would\nmean re-running the reduction and every point would move.\n\n:param figure: the matplotlib figure to restyle.\n:param parent: parent widget, or ``None``.\n:param on_change: called to redraw; takes ``preview`` when it can.\n:param propagate_callback: writes the values into the owning module's\n    settings panel. ``None`` disables Propagate and says why."
     },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge": {
+      "source_blocks_sha256": [
+        "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628"
+      ],
+      "source_sha256": "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628",
+      "text": "Set the edge width on every series that has one."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_opacity": {
+      "source_blocks_sha256": [
+        "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d"
+      ],
+      "source_sha256": "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d",
+      "text": "Set the alpha on every series."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_palette": {
+      "source_blocks_sha256": [
+        "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e"
+      ],
+      "source_sha256": "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e",
+      "text": "Recolour every series from the chosen palette."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_size": {
+      "source_blocks_sha256": [
+        "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213"
+      ],
+      "source_sha256": "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213",
+      "text": "Resize every series that has a size to set."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid": {
+      "source_blocks_sha256": [
+        "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+        "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04"
+      ],
+      "source_sha256": "7cfad477c1755bb4347aa4fee7e6dabf9c9c43d27c6a6b96d7122f65f3a29909",
+      "text": "Show or hide the grid, passing line properties ONLY when enabling.\n\nmatplotlib warns \"First parameter to grid() is false, but line\nproperties are supplied\" and then turns the grid ON regardless -- so\npassing them unconditionally made the checkbox unable to switch the grid\noff, which is the opposite of what it says."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_legend": {
+      "source_blocks_sha256": [
+        "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7"
+      ],
+      "source_sha256": "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7",
+      "text": "Rebuild the legend from the current choices."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits": {
+      "source_blocks_sha256": [
+        "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+        "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684"
+      ],
+      "source_sha256": "46b7a6a1bf658460ad12d31ba3feef6b0fd0ec89711a14b0276e45dad77c756a",
+      "text": "Apply one axis's limits, refusing a zero-width range.\n\nEqual bounds collapse the axis and matplotlib draws nothing, so the\nvalue is left alone rather than applied."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.do_autoscale": {
+      "source_blocks_sha256": [
+        "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d"
+      ],
+      "source_sha256": "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d",
+      "text": "Recompute the limits from the data now on the axis."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour": {
+      "source_blocks_sha256": [
+        "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+        "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002"
+      ],
+      "source_sha256": "345dc1311f8959bb9cab1a4e3e82b53c21e6248b0d2e59b6da8c06a8b0a43e05",
+      "text": "Recolour one artist. The artist is bound as a default argument.\n\nBound at definition rather than closed over: a loop variable closed over\ngives every callback the LAST artist, which is the classic way a row of\nper-artist controls all end up editing one of them."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_spines": {
+      "source_blocks_sha256": [
+        "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33"
+      ],
+      "source_sha256": "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33",
+      "text": "Set every spine's width, or hide them all at zero."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_top_right": {
+      "source_blocks_sha256": [
+        "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef"
+      ],
+      "source_sha256": "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef",
+      "text": "Hide or show the top and right spines together."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.resize": {
+      "source_blocks_sha256": [
+        "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d"
+      ],
+      "source_sha256": "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d",
+      "text": "Resize the figure to the width and height on screen."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_all_text": {
+      "source_blocks_sha256": [
+        "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e"
+      ],
+      "source_sha256": "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e",
+      "text": "Set one font size on every piece of text in the figure."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_face": {
+      "source_blocks_sha256": [
+        "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655"
+      ],
+      "source_sha256": "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655",
+      "text": "Set the figure's own background colour."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_font_ink": {
+      "source_blocks_sha256": [
+        "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4"
+      ],
+      "source_sha256": "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4",
+      "text": "Recolour every piece of text in the figure."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_line_ink": {
+      "source_blocks_sha256": [
+        "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039"
+      ],
+      "source_sha256": "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039",
+      "text": "Recolour every line in the figure."
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._statistics_tab._recompute": {
+      "source_blocks_sha256": [
+        "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050"
+      ],
+      "source_sha256": "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050",
+      "text": "Re-run the test with the current choices and redraw."
+    },
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog.closeEvent": {
       "source_blocks_sha256": [
         "8003ca95f5734af1e2b42f5b531ad5829d60bfd51766b2f04a6fe54e39954d09",
@@ -85976,6 +86416,48 @@
       "source_sha256": "a2a019c2c00cf3e906885a83bdda06bcda21382baf0b9d9881c656faa3d2158c",
       "text": "Edit general and graph-specific figure-style preferences.\n\nGeneral settings apply to every figure. Each graph type can override only\nthe settings it needs, and the panel stores differences from package\ndefaults rather than a fully resolved style.\nBuild the figure-style preference page.\n\n:param general: the saved general style values; missing keys fall back\n    to the shipped defaults.\n:param per_graph: saved per-graph-kind overrides, keyed by kind.\n:param parent: parent widget, or ``None``."
     },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_colour": {
+      "source_blocks_sha256": [
+        "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0"
+      ],
+      "source_sha256": "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0",
+      "text": "Store a colour and repaint the swatch that shows it."
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_combo": {
+      "source_blocks_sha256": [
+        "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98"
+      ],
+      "source_sha256": "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98",
+      "text": "Select the entry whose data is ``v``, if the box has one."
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._get": {
+      "source_blocks_sha256": [
+        "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298"
+      ],
+      "source_sha256": "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298",
+      "text": "The ground: the transparent sentinel, or the chosen colour."
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._paint_button": {
+      "source_blocks_sha256": [
+        "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497"
+      ],
+      "source_sha256": "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497",
+      "text": "Show the ground colour on the button, as swatch and text."
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._set": {
+      "source_blocks_sha256": [
+        "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08"
+      ],
+      "source_sha256": "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08",
+      "text": "Apply a ground, ticking transparent when that is what it means."
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._sync": {
+      "source_blocks_sha256": [
+        "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10"
+      ],
+      "source_sha256": "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10",
+      "text": "Grey the colour button while transparent is ticked."
+    },
     "spacr.qt.widgets.figure_settings.FigureStylePreferences.apply_values": {
       "source_blocks_sha256": [
         "d694ceafc19289d65d859c55d8723fcb828f80253b6e74ec7b9b624013e4c0f5",
@@ -86012,6 +86494,34 @@
       "source_sha256": "23f6098246f87da8d3bca753d7876d2cb2899f0ba6e78805deeffbcacca9ba2e",
       "text": "Return style settings that differ from package defaults.\n\nReturns\n-------\ngeneral : dict\n    General style overrides.\nper_graph : dict\n    Non-default style settings keyed by graph type. Graph types with\n    no overrides are omitted."
     },
+    "spacr.qt.widgets.figure_settings._add_bundle_save._save": {
+      "source_blocks_sha256": [
+        "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae"
+      ],
+      "source_sha256": "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae",
+      "text": "Ask for a folder and write the whole bundle into it."
+    },
+    "spacr.qt.widgets.figure_settings._add_group_colours._recolour": {
+      "source_blocks_sha256": [
+        "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d"
+      ],
+      "source_sha256": "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d",
+      "text": "Pick a colour for one group and store it on the recipe."
+    },
+    "spacr.qt.widgets.figure_settings._colour_button._choose": {
+      "source_blocks_sha256": [
+        "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a"
+      ],
+      "source_sha256": "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a",
+      "text": "Ask for a colour and keep it if the dialog returned one."
+    },
+    "spacr.qt.widgets.figure_settings._colour_button._paint": {
+      "source_blocks_sha256": [
+        "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f"
+      ],
+      "source_sha256": "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f",
+      "text": "Show the current colour on the button, as a swatch and as text."
+    },
     "spacr.qt.widgets.figure_settings.add_graph_style_file_entries": {
       "source_blocks_sha256": [
         "f662b805a8da3fb713caa9d4c6e131541cfad6c8231c0f9b67c2f665763e5fba",
@@ -86020,6 +86530,20 @@
       ],
       "source_sha256": "a044f671e2a7710cfbd11489b9e1358566e9ca02038c5c9b5266498b8a78793c",
       "text": "Add graph-style save and load actions to a menu.\n\nParameters\n----------\nmenu : PySide6.QtWidgets.QMenu\n    Menu that receives the actions.\nparent : PySide6.QtWidgets.QWidget, optional\n    Parent for file dialogs and actions. If ``None``, use ``menu``.\non_change : callable, optional\n    Callback invoked after a style is loaded. Callbacks may accept a\n    ``preview`` keyword argument."
+    },
+    "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._load": {
+      "source_blocks_sha256": [
+        "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723"
+      ],
+      "source_sha256": "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723",
+      "text": "Read a graph style back and apply it."
+    },
+    "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._save": {
+      "source_blocks_sha256": [
+        "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c"
+      ],
+      "source_sha256": "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c",
+      "text": "Write the current graph style to a JSON file."
     },
     "spacr.qt.widgets.figure_settings.apply_font_colour": {
       "source_blocks_sha256": [
@@ -86064,6 +86588,36 @@
       ],
       "source_sha256": "fca13a1b6efa6b3921580273d693e7c5bee5525cc99c622e8c39a9354601a09e",
       "text": "Build the context menu for a displayed figure.\n\nThe menu provides direct legend, grid, scale, colour, and export actions.\nFigures with grouped-plot metadata can also be redrawn as another plot\ntype. More detailed controls are delegated to ``open_settings``.\n\nParameters\n----------\nparent : PySide6.QtWidgets.QWidget\n    Parent for the returned menu and its dialogs.\nfigure : matplotlib.figure.Figure or None\n    Figure to edit. If ``None``, the menu contains a disabled status\n    action.\non_change : callable, optional\n    Callback invoked after a direct edit. Callbacks may accept a\n    ``preview`` keyword argument or a replacement figure.\nopen_settings : callable, optional\n    Callback invoked by the ``Figure settings`` action.\n\nReturns\n-------\nPySide6.QtWidgets.QMenu\n    Context menu owned by ``parent``."
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._apply": {
+      "source_blocks_sha256": [
+        "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4"
+      ],
+      "source_sha256": "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4",
+      "text": "Run ``func`` against every axis in the figure."
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify": {
+      "source_blocks_sha256": [
+        "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+        "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+        "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326"
+      ],
+      "source_sha256": "048d41c00a47b7e7323ce4c6d4ee83ad68f8f74927e02e50c8498a833bd8ef0e",
+      "text": "Redraw after a menu toggle, CHEAPLY.\n\nA context-menu toggle is the same kind of edit the settings dialog\nmakes, and the dialog learned long ago to preview: a full-quality\nrender rewrites the raster AND the vector page, measured at ~263 ms\non an 823-point volcano, and the user is mid-gesture. Preview here\ntoo, and let the next full render -- a resize, an export, closing the\nsettings dialog -- catch up.\n\n`on_change` may be a callable that predates preview rendering, so the\nkeyword is offered and withdrawn rather than assumed."
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._pick_ink": {
+      "source_blocks_sha256": [
+        "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3"
+      ],
+      "source_sha256": "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3",
+      "text": "Pick a colour and apply it through ``apply_to``."
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu.toggle_legend": {
+      "source_blocks_sha256": [
+        "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c"
+      ],
+      "source_sha256": "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c",
+      "text": "Show or hide the legend on every axis."
     },
     "spacr.qt.widgets.figure_settings.derive_replot_recipe": {
       "source_blocks_sha256": [
@@ -86151,6 +86705,13 @@
       "source_sha256": "501a662f4b8ecfa6e2c2029eab0d355d80cd7ae57ee248ddb16c402e51938da5",
       "text": "Save a figure using its current styling and export preferences.\n\nParameters\n----------\nparent : PySide6.QtWidgets.QWidget or None\n    Parent for the file chooser when ``path`` is empty.\nfigure : matplotlib.figure.Figure or None\n    Figure to save. ``None`` cancels the operation.\npath : str, optional\n    Destination path. If empty, prompt for a PNG, PDF, or SVG path.\n\nReturns\n-------\nstr\n    Path returned by the writer, or an empty string when saving is\n    cancelled or fails.\n\nNotes\n-----\nA recognized filename extension takes precedence over the default output\nformat. Available data, statistics, and caption metadata are exported by\n:func:`export_sidecars` beside the requested path."
     },
+    "spacr.qt.widgets.figure_settings.save_figure_as.figure_bg_is_transparent": {
+      "source_blocks_sha256": [
+        "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f"
+      ],
+      "source_sha256": "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f",
+      "text": "Whether a stored ground value means \"no background at all\"."
+    },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
         "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
@@ -86162,6 +86723,14 @@
       ],
       "source_sha256": "e55bc3d26931994ed734c5026a87138646b72a59cf427c8ed5cbaf9e02e9c932",
       "text": "Export a Matplotlib figure with its source data and statistics.\n\nGroup definitions come from the attached replot recipe so statistical\ncomparisons match the displayed figure. When no recipe is available, the\nstandard files are still written and the statistics artifact records that\nno comparison could be formed.\n\n:param figure: Matplotlib figure to export.\n:param folder: destination directory for the bundle.\n:param name: optional base name for generated files.\n:returns: path to the written bundle directory."
+    },
+    "spacr.qt.widgets.figure_settings.save_figure_bundle._render": {
+      "source_blocks_sha256": [
+        "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+        "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719"
+      ],
+      "source_sha256": "3bd51a677226b1a562191209c20cd0686fd093b47e572a29d28e584f93ec5a09",
+      "text": "Render one file of the bundle through the SHARED export path.\n\nBoth formats go through `save_figure` rather than each drawing itself, so\nprint colours, embedded fonts and raster DPI match every other figure the\nuser keeps."
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
       "source_blocks_sha256": [
@@ -119120,6 +119689,34 @@
       "source_sha256": "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25",
       "text": "A named model is not where it should be."
     },
+    "spacr.submodules._cellpose_training_pairs.files": {
+      "source_blocks_sha256": [
+        "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751"
+      ],
+      "source_sha256": "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751",
+      "text": "Ignore metadata sidecars and Cellpose-generated flow caches."
+    },
+    "spacr.submodules._invasion_field_thresholds._auto": {
+      "source_blocks_sha256": [
+        "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a"
+      ],
+      "source_sha256": "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a",
+      "text": "Return a finite-data threshold, or NaN below the object-count floor."
+    },
+    "spacr.submodules._resolve_invasion_intensity_column._candidates": {
+      "source_blocks_sha256": [
+        "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2"
+      ],
+      "source_sha256": "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2",
+      "text": "Yield the current and any legacy measurement column for ``name``."
+    },
+    "spacr.submodules._resolve_invasion_intensity_column._template": {
+      "source_blocks_sha256": [
+        "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec"
+      ],
+      "source_sha256": "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec",
+      "text": "Return the requested statistic's formatted measurement column."
+    },
     "spacr.submodules.analyze_class_proportion": {
       "source_blocks_sha256": [
         "86afde6b6c618b1b640436134da848bb66ea09da2c2c588d808d304e1d934a01",
@@ -119145,6 +119742,13 @@
       ],
       "source_sha256": "492250938423d5ad424d42a1fe9230f1cd7c7f1e4f242271237e7f2ef6fd7d90",
       "text": "Bin pathogen *size* by log2 doublings and test the bin proportions per group.\n\nThis is the **size-proxy** replication readout, not a parasite count.\nRead that sentence twice before quoting a number from it:\n\n* The rows come from :func:`spacr.io._read_and_merge_data`, which collapses\n  the per-object ``pathogen`` table onto the **host cell** (``prcfo`` is\n  built from ``cell_id``). ``pathogen_area`` on each row is therefore the\n  *sum* of the areas of every pathogen object inside that host cell — one\n  host cell carrying two parasitophorous vacuoles contributes a single row\n  holding the combined area of both.\n* ``area ** 1.5`` is a 2-D-to-3-D size proxy, not a measured volume.\n* Nothing here counts parasites. A bin is a doubling of *area-derived\n  size*, which tracks parasites-per-vacuole only while the pathogen mask\n  segments whole vacuoles and each host cell holds exactly one.\n\nKeep using it when the pathogen channel gives you fused rosettes that\ncannot be resolved into single parasites. When the individual parasites\n*are* resolvable, :func:`analyze_replication` counts them and reports the\nparasites-per-vacuole distribution directly, which is the readout an\nendodyogeny experiment is actually after.\n\n:param settings: dict of endodyogeny settings; see\n    ``set_analyze_endodyogeny_defaults`` for keys including ``src``,\n    ``tables``, ``compartment``, ``min_area_bin``, ``max_area``,\n    ``max_bins``, ``um_per_px``, ``group_column``, ``level`` and ``save``.\n:returns: dict with ``data`` (binned DataFrame) and ``chi_squared`` (results DataFrame).\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_endodyogeny\n        out = analyze_endodyogeny({'src': '/data/plate1', 'save': True})\n\nSee Also:\n    :func:`analyze_replication` — counts parasites per vacuole instead of\n    inferring replication from object size."
+    },
+    "spacr.submodules.analyze_endodyogeny._calculate_volume_bins": {
+      "source_blocks_sha256": [
+        "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487"
+      ],
+      "source_sha256": "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487",
+      "text": "Assign each row to a log2 volume-doubling bin and return the ordered categories."
     },
     "spacr.submodules.analyze_invasion": {
       "source_blocks_sha256": [
@@ -119189,6 +119793,29 @@
       ],
       "source_sha256": "41842862a44beccfbd537d52bcdaa54ce9db6778a9ee1309d955d49b55f291e4",
       "text": "Annotate objects above a threshold and summarise positive fractions per well.\n\nMerges measurements from ``measurements.db``, thresholds on a chosen\nfeature column, then joins the resulting well-level counts against\n``rename_log.csv`` to recover human-readable plate/well identifiers.\n\n:param settings: dict of settings; see\n    ``default_settings_analyze_percent_positive`` for keys including\n    ``src``, ``tables``, ``value_col``, ``threshold`` and ``filter_1``.\n:returns: DataFrame of annotated per-well positive/negative counts and fractions."
+    },
+    "spacr.submodules.analyze_percent_positive.annotate_and_summarize": {
+      "source_blocks_sha256": [
+        "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+        "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+        "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+        "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+        "4770944d71540f40fc18a135d8797bf434c8aed3ca78adeacdceaf2b9627d205",
+        "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+        "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+        "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9"
+      ],
+      "source_sha256": "1ab37e16aebff716537887cd95a95c49ad3792240fc22093e7f272e45391c390",
+      "text": "Annotate rows as ``above``/``below`` a threshold and summarise per condition and well.\n\n:param df: measurements DataFrame to annotate in place.\n:param value_col: column whose values are compared to ``threshold``.\n:param condition_col: experimental condition column used for grouping.\n:param well_col: well identifier column used for grouping.\n:param threshold: numeric cutoff; values above become ``above``.\n:param annotation_col: name of the new annotation column. Default ``'annotation'``.\n:returns: tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table."
+    },
+    "spacr.submodules.analyze_percent_positive.translate_well_in_df": {
+      "source_blocks_sha256": [
+        "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+        "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+        "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2"
+      ],
+      "source_sha256": "380ad9c5dda45c2c3cef075ee50b1e142150733cb5b9ec5f046ff2553ef71663",
+      "text": "Return a dataframe read from ``csv_loc`` with ``plateID`` / ``well`` columns split out of ``Renamed TIFF``.\n\n:param csv_loc: path to a CSV containing a ``Renamed TIFF`` column.\n:returns: :class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns."
     },
     "spacr.submodules.analyze_plaques": {
       "source_blocks_sha256": [
@@ -119267,6 +119894,19 @@
       "source_sha256": "2ef9d33f9cce9d30db98560d85a6499d8b5b1787355bf847325f436211275d7c",
       "text": "Run a Cellpose model over a folder of images and export per-object measurements.\n\nOptionally masks predictions to a central circle, then records per-object\narea to ``measurements.csv`` and a per-image summary to ``summary.csv``.\n\n:param settings: dict of inference settings; see\n    ``get_default_apply_cellpose_model_settings`` for keys including\n    ``src``, ``model_path``, ``batch_size``, ``FT``, ``CP_probability``,\n    ``circularize`` and ``save``.\n:returns: None. Writes result CSVs under ``<src>/results``."
     },
+    "spacr.submodules.apply_cellpose_model.plot_cellpose_result": {
+      "source_blocks_sha256": [
+        "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ],
+      "source_sha256": "f0b956c1d8d619c49e0ed519f26b7c682b3c92cb5d3691d399b5d0281a00f973",
+      "text": "Render a 4-panel diagnostic (image / pred / flow) for one Cellpose apply result.\n\n:param i: outer image index used in the output filename.\n:param j: inner batch index used in the output filename.\n:param results_dir: folder where the composite PNG is written.\n:param img: source image array.\n:param pred: predicted mask array.\n:param flow: Cellpose flow field."
+    },
     "spacr.submodules.compare_reads_to_scores": {
       "source_blocks_sha256": [
         "aaed3eb912b621e9b6a804c76e09d7846004d5ee425ef2a95cfb14598d731b27",
@@ -119285,6 +119925,64 @@
       ],
       "source_sha256": "acbe2497b090ad96a74d7557c9d5484072c31f33806167613ce09800ef02610a",
       "text": "Compare sequencing read fractions to classifier score fractions across wells.\n\nLoads paired reads and scores tables (single files or matched lists),\ncomputes per-well class-1 and gRNA fractions, joins them with an\nempirical row-to-mixture dictionary, and plots the fractions against\nthe positive- and negative-control fractions.\n\n:param reads_csv: path (or list of paths) to per-gRNA read count CSVs.\n:param scores_csv: path (or list of paths) to per-object classifier score CSVs.\n:param empirical_dict: mapping of ``rowID`` to ``(pc_units, nc_units)`` mixture; a 16-row default is used when ``None``.\n:param pc_grna: positive-control gRNA name. Default ``'TGGT1_220950_1'``.\n:param nc_grna: negative-control gRNA name. Default ``'TGGT1_233460_4'``.\n:param y_columns: Columns to plot on the y axis. ``None`` uses\n    ``['class_1_fraction', 'TGGT1_220950_1_fraction', 'nc_fraction']``.\n:param column: column used to select a subset of wells. Default ``'columnID'``.\n:param value: value in ``column`` to keep. Default ``'c3'``.\n:param plate: plate ID to stamp when a single pair of CSVs is given.\n:param save_paths: two-element list of PDF output paths (pc plot, nc plot).\n:returns: two matplotlib figures ``[fig_pc, fig_nc]``."
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio": {
+      "source_blocks_sha256": [
+        "4abc8ac96b64415e9ad2be542e9e11668212b32814b7c9d43dd83ef0fff3f54c",
+        "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+        "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+        "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+        "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e"
+      ],
+      "source_sha256": "57cec38c6fb4dc0ffd3a7877d984ff52cc5031ea67d60db9b18a2c2b85e0d2c2",
+      "text": "Compute the per-well read-fraction ratio between two gRNAs.\n\n:param df: dataframe with ``prc``, ``grna_name``, and ``count`` columns.\n:param grna1: numerator gRNA.\n:param grna2: denominator gRNA.\n:returns: dataframe with one ratio value per ``prc``."
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction": {
+      "source_blocks_sha256": [
+        "739115c24975cf00434d59c75a2dc850c76f1fdcfb978df9eb1e6d6d4d6bcb35",
+        "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+        "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+        "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48"
+      ],
+      "source_sha256": "8ed048e5bb71ec2cf4fe93558ec7cbea5d099b1912c1947fc832492f5f5cd04e",
+      "text": "Compute the per-well fraction of reads for each gRNA.\n\n:param df: dataframe with ``plateID``/``rowID``/``columnID`` (or ``prc``),\n    ``grna_name``, and a read count column.\n:param count_column: name of the read-count column.\n:returns: dataframe with a ``fraction`` column per ``(prc, grna_name)``."
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions": {
+      "source_blocks_sha256": [
+        "429705c544b1a0793cdc215a46fb5bb3aae7da3d89dc213a93e2851da42f5933",
+        "654be8775693de460ecb493b29c10f0cd2ed414be450119f0a90df994ba47401",
+        "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+        "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613"
+      ],
+      "source_sha256": "4a931e1a96765ab04ed66eee6d0f9c47819c73d74b96658a1789ba4395169d16",
+      "text": "Aggregate per-object classifier predictions into per-well class fractions.\n\n:param df: measurements dataframe with a ``prc`` well id and a\n    classifier prediction column.\n:param class_columns: name of the prediction column to summarise.\n:returns: dataframe keyed by ``prc`` with one fraction column per class."
+    },
+    "spacr.submodules.compare_reads_to_scores.plot_line": {
+      "source_blocks_sha256": [
+        "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+        "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+        "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+        "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+        "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+        "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+        "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+        "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+        "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+        "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+        "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+        "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58"
+      ],
+      "source_sha256": "77e0c93a2704c49a71283eb2a87dd76bcec6d45f2325dc7f39ea12c1319f7cd6",
+      "text": "Plot one line per y-column (or per ``group_column`` value) against ``x_column``.\n\n:param df: DataFrame containing the x and y columns.\n:param x_column: column used for the x axis.\n:param y_columns: str or list of columns to plot as lines.\n:param group_column: optional hue column when ``y_columns`` is a single column.\n:param xlabel: x-axis label; falls back to ``x_column``.\n:param ylabel: y-axis label; falls back to ``'Value'``.\n:param title: plot title; falls back to ``'Line Plot'``.\n:param figsize: figure size in inches. Default ``(10, 6)``.\n:param save_path: optional PDF path to save the figure.\n:param theme: Seaborn palette name. Default ``'deep'``.\n:returns: the created matplotlib Figure."
+    },
+    "spacr.submodules.compare_reads_to_scores.plot_line._set_theme": {
+      "source_blocks_sha256": [
+        "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+        "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+        "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610"
+      ],
+      "source_sha256": "ea43203e7699003425aa87c059495b61765cfc96f9c5fa875bb21c26ee0cfafb",
+      "text": "The colours the lines are drawn in, house palette first.\n\nONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY\nARE THE DATA, so these series keep distinct hues -- but they come\nfrom the published palette in a fixed order rather than from\nseaborn's 100-colour 'deep' ramp reordered by an index list. A\nhundred hues is a hundred series nobody can tell apart, and the\neighth one was a pastel that vanished on the dark ground.\n\nAn explicit non-default ``theme`` still wins, for a caller who\ndeliberately asked for a seaborn palette."
     },
     "spacr.submodules.count_phenotypes": {
       "source_blocks_sha256": [
@@ -119325,6 +120023,61 @@
       "source_sha256": "7834ef2eafe349713ee20b2a0d2d4542f0e8575f8981c58dbaeb50a34c28da4b",
       "text": "Combine multiple classifier score CSVs into a per-well heatmap and MAE table.\n\nAggregates per-object scores across score CSVs, merges with a\ncross-validation score and a reads-derived fraction column, plots a\nmulti-channel heatmap, and computes per-channel mean absolute error\nagainst the empirical fraction.\n\n:param settings: dict of settings including ``folders``, ``csv_name``,\n    ``data_column``, ``csv``, ``cv_csv``, ``data_column_cv``,\n    ``plateID``, ``columnID``, ``control_sgrnas``, ``fraction_grna``,\n    ``cmap`` and ``dst``.\n:returns: merged DataFrame joining reads, classifier scores and CV scores per well."
     },
+    "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition": {
+      "source_blocks_sha256": [
+        "f18d75c4d33acf204e9d09416090ad59091ed59bc6eb135271b4c8b68b51e8d3",
+        "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+        "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
+        "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+        "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+        "dee159cc317d3a1c32c08016bcfb59c31081bfb79fdf731d0f0a2fcb2cabb3fb"
+      ],
+      "source_sha256": "187776b3abf6a8b372ab2c40d789e7f74434d20452cf12cc32c9cea413e58016",
+      "text": "Return per-well read fractions restricted to the given control sgRNAs.\n\n:param csv: path to the reads CSV; needs ``grna_name``, ``count``,\n    ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).\n:param plate: a plate NUMBER, not a column name. Any value but ``None``\n    rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each\n    row's own value. Default ``1``.\n:param column: value kept from ``columnID``. Default ``'c3'``.\n:param control_sgrnas: ``None`` selects the built-in pair\n    ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactly the first two\n    entries are read, so a longer list silently ignores the rest and a\n    shorter one (or an empty one) raises ``IndexError``. Entries are\n    interpolated into an anchored regex: metacharacters are live, and a\n    name that is only a prefix of the real sgRNA matches nothing.\n:returns: the matching rows plus ``total_count``, ``fraction`` (that\n    sgRNA's share of the two controls' combined count -- non-control\n    reads never enter the denominator) and a ``prc`` key. Controls\n    absent from the CSV yield an empty frame, not an error."
+    },
+    "spacr.submodules.generate_score_heatmap.calculate_mae": {
+      "source_blocks_sha256": [
+        "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63"
+      ],
+      "source_sha256": "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63",
+      "text": "Return the per-channel, per-row MAE between predictions and the ``fraction`` column."
+    },
+    "spacr.submodules.generate_score_heatmap.combine_classification_scores": {
+      "source_blocks_sha256": [
+        "e4453b943f5183d362a1ca5fc3de57382a4d62da893d9dd78e17bd37110455ec",
+        "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+        "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+        "4c5ac8f7d20ff4f205af2cf2c6c2db004fb4ef1e269ce0c8c1406a3cce109e39",
+        "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
+        "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+        "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7"
+      ],
+      "source_sha256": "540da1d3e4aa4f3d3c587678ede4aa8b460a60a9a88c3d8a5f8c033200d14142",
+      "text": "Merge one ``data_column`` per sub-folder into a wide per-well DataFrame.\n\n:param folders: parent directory, or a list of them; a bare string is\n    wrapped in a list. Only the immediate sub-directories are scanned, so\n    a CSV sitting in the parent itself, or one nested two levels down, is\n    never found. A path that does not exist raises ``FileNotFoundError``.\n:param csv_name: file name looked for inside each sub-directory. Misses\n    are printed, not raised -- finding none leaves the accumulator\n    ``None`` and the call ends in ``TypeError: 'NoneType' object is not\n    subscriptable``.\n:param data_column: column averaged per well. Its output column is named\n    after the containing sub-directory (``<sub-folder>_<data_column>``),\n    so two parents holding same-named sub-folders collide and pandas\n    appends ``_x`` / ``_y``.\n:param plate: a plate NUMBER, not a column name. Any value but ``None``\n    rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each\n    CSV's own value. Default ``1``.\n:param column: value kept from ``columnID``; a CSV lacking that column\n    raises ``KeyError``. Default ``'c3'``.\n:returns: the outer-joined well-by-channel frame with a ``prc`` key."
+    },
+    "spacr.submodules.generate_score_heatmap.group_cv_score": {
+      "source_blocks_sha256": [
+        "85e526f875c4d8c1ecccfd9fa5646ff45eecf4ae56d3371549abf81fc70aa90a",
+        "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+        "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
+        "b1affc08af1755c67b0b8b0ff35f619f72b0b1c8d26b69ef5b53d3ad744a1f26",
+        "2f2d2455b59da1c6052de72921325e51ac8636b9f1c57284936660a46d379b52",
+        "5c27ff352ce91d4e922bce785de20a9e1e30637630f2fa8b80d43f7380606e6e"
+      ],
+      "source_sha256": "532ab9d7a790c778fddb375f11a4bc43a4edfd1d3cb819199fcf80307bf1dbca",
+      "text": "Aggregate a CV predictions CSV to a per-(plate, row, column) mean.\n\n:param csv: path to the cross-validation predictions CSV.\n:param plate: a plate NUMBER, not a column name. Any value but ``None``\n    rewrites every row's ``plateID`` to ``plate<plate>``, discarding the\n    plate the CSV itself recorded; ``None`` keeps the CSV's own value and\n    raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.\n:param column: value kept from ``columnID``, or from a legacy ``column``\n    column which is copied to ``columnID`` first. A value matching no row\n    returns an empty frame rather than raising; a CSV carrying neither\n    key skips the filter silently and then dies on the groupby with\n    ``KeyError: 'columnID'``. Default ``'c3'``.\n:param data_column: column averaged within each well. A name absent from\n    the CSV raises ``KeyError``, a non-numeric one ``TypeError``.\n    Default ``'pred'``.\n:returns: one row per well, plus a ``prc`` key of\n    ``plateID_rowID_columnID``."
+    },
+    "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap": {
+      "source_blocks_sha256": [
+        "ff218d56e1c31c07a8628f995afa85a3cd34aa182bfa68e51733135817e77554",
+        "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+        "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+        "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+        "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58"
+      ],
+      "source_sha256": "046866b18c3efeb63e02e24a409ff581a460f977784f6a888c4e3e590ff06002",
+      "text": "Plot a per-well heatmap with each classifier channel as a column.\n\n:param df: DataFrame with score columns keyed by channel.\n:param column: value in ``columnID`` used to filter rows. Default ``'c3'``.\n:param cmap: matplotlib/seaborn colormap. Default ``'coolwarm'``.\n:returns: the matplotlib Figure."
+    },
     "spacr.submodules.interpret_vision_model": {
       "source_blocks_sha256": [
         "7c5e2104208a0b54b7adc80aac0acb8394a8622203bc4d048c286cf1c92ec049",
@@ -119345,6 +120098,63 @@
       ],
       "source_sha256": "4abd7d2f00b0de5b061ec80f815cca6c4503d38135982842d2625efd736f355a",
       "text": "Explain a spacr vision-model score by ranking which morphology / intensity features drive it.\n\nJoins the per-object CNN predictions (``score_column``) with the\nmorphology + intensity measurements from\n:func:`spacr.measure.measure_crop`, expands cross-compartment\nfeature ratios (e.g. ``nucleus_cell_area``), then runs random-forest\nfeature importance, permutation importance and (optionally) SHAP on\nthe top features. Also groups importance by compartment and by\nchannel so you can answer \"is my classifier looking at the\npathogen or at the cell?\".\n\n:param settings: Settings dict. Key entries:\n\n    - ``src`` — folder containing ``measurements/measurements.db``\n      with both feature and score tables.\n    - ``tables`` — DB tables to merge, e.g.\n      ``['cell','nucleus','pathogen','cytoplasm']``.\n    - ``channels`` — intensity channels included in the feature\n      space (e.g. ``[0,1,2,3]``).\n    - ``score_column`` — column holding per-object CNN scores.\n    - ``top_features`` — cap on features shown / SHAP-explained.\n    - ``feature_importance`` / ``permutation_importance`` /\n      ``shap`` — toggle each explainer.\n    - ``shap_sample`` — subsample size for SHAP.\n    - ``nuclei_limit`` / ``pathogen_limit`` — object-count caps in\n      the read/merge step.\n    - ``n_jobs``, ``save``.\n\n:returns: Dict of DataFrames keyed by analysis name\n    (``'feature_importance'``, ``'permutation_importance'``,\n    ``'shap'``, ``'compartment_importance'``,\n    ``'channel_importance'``, ...).\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import interpret_vision_model\n        results = interpret_vision_model({\n            'src': '/data/plate01',\n            'score_column': 'pred',\n            'channels': [0,1,2,3],\n            'top_features': 30, 'shap': True,\n        })\n\nSee Also:\n    :func:`spacr.deep_spacr.deep_spacr` — trains the model whose\n    scores this function interprets."
+    },
+    "spacr.submodules.interpret_vision_model.create_extended_radar_plot": {
+      "source_blocks_sha256": [
+        "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+        "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+        "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+        "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af"
+      ],
+      "source_sha256": "0867daa5f77c55f24c072e4199d6cddd97a32e42952aa25f6f20c8786b65f4ff",
+      "text": "Render a polar radar plot of ``values`` against ``labels``.\n\n:param values: numeric values per axis (one per label).\n:param labels: axis labels.\n:param title: plot title."
+    },
+    "spacr.submodules.interpret_vision_model.extract_compartment_channel": {
+      "source_blocks_sha256": [
+        "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+        "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+        "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3"
+      ],
+      "source_sha256": "5c51dbb6c828c85ddf49b2a179f2fc6372e957f55baef61a933c1c58f15c0d54",
+      "text": "Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.\n\n:param feature_name: measurement feature key, e.g. ``\"cell_ch0_mean\"``.\n:returns: two-tuple ``(compartment, channel)`` — either may be ``None``."
+    },
+    "spacr.submodules.interpret_vision_model.generate_comparison_columns": {
+      "source_blocks_sha256": [
+        "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+        "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+        "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+        "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc"
+      ],
+      "source_sha256": "53bcd45eac54c21bda9b4fe11adcc039aad9cd1f410c761038a9e25434a3745e",
+      "text": "Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.\n\n:param df: measurements DataFrame; columns prefixed with each compartment.\n:param compartments: compartment prefixes to compare. Defaults to\n    ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.\n:returns: tuple ``(df, comparison_dict)`` with the expanded DataFrame and a mapping of source columns to their derived ratio partners."
+    },
+    "spacr.submodules.interpret_vision_model.group_feature_class": {
+      "source_blocks_sha256": [
+        "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+        "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+        "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+        "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+        "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+        "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5"
+      ],
+      "source_sha256": "5cea91edb2394c4de209f5339698295fdf4600b7c915ce4b7ed4b464ec7f3b79",
+      "text": "Sum feature importance by compartment or channel group.\n\n:param df: DataFrame with columns ``feature`` and ``importance``.\n:param feature_groups: substrings identifying each group (compartments or channels).\n:param name: name of the grouping column to create. Default ``'compartment'``.\n:param include_all: append an ``all`` row summing across groups. Default ``False``.\n:returns: DataFrame of summed importance per group."
+    },
+    "spacr.submodules.interpret_vision_model.group_feature_class.find_feature_class": {
+      "source_blocks_sha256": [
+        "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d"
+      ],
+      "source_sha256": "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d",
+      "text": "Return the compartment(s) whose name matches ``feature``."
+    },
+    "spacr.submodules.interpret_vision_model.read_and_preprocess_data": {
+      "source_blocks_sha256": [
+        "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+        "9b54d98cc249adac80b763c0ae28848ba6dc143d86f2daab09c11c31a87317bd",
+        "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4"
+      ],
+      "source_sha256": "0a478a3991a46e3f99d8ea3ba96893830bd476dc5eac6ad6fb76041a313f2e4a",
+      "text": "Load the measurements DB pointed at by ``settings`` and return the merged dataframe.\n\n:param settings: settings dict; must contain ``src`` (folder holding\n    ``measurements/measurements.db``).\n:returns: dataframe of merged object measurements."
     },
     "spacr.submodules.plot_cellpose_batch": {
       "source_blocks_sha256": [
@@ -119368,6 +120178,20 @@
       "source_sha256": "481e03cbf87343da468d7ff9f75f0ce41131a263589d5b6bfb75d3f3a3a76834",
       "text": "Compute gRNA correlation and propagate fixed effect sizes across correlated gRNAs.\n\n:param csv_file: CSV with columns ``grna``, ``fraction`` and ``prc``.\n:param grna_dict: mapping of anchor ``grna`` names to their fixed effect sizes.\n:param grna_list: gRNAs to include in the correlation matrix.\n:param save: persist correlation matrix, effect sizes and plots. Default ``False``.\n:returns: None. Displays plots and optionally writes results to ``<csv_dir>/post_regression_analysis_results``."
     },
+    "spacr.submodules.post_regression_analysis._analyze_and_visualize_grna_correlation": {
+      "source_blocks_sha256": [
+        "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2"
+      ],
+      "source_sha256": "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2",
+      "text": "Return and plot the pivoted per-well gRNA fraction correlation matrix."
+    },
+    "spacr.submodules.post_regression_analysis._compute_effect_sizes": {
+      "source_blocks_sha256": [
+        "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666"
+      ],
+      "source_sha256": "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666",
+      "text": "Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix."
+    },
     "spacr.submodules.split_wells": {
       "source_blocks_sha256": [
         "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
@@ -119389,6 +120213,20 @@
       ],
       "source_sha256": "abaf3d199b64faec7edfe26ffc1340282a21ee16d13e99d14218c5b47aad1945",
       "text": "Evaluate a Cellpose model on a labelled test set and report per-image metrics.\n\nComputes Jaccard, object counts, mean object area, precision, recall,\nF1 and accuracy for each image and writes a summary CSV.\n\n:param settings: dict of test settings; see\n    ``get_default_test_cellpose_model_settings`` for keys including\n    ``src``, ``model_path``, ``batch_size``, ``FT``, ``CP_probability``,\n    and ``save``.\n:returns: None. Writes ``test_results.csv`` in ``<src>/results`` when ``save`` is set."
+    },
+    "spacr.submodules.test_cellpose_model.plot_cellpose_resilts": {
+      "source_blocks_sha256": [
+        "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ],
+      "source_sha256": "7092c95fb77e33ad8118724cecb1fdf871829295574eb1058f9766eedd2d598c",
+      "text": "Render one 5-panel diagnostic (image / label / pred / flow) for a Cellpose result.\n\n:param i: outer image index used in the output filename.\n:param j: inner batch index used in the output filename.\n:param results_dir: folder where the composite PNG is written.\n:param img: source image array.\n:param lbl: ground-truth label array.\n:param pred: predicted mask array.\n:param flow: Cellpose flow field."
     },
     "spacr.submodules.train_cellpose": {
       "source_blocks_sha256": [

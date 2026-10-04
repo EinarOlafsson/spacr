@@ -2210,3 +2210,17 @@ spacr._v1_v2_bridge (2) are in AUTOAPI_NON_RENDERED_MODULES and have no API
 page, so their helpers can never render; they leave the denominator. The
 canonical documented-helper count is 1,162; renderable total 1,149.
     BLOCKED / open: OPEN docs work: 288 of 1,149 renderable nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — SUBMODULES, FIGURE_SETTINGS AND ML ENABLED (PARTIAL; 964 of 1,149)
+ENABLED_MODULES gains spacr.submodules, qt.widgets.figure_settings and
+spacr.ml (103 helpers). The writer adds 103 symbols (12,887 -> 12,990) in
+English and nine locales from 214 AI-reviewed blocks
+(2026-10-03-nested-batch13.json, direct AI translation with AI technical
+review, no native-speaker signoff); generated=0, decoded=0. Nightly
+(250626532) documented the four previously undocumented helpers with its
+own wording while batch 12 was in flight; their batch-12 records and
+catalog entries were rewritten against the new English (4 blocks, nine
+locales). The shouted-prose exemption now also covers "PATH" ("ON THIS
+PATH ONLY"). Help index regenerated; guards pass (385 passed, 13
+report-only xfails).
+    BLOCKED / open: OPEN docs work: 185 of 1,149 renderable nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).

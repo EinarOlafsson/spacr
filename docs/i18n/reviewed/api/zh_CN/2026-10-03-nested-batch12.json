@@ -4,14 +4,6 @@
   "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
   "records": [
     {
-      "label": "spacr.object_classifier._train_real_classifier.estimator#0",
-      "source": "Return a fresh scaled, class-balanced logistic-regression pipeline.",
-      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
-      "context": "Return a fresh scaled, class-balanced logistic-regression workflow.",
-      "translation": "返回一个新的、经过缩放且类别平衡的逻辑回归流水线。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
-    },
-    {
       "label": "spacr.object_classifier.merge_halves.root#0",
       "source": "Resolve a merge group and compress the path to its lowest id.",
       "source_sha256": "7cec40920a09acfcf6ba639cb50299f2afd234b201a689d5e3e189502d79e8c7",
@@ -484,22 +476,6 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.screens.activation._add_counterfactual_viewer_button._open#0",
-      "source": "Ask for a counterfactuals folder and open its viewer.",
-      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
-      "context": "Ask for a counterfactuals folder and open its viewer.",
-      "translation": "请求选择一个反事实文件夹并打开其查看器。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
-    },
-    {
-      "label": "spacr.qt.screens.activation._counterfactual_viewer._show#0",
-      "source": "Show the frames of the sequence at ``index`` as a strip of images.",
-      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
-      "context": "Show the frames of the sequence at ``index`` as a strip of images.",
-      "translation": "将 ``index`` 处序列的帧显示为一条图像条带。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
-    },
-    {
       "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_magnifier_drag.common#0",
       "source": "Return a shared frame value, or the explicit mixed/unknown value.",
       "source_sha256": "36013a8e377d9aa07fa9bf032d4455a9c416ef453e8bf49463a90b1b5df5b73b",
@@ -553,14 +529,6 @@
       "source_sha256": "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a",
       "context": "Put the install's progress and its ending in the console.",
       "translation": "在控制台中显示安装进度及其结束情况。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
-    },
-    {
-      "label": "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work#0",
-      "source": "Propagate the seeds through the frames and emit the labels or the error.",
-      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
-      "context": "Propagate the seeds through the frames and emit the labels or the error.",
-      "translation": "将种子在各帧之间传播，并发出标签或错误。",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
@@ -1513,6 +1481,38 @@
       "source_sha256": "cd28b9bae50730040e029ffb45dbeb86b1469f8a3591e460fe8db62e2a015296",
       "context": "The Series branch is currently unreachable: every call site passes ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a deliberate guard because the label-based ``.loc`` lookups this function used to rely on returned a Series whenever the progress CSV had a duplicated index, and that is an easy regression to reintroduce.",
       "translation": "Series 分支目前不可达：每个调用点传入的都是 ``<Series>.iloc[<int>]``，得到的是 numpy 标量。保留它是一项有意的防护，因为此函数以前依赖的基于标签的 ``.loc`` 查找在进度 CSV 存在重复索引时会返回 Series，而这是一个很容易再次引入的回归。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_classifier._train_real_classifier.estimator#0",
+      "source": "A fresh scaled, class-balanced logistic regression.",
+      "source_sha256": "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958",
+      "context": "A fresh scaled, class-balanced logistic regression.",
+      "translation": "一个新的、经过缩放且类别平衡的逻辑回归。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.activation._add_counterfactual_viewer_button._open#0",
+      "source": "Ask for a counterfactuals folder and show what it holds.",
+      "source_sha256": "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced",
+      "context": "Ask for a counterfactuals folder and show what it holds.",
+      "translation": "请求选择一个反事实文件夹并显示其中的内容。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.activation._counterfactual_viewer._show#0",
+      "source": "Replace the strip with the sequence at ``index``.",
+      "source_sha256": "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a",
+      "context": "Replace the strip with the sequence at ``index``.",
+      "translation": "用 ``index`` 处的序列替换图像条带。",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work#0",
+      "source": "Propagate the seeds off the GUI thread and report the labels.",
+      "source_sha256": "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0",
+      "context": "Propagate the seeds off the main GUI execution path and report the labels.",
+      "translation": "在 GUI 线程之外传播种子并报告标签。",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     }
   ]

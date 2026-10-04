@@ -46945,6 +46945,184 @@
         "47307fb934b234d81b2a3a16a0ddf2d4af1a4e1b795d6f837ab14ed191de229f"
       ]
     },
+    "spacr.ml._answering_stop.loglike": {
+      "source_blocks_sha256": [
+        "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672"
+      ],
+      "source_sha256": "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672",
+      "text": "检查是否已取消，然后返回原始的似然结果。",
+      "translation_source_blocks_sha256": [
+        "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672"
+      ]
+    },
+    "spacr.ml._calculate_similarity.safe_similarity": {
+      "source_blocks_sha256": [
+        "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd"
+      ],
+      "source_sha256": "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd",
+      "text": "调用 ``func(row, control, ...)`` 并吞掉错误（返回 ``NaN``）。",
+      "translation_source_blocks_sha256": [
+        "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd"
+      ]
+    },
+    "spacr.ml._check_score_count_pairing._plates": {
+      "source_blocks_sha256": [
+        "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb"
+      ],
+      "source_sha256": "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb",
+      "text": "返回从帧的孔列解析出的已排序板前缀。",
+      "translation_source_blocks_sha256": [
+        "53c4e42cef0caf90818c9cf172cf09f76fc7ea2bdefb5677bf316646437be622"
+      ]
+    },
+    "spacr.ml._flowview_pipeline.decorate": {
+      "source_blocks_sha256": [
+        "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b"
+      ],
+      "source_sha256": "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b",
+      "text": "返回一个为 ``function`` 保留元数据的生命周期包装器。",
+      "translation_source_blocks_sha256": [
+        "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b"
+      ]
+    },
+    "spacr.ml._flowview_pipeline.decorate.observed": {
+      "source_blocks_sha256": [
+        "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7"
+      ],
+      "source_sha256": "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7",
+      "text": "原样调用，并将成功或失败报告给活动的跟踪。",
+      "translation_source_blocks_sha256": [
+        "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7"
+      ]
+    },
+    "spacr.ml._perform_regression._count_variable_instances": {
+      "source_blocks_sha256": [
+        "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc"
+      ],
+      "source_sha256": "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc",
+      "text": "返回 ``df`` 以及两个指定列的值计数表。",
+      "translation_source_blocks_sha256": [
+        "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc"
+      ]
+    },
+    "spacr.ml._perform_regression._perform_regression_read_data": {
+      "source_blocks_sha256": [
+        "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90"
+      ],
+      "source_sha256": "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90",
+      "text": "加载成对输入，验证分析，并返回两个帧。",
+      "translation_source_blocks_sha256": [
+        "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90"
+      ]
+    },
+    "spacr.ml._perform_regression._qc_plot": {
+      "source_blocks_sha256": [
+        "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+        "badc4317b65d69c3bcbdb0bb95e037b486d92a455a11604be7c46a86cb0b5763"
+      ],
+      "source_sha256": "cbbc0533c893bca8685b1ee01e174152fbf3fefa964d71ca6b70c92a0f6e75a8",
+      "text": "绘制一个 QC 图，失败时报告而不是抛出。\n\n在这些调用之间写入的 QC 表是数据输出，因此绘图失败不能让它们丢失。spacrGraph 会进行组间比较，而在非常常见的单板运行中，scipy 会以 \"Must enter at least two input sample vectors\" 拒绝它。",
+      "translation_source_blocks_sha256": [
+        "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+        "d6a1f12b5a20496f52e4885ac2d3664c03470883853181c0ea3d728682373ca5"
+      ]
+    },
+    "spacr.ml._perform_regression._stack": {
+      "source_blocks_sha256": [
+        "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4"
+      ],
+      "source_sha256": "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4",
+      "text": "拼接非空帧，或返回空的结果模板。",
+      "translation_source_blocks_sha256": [
+        "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4"
+      ]
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies": {
+      "source_blocks_sha256": [
+        "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+        "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+        "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+        "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+        "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+        "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+        "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+        "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+        "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+        "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+        "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+        "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+        "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d"
+      ],
+      "source_sha256": "cdef053582427790348c89a5cc41d3df756ff2f05c785bb6625df0f6c5f8ba16",
+      "text": "返回非参数 bootstrap 得到的各特征选择频率。\n\n输出按特征系数在各次重采样中非零的频率对特征排序；这是稳定性评分，而不是假设检验。\n\n:param X: 长格式 DataFrame；每次重采样都从 ``formula`` 构建设计矩阵，以保持因子水平稳定。\n:param y: 按索引与 ``X`` 对齐的响应数组。\n:param formula: 用于 ``dmatrices`` 的 Patsy 公式。\n:param alpha: 正则化强度；``'auto'``/``None`` 会在每次重采样中运行交叉验证估计器。\n:param n_boot: bootstrap 重采样次数。默认 ``200``。\n:param random_state: 重采样随机数生成器的种子。\n:param regression_type: ``'lasso'``、``'elasticnet'`` 或 ``'group_lasso'`` - 必须与拟合所报告系数时使用的惩罚相同，否则这些频率描述的将是与 ``results.csv`` 中不同的模型。\n:param l1_ratio: ``elasticnet`` 的混合比例；对 ``'lasso'`` 忽略。\n:param group_lasso_lambda: 用于 ``'group_lasso'`` 的块惩罚。它是独立于 ``alpha`` 的参数，因为它是一个独立的设置：该后端根本不读取 ``alpha``，因此以 ``alpha`` 拟合的重采样将是与此处正在排序其系数的模型不同的模型。\n:returns: 包含 ``feature``、``selection_frequency`` 和 ``mean_coefficient`` 列的 DataFrame。\n:raises RuntimeError: 如果每次重采样都拟合失败。",
+      "translation_source_blocks_sha256": [
+        "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+        "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+        "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+        "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+        "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+        "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+        "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+        "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+        "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+        "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+        "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+        "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+        "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d"
+      ]
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies._estimator": {
+      "source_blocks_sha256": [
+        "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a"
+      ],
+      "source_sha256": "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a",
+      "text": "返回已配置的 sklearn lasso 或弹性网络估计器。",
+      "translation_source_blocks_sha256": [
+        "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a"
+      ]
+    },
+    "spacr.ml._perform_regression.bootstrap_selection_frequencies._resample_coefficients": {
+      "source_blocks_sha256": [
+        "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8"
+      ],
+      "source_sha256": "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8",
+      "text": "返回一次重采样的 group lasso 或 sklearn 系数。",
+      "translation_source_blocks_sha256": [
+        "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8"
+      ]
+    },
+    "spacr.ml._perform_regression.get_outlier_reference_values": {
+      "source_blocks_sha256": [
+        "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+        "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+        "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+        "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+        "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0"
+      ],
+      "source_sha256": "f4e482d55ad2c9f18aaf166496238a1d8a9445b38312c6ee9d0c90f76b607c76",
+      "text": "返回唯一的 ``return_col`` 值，其对应的 ``outlier_col`` 落在 1.5*IQR 之外。\n\n:param df: 输入 DataFrame。\n:param outlier_col: 用于筛查离群值的数值列。\n:param return_col: 返回其不同取值的列。\n:returns: 离群行的唯一参考值列表。",
+      "translation_source_blocks_sha256": [
+        "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+        "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+        "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+        "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+        "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0"
+      ]
+    },
+    "spacr.ml._perform_regression.grna_metricks": {
+      "source_blocks_sha256": [
+        "76bccf9be1d31583d00b2994d4308d6dc4e7c8f238663018dfa4b22f1d519230",
+        "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+        "219ab97e2804f3a58c972df932a43bd31176a3687a927a989867ce0f162adf06"
+      ],
+      "source_sha256": "e351e979f7009874a1df9f66481b1e432a05ccad5fd256c72777b3289d878164",
+      "text": "返回由长格式 ``prc`` DataFrame 推导出的每个 gRNA 和每个孔的覆盖计数。\n\n:param df: 包含 ``prc``、``grna`` 和 ``gene`` 列的 DataFrame。\n:returns: ``(final_grna_df, prc_gene_count_df)`` — 每个 gRNA 的孔计数和每个孔的不同基因计数。",
+      "translation_source_blocks_sha256": [
+        "99c26d11cd90f2b2c41edd56a7f359f1eecef7571e452608d10c6d3287791e25",
+        "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+        "63b9d3d6bdfa1b97dd3a593ade024d5fd961bbb051eaccc289577308a32db513"
+      ]
+    },
     "spacr.ml.apply_transformation": {
       "source_blocks_sha256": [
         "860c064535278adbd6a967103c36af2e0e63723206216f2cbc5b639c64cb2210",
@@ -47069,6 +47247,36 @@
         "40c7aaa88a1bdd1604a8b46da43df0c226f29e8af37fb946d4c062159a99871e",
         "e7d89c499460d9ecf673a550b344227504424077014966c2b226203d5e05fe0d",
         "46cd83400801cdf67a91332ff4de196b914668033814c20011f1d061a4e3f7e7"
+      ]
+    },
+    "spacr.ml.check_and_clean_data.check_collinearity": {
+      "source_blocks_sha256": [
+        "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80"
+      ],
+      "source_sha256": "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80",
+      "text": "使用 VIF（方差膨胀因子）检查共线性。",
+      "translation_source_blocks_sha256": [
+        "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80"
+      ]
+    },
+    "spacr.ml.check_and_clean_data.ensure_valid_types": {
+      "source_blocks_sha256": [
+        "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68"
+      ],
+      "source_sha256": "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68",
+      "text": "确保指定的列为分类类型。",
+      "translation_source_blocks_sha256": [
+        "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68"
+      ]
+    },
+    "spacr.ml.check_and_clean_data.handle_missing_values": {
+      "source_blocks_sha256": [
+        "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce"
+      ],
+      "source_sha256": "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce",
+      "text": "处理指定列中的缺失值。",
+      "translation_source_blocks_sha256": [
+        "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce"
       ]
     },
     "spacr.ml.check_distribution": {
@@ -47309,6 +47517,38 @@
         "4e6240e0a06e23ec4d12023e66ac2435f9f5451747e98be6e623681707ce8130"
       ]
     },
+    "spacr.ml.interpret_vision_model.create_extended_radar_plot": {
+      "source_blocks_sha256": [
+        "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+        "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582"
+      ],
+      "source_sha256": "24e7a5875208dafb388fb81ce4e1b5eb7065f71139bd3bef83de923da407bec2",
+      "text": "为 ``values`` 绘制填充雷达图，并以 ``labels`` 标注。\n\n雷达图是多边形，不是坐标轴。这曾是解释路径上最后一个无法迁移到界面渲染器的图，理由是 pyqtgraph 没有极坐标视图 -- 这没错，但从来不是障碍：每个标签取一个角度，每个值取一个半径，而 `FastPlot.add_radar` 会绘制自己的环，因为对照方形网格读取的雷达图无法阅读。",
+      "translation_source_blocks_sha256": [
+        "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+        "2d7622cca3983be06cd87c7b5e0d83f6bf9a9dc868e1245defb2bcdcf655ad09"
+      ]
+    },
+    "spacr.ml.interpret_vision_model.extract_compartment_channel": {
+      "source_blocks_sha256": [
+        "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166"
+      ],
+      "source_sha256": "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166",
+      "text": "返回从特征列名解析出的 ``(compartment, channel)``。",
+      "translation_source_blocks_sha256": [
+        "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166"
+      ]
+    },
+    "spacr.ml.interpret_vision_model.read_and_preprocess_data": {
+      "source_blocks_sha256": [
+        "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210"
+      ],
+      "source_sha256": "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210",
+      "text": "将测量数据库的表与评分 CSV 合并，并拆分为 ``(X, y, merged_df)``。",
+      "translation_source_blocks_sha256": [
+        "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210"
+      ]
+    },
     "spacr.ml.label_control_condition": {
       "source_blocks_sha256": [
         "d0105641863615401edb83c5d7a7eba6ee752a0c73764810580814ac42b29249",
@@ -47351,6 +47591,26 @@
         "d0fbd916720172d88c94eb2c1e980d15821d41b3352b727b1030a97d2be4ed6e",
         "10ff92ceecc36e69921513abfe2d096c8632111565ac2881f365481dc6103cad",
         "5d47b823cba1a6b993638f6511c0dc3d245e026b992e6e7d0b1e8f9ea349d821"
+      ]
+    },
+    "spacr.ml.load_regression_input_pairs.plates": {
+      "source_blocks_sha256": [
+        "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca"
+      ],
+      "source_sha256": "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca",
+      "text": "以字符串形式返回帧中非空的板标识符。",
+      "translation_source_blocks_sha256": [
+        "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca"
+      ]
+    },
+    "spacr.ml.load_regression_input_pairs.read": {
+      "source_blocks_sha256": [
+        "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a"
+      ],
+      "source_sha256": "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a",
+      "text": "返回 ``path`` 的缓存校正帧；为空时返回 ``None``。",
+      "translation_source_blocks_sha256": [
+        "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a"
       ]
     },
     "spacr.ml.mcfadden_note": {
@@ -47479,6 +47739,20 @@
         "fdafafab1593af5d5d1e19413bef494addfec93348222d77104827f48778748e"
       ]
     },
+    "spacr.ml.ml_analysis._match_control_values": {
+      "source_blocks_sha256": [
+        "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+        "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+        "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9"
+      ],
+      "source_sha256": "b48d1a0d1d6661ffa5e60e0569cc42b8fecff3fd0a6c8e26146c9996038d3c1f",
+      "text": "返回一个布尔掩膜，用于选择 `series` 中与 `control` 匹配的行。\n\n按以下顺序尝试匹配：1. 精确值匹配 2. 数值转换后匹配 3. 去除空白后的字符串匹配\n\n`control` 可以是标量，也可以是值的列表/元组/集合。",
+      "translation_source_blocks_sha256": [
+        "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+        "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+        "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9"
+      ]
+    },
     "spacr.ml.normalize_regression_input_pairs": {
       "source_blocks_sha256": [
         "85e7ca5b4930a0e64435adc74973bb5b1626337a8b18cd2f67ac7215fa478b94",
@@ -47495,6 +47769,26 @@
         "ce38e21774d723ad15d42f36db26b99ddb036eb1255ac568573b3b4faae76c06",
         "399983aa21b9c52ad243eaac474fe8e555ad56ac932bfcb79719b19a092c159f",
         "2cc092022d5830df41736fda3a8bf041c76d92843b2ec28135c1e285634c1f2e"
+      ]
+    },
+    "spacr.ml.normalize_regression_input_pairs.paths": {
+      "source_blocks_sha256": [
+        "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6"
+      ],
+      "source_sha256": "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6",
+      "text": "将 ``value`` 作为新的路径列表返回，``None`` 视为空。",
+      "translation_source_blocks_sha256": [
+        "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6"
+      ]
+    },
+    "spacr.ml.normalize_regression_input_pairs.unique": {
+      "source_blocks_sha256": [
+        "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b"
+      ],
+      "source_sha256": "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b",
+      "text": "按各对首次出现的顺序，每个真值 ``key`` 路径只返回一次。",
+      "translation_source_blocks_sha256": [
+        "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b"
       ]
     },
     "spacr.ml.perform_mixed_model": {
@@ -47883,6 +48177,184 @@
         "503e174033dbf98c2bc0d5070b43a0257ff672f28e7968a91f6421c70ea1b479",
         "80af4e9109c9e0dccce6cf52d6081cd6439b4726b681f688360faa550d630564",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
+      ]
+    },
+    "spacr.ml.regression_model._find_best_alpha": {
+      "source_blocks_sha256": [
+        "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b"
+      ],
+      "source_sha256": "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b",
+      "text": "拟合并返回所请求的交叉验证惩罚估计器。",
+      "translation_source_blocks_sha256": [
+        "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b"
+      ]
+    },
+    "spacr.ml.regression_model._find_best_hinge_alpha": {
+      "source_blocks_sha256": [
+        "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+        "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+        "00900ab1b27e97ef042fa22571d2c9c61a5a66aeee1a7ebb8f7d7a13fcd84eb3"
+      ],
+      "source_sha256": "69518d98d771a90d8e8b01e1e77d15b07a360e7d9994f6f26479acc4b4c9ccb6",
+      "text": "通过基于平衡准确率的分层交叉验证选择 hinge 惩罚。\n\n与 ``_find_best_alpha`` 为惩罚最小二乘后端使用的相同 5 折结构。使用平衡准确率而不是准确率：在不平衡的筛选中，把一切都判为阴性的退化拟合会使普通准确率最大化，因此按它评分会让交叉验证正好走向 ``class_weight='balanced'`` 所要防止的失败。\n\n当响应在某一类中的孔太少、无法分成五份时，回退到无惩罚尺度的默认值 ``C = 1`` — 在三个阳性孔上做二折交叉验证只是噪声，而从噪声中选择惩罚比不选更糟。",
+      "translation_source_blocks_sha256": [
+        "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+        "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+        "e90236d7b490620ee35d1ee3927d82408fbdb8de283bc8cc6e18b9ac833a98c0"
+      ]
+    },
+    "spacr.ml.regression_model._glm_auto": {
+      "source_blocks_sha256": [
+        "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823"
+      ],
+      "source_sha256": "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823",
+      "text": "返回强制恒等链接的拟合，或与响应相适应的 GLM。",
+      "translation_source_blocks_sha256": [
+        "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823"
+      ]
+    },
+    "spacr.ml.regression_model._glm_binomial": {
+      "source_blocks_sha256": [
+        "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b"
+      ],
+      "source_sha256": "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b",
+      "text": "为 ``link`` 和 ``scale`` 拟合并返回一个可选加权的二项 GLM。",
+      "translation_source_blocks_sha256": [
+        "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b"
+      ]
+    },
+    "spacr.ml.regression_model._glm_poisson": {
+      "source_blocks_sha256": [
+        "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201"
+      ],
+      "source_sha256": "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201",
+      "text": "验证计数，并返回带有任何暴露偏移的 Poisson-log 拟合。",
+      "translation_source_blocks_sha256": [
+        "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201"
+      ]
+    },
+    "spacr.ml.regression_model._group_lasso": {
+      "source_blocks_sha256": [
+        "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164"
+      ],
+      "source_sha256": "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164",
+      "text": "拟合指定的按基因分组设计，并返回兼容的结果。",
+      "translation_source_blocks_sha256": [
+        "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164"
+      ]
+    },
+    "spacr.ml.regression_model._hinge": {
+      "source_blocks_sha256": [
+        "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e"
+      ],
+      "source_sha256": "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e",
+      "text": "返回使用自动交叉验证或固定 ``C = 1 / alpha`` 的 hinge 分类器。",
+      "translation_source_blocks_sha256": [
+        "c7cce298bfd18b591201463e523a6f46f3ead478500f9d784b680e011d324fb6"
+      ]
+    },
+    "spacr.ml.regression_model._hinge_estimator": {
+      "source_blocks_sha256": [
+        "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+        "932a793a1d1fb478318a2050a938ed1f23246549338765643e39502460615eff"
+      ],
+      "source_sha256": "4b63eb373b3e50b338b650c48ffb21708f0948778253d2e814c1ab835c8b0e30",
+      "text": "正则化强度为 ``strength`` 的 LinearSVC（``C = 1 / strength``）。\n\n使用 ``class_weight='balanced'``，是因为筛选中的阳性类通常只是孔的一小部分：在 95/5 划分上，未加权的 hinge 会把每个孔都判为阴性来最小化损失，这会为每个 gRNA 返回约为 ~0 的系数向量，并在下游被读作 \"no hits\"。平衡会按各类的逆频率重新加权，使决策边界被拟合为分开各类，而不是数各类。",
+      "translation_source_blocks_sha256": [
+        "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+        "2fe80f6557d2981f01b30a64bade1ada91f0d4740ecd467113f1929493f9d22e"
+      ]
+    },
+    "spacr.ml.regression_model._horseshoe": {
+      "source_blocks_sha256": [
+        "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762"
+      ],
+      "source_sha256": "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762",
+      "text": "返回所捕获设计和暴露的 horseshoe-Poisson 拟合。",
+      "translation_source_blocks_sha256": [
+        "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762"
+      ]
+    },
+    "spacr.ml.regression_model._named_design": {
+      "source_blocks_sha256": [
+        "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+        "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4"
+      ],
+      "source_sha256": "bb2d231acf80cff29ff74055ac79aab5e1b4ce6889bccf238f2ddb7afc7002de",
+      "text": "设计的列名，或说明它们为何重要的拒绝。\n\n基因感知后端会从 patsy 生成的列名中恢复每个预测变量背后的基因。未命名的数组会被拒绝，否则 group lasso 会把每一列当作单独的基因，退化为换了名字的普通 lasso。",
+      "translation_source_blocks_sha256": [
+        "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+        "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4"
+      ]
+    },
+    "spacr.ml.regression_model._poisson_offset": {
+      "source_blocks_sha256": [
+        "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+        "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
+        "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+        "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8"
+      ],
+      "source_sha256": "b0a8556d3421569dbead25b8f39df783ed376bdcdd93fadbefbf39b5f14afbf5",
+      "text": "``log(exposure)``；若没有暴露，则为 None 并附带警告。\n\n每孔的阳性计数在大小不同的孔之间不可比较：``process_scores`` 为计数模型对响应求和，因此在底层比率相同时，含 2000 个细胞的孔贡献的计数约为含 500 个细胞的孔的四倍。不带 ``offset(log(Ntotal))`` 对该计数建模，就是要求协变量去解释孔的大小，任何与之相关的协变量都会作为命中返回。在 400 孔模拟中测得（其中一个干扰协变量只决定孔的大小，真实比率系数为 +1.5）：没有偏移时，干扰项为 +1.88，p = 0，排在真实效应之前；加上偏移后为 +0.002，p = 0.90。\n\n:returns: ``log(exposure)``，与 ``y`` 对齐，否则为 None。\n:raises ValueError: 当暴露不是正的有限值时 — 它的 ``log`` 会是 NaN/-inf，下游的每个数字都会悄无声息地随之出错。",
+      "translation_source_blocks_sha256": [
+        "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+        "e5d205eba6750e278c71fb75c06e91faf839290f638a9eb0bba2f97a121d971e",
+        "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+        "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8"
+      ]
+    },
+    "spacr.ml.regression_model._quantile": {
+      "source_blocks_sha256": [
+        "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379"
+      ],
+      "source_sha256": "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379",
+      "text": "验证所捕获的分位数并返回其拟合回归。",
+      "translation_source_blocks_sha256": [
+        "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379"
+      ]
+    },
+    "spacr.ml.regression_model._rlm": {
+      "source_blocks_sha256": [
+        "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6"
+      ],
+      "source_sha256": "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6",
+      "text": "返回使用所捕获 Huber 调节常数的稳健线性拟合。",
+      "translation_source_blocks_sha256": [
+        "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6"
+      ]
+    },
+    "spacr.ml.regression_model._rra": {
+      "source_blocks_sha256": [
+        "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3"
+      ],
+      "source_sha256": "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3",
+      "text": "对边际设计斜率排序，并返回基因水平的 alpha-RRA 结果。",
+      "translation_source_blocks_sha256": [
+        "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3"
+      ]
+    },
+    "spacr.ml.regression_model._spline": {
+      "source_blocks_sha256": [
+        "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+        "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+        "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538"
+      ],
+      "source_sha256": "149462a293b054eb3482d60193ea4b7b880147cbae28558d50ff2bca03d24756",
+      "text": "在协变量带有样条基的设计上进行 OLS。\n\n引导列保持不变，因此每个引导保留一个系数和一个 P 值。volcano 图、命中列表和归因因此可以不做特殊处理地读取结果。变得可以弯曲的是直线原本假定不存在的干扰趋势。\n\n当一列是连续的、且不是引导或基因项时，被视为协变量 -- 指示变量没有可弯曲之处，展开它只会白白消耗自由度。",
+      "translation_source_blocks_sha256": [
+        "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+        "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+        "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538"
+      ]
+    },
+    "spacr.ml.regression_model._wls": {
+      "source_blocks_sha256": [
+        "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314"
+      ],
+      "source_sha256": "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314",
+      "text": "验证所捕获的每孔权重并返回拟合的 WLS 模型。",
+      "translation_source_blocks_sha256": [
+        "41b4db0d2509c10093c5d6630aada90cbaa8a35313fee2a96822898b2a5dd19d"
       ]
     },
     "spacr.ml.resolve_auto_inference": {
@@ -51829,12 +52301,12 @@
     },
     "spacr.object_classifier._train_real_classifier.estimator": {
       "source_blocks_sha256": [
-        "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3"
+        "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958"
       ],
-      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
-      "text": "返回一个新的、经过缩放且类别平衡的逻辑回归流水线。",
+      "source_sha256": "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958",
+      "text": "一个新的、经过缩放且类别平衡的逻辑回归。",
       "translation_source_blocks_sha256": [
-        "8f7cebe852dea0c128f22ba749e743444899966f3c1aa22e37e89d4981c42f15"
+        "5c2fa9940a43fa4c10dde361260829a8ff198f24e095241948153612dfc25958"
       ]
     },
     "spacr.object_classifier.bin_parasite_count": {
@@ -91095,22 +91567,22 @@
     },
     "spacr.qt.screens.activation._add_counterfactual_viewer_button._open": {
       "source_blocks_sha256": [
-        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+        "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced"
       ],
-      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
-      "text": "请求选择一个反事实文件夹并打开其查看器。",
+      "source_sha256": "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced",
+      "text": "请求选择一个反事实文件夹并显示其中的内容。",
       "translation_source_blocks_sha256": [
-        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+        "1dddbd6b8508650fff35f9650968c4a1262f3396c021c4be9ebf92f18eb95ced"
       ]
     },
     "spacr.qt.screens.activation._counterfactual_viewer._show": {
       "source_blocks_sha256": [
-        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
+        "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a"
       ],
-      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
-      "text": "将 ``index`` 处序列的帧显示为一条图像条带。",
+      "source_sha256": "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a",
+      "text": "用 ``index`` 处的序列替换图像条带。",
       "translation_source_blocks_sha256": [
-        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
+        "cc5499040609ec6cde27500d5181bc27a508b860b41bb38608cf400a8780ac9a"
       ]
     },
     "spacr.qt.screens.activation.apply_seed": {
@@ -102577,12 +103049,12 @@
     },
     "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work": {
       "source_blocks_sha256": [
-        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+        "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0"
       ],
-      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
-      "text": "将种子在各帧之间传播，并发出标签或错误。",
+      "source_sha256": "6720a095875b86deb6a549073e274ee83c7130a07f4357dea8366972eff50bc0",
+      "text": "在 GUI 线程之外传播种子并报告标签。",
       "translation_source_blocks_sha256": [
-        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+        "a41b0064c1a426e00bb9a239e32ec0c6600e98220e3b7e85d6f824030fb49f7e"
       ]
     },
     "spacr.qt.screens.make_masks._counting_tiles.before_a_tile": {
@@ -136871,6 +137343,182 @@
         "c610336af3a34db3c458ff6dc8e224e4d484299033be06ecc82791270ea8fcdc"
       ]
     },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge": {
+      "source_blocks_sha256": [
+        "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628"
+      ],
+      "source_sha256": "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628",
+      "text": "为每个具有边线的序列设置边线宽度。",
+      "translation_source_blocks_sha256": [
+        "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_opacity": {
+      "source_blocks_sha256": [
+        "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d"
+      ],
+      "source_sha256": "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d",
+      "text": "为每个序列设置 alpha。",
+      "translation_source_blocks_sha256": [
+        "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_palette": {
+      "source_blocks_sha256": [
+        "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e"
+      ],
+      "source_sha256": "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e",
+      "text": "用所选调色板为每个序列重新着色。",
+      "translation_source_blocks_sha256": [
+        "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_size": {
+      "source_blocks_sha256": [
+        "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213"
+      ],
+      "source_sha256": "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213",
+      "text": "调整每个有可设置大小的序列的大小。",
+      "translation_source_blocks_sha256": [
+        "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid": {
+      "source_blocks_sha256": [
+        "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+        "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04"
+      ],
+      "source_sha256": "7cfad477c1755bb4347aa4fee7e6dabf9c9c43d27c6a6b96d7122f65f3a29909",
+      "text": "显示或隐藏网格，仅在启用时传递线条属性。\n\nmatplotlib 会警告 \"First parameter to grid() is false, but line properties are supplied\"，然后无论如何都打开网格 -- 因此无条件传递这些属性会使复选框无法关闭网格，这与它所标示的正好相反。",
+      "translation_source_blocks_sha256": [
+        "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+        "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_legend": {
+      "source_blocks_sha256": [
+        "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7"
+      ],
+      "source_sha256": "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7",
+      "text": "根据当前选择重建图例。",
+      "translation_source_blocks_sha256": [
+        "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits": {
+      "source_blocks_sha256": [
+        "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+        "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684"
+      ],
+      "source_sha256": "46b7a6a1bf658460ad12d31ba3feef6b0fd0ec89711a14b0276e45dad77c756a",
+      "text": "应用一个坐标轴的范围，拒绝宽度为零的范围。\n\n相等的边界会使坐标轴塌缩，matplotlib 什么都不画，因此保持该值不变而不应用。",
+      "translation_source_blocks_sha256": [
+        "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+        "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.do_autoscale": {
+      "source_blocks_sha256": [
+        "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d"
+      ],
+      "source_sha256": "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d",
+      "text": "根据坐标轴上当前的数据重新计算范围。",
+      "translation_source_blocks_sha256": [
+        "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour": {
+      "source_blocks_sha256": [
+        "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+        "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002"
+      ],
+      "source_sha256": "345dc1311f8959bb9cab1a4e3e82b53c21e6248b0d2e59b6da8c06a8b0a43e05",
+      "text": "为一个 artist 对象重新着色。该 artist 作为默认参数绑定。\n\n在定义时绑定，而不是通过闭包捕获：被闭包捕获的循环变量会把最后一个 artist 交给每个回调，这正是一排逐 artist 控件最终都在编辑同一个 artist 的经典方式。",
+      "translation_source_blocks_sha256": [
+        "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+        "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_spines": {
+      "source_blocks_sha256": [
+        "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33"
+      ],
+      "source_sha256": "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33",
+      "text": "设置每条坐标轴边框线的宽度，为零时全部隐藏。",
+      "translation_source_blocks_sha256": [
+        "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_top_right": {
+      "source_blocks_sha256": [
+        "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef"
+      ],
+      "source_sha256": "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef",
+      "text": "同时隐藏或显示上方和右侧的坐标轴边框线。",
+      "translation_source_blocks_sha256": [
+        "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.resize": {
+      "source_blocks_sha256": [
+        "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d"
+      ],
+      "source_sha256": "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d",
+      "text": "将图调整为界面上显示的宽度和高度。",
+      "translation_source_blocks_sha256": [
+        "69c49ec890797656ce989161eae695d505adcff4737f9f44f27adaee9a04af87"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_all_text": {
+      "source_blocks_sha256": [
+        "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e"
+      ],
+      "source_sha256": "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e",
+      "text": "为图中每段文本设置同一个字号。",
+      "translation_source_blocks_sha256": [
+        "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_face": {
+      "source_blocks_sha256": [
+        "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655"
+      ],
+      "source_sha256": "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655",
+      "text": "设置图本身的背景颜色。",
+      "translation_source_blocks_sha256": [
+        "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_font_ink": {
+      "source_blocks_sha256": [
+        "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4"
+      ],
+      "source_sha256": "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4",
+      "text": "为图中每段文本重新着色。",
+      "translation_source_blocks_sha256": [
+        "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_line_ink": {
+      "source_blocks_sha256": [
+        "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039"
+      ],
+      "source_sha256": "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039",
+      "text": "为图中每条线重新着色。",
+      "translation_source_blocks_sha256": [
+        "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureSettingsDialog._statistics_tab._recompute": {
+      "source_blocks_sha256": [
+        "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050"
+      ],
+      "source_sha256": "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050",
+      "text": "用当前选择重新运行检验并重绘。",
+      "translation_source_blocks_sha256": [
+        "7b0e74e1fd067912fc5600999b3385f16ed644de63678e8da048c7f12395bc19"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.FigureSettingsDialog.closeEvent": {
       "source_blocks_sha256": [
         "8003ca95f5734af1e2b42f5b531ad5829d60bfd51766b2f04a6fe54e39954d09",
@@ -136947,6 +137595,66 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ]
     },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_colour": {
+      "source_blocks_sha256": [
+        "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0"
+      ],
+      "source_sha256": "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0",
+      "text": "保存一种颜色并重绘显示它的色块。",
+      "translation_source_blocks_sha256": [
+        "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_combo": {
+      "source_blocks_sha256": [
+        "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98"
+      ],
+      "source_sha256": "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98",
+      "text": "如果下拉框中有数据为 ``v`` 的条目，则选中它。",
+      "translation_source_blocks_sha256": [
+        "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._get": {
+      "source_blocks_sha256": [
+        "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298"
+      ],
+      "source_sha256": "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298",
+      "text": "背景：透明哨兵值，或所选颜色。",
+      "translation_source_blocks_sha256": [
+        "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._paint_button": {
+      "source_blocks_sha256": [
+        "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497"
+      ],
+      "source_sha256": "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497",
+      "text": "在按钮上以色块和文本显示背景颜色。",
+      "translation_source_blocks_sha256": [
+        "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._set": {
+      "source_blocks_sha256": [
+        "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08"
+      ],
+      "source_sha256": "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08",
+      "text": "应用一个背景，当它表示透明时勾选透明。",
+      "translation_source_blocks_sha256": [
+        "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._sync": {
+      "source_blocks_sha256": [
+        "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10"
+      ],
+      "source_sha256": "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10",
+      "text": "勾选透明时将颜色按钮置灰。",
+      "translation_source_blocks_sha256": [
+        "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.FigureStylePreferences.apply_values": {
       "source_blocks_sha256": [
         "d694ceafc19289d65d859c55d8723fcb828f80253b6e74ec7b9b624013e4c0f5",
@@ -137003,6 +137711,46 @@
         "80565bd6f72213921f450b0363eb8ada99db89b2dfda5c1c11a701c9d7ef2127"
       ]
     },
+    "spacr.qt.widgets.figure_settings._add_bundle_save._save": {
+      "source_blocks_sha256": [
+        "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae"
+      ],
+      "source_sha256": "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae",
+      "text": "请求选择一个文件夹，并将整个包写入其中。",
+      "translation_source_blocks_sha256": [
+        "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings._add_group_colours._recolour": {
+      "source_blocks_sha256": [
+        "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d"
+      ],
+      "source_sha256": "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d",
+      "text": "为一个组选择颜色并存入配方。",
+      "translation_source_blocks_sha256": [
+        "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings._colour_button._choose": {
+      "source_blocks_sha256": [
+        "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a"
+      ],
+      "source_sha256": "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a",
+      "text": "请求选择颜色，若对话框返回了颜色则保留。",
+      "translation_source_blocks_sha256": [
+        "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings._colour_button._paint": {
+      "source_blocks_sha256": [
+        "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f"
+      ],
+      "source_sha256": "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f",
+      "text": "在按钮上以色块和文本显示当前颜色。",
+      "translation_source_blocks_sha256": [
+        "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.add_graph_style_file_entries": {
       "source_blocks_sha256": [
         "f662b805a8da3fb713caa9d4c6e131541cfad6c8231c0f9b67c2f665763e5fba",
@@ -137015,6 +137763,26 @@
         "f662b805a8da3fb713caa9d4c6e131541cfad6c8231c0f9b67c2f665763e5fba",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "05ac5e3a67684f2ca9fddbc357009e385fa58b0770328f80eb7ff09a4f9152d0"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._load": {
+      "source_blocks_sha256": [
+        "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723"
+      ],
+      "source_sha256": "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723",
+      "text": "读回一个图形样式并应用它。",
+      "translation_source_blocks_sha256": [
+        "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._save": {
+      "source_blocks_sha256": [
+        "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c"
+      ],
+      "source_sha256": "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c",
+      "text": "将当前图形样式写入 JSON 文件。",
+      "translation_source_blocks_sha256": [
+        "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c"
       ]
     },
     "spacr.qt.widgets.figure_settings.apply_font_colour": {
@@ -137087,6 +137855,50 @@
         "632c419eea8be3a5e11a0600fafee3ea0507b4096f338450f8938fd9df7ff2fe",
         "16dcaa923f16b449fb2089fd7f135465339cc1e6638c8e5fcf7f143d60f4a0d3",
         "9b6fabcfadd3b1251e53fd436f87478ed9c74f8b3440b91940d81af28cef0790"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._apply": {
+      "source_blocks_sha256": [
+        "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4"
+      ],
+      "source_sha256": "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4",
+      "text": "对图中每个坐标轴运行 ``func``。",
+      "translation_source_blocks_sha256": [
+        "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify": {
+      "source_blocks_sha256": [
+        "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+        "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+        "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326"
+      ],
+      "source_sha256": "048d41c00a47b7e7323ce4c6d4ee83ad68f8f74927e02e50c8498a833bd8ef0e",
+      "text": "在菜单开关切换后以低开销方式重绘。\n\n上下文菜单开关与设置对话框所做的是同一类编辑，而对话框早已学会使用预览：全质量渲染会同时重写栅格和矢量页面，在一个 823 点的 volcano 图上测得约 ~263 ms，而用户正处于操作中途。这里也使用预览，让下一次完整渲染 -- 调整大小、导出、关闭设置对话框 -- 来补上。\n\n`on_change` 可能是早于预览渲染的可调用对象，因此关键字参数先提供、必要时撤回，而不是假定它被支持。",
+      "translation_source_blocks_sha256": [
+        "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+        "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+        "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu._pick_ink": {
+      "source_blocks_sha256": [
+        "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3"
+      ],
+      "source_sha256": "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3",
+      "text": "选择一种颜色并通过 ``apply_to`` 应用。",
+      "translation_source_blocks_sha256": [
+        "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.build_figure_context_menu.toggle_legend": {
+      "source_blocks_sha256": [
+        "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c"
+      ],
+      "source_sha256": "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c",
+      "text": "在每个坐标轴上显示或隐藏图例。",
+      "translation_source_blocks_sha256": [
+        "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c"
       ]
     },
     "spacr.qt.widgets.figure_settings.derive_replot_recipe": {
@@ -137233,6 +138045,16 @@
         "512359b3d51a1aafc38193401f4fc7fcd3e3d9affbff5e6627341fef52ea1e36"
       ]
     },
+    "spacr.qt.widgets.figure_settings.save_figure_as.figure_bg_is_transparent": {
+      "source_blocks_sha256": [
+        "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f"
+      ],
+      "source_sha256": "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f",
+      "text": "已保存的背景值是否表示 \"no background at all\"。",
+      "translation_source_blocks_sha256": [
+        "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f"
+      ]
+    },
     "spacr.qt.widgets.figure_settings.save_figure_bundle": {
       "source_blocks_sha256": [
         "5a362dac2e2d6e359d94105925036c996f826a4987de0b8a0c27e94fd6d4bbe3",
@@ -137251,6 +138073,18 @@
         "4a31d914370c8448a9d22136127d5fc0ebc9e24f426d27a76a6b248864a29303",
         "fb91c5a6dd871971b2362e4caf2f508082252e18b91159c0d7ff3ec6a36fd692",
         "c7b4a4073481da4663a4a8e302dabaec1c30a629ff3a293a1f0a4e2857d06bde"
+      ]
+    },
+    "spacr.qt.widgets.figure_settings.save_figure_bundle._render": {
+      "source_blocks_sha256": [
+        "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+        "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719"
+      ],
+      "source_sha256": "3bd51a677226b1a562191209c20cd0686fd093b47e572a29d28e584f93ec5a09",
+      "text": "通过共享导出路径渲染包中的一个文件。\n\n两种格式都经过 `save_figure`，而不是各自绘制自己，这样打印颜色、嵌入字体和栅格 DPI 都与用户保留的其他图一致。",
+      "translation_source_blocks_sha256": [
+        "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+        "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719"
       ]
     },
     "spacr.qt.widgets.figure_settings.save_graph_style": {
@@ -189479,6 +190313,46 @@
         "b1c6be5088055afb5160ee2bd7c1302806f6e739b54ed8b93b7cf4d2293cbb25"
       ]
     },
+    "spacr.submodules._cellpose_training_pairs.files": {
+      "source_blocks_sha256": [
+        "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751"
+      ],
+      "source_sha256": "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751",
+      "text": "忽略元数据附属文件和 Cellpose 生成的流缓存。",
+      "translation_source_blocks_sha256": [
+        "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751"
+      ]
+    },
+    "spacr.submodules._invasion_field_thresholds._auto": {
+      "source_blocks_sha256": [
+        "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a"
+      ],
+      "source_sha256": "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a",
+      "text": "返回由有限数据得到的阈值；低于对象数下限时返回 NaN。",
+      "translation_source_blocks_sha256": [
+        "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a"
+      ]
+    },
+    "spacr.submodules._resolve_invasion_intensity_column._candidates": {
+      "source_blocks_sha256": [
+        "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2"
+      ],
+      "source_sha256": "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2",
+      "text": "产出 ``name`` 的当前测量列以及任何旧式测量列。",
+      "translation_source_blocks_sha256": [
+        "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2"
+      ]
+    },
+    "spacr.submodules._resolve_invasion_intensity_column._template": {
+      "source_blocks_sha256": [
+        "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec"
+      ],
+      "source_sha256": "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec",
+      "text": "返回所请求统计量的格式化测量列。",
+      "translation_source_blocks_sha256": [
+        "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec"
+      ]
+    },
     "spacr.submodules.analyze_class_proportion": {
       "source_blocks_sha256": [
         "86afde6b6c618b1b640436134da848bb66ea09da2c2c588d808d304e1d934a01",
@@ -189521,6 +190395,16 @@
         "448067e071957c5ace96b5e22cd9be0c8f4fce49e9ae49b6b16a2cb6375af123",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "8fad9277b33d1df20a72adbc31073ff86ceb6a0bb79b119424d800b2fa787051"
+      ]
+    },
+    "spacr.submodules.analyze_endodyogeny._calculate_volume_bins": {
+      "source_blocks_sha256": [
+        "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487"
+      ],
+      "source_sha256": "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487",
+      "text": "将每行分配到一个 log2 体积倍增区间，并返回有序类别。",
+      "translation_source_blocks_sha256": [
+        "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487"
       ]
     },
     "spacr.submodules.analyze_invasion": {
@@ -189601,6 +190485,44 @@
         "698ef1c56a6b933a07e62c6692c0f5695aebcaae67e585f93960f88681c64a53",
         "2922b5afd657233b4397bdf97e845714f55825b5ed408d50f7e448824a5bacca",
         "ff8d5a5b0e007a3f0682a88b0944ab6b0096662f3bafa05c73cdcc6b45d1d9d3"
+      ]
+    },
+    "spacr.submodules.analyze_percent_positive.annotate_and_summarize": {
+      "source_blocks_sha256": [
+        "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+        "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+        "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+        "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+        "4770944d71540f40fc18a135d8797bf434c8aed3ca78adeacdceaf2b9627d205",
+        "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+        "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+        "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9"
+      ],
+      "source_sha256": "1ab37e16aebff716537887cd95a95c49ad3792240fc22093e7f272e45391c390",
+      "text": "将各行标注为高于或低于阈值（``above``/``below``），并按条件和孔汇总。\n\n:param df: 将被就地标注的测量 DataFrame。\n:param value_col: 其值与 ``threshold`` 比较的列。\n:param condition_col: 用于分组的实验条件列。\n:param well_col: 用于分组的孔标识符列。\n:param threshold: 数值阈值；高于它的值变为 ``above``。\n:param annotation_col: 新标注列的名称。默认 ``'annotation'``。\n:returns: 元组 ``(df, summary_df)``，包含已标注的行以及按（条件，孔）统计的计数/比例表。",
+      "translation_source_blocks_sha256": [
+        "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+        "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+        "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+        "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+        "f09587a95ae391260c034e40d1ba649713efab70fe4445912e76cac3ebbf4352",
+        "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+        "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+        "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9"
+      ]
+    },
+    "spacr.submodules.analyze_percent_positive.translate_well_in_df": {
+      "source_blocks_sha256": [
+        "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+        "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+        "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2"
+      ],
+      "source_sha256": "380ad9c5dda45c2c3cef075ee50b1e142150733cb5b9ec5f046ff2553ef71663",
+      "text": "返回一个从 ``csv_loc`` 读取的 dataframe，其中 ``plateID`` / ``well`` 列是从 ``Renamed TIFF`` 中拆出的。\n\n:param csv_loc: 指向包含 ``Renamed TIFF`` 列的 CSV 的路径。\n:returns: :class:`pandas.DataFrame`，含解析出的 ``plateID`` 和 ``well`` 列。",
+      "translation_source_blocks_sha256": [
+        "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+        "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+        "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2"
       ]
     },
     "spacr.submodules.analyze_plaques": {
@@ -189741,6 +190663,28 @@
         "90a84b9a74b94e797b6e63131b4e4084972513e7f53b6004f864403dde75bc92"
       ]
     },
+    "spacr.submodules.apply_cellpose_model.plot_cellpose_result": {
+      "source_blocks_sha256": [
+        "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ],
+      "source_sha256": "f0b956c1d8d619c49e0ed519f26b7c682b3c92cb5d3691d399b5d0281a00f973",
+      "text": "为一个 Cellpose 应用结果渲染 4 面板诊断图（图像 / 预测 / 流）。\n\n:param i: 输出文件名中使用的外层图像索引。\n:param j: 输出文件名中使用的内层批次索引。\n:param results_dir: 写入合成 PNG 的文件夹。\n:param img: 源图像数组。\n:param pred: 预测掩膜数组。\n:param flow: Cellpose 流场。",
+      "translation_source_blocks_sha256": [
+        "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ]
+    },
     "spacr.submodules.compare_reads_to_scores": {
       "source_blocks_sha256": [
         "aaed3eb912b621e9b6a804c76e09d7846004d5ee425ef2a95cfb14598d731b27",
@@ -189773,6 +190717,102 @@
         "0f52de0c2cf17f557d4d5538d8041f01ab4bcc7851c8d9efffc3067bb06b1dd3",
         "96cc14838337cde03c2c1ad104e6f170d4b9d09a7b89474a85b35a53a8f6e030",
         "730cbd97cd60f8ea5b8c8cbc96fbb3003da6e727a9d8185e44c408e44bc547a3"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio": {
+      "source_blocks_sha256": [
+        "4abc8ac96b64415e9ad2be542e9e11668212b32814b7c9d43dd83ef0fff3f54c",
+        "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+        "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+        "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+        "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e"
+      ],
+      "source_sha256": "57cec38c6fb4dc0ffd3a7877d984ff52cc5031ea67d60db9b18a2c2b85e0d2c2",
+      "text": "计算两个 gRNAs 之间每孔读数比例的比值。\n\n:param df: 包含 ``prc``、``grna_name`` 和 ``count`` 列的 dataframe。\n:param grna1: 分子 gRNA。\n:param grna2: 分母 gRNA。\n:returns: 每个 ``prc`` 一个比值的 dataframe。",
+      "translation_source_blocks_sha256": [
+        "31a7112e75378b100941ed60c793f9944c8fef0f364b5d0198f2c36f98829466",
+        "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+        "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+        "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+        "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction": {
+      "source_blocks_sha256": [
+        "739115c24975cf00434d59c75a2dc850c76f1fdcfb978df9eb1e6d6d4d6bcb35",
+        "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+        "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+        "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48"
+      ],
+      "source_sha256": "8ed048e5bb71ec2cf4fe93558ec7cbea5d099b1912c1947fc832492f5f5cd04e",
+      "text": "计算每个孔中各 gRNA 的读数比例。\n\n:param df: 包含 ``plateID``/``rowID``/``columnID``（或 ``prc``）、``grna_name`` 以及读数计数列的 dataframe。\n:param count_column: 读数计数列的名称。\n:returns: dataframe，每个 ``fraction`` 列对应一个 ``(prc, grna_name)``。",
+      "translation_source_blocks_sha256": [
+        "079f1b3b4d98b065a64409b484e786ee9f425dc0c6f1e62477b1176f88ea1b74",
+        "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+        "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+        "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions": {
+      "source_blocks_sha256": [
+        "429705c544b1a0793cdc215a46fb5bb3aae7da3d89dc213a93e2851da42f5933",
+        "654be8775693de460ecb493b29c10f0cd2ed414be450119f0a90df994ba47401",
+        "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+        "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613"
+      ],
+      "source_sha256": "4a931e1a96765ab04ed66eee6d0f9c47819c73d74b96658a1789ba4395169d16",
+      "text": "将逐对象的分类器预测汇总为每孔的类别比例。\n\n:param df: 包含 ``prc`` 孔 id 和分类器预测列的测量 dataframe。\n:param class_columns: 要汇总的预测列名称。\n:returns: 以 ``prc`` 为键、每个类别一个比例列的 dataframe。",
+      "translation_source_blocks_sha256": [
+        "b542825770e3032cfc749e3ee44a69641ef7e6d75595ba928eb648ffacbbe912",
+        "a27e5a78bdff8208eb3b5a44934988b66c86b5853ff7e357f1d9f86536ab69df",
+        "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+        "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.plot_line": {
+      "source_blocks_sha256": [
+        "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+        "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+        "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+        "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+        "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+        "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+        "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+        "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+        "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+        "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+        "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+        "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58"
+      ],
+      "source_sha256": "77e0c93a2704c49a71283eb2a87dd76bcec6d45f2325dc7f39ea12c1319f7cd6",
+      "text": "为每个 y 列（或 ``group_column`` 的每个值）绘制一条线，横轴为 ``x_column``。\n\n:param df: 包含 x 和 y 列的 DataFrame。\n:param x_column: 用于 x 轴的列。\n:param y_columns: 要绘制为线的列，str 或列表。\n:param group_column: 当 ``y_columns`` 为单列时可选的色调列。\n:param xlabel: x 轴标签；默认回退为 ``x_column``。\n:param ylabel: y 轴标签；默认回退为 ``'Value'``。\n:param title: 图标题；默认回退为 ``'Line Plot'``。\n:param figsize: 图的尺寸（英寸）。默认 ``(10, 6)``。\n:param save_path: 保存图的可选 PDF 路径。\n:param theme: Seaborn 调色板名称。默认 ``'deep'``。\n:returns: 创建的 matplotlib Figure。",
+      "translation_source_blocks_sha256": [
+        "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+        "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+        "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+        "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+        "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+        "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+        "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+        "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+        "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+        "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+        "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+        "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58"
+      ]
+    },
+    "spacr.submodules.compare_reads_to_scores.plot_line._set_theme": {
+      "source_blocks_sha256": [
+        "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+        "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+        "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610"
+      ],
+      "source_sha256": "ea43203e7699003425aa87c059495b61765cfc96f9c5fa875bb21c26ee0cfafb",
+      "text": "绘制线条所用的颜色，自有调色板优先。\n\n每个测量列一条线，正是类别本身就是数据的情形，因此这些序列保留不同的色调 -- 但这些色调按固定顺序取自已发布的调色板，而不是取自按索引列表重排的 seaborn 100 色 'deep' 色带。一百种色调就是一百个没人能分辨的序列，而第八种是在深色背景上消失的淡色。\n\n显式指定的非默认 ``theme`` 仍然优先，供有意请求 seaborn 调色板的调用者使用。",
+      "translation_source_blocks_sha256": [
+        "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+        "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+        "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610"
       ]
     },
     "spacr.submodules.count_phenotypes": {
@@ -189837,6 +190877,96 @@
         "b7138ceb53897684fddf91ef4bb08646274bfb7f088d6aca3fe1d7ca0834ac4e"
       ]
     },
+    "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition": {
+      "source_blocks_sha256": [
+        "f18d75c4d33acf204e9d09416090ad59091ed59bc6eb135271b4c8b68b51e8d3",
+        "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+        "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
+        "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+        "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+        "dee159cc317d3a1c32c08016bcfb59c31081bfb79fdf731d0f0a2fcb2cabb3fb"
+      ],
+      "source_sha256": "187776b3abf6a8b372ab2c40d789e7f74434d20452cf12cc32c9cea413e58016",
+      "text": "返回限于指定对照 sgRNA 的每孔读数比例。\n\n:param csv: 读数 CSV 的路径；需要 ``grna_name``、``count``、``rowID`` 和 ``columnID``（旧式 ``column_name`` 会被重命名）。\n:param plate: 板编号，而不是列名。除 ``None`` 外的任何值都会把每个 ``plateID`` 改写为 ``plate<plate>``；``None`` 保留每行自身的值。默认 ``1``。\n:param column: 从 ``columnID`` 中保留的值。默认 ``'c3'``。\n:param control_sgrnas: ``None`` 选择内置的一对 ``TGGT1_220950_1`` / ``TGGT1_233460_4``。只读取前两个条目，因此更长的列表会悄无声息地忽略其余部分，更短（或为空）的列表会抛出 ``IndexError``。条目会被插入一个带锚点的正则表达式：元字符有效，而只是真实 sgRNA 前缀的名称不会匹配任何内容。\n:returns: 匹配的行，外加 ``total_count``、``fraction``（该 sgRNA 在两个对照合计计数中所占的份额 -- 非对照读数从不进入分母）以及 ``prc`` 键。CSV 中缺失的对照会产生空帧，而不是错误。",
+      "translation_source_blocks_sha256": [
+        "bb05baa96d560789c84208fa7444fe3aec2327924886c5b88ad6927f5e746c92",
+        "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+        "96118c3c689a36366b114594dd64be9991d2340ddbb665e737927cf06c7a3d95",
+        "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+        "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+        "b6453bf457774224dd73f236de604bd1b23cd693173e60cbb5c8ea01eda2b611"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.calculate_mae": {
+      "source_blocks_sha256": [
+        "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63"
+      ],
+      "source_sha256": "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63",
+      "text": "返回预测与 ``fraction`` 列之间按通道、按行的 MAE。",
+      "translation_source_blocks_sha256": [
+        "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.combine_classification_scores": {
+      "source_blocks_sha256": [
+        "e4453b943f5183d362a1ca5fc3de57382a4d62da893d9dd78e17bd37110455ec",
+        "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+        "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+        "4c5ac8f7d20ff4f205af2cf2c6c2db004fb4ef1e269ce0c8c1406a3cce109e39",
+        "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
+        "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+        "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7"
+      ],
+      "source_sha256": "540da1d3e4aa4f3d3c587678ede4aa8b460a60a9a88c3d8a5f8c033200d14142",
+      "text": "将每个子文件夹的一个 ``data_column`` 合并为每孔的宽格式 DataFrame。\n\n:param folders: 父目录或父目录列表；单个字符串会被包装成列表。只扫描直接子目录，因此位于父目录本身或嵌套两层以下的 CSV 永远不会被找到。不存在的路径会抛出 ``FileNotFoundError``。\n:param csv_name: 在每个子目录中查找的文件名。找不到的会被打印而不是抛出 -- 一个都找不到时累加器保持为 ``None``，调用以 ``TypeError: 'NoneType' object is not subscriptable`` 结束。\n:param data_column: 按孔求平均的列。其输出列以所在子目录命名（``<sub-folder>_<data_column>``），因此两个含同名子文件夹的父目录会发生冲突，pandas 会追加 ``_x`` / ``_y``。\n:param plate: 板编号，而不是列名。除 ``None`` 外的任何值都会把每个 ``plateID`` 改写为 ``plate<plate>``；``None`` 保留每个 CSV 自身的值。默认 ``1``。\n:param column: 从 ``columnID`` 中保留的值；缺少该列的 CSV 会抛出 ``KeyError``。默认 ``'c3'``。\n:returns: 外连接得到的孔-通道帧，带 ``prc`` 键。",
+      "translation_source_blocks_sha256": [
+        "801cb0e10fa4b5ab5cca1e6644cde59c7012af1b6b16e2fadf2ba9cebde873cd",
+        "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+        "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+        "7f7aff3933f38a0e48f1625b5e2867d2f2bbf33ff4fd8cd1e0f1cbfe7611be56",
+        "51b95f4fc503352b6a519b0204ec414ee061054f43ebc10b0e3afa5f9b6ebaa4",
+        "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+        "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.group_cv_score": {
+      "source_blocks_sha256": [
+        "85e526f875c4d8c1ecccfd9fa5646ff45eecf4ae56d3371549abf81fc70aa90a",
+        "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+        "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
+        "b1affc08af1755c67b0b8b0ff35f619f72b0b1c8d26b69ef5b53d3ad744a1f26",
+        "2f2d2455b59da1c6052de72921325e51ac8636b9f1c57284936660a46d379b52",
+        "5c27ff352ce91d4e922bce785de20a9e1e30637630f2fa8b80d43f7380606e6e"
+      ],
+      "source_sha256": "532ab9d7a790c778fddb375f11a4bc43a4edfd1d3cb819199fcf80307bf1dbca",
+      "text": "将交叉验证预测 CSV 汇总为按（板，行，列）的均值。\n\n:param csv: 交叉验证预测 CSV 的路径。\n:param plate: 板编号，而不是列名。除 ``None`` 外的任何值都会把每行的 ``plateID`` 改写为 ``plate<plate>``，丢弃 CSV 自身记录的板；``None`` 保留 CSV 自身的值，并且会抛出 ``KeyError``，如果它没有 ``plateID`` 列。默认 ``1``。\n:param column: 从 ``columnID`` 中保留的值，或从旧式 ``column`` 列中保留的值，该列会先被复制到 ``columnID``。不匹配任何行的值会返回空帧而不是抛出错误；两个键都没有的 CSV 会悄无声息地跳过过滤，随后在 groupby 时以 ``KeyError: 'columnID'`` 失败。默认 ``'c3'``。\n:param data_column: 在每个孔内求平均的列。CSV 中不存在的名称会抛出 ``KeyError``，非数值列会抛出 ``TypeError``。默认 ``'pred'``。\n:returns: 每个孔一行，外加一个 ``prc`` 键，形式为 ``plateID_rowID_columnID``。",
+      "translation_source_blocks_sha256": [
+        "0d5ca51e251c385328616dfcbee6a98262720a5d509b226791001582764ad362",
+        "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+        "c4aa7c8857d3146733d44cedda62538d49dfa0d6e01ad05e8ca96755896e6e0f",
+        "32ff8a691c58a550a295927f4ed1f8bf4b419b70bf3727f32d71b3d782de5880",
+        "25d04e9cfa2b23e826890bf3d0a62972edc6a611bc20dd132c78bf0b0a8710d7",
+        "f8ed0b4b768c88ab2c5767b0903ce9538ecc431d9ccb8c21831491e8ea0efcd9"
+      ]
+    },
+    "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap": {
+      "source_blocks_sha256": [
+        "ff218d56e1c31c07a8628f995afa85a3cd34aa182bfa68e51733135817e77554",
+        "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+        "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+        "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+        "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58"
+      ],
+      "source_sha256": "046866b18c3efeb63e02e24a409ff581a460f977784f6a888c4e3e590ff06002",
+      "text": "绘制每孔热图，每个分类器通道作为一列。\n\n:param df: 以通道为键的评分列 DataFrame。\n:param column: 用于筛选行的 ``columnID`` 中的值。默认 ``'c3'``。\n:param cmap: matplotlib/seaborn 颜色映射。默认 ``'coolwarm'``。\n:returns: 该 matplotlib Figure 对象。",
+      "translation_source_blocks_sha256": [
+        "b780edaceeea04f4f99d46fdc45b750fa0ef92d1913366f271d5c73eb8889054",
+        "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+        "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+        "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+        "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58"
+      ]
+    },
     "spacr.submodules.interpret_vision_model": {
       "source_blocks_sha256": [
         "7c5e2104208a0b54b7adc80aac0acb8394a8622203bc4d048c286cf1c92ec049",
@@ -189875,6 +191005,96 @@
         "2f09b88df89c09ede610330c7394c9f9389018b05c591064fe742f58f72b9e4d"
       ]
     },
+    "spacr.submodules.interpret_vision_model.create_extended_radar_plot": {
+      "source_blocks_sha256": [
+        "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+        "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+        "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+        "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af"
+      ],
+      "source_sha256": "0867daa5f77c55f24c072e4199d6cddd97a32e42952aa25f6f20c8786b65f4ff",
+      "text": "渲染 ``values`` 相对于 ``labels`` 的极坐标雷达图。\n\n:param values: 每个轴的数值（每个标签一个）。\n:param labels: 轴标签。\n:param title: 图标题。",
+      "translation_source_blocks_sha256": [
+        "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+        "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+        "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+        "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.extract_compartment_channel": {
+      "source_blocks_sha256": [
+        "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+        "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+        "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3"
+      ],
+      "source_sha256": "5c51dbb6c828c85ddf49b2a179f2fc6372e957f55baef61a933c1c58f15c0d54",
+      "text": "按开头的下划线标记将 ``feature_name`` 拆分为 ``(compartment, channel)``。\n\n:param feature_name: 测量特征键，例如 ``\"cell_ch0_mean\"``。\n:returns: 二元组 ``(compartment, channel)`` — 任一项都可能为 ``None``。",
+      "translation_source_blocks_sha256": [
+        "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+        "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+        "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.generate_comparison_columns": {
+      "source_blocks_sha256": [
+        "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+        "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+        "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+        "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc"
+      ],
+      "source_sha256": "53bcd45eac54c21bda9b4fe11adcc039aad9cd1f410c761038a9e25434a3745e",
+      "text": "添加跨区室的特征比值（例如细胞核/细胞）作为新列。\n\n:param df: 测量 DataFrame；各列带有各自区室的前缀。\n:param compartments: 要比较的区室前缀。默认 ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``。\n:returns: 元组 ``(df, comparison_dict)``，包含扩展后的 DataFrame 以及源列到其派生比值对的映射。",
+      "translation_source_blocks_sha256": [
+        "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+        "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+        "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+        "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.group_feature_class": {
+      "source_blocks_sha256": [
+        "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+        "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+        "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+        "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+        "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+        "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5"
+      ],
+      "source_sha256": "5cea91edb2394c4de209f5339698295fdf4600b7c915ce4b7ed4b464ec7f3b79",
+      "text": "按区室或通道组对特征重要性求和。\n\n:param df: 包含 ``feature`` 和 ``importance`` 列的 DataFrame。\n:param feature_groups: 标识每个组（区室或通道）的子字符串。\n:param name: 要创建的分组列名称。默认 ``'compartment'``。\n:param include_all: 追加一行 ``all``，对各组求和。默认 ``False``。\n:returns: 每组重要性之和的 DataFrame。",
+      "translation_source_blocks_sha256": [
+        "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+        "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+        "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+        "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+        "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+        "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.group_feature_class.find_feature_class": {
+      "source_blocks_sha256": [
+        "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d"
+      ],
+      "source_sha256": "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d",
+      "text": "返回名称与 ``feature`` 匹配的区室。",
+      "translation_source_blocks_sha256": [
+        "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d"
+      ]
+    },
+    "spacr.submodules.interpret_vision_model.read_and_preprocess_data": {
+      "source_blocks_sha256": [
+        "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+        "9b54d98cc249adac80b763c0ae28848ba6dc143d86f2daab09c11c31a87317bd",
+        "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4"
+      ],
+      "source_sha256": "0a478a3991a46e3f99d8ea3ba96893830bd476dc5eac6ad6fb76041a313f2e4a",
+      "text": "加载 ``settings`` 所指向的测量数据库，并返回合并后的 dataframe。\n\n:param settings: 设置 dict；必须包含 ``src``（存放 ``measurements/measurements.db`` 的文件夹）。\n:returns: 合并后的对象测量 dataframe。",
+      "translation_source_blocks_sha256": [
+        "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+        "707373ce66bcb543355b84c3c6af704483da00ee712308fd02c4cdd1b405a855",
+        "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4"
+      ]
+    },
     "spacr.submodules.plot_cellpose_batch": {
       "source_blocks_sha256": [
         "2c1a6915a7c80d4c5c49dee8985f3aa44e69601b09816b1e42ab767b2605e1e4",
@@ -189911,6 +191131,26 @@
         "98af194ee73bf5e4fa252936e134ddd9da525c2cc0024887b3ffae77059b366b"
       ]
     },
+    "spacr.submodules.post_regression_analysis._analyze_and_visualize_grna_correlation": {
+      "source_blocks_sha256": [
+        "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2"
+      ],
+      "source_sha256": "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2",
+      "text": "返回并绘制透视后的每孔 gRNA 比例相关矩阵。",
+      "translation_source_blocks_sha256": [
+        "42a1441b1619af96a486b54511940bd5ee16bad3d4395eb0aefb2b17986fd571"
+      ]
+    },
+    "spacr.submodules.post_regression_analysis._compute_effect_sizes": {
+      "source_blocks_sha256": [
+        "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666"
+      ],
+      "source_sha256": "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666",
+      "text": "返回通过相关矩阵从锚定 gRNAs 传播得到的每个 gRNA 的效应量。",
+      "translation_source_blocks_sha256": [
+        "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666"
+      ]
+    },
     "spacr.submodules.split_wells": {
       "source_blocks_sha256": [
         "1d0e5827df4fa2258a57dace96a24626944c647a51eaafaf4016ef98fef87d17",
@@ -189945,6 +191185,30 @@
         "3378d0f78f2703267a78c46948ece5e0129a9bf8b510ce50230b3b121b53c82d",
         "80a0088b243b04d3adcf35b862adcff4c98a71ff2d9e62c30109202fb83fe292",
         "18c3f09f13237427fba1e7a49ada74e705bae7e25e20992a1210e6cc8e4b87e4"
+      ]
+    },
+    "spacr.submodules.test_cellpose_model.plot_cellpose_resilts": {
+      "source_blocks_sha256": [
+        "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
+      ],
+      "source_sha256": "7092c95fb77e33ad8118724cecb1fdf871829295574eb1058f9766eedd2d598c",
+      "text": "为一个 Cellpose 结果渲染 5 面板诊断图（图像 / 标签 / 预测 / 流）。\n\n:param i: 输出文件名中使用的外层图像索引。\n:param j: 输出文件名中使用的内层批次索引。\n:param results_dir: 写入合成 PNG 的文件夹。\n:param img: 源图像数组。\n:param lbl: 真值标签数组。\n:param pred: 预测掩膜数组。\n:param flow: Cellpose 流场。",
+      "translation_source_blocks_sha256": [
+        "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+        "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+        "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+        "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+        "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+        "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+        "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+        "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca"
       ]
     },
     "spacr.submodules.train_cellpose": {

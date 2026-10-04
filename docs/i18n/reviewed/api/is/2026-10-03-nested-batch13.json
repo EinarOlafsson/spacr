@@ -1,0 +1,1767 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml._answering_stop.loglike#0",
+      "source": "Check for cancellation, then return the original likelihood result.",
+      "source_sha256": "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672",
+      "context": "Check for cancellation, then return the original likelihood result.",
+      "translation": "Athugar hvort hætt hafi verið við og skilar síðan upprunalegu líkindaniðurstöðunni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._calculate_similarity.safe_similarity#0",
+      "source": "Call ``func(row, control, ...)`` and swallow errors (return ``NaN``).",
+      "source_sha256": "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd",
+      "context": "Call ``func(row, control, ...)`` and swallow errors (return ``NaN``).",
+      "translation": "Kallar á ``func(row, control, ...)`` og gleypir villur (skilar ``NaN``).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._check_score_count_pairing._plates#0",
+      "source": "Return sorted plate prefixes parsed from the frame's well column.",
+      "source_sha256": "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb",
+      "context": "Return sorted laboratory microplate prefixes parsed from the frame's microplate sample position column.",
+      "translation": "Skilar röðuðum plötuforskeytum sem lesin eru úr brunnadálki rammans.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._flowview_pipeline.decorate#0",
+      "source": "Return a metadata-preserving lifecycle wrapper for ``function``.",
+      "source_sha256": "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b",
+      "context": "Return a metadata-preserving lifecycle wrapper for ``function``.",
+      "translation": "Skilar lífsferilshjúp fyrir ``function`` sem varðveitir lýsigögn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._flowview_pipeline.decorate.observed#0",
+      "source": "Call unchanged, reporting success or failure to an active trace.",
+      "source_sha256": "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7",
+      "context": "Call unchanged, reporting success or failure to an active trace.",
+      "translation": "Kallar óbreytt og tilkynnir árangur eða mistök til virkrar rakningar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._count_variable_instances#0",
+      "source": "Return ``df`` and value-count tables for both named columns.",
+      "source_sha256": "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc",
+      "context": "Return ``df`` and value-count tables for both named columns.",
+      "translation": "Skilar ``df`` og tíðnitöflum fyrir báða nefndu dálkana.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._perform_regression_read_data#0",
+      "source": "Load paired inputs, validate the analysis, and return both frames.",
+      "source_sha256": "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90",
+      "context": "Load paired inputs, validate the analysis, and return both frames.",
+      "translation": "Hleður pöruðum inntökum, sannreynir greininguna og skilar báðum römmunum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._qc_plot#0",
+      "source": "Render one QC plot, reporting - not raising - on failure.",
+      "source_sha256": "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+      "context": "Render one QC plot, reporting - not raising - on failure.",
+      "translation": "Teiknar eitt QC-graf og tilkynnir mistök í stað þess að kasta þeim.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._qc_plot#1",
+      "source": "The QC tables written between these calls are data outputs, so a plotting failure must not cost them. spacrGraph runs a group comparison, which scipy rejects with \"Must enter at least two input sample vectors\" on the very common single-plate run.",
+      "source_sha256": "badc4317b65d69c3bcbdb0bb95e037b486d92a455a11604be7c46a86cb0b5763",
+      "context": "The QC tables written between these calls are data outputs, so a plotting failure must not cost them. spacrGraph runs a group comparison, which scipy rejects with \"Must enter at least two input sample vectors\" on the very common single-laboratory microplate run.",
+      "translation": "QC-töflurnar sem skrifaðar eru milli þessara kalla eru gagnaúttak, svo teiknivilla má ekki kosta þær. spacrGraph framkvæmir hópasamanburð, sem scipy hafnar með \"Must enter at least two input sample vectors\" í mjög algengri keyrslu með einni plötu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._stack#0",
+      "source": "Concatenate nonempty frames, or return the empty result template.",
+      "source_sha256": "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4",
+      "context": "Concatenate nonempty frames, or return the empty result template.",
+      "translation": "Skeytir saman römmum sem ekki eru tómir, eða skilar tóma niðurstöðusniðmátinu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#0",
+      "source": "Return per-feature selection frequencies from a nonparametric bootstrap.",
+      "source_sha256": "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+      "context": "Return per-feature selection frequencies from a nonparametric bootstrap.",
+      "translation": "Skilar valtíðni fyrir hvern eiginleika úr óstikaðri bootstrap-endurtöku.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#1",
+      "source": "Output ranks features by how often their coefficient is non-zero across resamples; this is a stability score, not a hypothesis test.",
+      "source_sha256": "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+      "context": "Output ranks features by how often their coefficient is non-zero across resamples; this is a stability score, not a hypothesis test.",
+      "translation": "Úttakið raðar eiginleikum eftir því hve oft stuðull þeirra er ekki núll yfir endurúrtökin; þetta er stöðugleikaskor, ekki tilgátupróf.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#2",
+      "source": "Long-form DataFrame; design matrix is built per resample from ``formula`` for stable factor levels.",
+      "source_sha256": "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+      "context": "Long-form DataFrame; design matrix is built per resample from ``formula`` for stable factor levels.",
+      "translation": "DataFrame á löngu sniði; hönnunarfylkið er byggt í hverju endurúrtaki úr ``formula`` svo þáttastigin haldist stöðug.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#3",
+      "source": "Response array aligned with ``X`` by index.",
+      "source_sha256": "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+      "context": "Response array aligned with ``X`` by index.",
+      "translation": "Svörunarfylki samstillt við ``X`` eftir vísi.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#4",
+      "source": "Patsy formula for ``dmatrices``.",
+      "source_sha256": "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+      "context": "Patsy formula for ``dmatrices``.",
+      "translation": "Patsy-formúla fyrir ``dmatrices``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#5",
+      "source": "Regularisation strength; ``'auto'``/``None`` runs the cross-validated estimator per resample.",
+      "source_sha256": "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+      "context": "Regularisation strength; ``'auto'``/``None`` runs the cross-validated estimator per resample.",
+      "translation": "Reglunarstyrkur; ``'auto'``/``None`` keyrir krossprófaða matarann í hverju endurúrtaki.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#6",
+      "source": "Number of bootstrap resamples. Default ``200``.",
+      "source_sha256": "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+      "context": "Number of bootstrap resamples. Default ``200``.",
+      "translation": "Fjöldi bootstrap-endurúrtaka. Sjálfgefið ``200``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#7",
+      "source": "Seed for the resampling RNG.",
+      "source_sha256": "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+      "context": "Seed for the resampling RNG.",
+      "translation": "Fræ fyrir slembitölugjafa endurúrtökunnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#8",
+      "source": "``'lasso'``, ``'elasticnet'`` or ``'group_lasso'`` - the same penalty the reported coefficients were fitted with, or the frequencies would describe a different model from the one in ``results.csv``.",
+      "source_sha256": "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+      "context": "``'lasso'``, ``'elasticnet'`` or ``'group_lasso'`` - the same penalty the reported coefficients were fitted with, or the frequencies would describe a different model from the one in ``results.csv``.",
+      "translation": "``'lasso'``, ``'elasticnet'`` eða ``'group_lasso'`` - sama refsing og tilkynntu stuðlarnir voru mátaðir með, annars myndu tíðnirnar lýsa öðru líkani en því í ``results.csv``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#9",
+      "source": "``elasticnet`` mix; ignored for ``'lasso'``.",
+      "source_sha256": "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+      "context": "``elasticnet`` mix; ignored for ``'lasso'``.",
+      "translation": "Blöndun fyrir ``elasticnet``; hunsuð fyrir ``'lasso'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#10",
+      "source": "the block penalty, for ``'group_lasso'``. It is a separate argument from ``alpha`` because it is a separate setting: ``alpha`` is not read by that backend at all, so a resample fitted at ``alpha`` would be a different model from the one whose coefficients this is ranking.",
+      "source_sha256": "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+      "context": "the block penalty, for ``'group_lasso'``. It is a separate argument from ``alpha`` because it is a separate setting: ``alpha`` is not read by that backend at all, so a resample fitted at ``alpha`` would be a different model from the one whose coefficients this is ranking.",
+      "translation": "blokkrefsingin, fyrir ``'group_lasso'``. Hún er sérstakt viðfang frá ``alpha`` því hún er sérstök stilling: sá bakendi les ``alpha`` alls ekki, svo endurúrtak mátað við ``alpha`` væri annað líkan en það sem stuðlarnir sem hér er raðað koma frá.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#11",
+      "source": "DataFrame with columns ``feature``, ``selection_frequency`` and ``mean_coefficient``.",
+      "source_sha256": "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+      "context": "DataFrame with columns ``feature``, ``selection_frequency`` and ``mean_coefficient``.",
+      "translation": "DataFrame með dálkunum ``feature``, ``selection_frequency`` og ``mean_coefficient``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#12",
+      "source": "if every resample fails to fit.",
+      "source_sha256": "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d",
+      "context": "if every resample fails to fit.",
+      "translation": "ef ekkert endurúrtak tekst að máta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies._estimator#0",
+      "source": "Return the configured sklearn lasso or elastic-net estimator.",
+      "source_sha256": "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a",
+      "context": "Return the configured sklearn lasso or elastic-net estimator.",
+      "translation": "Skilar stilltum sklearn-matara fyrir lasso eða elastic net.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies._resample_coefficients#0",
+      "source": "Return group-lasso or sklearn coefficients for one resample.",
+      "source_sha256": "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8",
+      "context": "Return group-lasso or sklearn coefficients for one resample.",
+      "translation": "Skilar group lasso- eða sklearn-stuðlum fyrir eitt endurúrtak.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#0",
+      "source": "Return unique ``return_col`` values whose ``outlier_col`` falls outside 1.5*IQR.",
+      "source_sha256": "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+      "context": "Return unique ``return_col`` values whose ``outlier_col`` falls outside 1.5*IQR.",
+      "translation": "Skilar einstökum ``return_col``-gildum þar sem ``outlier_col`` fellur utan 1.5*IQR.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#1",
+      "source": "Input DataFrame.",
+      "source_sha256": "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+      "context": "Input DataFrame.",
+      "translation": "Inntaks-DataFrame.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#2",
+      "source": "Numeric column screened for outliers.",
+      "source_sha256": "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+      "context": "Numeric column screened for outliers.",
+      "translation": "Tölulegur dálkur sem skimaður er fyrir útlögum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#3",
+      "source": "Column whose distinct values are returned.",
+      "source_sha256": "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+      "context": "Column whose distinct values are returned.",
+      "translation": "Dálkur sem aðgreind gildi eru sótt úr.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#4",
+      "source": "List of unique reference values for outlier rows.",
+      "source_sha256": "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0",
+      "context": "List of unique reference values for outlier rows.",
+      "translation": "Listi yfir einstök viðmiðunargildi fyrir útlagalínur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.grna_metricks#0",
+      "source": "Return per-gRNA and per-well coverage counts derived from a long ``prc`` DataFrame.",
+      "source_sha256": "76bccf9be1d31583d00b2994d4308d6dc4e7c8f238663018dfa4b22f1d519230",
+      "context": "Return per-gRNA and per-microplate sample position coverage counts derived from a long ``prc`` DataFrame.",
+      "translation": "Skilar þekjutölum fyrir hvert gRNA og hvern brunn, leiddum af löngum ``prc``-DataFrame.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.grna_metricks#1",
+      "source": "DataFrame with ``prc``, ``grna`` and ``gene`` columns.",
+      "source_sha256": "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+      "context": "DataFrame with ``prc``, ``grna`` and ``gene`` columns.",
+      "translation": "DataFrame með dálkunum ``prc``, ``grna`` og ``gene``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.grna_metricks#2",
+      "source": "``(final_grna_df, prc_gene_count_df)`` — per-gRNA well counts and per-well distinct-gene counts.",
+      "source_sha256": "219ab97e2804f3a58c972df932a43bd31176a3687a927a989867ce0f162adf06",
+      "context": "``(final_grna_df, prc_gene_count_df)`` — per-gRNA microplate sample position counts and per-microplate sample position distinct-gene counts.",
+      "translation": "``(final_grna_df, prc_gene_count_df)`` — brunnafjöldi fyrir hvert gRNA og fjöldi aðgreindra gena í hverjum brunni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.check_and_clean_data.check_collinearity#0",
+      "source": "Check for collinearity using VIF (Variance Inflation Factor).",
+      "source_sha256": "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80",
+      "context": "Check for collinearity using VIF (Variance Inflation Factor).",
+      "translation": "Athugar fjölfylgni með VIF (dreifniaukningarstuðli).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.check_and_clean_data.ensure_valid_types#0",
+      "source": "Ensure that specified columns are categorical.",
+      "source_sha256": "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68",
+      "context": "Ensure that specified columns are categorical.",
+      "translation": "Tryggir að tilgreindir dálkar séu flokkabreytur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.check_and_clean_data.handle_missing_values#0",
+      "source": "Handle missing values in specified columns.",
+      "source_sha256": "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce",
+      "context": "Handle missing values in specified columns.",
+      "translation": "Meðhöndlar gildi sem vantar í tilgreindum dálkum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.create_extended_radar_plot#0",
+      "source": "Draw a filled radar for ``values`` labelled by ``labels``.",
+      "source_sha256": "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+      "context": "Draw a filled radar for ``values`` labelled by ``labels``.",
+      "translation": "Teiknar fyllt ratsjárrit fyrir ``values`` merkt með ``labels``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.create_extended_radar_plot#1",
+      "source": "A RADAR IS A POLYGON, NOT AN AXIS. This was the last figure on the explanation path that could not move to the screen's renderer, on the grounds that pyqtgraph has no polar view -- which is true and was never the obstacle: each label takes an angle, each value a radius, and `FastPlot.add_radar` draws its own rings because a radar read against a square grid is unreadable.",
+      "source_sha256": "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582",
+      "context": "A radar is a polygon, not an axis. This was the last figure on the explanation path that could not move to the screen's renderer, on the grounds that pyqtgraph has no polar view -- which is true and was never the obstacle: each label takes an angle, each value a radius, and `FastPlot.add_radar` draws its own rings because a radar read against a square grid is unreadable.",
+      "translation": "RATSJÁRRIT ER MARGHYRNINGUR, EKKI ÁS. Þetta var síðasta myndin á útskýringarleiðinni sem gat ekki færst yfir í teiknara skjásins, með þeim rökum að pyqtgraph hafi enga pólsýn -- sem er satt og var aldrei hindrunin: hvert merki fær horn, hvert gildi radíus, og `FastPlot.add_radar` teiknar eigin hringi því ratsjárrit lesið á ferhyrndu neti er ólæsilegt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.extract_compartment_channel#0",
+      "source": "Return ``(compartment, channel)`` parsed from a feature column name.",
+      "source_sha256": "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166",
+      "context": "Return ``(compartment, channel)`` parsed from a feature column name.",
+      "translation": "Skilar ``(compartment, channel)`` þáttuðu úr heiti eiginleikadálks.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.read_and_preprocess_data#0",
+      "source": "Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``.",
+      "source_sha256": "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210",
+      "context": "Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``.",
+      "translation": "Sameinar töflur mæligagnagrunnsins við skor-CSV og skiptir í ``(X, y, merged_df)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs.plates#0",
+      "source": "Return the frame's non-null plate identifiers as strings.",
+      "source_sha256": "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca",
+      "context": "Return the frame's non-null plate identifiers as strings.",
+      "translation": "Skilar plötuauðkennum rammans sem ekki eru tóm, sem strengjum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs.read#0",
+      "source": "Return a cached corrected frame for ``path``, or ``None`` when blank.",
+      "source_sha256": "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a",
+      "context": "Return a cached corrected frame for ``path``, or ``None`` when blank.",
+      "translation": "Skilar leiðréttum ramma úr skyndiminni fyrir ``path``, eða ``None`` þegar hann er auður.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.ml_analysis._match_control_values#0",
+      "source": "Return a boolean mask selecting rows in `series` that match `control`.",
+      "source_sha256": "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+      "context": "Return a boolean mask selecting rows in `series` that match `control`.",
+      "translation": "Skilar Boole-maska sem velur línurnar í `series` sem passa við `control`.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.ml_analysis._match_control_values#1",
+      "source": "Matching is attempted in this order: 1. exact value match 2. numeric coercion match 3. stripped string match",
+      "source_sha256": "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+      "context": "Matching is attempted in this order: 1. exact value match 2. numeric coercion match 3. stripped string match",
+      "translation": "Samsvörun er reynd í þessari röð: 1. nákvæm gildissamsvörun 2. samsvörun eftir tölulega umbreytingu 3. samsvörun snyrtra strengja",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.ml_analysis._match_control_values#2",
+      "source": "`control` can be a scalar or a list/tuple/set of values.",
+      "source_sha256": "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9",
+      "context": "`control` can be a scalar or a list/tuple/set of values.",
+      "translation": "`control` getur verið tölugildi eða listi/túpla/mengi gilda.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs.paths#0",
+      "source": "Return ``value`` as a fresh path list, treating ``None`` as empty.",
+      "source_sha256": "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6",
+      "context": "Return ``value`` as a fresh path list, treating ``None`` as empty.",
+      "translation": "Skilar ``value`` sem nýjum slóðalista, þar sem ``None`` telst tómt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs.unique#0",
+      "source": "Return truthy ``key`` paths once each in first-seen pair order.",
+      "source_sha256": "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b",
+      "context": "Return truthy ``key`` paths once each in first-seen pair order.",
+      "translation": "Skilar sönnum ``key``-slóðum einu sinni hverri, í þeirri röð sem pörin birtast fyrst.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_alpha#0",
+      "source": "Fit and return the requested cross-validated penalty estimator.",
+      "source_sha256": "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b",
+      "context": "Fit and return the requested cross-validated penalty estimator.",
+      "translation": "Mátar og skilar umbeðnum krossprófuðum refsimatara.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_hinge_alpha#0",
+      "source": "Pick the hinge penalty by stratified CV on balanced accuracy.",
+      "source_sha256": "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+      "context": "Pick the hinge penalty by stratified CV on balanced accuracy.",
+      "translation": "Velur hinge-refsinguna með lagskiptri krossprófun á jöfnuðu nákvæmnisgildi.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_hinge_alpha#1",
+      "source": "The same 5-fold shape ``_find_best_alpha`` uses for the penalised least-squares backends. Balanced accuracy rather than accuracy: on an imbalanced screen plain accuracy is maximised by the degenerate all-negative fit, so scoring on it would cross-validate its way to the very failure ``class_weight='balanced'`` exists to prevent.",
+      "source_sha256": "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+      "context": "The same 5-fold shape ``_find_best_alpha`` uses for the penalised least-squares backends. Balanced accuracy rather than accuracy: on an imbalanced screen plain accuracy is maximised by the degenerate all-negative fit, so scoring on it would cross-validate its way to the very failure ``class_weight='balanced'`` exists to prevent.",
+      "translation": "Sama 5-falda uppsetning og ``_find_best_alpha`` notar fyrir refsuðu minnstu-kvaðrata-bakendana. Jafnað nákvæmnisgildi frekar en nákvæmnisgildi: á ójafnvægri skimun hámarkast einföld nákvæmni með úrkynjuðu mátuninni sem kallar allt neikvætt, svo að skora eftir henni myndi krossprófa sig beint í þau mistök sem ``class_weight='balanced'`` er til að koma í veg fyrir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_hinge_alpha#2",
+      "source": "Falls back to the unpenalised-scale default ``C = 1`` when the response has too few wells in a class to split five ways — a two-fold CV on three positive wells is noise, and choosing a penalty from noise is worse than not choosing one.",
+      "source_sha256": "00900ab1b27e97ef042fa22571d2c9c61a5a66aeee1a7ebb8f7d7a13fcd84eb3",
+      "context": "Falls back to the unpenalised-scale default ``C = 1`` when the response has too few microplate sample positions in a class to split five ways — a two-fold CV on three positive microplate sample positions is noise, and choosing a penalty from noise is worse than not choosing one.",
+      "translation": "Fellur aftur á sjálfgefna gildið ``C = 1`` á órefsuðum kvarða þegar svörunin hefur of fáa brunna í flokki til að skipta í fimm — tvöföld krossprófun á þremur jákvæðum brunnum er suð, og að velja refsingu úr suði er verra en að velja enga.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._glm_auto#0",
+      "source": "Return a forced identity-link fit or the response-appropriate GLM.",
+      "source_sha256": "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823",
+      "context": "Return a forced identity-link fit or the response-appropriate GLM.",
+      "translation": "Skilar þvingaðri mátun með auðkennistengli eða því GLM sem hæfir svöruninni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._glm_binomial#0",
+      "source": "Fit and return an optionally weighted binomial GLM for ``link`` and ``scale``.",
+      "source_sha256": "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b",
+      "context": "Fit and return an optionally weighted binomial GLM for ``link`` and ``scale``.",
+      "translation": "Mátar og skilar tvíkosta GLM, valfrjálst vegnu, fyrir ``link`` og ``scale``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._glm_poisson#0",
+      "source": "Validate counts and return a Poisson-log fit with any exposure offset.",
+      "source_sha256": "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201",
+      "context": "Validate counts and return a Poisson-log fit with any exposure offset.",
+      "translation": "Sannreynir talningar og skilar Poisson-log-mátun með hugsanlegri útsetningarhliðrun.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._group_lasso#0",
+      "source": "Fit the named gene-grouped design and return compatible results.",
+      "source_sha256": "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164",
+      "context": "Fit the named gene-grouped design and return compatible results.",
+      "translation": "Mátar nefndu genaflokkuðu hönnunina og skilar samhæfum niðurstöðum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._hinge#0",
+      "source": "Return a hinge classifier using auto-CV or fixed ``C = 1 / alpha``.",
+      "source_sha256": "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e",
+      "context": "Return a hinge machine-learning classification model using auto-CV or fixed ``C = 1 / alpha``.",
+      "translation": "Skilar hinge-flokkara með sjálfvirkri krossprófun eða föstu ``C = 1 / alpha``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._hinge_estimator#0",
+      "source": "A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).",
+      "source_sha256": "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+      "context": "A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).",
+      "translation": "LinearSVC við reglunarstyrkinn ``strength`` (``C = 1 / strength``).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._hinge_estimator#1",
+      "source": "``class_weight='balanced'`` because a screen's positive class is routinely a small minority of wells: an unweighted hinge on a 95/5 split minimises its loss by calling every well negative, which returns a coefficient vector of ~0 for every gRNA and reads downstream as \"no hits\". Balancing reweights each class by its inverse frequency, so the decision boundary is fitted to separate the classes rather than to count them.",
+      "source_sha256": "932a793a1d1fb478318a2050a938ed1f23246549338765643e39502460615eff",
+      "context": "``class_weight='balanced'`` because a screening experiment's positive class is routinely a small minority of microplate sample positions: an unweighted hinge on a 95/5 split minimises its loss by calling every microplate sample position negative, which returns a coefficient vector of ~0 for every gRNA and reads downstream as \"no hits\". Balancing reweights each class by its inverse frequency, so the decision boundary is fitted to separate the classes rather than to count them.",
+      "translation": "``class_weight='balanced'`` því jákvæður flokkur skimunar er að jafnaði lítill minnihluti brunnanna: óvegið hinge á 95/5-skiptingu lágmarkar tap sitt með því að kalla hvern brunn neikvæðan, sem skilar stuðlavigri ~0 fyrir hvert gRNA og er lesið síðar sem \"no hits\". Jöfnun endurvegur hvern flokk með andhverfri tíðni hans, svo ákvörðunarmörkin eru mátuð til að aðgreina flokkana frekar en að telja þá.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._horseshoe#0",
+      "source": "Return a horseshoe-Poisson fit for the captured design and exposure.",
+      "source_sha256": "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762",
+      "context": "Return a horseshoe-Poisson fit for the captured design and exposure.",
+      "translation": "Skilar horseshoe-Poisson-mátun fyrir fangaða hönnun og útsetningu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._named_design#0",
+      "source": "The design's column names, or a refusal that says why they matter.",
+      "source_sha256": "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+      "context": "The design's column names, or a refusal that says why they matter.",
+      "translation": "Dálkaheiti hönnunarinnar, eða neitun sem segir hvers vegna þau skipta máli.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._named_design#1",
+      "source": "Gene-aware backends recover the gene behind each predictor from the column name produced by patsy. Refuse an unnamed array because group lasso would otherwise treat every column as a separate gene and reduce to ordinary lasso under a different label.",
+      "source_sha256": "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4",
+      "context": "Gene-aware backends recover the gene behind each predictor from the column name produced by patsy. Refuse an unnamed array because group lasso would otherwise treat every column as a separate gene and reduce to ordinary lasso under a different label.",
+      "translation": "Genameðvitaðir bakendar finna genið að baki hverjum spábreytu út frá dálkaheitinu sem patsy býr til. Ónefndu fylki er hafnað því annars myndi group lasso meðhöndla hvern dálk sem sérstakt gen og verða að venjulegu lasso undir öðru heiti.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#0",
+      "source": "``log(exposure)``, or None with a warning when there is no exposure.",
+      "source_sha256": "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+      "context": "``log(exposure)``, or None with a warning when there is no exposure.",
+      "translation": "``log(exposure)``, eða None með viðvörun þegar engin útsetning er til.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#1",
+      "source": "A per-well POSITIVE COUNT is not comparable between wells of different size: ``process_scores`` sums the response for the count models, so a well of 2000 cells contributes roughly four times the count of a well of 500 at the identical underlying rate. Modelling that count without ``offset(log(Ntotal))`` asks the covariates to explain well size, and any covariate correlated with it comes back as a hit. Measured on a 400-well simulation with a nuisance covariate that drives well size and nothing else, and a true rate coefficient of +1.5: without the offset the nuisance term came back at +1.88 with p = 0, ahead of the real effect; with it, +0.002 with p = 0.90.",
+      "source_sha256": "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
+      "context": "A per-well positive count is not comparable between microplate sample positions of different size: ``process_scores`` sums the response for the count models, so a well of 2000 cells contributes roughly four times the count of a well of 500 at the identical underlying rate. Modelling that count without ``offset(log(Ntotal))`` asks the covariates to explain well size, and any covariate correlated with it comes back as a hit. Measured on a 400-well simulation with a nuisance covariate that drives well size and nothing else, and a true rate coefficient of +1.5: without the offset the nuisance term came back at +1.88 with p = 0, ahead of the real effect; with it, +0.002 with p = 0.90.",
+      "translation": "JÁKVÆÐ TALNING á brunn er ekki sambærileg milli brunna af ólíkri stærð: ``process_scores`` leggur saman svörunina fyrir talningarlíkönin, svo brunnur með 2000 frumum leggur til um fjórfalda talningu brunns með 500 við sama undirliggjandi hlutfall. Að líkana þá talningu án ``offset(log(Ntotal))`` biður skýribreyturnar um að skýra brunnstærðina, og hver skýribreyta sem fylgir henni kemur aftur sem niðurstöður. Mælt á 400 brunna hermun með truflunarbreytu sem stýrir brunnstærð og engu öðru, og sönnum hlutfallsstuðli +1.5: án hliðrunarinnar kom truflunarliðurinn út með +1.88 og p = 0, á undan raunverulegu áhrifunum; með henni +0.002 og p = 0.90.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#2",
+      "source": "``log(exposure)`` aligned with ``y``, or None.",
+      "source_sha256": "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+      "context": "``log(exposure)`` aligned with ``y``, or None.",
+      "translation": "``log(exposure)`` samstillt við ``y``, eða None.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#3",
+      "source": "when the exposure is not positive and finite — ``log`` of it would be NaN/-inf and every downstream number would silently follow.",
+      "source_sha256": "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8",
+      "context": "when the exposure is not positive and finite — ``log`` of it would be NaN/-inf and every downstream number would silently follow.",
+      "translation": "þegar útsetningin er ekki jákvæð og endanleg — ``log`` hennar væri NaN/-inf og hver tala síðar myndi fylgja hljóðlaust.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._quantile#0",
+      "source": "Validate the captured quantile and return its fitted regression.",
+      "source_sha256": "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379",
+      "context": "Validate the captured quantile and return its fitted regression.",
+      "translation": "Sannreynir fangaða fjórðungsmarkið og skilar mátaðri aðhvarfsgreiningu þess.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._rlm#0",
+      "source": "Return a robust linear fit using the captured Huber tuning constant.",
+      "source_sha256": "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6",
+      "context": "Return a robust linear fit using the captured Huber tuning constant.",
+      "translation": "Skilar sterkri línulegri mátun með fangaða Huber-stillifastanum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._rra#0",
+      "source": "Rank marginal design slopes and return gene-level alpha-RRA results.",
+      "source_sha256": "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3",
+      "context": "Rank marginal design slopes and return gene-level alpha-RRA results.",
+      "translation": "Raðar jaðarhallatölum hönnunarinnar og skilar alpha-RRA-niðurstöðum á genastigi.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._spline#0",
+      "source": "OLS on a design whose COVARIATES carry a spline basis.",
+      "source_sha256": "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+      "context": "OLS on a design whose COVARIATES carry a spline basis.",
+      "translation": "OLS á hönnun þar sem SKÝRIBREYTURNAR bera splínugrunn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._spline#1",
+      "source": "The guide columns are untouched, so one coefficient and one P value per guide survive. The volcano, hit list and attribution can therefore read the result with no special case. What becomes free to bend is the nuisance trend that the straight line was assuming away.",
+      "source_sha256": "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+      "context": "The guide columns are untouched, so one coefficient and one P value per guide survive. The volcano, hit list and attribution can therefore read the result with no special case. What becomes free to bend is the nuisance trend that the straight line was assuming away.",
+      "translation": "Leiðsagnardálkarnir eru ósnertir, svo einn stuðull og eitt P-gildi á hverja leiðsögn lifa af. Volcano, höggalisti og eignun geta því lesið niðurstöðuna án sértilviks. Það sem verður frjálst að beygjast er truflunarleitnin sem beina línan gekk út frá að væri ekki til.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._spline#2",
+      "source": "A column is treated as a covariate when it is CONTINUOUS and is not a guide or gene term -- an indicator has nothing to bend through, and expanding one would spend degrees of freedom on nothing.",
+      "source_sha256": "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538",
+      "context": "A column is treated as a covariate when it is CONTINUOUS and is not a guide or gene term -- an indicator has nothing to bend through, and expanding one would spend degrees of freedom on nothing.",
+      "translation": "Dálkur er meðhöndlaður sem skýribreyta þegar hann er SAMFELLDUR og ekki leiðsagnar- eða genaliður -- vísir hefur ekkert til að beygjast í gegnum, og að víkka hann út myndi eyða frígráðum í ekkert.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._wls#0",
+      "source": "Validate captured per-well weights and return the fitted WLS model.",
+      "source_sha256": "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314",
+      "context": "Validate captured per-microplate sample position weights and return the fitted WLS model.",
+      "translation": "Sannreynir föngnu vigtirnar á hvern brunn og skilar mátuðu WLS-líkaninu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge#0",
+      "source": "Set the edge width on every series that has one.",
+      "source_sha256": "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628",
+      "context": "Set the edge width on every series that has one.",
+      "translation": "Stillir brúnarbreidd á hverri röð sem hefur slíka.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_opacity#0",
+      "source": "Set the alpha on every series.",
+      "source_sha256": "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d",
+      "context": "Set the alpha on every series.",
+      "translation": "Stillir alpha á hverri röð.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_palette#0",
+      "source": "Recolour every series from the chosen palette.",
+      "source_sha256": "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e",
+      "context": "Recolour every series from the chosen palette.",
+      "translation": "Litar hverja röð upp á nýtt úr valinni litaspjaldi.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_size#0",
+      "source": "Resize every series that has a size to set.",
+      "source_sha256": "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213",
+      "context": "Resize every series that has a size to set.",
+      "translation": "Breytir stærð hverrar raðar sem hefur stærð til að stilla.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid#0",
+      "source": "Show or hide the grid, passing line properties ONLY when enabling.",
+      "source_sha256": "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+      "context": "Show or hide the grid, passing line properties ONLY when enabling.",
+      "translation": "Sýnir eða felur netið og sendir línueiginleika AÐEINS þegar kveikt er.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid#1",
+      "source": "matplotlib warns \"First parameter to grid() is false, but line properties are supplied\" and then turns the grid ON regardless -- so passing them unconditionally made the checkbox unable to switch the grid off, which is the opposite of what it says.",
+      "source_sha256": "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04",
+      "context": "matplotlib warns \"First parameter to grid() is false, but line properties are supplied\" and then turns the grid ON regardless -- so passing them unconditionally made the checkbox unable to switch the grid off, which is the opposite of what it says.",
+      "translation": "matplotlib varar við \"First parameter to grid() is false, but line properties are supplied\" og KVEIKIR síðan á netinu samt -- að senda þá skilyrðislaust gerði gátreitinn því ófæran um að slökkva á netinu, sem er andstæða þess sem hann segir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_legend#0",
+      "source": "Rebuild the legend from the current choices.",
+      "source_sha256": "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7",
+      "context": "Rebuild the legend from the current choices.",
+      "translation": "Endurbyggir skýringuna úr núverandi vali.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits#0",
+      "source": "Apply one axis's limits, refusing a zero-width range.",
+      "source_sha256": "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+      "context": "Apply one axis's limits, refusing a zero-width range.",
+      "translation": "Beitir mörkum eins áss og neitar bili með núll breidd.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits#1",
+      "source": "Equal bounds collapse the axis and matplotlib draws nothing, so the value is left alone rather than applied.",
+      "source_sha256": "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684",
+      "context": "Equal bounds collapse the axis and matplotlib draws nothing, so the value is left alone rather than applied.",
+      "translation": "Jöfn mörk fella ásinn saman og matplotlib teiknar ekkert, svo gildið er látið óbreytt frekar en beitt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.do_autoscale#0",
+      "source": "Recompute the limits from the data now on the axis.",
+      "source_sha256": "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d",
+      "context": "Recompute the limits from the data now on the axis.",
+      "translation": "Endurreiknar mörkin úr gögnunum sem nú eru á ásnum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour#0",
+      "source": "Recolour one artist. The artist is bound as a default argument.",
+      "source_sha256": "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+      "context": "Recolour one artist. The artist is bound as a default argument.",
+      "translation": "Litar eitt artist-hlut upp á nýtt. Artist-hluturinn er bundinn sem sjálfgefið viðfang.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour#1",
+      "source": "Bound at definition rather than closed over: a loop variable closed over gives every callback the LAST artist, which is the classic way a row of per-artist controls all end up editing one of them.",
+      "source_sha256": "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002",
+      "context": "Bound at definition rather than closed over: a loop variable closed over gives every callback the LAST artist, which is the classic way a row of per-artist controls all end up editing one of them.",
+      "translation": "Bundið við skilgreiningu frekar en lokað inni: lykkjubreyta sem lokuð er inni gefur hverju callback SÍÐASTA artist-hlutinn, sem er klassíska leiðin til þess að röð stýringa fyrir hvern artist-hlut endi öll á að breyta einum þeirra.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_spines#0",
+      "source": "Set every spine's width, or hide them all at zero.",
+      "source_sha256": "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33",
+      "context": "Set every spine's width, or hide them all at zero.",
+      "translation": "Stillir breidd hverrar áslínu, eða felur þær allar við núll.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_top_right#0",
+      "source": "Hide or show the top and right spines together.",
+      "source_sha256": "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef",
+      "context": "Hide or show the top and right spines together.",
+      "translation": "Felur eða sýnir efri og hægri áslínuna saman.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.resize#0",
+      "source": "Resize the figure to the width and height on screen.",
+      "source_sha256": "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d",
+      "context": "Resize the figure to the width and height on application view.",
+      "translation": "Breytir stærð myndarinnar í breidd og hæð á skjánum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_all_text#0",
+      "source": "Set one font size on every piece of text in the figure.",
+      "source_sha256": "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e",
+      "context": "Set one font size on every piece of text in the figure.",
+      "translation": "Stillir eina leturstærð á hvern textabút í myndinni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_face#0",
+      "source": "Set the figure's own background colour.",
+      "source_sha256": "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655",
+      "context": "Set the figure's own background colour.",
+      "translation": "Stillir eigin bakgrunnslit myndarinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_font_ink#0",
+      "source": "Recolour every piece of text in the figure.",
+      "source_sha256": "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4",
+      "context": "Recolour every piece of text in the figure.",
+      "translation": "Litar hvern textabút í myndinni upp á nýtt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_line_ink#0",
+      "source": "Recolour every line in the figure.",
+      "source_sha256": "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039",
+      "context": "Recolour every line in the figure.",
+      "translation": "Litar hverja línu í myndinni upp á nýtt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._statistics_tab._recompute#0",
+      "source": "Re-run the test with the current choices and redraw.",
+      "source_sha256": "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050",
+      "context": "Execute the test with the current choices and redraw again.",
+      "translation": "Keyrir prófið aftur með núverandi vali og teiknar upp á nýtt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_colour#0",
+      "source": "Store a colour and repaint the swatch that shows it.",
+      "source_sha256": "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0",
+      "context": "Store a colour and repaint the swatch that shows it.",
+      "translation": "Geymir lit og málar aftur litareitinn sem sýnir hann.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_combo#0",
+      "source": "Select the entry whose data is ``v``, if the box has one.",
+      "source_sha256": "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98",
+      "context": "Select the entry whose data is ``v``, if the box has one.",
+      "translation": "Velur færsluna þar sem gögnin eru ``v``, ef reiturinn hefur slíka.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._get#0",
+      "source": "The ground: the transparent sentinel, or the chosen colour.",
+      "source_sha256": "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298",
+      "context": "The ground: the transparent sentinel, or the chosen colour.",
+      "translation": "Bakgrunnurinn: gagnsæja merkigildið, eða valinn litur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._paint_button#0",
+      "source": "Show the ground colour on the button, as swatch and text.",
+      "source_sha256": "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497",
+      "context": "Show the ground colour on the button, as swatch and text.",
+      "translation": "Sýnir bakgrunnslitinn á hnappinum, sem litareit og texta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._set#0",
+      "source": "Apply a ground, ticking transparent when that is what it means.",
+      "source_sha256": "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08",
+      "context": "Apply a ground, ticking transparent when that is what it means.",
+      "translation": "Beitir bakgrunni og hakar við gagnsætt þegar það er það sem hann þýðir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._sync#0",
+      "source": "Grey the colour button while transparent is ticked.",
+      "source_sha256": "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10",
+      "context": "Grey the colour button while transparent is ticked.",
+      "translation": "Gránar lithnappinn meðan hakað er við gagnsætt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._add_bundle_save._save#0",
+      "source": "Ask for a folder and write the whole bundle into it.",
+      "source_sha256": "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae",
+      "context": "Ask for a folder and write the whole bundle into it.",
+      "translation": "Biður um möppu og skrifar allan pakkann í hana.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._add_group_colours._recolour#0",
+      "source": "Pick a colour for one group and store it on the recipe.",
+      "source_sha256": "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d",
+      "context": "Pick a colour for one group and store it on the recipe.",
+      "translation": "Velur lit fyrir einn hóp og geymir hann í uppskriftinni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._colour_button._choose#0",
+      "source": "Ask for a colour and keep it if the dialog returned one.",
+      "source_sha256": "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a",
+      "context": "Ask for a colour and keep it if the dialog returned one.",
+      "translation": "Biður um lit og heldur honum ef glugginn skilaði einum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._colour_button._paint#0",
+      "source": "Show the current colour on the button, as a swatch and as text.",
+      "source_sha256": "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f",
+      "context": "Show the current colour on the button, as a swatch and as text.",
+      "translation": "Sýnir núverandi lit á hnappinum, sem litareit og sem texta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._load#0",
+      "source": "Read a graph style back and apply it.",
+      "source_sha256": "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723",
+      "context": "Read a graph style back and apply it.",
+      "translation": "Les grafstíl til baka og beitir honum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._save#0",
+      "source": "Write the current graph style to a JSON file.",
+      "source_sha256": "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c",
+      "context": "Write the current graph style to a JSON file.",
+      "translation": "Skrifar núverandi grafstíl í JSON-skrá.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._apply#0",
+      "source": "Run ``func`` against every axis in the figure.",
+      "source_sha256": "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4",
+      "context": "Run ``func`` against every axis in the figure.",
+      "translation": "Keyrir ``func`` á hvern ás í myndinni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify#0",
+      "source": "Redraw after a menu toggle, CHEAPLY.",
+      "source_sha256": "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+      "context": "Redraw after a menu toggle, CHEAPLY.",
+      "translation": "Teiknar upp á nýtt eftir valmyndarrofa, Á ÓDÝRAN HÁTT.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify#1",
+      "source": "A context-menu toggle is the same kind of edit the settings dialog makes, and the dialog learned long ago to preview: a full-quality render rewrites the raster AND the vector page, measured at ~263 ms on an 823-point volcano, and the user is mid-gesture. Preview here too, and let the next full render -- a resize, an export, closing the settings dialog -- catch up.",
+      "source_sha256": "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+      "context": "A context-menu toggle is the same kind of edit the settings dialog makes, and the dialog learned long ago to preview: a full-quality render rewrites the raster AND the vector page, measured at ~263 ms on an 823-point volcano, and the user is mid-gesture. Preview here too, and let the next full render -- a resize, an export, closing the settings dialog -- catch up.",
+      "translation": "Rofi í samhengisvalmynd er sams konar breyting og stillingaglugginn gerir, og glugginn lærði fyrir löngu að nota forskoðun: teiknun í fullum gæðum endurskrifar rastann OG vigursíðuna, mælt á ~263 ms á volcano með 823 punktum, og notandinn er í miðri hreyfingu. Forskoðun hér líka, og leyfið næstu fullu teiknun -- stærðarbreytingu, útflutningi, lokun stillingagluggans -- að ná í skottið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify#2",
+      "source": "`on_change` may be a callable that predates preview rendering, so the keyword is offered and withdrawn rather than assumed.",
+      "source_sha256": "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326",
+      "context": "`on_change` may be a callable that predates preview rendering, so the keyword is offered and withdrawn rather than assumed.",
+      "translation": "`on_change` getur verið kallanlegt sem er eldra en forskoðunarteiknunin, svo lykilorðið er boðið og dregið til baka frekar en gert ráð fyrir því.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._pick_ink#0",
+      "source": "Pick a colour and apply it through ``apply_to``.",
+      "source_sha256": "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3",
+      "context": "Pick a colour and apply it through ``apply_to``.",
+      "translation": "Velur lit og beitir honum gegnum ``apply_to``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu.toggle_legend#0",
+      "source": "Show or hide the legend on every axis.",
+      "source_sha256": "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c",
+      "context": "Show or hide the legend on every axis.",
+      "translation": "Sýnir eða felur skýringuna á hverjum ás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.save_figure_as.figure_bg_is_transparent#0",
+      "source": "Whether a stored ground value means \"no background at all\".",
+      "source_sha256": "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f",
+      "context": "Whether a stored ground value means \"no background at all\".",
+      "translation": "Hvort vistað bakgrunnsgildi þýði \"no background at all\".",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.save_figure_bundle._render#0",
+      "source": "Render one file of the bundle through the SHARED export path.",
+      "source_sha256": "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+      "context": "Render one file of the bundle through the SHARED export path.",
+      "translation": "Teiknar eina skrá pakkans gegnum SAMEIGINLEGU útflutningsleiðina.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.save_figure_bundle._render#1",
+      "source": "Both formats go through `save_figure` rather than each drawing itself, so print colours, embedded fonts and raster DPI match every other figure the user keeps.",
+      "source_sha256": "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719",
+      "context": "Both formats go through `save_figure` rather than each drawing itself, so print colours, embedded fonts and raster DPI match every other figure the user keeps.",
+      "translation": "Bæði sniðin fara gegnum `save_figure` frekar en að hvort teikni sig sjálft, svo prentlitir, ívafið letur og DPI rastans passi við hverja aðra mynd sem notandinn geymir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._cellpose_training_pairs.files#0",
+      "source": "Ignore metadata sidecars and Cellpose-generated flow caches.",
+      "source_sha256": "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751",
+      "context": "Ignore metadata sidecars and Cellpose-generated flow caches.",
+      "translation": "Hunsar lýsigagnafylgiskrár og flæðisskyndiminni sem Cellpose býr til.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._invasion_field_thresholds._auto#0",
+      "source": "Return a finite-data threshold, or NaN below the object-count floor.",
+      "source_sha256": "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a",
+      "context": "Return a finite-data threshold, or NaN below the object-count floor.",
+      "translation": "Skilar þröskuldi úr endanlegum gögnum, eða NaN undir lágmarksfjölda hluta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._resolve_invasion_intensity_column._candidates#0",
+      "source": "Yield the current and any legacy measurement column for ``name``.",
+      "source_sha256": "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2",
+      "context": "Yield the current and any legacy measurement column for ``name``.",
+      "translation": "Gefur núverandi mælidálk og hvern eldri mælidálk fyrir ``name``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._resolve_invasion_intensity_column._template#0",
+      "source": "Return the requested statistic's formatted measurement column.",
+      "source_sha256": "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec",
+      "context": "Return the requested statistic's formatted measurement column.",
+      "translation": "Skilar sniðnum mælidálki umbeðinnar tölfræði.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_endodyogeny._calculate_volume_bins#0",
+      "source": "Assign each row to a log2 volume-doubling bin and return the ordered categories.",
+      "source_sha256": "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487",
+      "context": "Assign each row to a log2 volume-doubling bin and return the ordered categories.",
+      "translation": "Úthlutar hverri línu á log2-bil rúmmálstvöföldunar og skilar röðuðu flokkunum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#0",
+      "source": "Annotate rows as ``above``/``below`` a threshold and summarise per condition and well.",
+      "source_sha256": "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+      "context": "Annotate rows as ``above``/``below`` a threshold and summarise per condition and well.",
+      "translation": "Merkir línur sem ``above``/``below`` þröskuld og tekur saman eftir skilyrði og brunni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#1",
+      "source": "measurements DataFrame to annotate in place.",
+      "source_sha256": "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+      "context": "measurements DataFrame to annotate in place.",
+      "translation": "mæli-DataFrame sem merkt er á staðnum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#2",
+      "source": "column whose values are compared to ``threshold``.",
+      "source_sha256": "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+      "context": "column whose values are compared to ``threshold``.",
+      "translation": "dálkur þar sem gildi eru borin saman við ``threshold``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#3",
+      "source": "experimental condition column used for grouping.",
+      "source_sha256": "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+      "context": "experimental condition column used for grouping.",
+      "translation": "dálkur tilraunaskilyrðis sem notaður er til flokkunar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#4",
+      "source": "well identifier column used for grouping.",
+      "source_sha256": "4770944d71540f40fc18a135d8797bf434c8aed3ca78adeacdceaf2b9627d205",
+      "context": "microplate sample position identifier column used for grouping.",
+      "translation": "dálkur brunnauðkennis sem notaður er til flokkunar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#5",
+      "source": "numeric cutoff; values above become ``above``.",
+      "source_sha256": "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+      "context": "numeric cutoff; values above become ``above``.",
+      "translation": "tölulegur þröskuldur; gildi fyrir ofan verða ``above``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#6",
+      "source": "name of the new annotation column. Default ``'annotation'``.",
+      "source_sha256": "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+      "context": "name of the new annotation column. Default ``'annotation'``.",
+      "translation": "heiti nýja merkingardálksins. Sjálfgefið ``'annotation'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#7",
+      "source": "tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table.",
+      "source_sha256": "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9",
+      "context": "tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table.",
+      "translation": "túpla ``(df, summary_df)`` með merktu línunum og töflu yfir fjölda/hlutföll fyrir hvert (skilyrði, brunnur).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.translate_well_in_df#0",
+      "source": "Return a dataframe read from ``csv_loc`` with ``plateID`` / ``well`` columns split out of ``Renamed TIFF``.",
+      "source_sha256": "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+      "context": "Return a dataframe read from ``csv_loc`` with ``plateID`` / ``well`` columns split out of ``Renamed TIFF``.",
+      "translation": "Skilar dataframe sem lesinn er úr ``csv_loc`` með dálkunum ``plateID`` / ``well`` klofnum út úr ``Renamed TIFF``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.translate_well_in_df#1",
+      "source": "path to a CSV containing a ``Renamed TIFF`` column.",
+      "source_sha256": "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+      "context": "path to a CSV containing a ``Renamed TIFF`` column.",
+      "translation": "slóð að CSV sem inniheldur dálkinn ``Renamed TIFF``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.translate_well_in_df#2",
+      "source": ":class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.",
+      "source_sha256": "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2",
+      "context": ":class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.",
+      "translation": ":class:`pandas.DataFrame` með þáttuðu dálkunum ``plateID`` og ``well``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#0",
+      "source": "Render a 4-panel diagnostic (image / pred / flow) for one Cellpose apply result.",
+      "source_sha256": "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+      "context": "Render a 4-panel diagnostic (image / pred / flow) for one Cellpose apply result.",
+      "translation": "Teiknar 4-spjalda greiningu (mynd / spá / flæði) fyrir eina Cellpose-beitingarniðurstöðu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#1",
+      "source": "outer image index used in the output filename.",
+      "source_sha256": "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+      "context": "outer image index used in the output filename.",
+      "translation": "ytri myndvísir sem notaður er í heiti úttaksskrárinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#2",
+      "source": "inner batch index used in the output filename.",
+      "source_sha256": "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+      "context": "inner batch index used in the output filename.",
+      "translation": "innri lotuvísir sem notaður er í heiti úttaksskrárinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#3",
+      "source": "folder where the composite PNG is written.",
+      "source_sha256": "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+      "context": "folder where the composite PNG is written.",
+      "translation": "mappa sem samsetta PNG-myndin er skrifuð í.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#4",
+      "source": "source image array.",
+      "source_sha256": "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+      "context": "source image array.",
+      "translation": "fylki upprunamyndarinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#5",
+      "source": "predicted mask array.",
+      "source_sha256": "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+      "context": "predicted mask array.",
+      "translation": "fylki spáða maskans.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#6",
+      "source": "Cellpose flow field.",
+      "source_sha256": "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca",
+      "context": "Cellpose flow field.",
+      "translation": "Cellpose-flæðisvið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#0",
+      "source": "Compute the per-well read-fraction ratio between two gRNAs.",
+      "source_sha256": "4abc8ac96b64415e9ad2be542e9e11668212b32814b7c9d43dd83ef0fff3f54c",
+      "context": "Compute the per-microplate sample position read-fraction ratio between two gRNAs.",
+      "translation": "Reiknar fyrir hvern brunn hlutfall lesbrota milli tveggja gRNAs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#1",
+      "source": "dataframe with ``prc``, ``grna_name``, and ``count`` columns.",
+      "source_sha256": "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+      "context": "dataframe with ``prc``, ``grna_name``, and ``count`` columns.",
+      "translation": "dataframe með dálkunum ``prc``, ``grna_name`` og ``count``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#2",
+      "source": "numerator gRNA.",
+      "source_sha256": "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+      "context": "numerator gRNA.",
+      "translation": "gRNA í teljara.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#3",
+      "source": "denominator gRNA.",
+      "source_sha256": "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+      "context": "denominator gRNA.",
+      "translation": "gRNA í nefnara.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#4",
+      "source": "dataframe with one ratio value per ``prc``.",
+      "source_sha256": "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e",
+      "context": "dataframe with one ratio value per ``prc``.",
+      "translation": "dataframe með einu hlutfallsgildi fyrir hvert ``prc``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#0",
+      "source": "Compute the per-well fraction of reads for each gRNA.",
+      "source_sha256": "739115c24975cf00434d59c75a2dc850c76f1fdcfb978df9eb1e6d6d4d6bcb35",
+      "context": "Compute the per-microplate sample position fraction of reads for each gRNA.",
+      "translation": "Reiknar fyrir hvern brunn hlut lestra hvers gRNA.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#1",
+      "source": "dataframe with ``plateID``/``rowID``/``columnID`` (or ``prc``), ``grna_name``, and a read count column.",
+      "source_sha256": "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+      "context": "dataframe with ``plateID``/``rowID``/``columnID`` (or ``prc``), ``grna_name``, and a read count column.",
+      "translation": "dataframe með ``plateID``/``rowID``/``columnID`` (eða ``prc``), ``grna_name`` og dálki með lestrafjölda.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#2",
+      "source": "name of the read-count column.",
+      "source_sha256": "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+      "context": "name of the read-count column.",
+      "translation": "heiti dálksins með lestrafjölda.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#3",
+      "source": "dataframe with a ``fraction`` column per ``(prc, grna_name)``.",
+      "source_sha256": "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48",
+      "context": "dataframe with a ``fraction`` column per ``(prc, grna_name)``.",
+      "translation": "dataframe með ``fraction``-dálki fyrir hvert ``(prc, grna_name)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#0",
+      "source": "Aggregate per-object classifier predictions into per-well class fractions.",
+      "source_sha256": "429705c544b1a0793cdc215a46fb5bb3aae7da3d89dc213a93e2851da42f5933",
+      "context": "Aggregate per-object machine-learning classification model predictions into per-microplate sample position class fractions.",
+      "translation": "Safnar flokkaraspám fyrir hvern hlut í flokkahlutföll fyrir hvern brunn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#1",
+      "source": "measurements dataframe with a ``prc`` well id and a classifier prediction column.",
+      "source_sha256": "654be8775693de460ecb493b29c10f0cd2ed414be450119f0a90df994ba47401",
+      "context": "measurements dataframe with a ``prc`` microplate sample position id and a machine-learning classification model prediction column.",
+      "translation": "mæli-dataframe með ``prc``-brunnsauðkenni og dálki með flokkaraspám.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#2",
+      "source": "name of the prediction column to summarise.",
+      "source_sha256": "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+      "context": "name of the prediction column to summarise.",
+      "translation": "heiti spádálksins sem á að taka saman.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#3",
+      "source": "dataframe keyed by ``prc`` with one fraction column per class.",
+      "source_sha256": "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613",
+      "context": "dataframe keyed by ``prc`` with one fraction column per class.",
+      "translation": "dataframe með lyklinum ``prc`` og einum hlutfallsdálki fyrir hvern flokk.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#0",
+      "source": "Plot one line per y-column (or per ``group_column`` value) against ``x_column``.",
+      "source_sha256": "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+      "context": "Plot one line per y-column (or per ``group_column`` value) against ``x_column``.",
+      "translation": "Teiknar eina línu fyrir hvern y-dálk (eða hvert gildi ``group_column``) á móti ``x_column``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#1",
+      "source": "DataFrame containing the x and y columns.",
+      "source_sha256": "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+      "context": "DataFrame containing the x and y columns.",
+      "translation": "DataFrame sem inniheldur x- og y-dálkana.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#2",
+      "source": "column used for the x axis.",
+      "source_sha256": "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+      "context": "column used for the x axis.",
+      "translation": "dálkur sem notaður er fyrir x-ásinn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#3",
+      "source": "str or list of columns to plot as lines.",
+      "source_sha256": "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+      "context": "str or list of columns to plot as lines.",
+      "translation": "str eða listi af dálkum sem teiknaðir eru sem línur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#4",
+      "source": "optional hue column when ``y_columns`` is a single column.",
+      "source_sha256": "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+      "context": "optional hue column when ``y_columns`` is a single column.",
+      "translation": "valfrjáls litblæsdálkur þegar ``y_columns`` er einn dálkur.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#5",
+      "source": "x-axis label; falls back to ``x_column``.",
+      "source_sha256": "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+      "context": "x-axis label; falls back to ``x_column``.",
+      "translation": "merki x-áss; ef ekkert, ``x_column``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#6",
+      "source": "y-axis label; falls back to ``'Value'``.",
+      "source_sha256": "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+      "context": "y-axis label; falls back to ``'Value'``.",
+      "translation": "merki y-áss; ef ekkert, ``'Value'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#7",
+      "source": "plot title; falls back to ``'Line Plot'``.",
+      "source_sha256": "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+      "context": "plot title; falls back to ``'Line Plot'``.",
+      "translation": "titill grafsins; ef ekkert, ``'Line Plot'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#8",
+      "source": "figure size in inches. Default ``(10, 6)``.",
+      "source_sha256": "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+      "context": "figure size in inches. Default ``(10, 6)``.",
+      "translation": "stærð myndar í tommum. Sjálfgefið ``(10, 6)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#9",
+      "source": "optional PDF path to save the figure.",
+      "source_sha256": "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+      "context": "optional PDF path to save the figure.",
+      "translation": "valfrjáls PDF-slóð til að vista myndina.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#10",
+      "source": "Seaborn palette name. Default ``'deep'``.",
+      "source_sha256": "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+      "context": "Seaborn palette name. Default ``'deep'``.",
+      "translation": "heiti Seaborn-litaspjalds. Sjálfgefið ``'deep'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#11",
+      "source": "the created matplotlib Figure.",
+      "source_sha256": "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58",
+      "context": "the created matplotlib Figure.",
+      "translation": "matplotlib-myndin sem var búin til.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#0",
+      "source": "The colours the lines are drawn in, house palette first.",
+      "source_sha256": "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+      "context": "The colours the lines are drawn in, house palette first.",
+      "translation": "Litirnir sem línurnar eru teiknaðar í, eigin litaspjald fyrst.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#1",
+      "source": "ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY ARE THE DATA, so these series keep distinct hues -- but they come from the published palette in a fixed order rather than from seaborn's 100-colour 'deep' ramp reordered by an index list. A hundred hues is a hundred series nobody can tell apart, and the eighth one was a pastel that vanished on the dark ground.",
+      "source_sha256": "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+      "context": "ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY ARE THE DATA, so these series keep distinct hues -- but they come from the published palette in a fixed order rather than from seaborn's 100-colour 'deep' ramp reordered by an index list. A hundred hues is a hundred series nobody can tell apart, and the eighth one was a pastel that vanished on the dark ground.",
+      "translation": "EIN LÍNA FYRIR HVERN MÆLDAN DÁLK ER TILVIK ÞAR SEM FLOKKARNIR ERU RAUNVERULEGA GÖGNIN, svo þessar raðir halda aðgreindum litblæ -- en þeir koma úr birta litaspjaldinu í fastri röð frekar en úr 100-lita 'deep'-skala seaborn endurröðuðum með vísalista. Hundrað litblæir eru hundrað raðir sem enginn getur greint að, og sá áttundi var pastellitur sem hvarf á dökkum bakgrunni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#2",
+      "source": "An explicit non-default ``theme`` still wins, for a caller who deliberately asked for a seaborn palette.",
+      "source_sha256": "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610",
+      "context": "An explicit non-default ``theme`` still wins, for a caller who deliberately asked for a seaborn palette.",
+      "translation": "Skýrt ``theme`` sem ekki er sjálfgefið ræður samt, fyrir kallanda sem bað vísvitandi um seaborn-litaspjald.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#0",
+      "source": "Return per-well read fractions restricted to the given control sgRNAs.",
+      "source_sha256": "f18d75c4d33acf204e9d09416090ad59091ed59bc6eb135271b4c8b68b51e8d3",
+      "context": "Return per-microplate sample position read fractions restricted to the given control sgRNAs.",
+      "translation": "Skilar lestrahlutföllum fyrir hvern brunn, takmörkuðum við tilgreind viðmiðunar-sgRNA.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#1",
+      "source": "path to the reads CSV; needs ``grna_name``, ``count``, ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).",
+      "source_sha256": "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+      "context": "path to the reads CSV; needs ``grna_name``, ``count``, ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).",
+      "translation": "slóð að lestra-CSV; þarf ``grna_name``, ``count``, ``rowID`` og ``columnID`` (eldra ``column_name`` er endurnefnt).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#2",
+      "source": "a plate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each row's own value. Default ``1``.",
+      "source_sha256": "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
+      "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each row's own value. Default ``1``.",
+      "translation": "plötu-NÚMER, ekki dálkaheiti. Hvert gildi annað en ``None`` endurskrifar hvert ``plateID`` sem ``plate<plate>``; ``None`` heldur eigin gildi hverrar línu. Sjálfgefið ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#3",
+      "source": "value kept from ``columnID``. Default ``'c3'``.",
+      "source_sha256": "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+      "context": "value kept from ``columnID``. Default ``'c3'``.",
+      "translation": "gildi sem haldið er úr ``columnID``. Sjálfgefið ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#4",
+      "source": "``None`` selects the built-in pair ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactly the first two entries are read, so a longer list silently ignores the rest and a shorter one (or an empty one) raises ``IndexError``. Entries are interpolated into an anchored regex: metacharacters are live, and a name that is only a prefix of the real sgRNA matches nothing.",
+      "source_sha256": "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+      "context": "``None`` selects the built-in pair ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactly the first two entries are read, so a longer list silently ignores the rest and a shorter one (or an empty one) raises ``IndexError``. Entries are interpolated into an anchored regex: metacharacters are live, and a name that is only a prefix of the real sgRNA matches nothing.",
+      "translation": "``None`` velur innbyggða parið ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Nákvæmlega fyrstu tvær færslurnar eru lesnar, svo lengri listi hunsar afganginn hljóðlaust og styttri (eða tómur) kastar ``IndexError``. Færslunum er skeytt inn í festa reglulega segð: sértákn eru virk, og heiti sem er aðeins forskeyti raunverulega sgRNA passar við ekkert.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#5",
+      "source": "the matching rows plus ``total_count``, ``fraction`` (that sgRNA's share of the two controls' combined count -- non-control reads never enter the denominator) and a ``prc`` key. Controls absent from the CSV yield an empty frame, not an error.",
+      "source_sha256": "dee159cc317d3a1c32c08016bcfb59c31081bfb79fdf731d0f0a2fcb2cabb3fb",
+      "context": "the matching rows plus ``total_count``, ``fraction`` (that sgRNA's share of the two controls' combined count -- non-control reads never enter the denominator) and a ``prc`` structured-data name. Controls absent from the CSV yield an empty frame, not an error.",
+      "translation": "samsvarandi línurnar ásamt ``total_count``, ``fraction`` (hlutur þess sgRNA í samanlagðri talningu viðmiðanna tveggja -- lestrar sem ekki eru viðmið fara aldrei í nefnarann) og ``prc``-lykli. Viðmið sem vantar í CSV gefa tóman ramma, ekki villu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_mae#0",
+      "source": "Return the per-channel, per-row MAE between predictions and the ``fraction`` column.",
+      "source_sha256": "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63",
+      "context": "Return the per-channel, per-row MAE between predictions and the ``fraction`` column.",
+      "translation": "Skilar MAE fyrir hverja rás og hverja línu milli spánna og dálksins ``fraction``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#0",
+      "source": "Merge one ``data_column`` per sub-folder into a wide per-well DataFrame.",
+      "source_sha256": "e4453b943f5183d362a1ca5fc3de57382a4d62da893d9dd78e17bd37110455ec",
+      "context": "Merge one ``data_column`` per sub-folder into a wide per-microplate sample position DataFrame.",
+      "translation": "Sameinar einn ``data_column`` fyrir hverja undirmöppu í breiðan DataFrame fyrir hvern brunn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#1",
+      "source": "parent directory, or a list of them; a bare string is wrapped in a list. Only the immediate sub-directories are scanned, so a CSV sitting in the parent itself, or one nested two levels down, is never found. A path that does not exist raises ``FileNotFoundError``.",
+      "source_sha256": "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+      "context": "parent directory, or a list of them; a bare string is wrapped in a list. Only the immediate sub-directories are scanned, so a CSV sitting in the parent itself, or one nested two levels down, is never found. A path that does not exist raises ``FileNotFoundError``.",
+      "translation": "yfirmappa, eða listi af þeim; stakur strengur er settur í lista. Aðeins beinar undirmöppur eru skannaðar, svo CSV sem liggur í yfirmöppunni sjálfri, eða ein tveimur stigum neðar, finnst aldrei. Slóð sem er ekki til kastar ``FileNotFoundError``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#2",
+      "source": "file name looked for inside each sub-directory. Misses are printed, not raised -- finding none leaves the accumulator ``None`` and the call ends in ``TypeError: 'NoneType' object is not subscriptable``.",
+      "source_sha256": "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+      "context": "file name looked for inside each sub-directory. Misses are printed, not raised -- finding none leaves the accumulator ``None`` and the call ends in ``TypeError: 'NoneType' object is not subscriptable``.",
+      "translation": "skráarheiti sem leitað er að í hverri undirmöppu. Það sem finnst ekki er prentað, ekki kastað -- finnist ekkert helst safnarinn ``None`` og kallið endar á ``TypeError: 'NoneType' object is not subscriptable``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#3",
+      "source": "column averaged per well. Its output column is named after the containing sub-directory (``<sub-folder>_<data_column>``), so two parents holding same-named sub-folders collide and pandas appends ``_x`` / ``_y``.",
+      "source_sha256": "4c5ac8f7d20ff4f205af2cf2c6c2db004fb4ef1e269ce0c8c1406a3cce109e39",
+      "context": "column averaged per microplate sample position. Its output column is named after the containing sub-directory (``<sub-folder>_<data_column>``), so two parents holding same-named sub-folders collide and pandas appends ``_x`` / ``_y``.",
+      "translation": "dálkur sem meðaltal er tekið af fyrir hvern brunn. Úttaksdálkur hans er nefndur eftir undirmöppunni sem geymir hann (``<sub-folder>_<data_column>``), svo tvær yfirmöppur með samnefndum undirmöppum rekast á og pandas bætir við ``_x`` / ``_y``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#4",
+      "source": "a plate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each CSV's own value. Default ``1``.",
+      "source_sha256": "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
+      "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each CSV's own value. Default ``1``.",
+      "translation": "plötu-NÚMER, ekki dálkaheiti. Hvert gildi annað en ``None`` endurskrifar hvert ``plateID`` sem ``plate<plate>``; ``None`` heldur eigin gildi hverrar CSV. Sjálfgefið ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#5",
+      "source": "value kept from ``columnID``; a CSV lacking that column raises ``KeyError``. Default ``'c3'``.",
+      "source_sha256": "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+      "context": "value kept from ``columnID``; a CSV lacking that column raises ``KeyError``. Default ``'c3'``.",
+      "translation": "gildi sem haldið er úr ``columnID``; CSV sem vantar þann dálk kastar ``KeyError``. Sjálfgefið ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#6",
+      "source": "the outer-joined well-by-channel frame with a ``prc`` key.",
+      "source_sha256": "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7",
+      "context": "the outer-joined well-by-channel frame with a ``prc`` key.",
+      "translation": "ytri-sameinaði rammi brunna á móti rásum með ``prc``-lykli.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#0",
+      "source": "Aggregate a CV predictions CSV to a per-(plate, row, column) mean.",
+      "source_sha256": "85e526f875c4d8c1ecccfd9fa5646ff45eecf4ae56d3371549abf81fc70aa90a",
+      "context": "Aggregate a CV predictions CSV to a per-(laboratory microplate, row, column) mean.",
+      "translation": "Safnar CSV með krossprófunarspám í meðaltal fyrir hvert (plata, röð, dálkur).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#1",
+      "source": "path to the cross-validation predictions CSV.",
+      "source_sha256": "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+      "context": "path to the cross-validation predictions CSV.",
+      "translation": "slóð að CSV með krossprófunarspám.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#2",
+      "source": "a plate NUMBER, not a column name. Any value but ``None`` rewrites every row's ``plateID`` to ``plate<plate>``, discarding the plate the CSV itself recorded; ``None`` keeps the CSV's own value and raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.",
+      "source_sha256": "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
+      "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every row's ``plateID`` to ``plate<plate>``, discarding the laboratory microplate the CSV itself recorded; ``None`` keeps the CSV's own value and raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.",
+      "translation": "plötu-NÚMER, ekki dálkaheiti. Hvert gildi annað en ``None`` endurskrifar ``plateID`` hverrar línu sem ``plate<plate>`` og fleygir plötunni sem CSV sjálf skráði; ``None`` heldur eigin gildi CSV og kastar ``KeyError`` ef hún hefur engan ``plateID``-dálk. Sjálfgefið ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#3",
+      "source": "value kept from ``columnID``, or from a legacy ``column`` column which is copied to ``columnID`` first. A value matching no row returns an empty frame rather than raising; a CSV carrying neither key skips the filter silently and then dies on the groupby with ``KeyError: 'columnID'``. Default ``'c3'``.",
+      "source_sha256": "b1affc08af1755c67b0b8b0ff35f619f72b0b1c8d26b69ef5b53d3ad744a1f26",
+      "context": "value kept from ``columnID``, or from a legacy ``column`` column which is copied to ``columnID`` first. A value matching no row returns an empty frame rather than throwing; a CSV carrying neither structured-data name skips the filter silently and then dies on the groupby with ``KeyError: 'columnID'``. Default ``'c3'``.",
+      "translation": "gildi sem haldið er úr ``columnID``, eða úr eldri dálki ``column`` sem fyrst er afritaður í ``columnID``. Gildi sem passar við enga línu skilar tómum ramma frekar en að kasta villu; CSV sem hefur hvorugan lykilinn sleppir síunni hljóðlaust og deyr síðan í groupby með ``KeyError: 'columnID'``. Sjálfgefið ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#4",
+      "source": "column averaged within each well. A name absent from the CSV raises ``KeyError``, a non-numeric one ``TypeError``. Default ``'pred'``.",
+      "source_sha256": "2f2d2455b59da1c6052de72921325e51ac8636b9f1c57284936660a46d379b52",
+      "context": "column averaged within each microplate sample position. A name absent from the CSV raises ``KeyError``, a non-numeric one ``TypeError``. Default ``'pred'``.",
+      "translation": "dálkur sem meðaltal er tekið af innan hvers brunns. Heiti sem vantar í CSV kastar ``KeyError``, ótölulegt ``TypeError``. Sjálfgefið ``'pred'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#5",
+      "source": "one row per well, plus a ``prc`` key of ``plateID_rowID_columnID``.",
+      "source_sha256": "5c27ff352ce91d4e922bce785de20a9e1e30637630f2fa8b80d43f7380606e6e",
+      "context": "one row per microplate sample position, plus a ``prc`` structured-data name of ``plateID_rowID_columnID``.",
+      "translation": "ein lína á brunn, ásamt ``prc``-lykli á forminu ``plateID_rowID_columnID``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#0",
+      "source": "Plot a per-well heatmap with each classifier channel as a column.",
+      "source_sha256": "ff218d56e1c31c07a8628f995afa85a3cd34aa182bfa68e51733135817e77554",
+      "context": "Plot a per-microplate sample position heatmap with each machine-learning classification model channel as a column.",
+      "translation": "Teiknar hitakort fyrir hvern brunn með hverja flokkararás sem dálk.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#1",
+      "source": "DataFrame with score columns keyed by channel.",
+      "source_sha256": "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+      "context": "DataFrame with score columns keyed by channel.",
+      "translation": "DataFrame með skordálkum lykluðum eftir rás.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#2",
+      "source": "value in ``columnID`` used to filter rows. Default ``'c3'``.",
+      "source_sha256": "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+      "context": "value in ``columnID`` used to filter rows. Default ``'c3'``.",
+      "translation": "gildi í ``columnID`` sem notað er til að sía línur. Sjálfgefið ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#3",
+      "source": "matplotlib/seaborn colormap. Default ``'coolwarm'``.",
+      "source_sha256": "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+      "context": "matplotlib/seaborn colormap. Default ``'coolwarm'``.",
+      "translation": "litakort matplotlib/seaborn. Sjálfgefið ``'coolwarm'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#4",
+      "source": "the matplotlib Figure.",
+      "source_sha256": "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58",
+      "context": "the matplotlib Figure.",
+      "translation": "matplotlib-myndin.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#0",
+      "source": "Render a polar radar plot of ``values`` against ``labels``.",
+      "source_sha256": "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+      "context": "Render a polar radar plot of ``values`` against ``labels``.",
+      "translation": "Teiknar pólskt ratsjárrit af ``values`` á móti ``labels``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#1",
+      "source": "numeric values per axis (one per label).",
+      "source_sha256": "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+      "context": "numeric values per axis (one per label).",
+      "translation": "töluleg gildi fyrir hvern ás (eitt fyrir hvert merki).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#2",
+      "source": "axis labels.",
+      "source_sha256": "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+      "context": "axis labels.",
+      "translation": "ásamerki.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#3",
+      "source": "plot title.",
+      "source_sha256": "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af",
+      "context": "plot title.",
+      "translation": "titill grafsins.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.extract_compartment_channel#0",
+      "source": "Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.",
+      "source_sha256": "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+      "context": "Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.",
+      "translation": "Skiptir ``feature_name`` í ``(compartment, channel)`` eftir fremsta undirstriksbútnum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.extract_compartment_channel#1",
+      "source": "measurement feature key, e.g. ``\"cell_ch0_mean\"``.",
+      "source_sha256": "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+      "context": "measurement feature key, e.g. ``\"cell_ch0_mean\"``.",
+      "translation": "lykill mælieiginleika, t.d. ``\"cell_ch0_mean\"``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.extract_compartment_channel#2",
+      "source": "two-tuple ``(compartment, channel)`` — either may be ``None``.",
+      "source_sha256": "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3",
+      "context": "two-tuple ``(compartment, channel)`` — either may be ``None``.",
+      "translation": "tvenndin ``(compartment, channel)`` — hvort tveggja getur verið ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#0",
+      "source": "Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.",
+      "source_sha256": "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+      "context": "Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.",
+      "translation": "Bætir við eiginleikahlutföllum milli hólfa (t.d. kjarni/fruma) sem nýjum dálkum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#1",
+      "source": "measurements DataFrame; columns prefixed with each compartment.",
+      "source_sha256": "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+      "context": "measurements DataFrame; columns prefixed with each compartment.",
+      "translation": "mæli-DataFrame; dálkar með forskeyti hvers hólfs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#2",
+      "source": "compartment prefixes to compare. Defaults to ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.",
+      "source_sha256": "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+      "context": "compartment prefixes to compare. Defaults to ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.",
+      "translation": "hólfaforskeyti til samanburðar. Sjálfgefið ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#3",
+      "source": "tuple ``(df, comparison_dict)`` with the expanded DataFrame and a mapping of source columns to their derived ratio partners.",
+      "source_sha256": "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc",
+      "context": "tuple ``(df, comparison_dict)`` with the expanded DataFrame and a mapping of source columns to their derived ratio partners.",
+      "translation": "túpla ``(df, comparison_dict)`` með útvíkkaða DataFrame og vörpun upprunadálka á afleidd hlutfallspör þeirra.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#0",
+      "source": "Sum feature importance by compartment or channel group.",
+      "source_sha256": "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+      "context": "Sum feature importance by compartment or channel group.",
+      "translation": "Leggur saman mikilvægi eiginleika eftir hólfa- eða rásahópi.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#1",
+      "source": "DataFrame with columns ``feature`` and ``importance``.",
+      "source_sha256": "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+      "context": "DataFrame with columns ``feature`` and ``importance``.",
+      "translation": "DataFrame með dálkunum ``feature`` og ``importance``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#2",
+      "source": "substrings identifying each group (compartments or channels).",
+      "source_sha256": "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+      "context": "substrings identifying each group (compartments or channels).",
+      "translation": "hlutstrengir sem auðkenna hvern hóp (hólf eða rásir).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#3",
+      "source": "name of the grouping column to create. Default ``'compartment'``.",
+      "source_sha256": "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+      "context": "name of the grouping column to create. Default ``'compartment'``.",
+      "translation": "heiti flokkunardálksins sem á að búa til. Sjálfgefið ``'compartment'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#4",
+      "source": "append an ``all`` row summing across groups. Default ``False``.",
+      "source_sha256": "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+      "context": "append an ``all`` row summing across groups. Default ``False``.",
+      "translation": "bæta við ``all``-línu sem leggur saman yfir hópana. Sjálfgefið ``False``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#5",
+      "source": "DataFrame of summed importance per group.",
+      "source_sha256": "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5",
+      "context": "DataFrame of summed importance per group.",
+      "translation": "DataFrame með samanlögðu mikilvægi fyrir hvern hóp.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class.find_feature_class#0",
+      "source": "Return the compartment(s) whose name matches ``feature``.",
+      "source_sha256": "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d",
+      "context": "Return the compartment(s) whose name matches ``feature``.",
+      "translation": "Skilar hólfinu eða hólfunum þar sem heitið passar við ``feature``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.read_and_preprocess_data#0",
+      "source": "Load the measurements DB pointed at by ``settings`` and return the merged dataframe.",
+      "source_sha256": "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+      "context": "Load the measurements DB pointed at by ``settings`` and return the merged dataframe.",
+      "translation": "Hleður mæligagnagrunninum sem ``settings`` vísar á og skilar sameinaða dataframe.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.read_and_preprocess_data#1",
+      "source": "settings dict; must contain ``src`` (folder holding ``measurements/measurements.db``).",
+      "source_sha256": "9b54d98cc249adac80b763c0ae28848ba6dc143d86f2daab09c11c31a87317bd",
+      "context": "settings key-value mapping; must contain ``src`` (folder holding ``measurements/measurements.db``).",
+      "translation": "stillinga-dict; verður að innihalda ``src`` (möppuna með ``measurements/measurements.db``).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.read_and_preprocess_data#2",
+      "source": "dataframe of merged object measurements.",
+      "source_sha256": "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4",
+      "context": "dataframe of merged object measurements.",
+      "translation": "dataframe með sameinuðum hlutamælingum.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.post_regression_analysis._analyze_and_visualize_grna_correlation#0",
+      "source": "Return and plot the pivoted per-well gRNA fraction correlation matrix.",
+      "source_sha256": "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2",
+      "context": "Return and plot the pivoted per-microplate sample position gRNA fraction correlation matrix.",
+      "translation": "Skilar og teiknar snúna fylgnifylkið fyrir gRNA-hlutföll í hverjum brunni.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.post_regression_analysis._compute_effect_sizes#0",
+      "source": "Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix.",
+      "source_sha256": "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666",
+      "context": "Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix.",
+      "translation": "Skilar áhrifastærðum fyrir hvert gRNA sem dreift er frá akkeris-gRNAs gegnum fylgnifylkið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#0",
+      "source": "Render one 5-panel diagnostic (image / label / pred / flow) for a Cellpose result.",
+      "source_sha256": "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+      "context": "Render one 5-panel diagnostic (image / label / pred / flow) for a Cellpose result.",
+      "translation": "Teiknar 5-spjalda greiningu (mynd / merki / spá / flæði) fyrir Cellpose-niðurstöðu.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#1",
+      "source": "outer image index used in the output filename.",
+      "source_sha256": "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+      "context": "outer image index used in the output filename.",
+      "translation": "ytri myndvísir sem notaður er í heiti úttaksskrárinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#2",
+      "source": "inner batch index used in the output filename.",
+      "source_sha256": "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+      "context": "inner batch index used in the output filename.",
+      "translation": "innri lotuvísir sem notaður er í heiti úttaksskrárinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#3",
+      "source": "folder where the composite PNG is written.",
+      "source_sha256": "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+      "context": "folder where the composite PNG is written.",
+      "translation": "mappa sem samsetta PNG-myndin er skrifuð í.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#4",
+      "source": "source image array.",
+      "source_sha256": "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+      "context": "source image array.",
+      "translation": "fylki upprunamyndarinnar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#5",
+      "source": "ground-truth label array.",
+      "source_sha256": "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+      "context": "ground-truth label array.",
+      "translation": "fylki raunmerkja.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#6",
+      "source": "predicted mask array.",
+      "source_sha256": "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+      "context": "predicted mask array.",
+      "translation": "fylki spáða maskans.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#7",
+      "source": "Cellpose flow field.",
+      "source_sha256": "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca",
+      "context": "Cellpose flow field.",
+      "translation": "Cellpose-flæðisvið.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

@@ -1,0 +1,1767 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.ml._answering_stop.loglike#0",
+      "source": "Check for cancellation, then return the original likelihood result.",
+      "source_sha256": "1ce855ce9cfcd5f250d89b7de7684b06e21f1dc8f4fa24aa8e236a1bbc1a4672",
+      "context": "Check for cancellation, then return the original likelihood result.",
+      "translation": "Verifica cancelamento e depois devolve o resultado de verossimilhança original.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._calculate_similarity.safe_similarity#0",
+      "source": "Call ``func(row, control, ...)`` and swallow errors (return ``NaN``).",
+      "source_sha256": "7589ca65f90d4ce53fee7e3621aad78de1e9396c08a0e46b44e84b5bfdede3dd",
+      "context": "Call ``func(row, control, ...)`` and swallow errors (return ``NaN``).",
+      "translation": "Chama ``func(row, control, ...)`` e engole erros (devolve ``NaN``).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._check_score_count_pairing._plates#0",
+      "source": "Return sorted plate prefixes parsed from the frame's well column.",
+      "source_sha256": "1756c2a1650dc01431cf6ec0563ffad796397ae3648c44b29ccb66bf7c8fe1bb",
+      "context": "Return sorted laboratory microplate prefixes parsed from the frame's microplate sample position column.",
+      "translation": "Devolve os prefixos de placa ordenados extraídos da coluna de poços do quadro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._flowview_pipeline.decorate#0",
+      "source": "Return a metadata-preserving lifecycle wrapper for ``function``.",
+      "source_sha256": "32bc9dedcd5140a5738ae06e142ba4bbdfc2a8a3770330b5514bc55b60cd5d8b",
+      "context": "Return a metadata-preserving lifecycle wrapper for ``function``.",
+      "translation": "Devolve um wrapper de ciclo de vida que preserva os metadados de ``function``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._flowview_pipeline.decorate.observed#0",
+      "source": "Call unchanged, reporting success or failure to an active trace.",
+      "source_sha256": "f332bab39ec33ec1a8d144c4316bfe2276e11c3b711d0948a835cfd54e6a2fe7",
+      "context": "Call unchanged, reporting success or failure to an active trace.",
+      "translation": "Chama sem alterações, relatando sucesso ou falha a um rastreamento ativo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._count_variable_instances#0",
+      "source": "Return ``df`` and value-count tables for both named columns.",
+      "source_sha256": "c103a334ca1e0fb6d41fee23767511dbe8550ced7310544a4361bbdde9f7e9bc",
+      "context": "Return ``df`` and value-count tables for both named columns.",
+      "translation": "Devolve ``df`` e tabelas de contagem de valores para ambas as colunas nomeadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._perform_regression_read_data#0",
+      "source": "Load paired inputs, validate the analysis, and return both frames.",
+      "source_sha256": "99cf1a27a297934add9e6d602a76d26512ceafee14adccdfff6b4ed5b6e26f90",
+      "context": "Load paired inputs, validate the analysis, and return both frames.",
+      "translation": "Carrega entradas pareadas, valida a análise e devolve ambos os quadros.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._qc_plot#0",
+      "source": "Render one QC plot, reporting - not raising - on failure.",
+      "source_sha256": "df2f5fe5b27ca63b460529b15fb76dfbd0f5ba742e47c8b77fda206f289a47d5",
+      "context": "Render one QC plot, reporting - not raising - on failure.",
+      "translation": "Desenha um gráfico de QC, relatando a falha em vez de lançá-la.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._qc_plot#1",
+      "source": "The QC tables written between these calls are data outputs, so a plotting failure must not cost them. spacrGraph runs a group comparison, which scipy rejects with \"Must enter at least two input sample vectors\" on the very common single-plate run.",
+      "source_sha256": "badc4317b65d69c3bcbdb0bb95e037b486d92a455a11604be7c46a86cb0b5763",
+      "context": "The QC tables written between these calls are data outputs, so a plotting failure must not cost them. spacrGraph runs a group comparison, which scipy rejects with \"Must enter at least two input sample vectors\" on the very common single-laboratory microplate run.",
+      "translation": "As tabelas de QC escritas entre estas chamadas são saídas de dados, então uma falha de desenho não pode custá-las. spacrGraph executa uma comparação de grupos, que o scipy rejeita com \"Must enter at least two input sample vectors\" na execução muito comum de uma única placa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression._stack#0",
+      "source": "Concatenate nonempty frames, or return the empty result template.",
+      "source_sha256": "e93aa886b6cd191380f2b2d4593330fe5bcfd2effc15a6c07097eac1b7ee58d4",
+      "context": "Concatenate nonempty frames, or return the empty result template.",
+      "translation": "Concatena quadros não vazios, ou devolve o modelo de resultado vazio.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#0",
+      "source": "Return per-feature selection frequencies from a nonparametric bootstrap.",
+      "source_sha256": "f16a82ca2a767b70d9995d99364a3824b164e34cf653ba79a6e6632fc8786f3e",
+      "context": "Return per-feature selection frequencies from a nonparametric bootstrap.",
+      "translation": "Devolve frequências de seleção por variável a partir de um bootstrap não paramétrico.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#1",
+      "source": "Output ranks features by how often their coefficient is non-zero across resamples; this is a stability score, not a hypothesis test.",
+      "source_sha256": "f77ad7fa942c313f367dedac6ed2d3a8d3da9b1b8e2a37e4c7b9dd2124d48108",
+      "context": "Output ranks features by how often their coefficient is non-zero across resamples; this is a stability score, not a hypothesis test.",
+      "translation": "A saída ordena as variáveis pela frequência com que o seu coeficiente é diferente de zero entre as reamostragens; é uma pontuação de estabilidade, não um teste de hipótese.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#2",
+      "source": "Long-form DataFrame; design matrix is built per resample from ``formula`` for stable factor levels.",
+      "source_sha256": "8b0dec99ba4049642f9155ab464e9eae705590054bd53e657f4fb36b24174c35",
+      "context": "Long-form DataFrame; design matrix is built per resample from ``formula`` for stable factor levels.",
+      "translation": "DataFrame em formato longo; a matriz de desenho é construída a cada reamostragem a partir de ``formula`` para que os níveis dos fatores sejam estáveis.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#3",
+      "source": "Response array aligned with ``X`` by index.",
+      "source_sha256": "2d596478c1a91d72ab0c6df8da3f44f0ef2937a05d7ca48219af33ce83083b43",
+      "context": "Response array aligned with ``X`` by index.",
+      "translation": "Array de resposta alinhado com ``X`` pelo índice.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#4",
+      "source": "Patsy formula for ``dmatrices``.",
+      "source_sha256": "73d3b27e46f86da6aba8b8e176a8887e4a2347cdc305c193900898d8f2a0b12d",
+      "context": "Patsy formula for ``dmatrices``.",
+      "translation": "Fórmula Patsy para ``dmatrices``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#5",
+      "source": "Regularisation strength; ``'auto'``/``None`` runs the cross-validated estimator per resample.",
+      "source_sha256": "b91b350406abba067551b465a9794a8e8ac482923a8a811ef728d7fbf2890305",
+      "context": "Regularisation strength; ``'auto'``/``None`` runs the cross-validated estimator per resample.",
+      "translation": "Força de regularização; ``'auto'``/``None`` executa o estimador com validação cruzada a cada reamostragem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#6",
+      "source": "Number of bootstrap resamples. Default ``200``.",
+      "source_sha256": "ceaf7e9ef25ef65a1a55602c2042131a15d804fdfeb3eda82b3996b1442f5dc6",
+      "context": "Number of bootstrap resamples. Default ``200``.",
+      "translation": "Número de reamostragens bootstrap. Padrão ``200``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#7",
+      "source": "Seed for the resampling RNG.",
+      "source_sha256": "90526905a44b2a569a21a079e13e726c692269b112128a19dda1059eae00c137",
+      "context": "Seed for the resampling RNG.",
+      "translation": "Semente do gerador de números aleatórios da reamostragem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#8",
+      "source": "``'lasso'``, ``'elasticnet'`` or ``'group_lasso'`` - the same penalty the reported coefficients were fitted with, or the frequencies would describe a different model from the one in ``results.csv``.",
+      "source_sha256": "2f52efd451d77eb91c974991569bb50c4bb67dadf4a7713095fa35ecd4c3cd03",
+      "context": "``'lasso'``, ``'elasticnet'`` or ``'group_lasso'`` - the same penalty the reported coefficients were fitted with, or the frequencies would describe a different model from the one in ``results.csv``.",
+      "translation": "``'lasso'``, ``'elasticnet'`` ou ``'group_lasso'`` - a mesma penalização com que os coeficientes relatados foram ajustados; caso contrário, as frequências descreveriam um modelo diferente do de ``results.csv``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#9",
+      "source": "``elasticnet`` mix; ignored for ``'lasso'``.",
+      "source_sha256": "ec8dc389c34c928f9b1972949749fc35a471fe8d6a2837a58d86b1958eb10852",
+      "context": "``elasticnet`` mix; ignored for ``'lasso'``.",
+      "translation": "Mistura do ``elasticnet``; ignorada para ``'lasso'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#10",
+      "source": "the block penalty, for ``'group_lasso'``. It is a separate argument from ``alpha`` because it is a separate setting: ``alpha`` is not read by that backend at all, so a resample fitted at ``alpha`` would be a different model from the one whose coefficients this is ranking.",
+      "source_sha256": "3d64f12a634aa7b8d962e078b13e48618b0ad808070e703dbd5b9aec495a0acb",
+      "context": "the block penalty, for ``'group_lasso'``. It is a separate argument from ``alpha`` because it is a separate setting: ``alpha`` is not read by that backend at all, so a resample fitted at ``alpha`` would be a different model from the one whose coefficients this is ranking.",
+      "translation": "a penalização por blocos, para ``'group_lasso'``. É um argumento separado de ``alpha`` porque é uma configuração separada: ``alpha`` não é lido de forma alguma por esse backend, então uma reamostragem ajustada com ``alpha`` seria um modelo diferente daquele cujos coeficientes estão sendo ordenados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#11",
+      "source": "DataFrame with columns ``feature``, ``selection_frequency`` and ``mean_coefficient``.",
+      "source_sha256": "3e3381ca3354e7e299c5aba9c749de6280ba100cda3b8c40d7c7264b913e28ea",
+      "context": "DataFrame with columns ``feature``, ``selection_frequency`` and ``mean_coefficient``.",
+      "translation": "DataFrame com as colunas ``feature``, ``selection_frequency`` e ``mean_coefficient``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies#12",
+      "source": "if every resample fails to fit.",
+      "source_sha256": "5c24a262767223c42b6d6782e48d10f31b604081d4b2161e7cf6ce7c6cfdc70d",
+      "context": "if every resample fails to fit.",
+      "translation": "se todas as reamostragens falharem ao ajustar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies._estimator#0",
+      "source": "Return the configured sklearn lasso or elastic-net estimator.",
+      "source_sha256": "3f867ce6a6704ddb0b8402004356da31d897f56803f64e166cc27e53eef4785a",
+      "context": "Return the configured sklearn lasso or elastic-net estimator.",
+      "translation": "Devolve o estimador sklearn configurado, lasso ou elastic net.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.bootstrap_selection_frequencies._resample_coefficients#0",
+      "source": "Return group-lasso or sklearn coefficients for one resample.",
+      "source_sha256": "ffaf6bf8afffac81d27828ad98612fc3709ef5385fd189a2b9b5f32f6ba616d8",
+      "context": "Return group-lasso or sklearn coefficients for one resample.",
+      "translation": "Devolve coeficientes de group lasso ou do sklearn para uma reamostragem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#0",
+      "source": "Return unique ``return_col`` values whose ``outlier_col`` falls outside 1.5*IQR.",
+      "source_sha256": "229226ee41ca2b912ca05bec7d4d2fa17846e40402f6887efe1545abded10072",
+      "context": "Return unique ``return_col`` values whose ``outlier_col`` falls outside 1.5*IQR.",
+      "translation": "Devolve valores únicos de ``return_col`` cujo ``outlier_col`` fica fora de 1.5*IQR.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#1",
+      "source": "Input DataFrame.",
+      "source_sha256": "b7b2d18106e3d8e827e13b3bd41c20284dc06af5f757183153bbb53ac8c8b955",
+      "context": "Input DataFrame.",
+      "translation": "DataFrame de entrada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#2",
+      "source": "Numeric column screened for outliers.",
+      "source_sha256": "523456cbae9337818bbc538f78372500e1e8e063567fc0fdcc39e5365025cf9f",
+      "context": "Numeric column screened for outliers.",
+      "translation": "Coluna numérica examinada em busca de valores atípicos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#3",
+      "source": "Column whose distinct values are returned.",
+      "source_sha256": "ae1e96dab93414f210df24a71da57c63a16b4d4c913db78441024e56d0f86d9e",
+      "context": "Column whose distinct values are returned.",
+      "translation": "Coluna cujos valores distintos são devolvidos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.get_outlier_reference_values#4",
+      "source": "List of unique reference values for outlier rows.",
+      "source_sha256": "305fa9760354fd7fcb03bea6fd6dcb724245962d11ba51aa09214ba870ba80d0",
+      "context": "List of unique reference values for outlier rows.",
+      "translation": "Lista de valores de referência únicos para as linhas atípicas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.grna_metricks#0",
+      "source": "Return per-gRNA and per-well coverage counts derived from a long ``prc`` DataFrame.",
+      "source_sha256": "76bccf9be1d31583d00b2994d4308d6dc4e7c8f238663018dfa4b22f1d519230",
+      "context": "Return per-gRNA and per-microplate sample position coverage counts derived from a long ``prc`` DataFrame.",
+      "translation": "Devolve contagens de cobertura por gRNA e por poço derivadas de um DataFrame ``prc`` em formato longo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.grna_metricks#1",
+      "source": "DataFrame with ``prc``, ``grna`` and ``gene`` columns.",
+      "source_sha256": "3ab802c2f069c2893f2f365ef97ab2a7c9b5d2f186258b20f928efd99bd84684",
+      "context": "DataFrame with ``prc``, ``grna`` and ``gene`` columns.",
+      "translation": "DataFrame com as colunas ``prc``, ``grna`` e ``gene``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml._perform_regression.grna_metricks#2",
+      "source": "``(final_grna_df, prc_gene_count_df)`` — per-gRNA well counts and per-well distinct-gene counts.",
+      "source_sha256": "219ab97e2804f3a58c972df932a43bd31176a3687a927a989867ce0f162adf06",
+      "context": "``(final_grna_df, prc_gene_count_df)`` — per-gRNA microplate sample position counts and per-microplate sample position distinct-gene counts.",
+      "translation": "``(final_grna_df, prc_gene_count_df)`` — contagens de poços por gRNA e contagens de genes distintos por poço.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.check_and_clean_data.check_collinearity#0",
+      "source": "Check for collinearity using VIF (Variance Inflation Factor).",
+      "source_sha256": "04382929d95eda6bfe2446ca0427cb23154ae3bb7ba1877a538b365b289c8e80",
+      "context": "Check for collinearity using VIF (Variance Inflation Factor).",
+      "translation": "Verifica a colinearidade usando o VIF (fator de inflação da variância).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.check_and_clean_data.ensure_valid_types#0",
+      "source": "Ensure that specified columns are categorical.",
+      "source_sha256": "42eb7485ba71a2eadba1d35e2905cb551d57f3031fe90bfc2308bcc5f02cce68",
+      "context": "Ensure that specified columns are categorical.",
+      "translation": "Garante que as colunas indicadas sejam categóricas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.check_and_clean_data.handle_missing_values#0",
+      "source": "Handle missing values in specified columns.",
+      "source_sha256": "75ccffea502bc747b07374bbf442566c65a37a4730605d95a5a25958590d37ce",
+      "context": "Handle missing values in specified columns.",
+      "translation": "Trata valores ausentes nas colunas indicadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.create_extended_radar_plot#0",
+      "source": "Draw a filled radar for ``values`` labelled by ``labels``.",
+      "source_sha256": "fdd1e4109b64518ac26ca6e6493c653e30c4f08832f50c1593d5945194bc66f6",
+      "context": "Draw a filled radar for ``values`` labelled by ``labels``.",
+      "translation": "Desenha um radar preenchido para ``values`` rotulado por ``labels``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.create_extended_radar_plot#1",
+      "source": "A RADAR IS A POLYGON, NOT AN AXIS. This was the last figure on the explanation path that could not move to the screen's renderer, on the grounds that pyqtgraph has no polar view -- which is true and was never the obstacle: each label takes an angle, each value a radius, and `FastPlot.add_radar` draws its own rings because a radar read against a square grid is unreadable.",
+      "source_sha256": "1d9bc885794d2e6c214f367936648ed948582dc391e06c1bbae0fb93f7ab8582",
+      "context": "A radar is a polygon, not an axis. This was the last figure on the explanation path that could not move to the screen's renderer, on the grounds that pyqtgraph has no polar view -- which is true and was never the obstacle: each label takes an angle, each value a radius, and `FastPlot.add_radar` draws its own rings because a radar read against a square grid is unreadable.",
+      "translation": "UM RADAR É UM POLÍGONO, NÃO UM EIXO. Esta era a última figura no caminho de explicação que não podia passar para o renderizador da vista, sob o argumento de que o pyqtgraph não tem vista polar -- o que é verdade e nunca foi o obstáculo: cada rótulo recebe um ângulo, cada valor um raio, e `FastPlot.add_radar` desenha os seus próprios anéis porque um radar lido contra uma grade quadrada é ilegível.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.extract_compartment_channel#0",
+      "source": "Return ``(compartment, channel)`` parsed from a feature column name.",
+      "source_sha256": "335e3b0e4b4bfc21a15f85e0d14eddb082657f16420ff712f1faebd2150a2166",
+      "context": "Return ``(compartment, channel)`` parsed from a feature column name.",
+      "translation": "Devolve ``(compartment, channel)`` extraído do nome de uma coluna de variável.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.interpret_vision_model.read_and_preprocess_data#0",
+      "source": "Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``.",
+      "source_sha256": "b9b8924332165369c3d59774529b94e5a1ae2758a5ee44cca0986c13cf12a210",
+      "context": "Merge measurement DB tables with a scores CSV and split into ``(X, y, merged_df)``.",
+      "translation": "Mescla tabelas do banco de dados de medições com um CSV de pontuações e divide em ``(X, y, merged_df)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs.plates#0",
+      "source": "Return the frame's non-null plate identifiers as strings.",
+      "source_sha256": "7276288cf04563836a6d525697085fc2d5192c68ac265f174857c666adc0d1ca",
+      "context": "Return the frame's non-null plate identifiers as strings.",
+      "translation": "Devolve como cadeias de caracteres os identificadores de placa não nulos do quadro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.load_regression_input_pairs.read#0",
+      "source": "Return a cached corrected frame for ``path``, or ``None`` when blank.",
+      "source_sha256": "212aad16b441f6480511bd84b57e9e928a97909c96fd33064a2bc5460ad83d2a",
+      "context": "Return a cached corrected frame for ``path``, or ``None`` when blank.",
+      "translation": "Devolve um quadro corrigido em cache para ``path``, ou ``None`` quando vazio.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.ml_analysis._match_control_values#0",
+      "source": "Return a boolean mask selecting rows in `series` that match `control`.",
+      "source_sha256": "4df64469ca4f3df1bd5b548643ba41721942c7fedbbd806581e97db4fac363e8",
+      "context": "Return a boolean mask selecting rows in `series` that match `control`.",
+      "translation": "Devolve uma máscara booleana que seleciona as linhas de `series` que correspondem a `control`.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.ml_analysis._match_control_values#1",
+      "source": "Matching is attempted in this order: 1. exact value match 2. numeric coercion match 3. stripped string match",
+      "source_sha256": "df99fd82ed640bd66715334de1e89b736179614b60325f58b2809e4f60816a3f",
+      "context": "Matching is attempted in this order: 1. exact value match 2. numeric coercion match 3. stripped string match",
+      "translation": "A correspondência é tentada nesta ordem: 1. correspondência exata de valor 2. correspondência após conversão numérica 3. correspondência de cadeias de caracteres aparadas",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.ml_analysis._match_control_values#2",
+      "source": "`control` can be a scalar or a list/tuple/set of values.",
+      "source_sha256": "74b197978e7cd9147944004baa4160fb8de7140b0902b3d69715a694238487c9",
+      "context": "`control` can be a scalar or a list/tuple/set of values.",
+      "translation": "`control` pode ser um escalar ou uma lista/tupla/conjunto de valores.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs.paths#0",
+      "source": "Return ``value`` as a fresh path list, treating ``None`` as empty.",
+      "source_sha256": "59d2c44b6ae64ff658d5a49f5bb9355074f038914ed5dd4ba9953fea76d0abb6",
+      "context": "Return ``value`` as a fresh path list, treating ``None`` as empty.",
+      "translation": "Devolve ``value`` como uma lista de caminhos nova, tratando ``None`` como vazio.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.normalize_regression_input_pairs.unique#0",
+      "source": "Return truthy ``key`` paths once each in first-seen pair order.",
+      "source_sha256": "1631eae85eb050ee1498746d5c7dffcd68c86eabeb7761985a580b1662c7237b",
+      "context": "Return truthy ``key`` paths once each in first-seen pair order.",
+      "translation": "Devolve caminhos ``key`` verdadeiros uma vez cada, na ordem em que os pares aparecem pela primeira vez.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_alpha#0",
+      "source": "Fit and return the requested cross-validated penalty estimator.",
+      "source_sha256": "ea04fbd6a801bdcd5d75336384ef28e2c00ee80da9867d4c19ddb6ec072bc24b",
+      "context": "Fit and return the requested cross-validated penalty estimator.",
+      "translation": "Ajusta e devolve o estimador penalizado com validação cruzada solicitado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_hinge_alpha#0",
+      "source": "Pick the hinge penalty by stratified CV on balanced accuracy.",
+      "source_sha256": "af1af4e1127c26a6489de2588128abdef3c2ef75c0f5f23915860b69cb2ea501",
+      "context": "Pick the hinge penalty by stratified CV on balanced accuracy.",
+      "translation": "Escolhe a penalização hinge por validação cruzada estratificada sobre a acurácia balanceada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_hinge_alpha#1",
+      "source": "The same 5-fold shape ``_find_best_alpha`` uses for the penalised least-squares backends. Balanced accuracy rather than accuracy: on an imbalanced screen plain accuracy is maximised by the degenerate all-negative fit, so scoring on it would cross-validate its way to the very failure ``class_weight='balanced'`` exists to prevent.",
+      "source_sha256": "29ff3c99cf45be7258e4f63ce6483f16253132731b23d8078c9a392445f34ded",
+      "context": "The same 5-fold shape ``_find_best_alpha`` uses for the penalised least-squares backends. Balanced accuracy rather than accuracy: on an imbalanced screen plain accuracy is maximised by the degenerate all-negative fit, so scoring on it would cross-validate its way to the very failure ``class_weight='balanced'`` exists to prevent.",
+      "translation": "A mesma estrutura de 5 partições que ``_find_best_alpha`` usa para os backends de mínimos quadrados penalizados. Acurácia balanceada em vez de acurácia: num rastreio desbalanceado, a acurácia simples é maximizada pelo ajuste degenerado que declara tudo negativo, então pontuar por ela levaria a validação cruzada exatamente à falha que ``class_weight='balanced'`` existe para evitar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._find_best_hinge_alpha#2",
+      "source": "Falls back to the unpenalised-scale default ``C = 1`` when the response has too few wells in a class to split five ways — a two-fold CV on three positive wells is noise, and choosing a penalty from noise is worse than not choosing one.",
+      "source_sha256": "00900ab1b27e97ef042fa22571d2c9c61a5a66aeee1a7ebb8f7d7a13fcd84eb3",
+      "context": "Falls back to the unpenalised-scale default ``C = 1`` when the response has too few microplate sample positions in a class to split five ways — a two-fold CV on three positive microplate sample positions is noise, and choosing a penalty from noise is worse than not choosing one.",
+      "translation": "Recorre ao padrão de escala não penalizada ``C = 1`` quando a resposta tem poucos poços demais numa classe para dividir em cinco — uma validação cruzada de duas partições em três poços positivos é ruído, e escolher uma penalização a partir de ruído é pior do que não escolher nenhuma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._glm_auto#0",
+      "source": "Return a forced identity-link fit or the response-appropriate GLM.",
+      "source_sha256": "931dcae08f09b494fafe9cff1ec501f7609e3a63dc594d9e2e32be58569c7823",
+      "context": "Return a forced identity-link fit or the response-appropriate GLM.",
+      "translation": "Devolve um ajuste forçado com ligação identidade ou o GLM adequado à resposta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._glm_binomial#0",
+      "source": "Fit and return an optionally weighted binomial GLM for ``link`` and ``scale``.",
+      "source_sha256": "8022cff04bdda8b3025a79979035e402bc2ff2e6359e2fcd7a130a4feee5112b",
+      "context": "Fit and return an optionally weighted binomial GLM for ``link`` and ``scale``.",
+      "translation": "Ajusta e devolve um GLM binomial, opcionalmente ponderado, para ``link`` e ``scale``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._glm_poisson#0",
+      "source": "Validate counts and return a Poisson-log fit with any exposure offset.",
+      "source_sha256": "a4f4ad6a5cfb015be008a43e315f83aa3efb847fb18026e5472e9f126b2ac201",
+      "context": "Validate counts and return a Poisson-log fit with any exposure offset.",
+      "translation": "Valida contagens e devolve um ajuste Poisson-log com o offset de exposição que houver.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._group_lasso#0",
+      "source": "Fit the named gene-grouped design and return compatible results.",
+      "source_sha256": "d5a40679afb94805066a59d2c068287381ea396a79ce6a34646a5c2414022164",
+      "context": "Fit the named gene-grouped design and return compatible results.",
+      "translation": "Ajusta o desenho agrupado por genes indicado e devolve resultados compatíveis.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._hinge#0",
+      "source": "Return a hinge classifier using auto-CV or fixed ``C = 1 / alpha``.",
+      "source_sha256": "d6e94107f771fa4ab69eae6cc7321e2a4b9f699631a37b412da395a90a60818e",
+      "context": "Return a hinge machine-learning classification model using auto-CV or fixed ``C = 1 / alpha``.",
+      "translation": "Devolve um classificador hinge com validação cruzada automática ou ``C = 1 / alpha`` fixo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._hinge_estimator#0",
+      "source": "A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).",
+      "source_sha256": "e912e8eec047090f474db4e7f9c6123f8ce7801595f5c09110fa76792096479f",
+      "context": "A LinearSVC at regularisation ``strength`` (``C = 1 / strength``).",
+      "translation": "Um LinearSVC com força de regularização ``strength`` (``C = 1 / strength``).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._hinge_estimator#1",
+      "source": "``class_weight='balanced'`` because a screen's positive class is routinely a small minority of wells: an unweighted hinge on a 95/5 split minimises its loss by calling every well negative, which returns a coefficient vector of ~0 for every gRNA and reads downstream as \"no hits\". Balancing reweights each class by its inverse frequency, so the decision boundary is fitted to separate the classes rather than to count them.",
+      "source_sha256": "932a793a1d1fb478318a2050a938ed1f23246549338765643e39502460615eff",
+      "context": "``class_weight='balanced'`` because a screening experiment's positive class is routinely a small minority of microplate sample positions: an unweighted hinge on a 95/5 split minimises its loss by calling every microplate sample position negative, which returns a coefficient vector of ~0 for every gRNA and reads downstream as \"no hits\". Balancing reweights each class by its inverse frequency, so the decision boundary is fitted to separate the classes rather than to count them.",
+      "translation": "``class_weight='balanced'`` porque a classe positiva de um rastreio é rotineiramente uma pequena minoria dos poços: um hinge sem ponderação numa divisão 95/5 minimiza a sua perda declarando negativo cada poço, o que devolve um vetor de coeficientes de ~0 para cada gRNA e é lido adiante como \"no hits\". O balanceamento repondera cada classe pela sua frequência inversa, de modo que a fronteira de decisão é ajustada para separar as classes em vez de contá-las.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._horseshoe#0",
+      "source": "Return a horseshoe-Poisson fit for the captured design and exposure.",
+      "source_sha256": "28d9bba57ac0a5e233858df8f3833573927e75fd693d4a3047c84599dc68c762",
+      "context": "Return a horseshoe-Poisson fit for the captured design and exposure.",
+      "translation": "Devolve um ajuste horseshoe-Poisson para o desenho e a exposição capturados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._named_design#0",
+      "source": "The design's column names, or a refusal that says why they matter.",
+      "source_sha256": "20a62ad4c39e5272cb4451fe761e8cc04498b3d874e840947590ce7356d6b00f",
+      "context": "The design's column names, or a refusal that says why they matter.",
+      "translation": "Os nomes de coluna do desenho, ou uma recusa que explica por que eles importam.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._named_design#1",
+      "source": "Gene-aware backends recover the gene behind each predictor from the column name produced by patsy. Refuse an unnamed array because group lasso would otherwise treat every column as a separate gene and reduce to ordinary lasso under a different label.",
+      "source_sha256": "e0b8e7456d9388fc82b50e61cb6dc19364a8d501a9106fa2905eb2789154d6b4",
+      "context": "Gene-aware backends recover the gene behind each predictor from the column name produced by patsy. Refuse an unnamed array because group lasso would otherwise treat every column as a separate gene and reduce to ordinary lasso under a different label.",
+      "translation": "Backends sensíveis a genes recuperam o gene por trás de cada preditor a partir do nome de coluna produzido pelo patsy. Um array sem nomes é recusado porque, caso contrário, o group lasso trataria cada coluna como um gene separado e se reduziria a um lasso comum com outro rótulo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#0",
+      "source": "``log(exposure)``, or None with a warning when there is no exposure.",
+      "source_sha256": "b08764b1e38d0334e50da5d4481c9bb6367e80e8d36b573bec410cb732a61eeb",
+      "context": "``log(exposure)``, or None with a warning when there is no exposure.",
+      "translation": "``log(exposure)``, ou None com um aviso quando não há exposição.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#1",
+      "source": "A per-well POSITIVE COUNT is not comparable between wells of different size: ``process_scores`` sums the response for the count models, so a well of 2000 cells contributes roughly four times the count of a well of 500 at the identical underlying rate. Modelling that count without ``offset(log(Ntotal))`` asks the covariates to explain well size, and any covariate correlated with it comes back as a hit. Measured on a 400-well simulation with a nuisance covariate that drives well size and nothing else, and a true rate coefficient of +1.5: without the offset the nuisance term came back at +1.88 with p = 0, ahead of the real effect; with it, +0.002 with p = 0.90.",
+      "source_sha256": "1eac4042fb1665282ff310067040008a5af2e5699752ff46af88ec134558e981",
+      "context": "A per-well positive count is not comparable between microplate sample positions of different size: ``process_scores`` sums the response for the count models, so a well of 2000 cells contributes roughly four times the count of a well of 500 at the identical underlying rate. Modelling that count without ``offset(log(Ntotal))`` asks the covariates to explain well size, and any covariate correlated with it comes back as a hit. Measured on a 400-well simulation with a nuisance covariate that drives well size and nothing else, and a true rate coefficient of +1.5: without the offset the nuisance term came back at +1.88 with p = 0, ahead of the real effect; with it, +0.002 with p = 0.90.",
+      "translation": "Uma CONTAGEM POSITIVA por poço não é comparável entre poços de tamanhos diferentes: ``process_scores`` soma a resposta para os modelos de contagem, então um poço de 2000 células contribui com cerca de quatro vezes a contagem de um poço de 500 com a mesma taxa subjacente. Modelar essa contagem sem ``offset(log(Ntotal))`` pede às covariáveis que expliquem o tamanho do poço, e qualquer covariável correlacionada com ele volta como acerto. Medido numa simulação de 400 poços com uma covariável de ruído que determina o tamanho do poço e nada mais, e um coeficiente de taxa verdadeiro de +1.5: sem o offset, o termo de ruído voltou com +1.88 e p = 0, à frente do efeito real; com ele, +0.002 e p = 0.90.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#2",
+      "source": "``log(exposure)`` aligned with ``y``, or None.",
+      "source_sha256": "ea8bc329ec649cbdff2b7e23da10575de0db924041dfcd97f36a0325188f2b63",
+      "context": "``log(exposure)`` aligned with ``y``, or None.",
+      "translation": "``log(exposure)`` alinhado com ``y``, ou None.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._poisson_offset#3",
+      "source": "when the exposure is not positive and finite — ``log`` of it would be NaN/-inf and every downstream number would silently follow.",
+      "source_sha256": "f17d089f220819988513f26f2500af593e1ff752ea6da0d9e65c9db769b73be8",
+      "context": "when the exposure is not positive and finite — ``log`` of it would be NaN/-inf and every downstream number would silently follow.",
+      "translation": "quando a exposição não é positiva e finita — o seu ``log`` seria NaN/-inf e todos os números a jusante a seguiriam silenciosamente.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._quantile#0",
+      "source": "Validate the captured quantile and return its fitted regression.",
+      "source_sha256": "0ea101ab4f6973894a753a61907a096951a52fc13f3fb282b70b1cfd04198379",
+      "context": "Validate the captured quantile and return its fitted regression.",
+      "translation": "Valida o quantil capturado e devolve a sua regressão ajustada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._rlm#0",
+      "source": "Return a robust linear fit using the captured Huber tuning constant.",
+      "source_sha256": "73463df09a44eca7b305e1708af7f9c827039be44f803825ced27787cb3790a6",
+      "context": "Return a robust linear fit using the captured Huber tuning constant.",
+      "translation": "Devolve um ajuste linear robusto com a constante de ajuste de Huber capturada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._rra#0",
+      "source": "Rank marginal design slopes and return gene-level alpha-RRA results.",
+      "source_sha256": "ec95d31a952c805599d369ad7fddb71b33aaab8d59a16ac7234de639df2fc7c3",
+      "context": "Rank marginal design slopes and return gene-level alpha-RRA results.",
+      "translation": "Ordena as inclinações marginais do desenho e devolve resultados alpha-RRA no nível do gene.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._spline#0",
+      "source": "OLS on a design whose COVARIATES carry a spline basis.",
+      "source_sha256": "6100cc8b456c4bccc17620109c5de698c6c3e27dc5745e2afe328cb606c82a90",
+      "context": "OLS on a design whose COVARIATES carry a spline basis.",
+      "translation": "OLS sobre um desenho cujas COVARIÁVEIS carregam uma base de splines.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._spline#1",
+      "source": "The guide columns are untouched, so one coefficient and one P value per guide survive. The volcano, hit list and attribution can therefore read the result with no special case. What becomes free to bend is the nuisance trend that the straight line was assuming away.",
+      "source_sha256": "aaf8946acd1aaee03e66e9228be9e2e1d7207ff59d4357a42f6728f478a7e701",
+      "context": "The guide columns are untouched, so one coefficient and one P value per guide survive. The volcano, hit list and attribution can therefore read the result with no special case. What becomes free to bend is the nuisance trend that the straight line was assuming away.",
+      "translation": "As colunas de guias ficam intocadas, então sobrevivem um coeficiente e um valor P por guia. O volcano, a lista de acertos e a atribuição podem, portanto, ler o resultado sem caso especial. O que fica livre para se curvar é a tendência de ruído que a linha reta supunha inexistente.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._spline#2",
+      "source": "A column is treated as a covariate when it is CONTINUOUS and is not a guide or gene term -- an indicator has nothing to bend through, and expanding one would spend degrees of freedom on nothing.",
+      "source_sha256": "35489119ccfdac9bb3184ba340849d2cb8089596ad95fee1d9c079137516b538",
+      "context": "A column is treated as a covariate when it is CONTINUOUS and is not a guide or gene term -- an indicator has nothing to bend through, and expanding one would spend degrees of freedom on nothing.",
+      "translation": "Uma coluna é tratada como covariável quando é CONTÍNUA e não é um termo de guia ou de gene -- um indicador não tem por onde se curvar, e expandi-lo gastaria graus de liberdade em nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.ml.regression_model._wls#0",
+      "source": "Validate captured per-well weights and return the fitted WLS model.",
+      "source_sha256": "955666c18a8f8991e6013b410805b6e2beb966a95d7a5003753f0d23ad301314",
+      "context": "Validate captured per-microplate sample position weights and return the fitted WLS model.",
+      "translation": "Valida os pesos por poço capturados e devolve o modelo WLS ajustado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_edge#0",
+      "source": "Set the edge width on every series that has one.",
+      "source_sha256": "8317c5455baaf7a391acede1def39a829e4c10d9cc7c9b730a72271b100ce628",
+      "context": "Set the edge width on every series that has one.",
+      "translation": "Define a largura da borda em cada série que tenha uma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_opacity#0",
+      "source": "Set the alpha on every series.",
+      "source_sha256": "aede147b6b191cde3b7282fbc46dd33f1411a82a6717701d7511a57945546c9d",
+      "context": "Set the alpha on every series.",
+      "translation": "Define o alfa em cada série.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_palette#0",
+      "source": "Recolour every series from the chosen palette.",
+      "source_sha256": "314e5d787f996497c3870668ae10e517e2e4360a2af24c6405c6beece3c2835e",
+      "context": "Recolour every series from the chosen palette.",
+      "translation": "Recolore cada série a partir da paleta escolhida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._add_series_rules.apply_size#0",
+      "source": "Resize every series that has a size to set.",
+      "source_sha256": "1789cd35cb42cf417a405c83a35d4341a13c39b2ea4521c5c513d92bf6234213",
+      "context": "Resize every series that has a size to set.",
+      "translation": "Redimensiona cada série que tenha um tamanho a definir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid#0",
+      "source": "Show or hide the grid, passing line properties ONLY when enabling.",
+      "source_sha256": "def6eeb5db3dfaff07a72c2b40e5a7bc87bd9cb0c525ee656470e4f34224f174",
+      "context": "Show or hide the grid, passing line properties ONLY when enabling.",
+      "translation": "Mostra ou oculta a grade, passando propriedades de linha SOMENTE ao ativar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_grid#1",
+      "source": "matplotlib warns \"First parameter to grid() is false, but line properties are supplied\" and then turns the grid ON regardless -- so passing them unconditionally made the checkbox unable to switch the grid off, which is the opposite of what it says.",
+      "source_sha256": "ad02c62f7a7ca1ed7b506f0b167adf1f58db899d5dfe560de480c2fe5a400e04",
+      "context": "matplotlib warns \"First parameter to grid() is false, but line properties are supplied\" and then turns the grid ON regardless -- so passing them unconditionally made the checkbox unable to switch the grid off, which is the opposite of what it says.",
+      "translation": "o matplotlib avisa \"First parameter to grid() is false, but line properties are supplied\" e então LIGA a grade mesmo assim -- então passá-las incondicionalmente deixava a caixa de seleção incapaz de desligar a grade, o oposto do que ela diz.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_legend#0",
+      "source": "Rebuild the legend from the current choices.",
+      "source_sha256": "6b0106b0f18097ec01807b1c7225f72a6c5e34bbc1c42d37c166dfa9a1e593f7",
+      "context": "Rebuild the legend from the current choices.",
+      "translation": "Reconstrói a legenda a partir das escolhas atuais.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits#0",
+      "source": "Apply one axis's limits, refusing a zero-width range.",
+      "source_sha256": "6f95ac78e11ba38d18e7de79856d0121f2afe3820dde48bf39dc1e5062f6e384",
+      "context": "Apply one axis's limits, refusing a zero-width range.",
+      "translation": "Aplica os limites de um eixo, recusando um intervalo de largura zero.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.apply_limits#1",
+      "source": "Equal bounds collapse the axis and matplotlib draws nothing, so the value is left alone rather than applied.",
+      "source_sha256": "fb3fabacb5fd570b71a33d8fe5e243b923214c2a67735c317d90dde2e7873684",
+      "context": "Equal bounds collapse the axis and matplotlib draws nothing, so the value is left alone rather than applied.",
+      "translation": "Limites iguais colapsam o eixo e o matplotlib não desenha nada, então o valor é deixado como está em vez de aplicado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.do_autoscale#0",
+      "source": "Recompute the limits from the data now on the axis.",
+      "source_sha256": "ec7b1e60f0bb9c9b2aff04f58d18c02fcbfecd26f88138a5ce802c87f348360d",
+      "context": "Recompute the limits from the data now on the axis.",
+      "translation": "Recalcula os limites a partir dos dados agora no eixo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour#0",
+      "source": "Recolour one artist. The artist is bound as a default argument.",
+      "source_sha256": "d02a174d97b061ba391c96f71b18d5b428c9addf048627997910bdfb43bd85e6",
+      "context": "Recolour one artist. The artist is bound as a default argument.",
+      "translation": "Recolore um objeto artist. O artist é vinculado como argumento padrão.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_colour#1",
+      "source": "Bound at definition rather than closed over: a loop variable closed over gives every callback the LAST artist, which is the classic way a row of per-artist controls all end up editing one of them.",
+      "source_sha256": "d31a3fbb85b9d95d7cc4b6e53df72c00e5dad129c6e1b8726adb54e77ef74002",
+      "context": "Bound at definition rather than closed over: a loop variable closed over gives every callback the LAST artist, which is the classic way a row of per-artist controls all end up editing one of them.",
+      "translation": "Vinculado na definição em vez de capturado por closure: uma variável de laço capturada dá a cada callback o ÚLTIMO artist, que é a forma clássica de uma fileira de controles por artist acabar editando todos o mesmo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_spines#0",
+      "source": "Set every spine's width, or hide them all at zero.",
+      "source_sha256": "3f5c351fdce911b5ca89b000a619e1652fdeda4f496876dbb60e6f3e3dff4f33",
+      "context": "Set every spine's width, or hide them all at zero.",
+      "translation": "Define a largura de cada borda dos eixos, ou oculta todas com zero.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._axes_tab.set_top_right#0",
+      "source": "Hide or show the top and right spines together.",
+      "source_sha256": "b6ee5735dedb18b69287d4fbd5bc46fc02b72f9990f590bb4512d32bb80d98ef",
+      "context": "Hide or show the top and right spines together.",
+      "translation": "Oculta ou mostra juntas as bordas superior e direita.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.resize#0",
+      "source": "Resize the figure to the width and height on screen.",
+      "source_sha256": "4c9f63ad2b5f0c8d073c8225d296b90a3737edda53883f78c5dba53517a8584d",
+      "context": "Resize the figure to the width and height on application view.",
+      "translation": "Redimensiona a figura para a largura e altura exibidas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_all_text#0",
+      "source": "Set one font size on every piece of text in the figure.",
+      "source_sha256": "788e4ff353f51f9012a4192883e4fb722c8515ec11727ddc705298133c49a98e",
+      "context": "Set one font size on every piece of text in the figure.",
+      "translation": "Define um tamanho de fonte em cada trecho de texto da figura.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_face#0",
+      "source": "Set the figure's own background colour.",
+      "source_sha256": "3d8c7d791a0d399e4dbb81ab0250884579329a038de5ddf2f8b24802ae2ba655",
+      "context": "Set the figure's own background colour.",
+      "translation": "Define a cor de fundo própria da figura.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_font_ink#0",
+      "source": "Recolour every piece of text in the figure.",
+      "source_sha256": "e444f8f398803a0e5d8d29db156522402cf1c1aa2fa994b71b3a53a8d5d867b4",
+      "context": "Recolour every piece of text in the figure.",
+      "translation": "Recolore cada trecho de texto da figura.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._figure_tab.set_line_ink#0",
+      "source": "Recolour every line in the figure.",
+      "source_sha256": "34bdc72d2c9101bf009245f99d7a5b2ed380115271f6d7d2a651f17fe0409039",
+      "context": "Recolour every line in the figure.",
+      "translation": "Recolore cada linha da figura.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureSettingsDialog._statistics_tab._recompute#0",
+      "source": "Re-run the test with the current choices and redraw.",
+      "source_sha256": "5a4fc6d1d3d03bde10cc0d977c80530294f42dd7f787d502c0f8d58b1f409050",
+      "context": "Execute the test with the current choices and redraw again.",
+      "translation": "Executa de novo o teste com as escolhas atuais e redesenha.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_colour#0",
+      "source": "Store a colour and repaint the swatch that shows it.",
+      "source_sha256": "22bf3c8de8d78c2d5a3bc608c41754bf27e2b1e4aa6b52eb0d1051f2ce8f6db0",
+      "context": "Store a colour and repaint the swatch that shows it.",
+      "translation": "Guarda uma cor e repinta a amostra que a mostra.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._control._set_combo#0",
+      "source": "Select the entry whose data is ``v``, if the box has one.",
+      "source_sha256": "08b9836e0dfb1b4026dc8780959f1daab569f889c0e45a8eaef3fc907cb27e98",
+      "context": "Select the entry whose data is ``v``, if the box has one.",
+      "translation": "Seleciona a entrada cujos dados são ``v``, se a caixa tiver uma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._get#0",
+      "source": "The ground: the transparent sentinel, or the chosen colour.",
+      "source_sha256": "c851d0a552560e3cb9f5a82dd33558c0ef48e30675ee8ea72a3b5da5da638298",
+      "context": "The ground: the transparent sentinel, or the chosen colour.",
+      "translation": "O fundo: o valor sentinela transparente, ou a cor escolhida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._paint_button#0",
+      "source": "Show the ground colour on the button, as swatch and text.",
+      "source_sha256": "2fa7dd0504e9273232236cf8be8b258fa4fa36c345620d28a1e9abf9eae10497",
+      "context": "Show the ground colour on the button, as swatch and text.",
+      "translation": "Mostra a cor de fundo no botão, como amostra e texto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._set#0",
+      "source": "Apply a ground, ticking transparent when that is what it means.",
+      "source_sha256": "9b875aca78042f4e89eaaa4bf481ecbf3ca3fd1036ced59dbf1cf7db752dba08",
+      "context": "Apply a ground, ticking transparent when that is what it means.",
+      "translation": "Aplica um fundo, marcando transparente quando é isso que ele significa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.FigureStylePreferences._ground_control._sync#0",
+      "source": "Grey the colour button while transparent is ticked.",
+      "source_sha256": "752690209cc4032c9cedca8db0b3f91dbe6732e802091f357c432f432151ba10",
+      "context": "Grey the colour button while transparent is ticked.",
+      "translation": "Esmaece o botão de cor enquanto transparente estiver marcado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._add_bundle_save._save#0",
+      "source": "Ask for a folder and write the whole bundle into it.",
+      "source_sha256": "e0731eaa789b80bb8d7d1d29a9db2ad3fe99638cdd8c11436c9b2cc944bbc3ae",
+      "context": "Ask for a folder and write the whole bundle into it.",
+      "translation": "Pede uma pasta e escreve nela o pacote inteiro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._add_group_colours._recolour#0",
+      "source": "Pick a colour for one group and store it on the recipe.",
+      "source_sha256": "8ddfd25a83ba9c15610b1b3089fd8e28270ba971648618a19d7b802da3c93e4d",
+      "context": "Pick a colour for one group and store it on the recipe.",
+      "translation": "Escolhe uma cor para um grupo e a guarda na receita.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._colour_button._choose#0",
+      "source": "Ask for a colour and keep it if the dialog returned one.",
+      "source_sha256": "cb4915e355195096f130d4f1ed95a3be9764d5b0670241b30aa4f04656ab836a",
+      "context": "Ask for a colour and keep it if the dialog returned one.",
+      "translation": "Pede uma cor e a mantém se o diálogo devolveu uma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings._colour_button._paint#0",
+      "source": "Show the current colour on the button, as a swatch and as text.",
+      "source_sha256": "1836b9254ccfd70fb66ca1dff7820fc011e318b326c11918abc91a7c580d4e1f",
+      "context": "Show the current colour on the button, as a swatch and as text.",
+      "translation": "Mostra a cor atual no botão, como amostra e como texto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._load#0",
+      "source": "Read a graph style back and apply it.",
+      "source_sha256": "37182856c18f9aef65319b7abb79f4b6a3f5ab44a0dd682cad135c93463e9723",
+      "context": "Read a graph style back and apply it.",
+      "translation": "Lê de volta um estilo de gráfico e o aplica.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.add_graph_style_file_entries._save#0",
+      "source": "Write the current graph style to a JSON file.",
+      "source_sha256": "a68b6c398487a87341d7cc63c367c6ba977fce83a9b4f057af090615009b6e5c",
+      "context": "Write the current graph style to a JSON file.",
+      "translation": "Escreve o estilo de gráfico atual num arquivo JSON.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._apply#0",
+      "source": "Run ``func`` against every axis in the figure.",
+      "source_sha256": "7eb8130be5066b4dfa196c70187aa534859b6f5c0f4bc757cdb3b58dcbc2e5d4",
+      "context": "Run ``func`` against every axis in the figure.",
+      "translation": "Executa ``func`` sobre cada eixo da figura.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify#0",
+      "source": "Redraw after a menu toggle, CHEAPLY.",
+      "source_sha256": "21666d89dfaac08e265749280f99bbb95f7055044c60c2a22d1040688b6c3d4f",
+      "context": "Redraw after a menu toggle, CHEAPLY.",
+      "translation": "Redesenha após um alternador de menu, de forma BARATA.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify#1",
+      "source": "A context-menu toggle is the same kind of edit the settings dialog makes, and the dialog learned long ago to preview: a full-quality render rewrites the raster AND the vector page, measured at ~263 ms on an 823-point volcano, and the user is mid-gesture. Preview here too, and let the next full render -- a resize, an export, closing the settings dialog -- catch up.",
+      "source_sha256": "911c35edd0f1b3cd5944a97783c267d81b8a1294f04a3d0a26ce896f434bce36",
+      "context": "A context-menu toggle is the same kind of edit the settings dialog makes, and the dialog learned long ago to preview: a full-quality render rewrites the raster AND the vector page, measured at ~263 ms on an 823-point volcano, and the user is mid-gesture. Preview here too, and let the next full render -- a resize, an export, closing the settings dialog -- catch up.",
+      "translation": "Um alternador do menu de contexto é o mesmo tipo de edição que o diálogo de configurações faz, e o diálogo aprendeu há muito tempo a usar pré-visualização: uma renderização de qualidade total reescreve o raster E a página vetorial, medida em ~263 ms num volcano de 823 pontos, e o usuário está no meio do gesto. Pré-visualização aqui também, e deixe que a próxima renderização completa -- um redimensionamento, uma exportação, fechar o diálogo de configurações -- a alcance.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._notify#2",
+      "source": "`on_change` may be a callable that predates preview rendering, so the keyword is offered and withdrawn rather than assumed.",
+      "source_sha256": "129bf381fc59cd4ec4af8c08f97663299fc7752f6a845386fb0e559de1d66326",
+      "context": "`on_change` may be a callable that predates preview rendering, so the keyword is offered and withdrawn rather than assumed.",
+      "translation": "`on_change` pode ser um invocável anterior à renderização de pré-visualização, então a palavra-chave é oferecida e retirada em vez de presumida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu._pick_ink#0",
+      "source": "Pick a colour and apply it through ``apply_to``.",
+      "source_sha256": "58ede0e86f979496d4bb48c4ad17d2e213e24f9acde206c3dc737fa963040ba3",
+      "context": "Pick a colour and apply it through ``apply_to``.",
+      "translation": "Escolhe uma cor e a aplica por meio de ``apply_to``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.build_figure_context_menu.toggle_legend#0",
+      "source": "Show or hide the legend on every axis.",
+      "source_sha256": "ae162e034cb3498c9222cfb479ceacbde64edcddb1657d0716901c17ff95254c",
+      "context": "Show or hide the legend on every axis.",
+      "translation": "Mostra ou oculta a legenda em cada eixo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.save_figure_as.figure_bg_is_transparent#0",
+      "source": "Whether a stored ground value means \"no background at all\".",
+      "source_sha256": "607b53143690244c6f729618e7fbf81edca6ec6f950b38cdc2a8c857cd221f1f",
+      "context": "Whether a stored ground value means \"no background at all\".",
+      "translation": "Se um valor de fundo guardado significa \"no background at all\".",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.save_figure_bundle._render#0",
+      "source": "Render one file of the bundle through the SHARED export path.",
+      "source_sha256": "dadf5534dca9544b81e764702afceb983a76acff2cb1898379ca31d126aff82e",
+      "context": "Render one file of the bundle through the SHARED export path.",
+      "translation": "Renderiza um arquivo do pacote pelo caminho de exportação COMPARTILHADO.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.figure_settings.save_figure_bundle._render#1",
+      "source": "Both formats go through `save_figure` rather than each drawing itself, so print colours, embedded fonts and raster DPI match every other figure the user keeps.",
+      "source_sha256": "0792701a2aeaed5fffac9bfb8811f564879dcb99d6c73be4fce3b7dd8f426719",
+      "context": "Both formats go through `save_figure` rather than each drawing itself, so print colours, embedded fonts and raster DPI match every other figure the user keeps.",
+      "translation": "Ambos os formatos passam por `save_figure` em vez de cada um se desenhar sozinho, para que cores de impressão, fontes incorporadas e DPI do raster correspondam a qualquer outra figura que o usuário guarde.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._cellpose_training_pairs.files#0",
+      "source": "Ignore metadata sidecars and Cellpose-generated flow caches.",
+      "source_sha256": "afc6c82fff857f87a361d289bd18bd399a17c2969b9ebec07c02679b97ee1751",
+      "context": "Ignore metadata sidecars and Cellpose-generated flow caches.",
+      "translation": "Ignora arquivos auxiliares de metadados e caches de fluxo gerados pelo Cellpose.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._invasion_field_thresholds._auto#0",
+      "source": "Return a finite-data threshold, or NaN below the object-count floor.",
+      "source_sha256": "e0e5189cbf5221c762acc07b45ef492b99fb537ef0785431475ba5a7e9bf253a",
+      "context": "Return a finite-data threshold, or NaN below the object-count floor.",
+      "translation": "Devolve um limiar a partir de dados finitos, ou NaN abaixo do piso de contagem de objetos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._resolve_invasion_intensity_column._candidates#0",
+      "source": "Yield the current and any legacy measurement column for ``name``.",
+      "source_sha256": "b1d5f179d4e3bf4bce69aa1125d0a1e630822aff0392b83c128ec5c3933311a2",
+      "context": "Yield the current and any legacy measurement column for ``name``.",
+      "translation": "Produz a coluna de medição atual e qualquer coluna legada para ``name``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules._resolve_invasion_intensity_column._template#0",
+      "source": "Return the requested statistic's formatted measurement column.",
+      "source_sha256": "afd6f25a93316b516e072605f3f179fddd0cf7a78223930592e2f5b5f183cbec",
+      "context": "Return the requested statistic's formatted measurement column.",
+      "translation": "Devolve a coluna de medição formatada da estatística solicitada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_endodyogeny._calculate_volume_bins#0",
+      "source": "Assign each row to a log2 volume-doubling bin and return the ordered categories.",
+      "source_sha256": "157b69f9d9357ad446d914b563ff1a796ef87f646f4a0f2d2aa9203f0d54e487",
+      "context": "Assign each row to a log2 volume-doubling bin and return the ordered categories.",
+      "translation": "Atribui cada linha a um intervalo log2 de duplicação de volume e devolve as categorias ordenadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#0",
+      "source": "Annotate rows as ``above``/``below`` a threshold and summarise per condition and well.",
+      "source_sha256": "0548b5b386f7c8c5f5810348e484fd506d85ca335b3aca45534c660901083346",
+      "context": "Annotate rows as ``above``/``below`` a threshold and summarise per condition and well.",
+      "translation": "Anota as linhas como ``above``/``below`` em relação a um limiar e resume por condição e poço.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#1",
+      "source": "measurements DataFrame to annotate in place.",
+      "source_sha256": "7b8ba0118b2d3e745725b1138c37e418d021c208369afff5fbe3165345c97fb5",
+      "context": "measurements DataFrame to annotate in place.",
+      "translation": "DataFrame de medições a anotar no próprio objeto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#2",
+      "source": "column whose values are compared to ``threshold``.",
+      "source_sha256": "2fbe469cef1d97cb8bc1b1b7b4aa4a457674bd93b389d973e0d54d06fc0a6809",
+      "context": "column whose values are compared to ``threshold``.",
+      "translation": "coluna cujos valores são comparados com ``threshold``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#3",
+      "source": "experimental condition column used for grouping.",
+      "source_sha256": "a17052e92232f0135c934a2e92966779a3f04f61eb484515d4f3a2d97f1b3dbd",
+      "context": "experimental condition column used for grouping.",
+      "translation": "coluna de condição experimental usada para agrupar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#4",
+      "source": "well identifier column used for grouping.",
+      "source_sha256": "4770944d71540f40fc18a135d8797bf434c8aed3ca78adeacdceaf2b9627d205",
+      "context": "microplate sample position identifier column used for grouping.",
+      "translation": "coluna de identificador de poço usada para agrupar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#5",
+      "source": "numeric cutoff; values above become ``above``.",
+      "source_sha256": "ed721a8e7aa0831171006abeee5516738198c2b1cefba81877c2085fe05fd3d5",
+      "context": "numeric cutoff; values above become ``above``.",
+      "translation": "corte numérico; valores acima passam a ``above``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#6",
+      "source": "name of the new annotation column. Default ``'annotation'``.",
+      "source_sha256": "78d13a01121b6491dc3e42b31c1b553e5814cd58f8630359437c55d923b28dca",
+      "context": "name of the new annotation column. Default ``'annotation'``.",
+      "translation": "nome da nova coluna de anotação. Padrão ``'annotation'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.annotate_and_summarize#7",
+      "source": "tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table.",
+      "source_sha256": "5eb5f27716bb6932effd1dfff177060aa5758f12f8526ba71431980d45fd06c9",
+      "context": "tuple ``(df, summary_df)`` with the annotated rows and a per-(condition, well) counts/fractions table.",
+      "translation": "tupla ``(df, summary_df)`` com as linhas anotadas e uma tabela de contagens/frações por (condição, poço).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.translate_well_in_df#0",
+      "source": "Return a dataframe read from ``csv_loc`` with ``plateID`` / ``well`` columns split out of ``Renamed TIFF``.",
+      "source_sha256": "25fa4663ad7538421e480f46fc1c355a5e79331db54d3d52527b6f2e4ca9b812",
+      "context": "Return a dataframe read from ``csv_loc`` with ``plateID`` / ``well`` columns split out of ``Renamed TIFF``.",
+      "translation": "Devolve um dataframe lido de ``csv_loc`` com as colunas ``plateID`` / ``well`` separadas de ``Renamed TIFF``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.translate_well_in_df#1",
+      "source": "path to a CSV containing a ``Renamed TIFF`` column.",
+      "source_sha256": "c8b6b16cef58964245dc0301c706161f9bab406a1502b130d3694e7950ee58a6",
+      "context": "path to a CSV containing a ``Renamed TIFF`` column.",
+      "translation": "caminho para um CSV que contém uma coluna ``Renamed TIFF``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.analyze_percent_positive.translate_well_in_df#2",
+      "source": ":class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.",
+      "source_sha256": "b54056cec0bce087ad7e9322f5622f00dc500b89084a301b2a4b46bccaafeba2",
+      "context": ":class:`pandas.DataFrame` with parsed ``plateID`` and ``well`` columns.",
+      "translation": ":class:`pandas.DataFrame` com as colunas ``plateID`` e ``well`` extraídas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#0",
+      "source": "Render a 4-panel diagnostic (image / pred / flow) for one Cellpose apply result.",
+      "source_sha256": "1ad43ca618d8c08aa05d8668c46ca26623433c4064c68c8ba92a9cdbfd1321e5",
+      "context": "Render a 4-panel diagnostic (image / pred / flow) for one Cellpose apply result.",
+      "translation": "Desenha um diagnóstico de 4 painéis (imagem / predição / fluxo) para um resultado de aplicação do Cellpose.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#1",
+      "source": "outer image index used in the output filename.",
+      "source_sha256": "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+      "context": "outer image index used in the output filename.",
+      "translation": "índice de imagem externo usado no nome do arquivo de saída.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#2",
+      "source": "inner batch index used in the output filename.",
+      "source_sha256": "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+      "context": "inner batch index used in the output filename.",
+      "translation": "índice de lote interno usado no nome do arquivo de saída.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#3",
+      "source": "folder where the composite PNG is written.",
+      "source_sha256": "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+      "context": "folder where the composite PNG is written.",
+      "translation": "pasta onde o PNG composto é escrito.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#4",
+      "source": "source image array.",
+      "source_sha256": "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+      "context": "source image array.",
+      "translation": "array da imagem de origem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#5",
+      "source": "predicted mask array.",
+      "source_sha256": "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+      "context": "predicted mask array.",
+      "translation": "array da máscara predita.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.apply_cellpose_model.plot_cellpose_result#6",
+      "source": "Cellpose flow field.",
+      "source_sha256": "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca",
+      "context": "Cellpose flow field.",
+      "translation": "campo de fluxo do Cellpose.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#0",
+      "source": "Compute the per-well read-fraction ratio between two gRNAs.",
+      "source_sha256": "4abc8ac96b64415e9ad2be542e9e11668212b32814b7c9d43dd83ef0fff3f54c",
+      "context": "Compute the per-microplate sample position read-fraction ratio between two gRNAs.",
+      "translation": "Calcula por poço a razão das frações de leituras entre dois gRNAs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#1",
+      "source": "dataframe with ``prc``, ``grna_name``, and ``count`` columns.",
+      "source_sha256": "e48e8ae9be401723043cfc7ba77983057dbb1cdd61e567994a9aa4e3502dc82e",
+      "context": "dataframe with ``prc``, ``grna_name``, and ``count`` columns.",
+      "translation": "dataframe com as colunas ``prc``, ``grna_name`` e ``count``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#2",
+      "source": "numerator gRNA.",
+      "source_sha256": "42f9b63aa68689b95f466929cca43bcb33065406f1f7e4642f436045a8dd32ab",
+      "context": "numerator gRNA.",
+      "translation": "gRNA do numerador.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#3",
+      "source": "denominator gRNA.",
+      "source_sha256": "e380600becb090bdea5bbcd65f63fddbd570f16ff2eaaefecad1e18b5479e902",
+      "context": "denominator gRNA.",
+      "translation": "gRNA do denominador.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_grna_fraction_ratio#4",
+      "source": "dataframe with one ratio value per ``prc``.",
+      "source_sha256": "b9a8e8b14ee8b98bb293aee34a961fe6d25c2ff687315b8a42f938d5b24a043e",
+      "context": "dataframe with one ratio value per ``prc``.",
+      "translation": "dataframe com um valor de razão por ``prc``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#0",
+      "source": "Compute the per-well fraction of reads for each gRNA.",
+      "source_sha256": "739115c24975cf00434d59c75a2dc850c76f1fdcfb978df9eb1e6d6d4d6bcb35",
+      "context": "Compute the per-microplate sample position fraction of reads for each gRNA.",
+      "translation": "Calcula por poço a fração de leituras de cada gRNA.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#1",
+      "source": "dataframe with ``plateID``/``rowID``/``columnID`` (or ``prc``), ``grna_name``, and a read count column.",
+      "source_sha256": "d0af739008d14d2037c1690b1ac6b25707566d0152beb500a183b227a457855e",
+      "context": "dataframe with ``plateID``/``rowID``/``columnID`` (or ``prc``), ``grna_name``, and a read count column.",
+      "translation": "dataframe com ``plateID``/``rowID``/``columnID`` (ou ``prc``), ``grna_name`` e uma coluna de contagem de leituras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#2",
+      "source": "name of the read-count column.",
+      "source_sha256": "4669e66b4419d4b5bd25c9099f37c55007a85175d248e0900953dd2def743149",
+      "context": "name of the read-count column.",
+      "translation": "nome da coluna de contagem de leituras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_read_fraction#3",
+      "source": "dataframe with a ``fraction`` column per ``(prc, grna_name)``.",
+      "source_sha256": "8c7708521d177c7fc7f7738f54776f96b1997b911910846c4c14311335715e48",
+      "context": "dataframe with a ``fraction`` column per ``(prc, grna_name)``.",
+      "translation": "dataframe com uma coluna ``fraction`` por ``(prc, grna_name)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#0",
+      "source": "Aggregate per-object classifier predictions into per-well class fractions.",
+      "source_sha256": "429705c544b1a0793cdc215a46fb5bb3aae7da3d89dc213a93e2851da42f5933",
+      "context": "Aggregate per-object machine-learning classification model predictions into per-microplate sample position class fractions.",
+      "translation": "Agrega as predições do classificador por objeto em frações de classe por poço.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#1",
+      "source": "measurements dataframe with a ``prc`` well id and a classifier prediction column.",
+      "source_sha256": "654be8775693de460ecb493b29c10f0cd2ed414be450119f0a90df994ba47401",
+      "context": "measurements dataframe with a ``prc`` microplate sample position id and a machine-learning classification model prediction column.",
+      "translation": "dataframe de medições com um id de poço ``prc`` e uma coluna de predição do classificador.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#2",
+      "source": "name of the prediction column to summarise.",
+      "source_sha256": "6cf26a844be7d9e6ff976e9748aeb48b8c927cd5ffccfb7ceca5efe5e9ee8ff5",
+      "context": "name of the prediction column to summarise.",
+      "translation": "nome da coluna de predição a resumir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.calculate_well_score_fractions#3",
+      "source": "dataframe keyed by ``prc`` with one fraction column per class.",
+      "source_sha256": "13c80564e215bf837e2a87a918cec60947fd6ae764d2a3823750fae6998fc613",
+      "context": "dataframe keyed by ``prc`` with one fraction column per class.",
+      "translation": "dataframe indexado por ``prc`` com uma coluna de fração por classe.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#0",
+      "source": "Plot one line per y-column (or per ``group_column`` value) against ``x_column``.",
+      "source_sha256": "c7cd67cb199caa420474de0c3728e944b8fd9a4ac78edc9c2840c255b54e75be",
+      "context": "Plot one line per y-column (or per ``group_column`` value) against ``x_column``.",
+      "translation": "Desenha uma linha por coluna y (ou por valor de ``group_column``) contra ``x_column``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#1",
+      "source": "DataFrame containing the x and y columns.",
+      "source_sha256": "78d4585fbaa5a1123955c1c9852e20f41e5bd4d44a224a07460aedde45bbf29c",
+      "context": "DataFrame containing the x and y columns.",
+      "translation": "DataFrame que contém as colunas x e y.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#2",
+      "source": "column used for the x axis.",
+      "source_sha256": "94d0afaeaf79c88c73c3108f89d847a59aa97f5c017869372e7d93664e33ae1b",
+      "context": "column used for the x axis.",
+      "translation": "coluna usada para o eixo x.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#3",
+      "source": "str or list of columns to plot as lines.",
+      "source_sha256": "2bdcd182dc020af1d836e6d609896bdeca6672de13ef35553fef1d102f6d0cce",
+      "context": "str or list of columns to plot as lines.",
+      "translation": "str ou lista de colunas a desenhar como linhas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#4",
+      "source": "optional hue column when ``y_columns`` is a single column.",
+      "source_sha256": "876222585f2127a0e44acaa09d0614cf6e8684cbfbeef0aef5fabc0e8f9c3778",
+      "context": "optional hue column when ``y_columns`` is a single column.",
+      "translation": "coluna de matiz opcional quando ``y_columns`` é uma única coluna.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#5",
+      "source": "x-axis label; falls back to ``x_column``.",
+      "source_sha256": "b89c477ad345ae7aca2189030af881de07de3d70cf3f981a1aade5c36d33edec",
+      "context": "x-axis label; falls back to ``x_column``.",
+      "translation": "rótulo do eixo x; recorre a ``x_column``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#6",
+      "source": "y-axis label; falls back to ``'Value'``.",
+      "source_sha256": "4b7d7429d3e292c2bac196b953a148459117a38b16bc244fa5af37898bcd8b42",
+      "context": "y-axis label; falls back to ``'Value'``.",
+      "translation": "rótulo do eixo y; recorre a ``'Value'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#7",
+      "source": "plot title; falls back to ``'Line Plot'``.",
+      "source_sha256": "1fa51ca340025f4220220635e7cbe60feb5f28d6ae59414071877ca7d6cf1cc0",
+      "context": "plot title; falls back to ``'Line Plot'``.",
+      "translation": "título do gráfico; recorre a ``'Line Plot'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#8",
+      "source": "figure size in inches. Default ``(10, 6)``.",
+      "source_sha256": "8bcc484d12d1831727f650785e7ab392205648e432c255e913fb0fb36d35cacc",
+      "context": "figure size in inches. Default ``(10, 6)``.",
+      "translation": "tamanho da figura em polegadas. Padrão ``(10, 6)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#9",
+      "source": "optional PDF path to save the figure.",
+      "source_sha256": "fd4baf280683074a3a3a40397b06c0370e917cc18b9740b6c99707e4eea0392e",
+      "context": "optional PDF path to save the figure.",
+      "translation": "caminho PDF opcional para salvar a figura.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#10",
+      "source": "Seaborn palette name. Default ``'deep'``.",
+      "source_sha256": "a7c5958080593aa23daa2fe663a272fc0d0ad8b2ec786660fdef5aee2a052159",
+      "context": "Seaborn palette name. Default ``'deep'``.",
+      "translation": "nome da paleta Seaborn. Padrão ``'deep'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line#11",
+      "source": "the created matplotlib Figure.",
+      "source_sha256": "d68895ab098bf29b55b7a9f40876d7fca07d556b77ba68e23dcb95389f094a58",
+      "context": "the created matplotlib Figure.",
+      "translation": "a Figure do matplotlib criada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#0",
+      "source": "The colours the lines are drawn in, house palette first.",
+      "source_sha256": "507ceb47118f2c87f30190a86fd343e331f8e34b3ab62c62f0b6011ad31c185b",
+      "context": "The colours the lines are drawn in, house palette first.",
+      "translation": "As cores em que as linhas são desenhadas, a paleta da casa primeiro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#1",
+      "source": "ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY ARE THE DATA, so these series keep distinct hues -- but they come from the published palette in a fixed order rather than from seaborn's 100-colour 'deep' ramp reordered by an index list. A hundred hues is a hundred series nobody can tell apart, and the eighth one was a pastel that vanished on the dark ground.",
+      "source_sha256": "e5adbd7985b4b46b53e7ad06a5320ef81e2af36577869faa96f732566e86fb73",
+      "context": "ONE LINE PER MEASURED COLUMN IS A CASE WHERE THE CATEGORIES REALLY ARE THE DATA, so these series keep distinct hues -- but they come from the published palette in a fixed order rather than from seaborn's 100-colour 'deep' ramp reordered by an index list. A hundred hues is a hundred series nobody can tell apart, and the eighth one was a pastel that vanished on the dark ground.",
+      "translation": "UMA LINHA POR COLUNA MEDIDA É UM CASO EM QUE AS CATEGORIAS SÃO REALMENTE OS DADOS, então estas séries mantêm matizes distintos -- mas eles vêm da paleta publicada numa ordem fixa, e não da escala 'deep' de 100 cores do seaborn reordenada por uma lista de índices. Cem matizes são cem séries que ninguém consegue distinguir, e a oitava era um pastel que sumia no fundo escuro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.compare_reads_to_scores.plot_line._set_theme#2",
+      "source": "An explicit non-default ``theme`` still wins, for a caller who deliberately asked for a seaborn palette.",
+      "source_sha256": "84257207d7c0244ff9d634184c62eaca27d4f453056e7f9818b9da5341ad2610",
+      "context": "An explicit non-default ``theme`` still wins, for a caller who deliberately asked for a seaborn palette.",
+      "translation": "Um ``theme`` explícito diferente do padrão ainda prevalece, para quem chamou pedindo deliberadamente uma paleta do seaborn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#0",
+      "source": "Return per-well read fractions restricted to the given control sgRNAs.",
+      "source_sha256": "f18d75c4d33acf204e9d09416090ad59091ed59bc6eb135271b4c8b68b51e8d3",
+      "context": "Return per-microplate sample position read fractions restricted to the given control sgRNAs.",
+      "translation": "Devolve frações de leituras por poço restritas aos sgRNA de controle indicados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#1",
+      "source": "path to the reads CSV; needs ``grna_name``, ``count``, ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).",
+      "source_sha256": "41c217e19c8af8e47707f31e7968d711f398f57bae46d62546bae3d505b78d11",
+      "context": "path to the reads CSV; needs ``grna_name``, ``count``, ``rowID`` and ``columnID`` (a legacy ``column_name`` is renamed).",
+      "translation": "caminho para o CSV de leituras; precisa de ``grna_name``, ``count``, ``rowID`` e ``columnID`` (um ``column_name`` legado é renomeado).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#2",
+      "source": "a plate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each row's own value. Default ``1``.",
+      "source_sha256": "74fff9209302d96063429ae40f1bc67d49ad6268a96d707b344c5986527bb42f",
+      "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each row's own value. Default ``1``.",
+      "translation": "um NÚMERO de placa, não um nome de coluna. Qualquer valor exceto ``None`` reescreve cada ``plateID`` como ``plate<plate>``; ``None`` mantém o valor próprio de cada linha. Padrão ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#3",
+      "source": "value kept from ``columnID``. Default ``'c3'``.",
+      "source_sha256": "128bc5d659c220e3a1d01440be524463cccbdf6fb8b15765e95cf6688f539481",
+      "context": "value kept from ``columnID``. Default ``'c3'``.",
+      "translation": "valor mantido de ``columnID``. Padrão ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#4",
+      "source": "``None`` selects the built-in pair ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactly the first two entries are read, so a longer list silently ignores the rest and a shorter one (or an empty one) raises ``IndexError``. Entries are interpolated into an anchored regex: metacharacters are live, and a name that is only a prefix of the real sgRNA matches nothing.",
+      "source_sha256": "872b69f9ce5a2c7b5ab6c85839c2f8326081b1c698df5c372bd184fb8b8d443a",
+      "context": "``None`` selects the built-in pair ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exactly the first two entries are read, so a longer list silently ignores the rest and a shorter one (or an empty one) raises ``IndexError``. Entries are interpolated into an anchored regex: metacharacters are live, and a name that is only a prefix of the real sgRNA matches nothing.",
+      "translation": "``None`` seleciona o par embutido ``TGGT1_220950_1`` / ``TGGT1_233460_4``. Exatamente as duas primeiras entradas são lidas, então uma lista mais longa ignora silenciosamente o resto e uma mais curta (ou vazia) lança ``IndexError``. As entradas são interpoladas numa expressão regular ancorada: os metacaracteres estão ativos, e um nome que é apenas prefixo do sgRNA real não corresponde a nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_fraction_mixed_condition#5",
+      "source": "the matching rows plus ``total_count``, ``fraction`` (that sgRNA's share of the two controls' combined count -- non-control reads never enter the denominator) and a ``prc`` key. Controls absent from the CSV yield an empty frame, not an error.",
+      "source_sha256": "dee159cc317d3a1c32c08016bcfb59c31081bfb79fdf731d0f0a2fcb2cabb3fb",
+      "context": "the matching rows plus ``total_count``, ``fraction`` (that sgRNA's share of the two controls' combined count -- non-control reads never enter the denominator) and a ``prc`` structured-data name. Controls absent from the CSV yield an empty frame, not an error.",
+      "translation": "as linhas correspondentes mais ``total_count``, ``fraction`` (a parcela desse sgRNA na contagem combinada dos dois controles -- leituras que não são de controle nunca entram no denominador) e uma chave ``prc``. Controles ausentes do CSV produzem um quadro vazio, não um erro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.calculate_mae#0",
+      "source": "Return the per-channel, per-row MAE between predictions and the ``fraction`` column.",
+      "source_sha256": "7417a3ace7b1f9a6cea57b695591fbcad01fdfdc17504a062cff4939fbb64b63",
+      "context": "Return the per-channel, per-row MAE between predictions and the ``fraction`` column.",
+      "translation": "Devolve o MAE por canal e por linha entre as predições e a coluna ``fraction``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#0",
+      "source": "Merge one ``data_column`` per sub-folder into a wide per-well DataFrame.",
+      "source_sha256": "e4453b943f5183d362a1ca5fc3de57382a4d62da893d9dd78e17bd37110455ec",
+      "context": "Merge one ``data_column`` per sub-folder into a wide per-microplate sample position DataFrame.",
+      "translation": "Mescla uma ``data_column`` por subpasta num DataFrame largo por poço.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#1",
+      "source": "parent directory, or a list of them; a bare string is wrapped in a list. Only the immediate sub-directories are scanned, so a CSV sitting in the parent itself, or one nested two levels down, is never found. A path that does not exist raises ``FileNotFoundError``.",
+      "source_sha256": "beb6e86aa81661ad83ca9a80d72671114ff4124f0c7ae46a5ca6281042963f4f",
+      "context": "parent directory, or a list of them; a bare string is wrapped in a list. Only the immediate sub-directories are scanned, so a CSV sitting in the parent itself, or one nested two levels down, is never found. A path that does not exist raises ``FileNotFoundError``.",
+      "translation": "diretório pai, ou uma lista deles; uma cadeia de caracteres solta é envolvida numa lista. Apenas os subdiretórios imediatos são examinados, então um CSV no próprio pai, ou um aninhado dois níveis abaixo, nunca é encontrado. Um caminho que não existe lança ``FileNotFoundError``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#2",
+      "source": "file name looked for inside each sub-directory. Misses are printed, not raised -- finding none leaves the accumulator ``None`` and the call ends in ``TypeError: 'NoneType' object is not subscriptable``.",
+      "source_sha256": "141c2c90ed5730b391e322e83f471b0880963d13bf5a47eab873ca4da57b46e7",
+      "context": "file name looked for inside each sub-directory. Misses are printed, not raised -- finding none leaves the accumulator ``None`` and the call ends in ``TypeError: 'NoneType' object is not subscriptable``.",
+      "translation": "nome de arquivo procurado dentro de cada subdiretório. Ausências são impressas, não lançadas -- se nenhum for encontrado, o acumulador fica ``None`` e a chamada termina em ``TypeError: 'NoneType' object is not subscriptable``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#3",
+      "source": "column averaged per well. Its output column is named after the containing sub-directory (``<sub-folder>_<data_column>``), so two parents holding same-named sub-folders collide and pandas appends ``_x`` / ``_y``.",
+      "source_sha256": "4c5ac8f7d20ff4f205af2cf2c6c2db004fb4ef1e269ce0c8c1406a3cce109e39",
+      "context": "column averaged per microplate sample position. Its output column is named after the containing sub-directory (``<sub-folder>_<data_column>``), so two parents holding same-named sub-folders collide and pandas appends ``_x`` / ``_y``.",
+      "translation": "coluna com média por poço. A sua coluna de saída recebe o nome do subdiretório que a contém (``<sub-folder>_<data_column>``), então dois pais com subpastas de mesmo nome colidem e o pandas acrescenta ``_x`` / ``_y``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#4",
+      "source": "a plate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each CSV's own value. Default ``1``.",
+      "source_sha256": "5997077c927a06c80a2d635cce5f083a17ab8e38bd1a78537730c3e914cdd2ab",
+      "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every ``plateID`` to ``plate<plate>``; ``None`` keeps each CSV's own value. Default ``1``.",
+      "translation": "um NÚMERO de placa, não um nome de coluna. Qualquer valor exceto ``None`` reescreve cada ``plateID`` como ``plate<plate>``; ``None`` mantém o valor próprio de cada CSV. Padrão ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#5",
+      "source": "value kept from ``columnID``; a CSV lacking that column raises ``KeyError``. Default ``'c3'``.",
+      "source_sha256": "e93865fe5401f70aecb9616adb43fd83a0de4914b08b8b2b5d9957b6a317ac37",
+      "context": "value kept from ``columnID``; a CSV lacking that column raises ``KeyError``. Default ``'c3'``.",
+      "translation": "valor mantido de ``columnID``; um CSV sem essa coluna lança ``KeyError``. Padrão ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.combine_classification_scores#6",
+      "source": "the outer-joined well-by-channel frame with a ``prc`` key.",
+      "source_sha256": "58831652e75a0703e1bf3908bd9499a22c84edfc581f38c76281e01670941df7",
+      "context": "the outer-joined well-by-channel frame with a ``prc`` key.",
+      "translation": "o quadro poço-por-canal unido externamente, com uma chave ``prc``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#0",
+      "source": "Aggregate a CV predictions CSV to a per-(plate, row, column) mean.",
+      "source_sha256": "85e526f875c4d8c1ecccfd9fa5646ff45eecf4ae56d3371549abf81fc70aa90a",
+      "context": "Aggregate a CV predictions CSV to a per-(laboratory microplate, row, column) mean.",
+      "translation": "Agrega um CSV de predições de validação cruzada numa média por (placa, linha, coluna).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#1",
+      "source": "path to the cross-validation predictions CSV.",
+      "source_sha256": "fdeb90f1fcb097856664a6b6236808c279d1323997681f20b629ccf1fb914c55",
+      "context": "path to the cross-validation predictions CSV.",
+      "translation": "caminho para o CSV de predições de validação cruzada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#2",
+      "source": "a plate NUMBER, not a column name. Any value but ``None`` rewrites every row's ``plateID`` to ``plate<plate>``, discarding the plate the CSV itself recorded; ``None`` keeps the CSV's own value and raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.",
+      "source_sha256": "2b9c7e863129c83349669cbbbe155d2d88719d4c8e77066a1d4c2e644905986e",
+      "context": "a laboratory microplate NUMBER, not a column name. Any value but ``None`` rewrites every row's ``plateID`` to ``plate<plate>``, discarding the laboratory microplate the CSV itself recorded; ``None`` keeps the CSV's own value and raises ``KeyError`` if it has no ``plateID`` column. Default ``1``.",
+      "translation": "um NÚMERO de placa, não um nome de coluna. Qualquer valor exceto ``None`` reescreve o ``plateID`` de cada linha como ``plate<plate>``, descartando a placa que o próprio CSV registrou; ``None`` mantém o valor próprio do CSV e lança ``KeyError`` se ele não tiver coluna ``plateID``. Padrão ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#3",
+      "source": "value kept from ``columnID``, or from a legacy ``column`` column which is copied to ``columnID`` first. A value matching no row returns an empty frame rather than raising; a CSV carrying neither key skips the filter silently and then dies on the groupby with ``KeyError: 'columnID'``. Default ``'c3'``.",
+      "source_sha256": "b1affc08af1755c67b0b8b0ff35f619f72b0b1c8d26b69ef5b53d3ad744a1f26",
+      "context": "value kept from ``columnID``, or from a legacy ``column`` column which is copied to ``columnID`` first. A value matching no row returns an empty frame rather than throwing; a CSV carrying neither structured-data name skips the filter silently and then dies on the groupby with ``KeyError: 'columnID'``. Default ``'c3'``.",
+      "translation": "valor mantido de ``columnID``, ou de uma coluna legada ``column`` que é primeiro copiada para ``columnID``. Um valor que não corresponde a nenhuma linha devolve um quadro vazio em vez de lançar um erro; um CSV sem nenhuma das duas chaves pula o filtro silenciosamente e depois falha no groupby com ``KeyError: 'columnID'``. Padrão ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#4",
+      "source": "column averaged within each well. A name absent from the CSV raises ``KeyError``, a non-numeric one ``TypeError``. Default ``'pred'``.",
+      "source_sha256": "2f2d2455b59da1c6052de72921325e51ac8636b9f1c57284936660a46d379b52",
+      "context": "column averaged within each microplate sample position. A name absent from the CSV raises ``KeyError``, a non-numeric one ``TypeError``. Default ``'pred'``.",
+      "translation": "coluna com média dentro de cada poço. Um nome ausente do CSV lança ``KeyError``, um não numérico ``TypeError``. Padrão ``'pred'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.group_cv_score#5",
+      "source": "one row per well, plus a ``prc`` key of ``plateID_rowID_columnID``.",
+      "source_sha256": "5c27ff352ce91d4e922bce785de20a9e1e30637630f2fa8b80d43f7380606e6e",
+      "context": "one row per microplate sample position, plus a ``prc`` structured-data name of ``plateID_rowID_columnID``.",
+      "translation": "uma linha por poço, mais uma chave ``prc`` no formato ``plateID_rowID_columnID``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#0",
+      "source": "Plot a per-well heatmap with each classifier channel as a column.",
+      "source_sha256": "ff218d56e1c31c07a8628f995afa85a3cd34aa182bfa68e51733135817e77554",
+      "context": "Plot a per-microplate sample position heatmap with each machine-learning classification model channel as a column.",
+      "translation": "Desenha um mapa de calor por poço com cada canal do classificador como coluna.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#1",
+      "source": "DataFrame with score columns keyed by channel.",
+      "source_sha256": "0546247d663ed0adefd6e2c0be0a0dcb7cdc998ff98593cea5ae481773f5a854",
+      "context": "DataFrame with score columns keyed by channel.",
+      "translation": "DataFrame com colunas de pontuação indexadas por canal.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#2",
+      "source": "value in ``columnID`` used to filter rows. Default ``'c3'``.",
+      "source_sha256": "c895bac71b62027e6acb62b61fcbe4f6ea790041ed8b57881d1da32432969619",
+      "context": "value in ``columnID`` used to filter rows. Default ``'c3'``.",
+      "translation": "valor em ``columnID`` usado para filtrar linhas. Padrão ``'c3'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#3",
+      "source": "matplotlib/seaborn colormap. Default ``'coolwarm'``.",
+      "source_sha256": "d1dfcbb0128647c38ff00f512ddb7b5ca6c1b8decf889d34f1963138bb1dee3b",
+      "context": "matplotlib/seaborn colormap. Default ``'coolwarm'``.",
+      "translation": "mapa de cores do matplotlib/seaborn. Padrão ``'coolwarm'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.generate_score_heatmap.plot_multi_channel_heatmap#4",
+      "source": "the matplotlib Figure.",
+      "source_sha256": "4d6a43d1649d8eeb2d6e2405db67d50bbe9e0a336dbe985d2effbd28a0c86d58",
+      "context": "the matplotlib Figure.",
+      "translation": "a Figure do matplotlib.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#0",
+      "source": "Render a polar radar plot of ``values`` against ``labels``.",
+      "source_sha256": "0d45ed296c0de25cfadeb175e0514b63bcc9459e0545a7a1853c3e81e217da86",
+      "context": "Render a polar radar plot of ``values`` against ``labels``.",
+      "translation": "Desenha um gráfico de radar polar de ``values`` contra ``labels``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#1",
+      "source": "numeric values per axis (one per label).",
+      "source_sha256": "8c292666a820b3134b723b0758b1e886ba84101021dd2e7111bb30db3fe3e2b7",
+      "context": "numeric values per axis (one per label).",
+      "translation": "valores numéricos por eixo (um por rótulo).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#2",
+      "source": "axis labels.",
+      "source_sha256": "522f6dce15195f1c99ba8007a0a8f2bb7e2e0e5c6c13e52b92486fb27bf70d6a",
+      "context": "axis labels.",
+      "translation": "rótulos dos eixos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.create_extended_radar_plot#3",
+      "source": "plot title.",
+      "source_sha256": "118b2af9ecbcfdcd75fea087214049cd842fc96202574bbbf33da849355dc5af",
+      "context": "plot title.",
+      "translation": "título do gráfico.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.extract_compartment_channel#0",
+      "source": "Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.",
+      "source_sha256": "d7c0ab652f3a54704b62c3baaa9f5f14f167546eb1ac1c905c464dacfadc1d40",
+      "context": "Split ``feature_name`` into ``(compartment, channel)`` by the leading underscore token.",
+      "translation": "Divide ``feature_name`` em ``(compartment, channel)`` pelo token inicial separado por sublinhado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.extract_compartment_channel#1",
+      "source": "measurement feature key, e.g. ``\"cell_ch0_mean\"``.",
+      "source_sha256": "fb1efe274414c54f23ef1b2d3f7aa7a7bfd0080ded552346f6f850a23afe82a0",
+      "context": "measurement feature key, e.g. ``\"cell_ch0_mean\"``.",
+      "translation": "chave da variável de medição, p. ex. ``\"cell_ch0_mean\"``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.extract_compartment_channel#2",
+      "source": "two-tuple ``(compartment, channel)`` — either may be ``None``.",
+      "source_sha256": "7ff7ef6751cf7762cacda86264e62be2a9933764a3ee1fea0ecb65ca4a5d39d3",
+      "context": "two-tuple ``(compartment, channel)`` — either may be ``None``.",
+      "translation": "tupla de dois elementos ``(compartment, channel)`` — qualquer um pode ser ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#0",
+      "source": "Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.",
+      "source_sha256": "28d65140d6b3a9118d6eefeb4be7d588d55435386c1eab59b53e06ad8ffc116d",
+      "context": "Add cross-compartment feature ratios (e.g. nucleus/cell) as new columns.",
+      "translation": "Adiciona como novas colunas razões de variáveis entre compartimentos (p. ex. núcleo/célula).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#1",
+      "source": "measurements DataFrame; columns prefixed with each compartment.",
+      "source_sha256": "bacd49ee69da8c67cd903182efeaa89028fb4f422805231db92218bc2ddb2f3f",
+      "context": "measurements DataFrame; columns prefixed with each compartment.",
+      "translation": "DataFrame de medições; colunas com o prefixo de cada compartimento.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#2",
+      "source": "compartment prefixes to compare. Defaults to ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.",
+      "source_sha256": "80c6e525cbe37304d09d146a55f64f6b7327d7e01c1b862d4b47ccbbba11d233",
+      "context": "compartment prefixes to compare. Defaults to ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.",
+      "translation": "prefixos de compartimento a comparar. Padrão ``['cell', 'nucleus', 'pathogen', 'cytoplasm']``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.generate_comparison_columns#3",
+      "source": "tuple ``(df, comparison_dict)`` with the expanded DataFrame and a mapping of source columns to their derived ratio partners.",
+      "source_sha256": "aaa00c30cae55b6de25c2804ebdaffab9512e9d707abee5051b945dc064f6fdc",
+      "context": "tuple ``(df, comparison_dict)`` with the expanded DataFrame and a mapping of source columns to their derived ratio partners.",
+      "translation": "tupla ``(df, comparison_dict)`` com o DataFrame expandido e um mapeamento das colunas de origem para as suas razões derivadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#0",
+      "source": "Sum feature importance by compartment or channel group.",
+      "source_sha256": "0baf8c06d2c2fca55a7c985b06a135912c07b15c9f6bf2908c55c6563bd612f8",
+      "context": "Sum feature importance by compartment or channel group.",
+      "translation": "Soma a importância das variáveis por grupo de compartimento ou de canal.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#1",
+      "source": "DataFrame with columns ``feature`` and ``importance``.",
+      "source_sha256": "83f5a1e84e2f29dc38dc471f9031c7aec3ffca0fb69357dce8980643d556e51d",
+      "context": "DataFrame with columns ``feature`` and ``importance``.",
+      "translation": "DataFrame com as colunas ``feature`` e ``importance``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#2",
+      "source": "substrings identifying each group (compartments or channels).",
+      "source_sha256": "a19a581661d6875a9a60ed5409c0edc769d830a1046df1488147a52cb458ff53",
+      "context": "substrings identifying each group (compartments or channels).",
+      "translation": "substrings que identificam cada grupo (compartimentos ou canais).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#3",
+      "source": "name of the grouping column to create. Default ``'compartment'``.",
+      "source_sha256": "b474ebe1c5a585508ac94ea76e83c0f1b3b4c38eab2ffc055bfe1b5010f2431d",
+      "context": "name of the grouping column to create. Default ``'compartment'``.",
+      "translation": "nome da coluna de agrupamento a criar. Padrão ``'compartment'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#4",
+      "source": "append an ``all`` row summing across groups. Default ``False``.",
+      "source_sha256": "c2c664b3b264fbdf5a5adeb72fcd52aebed160ca98d75dc33aeb18624cc31fd7",
+      "context": "append an ``all`` row summing across groups. Default ``False``.",
+      "translation": "acrescenta uma linha ``all`` que soma todos os grupos. Padrão ``False``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class#5",
+      "source": "DataFrame of summed importance per group.",
+      "source_sha256": "3fc725fc25504aa5bfbe09e20049c6f9d091bcb9a11f6931996a09e81e9e21b5",
+      "context": "DataFrame of summed importance per group.",
+      "translation": "DataFrame da importância somada por grupo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.group_feature_class.find_feature_class#0",
+      "source": "Return the compartment(s) whose name matches ``feature``.",
+      "source_sha256": "211f2ee62f40fa578334bea860b78ac30c847a911bc9455ce3c9b732acf98f9d",
+      "context": "Return the compartment(s) whose name matches ``feature``.",
+      "translation": "Devolve o(s) compartimento(s) cujo nome corresponde a ``feature``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.read_and_preprocess_data#0",
+      "source": "Load the measurements DB pointed at by ``settings`` and return the merged dataframe.",
+      "source_sha256": "37896a3b965366c05aac2e74e232ff3a5fe1f29cd17dd453ab8ab097a819e67a",
+      "context": "Load the measurements DB pointed at by ``settings`` and return the merged dataframe.",
+      "translation": "Carrega o banco de dados de medições apontado por ``settings`` e devolve o dataframe mesclado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.read_and_preprocess_data#1",
+      "source": "settings dict; must contain ``src`` (folder holding ``measurements/measurements.db``).",
+      "source_sha256": "9b54d98cc249adac80b763c0ae28848ba6dc143d86f2daab09c11c31a87317bd",
+      "context": "settings key-value mapping; must contain ``src`` (folder holding ``measurements/measurements.db``).",
+      "translation": "dict de configurações; deve conter ``src`` (pasta que contém ``measurements/measurements.db``).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.interpret_vision_model.read_and_preprocess_data#2",
+      "source": "dataframe of merged object measurements.",
+      "source_sha256": "81a49fd2aab4b182cfba40a9483b9711e2a879c07184dcaabb8d94f15463e4f4",
+      "context": "dataframe of merged object measurements.",
+      "translation": "dataframe de medições de objetos mescladas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.post_regression_analysis._analyze_and_visualize_grna_correlation#0",
+      "source": "Return and plot the pivoted per-well gRNA fraction correlation matrix.",
+      "source_sha256": "755e2156ff1f3d75ecec9d6c9b62f7125631c20d007107cd1e9cf75e5cf27ab2",
+      "context": "Return and plot the pivoted per-microplate sample position gRNA fraction correlation matrix.",
+      "translation": "Devolve e desenha a matriz de correlação pivotada das frações de gRNA por poço.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.post_regression_analysis._compute_effect_sizes#0",
+      "source": "Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix.",
+      "source_sha256": "98fdf39cf32f71823d7f4539904fb40731a488031dab65b4592e949a5629a666",
+      "context": "Return per-gRNA effect sizes propagated from anchor gRNAs via the correlation matrix.",
+      "translation": "Devolve tamanhos de efeito por gRNA propagados a partir de gRNAs âncora pela matriz de correlação.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#0",
+      "source": "Render one 5-panel diagnostic (image / label / pred / flow) for a Cellpose result.",
+      "source_sha256": "effc325b617a8179c288983701745692a25a8c834da1b6d845c70b890601cd90",
+      "context": "Render one 5-panel diagnostic (image / label / pred / flow) for a Cellpose result.",
+      "translation": "Desenha um diagnóstico de 5 painéis (imagem / rótulo / predição / fluxo) para um resultado do Cellpose.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#1",
+      "source": "outer image index used in the output filename.",
+      "source_sha256": "a1e541e9c5588c962598b6e38cc7719c70819a3af57a4061352ae5121ac5f8c8",
+      "context": "outer image index used in the output filename.",
+      "translation": "índice de imagem externo usado no nome do arquivo de saída.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#2",
+      "source": "inner batch index used in the output filename.",
+      "source_sha256": "82a65b5df3b1f2a19690f1983541ab70a64feac5c01e2ec8bb86e990620f9967",
+      "context": "inner batch index used in the output filename.",
+      "translation": "índice de lote interno usado no nome do arquivo de saída.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#3",
+      "source": "folder where the composite PNG is written.",
+      "source_sha256": "bc78eeaf44e95dff6b17e501b283e942df5422f98844a969d2ed2d47315512df",
+      "context": "folder where the composite PNG is written.",
+      "translation": "pasta onde o PNG composto é escrito.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#4",
+      "source": "source image array.",
+      "source_sha256": "50a4a3b3c15b2e8d6299093742935bbcb8a62c524b701daaf607e880c04d33c6",
+      "context": "source image array.",
+      "translation": "array da imagem de origem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#5",
+      "source": "ground-truth label array.",
+      "source_sha256": "fd54f43f1e88c53c179a579139cbbae9e1ebb0487307bcb7dff6593f65a3d05e",
+      "context": "ground-truth label array.",
+      "translation": "array de rótulos de referência.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#6",
+      "source": "predicted mask array.",
+      "source_sha256": "1b4e494d5c3794535a9a2efc96e69d58e4891bf4d90fd5ce02a53dff3f705690",
+      "context": "predicted mask array.",
+      "translation": "array da máscara predita.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.submodules.test_cellpose_model.plot_cellpose_resilts#7",
+      "source": "Cellpose flow field.",
+      "source_sha256": "43b6e250afa674c3319cbd3e8eee0705ac39e6c20174e22ef5e933f1142070ca",
+      "context": "Cellpose flow field.",
+      "translation": "campo de fluxo do Cellpose.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

@@ -648,15 +648,16 @@ _PRODUCT_PROTECT_RE = re.compile(
     + r")(?:s)?(?![A-Za-z0-9_])"
 )
 
-#: A PROTECTED SQL KEYWORD INSIDE SHOUTED PROSE IS AN ENGLISH WORD. ``WHERE``
-#: is held because a query clause must survive translation, but docstrings
-#: also use upper-case headings such as "ONE SNAPSHOT NAMES WHERE THE THREAD
-#: WAS". There the word is ordinary prose and every locale must translate it;
+#: A PROTECTED KEYWORD INSIDE SHOUTED PROSE IS AN ENGLISH WORD. ``WHERE``
+#: (a query clause) and ``PATH`` (the environment variable) are held because
+#: they must survive translation, but docstrings also use upper-case headings
+#: such as "ONE SNAPSHOT NAMES WHERE THE THREAD WAS" or "ON THIS PATH ONLY".
+#: There the word is ordinary prose and every locale must translate it;
 #: requiring it byte-for-byte rejected every correct translation. An
 #: occurrence counts as prose only when an adjacent word is itself an
 #: upper-case English word that is not a protected term, which a query
 #: (``... FROM cells WHERE well = ?``) never has.
-_SHOUTED_PROSE_TERMS = frozenset({"WHERE"})
+_SHOUTED_PROSE_TERMS = frozenset({"WHERE", "PATH"})
 _SHOUTED_NEIGHBOUR_RE = re.compile(r"[A-Z]{2,}")
 
 
