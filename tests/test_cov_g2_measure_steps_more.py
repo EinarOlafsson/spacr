@@ -120,3 +120,46 @@ def test_a_measure_run_reaches_barcodes_cellprofiler_and_a_backend(tmp_path,
         merged, viability=False, n_jobs=1, plate_barcode_source="records.csv",
         cellprofiler_pipeline=str(pipeline), measurement_backend="parquet"))
     assert steps == ["barcodes", "cellprofiler", "backend"]
+
+
+def test_a_gpu_morphology_table_is_used_when_it_agrees(monkeypatch):
+    from tests.test_cov_11_measure import _masks, _settings
+
+    used = []
+
+    def gpu_table(mask, props):
+        used.append(True)
+        return m._safe_morphology_table(mask, properties=props)
+
+    monkeypatch.setattr(m, "_measurement_device", lambda settings: "cuda")
+    monkeypatch.setattr(m, "_gpu_measurable", lambda mask, spacing=None: True)
+    monkeypatch.setattr(m, "_cucim_morphology_table", gpu_table)
+    cell, nucleus, pathogen = _masks()
+    frames = m._morphological_measurements(cell, nucleus, pathogen, None, None,
+                                           _settings(), zernike=False)
+    assert used and len(frames[0])
+
+
+def test_a_log_scale_single_population_is_cut_by_its_spread():
+    rng = np.random.default_rng(0)
+    values = np.exp(rng.normal(0.0, 0.1, 400))
+    cut = m._stain_cut(values, single_is_positive=True, log_scale=True)
+    assert cut.source == "single" and cut.threshold < 1.0
+
+
+def test_infection_needs_a_pathogen_count(tmp_path, monkeypatch):
+    import pandas as pd
+    import spacr.infection as infection
+
+    monkeypatch.setattr(infection, "parasites_per_cell",
+                        lambda db: pd.DataFrame({"cell_id": [1]}))
+    nuclei = pd.DataFrame({"cell_id": [1]})
+    assert m._nucleus_infection(str(tmp_path / "x.db"), nuclei).isna().all()
+
+
+def test_a_postgres_url_is_kept_as_given(tmp_path):
+    url = "postgresql://user@host/db"
+    assert m._measurement_backend_target(
+        str(tmp_path / "measurements.db"),
+        {"measurement_backend": "postgres",
+         "measurement_backend_target": url}) == url
