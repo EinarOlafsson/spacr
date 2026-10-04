@@ -2634,6 +2634,187 @@ def _opened_module_screen(window, requested: str, host: str):
     return screen
 
 
+_PREWARM_IDLE_S = 2.0
+_PREWARM_STEP_GAP_MS = 60
+_PREWARM_SPARE_MB = 1024.0
+
+_INPUT_EVENTS = frozenset({
+    QEvent.Type.MouseButtonPress, QEvent.Type.MouseButtonRelease,
+    QEvent.Type.MouseButtonDblClick, QEvent.Type.MouseMove,
+    QEvent.Type.KeyPress, QEvent.Type.KeyRelease, QEvent.Type.Wheel,
+    QEvent.Type.TouchBegin, QEvent.Type.TouchUpdate,
+    QEvent.Type.TabletPress, QEvent.Type.ShortcutOverride,
+})
+
+
+def _prewarm_memory_is_short() -> bool:
+    """Whether free memory is too low to build a screen nobody asked for.
+
+    Short when the preferences' headroom floor is crossed, or when free
+    memory is within :data:`_PREWARM_SPARE_MB` of the reserve the RAM guard
+    keeps for the desktop.
+    """
+    try:
+        from .memory_budget import headroom_is_short
+
+        if headroom_is_short():
+            return True
+        from ..resource_log import _ram_reserve_bytes, _ram_snapshot
+
+        snap = _ram_snapshot()
+        if snap is None:
+            return False
+        available, total = snap
+        spare = available - _ram_reserve_bytes(total)
+        return spare < _PREWARM_SPARE_MB * 1024 * 1024
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read free memory", exc_info=True)
+        return False
+
+
+class _ScreenPrewarm(QObject):
+    """Build the most used module screens while Home sits idle.
+
+    ONE STEP PER IDLE SLICE. A screen's build is split into the steps of a
+    real open (construct, theme, polish, join the stack and take the window
+    sheet, translate and lay out); each slice runs one step and hands the
+    event loop back for :data:`_PREWARM_STEP_GAP_MS`, so input that arrived
+    during a step is handled before the next. A slice runs only when no
+    user input has been seen for :data:`_PREWARM_IDLE_S`, no mouse button is
+    held, no popup or modal dialog is up and no screen is being opened;
+    otherwise it waits for the next idle stretch.
+
+    Off at the Laptop and Extra Performance levels, on low-memory machines,
+    with ``SPACR_PREWARM=0`` and when free memory is short; see
+    :func:`spacr.qt.preferences._screen_prewarm_allowed`. The order comes
+    from :func:`spacr.qt.preferences._screen_prewarm_order`.
+
+    A screen joins the window's screens only when its last step is done. A
+    module opened while its screen is half built finishes the remaining
+    steps inside that open.
+    """
+
+    def __init__(self, window, order) -> None:
+        super().__init__(window)
+        from PySide6.QtCore import QTimer
+
+        self._window = window
+        self._order = [k for k in order if k in window._prewarmable_keys()]
+        self._steps = None
+        self._key = None
+        self._last_input = _time_monotonic()
+        self._running_step = False
+        self.finished = False
+        self.built: list = []
+        self.skipped: list = []
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._slice)
+        app = QApplication.instance()
+        if app is not None:
+            app.installEventFilter(self)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Note the time of every piece of user input."""
+        if event.type() in _INPUT_EVENTS:
+            self._last_input = _time_monotonic()
+        return False
+
+    def start(self, delay_s: float = _PREWARM_IDLE_S) -> None:
+        """Schedule the first slice ``delay_s`` from now."""
+        self._timer.start(int(max(0.0, delay_s) * 1000))
+
+    def stop(self) -> None:
+        """Stop for good; a half built screen is dropped."""
+        self._timer.stop()
+        self.finished = True
+        app = QApplication.instance()
+        if app is not None:
+            try:
+                app.removeEventFilter(self)
+            except RuntimeError:
+                pass
+        steps, self._steps = self._steps, None
+        if steps is not None:
+            try:
+                steps.close()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not drop a half built screen", exc_info=True)
+
+    def busy_reason(self) -> str:
+        """Why a slice may not run now, or ``""`` when it may."""
+        idle = _time_monotonic() - self._last_input
+        if idle < _PREWARM_IDLE_S:
+            return "input"
+        app = QApplication.instance()
+        if app is None:
+            return "no application"
+        if app.mouseButtons() != Qt.MouseButton.NoButton:
+            return "input"
+        if app.activePopupWidget() is not None:
+            return "popup"
+        if app.activeModalWidget() is not None:
+            return "modal"
+        if getattr(self._window, "_opening_a_screen", False):
+            return "opening"
+        return ""
+
+    def _slice(self) -> None:
+        """Run one step, if the user is idle; then schedule the next."""
+        if self.finished or self._running_step:
+            return
+        reason = self.busy_reason()
+        if reason:
+            wait = _PREWARM_IDLE_S - (_time_monotonic() - self._last_input)
+            self.start(max(wait, 0.25))
+            return
+        from .preferences import _screen_prewarm_allowed
+
+        allowed, why = _screen_prewarm_allowed()
+        if not allowed or _prewarm_memory_is_short():
+            LOG.info("screen prewarm stopped: %s",
+                     why or "free memory is short")
+            self.stop()
+            return
+        if self._steps is None and not self._next_screen():
+            self.stop()
+            return
+        self._running_step = True
+        try:
+            self._window._run_one_prewarm_step(self)
+        finally:
+            self._running_step = False
+        if not self.finished:
+            self._timer.start(_PREWARM_STEP_GAP_MS)
+
+    def _next_screen(self) -> bool:
+        """Start the steps of the next screen not built yet."""
+        while self._order:
+            key = self._order.pop(0)
+            if key in self._window._screens:
+                self.skipped.append(key)
+                continue
+            self._key = key
+            self._steps = self._window._prewarm_steps(key)
+            return True
+        return False
+
+    def take_steps_for(self, key):
+        """Hand over ``key``'s unfinished steps, if this is building it."""
+        if self._key != key or self._steps is None:
+            return None
+        steps, self._steps, self._key = self._steps, None, None
+        return steps
+
+
+def _time_monotonic() -> float:
+    """``time.monotonic``, imported here so tests can replace the clock."""
+    import time
+
+    return time.monotonic()
+
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -4527,6 +4708,9 @@ class MainWindow(QMainWindow):
         if (getattr(self, "_frozen_update_handshake", None) is not None
                 and not getattr(self, "_frozen_update_closing", False)):
             self._cancel_frozen_update()
+        prewarm = getattr(self, "_screen_prewarm", None)
+        if prewarm is not None:
+            prewarm.stop()
         from .bridge import registry
         remaining = registry().cancel_all(
             timeout_ms=5000, reason="application shutdown")
@@ -5568,6 +5752,7 @@ class MainWindow(QMainWindow):
         :param interaction_started: the navigation interval's start, for the
             readiness watch.
         """
+        self._finish_a_prewarmed_screen(key)
         if key in self._screens and self._screen_scale_is_stale(key):
             self._rebuild_for_scale(key)
         built_now = key not in self._screens
@@ -5646,6 +5831,127 @@ class MainWindow(QMainWindow):
         name = tr(next((n for k, n, _d, _s in APPS if k == key), key))
         self._status_app_label.setText(name)
         self.statusBar().showMessage(tr("Opened {name}", name=name), 2000)
+
+    def _prewarmable_keys(self) -> set:
+        """Module keys this window can build a screen for."""
+        return {k for k, _n, _d, _s in APPS}
+
+    def _prewarm_steps(self, key: str):
+        """Build ``key``'s screen off screen, one yield between steps.
+
+        The same steps as a first open (:meth:`_open_a_module_screen`), plus
+        the window sheet and a layout pass that a first open pays at its
+        Show. The screen carries ``WA_DontShowOnScreen`` until it joins the
+        stack, and joins :attr:`_screens` only after the last step.
+        """
+        from .theme import _sheet_one_window
+
+        screen = self._build_screen(key)
+        screen.setAttribute(Qt.WidgetAttribute.WA_DontShowOnScreen, True)
+        self._screen_scales[key] = _current_font_scale()
+        try:
+            yield
+            with _timing.span("theme screen", key):
+                self._theme_screen(screen, key)
+            yield
+            with _timing.span("polish", key):
+                screen.ensurePolished()
+            yield
+            screen.setAttribute(Qt.WidgetAttribute.WA_DontShowOnScreen, False)
+            self._a_page_joined_the_stack(screen)
+            self._stack.addWidget(screen)
+            self._drop_a_redundant_screen_backdrop(screen)
+            _sheet_one_window(screen)
+            yield
+            from .i18n import retranslate_widget_tree
+
+            with _timing.span("retranslate", key):
+                retranslate_widget_tree(screen)
+            detach = getattr(screen, "_detach_what_the_form_hides", None)
+            if callable(detach):
+                detach()
+            screen.ensurePolished()
+            yield
+            self._lay_out_unshown(screen)
+        except GeneratorExit:
+            self._stack.removeWidget(screen)
+            self._screen_scales.pop(key, None)
+            screen.deleteLater()
+            raise
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("Could not build the %s screen ahead of time", key)
+            self._stack.removeWidget(screen)
+            self._screen_scales.pop(key, None)
+            screen.deleteLater()
+            return
+        self._screens[key] = screen
+        _freeze_what_survived()
+
+    def _lay_out_unshown(self, screen) -> None:
+        """Size a stack page that is not on show, so its first Show only paints."""
+        try:
+            screen.resize(self._stack.size())
+            layout = screen.layout()
+            if layout is not None:
+                layout.activate()
+        except RuntimeError:
+            pass
+
+    def _run_one_prewarm_step(self, prewarm) -> None:
+        """Run one step of ``prewarm``'s current screen inside one store."""
+        from . import screens as _screens_package
+        from .i18n import ui_language_resolved_once
+        from .preferences import _one_store
+
+        import time as _time
+
+        steps = prewarm._steps
+        if steps is None:
+            return
+        self._opening_a_screen = True
+        _screens_package._start_breathing_while_a_window_opens(
+            _time.perf_counter())
+        try:
+            with ui_language_resolved_once(), _one_store():
+                try:
+                    next(steps)
+                except StopIteration:
+                    if prewarm._key in self._screens:
+                        prewarm.built.append(prewarm._key)
+                    prewarm._steps = None
+                    prewarm._key = None
+        finally:
+            self._opening_a_screen = False
+            _screens_package._stop_breathing_while_a_window_opens()
+
+    def _finish_a_prewarmed_screen(self, key: str) -> None:
+        """Run what is left of ``key``'s ahead-of-time build, if one is under way."""
+        prewarm = getattr(self, "_screen_prewarm", None)
+        if prewarm is None:
+            return
+        steps = prewarm.take_steps_for(key)
+        if steps is None:
+            return
+        for _ in steps:
+            pass
+        if key in self._screens:
+            prewarm.built.append(key)
+
+    def _start_the_screen_prewarm(self) -> Optional["_ScreenPrewarm"]:
+        """Start building the most used screens once Home has been idle."""
+        from .preferences import _screen_prewarm_allowed, _screen_prewarm_order
+
+        allowed, why = _screen_prewarm_allowed()
+        if allowed and os.environ.get("SPACR_BENCHMARK_JSON", "").strip() \
+                and os.environ.get("SPACR_PREWARM", "").strip() != "1":
+            allowed, why = False, "a startup benchmark measures first opens"
+        if not allowed:
+            LOG.info("screen prewarm off: %s", why)
+            return None
+        self._screen_prewarm = _ScreenPrewarm(self, _screen_prewarm_order())
+        self._screen_prewarm.start()
+        return self._screen_prewarm
+
 
     @staticmethod
     def _breathe_while_opening(force: bool = False) -> None:
@@ -6963,6 +7269,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
         QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, win._maybe_show_whats_new)
+        win._start_the_screen_prewarm()
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.

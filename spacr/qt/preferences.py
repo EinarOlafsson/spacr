@@ -159,6 +159,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import os
 import threading
 
 from PySide6.QtCore import QSettings, Qt
@@ -3251,6 +3252,72 @@ def _budget_follows_level(mode_combo, last_level, spins) -> None:
     for index, spin in enumerate(spins):
         if spin.value() == RECOMMENDED[old][index]:
             spin.setValue(RECOMMENDED[new][index])
+
+
+_KEY_SCREEN_PREWARM = "prefs/screen_prewarm"
+_KEY_SCREEN_PREWARM_ORDER = "prefs/screen_prewarm_order"
+
+#: The module screens built while Home sits idle, most used first.
+_SCREEN_PREWARM_ORDER = ("mask", "measure", "make_masks", "classify_merged",
+                         "analyze_plaques", "regression", "annotate")
+
+#: Performance levels that never build screens ahead of the user.
+_NO_SCREEN_PREWARM_LEVELS = frozenset({"laptop", "extra_performance"})
+
+
+def _screen_prewarm_order() -> tuple[str, ...]:
+    """The module screens to build ahead of time while Home is idle.
+
+    ``SPACR_PREWARM_ORDER`` (comma separated module keys) wins over the
+    stored ``prefs/screen_prewarm_order``; an empty answer from both gives
+    :data:`_SCREEN_PREWARM_ORDER`.
+
+    :returns: module keys in build order, without repeats.
+    """
+    raw = os.environ.get("SPACR_PREWARM_ORDER")
+    if raw is None:
+        try:
+            raw = _settings().value(_KEY_SCREEN_PREWARM_ORDER, "")
+        except Exception:                                    # noqa: BLE001
+            raw = ""
+    if isinstance(raw, (list, tuple)):
+        raw = ",".join(str(part) for part in raw)
+    keys = [part.strip() for part in str(raw or "").split(",") if part.strip()]
+    return tuple(dict.fromkeys(keys)) or _SCREEN_PREWARM_ORDER
+
+
+def _screen_prewarm_allowed() -> tuple[bool, str]:
+    """Whether idle screen building may run now, and why not when it may not.
+
+    Off when ``SPACR_PREWARM`` is ``0``, when ``prefs/screen_prewarm`` is
+    false, at the Laptop and Extra Performance levels, when laptop mode is
+    wanted for this machine (few cores or little memory), and in safe mode.
+
+    :returns: ``(allowed, reason)``.
+    """
+    env = os.environ.get("SPACR_PREWARM", "").strip().lower()
+    if env in {"0", "false", "no", "off"}:
+        return False, "SPACR_PREWARM is off"
+    if _SAFE_MODE:
+        return False, "safe mode"
+    try:
+        stored = _settings().value(_KEY_SCREEN_PREWARM, True)
+    except Exception:                                        # noqa: BLE001
+        stored = True
+    if str(stored).strip().lower() in {"0", "false", "no", "off"}:
+        return False, "turned off in the preferences"
+    level = get_performance_level()
+    if level in _NO_SCREEN_PREWARM_LEVELS:
+        return False, f"performance level {level}"
+    if env not in {"1", "true", "yes", "on"}:
+        try:
+            from .laptop_mode import wanted
+
+            if wanted()[0]:
+                return False, "laptop or low-memory machine"
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not read laptop mode", exc_info=True)
+    return True, ""
 
 
 def get_performance_level() -> str:

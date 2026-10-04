@@ -304,12 +304,66 @@ Guards (tests/qt/test_641_startup_and_browse_budgets.py):
    categories_for_app computed once and copied; one ink measurement per
    font; the PySide probe answers from bytes and falls back without a file.
 
+7. FOURTH PASS: IDLE PREWARM OF THE MOST USED SCREENS (2026-10-04, CPU)
+   MainWindow._start_the_screen_prewarm (app.py, _ScreenPrewarm) starts at
+   launch; after 2 s with no user input it builds Mask, Measure, Make
+   Masks, Classify, Plaques, Regression, Annotate, one step per idle slice
+   (construct / theme / polish / join the stack + window sheet / translate
+   + detach + layout), 60 ms of free event loop between steps. A slice
+   waits while input was seen in the last 2 s, a button is held, a popup
+   or modal is up or a screen is opening. Screens carry WA_DontShowOnScreen
+   until they join the stack, and join _screens only when complete; a
+   module opened half built finishes its steps inside that open.
+   Off: SPACR_PREWARM=0, prefs/screen_prewarm=false, Laptop and Extra
+   Performance levels, laptop-mode machines (few cores / < 8 GiB), safe
+   mode, startup benchmark runs (unless SPACR_PREWARM=1); stops when the
+   headroom floor is crossed or free RAM is within 1 GB of the RAM guard's
+   reserve. Order: SPACR_PREWARM_ORDER or prefs/screen_prewarm_order.
+
+   First open after a 60 s idle Home, offscreen, median of 5 processes
+   (off: 10 processes), load fell 30 -> 3 during the set
+   (harness /mnt/wd4tb/scratch/641/r4/pw.py, pw.sh, on.txt, off.txt):
+                       prewarm off   prewarm on
+    mask                  1.974        0.287
+    measure               1.831        0.179
+    make_masks            1.232        0.082
+    classify_merged       1.106        0.171
+    analyze_plaques       0.771        0.159
+    regression            1.340        0.317
+    annotate              0.463        0.081
+   Cost of prewarm: process CPU over the 60 s idle window 2.0 -> 10.0 s
+   (about 8 CPU-s once, nothing after the seven are built); RSS 274 ->
+   556 MB (+243 MB for seven screens, +40 MB already at the 3 s mark).
+   5 of 7 under 200 ms; Mask and Regression stay at 0.29-0.32 s: what is
+   left is Qt's first Show (showChildren, ~1,000-1,400 Show events through
+   the Python event filters, layout) and first paint, ~0.1 s of it inside
+   setCurrentWidget. Pre-showing the page would fire its showEvent and
+   the stack's currentChanged (last-module memory, walkthrough offer), so
+   it was not done.
+
+   Polish census (setStyleSheet wrapped, one open each): Mask 70 calls,
+   13 ms; Regression 48, 10 ms; Measure 61, 16 ms; Make Masks 11, 1 ms; one
+   same-text repeat per open (an empty own rule). adjustSize has 10 call
+   sites, none in a screen build. So per-widget sheets and adjustSize are
+   not where the time goes; the cost is Qt's polish of the window sheet at
+   first Show, which the prewarm now pays while idle. Moving the window
+   sheet to the application was not done: it would restyle every window
+   and dialog, for a cost the prewarm already removes from the open.
+
+   Tests: tests/qt/test_641_screen_prewarm.py (no step while input is
+   recent, after a key press, inside an input event or during an open;
+   steps on the GUI thread; prewarmed open does not rebuild; half-built
+   open finishes; stops on short memory; off by env, preference, Laptop,
+   Extra Performance; order configurable).
+
 Left:
   - Chatty GUI runs: 1.7x bare headless (1.5x a logged headless run). The
     rest is the logging sinks themselves (master + level + dated file +
     console) and the journal's git status; dropping a duplicate sink is a
     product decision.
   - Module first-open: 30 of 54 over 500 ms at load 20-30 (11 at load 15);
+    the seven most used now open in 0.08-0.32 s after an idle prewarm
+    (section 7); Mask and Regression still above 200 ms (first Show/paint);
     the rest is Qt polish/layout/stylesheet over 1,000+ widgets per slow
     screen -- needs fewer widgets (section 6).
   - GUI-thread listings left: FilePathListWidget._folder_members,
