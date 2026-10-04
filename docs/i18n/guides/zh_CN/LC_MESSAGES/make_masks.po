@@ -300,7 +300,7 @@ msgid "Post-detection opening/closing and splitting modify label shapes. These s
 msgstr "检测后的开运算/闭运算和分割会修改标签形状。对于配对的次级对象，这些步骤会被跳过，以保留初级 ID。创建掩膜的增强与批量掩膜流程分开配置；在其他地方训练或运行模型时，请显式迁移所需的预处理。参见 :mod:`spacr.qt.detect_chain`。"
 
 msgid "For calibrated optical processing, choose **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Enter the image pixel height and width in micrometres, then choose a measured TIFF/NPY kernel with matching spacing or a Gaussian approximation with explicit Y/X full widths at half maximum. Use **Reload** after changing a kernel file. Compare the result before applying it; more deconvolution iterations can amplify noise. The original image intensities stay available for measurement. See :doc:`point_spread` for the complete workflow and Measure settings."
-msgstr "如需进行校准的光学处理，请在 **点扩散函数** 下选择 **Convolve (blur)** 或 **Deconvolve (Richardson–Lucy)**。输入以微米为单位的图像像素高度和宽度，然后选择间距匹配的实测 TIFF/NPY 卷积核，或具有显式 Y/X 半高全宽的高斯近似。更改卷积核文件后请使用 **重新加载**。应用之前请先比较结果；反卷积迭代次数越多，噪声可能被放大得越厉害。原始图像强度仍可用于测量。完整的工作流程和测量设置请参阅 :doc:`point_spread`。"
+msgstr "如需进行校准的光学处理，请在 **点扩散函数** 下选择 **卷积（模糊）** 或 **反卷积（Richardson–Lucy）**。输入以微米为单位的图像像素高度和宽度，然后选择间距匹配的实测 TIFF/NPY 卷积核，或具有显式 Y/X 半高全宽的高斯近似。更改卷积核文件后请使用 **重新加载**。应用之前请先比较结果；反卷积迭代次数越多，噪声可能被放大得越厉害。原始图像强度仍可用于测量。完整的工作流程和测量设置请参阅 :doc:`point_spread`。"
 
 msgid "Restore an image with Cellpose 3"
 msgstr "使用 Cellpose 3 恢复图像"

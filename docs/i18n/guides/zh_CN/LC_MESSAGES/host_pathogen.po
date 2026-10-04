@@ -98,7 +98,7 @@ msgid "Choosing a Replication Assay method"
 msgstr "选择复制分析方法"
 
 msgid "The separate **Replication Assay → Method** selector defaults to ``direct_count``, which counts individually segmented parasites per assigned vacuole. ``size_proxy`` uses the existing endodyogeny analysis and its **Size Proxy (Legacy)** controls. That readout aggregates pathogen area per host cell; multiple vacuoles in one host are combined. It is an area-derived proxy, not a parasite count or measured volume."
-msgstr "单独的 **复制分析 → 方法** 选择器默认为 ``direct_count``，它对分配到每个纳虫泡的单独分割寄生虫进行计数。``size_proxy`` 使用现有的内二芽殖（endodyogeny）分析及其 **Size Proxy (Legacy)** 控件。该读数按宿主细胞汇总病原体面积；一个宿主中的多个纳虫泡会被合并。它是由面积推导的代理指标，而不是寄生虫计数或测得的体积。"
+msgstr "单独的 **复制分析 → 方法** 选择器默认为 ``direct_count``，它对分配到每个纳虫泡的单独分割寄生虫进行计数。``size_proxy`` 使用现有的内二芽殖（endodyogeny）分析及其 **面积代理（旧版）** 控件。该读数按宿主细胞汇总病原体面积；一个宿主中的多个纳虫泡会被合并。它是由面积推导的代理指标，而不是寄生虫计数或测得的体积。"
 
 msgid "Both available routes return ``replication_method`` metadata. The whole-vacuole deep-learning option is marked coming soon and cannot run before its model is available. See :func:`spacr.submodules.analyze_replication` and :func:`spacr.submodules.analyze_endodyogeny` for the exact settings and outputs."
 msgstr "两种可用方法都会返回 ``replication_method`` 元数据。完整纳虫泡深度学习选项标记为即将推出，在其模型可用之前无法运行。确切的设置和输出请参阅 :func:`spacr.submodules.analyze_replication` 和 :func:`spacr.submodules.analyze_endodyogeny`。"

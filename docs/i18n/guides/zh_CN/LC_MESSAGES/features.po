@@ -53,7 +53,7 @@ msgid "Measure writes per-object morphology, intensity, texture, radial, spatial
 msgstr "测量模块将每个对象的形态、强度、纹理、径向、空间和共定位特征写入 ``measurements.db``。它可以保存可直接用于分类器的对象裁剪图，根据孔板估计照明校正，将处理限制在感兴趣区域内，并在运行前报告分割质量。"
 
 msgid "Measure's settings are grouped as **Input & Experiment**, **Mask & Channel Mapping**, **Image Preprocessing** (with **Image Deconvolution (PSF)** and **Illumination Correction**), **Features**, **Object Filtering**, **Crop Output**, **3D Calibration (Beta)** and **Postprocessing** (with **Runtime & Reliability**). The segmentation-quality verdict is opt-in: the **QC** switch beside **3D** and **Time** opens it in a popup, and closing the popup turns the switch off."
-msgstr "测量模块的设置分组为 **输入与实验**、**掩膜与通道映射**、**图像预处理** （包括 **Image Deconvolution (PSF)** 和 **照明校正**）、**特征**、**对象过滤**、**裁剪图输出**、**3D Calibration (Beta)** 和 **Postprocessing** （包括 **运行与可靠性**）。分割质量评判需要主动开启：**3D** 和 **时间** 旁边的 **QC** 开关会在弹出窗口中打开它，关闭弹出窗口即关闭该开关。"
+msgstr "测量模块的设置分组为 **输入与实验**、**掩膜与通道映射**、**图像预处理** （包括 **图像去卷积（PSF）** 和 **照明校正**）、**特征**、**对象过滤**、**裁剪图输出**、**三维校准（Beta）** 和 **Postprocessing** （包括 **运行与可靠性**）。分割质量评判需要主动开启：**3D** 和 **时间** 旁边的 **QC** 开关会在弹出窗口中打开它，关闭弹出窗口即关闭该开关。"
 
 msgid "Annotate and Classify"
 msgstr "标注与分类"
@@ -231,7 +231,7 @@ msgstr "工作进程与可用内存"
 
 #, python-format
 msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
-msgstr "在模块启动其工作进程之前，spaCR 会估算每个工作进程处理一个输入（例如一个视野、一个掩膜、一批裁剪图或一张表）所需的内存。如果你设置的 ``n_jobs`` 会使计算机可用 RAM 低于 12.5%，弹出窗口会显示该估算值、可用内存以及可容纳的工作进程数。选择 **Use N workers (recommended)** 以该数量运行，或保留你自己的数量；此时只要可用内存低于预留值，测量就会暂停处理新的视野。 **关闭应用程序以释放 RAM…** 会列出你自己占用最大的程序。初始时不勾选任何程序，只有你勾选的程序会在你确认后被要求退出；它们通常可以先保存，但其中未保存的工作仍可能丢失。"
+msgstr "在模块启动其工作进程之前，spaCR 会估算每个工作进程处理一个输入（例如一个视野、一个掩膜、一批裁剪图或一张表）所需的内存。如果你设置的 ``n_jobs`` 会使计算机可用 RAM 低于 12.5%，弹出窗口会显示该估算值、可用内存以及可容纳的工作进程数。选择 **使用 N 个工作进程（推荐）** 以该数量运行，或保留你自己的数量；此时只要可用内存低于预留值，测量就会暂停处理新的视野。 **关闭应用程序以释放 RAM…** 会列出你自己占用最大的程序。初始时不勾选任何程序，只有你勾选的程序会在你确认后被要求退出；它们通常可以先保存，但其中未保存的工作仍可能丢失。"
 
 msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
 msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到安全数量并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"

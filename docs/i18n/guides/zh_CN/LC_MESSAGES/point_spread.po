@@ -29,7 +29,7 @@ msgid "Use the desktop controls"
 msgstr "使用桌面控件"
 
 msgid "In **Make Masks**, open **Image enhancement** and select **Convolve (blur)** or **Deconvolve (Richardson–Lucy)** under **Point spread function**. Choose your **Objective**, or use **Infer from images…** to read the current image's optical metadata. With no image open, the button asks you to choose a TIFF. The summary shows pixel spacing, Gaussian width and where those values came from."
-msgstr "在 **创建掩膜** 中打开 **图像增强**，并在 **点扩散函数** 下选择 **Convolve (blur)** 或 **Deconvolve (Richardson–Lucy)**。选择您的 **物镜**，或使用 **从图像推断…** 读取当前图像的光学元数据。未打开图像时，该按钮会要求您选择一个 TIFF 文件。摘要显示像素间距、高斯宽度以及这些值的来源。"
+msgstr "在 **创建掩膜** 中打开 **图像增强**，并在 **点扩散函数** 下选择 **卷积（模糊）** 或 **反卷积（Richardson–Lucy）**。选择您的 **物镜**，或使用 **从图像推断…** 读取当前图像的光学元数据。未打开图像时，该按钮会要求您选择一个 TIFF 文件。摘要显示像素间距、高斯宽度以及这些值的来源。"
 
 msgid "Open **PSF optics and kernel** to inspect the remaining controls. **Camera** sets the camera pixel pitch; **Fluorophore** sets the emission wavelength. Magnification, numerical aperture, immersion refractive index, wavelength, pixel spacing and Gaussian widths remain editable. Labels identify metadata, objective-table values, calculations, defaults and values you entered. Review these after using **Infer from images…**, which repopulates the optics and recalculates Gaussian widths."
 msgstr "打开 **PSF optics and kernel** 查看其余控件。**相机** 设置相机像素尺寸；**荧光团** 设置发射波长。放大倍数、数值孔径、浸没介质折射率、波长、像素间距和高斯宽度仍可编辑。标签会标明哪些值来自元数据、物镜表、计算、默认值或您输入的值。使用 **从图像推断…** 后请检查这些值，它会重新填充光学参数并重新计算高斯宽度。"
@@ -38,7 +38,7 @@ msgid "Without image-specific information, the starting approximation uses a 20�
 msgstr "在没有图像特定信息时，初始近似使用 20×/0.75 空气物镜、6.5 µm 相机像素和 520 nm 发射波长。由此得到 0.325 µm 的图像像素和约 0.354 µm 的高斯 FWHM。像素间距等于相机像素尺寸除以放大倍数；横向高斯 FWHM 近似为 0.51 × 发射波长 / 数值孔径。这些默认值仅使计算可以进行；它们既不是实测校准，也不能证明您显微镜的分辨率。请将其与采集参数进行核对。"
 
 msgid "In the same fold, choose **Measured kernel (TIFF/NPY)** and load your calibrated two-dimensional PSF, or keep **Gaussian approximation**. For a measured kernel, enter its pixel spacing too; it must match the image. Neither mode silently resamples a mismatched kernel."
-msgstr "在同一折叠区中，选择 **Measured kernel (TIFF/NPY)** 并加载经校准的二维 PSF，或保留 **高斯近似**。对于实测卷积核，还需输入其像素间距；该间距必须与图像一致。两种模式都不会悄悄对不匹配的卷积核进行重采样。"
+msgstr "在同一折叠区中，选择 **实测核（TIFF/NPY）** 并加载经校准的二维 PSF，或保留 **高斯近似**。对于实测卷积核，还需输入其像素间距；该间距必须与图像一致。两种模式都不会悄悄对不匹配的卷积核进行重采样。"
 
 msgid "Wait for the kernel to load, then use **Compare** to inspect its effect. Set **Deconvolution iterations** when using Richardson–Lucy and choose **Apply** to use the result for detection. Start with a modest iteration count and inspect noise as well as object boundaries. **Reload** rereads a kernel file after you change it. **Off** disables PSF processing."
 msgstr "等待卷积核加载完成，然后使用 **比较** 查看其效果。使用 Richardson–Lucy 时设置 **反卷积迭代次数**，并选择 **应用** 将结果用于检测。先从适中的迭代次数开始，同时检查噪声和对象边界。更改卷积核文件后，**重新加载** 会重新读取该文件。**关闭** 会禁用 PSF 处理。"
@@ -53,7 +53,7 @@ msgid "Choose the intensities used by Measure"
 msgstr "选择测量所用的强度"
 
 msgid "In **Measure**, open **Image Preprocessing → Image Deconvolution (PSF)** and set ``psf_measurement_source``. Keep ``original`` for the standard measurement intensities, including Measure's normal rescaling and preprocessing, without additional PSF processing. Choose ``processed`` to measure intensities after convolution or deconvolution, then configure ``psf_operation``, the kernel source and its calibration."
-msgstr "在 **测量** 中打开 **图像预处理 → Image Deconvolution (PSF)** 并设置 ``psf_measurement_source``。保留 ``original`` 可使用标准测量强度（包括测量模块常规的重新缩放和预处理），而不进行额外的 PSF 处理。选择 ``processed`` 可在卷积或反卷积后测量强度，然后配置 ``psf_operation``、卷积核来源及其校准。"
+msgstr "在 **测量** 中打开 **图像预处理 → 图像去卷积（PSF）** 并设置 ``psf_measurement_source``。保留 ``original`` 可使用标准测量强度（包括测量模块常规的重新缩放和预处理），而不进行额外的 PSF 处理。选择 ``processed`` 可在卷积或反卷积后测量强度，然后配置 ``psf_operation``、卷积核来源及其校准。"
 
 msgid "Measure does not infer optics from image metadata: enter the calibration explicitly. For a two-dimensional field, enter image sampling and Gaussian widths in ``[Y, X]`` order. For a volume, use ``[Z, Y, X]`` and a matching three-dimensional kernel. Volume sampling must agree with Measure's voxel calibration or anisotropy settings. A measured kernel must have the same sampling as the image. Use a kernel appropriate for every selected intensity channel."
 msgstr "测量模块不会从图像元数据推断光学参数：请显式输入校准值。对于二维视野，请按 ``[Y, X]`` 顺序输入图像采样间距和高斯宽度。对于体数据，请使用 ``[Z, Y, X]`` 以及匹配的三维卷积核。体数据的采样必须与测量模块的体素校准或各向异性设置一致。实测卷积核必须与图像具有相同的采样。请为每个所选强度通道使用合适的卷积核。"

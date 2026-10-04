@@ -4,6 +4,7 @@
  "source": "spacr.qt.i18n.tr (runtime UI catalogs)",
  "note": "Bold UI names in the guides must use the name the app shows in this language.",
  "terms": {
+  "3D Calibration (Beta)": "三维校准（Beta）",
   "A threshold algorithm's level": "阈值算法给出的水平",
   "AI": "人工智能",
   "Absolute intensity": "绝对强度",
@@ -62,6 +63,7 @@
   "Confirm the rest of the page": "确认本页其余项",
   "Consolidation failed": "合并失败",
   "Contribute training data…": "贡献训练数据…",
+  "Convolve (blur)": "卷积（模糊）",
   "Copy path": "复制路径",
   "Copy regex": "复制 regex",
   "Core": "核心",
@@ -79,6 +81,7 @@
   "Data": "数据",
   "Deblur": "去模糊",
   "Deconvolution iterations": "反卷积迭代次数",
+  "Deconvolve (Richardson–Lucy)": "反卷积（Richardson–Lucy）",
   "Deep image enhancement": "深度学习图像增强",
   "Denoise": "降噪",
   "Detect on the normalized image": "在归一化图像上检测",
@@ -131,6 +134,7 @@
   "Identifiers": "标识符",
   "Illumination": "照明",
   "Illumination Correction": "照明校正",
+  "Image Deconvolution (PSF)": "图像去卷积（PSF）",
   "Image Preprocessing": "图像预处理",
   "Image Quality": "图像质量",
   "Image attribution maps": "图像归因图",
@@ -172,6 +176,7 @@
   "Maximum preview crops": "最大预览裁剪图数",
   "Measure": "测量",
   "Measure diameters…": "测量直径…",
+  "Measured kernel (TIFF/NPY)": "实测核（TIFF/NPY）",
   "Measured objects": "已测量对象",
   "Medium": "中",
   "Merge original filenames…": "合并原始文件名…",
@@ -285,6 +290,7 @@
   "Shift or Alt + drag": "Shift 或 Alt + 拖动",
   "Show tooltips": "显示工具提示",
   "Size": "尺寸",
+  "Size Proxy (Legacy)": "面积代理（旧版）",
   "Sort by regex": "按正则表达式排序",
   "Source": "来源",
   "Source folder": "源文件夹",
@@ -319,6 +325,7 @@
   "Uninstall": "卸载",
   "Upload data…": "上传数据…",
   "Upper %": "上限百分位 %",
+  "Use N workers (recommended)": "使用 N 个工作进程（推荐）",
   "Use stored image layout": "使用存储的图像配置",
   "Use these settings": "使用这些设置",
   "Validate and preview": "验证和预览",
@@ -331,12 +338,5 @@
   "any rule matches": "至少一条规则匹配",
   "left": "左侧"
  },
- "runtime_suspect": {
-  "3D Calibration (Beta)": "三维校准（Beta）",
-  "Convolve (blur)": "卷积（模糊）",
-  "Deconvolve (Richardson–Lucy)": "反卷积（Richardson–Lucy）",
-  "Image Deconvolution (PSF)": "图像去卷积（PSF）",
-  "Measured kernel (TIFF/NPY)": "实测核（TIFF/NPY）",
-  "Size Proxy (Legacy)": "面积代理（旧版）"
- }
+ "runtime_suspect": {}
 }
