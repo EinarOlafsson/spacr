@@ -311,6 +311,61 @@ def delete_recipe(recipe: Recipe) -> bool:
     return True
 
 
+def _rename_recipe(recipe: Recipe, new_name: str) -> str:
+    """Give a saved recipe a new name and move its file to match.
+
+    The new file is written before the old one is removed, so a failure part
+    way leaves the recipe under its old name rather than under neither.
+
+    :param recipe: the saved recipe; its ``name`` and ``path`` are updated.
+    :param new_name: the name to give it; surrounding spaces are dropped.
+    :returns: the recipe's new path.
+    :raises ValueError: when the name is empty or another template of this
+        module already uses it.
+    """
+    name = str(new_name or "").strip()
+    if not name:
+        raise ValueError(tr("A template needs a name."))
+    root = os.path.dirname(recipe.path) if recipe.path \
+        else recipes_dir(recipe.app_key)
+    target = os.path.join(root, f"{_slug(name) or 'recipe'}.json")
+    old = recipe.path
+    same_file = bool(old) and os.path.abspath(old) == os.path.abspath(target)
+    if os.path.exists(target) and not same_file:
+        raise ValueError(
+            tr("A template called {name} already exists.", name=repr(name)))
+    recipe.name = name
+    save_recipe(recipe, directory=root)
+    if old and not same_file and os.path.isfile(old):
+        os.remove(old)
+    return recipe.path
+
+
+def _recipe_from_settings_csv(path: str, app_key: str, screen=None) -> Recipe:
+    """Turn a settings CSV, as written next to every run, into a recipe.
+
+    The CSV is read by the screen's own settings-CSV reader when it has one,
+    so every header spelling the "Import settings…" button accepts is
+    accepted here too; the recipe is named after the file.
+
+    :param path: the settings CSV.
+    :param app_key: the module the recipe is filed under.
+    :param screen: the module screen whose ``_load_settings_csv`` reads the
+        file; without one the two-column ``Key,Value`` reader is used.
+    :raises ValueError: when the file holds no settings.
+    """
+    reader = getattr(screen, "_load_settings_csv", None)
+    if callable(reader):
+        settings = reader(path)
+    else:
+        from spacr.utils import load_settings
+        settings = load_settings(path, setting_key="Key", setting_value="Value")
+    if not settings:
+        raise ValueError(tr("That file holds no settings."))
+    stem = os.path.splitext(os.path.basename(path))[0]
+    return Recipe(name=stem or "Untitled", app_key=str(app_key or ""),
+                  settings=dict(settings))
+
 
 def version_note(recipe: Recipe, current: Optional[str] = None) -> str:
     """What to tell the user about the version gap, or ``""`` if there is none.
@@ -468,6 +523,10 @@ class RecipeDialog(QDialog):
         self._btn_export = QPushButton("Share…", self)
         self._btn_export.clicked.connect(self._on_export)
         row.addWidget(self._btn_export)
+        self._btn_rename = QPushButton(tr("Rename…"), self)
+        self._btn_rename.setObjectName("RecipeRenameButton")
+        self._btn_rename.clicked.connect(self._on_rename)
+        row.addWidget(self._btn_rename)
         self._btn_delete = QPushButton("Delete", self)
         self._btn_delete.clicked.connect(self._on_delete)
         row.addWidget(self._btn_delete)
@@ -624,18 +683,25 @@ class RecipeDialog(QDialog):
             QMessageBox.warning(self, "Could not write the file", str(exc))
 
     def _on_import(self) -> None:
-        """Load a recipe from a JSON file into this module's collection.
+        """Load a recipe from a JSON file or a settings CSV into this module.
 
         A recipe belonging to another module is refused: applying it here would
         write settings this screen does not have. One that names no module is
-        adopted by this one.
+        adopted by this one. A settings CSV, the file every run writes beside
+        its results, becomes a template named after the file.
         """
         path, _filter = QFileDialog.getOpenFileName(
-            self, tr("Import template"), "", tr("spaCR settings template (*.json);;All files (*)"))
+            self, tr("Import template"), "",
+            tr("spaCR settings template (*.json);;Settings CSV (*.csv);;"
+               "All files (*)"))
         if not path:
             return
         try:
-            recipe = load_recipe(path)
+            if str(path).lower().endswith(".csv"):
+                recipe = _recipe_from_settings_csv(
+                    path, self._app_key, self._screen)
+            else:
+                recipe = load_recipe(path)
             if recipe.app_key and self._app_key and \
                     recipe.app_key != self._app_key:
                 raise ValueError(
@@ -644,6 +710,23 @@ class RecipeDialog(QDialog):
             save_recipe(recipe)
         except Exception as exc:
             QMessageBox.warning(self, tr("Could not import template"), str(exc))
+            return
+        self.reload()
+
+    def _on_rename(self) -> None:
+        """Ask for a new name for the selected recipe and rename it."""
+        recipe = self.selected()
+        if recipe is None:
+            return
+        name, ok = QInputDialog.getText(
+            self, tr("Rename template"), tr("New name for this template:"),
+            text=recipe.name)
+        if not ok or not str(name).strip() or str(name).strip() == recipe.name:
+            return
+        try:
+            _rename_recipe(recipe, str(name))
+        except Exception as exc:
+            QMessageBox.warning(self, tr("Could not rename template"), str(exc))
             return
         self.reload()
 
@@ -660,9 +743,10 @@ class RecipeDialog(QDialog):
         self.reload()
 
     def _refresh_buttons(self) -> None:
-        """Enable Apply, Export and Delete only while a recipe is selected."""
+        """Enable Apply, Export, Rename and Delete only while a recipe is selected."""
         has = self.selected() is not None
-        for button in (self._btn_apply, self._btn_export, self._btn_delete):
+        for button in (self._btn_apply, self._btn_export, self._btn_rename,
+                       self._btn_delete):
             button.setEnabled(has)
 
 

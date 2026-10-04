@@ -1272,6 +1272,22 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 639, 2026-10-04: the organizer popup's images and import modes, Mask
 # Generation's "Organize images…" and Import's "Organize images and masks…".
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    'A template called {name} already exists.',
+    'A template needs a name.',
+    'Action',
+    'Change shortcuts',
+    'Change shortcuts…',
+    'Click a shortcut and press the new key. Clear it to leave the action without a key.',
+    'Could not rename template',
+    'Default',
+    'New name for this template:',
+    'Rename template',
+    'Rename…',
+    'Restore defaults',
+    'Shortcut',
+    'That file holds no settings.',
+    'spaCR settings template (*.json);;Settings CSV (*.csv);;All files (*)',
+    '{key} is used by: {actions}.',
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",

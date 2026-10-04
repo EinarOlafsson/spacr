@@ -19,6 +19,15 @@ the whole app is usable without a mouse:
 :func:`install` is called once from ``MainWindow.__init__``. Every
 binding is documented in :data:`SHORTCUTS` so the cheat-sheet
 dialog stays in sync with what's actually wired up.
+
+Every window-wide key can be rebound. The cheat sheet carries a "Change
+shortcuts…" button that opens a table of the window-wide actions; a key
+typed there replaces the default, a key already taken by another action is
+named as a conflict and cannot be saved, and the overrides are kept in the
+Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a
+keymap saved on one platform reads the same on the others. Keys that belong
+to a single screen (Annotate, Make Masks, the field browser) keep their
+defaults and are listed as taken.
 """
 from __future__ import annotations
 
@@ -31,9 +40,14 @@ from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QPen, QShortc
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
+    QHBoxLayout,
+    QKeySequenceEdit,
     QLabel,
     QMainWindow,
+    QPushButton,
     QScrollArea,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -245,7 +259,9 @@ def discover(window) -> List[ShortcutSpec]:
     """
     from PySide6.QtGui import QAction
 
-    known = {native(spec.keys) for spec in mapped()}
+    keymap = _load_keymap()
+    known = {native(spec.keys) for spec in mapped()} \
+        | {native(_effective(spec.keys, keymap)) for spec in mapped()}
     out: List[ShortcutSpec] = []
     seen = set()
     try:
@@ -269,6 +285,299 @@ def discover(window) -> List[ShortcutSpec]:
         out.append(ShortcutSpec(printed, label or "(not described)",
                                 "Other"))
     return out
+
+
+#: The Preferences key the user's keymap overrides are stored under.
+_KEYMAP_KEY = "shortcuts/keymap"
+
+
+def _portable(keys: str) -> str:
+    """``keys`` in Qt's portable spelling, or ``""`` when Qt cannot read it."""
+    try:
+        return QKeySequence(str(keys)).toString(QKeySequence.PortableText)
+    except Exception:                                    # noqa: BLE001
+        return ""
+
+
+def _rebindable() -> List[ShortcutSpec]:
+    """The window-wide actions a user may rebind, one row per default key.
+
+    Gestures are left out, since no key sequence expresses them.
+    """
+    out: List[ShortcutSpec] = []
+    seen = set()
+    for spec in SHORTCUTS:
+        if _is_a_gesture(spec.keys) or spec.keys in seen:
+            continue
+        seen.add(spec.keys)
+        out.append(spec)
+    return out
+
+
+def _load_keymap() -> dict:
+    """The saved overrides, default key to chosen key.
+
+    A chosen key of ``""`` means the action has no key. Entries for keys that
+    are no longer rebindable, and anything unreadable, are dropped.
+    """
+    import json
+    try:
+        from .preferences import _settings
+        raw = _settings().value(_KEYMAP_KEY, "")
+        data = json.loads(raw) if raw else {}
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not read the keymap", exc_info=True)
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    known = {spec.keys for spec in _rebindable()}
+    return {str(k): str(v) for k, v in data.items() if k in known}
+
+
+def _save_keymap(keymap: dict) -> None:
+    """Store ``keymap``, keeping only the entries that differ from the default.
+
+    :param keymap: default key to chosen key; ``""`` unbinds the action.
+    :raises ValueError: when two actions would share one key.
+    """
+    import json
+    clean = {}
+    for default, chosen in (keymap or {}).items():
+        chosen = _portable(chosen) if chosen else ""
+        if chosen != _portable(default):
+            clean[str(default)] = chosen
+    clashes = _conflicts(clean)
+    if clashes:
+        raise ValueError(_describe_conflicts(clashes))
+    from .preferences import _settings
+    _settings().setValue(_KEYMAP_KEY, json.dumps(clean, sort_keys=True))
+
+
+def _effective(default: str, keymap: Optional[dict] = None) -> str:
+    """The key the action whose default is ``default`` answers to now.
+
+    :param default: the action's default key, which is also its identity.
+    :param keymap: the overrides to read; the saved ones when omitted.
+    """
+    keymap = _load_keymap() if keymap is None else keymap
+    return keymap.get(default, default)
+
+
+def _conflicts(keymap: dict) -> dict:
+    """Every key that more than one action would answer to.
+
+    Window-wide actions are compared with each other and with the per-screen
+    keys, which cannot be rebound and so always hold their defaults.
+
+    :param keymap: default key to chosen key.
+    :returns: a mapping from the shared key, in portable spelling, to the
+        labels of the actions that would share it; empty when nothing clashes.
+    """
+    holders: dict = {}
+    for spec in _rebindable():
+        key = _portable(_effective(spec.keys, keymap))
+        if key:
+            holders.setdefault(key, []).append(spec.label)
+    for spec in SCREEN_SHORTCUTS:
+        key = _portable(spec.keys)
+        if key in holders:
+            holders[key].append(spec.label)
+    out = {}
+    for key, labels in holders.items():
+        unique = list(dict.fromkeys(labels))
+        if len(unique) > 1:
+            out[key] = unique
+    return out
+
+
+def _describe_conflicts(clashes: dict) -> str:
+    """One sentence per shared key, naming the actions that share it."""
+    from .i18n import tr
+    return "\n".join(
+        tr("{key} is used by: {actions}.", key=native(key),
+           actions=", ".join(tr(label) for label in labels))
+        for key, labels in clashes.items())
+
+
+def _holders(window) -> dict:
+    """The shortcut or menu action holding each rebindable key on ``window``.
+
+    Recorded once, while every key still holds its default, so a later rebind
+    can find the holder again whatever key it now answers to.
+    """
+    registry = getattr(window, "_spacr_keymap_holders", None)
+    if registry is None:
+        registry = {}
+        try:
+            window._spacr_keymap_holders = registry
+        except Exception:                                # noqa: BLE001
+            return registry
+    for spec in _rebindable():
+        if spec.keys in registry:
+            continue
+        sequence = QKeySequence(spec.keys)
+        try:
+            shortcuts = window.findChildren(
+                QShortcut, options=Qt.FindDirectChildrenOnly)
+            actions = window.findChildren(QAction)
+        except Exception:                                # noqa: BLE001
+            return registry
+        for holder in list(shortcuts) + list(actions):
+            current = holder.key() if isinstance(holder, QShortcut) \
+                else holder.shortcut()
+            if not current.isEmpty() and current == sequence:
+                registry[spec.keys] = holder
+                break
+    return registry
+
+
+def _apply_keymap(window, keymap: Optional[dict] = None) -> int:
+    """Put every rebindable key on ``window`` to its chosen value.
+
+    :param window: the main window whose shortcuts and menu actions change.
+    :param keymap: the overrides; the saved ones when omitted.
+    :returns: how many holders were set.
+    """
+    keymap = _load_keymap() if keymap is None else keymap
+    changed = 0
+    for default, holder in list(_holders(window).items()):
+        sequence = QKeySequence(_effective(default, keymap))
+        try:
+            if isinstance(holder, QShortcut):
+                holder.setKey(sequence)
+            else:
+                holder.setShortcut(sequence)
+        except RuntimeError:
+            continue
+        changed += 1
+    return changed
+
+
+class _KeymapDialog(QDialog):
+    """Rebind the window-wide shortcuts, refusing any key two actions share.
+
+    One row per action: what it does, its default key, and an editor holding
+    the key it answers to now. Conflicts are listed under the table as they
+    appear and keep Save disabled until they are resolved.
+
+    :param window: the main window the new keys are applied to on Save.
+    """
+
+    def __init__(self, window):
+        """Build the table from the saved keymap.
+
+        :param window: the main window; also the dialog's parent.
+        """
+        from .i18n import tr
+
+        super().__init__(window)
+        self._window = window
+        self.setObjectName("KeymapDialog")
+        self.setWindowTitle(tr("Change shortcuts"))
+        self._specs = _rebindable()
+        saved = _load_keymap()
+
+        column = QVBoxLayout(self)
+        intro = QLabel(tr("Click a shortcut and press the new key. Clear it "
+                          "to leave the action without a key."), self)
+        intro.setWordWrap(True)
+        column.addWidget(intro)
+
+        self._table = QTableWidget(len(self._specs), 3, self)
+        self._table.setObjectName("KeymapTable")
+        self._table.setHorizontalHeaderLabels(
+            [tr("Action"), tr("Default"), tr("Shortcut")])
+        self._table.verticalHeader().setVisible(False)
+        self._editors: List[QKeySequenceEdit] = []
+        for row, spec in enumerate(self._specs):
+            self._table.setItem(row, 0, QTableWidgetItem(tr(spec.label)))
+            self._table.setItem(row, 1, QTableWidgetItem(native(spec.keys)))
+            editor = QKeySequenceEdit(
+                QKeySequence(_effective(spec.keys, saved)), self._table)
+            if hasattr(editor, "setMaximumSequenceLength"):
+                editor.setMaximumSequenceLength(1)
+            if hasattr(editor, "setClearButtonEnabled"):
+                editor.setClearButtonEnabled(True)
+            editor.keySequenceChanged.connect(self._refresh)
+            self._table.setCellWidget(row, 2, editor)
+            self._editors.append(editor)
+        self._table.resizeColumnsToContents()
+        column.addWidget(self._table, 1)
+
+        self._conflict_label = QLabel("", self)
+        self._conflict_label.setObjectName("KeymapConflicts")
+        self._conflict_label.setWordWrap(True)
+        column.addWidget(self._conflict_label)
+
+        buttons = QHBoxLayout()
+        self._btn_defaults = QPushButton(tr("Restore defaults"), self)
+        self._btn_defaults.setObjectName("KeymapRestoreDefaults")
+        self._btn_defaults.clicked.connect(self.restore_defaults)
+        buttons.addWidget(self._btn_defaults)
+        buttons.addStretch(1)
+        cancel = QPushButton(tr("Cancel"), self)
+        cancel.clicked.connect(self.reject)
+        buttons.addWidget(cancel)
+        self._btn_save = QPushButton(tr("Save"), self)
+        self._btn_save.setObjectName("KeymapSave")
+        self._btn_save.setDefault(True)
+        self._btn_save.clicked.connect(self.save)
+        buttons.addWidget(self._btn_save)
+        column.addLayout(buttons)
+        self._refresh()
+
+    def keymap(self) -> dict:
+        """The keys in the table, default key to chosen key."""
+        return {spec.keys: editor.keySequence().toString(
+                    QKeySequence.PortableText)
+                for spec, editor in zip(self._specs, self._editors)}
+
+    def set_key(self, default: str, keys: str) -> None:
+        """Put ``keys`` in the row whose default is ``default``.
+
+        :param default: the action's default key.
+        :param keys: the new key, in portable spelling; ``""`` clears it.
+        """
+        for spec, editor in zip(self._specs, self._editors):
+            if spec.keys == default:
+                editor.setKeySequence(QKeySequence(keys))
+
+    def conflict_text(self) -> str:
+        """The conflict line under the table, as the user reads it."""
+        return self._conflict_label.text()
+
+    def restore_defaults(self) -> None:
+        """Put every row back to its default key."""
+        for spec, editor in zip(self._specs, self._editors):
+            editor.setKeySequence(QKeySequence(spec.keys))
+
+    def _refresh(self, *_args) -> None:
+        """Show the current conflicts and allow Save only when there are none."""
+        clashes = _conflicts(self.keymap())
+        self._conflict_label.setText(
+            _describe_conflicts(clashes) if clashes else "")
+        self._btn_save.setEnabled(not clashes)
+
+    def save(self) -> bool:
+        """Store the keymap, apply it to the window and close.
+
+        :returns: ``False`` when a conflict kept it from being stored.
+        """
+        try:
+            _save_keymap(self.keymap())
+        except ValueError as exc:
+            self._conflict_label.setText(str(exc))
+            return False
+        _apply_keymap(self._window)
+        self.accept()
+        return True
+
+
+def _open_keymap(window) -> "_KeymapDialog":
+    """Open the shortcut editor over ``window`` and return it."""
+    dialog = _KeymapDialog(window)
+    dialog.show()
+    return dialog
 
 
 def install(window: QMainWindow) -> None:
@@ -295,6 +604,10 @@ def install(window: QMainWindow) -> None:
         _bind(window, f"Ctrl+{i}",
                 lambda idx=i: _nav_by_index(window, idx - 1))
     _install_window_hooks(window)
+    try:
+        _apply_keymap(window)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not apply the saved keymap", exc_info=True)
 
 
 def _install_window_hooks(window: QMainWindow) -> None:
@@ -369,6 +682,14 @@ def _bind(window: QMainWindow, keys: str,
     somewhere else needs its ambiguous activation connected too.
     """
     sequence = QKeySequence(keys)
+    registry = getattr(window, "_spacr_keymap_holders", None) or {}
+    owner = registry.get(keys)
+    if isinstance(owner, QShortcut):
+        try:
+            owner.key()
+            return owner
+        except RuntimeError:
+            pass
     for existing in window.findChildren(
             QShortcut, options=Qt.FindDirectChildrenOnly):
         if existing.key() == sequence:
@@ -648,6 +969,7 @@ class ShortcutOverlay(QWidget):
         title.setObjectName("ShortcutOverlayTitle")
         grid.addWidget(title, 0, 0, 1, 2)
 
+        keymap = _load_keymap()
         by_cat: dict[str, list[ShortcutSpec]] = {}
         for spec in mapped() + discover(self.parent()):
             by_cat.setdefault(spec.category, []).append(spec)
@@ -667,7 +989,8 @@ class ShortcutOverlay(QWidget):
             grid.addWidget(header, row, column, 1, 2)
             row += 1
             for spec in specs:
-                keys = QLabel(native(spec.keys), self._card_content)
+                keys = QLabel(native(_effective(spec.keys, keymap)) or "—",
+                              self._card_content)
                 keys.setObjectName("ShortcutOverlayKeys")
                 keys.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
                 grid.addWidget(keys, row, column)
@@ -682,7 +1005,15 @@ class ShortcutOverlay(QWidget):
 
         hint = QLabel(tr("Press any key to close."), self._card_content)
         hint.setObjectName("ShortcutOverlayHint")
-        grid.addWidget(hint, grid.rowCount(), 0, 1, max(column, 2))
+        hint_row = grid.rowCount()
+        grid.addWidget(hint, hint_row, 0, 1, max(column - 1, 1))
+        self._edit_button = QPushButton(tr("Change shortcuts…"),
+                                        self._card_content)
+        self._edit_button.setObjectName("ShortcutOverlayEdit")
+        self._edit_button.setFocusPolicy(Qt.NoFocus)
+        self._edit_button.clicked.connect(self._on_edit)
+        grid.addWidget(self._edit_button, hint_row, max(column - 1, 1),
+                       Qt.AlignRight)
 
         self._scroll.setWidget(self._card_content)
         grid.activate()
@@ -765,6 +1096,12 @@ class ShortcutOverlay(QWidget):
             read.
         """
         self.dismiss()
+
+    def _on_edit(self) -> None:
+        """Close the sheet and open the shortcut editor in its place."""
+        window = self._window
+        self.dismiss()
+        _open_keymap(window)
 
     def dismiss(self) -> None:
         """Close the overlay and let go of the window."""
