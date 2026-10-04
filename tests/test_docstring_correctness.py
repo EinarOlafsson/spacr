@@ -2673,7 +2673,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-04 item 566: 19,847 - 19,845 = 2 optional keyword parameters,
     # window= and threshold= on object_distances.local_maxima; no new
     # callable or required parameter.
-    assert sum(len(item.parameters) for item in callables) == 19847
+    # 2026-10-04 item 641: 19,849 - 19,847 = 2 optional read_now= parameters
+    # on home.RecentRunsPanel and home.TotalsPanel; no new callable or
+    # required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19849
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
