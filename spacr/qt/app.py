@@ -396,6 +396,7 @@ def _import_the_data_libraries_off_the_gui_thread():
             except Exception:
                 LOG.debug("could not prepare the organism artwork early",
                           exc_info=True)
+            _freeze_what_survived()
 
     thread = threading.Thread(target=_work, name="spacr-data-libraries",
                               daemon=True)
@@ -4957,8 +4958,11 @@ class MainWindow(QMainWindow):
         one is built from scratch rather than reusing widgets that belong to
         a shape that no longer applies.
         """
+        import gc
+
         from .screens.app_screen import AppScreen
 
+        gc.unfreeze()
         old = self._screens.get(key)
         old_preset_owned = {}
         if old is not None:
@@ -5216,6 +5220,7 @@ class MainWindow(QMainWindow):
             self._hide_preparing(card)
         if built_now:
             self._breathe_while_opening(force=True)
+            _freeze_what_survived()
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,
             started_at=interaction_started,
@@ -6188,6 +6193,7 @@ def _start_settings_prewarm() -> threading.Thread:
         """Import the remaining settings dependencies without building widgets."""
         with _timing.span("background warm", "settings screens"):
             _warm_the_settings_imports()
+        _freeze_what_survived()
 
     def _warm_the_settings_imports():
         """Import each module, logging rather than raising a failure."""
@@ -6266,6 +6272,23 @@ def _start_the_font_cache_in_a_child():
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not build the font list in a child", exc_info=True)
         return None
+
+
+def _freeze_what_survived() -> None:
+    """Move every object alive now out of the cyclic collector's reach.
+
+    A built screen, an imported module and the window itself live as long
+    as the process, yet each full collection walked them all again: with a
+    dozen screens open that was 150-370 ms locally and 600-900 ms on hosted
+    runners, landing at random inside whatever ran next. Freezing them
+    after a launch, a screen build or a background import keeps the
+    collections to what was made since. Objects freed by reference count
+    are still freed, and :meth:`MainWindow.rebuild_app_screen` unfreezes
+    first, so a replaced screen's cycles are collected.
+    """
+    import gc
+
+    gc.freeze()
 
 
 def _warm_the_glyph_font() -> None:
@@ -6492,6 +6515,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
         from PySide6.QtCore import QTimer
 
         QTimer.singleShot(0, _warm_the_glyph_font)
+        QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
 
     def _drain_ai():

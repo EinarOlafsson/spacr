@@ -215,3 +215,18 @@ def test_the_font_list_is_built_in_a_child_only_when_missing(tmp_path,
     monkeypatch.setattr(A.sys, "frozen", True, raising=False)
     assert A._start_the_font_cache_in_a_child() is None
     assert len(started) == 1
+
+
+def test_what_survived_is_frozen_out_of_the_collector():
+    """380: long-lived objects leave the cyclic collector after a build."""
+    import gc
+
+    import spacr.qt.app as A
+
+    kept = [[] for _ in range(1000)]
+    before = gc.get_freeze_count()
+    try:
+        A._freeze_what_survived()
+        assert gc.get_freeze_count() >= before + len(kept)
+    finally:
+        gc.unfreeze()
