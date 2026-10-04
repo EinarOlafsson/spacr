@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 11:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -388,6 +388,21 @@ msgstr "När källmappen har sina bilder i undermappar markerar du **Consolidate
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**Lägg till kanal** och **Lägg till mask** lägger till kolumner; varje maskkolumn anger sin objektklass (cell, kärna, patogen eller organell) och den kanal vars bilder den avgränsar. En sammanslagen mapp läses under filernas ursprungliga namn. Rader som saknar en bild blockerar **Verkställ** och anger hur de kan åtgärdas; RGB-bilder och z-stackar erbjuds konvertering till ett enda gråplan, med originalen kvar. Ingenting flyttas före **Verkställ**. Bilderna flyttas sedan till ``sorted_channels/`` i källmappen, med en mapp per kanal, maskerna och ``merged/``, och varje flytt registreras i ``channel_sorting_manifest.csv``. Låt Mätnings ``src`` peka på mappen ``sorted_channels``. Se :func:`spacr.channel_sorting.build_plan` och :ref:`Mätningens indata och utdata <workflow-module-measure>`."
+
+msgid "Organize images in Mask Generation and Import Images"
+msgstr "Ordna bilder i Maskgenerering och Importera bilder"
+
+msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
+msgstr "Samma popupfönster, med titeln **Organize images**, öppnas också från två andra moduler. Det fyller sin tabell på samma sätt: med regex, genom att släppa filer och mappar i kolumnerna eller med **Lär mig…**."
+
+msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
+msgstr "I **Maskgenerering** ordnar **Organize images…** ovanför ``src`` intensitetsbilder, oavsett mappstruktur eller namngivning, till den enda mapp med Yokogawa-namngivna bilder som Maskgenerering läser. Den har bara kanalkolumner. Efter flytten pekar ``src`` på den mappen, ``metadata_type`` sätts till ``cellvoyager``, ``channels`` listar de ordnade kanalerna och mappen läggs till bland modulens senaste källor."
+
+msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
+msgstr "I **Importera bilder** tar **Organize images and masks…** bredvid bildmappens **Välj...** emot intensitetsbilder och masker. **Write for** väljer layouten: **Maskgenerering** skriver en mapp med Yokogawa-namngivna bilder med maskerna i dess mapp ``masks/``, och **Mätning** skriver kanalmapparna, maskerna och ``merged/`` på samma sätt som Ordna för Measure. Den ordnade mappen hamnar sedan först bland modulens senaste källor."
+
+msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
+msgstr "En fil som innehåller flera kanaler delas upp i stället för att avvisas: välj **Split multi-channel files**, eller godta erbjudandet när du trycker på **Verkställ**. Varje plan kopieras till ``split_channels/`` med en kanalkolumn per plan, och originalfilerna rörs inte. Filerna flyttas i bakgrunden, och manifestet registrerar varje flytt. Om en flytt misslyckas anger meddelandet felet, och manifestet listar varje flytt som gjordes före den."
 
 msgid "Upload data"
 msgstr "Ladda upp data"

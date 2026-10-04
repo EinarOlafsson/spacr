@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 11:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
@@ -388,6 +388,21 @@ msgstr "Quando a pasta de origem guarda suas imagens em subpastas, marque **Cons
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**Adicionar canal** e **Adicionar máscara** adicionam colunas; cada coluna de máscara indica sua classe de objeto (célula, núcleo, patógeno ou organela) e o canal cujas imagens ela delimita. Uma pasta consolidada é lida com os nomes originais de seus arquivos. Linhas às quais falta uma imagem bloqueiam **Aplicar** e indicam como corrigi-las; imagens RGB e pilhas z são oferecidas para conversão em um único plano de cinza, mantendo os originais. Nada é movido antes de **Aplicar**. As imagens são então movidas para ``sorted_channels/`` dentro da pasta de origem, com uma pasta por canal, as máscaras e ``merged/``, e cada movimentação é registrada em ``channel_sorting_manifest.csv``. Aponte o ``src`` de Medição para essa pasta ``sorted_channels``. Consulte :func:`spacr.channel_sorting.build_plan` e :ref:`entradas e saídas de Medição <workflow-module-measure>`."
+
+msgid "Organize images in Mask Generation and Import Images"
+msgstr "Organizar imagens em Geração de Máscaras e Importar imagens"
+
+msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
+msgstr "A mesma janela pop-up, intitulada **Organize images**, também abre a partir de outros dois módulos. Ela preenche a tabela das mesmas formas: por regex, arrastando arquivos e pastas para as colunas ou com **Ensine-me…**."
+
+msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
+msgstr "Em **Geração de Máscaras**, **Organize images…** acima de ``src`` organiza imagens de intensidade, de qualquer estrutura de pastas ou nomenclatura, na única pasta de imagens com nomes no padrão Yokogawa que a Geração de Máscaras lê. Ela tem apenas colunas de canal. Após a movimentação, ``src`` aponta para essa pasta, ``metadata_type`` é definido como ``cellvoyager``, ``channels`` lista os canais organizados e a pasta é adicionada às origens recentes do módulo."
+
+msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
+msgstr "Em **Importar imagens**, **Organize images and masks…** ao lado de **Escolha...** da pasta de imagens recebe imagens de intensidade e máscaras. **Write for** escolhe o layout: **Geração de Máscaras** grava uma pasta de imagens com nomes no padrão Yokogawa com as máscaras na pasta ``masks/``, e **Medição** grava as pastas de canal, as máscaras e ``merged/`` como faz o Organize for Measure. A pasta organizada passa a ser a primeira das origens recentes desse módulo."
+
+msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
+msgstr "Um arquivo com vários canais é dividido em vez de recusado: escolha **Split multi-channel files** ou aceite a oferta ao pressionar **Aplicar**. Cada plano é copiado para ``split_channels/`` com uma coluna de canal por plano, e os arquivos originais não são alterados. Os arquivos são movidos em segundo plano, e o manifesto registra cada movimentação. Se uma movimentação falhar, a mensagem indica o erro, e o manifesto lista todas as movimentações feitas antes dela."
 
 msgid "Upload data"
 msgstr "Enviar dados"

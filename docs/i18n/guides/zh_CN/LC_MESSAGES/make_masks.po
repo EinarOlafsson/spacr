@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 11:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -388,6 +388,21 @@ msgstr "当源文件夹将图像保存在子文件夹中时，请勾选 **Consol
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**添加通道** 和 **添加掩膜** 用于添加列；每个掩膜列都会注明其对象类别（细胞、细胞核、病原体或细胞器）以及其勾勒的图像所在的通道。合并后的文件夹按其文件的原始名称读取。缺少图像的行会阻止 **应用** 并说明如何修复；RGB 图像和 z 栈可转换为单个灰度平面，原始文件会被保留。在 **应用** 之前不会移动任何内容。之后，图像会被移入源文件夹内的 ``sorted_channels/``，每个通道一个文件夹，另有掩膜和 ``merged/``，每次移动都记录在 ``channel_sorting_manifest.csv`` 中。将测量模块的 ``src`` 指向该 ``sorted_channels`` 文件夹。参见 :func:`spacr.channel_sorting.build_plan` 和 :ref:`测量的输入和输出 <workflow-module-measure>`。"
+
+msgid "Organize images in Mask Generation and Import Images"
+msgstr "在掩膜生成和导入图像中整理图像"
+
+msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
+msgstr "同一个标题为 **Organize images** 的弹出窗口也可以从另外两个模块打开。它以相同方式填写表格：使用正则表达式、将文件和文件夹拖放到各列中，或使用 **教我…** 。"
+
+msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
+msgstr "在 **掩膜生成** 中， ``src`` 上方的 **Organize images…** 会将任意文件夹结构或命名方式的强度图像整理到掩膜生成所读取的、以 Yokogawa 方式命名图像的单个文件夹中。它只有通道列。移动完成后， ``src`` 指向该文件夹， ``metadata_type`` 设为 ``cellvoyager`` ， ``channels`` 列出已整理的通道，并且该文件夹会被加入该模块的最近来源。"
+
+msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
+msgstr "在 **导入图像** 中，图像文件夹 **选择...** 旁边的 **Organize images and masks…** 接收强度图像和掩膜。 **Write for** 用于选择布局： **掩膜生成** 写入一个以 Yokogawa 方式命名图像的文件夹，掩膜位于其 ``masks/`` 文件夹中； **测量** 则像 Organize for Measure 一样写入各通道文件夹、掩膜和 ``merged/`` 。随后，整理好的文件夹会排在该模块最近来源的首位。"
+
+msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
+msgstr "包含多个通道的文件会被拆分而不是被拒绝：选择 **Split multi-channel files** ，或在按下 **应用** 时接受提示。每个平面都会复制到 ``split_channels/`` 中，每个平面对应一个通道列，原始文件不会被改动。文件在后台移动，清单会记录每一次移动。如果某次移动失败，消息会给出错误，清单会列出在此之前完成的每一次移动。"
 
 msgid "Upload data"
 msgstr "上传数据"

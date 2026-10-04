@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 11:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -388,6 +388,21 @@ msgstr "원본 폴더가 이미지를 하위 폴더에 보관하는 경우 **Con
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**채널 추가** 와 **마스크 추가** 로 열을 추가합니다. 각 마스크 열에는 객체 클래스(세포, 핵, 병원체 또는 세포소기관)와 그 마스크가 윤곽을 나타내는 이미지의 채널을 지정합니다. 합쳐진 폴더는 파일의 원래 이름으로 읽힙니다. 이미지가 빠진 행은 **적용** 을 막고 해결 방법을 알려 주며, RGB 이미지와 z 스택은 원본을 유지한 채 회색 평면 하나로 변환하도록 제안됩니다. **적용** 을 누르기 전에는 아무것도 옮겨지지 않습니다. 그다음 이미지가 원본 폴더 안의 ``sorted_channels/`` 로 옮겨져 채널별 폴더, 마스크, ``merged/`` 가 만들어지고, 모든 이동이 ``channel_sorting_manifest.csv`` 에 기록됩니다. 측정 모듈의 ``src`` 가 그 ``sorted_channels`` 폴더를 가리키도록 합니다. :func:`spacr.channel_sorting.build_plan` 과 :ref:`측정 입력 및 출력 <workflow-module-measure>` 을 참조합니다."
+
+msgid "Organize images in Mask Generation and Import Images"
+msgstr "마스크 생성과 이미지 가져오기에서 이미지 정리"
+
+msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
+msgstr "**Organize images** 라는 제목의 같은 팝업은 다른 두 모듈에서도 열립니다. 표를 채우는 방법도 같습니다. 정규식으로, 파일과 폴더를 열에 끌어 놓아서, 또는 **학습시키기…** 로 채웁니다."
+
+msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
+msgstr "**마스크 생성** 에서는 ``src`` 위의 **Organize images…** 가 어떤 폴더 구조나 이름 규칙의 강도 이미지든 마스크 생성이 읽는, Yokogawa 형식 이름의 이미지 폴더 하나로 정리합니다. 채널 열만 있습니다. 이동이 끝나면 ``src`` 가 그 폴더를 가리키고, ``metadata_type`` 이 ``cellvoyager`` 로 설정되며, ``channels`` 에 정리된 채널이 나열되고, 폴더가 모듈의 최근 소스에 추가됩니다."
+
+msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
+msgstr "**이미지 가져오기** 에서는 이미지 폴더의 **선택...** 옆에 있는 **Organize images and masks…** 가 강도 이미지와 마스크를 받습니다. **Write for** 로 배치를 고릅니다. **마스크 생성** 은 Yokogawa 형식 이름의 이미지 폴더 하나에 마스크를 그 ``masks/`` 폴더에 넣어 쓰고, **측정** 은 Organize for Measure와 마찬가지로 채널 폴더, 마스크, ``merged/`` 를 씁니다. 정리된 폴더는 이후 그 모듈의 최근 소스 맨 앞에 옵니다."
+
+msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
+msgstr "여러 채널을 담은 파일은 거부되지 않고 분할됩니다. **Split multi-channel files** 를 선택하거나 **적용** 을 누를 때 제안을 수락합니다. 각 평면은 평면마다 채널 열 하나와 함께 ``split_channels/`` 로 복사되며, 원본 파일은 건드리지 않습니다. 파일은 백그라운드에서 이동되며 매니페스트가 모든 이동을 기록합니다. 이동이 실패하면 메시지가 오류를 알려 주고, 매니페스트에는 그 전에 수행된 모든 이동이 나열됩니다."
 
 msgid "Upload data"
 msgstr "데이터 업로드"

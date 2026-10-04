@@ -220,10 +220,10 @@ msgid "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:"
 msgstr "在 **Draw** 模式下，形状下拉菜单列出可在 3D 中绘制的门："
 
 msgid "**Polygon through view**: click the corners on screen, then click the first corner again or double-click to close the outline. The gate keeps every object whose position in the current view falls inside the outline, through the whole depth of the volume. **Lasso through view** and **Rectangle through view** select through the depth in the same way; drag to draw them."
-msgstr "**Polygon through view** ：在屏幕上点击各个角点，然后再次点击第一个角点或双击以闭合轮廓。该门保留在当前视图中位置落在轮廓内的所有对象，贯穿整个体积的深度。 **Lasso through view** 和 **Rectangle through view** 以相同方式贯穿深度进行选择；拖动即可绘制。"
+msgstr "**穿过视图的多边形** ：在屏幕上点击各个角点，然后再次点击第一个角点或双击以闭合轮廓。该门保留在当前视图中位置落在轮廓内的所有对象，贯穿整个体积的深度。 **穿过视图的套索** 和 **穿过视图的矩形** 以相同方式贯穿深度进行选择；拖动即可绘制。"
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
-msgstr "**Ellipsoid with handles** 和 **Box with handles** ：在一个群体上拖出一个矩形，形状会拟合其所框住的对象。拖动面或半径控制柄可调整大小，拖动中心控制柄可移动它。贯穿视图绘制的门也可通过其中心控制柄移动。"
+msgstr "**带控制柄的椭球体** 和 **带控制柄的长方体** ：在一个群体上拖出一个矩形，形状会拟合其所框住的对象。拖动面或半径控制柄可调整大小，拖动中心控制柄可移动它。贯穿视图绘制的门也可通过其中心控制柄移动。"
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "在绘制或调整形状时，其中的对象会被高亮显示。在门表中双击门的名称即可重命名；由它构建的门会随之使用新名称。在 3D 中绘制的门与 2D 门一样保存、加载和导出，并具有相同的成员列。"

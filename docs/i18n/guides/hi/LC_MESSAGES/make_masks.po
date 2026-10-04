@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 11:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -388,6 +388,21 @@ msgstr "जब स्रोत फ़ोल्डर अपनी छविय�
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**चैनल जोड़ें** और **मास्क जोड़ें** स्तंभ जोड़ते हैं; हर मास्क स्तंभ अपना ऑब्जेक्ट वर्ग (कोशिका, केंद्रक, रोगजनक या कोशिकांग) और वह चैनल बताता है जिसकी छवियों की वह रूपरेखा देता है। एकत्रित फ़ोल्डर अपनी फ़ाइलों के मूल नामों से पढ़ा जाता है। किसी छवि से रहित पंक्तियाँ **लागू करें** को रोकती हैं और बताती हैं कि उन्हें कैसे ठीक करें; RGB छवियों और z-स्टैक को मूल रखते हुए एक धूसर तल में रूपांतरण के लिए प्रस्तुत किया जाता है। **लागू करें** से पहले कुछ भी नहीं खिसकता। इसके बाद छवियाँ स्रोत फ़ोल्डर के भीतर ``sorted_channels/`` में ले जाई जाती हैं, हर चैनल के लिए एक फ़ोल्डर, मास्क और ``merged/`` के साथ, और हर स्थानांतरण ``channel_sorting_manifest.csv`` में दर्ज होता है। मापन के ``src`` को उस ``sorted_channels`` फ़ोल्डर की ओर इंगित करें। :func:`spacr.channel_sorting.build_plan` और :ref:`मापन इनपुट और आउटपुट <workflow-module-measure>` देखें।"
+
+msgid "Organize images in Mask Generation and Import Images"
+msgstr "मास्क निर्माण और छवियाँ आयात करें में छवियाँ व्यवस्थित करें"
+
+msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
+msgstr "**Organize images** शीर्षक वाला यही पॉपअप दो अन्य मॉड्यूल से भी खुलता है। यह अपनी तालिका उन्हीं तरीकों से भरता है: regex से, फ़ाइलें और फ़ोल्डर कॉलमों में छोड़कर, या **मुझे सिखाएँ…** से।"
+
+msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
+msgstr "**मास्क निर्माण** में ``src`` के ऊपर **Organize images…** किसी भी फ़ोल्डर संरचना या नामकरण वाली तीव्रता छवियों को Yokogawa नामों वाली छवियों के उस एक फ़ोल्डर में व्यवस्थित करता है जिसे मास्क निर्माण पढ़ता है। इसमें केवल चैनल कॉलम होते हैं। स्थानांतरण के बाद ``src`` उस फ़ोल्डर की ओर इशारा करता है, ``metadata_type`` को ``cellvoyager`` पर सेट किया जाता है, ``channels`` व्यवस्थित चैनलों को सूचीबद्ध करता है, और फ़ोल्डर मॉड्यूल के हाल के स्रोतों में जोड़ दिया जाता है।"
+
+msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
+msgstr "**छवियाँ आयात करें** में छवि फ़ोल्डर के **चुनें...** के पास **Organize images and masks…** तीव्रता छवियाँ और मास्क लेता है। **Write for** लेआउट चुनता है: **मास्क निर्माण** Yokogawa नामों वाली छवियों का एक फ़ोल्डर लिखता है जिसके ``masks/`` फ़ोल्डर में मास्क होते हैं, और **मापन** चैनल फ़ोल्डर, मास्क और ``merged/`` लिखता है, जैसे Organize for Measure करता है। इसके बाद व्यवस्थित फ़ोल्डर उस मॉड्यूल के हाल के स्रोतों में सबसे पहले आता है।"
+
+msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
+msgstr "कई चैनल रखने वाली फ़ाइल अस्वीकार किए जाने के बजाय विभाजित की जाती है: **Split multi-channel files** चुनें, या **लागू करें** दबाने पर प्रस्ताव स्वीकार करें। हर प्लेन को ``split_channels/`` में कॉपी किया जाता है, हर प्लेन के लिए एक चैनल कॉलम के साथ, और मूल फ़ाइलें नहीं छुई जातीं। फ़ाइलें पृष्ठभूमि में स्थानांतरित होती हैं, और मैनिफ़ेस्ट हर स्थानांतरण दर्ज करता है। यदि कोई स्थानांतरण विफल होता है, तो संदेश त्रुटि बताता है, और मैनिफ़ेस्ट उससे पहले किए गए हर स्थानांतरण को सूचीबद्ध करता है।"
 
 msgid "Upload data"
 msgstr "डेटा अपलोड करें"

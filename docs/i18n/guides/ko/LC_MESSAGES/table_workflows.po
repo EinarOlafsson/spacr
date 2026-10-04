@@ -220,10 +220,10 @@ msgid "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:"
 msgstr "**Draw** 모드에서는 모양 드롭다운에 3D로 그릴 수 있는 게이트가 나열됩니다."
 
 msgid "**Polygon through view**: click the corners on screen, then click the first corner again or double-click to close the outline. The gate keeps every object whose position in the current view falls inside the outline, through the whole depth of the volume. **Lasso through view** and **Rectangle through view** select through the depth in the same way; drag to draw them."
-msgstr "**Polygon through view** : 화면에서 꼭짓점을 클릭한 다음 첫 꼭짓점을 다시 클릭하거나 두 번 클릭해 윤곽을 닫습니다. 게이트는 현재 보기에서 위치가 윤곽 안에 있는 모든 객체를 볼륨의 전체 깊이에 걸쳐 유지합니다. **Lasso through view** 와 **Rectangle through view** 도 같은 방식으로 깊이 전체를 선택하며, 끌어서 그립니다."
+msgstr "**뷰를 관통하는 다각형** : 화면에서 꼭짓점을 클릭한 다음 첫 꼭짓점을 다시 클릭하거나 두 번 클릭해 윤곽을 닫습니다. 게이트는 현재 보기에서 위치가 윤곽 안에 있는 모든 객체를 볼륨의 전체 깊이에 걸쳐 유지합니다. **뷰를 관통하는 올가미** 와 **뷰를 관통하는 사각형** 도 같은 방식으로 깊이 전체를 선택하며, 끌어서 그립니다."
 
 msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
-msgstr "**Ellipsoid with handles** 와 **Box with handles** : 집단 위로 사각형을 끌면 모양이 그 안의 객체에 맞춰집니다. 면 또는 반지름 핸들을 당겨 크기를 바꾸거나, 가운데 핸들을 끌어 이동합니다. 보기를 관통해 그린 게이트도 가운데 핸들로 이동합니다."
+msgstr "**핸들이 있는 타원체** 와 **핸들이 있는 상자** : 집단 위로 사각형을 끌면 모양이 그 안의 객체에 맞춰집니다. 면 또는 반지름 핸들을 당겨 크기를 바꾸거나, 가운데 핸들을 끌어 이동합니다. 보기를 관통해 그린 게이트도 가운데 핸들로 이동합니다."
 
 msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
 msgstr "모양을 그리거나 조정하는 동안 그 안의 객체가 강조 표시됩니다. 게이트 표에서 게이트 이름을 두 번 클릭하면 이름을 바꿀 수 있으며, 이를 바탕으로 만든 게이트도 새 이름을 따릅니다. 3D로 그린 게이트는 2D 게이트와 마찬가지로 같은 소속 열과 함께 저장, 로드, 내보내기됩니다."

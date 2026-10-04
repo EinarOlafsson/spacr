@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 11:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -388,6 +388,21 @@ msgstr "Lorsque le dossier source range ses images dans des sous-dossiers, coche
 
 msgid "**Add channel** and **Add mask** add columns; each mask column names its object class (cell, nucleus, pathogen or organelle) and the channel whose images it outlines. A consolidated folder is read under its files' original names. Rows missing an image block **Apply** and say how to fix them; RGB images and z-stacks are offered for conversion to one grey plane, keeping the originals. Nothing moves before **Apply**. The images are then moved into ``sorted_channels/`` inside the source folder, with a folder per channel, the masks and ``merged/``, and every move is recorded in ``channel_sorting_manifest.csv``. Point Measure's ``src`` at that ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan` and :ref:`Measure inputs and outputs <workflow-module-measure>`."
 msgstr "**Ajouter un canal** et **Ajouter un masque** ajoutent des colonnes ; chaque colonne de masque indique sa classe d’objet (cellule, noyau, pathogène ou organite) et le canal dont elle délimite les images. Un dossier regroupé est lu sous les noms d’origine de ses fichiers. Les lignes auxquelles il manque une image bloquent **Appliquer** et indiquent comment les corriger ; les images RVB et les piles z sont proposées à la conversion en un seul plan de gris, les originaux étant conservés. Rien n’est déplacé avant **Appliquer**. Les images sont alors déplacées dans ``sorted_channels/`` à l’intérieur du dossier source, avec un dossier par canal, les masques et ``merged/``, et chaque déplacement est consigné dans ``channel_sorting_manifest.csv``. Faites pointer le ``src`` de Mesure vers ce dossier ``sorted_channels``. Voir :func:`spacr.channel_sorting.build_plan` et :ref:`entrées et sorties de Mesure <workflow-module-measure>`."
+
+msgid "Organize images in Mask Generation and Import Images"
+msgstr "Organiser les images dans Génération de masques et Importer des images"
+
+msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
+msgstr "La même fenêtre contextuelle, intitulée **Organize images**, s’ouvre aussi depuis deux autres modules. Elle remplit son tableau de la même manière : par regex, en déposant des fichiers et des dossiers dans les colonnes, ou avec **Apprendre…**."
+
+msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
+msgstr "Dans **Génération de masques**, **Organize images…** au-dessus de ``src`` range des images d’intensité, quelle que soit la structure des dossiers ou le nommage, dans l’unique dossier d’images nommées selon Yokogawa que lit Génération de masques. Elle ne comporte que des colonnes de canal. Après le déplacement, ``src`` pointe vers ce dossier, ``metadata_type`` est réglé sur ``cellvoyager``, ``channels`` liste les canaux organisés et le dossier est ajouté aux sources récentes du module."
+
+msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
+msgstr "Dans **Importer des images**, **Organize images and masks…** à côté de **Choisissez...** pour le dossier d’images prend des images d’intensité et des masques. **Write for** choisit la disposition : **Génération de masques** écrit un dossier d’images nommées selon Yokogawa avec les masques dans son dossier ``masks/``, et **Mesure** écrit les dossiers de canaux, les masques et ``merged/`` comme le fait Organize for Measure. Le dossier organisé devient alors le premier des sources récentes de ce module."
+
+msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
+msgstr "Un fichier qui contient plusieurs canaux est scindé au lieu d’être refusé : choisissez **Split multi-channel files**, ou acceptez la proposition lorsque vous appuyez sur **Appliquer**. Chaque plan est copié dans ``split_channels/`` avec une colonne de canal par plan, et les fichiers originaux ne sont pas modifiés. Les fichiers sont déplacés en arrière-plan, et le manifeste enregistre chaque déplacement. Si un déplacement échoue, le message indique l’erreur, et le manifeste liste tous les déplacements effectués avant lui."
 
 msgid "Upload data"
 msgstr "Téléverser des données"
