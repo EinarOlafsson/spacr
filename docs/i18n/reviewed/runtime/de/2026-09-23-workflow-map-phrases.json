@@ -763,20 +763,6 @@
     },
     {
       "table": "ui",
-      "key": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
-      "source": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
-      "source_sha256": "cd8eee037d1e7fed958031b6299335dd1ca2e1221f50b40832d82823c29ede0b",
-      "translation": "Öffnen Sie die Organismenübersicht auf Home, um die geplanten Bildgebungsabläufe für Pilze zu lesen und das allgemeine Diagramm einer Knospungshefe anzusehen. Alle acht Assay-Kacheln sind als Coming soon markiert; keine startet eine Analyse oder erzeugt ein Ergebnis."
-    },
-    {
-      "table": "ui",
-      "key": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
-      "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
-      "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
-      "translation": "Öffnen Sie die Organismenübersicht auf Home, um die geplanten Bildgebungsabläufe für Malaria zu lesen und das gemeinsame Apikomplexen-Diagramm anzusehen. Alle acht Assay-Kacheln sind als Coming soon markiert; keine startet eine Analyse oder erzeugt ein Ergebnis."
-    },
-    {
-      "table": "ui",
       "key": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
       "source": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
       "source_sha256": "7fd1ca38483ff7f42e51bed6c20ac2428ad7369c113eeb92b5fd0e031230e0d2",
@@ -1495,8 +1481,22 @@
       "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
       "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
       "translation": "Wählen Sie Variablen, Gruppen und Darstellungseinstellungen aus der geladenen Tabelle und exportieren Sie dann die Abbildung mit ihrem Analysekontext."
+    },
+    {
+      "table": "ui",
+      "key": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "cd8eee037d1e7fed958031b6299335dd1ca2e1221f50b40832d82823c29ede0b",
+      "translation": "Öffnen Sie die Organismenübersicht auf Home, um die geplanten Bildgebungsabläufe für Pilze zu lesen und das allgemeine Diagramm einer Knospungshefe anzusehen. Alle acht Assay-Kacheln sind als Coming soon markiert; keine startet eine Analyse oder erzeugt ein Ergebnis."
+    },
+    {
+      "table": "ui",
+      "key": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
+      "translation": "Öffnen Sie die Organismenübersicht auf Home, um die geplanten Bildgebungsabläufe für Malaria zu lesen und das gemeinsame Apikomplexen-Diagramm anzusehen. Alle acht Assay-Kacheln sind als Coming soon markiert; keine startet eine Analyse oder erzeugt ein Ergebnis."
     }
   ],
-  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded.",
+  "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded. | 2026-10-04: 48c4133c8 withdrew the Plasmodium and Candida organism pages, so this note is no longer a runtime source. Kept verbatim as evidence, not loaded.",
   "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
 }
