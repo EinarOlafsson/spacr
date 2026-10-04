@@ -11232,6 +11232,7 @@ measure_gpu
 |         ``_measurement_device`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
+|     ``_measure_pool_context`` **-- reads it**
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
@@ -11239,7 +11240,7 @@ measure_gpu
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 
-Read by ``_measurement_device``, ``get_measure_crop_settings``.
+Read by ``_measure_pool_context``, ``_measurement_device``, ``get_measure_crop_settings``.
 
 .. _setting-flow-measurement:
 
