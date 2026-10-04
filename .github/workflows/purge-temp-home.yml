@@ -1,0 +1,34 @@
+name: uninstall purge in a temp home
+
+# Item 646: the opt-in clean uninstall (`install_cleanup.py purge`) on real
+# Windows and macOS runners, against a throwaway home. Cheap: no install, the
+# standard library only, as the uninstallers run it with `python -I`.
+
+on:
+  push:
+    branches: [nightly]
+    paths:
+      - ".github/workflows/purge-temp-home.yml"
+      - ".github/scripts/purge_temp_home.py"
+      - "spacr/install_cleanup.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  purge:
+    name: purge (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-14, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Purge a temporary home and check what is left
+        run: python .github/scripts/purge_temp_home.py
