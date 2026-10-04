@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-10-03",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -29,6 +29,10 @@
     "Para revisar la calidad de la segmentación en todo el proyecto antes de medir, active QC en la fila Actions, junto a 3D y Time. Su ventana enumera los campos y pocillos cuyas máscaras parecen inusuales, por ejemplo con muchos menos objetos que el resto de la placa, con enlaces para revisarlos. La revisión es solo orientativa y nunca detiene Measure; al cerrar la ventana, el interruptor se desactiva.",
     "En All settings, Image Preprocessing reúne las correcciones que Measure puede aplicar a cada campo antes de medir: Image Deconvolution con una función de dispersión de punto e Illumination Correction con un modelo estimado previamente. Cambian los píxeles que se miden en esta ejecución; las máscaras y los arrays en disco no se modifican.",
     "Desactiva Live y vuelve a desactivar Normalize para este ejemplo. Elige la normalización con cuidado al guardar recortes: el escalado por recorte cambia las diferencias de intensidad que verá después un clasificador de imágenes. Conserva los arreglos combinados originales para las mediciones cuantitativas.",
+    "Cuando los ajustes estén bien, consérvelos. Abra Templates en la barra de ajustes, o pulse Ctrl+Mayús+R, y elija Save current settings. Dé a la plantilla un nombre que diría en voz alta; la próxima vez la aplica en lugar de volver a escribirlo todo.",
+    "Import también lee el CSV de ajustes que cada ejecución escribe junto a sus resultados. La configuración de una ejecución anterior, o la de un colega, se convierte en una plantilla con el nombre del archivo.",
+    "Rename da a una plantilla importada un nombre más claro. Share guarda la seleccionada en un archivo para otras personas, y Apply la carga en Measure.",
+    "Las teclas como Ctrl+Mayús+R se pueden cambiar. Abra Help, luego Keyboard shortcuts, y elija Change shortcuts. Escriba una tecla nueva para cualquier acción; si choca con otra, spaCR nombra el conflicto y mantiene Save desactivado hasta que lo resuelva.",
     "Active el guardado de mediciones y recortes de objetos, deje Plot activado y elija el tamaño del recorte y los canales de salida. En una primera ejecución, Test mode mide un campo; desactívelo para procesar los dieciséis campos incluidos. Haga clic en Run, siga la consola hasta que termine la ejecución y compruebe qué campos se completaron antes de continuar.",
     "Revisa la figura de recortes y luego localiza measurements.db en la carpeta measurements y las imágenes de objetos guardadas en la salida de recortes del proyecto. Mantén juntas la base de datos y las rutas de las imágenes. Continúa con Annotate para etiquetar objetos de ejemplo, o con Classify si ya tienes datos de entrenamiento etiquetados.",
     "Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."

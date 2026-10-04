@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Sorgen Sie für Zugriff auf ein Ziel mit spaCR, seinen Abhängigkeiten und Ihren Eingabedaten. Exportieren Sie die Moduleinstellungen, die Sie ausführen möchten. Ersetzen Sie den hier gezeigten Beispielhost und die Beispielpfade durch Ihre eigenen.",
   "scenes": [
-    "Öffnen Sie Help und dann Distributed jobs. Erstellen Sie zuerst ein Ausführungsprofil für die Workstation oder den Cluster, den Sie verwenden möchten.",
+    "Öffnen Sie Help und dann Distributed Jobs. Erstellen Sie zuerst ein Ausführungsprofil für die Workstation oder den Cluster, den Sie verwenden möchten.",
     "Installieren Sie kompatible spaCR-Abhängigkeiten auf dem Ziel und stellen Sie die Eingabedaten dort bereit. Richten Sie SSH-Schlüssel oder die Kommandozeilen-Authentifizierung Ihres Anbieters außerhalb von spaCR ein.",
     "Wählen Sie New profile. Geben Sie einen aussagekräftigen Namen ein und wählen Sie das Backend. Füllen Sie die Pflichtfelder des Formulars aus.",
     "Geben Sie für SSH Host, entferntes Arbeitsverzeichnis und spaCR-Runner ein. Speichern Sie das Profil und öffnen Sie es erneut, wann immer Sie diese Einstellungen ändern müssen.",

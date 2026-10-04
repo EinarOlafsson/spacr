@@ -50,7 +50,7 @@ def prepare(stage):
             raise ValueError('Acquired channels have different dimensions')
         settings = dict(src=str(source), dst=str(destination), layout='auto',
                         z_handling='keep', plate_naming='index', overwrite=False,
-                        map_name='conversion_map.csv', preview_only=False, resume=False)
+                        preview_only=False, resume=False)
         path = root / f'convert_job_{number:02d}.json'
         path.write_text(json.dumps(settings, indent=2) + '\n')
         jobs.append({'number': number, 'source': str(source), 'destination': str(destination),

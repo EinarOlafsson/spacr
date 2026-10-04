@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-10-03",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -29,6 +29,10 @@
     "Pour vérifier la qualité de la segmentation de tout le projet avant de mesurer, activez QC dans la rangée Actions, à côté de 3D et Time. Sa fenêtre liste les champs et les puits dont les masques semblent inhabituels, par exemple avec bien moins d’objets que le reste de la plaque, avec des liens pour les examiner. Ce contrôle n’est qu’indicatif et n’arrête jamais Measure ; fermer la fenêtre désactive l’interrupteur.",
     "Dans All settings, Image Preprocessing regroupe les corrections que Measure peut appliquer à chaque champ avant la mesure : Image Deconvolution avec une fonction d’étalement du point et Illumination Correction avec un modèle estimé auparavant. Elles modifient les pixels mesurés dans cette exécution ; les masques et les tableaux sur le disque ne sont pas modifiés.",
     "Désactivez Live et remettez Normalize sur désactivé pour cet exemple. Choisissez la normalisation avec soin lorsque vous enregistrez des vignettes : une mise à l’échelle par vignette modifie les différences d’intensité que verra ensuite un classificateur d’images. Conservez les tableaux fusionnés d’origine pour les mesures quantitatives.",
+    "Quand les réglages sont justes, conservez-les. Ouvrez Templates dans la barre des réglages, ou appuyez sur Ctrl+Maj+R, puis choisissez Save current settings. Donnez au modèle un nom que vous diriez à voix haute ; la prochaine fois, vous l’appliquez au lieu de tout ressaisir.",
+    "Import lit aussi le CSV de réglages que chaque exécution écrit à côté de ses résultats. La configuration d’une exécution précédente, ou celle d’un collègue, devient un modèle nommé d’après le fichier.",
+    "Rename donne à un modèle importé un nom plus clair. Share écrit le modèle sélectionné dans un fichier pour d’autres personnes, et Apply le charge dans Measure.",
+    "Les touches comme Ctrl+Maj+R peuvent être modifiées. Ouvrez Help, puis Keyboard shortcuts, et choisissez Change shortcuts. Tapez une nouvelle touche pour n’importe quelle action ; si elle entre en conflit avec une autre, spaCR nomme le conflit et laisse Save désactivé tant que vous ne l’avez pas résolu.",
     "Activez l’enregistrement des mesures et des découpes d’objets, laissez Plot activé et choisissez la taille des découpes et les canaux de sortie. Pour un premier essai, Test mode mesure un seul champ ; désactivez-le pour traiter les seize champs fournis. Cliquez sur Run, suivez la console jusqu’à la fin de l’exécution, puis vérifiez quels champs ont réussi avant de continuer.",
     "Inspectez la figure des vignettes, puis repérez measurements.db dans le dossier measurements et les images d’objets enregistrées dans la sortie de vignettes du projet. Gardez ensemble la base de données et les chemins des images. Poursuivez avec Annotate pour étiqueter des objets d’exemple, ou avec Classify si vous disposez déjà de données d’entraînement étiquetées.",
     "Avant de lancer une exécution, spaCR estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spaCR vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire."

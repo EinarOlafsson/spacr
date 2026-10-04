@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "安排好对目标机器的访问，目标上需有spaCR、其依赖项和您的输入数据。导出您要运行的模块设置。请把这里示例中的主机和路径替换为您自己的。",
   "scenes": [
-    "打开Help，然后打开Distributed jobs。首先为要使用的工作站或集群创建执行配置文件。",
+    "打开Help，然后打开Distributed Jobs。首先为要使用的工作站或集群创建执行配置文件。",
     "在目标上安装兼容的spaCR依赖项，并让输入数据在那里可用。在spaCR之外配置SSH密钥或服务提供商的命令行身份验证。",
     "选择New profile。输入描述性名称并选择后端。填写表单中显示的必填字段。",
     "对于SSH，请输入主机、远程工作目录和spaCR运行器。保存配置文件，需要更新这些设置时再重新打开。",

@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Prepare os dados de entrada e o JSON de configurações exportado para cada trabalho. O exemplo executa três conversões de imagens em pastas de saída separadas.",
   "scenes": [
-    "Abra Help e depois Batch runner. Use-o para colocar em fila trabalhos de módulos com seus arquivos de configurações, ordem de execução e registros separados.",
+    "Abra Help e depois Batch Runner. Use-o para colocar em fila trabalhos de módulos com seus arquivos de configurações, ordem de execução e registros separados.",
     "Escolha o módulo e clique em Choose settings. Neste exemplo, selecione convert e o JSON de configurações do primeiro campo de microscopia.",
     "Confira a origem e o destino nas configurações, adicione um rótulo descritivo e clique em Add job. Use uma pasta de saída separada para cada conversão.",
     "Para o segundo trabalho, digite convert um em After para que ele dependa do primeiro. Adicione uma substituição de configuração quando este trabalho precisar de um valor diferente. Informe os caminhos de entrada explicitamente; uma dependência só controla a ordem.",

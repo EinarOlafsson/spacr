@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "작업마다 입력 데이터와 내보낸 설정 JSON을 준비하세요. 예제는 이미지 변환 세 개를 서로 다른 출력 폴더로 실행합니다.",
   "scenes": [
-    "Help를 연 뒤 Batch runner를 여세요. 설정 파일, 실행 순서, 별도 로그와 함께 모듈 작업을 큐에 넣을 때 씁니다.",
+    "Help를 연 뒤 Batch Runner를 여세요. 설정 파일, 실행 순서, 별도 로그와 함께 모듈 작업을 큐에 넣을 때 씁니다.",
     "모듈을 고르고 Choose settings를 클릭하세요. 이 예제에서는 convert와 첫 번째 현미경 시야의 JSON 설정을 선택하세요.",
     "설정의 소스와 대상을 확인하고, 설명이 되는 라벨을 붙인 뒤 Add job을 클릭하세요. 변환마다 별도의 출력 폴더를 쓰세요.",
     "두 번째 작업에서는 After에 convert-1을 입력해 첫 번째 작업에 의존하게 하세요. 이 작업에 다른 값이 필요하면 설정 재정의를 추가하세요. 입력 경로는 명시적으로 지정하세요. 의존 관계는 순서만 정합니다.",

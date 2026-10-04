@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "हर काम के लिए इनपुट डेटा और निर्यात की गई सेटिंग JSON तैयार करें। उदाहरण तीन इमेज रूपांतरण अलग-अलग आउटपुट फ़ोल्डरों में चलाता है।",
   "scenes": [
-    "Help खोलें, फिर Batch runner। इससे मॉड्यूल के काम उनकी सेटिंग फ़ाइलों, चलने के क्रम और अलग लॉग के साथ कतार में रखें।",
+    "Help खोलें, फिर Batch Runner। इससे मॉड्यूल के काम उनकी सेटिंग फ़ाइलों, चलने के क्रम और अलग लॉग के साथ कतार में रखें।",
     "मॉड्यूल चुनें और Choose settings पर क्लिक करें। इस उदाहरण के लिए convert और पहले माइक्रोस्कोपी फ़ील्ड की JSON सेटिंग चुनें।",
     "सेटिंग में स्रोत और गंतव्य जाँचें, एक वर्णनात्मक लेबल जोड़ें, फिर Add job पर क्लिक करें। हर रूपांतरण के लिए अलग आउटपुट फ़ोल्डर इस्तेमाल करें।",
     "दूसरे काम के लिए After में convert एक लिखें, ताकि वह पहले पर निर्भर रहे। जब इस काम को अलग मान चाहिए, तो सेटिंग ओवरराइड जोड़ें। इनपुट पथ साफ़ तौर पर दें; निर्भरता केवल क्रम तय करती है।",

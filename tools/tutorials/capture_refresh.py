@@ -106,6 +106,8 @@ def main() -> int:
     parser.add_argument('--clear-console-after-load', action='store_true', help='Press Clear console after the example loads (its report lists hidden alpha setting names)')
     parser.add_argument('--measure-qc-tour', action='store_true', help='Record the QC switch popup and the Image Preprocessing category after loading Measure data')
     parser.add_argument('--timeout', type=float, default=600)
+    parser.add_argument('--templates-shortcuts-tour', action='store_true',
+                        help='With --module measure --download: Settings templates (save, CSV import, rename; 657) and Change shortcuts (656)')
     parser.add_argument('--alpha-lesson', help='The allow-listed alpha lesson being recorded (capture_policy.ALPHA_LESSONS); '
                         'only it may record with its alpha kind shown')
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
@@ -1004,6 +1006,12 @@ def main() -> int:
             from capture_barcode_search import record_search
             record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout,
                           reference_source=args.barcode_reference_source)
+        if args.templates_shortcuts_tour:
+            if args.module != 'measure':
+                raise RuntimeError('--templates-shortcuts-tour records on Measure')
+            from capture_templates_shortcuts import record_templates_shortcuts
+            record_templates_shortcuts(app, window, screen, stage, captures, capture,
+                                       settle, write_json, args.timeout)
         if args.measure_preview_controls:
             from capture_measure_controls import record_controls
             record_controls(app, window, screen, captures, capture, settle,

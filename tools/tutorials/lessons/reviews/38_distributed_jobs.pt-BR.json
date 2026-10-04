@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Providencie acesso a um destino com o spaCR, as dependências dele e seus dados de entrada. Exporte as configurações do módulo que pretende executar. Troque o host e os caminhos ilustrativos mostrados aqui pelos seus.",
   "scenes": [
-    "Abra Help e depois Distributed jobs. Comece criando um perfil de execução para a estação de trabalho ou o cluster que quer usar.",
+    "Abra Help e depois Distributed Jobs. Comece criando um perfil de execução para a estação de trabalho ou o cluster que quer usar.",
     "Instale dependências compatíveis do spaCR no destino e deixe os dados de entrada disponíveis lá. Configure as chaves SSH ou a autenticação por linha de comando do seu provedor fora do spaCR.",
     "Escolha New profile. Informe um nome descritivo e selecione o backend. Preencha os campos obrigatórios mostrados pelo formulário.",
     "Para SSH, informe o host, o diretório de trabalho remoto e o executor do spaCR. Salve o perfil e reabra-o sempre que precisar atualizar essas configurações.",

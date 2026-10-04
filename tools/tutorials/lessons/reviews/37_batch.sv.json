@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Förbered indata och den exporterade inställnings-JSON-filen för varje jobb. Exemplet kör tre bildkonverteringar till separata utdatamappar.",
   "scenes": [
-    "Öppna Help och sedan Batch runner. Använd den för att köa modulejobb med deras inställningsfiler, körordning och separata loggar.",
+    "Öppna Help och sedan Batch Runner. Använd den för att köa modulejobb med deras inställningsfiler, körordning och separata loggar.",
     "Välj modul och klicka på Choose settings. I det här exemplet väljer du convert och JSON-inställningarna för det första mikroskopisynfältet.",
     "Kontrollera källa och mål i inställningarna, lägg till en beskrivande etikett och klicka sedan på Add job. Använd en separat utdatamapp för varje konvertering.",
     "För det andra jobbet anger du convert-1 i After så att det beror på det första. Lägg till en inställningsöverskrivning när jobbet behöver ett annat värde. Ange indatasökvägar uttryckligen; ett beroende styr bara ordningen.",

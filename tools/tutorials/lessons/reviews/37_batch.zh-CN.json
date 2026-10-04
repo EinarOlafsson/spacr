@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "为每个任务准备输入数据和导出的设置JSON。示例把三个图像转换分别运行到不同的输出文件夹。",
   "scenes": [
-    "打开Help，然后打开Batch runner。用它把模块任务连同设置文件、执行顺序和单独的日志一起放入队列。",
+    "打开Help，然后打开Batch Runner。用它把模块任务连同设置文件、执行顺序和单独的日志一起放入队列。",
     "选择模块，点击Choose settings。本例选择convert，以及第一个显微视野的JSON设置。",
     "检查设置中的源和目标，添加描述性标签，然后点击Add job。每个转换使用单独的输出文件夹。",
     "对于第二个任务，在After中输入convert一，使其依赖第一个任务。如果这个任务需要不同的值，请添加设置覆盖。请明确设置输入路径；依赖关系只控制顺序。",

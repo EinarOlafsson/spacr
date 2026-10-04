@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-10-03",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -29,6 +29,10 @@
     "For at kontrollere segmenteringskvaliteten i hele projektet før måling skal du slå QC til i Actions-rækken ved siden af 3D og Time. Vinduet viser felter og brønde, hvis masker ser usædvanlige ud, for eksempel med langt færre objekter end resten af pladen, med links til at undersøge dem. Kontrollen er kun vejledende og stopper aldrig Measure; når du lukker vinduet, slås kontakten fra.",
     "Under All settings rummer Image Preprocessing de korrektioner, Measure kan anvende på hvert felt før måling: Image Deconvolution med en punktspredningsfunktion og Illumination Correction med en model, du har estimeret tidligere. De ændrer de pixels, der måles i denne kørsel; maskerne og arrays på disken ændres ikke.",
     "Slå Live fra, og sæt Normalize tilbage til fra for dette eksempel. Vælg normaliseringen bevidst, når du gemmer udsnit: skalering pr. udsnit ændrer de intensitetsforskelle, som en senere billedklassifikator ser. Bevar de oprindelige sammenlagte arrays til kvantitative målinger.",
+    "Når indstillingerne ser rigtige ud, så gem dem. Åbn Templates på indstillingslinjen, eller tryk Ctrl+Shift+R, og vælg Save current settings. Giv skabelonen et navn, du ville sige højt; næste gang anvender du den i stedet for at taste alt igen.",
+    "Import læser også den settings-CSV, som hver kørsel skriver ved siden af resultaterne. En tidligere kørsels konfiguration, eller en kollegas, bliver til en skabelon opkaldt efter filen.",
+    "Rename giver en importeret skabelon et tydeligere navn. Share skriver den valgte til en fil, som andre kan bruge, og Apply indlæser den i Measure.",
+    "Taster som Ctrl+Shift+R kan ændres. Åbn Help, derefter Keyboard shortcuts, og vælg Change shortcuts. Indtast en ny tast for en handling; hvis den kolliderer med en anden, navngiver spaCR konflikten og holder Save slået fra, indtil du har løst den.",
     "Slå lagring af målinger og objektudsnit til, lad Plot være slået til, og vælg udsnitsstørrelse og outputkanaler. Til en første kørsel måler Test mode ét felt; slå den fra for at behandle alle seksten medfølgende felter. Klik på Run, følg konsollen, til kørslen er færdig, og kontroller derefter, hvilke felter der lykkedes, før du fortsætter.",
     "Undersøg udsnitsfiguren, og find derefter measurements.db i mappen measurements og de gemte objektbilleder i projektets udsnitsoutput. Hold databasen og billedstierne samlet. Fortsæt til Annotate for at mærke eksempelobjekter, eller til Classify, hvis du allerede har mærkede træningsdata.",
     "Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse."

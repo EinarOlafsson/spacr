@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "01_help_batch",
-      "narration": "Open Help, then Batch runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
+      "narration": "Open Help, then Batch Runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
       "hold_after": 0.7,
       "related_lessons": [
         "30_plate_queue"

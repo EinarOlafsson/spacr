@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Bereiten Sie für jeden Job die Eingabedaten und die exportierte Einstellungs-JSON vor. Das Beispiel führt drei Bildkonvertierungen in getrennte Ausgabeordner aus.",
   "scenes": [
-    "Öffnen Sie Help und dann Batch runner. Damit stellen Sie Modul-Jobs mit ihren Einstellungsdateien, der Ausführungsreihenfolge und getrennten Logs in eine Warteschlange.",
+    "Öffnen Sie Help und dann Batch Runner. Damit stellen Sie Modul-Jobs mit ihren Einstellungsdateien, der Ausführungsreihenfolge und getrennten Logs in eine Warteschlange.",
     "Wählen Sie das Modul und klicken Sie auf Choose settings. Wählen Sie für dieses Beispiel convert und die JSON-Einstellungen für das erste Mikroskopiefeld.",
     "Prüfen Sie Quelle und Ziel in den Einstellungen, fügen Sie ein beschreibendes Label hinzu und klicken Sie auf Add job. Verwenden Sie für jede Konvertierung einen eigenen Ausgabeordner.",
     "Geben Sie für den zweiten Job convert-1 unter After ein, damit er vom ersten abhängt. Fügen Sie eine Einstellungsüberschreibung hinzu, wenn dieser Job einen anderen Wert braucht. Geben Sie Eingabepfade ausdrücklich an; eine Abhängigkeit steuert nur die Reihenfolge.",

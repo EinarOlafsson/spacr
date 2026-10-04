@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Undirbúðu inntaksgögn og útflutta JSON-stillingaskrá fyrir hvert verk. Dæmið keyrir þrjár myndumbreytingar í aðskildar úttaksmöppur.",
   "scenes": [
-    "Opnaðu Help og svo Batch runner. Notaðu hann til að setja verk eininga í biðröð með stillingaskrám þeirra, keyrsluröð og aðskildum annálum.",
+    "Opnaðu Help og svo Batch Runner. Notaðu hann til að setja verk eininga í biðröð með stillingaskrám þeirra, keyrsluröð og aðskildum annálum.",
     "Veldu eininguna og smelltu á Choose settings. Í þessu dæmi velurðu convert og JSON-stillingarnar fyrir fyrsta smásjársviðið.",
     "Athugaðu uppruna og áfangastað í stillingunum, bættu við lýsandi merki og smelltu svo á Add job. Notaðu sérstaka úttaksmöppu fyrir hverja umbreytingu.",
     "Fyrir annað verkið slærðu inn convert-1 í After svo það sé háð því fyrsta. Bættu við hnekkingu stillingar þegar þetta verk þarf annað gildi. Tilgreindu inntaksslóðir beint; kvöð stýrir aðeins röðinni.",

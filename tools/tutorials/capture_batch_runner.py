@@ -127,7 +127,7 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
     try:
         action = next(a for a in window.menuBar().actions() if a.text().replace('&', '') == 'Help')
         menu = action.menu()
-        choice = [a for a in menu.actions() if a.text().replace('&', '') == 'Batch runner']
+        choice = [a for a in menu.actions() if a.text().replace('&', '').lower() == 'batch runner']
         if len(choice) != 1:
             raise ValueError('No unique Help -> Batch runner route')
         QTest.mouseClick(window.menuBar(), Qt.LeftButton,
@@ -185,8 +185,12 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         if screen.queue().ids != ['convert-1', 'convert-3', 'convert-2']:
             raise ValueError('Native move did not preserve the intended order')
         click(screen._btn_validate)
-        if screen.has_errors() or screen.problems_text():
-            raise ValueError('The restored real queue is invalid')
+        if screen.has_errors() or '0 error(s)' not in screen.problems_text():
+            raise ValueError('The restored real queue is invalid: ' + repr(screen.problems_text()))
+        # Warnings do not block a run. Current nightly warns that convert's own
+        # 'preview_rows' default is unknown to the settings registry; recorded,
+        # not hidden.
+        proof['validation_warnings'] = screen.problems_text()
         record('07_valid_reordered_queue')
         choose(screen._on_error_combo, 'stop')
         record('08_stop_policy')
@@ -205,10 +209,16 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         record('12_restored_queue')
         proof['saved_queue'] = str(queue_path)
         proof['saved_plan_sha256'] = digest(queue_path)
+        dock = open_jobs_dock(app, window, capture, settle)
         click(screen._btn_run)
         wait_for(lambda: any(j.status == bt.STATUS_RUNNING for j in screen.queue()))
+        if dock is not None:
+            proof['jobs_dock_rows'] = jobs_dock_rows(dock)
+            capture('13b_jobs_dock')
         record('13_real_subprocess_running')
         click(screen._btn_stop)
+        if dock is not None:
+            dock.close()
         wait_for(lambda: not screen.is_busy() and screen.active_jobs() == 0)
         if [j.status for j in screen.queue()] != [bt.STATUS_SUCCESS, bt.STATUS_NOT_RUN, bt.STATUS_NOT_RUN]:
             raise ValueError('Controlled Stop did not settle only the active real job: ' + screen.status_text())
@@ -246,3 +256,46 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         if not proof['original_unchanged']:
             proof['accepted'] = False
         write_json(evidence, proof)
+
+
+def open_jobs_dock(app, window, capture, settle):
+    """Help > Window > Jobs through the real menus (650).
+
+    :returns: the open Jobs dock, or None when this build has no Jobs entry.
+    """
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QDockWidget, QTableWidget
+
+    bar = window.menuBar()
+    help_action = next((a for a in bar.actions() if a.text().replace('&', '') == 'Help'), None)
+    if help_action is None:
+        return None
+    menu = help_action.menu()
+    window_action = next((a for a in menu.actions() if a.text().replace('&', '').startswith('Window')), None)
+    if window_action is None or window_action.menu() is None:
+        return None
+    jobs = next((a for a in window_action.menu().actions() if a.objectName() == 'ShowJobsAction'), None)
+    if jobs is None:
+        return None
+    QTest.mouseClick(bar, Qt.LeftButton, pos=bar.actionGeometry(help_action).center())
+    settle(.3)
+    QTest.mouseMove(menu, menu.actionGeometry(window_action).center())
+    QTest.mouseClick(menu, Qt.LeftButton, pos=menu.actionGeometry(window_action).center())
+    settle(.4)
+    sub = window_action.menu()
+    if not sub.isVisible():
+        raise ValueError('The Help > Window submenu did not open')
+    capture('13a_help_window_jobs')
+    QTest.mouseClick(sub, Qt.LeftButton, pos=sub.actionGeometry(jobs).center())
+    settle(.8)
+    dock = window.findChild(QDockWidget, 'JobsDock')
+    if dock is None or not dock.isVisible():
+        raise ValueError('Help > Window > Jobs did not open the Jobs dock')
+    return dock
+
+
+def jobs_dock_rows(dock):
+    from PySide6.QtWidgets import QTableWidget
+    table = dock.findChild(QTableWidget, 'JobsTable')
+    return table.rowCount() if table is not None and table.isVisible() else 0

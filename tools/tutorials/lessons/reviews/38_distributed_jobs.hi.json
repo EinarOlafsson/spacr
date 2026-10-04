@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "ऐसे लक्ष्य तक पहुँच की व्यवस्था करें जिसमें spaCR, उसकी निर्भरताएँ और आपका इनपुट डेटा हो। जिस मॉड्यूल को चलाना है उसकी सेटिंग निर्यात करें। यहाँ दिखाए गए उदाहरण होस्ट और पथ अपने होस्ट और पथ से बदलें।",
   "scenes": [
-    "Help खोलें, फिर Distributed jobs। जिस वर्कस्टेशन या क्लस्टर का इस्तेमाल करना है, उसके लिए निष्पादन प्रोफ़ाइल बनाकर शुरू करें।",
+    "Help खोलें, फिर Distributed Jobs। जिस वर्कस्टेशन या क्लस्टर का इस्तेमाल करना है, उसके लिए निष्पादन प्रोफ़ाइल बनाकर शुरू करें।",
     "लक्ष्य पर संगत spaCR निर्भरताएँ इंस्टॉल करें और इनपुट डेटा वहाँ उपलब्ध कराएँ। SSH कुंजियाँ या अपने प्रदाता का कमांड-लाइन प्रमाणीकरण spaCR से बाहर सेट करें।",
     "New profile चुनें। एक वर्णनात्मक नाम दर्ज करें और बैकएंड चुनें। फ़ॉर्म में दिखाए गए ज़रूरी फ़ील्ड भरें।",
     "SSH के लिए अपना होस्ट, दूरस्थ कार्य डायरेक्टरी और spaCR रनर दर्ज करें। प्रोफ़ाइल सहेजें, और जब भी ये सेटिंग अपडेट करनी हों, उसे फिर से खोलें।",

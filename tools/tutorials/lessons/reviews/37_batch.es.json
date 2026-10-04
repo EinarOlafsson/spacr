@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Prepara los datos de entrada y el JSON de ajustes exportado para cada trabajo. El ejemplo ejecuta tres conversiones de imágenes en carpetas de salida separadas.",
   "scenes": [
-    "Abre Help y luego Batch runner. Úsalo para poner en cola trabajos de módulos con sus archivos de ajustes, su orden de ejecución y registros separados.",
+    "Abre Help y luego Batch Runner. Úsalo para poner en cola trabajos de módulos con sus archivos de ajustes, su orden de ejecución y registros separados.",
     "Elige el módulo y haz clic en Choose settings. En este ejemplo, selecciona convert y el JSON de ajustes del primer campo de microscopía.",
     "Comprueba el origen y el destino en los ajustes, añade una etiqueta descriptiva y haz clic en Add job. Usa una carpeta de salida distinta para cada conversión.",
     "Para el segundo trabajo, escribe convert uno en After para que dependa del primero. Añade una sustitución de ajuste cuando este trabajo necesite un valor distinto. Indica explícitamente las rutas de entrada; una dependencia solo controla el orden.",

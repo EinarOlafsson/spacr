@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-10-03",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -29,6 +29,10 @@
     "För att kontrollera segmenteringskvaliteten i hela projektet före mätning slår du på QC i Actions-raden, bredvid 3D och Time. Fönstret listar fält och brunnar vars masker ser ovanliga ut, till exempel med betydligt färre objekt än resten av plattan, med länkar för att granska dem. Kontrollen är bara vägledande och stoppar aldrig Measure; när du stänger fönstret slås reglaget av.",
     "Under All settings samlar Image Preprocessing de korrigeringar som Measure kan tillämpa på varje fält före mätning: Image Deconvolution med en punktspridningsfunktion och Illumination Correction med en modell som du skattat tidigare. De ändrar pixlarna som mäts i den här körningen; maskerna och arrayerna på disken ändras inte.",
     "Stäng av Live och återställ Normalize till av för det här exemplet. Välj normaliseringen medvetet när du sparar utsnitt: skalning per utsnitt ändrar de intensitetsskillnader som en senare bildklassificerare ser. Behåll de ursprungliga sammanslagna arrayerna för kvantitativa mätningar.",
+    "När inställningarna ser rätt ut, spara dem. Öppna Templates i inställningsfältet, eller tryck Ctrl+Shift+R, och välj Save current settings. Ge mallen ett namn du skulle säga högt; nästa gång använder du den i stället för att skriva in allt igen.",
+    "Import läser också den inställnings-CSV som varje körning skriver bredvid resultaten. En tidigare körnings konfiguration, eller en kollegas, blir en mall uppkallad efter filen.",
+    "Rename ger en importerad mall ett tydligare namn. Share skriver den valda till en fil som andra kan använda, och Apply läser in den i Measure.",
+    "Tangenter som Ctrl+Shift+R kan ändras. Öppna Help, sedan Keyboard shortcuts, och välj Change shortcuts. Skriv en ny tangent för valfri åtgärd; krockar den med en annan namnger spaCR konflikten och håller Save avstängt tills du har löst den.",
     "Slå på sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Vid en första körning mäter Test mode ett fält; stäng av det för att bearbeta alla sexton medföljande fält. Klicka på Run, följ konsolen tills körningen är klar och kontrollera sedan vilka fält som lyckades innan du fortsätter.",
     "Granska utsnittsfiguren och leta sedan upp measurements.db i mappen measurements och de sparade objektbilderna i projektets utsnittsutdata. Håll ihop databasen och bildsökvägarna. Fortsätt till Annotate för att märka exempelobjekt, eller till Classify om du redan har märkta träningsdata.",
     "Innan en körning startar uppskattar spaCR hur mycket minne varje arbetsprocess behöver utifrån ett synfält i ditt projekt. Med mycket stora synfält, som sammanfogade mosaiker, får de arbetsprocesser du bad om kanske inte plats i ledigt RAM, och då frågar spaCR först. Välj det rekommenderade antalet arbetsprocesser, behåll ditt eget och låt Measure pausa nya synfält medan minnet är knappt, eller stäng andra program för att frigöra minne."

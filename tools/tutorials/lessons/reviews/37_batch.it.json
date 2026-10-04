@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Prepara i dati di input e il JSON delle impostazioni esportato per ogni lavoro. L’esempio esegue tre conversioni di immagini in cartelle di output separate.",
   "scenes": [
-    "Apri Help e poi Batch runner. Usalo per mettere in coda lavori dei moduli con i loro file di impostazioni, l’ordine di esecuzione e log separati.",
+    "Apri Help e poi Batch Runner. Usalo per mettere in coda lavori dei moduli con i loro file di impostazioni, l’ordine di esecuzione e log separati.",
     "Scegli il modulo e fai clic su Choose settings. Per questo esempio, seleziona convert e il JSON delle impostazioni del primo campo di microscopia.",
     "Controlla origine e destinazione nelle impostazioni, aggiungi un’etichetta descrittiva e fai clic su Add job. Usa una cartella di output separata per ogni conversione.",
     "Per il secondo lavoro, inserisci convert uno in After perché dipenda dal primo. Aggiungi una sostituzione di impostazione quando questo lavoro richiede un valore diverso. Indica esplicitamente i percorsi di input; una dipendenza controlla solo l’ordine.",

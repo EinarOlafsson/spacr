@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Préparez les données d’entrée et le JSON de paramètres exporté pour chaque tâche. L’exemple lance trois conversions d’images dans des dossiers de sortie séparés.",
   "scenes": [
-    "Ouvrez Help, puis Batch runner. Utilisez-le pour mettre en file des tâches de modules avec leurs fichiers de paramètres, leur ordre d’exécution et des journaux séparés.",
+    "Ouvrez Help, puis Batch Runner. Utilisez-le pour mettre en file des tâches de modules avec leurs fichiers de paramètres, leur ordre d’exécution et des journaux séparés.",
     "Choisissez le module et cliquez sur Choose settings. Pour cet exemple, sélectionnez convert et le JSON de paramètres du premier champ de microscopie.",
     "Vérifiez la source et la destination dans les paramètres, ajoutez une étiquette descriptive, puis cliquez sur Add job. Utilisez un dossier de sortie distinct pour chaque conversion.",
     "Pour la deuxième tâche, saisissez convert un dans After pour la rendre dépendante de la première. Ajoutez une surcharge de paramètre lorsque cette tâche a besoin d’une autre valeur. Indiquez explicitement les chemins d’entrée ; une dépendance ne contrôle que l’ordre.",

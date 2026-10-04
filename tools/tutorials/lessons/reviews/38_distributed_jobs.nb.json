@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Sørg for tilgang til et mål med spaCR, avhengighetene og inndataene dine. Eksporter innstillingene for modulen du vil kjøre. Bytt ut eksempelverten og -banene som vises her, med dine egne.",
   "scenes": [
-    "Åpne Help og deretter Distributed jobs. Begynn med å lage en kjøreprofil for arbeidsstasjonen eller klyngen du vil bruke.",
+    "Åpne Help og deretter Distributed Jobs. Begynn med å lage en kjøreprofil for arbeidsstasjonen eller klyngen du vil bruke.",
     "Installer kompatible spaCR-avhengigheter på målet og gjør inndataene tilgjengelige der. Sett opp SSH-nøkler eller leverandørens kommandolinjeautentisering utenfor spaCR.",
     "Velg New profile. Skriv inn et beskrivende navn og velg backend. Fyll ut de obligatoriske feltene som skjemaet viser.",
     "For SSH skriver du inn vert, ekstern arbeidskatalog og spaCR-kjører. Lagre profilen, og åpne den igjen når du må oppdatere disse innstillingene.",

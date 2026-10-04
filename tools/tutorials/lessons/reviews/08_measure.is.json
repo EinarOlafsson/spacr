@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-10-03",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -29,6 +29,10 @@
     "Til að athuga gæði skiptingarinnar í öllu verkefninu fyrir mælingu skaltu kveikja á QC í Actions-röðinni, við hlið 3D og Time. Glugginn sýnir svið og brunna þar sem grímur virðast óvenjulegar, til dæmis með miklu færri hluti en restin af plötunni, með tenglum til að skoða þá. Athugunin er aðeins ráðgefandi og stöðvar aldrei Measure; þegar glugganum er lokað slokknar á rofanum.",
     "Undir All settings geymir Image Preprocessing leiðréttingarnar sem Measure getur beitt á hvert svið fyrir mælingu: Image Deconvolution með punktdreififalli og Illumination Correction með líkani sem þú mast áður. Þær breyta pixlunum sem mældir eru í þessari keyrslu; grímurnar og fylkin á diskinum breytast ekki.",
     "Slökktu á Live og settu Normalize aftur á óvirkt fyrir þetta dæmi. Veldu stöðlun af ásettu ráði þegar úrklipp eru vistuð: kvörðun fyrir hvert úrklipp breytir þeim styrkmun sem myndflokkari sér síðar. Haltu upprunalegu sameinuðu fylkjunum fyrir megindlegar mælingar.",
+    "Þegar stillingarnar eru réttar skaltu geyma þær. Opnaðu Templates á stillingastikunni, eða ýttu á Ctrl+Shift+R, og veldu Save current settings. Gefðu sniðmátinu nafn sem þú myndir segja upphátt; næst notarðu það í stað þess að slá allt inn aftur.",
+    "Import les líka stillinga-CSV-skrána sem hver keyrsla skrifar við hlið niðurstaðnanna. Uppsetning fyrri keyrslu, eða samstarfsmanns, verður að sniðmáti sem ber nafn skrárinnar.",
+    "Rename gefur innfluttu sniðmáti skýrara nafn. Share skrifar valið sniðmát í skrá fyrir aðra og Apply hleður því inn í Measure.",
+    "Lyklum eins og Ctrl+Shift+R má breyta. Opnaðu Help, svo Keyboard shortcuts, og veldu Change shortcuts. Sláðu inn nýjan lykil fyrir hvaða aðgerð sem er; ef hann rekst á annan nefnir spaCR árekstrinum og heldur Save óvirku þar til þú leysir hann.",
     "Kveiktu á vistun mælinga og búta af hlutum, hafðu Plot á og veldu stærð búta og úttaksrásir. Í fyrstu keyrslu mælir Test mode eitt svið; slökktu á því til að vinna öll sextán sviðin sem fylgja. Smelltu á Run, fylgstu með stjórnborðinu þar til keyrslunni lýkur og athugaðu svo hvaða svið tókust áður en þú heldur áfram.",
     "Skoðaðu úrklippamyndritið og finndu svo measurements.db í möppunni measurements og vistuðu myndir hlutanna í úrklippaúttaki verkefnisins. Haltu gagnagrunninum og slóðum myndanna saman. Haltu áfram í Annotate til að merkja dæmahluti, eða í Classify ef þú ert þegar með merkt þjálfunargögn.",
     "Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni."

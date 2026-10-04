@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Tryggðu aðgang að áfangastað með spaCR, kvöðum þess og inntaksgögnunum þínum. Fluttu út stillingar einingarinnar sem þú ætlar að keyra. Skiptu dæmahýslinum og dæmaslóðunum sem sýnd eru hér út fyrir þín eigin.",
   "scenes": [
-    "Opnaðu Help og svo Distributed jobs. Byrjaðu á því að búa til keyrslusnið fyrir vinnustöðina eða klasann sem þú vilt nota.",
+    "Opnaðu Help og svo Distributed Jobs. Byrjaðu á því að búa til keyrslusnið fyrir vinnustöðina eða klasann sem þú vilt nota.",
     "Settu upp samhæfðar spaCR-kvaðir á áfangastaðnum og gerðu inntaksgögnin tiltæk þar. Settu upp SSH-lykla eða auðkenningu þjónustuaðilans í skipanalínu utan spaCR.",
     "Veldu New profile. Sláðu inn lýsandi heiti og veldu bakenda. Fylltu út skyldureitina sem eyðublaðið sýnir.",
     "Fyrir SSH slærðu inn hýsilinn, fjartengdu vinnumöppuna og spaCR-keyrsluforritið. Vistaðu sniðið og opnaðu það aftur þegar þú þarft að uppfæra þessar stillingar.",

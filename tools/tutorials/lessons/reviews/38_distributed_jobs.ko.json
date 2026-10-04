@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "spaCR, 그 의존성, 입력 데이터가 갖춰진 대상에 접근할 수 있도록 준비하세요. 실행할 모듈 설정을 내보내세요. 여기 표시된 예시 호스트와 경로는 자신의 것으로 바꾸세요.",
   "scenes": [
-    "Help를 연 뒤 Distributed jobs를 여세요. 먼저 사용할 워크스테이션이나 클러스터에 맞는 실행 프로필을 만드세요.",
+    "Help를 연 뒤 Distributed Jobs를 여세요. 먼저 사용할 워크스테이션이나 클러스터에 맞는 실행 프로필을 만드세요.",
     "대상에 호환되는 spaCR 의존성을 설치하고 입력 데이터를 그곳에서 쓸 수 있게 하세요. SSH 키나 제공자의 명령줄 인증은 spaCR 밖에서 설정하세요.",
     "New profile을 선택하세요. 설명이 되는 이름을 입력하고 백엔드를 고르세요. 양식에 표시된 필수 항목을 채우세요.",
     "SSH라면 호스트, 원격 작업 디렉터리, spaCR 실행기를 입력하세요. 프로필을 저장하고, 이 설정을 바꿔야 할 때마다 다시 여세요.",

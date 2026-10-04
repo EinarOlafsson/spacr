@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-10-03",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -29,6 +29,10 @@
     "要在测量前检查整个项目的分割质量，请打开 Actions 行中 3D 和 Time 旁边的 QC。弹出窗口会列出掩膜看起来异常的视野和孔，例如对象数量远少于板上其他部分，并提供可供检查的链接。该检查仅供参考，从不会阻止 Measure；关闭弹出窗口时开关会随之关闭。",
     "在 All settings 下，Image Preprocessing 汇集了 Measure 在测量前可对每个视野应用的校正：使用点扩散函数的 Image Deconvolution，以及使用先前估计模型的 Illumination Correction。它们会改变本次运行中被测量的像素；掩膜和磁盘上的数组不会改变。",
     "关闭Live，并在本例中把Normalize恢复为关闭。保存裁剪图像时请有意识地选择归一化方式：逐个裁剪图像进行缩放，会改变之后图像分类器看到的强度差异。定量测量请保留原始的合并数组。",
+    "设置合适后，把它们保存下来。在设置栏中打开 Templates，或按 Ctrl+Shift+R，然后选择 Save current settings。给模板起一个能脱口而出的名字；下次直接应用，无需重新输入。",
+    "Import 还能读取每次运行写在结果旁边的设置 CSV。以前某次运行或同事的配置，会变成一个以该文件命名的模板。",
+    "Rename 可以给导入的模板换一个更清楚的名字。Share 会把选中的模板写成文件供他人使用，Apply 则把它载入 Measure。",
+    "像 Ctrl+Shift+R 这样的按键可以更改。打开 Help，再打开 Keyboard shortcuts，选择 Change shortcuts。为任意操作输入新按键；如果与其他操作冲突，spaCR 会指出冲突，并在解决之前保持 Save 不可用。",
     "开启测量值和对象裁剪图像的保存，保持 Plot 开启，并选择裁剪尺寸和输出通道。第一次运行时，Test mode 只测量一个视野；关闭它即可处理全部十六个附带视野。点击 Run，关注控制台直到运行完成，然后在继续之前检查哪些视野成功。",
     "检查裁剪图，然后在measurements文件夹中找到measurements.db，并在项目的裁剪输出中找到保存的对象图像。把数据库和图像路径放在一起。接下来可以用Annotate为示例对象加标签；如果已有带标签的训练数据，也可以直接使用Classify。",
     "在任何运行开始之前，spaCR会根据项目中的一个视野估算每个工作进程所需的内存。对于非常大的视野，例如拼接后的马赛克，您请求的工作进程可能装不下空闲内存，此时spaCR会先询问您。您可以选择推荐的工作进程数，或保留自己的数量并让Measure在内存不足时暂停新视野，或关闭其他程序以释放内存。"

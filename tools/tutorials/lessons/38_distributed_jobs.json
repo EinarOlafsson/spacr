@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "01_help_route",
-      "narration": "Open Help, then Distributed jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
+      "narration": "Open Help, then Distributed Jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
       "focus": [
         80,
         0,

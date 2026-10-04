@@ -1,10 +1,10 @@
 {
   "lesson": "38_distributed_jobs",
-  "english_sha256": "c47f24495c3a71dcd917260c0d8781ebad7e4761ff73541b258be02061e1ffbc",
+  "english_sha256": "d488843bfeb47932f0923edfb9808bd60dccc69c522be29bcf39a26f6492018c",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Sørg for adgang til et mål med spaCR, dets afhængigheder og dine inputdata. Eksportér indstillingerne for det modul, du vil køre. Erstat den eksempelvært og de eksempelstier, der vises her, med dine egne.",
   "scenes": [
-    "Åbn Help og derefter Distributed jobs. Begynd med at oprette en kørselsprofil til den arbejdsstation eller klynge, du vil bruge.",
+    "Åbn Help og derefter Distributed Jobs. Begynd med at oprette en kørselsprofil til den arbejdsstation eller klynge, du vil bruge.",
     "Installér kompatible spaCR-afhængigheder på målet, og gør inputdata tilgængelige der. Opsæt SSH-nøgler eller din udbyders kommandolinjegodkendelse uden for spaCR.",
     "Vælg New profile. Indtast et beskrivende navn, og vælg backend. Udfyld de obligatoriske felter, som formularen viser.",
     "For SSH indtaster du vært, fjernarbejdsmappe og spaCR-kører. Gem profilen, og åbn den igen, når du skal opdatere disse indstillinger.",

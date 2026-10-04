@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "Forbered inputdata og den eksporterede indstillings-JSON til hvert job. Eksemplet kører tre billedkonverteringer til separate outputmapper.",
   "scenes": [
-    "Åbn Help og derefter Batch runner. Brug den til at sætte modulopgaver i kø med deres indstillingsfiler, kørselsrækkefølge og separate logfiler.",
+    "Åbn Help og derefter Batch Runner. Brug den til at sætte modulopgaver i kø med deres indstillingsfiler, kørselsrækkefølge og separate logfiler.",
     "Vælg modulet, og klik på Choose settings. I dette eksempel vælger du convert og JSON-indstillingerne for det første mikroskopisynsfelt.",
     "Kontrollér kilde og destination i indstillingerne, tilføj en beskrivende label, og klik derefter på Add job. Brug en separat outputmappe til hver konvertering.",
     "For det andet job skriver du convert-1 i After, så det afhænger af det første. Tilføj en tilsidesættelse af en indstilling, når jobbet skal have en anden værdi. Angiv inputstier eksplicit; en afhængighed styrer kun rækkefølgen.",

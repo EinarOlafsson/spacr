@@ -1,10 +1,10 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "61378543c23e1f7e0ad06a7bdd08fd6b4599a37bcee38c2f7044e43fedb1e12b",
+  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -19,7 +19,7 @@
   ],
   "prerequisite": "各ジョブの入力データと、書き出した設定のJSONを用意します。この例では、三つの画像変換をそれぞれ別の出力フォルダーに実行します。",
   "scenes": [
-    "Helpを開き、続いてBatch runnerを開きます。設定ファイル、実行順序、個別のログとともに、モジュールのジョブをキューに入れるときに使います。",
+    "Helpを開き、続いてBatch Runnerを開きます。設定ファイル、実行順序、個別のログとともに、モジュールのジョブをキューに入れるときに使います。",
     "モジュールを選び、Choose settingsをクリックします。この例では、convertと、最初の顕微鏡視野の設定のJSONを選びます。",
     "設定のソースと出力先を確認し、内容がわかるラベルを付けて、Add jobをクリックします。変換ごとに別の出力フォルダーを使います。",
     "二つ目のジョブでは、Afterにconvert一と入力して、最初のジョブに依存させます。このジョブだけ別の値が必要な場合は、設定の上書きを追加します。入力パスは明示的に指定します。依存関係が決めるのは順序だけです。",

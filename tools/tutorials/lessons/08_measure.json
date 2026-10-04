@@ -77,6 +77,26 @@
       "hold_after": 0.7
     },
     {
+      "visual": "tpl_31_template_save_name",
+      "narration": "Once the settings look right, keep them. Open Templates on the settings strip, or press Ctrl+Shift+R, and choose Save current settings. Give the template a name you would say out loud; next time you apply it instead of retyping.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "tpl_33_templates_imported",
+      "narration": "Import also reads the settings CSV that every run writes next to its results. An earlier run's configuration, or a colleague's, becomes a template named after the file.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "tpl_35_templates_renamed",
+      "narration": "Rename gives an imported template a clearer name. Share writes the selected one to a file for others, and Apply loads it into Measure.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "tpl_37_change_shortcuts",
+      "narration": "Keys such as Ctrl+Shift+R can be changed. Open Help, then Keyboard shortcuts, and choose Change shortcuts. Type a new key for any action; if it clashes with another, spaCR names the conflict and keeps Save off until you resolve it.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "batch_20_batch_settings",
       "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. For a first run, Test mode measures one field; turn it off to process all sixteen supplied fields. Click Run and follow the console until the run completes, then check which fields succeeded before proceeding.",
       "hold_after": 0.7
