@@ -209,6 +209,10 @@ def _forget_host_declarations() -> None:
     application never does.
     """
     _HOST_DECLARATION_CACHE.clear()
+    from ..app import _TOP_LEVEL_CACHE
+
+    _TOP_LEVEL_CACHE.clear()
+
 
 
 def _host_declarations(module_name: str):
@@ -225,17 +229,14 @@ def _host_declarations(module_name: str):
     :returns: ``(members, table)``, or ``None`` when the source cannot be read.
     """
     import ast
-    import importlib.util
-    import pathlib
 
     if module_name in _HOST_DECLARATION_CACHE:
         return _HOST_DECLARATION_CACHE[module_name]
 
-    try:
-        spec = importlib.util.find_spec(module_name)
-        tree = ast.parse(
-            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
-    except Exception:                                   # noqa: BLE001
+    from ..app import _top_level_nodes
+
+    body = _top_level_nodes(module_name)
+    if body is None:
         _HOST_DECLARATION_CACHE[module_name] = None
         return None
 
@@ -243,7 +244,7 @@ def _host_declarations(module_name: str):
     declared: dict = {}
     siblings: dict = {}
     package = module_name.rpartition(".")[0]
-    for node in tree.body:
+    for node in body:
         if isinstance(node, ast.ImportFrom) and node.level:
             base = package
             for _ in range(node.level - 1):
@@ -312,16 +313,10 @@ def _host_declarations(module_name: str):
 def _sibling_constant(module_name: str, name: str):
     """One module-level string constant, read from source without importing."""
     import ast
-    import importlib.util
-    import pathlib
 
-    try:
-        spec = importlib.util.find_spec(module_name)
-        tree = ast.parse(
-            pathlib.Path(spec.origin).read_text(encoding="utf-8"))
-    except Exception:                                   # noqa: BLE001
-        return None
-    for node in tree.body:
+    from ..app import _top_level_nodes
+
+    for node in _top_level_nodes(module_name) or ():
         if isinstance(node, ast.AnnAssign):
             targets, value = [node.target], node.value
         elif isinstance(node, ast.Assign):

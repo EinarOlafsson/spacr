@@ -1937,17 +1937,30 @@ def _channels(color: str,
     ``fallback`` instead: a swatch that comes out the wrong colour is
     cosmetic, an exception raised out of a repaint is not.
     """
-    text = str(color).strip().lstrip("#")
+    parsed = _parse_hex(str(color))
+    if parsed is not None:
+        return parsed
+    if fallback is not None:
+        return fallback
+    raise ValueError(f"not a #rrggbb colour: {color!r}")
+
+
+@lru_cache(maxsize=8192)
+def _parse_hex(color: str) -> Optional[Tuple[int, int, int]]:
+    """``#rgb`` or ``#rrggbb`` as three 0-255 channels, or ``None``.
+
+    Memoised: the palette solvers and every repaint ask about the same few
+    hundred colours many thousands of times.
+    """
+    text = color.strip().lstrip("#")
     if len(text) == 3:
         text = "".join(ch * 2 for ch in text)
+    if len(text) != 6:
+        return None
     try:
-        if len(text) != 6:
-            raise ValueError
         return (int(text[0:2], 16), int(text[2:4], 16), int(text[4:6], 16))
     except ValueError:
-        if fallback is not None:
-            return fallback
-        raise ValueError(f"not a #rrggbb colour: {color!r}") from None
+        return None
 
 
 def _linear(value: int) -> float:
@@ -1965,6 +1978,12 @@ def relative_luminance(color: str) -> float:
 
     :param color: a ``#rgb`` or ``#rrggbb`` colour string.
     """
+    return _luminance_of(str(color))
+
+
+@lru_cache(maxsize=8192)
+def _luminance_of(color: str) -> float:
+    """Memoised body of :func:`relative_luminance`."""
     r, g, b = _channels(color)
     return 0.2126 * _linear(r) + 0.7152 * _linear(g) + 0.0722 * _linear(b)
 

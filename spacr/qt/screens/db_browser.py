@@ -1347,6 +1347,17 @@ class PreviewModel(QAbstractTableModel):
 
 
 
+def _job_lane(kind: str) -> str:
+    """Which worker lane a job of ``kind`` runs on.
+
+    A ``COUNT(*)`` is a full scan of the table, seconds on a large
+    measurement table, so it runs on a lane of its own: the next page a
+    scroll asks for never waits behind it. SQLite serves concurrent
+    read-only connections, and every job opens its own.
+    """
+    return "count" if kind == "count" else "main"
+
+
 class DbBrowserScreen(LinkedView, QWidget):
     """Browser for a spaCR measurements database — read-only by default.
 
@@ -1431,6 +1442,7 @@ class DbBrowserScreen(LinkedView, QWidget):
         self._jobs: Dict[int, tuple] = {}
         self._thread = None
         self._worker = None
+        self._count_thread = None
         self._pending: Dict[int, tuple] = {}
         self._queue: List[tuple] = []
         self._next_job_id: int = 0
@@ -2821,19 +2833,13 @@ class DbBrowserScreen(LinkedView, QWidget):
         ``fn`` runs on a worker thread and must therefore open its own
         sqlite connection — every :class:`ReadOnlyDb` method does.
 
-        **One worker at a time.** Jobs queue here and :meth:`_pump` starts
-        them one by one. Chunked loading naturally wants to overlap (an
-        abandoned chunk, its replacement, and a ``COUNT(*)`` can all be
-        outstanding at once) but ``PipelineWorker.run`` swaps *global*
-        process state around the call it makes — ``sys.stdout``,
-        ``sys.stderr`` and ``matplotlib.pyplot.show`` are saved on entry
-        and restored on exit. Two of those running at once interleave the
-        swaps and restore each other's shims, and the loser is left
-        permanently pointing at a dead redirector: every ``print`` in the
-        process after that goes nowhere. (Measured, not theorised — a
-        bare overlapping ``make_thread`` loop loses its own stdout.)
-        Serialising costs nothing here: these jobs are I/O on one sqlite
-        file, which does not go faster in parallel.
+        **One worker per lane.** Jobs queue here and :meth:`_pump` starts
+        them one by one on their lane: page reads, edits and exports on the
+        main lane, ``COUNT(*)`` on its own (see :func:`_job_lane`), so a
+        scroll is never held behind a full-table count. Output from each
+        worker is routed by thread, so two lanes running at once keep their
+        own ``print`` output. The jobs are read-only housekeeping, so they
+        write no run-journal record and stay off Home's list of runs.
 
         Cancellation stays cooperative. A queued job carries the load
         token it was created for; if the user has moved on before it
@@ -2886,16 +2892,26 @@ class DbBrowserScreen(LinkedView, QWidget):
         superseded are dropped here rather than started — a ``COUNT(*)``
         for a table the user has already left is pure waste.
         """
-        if self._thread is not None:
-            return
-        while self._queue:
-            fn, on_done, kind, token = self._queue.pop(0)
-            if token is not None and token != self._token:
-                self._release(kind)
+        for lane in ("main", "count"):
+            if self._lane_thread(lane) is not None:
                 continue
-            self._start_job(fn, on_done, kind)
-            return
+            index = 0
+            while index < len(self._queue):
+                fn, on_done, kind, token = self._queue[index]
+                if _job_lane(kind) != lane:
+                    index += 1
+                    continue
+                del self._queue[index]
+                if token is not None and token != self._token:
+                    self._release(kind)
+                    continue
+                self._start_job(fn, on_done, kind)
+                break
         self._update_controls()
+
+    def _lane_thread(self, lane: str):
+        """The thread running on ``lane`` (``"main"`` or ``"count"``), if any."""
+        return self._thread if lane == "main" else self._count_thread
 
     def _start_job(self, fn: Callable[[], Any],
                    on_done: Callable[[Any], None], kind: str) -> None:
@@ -2912,11 +2928,16 @@ class DbBrowserScreen(LinkedView, QWidget):
         calls onto the GUI thread where every other widget call lives.
         """
         box: Dict[str, Any] = {}
-        thread, worker = make_thread(partial(_capture_result, fn), box)
+        thread, worker = make_thread(
+            partial(_capture_result, fn), box, journal=False,
+            user_visible=False, capture_figures=False)
         self._next_job_id += 1
         job_id = self._next_job_id
         self._jobs[job_id] = (thread, worker)
-        self._thread, self._worker = thread, worker
+        if _job_lane(kind) == "count":
+            self._count_thread = thread
+        else:
+            self._thread, self._worker = thread, worker
         self._pending[job_id] = (box, on_done, kind)
         worker.error.connect(self._on_worker_error_text)
         worker.finished.connect(
@@ -2980,6 +3001,8 @@ class DbBrowserScreen(LinkedView, QWidget):
         if entry is not None and entry[0] is self._thread:
             self._thread = None
             self._worker = None
+        if entry is not None and entry[0] is self._count_thread:
+            self._count_thread = None
         self._pump()
 
     def active_jobs(self) -> int:

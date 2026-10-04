@@ -903,10 +903,14 @@ class RecentRunsPanel(Panel):
     #: Emitted after **Clear** moved the watermark, so Home can re-read.
     cleared = Signal()
 
-    def __init__(self, limit: int = 4, known_keys=None, parent=None):
+    def __init__(self, limit: int = 4, known_keys=None, parent=None,
+                 read_now: bool = True):
         """Build the panel and its caption.
 
         :param parent: parent widget.
+        :param read_now: read the journal on the calling thread now. Home
+            passes ``False`` and fills the panel from its worker read, so
+            the window is not held up by the journal.
         """
         super().__init__("Recent runs", parent)
         self._limit = limit
@@ -916,7 +920,7 @@ class RecentRunsPanel(Panel):
             tip="Hide the runs listed here. The run journal and Run "
                 "History keep them.")
         self._clear.clicked.connect(self.clear_list)
-        self.refresh()
+        self.refresh(None if read_now else [])
 
     def _registry(self):
         """Whatever ``known_keys`` resolves to right now, or ``None``."""
@@ -1188,10 +1192,12 @@ class TotalsPanel(Panel):
     #: Emitted after **Reset** moved the watermark.
     reset_requested = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, read_now: bool = True):
         """Build the panel and its caption.
 
         :param parent: parent widget.
+        :param read_now: read the journal on the calling thread now. Home
+            passes ``False`` and fills the panel from its worker read.
         """
         super().__init__("Totals", parent)
         self._reset = self.add_action(
@@ -1199,7 +1205,7 @@ class TotalsPanel(Panel):
             tip="Start these counts from now. The run journal and Run "
                 "History keep every run.")
         self._reset.clicked.connect(self.reset_counts)
-        self.refresh()
+        self.refresh(None if read_now else {})
 
     def reset_counts(self) -> None:
         """Count from now on, by moving the watermark.
@@ -1247,17 +1253,36 @@ class TotalsPanel(Panel):
     def _totals_since(since: str) -> dict:
         """Counts over the runs that started after ``since``.
 
-        ISO-8601 UTC strings compare lexicographically in time order, and
-        ``recent_runs`` hands them back newest-first, so the walk stops at
-        the first entry at or before the watermark.
+        ISO-8601 UTC strings compare lexicographically in time order. Run
+        folders are named by their UTC start second, so only folders named
+        from an hour before ``since`` onwards are opened: the cost follows the
+        window, not the size of the journal.
         """
-        from spacr.run_journal import recent_runs
+        import json
+        from datetime import datetime, timedelta, timezone
+
+        from spacr.run_journal import _run_dir_names, runs_root
 
         counts = {"total_runs": 0, "mask_runs": 0, "measure_runs": 0,
                   "classify_runs": 0, "models_recorded": 0}
-        for entry in recent_runs(limit=None):
+        root = runs_root()
+        names = sorted(_run_dir_names(root)) if root.exists() else []
+        try:
+            moment = datetime.fromisoformat(since.replace("Z", "+00:00"))
+            if moment.tzinfo is None:
+                moment = moment.replace(tzinfo=timezone.utc)
+            floor = (moment.astimezone(timezone.utc) - timedelta(hours=1)
+                     ).strftime("%Y-%m-%d_%H%M%S")
+            names = [n for n in names if n[:17] >= floor]
+        except ValueError:
+            pass
+        for name in names:
+            try:
+                entry = json.loads((root / name / "manifest.json").read_text())
+            except (OSError, ValueError):
+                continue
             if str(entry.get("start_utc") or "") <= since:
-                break
+                continue
             counts["total_runs"] += 1
             bucket = f"{str(entry.get('app_key') or '')}_runs"
             if bucket in counts:
@@ -1956,6 +1981,7 @@ class HomePage(QWidget):
         split.pane_toggled.connect(lambda *_a: self._rewrap_grids())
         self._aside_split = split
         col.addWidget(split, 1)
+        self._read_the_journal()
 
         outer.addWidget(body, 1)
 
@@ -2588,13 +2614,14 @@ class HomePage(QWidget):
         col.addWidget(start)
 
         self._queued = QueuedPanel()
-        self._recent = RecentRunsPanel(known_keys=lambda: self._names)
+        self._recent = RecentRunsPanel(known_keys=lambda: self._names,
+                                       read_now=False)
         self._recent.run_clicked.connect(self._on_run_clicked)
         self._recent.cleared.connect(self.refresh)
         self._news = NewsPanel(self._version())
         self._news.check_requested.connect(self.update_check_requested)
         self._news.refresh_requested.connect(self.news_refresh_requested)
-        self._totals = TotalsPanel()
+        self._totals = TotalsPanel(read_now=False)
         self._system = SystemPanel()
         self._legend = StageLegend(self)
         self._legend.hide()
@@ -2783,6 +2810,12 @@ class HomePage(QWidget):
         self._system.refresh()
         self._on_runs_changed()
         self._apply_aside_text()
+        self._read_the_journal()
+
+    def _read_the_journal(self) -> None:
+        """Read Recent runs and Totals on a worker; :meth:`_apply_journal`
+        paints them. Home is built with both panels empty and filled from
+        here, so the window never waits for the run journal."""
         recent, totals = self._recent, self._totals
         self._journal_jobs.cancel()
         self._journal_jobs.submit(

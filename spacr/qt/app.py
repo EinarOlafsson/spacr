@@ -1502,13 +1502,24 @@ def folded_children() -> Dict[str, Tuple[str, ...]]:
     return found
 
 
-def _declared_constant(module_name: str, name: str):
-    """One module-level string constant, read from source without importing.
+
+_TOP_LEVEL_CACHE: dict = {}
+
+
+def _top_level_nodes(module_name: str):
+    """A module's top-level assignments and relative imports, from its source.
+
+    One ``ast.parse`` per module per process, shared by every reader of
+    module-level declarations here and in
+    :mod:`spacr.qt.widgets.fold_strip`. Only the top-level ``Assign``,
+    ``AnnAssign`` and ``ImportFrom`` nodes are kept, so the function bodies
+    of a large screen module are not held in memory.
 
     :param module_name: dotted name of the module to read.
-    :param name: the constant to look for.
-    :returns: the string, or ``None`` when it is absent or not a plain string.
+    :returns: a tuple of nodes, or ``None`` when the source cannot be read.
     """
+    if module_name in _TOP_LEVEL_CACHE:
+        return _TOP_LEVEL_CACHE[module_name]
     import ast
     import importlib.util
     import pathlib
@@ -1517,9 +1528,25 @@ def _declared_constant(module_name: str, name: str):
         spec = importlib.util.find_spec(module_name)
         tree = ast.parse(
             pathlib.Path(spec.origin).read_text(encoding="utf-8"))
-    except Exception:                                    # noqa: BLE001
+    except Exception:                                   # noqa: BLE001
+        _TOP_LEVEL_CACHE[module_name] = None
         return None
-    for node in tree.body:
+    nodes = tuple(node for node in tree.body if isinstance(
+        node, (ast.Assign, ast.AnnAssign, ast.ImportFrom)))
+    _TOP_LEVEL_CACHE[module_name] = nodes
+    return nodes
+
+
+def _declared_constant(module_name: str, name: str):
+    """One module-level string constant, read from source without importing.
+
+    :param module_name: dotted name of the module to read.
+    :param name: the constant to look for.
+    :returns: the string, or ``None`` when it is absent or not a plain string.
+    """
+    import ast
+
+    for node in _top_level_nodes(module_name) or ():
         if isinstance(node, ast.AnnAssign):
             targets, value = [node.target], node.value
         elif isinstance(node, ast.Assign):
@@ -1554,20 +1581,15 @@ def _declared_folds(module_name: str):
     :returns: ``(host, folded)``, or ``None`` when the module cannot be read.
     """
     import ast
-    import importlib.util
-    import pathlib
 
-    try:
-        spec = importlib.util.find_spec(module_name)
-        source = pathlib.Path(spec.origin).read_text(encoding="utf-8")
-        tree = ast.parse(source)
-    except Exception:                                    # noqa: BLE001
+    body = _top_level_nodes(module_name)
+    if body is None:
         return None
 
     #: Module-level names bound to a plain string, so a fold list may name one.
     constants: Dict[str, str] = {}
     declared: Dict[str, object] = {}
-    for node in tree.body:
+    for node in body:
         if isinstance(node, ast.AnnAssign):
             targets, value = [node.target], node.value
         elif isinstance(node, ast.Assign):
@@ -1589,7 +1611,7 @@ def _declared_folds(module_name: str):
     #: so `activation.APP_KEY` in a fold list can be resolved the same way.
     siblings: Dict[str, str] = {}
     package = module_name.rpartition(".")[0]
-    for node in tree.body:
+    for node in body:
         if isinstance(node, ast.ImportFrom) and node.level:
             base = package
             for _ in range(node.level - 1):

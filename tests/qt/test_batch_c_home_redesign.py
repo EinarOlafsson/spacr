@@ -110,10 +110,12 @@ class TestInsightsDashboard:
         from spacr.qt.app import MainWindow
         win = MainWindow()
         qtbot.addWidget(win)
-        labels = self._labels(win)
         # 3 mask runs → the Totals card should carry "3" for both
-        # total runs and mask runs
-        assert any(lbl.strip() == "3" for lbl in labels)
+        # total runs and mask runs. Home reads the journal on a worker, so
+        # the count arrives just after the window is built.
+        qtbot.waitUntil(
+            lambda: any(lbl.strip() == "3" for lbl in self._labels(win)),
+            timeout=15000)
 
     def test_system_card_reports_gpu_or_no_cuda(self, qtbot,
                                                   _empty_journal):
