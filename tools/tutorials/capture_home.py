@@ -290,3 +290,127 @@ def record_appearance_sections(window, capture, settle):
         dialog.close()
         dialog.deleteLater()
         settle()
+
+
+def _open_preferences_tab(window, settle, object_name, height=1200):
+    """Open Preferences on the tab holding ``object_name``; returns (dialog, page)."""
+    from PySide6.QtWidgets import QTabWidget, QWidget
+
+    from spacr.qt.preferences import PreferencesDialog
+
+    dialog = PreferencesDialog(window)
+    tabs = dialog.findChild(QTabWidget, "PreferencesTabs")
+    page = dialog.findChild(QWidget, object_name)
+    if tabs is None or page is None:
+        dialog.deleteLater()
+        raise RuntimeError(f"Preferences has no {object_name}")
+    for index in range(tabs.count()):
+        if tabs.widget(index).isAncestorOf(page):
+            tabs.setCurrentIndex(index)
+            break
+    dialog.resize(1200, height)
+    dialog.show()
+    settle()
+    return dialog, page
+
+
+def record_session_and_updates(window, capture, settle, name="13e_session_updates"):
+    """Show Session restore and the update channel without the alpha toggle in view.
+
+    Both rows live on the Modules tab, whose last row holds Show alpha
+    features. The page is scrolled to the Session row and the dialog is made
+    short enough that the toggle stays below the visible part of the page.
+    """
+    from PySide6.QtCore import QPoint
+    from PySide6.QtWidgets import QScrollArea, QWidget
+
+    dialog, page = _open_preferences_tab(window, settle, "PreferencesTabModules", 1200)
+    try:
+        session = dialog.findChild(QWidget, "RestoreLastSession")
+        channel = dialog.findChild(QWidget, "UpdateChannel")
+        # Module visibility holds the maturity toggles and Show alpha
+        # features; keep its whole row out of view.
+        toggle = dialog.findChild(QWidget, "ShowAlphaFeatures")
+        if session is None or channel is None or toggle is None:
+            raise RuntimeError("Preferences has no Session, Update channel or alpha row")
+        scroll = page.parentWidget()
+        while scroll is not None and not isinstance(scroll, QScrollArea):
+            scroll = scroll.parentWidget()
+        info = {}
+        for _ in range(8):
+            settle(0.5)
+            top = session.mapTo(scroll.widget(), QPoint(0, 0)).y()
+            scroll.verticalScrollBar().setValue(max(0, top - 60))
+            settle(0.5)
+            viewport = scroll.viewport()
+            toggle_y = toggle.mapTo(viewport, QPoint(0, 0)).y()
+            channel_bottom = channel.mapTo(viewport, QPoint(0, channel.height())).y()
+            info = {"viewport_h": viewport.height(), "toggle_y": toggle_y,
+                    "channel_bottom": channel_bottom, "dialog_h": dialog.height()}
+            if toggle_y >= viewport.height() and channel_bottom <= viewport.height():
+                capture(name)
+                info["restore_last_session"] = session.isChecked()
+                info["update_channel"] = channel.currentText()
+                return info
+            shrink = viewport.height() - toggle_y + 40
+            if shrink <= 0 or dialog.height() - shrink < channel_bottom + 200:
+                break
+            dialog.resize(dialog.width(), dialog.height() - shrink)
+        raise RuntimeError(f"Cannot show Session and Update channel without the alpha toggle: {info}")
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+        settle()
+
+
+def record_storage(window, capture, settle):
+    """Storage tab at its defaults, then Prune now's list and question, cancelled (643)."""
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QApplication, QMessageBox
+
+    dialog, page = _open_preferences_tab(window, settle, "PreferencesTabStorage", 1500)
+    proof = {}
+    try:
+        storage = dialog._storage_page
+        settle(2)
+        capture("13f_storage")
+        keep, cap = storage.spins["run_folders"]
+        old = (keep.value(), cap.value())
+        # A tight example limit for run folders, so Prune has something to list.
+        keep.setValue(1)
+        cap.setValue(0)
+        settle(0.5)
+        asked = []
+
+        def answer():
+            boxes = [w for w in QApplication.topLevelWidgets()
+                     if isinstance(w, QMessageBox) and w.isVisible()]
+            if not boxes:
+                if len(asked) < 150:
+                    asked.append(None)
+                    QTimer.singleShot(200, answer)
+                return
+            box = boxes[0]
+            settle(0.5)
+            proof["question"] = [box.windowTitle(), box.text(), box.informativeText()]
+            capture("13g_storage_prune")
+            asked.append(box)
+            cancel = [b for b in box.buttons() if box.buttonRole(b) == QMessageBox.RejectRole]
+            (cancel[0] if cancel else box.escapeButton()).click()
+        QTimer.singleShot(300, answer)
+        storage.prune()
+        import time
+        deadline = time.monotonic() + 120
+        while not any(asked) and time.monotonic() < deadline:
+            settle(0.2)
+        if not any(asked):
+            raise RuntimeError("Prune now did not ask before deleting")
+        settle(1)
+        proof["cancelled"] = True
+        keep.setValue(old[0])
+        cap.setValue(old[1])
+    finally:
+        dialog.reject()
+        dialog.deleteLater()
+        settle()
+    return proof

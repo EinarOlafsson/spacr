@@ -352,6 +352,15 @@ def main() -> int:
         from spacr.qt.preferences import set_figure_format
         set_figure_format('png')
     apply_preferences_to_app(app)
+    # 652: the What's new dialog never appears in a recording. Mark the
+    # running version as already seen in this private profile.
+    try:
+        from spacr.qt.preferences import _note_running_version
+        from spacr.updater import _installed_version
+        _note_running_version(_installed_version())
+        _note_running_version(_installed_version())
+    except Exception:
+        pass
     window = gui.MainWindow()
     window.apply_dock_mode('locked')
     window.resize(3840, 2160)
@@ -507,6 +516,9 @@ def main() -> int:
                                 '13b_preferences_appearance')
         from capture_home import record_appearance_sections
         record_appearance_sections(window, capture, settle)
+        from capture_home import record_session_and_updates, record_storage
+        home_focus['13e_session_updates'] = record_session_and_updates(window, capture, settle)
+        home_focus['13g_storage_prune'] = record_storage(window, capture, settle)
         write_json(captures / 'home_focus.json', home_focus)
     if args.workflow_overview:
         from capture_workflow_overview import record_overview

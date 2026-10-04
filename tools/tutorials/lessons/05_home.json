@@ -204,7 +204,7 @@
     },
     {
       "visual": "13c_appearance_theme",
-      "narration": "Theme and Animation are folded sections of Appearance. Click Theme to open it: it sets the interface theme and page opacity, whether fields fade towards the right, and the window rim, with its length, how closely it follows the pointer, its alignment, mode and cycle.",
+      "narration": "Theme and Animation are folded sections of Appearance. Click Theme to open it: it sets the interface theme and page opacity, whether fields fade towards the right, and the window rim, with its length, how closely it follows the pointer, its alignment, mode and cycle. The Theme list also offers High contrast, which strengthens the contrast between text, controls and background.",
       "hold_after": 0.7,
       "focus": [
         1310,
@@ -216,6 +216,39 @@
     {
       "visual": "13d_appearance_animation",
       "narration": "Click Animation to open it instead. It chooses the animated backdrop and its palette, with sliders for detail, blur, speed, size and density, whether setting tooltips animate, and the backdrop shown behind settings.",
+      "hold_after": 0.7,
+      "focus": [
+        1310,
+        290,
+        1200,
+        1500
+      ]
+    },
+    {
+      "visual": "13e_session_updates",
+      "narration": "On the Modules tab, Session decides whether spaCR reopens the last module, settings and folder when it starts; this recording starts fresh. Update channel chooses stable releases or nightly builds, and Proxy and Certificate bundle let downloads work behind an institutional proxy.",
+      "hold_after": 0.7,
+      "focus": [
+        1310,
+        440,
+        1200,
+        397
+      ]
+    },
+    {
+      "visual": "13f_storage",
+      "narration": "The Storage tab sets how long spaCR keeps its daily logs, run logs and run folders, and a size cap for each. Below them, the cache list shows where models and downloads are stored, with Clear and Move for each cache.",
+      "hold_after": 0.7,
+      "focus": [
+        1310,
+        290,
+        1200,
+        1500
+      ]
+    },
+    {
+      "visual": "13g_storage_prune",
+      "narration": "Prune now never deletes without asking. With a short example limit for run folders, it lists what it would delete in each folder and waits for an answer. Click Cancel and nothing is removed.",
       "hold_after": 0.7,
       "focus": [
         1310,

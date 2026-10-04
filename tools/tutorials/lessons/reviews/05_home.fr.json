@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
+  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,11 @@
     "Dans Preferences, choisissez un profil Performance adapté à votre ordinateur. Laptop utilise moins de ressources ; les profils plus élevés permettent davantage de cache et de travail en arrière-plan. Commencez par un profil modeste si la mémoire est limitée. Les paramètres de vos analyses restent sous votre contrôle dans chaque module.",
     "L’onglet General de Preferences règle la langue de l’interface, l’échelle de police et de l’interface, le maintien ouvert du dock d’applications et une palette adaptée au daltonisme pour les graphiques. L’onglet Figures choisit le format et la résolution des figures enregistrées, et Appearance détermine quand les infobulles apparaissent.",
     "Appearance détermine comment l’aide apparaît pendant votre travail. Tooltip delay est le temps pendant lequel le pointeur reste sur un contrôle avant que son info-bulle n’apparaisse : deux secondes par défaut, et zéro les affiche aussitôt. Show tooltips les désactive complètement, et les sections Theme et Animation se déplient en dessous pour l’apparence de la fenêtre.",
-    "Theme et Animation sont des sections repliées d’Appearance. Cliquez sur Theme pour l’ouvrir : elle règle le thème de l’interface et l’opacité de la page, l’estompage des champs vers la droite et le contour de la fenêtre, avec sa longueur, la façon dont il suit le pointeur, son alignement, son mode et son cycle.",
+    "Theme et Animation sont des sections repliées d’Appearance. Cliquez sur Theme pour l’ouvrir : elle règle le thème de l’interface et l’opacité de la page, l’estompage des champs vers la droite et le contour de la fenêtre, avec sa longueur, la façon dont il suit le pointeur, son alignement, son mode et son cycle. La liste Theme propose aussi High contrast, qui renforce le contraste entre le texte, les contrôles et l’arrière-plan.",
     "Cliquez plutôt sur Animation pour l’ouvrir. Elle choisit l’arrière-plan animé et sa palette, avec des curseurs pour le détail, le flou, la vitesse, la taille et la densité, l’animation des infobulles des réglages et l’arrière-plan affiché derrière les réglages.",
+    "Dans l’onglet Modules, Session décide si spaCR rouvre au démarrage le dernier module, les réglages et le dossier ; cet enregistrement démarre à neuf. Update channel choisit les versions stables ou les builds nocturnes, et Proxy et Certificate bundle permettent les téléchargements derrière un proxy institutionnel.",
+    "L’onglet Storage règle combien de temps spaCR conserve ses journaux quotidiens, ses journaux d’exécution et ses dossiers d’exécution, avec une limite de taille pour chacun. En dessous, la liste des caches montre où sont stockés les modèles et les téléchargements, avec Clear et Move pour chaque cache.",
+    "Prune now ne supprime jamais sans demander. Avec une limite d’exemple courte pour les dossiers d’exécution, il liste ce qu’il supprimerait dans chaque dossier et attend une réponse. Cliquez sur Cancel et rien n’est supprimé.",
     "Revenez à Home et cliquez sur Pipeline overviews pour choisir un flux de travail. Commencez par spaCR screens pour un criblage groupé basé sur l’image, ou choisissez un parcours d’analyse d’images ou de séquençage adapté à vos données. Les tutoriels suivants montrent comment ces modules s’enchaînent, puis les leçons de chaque module détaillent chaque tâche."
   ]
 }

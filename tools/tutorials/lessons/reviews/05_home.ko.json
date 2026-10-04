@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
+  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,11 @@
     "Preferences에서 컴퓨터에 맞는 Performance 프로필을 고르세요. Laptop은 자원을 적게 쓰고, 더 높은 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 부족하다면 적당한 프로필로 시작하세요. 분석 설정은 각 모듈에서 여전히 직접 관리합니다.",
     "Preferences의 General 탭에서는 인터페이스 언어, 글꼴과 GUI 배율, 앱 도크를 열어 둘지 여부, 그래프용 색각 이상 친화 팔레트를 설정합니다. Figures 탭은 저장할 그림의 형식과 해상도를 고르고, Appearance는 도움말 풍선이 언제 나타날지 정합니다.",
     "Appearance는 작업 중 도움말이 나타나는 방식을 정합니다. Tooltip delay는 포인터가 컨트롤 위에 머문 뒤 도움말이 나타나기까지의 시간으로, 기본값은 2초이고 0이면 바로 나타납니다. Show tooltips로 도움말을 완전히 끌 수 있고, 아래의 Theme와 Animation 섹션을 펼치면 창의 모양을 정할 수 있습니다.",
-    "Theme와 Animation은 Appearance 안의 접힌 섹션입니다. Theme를 클릭해 열면 인터페이스 테마와 페이지 불투명도, 필드가 오른쪽으로 흐려지는지 여부, 그리고 창 테두리의 길이, 포인터를 따라가는 정도, 정렬, 모드, 주기를 설정합니다.",
+    "Theme와 Animation은 Appearance 안의 접힌 섹션입니다. Theme를 클릭해 열면 인터페이스 테마와 페이지 불투명도, 필드가 오른쪽으로 흐려지는지 여부, 그리고 창 테두리의 길이, 포인터를 따라가는 정도, 정렬, 모드, 주기를 설정합니다. Theme 목록에는 High contrast도 있어 글자, 컨트롤, 배경 사이의 대비를 높입니다.",
     "대신 Animation을 클릭해 여세요. 움직이는 배경과 그 팔레트를 고르고, 세부, 흐림, 속도, 크기, 밀도 슬라이더와 함께 설정 도움말 풍선의 애니메이션 여부, 설정 뒤에 보이는 배경을 정합니다.",
+    "Modules 탭의 Session은 spaCR이 시작할 때 마지막 모듈, 설정, 폴더를 다시 열지 정합니다. 이 녹화는 새로 시작합니다. Update channel은 안정 릴리스와 야간 빌드 중에서 고르며, Proxy와 Certificate bundle을 쓰면 기관 프록시 뒤에서도 다운로드가 됩니다.",
+    "Storage 탭에서는 spaCR이 일일 로그, 실행 로그, 실행 폴더를 얼마나 오래 보관할지와 각각의 크기 상한을 정합니다. 그 아래 캐시 목록은 모델과 다운로드가 저장된 위치를 보여 주며, 캐시마다 Clear와 Move가 있습니다.",
+    "Prune now는 묻지 않고 삭제하지 않습니다. 실행 폴더에 짧은 예시 상한을 두면 각 폴더에서 삭제할 항목을 나열하고 답을 기다립니다. Cancel을 클릭하면 아무것도 삭제되지 않습니다.",
     "Home으로 돌아가 Pipeline overviews를 클릭해 워크플로를 고르세요. 풀링된 이미지 기반 스크린이라면 spaCR screens로 시작하고, 아니면 데이터에 맞는 이미지 분석 또는 시퀀싱 경로를 고르세요. 다음 튜토리얼에서 이 모듈들이 어떻게 연결되는지 보여 주고, 이어서 각 모듈 강의가 작업을 하나씩 안내합니다."
   ]
 }

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
+  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,11 @@
     "I Preferences velger du en Performance-profil for datamaskinen din. Laptop bruker færre ressurser; de høyere profilene tillater mer mellomlagring og bakgrunnsarbeid. Begynn med en moderat profil hvis minnet er begrenset. Analyseinnstillingene dine forblir under din kontroll i hver modul.",
     "Fanen General i Preferences stiller inn språket i grensesnittet, skrift- og GUI-skalering, om app-dokken holdes åpen, og en fargeblindvennlig palett for plott. Fanen Figures velger format og oppløsning for lagrede figurer, og Appearance styrer når verktøytips vises.",
     "Appearance bestemmer hvordan hjelpen vises mens du jobber. Tooltip delay er hvor lenge pekeren må hvile på et element før tipset vises: to sekunder som standard, og null viser tips med en gang. Show tooltips slår dem helt av, og seksjonene Theme og Animation kan brettes ut nedenfor for vinduets utseende.",
-    "Theme og Animation er sammenbrettede seksjoner i Appearance. Klikk Theme for å åpne den: den stiller inn grensesnittets tema og sidens gjennomsiktighet, om felt toner ut mot høyre, og vinduskanten med lengde, hvor tett den følger pekeren, justering, modus og syklus.",
+    "Theme og Animation er sammenbrettede seksjoner i Appearance. Klikk Theme for å åpne den: den stiller inn grensesnittets tema og sidens gjennomsiktighet, om felt toner ut mot høyre, og vinduskanten med lengde, hvor tett den følger pekeren, justering, modus og syklus. Listen Theme har også High contrast, som forsterker kontrasten mellom tekst, kontroller og bakgrunn.",
     "Klikk heller Animation for å åpne den. Den velger den animerte bakgrunnen og paletten, med glidebrytere for detalj, uskarphet, hastighet, størrelse og tetthet, om verktøytips for innstillinger animeres, og bakgrunnen bak innstillingene.",
+    "På fanen Modules bestemmer Session om spaCR åpner siste modul, innstillinger og mappe igjen ved oppstart; dette opptaket starter på nytt. Update channel velger stabile utgivelser eller nattlige bygg, og med Proxy og Certificate bundle fungerer nedlastinger bak en institusjonell proxy.",
+    "Fanen Storage bestemmer hvor lenge spaCR beholder daglige logger, kjørelogger og kjøremapper, og en størrelsesgrense for hver. Under viser hurtigbufferlisten hvor modeller og nedlastinger lagres, med Clear og Move for hver hurtigbuffer.",
+    "Prune now sletter aldri uten å spørre. Med en kort eksempelgrense for kjøremapper lister den opp hva den ville slettet i hver mappe og venter på svar. Klikk Cancel, så fjernes ingenting.",
     "Gå tilbake til Home og klikk på Pipeline overviews for å velge en arbeidsflyt. Begynn med spaCR screens for en samlet bildebasert screening, eller velg en vei for bildeanalyse eller sekvensering for dataene dine. De neste veiledningene viser hvordan modulene henger sammen, og modulleksjonene går deretter gjennom hver oppgave."
   ]
 }

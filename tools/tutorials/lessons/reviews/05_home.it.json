@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
+  "english_sha256": "eb18d52a34f3240828437c3f602194d877db88a10302025cca26655cb528cbac",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -36,8 +36,11 @@
     "In Preferences, scegli un profilo Performance per il tuo computer. Laptop usa meno risorse; i profili più alti consentono più cache e più lavoro in background. Parti da un profilo modesto se la memoria è limitata. Le impostazioni delle analisi restano sotto il tuo controllo in ciascun modulo.",
     "La scheda General di Preferences imposta la lingua dell’interfaccia, la scala del carattere e dell’interfaccia, se il dock delle app resta aperto e una tavolozza adatta ai daltonici per i grafici. La scheda Figures sceglie formato e risoluzione delle figure salvate, e Appearance stabilisce quando compaiono i suggerimenti.",
     "Appearance decide come compare l’aiuto mentre lavori. Tooltip delay è il tempo per cui il puntatore resta su un controllo prima che compaia il suggerimento: due secondi per impostazione predefinita, e zero li mostra subito. Show tooltips li disattiva del tutto, e le sezioni Theme e Animation si aprono sotto per l’aspetto della finestra.",
-    "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo.",
+    "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo. L’elenco Theme offre anche High contrast, che aumenta il contrasto tra testo, controlli e sfondo.",
     "Fai clic invece su Animation per aprirla. Sceglie lo sfondo animato e la sua tavolozza, con cursori per dettaglio, sfocatura, velocità, dimensione e densità, se i suggerimenti delle impostazioni sono animati e lo sfondo mostrato dietro le impostazioni.",
+    "Nella scheda Modules, Session decide se spaCR riapre all’avvio l’ultimo modulo, le impostazioni e la cartella; questa registrazione parte da zero. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale.",
+    "La scheda Storage imposta per quanto tempo spaCR conserva i log giornalieri, i log delle esecuzioni e le cartelle delle esecuzioni, con un limite di dimensione per ciascuno. Sotto, l’elenco delle cache mostra dove sono salvati modelli e download, con Clear e Move per ogni cache.",
+    "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla.",
     "Torna a Home e fai clic su Pipeline overviews per scegliere un flusso di lavoro. Inizia con spaCR screens per uno screening in pool basato sulle immagini, oppure scegli un percorso di analisi delle immagini o di sequenziamento per i tuoi dati. I tutorial successivi mostrano come si collegano quei moduli, e le lezioni dei moduli guidano poi in ciascuna attività."
   ]
 }
