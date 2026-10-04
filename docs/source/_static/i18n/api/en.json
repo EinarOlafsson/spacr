@@ -8427,10 +8427,11 @@
         "e7bd125cfcf2bd7690cbf9d4d3aa8ec8f956b8768801fd3abee16a6754548388",
         "5814b15e2d3f1c5d19e7d2e61e13333560feb2df667e387f67e57fd9ed39730e",
         "9b18cbdfd73e16448552ebbb75cde79c986d544e30d7491891fd1469627cef5a",
-        "87cad01dcedfcaf7f348e74b3b76c2cbce6cfbc94169dd104f338ff15bfcee23"
+        "87cad01dcedfcaf7f348e74b3b76c2cbce6cfbc94169dd104f338ff15bfcee23",
+        "e278986cd2c432a80f1b6bbe0db719a5403631efd133db749982f1412c89167f"
       ],
-      "source_sha256": "0ed9e057b00d8bc9cc9de96f12a41fd7692cfbea8d509424aff04d4863743a28",
-      "text": "Return a labelled copy after source and overlap validation succeeds.\n\n:param frame: Original source frame.\n:param definition: Complete condition configuration.\n:param source: Current source context.\n:returns: Copy with every requested output column; original remains unchanged."
+      "source_sha256": "51e44429c7f39c5ab6a1a8576fd0773caa7f5466c4a3b0462690ab15ac9d8a0b",
+      "text": "Return a labelled copy after source and overlap validation succeeds.\n\n:param frame: Original source frame.\n:param definition: Complete condition configuration.\n:param source: Current source context.\n:returns: Copy with every requested output column; original remains unchanged.\n\nValues are assigned by position, never by Series index alignment:\nduplicated pandas indices are legal input and play no role in condition\nidentity."
     },
     "spacr.condition_annotations.new_definition": {
       "source_blocks_sha256": [
@@ -8468,10 +8469,11 @@
         "9d348a40e98aa090a529c346d3d191bc2a7f20ecbaeba42a8f6253bffed731b1",
         "033a347f83a6feaba58b779bf3ec713c551f82c413b70ead2d4b86c78b89a517",
         "d47ca272b01984ee2223a33664357a8796a6e467fbf326817c5012b7e004de16",
-        "4fdf992728b4c93e29c2ffbc49be4a882554fc4b91fdca68e7509d5efb71826b"
+        "4fdf992728b4c93e29c2ffbc49be4a882554fc4b91fdca68e7509d5efb71826b",
+        "5f9f2931faa64e4af2a4979b385acfb2cb9e0775acb4a6c9a27e4d2c6b16dfea"
       ],
-      "source_sha256": "eb1658bd473227057bb715da90dc5175d49a0806ac6b3ab2eb7d72e8b5c5cae6",
-      "text": "Atomically save a new physical table plus its source and editable rules.\n\n:param path: Existing SQLite source database, never a delimited input file.\n:param name: New table name; physical, view and saved-derived collisions fail.\n:param frame: Working frame including every annotation output column.\n:param definition: Validated annotation rules used for the working frame.\n:param source: Original annotation source context.\n:param merge_definition: Original merged-source configuration, if applicable.\n:returns: Saved table name. A failure rolls back both table and provenance."
+      "source_sha256": "007b83d84db36dfce0eda0e4d0c2d535813bee16f9fb5cf340988d3c55cc603b",
+      "text": "Atomically save a new physical table plus its source and editable rules.\n\n:param path: Existing SQLite source database, never a delimited input file.\n:param name: New table name; physical, view and saved-derived collisions fail.\n:param frame: Working frame including every annotation output column.\n:param definition: Validated annotation rules used for the working frame.\n:param source: Original annotation source context.\n:param merge_definition: Original merged-source configuration, if applicable.\n:returns: Saved table name. A failure rolls back both table and provenance.\n\nReserved metadata is validated before the user table is created, so a\nconflicting unrelated table is never silently repurposed as the receipt\nstore. Reopening and editing are bound to what SQLite actually stored,\nincluding dtype normalization, rather than assuming a pandas to SQL round\ntrip is lossless."
     },
     "spacr.condition_annotations.save_annotated_table.scalar": {
       "source_blocks_sha256": [
@@ -8506,10 +8508,11 @@
       "source_blocks_sha256": [
         "12b616a7143fcb4aed0adb36310bdf473894856b9eb86d82e5186f22d1e7d7d6",
         "3f05835c008fb33b2819b19e1c810d00f962a0369cb239f07c9fa87f51e62c02",
-        "2161d8ed8f1091f545255fe068c2a9558530e66ac5f85cbc595ad478fdc0f40b"
+        "2161d8ed8f1091f545255fe068c2a9558530e66ac5f85cbc595ad478fdc0f40b",
+        "cda75415f33d2b6bce97577d741bc840de927497734e7e9dddda989e4fef2eee"
       ],
-      "source_sha256": "fc54790ed704b60c6e384a82d62d8e94bcb86971b9576d409e2066451ddcd4b3",
-      "text": "Hash table values efficiently while ignoring mutable pandas index labels.\n\n:param frame: Original unannotated source frame.\n:returns: Schema, ordered content digest, and opaque per-row tokens."
+      "source_sha256": "a4bff8776b1a43b2cd1c1521fae64f91d965a280f5c3e070352bbe39030203d2",
+      "text": "Hash table values efficiently while ignoring mutable pandas index labels.\n\n:param frame: Original unannotated source frame.\n:returns: Schema, ordered content digest, and opaque per-row tokens.\n\nHashing is vectorized so large measurement tables stay practical; the final\ndigest binds every row, in order, to the schema and the source definition."
     },
     "spacr.confusion": {
       "source_blocks_sha256": [
@@ -9338,10 +9341,11 @@
         "30b31ab3af9a0fd2923241906afe7a68ef64a744970d3db94f4e71e823b25d94",
         "a755d65aa524b4e701cdb56381033fade2086658ee6dc75b2ca57e3bad5ecb39",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
-        "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818"
+        "df0cbfc8461e60b6d422e6a304b7cc5c2df95262a05d3556c59f572dd13e7818",
+        "b4d2e02a01115d08de9990768b9d3068de6df3925887365d6c5e57f7dcb7f703"
       ],
-      "source_sha256": "cef3fad925dcb6b1c2128bdf471e86702744cea7bff93f292052fe010e8db91d",
-      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment\n      pathogens with, instead of stock ``cpsam``. The pre-SAM\n      ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to\n      ``cpsam``; a PATH to a fine-tune is honoured, and a path that is\n      not there stops the run rather than silently using stock weights.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``motility_analysis`` — when timelapse is enabled, analyze the\n      completed merged frames once per plate, rebuilding measurements\n      from the current masks rather than reusing an older assay table.\n    - ``robustness_report`` — after the masks exist, re-segment a few\n      sampled fields over a small grid of diameters, thresholds and\n      contrast enhancement and write a stability report per object to\n      ``qc/segmentation_robustness_<object>.csv``, flagging the settings\n      the results are fragile to.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``watch_folder`` — keep watching ``src`` and analyse each field as\n      its files arrive and stop changing, with ``watch_pipeline``,\n      ``watch_measure_settings``, ``watch_settle_seconds``,\n      ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather\n      in ``src/spacr_watch``, and a record there lets a restarted watch\n      skip the fields already analysed.\n    - ``microscope_feedback`` — during a ``watch_folder`` run with\n      ``watch_pipeline='mask_measure'``, send the objects matching\n      ``microscope_event_query`` back to the microscope named by\n      ``microscope_driver`` to be imaged again, at stage positions\n      worked out from ``microscope_positions`` and\n      ``microscope_stage_transform``.\n    - ``src`` may also be a cloud address (``s3://``, ``gs://``,\n      ``az://``, ``https://``). An OME-Zarr plate there has only the\n      wells, fields and pyramid level named by ``cloud_wells``,\n      ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a\n      folder under ``cloud_cache``, and the run analyses that folder; a\n      cloud folder of images is mirrored there instead. Credentials come\n      from the standard places, chosen with ``cloud_anonymous``,\n      ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results``\n      copies the measurements folder back to cloud storage.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`. When\n    ``watch_folder`` is set, returns a dict naming the fields analysed,\n    failed and never completed when the watch ends.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction."
+      "source_sha256": "5e7bae4cbe79501ac806ac881eb1ac588dc1b212e610f7853b65322d8b5bf7df",
+      "text": "Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.\n\nGiven a source folder ``src`` of multi-channel images, this pipeline (1)\noptionally consolidates inputs from nested folders, (2) renames files to\nthe Yokogawa layout used downstream, (3) preprocesses per-channel arrays,\n(4) generates masks for cell / nucleus / pathogen / organelle channels\nvia Cellpose (SAM variant), (5) optionally reconciles the cell mask\nagainst nuclei + pathogen overlays, and (6) writes overlay plots and a\n``gen_mask_settings.csv`` next to the outputs.\n\n:param settings: Settings dict; canonicalized via\n    :func:`spacr.settings.set_default_settings_preprocess_generate_masks`.\n    Must include ``src`` and at least one of ``cell_channel``,\n    ``nucleus_channel``, ``pathogen_channel``, or ``organelle_channel``.\n    Key entries the function reads:\n\n    - ``src`` (str or list of str) — image folder(s) to process.\n    - ``metadata_type`` — ``'cellvoyager'`` or ``'auto'`` (uses\n      ``custom_regex`` when set).\n    - ``cell_channel`` / ``nucleus_channel`` / ``pathogen_channel`` /\n      ``organelle_channel`` — 0-based channel indices; ``None`` skips.\n    - ``cell_diameter`` / ``nucleus_diameter`` / ``pathogen_diameter``\n      — Cellpose object diameters in pixels.\n    - ``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment\n      pathogens with, instead of stock ``cpsam``. The pre-SAM\n      ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to\n      ``cpsam``; a PATH to a fine-tune is honoured, and a path that is\n      not there stops the run rather than silently using stock weights.\n    - ``consolidate`` — copy nested images into ``src/consolidated``\n      before processing.\n    - ``preprocess`` / ``masks`` — toggle the two pipeline halves.\n    - ``adjust_cells`` — reconcile cell masks against nuclei+pathogen.\n    - ``timelapse`` — enable trackpy linking; forces\n      ``randomize=False``.\n    - ``motility_analysis`` — when timelapse is enabled, analyze the\n      completed merged frames once per plate, rebuilding measurements\n      from the current masks rather than reusing an older assay table.\n    - ``robustness_report`` — after the masks exist, re-segment a few\n      sampled fields over a small grid of diameters, thresholds and\n      contrast enhancement and write a stability report per object to\n      ``qc/segmentation_robustness_<object>.csv``, flagging the settings\n      the results are fragile to.\n    - ``dry_run`` — validate only: inspect the input folders, print the\n      preflight report and plan and return, without writing anything or\n      loading a model.\n    - ``watch_folder`` — keep watching ``src`` and analyse each field as\n      its files arrive and stop changing, with ``watch_pipeline``,\n      ``watch_measure_settings``, ``watch_settle_seconds``,\n      ``watch_poll_seconds`` and ``watch_idle_minutes``. Results gather\n      in ``src/spacr_watch``, and a record there lets a restarted watch\n      skip the fields already analysed.\n    - ``microscope_feedback`` — during a ``watch_folder`` run with\n      ``watch_pipeline='mask_measure'``, send the objects matching\n      ``microscope_event_query`` back to the microscope named by\n      ``microscope_driver`` to be imaged again, at stage positions\n      worked out from ``microscope_positions`` and\n      ``microscope_stage_transform``.\n    - ``src`` may also be a cloud address (``s3://``, ``gs://``,\n      ``az://``, ``https://``). An OME-Zarr plate there has only the\n      wells, fields and pyramid level named by ``cloud_wells``,\n      ``cloud_fields`` and ``cloud_level`` fetched, as TIFFs, into a\n      folder under ``cloud_cache``, and the run analyses that folder; a\n      cloud folder of images is mirrored there instead. Credentials come\n      from the standard places, chosen with ``cloud_anonymous``,\n      ``cloud_profile`` and ``cloud_endpoint``, and ``cloud_results``\n      copies the measurements folder back to cloud storage.\n    - ``save``, ``plot``, ``verbose``, ``test_mode``, ``n_jobs``.\n\n:returns: ``None`` on a normal run, having written masks, overlays,\n    ``measurements.db`` counts and settings CSVs into subfolders of\n    ``src``. When ``dry_run`` is set, returns instead the list of\n    problems from :func:`spacr.validate.run_preflight`. When\n    ``watch_folder`` is set, returns a dict naming the fields analysed,\n    failed and never completed when the watch ends.\n:raises ValueError: if ``src`` is missing or of the wrong type, or no\n    segmentation channel is defined.\n\nExample:\n    .. code-block:: python\n\n        from spacr.core import preprocess_generate_masks\n        settings = {\n            'src': '/data/plate01',\n            'cell_channel': 0, 'nucleus_channel': 1, 'pathogen_channel': 2,\n            'cell_diameter': 60, 'nucleus_diameter': 20, 'pathogen_diameter': 8,\n            'magnification': 20, 'save': True, 'plot': True,\n        }\n        preprocess_generate_masks(settings)\n\nSee Also:\n    :func:`spacr.io.preprocess_img_data` — the preprocessing half only.\n    :func:`spacr.measure.measure_crop` — downstream feature extraction.\n\nMask writes which object sits in which as its own table in measurements.db.\nThat table is built from Measure's object tables, so before Measure has run\nthere are none, and that is not a failure."
     },
     "spacr.core.preprocess_generate_masks_timelapse": {
       "source_blocks_sha256": [
@@ -13534,10 +13538,11 @@
         "e61f6b324f2818c2b6a0eb7b655f4c288f6b639ac40d710efb553670e939883e",
         "d1535faeb124db0e73c7e838e0ffbdbff55ac9709cfedba3ac64a1622b219b88",
         "35448be657c804a52e0cd05f047731befbd4a390ebfb1fa11aae1e085a429fd7",
-        "d17f1aadd16f0a5ccc989e42ab350d9ed5ed3d89f331871325d652290bd65de5"
+        "d17f1aadd16f0a5ccc989e42ab350d9ed5ed3d89f331871325d652290bd65de5",
+        "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d"
       ],
-      "source_sha256": "7e6a534265d5e75c3bffe744db7803f76513544dc32aadbca13dd60a8fed9115",
-      "text": "Revalidate and materialize a merge without writing source tables.\n\n:param path: Source SQLite database.\n:param definition: Default or acknowledged custom merge configuration.\n:returns: ``(frame, diagnostics)`` with full counts and actual aggregation rules.\n:raises MergeError: Missing keys, changed schemas, cardinality or type violations."
+      "source_sha256": "5fa107eadd5e06d569738f77e45574c6eaf541e4f79332377a6bc5178235425a",
+      "text": "Revalidate and materialize a merge without writing source tables.\n\n:param path: Source SQLite database.\n:param definition: Default or acknowledged custom merge configuration.\n:returns: ``(frame, diagnostics)`` with full counts and actual aggregation rules.\n:raises MergeError: Missing keys, changed schemas, cardinality or type violations.\n\nGenuine base provenance is kept: external names are never turned into image\nidentities just because they happen to be unique. One-to-one joins, once\nvalidated, still go through the same typed plan on their singleton groups,\nso explicit count and nunique overrides stay real. Gate and filter\nidentities use timeID, and the original time_id spelling is preserved too,\nso a chart that selects time_id stays reproducible."
     },
     "spacr.derived_tables.identity_columns": {
       "source_blocks_sha256": [
@@ -14013,10 +14018,11 @@
       "source_blocks_sha256": [
         "7cb2a9f3c889ee1826224517d43a6d8f2a2e513eda16a6643bcbe47851ff40df",
         "6670706f8db19a67a59025bd2be84af4f25d6446a507927474c16f987977c5e4",
-        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334"
+        "2ba4395a4e25ed0d8e7d343fca5e065929c5ef249b404062f9665d72cb929334",
+        "55a3b2e94228e9edd221c361f7e9a588f4087cf35a5b417f691289cb03ae85b3"
       ],
-      "source_sha256": "2c059b51bbc9d1a514f1a3ca1b9592176dcaa01cf8387317b6b29d983f5a3cac",
-      "text": "Say what a drop on Make Masks is, without asking or opening anything.\n\n:param paths: the dropped files and folders, in drop order.\n:returns: a :class:`DropClassification`."
+      "source_sha256": "05b88c0e506c9fa2dbf8b9303791d302d80a36e79baa6f16c597fc3a0a1d45af",
+      "text": "Say what a drop on Make Masks is, without asking or opening anything.\n\n:param paths: the dropped files and folders, in drop order.\n:returns: a :class:`DropClassification`.\n\nspaCR's own output counts only when it is the whole drop. Files named as\nmasks are masks; beside images, label TIFFs are too, but only when a\ndropped image claims them by name, since a clean synthetic image can look\nlike labels. Masks dropped alone open the images they belong to, when those\nare present."
     },
     "spacr.embeddings": {
       "source_blocks_sha256": [
@@ -23335,10 +23341,10 @@
         "8e706691e2915d3ca9fa1817cf3cbdf0b5837f7c383c5d6dc2e02de8f11a954c",
         "a3b35f2c946651a288a913bbc161ac5b96eaa127c996dbbcb8376326d28f6c4f",
         "0652c5caf1f0df7c39d1e6c1c79f43d330c0f02a8d6c1614075702950f791893",
-        "b2d961a623f3c1c9f8c5e74f86bfd5866d7aa710307d692fc4ccee663d91f06b"
+        "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3"
       ],
-      "source_sha256": "fb62f80f1bbcea6678bb87d0c712eacdd0f126dbd75363b084b4816669acfb37",
-      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe standard replacement procedure runs three steps in order:\n\n1. find old spaCR files -- :func:`find_old_installs`\n2. delete old spaCR files -- :func:`remove_install`\n3. install new spaCR -- :func:`run_update_sequence` runs the install only\n   after step 2 removed every installer-made copy.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded.\n    python -I install_cleanup.py run-plan PLAN.json"
+      "source_sha256": "4664935c5708e2759c797cd0a448c5d63ec46f5b1bdd7b323e26cdc2bf0c2610",
+      "text": "Find spaCR installations and run the appropriate update or removal procedure.\n\nThe standard replacement procedure runs three steps in order:\n\n1. find old spaCR files -- :func:`find_old_installs`\n2. delete old spaCR files -- :func:`remove_install`\n3. install new spaCR -- :func:`run_update_sequence` runs the install only\n   after step 2 removed every installer-made copy.\n\nIn-app updates use a different procedure for supported macOS installations.\nAn online installation upgrades spaCR in its existing Python environment\nusing its bundled ``uv`` executable. It keeps the environment, bootstrap\nfiles, application launcher, and installed packages that need no update.\nIt verifies the installed spaCR version before restarting the application.\n\nA supported frozen macOS application uses a verified DMG replacement and\nretains its complete previous application bundle. These macOS update paths\ndo not run the standard deletion procedure. Other frozen application\nfamilies require a supported replacement adapter before an update can start.\n\nRemoval never runs an old version's own uninstaller, so a copy whose\n``Uninstall.exe`` or ``uninstall-spacr.sh`` is missing or broken is removed\nall the same. Preferences and user data are kept: ``~/.spacr``,\n``~/.cache/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``,\n``~/spacr-tutorials``, the Hugging Face cache, and the ``spacr``/``qt``\nsettings (``~/.config/spacr``, the macOS preferences file, and the\n``Software\\spacr`` registry key on Windows).\n\nA pip or conda environment the user made is listed but never deleted; the\nspaCR package is uninstalled from it only when the caller says it was ticked.\nAn editable source checkout is reported and left alone.\n\nThe module uses only the standard library and imports nothing from spaCR, so\nan installer can run it with its bootstrapped Python before any spaCR exists,\nand a helper process can run a copy of it after the running spaCR has closed::\n\n    python -I install_cleanup.py find [--json]\n    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]\n    python -I install_cleanup.py purge [--yes] [--dry-run]\n    python -I install_cleanup.py run-plan PLAN.json\n\n``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,\nbackend environments and user data, after listing them and asking. It never\nruns on its own; ``remove --purge`` runs it after the removal succeeded."
     },
     "spacr.install_cleanup.InstallRecord": {
       "source_blocks_sha256": [
@@ -27848,10 +27854,11 @@
     },
     "spacr.measure._cellprofiler_tables.lookup": {
       "source_blocks_sha256": [
-        "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1"
+        "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1",
+        "beae0390bf53ee34a2347b13ac8b0dceb04fceec38e1503e162642883016d901"
       ],
-      "source_sha256": "c97cdf1bc360a1ba3b3d50b18c3f70e0b3e67dcf7ad7404d7d9f92a285079ae1",
-      "text": "The spaCR label under each centre in ``role``'s mask."
+      "source_sha256": "ba420a71229ecbc5335903ddc3a9b9f0545aa36d1f3c6188a242f9d0d1909123",
+      "text": "The spaCR label under each centre in ``role``'s mask.\n\nA centre outside the image cannot identify an edge object; the check\ncomes before rounding so negative subpixel positions stay unmatched."
     },
     "spacr.measure._confluency_phase_features.log_sd": {
       "source_blocks_sha256": [
@@ -28885,10 +28892,11 @@
         "591147c3d8fe97ea2ca0fc065e8b80ea8538884243666403d6e4270664d1d7c4",
         "14501bf9bd3ed1e2d78666dcecf19368168dd65ab864a2d28536b1c4bcb15fa0",
         "080485822a2bfc67667e1dcd64a1275fea0d16795e650dee1911c08b74a8e3e4",
-        "1033309593b3c4eb0d8fa7fe64d0a1ea52d1feb1d3d1f11ad1685abaf1a3fe12"
+        "1033309593b3c4eb0d8fa7fe64d0a1ea52d1feb1d3d1f11ad1685abaf1a3fe12",
+        "d32a92e9d6a8354116e3221f1f99c2d465a93910cf52057281cac706707c1c11"
       ],
-      "source_sha256": "c8af2cd71b39b96cd45d651cba1964a62f646f52651df608bc42a25d13ad1f16",
-      "text": "Aggregate ``child`` onto its parent, one rule per column.\n\n:param child: child-object rows to group and aggregate.\n:param keys: the parent's identity in the child -- the identity columns\n    plus the parent link.\n:param name: the child table's name, used to prefix its columns.\n:param policy: merge policy supplying per-column aggregation overrides.\n:returns: one row per parent, columns prefixed with ``name``.\n:raises MergeError: the child has none of the keys."
+      "source_sha256": "c3c7ccbcdee6839714ddf536c100fa3b775c74ec425dfc2e65be6c1edf34a94a",
+      "text": "Aggregate ``child`` onto its parent, one rule per column.\n\n:param child: child-object rows to group and aggregate.\n:param keys: the parent's identity in the child -- the identity columns\n    plus the parent link.\n:param name: the child table's name, used to prefix its columns.\n:param policy: merge policy supplying per-column aggregation overrides.\n:returns: one row per parent, columns prefixed with ``name``.\n:raises MergeError: the child has none of the keys.\n\nAn unmeasured group is missing, never a measured zero. Regression and both\ninteractive merge consumers use this same rule."
     },
     "spacr.merge_tables.table_names": {
       "source_blocks_sha256": [
@@ -36005,10 +36013,11 @@
         "3fccfabfe4a894b9b7f92c3c5905b7056235aad7b4be003b4d3dcc5127f2da10",
         "134d84006ac014252349e556eaf7000de503d97be6465d941614376e04836071",
         "74c23cfe07de90bd1b928124549152bac03d741f8a0f4390d2d3ec007c91e6fe",
-        "bb50f5a7a297ec9ce80dde89aa75130e0a65362736f9ba14d9faf6b1f5ed67c1"
+        "bb50f5a7a297ec9ce80dde89aa75130e0a65362736f9ba14d9faf6b1f5ed67c1",
+        "69a908d60ea335f9b72b264e1f1caab2a6eeb69403c196f09d9f4bd3f6a9ac92"
       ],
-      "source_sha256": "0f8c35d38b96dcc3f2d0b4cb5586ddc18457baf4367dcfd3aa96571fffbcca99",
-      "text": "Return an enriched copy and JSON-safe matching/provenance report.\n\nRows, index, order and existing columns are preserved. Multiple original\nimages for one field are deduplicated and sorted, joined with ``'; '``.\nUnmatched values are missing. Existing output columns are never replaced.\nAmbiguous plate or timepoint matches raise ValueError, as do changed maps\nwhen expected_sha256 binds a saved workflow to its reviewed mapping bytes.\n``original_path`` preserves recorded paths, not a promise they still exist.\n\n:param frame: current measurement DataFrame; never modified.\n:param map_path: supported CSV or SQLite database with conversion_map.\n:param expected_sha256: optional digest from an earlier preview. CSV\n    digests bind the exact parsed bytes; SQLite digests bind sorted\n    mapping contents independently of unrelated database writes.\n:param output_column: new filename column name; original_path is also added.\n:returns: (enriched DataFrame, JSON-safe report) with mapping provenance,\n    matched/unmatched row counts and up to ten unmatched identity examples.\n:raises ValueError: for an unsupported or changed map, output collisions,\n    conflicting/ambiguous identities, or zero matches on nonempty data."
+      "source_sha256": "f468c3f2cf8c0fe4c472ac0a62e27f36b645c99a5c83e480fd5570064afb8c6e",
+      "text": "Return an enriched copy and JSON-safe matching/provenance report.\n\nRows, index, order and existing columns are preserved. Multiple original\nimages for one field are deduplicated and sorted, joined with ``'; '``.\nUnmatched values are missing. Existing output columns are never replaced.\nAmbiguous plate or timepoint matches raise ValueError, as do changed maps\nwhen expected_sha256 binds a saved workflow to its reviewed mapping bytes.\n``original_path`` preserves recorded paths, not a promise they still exist.\n\n:param frame: current measurement DataFrame; never modified.\n:param map_path: supported CSV or SQLite database with conversion_map.\n:param expected_sha256: optional digest from an earlier preview. CSV\n    digests bind the exact parsed bytes; SQLite digests bind sorted\n    mapping contents independently of unrelated database writes.\n:param output_column: new filename column name; original_path is also added.\n:returns: (enriched DataFrame, JSON-safe report) with mapping provenance,\n    matched/unmatched row counts and up to ten unmatched identity examples.\n:raises ValueError: for an unsupported or changed map, output collisions,\n    conflicting/ambiguous identities, or zero matches on nonempty data.\n\nUnparseable legacy names can still be restored by their exact target, and a\ntimed filename refines an untimed prcf without merging timepoints."
     },
     "spacr.outlier_filter": {
       "source_blocks_sha256": [
@@ -39580,10 +39589,11 @@
         "5344804e7fa73843a8221b286fe316348e3ed0eb42d3c0cf3a82a1e81c869764",
         "cb17b2385937e83eb33530e92c0d65718db3896862126336d7b033347fff85c1",
         "52954824d7f15d9bc6e0607035172f86060e2844ac2bb53b20479675d3cc3f81",
-        "1529fd8236a079fba95538152e8b1bd0750f75e2ceab0f8725ebd1bec0cd942a"
+        "1529fd8236a079fba95538152e8b1bd0750f75e2ceab0f8725ebd1bec0cd942a",
+        "97ad1473524ac9bd245f9285e433b6942a07316f801380d7788b4cfe8d015d1f"
       ],
-      "source_sha256": "19bb37a42043e16d791689d5f1c10b27d692209a4323f8187e28ccdec8be189b",
-      "text": "Versioned extension SDK for third-party spaCR plugins.\n\nPlugins are ordinary Python distributions exposing one entry point in the\n``spacr.plugins`` group.  The entry point may resolve to a\n:class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a\nzero-argument factory returning either.  Discovery is lazy, deterministic and\nfailure-isolated: one malformed plugin is recorded in :func:`diagnostics`\nwithout preventing spaCR or the remaining plugins from loading.\n\nFor editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a\ncomma-separated list of ``module`` or ``module:attribute`` references.\nInstalled plugins should always use package entry points instead.\n\nPlugins and assay recipes can also be installed from a catalogue, a JSON\nfile listing each entry's version, author and licence. A catalogue plugin is\ninstalled into its own folder under ``~/.spacr/plugins`` (or\n``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never\nreplaces or upgrades a package spaCR itself uses; it is discovered like any\nother plugin until it is uninstalled.\n\nSetting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on``\n(case-insensitively) skips discovery entirely, so no plugin loads from either\nsource."
+      "source_sha256": "8a1c06cf81e4b34b06f853b8cbb9bc338ee89ff34e9a1ae5ba63183c27923532",
+      "text": "Versioned extension SDK for third-party spaCR plugins.\n\nPlugins are ordinary Python distributions exposing one entry point in the\n``spacr.plugins`` group.  The entry point may resolve to a\n:class:`SpacrPlugin`, a mapping accepted by :func:`plugin_from_mapping`, or a\nzero-argument factory returning either.  Discovery is lazy, deterministic and\nfailure-isolated: one malformed plugin is recorded in :func:`diagnostics`\nwithout preventing spaCR or the remaining plugins from loading.\n\nFor editable/local development, ``SPACR_PLUGIN_MODULES`` may contain a\ncomma-separated list of ``module`` or ``module:attribute`` references.\nInstalled plugins should always use package entry points instead.\n\nPlugins and assay recipes can also be installed from a catalogue, a JSON\nfile listing each entry's version, author and licence. A catalogue plugin is\ninstalled into its own folder under ``~/.spacr/plugins`` (or\n``SPACR_PLUGIN_HOME``), together with the libraries it asks for, so it never\nreplaces or upgrades a package spaCR itself uses; it is discovered like any\nother plugin until it is uninstalled.\n\nSetting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on``\n(case-insensitively) skips discovery entirely, so no plugin loads from either\nsource.\n\nTwo locks guard the registry: registry readers hold _LOCK only for snapshot\naccess and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem\nand module changes without blocking cached registry reads."
     },
     "spacr.plugins.AppContribution": {
       "source_blocks_sha256": [
@@ -52915,10 +52925,11 @@
       "source_blocks_sha256": [
         "46fdfdedbef165348cb3a9a8ce96ca9f3f35c930619ce42814f7a01f24565da3",
         "0a5f91e835fd601429dddbfee739c5a85c0beeef9f2b5e07e02f1d20bd4cedc4",
-        "964c9b6db319f835efd83ca8ae29c2dbae41ef5128973248f14bc29f4c908201"
+        "964c9b6db319f835efd83ca8ae29c2dbae41ef5128973248f14bc29f4c908201",
+        "8d23e93dec2a3d949d11ab0412a25b890fe2d47268e37069313e6a36a8380b8c"
       ],
-      "source_sha256": "eb6876f6e193a7128f7f3d6f7dfb40def75e296ad931321c86900cf1efc246d5",
-      "text": "Build a live synchronized quality selector.\n\n:param parent: owning widget, if any.\n:returns: a combo whose item data uses stable untranslated quality keys."
+      "source_sha256": "7f7e0ca65c42f57525f3f7d7f3cd10a19ee5f9f31df381817bdbfc2b15c5f636",
+      "text": "Build a live synchronized quality selector.\n\n:param parent: owning widget, if any.\n:returns: a combo whose item data uses stable untranslated quality keys.\n\nThe slot is connected with a context QObject, so it disconnects\nautomatically when that object is destroyed."
     },
     "spacr.qt.mask_thumbnail_quality.quality_combo._Sync.update": {
       "source_blocks_sha256": [
@@ -63384,10 +63395,11 @@
       "source_blocks_sha256": [
         "c70b59e87212560f46da4604863fb370fc5d4d20afd6bbfb3653d78b7264e74a",
         "621906b86c1c3f24b16049af0aeb1d1566fa7f852150c66c0f25d0616887d3e7",
-        "0386a2e9f93dea6d90861432f85cf91a2dc4d8e7054d75a90490d31d340c5a19"
+        "0386a2e9f93dea6d90861432f85cf91a2dc4d8e7054d75a90490d31d340c5a19",
+        "7db6e8767cf6a6c32ed427afb45b495235c9b3ac63d7aa536f2521018f9c4ce4"
       ],
-      "source_sha256": "7da02a5f7010fb65ae4300a9c44603974e2774b0f7c91e4876426c124f317d92",
-      "text": "Export working values and reproducible conditions without replacing input.\n\n:param path: Destination CSV file. A .conditions.json sidecar stores rules.\n:returns: Destination path."
+      "source_sha256": "d5da696467389eee192129bb6ef126918dcd8e137d052449c94d6e9cabdb9db0",
+      "text": "Export working values and reproducible conditions without replacing input.\n\n:param path: Destination CSV file. A .conditions.json sidecar stores rules.\n:returns: Destination path.\n\nBoth files are prepared before either destination is replaced, so a\nfailed CSV conversion never leaves a receipt describing an export that\ndid not run."
     },
     "spacr.qt.screens.graph_builder.GraphBuilderScreen.is_busy": {
       "source_blocks_sha256": [
@@ -65930,10 +65942,11 @@
     },
     "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed": {
       "source_blocks_sha256": [
-        "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0"
+        "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0",
+        "09ef2191d39f0b2ba820669ba55926defe60cfc7d15fe7809ae7e0f8ab77b8ff"
       ],
-      "source_sha256": "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0",
-      "text": "Stop the job runner when the panel object is destroyed."
+      "source_sha256": "0b2a6fcd773d52b23f06f0fd839034e12ba2b806a66b73c92ff9a2db717dcceb",
+      "text": "Stop the job runner when the panel object is destroyed.\n\nDestruction may follow a reopen, after the initial token retired;\nthis state stays usable without touching the destroyed widget."
     },
     "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel._path_row.browse": {
       "source_blocks_sha256": [
@@ -70270,10 +70283,11 @@
         "be88f381350de7124a5bd9b3c437ee6acac8c769228df0916aee1c0b4add8ef8",
         "ecebde4d4c638f0cb9427edca0a2f169f719b1cfc6d114bdae9be01435cabd35",
         "311bc5ea0d6678b2449dacac504fd01f1a385f3da4b8bb9c3765a4562472e7ad",
-        "0b565c3eb5a366e7a84c889fd0f0eaf3d3df2f66b13adf2d520c8a5795e60310"
+        "0b565c3eb5a366e7a84c889fd0f0eaf3d3df2f66b13adf2d520c8a5795e60310",
+        "a275776c06c4f4dbfb95ae815a4c7ee1776c85a4c6ca7dabfaaaeaa00fe7f342"
       ],
-      "source_sha256": "12ada1e2f56dbeb9ca384d7483a5d10ad835f8c0d49af92d43450d800991b173",
-      "text": "Which object a setting belongs to, or None for the great majority.\n\nOrganelle slots are resolved by :mod:`spacr.organelle_types`, which owns\nthe slot naming: the prefixes are lettered -- ``organelle``,\n``organelleb``, ... -- and ``organelle`` is a prefix of every other one,\nso the match has to be longest-first and belongs where the names are\ngenerated rather than being written out a second time here.\n\nBoth spellings of the other three are understood, ``cell_min_size`` and\n``remove_background_cell``, the way\n``spacr.settings.advanced_object_of`` understands them: spaCR is not\nconsistent about which end of a key the object name goes on, and a rule\nthat knew only one end would leave half a family on screen.\n\n:param key: setting key; an organelle-slot prefix, or a\n    ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object."
+      "source_sha256": "869cc948136941194b3c8ea0e9e6b57f0db808783baaab3cd79a492c81eb0272",
+      "text": "Which object a setting belongs to, or None for the great majority.\n\nOrganelle slots are resolved by :mod:`spacr.organelle_types`, which owns\nthe slot naming: the prefixes are lettered -- ``organelle``,\n``organelleb``, ... -- and ``organelle`` is a prefix of every other one,\nso the match has to be longest-first and belongs where the names are\ngenerated rather than being written out a second time here.\n\nBoth spellings of the other three are understood, ``cell_min_size`` and\n``remove_background_cell``, the way\n``spacr.settings.advanced_object_of`` understands them: spaCR is not\nconsistent about which end of a key the object name goes on, and a rule\nthat knew only one end would leave half a family on screen.\n\n:param key: setting key; an organelle-slot prefix, or a\n    ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.\n\nremove_background_organelle_7 is slot 7's switch: its last token is a\nnumber, not a slot prefix."
     },
     "spacr.qt.screens.settings_model.object_switch_keys": {
       "source_blocks_sha256": [
@@ -71697,10 +71711,11 @@
         "2fbfa317c12cf8ab1293186638ade7285e8d9c9d4bf59f9f811ea2c1ebfeb13b",
         "b1f48766f0fbd038206a6566ba41e8d82d9249b242a80e86819145697f07ad1e",
         "6e6f0b8e0c249d6ac5c85a52ca2df3df3f29c1136ebc32480cf7f4c4dd8ce060",
-        "fc70079c9307a138112458e5b5beead4807f7ebbf6b3c8d70ef9956794d6683a"
+        "fc70079c9307a138112458e5b5beead4807f7ebbf6b3c8d70ef9956794d6683a",
+        "0f16f27f348346ee83cadc7004e87795c19f500c3a0e96cdb39152ebbd36dc23"
       ],
-      "source_sha256": "6f75cebde10192dae2dc605795341a4f55495a00c36f270c022c4aa352654a71",
-      "text": "Show one setting with every other category shut.\n\nWHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the\nsearch filter. Typing the key into the box above would hide every other\nsetting as well, so a user who arrived from the Help search and then\nwanted to look at the neighbouring rows would first have to work out\nwhat had happened to the form. Revealing instead leaves the module\nwhole and only decides which heading is open.\n\nNothing is rebuilt and no value is read or written: the row was\nalready on the form, and this shows its section and scrolls to it --\nor, for a category not built yet (indexed with no field), the screen\nbuilds it first, as opening it would.\nThat is what makes arriving here from a search safe for a half-typed\nvalue -- the same property the filter has, for the same reason.\n\nTHE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE\nIS NEVER REMEMBERED. Switching to All settings unconditionally would\nwork, and it would also rewrite this module's remembered\nEssentials/All choice every time anybody arrived here -- a setting\nthe user chose, changed as a side effect of looking something up. So\nthe filter is cleared first and the level is raised only when the row\nis still not on the form afterwards, which is exactly the case where\nEssentials is what is hiding it; and the raise goes through\n:meth:`_show_all_without_remembering`, so the form shows the row\nwhile the store still holds the level the user picked. Most settings\nare not essentials, so a lookup that persisted the raise would move\nalmost every module out of Essentials for good.\n\n:param key: the setting to reveal.\n:returns: True when the module renders ``key`` and it was revealed."
+      "source_sha256": "64841af6e0f6e7285c9af5be290f5620323e0dbd9540aa82b9ffc5ef73bede21",
+      "text": "Show one setting with every other category shut.\n\nWHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the\nsearch filter. Typing the key into the box above would hide every other\nsetting as well, so a user who arrived from the Help search and then\nwanted to look at the neighbouring rows would first have to work out\nwhat had happened to the form. Revealing instead leaves the module\nwhole and only decides which heading is open.\n\nNothing is rebuilt and no value is read or written: the row was\nalready on the form, and this shows its section and scrolls to it --\nor, for a category not built yet (indexed with no field), the screen\nbuilds it first, as opening it would.\nThat is what makes arriving here from a search safe for a half-typed\nvalue -- the same property the filter has, for the same reason.\n\nTHE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE\nIS NEVER REMEMBERED. Switching to All settings unconditionally would\nwork, and it would also rewrite this module's remembered\nEssentials/All choice every time anybody arrived here -- a setting\nthe user chose, changed as a side effect of looking something up. So\nthe filter is cleared first and the level is raised only when the row\nis still not on the form afterwards, which is exactly the case where\nEssentials is what is hiding it; and the raise goes through\n:meth:`_show_all_without_remembering`, so the form shows the row\nwhile the store still holds the level the user picked. Most settings\nare not essentials, so a lookup that persisted the raise would move\nalmost every module out of Essentials for good.\n\n:param key: the setting to reveal.\n:returns: True when the module renders ``key`` and it was revealed.\n\nA nested heading is reachable only with every containing heading open,\nand logical ancestry also crosses bodies parked off the widget tree."
     },
     "spacr.qt.settings_search.SettingsSearchBar.revealed_key": {
       "source_blocks_sha256": [
@@ -77811,10 +77826,11 @@
     },
     "spacr.qt.widgets.calibration_preview._attach_preview.open_preview": {
       "source_blocks_sha256": [
-        "5fa3e8ff04592b19ad9cabd1a6d547dca31df0c9ac230a883da6d77ecad07982"
+        "5fa3e8ff04592b19ad9cabd1a6d547dca31df0c9ac230a883da6d77ecad07982",
+        "b1505c5c010dd6ef2f9efb44a5a1f97b883d1baa4863705c4427de03c13d702b"
       ],
-      "source_sha256": "5fa3e8ff04592b19ad9cabd1a6d547dca31df0c9ac230a883da6d77ecad07982",
-      "text": "Open the gains preview for the current settings."
+      "source_sha256": "4183b821dca070d477ed6dd8a8fe4de77bf6876914859bd563a5f76a84e94496",
+      "text": "Open the gains preview for the current settings.\n\nClosing detaches safely, and a second dialog never duplicates a\nstill-running scan parked by the first."
     },
     "spacr.qt.widgets.calibration_preview._attach_preview.open_preview.retired": {
       "source_blocks_sha256": [
@@ -78923,10 +78939,11 @@
         "a70bf2d842e6d1c3a37ee4f6934abb85dcc2649d852d162111223205c40e1e11",
         "ec6df8d27b64749e9f6c99fdcf13122066024cf973b503c44ed93fdedde86699",
         "c89e105e3b16eb3fc4b3538a4326c44736837843f61b265da262a181e43b9a9d",
-        "9f811bfef96389a123fcf3d93f951922a0085c0d4ebfd0520c9ee9e0d77b1adb"
+        "9f811bfef96389a123fcf3d93f951922a0085c0d4ebfd0520c9ee9e0d77b1adb",
+        "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c"
       ],
-      "source_sha256": "6cd8e659f248abeb9f409ac31827f123d39e598bd367e7ef73720436715b2d84",
-      "text": "Draw the existing tab with its arrow at 75 percent of baseline.\n\n:param painter: active painter on the handle.\n:param rect: unchanged clickable handle rectangle.\n:param orientation: splitter orientation (horizontal means a vertical bar).\n:param towards_start: point left/up when true, right/down otherwise.\n:param palette: active theme colors.\n:param hovered: whether to accent the glyph and tab border."
+      "source_sha256": "7000ce94d42cdb0b9f090c6abec541a76aa1c100556eb3ef9133e5d67e621464",
+      "text": "Draw the existing tab with its arrow at 75 percent of baseline.\n\n:param painter: active painter on the handle.\n:param rect: unchanged clickable handle rectangle.\n:param orientation: splitter orientation (horizontal means a vertical bar).\n:param towards_start: point left/up when true, right/down otherwise.\n:param palette: active theme colors.\n:param hovered: whether to accent the glyph and tab border.\n\nOnly the baseline glyph is scaled; the painted tab and the hit target stay\nput."
     },
     "spacr.qt.widgets.collapsible_section": {
       "source_blocks_sha256": [
@@ -80115,10 +80132,11 @@
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work": {
       "source_blocks_sha256": [
-        "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb"
+        "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb",
+        "920afb0e9827754672aa2a29e0897299304cf236e58244e2c7ec6cd4030fa520"
       ],
-      "source_sha256": "23f0128f1fa2d93d27be350915531bd79788aecbbe8f7be0ca8140c03142cfeb",
-      "text": "Preview the draft in a worker and apply it to a copy of the table."
+      "source_sha256": "169a560058555f795acf4083c662f7c73a194050e276e52bcff3012959db098a",
+      "text": "Preview the draft in a worker and apply it to a copy of the table.\n\nFailures travel through the generation-guarded result channel too,\nso a slow invalid draft cannot disable a newer valid preview."
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.reject": {
       "source_blocks_sha256": [
@@ -80144,10 +80162,11 @@
         "d16f185ec163f182662f4f38e520fd46c047019496a08bae8afe5786008ffc61",
         "063e539aad9854a9cb6fdb5f1a826d0986ea787bc2cb837e7cb105c71bcd869e",
         "1ee991ed42fdea668acad11abaddc212e38b588919d8f50b44a79cd4d2da78bf",
-        "fdc2d7a5ba0b61280eba48d6237cf314e9527c8aaeaca003696420ef09a9740c"
+        "fdc2d7a5ba0b61280eba48d6237cf314e9527c8aaeaca003696420ef09a9740c",
+        "2ffa40daa0f02e01a160a76eab4d285b5e6889100660d1d18af838e1981a0708"
       ],
-      "source_sha256": "5c44b88764d9fe1317139a75421864330cd7c836efdd00d91d13649d1ae92e8e",
-      "text": "One named condition with explicit metadata rules and dropped source rows.\n\n:param source_model: Immutable source rows and token mapping.\n:param condition: Condition definition copied into editable controls.\n:param parent: Owning annotation dialog.\nPlace metadata column, include and exclude controls at the top.\n\n:param source_model: Source data model.\n:param condition: Initial condition definition.\n:param parent: Owning widget."
+      "source_sha256": "d4ec82b7780085815b0651d7d002dc4272b500a739077ddd3c3c1739a986ee34",
+      "text": "One named condition with explicit metadata rules and dropped source rows.\n\n:param source_model: Immutable source rows and token mapping.\n:param condition: Condition definition copied into editable controls.\n:param parent: Owning annotation dialog.\nPlace metadata column, include and exclude controls at the top.\n\n:param source_model: Source data model.\n:param condition: Initial condition definition.\n:param parent: Owning widget.\n\nOld recipe and API editing is preserved: entering a legacy regex\nexplicitly switches to its editor rather than silently ignoring the\nexpression."
     },
     "spacr.qt.widgets.condition_annotation_dialog.ConditionBox.add_mime_rows": {
       "source_blocks_sha256": [
@@ -94269,10 +94288,11 @@
         "14335f9485e1de8ef65e4dfa1141eed0a1ee56a14d2c41e6064ba2465723da0d",
         "73199181038d3370904ba1508e189131041dca4e26d43bb771b0fe5b38af6294",
         "95a37d7ea3eb9559241baf6fb479b3f947b37cdca17da7dc0b2f79154373493e",
-        "e636c9a5e065606e08467ef093bed07ecf23096c3a46dbc5b01affab4164016b"
+        "e636c9a5e065606e08467ef093bed07ecf23096c3a46dbc5b01affab4164016b",
+        "a30e5421cfc0b45f7c202d0b587c45901c31289623ce0c7c335d6d5e18defc87"
       ],
-      "source_sha256": "2ecd95e7650c860016e0284b05503c896ba873e4c0dc1002f942a67156d62dea",
-      "text": "Explain incomplete or incompatible bindings, or return an empty string.\n\nA pinned plot kind survives channel edits. Its temporary inability to\ndraw is an editable state, not an invalid spec or a reason to silently\nchoose another chart. The map must describe all available columns,\nincluding role overrides, as returned by :meth:`kinds_for`.\n\n:param kinds: column kinds for the current table.\n:returns: an actionable canvas message, or ``\"\"`` when drawable."
+      "source_sha256": "bea703dd770171eba12bf473f6bebf1a87180e54e32de981d3642796b1fabe5d",
+      "text": "Explain incomplete or incompatible bindings, or return an empty string.\n\nA pinned plot kind survives channel edits. Its temporary inability to\ndraw is an editable state, not an invalid spec or a reason to silently\nchoose another chart. The map must describe all available columns,\nincluding role overrides, as returned by :meth:`kinds_for`.\n\n:param kinds: column kinds for the current table.\n:returns: an actionable canvas message, or ``\"\"`` when drawable.\n\nExplicit bars also support a low-cardinality numeric Y (classified as\ncategorical) and fall back to counts when Y has no numeric values."
     },
     "spacr.qt.widgets.graph_spec.GraphSpec.channels": {
       "source_blocks_sha256": [
@@ -97143,10 +97163,11 @@
       "source_blocks_sha256": [
         "12d5a083c3423f0d2639dc69891a6d0724aca214eb7c55cfe443f24a8c9ea5fa",
         "fedd3e5e5083565461098d68f4bcea6db35f4f287adc2cb984bd96603eb05307",
-        "3e4cc3a4150457171aea576b88781b3034ce896d90992f27994e4f6a80243d33"
+        "3e4cc3a4150457171aea576b88781b3034ce896d90992f27994e4f6a80243d33",
+        "c2a8ce765ba2327ad5bb9763e76ccb63884aba1fb0a1591832ff94f9ccc031bd"
       ],
-      "source_sha256": "44847f8c831ec859c6f0771c884e5eed5b8b40ccabb8652989ef52cb06ddda74",
-      "text": "Re-crop the loaded array and redraw the grid.\n\nDispatches: the crop pass runs on a worker and the grid is rebuilt when\nit lands. Every knob in the Crop settings dialog is wired to this, so\nit used to freeze the window for 1441 ms per spinbox step on a\n1024x1024x8 array. Re-cropping supersedes by token, so dragging a\nspinbox through ten values draws the last one rather than all ten.\n\nSays why when it cannot: returning in silence left the button doing\nnothing with nothing on the status line, which is the one thing no\nlive view may do."
+      "source_sha256": "a6b9d5bb09ac437fa71fc2136892044a297952fec185c34920a7484d8f7db307",
+      "text": "Re-crop the loaded array and redraw the grid.\n\nDispatches: the crop pass runs on a worker and the grid is rebuilt when\nit lands. Every knob in the Crop settings dialog is wired to this, so\nit used to freeze the window for 1441 ms per spinbox step on a\n1024x1024x8 array. Re-cropping supersedes by token, so dragging a\nspinbox through ten values draws the last one rather than all ten.\n\nSays why when it cannot: returning in silence left the button doing\nnothing with nothing on the status line, which is the one thing no\nlive view may do.\n\nSpinbox drags call refresh repeatedly in one event-loop turn, so the\nold grid is cleared once for the latest token and only its result is\ndrawn."
     },
     "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.run_preview": {
       "source_blocks_sha256": [
@@ -99897,10 +99918,11 @@
     "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys": {
       "source_blocks_sha256": [
         "1e0225b5432eeaffa900e5fb4c2af70663f425cc5e62277bd887a698a83bb179",
-        "762be52ce9c7b8d7702c393fd7af1000022cfd13c0cda417b0e8e55b054f64e2"
+        "762be52ce9c7b8d7702c393fd7af1000022cfd13c0cda417b0e8e55b054f64e2",
+        "b8e96b8356223c98e5b893b26ed489ad3876413cfbb5512590f975755a5edcc5"
       ],
-      "source_sha256": "a77e08c085114b558a69eac9277cacb634b4c4bfd566109a13ac83e549aabe27",
-      "text": "The settings keys the grid answers, as the panel now stands.\n\nRead from the panel every time rather than remembered, because a\npanel hides the settings of an object whose channel names no plane\nand the grid must not claim a key that is no longer there."
+      "source_sha256": "95211c6fc437e711497e002f9d2c7887f8e97a6b4812ffdd4c0b135ed004cf49",
+      "text": "The settings keys the grid answers, as the panel now stands.\n\nRead from the panel every time rather than remembered, because a\npanel hides the settings of an object whose channel names no plane\nand the grid must not claim a key that is no longer there.\n\nColumns hidden because their channel is unset are still claimed, so\ntheir rows stay off the flat form; their channels are not claimed,\nbecause a hidden object's channel on the form is how it is brought\nback."
     },
     "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.seed": {
       "source_blocks_sha256": [
@@ -99955,10 +99977,11 @@
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle": {
       "source_blocks_sha256": [
         "e73b3ec7b587b8ecf5d3e7b101e3290f09af500053f09732d469381b2b716110",
-        "595a9d9d36f9e59e44bf2ad38a18d9a22ea547ec82a10d264186c132d380d65f"
+        "595a9d9d36f9e59e44bf2ad38a18d9a22ea547ec82a10d264186c132d380d65f",
+        "207a477c86154ebdeaf78715d876c0b7790ca0e3298d9d860d6e89558cd757c3"
       ],
-      "source_sha256": "4068419a8e94031ca785b7dd2f5b2327546cd00d0131ae419f26ceb8e390e8f8",
-      "text": "Add the next organelle column, seeded from the first one.\n\n:returns: False when there is no slot left, with the reason on screen\n    rather than as an exception into a GUI slot."
+      "source_sha256": "1c9f492d9ddc7b6be113a78b14c9ef2c9314b5ca453bac02c899fec3587d23b3",
+      "text": "Add the next organelle column, seeded from the first one.\n\n:returns: False when there is no slot left, with the reason on screen\n    rather than as an exception into a GUI slot.\n\nA slot whose channel is unset is hidden."
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.choose_model_for": {
       "source_blocks_sha256": [
@@ -99998,10 +100021,11 @@
       "source_blocks_sha256": [
         "52a50c34cfca98862fff73db0103a3ff6dfbf97206217c922ae1c015466cfd95",
         "615cc6b3acf113fbc58d65c66b99069e885559cac7ce8e185f27c77aada401eb",
-        "e5dfdb4af09ea26cf1abc2e7413d7704c205690f35772fef97b1769529a6e743"
+        "e5dfdb4af09ea26cf1abc2e7413d7704c205690f35772fef97b1769529a6e743",
+        "6aac0dfc03098a082d0002503adef18ab6b92905aa0eeb9dfef62f86a80835b2"
       ],
-      "source_sha256": "5c80728da32179f26a06f62739ddd6ce1cc6788fec0ee523ae0678654212ac7c",
-      "text": "The role the next organelle column would take, or ``''``.\n\nEmpty at the ceiling. Slot names are lettered -- an object type is\nembedded in an underscore-separated object key, so a digit would be\nambiguous against the object LABEL -- and the lettering CARRIES past\n``z``, so the ceiling is where two letters run out rather than one.\n\nCOUNTS UP FROM THE SLOTS IN USE rather than from one. Walking every\nslot from the start was fine while there were 26; there are now 702,\nand the caller that presses Add repeatedly turned an O(slots) scan\ninto an O(slots squared) one."
+      "source_sha256": "054545e5be79fa6a4add93ad7ac7a82cfbb88c2fbbc81732a8d02f303259b49a",
+      "text": "The role the next organelle column would take, or ``''``.\n\nEmpty at the ceiling. Slot names are lettered -- an object type is\nembedded in an underscore-separated object key, so a digit would be\nambiguous against the object LABEL -- and the lettering CARRIES past\n``z``, so the ceiling is where two letters run out rather than one.\n\nCOUNTS UP FROM THE SLOTS IN USE rather than from one. Walking every\nslot from the start was fine while there were 26; there are now 702,\nand the caller that presses Add repeatedly turned an O(slots) scan\ninto an O(slots squared) one.\n\nHidden slots count as in use too."
     },
     "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.objects": {
       "source_blocks_sha256": [
@@ -100309,10 +100333,11 @@
         "4d4eda03aac613dbdc47dfafe4fcd371e521bfd627313feecb6471f8abf1d7b2",
         "36dbf6c3c4c25be8f2680dc5d420957758f46935e4f07ee97f4b6e452e75713b",
         "2facb0e5ff8aad94c303616963c1b9c26fa93314472c23b42414a9934b267838",
-        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a"
+        "a29ee4e01cd895f219234770e0346394dc467bac4021ee201a27a54c9e15a04a",
+        "337cce1126b5bde25c5f3a2b973a0d55ac0171d22fe5c7e98b1e474f6e8867da"
       ],
-      "source_sha256": "6743d358f60f4cae531330030c38531bc0ae1d25ae0198f520a584780525ac2c",
-      "text": "Put images and masks into channel folders and ``merged/`` for Measure.\n\n:ivar plan: the confirmed :class:`spacr.channel_sorting.SortPlan` once the\n    dialog is accepted, else None.\n:ivar columns: the table's columns, in order.\n:ivar rows: one list per field, one path or None per column.\nBuild the popup, prefilled from a drop when there was one.\n\n:param source: the source folder, if known.\n:param parent: the Qt parent.\n:param channel_folders: folders to put in the table, one channel\n    column each (their masks from each folder's ``masks/``) -- the\n    Make Masks drop of several folders or of channel-like\n    subfolders.\n:param masks_dir: the source's masks folder, when not its ``masks/``."
+      "source_sha256": "c454901af8733a9e2352c24971000cee105026c78cf34abe798856919696bab7",
+      "text": "Put images and masks into channel folders and ``merged/`` for Measure.\n\n:ivar plan: the confirmed :class:`spacr.channel_sorting.SortPlan` once the\n    dialog is accepted, else None.\n:ivar columns: the table's columns, in order.\n:ivar rows: one list per field, one path or None per column.\nBuild the popup, prefilled from a drop when there was one.\n\n:param source: the source folder, if known.\n:param parent: the Qt parent.\n:param channel_folders: folders to put in the table, one channel\n    column each (their masks from each folder's ``masks/``) -- the\n    Make Masks drop of several folders or of channel-like\n    subfolders.\n:param masks_dir: the source's masks folder, when not its ``masks/``.\n\nThe layout puts the fields on aligned rows at the top, every action\nbutton on one line below them, then the view controls over the table."
     },
     "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog.add_column": {
       "source_blocks_sha256": [
@@ -117540,10 +117565,11 @@
         "0bd5c1eea2376f10eaf3ee1b4435784fadaae0f20a000f52bed1fc04e3250ff7",
         "155ba524fc152b8be353f2d95abf6d7c7f18fc06dc01958444e00a284858e2a1",
         "74045502865d03b13b3c4e2cdb554874d8d5114489db5c0ff71f516afbf421eb",
-        "e1e0b97061c7c68475fb47db2612c0a808cfa4588aa0bfca9715853ece568a33"
+        "e1e0b97061c7c68475fb47db2612c0a808cfa4588aa0bfca9715853ece568a33",
+        "8edef43ee56e34ce1b5582fc62ee805b399e6a06e9c4fcf623d27a4de1c83534"
       ],
-      "source_sha256": "dfa5ba8a03dcd90978126f20af1ddbdb6c6622a0e93fc2c338e58aa1f5f44fda",
-      "text": "Score a bounded curation queue headlessly and persist its ranking.\n\n:param queue: an existing CurationQueue; only its pending selected fields run.\n:param model: primary model name or checkpoint, default cpsam.\n:param second_model: optional distinct second model; absent means four passes.\n:param device: Device used for model predictions. The default is ``cpu``.\n:param map_folder: optional folder for lossless maps and embedded provenance.\n:param parameters: inference overrides for diameter, normalize and thresholds.\n:param progress: optional callback receiving one completed field's stem.\n:param segmenter_factory: injectable model/device/parameters loader for tests.\n:returns: Dictionary of score summaries keyed by image filename without\n    its extension. Each summary excludes the pixel map.\n:raises ValueError: for duplicate ensemble models or a field that cannot run."
+      "source_sha256": "f4362095a30c35ab633dab5c833d7a14144532aaa32a8333aa771a7ab14102a0",
+      "text": "Score a bounded curation queue headlessly and persist its ranking.\n\n:param queue: an existing CurationQueue; only its pending selected fields run.\n:param model: primary model name or checkpoint, default cpsam.\n:param second_model: optional distinct second model; absent means four passes.\n:param device: Device used for model predictions. The default is ``cpu``.\n:param map_folder: optional folder for lossless maps and embedded provenance.\n:param parameters: inference overrides for diameter, normalize and thresholds.\n:param progress: optional callback receiving one completed field's stem.\n:param segmenter_factory: injectable model/device/parameters loader for tests.\n:returns: Dictionary of score summaries keyed by image filename without\n    its extension. Each summary excludes the pixel map.\n:raises ValueError: for duplicate ensemble models or a field that cannot run.\n\nThis is pure image I/O: mask_engine imports no PySide6 and creates no Qt\nobjects. Each completed field is saved as it finishes, so it is recoverable\nif a later field or model fails."
     },
     "spacr.segmentation_uncertainty.compute_uncertainty": {
       "source_blocks_sha256": [
@@ -117565,10 +117591,11 @@
         "c2ec100f38ae92e23fcbb29849c9e2c829d37f593e5c6959781d6a2842632f8a",
         "543066274a7cf76cb9241baa150f086bbe62d70939783843366055e4ddd6fc1d",
         "88ab44ff008534ec6085a5a9ac0117112ecbde0f65abba5206b9f743329f42f1",
-        "8b4b836dc966ee5d0a84452c9b48b5ec8ffcb1846d63df8806a3a5676a653d87"
+        "8b4b836dc966ee5d0a84452c9b48b5ec8ffcb1846d63df8806a3a5676a653d87",
+        "890a6578bdd8ccda24d91a9b77503f9e1840938ba3a1c234749b0c47a3842c95"
       ],
-      "source_sha256": "ef687a41ef28bc4070b47ad44162add1b8c421dd0b93da7aa1e653adc726f350",
-      "text": "Atomically save a float32 TIFF map with embedded JSON provenance.\n\n:param path: destination TIFF; parent directories are created if necessary.\n:param result: uncertainty score dictionary containing a finite 2-D map.\n:param provenance: source/model/settings metadata to embed in the TIFF.\n:param protected_paths: scientific source images or masks never overwritten.\n:returns: the written Path; failed writes retain the previous destination.\n:raises ValueError: for invalid maps or a protected destination."
+      "source_sha256": "629d9d2c9d3204fcd1e500d72201f768d7c2ec8db29c74afc2cd5b804e351d86",
+      "text": "Atomically save a float32 TIFF map with embedded JSON provenance.\n\n:param path: destination TIFF; parent directories are created if necessary.\n:param result: uncertainty score dictionary containing a finite 2-D map.\n:param provenance: source/model/settings metadata to embed in the TIFF.\n:param protected_paths: scientific source images or masks never overwritten.\n:returns: the written Path; failed writes retain the previous destination.\n:raises ValueError: for invalid maps or a protected destination.\n\nMetadata is validated before any file is opened; integer-keyed object\nscores are JSON-safe."
     },
     "spacr.selection": {
       "source_blocks_sha256": [
@@ -120465,10 +120492,11 @@
         "8b85e5b85b068dfe34be0e689e01e29ec04972c2d99261f193cdb26f9d1ea37c",
         "607abaca63ccc64cc4df3c2a1f1ba5ffe842ecea80960fe817865f619f064848",
         "5524ba8288783b6ea28afcfd4b366da163274d7aa682b974edb8adeb735fea41",
-        "c5bf8a72d3a674efb00efb232f495fa40fe46cff2608a4229edb4c138b7b04b6"
+        "c5bf8a72d3a674efb00efb232f495fa40fe46cff2608a4229edb4c138b7b04b6",
+        "70fe6d6e3bec352d83824d34c1e29efd227d08b421ffa8b5765a20097c74facf"
       ],
-      "source_sha256": "854b6f8ab358b50dc44443244b3f65233901985967f676b5c702577ae61270dd",
-      "text": "B-score of every well on one plate (Brideau et al. 2003).\n\nRow and column effects are fitted by :func:`median_polish` on the wells\nin ``fit_mask`` (normally the sample wells, so a control column does not\nbecome a column effect), then removed from every well on the plate. The\nresiduals are divided by the scaled MAD of the fitted wells' residuals,\nas cellHTS2 does; Brideau's unscaled MAD differs by the constant 1.4826\nonly and ranks the wells identically. A row or column with no fitted\nwell, such as a column holding only controls, has no effect to remove,\nso its wells are scored against the overall and the other effect alone.\n\n:param matrix: the plate, NaN for an absent well.\n:param fit_mask: boolean matrix of the wells the effects are fitted on;\n    ``None`` fits on every finite well.\n:param scale: divide by this instead of the plate's own residual MAD,\n    which is how the pooled scope applies the screen-wide MAD.\n:returns: ``(scores, polish, scale_used)``; a score is NaN for an absent\n    well, and everywhere when the fitted residuals have no spread."
+      "source_sha256": "0dbb3a2e8617853694e7711245ef6fe5b60ad1ec072ec3ae420ccf56526965ea",
+      "text": "B-score of every well on one plate (Brideau et al. 2003).\n\nRow and column effects are fitted by :func:`median_polish` on the wells\nin ``fit_mask`` (normally the sample wells, so a control column does not\nbecome a column effect), then removed from every well on the plate. The\nresiduals are divided by the scaled MAD of the fitted wells' residuals,\nas cellHTS2 does; Brideau's unscaled MAD differs by the constant 1.4826\nonly and ranks the wells identically. A row or column with no fitted\nwell, such as a column holding only controls, has no effect to remove,\nso its wells are scored against the overall and the other effect alone.\n\n:param matrix: the plate, NaN for an absent well.\n:param fit_mask: boolean matrix of the wells the effects are fitted on;\n    ``None`` fits on every finite well.\n:param scale: divide by this instead of the plate's own residual MAD,\n    which is how the pooled scope applies the screen-wide MAD.\n:returns: ``(scores, polish, scale_used)``; a score is NaN for an absent\n    well, and everywhere when the fitted residuals have no spread.\n\nThe cellHTS2 Bscore settings override the looser stats::medpolish defaults."
     },
     "spacr.sp_stats.call_hits": {
       "source_blocks_sha256": [
@@ -122026,10 +122054,11 @@
         "8324b84ff0653ed303d6cb78d0eaf116a312f7382baacdf8e79aeeb8943ea051",
         "7b193d6e79b9bcc0eea68be541ee95ee41eb05a4ebc04b665b77cad6766a9a87",
         "cdda79d5249f93e435aaddda00253a479e9cb845b1748575b5972ca854ac1944",
-        "e62f17dd879632fe10dc91c661a5479f271a307f3a5e8f0420ce8bd3bcbbfb26"
+        "e62f17dd879632fe10dc91c661a5479f271a307f3a5e8f0420ce8bd3bcbbfb26",
+        "26c10d71ef2c0bb42bedc3fb84f49d8df7a31fb3687adbbd638759a56c611b92"
       ],
-      "source_sha256": "1963842f3245e74ef1b5830f4d5379162b517b2f126a4cb9c8cf83c331cc810d",
-      "text": "Store suggestions, and ONLY where nothing has been annotated.\n\nThe ``IS NULL`` is rule 2 and is not an optimisation.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column to write into.\n:param suggestions: the frame from :func:`suggest_from_scores`.\n:param png_table: the crop table.\n:returns: how many rows were written."
+      "source_sha256": "e25e526de1b907773568a8a26ed5d66b58d31667357e0865d9a48908bf7c631f",
+      "text": "Store suggestions, and ONLY where nothing has been annotated.\n\nThe ``IS NULL`` is rule 2 and is not an optimisation.\n\n:param db_path: path to a ``measurements.db``.\n:param annotation_column: the column to write into.\n:param suggestions: the frame from :func:`suggest_from_scores`.\n:param png_table: the crop table.\n:returns: how many rows were written.\n\nShared connections are in autocommit mode, so the connection context alone\nwould not make these updates one atomic batch."
     },
     "spacr.surrogate": {
       "source_blocks_sha256": [
@@ -123375,10 +123404,11 @@
         "4949d6a109be27de332081a3fc968984a7918cb13a23588b9180e53633e207fa",
         "dc6de0b537e6607592f72b56631c06c89233fb0dd611c24852ab79b4ec683ae9",
         "9bdaad58550d3c29fc5070e95b414a236fae2b85cfa4f68695d3de08ec9c8845",
-        "b6f04dcac59ff4c128b2b8aa1fb1b5eb96b899de05e43e0dc8cdcbffab37d93e"
+        "b6f04dcac59ff4c128b2b8aa1fb1b5eb96b899de05e43e0dc8cdcbffab37d93e",
+        "5b24c49db279dca2e4311ec1b227d20fb64dc3bb0d3b85ffb57726eccf4252d5"
       ],
-      "source_sha256": "2ef3fc7090e32bfb8a267e643843cc2151335f2efe2940106d7b64364a49e42d",
-      "text": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.\n\nReads ``merged/*.npy`` frames, builds per-cell measurements, cleans and\npersists them to SQLite, computes per-track velocities, generates\nintensity + motility QC panels (mask-based and, optionally, XGBoost /\nhistogram / PCA / UMAP / t-SNE adjusted labels), and writes a\nwell-level motility summary.\n\n:param settings: dict of assay settings; see\n    ``get_automated_motility_assay_default_settings`` for keys\n    including ``src``, ``db_table_name``, ``n_jobs``,\n    ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``,\n    ``infection_intensity_strategy``, ``infection_intensity_mode``,\n    ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``,\n    ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``,\n    ``infection_hist_percentile``, ``make_mask_panel``,\n    ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,\n    ``motility_origin_xlim``, ``motility_origin_ylim``, and\n    ``reuse_existing_measurements``. Optional ``bleach_correction`` defaults\n    to ``none``; ``ratio``, ``exponential`` or ``histogram`` correct each\n    field/channel and object role before child aggregation and infection\n    QC, using a five-pixel label-zero background ring (missing rings give\n    NaN). Histogram matching can erase biological changes. Opt-in runs\n    require recomputation rather than reuse of cached measurement rows.\n    Original intensity measurements remain raw; separate tables with\n    ``_bleach_corrected`` and ``_bleach_fits`` suffixes and a fits CSV\n    record the corrected levels, source filenames and method.\n:returns: the per-cell measurements DataFrame carrying the final\n    (QC-adjusted) labels. Measurements and summary tables are also written\n    to ``measurements/measurements.db`` and the QC panels saved under\n    ``src``.\n:raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned\n    table; see :func:`_validate_db_table_name`."
+      "source_sha256": "bd583890bbbddefb9f18d2262cc95e8531bbf0824cd56b50845842d0f0c5e484",
+      "text": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.\n\nReads ``merged/*.npy`` frames, builds per-cell measurements, cleans and\npersists them to SQLite, computes per-track velocities, generates\nintensity + motility QC panels (mask-based and, optionally, XGBoost /\nhistogram / PCA / UMAP / t-SNE adjusted labels), and writes a\nwell-level motility summary.\n\n:param settings: dict of assay settings; see\n    ``get_automated_motility_assay_default_settings`` for keys\n    including ``src``, ``db_table_name``, ``n_jobs``,\n    ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``,\n    ``infection_intensity_strategy``, ``infection_intensity_mode``,\n    ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``,\n    ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``,\n    ``infection_hist_percentile``, ``make_mask_panel``,\n    ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,\n    ``motility_origin_xlim``, ``motility_origin_ylim``, and\n    ``reuse_existing_measurements``. Optional ``bleach_correction`` defaults\n    to ``none``; ``ratio``, ``exponential`` or ``histogram`` correct each\n    field/channel and object role before child aggregation and infection\n    QC, using a five-pixel label-zero background ring (missing rings give\n    NaN). Histogram matching can erase biological changes. Opt-in runs\n    require recomputation rather than reuse of cached measurement rows.\n    Original intensity measurements remain raw; separate tables with\n    ``_bleach_corrected`` and ``_bleach_fits`` suffixes and a fits CSV\n    record the corrected levels, source filenames and method.\n:returns: the per-cell measurements DataFrame carrying the final\n    (QC-adjusted) labels. Measurements and summary tables are also written\n    to ``measurements/measurements.db`` and the QC panels saved under\n    ``src``.\n:raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned\n    table; see :func:`_validate_db_table_name`.\n\nPre-QC corrected values are persisted separately; the cached originals stay\nraw."
     },
     "spacr.timelapse.create_results_figure": {
       "source_blocks_sha256": [
