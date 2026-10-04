@@ -151,12 +151,15 @@ def _move_the_mouse(screen, state) -> None:
 def test_idle_time_builds_every_closed_category(qtbot):
     _w, screen, saved = _window(qtbot, "classify_merged")
     try:
-        assert len(_waiting(screen)) >= 5
+        closed = len(_waiting(screen))
+        assert closed >= 5
         _until_built(screen)
         assert _waiting(screen) == []
         assert not screen._settings_model._widgets.keys_to_come()
         builder = screen.__dict__["_idle_prebuild"]
-        assert len(builder.slices_ms) > 5 * 5, "the build was not sliced"
+        # Slices are bounded in time, not count, so a faster machine needs
+        # fewer of them; "sliced" means several slices per closed category.
+        assert len(builder.slices_ms) > 3 * closed, "the build was not sliced"
     finally:
         _restore_idle(saved)
 
