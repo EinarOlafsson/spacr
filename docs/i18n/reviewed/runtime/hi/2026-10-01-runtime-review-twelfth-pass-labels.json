@@ -678,13 +678,6 @@
     },
     {
       "table": "setting_labels",
-      "key": "glm_transform_conflict",
-      "source": "Glm transform conflict",
-      "source_sha256": "c8e634242635c2b8dd08f01a77d5c536c28cbb61a59155f6b929abea8a3d4729",
-      "translation": "Glm रूपांतरण टकराव"
-    },
-    {
-      "table": "setting_labels",
       "key": "gradient_accumulation",
       "source": "Gradient accumulation",
       "source_sha256": "24cafc994d02acb4dbb05f8e9edda2bf9b4d623db230bf6235a0babddd10e99d",
@@ -2657,5 +2650,15 @@
       "source_sha256": "4609b014b22c194e6df3e952d8ac468dfe3b89099c62e4e3cd34c010bb9e96ad",
       "translation": "gRNA सांख्यिकी"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_labels",
+      "key": "glm_transform_conflict",
+      "source": "Glm transform conflict",
+      "source_sha256": "c8e634242635c2b8dd08f01a77d5c536c28cbb61a59155f6b929abea8a3d4729",
+      "translation": "Glm रूपांतरण टकराव"
+    }
+  ],
+  "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."
 }

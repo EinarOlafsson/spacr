@@ -4234,13 +4234,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "glm_transform_conflict",
-      "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
-      "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
-      "translation": "Svörunarkvarði til að máta þegar transform er sjálft tengifall ('log' eða 'logit') og sjálfvirkt valin GLM-fjölskylda hefur einnig tengifall sem er ekki samsemd. 'untransformed' mátar mældu svörunina og lætur tengifall fjölskyldunnar umbreyta henni; notaðu þetta fyrir hlutfall sem var að óþörfu umbreytt fyrst. 'transformed' heldur umbreyttu svöruninni og mátar Gauss-líkan með samsemdartengingu. 'warn' endurskapar eldri tvöföldu umbreytingarhegðunina og prentar viðvörun. Þessi stilling hefur engin áhrif fyrir aðrar umbreytingar eða aðhvarfsgerðir. Sjálfgefið 'untransformed'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "hinge_threshold",
       "source": "Response value above which a well counts as positive for the hinge (linear SVM) fit. Leave it None when the response is already binary, in which case the two values it holds become the two classes. spaCR refuses a continuous response with no threshold rather than splitting it at the mean or median, because a cut chosen by the software decides the hypothesis being tested. Read only by regression_type 'hinge'. Default None.",
       "source_sha256": "b63f443deb2e1b290f82875c1639147b265b483d0c65d7a238c06098e63e76ab",
@@ -5618,5 +5611,15 @@
       "source_sha256": "31b0e090299d53d28c1d15fa6688ae2c831ddbdb659b97c12ef453557147a803",
       "translation": "Upphaflegur aðdráttarmargfaldari t-SNE, sem stýrir hve mikið rými myndast milli náttúrulegra hópa snemma í bestuninni. Aðeins notað af t-SNE. Sjálfgefið 12."
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "glm_transform_conflict",
+      "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
+      "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
+      "translation": "Svörunarkvarði til að máta þegar transform er sjálft tengifall ('log' eða 'logit') og sjálfvirkt valin GLM-fjölskylda hefur einnig tengifall sem er ekki samsemd. 'untransformed' mátar mældu svörunina og lætur tengifall fjölskyldunnar umbreyta henni; notaðu þetta fyrir hlutfall sem var að óþörfu umbreytt fyrst. 'transformed' heldur umbreyttu svöruninni og mátar Gauss-líkan með samsemdartengingu. 'warn' endurskapar eldri tvöföldu umbreytingarhegðunina og prentar viðvörun. Þessi stilling hefur engin áhrif fyrir aðrar umbreytingar eða aðhvarfsgerðir. Sjálfgefið 'untransformed'."
+    }
+  ],
+  "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."
 }

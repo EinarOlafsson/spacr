@@ -3793,13 +3793,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "glm_transform_conflict",
-      "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
-      "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
-      "translation": "当 transform 本身就是一个连接函数（'log' 或 'logit'），且自动选择的 GLM 族也具有非恒等连接函数时，要拟合的响应尺度。'untransformed' 拟合测得的响应，并由族的连接函数对其进行变换；适用于事先被不必要地变换过的比例数据。'transformed' 保留变换后的响应，并拟合高斯恒等连接模型。'warn' 重现旧版的双重变换行为并打印警告。此设置对其他变换或回归类型无效。默认值 'untransformed'。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "filter_by",
       "source": "Restricts the feature matrix before dimensionality reduction: only columns matching this channel are kept and the other channel_1-channel_4 columns are dropped. Accepts 'channel_0'-'channel_3', an int, a list of channel numbers, or 'morphology' to keep only shape features (area, eccentricity, Zernike moments, ...). None, 'None', 'all', and '*' disable filtering. Default 'channel_0'.",
       "source_sha256": "452089cb9d52d7760368aeb3e2e18a53bf5b1708411f669f00a1b775e68b5126",
@@ -5002,5 +4995,15 @@
       "source_sha256": "31b0e090299d53d28c1d15fa6688ae2c831ddbdb659b97c12ef453557147a803",
       "translation": "t-SNE 的初始吸引力乘数，控制优化早期自然分组之间形成多大的间隔。仅由 t-SNE 使用。默认值 12。"
     }
-  ]
+  ],
+  "retired_records": [
+    {
+      "table": "setting_tooltips",
+      "key": "glm_transform_conflict",
+      "source": "Response scale to fit when transform is itself a link ('log' or 'logit') and the automatically selected GLM family also has a non-identity link. 'untransformed' fits the measured response and lets the family link transform it; use this for a proportion that was unnecessarily transformed first. 'transformed' keeps the transformed response and fits a Gaussian identity-link model. 'warn' reproduces the legacy double-transform behavior and prints a warning. This setting has no effect for other transforms or regression types. Default 'untransformed'.",
+      "source_sha256": "c078df80a8cee843b971f73018f1a6559614cf90edef09f721667c966909c509",
+      "translation": "当 transform 本身就是一个连接函数（'log' 或 'logit'），且自动选择的 GLM 族也具有非恒等连接函数时，要拟合的响应尺度。'untransformed' 拟合测得的响应，并由族的连接函数对其进行变换；适用于事先被不必要地变换过的比例数据。'transformed' 保留变换后的响应，并拟合高斯恒等连接模型。'warn' 重现旧版的双重变换行为并打印警告。此设置对其他变换或回归类型无效。默认值 'untransformed'。"
+    }
+  ],
+  "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."
 }

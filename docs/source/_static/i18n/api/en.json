@@ -116171,10 +116171,11 @@
     },
     "spacr.schema.is_provenance_column": {
       "source_blocks_sha256": [
-        "bb70abc1890f5bf036422fd87ea8cb37c1d3533eb5a381a61ca5eb7135bb621c"
+        "bb70abc1890f5bf036422fd87ea8cb37c1d3533eb5a381a61ca5eb7135bb621c",
+        "82d8e48bf959f928fca5c1bf26a55bd734f44722bb0de231a8415db342e08cec"
       ],
-      "source_sha256": "bb70abc1890f5bf036422fd87ea8cb37c1d3533eb5a381a61ca5eb7135bb621c",
-      "text": "Return whether ``name`` is identity, annotation, or run provenance."
+      "source_sha256": "85388bbc4afe8815447edb3518016761334a9e5637a671e8af27ded672f8adc7",
+      "text": "Return whether ``name`` is identity, annotation, or run provenance.\n\n``original_*`` columns, the names a plate had before conversion, count as\nprovenance and never as measured features."
     },
     "spacr.schema.is_row_column_pair": {
       "source_blocks_sha256": [
