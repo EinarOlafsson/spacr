@@ -32,3 +32,5 @@ minimum width follows its content, so large text widens it instead of
 clipping. Tests: tests/qt/test_597_home_aside_handle_and_text_slider.py.
 
 Left: nothing.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

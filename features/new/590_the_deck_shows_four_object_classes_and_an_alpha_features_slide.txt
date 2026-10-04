@@ -118,3 +118,5 @@ pass. Receipt: features/data/590_current_deck_acceptance_2026-10-01.json.
 
 No N590 deliverable remains. Broader documentation deployment/release and
 scientific validation of alpha backends remain in their own tracked items.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); slide 11 shows nuclei, cells, pathogen and organelles, and slide 4 is the alpha slide; checked by eye.

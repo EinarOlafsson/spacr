@@ -191,3 +191,5 @@ languages and existing hang, cancellation and atomic-write regressions.
 AI technical review only; no human/native-speaker signoff is claimed.
 Lesson 09 capture/publication evidence is tracked separately.
 Receipt: features/data/610_runtime_localization_2026-10-01.json.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the timing test passes alone (64 s against a 60 s bound when two suites shared the CPU).

@@ -30,3 +30,5 @@ What was done (2026-10-03):
 - Test: tests/qt/test_no_empty_settings_categories.py.
 
 Left: nothing.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

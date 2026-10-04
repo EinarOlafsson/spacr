@@ -50,3 +50,5 @@ Runtime/API locale refresh and full tutorial publication remain tracked N615.
 Final source checks: four exact API/parameter correctness checks passed;
 English manifest regenerated (12,034 symbols). Updated table guide passes
 an isolated strict Sphinx build with warnings treated as errors.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

@@ -71,3 +71,5 @@ Build:
 Done when: clamp math, throttle pause/resume and the popup choices are tested
 with mocked psutil and no real process is killed; guards green; settings-flow
 and consumer-map artefacts regenerated.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

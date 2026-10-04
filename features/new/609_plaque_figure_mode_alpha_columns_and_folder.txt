@@ -64,3 +64,5 @@ DELIBERATELY NOT DONE
 
 * No ALPHA_FEATURES change: 501 is already registered; this only makes its
   columns obey it.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

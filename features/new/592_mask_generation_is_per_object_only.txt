@@ -97,3 +97,5 @@ reload; captions for the new help texts wait for the catalog lane.
   (tests/qt/test_a_saved_file_that_names_no_channels_hides_the_objects.py,
   tests/qt/test_the_per_object_settings_are_one_table.py
   TestAnUnsetObjectIsHidden, tests/qt/test_object_grid_binding_recovers.py).
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

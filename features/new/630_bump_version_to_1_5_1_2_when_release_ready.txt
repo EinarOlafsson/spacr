@@ -24,3 +24,5 @@ mark a queued build or an unverified upload as a successful release.
 Completion: the intended 1.5.1.2 version change is tested and pushed, with
 the actual release/publication outcome recorded. Until then this item stays
 pending in the session progress list, with no estimated completion time.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); tags v1.5.1.2 and v1.5.1.3 exist and PyPI lists both.

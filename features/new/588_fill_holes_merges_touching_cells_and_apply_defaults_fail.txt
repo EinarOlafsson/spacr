@@ -117,3 +117,5 @@ TESTS
   apply/train, preview, docstring, i18n, help index): before 1342 passed
   / 1 failed (notebook staleness already on nightly); after the merge
   with nightly 1633 passed, 0 failed.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); fill_holes_in_mask on two touching cells with holes keeps labels 1 and 2 with holes filled.

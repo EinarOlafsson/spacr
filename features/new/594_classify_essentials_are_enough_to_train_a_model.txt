@@ -37,3 +37,5 @@ DONE 2026-09-28
 LEFT: there is no per-run device setting; the GPU/CPU choice is automatic
 (deep_spacr.pick_device, Preferences accelerator). The tabular family reads
 its measurements from src/measurements/measurements.db; no table selector.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

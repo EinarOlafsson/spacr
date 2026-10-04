@@ -117,3 +117,5 @@ GitHub #134 was closed as completed at 2026-10-01T19:17:59Z after checking
 the merged fix against the acceptance evidence above. The subsequent full
 paginated open-issue listing returned no issues. Release publication remains
 separate in N615; no additional test run or platform coverage is inferred.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

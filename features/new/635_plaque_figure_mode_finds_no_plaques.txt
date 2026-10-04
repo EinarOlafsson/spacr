@@ -39,3 +39,5 @@ Test: tests/qt/test_635_plaque_figure_mode_finds_no_plaques.py (synthetic
 well, scale-aware fake model).
 
 Left: nothing. The 24_plaque Figure scenes can be recaptured.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

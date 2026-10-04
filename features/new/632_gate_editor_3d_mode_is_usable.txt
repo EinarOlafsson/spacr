@@ -37,3 +37,5 @@ Done when: offscreen frames rendered to PNG in /mnt/wd4tb/scratch/632 look
 right; Qt tests cover the camera keeping its angle after interaction, a drawn
 polygon gate selecting the expected synthetic points, and the 2D tests pass
 unchanged; guards green.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

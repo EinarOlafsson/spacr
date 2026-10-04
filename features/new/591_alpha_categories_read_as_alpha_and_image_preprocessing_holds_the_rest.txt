@@ -96,3 +96,5 @@ MERGED WITH NIGHTLY, 2026-09-28: 557's "Self-Supervised Denoising α" is
 
 LEFT: the i18n catalog rows for the renamed categories (catalog lane); the
 Plaque Figure preview's growth-estimate control as a registered widget.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

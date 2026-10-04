@@ -146,3 +146,5 @@ STATUS 2026-10-01 — current alpha acceptance complete
     documented model assumptions, proportion optimism against model-free
     resampling and need for a two-condition pilot to estimate interaction
     remain explicit. Promotion out of alpha remains a maintainer decision.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

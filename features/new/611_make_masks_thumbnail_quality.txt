@@ -127,3 +127,5 @@ regression files; the ten new quality/layout cases also passed at scale 2.
 Before/after quality captures and the unchanged logical cell geometry were
 inspected. Evidence is in /tmp/spacr-implementation-20261001/review/masks/.
 The shared nine-language catalog refresh remains tracked under N615.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

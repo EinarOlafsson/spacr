@@ -54,3 +54,5 @@ These practice labels are not biological genotype/replicate validation.
 The existing broken image-annotation handoff evidence is retained separately.
 Native capture, narration, screenshot/video regeneration and publication have
 not been performed for these new scenes; those remain in N615.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

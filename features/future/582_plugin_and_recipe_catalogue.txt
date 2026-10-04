@@ -155,3 +155,5 @@ WHAT IS LEFT
     community catalogue and a policy for signing it remain future work;
     dependency conflicts that require a separate interpreter are likewise
     outside the measured local install/load acceptance.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

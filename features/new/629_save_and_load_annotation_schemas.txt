@@ -51,3 +51,5 @@ roundtrip), c49a18d69 (strict fields, semantic preservation and guide).
 Receipt: features/data/629_annotation_schemas_2026-10-01.json.
 Runtime translation refresh and published tutorial media remain tracked in
 N615. No package publication is claimed by this feature's completion.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

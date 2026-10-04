@@ -87,3 +87,5 @@ DELIBERATELY NOT DONE
   file by path when --plaque-zoo-model is not given; with the backend
   installed that now runs, without it the preview states the advice. Which
   model lesson 24 should show is for the tutorial session to decide.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

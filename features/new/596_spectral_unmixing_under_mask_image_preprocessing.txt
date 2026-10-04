@@ -25,3 +25,5 @@ tests/qt/test_591_alpha_categories_read_as_alpha.py (nesting, hidden/shown,
 value kept while hidden).
 
 Left: nothing.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the settings are registered under ALPHA_FEATURES[538] (the later registration wins).

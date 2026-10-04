@@ -155,3 +155,5 @@ sorted_channels/originals/ and the manifest status "converted rgb" or
 "converted zstack". Tested in test_593 (RGB PNG plus a 3-plane TIFF).
 Left: a run on a real folder by the maintainer; translation rows follow the
 next catalog rebuild.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

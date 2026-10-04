@@ -39,3 +39,5 @@ Frames: /mnt/wd4tb/scratch/604/galaxies_pass_cpu_every3s.png,
 galaxies_close_cpu.png, galaxies_pass_gpu_every3s.png (llvmpipe),
 galaxy_atlas.png.
 Tests: tests/qt/test_space_galaxies_pass_by.py.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

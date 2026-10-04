@@ -148,3 +148,5 @@ through HoverDelay and cancel on leave. Both real-screen timer tests pass;
 41 existing help-content/hold/layout checks pass after explicitly exercising
 the post-delay presentation seam. Shared native/rich four-second tests above
 verify the reported long delay. Implementation complete on nightly.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

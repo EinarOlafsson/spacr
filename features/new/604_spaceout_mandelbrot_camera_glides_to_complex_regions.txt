@@ -97,3 +97,5 @@ actual VisPy GL drawing target; an initial Qt grabFramebuffer attempt read
 black pixels from a different target and was rejected before acceptance.
 Native Windows/macOS, other GPU vendors, and other native scales were not
 checked. This completes the previously outstanding hardware-render check.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

@@ -221,3 +221,5 @@ The remaining translation task above was completed by 3e0c975ea, already
 integrated into nightly. All nine docs/i18n/readme/README.<locale>.rst files
 (de, es, fr, hi, is, ko, pt, sv, zh_CN) now point Back to pages/55.md.
 No deck assets or translated prose were regenerated for this reconciliation.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); all 57 slides are 3200x1800 and the thumbnails 320x180; deck tests pass.

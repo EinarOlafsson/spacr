@@ -207,3 +207,5 @@ Fresh temporary settings were used; the real preferences file's SHA256 and
 _NET_ACTIVE_WINDOW were unchanged. No window activation was requested.
 Receipt: features/data/602_preferences_native_recheck_2026-10-02.json.
 Existing N602 status is unchanged; Windows/macOS were not checked here.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

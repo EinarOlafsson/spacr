@@ -152,3 +152,5 @@ player contract suite passed (7 passed, 7 skipped for absent Node.js).
 This improves the landscape inline view but does not by itself prove mobile
 readability of every N601 control, narration alignment or publication.
 Receipt: features/data/601_landscape_player_width_2026-10-02.json.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

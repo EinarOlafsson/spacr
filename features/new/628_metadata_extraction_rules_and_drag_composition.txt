@@ -82,3 +82,5 @@ Supporting work remains explicit under N615: new runtime translations and
 public API prose/catalogs. Previously reviewed runtime translations must be retired when
 their exact English source changes; generated catalogs use the normal builder.
 No new tutorial media or package release is claimed by this implementation.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

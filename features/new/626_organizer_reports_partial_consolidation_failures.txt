@@ -48,3 +48,5 @@ Validation under a 1 GB, single-thread CPU cap:
   after three passes at the test guard's 0.9 GB ceiling (exit 3). That was
   not a completed cohort. The independent focused results above cover this
   change without increasing the memory limit or running a full suite.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

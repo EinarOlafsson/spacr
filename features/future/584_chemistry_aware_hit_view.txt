@@ -132,3 +132,5 @@ pass under bounded CPU/memory scopes. Real final light/dark captures were
 visually checked for readable, separated tiles. This meets the feature's
 small real compound-screen DONE WHEN at alpha scope. It is not a claim that
 the source plate measured host toxicity or that clustering validates biology.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the rdkit tests pass in a scratch venv with rdkit (they skip in the base env).

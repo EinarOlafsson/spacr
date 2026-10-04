@@ -102,3 +102,5 @@ and saved chart reconstruction. Included in the passing 198-check merge cohort;
 existing Graph Builder screen/threaded-loading checks also passed in a 93-check
 targeted follow-up. Ruff and git diff checks pass. Translations, generated API
 and tutorial publication remain coordinated in N615.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

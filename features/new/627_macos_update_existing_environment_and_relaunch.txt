@@ -68,3 +68,5 @@ No real package was installed during tests. A real native macOS update/relaunch
 and Windows desktop acceptance were not performed. This fix is on nightly;
 publication requires a future release containing it. The earlier 1.5.1.1 release
 attempt remains blocked on the PyPI storage request (pypi/support#12512).
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

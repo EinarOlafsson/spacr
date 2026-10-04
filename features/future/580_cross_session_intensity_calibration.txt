@@ -132,3 +132,5 @@ checks pass. Original drafts, corrections and exact checks are preserved in
 features/data/580_gain_preview_i18n_2026-10-02.json. No human/native review or
 new scientific acquisition is claimed; F580 remains partial for the stated
 known-exposure paired-session acceptance gap.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

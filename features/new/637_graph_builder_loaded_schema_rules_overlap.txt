@@ -33,3 +33,5 @@ What was done (2026-10-03):
 - Offscreen grab after the fix: /mnt/wd4tb/scratch/637/after.png (clean).
 
 Left: nothing.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

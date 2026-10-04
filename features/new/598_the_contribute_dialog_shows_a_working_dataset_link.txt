@@ -39,3 +39,5 @@ tests/qt/test_598_contribute_dialog_dataset_link.py.
 Left: the two new captions wait in _AWAITING_CATALOG_REBUILD for the next
 catalog pass. Until then the report-only external-caption count check
 xfails because the two old captions were removed.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

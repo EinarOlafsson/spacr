@@ -131,3 +131,5 @@ FRESH LINUX OFFLINE ACCEPTANCE (2026-10-02)
     DONE WHEN is now met; additional backend/platform extensions above are
     not represented as validated.
     Receipt: features/data/587_linux_offline_acceptance_2026-10-02.json.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); it is a CLI/bundle with no GUI, so nothing needs an alpha registry entry.

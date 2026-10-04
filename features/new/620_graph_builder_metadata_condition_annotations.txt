@@ -46,3 +46,5 @@ receipt table while retaining ordinary similarly named user tables, saved
 annotated tables and derived tables. Physical schema discovery still sees
 all tables for name-collision validation. Eighteen focused discovery,
 SQLite, Graph and Gate checks passed. Multi-column recipes are tracked in625.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

@@ -92,3 +92,5 @@ LEFT
 - New captions wait in _AWAITING_CATALOG_REBUILD for the catalog rebuild.
 - tests/test_user_facing_docstrings.py fails on nightly already
   (spacr/folder_consolidation.py, item 593), not from this item.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

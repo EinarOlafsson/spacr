@@ -16,3 +16,5 @@ brush/selection state while preserving the selected kind for rebinding.
 174 named tests pass, including clearing/rebinding every drawable kind and
 the real GraphBuilderPanel.clear_channels pinned-bar path reported by the user.
 Status: COMPLETE on nightly; publication is tracked separately.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

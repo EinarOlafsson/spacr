@@ -40,3 +40,5 @@ Frames: /mnt/wd4tb/scratch/604/magnifier_sizes_gpu.png (rows orbit GPU,
 cascade, space, orbit; columns no lens, 50 %, 100 %, 200 %, 300 %).
 Tests: tests/qt/test_the_magnifier_has_a_size.py and the live-apply case
 in test_fractal_changes_apply_without_a_restart.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

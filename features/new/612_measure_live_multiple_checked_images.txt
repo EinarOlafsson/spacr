@@ -110,3 +110,5 @@ with two fields/four crops was inspected at
 /tmp/spacr-implementation-20261001/review/measure/checked-images.png.
 User guide: docs/source/measure_live.rst. Shared translations, API manifest
 and tutorial captures remain in N615; no native-platform claim is added.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the tests are in tests/qt/test_measure_checked_sources.py (test_615_measure_live_multi_image.py does not exist).

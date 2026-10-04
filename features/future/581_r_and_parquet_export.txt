@@ -138,3 +138,5 @@ per-well statistics and extra UI entry points remain separate enhancements.
 No shared environment, GPU or live_cell training state was modified.
 Receipt: features/data/581_native_r_acceptance_2026-09-28.json.
 Checker: features/data/581_native_r_checker_2026-09-28.R.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); .rds tests pass with pyreadr in a scratch venv, but the Rscript round-trips skip because R is not installed.

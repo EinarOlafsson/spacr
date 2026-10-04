@@ -176,3 +176,5 @@ STATUS 2026-10-01 — paginated LIMS retrieval implemented and verified
     fulfills the original DONE WHEN. Vendor-specific LIMS adapters and
     acquisition metadata/plate-reader barcode extraction remain optional
     extensions outside that criterion; no production LIMS write is claimed.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).

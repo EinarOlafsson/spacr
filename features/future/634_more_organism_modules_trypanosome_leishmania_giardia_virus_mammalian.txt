@@ -123,3 +123,5 @@ FOLLOW-UP (2026-10-03, maintainer): own switch and recognisable drawings
     tools/tutorials/capture_policy.py does not yet force Show alpha
     species off.
   * Catalog lane: the new captions wait in _AWAITING_CATALOG_REBUILD.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); the later commit e86e25966 moved the registration to ALPHA_SPECIES[634] (which also gates Plasmodium and Candida) behind the separate species switch, and that later version wins.

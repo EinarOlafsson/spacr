@@ -15,3 +15,5 @@ surface. The edge outside the painted segment still reports a resize hit.
 Screenshots: /tmp/spacr-ui-evidence/624/dark-0.png and dark-1.png.
 Light native capture was interrupted and discarded; no light screenshot
 acceptance is claimed. The geometry is shared across themes.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); new pixel test tests/qt/test_resize_guides_span_the_middle_half.py checks a centred half-length guide on each active edge.

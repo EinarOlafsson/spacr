@@ -375,3 +375,5 @@ and headings never clipped).
 Still for the maintainer (unchanged): his own GUI run on his folder; the
 translation rows at the next catalog rebuild; deleting 593's unused
 ChannelSortDialog/RegexWindow if he agrees.
+
+VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
