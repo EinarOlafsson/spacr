@@ -5407,6 +5407,14 @@ class MainWindow(QMainWindow):
         request inside the half-finished open would build or show a second
         screen in the middle of the first, so it is posted and runs as soon
         as the first open has returned.
+
+        THE OPEN READS PREFERENCES FROM ONE STORE. A Mask build asks the
+        preference store for the font scale, the theme and the alpha switch
+        several thousand times; each ``QSettings`` constructed for one read
+        cost 25 us idle and far more under load (10-13 % of a slow module's
+        first open). Inside :func:`spacr.qt.preferences._one_store` the GUI
+        thread shares one store for the whole open, which the user cannot
+        change in the meantime because the breaths hold back user input.
         """
         if getattr(self, "_opening_a_screen", False):
             from PySide6.QtCore import QTimer
@@ -5430,6 +5438,7 @@ class MainWindow(QMainWindow):
             return
         from . import screens as _screens_package
         from .i18n import ui_language_resolved_once
+        from .preferences import _one_store
 
         import time as _time
 
@@ -5437,7 +5446,7 @@ class MainWindow(QMainWindow):
         _screens_package._start_breathing_while_a_window_opens(
             _time.perf_counter())
         try:
-            with ui_language_resolved_once():
+            with ui_language_resolved_once(), _one_store():
                 self._open_a_module_screen(key, interaction_started)
         finally:
             self._opening_a_screen = False

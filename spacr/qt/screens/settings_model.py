@@ -2274,11 +2274,19 @@ def _family_heading(prefix: str, name: str) -> str:
     return f"{prefix} {_FAMILY_HEADING_DASH} {name}"
 
 
+_CATEGORIES_FOR_APP_MEMO: Dict[tuple, Dict[str, List[str]]] = {}
+
+
 def categories_for_app(
     app_key: str,
     categories: Dict[str, List[str]],
 ) -> Dict[str, List[str]]:
     """Return category keys after applying module-specific relocations.
+
+    Memoised per module against the shape of ``categories`` (each title and
+    how many keys it holds) and the plugin registry's answer, and returned as
+    a fresh copy each time: a module's first open asks this five or six times
+    and each expansion walks every setting key spaCR has.
 
     Map Barcodes previously showed an ``Advanced`` tab containing only
     ``n_jobs`` and a ``Model Training`` tab containing only ``test``.  Both
@@ -2296,6 +2304,28 @@ def categories_for_app(
         plugin_app = get_app(app_key)
     except Exception:
         plugin_app = None
+    try:
+        shape = (app_key, id(categories), id(plugin_app),
+                 tuple((name, len(keys)) for name, keys in categories.items()))
+    except Exception:
+        return _categories_for_app_uncached(app_key, categories, plugin_app)
+    memo = _CATEGORIES_FOR_APP_MEMO.get(shape)
+    if memo is None:
+        memo = _categories_for_app_uncached(app_key, categories, plugin_app)
+        if len(_CATEGORIES_FOR_APP_MEMO) > 256:
+            _CATEGORIES_FOR_APP_MEMO.clear()
+        _CATEGORIES_FOR_APP_MEMO[shape] = memo
+    return {name: list(keys) for name, keys in memo.items()}
+
+
+def _categories_for_app_uncached(app_key, categories, plugin_app):
+    """Compute :func:`categories_for_app` without the memo.
+
+    :param app_key: the module's application key.
+    :param categories: category title to ordered setting keys; not modified.
+    :param plugin_app: the plugin registered under ``app_key``, or ``None``.
+    :returns: the module's category layout.
+    """
     if plugin_app is not None and plugin_app.categories:
         return {
             str(name): list(keys)

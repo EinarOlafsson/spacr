@@ -17,6 +17,10 @@ def arrow_cursor(active=False):
     return QCursor(Qt.ArrowCursor)
 
 
+_POINTER_EVENTS = frozenset({
+    QEvent.CursorChange, QEvent.Enter, QEvent.Show, QEvent.MouseMove})
+
+
 class _CursorPolicy(QObject):
     """Preserve gestures while suppressing application cursor substitutions."""
 
@@ -26,11 +30,24 @@ class _CursorPolicy(QObject):
         self._changing = False
 
     def eventFilter(self, watched, event):
-        """Restore the native arrow on pointer events without consuming the original gesture."""
-        if self._changing or event.type() not in (
-                QEvent.CursorChange, QEvent.Enter, QEvent.Show, QEvent.MouseMove):
+        """Restore the native arrow on pointer events without consuming the original gesture.
+
+        A ``Show`` of a widget that never had a cursor set on it is passed
+        over: such a widget shows its parent's cursor, which this policy has
+        already answered for, and a module screen's first show delivers one
+        ``Show`` per child -- several thousand -- that used to read and
+        compare a cursor each (7 % of a slow module's first open).
+        """
+        if self._changing:
+            return False
+        kind = event.type()
+        if kind not in _POINTER_EVENTS:
             return False
         if not isinstance(watched, QWidget):
+            return False
+        if (kind == QEvent.Show
+                and not watched.testAttribute(Qt.WA_SetCursor)
+                and QApplication.overrideCursor() is None):
             return False
         self._changing = True
         try:
@@ -53,8 +70,7 @@ def install_cursor_policy(application=None):
         return False
     policy = _CursorPolicy(app)
     app._spacr_cursor_policy = policy
-    _watch_application_events(app, policy, (
-        QEvent.CursorChange, QEvent.Enter, QEvent.Show, QEvent.MouseMove))
+    _watch_application_events(app, policy, _POINTER_EVENTS)
     for widget in QApplication.allWidgets():
         policy.eventFilter(widget, QEvent(QEvent.CursorChange))
     return True

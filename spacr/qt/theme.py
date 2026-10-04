@@ -5868,17 +5868,28 @@ def close_mark_side(widget=None, body_px: Optional[int] = None) -> int:
     """Return the required side length for a close-mark hit target.
 
     The result accounts for the rendered glyph, current interface scale, and
-    :data:`CLOSE_MARK_HIT_PX` minimum.
+    :data:`CLOSE_MARK_HIT_PX` minimum. The glyph's ink box is measured once
+    per font: ``tightBoundingRect`` rasterises the glyph, and a module screen
+    re-measures each of its close marks at every style change.
     """
     from PySide6.QtGui import QFont, QFontMetrics
 
     font = QFont(widget.font()) if widget is not None else QFont()
     font.setPixelSize(max(font.pixelSize(), close_mark_font_px(body_px)))
-    metrics = QFontMetrics(font)
-    ink = metrics.tightBoundingRect(CLOSE_MARK)
+    key = font.key()
+    ink = _CLOSE_MARK_INK.get(key)
+    if ink is None:
+        rect = QFontMetrics(font).tightBoundingRect(CLOSE_MARK)
+        ink = (rect.width(), rect.height())
+        if len(_CLOSE_MARK_INK) > 64:
+            _CLOSE_MARK_INK.clear()
+        _CLOSE_MARK_INK[key] = ink
     return max(CLOSE_MARK_HIT_PX,
-               ink.width() + CLOSE_MARK_PAD_PX,
-               ink.height() + CLOSE_MARK_PAD_PX)
+               ink[0] + CLOSE_MARK_PAD_PX,
+               ink[1] + CLOSE_MARK_PAD_PX)
+
+
+_CLOSE_MARK_INK: dict = {}
 
 
 def apply_close_mark(button, *, tooltip: Optional[str] = None,
