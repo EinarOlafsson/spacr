@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "キューを並べ終えたら、Validateをクリックします。一覧の問題を解決し、Run queueが使えるようにします。",
     "On failureで、独立したジョブを続けるか、最初の失敗で止めるかを選びます。Stop afterで、連続して失敗できる数を制限します。",
     "Save queueをクリックして、計画をJSONとして保存します。後で開き直すにはLoad queueを使います。参照している設定ファイルと入力は、使える状態にしておきます。",
+    "開始する前に、Help、Window、Jobs の順に開きます。キューが動き出すと、右側の Jobs パネルに進行状況、経過時間、Cancel ボタンとともに表示されます。どの画面から始めた実行中のジョブも並ぶので、ほかの作業をしながら長い実行を見守れます。",
     "Run queueをクリックします。ジョブの間で一時停止するにはStopを押します。現在のジョブは最後まで実行され、残りのジョブは実行されずに残ります。",
     "残りのジョブを続けるには、もう一度Run queueをクリックします。キューが進むにつれて、各行の状態を確認します。",
     "行を選んでログを読み、エラーや出力パスを確認します。変換の例では、報告された視野とチャネルの識別子を確認します。",

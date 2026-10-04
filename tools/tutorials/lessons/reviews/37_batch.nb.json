@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Klikk på Validate etter at du har ordnet køen. Løs problemene som listes opp, til Run queue blir tilgjengelig.",
     "Velg i On failure om uavhengige jobber skal fortsette, eller om køen skal stoppe ved første feil. Angi Stop after for å begrense antall feil på rad.",
     "Klikk på Save queue for å lagre planen som JSON. Bruk Load queue til å åpne den igjen senere, og hold de refererte innstillingsfilene og inndataene tilgjengelige.",
+    "Før du starter, åpner du Help, deretter Window og så Jobs. Når køen kjører, viser Jobs-panelet til høyre den med fremdrift, medgått tid og en Cancel-knapp. Det viser kjørende jobber fra alle skjermer, så du kan følge en lang kjøring mens du jobber et annet sted.",
     "Klikk på Run queue. For å pause mellom jobber trykker du på Stop; den pågående jobben fullføres, og de gjenværende jobbene blir ikke kjørt.",
     "Klikk på Run queue igjen for å fortsette med de gjenværende jobbene. Følg statusen for hver rad mens køen går fremover.",
     "Velg en rad for å lese loggen og undersøke feil eller utdatabaner. I konverteringseksemplet kontrollerer du de rapporterte identifikatorene for synsfelt og kanal.",

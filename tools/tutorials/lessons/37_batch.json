@@ -102,6 +102,17 @@
       "hold_after": 0.7
     },
     {
+      "visual": "13b_jobs_dock",
+      "narration": "Before starting, open Help, then Window, then Jobs. Once the queue runs, the Jobs dock on the right shows it with its progress, elapsed time and a Cancel button. It lists running jobs from every screen, so you can follow a long run while you work elsewhere.",
+      "focus": [
+        3200,
+        30,
+        640,
+        200
+      ],
+      "hold_after": 0.7
+    },
+    {
       "visual": "14_stopped_between_jobs",
       "narration": "Click Run queue. To pause between jobs, press Stop; the current job finishes and the remaining jobs stay unrun.",
       "hold_after": 0.7,

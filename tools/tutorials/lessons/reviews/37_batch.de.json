@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Klicken Sie nach dem Ordnen auf Validate. Beheben Sie die aufgeführten Probleme, bis Run queue verfügbar ist.",
     "Wählen Sie unter On failure, ob unabhängige Jobs weiterlaufen oder beim ersten Fehler angehalten wird. Begrenzen Sie mit Stop after aufeinanderfolgende Fehler.",
     "Klicken Sie auf Save queue, um den Plan als JSON zu speichern. Öffnen Sie ihn später mit Load queue erneut und halten Sie die referenzierten Einstellungsdateien und Eingaben verfügbar.",
+    "Öffnen Sie vor dem Start Help, dann Window und dann Jobs. Sobald die Warteschlange läuft, zeigt das Jobs-Panel rechts sie mit Fortschritt, verstrichener Zeit und einer Cancel-Schaltfläche. Es listet laufende Jobs aus allen Ansichten auf, sodass Sie einen langen Lauf verfolgen können, während Sie anderswo arbeiten.",
     "Klicken Sie auf Run queue. Um zwischen Jobs zu pausieren, drücken Sie Stop; der aktuelle Job wird beendet, und die übrigen Jobs bleiben unausgeführt.",
     "Klicken Sie erneut auf Run queue, um mit den übrigen Jobs fortzufahren. Verfolgen Sie den Status jeder Zeile, während die Warteschlange fortschreitet.",
     "Wählen Sie eine Zeile, um ihr Log zu lesen und Fehler oder Ausgabepfade zu prüfen. Prüfen Sie beim Konvertierungsbeispiel die gemeldeten Feld- und Kanalkennungen.",

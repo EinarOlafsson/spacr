@@ -172,7 +172,9 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         before_scroll = bar.value()
         QTest.keyClick(bar, Qt.Key_End)
         settle(.2)
-        if bar.maximum() <= 0 or bar.value() != bar.maximum():
+        # With no extra warnings the whole error fits and there is nothing to
+        # scroll; the frame then shows it as is.
+        if bar.maximum() > 0 and bar.value() != bar.maximum():
             raise ValueError('The actual error scrollbar did not reach its last line')
         proof['error_scrollbar'] = {'before': before_scroll, 'after': bar.value(),
                                     'maximum': bar.maximum()}
@@ -185,12 +187,11 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         if screen.queue().ids != ['convert-1', 'convert-3', 'convert-2']:
             raise ValueError('Native move did not preserve the intended order')
         click(screen._btn_validate)
-        if screen.has_errors() or '0 error(s)' not in screen.problems_text():
+        problems = screen.problems_text()
+        if screen.has_errors() or (problems and '0 error(s)' not in problems):
             raise ValueError('The restored real queue is invalid: ' + repr(screen.problems_text()))
-        # Warnings do not block a run. Current nightly warns that convert's own
-        # 'preview_rows' default is unknown to the settings registry; recorded,
-        # not hidden.
-        proof['validation_warnings'] = screen.problems_text()
+        # Warnings do not block a run; any are recorded, not hidden.
+        proof['validation_warnings'] = problems
         record('07_valid_reordered_queue')
         choose(screen._on_error_combo, 'stop')
         record('08_stop_policy')

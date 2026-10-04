@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Cliquez sur Validate après avoir ordonné la file. Résolvez les problèmes listés jusqu’à ce que Run queue soit disponible.",
     "Choisissez dans On failure de continuer avec les tâches indépendantes ou de vous arrêter au premier échec. Réglez Stop after pour limiter les échecs consécutifs.",
     "Cliquez sur Save queue pour enregistrer le plan au format JSON. Utilisez Load queue pour le rouvrir plus tard, en gardant disponibles les fichiers de paramètres et les entrées auxquels il renvoie.",
+    "Avant de commencer, ouvrez Help, puis Window, puis Jobs. Dès que la file s’exécute, le panneau Jobs à droite l’affiche avec sa progression, le temps écoulé et un bouton Cancel. Il liste les tâches en cours de tous les écrans : vous pouvez suivre une longue exécution tout en travaillant ailleurs.",
     "Cliquez sur Run queue. Pour faire une pause entre deux tâches, appuyez sur Stop ; la tâche en cours se termine et les suivantes restent non exécutées.",
     "Cliquez de nouveau sur Run queue pour poursuivre avec les tâches restantes. Suivez l’état de chaque ligne au fil de la file.",
     "Sélectionnez une ligne pour lire son journal et examiner les erreurs ou les chemins de sortie. Pour l’exemple de conversion, vérifiez les identifiants de champ et de canal indiqués.",

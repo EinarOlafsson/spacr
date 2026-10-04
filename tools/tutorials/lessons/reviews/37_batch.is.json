@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Smelltu á Validate eftir að hafa raðað biðröðinni. Leystu vandamálin sem talin eru upp þar til Run queue verður tiltækt.",
     "Veldu í On failure hvort halda eigi áfram með óháð verk eða stöðva við fyrstu villu. Stilltu Stop after til að takmarka villur í röð.",
     "Smelltu á Save queue til að vista áætlunina sem JSON. Notaðu Load queue til að opna hana síðar og hafðu stillingaskrárnar og inntökin sem vísað er til tiltæk.",
+    "Áður en þú byrjar skaltu opna Help, svo Window og síðan Jobs. Þegar biðröðin keyrir sýnir Jobs-spjaldið til hægri hana með framvindu, liðnum tíma og Cancel-hnappi. Það sýnir verk í gangi frá öllum skjám, svo þú getur fylgst með langri keyrslu meðan þú vinnur annars staðar.",
     "Smelltu á Run queue. Til að gera hlé milli verka ýtirðu á Stop; núverandi verki lýkur og hin verkin eru áfram ókeyrð.",
     "Smelltu aftur á Run queue til að halda áfram með verkin sem eftir eru. Fylgstu með stöðu hverrar línu eftir því sem biðröðinni miðar.",
     "Veldu línu til að lesa annál hennar og skoða villur eða úttaksslóðir. Í umbreytingardæminu athugarðu uppgefin auðkenni sviða og rása.",

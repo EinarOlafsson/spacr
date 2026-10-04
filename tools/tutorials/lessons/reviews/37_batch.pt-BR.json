@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Clique em Validate depois de organizar a fila. Resolva os problemas listados até que Run queue fique disponível.",
     "Escolha em On failure se quer continuar com os trabalhos independentes ou parar na primeira falha. Defina Stop after para limitar as falhas consecutivas.",
     "Clique em Save queue para salvar o plano como JSON. Use Load queue para reabri-lo depois, mantendo disponíveis os arquivos de configurações e as entradas a que ele se refere.",
+    "Antes de começar, abra Help, depois Window e depois Jobs. Quando a fila estiver rodando, o painel Jobs à direita a mostra com o progresso, o tempo decorrido e um botão Cancel. Ele lista os trabalhos em execução de todas as telas, então você pode acompanhar uma execução longa enquanto trabalha em outro lugar.",
     "Clique em Run queue. Para pausar entre trabalhos, pressione Stop; o trabalho atual termina e os restantes ficam sem executar.",
     "Clique em Run queue de novo para continuar com os trabalhos restantes. Acompanhe o status de cada linha conforme a fila avança.",
     "Selecione uma linha para ler o registro dela e inspecionar erros ou caminhos de saída. No exemplo de conversão, confira os identificadores de campo e de canal informados.",

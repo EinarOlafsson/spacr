@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Haz clic en Validate después de ordenar la cola. Resuelve los problemas indicados hasta que Run queue esté disponible.",
     "Elige en On failure si quieres continuar con los trabajos independientes o detenerte en el primer fallo. Ajusta Stop after para limitar los fallos consecutivos.",
     "Haz clic en Save queue para guardar el plan como JSON. Usa Load queue para volver a abrirlo más tarde, manteniendo disponibles los archivos de ajustes y las entradas a los que hace referencia.",
+    "Antes de empezar, abra Help, luego Window y luego Jobs. Cuando la cola se ejecuta, el panel Jobs de la derecha la muestra con su progreso, el tiempo transcurrido y un botón Cancel. Lista los trabajos en curso de todas las pantallas, así que puede seguir una ejecución larga mientras trabaja en otra parte.",
     "Haz clic en Run queue. Para hacer una pausa entre trabajos, pulsa Stop; el trabajo actual termina y los restantes quedan sin ejecutar.",
     "Vuelve a hacer clic en Run queue para continuar con los trabajos restantes. Observa el estado de cada fila a medida que avanza la cola.",
     "Selecciona una fila para leer su registro y revisar los errores o las rutas de salida. En el ejemplo de conversión, comprueba los identificadores de campo y de canal indicados.",

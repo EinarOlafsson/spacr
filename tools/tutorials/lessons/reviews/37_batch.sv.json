@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Klicka på Validate när kön är ordnad. Åtgärda de listade problemen tills Run queue blir tillgängligt.",
     "Välj i On failure om oberoende jobb ska fortsätta eller om kön ska stoppa vid första felet. Ställ in Stop after för att begränsa antalet fel i rad.",
     "Klicka på Save queue för att spara planen som JSON. Använd Load queue för att öppna den senare, och håll de refererade inställningsfilerna och indata tillgängliga.",
+    "Innan du startar öppnar du Help, sedan Window och sedan Jobs. När kön körs visar Jobs-panelen till höger den med förlopp, förfluten tid och en Cancel-knapp. Den listar pågående jobb från alla skärmar, så att du kan följa en lång körning medan du arbetar någon annanstans.",
     "Klicka på Run queue. För att pausa mellan jobb trycker du på Stop; det pågående jobbet slutförs och återstående jobb förblir okörda.",
     "Klicka på Run queue igen för att fortsätta med återstående jobb. Följ varje rads status medan kön går framåt.",
     "Markera en rad för att läsa dess logg och granska fel eller utdatasökvägar. I konverteringsexemplet kontrollerar du de rapporterade synfälts- och kanalidentifierarna.",

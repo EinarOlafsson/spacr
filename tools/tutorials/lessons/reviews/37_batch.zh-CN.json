@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "排好队列后点击Validate。解决列出的问题，直到Run queue可用。",
     "在On failure中选择遇到失败时继续运行独立任务，还是在第一次失败时停止。设置Stop after以限制连续失败的次数。",
     "点击Save queue，把计划保存为JSON。以后用Load queue重新打开，并确保其引用的设置文件和输入仍然可用。",
+    "开始之前，依次打开 Help、Window 和 Jobs。队列运行后，右侧的 Jobs 面板会显示它的进度、已用时间和一个 Cancel 按钮。它会列出从任何界面启动的正在运行的作业，因此您可以一边在别处工作，一边跟踪耗时较长的运行。",
     "点击Run queue。要在任务之间暂停，请按Stop；当前任务会完成，其余任务保持未运行。",
     "再次点击Run queue，继续运行剩余的任务。随着队列推进，查看每一行的状态。",
     "选择一行，阅读其日志并检查错误或输出路径。对于转换示例，请检查报告的视野和通道标识。",

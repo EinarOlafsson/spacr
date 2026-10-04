@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "큐를 정리한 뒤 Validate를 클릭하세요. Run queue를 쓸 수 있을 때까지 나열된 문제를 해결하세요.",
     "On failure에서 독립적인 작업을 계속할지, 첫 실패에서 멈출지 고르세요. Stop after로 연속 실패 횟수를 제한하세요.",
     "Save queue를 클릭해 계획을 JSON으로 저장하세요. 나중에 Load queue로 다시 열 수 있으며, 참조하는 설정 파일과 입력은 계속 쓸 수 있게 두세요.",
+    "시작하기 전에 Help, Window, Jobs 순으로 엽니다. 큐가 실행되면 오른쪽 Jobs 패널에 진행률, 경과 시간, Cancel 버튼과 함께 표시됩니다. 모든 화면에서 실행 중인 작업을 보여 주므로 다른 작업을 하면서 긴 실행을 지켜볼 수 있습니다.",
     "Run queue를 클릭하세요. 작업 사이에 멈추려면 Stop을 누르세요. 현재 작업은 끝까지 실행되고 나머지 작업은 실행되지 않은 채 남습니다.",
     "남은 작업을 계속하려면 Run queue를 다시 클릭하세요. 큐가 진행되는 동안 각 행의 상태를 지켜보세요.",
     "행을 선택해 로그를 읽고 오류나 출력 경로를 확인하세요. 변환 예제에서는 보고된 시야와 채널 식별자를 확인하세요.",

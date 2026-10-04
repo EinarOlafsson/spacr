@@ -1,6 +1,6 @@
 {
   "lesson": "37_batch",
-  "english_sha256": "27beb5f8077802980760ea3fd63868bb20a7471ba192bdca5d4a57fd8b8ef8bd",
+  "english_sha256": "da4fd715cd2a751a9c0dab2371af9f11768788082be4dacb17c4fa26df50e29e",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -28,6 +28,7 @@
     "Fai clic su Validate dopo aver ordinato la coda. Risolvi i problemi elencati finché Run queue non diventa disponibile.",
     "Scegli in On failure se continuare con i lavori indipendenti o fermarti al primo errore. Imposta Stop after per limitare gli errori consecutivi.",
     "Fai clic su Save queue per salvare il piano come JSON. Usa Load queue per riaprirlo in seguito, tenendo disponibili i file di impostazioni e gli input a cui fa riferimento.",
+    "Prima di iniziare, apra Help, poi Window e poi Jobs. Quando la coda è in esecuzione, il pannello Jobs a destra la mostra con l’avanzamento, il tempo trascorso e un pulsante Cancel. Elenca i job in corso da ogni schermata, così può seguire un’esecuzione lunga mentre lavora altrove.",
     "Fai clic su Run queue. Per fare una pausa tra un lavoro e l’altro, premi Stop; il lavoro corrente termina e quelli rimanenti restano non eseguiti.",
     "Fai di nuovo clic su Run queue per proseguire con i lavori rimanenti. Osserva lo stato di ogni riga mentre la coda avanza.",
     "Seleziona una riga per leggerne il log ed esaminare errori o percorsi di output. Per l’esempio di conversione, controlla gli identificativi di campo e di canale riportati.",
