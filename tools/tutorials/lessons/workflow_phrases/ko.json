@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "ko",
-  "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+  "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
   "review": {
     "kind": "AI-written workflow-map phrase bank; AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "native_speaker_signoff": false,
@@ -1497,6 +1497,16 @@
       "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
       "source_sha256": "6660e4f689c9d736a3ede08eece36af39dcc9b640d58df74e1a2155f65d12524",
       "translation": "때로는 마스크에 사람의 손길이 필요합니다. Home에서 Make Masks를 열고 시야별로 고치세요. 여기서 저장한 것은 두 방향으로 갈 수 있습니다. 분할 모델을 학습시키려면 이미지-마스크 쌍을 정리해 학습 시야로 함께 보관하세요. 측정하려면 Organize for Measure를 사용하세요. 각 이미지와 그 마스크를 채널 폴더로 옮기고 Measure가 읽는 배열로 병합합니다. 따로 떨어진 마스크는 병합 배열이 아닙니다. 여기서 그린 플라크 마스크는 대응하는 원본 이미지와 함께 Plaque Assay에도 쓸 수 있습니다. 마스크를 저장한다고 분류기가 학습되지는 않습니다."
+    },
+    {
+      "source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "source_sha256": "2745c09669c4b288cfbe3489ff27d0f7df8a5d4c24cba98009099b0a609e4910",
+      "translation": "표를 불러오거나 Merge tables로 호환되는 측정값을 합치세요. 변환된 이미지는 Merge original filenames로 변환 맵에서 이름을 복원하세요. Annotate conditions로 메타데이터 정규식 규칙이나 끌어 놓은 행을 사용해 이름 있는 열을 지정하고, 주석이 달린 SQLite 표를 저장하거나 규칙과 함께 CSV를 내보내세요. 변수, 그룹, 그래프 설정을 고른 뒤, 분석 맥락과 함께 그림을 내보내세요."
+    },
+    {
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "translation": "표를 불러오거나 Merge tables로 검증된 키와 집계를 갖춘 작업 세트를 만드세요. 실제 특징/좌표 열에 임곗값 게이트나 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate로 표시된 게이트를 주석 열에 쓰고, 선택한 객체를 검토한 뒤 이진 또는 다중 클래스 라벨을 고르세요."
     }
   ]
 }

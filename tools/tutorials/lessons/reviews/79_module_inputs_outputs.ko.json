@@ -1,7 +1,7 @@
 {
   "language": "ko",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "ca4d98ae9371024472da562736c818eea12346fd61d148a328baa6bdfd58f462",
+  "english_sha256": "841aa1c4f0d9024d551b8c5b4693a3d894e0f2ad90a3d6f8abfa71acc62db0ce",
   "title": "모듈 입력과 출력",
   "section": "Workflows",
   "description": "Home 모듈 안에 중첩된 도구를 포함해, 현재 모든 모듈의 입력 데이터, 저장된 출력, 상류 생성 모듈, 하류 사용 모듈을 찾아보세요.",
@@ -49,9 +49,9 @@
     "Home에서 Graph Builder을(를) 연 다음 Plate Viewer을(를) 선택하세요. 선택한 측정값을 웰별로 집계하고 플레이트 패턴과 대조군을 확인하세요. Plate Viewer 모듈은 측정된 객체 및 실험 레이아웃을(를) 읽습니다. 이를 바탕으로 Plate Viewer 모듈은 그림과 내보낸 표을(를) 만듭니다.",
     "Home에서 Image UMAP을(를) 여세요. 측정 특징이나 제공된 인코더 특징을 투영하고 대표적인 크롭을 확인하세요. 클러스터는 후보 그룹일 뿐 검증된 표현형이 아닙니다. 올가미와 주석 도구로 검토한 선택을 일치하는 측정 데이터베이스의 주석 열에 쓰세요. 기하학적 선택만으로는 생물학적 표현형이 확립되지 않습니다. Image UMAP 모듈은 측정된 객체, 객체 크롭 및 이미지 임베딩을(를) 읽습니다. 이를 바탕으로 Image UMAP 모듈은 투영과 클러스터 및 학습용 주석을(를) 만듭니다. 투영과 클러스터은(는) 여기에 있습니다: 불러온 측정 데이터에 대한 Image UMAP/PCA 좌표 표, 선택한 클러스터, 그림. Measure에서 측정된 객체 및 객체 크롭을(를) 제공할 수 있습니다. 특징 열을 고르고 대표적인 크롭을 확인하세요. Embeddings에서 시작하면 그곳에서 이미지 임베딩을(를) 제공합니다. 객체 ID가 일치하는 인코더 특징 표를 제공하세요. 모든 GUI 경로가 이를 자동으로 저장한다고 가정하지 마세요. 다음으로 Gate Editor에서 투영과 클러스터을(를) 이어받습니다. 선택을 정의할 때는 일치하는 좌표/특징 열을 제공하세요. 학습용 주석을(를) Classify에 넘길 수도 있습니다. 검토한 올가미 선택을 일치하는 객체 데이터베이스의 주석 열에 쓴 뒤, Classify에서 그 열을 선택하세요. 크롭을 확인하고 라벨을 검증하세요. 임베딩 클러스터는 정답이 아닙니다.",
     "Home에서 Regression을(를) 연 다음 Prediction Profiler을(를) 선택하세요. 입력 특징이 바뀔 때 적합된 모델이 어떻게 반응하는지 확인하세요. 예측이 인과 효과를 입증하지는 않습니다. Prediction Profiler 모듈은 적합된 특징 분류기을(를) 읽습니다. 이를 바탕으로 Prediction Profiler 모듈은 그림과 내보낸 표을(를) 만듭니다.",
-    "Home에서 Graph Builder을(를) 여세요. 불러온 표에서 변수, 그룹, 그래프 설정을 고른 뒤, 분석 맥락과 함께 그림을 내보내세요. Graph Builder 모듈은 측정된 객체을(를) 읽습니다. 이를 바탕으로 Graph Builder 모듈은 그림과 내보낸 표을(를) 만듭니다. Measure에서 측정된 객체을(를) 제공할 수 있습니다. 변수, 그룹, 필터를 명시적으로 고르세요.",
+    "Home에서 Graph Builder을(를) 여세요. 표를 불러오거나 Merge tables로 호환되는 측정값을 합치세요. 변환된 이미지는 Merge original filenames로 변환 맵에서 이름을 복원하세요. Annotate conditions로 메타데이터 정규식 규칙이나 끌어 놓은 행을 사용해 이름 있는 열을 지정하고, 주석이 달린 SQLite 표를 저장하거나 규칙과 함께 CSV를 내보내세요. 변수, 그룹, 그래프 설정을 고른 뒤, 분석 맥락과 함께 그림을 내보내세요. Graph Builder 모듈은 측정된 객체을(를) 읽습니다. 이를 바탕으로 Graph Builder 모듈은 그림과 내보낸 표을(를) 만듭니다. Measure에서 측정된 객체을(를) 제공할 수 있습니다. 변수, 그룹, 필터를 명시적으로 고르세요.",
     "Home에서 Regression을(를) 연 다음 Investigate Hit을(를) 선택하세요. 회귀 히트를 후보 객체와 정량적인 웰 수준 근거에 연결합니다. 이것이 히트를 독립적으로 검증하지는 않습니다. Investigate Hit 모듈은 회귀 결과와 히트, 객체 분류 점수 및 측정된 객체을(를) 읽습니다. 이를 바탕으로 Investigate Hit 모듈은 그림과 내보낸 표을(를) 만듭니다. Regression에서 회귀 결과와 히트을(를) 제공할 수 있습니다. 선택한 히트에 대해 호환되는 표현형 데이터와 객체 데이터를 결합하세요.",
-    "Home에서 Gate Editor을(를) 여세요. 실제 특징/좌표 열에 임곗값 게이트나 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate로 표시된 게이트를 주석 열에 쓰고, 선택한 객체를 검토한 뒤 이진 또는 다중 클래스 라벨을 고르세요. Gate Editor 모듈은 측정된 객체 및 투영과 클러스터을(를) 읽습니다. 이를 바탕으로 Gate Editor 모듈은 재사용 가능한 게이트 및 학습용 주석을(를) 만듭니다. Image UMAP에서 투영과 클러스터을(를) 제공할 수 있습니다. 선택을 정의할 때는 일치하는 좌표/특징 열을 제공하세요. 다음으로 Annotate에서 재사용 가능한 게이트을(를) 이어받습니다. 호환되는 게이트를 적용한 뒤 라벨 후보를 검토하세요. Measure에서 시작하면 그곳에서 측정된 객체을(를) 제공합니다. 실제 측정 특징의 정의와 단위를 사용하세요. 학습용 주석을(를) Classify에 넘길 수도 있습니다. 검토한 게이트 선택을 주석 열에 쓴 뒤, Classify에서 같은 열과 객체 집단을 선택하세요. 검증 객체는 학습 라벨과 분리하세요.",
+    "Home에서 Gate Editor을(를) 여세요. 표를 불러오거나 Merge tables로 검증된 키와 집계를 갖춘 작업 세트를 만드세요. 실제 특징/좌표 열에 임곗값 게이트나 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate로 표시된 게이트를 주석 열에 쓰고, 선택한 객체를 검토한 뒤 이진 또는 다중 클래스 라벨을 고르세요. Gate Editor 모듈은 측정된 객체 및 투영과 클러스터을(를) 읽습니다. 이를 바탕으로 Gate Editor 모듈은 재사용 가능한 게이트 및 학습용 주석을(를) 만듭니다. Image UMAP에서 투영과 클러스터을(를) 제공할 수 있습니다. 선택을 정의할 때는 일치하는 좌표/특징 열을 제공하세요. 다음으로 Annotate에서 재사용 가능한 게이트을(를) 이어받습니다. 호환되는 게이트를 적용한 뒤 라벨 후보를 검토하세요. Measure에서 시작하면 그곳에서 측정된 객체을(를) 제공합니다. 실제 측정 특징의 정의와 단위를 사용하세요. 학습용 주석을(를) Classify에 넘길 수도 있습니다. 검토한 게이트 선택을 주석 열에 쓴 뒤, Classify에서 같은 열과 객체 집단을 선택하세요. 검증 객체는 학습 라벨과 분리하세요.",
     "애플리케이션의 Help 또는 도구 메뉴에서 Feature Dictionary을(를) 찾으세요. 측정 열을 고르기 전에 특징 정의와 단위를 찾아보세요. Feature Dictionary 모듈은 특징 정의을(를) 읽습니다. 특징 정의 위치: 설치된 특징 사전. 정의는 기존 측정값을 설명할 뿐 계산하지는 않습니다. 이를 바탕으로 Feature Dictionary 모듈은 특징 정의을(를) 만듭니다.",
     "Home에서 Graph Builder을(를) 연 다음 Small Multiples을(를) 선택하세요. 공유 축 또는 독립 축을 명시한 소형 다중 그래프로 그룹을 비교하세요. Small Multiples 모듈은 측정된 객체을(를) 읽습니다. 이를 바탕으로 Small Multiples 모듈은 그림과 내보낸 표을(를) 만듭니다.",
     "Home에서 Toxoplasma을(를) 연 다음 Plaque Assay을(를) 선택하세요. 설정된 플라크 모델로 플라크 이미지나 기존 마스크를 분석하세요. 이 경로는 Measure를 거치지 않아도 되며, 전용 플라크 예제를 사용하세요. Plaque Assay 모듈은 현미경 이미지 및 라벨 마스크을(를) 읽습니다. 이를 바탕으로 Plaque Assay 모듈은 분석 결과 및 라벨 마스크을(를) 만듭니다. Make Masks에서 라벨 마스크을(를) 제공할 수 있습니다. 원본 이미지가 일치하는 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 라벨이 되지는 않습니다.",
@@ -96,8 +96,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
-    "phrase_bank_sha256": "288d4eb86f2970ec864d009ed3ebae7ac653999d7a0d0e151ec9cca27f5f0ef2",
+    "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
+    "phrase_bank_sha256": "5b5f80ae647984f5fbfd3e7b0948d77b80fbb83e4bd843916dbc6fa931450c53",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."

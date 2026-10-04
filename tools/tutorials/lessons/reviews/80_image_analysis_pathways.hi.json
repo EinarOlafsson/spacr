@@ -35,8 +35,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
-    "phrase_bank_sha256": "9bfdfd2901285ae9694aa9295e7cf9bb2fd537cae3a63ac9d75aee0b4cb6c4f7",
+    "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
+    "phrase_bank_sha256": "c6d9f449daba303ff219fd9b26cb132bd8ca2923301f4471eae3ad57563afeff",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."

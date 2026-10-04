@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "language": "it",
-  "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
+  "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
   "review": {
     "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
     "native_speaker_signoff": false,
@@ -1764,6 +1764,16 @@
       "source": "Sometimes masks need a human hand. Open Make Masks from Home to correct them field by field. What you save here can go two ways. To train segmentation, curate image and mask pairs and keep them side by side as training fields. To measure, use Organize for Measure, which moves each image and its masks into channel folders and merges them into the arrays Measure reads; a standalone mask is not a merged array. Plaque masks drawn here can also feed the Plaque Assay with their matching source images. Saving a mask does not train a classifier.",
       "source_sha256": "6660e4f689c9d736a3ede08eece36af39dcc9b640d58df74e1a2155f65d12524",
       "translation": "A volte le maschere hanno bisogno di una mano umana. Apri Make Masks da Home per correggerle campo per campo. Ciò che salvi qui può prendere due strade. Per addestrare la segmentazione, cura coppie immagine-maschera e tienile insieme come campi di addestramento. Per misurare, usa Organize for Measure, che sposta ogni immagine e le sue maschere in cartelle di canale e le unisce negli array che Measure legge; una maschera isolata non è un array unito. Le maschere di placche disegnate qui possono anche alimentare Plaque Assay con le immagini di origine corrispondenti. Salvare una maschera non addestra un classificatore."
+    },
+    {
+      "source": "Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context.",
+      "source_sha256": "2745c09669c4b288cfbe3489ff27d0f7df8a5d4c24cba98009099b0a609e4910",
+      "translation": "Caricare una tabella o usare Merge tables per combinare misure compatibili. Per le immagini convertite, usare Merge original filenames per recuperare i nomi da una mappa di conversione. Usare Annotate conditions per assegnare una colonna con nome tramite regole regex sui metadati o righe trascinate; salvare una tabella SQLite annotata o esportare un CSV con le relative regole. Scegliere variabili, gruppi e impostazioni grafiche, quindi esportare la figura con il relativo contesto analitico."
+    },
+    {
+      "source": "Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels.",
+      "source_sha256": "3bafee89d682254bb5d681aa2f37f306c49d68de212c3f8e8e3f4bd5fd1b1bdb",
+      "translation": "Caricare una tabella o usare Merge tables per creare un insieme di lavoro con chiavi convalidate e aggregazione. Definire gate a soglia o poligonali sulle effettive colonne delle caratteristiche o delle coordinate, quindi applicare il gate salvato a oggetti compatibili. Usa Annotate per scrivere le gate visualizzate in una colonna di annotazione; esamina gli oggetti selezionati e scegli etichette binarie o multiclasse."
     }
   ],
   "retired_records": [

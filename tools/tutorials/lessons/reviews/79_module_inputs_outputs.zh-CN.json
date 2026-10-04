@@ -1,7 +1,7 @@
 {
   "language": "zh-CN",
   "lesson": "79_module_inputs_outputs",
-  "english_sha256": "ca4d98ae9371024472da562736c818eea12346fd61d148a328baa6bdfd58f462",
+  "english_sha256": "841aa1c4f0d9024d551b8c5b4693a3d894e0f2ad90a3d6f8abfa71acc62db0ce",
   "title": "模块输入与输出",
   "section": "工作流程",
   "description": "查找每个当前模块的输入数据、保存的输出、上游生成模块和下游使用模块，包括嵌套在 Home 模块中的工具。",
@@ -49,9 +49,9 @@
     "从 Home 打开 Graph Builder，然后选择 Plate Viewer。 按孔汇总所选测量值，并检查孔板上的分布模式和对照。 Plate Viewer 读取 已测量的对象 和 实验布局。 Plate Viewer 据此生成 图和导出的表格。",
     "从 Home 打开 Image UMAP。 对实测特征或提供的编码器特征进行投影，并检查有代表性的裁剪图像。聚类只是候选分组，并非已验证的表型。使用套索和注释控件，将审查后的选择写入对应测量数据库的注释列。单靠几何选择不能确立生物学表型。 Image UMAP 读取 已测量的对象, 对象裁剪图像 和 图像嵌入。 Image UMAP 据此生成 投影和聚类 以及 训练注释。 您可以在这里找到 投影和聚类： 已加载测量数据的 Image UMAP/PCA 坐标表、所选聚类和图形。 Measure 可以提供 已测量的对象 和 对象裁剪图像。 选择特征列并检查有代表性的裁剪图像。 如果您从 Embeddings 开始，它会提供 图像嵌入。 提供具有匹配对象 ID 的编码器特征表；不要假设每条 GUI 路径都会自动将其持久保存。 接下来由 Gate Editor 接收 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 您也可以把 训练注释 交给 Classify。 将审查后的套索选择写入对应对象数据库的注释列，然后在 Classify 中选择该列。检查裁剪图像并验证标签；嵌入空间中的聚类并非真实参考标签。",
     "从 Home 打开 Regression，然后选择 Prediction Profiler。 检查输入特征变化时已拟合模型的响应；预测不能证明因果效应。 Prediction Profiler 读取 拟合好的特征分类器。 Prediction Profiler 据此生成 图和导出的表格。",
-    "从 Home 打开 Graph Builder。 从已加载的表中选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 Graph Builder 读取 已测量的对象。 Graph Builder 据此生成 图和导出的表格。 Measure 可以提供 已测量的对象。 明确选择变量、分组和过滤条件。",
+    "从 Home 打开 Graph Builder。 加载一个表，或使用 Merge tables 合并兼容的测量值。对于转换过的图像，使用 Merge original filenames 从转换映射中恢复名称。使用 Annotate conditions 通过元数据正则规则或拖动的行指定一个命名列；保存带注释的 SQLite 表，或连同规则导出 CSV。选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 Graph Builder 读取 已测量的对象。 Graph Builder 据此生成 图和导出的表格。 Measure 可以提供 已测量的对象。 明确选择变量、分组和过滤条件。",
     "从 Home 打开 Regression，然后选择 Investigate Hit。 将回归命中结果与候选对象及孔级定量证据关联。这本身并不能独立验证该命中结果。 Investigate Hit 读取 回归结果和命中, 对象分类分数 以及 已测量的对象。 Investigate Hit 据此生成 图和导出的表格。 Regression 可以提供 回归结果和命中。 为所选命中结果关联兼容的表型数据和对象数据。",
-    "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 Gate Editor 读取 已测量的对象 以及 投影和聚类。 Gate Editor 据此生成 可重复使用的门控 和 训练注释。 Image UMAP 可以提供 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 接下来由 Annotate 接收 可重复使用的门控。 应用兼容的门控规则，然后检查候选标签。 如果您从 Measure 开始，它会提供 已测量的对象。 使用实际实测特征的定义和单位。 您也可以把 训练注释 交给 Classify。 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
+    "从 Home 打开 Gate Editor。 加载一个表，或使用 Merge tables 创建带有已验证键和聚合的工作集。在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 Gate Editor 读取 已测量的对象 以及 投影和聚类。 Gate Editor 据此生成 可重复使用的门控 和 训练注释。 Image UMAP 可以提供 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 接下来由 Annotate 接收 可重复使用的门控。 应用兼容的门控规则，然后检查候选标签。 如果您从 Measure 开始，它会提供 已测量的对象。 使用实际实测特征的定义和单位。 您也可以把 训练注释 交给 Classify。 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
     "在应用程序的 Help 或工具菜单中查找 Feature Dictionary。 选择测量列前，查阅特征定义和单位。 Feature Dictionary 读取 特征定义。 特征定义 在这里： 已安装的特征字典；定义用于描述已有测量值，并不计算这些测量值。 Feature Dictionary 据此生成 特征定义。",
     "从 Home 打开 Graph Builder，然后选择 Small Multiples。 使用明确共享或独立坐标轴的分面图比较各组。 Small Multiples 读取 已测量的对象。 Small Multiples 据此生成 图和导出的表格。",
     "从 Home 打开 Toxoplasma，然后选择 Plaque Assay。 使用配置的噬斑模型分析噬斑图像或现有掩膜。此路径不必经过 Measure；请参阅专门的噬斑示例。 Plaque Assay 读取 显微图像 和 标签掩膜。 Plaque Assay 据此生成 检测结果 和 标签掩膜。 Make Masks 可以提供 标签掩膜。 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
@@ -96,8 +96,8 @@
   "review": {
     "kind": "AI-assisted phrase review composed by the shared workflow-map generator; module names match the English recording.",
     "native_speaker_signoff": false,
-    "workflow_map_sha256": "7f2240c8a095d13283bcf2e05f73886434ab8fbecfddba31a3a7a73bde0e91fa",
-    "phrase_bank_sha256": "2ba357cdbf037fdc7cbfca483926b60179a24987dfb56d0ff39dddb3dfd5e230",
+    "workflow_map_sha256": "8ac76ff5f501802ac5ada43df646398e1e5d8a329a3f68efba0260bb7f0e17a5",
+    "phrase_bank_sha256": "44c0acf922feaab341973f75cf1916495d5e679acd02feeabe23c295d8b6092d",
     "corrections": [
       "Use the same reviewed input/output and handoff phrases for the GUI and tutorial scripts.",
       "Preserve literal API, table and column identifiers and the original capture/link structure."
