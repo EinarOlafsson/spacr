@@ -42,3 +42,5 @@ test_annotate_settings_expose_rgb_as_the_default_stored_order asserted the
 dot was PRESENT; it now asserts it is absent and that "href=" is still in
 the label's tooltip. The docstring says what it used to claim and why that
 stopped being right.
+
+VERIFIED 2026-10-04: superseded by the later no-dots rule; test_no_information_dots.py passes (no dot anywhere, API link on hover).

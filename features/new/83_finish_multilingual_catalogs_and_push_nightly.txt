@@ -327,3 +327,5 @@ _visible_coverage` fails at 8258 against its reviewed ratchet of 8190. That
 ratchet is the mechanism working: a public docstring addition is supposed to
 stop the build until the target catalogs are regenerated. It belongs to
 whoever next runs the API translation pass.
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly (test_api_i18n_extractor.py, test_api_i18n_frontend.py, test_runtime_i18n_syntax.py, ...).

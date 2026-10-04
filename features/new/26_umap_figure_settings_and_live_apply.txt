@@ -142,3 +142,5 @@ test_every_propagated_key_is_one_the_settings_panel_is_bound_to, which
 builds the real Image UMAP settings panel and rejects any key it has no
 control for -- so a tenth field cannot be added under an artist name and
 propagate to nothing.
+
+VERIFIED 2026-10-04: test_umap_figure_settings.py passes.

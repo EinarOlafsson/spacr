@@ -109,3 +109,5 @@ They now look the column up by NAME. The names are stable; the positions
 never were.
 
 65 pass in the screen suite.
+
+VERIFIED 2026-10-04: test_umap_search.py passes.

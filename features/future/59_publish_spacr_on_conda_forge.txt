@@ -367,3 +367,5 @@ Verified Zenodo record 22890536: v1.5.0.9, published 2026-09-22, concept
 version-DOI fields to 10.5281/zenodo.22890536 and their release description.
 The concept DOI is unchanged. Packaging installation prose no longer tells
 a maintainer to repeat the already-completed conda onboarding.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_packaging_metadata.py).

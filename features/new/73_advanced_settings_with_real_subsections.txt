@@ -408,3 +408,5 @@ passed), which holds `test_every_setting_a_module_offers_has_a_category` and
 change which keys a module offers" assertion this file's criteria asked for;
 and tests/qt/test_category_tooltips.py (252 passed), which is the guard that
 every heading, the three new ones included, carries a written blurb.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly (test_all_module_smoke.py, test_category_tooltips.py, test_external_i18n_catalogs.py, ...).

@@ -2142,3 +2142,5 @@ conflicts in files that are large, binary and expensive to re-render.
 
 If a defect in the tutorials is found while working on something else, record
 it HERE as a note and leave it. Do not fix it.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_tutorial_release_audit.py).

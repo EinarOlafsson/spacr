@@ -496,3 +496,5 @@ Regression-default equivalence. Offscreen Linux dark/light popup renders were
 inspected; no native Windows/macOS display acceptance claimed.
 Graph Builder and Gate Editor integration are tracked in N613 and N41. Catalog,
 API-generation and tutorial-publication integration remain in N615.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_merge_duplicate_columns.py).

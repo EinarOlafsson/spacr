@@ -291,3 +291,5 @@ methods, volumetric measurement plotting, array-only crops, UMAP row alignment,
 and NaN/missing crop metadata.
 
 This completes instruction 60 in its maintainer-defined scope.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly (test_all_module_smoke.py, test_preferences_gear.py, test_golden_pipeline.py).

@@ -364,3 +364,5 @@ nor on CI reaching the end of a run. Proven four ways -- a clean push
 allowed, a trailer refused, a Claude-authored commit refused, and prose
 that merely DISCUSSES the trailer allowed -- plus branch deletion and
 first-push handling. Four tests keep it honest.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_no_commit_credits_claude.py).

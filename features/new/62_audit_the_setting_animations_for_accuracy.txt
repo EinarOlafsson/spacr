@@ -996,3 +996,5 @@ organelle_diameter, organelle_skeletonize) were rebuilt around what the
 code actually does. Each was re-watched as a contact sheet after
 regeneration and re-measured off the shipped GIF. Counts in
 instructions/62_anim_audit.json: GOOD 94, WEAK 0.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly (test_animations_show_something.py, test_border_animation_geometry.py, test_the_shipped_border_gifs_remove_only_edge_objects.py).

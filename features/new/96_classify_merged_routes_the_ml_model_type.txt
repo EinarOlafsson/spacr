@@ -96,3 +96,5 @@ Verified locally:
 
 Fixing commit: this instruction's completion commit. GitHub issue #98 is
 closed against that commit after it is pushed.
+
+VERIFIED 2026-10-04: test_classify_merged.py passes.

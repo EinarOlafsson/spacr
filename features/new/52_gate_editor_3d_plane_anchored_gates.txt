@@ -585,3 +585,5 @@ This file's acceptance test is arithmetic, so it was run as arithmetic on a
                               tests/qt/test_anchor_plane.py and
                               test_cov_gate_editor_volume_drag.py: 79 passed,
                               1 skipped (a matplotlib quad-storage detail).
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_anchor_plane.py).

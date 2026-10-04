@@ -132,3 +132,5 @@ placement in the native system strip, which the current app deliberately does
 not use. The earlier preparation note above described the system-menu branch;
 the recorded acceptance mode is explicitly in-window-on-cocoa. Receipt:
 features/data/23_53_macos_native_acceptance_2026-09-27.json.
+
+VERIFIED 2026-10-04: 8 referenced test files pass on nightly (test_annotate.py, test_command_palette_actions.py, test_demo_menu.py, ...).

@@ -299,3 +299,5 @@ per-wrapper reading, then one nine-language rebuild.
 
     117 + 141 = 258 captions hidden by helper functions, of which 117 are now
     translated and 141 are measured, listed and waiting.
+
+VERIFIED 2026-10-04: test_i18n_coverage_audit.py passes.

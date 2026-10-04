@@ -93,3 +93,5 @@ under the cursor" or axis submenus. Those need hit-testing at the click
 position and a column list, and the menu is useful without them. The
 existing `_ZoomView` click/drag boundary was left untouched, so panning
 still works.
+
+VERIFIED 2026-10-04: test_gate_graph_menu.py passes.

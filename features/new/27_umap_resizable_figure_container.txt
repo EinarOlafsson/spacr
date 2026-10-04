@@ -158,3 +158,5 @@ a minimum width equal to or greater than the sidebar's own.
 The vertical question this file also asked is answered by the same
 splitter: the chart takes the height of the body, so enlarging the window
 enlarges the plot without enlarging the crops, which is what was wanted.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_umap_figure_container_drag.py).

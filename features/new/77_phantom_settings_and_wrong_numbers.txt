@@ -1469,3 +1469,5 @@ itself an answer -- the defect could have been ported. It was not:
 
 So finding 23 is CORRECTLY CLOSED, for a reason the file did not record: the
 surface it lived on was deleted, and the surviving surface never had it.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly (test_the_panel_keeps_module_defaults.py, test_crop_source.py, test_crop_source_wiring.py, ...).

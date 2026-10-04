@@ -230,3 +230,5 @@ DELIBERATELY NOT DONE
   the fix is live in it with no reinstall. Confirmed: ``import spacr.ml`` in
   that env maps FOUR libomp images (skimage's, sklearn's, torch's, Homebrew's)
   and ``openmp_runtime_is_duplicated()`` returns True, so the guard engages.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_openmp_guard.py, test_perf_guard.py); timing guards flaky only under parallel load, pass alone.

@@ -1054,3 +1054,5 @@ Verification:
 * a full Sphinx dummy build succeeded with zero warnings. The branch advanced
   during the pinned build only by a test-file commit, which AutoAPI excludes;
   the post-advance provenance guard passed.
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly (test_settings_tooltip_quality.py, test_tooltip_api_links_resolve.py, test_tooltip_length_and_shape.py, ...).

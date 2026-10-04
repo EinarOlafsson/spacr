@@ -212,3 +212,5 @@ both of which pytest normalises away before collection.
 tests/test_conftest_fixture_visibility.py passes, including the half that
 switches the shard off and shows the hazard returning, so the guard is
 demonstrated rather than asserted.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly (test_annotate.py, test_demo_menu.py, test_conftest_fixture_visibility.py, ...).

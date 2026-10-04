@@ -174,3 +174,5 @@ the chrome and leaves the settings in English. That is a translation
 project with a real decision in it -- how far to go, and who reads the
 languages -- not a missing feature, and keeping it inside this task would
 have made a satisfied request look unfinished for months.
+
+VERIFIED 2026-10-04: test_cov_r8_i18n_current_language.py passes.

@@ -116,3 +116,5 @@ waiting on 82. The three URLs keep the published `SpaCR-1.5.0.4-*` filenames
 until SOME release next builds artifacts, which the packaging scripts above
 will already name correctly. Both the test comment and this file now say that
 instead of naming an instruction that will not run.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_the_name_is_spaCR.py).

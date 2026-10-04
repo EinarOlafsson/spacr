@@ -125,3 +125,5 @@ no explanation is worse than one that does not change.
 DELIBERATELY NOT DONE: hit-testing static figures. Recorded here as a
 decision rather than an omission -- if it is ever genuinely wanted, the
 cost above is what it costs, and the explorer is why it has not been paid.
+
+VERIFIED 2026-10-04: test_umap_explorer.py passes.

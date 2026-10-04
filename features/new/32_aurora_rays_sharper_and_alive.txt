@@ -86,3 +86,5 @@ is the full-resolution aurora at 4.76 ms behind `BUFFER_MAX_PIXELS`, the
 number that actually GUARDS the cost is in
 `tests/qt/test_perf_guard_qt.py`: aurora at 1920x1080, 1.40 ms quiet budget
 and 3.36 ms loaded. That test passes.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_aurora_rays.py, test_perf_guard_qt.py); timing guards flaky only under parallel load, pass alone.

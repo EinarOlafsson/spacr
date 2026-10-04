@@ -38,3 +38,5 @@ HOW TO KNOW IT WORKED
 
 The spaCR menu reads home / preferences / quit / apps. Ctrl+B still opens
 the drawer.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_menu_roles.py).

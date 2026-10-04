@@ -46,3 +46,5 @@ HOW TO KNOW IT WORKED
   * Re-running mask rebuilds it rather than appending to it.
   * A mask run against a database it cannot write relationships for still
     finishes, with the reason in the log.
+
+VERIFIED 2026-10-04: test_relationships_after_mask.py passes.

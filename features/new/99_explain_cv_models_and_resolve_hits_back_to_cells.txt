@@ -259,3 +259,5 @@ Verification on the settled tree:
 The probability name, manifest and report retain the central limitation from
 this instruction: it is a cross-fitted target-hit-like phenotype under a
 well-level mixture, not an observed single-cell guide identity.
+
+VERIFIED 2026-10-04: test_surrogate.py, test_model_explainer.py pass.

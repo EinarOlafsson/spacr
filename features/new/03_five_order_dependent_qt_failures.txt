@@ -349,3 +349,5 @@ a pytest plugin:
   reading it -- it was by running the suite in batches rather than per file.
   A batched sweep is the only instrument that sees this class at all, and it
   costs nothing but wall clock.
+
+VERIFIED 2026-10-04: 11 referenced test files pass on nightly (test_all_module_smoke.py, test_cov_qt_app.py, test_cov_r5_fractal_travel.py, ...).

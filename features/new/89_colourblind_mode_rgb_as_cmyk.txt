@@ -336,3 +336,5 @@ palette -- a better palette can replace this one by beating the numbers
 instead of by argument. 588 pass across settings, plot, smoke and validate.
 
 89 IS DONE.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_display_primaries_global.py).

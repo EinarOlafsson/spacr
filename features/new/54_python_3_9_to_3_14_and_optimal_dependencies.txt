@@ -836,3 +836,5 @@ THE UNPINNED-SYMPY QUESTION, ANSWERED AS FAR AS A LOCAL MACHINE CAN.
   it only bites a near-empty env run from the root.
 
 Status stays Done.
+
+VERIFIED 2026-10-04: 8 referenced test files pass on nightly (test_cellpose_api_contract.py, test_conda_forge_recipe.py, test_declared_dependencies_match_imports.py, ...).

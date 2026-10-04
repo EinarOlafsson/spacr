@@ -86,3 +86,5 @@ Keyset paging for a sorted view. It would need (value, rowid) > (?, ?) over
 a user-chosen column, including correct handling of NULLs and of SQLite's
 type-affinity ordering. Worth doing if anyone reports that scrolling deep
 into a sorted table is slow; not worth doing before that.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_db_browser.py).

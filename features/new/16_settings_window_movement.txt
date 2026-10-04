@@ -90,3 +90,5 @@ tests/qt/test_preferences_tabs.py fails on a clean tree in two places: a
 'Logging' tab the expected-tabs tuple does not know about, and a
 QuitSpacrButton the performance-tab set does not know about. Both look like
 the tests are behind the product, but neither was diagnosed here.
+
+VERIFIED 2026-10-04: 5 referenced test files pass on nightly (test_annotate.py, test_dialog_detach.py, test_preferences.py, ...).

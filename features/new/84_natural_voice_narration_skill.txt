@@ -114,3 +114,5 @@ skill-creator validator is not in this repository, so the metadata was checked
 by reading it -- the YAML front matter carries `name` matching the directory
 and a trigger `description`, and `agents/openai.yaml` carries a display name,
 short description and default prompt.
+
+VERIFIED 2026-10-04: skill exists at /mnt/firecuda2/Claude/toxoplasma_projects/skills/natural-voice-narration; later commit 7372ef9c6 moved agent guidance out of the repo (later decision wins).

@@ -152,3 +152,5 @@ them in place with:
 
 It is a no-op on anything that is not format 2, so it is safe to point at a
 whole tree.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly (test_crop_dtype_boundaries.py, test_crop_format.py, test_crop_objects_from_array.py, ...).

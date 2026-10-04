@@ -193,3 +193,5 @@ THE REST OF THE CRITERION HOLDS as written: `crop_dtype` and
 tooltip says outright that the dtype does NOT change training precision,
 and the defaults reproduce the previous behaviour (117 tests green across
 test_normalization, test_crop_dtype_boundaries and test_cov_11_normalization).
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_normalization.py).

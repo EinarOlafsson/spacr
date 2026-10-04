@@ -319,3 +319,5 @@ plus the single `number_of_organelles` that decides how many slots exist at
 all. Nothing was removed and nothing was hidden: every one of those keys is
 still in a panel and still editable, which the category tests assert by
 requiring that no `organelle_*` key falls out of every heading.
+
+VERIFIED 2026-10-04: test_organelle_slots_are_not_a_fixed_four.py passes.

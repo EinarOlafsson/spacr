@@ -499,3 +499,5 @@ corrected, not the code: the ~50ms tick ceiling was traded away deliberately
 for the loading screen in instruction 74. Offscreen cannot see compositing or
 font-loading stalls, and cannot answer the human half at all -- that half
 stands as the closure condition it always was.
+
+VERIFIED 2026-10-04: test_perf_guard*.py pass after fixing a regression from 421 (Features window imported spacr.measure, hence cv2/pyplot, at module level; now lazy).

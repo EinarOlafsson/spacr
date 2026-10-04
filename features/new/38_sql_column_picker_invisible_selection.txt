@@ -56,3 +56,5 @@ HOW TO KNOW IT WORKED
     rather than asserting a colour value, which would pass on white-on-white.
   * skill/refresh.py reports the widget QSS registrars as complete, i.e. the
     block is registered AND the module is listed.
+
+VERIFIED 2026-10-04: test_item_selection_is_visible.py passes.

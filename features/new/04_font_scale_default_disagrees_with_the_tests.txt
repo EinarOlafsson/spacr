@@ -86,3 +86,5 @@ Verified:
       tests/qt/test_home_layout.py::test_nothing_clips_at_a_150_percent_font_scale
 
 Result: 2 passed.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_home_layout.py, test_preferences.py).

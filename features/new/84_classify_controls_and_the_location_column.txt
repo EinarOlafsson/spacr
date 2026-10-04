@@ -186,3 +186,5 @@ STILL TRUE OF OLD SETTINGS FILES: one written before this may still carry
 the overwritten value. Nothing migrates it -- the run cannot tell a poisoned
 value from a deliberate one -- but the new message says exactly what to set
 it back to.
+
+VERIFIED 2026-10-04: test_classify_merged.py passes.

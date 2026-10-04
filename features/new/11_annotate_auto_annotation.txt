@@ -88,3 +88,5 @@ The fixture is a real spaCR project and took three goes: png_list needs
 cell_id for spacr.io's join to anchor on, and must NOT carry timeID when the
 object tables have none, or the join refuses rather than matching every
 frame's crop to every frame's object. Both refusals are good ones.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_annotate.py, test_auto_annotate.py).

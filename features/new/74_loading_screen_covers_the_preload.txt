@@ -218,3 +218,5 @@ fill (255,255,255,200), ink lit (255,255,255,255), unlit (255,255,255,90).
 The change is invisible on screen, which is the whole requirement.
 
 STATUS: DONE.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_i18n.py).

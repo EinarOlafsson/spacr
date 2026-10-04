@@ -81,3 +81,5 @@ the shipped GUI default is the opposite of what the status line claims.
 NOT RE-MEASURED: "timed on the same plate both ways". That needs a real
 plate; the ~0.55 s/GB warm figure in the status line stands on the earlier
 measurement recorded in the test module's docstring.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_hash_inputs_opt_in.py).

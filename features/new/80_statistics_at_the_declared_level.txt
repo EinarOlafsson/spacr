@@ -145,3 +145,5 @@ most likely to report the object p-value.
 `test_the_chi_squared_does_not_follow_the_level` was rewritten (not deleted)
 as `test_the_object_chi_squared_is_kept_unchanged_at_every_level`, and
 `tests/test_proportion_replication_unit.py` holds the acceptance case.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_proportion_bars_level.py, test_proportion_replication_unit.py).

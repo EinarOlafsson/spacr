@@ -230,3 +230,5 @@ fails on any module under `spacr/` that calls `train_test_split` directly, plus
 four tests that a control well never appears on both sides, that an ungrouped
 call says so, that one well per class is refused, and that a missing group is
 refused. Confirmed failing against the previous code.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_every_split_goes_through_the_shared_splitter.py).

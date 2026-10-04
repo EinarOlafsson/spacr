@@ -500,3 +500,5 @@ measure spatial and organelle-type suites (42), settings quality (427), the Qt
 settings suites (107). The new tooltip has no row in the external i18n
 catalogs; those are owned elsewhere and were not touched, so it is one more
 line of that rebuild's backlog.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly (test_an_object_is_measured_in_its_own_box.py, test_feature_dict_search.py, test_the_new_measurements_are_in_the_dictionary.py).

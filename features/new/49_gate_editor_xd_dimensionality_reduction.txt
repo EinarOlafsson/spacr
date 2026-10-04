@@ -308,3 +308,5 @@ its notes.
                               it.
 
 tests/qt/test_xd_column_picker.py and the five gate suites: 138 passed.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_xd_column_picker.py).

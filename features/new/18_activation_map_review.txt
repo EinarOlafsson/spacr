@@ -375,3 +375,5 @@ CUDA_VISIBLE_DEVICES='', script kept at /tmp/spacr-531-scratch/sanity18.py)
   - The MaxViT has a single-logit head, so each map explains that logit.
   The Activation form's sanity_check=True still runs this per run; nothing
   in the code was changed for this check.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_external_i18n_catalogs.py, test_18_modern_attribution_methods.py).

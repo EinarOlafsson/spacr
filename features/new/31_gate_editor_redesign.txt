@@ -637,3 +637,5 @@ tests/test_gate_modes_and_merge_ui.py (36). The matrix was a RECOMMENDATION in
 this file's own phase list, superseded by the request that followed it, so the
 phase-5 sentence in HOW TO KNOW describes an alternative that was considered
 and dropped rather than work that was skipped.
+
+VERIFIED 2026-10-04: 5 referenced test files pass on nightly (test_gate_console_sizing.py, test_gate_clustering.py, test_gate_editing.py, ...).

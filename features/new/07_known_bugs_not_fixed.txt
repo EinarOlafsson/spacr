@@ -795,3 +795,5 @@ their remaining published-media/API gates, not a claim to have rerun all
 historical product tests. Broader API/i18n work and item47 serial acceptance
 remain separately tracked. No new human listening or native-language signoff
 is claimed. Receipt: features/data/07_published_repairs_acceptance_2026-10-01.json.
+
+VERIFIED 2026-10-04: 9 referenced test files pass on nightly (test_annotate_active_learning.py, test_external_i18n_catalogs.py, test_preferences_reset.py, ...).

@@ -169,3 +169,5 @@ wrong only about the module this file is named after.
 NOT CHECKED HERE: "the window stays responsive throughout" on a real display.
 Offscreen cannot answer it; the mechanism that makes it true -- rendering off
 the GUI thread -- is where the docstrings say it is.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_all_module_smoke.py).

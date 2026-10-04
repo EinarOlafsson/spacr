@@ -193,3 +193,5 @@ tests/qt/test_cov_wf_qt_screens_gate_editor.py):
   * save_graph passes for_print=True.
   280 passed across the figure-queue and gate-editor suites.
 
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly (test_cov_gate_editor_screen.py, test_cov_wf_qt_screens_gate_editor.py, test_figure_pdf_output.py).

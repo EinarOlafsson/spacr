@@ -151,3 +151,5 @@ test_a_gate_on_nuclei_does_not_also_mark_the_cell_of_that_LABEL`, confirmed
 RED before the fix. Re-run: tests/test_filters.py, test_cov_w2_1_filters.py,
 test_relationships_after_mask.py, tests/qt/test_gates.py,
 tests/qt/test_cov_gate_editor_screen.py -- 220 passed.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly (test_cov_gate_editor_screen.py, test_gates.py, test_filters.py).

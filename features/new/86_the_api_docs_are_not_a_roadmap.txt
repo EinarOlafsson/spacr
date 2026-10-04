@@ -468,3 +468,5 @@ SO 86 IS DONE. (a) the dry-run resource card, (b) checkpoint/resume,
 (e) the benchmark command have all landed, and the Module Audit is out of the
 published API. This file's own "not started" header was wrong about (b) --
 the eighth instruction this week to be wrong about its own state.
+
+VERIFIED 2026-10-04: no "Module Audit" page left in docs/source; test_api_documentation_contract.py passes.

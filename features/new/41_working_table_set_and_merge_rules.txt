@@ -310,3 +310,5 @@ that marks only one object in one frame. Existing Gate working-set tests pass.
 Included in the passing 198-check merge cohort and 93-check targeted follow-up.
 Ruff and git diff checks pass. Generated API/catalog/tutorial publication remains
 coordinated in N615; native platform appearance was not claimed.
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly (test_a_gate_on_a_removed_table_says_so.py, test_gates.py, test_requested_gate_table_merges.py, ...).

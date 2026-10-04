@@ -76,3 +76,5 @@ offscreen, nothing lays the grid out and every tile keeps geometry
 calls `_grid_layout.activate()` after sizing the holder, and the band test
 asserts four DISTINCT tile corners before asserting anything about the
 selection.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly (test_annotate_active_learning.py, test_annotate_console.py, test_annotate_keyboard.py, ...).

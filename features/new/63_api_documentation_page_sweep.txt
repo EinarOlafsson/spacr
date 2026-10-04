@@ -1262,3 +1262,5 @@ control. A fresh build of today's tree was not made in this pass; the
 2026-09-19 build's 0 leaks is the last full measurement.
 
 Run: tests/test_rendered_docs_show_no_markup_leak.py 2 passed, 1 skipped.
+
+VERIFIED 2026-10-04: 8 referenced test files pass on nightly (test_api_documentation_contract.py, test_docstring_field_lists_are_parsed.py, test_docstring_inline_markup_renders.py, ...).

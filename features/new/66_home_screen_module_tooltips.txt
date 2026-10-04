@@ -87,3 +87,5 @@ defends is that hovering EXPLAINS the tile.
 TEN OTHER FAILURES in the home suites are pre-existing and unrelated --
 confirmed by stashing these changes and watching one fail anyway. Layout
 and tab-assignment tests; they belong to instruction 43.
+
+VERIFIED 2026-10-04: test_hint_bar_uncovered_paths.py passes.

@@ -102,3 +102,5 @@ layout around a report nobody has read yet.
 Calling the CV model to PRODUCE the predictions. It takes a predictions
 frame, as apply_model_to_tar returns, so scoring stays where scoring already
 lives and the surrogate cannot drift from it.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_surrogate.py).

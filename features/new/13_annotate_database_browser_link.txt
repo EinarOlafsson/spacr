@@ -77,3 +77,5 @@ Regression test: tests/test_cov_8_db_browser.py ::
 test_a_seed_column_is_reached_even_when_the_rows_arrive_later -- built on a
 THREADED browser, since a synchronous one cannot see the defect. Confirmed
 red before the change (nothing scrolled at all), green after.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_cov_8_db_browser.py).

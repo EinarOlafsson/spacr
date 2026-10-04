@@ -223,3 +223,5 @@ have been deleted is exactly the kind that closes on nothing:
     replacing it.
   * tests/qt/test_toggle_label_width.py and tests/qt/test_greyed_setting_help.py
     are 19 passed.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly (test_all_module_smoke.py, test_greyed_setting_help.py, test_toggle_label_width.py).

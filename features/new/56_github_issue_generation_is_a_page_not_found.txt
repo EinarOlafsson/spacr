@@ -165,3 +165,5 @@ STILL UNANSWERED, and shared with instruction 45: whether an auto-filed
 issue should carry a user's log into a PUBLIC repository. The dialog now
 says that it is public, which is honest, but it is not the same as deciding
 the policy. Answer it once, in both places.
+
+VERIFIED 2026-10-04: test_issue_report_url.py passes.

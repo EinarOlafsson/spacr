@@ -431,3 +431,5 @@ WHAT THE NEXT ATTEMPT NEEDS, beyond what this one had:
 THE ANALYSIS BEHIND IT IS STILL RIGHT and is worth someone's time: the read
 IS the contention, and removing it is the only fix that reaches a cluster.
 This records that the obvious implementation is not the correct one.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_annotate_resize_crash.py, test_cov_7_utils.py).

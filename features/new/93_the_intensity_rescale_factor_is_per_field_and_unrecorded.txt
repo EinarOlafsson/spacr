@@ -126,3 +126,5 @@ field changed after the scan cannot reuse an unsafe factor; dry-run reports
 the uint16 overflow before writing; warnings ignore `verbose`; a real measure
 worker writes a queryable provenance row. The focused measurement, resume,
 schema, and validation suites pass: 506 tests.
+
+VERIFIED 2026-10-04: test_cov_10_intensity_rescale.py passes.

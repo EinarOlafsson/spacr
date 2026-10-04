@@ -141,3 +141,5 @@ The round-trip half of the criterion was measured end to end through the
 real measure crop path: a stack with ch0=60000, ch1=20000, ch2=5000 gives
 file R,G,B = [19, 78, 234] under the default and under a legacy
 png_dims=[0,1,2], and [234, 78, 19] with an explicit r=0.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_crop_preview_colours.py, test_channel_settings_are_colour_anchored.py).

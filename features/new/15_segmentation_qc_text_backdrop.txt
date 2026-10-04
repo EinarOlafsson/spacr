@@ -140,3 +140,5 @@ prove the detector can fail.
 VERIFIED: 206 tests green across test_annotate, test_prerun,
 test_qc_surfaces_have_no_black_boxes, test_widget_qss_is_complete and
 test_photo_themes.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly (test_photo_themes.py, test_prerun.py, test_qc_surfaces_have_no_black_boxes.py, ...).

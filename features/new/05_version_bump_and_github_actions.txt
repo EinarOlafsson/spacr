@@ -151,3 +151,5 @@ STILL STALE, AND NOT IN THIS FILE: tools/build_instruction_index.py keeps a
 STAGE entry for 05 ("~40% -- mechanism verified at 1.5.0.4; needs one green
 SHA, then approval"). The index prints STAGE notes only for items in
 features/future/, so it does not reach 00_INDEX.txt, but it is wrong.
+
+VERIFIED 2026-10-04: packaging/release.py version reports 1.5.1.3 (later releases supersede the 1.5.0.5 bump); release workflows present.

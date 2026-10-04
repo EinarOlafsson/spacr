@@ -186,3 +186,5 @@ over at most 100 rounds"), the n-trials and resume tooltips, the maximum-
 rounds tooltip and the increments error. The status line was not merely old
 naming -- it announced a 2x2 for a search over however many axes the user
 chose. It now names the Walk and the parameters it is walking.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_walk_axes_dialog.py).

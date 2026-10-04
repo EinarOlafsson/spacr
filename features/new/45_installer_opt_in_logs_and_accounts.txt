@@ -256,3 +256,5 @@ VERIFICATION:
     API/browser transports because posting a permanent indexed fixture would
     violate the feature's own consent contract. Production submission remains
     possible only after the editable, report-specific Send action.
+
+VERIFIED 2026-10-04: test_install_consent.py passes; consent boxes off by default.

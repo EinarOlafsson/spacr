@@ -913,3 +913,5 @@ test_classify_merged.py, test_model_check.py,
 test_the_crop_mode_asks_one_question_each.py,
 test_which_picture_settings_apply.py, test_dead_settings.py (205 passed) and
 test_settings_tooltip_quality.py (13 passed).
+
+VERIFIED 2026-10-04: 11 referenced test files pass on nightly (test_settings_list_editor.py, test_class_editor.py, test_classify_classes.py, ...).

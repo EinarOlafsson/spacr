@@ -797,3 +797,5 @@ them written into this file between the two:
     actually landed was cut from 1233584dd, minutes before the ref update.
 
 `test_no_commit_credits_claude` passes. 58 stays closed and now records how.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_no_commit_credits_claude.py).

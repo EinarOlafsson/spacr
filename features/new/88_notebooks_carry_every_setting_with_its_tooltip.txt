@@ -162,3 +162,5 @@ DECISIONS, with the reasons:
 
 124 tests; 639 pass across notebooks, settings, validate, cli and dead
 settings.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_notebook_settings.py).

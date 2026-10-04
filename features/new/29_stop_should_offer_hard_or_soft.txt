@@ -70,3 +70,5 @@ DELIBERATELY NOT DONE
 Do not make HARD the default. A pipeline killed mid-write leaves a
 half-written .npy, and the cost of that is silent corruption discovered
 later - which is worse than waiting.
+
+VERIFIED 2026-10-04: test_stop_soft_and_hard.py passes; AppScreen._on_stop asks via shutdown.ask_how_to_quit, cooperative default.

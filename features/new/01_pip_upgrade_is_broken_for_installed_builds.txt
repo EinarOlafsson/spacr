@@ -211,3 +211,5 @@ NOTHING IS OWED HERE. The manual escape commands stay in
 and the online-installer workflow asserts, from inside each installed
 environment on all three platforms, that pip is genuinely absent and that
 `upgrade_command()` returns the uv form with no `-m`.
+
+VERIFIED 2026-10-04: tests/test_online_installers.py, test_a_failed_upgrade_names_the_command_that_works.py pass; updater.upgrade_command and _the_missing_pip_escape present.

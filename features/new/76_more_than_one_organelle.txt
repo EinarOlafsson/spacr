@@ -762,3 +762,5 @@ spacr/qt/screens/setting_api_targets.py was hand-re-keyed to match),
 tools/build_documentation_i18n.py --sources-only (object_of_setting's source
 hash), and tools/build_instruction_index.py. The settings, i18n, docstring and
 API-catalog suites are still to run.
+
+VERIFIED 2026-10-04: 11 referenced test files pass on nightly (test_numbered_background_help_is_translated.py, test_the_external_mask_table_numbers_its_organelles.py, test_a_fifth_organelle_mask_imports_into_its_own_slot.py, ...).

@@ -147,3 +147,5 @@ passed and retained the native installer artifacts.
 Regression evidence: 236 focused acceleration/consent/reporting/installer
 tests passed together, followed by the installed consent/measurement smoke and
 installer contracts (65 passed). Instruction 53 records the native matrix.
+
+VERIFIED 2026-10-04: test_install_profile.py, test_online_installers.py pass; nvidia-smi probe and --torch-backend in both online installers.

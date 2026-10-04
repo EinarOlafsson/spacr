@@ -193,3 +193,5 @@ explanation with an empty string. A control with no tooltip is worse than one
 with no map entry. It is out of the map, with a comment saying why.
 
 31 tests; 89 pass across annotate and the display-order suites.
+
+VERIFIED 2026-10-04: test_display_order.py passes.

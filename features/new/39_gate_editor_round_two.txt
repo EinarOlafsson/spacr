@@ -203,3 +203,5 @@ NOT re-derived here, and said plainly: the purely visual criteria -- the
 colour map moving the POINTS, hexbin/histogram/density drawing, and no
 column cut off at startup -- rest on the suites above rather than on a
 screenshot taken in this pass.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_gates.py, test_filters.py).

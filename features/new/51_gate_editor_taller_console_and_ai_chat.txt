@@ -198,3 +198,5 @@ Two tests added, and the second is the one that matters -- it builds the
 real gate editor screen and asserts the console is either 0 or at least
 readable, rather than testing the widget in isolation as the first attempt
 did. 74 pass across the console, gates and export suites.
+
+VERIFIED 2026-10-04: test_gate_console_sizing.py passes.

@@ -60,3 +60,5 @@ HOW TO KNOW IT WORKED
 
 Train for several epochs: ONE figure, gaining a point per epoch, on a
 transparent background, readable in both themes.
+
+VERIFIED 2026-10-04: test_the_training_graphs_update.py, test_training_curves.py pass.

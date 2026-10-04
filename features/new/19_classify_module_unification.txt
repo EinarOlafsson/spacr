@@ -308,3 +308,5 @@ The other two criteria hold: switching dataset_mode greys 26 controls per
 basis and leaves all 115 keys in the dict, and classify_merged is registered
 with a Home band ("Core"), a non-colliding icon and reachable from a cold
 MainWindow.
+
+VERIFIED 2026-10-04: 10 referenced test files pass on nightly (test_annotate.py, test_demo_menu.py, test_main_window.py, ...).

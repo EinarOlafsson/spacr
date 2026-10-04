@@ -311,3 +311,5 @@ arrive, the grid reflows to the container, the end state shows BOTH the grid
 and the summary, and clicking a cell opens the PDF when the preference asks
 for PDFs. That was the whole of the original request; this entry is the last
 loose end.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_figure_grid.py).

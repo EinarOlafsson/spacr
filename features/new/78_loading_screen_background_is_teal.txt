@@ -133,3 +133,5 @@ colours and does no alpha arithmetic at all.
 (4) THE INSTALLER ICON IS UNCHANGED, as this instruction directs.
 
 STATUS: DONE.
+
+VERIFIED 2026-10-04: test_loading_screen_palette.py passes.

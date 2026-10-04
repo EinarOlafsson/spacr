@@ -117,3 +117,5 @@ Verification on the committed three-file patch:
     265/265 on both supported stacks;
   * the exact former 320-test order-dependent Qt reproducer remains green;
   * fatal Ruff, compileall and ``git diff --check`` are green.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly (test_timelapse_movie.py, test_timelapse_multi_field_loading.py).

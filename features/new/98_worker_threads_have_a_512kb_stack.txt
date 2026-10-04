@@ -144,3 +144,5 @@ MEASURED DIRECTLY as well, driving the real `bridge.make_thread`:
 So the stand-in the VERIFIED section relied on is no longer the only evidence.
 The before/after (SIGBUS, then exit 0) stays a historical measurement; the
 64 MB widening it depended on is asserted every run.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_worker_stack_size.py).

@@ -129,3 +129,5 @@ them containing the code that does it.
 
 This file said "not started". It was the seventh instruction this week to be
 wrong about its own state, which is now the top section of HANDOFF.md.
+
+VERIFIED 2026-10-04: test_hyperparam_screen.py passes.

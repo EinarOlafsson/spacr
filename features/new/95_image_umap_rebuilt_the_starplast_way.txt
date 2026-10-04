@@ -359,3 +359,5 @@ fixture counts its generated plane-layout manifest as an unexpected ninth
 file. During verification, an unrelated concurrent cuML pip process modified
 the base Anaconda environment, so the passing suite was run in the repository's
 stable `spacr` conda environment.
+
+VERIFIED 2026-10-04: test_the_image_umap_projections_are_one_module.py passes.

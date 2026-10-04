@@ -654,3 +654,5 @@ reconciliation: 100 passed in 15.86 seconds. The audited 5,000-event CPU
 measurement, deterministic exporters and Inkscape round trip close the parts
 that unit assertions alone cannot establish. FlowView is complete; no
 release/version action was taken.
+
+VERIFIED 2026-10-04: test_flowview_has_no_black_box_and_no_yellow_rim.py plus the flowview suites pass.

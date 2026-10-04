@@ -438,3 +438,5 @@ Settings moved 1,068 -> 1,050 with the intensity band's retirement.
   SO A GREEN AUDIT IS A STATEMENT ABOUT A TREE, NOT A PERMANENT ONE. This file
   recorded green on 2026-09-12 and was green again on 2026-09-13 over a
   different and larger inventory. Both are true; neither supersedes the other.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly (test_documentation_i18n.py).
