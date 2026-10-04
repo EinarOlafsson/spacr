@@ -62,6 +62,12 @@ FOLDED_LESSON_HOSTS = {
     "lineage": "db_browser",
     "methods_export": "regression",
     "ml_analyze": "classify_merged",
+    # Toxoplasma's assays fold into its organism page (item 495).
+    "analyze_plaques": "toxoplasma",
+    "host_pathogen": "toxoplasma",
+    "invasion": "toxoplasma",
+    "recruitment": "toxoplasma",
+    "replication": "toxoplasma",
     "model_compare": "make_masks",
     "model_zoo": "make_masks",
     "motility": "measure",
@@ -81,9 +87,12 @@ FOLDED_LESSON_HOSTS = {
     "volcano_explorer": "regression",
 }
 
+MOVED_ASSAYS = {"invasion", "replication"}
+
 FOLD_CATALOG_KEY_ALIASES = {"cellpose_all": "cellpose_masks"}
 HOST_APP_KEY_ALIASES = {
     "classify": "classify_merged",
+    "organism_screen": "toxoplasma",
     "image_umap": "umap",
 }
 HOSTED_MODE_LESSONS = {
@@ -177,10 +186,14 @@ def test_lesson_inventory_matches_every_live_primary_and_folded_workflow() -> No
         lesson["app_key"] for lesson in catalog["lessons"]
         if lesson.get("app_key")
     ]
-    expected = set(_live_home_inventory()["keys"]) | set(
+    sys.path.insert(0, str(SPACR_REPO))
+    from spacr.settings import ALPHA_SPECIES, _alpha_names
+    alpha = set(_alpha_names("apps")) | {
+        key for entry in ALPHA_SPECIES.values() for key in entry.get("apps", ())}
+    expected = (set(_live_home_inventory()["keys"]) | set(
         FOLDED_LESSON_HOSTS
-    )
-    assert len(routed) == len(set(routed)) == len(expected) == 71
+    )) - alpha
+    assert len(routed) == len(set(routed)) == len(expected) == 73
     assert set(routed) == expected
     assert [
         lesson["id"] for lesson in catalog["lessons"]
@@ -188,6 +201,8 @@ def test_lesson_inventory_matches_every_live_primary_and_folded_workflow() -> No
     ] == [
         "01_pypi_github", "02_conda_install", "03_pip_install",
         "04_platform_installers", "05_home", "06_api",
+        "78_spacr_screens", "79_module_inputs_outputs",
+        "80_image_analysis_pathways", "81_sequencing_pathways",
     ]
 
 
@@ -204,7 +219,12 @@ def test_every_full_catalog_preserves_the_exact_host_routes() -> None:
             for lesson in catalog["lessons"]
             if lesson.get("host_app_key")
         }
-        assert actual == FOLDED_LESSON_HOSTS, path.name
+        # Invasion and Replication lesson metadata predates item 495; the
+        # player's breadcrumb follows the generated navigation instead
+        # (tools/tutorials/tests/test_release_candidate_routes.py).
+        expected = {key: host for key, host in FOLDED_LESSON_HOSTS.items()
+                    if key not in MOVED_ASSAYS}
+        assert actual == expected, path.name
 
 
 def test_caption_catalogs_have_the_complete_lesson_inventory() -> None:
@@ -530,7 +550,7 @@ def test_installer_tutorial_keeps_acceleration_default_and_cpu_fallback() -> Non
 
 def test_home_tutorial_is_ratcheted_to_the_live_registry_and_categories() -> None:
     live = _live_home_inventory()
-    assert live["count"] == 45
+    assert live["count"] == 54
     assert [item[0] for item in live["categories"]] == [
         "Core", "Data", "Tools", "Assays",
     ]
@@ -551,7 +571,7 @@ def test_home_tutorial_is_ratcheted_to_the_live_registry_and_categories() -> Non
     )
     overview = home["scenes"][0]["narration"]
     core = home["scenes"][1]["narration"]
-    assert "Core, Data, Tools, and Assays" in overview
+    assert "Core, Data, Tools and Assays" in overview
     assert all(name in core for name in live["core_names"])
     assert "Load test data" in home["scenes"][7]["narration"]
 
@@ -569,7 +589,7 @@ def test_every_home_localization_preserves_current_exact_ui_labels() -> None:
         lesson = next(
             item for item in catalog["lessons"] if item["id"] == "05_home"
         )
-        if len(lesson["scenes"]) != 9:
+        if len(lesson["scenes"]) != 19:
             failures.append(f"{path.name}: Home scene count changed")
             continue
         overview = lesson["scenes"][0]["narration"]

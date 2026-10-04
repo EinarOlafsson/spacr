@@ -24,17 +24,20 @@ def lesson(identity, language):
 
 
 @pytest.mark.parametrize('language,voice', [('ja','jf_alpha'), ('zh-CN','zf_xiaobei')])
-def test_all_fourteen_source_bound_scenes_keep_captions_and_speak_controls(language, voice):
+def test_all_nineteen_source_bound_scenes_keep_captions_and_speak_controls(language, voice):
     source = lesson('05_home', language)
     original = deepcopy(source)
     plans = renderer.prepare_scene_plans(source, language, 'us', voice=voice)
-    assert len(plans) == 14 and source == original
+    assert len(plans) == 19 and source == original
     assert [p['display_text'] for p in plans] == [s['narration'] for s in source['scenes']]
     speech = ' '.join(s['speech_text'] for p in plans for s in p['sentences'])
     assert not re.search('[A-Za-z]', speech)
     for required in (['プリファレンシズ','テーマ','アニメーション','タビュラー'] if language == 'ja'
-                     else ['偏好设置','主题','动画','制作掩膜编辑器','批量掩膜模块','弓形虫','疟原虫','念珠菌']):
+                     else ['偏好设置','主题','动画','制作掩膜编辑器','批量掩膜模块','弓形虫']):
         assert required in speech
+    # Plasmodium and Candida are alpha species (634): Home no longer names them.
+    for withdrawn in ('疟原虫', '念珠菌', 'プラスモディウム', 'カンジダ'):
+        assert withdrawn not in speech
 
 
 @pytest.mark.parametrize('language,expected', [
@@ -53,7 +56,7 @@ def test_unknown_labels_or_changed_pronunciation_premise_require_review(display,
 
 
 @pytest.mark.parametrize('identity,count,expected', [
-    ('05_home', 37, '548b13315b65865793b77df737c71cd7c7a59316117a9c2bf54cd7907fda19d0')])
+    ('05_home', 37, '904f1ac00722e9d443c52f41a37615ffc69a005fc139221e0dc2ebd941477862')])
 def test_unaffected_track_fingerprints_match_before_home_change(identity, count, expected):
     # Captured before this Home-only branch; no runtime/model imports needed.
     records = []

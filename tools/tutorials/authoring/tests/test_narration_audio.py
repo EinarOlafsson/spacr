@@ -616,7 +616,9 @@ def test_primary_one_track_wiring_commits_validated_media_and_sidecars(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    import soundfile as sf
+    # soundfile belongs to the tutorial render environment
+    # (tools/tutorials/requirements-refresh.txt), not to spaCR's own.
+    sf = pytest.importorskip("soundfile")
 
     class FakeTensor:
         def __init__(self, values):
