@@ -561,6 +561,10 @@ class _StdoutBlock(QPlainTextEdit):
         #: ``sizeHint`` cache — see :meth:`sizeHint`.
         self._size_key: tuple = ()
         self._size_value = 32
+        #: Summed paragraph heights, kept current line by line while the
+        #: wrap width and font stay what :attr:`_height_key` records.
+        self._height_sum = 0.0
+        self._height_key: tuple = ()
         self._user_height: Optional[int] = None
         self._height_handle = _BlockHeightHandle(self)
         self._height_handle.show()
@@ -608,6 +612,7 @@ class _StdoutBlock(QPlainTextEdit):
         self.document().setDefaultFont(self._font)
         self._refresh_style()
         self._apply_line_spacing()
+        self._height_key = ()
         self.updateGeometry()
 
     def text(self) -> str:
@@ -638,13 +643,31 @@ class _StdoutBlock(QPlainTextEdit):
         cursor = QTextCursor(doc)
         cursor.movePosition(QTextCursor.End)
         first_touched = cursor.blockNumber()
+        tracking = self._height_key == self._layout_key()
+        if tracking:
+            self._height_sum -= self._block_height(
+                doc.findBlockByNumber(first_touched))
         cursor.insertText(text)
         self._chars += len(text)
         fmt_cursor = QTextCursor(doc.findBlockByNumber(first_touched))
         fmt_cursor.setPosition(cursor.position(), QTextCursor.KeepAnchor)
         fmt_cursor.mergeBlockFormat(self._block_format())
+        if tracking:
+            block = doc.findBlockByNumber(first_touched)
+            while block.isValid():
+                self._height_sum += self._block_height(block)
+                block = block.next()
         self._trim_to_cap()
         self.updateGeometry()
+
+    def _layout_key(self) -> tuple:
+        """What paragraph heights depend on: the wrap width and the font."""
+        return (self.viewport().width(), self._font_pt)
+
+    def _block_height(self, block) -> float:
+        """One paragraph's laid-out height in pixels."""
+        return self.document().documentLayout().blockBoundingRect(
+            block).height()
 
     def _trim_to_cap(self) -> None:
         """Drop whole paragraphs off the head until back under the cap.
@@ -657,6 +680,8 @@ class _StdoutBlock(QPlainTextEdit):
         while self._chars > self.MAX_CHARS and doc.blockCount() > 1:
             block = doc.begin()
             removed = block.length()
+            if self._height_key == self._layout_key():
+                self._height_sum -= self._block_height(block)
             cursor = QTextCursor(block)
             cursor.movePosition(
                 QTextCursor.NextBlock, QTextCursor.KeepAnchor)
@@ -666,24 +691,35 @@ class _StdoutBlock(QPlainTextEdit):
     def sizeHint(self) -> QSize:
         """Report the full document height; the outer console owns scrolling.
 
-        Cached: Qt asks for a size hint several times per layout pass, and
-        the answer can only change when the text, the width or the font
-        does. Without the cache each of those calls walks every paragraph.
+        Qt asks for a size hint several times per layout pass, and
+        :meth:`append` asks for a new layout on every line. Walking every
+        paragraph here made each line cost what the whole block holds: 35 ms
+        a line once the block was full, so output arriving faster than about
+        thirty lines a second -- verbose runs, DEBUG in the console --
+        queued faster than the GUI thread could draw it and the window
+        froze while the queue grew. The total is therefore kept as a running
+        sum that :meth:`append` and :meth:`_trim_to_cap` adjust by the
+        paragraphs they touch, and the full walk happens only when the wrap
+        width or the font changes.
         """
         if self._user_height is not None:
             return QSize(
                 max(120, super().sizeHint().width()), self._user_height)
-        key = (self._chars, self.viewport().width(), self._font_pt)
-        if key != self._size_key:
-            layout = self.document().documentLayout()
+        layout_key = self._layout_key()
+        if layout_key != self._height_key:
             height = 0.0
             block = self.document().begin()
             while block.isValid():
-                height += layout.blockBoundingRect(block).height()
+                height += self._block_height(block)
                 block = block.next()
+            self._height_sum = height
+            self._height_key = layout_key
+        key = (self._chars,) + layout_key + (round(self._height_sum),)
+        if key != self._size_key:
             chrome = (2 * SPACING["sm"]) + 2
             self._size_key = key
-            self._size_value = max(32, int(round(height)) + chrome)
+            self._size_value = max(
+                32, int(round(self._height_sum)) + chrome)
         return QSize(max(120, super().sizeHint().width()), self._size_value)
 
     def resizeEvent(self, event) -> None:

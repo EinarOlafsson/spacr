@@ -342,12 +342,12 @@ def setup_logging(level: Optional[int] = None,
     _LOG_PATH = resolved_path
 
     if _INITIALISED:
-        logging.getLogger().setLevel(level)
+        logging.getLogger().setLevel(_third_party_level(level))
         logging.getLogger("spacr").setLevel(level)
         return resolved_path
 
     root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
+    root.setLevel(_third_party_level(level))
     logging.getLogger("spacr").setLevel(level)
 
     try:
@@ -454,7 +454,7 @@ def apply_level_policy(file_levels: Iterable[int],
 
     lowest = min(files) if files else logging.CRITICAL
     logging.getLogger("spacr").setLevel(lowest)
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger().setLevel(_third_party_level(lowest))
 
     try:
         from .qt.verbose_logger import apply_console_levels
@@ -463,6 +463,24 @@ def apply_level_policy(file_levels: Iterable[int],
     else:
         apply_console_levels(console)
     return files, console
+
+
+def _third_party_level(level: int) -> int:
+    """The root logger's level: never below WARNING.
+
+    Every library logger that sets no level of its own inherits the root's.
+    The root used to sit at DEBUG so spaCR's own DEBUG could pass, and with
+    Verbose logging on the log files then took DEBUG from every library
+    in the process -- an HTTP client's per-request trace, a model
+    downloader's lock chatter -- 2100 lines for 300 calls in a measured
+    run, burying the spaCR records the log exists for. spaCR's loggers
+    carry their own level on ``spacr``, so the root can stay at WARNING
+    without hiding any of them.
+
+    :param level: the lowest level the user asked spaCR to record.
+    :returns: ``level`` or WARNING, whichever is higher.
+    """
+    return max(int(level), logging.WARNING)
 
 
 def _env_level() -> int:

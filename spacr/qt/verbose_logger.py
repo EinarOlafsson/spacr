@@ -49,6 +49,7 @@ from __future__ import annotations
 
 import functools
 import logging
+import reprlib
 import os
 import threading
 import weakref
@@ -569,10 +570,40 @@ def _looks_bound(fn: Callable, args: tuple) -> bool:
     return type(first).__name__ == cls_name
 
 
+class _BriefRepr(reprlib.Repr):
+    """``reprlib`` limits, but a failing ``__repr__`` still raises.
+
+    :class:`reprlib.Repr` hides the failure behind an ``<X instance at
+    0x...>`` placeholder; :func:`_brief` reports it in its own words.
+    """
+
+    def repr_instance(self, x, level):
+        """The object's own repr, truncated to :attr:`maxother`."""
+        s = repr(x)
+        if len(s) > self.maxother:
+            keep = max(0, (self.maxother - 3) // 2)
+            s = s[:keep] + "..." + s[len(s) - keep:]
+        return s
+
+
+_BRIEF_REPR = _BriefRepr()
+_BRIEF_REPR.maxstring = 240
+_BRIEF_REPR.maxother = 240
+_BRIEF_REPR.maxlist = _BRIEF_REPR.maxtuple = _BRIEF_REPR.maxdict = 12
+_BRIEF_REPR.maxset = _BRIEF_REPR.maxfrozenset = _BRIEF_REPR.maxdeque = 12
+_BRIEF_REPR.maxlevel = 3
+
+
 def _brief(value: Any, max_chars: int = 240) -> str:
-    """Return a truncated ``repr(value)`` capped to ``max_chars``."""
+    """Return a short repr of ``value``, capped to ``max_chars``.
+
+    Bounded while it is built, not only after: a pipeline's settings or
+    return value can hold millions of list items, and a plain ``repr`` of
+    those was built in full -- every element formatted, the whole string in
+    memory -- before the first ``max_chars`` of it were kept.
+    """
     try:
-        s = repr(value)
+        s = _BRIEF_REPR.repr(value)
     except Exception:
         s = f"<{type(value).__name__} — repr failed>"
     if len(s) > max_chars:
