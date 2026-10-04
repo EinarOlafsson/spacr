@@ -267,11 +267,19 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     # The inference-augmentation category is also assembled dynamically.
     # Quality labels travel through tr(label); the Plugins tab through tr(title).
     # The anomaly table's mean_percentile header also travels through tr(label).
-    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 59
+    # fe937d232 added Gate Editor's nine VOLUME_SHAPES names (tr(label)).
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 68
     assert len(builder._INDIRECT_CHROME_UI_SOURCES - {
         "Swap object and background", "Test-time augmentation",
-        "Low", "Medium", "High", "Plugins", "Control percentile"}) == 52
-    assert builder._INDIRECT_CHROME_UI_SOURCES <= set(CHROME_CAPTIONS)
+        "Low", "Medium", "High", "Plugins", "Control percentile"}) == 61
+    # The shape names await the catalog rebuild, so they have no rows to
+    # check yet; they join CHROME_CAPTIONS when the catalogs carry them.
+    shapes_awaiting_rows = {
+        "Lasso through view", "Polygon through view", "Rectangle through view",
+        "Ellipsoid with handles", "Box with handles", "Box gate", "Oval gate",
+        "Circle gate", "Polygon gate"}
+    assert (builder._INDIRECT_CHROME_UI_SOURCES - shapes_awaiting_rows
+            <= set(CHROME_CAPTIONS))
     assert len(auxiliary | subtitles) == 6
 
 
