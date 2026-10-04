@@ -663,7 +663,9 @@
       "label": "spacr.regression_summary#12",
       "source": "WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a run from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
       "source_sha256": "89044fd753e29774a4026d8d0aad0a36d80d76f5866a53dd4d2a3df32e0be1f8",
-      "translation": "WHERE ÞAÐ FER. Processing-session mappan, undir :data:`spacr.ml.SUMMARY_FILENAME` — skráin :func:`spacr.qt.widgets.regression_results.find_summary_file` les nú þegar til baka, svo að enduropna vinnslulotu af diski sýnir þessa samantekt án GUI breytingu. statsmodels textanum, þar sem það er einn, er bætt við VERBATIM í lokin frekar en skipt út."
+      "translation": "WHERE ÞAÐ FER. Processing-session mappan, undir :data:`spacr.ml.SUMMARY_FILENAME` — skráin :func:`spacr.qt.widgets.regression_results.find_summary_file` les nú þegar til baka, svo að enduropna vinnslulotu af diski sýnir þessa samantekt án GUI breytingu. statsmodels textanum, þar sem það er einn, er bætt við VERBATIM í lokin frekar en skipt út.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "context": "The warning goes first, where the Summary tab already puts it: a rank-deficient fit prints a full table of standard errors regardless, and it looks exactly like a summary of a microplate sample position-posed one.",

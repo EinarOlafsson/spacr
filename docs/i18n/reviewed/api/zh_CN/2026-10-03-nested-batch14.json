@@ -41,7 +41,9 @@
       "source_sha256": "29f568dba5dc31fd2dd9b087e532f78a64618ba2aeebff414aab94c06ea09f56",
       "context": "the rows to filter.",
       "translation": "要筛选的行。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.io._dataset_crop_refs._filter#3",
@@ -1113,7 +1115,9 @@
       "source_sha256": "9fc8c3940452655ff5078d3d2b135939c20a42c616860bf14cfe54061b32bd8a",
       "context": "the depth in decades.",
       "translation": "以数量级（十倍）计的深度。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._budget_at#2",
@@ -1137,7 +1141,9 @@
       "source_sha256": "9fc8c3940452655ff5078d3d2b135939c20a42c616860bf14cfe54061b32bd8a",
       "context": "the depth in decades.",
       "translation": "以数量级（十倍）计的深度。",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._dive_uniforms#2",

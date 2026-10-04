@@ -1064,7 +1064,9 @@
       "source_sha256": "534a20d92443850456fafa7bf5cf6c1b879ada5c2377d65701de93abdbe5874e",
       "context": "A PATH can contain a space, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
       "translation": "UN CHEMIN (PATH) PEUT CONTENIR UNE ESPACE, et la règle qui l’arrêtait au premier blanc en publiait le reste. ``/Volumes/Lab Drive/Patient 042`` devenait ``<PATH> Drive/Patient 042``, et ``C:\\Users\\anna\\OneDrive",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.ai.issue_report.strip_report_paths#3",

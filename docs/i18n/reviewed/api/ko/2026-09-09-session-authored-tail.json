@@ -49,7 +49,9 @@
       "source_sha256": "3b26b2cc94e9e2ab4b48cf39602d8044ae66e0c2cfd49878df7db59f99e2d624",
       "source": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D field is measured in real units or refused. A 2-D field takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
       "context": "THE 2-d PATH is bit-identical and deliberately so. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D microscope field of view is measured in real units or refused. A 2-D microscope field of view takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
-      "translation": "2-d PATH 는 비트 단위로 동일하며 그것은 의도된 것이다. 이제 Mask 는 ``(Z, Y, X)`` 라벨 볼륨을 낼 수 있고(:mod:`spacr.zstack` 참조), 복셀 간격과 부피 열, 단위 표기에 관한 모든 것은 3차원 시야가 실제 단위로 측정되거나 아니면 거부되도록 하기 위해 존재한다. 2차원 시야는 ``spacing=None`` 과 함께 예전과 똑같은 코드를 그대로 탄다. 작년에 측정한 스크린을 오늘 다시 측정하면 같은 숫자가 나온다."
+      "translation": "2-d PATH 는 비트 단위로 동일하며 그것은 의도된 것이다. 이제 Mask 는 ``(Z, Y, X)`` 라벨 볼륨을 낼 수 있고(:mod:`spacr.zstack` 참조), 복셀 간격과 부피 열, 단위 표기에 관한 모든 것은 3차원 시야가 실제 단위로 측정되거나 아니면 거부되도록 하기 위해 존재한다. 2차원 시야는 ``spacing=None`` 과 함께 예전과 똑같은 코드를 그대로 탄다. 작년에 측정한 스크린을 오늘 다시 측정하면 같은 숫자가 나온다.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.omero#1",

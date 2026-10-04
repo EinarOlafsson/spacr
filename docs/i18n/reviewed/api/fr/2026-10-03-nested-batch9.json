@@ -913,7 +913,9 @@
       "source_sha256": "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658",
       "context": "Say why, in the installer's own words.",
       "translation": "Indique pourquoi, avec les propres mots de l'installateur.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.widgets.model_zoo_picker._BackendInstallButton._watch.progressed#0",

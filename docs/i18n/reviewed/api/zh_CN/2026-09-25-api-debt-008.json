@@ -3529,7 +3529,9 @@
       "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
       "context": "Why the drive is read in :meth:`advance` and not WHERE it is used. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the shading independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
       "translation": "为什么驱动信号在 :meth:`advance` 中读取，而不是在使用它的地方（WHERE）读取。其他每个引擎都承诺一帧是 ``(seed, clock, size)`` 的纯函数，并有两个测试确保这一点：一个在两个线程上对同一时钟着色并比较字节，另一个将一个引擎推进十二步，并让第二个引擎直接跳到同一时钟。在 :meth:`shade` 内部读取实时信号会破坏这两个测试，而且是在“着色线程”上破坏它们，此时的失败表现为一幅与 GUI 线程本应绘制的画面不同的图像。因此，驱动信号是一个“输入”，在帧与帧之间于 GUI 线程上、在引擎锁的保护下设置，与 :meth:`set_palette` 完全相同，承诺也随之变为“是 ``(seed, clock, size, drive)`` 的纯函数”——在没有播放任何内容时，这与原来的承诺相同，而测试正是在这种情况下运行的。",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.ResonanceEngine#4",

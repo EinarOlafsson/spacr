@@ -2520,7 +2520,9 @@
       "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
       "context": "Why the drive is read in :meth:`advance` and not WHERE it is used. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the shading independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
       "translation": "구동을 사용되는 곳(WHERE)이 아니라 :meth:`advance` 에서 읽는 이유. 다른 모든 엔진은 프레임이 ``(seed, clock, size)`` 의 순수 함수라고 약속하며, 두 테스트가 이를 지킵니다: 하나는 같은 시계를 두 스레드에서 셰이딩해 바이트를 비교하고, 다른 하나는 엔진 하나를 열두 번 진행시키고 두 번째 엔진을 같은 시계로 곧장 건너뛰게 합니다. :meth:`shade` 안에서 실시간 신호를 읽으면 둘 다 깨지며, 그것도 셰이딩 스레드에서 깨지는데, 그곳에서의 실패는 GUI 실행 경로가 그렸을 그림과 다른 그림으로 나타납니다. 그래서 구동은 입력으로, :meth:`set_palette` 와 똑같이 엔진 잠금 아래 프레임 사이에 GUI 실행 경로에서 설정되며, 약속은 \"``(seed, clock, size, drive)`` 의 순수 함수\" 가 됩니다 -- 아무것도 재생되지 않는 동안에는 같은 약속이며, 테스트는 바로 그때 실행됩니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.widgets.ambient.ResonanceEngine#4",

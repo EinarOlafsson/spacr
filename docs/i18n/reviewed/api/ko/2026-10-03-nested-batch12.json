@@ -553,7 +553,9 @@
       "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
       "context": "one field.",
       "translation": "필드 하나입니다.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#2",
