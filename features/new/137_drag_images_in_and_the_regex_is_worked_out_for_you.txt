@@ -290,3 +290,5 @@ reading back `A01`. A test pins the old behaviour too, so the trim cannot be
 removed as tidying.
 
 50 tests in tests/test_the_import_workbench_shows_before_it_writes.py.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

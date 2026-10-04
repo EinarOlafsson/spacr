@@ -122,3 +122,5 @@ author reads one of them.
 
 15 tests in tests/qt/test_no_button_cuts_off_its_text.py; 1,004 pass across
 the suites of every widget touched.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

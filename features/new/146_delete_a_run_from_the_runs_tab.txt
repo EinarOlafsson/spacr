@@ -168,3 +168,5 @@ it has moved.
 
 Wired where the screen already drops the retained plot state and the run's
 photograph, so a removal is one event rather than three that can disagree.
+
+VERIFIED 2026-10-04: test_delete_a_run_from_the_runs_tab.py, test_deleting_runs_stays_inside_the_journal.py pass.

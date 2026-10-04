@@ -384,3 +384,5 @@ AND THE LAST OUTSTANDING ITEM -- "validation 2 as written should be replaced
 in this instruction" -- IS DONE IN THE HOW TO KNOW SECTION ABOVE. The
 comparator is other genes in the same well, not controls, and the original
 wording is kept there with the reason it cannot be run.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

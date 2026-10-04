@@ -90,3 +90,5 @@ setup.py:694 and reaches `resources/data/*`. `MANIFEST.in:4` is the matching
 the downloader, covered by tests/test_cov_w2_5_example_data.py.)
 
 Measured: 24.5 s cold, 0.02 s warm.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

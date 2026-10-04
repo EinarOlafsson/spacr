@@ -72,3 +72,5 @@ PUBLIC name for settings reads, writes and their ordering -- so all four scans
 had to follow the body. An earlier agent had already reported those two tests
 as pre-existing red; they were not, they were this change, and the contract
 caught precisely what it exists to catch.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

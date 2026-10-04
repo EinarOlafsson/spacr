@@ -195,3 +195,5 @@ name the same control wells there, without that panel growing a fifth
 opinion about what a control looks like.
 
 71 pass across the control-naming and example-data suites.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

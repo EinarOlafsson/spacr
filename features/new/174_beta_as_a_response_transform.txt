@@ -69,3 +69,5 @@ C. THE SUMMARY SAYS SO.
 
 TESTS
   tests/test_the_beta_transform.py -- 20 of them, most about the endpoints.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

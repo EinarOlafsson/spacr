@@ -104,3 +104,5 @@ B. THE CONTROL IS NOT THE ANNOTATION APP'S, AND THAT WAS DECIDED, NOT
   now take `ChannelPicker` in the other direction, which would make the two
   screens the same control after all -- and would tighten what `annotate`
   accepts, so it needs its own migration for settings already on disk.
+
+VERIFIED 2026-10-04: test_reapplying_settings_does_not_reload.py, test_the_outline_is_not_recomputed_for_nothing.py pass.

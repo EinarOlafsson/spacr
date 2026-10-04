@@ -552,3 +552,5 @@ count. A behavioural test holds the canonicalisation --
 `test_the_screen_csvs_arrive_with_canonical_key_names` in
 tests/test_the_threshold_can_be_measured_not_named.py -- confirmed to fail
 against the old `pd.read_csv` line.
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

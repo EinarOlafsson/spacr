@@ -49,3 +49,5 @@ Saved on every drag rather than at shutdown, so a crash does not discard the
 arrangement the user just made. All seven branches route through one helper, and
 a test asserts none of them sets the attribute directly -- a branch that did
 would be one whose sizes are silently not kept, which is this bug again.
+
+VERIFIED 2026-10-04: test_the_pane_heights_survive_a_restart.py passes.

@@ -420,3 +420,5 @@ the per-graph case (a volcano palette overrides the general one for volcanoes
 and for nothing else) and the untouched-install case. Confirmed failing
 before the fix and passing after. 148 pass across the figure-style,
 preferences and saved-figure suites.
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

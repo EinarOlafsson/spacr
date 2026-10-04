@@ -165,3 +165,5 @@ F. `spacr.gene_measurement_compare` + `MeasurementComparePanel`: groups from
    `sp_stats` with the assumption checks reported, and one folder holding the
    figure, the data, the statistics, the settings and the cells.
    Instruction 179 mounts it as a tab and adds the two-measurement operators.
+
+VERIFIED 2026-10-04: _as_channel_list("r,g,b") == _as_channel_list("0,1,2") == [r,g,b].

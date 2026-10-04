@@ -153,3 +153,5 @@ Headless use is immediate and actionable through ``metadata_column_map``,
 
 Verification: 284 resolver/schema/Qt tests passed after the initial build;
 the final focused object-schema, picker and packaging batch passed 102 tests.
+
+VERIFIED 2026-10-04: headless resolve_metadata_columns raises MetadataResolutionRequired naming metadata_column_map/metadata_well_column; well_column A01 derives r1/c1; pseudo map keeps 1 and "1" in different wells.

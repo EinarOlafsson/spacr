@@ -116,3 +116,5 @@ the three keys were added later.
 They are in `spacr.settings.tooltips` now, beside the other streamed-crop
 keys and not in a second table, and each states its default -- 2, 1 and 0,
 spaCR's shipped inverted mapping -- as every setting must.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

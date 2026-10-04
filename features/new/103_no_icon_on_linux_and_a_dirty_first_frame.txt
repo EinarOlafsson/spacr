@@ -171,3 +171,5 @@ shell that matches on res_name rather than res_class would want
 `StartupWMClass=spacr-qt` instead; and none of this exercises Wayland, where
 the app id from `setDesktopFileName` is the only channel and WM_CLASS does
 not exist at all.
+
+VERIFIED 2026-10-04: tests/qt/test_linux_launch_identity.py and the splash test pass; app.py sets setDesktopFileName.

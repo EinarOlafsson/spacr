@@ -202,3 +202,5 @@ box beside one monospace dump is this same complaint one section further down.
 
 NOT DONE HERE: 141's backend selector wants the same API links. `MODEL_API_LINKS`
 and `model_api_link()` are the shared answer when somebody picks that up.
+
+VERIFIED 2026-10-04: qt/test_the_model_box_is_typeset.py passes.

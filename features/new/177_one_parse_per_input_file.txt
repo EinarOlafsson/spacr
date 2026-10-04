@@ -151,3 +151,5 @@ path, a second queue is handed it again, and a frame provider that fails
 costs a parse rather than the run.
 
 Instruction 140 asks for exactly this and does not cover this path.
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

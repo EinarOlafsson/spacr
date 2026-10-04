@@ -141,3 +141,5 @@ empty block got a selection that could not say which wells it held.
 
 30 tests in tests/qt/test_the_plate_map_is_squares_you_drag_across.py; 306
 pass across the design, plate-map and well-spec suites.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

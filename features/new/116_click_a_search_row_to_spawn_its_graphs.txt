@@ -363,3 +363,5 @@ Driven and imported rather than read:
     tests/test_two_runs_on_screen_at_once.py,
     tests/test_delete_a_run_from_the_runs_tab.py and
     tests/qt/test_the_runs_tab_shows_a_still_of_a_run.py.
+
+VERIFIED 2026-10-04: the 4 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

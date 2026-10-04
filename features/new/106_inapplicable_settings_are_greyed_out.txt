@@ -564,3 +564,5 @@ that the number is any particular one.
 
 Re-measured for this correction: tests/test_regression_workbench.py 120
 passed, tests/qt/test_all_module_smoke.py 75 passed.
+
+VERIFIED 2026-10-04: the 9 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

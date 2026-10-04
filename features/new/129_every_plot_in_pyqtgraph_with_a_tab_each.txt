@@ -181,3 +181,5 @@ C. THE GRID STAYS AND HOLDS LIVE TILES. `FigureGridView.set_live_tiles` /
 The one assumption this file stated rather than asked -- pyqtgraph on screen,
 matplotlib on disk -- still holds, and 178 C.2 has since given the pyqtgraph
 plots a styled save of their own so the two are not a hierarchy.
+
+VERIFIED 2026-10-04: test_the_effect_panels_are_pyqtgraph_tabs.py, test_the_grid_holds_every_pyqtgraph_panel.py, qt/test_every_live_tile_opens.py pass.

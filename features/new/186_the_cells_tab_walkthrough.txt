@@ -237,3 +237,5 @@ than answered: it is a statistical choice about what a one-sided view claims,
 not a UI gap.
 
 INSTRUCTION 186 IS COMPLETE.
+
+VERIFIED 2026-10-04: qt/test_multivariate_says_what_it_needs.py passes.

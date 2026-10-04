@@ -601,3 +601,5 @@ panel at its usual level finds its row already visible.
 
 WITH THAT, A THROUGH R ARE ALL SHIPPED, each recorded above with what it did.
 128 is closed; anything later wanted on this surface is a new instruction.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

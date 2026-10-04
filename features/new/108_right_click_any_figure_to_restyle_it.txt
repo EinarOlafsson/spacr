@@ -645,3 +645,5 @@ two of them have a STYLE OBJECT and therefore a restyle menu. Giving a third
 one a style is now a dataclass and a `render`, which is the point of the two
 above; which figures earn one is instruction 127's product question and not a
 gap in this one.
+
+VERIFIED 2026-10-04: the 7 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -173,3 +173,5 @@ tests/qt/test_the_panels_contribute_to_a_saved_run.py.
 STILL OWED: nothing in the ask. Worth doing later -- the Graph tab and the
 measurement-comparison panel do not contribute yet, so a restored session
 puts the montage back but not the comparison built on it.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

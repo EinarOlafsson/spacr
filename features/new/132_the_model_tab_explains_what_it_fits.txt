@@ -223,3 +223,5 @@ Driven through the real screen and the real module, against this file's own
     That refusal is the test this file asked for, and it is stronger than a
     test: the formula cannot be built at all, so no fourth path can quietly
     reintroduce it.
+
+VERIFIED 2026-10-04: test_the_formula_shown_is_the_formula_fitted.py, test_two_fits_two_bh_families.py, test_the_explainer_is_at_the_top_of_its_section.py pass.

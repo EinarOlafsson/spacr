@@ -603,3 +603,5 @@ different answer, not a faster one).
 
    Anything among these that is later wanted is a new instruction with its own
    agreement measurement, not this one reopened.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

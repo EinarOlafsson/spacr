@@ -132,3 +132,5 @@ English until the catalogs are rebuilt.
 Tests: tests/test_loading_a_run_is_off_the_gui_thread.py, 13 (three new: the
 worker's per-file count, every stage said in order on a real async load, and
 a stale stage after a cancel leaving the cancel sentence in place).
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

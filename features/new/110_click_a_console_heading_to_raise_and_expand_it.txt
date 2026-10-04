@@ -226,3 +226,5 @@ tests/test_console_section_headings.py 14 passed (12 before);
 tests/qt/test_cov_w3_7_console_panel.py, test_a_figure_section_folds_away_like_the_console.py,
 test_the_summary_tab_folds.py, test_console_aware_setting.py, qt/test_ai_console.py,
 qt/test_ai_stress.py all still green.
+
+VERIFIED 2026-10-04: the 7 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

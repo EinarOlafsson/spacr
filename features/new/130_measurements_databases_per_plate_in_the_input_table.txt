@@ -184,3 +184,5 @@ sqlite path handed to it would be read as a CSV.
 
 Instruction 131 builds directly on this: the montage of cells behind a dot
 needs exactly these databases.
+
+VERIFIED 2026-10-04: test_the_databases_in_the_measurements_tab.py, test_the_measurements_tab_sees_the_databases.py pass.

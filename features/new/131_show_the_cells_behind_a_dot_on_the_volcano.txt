@@ -169,3 +169,5 @@ later instructions brought with them.
 STILL OWED and tracked on THEIR OWN files, not this one: 172 (the count and
 the choice of cells) and 173 (a guide and a probability for every cell), both
 of which need the maintainer's real plates to verify.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

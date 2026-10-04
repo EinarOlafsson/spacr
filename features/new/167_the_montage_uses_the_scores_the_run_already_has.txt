@@ -106,3 +106,5 @@ C. THE OFFER. `write_scores_into_the_databases(confirm=...)` merges the run's
 
 9 tests in tests/qt/test_the_montage_uses_the_scores_the_run_has.py, and the
 65 in tests/qt/test_cells_behind_the_dot_tab.py still pass.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

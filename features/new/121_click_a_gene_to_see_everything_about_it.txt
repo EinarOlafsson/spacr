@@ -436,3 +436,5 @@ the RESULT above already records. Read together with
 holds the CURRENT file's answer -- 411710_2 is "not in the gRNA reference",
 a third answer and not a silently clean one -- the pair covers both the
 ambiguity logic and the reference as it ships.
+
+VERIFIED 2026-10-04: the 10 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

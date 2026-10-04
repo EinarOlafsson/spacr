@@ -235,3 +235,5 @@ so it is not made redundant by the attribute.
 STILL NOT REPRODUCIBLE HEADLESS, and still recorded as such: offscreen Qt never
 asks the portal, so what is proven is that no dialog can ask for the platform's
 own. That this was the minute needs a watch on the real display.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

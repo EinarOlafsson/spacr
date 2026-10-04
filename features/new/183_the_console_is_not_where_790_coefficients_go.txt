@@ -89,3 +89,5 @@ the count is exact, and both better renderings already exist.
 the usual cause, a response transformed twice.
 
 12 tests in tests/test_the_console_is_not_where_790_coefficients_go.py.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

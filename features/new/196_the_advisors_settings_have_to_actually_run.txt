@@ -179,3 +179,5 @@ C. THE WELL COUNT: TWO FAULTS STACKED, BOTH PRINTING A CONFIDENT NUMBER.
 
 10 tests in tests/test_the_design_scan_counts_the_wells.py, 30 in
 tests/test_the_advisors_proposal_actually_runs.py.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2); every advised key is now in expected_types (new test in test_a_button_picks_the_settings_for_your_data.py).

@@ -37,3 +37,5 @@ a developer stands most of the time, so the guard would have failed in exactly
 the case it exists for. The second check asks where the imported package
 actually lives: outside site-packages means a working tree whatever the
 metadata says.
+
+VERIFIED 2026-10-04: editable_install_location() returns the checkout path; test_an_upgrade_never_clobbers_a_checkout.py passes.

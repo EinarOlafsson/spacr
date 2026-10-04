@@ -220,3 +220,5 @@ catalogs".
 So it stays for whoever owns that surface, together with the runtime i18n
 catalogs, which need regenerating for the seventeen picture-settings tooltips
 added under 176 B.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

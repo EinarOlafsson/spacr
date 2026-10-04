@@ -189,3 +189,5 @@ asks afterwards.
 cannot reach, and it has always said it parks rather than claiming to stop.
 
 8 tests in tests/test_a_long_fit_can_be_stopped.py.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

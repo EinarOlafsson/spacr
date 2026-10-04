@@ -354,3 +354,5 @@ NOT THIS ITEM. Three tests in tests/test_readme_presentation.py fail on the
 README's WORKFLOW buttons -- 56 buttons against a home-screen registry of 36
 -- which is the module-consolidation gap the app-registry ratchets are held
 for, not the installer row.
+
+VERIFIED 2026-10-04: the 4 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

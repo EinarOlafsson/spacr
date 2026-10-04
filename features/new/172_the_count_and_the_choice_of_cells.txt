@@ -159,3 +159,4 @@ it and naming all three when it does. Re-run on the maintainer's four plates:
 15 passed. The behaviour this instruction is about was never wrong; the
 evidence for it had quietly stopped being collected.
 
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

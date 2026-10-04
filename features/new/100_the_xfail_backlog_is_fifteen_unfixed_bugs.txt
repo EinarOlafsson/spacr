@@ -773,3 +773,5 @@ tests/test_align_cov.py pins two of them: `some_image_ch2_12` and
 "unparseable" names would refuse those folders. Narrowing it, for example by
 refusing a name that holds a well-shaped token no pattern consumed, is a
 design decision, and it belongs to whoever next changes align's naming.
+
+VERIFIED 2026-10-04: the 20 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2); xfail marker had come back (tests/qt/test_features_table_editing_and_recovery.py, from 288); the bug it pinned is fixed (Measure input table redraws after setData returns) and the marker removed, so none is left under tests/.

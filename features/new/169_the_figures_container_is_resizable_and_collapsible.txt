@@ -87,3 +87,5 @@ TESTS
   tests/test_the_measurements_tab_sections_resize.py
   tests/test_the_section_layout_survives_a_restart.py
   tests/test_the_figure_size_is_the_users.py
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

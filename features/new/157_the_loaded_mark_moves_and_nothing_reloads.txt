@@ -186,3 +186,5 @@ tests/test_a_run_can_be_loaded_on_demand.py.
 
 FOLDED INTO 154 G, as this file's header asked -- both have landed, so the
 loaded mark is documented in one place from here.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -162,3 +162,5 @@ than no caption. Wrapped, because a caption must never be the reason a figure
 does not draw.
 
 INSTRUCTION 189 IS COMPLETE.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

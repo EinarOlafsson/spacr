@@ -542,3 +542,5 @@ Fixed by the one missing connection, at app_screen.py:2086:
 
 so the mark and what is on screen are one event. instructions/done/157 keeps
 the full diagnosis.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

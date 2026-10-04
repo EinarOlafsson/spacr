@@ -104,3 +104,5 @@ request to see results rather than a tab moving on its own.
 
 Two tests added to `tests/test_results_follows_the_selected_run.py`, one per
 surviving call; both fail against the old code.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

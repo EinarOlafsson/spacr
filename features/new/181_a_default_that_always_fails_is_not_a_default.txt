@@ -140,3 +140,5 @@ defaults resolve a well-level run to the permutation test, and the summary
 then says, correctly, that no model was fitted and no hyperparameter read. The
 alpha line appears on parametric runs, which is the only place it means
 anything.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -516,3 +516,5 @@ only way to hold "it is written down" rather than "it happened to be true".
 THE OTHER LEFTOVER -- containment for the measurement scan -- is instruction
 114's subject and stays there rather than being half-done here. It is 0.3 s on
 152 measurements over 44 wells; a four-plate merge is still untimed.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

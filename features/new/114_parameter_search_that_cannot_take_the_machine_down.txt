@@ -179,3 +179,5 @@ the regression form beside it and is the superset of the two -- and the test
 was not moved with it. So it is a stale assertion of the module
 consolidation, item 242, and belongs to whoever closes that. The other 48
 across the five sweep suites pass.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

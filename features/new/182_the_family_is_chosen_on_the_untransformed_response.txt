@@ -263,3 +263,5 @@ both pinning message text that earlier parts of this instruction rewrote:
     the bug.
   * `test_an_unidentifiable_fit_says_so_above_its_own_table` expected "THIS
     FIT IS NOT IDENTIFIABLE"; the banner now names the saturated case too.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2); later work (test_a_link_is_applied_once.py) retired glm_transform_conflict and always fits the measured response once; that later implementation wins. The settings advisor still proposed the retired key, now removed with a test.

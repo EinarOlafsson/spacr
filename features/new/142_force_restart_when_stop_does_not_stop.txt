@@ -142,3 +142,5 @@ the settings model's, and it did not know about 181's auto-or-number box --
 value a penalised fit cannot use. Both writers share the spelling now.
 
 21 tests in tests/qt/test_force_restart_comes_back_where_you_were.py.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

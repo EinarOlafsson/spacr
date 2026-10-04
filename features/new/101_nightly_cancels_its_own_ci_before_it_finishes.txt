@@ -213,3 +213,5 @@ pushed:
     gh run list --branch nightly --workflow compat-matrix --limit 5
 
 The tests.yml half is already on origin and can be confirmed at any time.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2); tests.yml concurrency cancels in progress only for pull_request, so a nightly push run is never cancelled.

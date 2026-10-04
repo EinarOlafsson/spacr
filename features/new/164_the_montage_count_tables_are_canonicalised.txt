@@ -27,3 +27,5 @@ The refusal now names the columns the file HAS -- "column grna was not found" is
 true and unactionable, because a user cannot tell from it whether they picked
 the wrong file or spelled the header differently, and those have different
 answers.
+
+VERIFIED 2026-10-04: headless fractions_from_counts on a grna_name/count CSV returns fractions 0.3/0.7 for grna g1/g2.

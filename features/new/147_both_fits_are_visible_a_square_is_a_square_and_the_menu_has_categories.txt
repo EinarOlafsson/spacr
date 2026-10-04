@@ -463,3 +463,5 @@ The items under "NOT DONE" are recorded scope decisions with their reasons,
 not outstanding work; anything among them that is later wanted is a new
 instruction rather than this one reopened.
 --------------------------------------------------------------------------------
+
+VERIFIED 2026-10-04: the 12 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

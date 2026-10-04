@@ -272,3 +272,5 @@ THE TWO SENTENCES ABOUT OLD SETTINGS WERE RUN, NOT READ, from this worktree
         -> y ~ fraction:grna + plateID + rowID + columnID
     prepare_formula('y', model_plate_position=False)
         -> y ~ fraction:grna
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

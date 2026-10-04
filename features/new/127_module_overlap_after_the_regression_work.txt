@@ -418,3 +418,5 @@ nothing has been deleted:
 Say the word on any of them and it is a small change. Left standing is the
 right default: a module deleted from under a published figure cannot be
 un-deleted from a reader's paper.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -291,3 +291,5 @@ true when it was written and is not now: instruction 187 D removed Export,
 because the picture it wrote had text scaled for the screen on a page sized
 in millimetres -- "massive text and so on". A second door that produces a
 worse file is not a shortcut. One door, and it shows what it will write.
+
+VERIFIED 2026-10-04: the 4 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

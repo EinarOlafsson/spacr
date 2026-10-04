@@ -258,3 +258,5 @@ reader is `ConsolePanel.as_text()`. The substance of the paragraph -- that the
 console is document-backed and readable at ask time -- is correct.
 
 CLOSED.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

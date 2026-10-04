@@ -378,3 +378,5 @@ So M becomes two things, both of which change what the reader sees:
       Changing it must NOT be silent: the panel says which baseline is in
       force, and a figure exported with a non-zero baseline carries it in the
       caption and in the stats sidecar.
+
+VERIFIED 2026-10-04: test_the_volcano_says_its_baseline.py passes.

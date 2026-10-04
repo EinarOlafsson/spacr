@@ -329,3 +329,5 @@ from and names both legacy keys, and -- the part that makes the exemption
 shrink -- that every entry in `OWED` still carries its stale phrase, so the
 list cannot outlive the defect. Landing the text above turns that last test
 red with "remove it from OWED".
+
+VERIFIED 2026-10-04: the 9 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

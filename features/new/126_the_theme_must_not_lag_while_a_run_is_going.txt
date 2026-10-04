@@ -147,3 +147,5 @@ were taken.
 
 STILL OWED: the reporter's own confirmation on the machine that lagged. Cause
 3 (every core busy) remains outside the application's reach by construction.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

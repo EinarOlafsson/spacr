@@ -212,3 +212,5 @@ had matched -- understating the join in exactly the direction that makes a
 reader distrust it. It counts any added column now.
 
 14 tests in tests/test_the_bundled_phenotype_reaches_the_export.py.
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

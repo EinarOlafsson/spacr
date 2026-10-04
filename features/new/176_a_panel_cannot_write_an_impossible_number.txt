@@ -47,3 +47,5 @@ HOW IT WAS KNOWN TO WORK
   domain and inventing one would be worse.
 * -0.95, 0.0, 1.0, 1.5 and 'x' are each refused in under a second, naming the
   setting.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

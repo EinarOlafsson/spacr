@@ -132,3 +132,5 @@ changed. Re-measured against what the file promises:
     test_each_run_is_its_own_section.py -- the count this file recorded.
 
 The three test files live in `tests/`, not `tests/qt/`.
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

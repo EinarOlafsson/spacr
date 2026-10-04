@@ -206,3 +206,5 @@ NOT DONE, AND NAMED RATHER THAN LEFT TO BE DISCOVERED
 
   Both were invisible to a green suite, because nothing had asserted what a
   chooser opens ON. Two tests now do.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

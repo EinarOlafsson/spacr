@@ -368,3 +368,5 @@ and the widget count when it is missing, so the fix does not need a search.
 
 NOTHING ELSE IS OWED HERE. The rule holds, the helper exists, the guard runs
 over every constructible screen, and the two offenders are fixed.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -103,3 +103,5 @@ two entries in both" is now satisfied by there being one panel rather than by
 two agreeing. The shared declaration in `settings_spec` is kept anyway: it is
 the reason a second surface cannot drift, and the settings writer's `findData`
 fix that this instruction found applies to every labelled combo.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

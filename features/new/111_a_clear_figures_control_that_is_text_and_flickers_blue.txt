@@ -147,3 +147,5 @@ flashes to `accent` -- #f85149 -> #4A9EFF -> #f85149 on dark, #b81d1a ->
 reads as destructive at rest) and does not touch any acceptance line: the
 FLASH is still the accent, still legible in both themes, since both accents
 are read from the palette rather than typed in.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

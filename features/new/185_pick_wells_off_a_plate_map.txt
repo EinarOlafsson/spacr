@@ -166,3 +166,5 @@ Tests: `tests/test_wells_are_picked_off_a_plate_map.py`,
 `tests/test_cov_3_well_spec.py`, and
 `tests/qt/test_the_plate_map_button_is_on_the_panel.py`, which drives the
 button on the panel rather than the picker on its own.
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

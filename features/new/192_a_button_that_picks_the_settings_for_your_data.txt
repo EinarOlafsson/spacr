@@ -214,3 +214,5 @@ TWO BUGS FOUND WHILE BUILDING IT, both fixed:
 43 tests in tests/test_a_button_picks_the_settings_for_your_data.py, 24 in
 tests/qt/test_the_settings_advisor_button.py, 9 in
 tests/qt/test_the_plate_map_button_is_on_the_panel.py.
+
+VERIFIED 2026-10-04: the 3 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2); advisor no longer emits the retired glm_transform_conflict key (test_every_advised_key_is_a_setting_the_run_reads).

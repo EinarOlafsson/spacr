@@ -244,3 +244,5 @@ D. PySide6, qtawesome and pyqtgraph are CORE dependencies. The wheel coverage
    cover 3.9), pyqtgraph >=0.13.3 for the same reason. The headless invariant
    is untouched and still tested -- being a dependency is not being an import,
    and a cluster install carries the wheel and never loads it.
+
+VERIFIED 2026-10-04: the 5 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

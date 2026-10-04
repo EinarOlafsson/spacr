@@ -60,3 +60,5 @@ which cannot know which thread they are on.
 The test asserts the part that matters most: after a cross-thread start the
 timer IS ACTIVE. A fix that only silenced the warning would be the original bug
 with the evidence removed.
+
+VERIFIED 2026-10-04: test_a_timer_is_never_started_off_its_thread.py passes.

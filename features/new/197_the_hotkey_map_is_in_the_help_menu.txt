@@ -133,3 +133,5 @@ fits.
 
 13 tests in tests/qt/test_the_hotkey_map_is_the_whole_map.py; 1,251 pass
 across the shortcut, palette, window and menu suites.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -299,3 +299,4 @@ ever read this one, so there is no behaviour to report a change in.
 test_a_value_that_already_agreed_is_dropped_in_silence[split_axis_lims-]`
 was already written for this and was failing.
 
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

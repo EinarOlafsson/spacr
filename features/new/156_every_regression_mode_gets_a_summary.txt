@@ -327,3 +327,5 @@ is HISTORY, not a live list: every claim in it was checked and the work was
 already done. A stale heading reads as current, which is how it sent an
 auditor chasing a bug that was fixed weeks ago.
 --------------------------------------------------------------------------------
+
+VERIFIED 2026-10-04: the 2 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

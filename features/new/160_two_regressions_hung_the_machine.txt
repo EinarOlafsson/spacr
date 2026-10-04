@@ -154,3 +154,5 @@ VERIFIED BY DISABLING THE GATE: `tests/test_a_worker_never_builds_a_qt_widget.py
 does not fail without it -- it HANGS, and has to be killed. That is the other
 half of the original report, "this hung my computer twice so i had to restart
 it", and it means a future removal of the gate announces itself.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

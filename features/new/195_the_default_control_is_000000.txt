@@ -136,3 +136,5 @@ have to be corrected the way this file's author was.
 
 17 tests in tests/test_a_gene_control_finds_its_guides.py, one of them
 against the example screen's own 30 guides.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

@@ -102,3 +102,5 @@ first:
     laid out on its own clone.
 
 5 tests in tests/qt/test_the_explainer_prose_fills_its_box.py.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

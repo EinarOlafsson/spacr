@@ -121,3 +121,5 @@ seven. The two new runtime ones are not greps: a second thread holds the lock,
 the preview is driven from a third, and the test asserts the draw does NOT
 begin while the lock is held and DOES once it is released. All three fail
 against the pre-fix code, checked by putting it back.
+
+VERIFIED 2026-10-04: the 1 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).

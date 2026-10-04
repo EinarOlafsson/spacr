@@ -328,3 +328,5 @@ nothing", and 121 and 122 -- the two it handed on to -- have their own files.
 
 Filed to done/ after re-reading the file rather than its header, which still
 said "not started".
+
+VERIFIED 2026-10-04: index item; its successors 121, 122 and 124 verified here.

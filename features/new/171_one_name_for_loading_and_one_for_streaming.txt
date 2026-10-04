@@ -426,3 +426,5 @@ tests/qt/test_settings_search.py has one failure in this tree that is not
 this item's: it names the cellpose3_* rows, which this change does not touch
 (a second, `test_a_visible_screen_still_keeps_the_sizes_it_had`, failed in a
 batch run and passes on its own).
+
+VERIFIED 2026-10-04: the 8 test file(s) this item names pass (CPU, offscreen, -n 4, nightly 85c3e41c2).
