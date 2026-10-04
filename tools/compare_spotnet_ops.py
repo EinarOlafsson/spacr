@@ -228,7 +228,9 @@ def _strict_provenance(args, tasks):
     return {'files': files, 'planes': planes, 'backends': environments,
             'settings': {'threshold_reads': ops_engine._THRESHOLD_READS,
                          'footprint': ops_engine._FOOTPRINT,
-                         'spotnet_threshold': 0.95, 'spotiflow_threshold': None,
+                         'spotnet_threshold': 0.95,
+                         'spotiflow_threshold': args.spotiflow_threshold,
+                         'spotiflow_model': args.spotiflow_model or 'general',
                          'reference_cycle': args.reference, 'native_gpu': bool(args.gpu)}}
 
 
@@ -265,6 +267,23 @@ def _write_strict_receipt(path, text):
         if temporary is not None:
             os.unlink(temporary)
 
+def _tune_spotiflow(threshold, model):
+    """Make every Spotiflow call in this run use ``threshold`` and ``model``.
+
+    The decoder imports ``_spotiflow_spots`` when it decodes, so replacing
+    it on the backend module reaches every field without changing spaCR.
+    """
+    global _spotiflow_spots
+    base = _spotiflow_spots
+
+    def tuned(image, threshold=None, model=None, **kwargs):
+        return base(image, threshold=tuned.threshold, model=tuned.model, **kwargs)
+
+    tuned.threshold, tuned.model = threshold, model
+    SB._spotiflow_spots = _spotiflow_spots = tuned
+    return tuned
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--tiles", required=True)
@@ -281,8 +300,14 @@ def main(argv=None):
                         help="let the native alignment and peaks use the card")
     parser.add_argument("--detectors", nargs="+", default=["spotnet"],
                         choices=["spotnet", "spotiflow"])
+    parser.add_argument("--spotiflow-threshold", type=float, default=None,
+                        help="Spotiflow probability threshold (0-1); default keeps the model's optimised one")
+    parser.add_argument("--spotiflow-model", default=None,
+                        help="Spotiflow model name or folder; default general")
     args = parser.parse_args(argv)
     SB._listen_to_workers(_echo_device_lines)
+    if args.spotiflow_threshold is not None or args.spotiflow_model:
+        _tune_spotiflow(args.spotiflow_threshold, args.spotiflow_model)
 
     checks = {"spotnet": (_spotnet_readiness, _detect_spots, 0.95),
               "spotiflow": (_spotiflow_readiness, _spotiflow_spots, None)}
@@ -309,7 +334,9 @@ def main(argv=None):
     report = {"item": 475 if args.detectors == ["spotnet"] else 554, "gpu": bool(args.gpu), "plate": args.plate,
               "well": args.well.upper(),
               "sites": args.sites, "library_size": len(library),
-              "match_radius_px": 2.0, "note": (
+              "match_radius_px": 2.0,
+              "spotiflow_threshold": args.spotiflow_threshold,
+              "spotiflow_model": args.spotiflow_model or "general", "note": (
                   "Owned reads only: the positions compared are the reads "
                   "each detector's field gave to a nucleus it owns.")}
     native, native_at = _run(tasks, "native", library)

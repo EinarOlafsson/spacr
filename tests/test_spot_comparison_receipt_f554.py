@@ -171,3 +171,15 @@ def test_database_with_live_wal_is_refused_even_through_symlink(comparison, syml
     with pytest.raises(ValueError, match='Checkpoint'):
         tool.main([*args, '--strict'])
     assert not seen and not out.exists()
+
+
+def test_spotiflow_threshold_and_model_reach_every_decode_call(comparison, monkeypatch):
+    tool, args, out, *_ = comparison
+    calls = []
+    monkeypatch.setattr(tool, '_spotiflow_spots', lambda image, **k: calls.append(k))
+    monkeypatch.setattr(tool.SB, '_spotiflow_spots', None)
+    assert tool.main([*args, '--spotiflow-threshold', '0.3', '--spotiflow-model', 'hybiss']) == 0
+    tool.SB._spotiflow_spots(np.zeros((4, 4)), threshold=None, model=None)
+    assert calls[-1] == {'threshold': 0.3, 'model': 'hybiss'}
+    report = json.loads(out.read_text())
+    assert (report['spotiflow_threshold'], report['spotiflow_model']) == (0.3, 'hybiss')

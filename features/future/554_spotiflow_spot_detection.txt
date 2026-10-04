@@ -1,6 +1,6 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: DONE 2026-10-02 (alpha-gated); only external points left: GPU timing (GPU turn) and the strict real-field replay (Spotiflow env + inputs, with the agent on 554's code).
+Status: DONE 2026-10-02 (alpha-gated); threshold/hybiss and FISH runs recorded 2026-10-03 (exploratory mode); only external points left: GPU timing (GPU turn) and the strict real-field replay.
         replay remains unavailable (2026-10-02).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
@@ -133,3 +133,38 @@ Receipt: features/data/554_strict_comparison_2026-10-02.json.
     (c) GPU timing: needs a gpu_turn.sh slot.
     threshold/hybiss and puncta/FISH real-field acceptance: left to the agent
     now on 554's code (strict replay needs the Spotiflow env and inputs).
+
+2026-10-03 -- THRESHOLD/HYBISS ON OPS FIELDS AND A REAL FISH SET (CPU)
+tools/compare_spotnet_ops.py gains --spotiflow-threshold and --spotiflow-model
+(recorded in the report and the strict settings). Same fields as above (A1
+sites 331+332). Precision = Spotiflow reads within 2 px of a native read;
+recall = native reads within 2 px of a Spotiflow read.
+
+                         spots  lib-exact/spot  nuclei  assigned exact  prec  recall
+  native                22,733     80.0 %       3,476     95.3 %        -     -
+  general, own thr      13,244     83.9 %       1,994     95.4 %      0.935 0.553
+  general, thr 0.3      19,301     74.5 %       2,544     95.1 %      0.807 0.694
+  general, thr 0.15     23,236     65.8 %       2,431     94.9 %      0.712 0.736
+  hybiss, own thr       10,074     82.8 %       1,379     95.1 %      0.967 0.446
+
+A lower threshold buys spots but not nuclei: at 0.3 Spotiflow still assigns
+27 % fewer nuclei than native, and at 0.15 the extra spots are noisier and
+assign fewer. hybiss is the most conservative. Native stays the OPS default.
+
+FISH through the object prefix: Spotiflow's published MERFISH test split (10
+fields, 512x512, 12,923 annotated spots, downloaded with spotiflow's
+load_dataset), one-to-one matching within 3 px:
+
+                               precision  recall   F1    CPU s
+  spotiflow:general (objects)    0.882    0.836  0.859   42.0
+  spotiflow:hybiss  (objects)    0.945    0.719  0.817   32.7
+  coordinates, general           0.883    0.837  0.859   25.6
+  LoG 5-SD baseline              0.985    0.239  0.385    0.2
+
+The object prefix (uint8 plane, disc masks, centroids) loses nothing against
+the raw coordinates. The general model may have seen this dataset's train
+split, so this is an in-distribution check. Receipt:
+features/data/554_spotiflow_threshold_and_fish_2026-10-03.json.
+
+WHAT IS LEFT: GPU timing once the card is free; a --strict replay of these
+runs (exploratory mode used here).
