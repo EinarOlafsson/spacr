@@ -2094,11 +2094,15 @@ def object_table_schema(table: str) -> ObjectTableSchema:
 
 
 def is_provenance_column(name: Any) -> bool:
-    """Return whether ``name`` is identity, annotation, or run provenance."""
+    """Return whether ``name`` is identity, annotation, or run provenance.
+
+    ``original_*`` columns, the names a plate had before conversion, count as
+    provenance and never as measured features.
+    """
     from .feature_dict import META_COLUMNS, OBJECT_TYPES, parse_column
 
     text = str(name)
-    if canonical_column_name(text) in META_COLUMNS:
+    if text.startswith('original_') or canonical_column_name(text) in META_COLUMNS:
         return True
     if any(
             text in contract.identifier_columns

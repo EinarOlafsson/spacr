@@ -21,6 +21,7 @@ import pandas as pd
 
 from . import schema
 
+_ORIGINAL_PREFIX = "original_"
 MAP_NAMES = ("conversion_map.csv", "rename_log.csv", "channel_sorting_manifest.csv")
 _YOKOGAWA = re.compile(
     r"^(?P<plate>.+)_(?P<well>[A-Za-z]{1,2}\d+)_T(?P<time>\d+)"
@@ -142,6 +143,15 @@ def _metadata_keys(row):
     return list(dict.fromkeys(keys))
 
 
+def _identity_columns(columns):
+    """Columns that can name a field: filenames, prcf keys and plate/row/column/field/time."""
+    return [column for column in columns if isinstance(column, str)
+            and not column.startswith(_ORIGINAL_PREFIX) and (
+                column in ("prcf", "prcfo", "filename", "file_name", "path", "image_path")
+                or column.endswith(("_prcf", "_prcfo", "_filename", "_file_name"))
+                or column.endswith(("plateID", "rowID", "columnID", "fieldID", "timeID", "time_id")))]
+
+
 def _load_map(payload, path):
     """Validate one known CSV shape and retain only successful image records."""
     try:
@@ -188,6 +198,33 @@ def _load_map(payload, path):
     return kind, entries, len(frame)
 
 
+def _map_payload(path):
+    """Read a map's bytes, or a canonical CSV of an embedded conversion_map.
+
+    :param path: resolved CSV or SQLite path.
+    :returns: (payload bytes, ``"conversion_map"`` for a database or None).
+    """
+    map_table = None
+    if path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
+        try:
+            from .tabular import _read_query
+
+            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
+                stored = _read_query(connection, 'SELECT * FROM "conversion_map"',
+                                     canonicalise=False, report=None)
+            # Order-independent digest: unrelated database writes cannot invalidate it.
+            stored = stored.fillna("").astype(str)
+            stored = stored.reindex(sorted(stored.columns), axis=1)
+            stored = stored.sort_values(list(stored.columns), kind="stable")
+            payload = stored.to_csv(index=False, lineterminator="\n").encode("utf-8")
+            map_table = "conversion_map"
+        except (sqlite3.Error, pd.errors.DatabaseError) as error:
+            raise ValueError(f"Cannot read a conversion_map table from {path}: {error}") from error
+    else:
+        payload = path.read_bytes()
+    return payload, map_table
+
+
 def enrich(frame, map_path, *, expected_sha256=None, output_column="original_filename"):
     """Return an enriched copy and JSON-safe matching/provenance report.
 
@@ -216,24 +253,7 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
     if output_column in frame.columns or "original_path" in frame.columns:
         raise ValueError("Original filename/path output columns already exist; source columns are preserved")
     path = Path(map_path).expanduser().resolve()
-    map_table = None
-    if path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
-        try:
-            from .tabular import _read_query
-
-            with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
-                stored = _read_query(connection, 'SELECT * FROM "conversion_map"',
-                                     canonicalise=False, report=None)
-            # Order-independent digest: unrelated database writes cannot invalidate it.
-            stored = stored.fillna("").astype(str)
-            stored = stored.reindex(sorted(stored.columns), axis=1)
-            stored = stored.sort_values(list(stored.columns), kind="stable")
-            payload = stored.to_csv(index=False, lineterminator="\n").encode("utf-8")
-            map_table = "conversion_map"
-        except (sqlite3.Error, pd.errors.DatabaseError) as error:
-            raise ValueError(f"Cannot read a conversion_map table from {path}: {error}") from error
-    else:
-        payload = path.read_bytes()
+    payload, map_table = _map_payload(path)
     digest = hashlib.sha256(payload).hexdigest()
     if expected_sha256 is not None and digest != expected_sha256:
         raise ValueError("The filename mapping has changed since this workflow was saved; preview it again")
@@ -250,10 +270,7 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
             by_field[key].add(group)
             by_untimed[key[:4]].add(group)
     names, paths, unmatched_examples, cache = [], [], [], {}
-    identity_columns = [column for column in frame.columns if isinstance(column, str) and (
-        column in ("prcf", "prcfo", "filename", "file_name", "path", "image_path")
-        or column.endswith(("_prcf", "_prcfo", "_filename", "_file_name"))
-        or column.endswith(("plateID", "rowID", "columnID", "fieldID", "timeID", "time_id")))]
+    identity_columns = _identity_columns(frame.columns)
     if not identity_columns:
         raise ValueError("No measurement filenames, prcf or plate/row/column/field identity columns found")
     for values in frame[identity_columns].itertuples(index=False, name=None):
@@ -305,4 +322,81 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
               "mapping_rows": valid_rows, "output_column": output_column,
               "path_column": "original_path", "separator": "; ",
               "unmatched_examples": unmatched_examples}
+    return result, report
+
+
+def _source_fields(payload):
+    """Map each recorded original path to the other pre-conversion fields.
+
+    ``source_<name>`` and ``original_<name>`` manifest columns become
+    ``original_<name>``; the path and filename columns themselves are left to
+    :func:`enrich`. Only successful image records contribute.
+
+    :param payload: map bytes from :func:`_map_payload`.
+    :returns: (ordered output column names, {original path: {column: values}}).
+    """
+    import csv
+
+    records = list(csv.DictReader(io.StringIO(payload.decode("utf-8-sig"))))
+    frame = pd.DataFrame.from_records(records).fillna("") if records else pd.DataFrame()
+    columns = set(frame.columns)
+    if "status" in columns and "target" in columns:
+        frame = frame[frame.status.isin(("converted", "existing"))]
+    if "kind" in columns and "new_path" in columns:
+        frame = frame[(frame.kind == "image") & (
+            (frame.status == "moved") | frame.status.str.startswith("converted "))]
+    source = next((name for name in ("source", "original_path", "Original File(s)", "Original File")
+                   if name in columns), None)
+    extras = {}
+    for name in frame.columns:
+        for prefix in ("source_", _ORIGINAL_PREFIX):
+            rest = name[len(prefix):] if name.startswith(prefix) else ""
+            if rest and rest not in ("path", "filename") and name != source:
+                extras.setdefault(_ORIGINAL_PREFIX + rest, name)
+    lookup = defaultdict(lambda: defaultdict(set))
+    if source is None or not extras:
+        return list(extras), lookup
+    for values in frame.itertuples(index=False, name=None):
+        row = dict(zip(frame.columns, values))
+        originals = row[source].split(";") if source == "Original File(s)" else [row[source]]
+        for original in filter(None, map(_text, originals)):
+            for output, column in extras.items():
+                value = _identity_token(row[column])
+                if value:
+                    lookup[original][output].add(value)
+    return list(extras), lookup
+
+
+def _original_columns(frame, map_path):
+    """Return ``frame`` with every ``original_*`` column a manifest can give.
+
+    Adds ``original_filename`` and ``original_path`` through :func:`enrich`,
+    then one ``original_<name>`` column per ``source_<name>`` field the
+    manifest records, such as plate, well, field, channel, z and time before
+    renaming. Several values for one field are sorted and joined with
+    ``'; '``. Rows the manifest does not cover stay missing.
+
+    :param frame: identity rows; any existing ``original_*`` columns are
+        replaced.
+    :param map_path: supported map found by :func:`discover_maps`.
+    :returns: (enriched copy, the :func:`enrich` report).
+    :raises ValueError: as :func:`enrich` does.
+    """
+    base = frame.drop(columns=[name for name in frame.columns
+                               if str(name).startswith(_ORIGINAL_PREFIX)])
+    result, report = enrich(base, map_path)
+    payload, _ = _map_payload(Path(map_path).expanduser().resolve())
+    names, lookup = _source_fields(payload)
+    cache = {}
+    for name in names:
+        values = []
+        for joined in result["original_path"]:
+            key = (name, None if pd.isna(joined) else joined)
+            if key not in cache:
+                found = set()
+                for original in ([] if key[1] is None else key[1].split("; ")):
+                    found |= lookup.get(original, {}).get(name, set())
+                cache[key] = "; ".join(sorted(found)) if found else pd.NA
+            values.append(cache[key])
+        result[name] = pd.array(values, dtype="string")
     return result, report

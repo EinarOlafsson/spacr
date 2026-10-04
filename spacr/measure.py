@@ -9079,6 +9079,101 @@ def _measure_merged_folder(src):
         "merged/), or run Make Masks on this plate first.")
 
 
+def _sql_value(value):
+    """A pandas or NumPy scalar as a value SQLite can bind; missing becomes NULL."""
+    if value is None or pd.isna(value):
+        return None
+    return value.item() if hasattr(value, 'item') else value
+
+
+def _original_filename_map(db_path, src):
+    """The nearest filename-conversion manifest for a measured plate, or None.
+
+    Looks beside ``src`` and its parents, then beside the database and its
+    parents, and finally inside the database for an embedded conversion map.
+    """
+    from .original_filenames import discover_maps
+
+    found = []
+    for anchor in (src, db_path):
+        if anchor and os.path.exists(anchor):
+            found.extend(path for path in discover_maps(anchor) if path not in found)
+    csvs = [path for path in found if path.suffix.lower() == '.csv']
+    return (csvs or found or [None])[0]
+
+
+def _add_original_filename_columns(db_path, src, *, report=print):
+    """Add ``original_*`` columns to every measurement table a manifest covers.
+
+    When the plate was renamed by a converter, its manifest maps each
+    measured field back to the original image. Every table with field
+    identity columns gets ``original_filename``, ``original_path`` and one
+    ``original_<name>`` column per pre-conversion field the manifest records.
+    The join runs on the stored identity columns, so a resumed run fills rows
+    written earlier and later alike. Without a manifest nothing changes.
+
+    :param db_path: ``measurements.db`` of the run.
+    :param src: the measured ``merged`` folder.
+    :param report: called with one summary line per enriched table.
+    :returns: {table: number of matched rows}.
+    """
+    from .original_filenames import _identity_columns, _original_columns
+    from .tabular import _quote_identifier, _read_query
+
+    if not db_path or not os.path.isfile(db_path):
+        return {}
+    map_path = _original_filename_map(db_path, src)
+    if map_path is None:
+        return {}
+    done = {}
+    with contextlib.closing(sqlite3.connect(db_path, timeout=30)) as conn:
+        tables = [row[0] for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' "
+            "AND name NOT LIKE 'sqlite_%' AND name != 'conversion_map'")]
+        for table in tables:
+            quoted = _quote_identifier(table)
+            columns = [row[1] for row in conn.execute(f'PRAGMA table_info({quoted})')]
+            keys = _identity_columns(columns)
+            if not keys:
+                continue
+            key_sql = ', '.join(_quote_identifier(key) for key in keys)
+            frame = _read_query(conn, f'SELECT DISTINCT {key_sql} FROM {quoted}',
+                                canonicalise=False, report=None)
+            try:
+                enriched, _ = _original_columns(frame, map_path)
+            except ValueError:
+                continue
+            added = [name for name in enriched.columns if name not in keys]
+            for name in added:
+                if name not in columns:
+                    conn.execute(f'ALTER TABLE {quoted} ADD COLUMN {_quote_identifier(name)} TEXT')
+            staged = [f'k{index}' for index in range(len(keys))] + [
+                f'v{index}' for index in range(len(added))]
+            conn.execute('DROP TABLE IF EXISTS temp._spacr_original_names')
+            conn.execute('CREATE TEMP TABLE _spacr_original_names ({})'.format(
+                ', '.join(staged)))
+            conn.executemany(
+                'INSERT INTO temp._spacr_original_names VALUES ({})'.format(
+                    ', '.join('?' * len(staged))),
+                [tuple(_sql_value(value) for value in record) for record in
+                 enriched[keys + added].itertuples(index=False, name=None)])
+            conn.execute('CREATE INDEX temp._spacr_original_keys ON _spacr_original_names ({})'.format(
+                ', '.join(staged[:len(keys)])))
+            conn.execute('UPDATE {table} SET {assign} FROM temp._spacr_original_names AS o '
+                         'WHERE {match}'.format(
+                             table=quoted,
+                             assign=', '.join(f'{_quote_identifier(name)} = o.v{index}'
+                                              for index, name in enumerate(added)),
+                             match=' AND '.join(f'{quoted}.{_quote_identifier(key)} IS o.k{index}'
+                                                for index, key in enumerate(keys))))
+            conn.execute('DROP TABLE temp._spacr_original_names')
+            conn.commit()
+            done[table] = int(enriched['original_filename'].notna().sum())
+            report(f"Original filenames from {map_path.name}: {table} "
+                   f"({done[table]} of {len(enriched)} field(s) matched).")
+    return done
+
+
 def measure_crop(settings):
     """Extract per-object morphology/intensity measurements and (optionally) cropped PNGs from mask stacks.
 
@@ -9499,6 +9594,8 @@ def measure_crop(settings):
                                            'measurements', 'measurements.db')
                     ledger.finalize(
                         artifact=db_path if os.path.isfile(db_path) else None)
+
+                _add_original_filename_columns(db_path, settings['src'])
 
                 if str(settings.get('plate_barcode_source') or '').strip():
                     _run_plate_barcode_step(settings)

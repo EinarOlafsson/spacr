@@ -368,10 +368,18 @@ def execute(path, definition):
 
 
 def _restore_original_filenames(frame, definition):
-    """Attach read-only conversion metadata and bind its content to the recipe."""
+    """Attach read-only conversion metadata and bind its content to the recipe.
+
+    Name columns Measure already added from a manifest are recomputed from the
+    chosen mapping rather than reported as collisions.
+    """
     from .original_filenames import enrich
 
     options = definition["original_filenames"]
+    output_column = options.get("output_column", "original_filename")
+    if output_column.startswith("original_"):
+        frame = frame.drop(columns=[name for name in (output_column, "original_path")
+                                    if name in frame.columns])
     result, report = enrich(frame, options["map_path"],
                             expected_sha256=options.get("sha256"),
                             output_column=options.get("output_column", "original_filename"))
