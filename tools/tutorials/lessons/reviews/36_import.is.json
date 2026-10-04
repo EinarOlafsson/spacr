@@ -21,7 +21,7 @@
   "scenes": [
     "Í flokknum Data í Home opnarðu Import. Notaðu þennan skjá til að flytja myndir, tilvikagrímur og mælingar sem þegar eru til inn í spaCR-verkefni.",
     "Veldu innflutningstól eftir því hvað þú byrjar með: Import Images eða Format Converter fyrir myndir eingöngu, External Masks fyrir myndir með grímum. Þessi skjár tekur við myndum, grímum og mælitöflu saman.",
-    "Ef enn þarf að flokka myndirnar og grímurnar opnarðu Import Images og smellir á Organize images and masks. Gefðu hverri rás og grímu dálk, veldu hvort skrifa eigi fyrir Mask Generation eða Measure og skiptu skrám með mörgum rásum eftir þörfum. Apply færir þær í skipulagið sem sú eining les, tilbúnar til að opna þar.",
+    "Ef enn þarf að flokka myndirnar og grímurnar opnarðu Import Images og smellir á Raða myndum og grímum. Gefðu hverri rás og grímu dálk, veldu hvort skrifa eigi fyrir Mask Generation eða Measure og skiptu skrám með mörgum rásum eftir þörfum. Apply færir þær í skipulagið sem sú eining les, tilbúnar til að opna þar.",
     "Veldu myndamöppuna. Dæmið notar tvö smásjársjónsvið með einni styrkleikarás og samsvarandi frumumerkingum. Skráðu upprunalega plötu, brunn og sjónsvið hverrar skrár.",
     "Veldu möppuna fyrir Cell mask og ýttu á Add. Hver hlutur þarf eigin heiltölumerkingu. Bættu við fleiri grímuflokkum þegar þú ert með samsvarandi merkingar fyrir sömu sjónsvið.",
     "Veldu CSV-skrána með mælingum. Tengdu ImageNumber við hvert sjónsvið og ObjectNumber við grímumerkingu þess. Notaðu bæði auðkennin til að greina hluti að milli sjónsviða.",
