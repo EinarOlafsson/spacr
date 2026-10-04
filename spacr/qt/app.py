@@ -5183,6 +5183,10 @@ class MainWindow(QMainWindow):
                         self._theme_screen(self._screens[key], key)
                 except Exception:
                     LOG.exception("Could not theme the %s screen", key)
+                self._breathe_while_opening(force=True)
+                with _timing.span("polish", key):
+                    self._screens[key].ensurePolished()
+                self._breathe_while_opening(force=True)
                 self._a_page_joined_the_stack(self._screens[key])
                 self._stack.addWidget(self._screens[key])
                 self._drop_a_redundant_screen_backdrop(self._screens[key])
@@ -6296,6 +6300,21 @@ def _freeze_what_survived() -> None:
     gc.freeze()
 
 
+def _register_the_glyph_font() -> None:
+    """Register the icon glyph font while the window does not exist yet.
+
+    On a cold hosted Windows runner the first glyph icon cost 0.7-1.2 s
+    of one uninterrupted GUI step: registering an application font there
+    re-resolves every live widget's font. Done at launch, before the main
+    window is built, it finds almost no widgets and runs before the event
+    loop, so no screen open pays for it.
+    """
+    try:
+        iconset.icon("settings")
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("Could not register the glyph font early", exc_info=True)
+
+
 def _read_the_glyph_fonts() -> None:
     """Read QtAwesome's font files once, off the GUI thread.
 
@@ -6455,6 +6474,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
     with _timing.span("fonts"):
         _load_bundled_fonts()
         _use_open_sans(app)
+    with _timing.span("fonts", "glyph font"):
+        _register_the_glyph_font()
 
     from .logging_util import setup_logging
     setup_logging()
