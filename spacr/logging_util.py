@@ -93,6 +93,19 @@ def _quicken(handler):
 _FLUSH_INTERVAL_S = 0.25
 
 
+def _in_safe_mode() -> bool:
+    """Whether this process runs as ``safespacr``, which starts no thread.
+
+    Safe mode flushes every record at once rather than pacing flushes with a
+    late-flush timer thread.
+    """
+    preferences = sys.modules.get("spacr.qt.preferences")
+    try:
+        return bool(preferences is not None and preferences.in_safe_mode())
+    except Exception:
+        return False
+
+
 def _paced_flush(handler, real_flush) -> None:
     """Flush ``handler`` at most every :data:`_FLUSH_INTERVAL_S` seconds.
 
@@ -106,7 +119,7 @@ def _paced_flush(handler, real_flush) -> None:
     :param real_flush: its own ``flush``.
     """
     now = time.monotonic()
-    if now - handler._spacr_flushed_at >= _FLUSH_INTERVAL_S:
+    if _in_safe_mode() or now - handler._spacr_flushed_at >= _FLUSH_INTERVAL_S:
         handler._spacr_flushed_at = now
         real_flush()
         return
