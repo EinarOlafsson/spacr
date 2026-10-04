@@ -3374,6 +3374,8 @@ class AnnotateScreen(QWidget):
         self._band_origin = None
         self._undo_stack: Deque[Tuple[int, str, Optional[int]]] = deque(
             maxlen=UNDO_LIMIT)
+        self._redo_stack: Deque[Tuple[int, str, Optional[int]]] = deque(
+            maxlen=UNDO_LIMIT)
         self._legend_expanded = False
 
         self._build_ui()
@@ -4447,6 +4449,8 @@ class AnnotateScreen(QWidget):
         QShortcut(QKeySequence(Qt.Key_PageDown), self, self._on_next)
         QShortcut(QKeySequence("Alt+Left"), self, self._on_prev)
         QShortcut(QKeySequence("Alt+Right"), self, self._on_next)
+        from ..shortcuts import _bind_undo_keys
+        _bind_undo_keys(self, self._kbd_undo, self._kbd_redo)
 
     def _grid_area(self) -> Optional[QSize]:
         """The room the crops have, in device pixels, or None before layout.
@@ -6269,6 +6273,7 @@ class AnnotateScreen(QWidget):
             self._set_slot_image(i, None)
 
         self._undo_stack.clear()
+        self._redo_stack.clear()
         self._set_kbd_hint("")
         self._revalidate_hover()
         first = self._next_unannotated(0)
@@ -6984,6 +6989,7 @@ class AnnotateScreen(QWidget):
         """
         self._undo_stack.append(
             (slot, path, previous, self._verdict_of_path(path)))
+        self._redo_stack.clear()
 
     def handle_key(self, key, text: str = "") -> bool:
         """Run the annotate keybinding for ``key``.
@@ -7122,6 +7128,8 @@ class AnnotateScreen(QWidget):
             entry = self._undo_stack.pop()
             slot, path, previous = entry[:3]
             if slot < len(self._page_paths) and self._page_paths[slot][0] == path:
+                self._redo_stack.append((slot, path, self._current_value(slot),
+                                         self._verdict_of_path(path)))
                 self._set_annotation(slot, previous)
                 if len(entry) > 3:
                     self._set_verdict(slot, entry[3])
@@ -7130,6 +7138,22 @@ class AnnotateScreen(QWidget):
                 self._set_kbd_hint("Undone.")
                 return True
         self._set_kbd_hint("Nothing to undo.")
+        return True
+
+    def _kbd_redo(self) -> bool:
+        """Put back the label and judgement the last undo took away."""
+        while self._redo_stack:
+            slot, path, value, verdict = self._redo_stack.pop()
+            if slot < len(self._page_paths) and self._page_paths[slot][0] == path:
+                self._undo_stack.append((slot, path, self._current_value(slot),
+                                         self._verdict_of_path(path)))
+                self._set_annotation(slot, value)
+                self._set_verdict(slot, verdict)
+                self._refresh_judge_bar()
+                self._set_focus_slot(slot)
+                self._set_kbd_hint(tr("Redone."))
+                return True
+        self._set_kbd_hint(tr("Nothing to redo."))
         return True
 
     def _kbd_commit_page(self) -> bool:

@@ -1272,6 +1272,8 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 639, 2026-10-04: the organizer popup's images and import modes, Mask
 # Generation's "Organize images…" and Import's "Organize images and masks…".
 # 645/650, 2026-10-04: the project-lock warning and the Jobs dock.
+# 649, 2026-10-04: undo and redo in the settings panel, the gate editor and
+# Annotate.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'A template called {name} already exists.',
     'A template needs a name.',
@@ -1304,6 +1306,10 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Two windows writing the same queue, measurements.db or results "
     "folder can corrupt them. Open it read-only to look without writing, "
     "or continue if you are sure the other window is idle.",
+    "Change {setting}",
+    "Edit gates",
+    "Nothing to redo.",
+    "Redone.",
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",

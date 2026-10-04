@@ -10206,8 +10206,59 @@ class SettingsWidgets:
     def _enable_commit_observation(self, callback):
         """Watch existing and future controls without constructing hidden rows."""
         self._commit_observer = callback
+        self._install_setting_undo()
         for key, widget in self._built_controls():
             self._watch_setting_commit(key, widget)
+
+    def _install_setting_undo(self) -> None:
+        """Give the panel one undo stack for every committed setting change.
+
+        Ctrl+Z and Ctrl+Shift+Z (or Ctrl+Y) work anywhere in the panel; a
+        text field with the focus keeps its own Ctrl+Z for the text being
+        typed. Values loaded in bulk, presets and replayed steps move the
+        recorded value without adding a step of their own.
+        """
+        if getattr(self, "undo_stack", None) is not None:
+            return
+        from PySide6.QtGui import QUndoStack
+        from ..shortcuts import _bind_undo_keys
+
+        self.undo_stack = QUndoStack(self._parent)
+        self._undo_values: Dict[str, Any] = {}
+        self._undo_replaying = False
+        if self._parent is not None:
+            _bind_undo_keys(self._parent, self.undo_stack)
+
+    def _record_setting_undo(self, key, rebase: bool) -> None:
+        """Push ``key``'s committed change, or just remember its new value.
+
+        :param key: the setting that committed.
+        :param rebase: remember the value without making it undoable.
+        """
+        values = getattr(self, "_undo_values", None)
+        if values is None:
+            return
+        try:
+            new = self._read_value(key)
+        except Exception:                                    # noqa: BLE001
+            return
+        if rebase or self._undo_replaying or key not in values:
+            values[key] = new
+            return
+        from ..i18n import tr
+        from ..shortcuts import _record_edit
+
+        old, values[key] = values[key], new
+        _record_edit(self.undo_stack, tr("Change {setting}", setting=key),
+                     partial(self._replay_setting, key), old, new)
+
+    def _replay_setting(self, key, value) -> None:
+        """Write an undone or redone value back into ``key``'s control."""
+        self._undo_replaying = True
+        try:
+            self.set_value_for_key(key, value)
+        finally:
+            self._undo_replaying = False
 
     def _watch_setting_commit(self, key, widget):
         """Connect settled-value signals, including editors created on demand."""
@@ -10216,6 +10267,7 @@ class SettingsWidgets:
         if getattr(widget, "_spacr_commit_model", None) is self:
             return
         widget._spacr_commit_model = self
+        self._record_setting_undo(key, rebase=True)
         callback = partial(self._setting_committed, key)
         if isinstance(widget, QLineEdit):
             widget.editingFinished.connect(callback)
@@ -10255,10 +10307,16 @@ class SettingsWidgets:
         self._setting_committed(key)
 
     def _setting_committed(self, key, *_args):
-        """Publish one completed edit outside construction and bulk loading."""
-        if (getattr(self, "_applying_settings", False)
-                or getattr(self, "_applying_organelle_preset", False)
-                or self._controls_arriving):
+        """Publish one completed edit outside construction and bulk loading.
+
+        The edit is recorded for undo first; a bulk load, a preset or a
+        control still arriving only moves the value undo starts from.
+        """
+        quiet = bool(getattr(self, "_applying_settings", False)
+                     or getattr(self, "_applying_organelle_preset", False)
+                     or self._controls_arriving)
+        self._record_setting_undo(key, rebase=quiet)
+        if quiet:
             return
         callback = getattr(self, "_commit_observer", None)
         if callable(callback):

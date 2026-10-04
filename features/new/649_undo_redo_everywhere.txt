@@ -2,7 +2,7 @@
 UNDO REDO EVERYWHERE
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,19 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  spacr.qt.shortcuts holds the shared mechanism: _ValueEdit (a QUndoCommand
+  replayed through a setter), _record_edit and _bind_undo_keys (Ctrl+Z,
+  Ctrl+Shift+Z, Ctrl+Y on an editor and its children; a focused text field
+  keeps its own Ctrl+Z). Wired into:
+  - the settings panel (SettingsWidgets.undo_stack): every committed setting
+    change is one step; bulk loads, presets and replays move the baseline only.
+  - the gate editor panel (GateEditorPanel.undo_stack): each gates_changed is
+    one step, replayed through set_gates.
+  - Annotate: the existing U undo gains a redo stack; Ctrl+Z / Ctrl+Shift+Z /
+    Ctrl+Y bound and listed on the shortcut map.
+  - the mask editor keeps mask_engine.MaskHistory, which already redoes.
+  Tests: tests/qt/test_undo_redo_everywhere.py.
+  Left: a menu Edit > Undo/Redo entry and catalog translations of the four
+  new captions (awaiting the catalog rebuild).

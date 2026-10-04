@@ -36,7 +36,8 @@ from dataclasses import dataclass
 from typing import Callable, List, Optional
 
 from PySide6.QtCore import QEvent, QRectF, Qt
-from PySide6.QtGui import QAction, QColor, QKeySequence, QPainter, QPen, QShortcut
+from PySide6.QtGui import (QAction, QColor, QKeySequence, QPainter, QPen,
+                           QShortcut, QUndoCommand, QUndoStack)
 from PySide6.QtWidgets import (
     QDialog,
     QGridLayout,
@@ -146,6 +147,12 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Annotate screen"),
     ShortcutSpec("N",            "Reject the suggested label", "Annotate",
                  "the Annotate screen"),
+    ShortcutSpec("Ctrl+Z",       "Undo",                   "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("Ctrl+Y",       "Redo",                   "Annotate",
+                 "the Annotate screen"),
+    ShortcutSpec("Ctrl+Shift+Z", "Redo",                   "Annotate",
+                 "the Annotate screen"),
 
     ShortcutSpec("B",            "Brush",                  "Make Masks",
                  "the Make Masks screen"),
@@ -187,6 +194,96 @@ BOUND_ELSEWHERE = frozenset({
     "Ctrl+Shift+A", "Ctrl+B", "Ctrl+T", "Ctrl+R", "Ctrl+Shift+F", "F11",
     "Ctrl+0", "Ctrl+P",
 })
+
+
+#: The keys every editor answers for undo and redo. Ctrl reads as Command on
+#: macOS; Ctrl+Y is the Windows habit and Ctrl+Shift+Z everyone else's.
+_UNDO_KEYS = ("Ctrl+Z",)
+_REDO_KEYS = ("Ctrl+Shift+Z", "Ctrl+Y")
+
+
+class _ValueEdit(QUndoCommand):
+    """One undoable change of a value, replayed through a setter.
+
+    The change has already happened when it is recorded, so the first
+    ``redo`` that :meth:`QUndoStack.push` makes is skipped.
+    """
+
+    def __init__(self, text, apply, old, new):
+        """Remember both values and the setter that writes either back.
+
+        :param text: what the step is called in an undo menu.
+        :param apply: callable taking a value and writing it back.
+        :param old: the value before the edit.
+        :param new: the value after the edit.
+        """
+        super().__init__(text)
+        self._apply = apply
+        self.old = old
+        self.new = new
+        self._applied = True
+
+    def redo(self):
+        """Write the new value back, unless it is already there."""
+        if self._applied:
+            self._applied = False
+            return
+        self._apply(self.new)
+
+    def undo(self):
+        """Write the old value back."""
+        self._apply(self.old)
+
+
+def _same(a, b) -> bool:
+    """Whether two recorded values are equal, tolerating odd comparisons."""
+    try:
+        return bool(a == b)
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _record_edit(stack: QUndoStack, text: str, apply, old, new) -> bool:
+    """Push one finished edit onto ``stack`` unless it changed nothing.
+
+    :param stack: the editor's undo stack.
+    :param text: what the step is called.
+    :param apply: callable writing a value back.
+    :param old: the value before the edit.
+    :param new: the value after it.
+    :returns: whether a step was pushed.
+    """
+    if _same(old, new):
+        return False
+    stack.push(_ValueEdit(text, apply, old, new))
+    return True
+
+
+def _bind_undo_keys(widget: QWidget, undo, redo=None) -> List[QShortcut]:
+    """Bind Ctrl+Z, Ctrl+Shift+Z and Ctrl+Y on ``widget`` and its children.
+
+    A text field that has the focus keeps its own Ctrl+Z, so typing is still
+    undone a character at a time before the editor's steps are reached.
+
+    :param widget: the editor that owns the keys.
+    :param undo: a :class:`QUndoStack`, or a callable that undoes one step.
+    :param redo: the callable that redoes one step; taken from ``undo`` when
+        that is a stack.
+    :returns: the shortcuts made, parented to ``widget``.
+    """
+    if isinstance(undo, QUndoStack):
+        stack = undo
+        undo, redo = stack.undo, stack.redo
+    made = []
+    for keys, slot in ([(k, undo) for k in _UNDO_KEYS]
+                       + [(k, redo) for k in _REDO_KEYS]):
+        if slot is None:
+            continue
+        shortcut = QShortcut(QKeySequence(keys), widget)
+        shortcut.setContext(Qt.WidgetWithChildrenShortcut)
+        shortcut.activated.connect(slot)
+        made.append(shortcut)
+    return made
 
 
 def _is_a_gesture(keys: str) -> bool:

@@ -3905,6 +3905,50 @@ class GateEditorPanel(QWidget):
         outer.addWidget(self.body, 1)
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
+        self._install_gate_undo()
+
+    def _install_gate_undo(self) -> None:
+        """Make every committed gate edit undoable with Ctrl+Z and Ctrl+Shift+Z.
+
+        The whole gate set is recorded after each :attr:`gates_changed`, so
+        a drawn, edited, renamed, removed or loaded gate is one step, and a
+        step put back is replayed through :meth:`set_gates`.
+        """
+        from PySide6.QtGui import QUndoStack
+        from ..shortcuts import _bind_undo_keys
+
+        self.undo_stack = QUndoStack(self)
+        self._gate_undo_state = self._gates_snapshot()
+        self._gate_undo_replaying = False
+        self.gates_changed.connect(self._record_gate_edit)
+        _bind_undo_keys(self, self.undo_stack)
+
+    def _gates_snapshot(self) -> Dict[str, Any]:
+        """The current gate set as plain data, for the undo stack."""
+        try:
+            return self._gates.to_dict()
+        except Exception:                                    # noqa: BLE001
+            return {}
+
+    def _record_gate_edit(self) -> None:
+        """Push the edit that just changed the gate set onto the undo stack."""
+        from ..shortcuts import _record_edit
+
+        state = self._gates_snapshot()
+        if self._gate_undo_replaying:
+            self._gate_undo_state = state
+            return
+        before, self._gate_undo_state = self._gate_undo_state, state
+        _record_edit(self.undo_stack, tr("Edit gates"),
+                     self._restore_gates, before, state)
+
+    def _restore_gates(self, state: Dict[str, Any]) -> None:
+        """Put the gate set recorded as ``state`` back on the panel."""
+        self._gate_undo_replaying = True
+        try:
+            self.set_gates(GateSet.from_dict(state))
+        finally:
+            self._gate_undo_replaying = False
 
     def set_frame(self, frame: Optional[pd.DataFrame]) -> None:
         """Point the panel at a new table.
