@@ -224,3 +224,16 @@ outside this accepted click/refine/save workflow.
     555-sam timeout 30m /mnt/wd4tb/scratch/555/gpu.sh (micro-SAM vit_b_lm on
     cuda, 1024 crop then full 1994 field; embedding time, point/box latency
     and IoU per object, same e2e.py as the CPU numbers above).
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0)
+    micro-SAM vit_b_lm on cuda (RTX 3090), real fields plate1_A02_12 and
+    plate2_E08_13, 1024 px crops and whole tiled fields, 9 + 12 objects.
+    Clicks after the field's embedding (cached): point 0.024-0.193 s wall
+    (prompt 0.016-0.091 s), box 0.020-0.120 s. All under a second.
+    First click on a field includes the embedding: 0.38-3.2 s (embed
+    0.34-3.26 s; tiled whole field 2.0-3.3 s); the very first click of the
+    session 28.5 s (model load). Box-prompt IoU 0.84-0.97; single-point IoU
+    0.11-0.96 (one positive point is often ambiguous; refinement clicks
+    were not timed in this run).
+    GPU point: DONE. "Under a second after the first embedding" measured on
+    the GPU. Log: /mnt/wd4tb/scratch/555/gpu_turn.log.

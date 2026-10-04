@@ -1,6 +1,6 @@
 SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
 
-Status: DONE 2026-10-02 (alpha-gated); only BLOCKED points remain: whole 1994 px fields on GPU and fields outside r5's training pool (GPU, data)..
+Status: DONE 2026-10-02 (alpha-gated); whole-field GPU and outside-pool fields measured 2026-10-04 (see GPU ACCEPTANCE).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -172,3 +172,19 @@ biological validation outside the training pool remain OPEN, as described above.
     (c) whole 1994 px fields on GPU: the 41 fields (10 toxo_pv test + 31
     outside r5's pool) are on disk; only a GPU turn is missing:
     tools/gpu_turn.sh 568 timeout 30m /mnt/wd4tb/scratch/568/gpu.sh toxo|out.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0)
+    Headless --compute-uncertainty with r5 x 4 TTA on cuda over whole fields,
+    then r5 labels per field; error = 1 - PQ (IoU>0.5) of r5 vs truth,
+    computed on the CPU afterwards (/mnt/wd4tb/scratch/568/corr_gpu.py).
+      toxo_pv test, 10 x 1994 px (truth: example_data ground_truth_masks):
+        uncertainty 611 s (~61 s/field), labels 4.8-5.5 s/field;
+        Spearman(uncertainty, 1-PQ) = 0.745; worst 2 in top 2: 1/2
+        (chance 0.40). Caveat: r5 trained with these fields included.
+      outside r5's pool, 31 x 1998 px (truth: curation/round3_queue,
+      flagged inconsistent): uncertainty 869 s (~28 s/field), labels
+      3.3-3.8 s/field; Spearman = 0.394; worst 7 in top 7: 6/7 (chance 1.58).
+    GPU point: DONE. Whole-field uncertainty correlates with error and the
+    queue order finds the worst fields first, more strongly on the toxo set;
+    outside-pool truth is of uncertain quality.
+    Logs: /mnt/wd4tb/scratch/568/gpu_toxo.log, gpu_out.log.

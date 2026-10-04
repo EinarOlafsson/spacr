@@ -118,3 +118,17 @@ and a plot from the screen.
     repeated with device cuda: same crops, seed and six backbones; writes
     bench_gpu.csv for the timing and scorecard comparison with bench.csv).
     Still no human-annotated set.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0)
+    plate1 bench repeated on cuda (same 307 crops, seed; bench_gpu.csv):
+        backbone    policy       dims  GPU s  (CPU s)  knn6   map6   map3
+        resnet18    per_channel  1536   4.9   (164)    0.720  0.438  0.563
+        resnet50    per_channel  6144   2.4   (435)    0.642  0.418  0.538
+        openphenom  per_channel  1152   7.0   (95)     0.668  0.460  0.579
+        openphenom  project       384   4.2   (90)     0.687  0.493  0.619
+        chada_vit   project       192  16.1   (589)    0.645  0.477  0.593
+        subcell     project      1536   6.1   (157)    0.655  0.489  0.661
+    chance mAP6 0.227, mAP3 0.341. Scores match the CPU run (resnet50 knn6
+    0.642 vs 0.651); 13-180x faster.
+    GPU point: DONE. Still open: the human-annotated set, Cell-DINO.
+    Log: /mnt/wd4tb/scratch/560/gpu_turn.log, bench_gpu.csv.

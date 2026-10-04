@@ -101,3 +101,23 @@ WHAT IS LEFT
     then run_plate.sh gpu, compare_db.py. Real-plate CPU reference done: 4
     plate1 fields (1994 px, cell/nucleus/pathogen), measure_gpu off, n_jobs
     2: 177 s wall, plate/cpu/measurements/measurements.db.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0 from the driver, but NOT passed)
+    Kernel timing (timing2.py, synthetic 2048 px field, 2996 objects, RTX 3090):
+      intensity    CPU 9.71 s  GPU 0.185 s  52.4x  max rel err 3.9e-06
+      homogeneity  CPU 9.93 s  GPU 0.241 s  41.2x  max rel err 9.7e-15
+      cuCIM morphology: GPU path returned None ("No coordinates to process"),
+      fell back to the CPU; no GPU morphology number.
+    Real plate (run_plate.sh gpu, 4 plate1 fields, measure_gpu on): FAILED,
+    spacr-run measure rc=1 after 287 s, PartialRunError "measure_crop: 4 of 4
+    items failed". Cause: measure_crop workers are forked after CUDA is
+    initialised in the parent -> "Cannot re-initialize CUDA in forked
+    subprocess" in _torch_label_segments (measure.py _torch_intensity_table),
+    and cuCIM "cudaErrorInitializationError". gpu/measurements.db holds no
+    object tables, so the GPU-vs-CPU database comparison (compare_db.py) could
+    not be made. CPU reference run (rc=0, 177 s) is intact in plate/cpu.
+    GPU point: NOT DONE. "Several times faster" holds for the kernels only.
+    LEFT: start measure workers with the 'spawn' context (or keep CUDA out of
+    the parent) when measure_gpu is on; fix the cuCIM morphology fallback on
+    labels with empty regions; rerun run_plate.sh gpu + compare_db.py.
+    Logs: /mnt/wd4tb/scratch/566/gpu_turn.log, plate/gpu.log.

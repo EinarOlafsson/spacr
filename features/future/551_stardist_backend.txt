@@ -296,3 +296,16 @@ API source-bound refresh is tracked in the integration follow-up.
     512 px nuclei image 2D_versatile_fluo 118 objects, F1@0.5 0.971, F1@0.75
     0.889, 1.69 s; four real plate1 DNA planes (1994 px, 2x2 tiles) 93-120
     nuclei, 2.6-3.5 s per field.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0, but it did NOT use the GPU)
+    sd_gpu venv (stardist 0.9.2, TensorFlow 2.21.0) logged "Cannot dlopen
+    some GPU libraries ... Skipping registering GPU devices" and "gpus []":
+    TensorFlow ran on the CPU. Results equal the CPU reference (test512
+    118 pred / 183 truth, F1@0.5 0.9712, F1@0.75 0.8889; plate1 fields
+    101/93/111/120 nuclei) but slower (3.32 s vs 1.69 s; 11-13 s vs 2.6-3.5 s
+    per field, under a loaded turn). 3-D StarDist was not part of the run.
+    GPU point: NOT DONE (silent CPU fallback). LEFT: make TF find the CUDA
+    libraries in sd_gpu (the nvidia-* cu12 wheels are installed; check
+    LD_LIBRARY_PATH / TF 2.21 vs CUDA 12.9 wheel match and print
+    tf.config.list_physical_devices('GPU') before running), then rerun 2-D
+    and add a StarDist3D volume run. Log: /mnt/wd4tb/scratch/551/gpu_turn.log.

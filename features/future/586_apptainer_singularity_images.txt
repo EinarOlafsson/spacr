@@ -1,6 +1,6 @@
 APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
 
-Status: DONE 2026-10-02 (alpha-gated); only external points left: --nv Mask+Measure run (GPU turn), workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster).
+Status: DONE 2026-10-02 (alpha-gated); only external points left: workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster). --nv Mask+Measure passed 2026-10-04.
         alpha registry does not apply). Built and CPU-proven; --nv run pending.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
@@ -125,3 +125,15 @@ SLURM SETTINGS BIND CORRECTION (2026-10-02, partial)
     (c) --nv run: scripted, needs a GPU turn (/mnt/wd4tb/scratch/586/gpu_mask.sh).
     (c) workflow adoption and GHCR package visibility: maintainer (.github is off
     limits to agents). (c) SingularityCE + Slurm: needs a cluster node.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0)
+    apptainer run --nv spacr-cuda.sif smoke_pipeline.py --mask: 10/10 checks,
+    34 s wall. The 34 s is a real run, not an early exit: accelerator
+    "cuda (cuda:0) NVIDIA GeForce RTX 3090 (CUDA 12.4)"; run_status shows
+    preprocess_generate_masks complete 1/1 (05:28:23-05:28:32 UTC, cpsam
+    via cellpose) and measure_crop complete 1/1 (05:28:38-05:28:39);
+    measurements.db has cell/nucleus/cytoplasm 3 rows each, all 3 synthetic
+    cells and nuclei found. Small: one synthetic field.
+    GPU point: DONE. DONE WHEN met on this machine (GPU --nv and CPU).
+    Still open: workflow adoption, GHCR visibility, SingularityCE and Slurm.
+    Log: /mnt/wd4tb/scratch/586/logs/gpu_mask_measure_lane3.log.

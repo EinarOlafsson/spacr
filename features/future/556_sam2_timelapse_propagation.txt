@@ -139,3 +139,19 @@ Not done
     installed for it (spaCR _install_backend, torch 2.11.0+cu128, 1089 s) at
     /mnt/wd4tb/scratch/556/backends; run_eval_gpu.py scores the IoU stitcher
     and SAM2 tiny on cuda with DET/TRA.
+
+2026-10-04 — GPU ACCEPTANCE 2026-10-04 (lane 3, rc=0)
+    Whole movies on cuda (RTX 3090), sam2.1_hiera_tiny, same seed masks,
+    CTC DET/TRA against GT/TRA:
+        movie              tracker        DET     TRA     switches (tracks)  s
+        U373 01, 115 fr    IoU stitcher   1.0000  1.0000   0 (0/8)          12.5
+        U373 01, 115 fr    SAM2 tiny GPU  0.9882  0.9726  25 (1/8)          93.3
+        HeLa 01,  84 fr    IoU stitcher   0.9857  0.9832   8 (4/38)         15.2
+        HeLa 01,  84 fr    SAM2 tiny GPU  0.9009  0.8687  61 (16/38)       205.9
+    SAM2 propagation: 37.3 s (8 objects) and 152.2 s (48 objects) on cuda,
+    ~0.3-1.8 s/frame vs ~65-125 s/frame on the CPU. On whole movies SAM2
+    loses to the stitcher (more ID switches, lower TRA).
+    GPU point: DONE (whole-movie scoring on GPU). DONE WHEN partly met:
+    trackastra was not scored on the whole movies in this run, so the
+    three-way comparison exists only for the short CPU clips.
+    Logs: /mnt/wd4tb/scratch/556/gpu_u373.log, gpu_hela.log.
