@@ -56,3 +56,36 @@ def test_screen_ink_falls_back_without_qt(monkeypatch):
     monkeypatch.setitem(sys.modules, "spacr.qt.preferences", None)
     figure = Figure()
     assert sp._draw_hit_structures(figure, _result(), target="screen") > 0
+
+
+def test_hits_without_a_validity_column_are_all_drawn(tmp_path):
+    result = _result()
+    result.sar = result.sar.drop(columns=["smiles_valid"], errors="ignore")
+    assert sp._write_hit_structures_svg(result, tmp_path).endswith(".svg")
+
+
+def test_a_temporary_file_that_cannot_be_made_leaves_nothing(tmp_path,
+                                                             monkeypatch):
+    import tempfile
+
+    def refuse(*a, **k):
+        raise OSError("read-only folder")
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", refuse)
+    with pytest.raises(OSError, match="read-only"):
+        sp._write_hit_structures_svg(_result(), tmp_path)
+    assert not list(tmp_path.iterdir())
+
+
+def test_a_report_without_vector_artwork_lists_only_the_bitmap(tmp_path,
+                                                              monkeypatch):
+    from pathlib import Path
+
+    def save_bitmap(figure, filename, **kwargs):
+        Path(filename).write_bytes(b"png")
+        return str(filename)
+
+    monkeypatch.setattr("spacr.plot.save_figure", save_bitmap)
+    monkeypatch.setattr(sp, "_write_hit_structures_svg", lambda c, o: None)
+    written = sp._write_sar_report(_result(), tmp_path, target="print")
+    assert "hit_structures" in written and "hit_structures_svg" not in written
