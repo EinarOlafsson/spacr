@@ -102,3 +102,46 @@ def test_loading_a_merged_strategy_needs_its_database(qtbot, tmp_path):
     screen._path = ""
     assert screen.load_gates(str(strategy)) is False
     assert "source database" in screen._source.text()
+
+
+def test_a_table_picked_while_a_merge_is_open_replaces_it(qtbot, db, monkeypatch):  # noqa: F811
+    screen = make_screen(qtbot, "gate")
+    screen.load_path(db, "cell")
+    opened = []
+    monkeypatch.setattr(screen, "load_path",
+                        lambda path, table=None: opened.append(table))
+    screen._merge_definition = {"name": "merged"}
+    screen._table_picker.addItem("pathogen")
+    screen._table_picker.setCurrentText("pathogen")
+    screen._on_table_added(0)
+    assert opened == ["pathogen"] and screen._tables == ["pathogen"]
+
+
+def test_gates_the_canvas_refuses_keep_the_previous_strategy(qtbot, db,  # noqa: F811
+                                                             monkeypatch, tmp_path):
+    screen = make_screen(qtbot, "gate")
+    screen.load_path(db, "cell")
+    strategy = tmp_path / "gates.json"
+    strategy.write_text(json.dumps({"gates": []}))
+    before = screen._gate_strategy_path
+
+    def refuse(gates):
+        raise ValueError("canvas refused")
+
+    monkeypatch.setattr(screen.gates, "set_gates", refuse)
+    assert screen.load_gates(str(strategy)) is False
+    assert screen._gate_strategy_path == before
+
+
+def test_a_merged_strategy_already_in_the_picker_is_not_added_twice(qtbot, db,  # noqa: F811
+                                                                    tmp_path):
+    screen = make_screen(qtbot, "gate")
+    screen.load_path(db, "cell")
+    definition = default_definition(db, ["cell", "pathogen"], name="merged gates")
+    screen._table_picker.addItem("merged gates")
+    strategy = tmp_path / "gates.json"
+    strategy.write_text(json.dumps({"gates": [], "merge_definition": definition}))
+    screen.load_gates(str(strategy))
+    names = [screen._table_picker.itemText(i)
+             for i in range(screen._table_picker.count())]
+    assert names.count("merged gates") == 1

@@ -111,3 +111,57 @@ def test_the_viewer_ignores_sequences_it_has_no_frames_for(qtbot, tmp_path):
     dialog.listing.setCurrentRow(1)
     dialog.listing.setCurrentRow(0)
     assert len(dialog.strip_labels) == shown
+
+
+def test_labels_read_before_embedding_wait_for_it(screen, tmp_path):
+    import pandas as pd
+
+    table = tmp_path / "labels.csv"
+    pd.DataFrame({"label": ["a", None]}).to_csv(table, index=False)
+    screen._frame = None
+    assert screen._choose_labels(str(table)) == str(table)
+    assert screen._labels == {"0": "a", "1": ""}
+
+
+def test_the_column_form_without_well_columns_keeps_its_defaults(screen,
+                                                                 monkeypatch):
+    from PySide6.QtWidgets import QDialog
+
+    monkeypatch.setattr(QDialog, "exec", lambda self: QDialog.Accepted)
+    chosen = screen._ask_mil_columns(["plate", "score"])
+    assert chosen["well_column"] == "plate"
+
+
+def test_an_example_database_without_a_database_source_still_fills_the_path(
+        screen, monkeypatch, tmp_path):
+    monkeypatch.setattr(screen._where, "findData", lambda data: -1)
+    monkeypatch.setattr(screen, "_on_path_changed", lambda: None)
+    screen._use_example_database(tmp_path / "measurements.db")
+    assert screen._path.text().endswith("measurements.db")
+
+
+def test_an_embedding_matching_earlier_labels_is_scored(screen, monkeypatch):
+    scored = []
+    monkeypatch.setattr(screen, "_show_scorecard", lambda: scored.append(True))
+    monkeypatch.setattr(screen, "_fill_preview", lambda frame: None)
+    screen._labels = {"0": "a", "1": "b"}
+    result = types.SimpleNamespace(values=np.zeros((2, 3)), columns=["x", "y", "z"])
+    screen._on_embedded(result)
+    assert scored == [True]
+
+
+def test_well_labels_from_a_table_start_learning_once_columns_are_chosen(
+        screen, monkeypatch, tmp_path):
+    import pandas as pd
+
+    table = tmp_path / "cells.csv"
+    pd.DataFrame({"wellID": ["A01"], "well_label": [1], "f1": [0.5]}).to_csv(
+        table, index=False)
+    monkeypatch.setattr(screen, "_ask_mil_columns",
+                        lambda columns: {"well_column": "wellID",
+                                         "label_column": "well_label"})
+    submitted = []
+    monkeypatch.setattr(screen._jobs, "submit",
+                        lambda work, done: submitted.append(work))
+    assert screen._learn_from_well_labels(str(table)) == str(table)
+    assert submitted and "Learning" in screen._status.text()
