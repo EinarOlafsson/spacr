@@ -37,11 +37,11 @@ and a helper process can run a copy of it after the running spaCR has closed::
     python -I install_cleanup.py find [--json]
     python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]
     python -I install_cleanup.py purge [--yes] [--dry-run]
+    python -I install_cleanup.py run-plan PLAN.json
 
 ``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,
 backend environments and user data, after listing them and asking. It never
 runs on its own; ``remove --purge`` runs it after the removal succeeded.
-    python -I install_cleanup.py run-plan PLAN.json
 """
 from __future__ import annotations
 
