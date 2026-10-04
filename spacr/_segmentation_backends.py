@@ -543,8 +543,10 @@ _SPECS = {
         name=_STARDIST, label="StarDist", module="stardist",
         probe=("stardist.models", "csbdeep.utils", "tensorflow"),
         distribution="stardist",
-        requirements=("stardist==0.9.2", "csbdeep==0.8.2",
-                      "tensorflow==2.21.0"),
+        requirements=(
+            "stardist==0.9.2", "csbdeep==0.8.2",
+            "tensorflow[and-cuda]==2.21.0; sys_platform == 'linux'",
+            "tensorflow==2.21.0; sys_platform != 'linux'"),
         torch=(), python=((3, 10), (3, 13)),
         licence="BSD-3-Clause (StarDist, CSBDeep) / Apache-2.0 (TensorFlow)",
         licence_note=(
@@ -2078,6 +2080,11 @@ def _serve_env(name, env):
     DeepCell token, and no other process spaCR starts does, and a home
     inside its environment (:func:`_spotnet_home`) so the weights it fetches
     are removed with it. Installs keep the real home and its pip cache.
+
+    The two TensorFlow workers, SpotNet and StarDist, start with the
+    NVIDIA wheels' ``lib`` folders (:func:`_nvidia_lib_folders`) first on
+    ``LD_LIBRARY_PATH`` and with GPU memory growth on, so TensorFlow finds
+    cuDNN on the GPU and leaves the card's memory to the parent's Cellpose.
     """
     environ = _worker_env(name, env)
     if name == _SPOTNET:
@@ -2085,6 +2092,7 @@ def _serve_env(name, env):
         token, _source = _deepcell_token()
         if token:
             environ[_DEEPCELL_TOKEN_ENV] = token
+    if name in (_SPOTNET, _STARDIST):
         # TensorFlow otherwise takes nearly all of the card's memory at its
         # first call, leaving none for spaCR's own Cellpose in the parent.
         environ.setdefault("TF_FORCE_GPU_ALLOW_GROWTH", "true")
@@ -2099,6 +2107,10 @@ def _serve_env(name, env):
 def _nvidia_lib_folders(env):
     """The ``lib`` folders of the NVIDIA wheels installed in ``env``,
     sorted; empty when there are none.
+
+    StarDist's Linux requirement is ``tensorflow[and-cuda]``, whose CUDA 12
+    wheels TensorFlow 2.21 also opens by soname; cuDNN and NCCL are found
+    nowhere else, so without these folders it too runs on the CPU.
 
     SpotNet's requirements pin the CUDA 11 runtime its TensorFlow 2.8 was
     built against (CUDA 11.2, cuDNN 8) as NVIDIA's ``nvidia-*-cu11`` pip

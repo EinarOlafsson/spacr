@@ -1,6 +1,6 @@
 STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: COMPLETE 2026-10-02 (CPU acceptance; remains alpha-gated).
+Status: COMPLETE 2026-10-02 (CPU acceptance); GPU 2D+3D acceptance passed 2026-10-04; remains alpha-gated.
 Installed in its own environment; 2-D and native 3-D nucleus segmentation
 accepted through Mask, raw-volume ingestion and Measure/SQLite. Make Masks
 uses the real 2-D backend; comparison against Cellpose is recorded below. No GPU.
@@ -309,3 +309,32 @@ API source-bound refresh is tracked in the integration follow-up.
     LD_LIBRARY_PATH / TF 2.21 vs CUDA 12.9 wheel match and print
     tf.config.list_physical_devices('GPU') before running), then rerun 2-D
     and add a StarDist3D volume run. Log: /mnt/wd4tb/scratch/551/gpu_turn.log.
+
+2026-10-04 — GPU ACCEPTANCE PASSED (2D and 3D)
+    Cause of "gpus []": the and-cuda wheels were installed, but TF 2.21
+    dlopens cuDNN/NCCL by soname and nothing put nvidia/*/lib on the search
+    path (system CUDA 12 libs covered the rest), so it fell back to CPU.
+    Fix in spacr/_segmentation_backends.py: StarDist's Linux requirement is
+    now tensorflow[and-cuda]==2.21.0 (plain tensorflow elsewhere), and
+    _serve_env gives the StarDist worker, like SpotNet's, the NVIDIA wheel
+    lib folders first on LD_LIBRARY_PATH plus TF_FORCE_GPU_ALLOW_GROWTH.
+    CPU test: test_stardist_installs_cuda_tensorflow_on_linux_and_finds_its_
+    libraries (marker per platform, LD_LIBRARY_PATH order, allow-growth).
+    Existing StarDist installs are reported stale and reinstall once.
+    Run: tools/gpu_turn.sh 551-stardist-gpu timeout 30m
+    /mnt/wd4tb/scratch/551/gpu.sh, RTX 3090, 02:02:10-02:02:48 (38 s turn,
+    rc 0), TF 2.21.0 sees /physical_device:GPU:0 (the script now exits if
+    no GPU is visible).
+    2D 2D_versatile_fluo, official 512 px nuclei image: 118 objects, F1@0.5
+    0.9712, F1@0.75 0.8889 (identical to CPU), 0.86 s vs 1.69 s CPU.
+    Four plate1 DNA planes (1994 px, 2x2 tiles): 101/93/111/120 nuclei,
+    1.3-1.5 s per field after a 7.7 s first-field warm-up (CPU 2.6-3.5 s);
+    masks identical to the CPU ones (foreground IoU 1.0 on all four).
+    3D StarDist3D 3D_demo on StarDist's own demo volume img3d/mask3d.tif
+    (31x61x57, public in the stardist package): 30 objects vs 51 annotated,
+    objects on all 31 planes, F1@0.5 0.7407, F1@0.75 0.642, 0.55 s GPU
+    (CPU reference 0.75 s, F1@0.5 0.7407, F1@0.75 0.6667). The demo model
+    is a small demo net, so its F1 is a smoke check, not a benchmark.
+    Receipts: /mnt/wd4tb/scratch/551/{gpu.json,gpu_3d.json,cpu_3d.json,
+    gpu_turn2.log}. Left: the GPU run used the scratch venv, not a fresh
+    spaCR-installed backend env; a fresh install will pick up the new spec.

@@ -90,10 +90,37 @@ def test_each_prefixed_backend_is_listed_by_its_prefix():
         assert name in zoo.KINDS
 
 
+def test_stardist_installs_cuda_tensorflow_on_linux_and_finds_its_libraries(
+        tmp_path, monkeypatch):
+    from packaging.requirements import Requirement
+    spec = SB._SPECS["stardist"]
+    picked = {platform: [str(r.specifier) + str(sorted(r.extras))
+                         for r in map(Requirement, spec.requirements)
+                         if r.name == "tensorflow" and (
+                             r.marker is None or r.marker.evaluate(
+                                 {"sys_platform": platform}))]
+              for platform in ("linux", "win32", "darwin")}
+    assert picked == {"linux": ["==2.21.0['and-cuda']"],
+                      "win32": ["==2.21.0[]"], "darwin": ["==2.21.0[]"]}
+    env = tmp_path / "stardist"
+    site = env / "lib" / "python3.12" / "site-packages" / "nvidia"
+    for wheel in ("cudnn", "cublas"):
+        (site / wheel / "lib").mkdir(parents=True)
+    monkeypatch.setenv("LD_LIBRARY_PATH", "/opt/old")
+    monkeypatch.delenv("TF_FORCE_GPU_ALLOW_GROWTH", raising=False)
+    served = SB._serve_env("stardist", str(env))
+    assert served["LD_LIBRARY_PATH"].split(os.pathsep) == [
+        os.path.realpath(site / "cublas" / "lib"),
+        os.path.realpath(site / "cudnn" / "lib"), "/opt/old"]
+    assert served["TF_FORCE_GPU_ALLOW_GROWTH"] == "true"
+
+
 def test_stardist_pins_tensorflow_and_no_pytorch():
     spec = SB._SPECS["stardist"]
-    assert spec.requirements == ("stardist==0.9.2", "csbdeep==0.8.2",
-                                 "tensorflow==2.21.0")
+    assert spec.requirements == (
+        "stardist==0.9.2", "csbdeep==0.8.2",
+        "tensorflow[and-cuda]==2.21.0; sys_platform == 'linux'",
+        "tensorflow==2.21.0; sys_platform != 'linux'")
     assert spec.torch == ()
     assert spec.models == ("2D_versatile_fluo", "2D_versatile_he",
                            "2D_paper_dsb2018")
@@ -157,7 +184,7 @@ def test_stardist_installs_without_a_pytorch_step(tmp_path):
     argvs = [argv for argv, _env in record]
     assert argvs[0] == (sys.executable, "-m", "venv", env)
     assert len(argvs) == 4, "venv, pip, StarDist, self-test: no torch step"
-    assert argvs[2][-3:] == SB._SPECS["stardist"].requirements
+    assert argvs[2][-4:] == SB._SPECS["stardist"].requirements
     assert argvs[3][-2:] == ("--selftest", "stardist")
     assert state.record["torch"] == []
     assert SB._stale_requirements("stardist", state.record) == []
