@@ -1,0 +1,1519 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.object_classifier._train_real_classifier.estimator#0",
+      "source": "Return a fresh scaled, class-balanced logistic-regression pipeline.",
+      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
+      "context": "Return a fresh scaled, class-balanced logistic-regression workflow.",
+      "translation": "Returnerar en ny skalad, klassbalanserad pipeline med logistisk regression.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves.root#0",
+      "source": "Resolve a merge group and compress the path to its lowest id.",
+      "source_sha256": "7cec40920a09acfcf6ba639cb50299f2afd234b201a689d5e3e189502d79e8c7",
+      "context": "Resolve a merge group and compress the path to its lowest id.",
+      "translation": "Löser upp en sammanslagningsgrupp och komprimerar sökvägen till dess lägsta id.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._blocks.root#0",
+      "source": "The block ``i`` belongs to, compressing the path on the way.",
+      "source_sha256": "c93012c2f3c87cbcd22d1b882499fbcf7c18a19dc37f1cc5aa63b6261ac3d772",
+      "context": "The block ``i`` belongs to, compressing the path on the way.",
+      "translation": "Blocket som ``i`` hör till; sökvägen komprimeras på vägen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._cellpose_segmenter.segment#0",
+      "source": "The Cellpose label mask of one plaque image crop.",
+      "source_sha256": "874570d4b5f3123d478fbc7e03c3f2f37c9fe7a251f3229c3b84d48cd3d364f2",
+      "context": "The Cellpose label mask of one plaque extracted image region.",
+      "translation": "Cellpose-etikettmasken för ett beskuret plackbild.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._doi_candidates.add#0",
+      "source": "Count one sighting of a cleaned candidate.",
+      "source_sha256": "9c39c5e07bab3cfe41c404c21b1d3e8cde64624aa4984ac88b2088a0a40f240c",
+      "context": "Count one sighting of a cleaned candidate.",
+      "translation": "Räknar en observation av en rensad kandidat.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._find_duplicate.found#0",
+      "source": "The duplicate record for ``row``.",
+      "source_sha256": "1af62a10e7ee74285cb15e715b37d995009283f305c811db5e1fd52d02a12b80",
+      "context": "The duplicate record for ``row``.",
+      "translation": "Dubblettposten för ``row``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._find_duplicate.same_figure#0",
+      "source": "The row is this very file of this very paper.",
+      "source_sha256": "a721e359922130eae70f5c6dbd41ead20a5abf18465d0c04345d84a1f0cba484",
+      "context": "The row is this very file of this very paper.",
+      "translation": "Raden är just den här filen i just den här artikeln.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._grid_positions.ranks#0",
+      "source": "A 1-based rank per centre, sharing a rank within half a size.",
+      "source_sha256": "d95e1ec0994e94c779bc829aeb9b34fda190f56a045a628ee0c916a9554714b6",
+      "context": "A 1-based rank per centre, sharing a rank within half a size.",
+      "translation": "En 1-baserad rang per centrum; inom en halv storlek delas en rang.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._label_words.size#0",
+      "source": "Words in a line, counting inside each piece of text.",
+      "source_sha256": "0e531f29f0b828b8687f98682b7eb4529ca6e76201ff8e43bfd5ccab808a97c0",
+      "context": "Words in a line, counting inside each piece of text.",
+      "translation": "Ord på en rad, räknade inom varje textstycke.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.measure_figure_folder.review#0",
+      "source": "Apply the saved overrides to a figure and count what still awaits approval.",
+      "source_sha256": "1b8050bd49d0641ab3208c754b17a48aa7a8e6e764e43c9bde952c17f0cdf1b2",
+      "context": "Apply the saved overrides to a figure and count what still awaits approval.",
+      "translation": "Tillämpar de sparade åsidosättningarna på en figur och räknar vad som fortfarande väntar på godkännande.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.text_options_from_settings.patterns#0",
+      "source": "A tuple of patterns from a comma-separated string or a sequence.",
+      "source_sha256": "5fbcc9e70e2f990edbc3822dc6d078b379b7b49898e482f67ac449fdf848c080",
+      "context": "A tuple of patterns from a comma-separated string or a sequence.",
+      "translation": "En tupel av mönster från en kommaseparerad sträng eller en sekvens.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.text_options_from_settings.pick#0",
+      "source": "``settings[key]`` cast by ``cast``, or ``default`` if blank or invalid.",
+      "source_sha256": "73f499461b3e283ea691ac1cb6800b54e019c539117b422f0e897de67619a66a",
+      "context": "``settings[key]`` cast by ``cast``, or ``default`` if blank or invalid.",
+      "translation": "``settings[key]`` omvandlad med ``cast``, eller ``default`` om tom eller ogiltig.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.text_options_from_settings.sides#0",
+      "source": "The valid sides named in ``value``, or the default order if none are.",
+      "source_sha256": "378c1aa193bbd68dabf08bf19369973551ec8e87127ab79f2cbf11039884c36c",
+      "context": "The valid sides named in ``value``, or the default order if none are.",
+      "translation": "De giltiga sidorna som nämns i ``value``, eller standardordningen om ingen nämns.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.__init__#0",
+      "source": "Build the question and start the countdown.",
+      "source_sha256": "04afea6f72234473b69aeedac62b8d094a05715c37792e07d3ba77c8d2b5ca24",
+      "context": "Build the question and start the countdown.",
+      "translation": "Bygger frågan och startar nedräkningen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog._show_left#0",
+      "source": "Say how long is left.",
+      "source_sha256": "a4e97d20148418fb38c3704a188bbeeb9b38cbf93c7242efacdb30738b916eae",
+      "context": "Say how long is left.",
+      "translation": "Anger hur lång tid som återstår.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog._tick#0",
+      "source": "One second less; at zero, revert.",
+      "source_sha256": "04e828b073eb97ecbce97946ae96ce926b4fc265b3c3043fde65c426e0d0eac9",
+      "context": "One second less; at zero, revert.",
+      "translation": "En sekund mindre; vid noll återställs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.done#0",
+      "source": "Stop the countdown on any answer.",
+      "source_sha256": "0c95739b19aa44fd7efaa91f559451e392dcdc011cb403182c438cf447bc6d34",
+      "context": "Stop the countdown on any answer.",
+      "translation": "Stoppar nedräkningen vid vilket svar som helst.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.done#1",
+      "source": "the dialog result.",
+      "source_sha256": "8aa1dd74c51332759e517dc005de573a578a85071e4cf9c6ff22ade94554d1ee",
+      "context": "the dialog result.",
+      "translation": "dialogens resultat.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_application_sheet.setStyleSheet#0",
+      "source": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "source_sha256": "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f",
+      "context": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "translation": "Sparar stilmallen vid 100 % och tillämpar dess storlekar med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_application_sheet.styleSheet#0",
+      "source": "The sheet as the code set it, at 100 %.",
+      "source_sha256": "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce",
+      "context": "The sheet as the code set it, at 100 %.",
+      "translation": "Stilmallen som koden satte den, vid 100 %.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.getter#0",
+      "source": "The wrapper that answers an icon size at 100 %.",
+      "source_sha256": "b6a3dbe773a7eb2821835bd3995f0501715aa88919d136ea00f01e596b05144f",
+      "context": "The wrapper that answers an icon size at 100 %.",
+      "translation": "Omslaget som svarar med en ikonstorlek vid 100 %.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.getter.iconSize#0",
+      "source": "The icon size in 100 % units.",
+      "source_sha256": "12eca43f121ec7c5d5cdebaa158be46a5363a4b6ffd3225583ed88cebf9adbac",
+      "context": "The icon size in 100 % units.",
+      "translation": "Ikonstorleken i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.setter#0",
+      "source": "The wrapper that records an icon size and scales it.",
+      "source_sha256": "ce6c032c42f4caa33f50e0e3ef5553137e55102d5733719ebad67c73a417b383",
+      "context": "The wrapper that records an icon size and scales it.",
+      "translation": "Omslaget som sparar en ikonstorlek och skalar den.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.setter.setIconSize#0",
+      "source": "Record the icon size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "52fc8a20be81847c4d2f9e1f44b3d6709ff322d8757c5b43c925bc8266c90c1c",
+      "context": "Record the icon size at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ikonstorleken vid 100 % och tillämpar den med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.addSpacing#0",
+      "source": "Add a spacer recorded at 100 % and drawn at the GUI scale.",
+      "source_sha256": "082ec95d12a44682bfcf71b91b3346b429d105293156a61f5f7f7e0a344549aa",
+      "context": "Add a spacer recorded at 100 % and drawn at the GUI scale.",
+      "translation": "Lägger till en distans som sparas vid 100 % och ritas med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.insertSpacing#0",
+      "source": "Insert a spacer recorded at 100 % and drawn at the GUI scale.",
+      "source_sha256": "2962739715ef19323807ab7df5df0dfe4e58e383bebedaf863ae6bef95a14561",
+      "context": "Insert a spacer recorded at 100 % and drawn at the GUI scale.",
+      "translation": "Infogar en distans som sparas vid 100 % och ritas med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_getter#0",
+      "source": "The wrapper that answers a layout's margins at 100 %.",
+      "source_sha256": "dc28659bb0e8472e0085c0f5b125fb89dc406dab02dd9b5614b90f7dd636ab1c",
+      "context": "The wrapper that answers a layout's margins at 100 %.",
+      "translation": "Omslaget som svarar med en layouts marginaler vid 100 %.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_getter.contentsMargins#0",
+      "source": "The margins in 100 % units.",
+      "source_sha256": "6b425b5457121991e7d655d990f653e63dee20af371a466fa112e66ff8588bc0",
+      "context": "The margins in 100 % units.",
+      "translation": "Marginalerna i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_setter#0",
+      "source": "The wrapper that records a layout's margins and scales them.",
+      "source_sha256": "9aa62d55617db6b8c004a49dc7e0c5dfdd6522fa518d33da8d54ca8bee68231e",
+      "context": "The wrapper that records a layout's margins and scales them.",
+      "translation": "Omslaget som sparar en layouts marginaler och skalar dem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_setter.setContentsMargins#0",
+      "source": "Record the margins at 100 % and apply them at the GUI scale.",
+      "source_sha256": "1a283e519b056a21107d8f11038cd67e0d46520dce836cfe67f600013ae1bd3d",
+      "context": "Record the margins at 100 % and apply them at the GUI scale.",
+      "translation": "Sparar marginalerna vid 100 % och tillämpar dem med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacer#0",
+      "source": "A fixed spacer item along the box's direction.",
+      "source_sha256": "716174ffd3c0a58d7cb31cf98b0e359c5f18e963fc377c71af858e585baa1bd8",
+      "context": "A fixed spacer item along the box's direction.",
+      "translation": "En fast distans längs boxens riktning.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_getter#0",
+      "source": "The factory for one spacing getter, by its record key.",
+      "source_sha256": "949379b226a30978ae69c5e55c0cd05b7436ff207ea353094bd49f77af1b1012",
+      "context": "The factory for one spacing getter, by its record structured-data name.",
+      "translation": "Fabriken för en avståndsgetter, efter dess postnyckel.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_getter.make#0",
+      "source": "The wrapper that answers a spacing at 100 %.",
+      "source_sha256": "2883e1bd8a7c8c5a4f5f6c27c5dd840da192bf2c10800e8f1bb0a7fa91bf3357",
+      "context": "The wrapper that answers a spacing at 100 %.",
+      "translation": "Omslaget som svarar med ett avstånd vid 100 %.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_getter.make.getter#0",
+      "source": "The spacing in 100 % units.",
+      "source_sha256": "b5a66f05fa6d29e1aa6e8b76a4f71605a7b5473b0d5a3e134f251faab4d23b65",
+      "context": "The spacing in 100 % units.",
+      "translation": "Avståndet i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_setter#0",
+      "source": "The factory for one spacing setter, by its record key.",
+      "source_sha256": "2f348a7fb81145aabc33c94d65d12750ff01ad2c4de05d60eef19b2581d847ff",
+      "context": "The factory for one spacing setter, by its record structured-data name.",
+      "translation": "Fabriken för en avståndssetter, efter dess postnyckel.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_setter.make#0",
+      "source": "The wrapper that records a spacing and scales it.",
+      "source_sha256": "506d9a717b1837872d281effbdf124e1d6812cf9d7826582d8c9e886bcb56b3c",
+      "context": "The wrapper that records a spacing and scales it.",
+      "translation": "Omslaget som sparar ett avstånd och skalar det.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_setter.make.setter#0",
+      "source": "Record the spacing at 100 % and apply it at the GUI scale.",
+      "source_sha256": "279df9925c02c9028da1273be020e0e7f0909cc74b6c1465d6f61cdbdc657c6f",
+      "context": "Record the spacing at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar avståndet vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_splitter_setters.setSizes#0",
+      "source": "Apply 100 % sizes at the GUI scale, and remember them.",
+      "source_sha256": "ffb600c696fbc9c7b89acd32d9f07dd52aeda5ce15c5c5287b4c77fad36d7a29",
+      "context": "Apply 100 % sizes at the GUI scale, and remember them.",
+      "translation": "Tillämpar storlekar från 100 % med GUI-skalan och kommer ihåg dem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_splitter_setters.sizes#0",
+      "source": "The sizes in 100 % units.",
+      "source_sha256": "3c7bc47c014799008f4617e7927e8b5e5d4317fce9c72b9f6295daa47ccb84dc",
+      "context": "The sizes in 100 % units.",
+      "translation": "Storlekarna i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.maximumHeight#0",
+      "source": "The maximum height in 100 % units.",
+      "source_sha256": "05710bba4a903540097947150b495d0c9ff10e089e49e5887cc2446092f9ac11",
+      "context": "The maximum height in 100 % units.",
+      "translation": "Maximal höjd i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.maximumSize#0",
+      "source": "The maximum size in 100 % units.",
+      "source_sha256": "d518ab5d3ba7fac3593eee93bbf9086064f1901d0b9dabcaf4533978fa895f1c",
+      "context": "The maximum size in 100 % units.",
+      "translation": "Maximal storlek i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.maximumWidth#0",
+      "source": "The maximum width in 100 % units.",
+      "source_sha256": "9f96ae8e97477442323a045b1900ac8a723d28899aac05664b05cd075d6589cd",
+      "context": "The maximum width in 100 % units.",
+      "translation": "Maximal bredd i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.minimumHeight#0",
+      "source": "The minimum height in 100 % units.",
+      "source_sha256": "5bc61abeb985a30c606f2abb4f92dfc3c0c4090bee80f6b91411f397fb4151fb",
+      "context": "The minimum height in 100 % units.",
+      "translation": "Minimal höjd i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.minimumSize#0",
+      "source": "The minimum size in 100 % units.",
+      "source_sha256": "b9dec8a7e31c11cad2ecb81dbe3d90e1472876fe85853a995e3829151218582a",
+      "context": "The minimum size in 100 % units.",
+      "translation": "Minimal storlek i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.minimumWidth#0",
+      "source": "The minimum width in 100 % units.",
+      "source_sha256": "4591e2bed31eb5d6051b8b94cf021a7e2610d109fdad6b70228ef1808d91dbb0",
+      "context": "The minimum width in 100 % units.",
+      "translation": "Minimal bredd i 100 %-enheter.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.resize#0",
+      "source": "Resize at the GUI scale; the main window keeps its size.",
+      "source_sha256": "bf48578a654e7085fd9fb238193caabaa6878534de2c76b42b2c3cfff0ae7441",
+      "context": "Resize at the GUI scale; the main window keeps its size.",
+      "translation": "Ändrar storlek med GUI-skalan; huvudfönstret behåller sin storlek.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setFixedHeight#0",
+      "source": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "context": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ``h`` vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setFixedSize#0",
+      "source": "Record the size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "context": "Record the size at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar storleken vid 100 % och tillämpar den med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setFixedWidth#0",
+      "source": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "context": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ``w`` vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMaximumHeight#0",
+      "source": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "context": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ``h`` vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMaximumSize#0",
+      "source": "Record the size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "context": "Record the size at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar storleken vid 100 % och tillämpar den med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMaximumWidth#0",
+      "source": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "context": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ``w`` vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMinimumHeight#0",
+      "source": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "context": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ``h`` vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMinimumSize#0",
+      "source": "Record the size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "context": "Record the size at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar storleken vid 100 % och tillämpar den med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMinimumWidth#0",
+      "source": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "context": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "translation": "Sparar ``w`` vid 100 % och tillämpar det med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setStyleSheet#0",
+      "source": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "source_sha256": "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f",
+      "context": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "translation": "Sparar stilmallen vid 100 % och tillämpar dess storlekar med GUI-skalan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.styleSheet#0",
+      "source": "The sheet as the code set it, at 100 %.",
+      "source_sha256": "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce",
+      "context": "The sheet as the code set it, at 100 %.",
+      "translation": "Stilmallen som koden satte den, vid 100 %.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales._answered#0",
+      "source": "Keep, or put the old values back.",
+      "source_sha256": "c6c05fcdc81ed38866e281014915e1f32b90126643281fa2f10b75489df01c7e",
+      "context": "Keep, or put the old values back.",
+      "translation": "Behåller, eller återställer de gamla värdena.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons._at_least_one#0",
+      "source": "The toolbar's device ratio, never below 1.",
+      "source_sha256": "763dfd59926cc0dade1145aa29cf03b1eb5afe8a093f3b46a92a27b6a8affdde",
+      "context": "The toolbar's device ratio, never below 1.",
+      "translation": "Verktygsfältets enhetspixelförhållande, aldrig under 1.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row._unmark#0",
+      "source": "Put the row back the way it was found.",
+      "source_sha256": "16e828e2cf092e8f98bef3085576ce6d5775c0f1d28370b95c3c2556b5eecc15",
+      "context": "Put the row back the way it was found.",
+      "translation": "Återställer raden så som den hittades.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.activation._add_counterfactual_viewer_button._open#0",
+      "source": "Ask for a counterfactuals folder and open its viewer.",
+      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
+      "context": "Ask for a counterfactuals folder and open its viewer.",
+      "translation": "Ber om en mapp med kontrafaktiska sekvenser och öppnar dess visare.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.activation._counterfactual_viewer._show#0",
+      "source": "Show the frames of the sequence at ``index`` as a strip of images.",
+      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
+      "context": "Show the frames of the sequence at ``index`` as a strip of images.",
+      "translation": "Visar bildrutorna i sekvensen vid ``index`` som en bildremsa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_magnifier_drag.common#0",
+      "source": "Return a shared frame value, or the explicit mixed/unknown value.",
+      "source_sha256": "36013a8e377d9aa07fa9bf032d4455a9c416ef453e8bf49463a90b1b5df5b73b",
+      "context": "Return a shared frame value, or the explicit mixed/unknown value.",
+      "translation": "Returnerar ett gemensamt bildrutevärde, eller det uttryckliga värdet för blandat/okänt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_uncertainty_ranking.stem#0",
+      "source": "a field's file name.",
+      "source_sha256": "efebf7d7de59e455323c3a93c42fbb27518be828c7f3c53641e98b99acbcdcc5",
+      "context": "a field's file name.",
+      "translation": "ett synfälts filnamn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_uncertainty_ranking.stem#1",
+      "source": "its stem, as the curation queue names it.",
+      "source_sha256": "ea2d34937f1951855dcccf84d8933f8d83259dbfc6c861532669913c19b9154c",
+      "context": "its stem, as the curation work list names it.",
+      "translation": "dess stam, så som kurationskön namnger den.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._build_methods_card.row#0",
+      "source": "Add one parameter row and remember it under its field name.",
+      "source_sha256": "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25",
+      "context": "Add one parameter row and remember it under its field name.",
+      "translation": "Lägger till en parameterrad och kommer ihåg den under dess fältnamn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._build_propagate_card.row#0",
+      "source": "Add one parameter row and remember it under its field name.",
+      "source_sha256": "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25",
+      "context": "Add one parameter row and remember it under its field name.",
+      "translation": "Lägger till en parameterrad och kommer ihåg den under dess fältnamn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._end_blind.ask#0",
+      "source": "Confirm revealing field paths and recording the unblind event.",
+      "source_sha256": "e9c7bfca75c3da49e4e7cd6f505b8c0533b90e552c6dcc65043c083bbb94e552",
+      "context": "Confirm revealing field paths and recording the unblind event.",
+      "translation": "Bekräftar att synfältens sökvägar visas och att avblindningshändelsen registreras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._offer_prompt_install.watch#0",
+      "source": "Put the install's progress and its ending in the console.",
+      "source_sha256": "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a",
+      "context": "Put the install's progress and its ending in the console.",
+      "translation": "Skriver installationens förlopp och dess slut i konsolen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work#0",
+      "source": "Propagate the seeds through the frames and emit the labels or the error.",
+      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
+      "context": "Propagate the seeds through the frames and emit the labels or the error.",
+      "translation": "Propagerar fröna genom bildrutorna och skickar ut etiketterna eller felet.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._counting_tiles.before_a_tile#0",
+      "source": "Count this call's tiles, or stop the run here.",
+      "source_sha256": "38160c094a0dc233ac212447f1ceee9e104dc5c365f2edd991f03075ea4fcbca",
+      "context": "Count this call's tiles, or stop the run here.",
+      "translation": "Räknar detta anrops plattor, eller stoppar körningen här.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#0",
+      "source": "Score primary TTA and the optional second model in one frame.",
+      "source_sha256": "8d3a934e16ce49910e2b3e004ab8e0ef3094c71e5cb1c8c6b496f1276f75477c",
+      "context": "Score primary TTA and the optional second model in one frame.",
+      "translation": "Poängsätter primär TTA och den valfria andra modellen i en bildruta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#1",
+      "source": "one field.",
+      "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+      "context": "one field.",
+      "translation": "ett synfält.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#2",
+      "source": "its uncertainty over four or eight aligned passes.",
+      "source_sha256": "6e733083366fd410d2474a4eaa4ef43215f0e7b59f6b2b1f92ec3cd25dfc86eb",
+      "context": "its uncertainty over four or eight aligned passes.",
+      "translation": "dess osäkerhet över fyra eller åtta justerade pass.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary#0",
+      "source": "Segment a transform with the captured second model.",
+      "source_sha256": "2ad0ac1b772e5e3074d6a3a6f4422df9c69cc33abfc476278fa048c04e3d5058",
+      "context": "Segment a transform with the captured second model.",
+      "translation": "Segmenterar en transformation med den fångade andra modellen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary#1",
+      "source": "one transformed field.",
+      "source_sha256": "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+      "context": "one transformed field.",
+      "translation": "ett transformerat synfält.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary#2",
+      "source": "labels, cell probability and vectors.",
+      "source_sha256": "a962b1d4a747d6ad81f43bc9cef83ec1ee504a3e21ca645bde9201901dcceaec",
+      "context": "labels, cell probability and vectors.",
+      "translation": "etiketter, cellsannolikhet och vektorer.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.segment#0",
+      "source": "one transformed field.",
+      "source_sha256": "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+      "context": "one transformed field.",
+      "translation": "ett transformerat synfält.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.segment#1",
+      "source": "its labels, cell probability and flow vectors under the captured detection settings.",
+      "source_sha256": "c76b9394f7aaededcbc6af63dea5e28d1946c12c792e5165abad95f4ca50c3fc",
+      "context": "its labels, cell probability and flow vectors under the captured detection settings.",
+      "translation": "dess etiketter, cellsannolikhet och flödesvektorer under de fångade detekteringsinställningarna.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_samples#0",
+      "source": "Write what held the thread through the stall that just ended.",
+      "source_sha256": "58e4d7da6658b089e6fe09f070387c25d8dda111d48891b592e59290ae01b8ec",
+      "context": "Write what held the thread through the stall that just ended.",
+      "translation": "Skriver vad som höll tråden under det häng som just tog slut.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends#0",
+      "source": "Summarise a stall the moment the loop answers again.",
+      "source_sha256": "2f1b43916d23016cbbd8ccf7f60446e6786f1b96c472d8f7bfa0d408a85771f0",
+      "context": "Summarise a stall the moment the loop answers again.",
+      "translation": "Sammanfattar ett häng i samma ögonblick som loopen svarar igen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends#1",
+      "source": "THE LAST STALL OF A SESSION WAS NEVER SUMMARISED, and that is the one anybody runs this for. `_flush_samples` was called only when the NEXT stall began, so a process that wedges once and is then killed -- a run against a sleeping autofs mount, say -- left the first traceback and no distribution at all. The summary is the part that separates the call HOLDING the thread from the one that merely happened to be running when the sample was taken.",
+      "source_sha256": "5afad081e38fc8023643381b753dcbec91208fd8e9b849247434ae1292645c53",
+      "context": "The last stall of a session was never summarised, and that is the one anybody runs this for. `_flush_samples` was called only when the NEXT stall began, so a process that wedges once and is then killed -- a processing session against a sleeping autofs mount, say -- left the first traceback and no distribution at all. The summary is the part that separates the call HOLDING the independent execution path from the one that merely happened to be executing when the sample was taken.",
+      "translation": "DET SISTA HÄNGET I EN SESSION SAMMANFATTADES ALDRIG, och det är just det som någon kör detta för. `_flush_samples` anropades bara när NÄSTA häng började, så en process som fastnar en gång och sedan dödas -- en körning mot en sovande autofs-montering, till exempel -- lämnade den första tracebacken och ingen fördelning alls. Sammanfattningen är den del som skiljer anropet som HÅLLER tråden från det som bara råkade köra när provet togs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends#2",
+      "source": "The heartbeat resuming is the end of the stall, so that is where the summary belongs. `tick` cannot do it: it runs on the GUI thread, and the whole point is that the GUI thread was not running.",
+      "source_sha256": "06b68e43a8a269203601ab8bfb390632c59fc1e29237f9f0a8bea0be79381ec8",
+      "context": "The heartbeat resuming is the end of the stall, so that is where the summary belongs. `tick` cannot do it: it runs on the main GUI execution path, and the whole point is that the main GUI execution path was not running.",
+      "translation": "Att hjärtslaget återupptas är slutet på hänget, så det är där sammanfattningen hör hemma. `tick` kan inte göra det: den körs på GUI-tråden, och hela poängen är att GUI-tråden inte körde.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._where#0",
+      "source": "The innermost frame, as ``file:line function``.",
+      "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
+      "context": "The innermost frame, as ``file:line function``.",
+      "translation": "Den innersta ramen, som ``file:line function``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.tick#0",
+      "source": "Record that the event loop is still turning.",
+      "source_sha256": "93ee5709b51158694dab5a00831b1859048b632f779f3f37e650c197f2b678cc",
+      "context": "Record that the event loop is still turning.",
+      "translation": "Registrerar att händelseloopen fortfarande snurrar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch#0",
+      "source": "Sample the GUI thread through each stall and summarise it.",
+      "source_sha256": "3c79b9aa40eb57f4fc72b258d95da583cea7a4d8ce5dd879ff3260babad051dc",
+      "context": "Sample the main GUI execution path through each stall and summarise it.",
+      "translation": "Tar prover av GUI-tråden under varje häng och sammanfattar det.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch#1",
+      "source": "ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT, and those are different questions whenever the stall is a loop rather than a single blocking call. Measured: four stalls of the same module sweep gave four different last frames -- an event filter, a screen constructor, a settings-search install, another event filter -- which is a list of suspects rather than an answer.",
+      "source_sha256": "e4613ff696c05c5c96a240ebeb43047fe5ab69de469f0e174b30258fa30a776a",
+      "context": "ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT, and those are different questions whenever the stall is a loop rather than a single blocking call. Measured: four stalls of the same module sweep gave four different last frames -- an event filter, a screen constructor, a settings-search install, another event filter -- which is a list of suspects rather than an answer.",
+      "translation": "EN ENDA ÖGONBLICKSBILD VISAR VAR TRÅDEN VAR, INTE VART TIDEN GICK, och det är olika frågor så snart hänget är en loop snarare än ett enda blockerande anrop. Uppmätt: fyra häng i samma modulsvep gav fyra olika sista ramar -- ett händelsefilter, en skärmkonstruktor, en installation av inställningssökningen, ytterligare ett händelsefilter -- vilket är en lista över misstänkta snarare än ett svar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch#2",
+      "source": "So the stack is sampled every :data:`POLL_SECONDS` FOR AS LONG AS the stall lasts, and the last frames are counted. A call that holds the thread appears in most samples; one that merely happened to be running appears in one.",
+      "source_sha256": "083c37c1ea876e7bbf488b12e38708e1f745f43db4ff200f8ef82f4fcac4d935",
+      "context": "So the stack is sampled every :data:`POLL_SECONDS` for as long as the stall lasts, and the last frames are counted. A call that holds the thread appears in most samples; one that merely happened to be running appears in one.",
+      "translation": "Därför tas prov på stacken var :data:`POLL_SECONDS` SÅ LÄNGE hänget varar, och de sista ramarna räknas. Ett anrop som håller tråden syns i de flesta prover; ett som bara råkade köra syns i ett.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch_and_flush#0",
+      "source": "Run the watcher, and summarise whatever is pending on the way out.",
+      "source_sha256": "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c",
+      "context": "Run the watcher, and summarise whatever is pending on the way out.",
+      "translation": "Kör vakten och sammanfattar det som återstår på vägen ut.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._report#0",
+      "source": "Record and log one cross-thread offence, with its stack.",
+      "source_sha256": "f05aa028d642445e7c860ab47b0f88f5e8afefaab7506561da4d9e36672004ef",
+      "context": "Record and log one cross-thread offence, with its stack.",
+      "translation": "Registrerar och loggar en överträdelse mellan trådar, med dess stack.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._report#1",
+      "source": "The stack is trimmed of this function and its caller, so the top frame is the CODE THAT DID IT rather than the guard that noticed.",
+      "source_sha256": "de18a3c9d73243aa0948538aae4ac95b227b11e1b7f8dad1129a5b6f3dd9ba49",
+      "context": "The stack is trimmed of this function and its caller, so the top frame is the code that did it rather than the guard that noticed.",
+      "translation": "Stacken rensas från denna funktion och dess anropare, så att den översta ramen är KODEN SOM GJORDE DET snarare än vakten som märkte det.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#0",
+      "source": "Why this start is illegal, or \"\" when it is fine.",
+      "source_sha256": "ec25bcbed6f66858fd06705f514db41d6147cebb158e0818cfd3eafb90649c70",
+      "context": "Why this start is illegal, or \"\" when it is fine.",
+      "translation": "Varför denna start är otillåten, eller \"\" när den är i ordning.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#1",
+      "source": "ASKS EXACTLY WHAT Qt ASKS: is the object's own thread the thread calling? Qt refuses whenever they differ, which happens both ways round -- a worker touching a GUI object, and the GUI thread touching a WORKER-AFFINE object, the second being far easier to write by accident because the code reads as ordinary GUI-thread code.",
+      "source_sha256": "2eb8ae38b515dfbbf7b83bd8e4345aba44b022f1b3bcc350f311b57b3774a206",
+      "context": "Asks exactly what Qt ASKS: is the object's own independent execution path the independent execution path calling? Qt refuses whenever they differ, which happens both ways round -- a worker touching a GUI object, and the main GUI execution path touching a WORKER-AFFINE object, the second being far easier to write by accident because the code reads as ordinary main GUI execution path code.",
+      "translation": "FRÅGAR EXAKT DET SOM Qt FRÅGAR: är objektets egen tråd den anropande tråden? Qt vägrar närhelst de skiljer sig, vilket sker åt båda hållen -- en arbetstråd som rör ett GUI-objekt, och GUI-tråden som rör ett ARBETSTRÅDSBUNDET objekt; det senare är mycket lättare att skriva av misstag eftersom koden läses som vanlig GUI-trådskod.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#2",
+      "source": "COMPARED WITH `==`, NOT `is`. `QThread.currentThread()` hands back a fresh Python wrapper around the same underlying QThread on each call, so an identity test reports every ordinary start as illegal -- which is precisely what the first version of this did, flagging a plain GUI-thread `timer.start()` as \"the caller is Qt mainThread, not the GUI thread\". A guard that cries wolf on the common path is worse than none, because the one line that matters is then buried.",
+      "source_sha256": "484409a1d0f1e91ee1c6dd7acbacd16219cbdc361b71673bc03cadd73750862f",
+      "context": "Compared with `==`, NOT `is`. `QThread.currentThread()` hands back a fresh Python wrapper around the same underlying QThread on each call, so an identity test reports every ordinary start as illegal -- which is precisely what the first version of this did, flagging a plain main GUI execution path `timer.start()` as \"the caller is Qt mainThread, not the main GUI execution path\". A guard that cries wolf on the common path is worse than none, because the one line that matters is then buried.",
+      "translation": "JÄMFÖRS MED `==`, INTE `is`. `QThread.currentThread()` ger vid varje anrop ett nytt Python-omslag kring samma underliggande QThread, så ett identitetstest rapporterar varje vanlig start som otillåten -- precis vad den första versionen gjorde, då den flaggade en vanlig `timer.start()` på GUI-tråden med ”anroparen är Qt mainThread, inte GUI-tråden”. En vakt som larmar falskt på den vanliga vägen är värre än ingen, eftersom den enda rad som betyder något då begravs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#3",
+      "source": "There is deliberately no \"is the caller the GUI thread\" fallback. It added nothing the affinity test does not already cover, and it was the half that misfired.",
+      "source_sha256": "f066a0dbf34dd6939b32f2654c7dbbd458c38ebe253d5663c5b2a39883034414",
+      "context": "There is deliberately no \"is the caller the main GUI execution path\" fallback. It added nothing the affinity test does not already cover, and it was the half that misfired.",
+      "translation": "Det finns avsiktligt ingen reserv av typen ”är anroparen GUI-tråden”. Den tillförde inget som affinitetstestet inte redan täcker, och det var den halvan som slog fel.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_object_init#0",
+      "source": "Note a QObject built off the main thread, after building it.",
+      "source_sha256": "6c24fb98064320f49c1c4d34bf6181a9c5b1cf60734f47b618fb829d0550e3b1",
+      "context": "Note a QObject built off the main execution path, after building it.",
+      "translation": "Noterar ett QObject som skapats utanför huvudtråden, efter att det skapats.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_object_start#0",
+      "source": "Report a QObject timer started off its own thread, then start it.",
+      "source_sha256": "86bd1d73eec31fb629a659065106e7624b2e6658aa4a6fbe23b0997b3796b123",
+      "context": "Report a QObject timer started off its own thread, then start it.",
+      "translation": "Rapporterar en QObject-timer som startats utanför sin egen tråd och startar den sedan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_timer_start#0",
+      "source": "Report a QTimer started off its own thread, then start it.",
+      "source_sha256": "8370ecfb6d758b1822335776c17c42543d80024afc6edb7ed8558e4b6bf12afe",
+      "context": "Report a QTimer started off its own thread, then start it.",
+      "translation": "Rapporterar en QTimer som startats utanför sin egen tråd och startar den sedan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_timer_start#1",
+      "source": "REPORTS AND PROCEEDS. The guard is a diagnostic: refusing the start would change behaviour under the guard and hide the bug it exists to find.",
+      "source_sha256": "6a5f416cd33959bcb473885469afd81d2992755c3d1730bdd9bc9e9ef4ba6161",
+      "context": "Reports and proceeds. The guard is a diagnostic: refusing the start would change behaviour under the guard and hide the bug it exists to find.",
+      "translation": "RAPPORTERAR OCH FORTSÄTTER. Vakten är ett diagnosverktyg: att vägra starten skulle ändra beteendet under vakten och dölja just den bugg den finns till för att hitta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.ContributeDialog.add_image.work#0",
+      "source": "spaCR's proposal for one image, or the reason there is none.",
+      "source_sha256": "63c3407164e743e95b31fdabf192601121976c22d7c0fc64dc5ed53be97b7950",
+      "context": "spaCR's proposal for one image, or the reason there is none.",
+      "translation": "spaCR:s förslag för en bild, eller skälet till att det inte finns något.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.cancelled#0",
+      "source": "Say that nothing was installed and nothing was left.",
+      "source_sha256": "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad",
+      "context": "Say that nothing was installed and nothing was left.",
+      "translation": "Anger att ingenting installerades och ingenting lämnades kvar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.failure#0",
+      "source": "Say why, in the installer's own words.",
+      "source_sha256": "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658",
+      "context": "Say why, in the installer's own words.",
+      "translation": "Anger varför, med installationsprogrammets egna ord.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.progressed#0",
+      "source": "One line, rewritten, saying which step the install is on.",
+      "source_sha256": "e91402e3e3edcb83502610803dd25707c13e3ac43fa764fee64446037f06f060",
+      "context": "One line, rewritten, saying which step the install is on.",
+      "translation": "En omskriven rad som anger vilket steg installationen är på.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._next_paper.job#0",
+      "source": "Read one PDF, turning its failure into an answer.",
+      "source_sha256": "d483a9259ea48824f4ca38077514110b66560fac6222d3116634ce1ffe036303",
+      "context": "Read one PDF, turning its failure into an answer.",
+      "translation": "Läser en PDF och gör om dess misslyckande till ett svar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._save_review_file.finished#0",
+      "source": "Ignore stale export completions and report failure or invoke the current success callback.",
+      "source_sha256": "9a18ed0eeb2b580226948f6e3c6a8b64162401792af8f409f1513e5b1727a6f3",
+      "context": "Ignore stale export completions and report failure or invoke the current success callback.",
+      "translation": "Ignorerar inaktuella exportslutföranden och rapporterar fel eller anropar den aktuella callbacken för lyckat resultat.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._use_pasted_legend.saved#0",
+      "source": "Normalize the edited legend text, close its editor and rebuild the figure annotations.",
+      "source_sha256": "4e51c7449c63afbc4d1fa24b83f2f427c32c4d87a3c3b32e1dee283b51490e60",
+      "context": "Normalize the edited legend text, close its editor and rebuild the figure annotations.",
+      "translation": "Normaliserar den redigerade förklaringstexten, stänger dess redigerare och bygger om figurens anteckningar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data.seeder#0",
+      "source": "spaCR's well boxes on one page.",
+      "source_sha256": "06f1ef560a3a575928721dbce4dc6a8f708f91033fa5476ebe1975cd490b0f28",
+      "context": "spaCR's well boxes on one page.",
+      "translation": "spaCR:s brunnsrutor på en sida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data.seeder#1",
+      "source": "spaCR's plaque mask of one image.",
+      "source_sha256": "047536732a5f4655616184dbd2de337b7d9a59d9253f99bb2f3c5a07b4f3ec73",
+      "context": "spaCR's plaque mask of one image.",
+      "translation": "spaCR:s plackmask för en bild.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper.job#0",
+      "source": "Fetch, turning a reader that must be installed into an answer.",
+      "source_sha256": "71c18748179d6c1a31d02c412c3d5542dc78abdcdcc318f3cf5116247db0d148",
+      "context": "Fetch, turning a reader that must be installed into an answer.",
+      "translation": "Hämtar, och gör om en läsare som måste installeras till ett svar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.plaque_table_rows.annotation#0",
+      "source": "The annotation of region ``index``, or None if it has none.",
+      "source_sha256": "30bfeaf2d46b94d9039f232de44c235b7809c7250ca3efa9f17edd9675ca0ddc",
+      "context": "The annotation of region ``index``, or None if it has none.",
+      "translation": "Annoteringen för region ``index``, eller None om den saknar någon.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.run_preview.work#0",
+      "source": "Detect figure wells and prepare a review result unless detection already returned an error.",
+      "source_sha256": "1f7e3500dc5d3fc9721f6a5350900e7a407d386ab265c89862b2ec56db8d79fb",
+      "context": "Detect figure microplate sample positions and prepare a review result unless detection already returned an error.",
+      "translation": "Detekterar figurens brunnar och förbereder ett granskningsresultat, om inte detekteringen redan returnerat ett fel.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview._serialized_inference.run#0",
+      "source": "Serialize the wrapped inference call so cached model instances cannot overlap.",
+      "source_sha256": "d6bdd34a837498207395114362f71e2b4984047eefbedbaa0f750dd43927717e",
+      "context": "Serialize the wrapped inference call so cached model instances cannot overlap.",
+      "translation": "Serialiserar det omslutna inferensanropet så att cachade modellinstanser inte kan överlappa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.figure_pass.segment#0",
+      "source": "The Cellpose label mask of one plaque-well crop.",
+      "source_sha256": "729b0c80565d59eb4975c13c409bc91f35e99711aed3a31e63a85b8ddccae022",
+      "context": "The Cellpose label mask of one plaque-well extracted image region.",
+      "translation": "Cellpose-etikettmasken för ett beskuret plackbrunnsutsnitt.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode.choose#0",
+      "source": "Store ``mode`` in the form, then show it.",
+      "source_sha256": "67f292b589886b68f9d16794968445e8cc9535fe15ef145c52343075190db399",
+      "context": "Store ``mode`` in the form, then show it.",
+      "translation": "Sparar ``mode`` i formuläret och visar det sedan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode.show#0",
+      "source": "Show ``mode`` on the switch and the preview, and hide the other mode's rows.",
+      "source_sha256": "c1bbe47db59f4d9c541d4b71795394e32350436b9159380781c8cfcb29a447c3",
+      "context": "Show ``mode`` on the switch and the preview, and hide the other mode's rows.",
+      "translation": "Visar ``mode`` på omkopplaren och förhandsvisningen och döljer det andra lägets rader.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.missing_papers_packages.found#0",
+      "source": "Whether ``module`` can be found without importing it.",
+      "source_sha256": "1437f2497b74a390166bd7d470ab5fe186bedf78d44526ae7715c4cbefde24a6",
+      "context": "Whether ``module`` can be found without importing it.",
+      "translation": "Om ``module`` kan hittas utan att importeras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_pass.segment#0",
+      "source": "The plaque label mask of the image at ``p``, with its flows.",
+      "source_sha256": "8486908c69ad95c55aa0c1527b56c2c62f60221e96388adfa6b98a5bb609270e",
+      "context": "The plaque label mask of the image at ``p``, with its flows.",
+      "translation": "Placketikettmasken för bilden vid ``p``, med dess flöden.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well.segment#0",
+      "source": "The plaque label mask of one well crop, with its flows.",
+      "source_sha256": "4f3521251f7b254dd9a88b96d479399e066356d22162b25c70f385f39ddca716",
+      "context": "The plaque label mask of one microplate sample position extracted image region, with its flows.",
+      "translation": "Placketikettmasken för ett brunnsutsnitt, med dess flöden.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._ensure_bundled_barcode.fetch#0",
+      "source": "Read ``target`` over the network and return its bytes.",
+      "source_sha256": "ea62fc2414900a983437d822f722ec064792690e4cbc84bd02ea8129b6817d64",
+      "context": "Read ``target`` over the network and return its bytes.",
+      "translation": "Läser ``target`` över nätverket och returnerar dess byte.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._ensure_bundled_barcode.fetch#1",
+      "source": "the raw GitHub URL of one bundled CSV.",
+      "source_sha256": "ff2e0044de571fba92c7854bac651f32cb951cce32fae5ddf08df6c7ddc517f2",
+      "context": "the raw GitHub URL of one bundled CSV.",
+      "translation": "den råa GitHub-URL:en för en medföljande CSV.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._ensure_bundled_barcode.fetch#2",
+      "source": "the response body, unchecked -- the caller verifies it.",
+      "source_sha256": "82b98322fe9cd09b0a5ba7d993e1f96a1bd626fa05bfbfbcc421affc9ac60456",
+      "context": "the response body, unchecked -- the caller verifies it.",
+      "translation": "svarets innehåll, okontrollerat -- anroparen verifierar det.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._reject_a_threshold_that_cannot_mean_what_it_says._number#0",
+      "source": "Read one setting as a number in range, or raise saying which.",
+      "source_sha256": "444b291ed8e5e3b92208486252f792d3b03da6e0a3d575e7fafa9270b9aca100",
+      "context": "Read one setting as a number in range, or raise saying which.",
+      "translation": "Läser en inställning som ett tal inom intervall, eller kastar ett fel som anger vilken.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._reject_a_threshold_that_cannot_mean_what_it_says._number#1",
+      "source": "A bool is REFUSED even though it is an int in Python: ``True`` as a threshold is a value nobody typed on purpose, and accepting it as 1 silently changes what the run does.",
+      "source_sha256": "fdfadbe74e3cbdf69de8ad9f6852acfae448ce1422c77e6bbf1bfeb384ae9155",
+      "context": "A bool is REFUSED even though it is an int in Python: ``True`` as a threshold is a value nobody typed on purpose, and accepting it as 1 silently changes what the run does.",
+      "translation": "En bool AVVISAS trots att den är en int i Python: ``True`` som tröskel är ett värde som ingen skrev med avsikt, och att godta det som 1 ändrar i tysthet vad körningen gör.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined#0",
+      "source": "A second reason a setting can be inapplicable, ANDed with the first.",
+      "source_sha256": "04578bf24db28b011691c35b0c8849025fb7acc747a4a7497351dd304e00f53a",
+      "context": "A second reason a setting can be inapplicable, ANDed with the first.",
+      "translation": "Ett andra skäl till att en inställning kan vara otillämplig, kombinerat med det första via OCH.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined#1",
+      "source": "One setting can be dead for more than one reason at once -- a permutation control is dead under parametric inference AND dead on a single plate -- and this dict holds one entry per setting. Replacing the entry drops the earlier reason silently, which is how a field ends up enabled among its greyed siblings.",
+      "source_sha256": "005d665c8ac71adb3213c0cd8032110acc17be3cffbcf8ff7e1b9e662cb0dc1f",
+      "context": "One setting can be dead for more than one reason at once -- a permutation control is dead under parametric inference AND dead on a single laboratory microplate -- and this key-value mapping holds one entry per setting. Replacing the entry drops the earlier reason silently, which is how a microscope field of view ends up enabled among its greyed siblings.",
+      "translation": "En inställning kan vara verkningslös av mer än ett skäl samtidigt -- en permutationskontroll är verkningslös under parametrisk inferens OCH verkningslös på en enda platta -- och denna dict har en post per inställning. Att ersätta posten tappar det tidigare skälet i tysthet, vilket är hur ett fält hamnar aktiverat bland sina gråtonade syskon.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined#2",
+      "source": "Applicable only when BOTH agree. The reason shown is the one that actually fired, so the user is told why THIS control is off rather than being given the other rule's explanation.",
+      "source_sha256": "c1c0a6d2400bed009ff78855a4040d6fcf4bb89ff5eaed3c5fed5da9334d1a1c",
+      "context": "Applicable only when BOTH agree. The reason shown is the one that actually fired, so the user is told why THIS control is off rather than being given the other rule's explanation.",
+      "translation": "Tillämplig endast när BÅDA är överens. Skälet som visas är det som faktiskt utlöstes, så att användaren får veta varför DENNA kontroll är avstängd i stället för att få den andra regelns förklaring.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined._predicate#0",
+      "source": "True only when BOTH the existing rule and the new one hold.",
+      "source_sha256": "d6e039ec00fd5d04e3c422bd21a0d47ee8e7c3f2ead414061f4a0b3b45461843",
+      "context": "True only when BOTH the existing rule and the new one hold.",
+      "translation": "True endast när BÅDE den befintliga regeln OCH den nya gäller.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined._reason#0",
+      "source": "The reason from whichever rule is the one failing.",
+      "source_sha256": "1143b56cea3e5818c4b056f0589cd04a08569706b74de44716221772835d1403",
+      "context": "The reason from whichever rule is the one failing.",
+      "translation": "Skälet från den regel som är den som fallerar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined._reason#1",
+      "source": "The EXISTING rule is asked first, so a setting gated by two conditions explains the one that has been true for longer rather than the one added most recently.",
+      "source_sha256": "fd5b5246631cb15832cf7360ef541071892110f796a71e0e38552a1f6a5e92a2",
+      "context": "The EXISTING rule is asked first, so a setting gated by two conditions explains the one that has been true for longer rather than the one added most recently.",
+      "translation": "Den BEFINTLIGA regeln tillfrågas först, så att en inställning som styrs av två villkor förklarar det som har gällt längst snarare än det som lades till senast.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._is_nonparametric#0",
+      "source": "Whether inference is the nonparametric permutation test.",
+      "source_sha256": "44ad5ada92c278e3e738f211951b01a72db66353ae1b12743fd2b434c83240ec",
+      "context": "Whether inference is the nonparametric permutation test.",
+      "translation": "Om inferensen är det icke-parametriska permutationstestet.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._level_is_read#0",
+      "source": "Whether the level setting is read at all under these settings.",
+      "source_sha256": "73a10d19454d811e6d43eafe2346fe76d715bb1bcb06d046608e0f5f61714f1c",
+      "context": "Whether the level setting is read at all under these settings.",
+      "translation": "Om nivåinställningen över huvud taget läses under dessa inställningar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._level_is_read#1",
+      "source": "THE PERMUTATION TEST READS IT. It fits no model, so `regression_type` says nothing about it -- greying the control on the parametric answer left the nonparametric side with no way to ask for genes at all.",
+      "source_sha256": "e65864f28b7a9963a05e76d28fee1a4666542ebbc3d6015626ca6e77a1bb859e",
+      "context": "The permutation test reads it. It fits no model, so `regression_type` says nothing about it -- greying the control on the parametric answer left the nonparametric side with no way to ask for genes at all.",
+      "translation": "PERMUTATIONSTESTET LÄSER DEN. Det anpassar ingen modell, så `regression_type` säger ingenting om det -- att gråtona kontrollen vid det parametriska svaret lämnade den icke-parametriska sidan utan något sätt alls att fråga efter gener.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._level_reason#0",
+      "source": "Why the level control is greyed, naming the setting responsible.",
+      "source_sha256": "fa9b6252127e019a70c3eca32b28214579c2adbc052137d9e3e17579efd0c4c9",
+      "context": "Why the level control is greyed, naming the setting responsible.",
+      "translation": "Varför nivåkontrollen är gråtonad, med namn på den ansvariga inställningen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._streaming#0",
+      "source": "Whether the run reads images from a stream rather than from disk.",
+      "source_sha256": "d3427312456dcc951cd13f733f8b93d51b2bf83a0bd6f2cd928aecaf20c6252a",
+      "context": "Whether the run reads images from a stream rather than from disk.",
+      "translation": "Om körningen läser bilder från en ström snarare än från disk.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_active#0",
+      "source": "Whether the RUN would permute, decided the way the run decides.",
+      "source_sha256": "c9888681edd5de5d42154912e11d61fff6dd77b99c713f44110c8aa5bc1e8b23",
+      "context": "Whether the RUN would permute, decided the way the run decides.",
+      "translation": "Om KÖRNINGEN skulle permutera, avgjort så som körningen avgör det.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_active#1",
+      "source": "THE SAME TRANSLATION `set_default_analysis_settings` APPLIES, and it has to be: `inference` is the readable front end and it OVERWRITES `analysis_mode` at run time, so a panel that read the stale `analysis_mode` answered a question the fit does not ask. Measured on the regression panel: choosing inference='parametric' left all eight guide-permutation controls enabled, because `analysis_mode` still held the value the previous inference had selected -- a control offered for a step that is not going to run.",
+      "source_sha256": "8724734ade47fe84ff4e4c12f132828a9033660f4cb10d5bb6305b4c376e9913",
+      "context": "The same translation `set_default_analysis_settings` APPLIES, and it has to be: `inference` is the readable front end and it OVERWRITES `analysis_mode` at run time, so a panel that read the stale `analysis_mode` answered a question the fit does not ask. Measured on the regression panel: choosing inference='parametric' left all eight guide-permutation controls enabled, because `analysis_mode` still held the value the previous inference had selected -- a control offered for a step that is not going to execute.",
+      "translation": "SAMMA ÖVERSÄTTNING SOM `set_default_analysis_settings` TILLÄMPAR, och det måste den vara: `inference` är det läsbara gränssnittet och det SKRIVER ÖVER `analysis_mode` vid körning, så en panel som läste det inaktuella `analysis_mode` besvarade en fråga som anpassningen inte ställer. Uppmätt på regressionspanelen: att välja inference='parametric' lämnade alla åtta guide-permutationskontroller aktiverade, eftersom `analysis_mode` fortfarande höll värdet som den föregående inferensen valt -- en kontroll som erbjöds för ett steg som inte kommer att köras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_active#2",
+      "source": "`auto` is the one case where `analysis_mode` still decides here. Its real resolution counts guides and wells, which this cannot see (`spacr.ml.resolve_auto_inference` does it once the CSVs are read), so the permutation controls stay ENABLED under 'auto' -- greying a control the run may well use is the worse error of the two.",
+      "source_sha256": "0a1aa4665a8def3e2210641f987b054dad0d1aee51ccafc7919651ed9de83e33",
+      "context": "`auto` is the one case where `analysis_mode` still decides here. Its real resolution counts guides and microplate sample positions, which this cannot see (`spacr.ml.resolve_auto_inference` does it once the CSVs are read), so the permutation controls stay ENABLED under 'auto' -- greying a control the run may well use is the worse error of the two.",
+      "translation": "`auto` är det enda fallet där `analysis_mode` fortfarande avgör här. Dess verkliga upplösning räknar guider och brunnar, vilket detta inte kan se (`spacr.ml.resolve_auto_inference` gör det när CSV-filerna har lästs), så permutationskontrollerna förblir AKTIVERADE under 'auto' -- att gråtona en kontroll som körningen mycket väl kan använda är det värre av de två felen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_is_certain#0",
+      "source": "Whether the run WILL permute -- not merely whether it might.",
+      "source_sha256": "d2e7d5250d8b5f3baf76a4af01a82ca1868c6c74a94517c3f948ecb15f826868",
+      "context": "Whether the run WILL permute -- not merely whether it might.",
+      "translation": "Om körningen KOMMER att permutera -- inte bara om den kanske gör det.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_is_certain#1",
+      "source": "NOT `not permutation_active(...)`, which is the mistake this replaces and which my own comment below warned about before I made it. `permutation_active` answers True under 'auto' ON PURPOSE, so the permutation controls stay live while the resolution is unknown. Negating it therefore greys the MODEL controls under 'auto' too -- and 'auto' may well resolve to regression, in which case those are exactly the settings the run reads.",
+      "source_sha256": "dc3ec3ad4aabb9921e146e289e9aa5d8d5cf3605ff7262a917a80b365772ea45",
+      "context": "NOT `not permutation_active(...)`, which is the mistake this replaces and which my own comment below warned about before I made it. `permutation_active` answers True under 'auto' on purpose, so the permutation controls stay live while the resolution is unknown. Negating it therefore greys the MODEL controls under 'auto' too -- and 'auto' may well resolve to regression, in which case those are exactly the settings the processing session reads.",
+      "translation": "INTE `not permutation_active(...)`, vilket är misstaget som detta ersätter och som min egen kommentar nedan varnade för innan jag gjorde det. `permutation_active` svarar True under 'auto' AVSIKTLIGT, så att permutationskontrollerna förblir aktiva medan upplösningen är okänd. Att negera det gråtonar därför också MODELL-kontrollerna under 'auto' -- och 'auto' kan mycket väl lösas upp till regression, och då är det just de inställningar som körningen läser.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_is_certain#2",
+      "source": "Certain means `inference` names the permutation path outright.",
+      "source_sha256": "8643a56eca0321b1e367e1ad7762f67014c0bd9150853c1913fc4908005625b3",
+      "context": "Certain means `inference` names the permutation path outright.",
+      "translation": "Säker betyder att `inference` uttryckligen namnger permutationsvägen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.rule#0",
+      "source": "One dependency rule: its sources, its predicate and its reason.",
+      "source_sha256": "bbf451afe2f456181d1264ed76cf1d4f75c76c7fbcd9023ce845298acc272da0",
+      "context": "One dependency rule: its sources, its predicate and its reason.",
+      "translation": "En beroenderegel: dess källor, dess predikat och dess skäl.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAM.__call__.hook#0",
+      "source": "Forward hook: append the target layer's output to ``features``.",
+      "source_sha256": "d74fe64f7472d23e36bacd5ceb8c1fe2503bdf7892dbb96b7c39a938b494aa80",
+      "context": "Forward hook: append the target layer's output to ``features``.",
+      "translation": "Framåtkrok: lägger till målskiktets utdata i ``features``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAM.__call__.hook#1",
+      "source": "``retain_grad()`` is required: PyTorch only populates ``.grad`` on leaf tensors, so without it ``features[0].grad`` is None below and GradCAM died with \"'NoneType' object has no attribute 'cpu'\".",
+      "source_sha256": "b4748ef8cb3fd03c28ee7715fc0b26a4cc05f7d35a95971096953fceca4c8bf0",
+      "context": "``retain_grad()`` is required: PyTorch only populates ``.grad`` on leaf tensors, so without it ``features[0].grad`` is None below and GradCAM died with \"'NoneType' object has no attribute 'cpu'\".",
+      "translation": "``retain_grad()`` krävs: PyTorch fyller bara ``.grad`` på lövtensorer, så utan det är ``features[0].grad`` None nedan och GradCAM dog med \"'NoneType' object has no attribute 'cpu'\".",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator.hook_layers.backward_hook#0",
+      "source": "Backward hook: cache the gradient flowing into the target layer's output.",
+      "source_sha256": "98721273aceaf2ee87532face739fc289ab469d6477660f8c76b347e59a332f6",
+      "context": "Backward hook: cache the gradient flowing into the target layer's output.",
+      "translation": "Bakåtkrok: cachar gradienten som flödar in i målskiktets utdata.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator.hook_layers.forward_hook#0",
+      "source": "Forward hook: cache the target layer's output activations.",
+      "source_sha256": "9dc8e9c511f6f0b862b811eba08b75a2bdd88c65f1cb49d1547b7b8c5910e048",
+      "context": "Forward hook: cache the target layer's output activations.",
+      "translation": "Framåtkrok: cachar målskiktets utdataaktiveringar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.TorchModel._run_backbone_raw.forward_fn#0",
+      "source": "Run the underlying backbone on ``t`` (used as the checkpoint target).",
+      "source_sha256": "f21365b9bde70508f9bc4b6ab52736199a3b2908d1102d5a26d797bb41afcfbe",
+      "context": "Run the underlying backbone on ``t`` (used as the checkpoint target).",
+      "translation": "Kör det underliggande stamnätverket på ``t`` (används som checkpoint-mål).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._checkpoint_module.contexts#0",
+      "source": "Return forward and recomputation contexts for non-reentrant checkpointing.",
+      "source_sha256": "53b3853d75d86dcbe245128f7d6e8f7c9ad42cbb80c8609eaec4e795ce72c79d",
+      "context": "Return forward and recomputation contexts for non-reentrant checkpointing.",
+      "translation": "Returnerar framåt- och omberäkningskontexter för icke-reentrant checkpointing.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._filter_objects._failed_in#0",
+      "source": "Labels failing an entry whose index is in ``[low, high)``.",
+      "source_sha256": "8ded5c252ab4ad663758b4ef7f77b0026a9eba4e7aac0ae111304bf1aedcbb7d",
+      "context": "Labels failing an entry whose index is in ``[low, high)``.",
+      "translation": "Etiketter som underkänns av en post vars index ligger i ``[low, high)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._generate_representative_images._compartment_column#0",
+      "source": "Return the selected compartment series, or raise for a missing column.",
+      "source_sha256": "41122fdf2e80e42a3fb03a227abfe38db76f61903d49f341ec013b9916255607",
+      "context": "Return the selected compartment series, or produce an error for a missing column.",
+      "translation": "Returnerar den valda kompartmentserien, eller kastar ett fel för en saknad kolumn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._outline_and_overlay.process_dim#0",
+      "source": "Return a dilated outline image of the labeled mask at ``image[..., mask_dim]``.",
+      "source_sha256": "85905aee4183f3bb50f7d74656256814c5ffb7394cc6a5b9ff0d511b2f375f3a",
+      "context": "Return a dilated outline image of the labeled mask at ``image[..., mask_dim]``.",
+      "translation": "Returnerar en dilaterad konturbild av den etiketterade masken vid ``image[..., mask_dim]``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._pivot_counts_table._pivot_dataframe#0",
+      "source": "Pivot count-type rows into one column per object type, NaNs filled with 0.",
+      "source_sha256": "2568425cb3a0a2f6624f1d88d968212355661deff17baaa2e88c1bffbc9f95ab",
+      "context": "Pivot count-type rows into one column per object type, NaNs filled with 0.",
+      "translation": "Pivoterar rader av antalstyp till en kolumn per objekttyp, med NaNs fyllda med 0.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._pivot_counts_table._read_table_to_dataframe#0",
+      "source": "Return the given SQLite table as a DataFrame.",
+      "source_sha256": "3a6beab9cf847026d105eaef3e75ef8726c2fd04415d191f93f45d593f373235",
+      "context": "Return the given SQLite table as a DataFrame.",
+      "translation": "Returnerar den angivna SQLite-tabellen som en DataFrame.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._save_settings_json.plain#0",
+      "source": "The value as something JSON can hold, or its repr.",
+      "source_sha256": "4a507cdd74108f3c446d62afaa73b5a40b63b2d9ff4e65960c646d9860873a9b",
+      "context": "The value as something JSON can hold, or its repr.",
+      "translation": "Värdet i en form som JSON kan rymma, eller dess repr.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.annotate_conditions._get_type#0",
+      "source": "Determine if a value maps to 'rowID' or 'columnID'.",
+      "source_sha256": "1d67a7dbf42c9e16657bafd30ef2a9a58e551e8d0445bfe3a49461ecb5373247",
+      "context": "Determine if a value maps to 'rowID' or 'columnID'.",
+      "translation": "Avgör om ett värde mappas till 'rowID' eller 'columnID'.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.annotate_conditions._map_or_default#0",
+      "source": "Assign or map ``values`` into ``column_name`` based on optional row/column ``loc``.",
+      "source_sha256": "0d45b7c743d4b5d8a7b262be6e43b79ce786a692bedf23345f12acc062868071",
+      "context": "Assign or map ``values`` into ``column_name`` based on optional row/column ``loc``.",
+      "translation": "Tilldelar eller mappar ``values`` till ``column_name`` baserat på valfri rad/kolumn-``loc``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.annotate_predictions.assign_condition#0",
+      "source": "Return the condition label (``'screen'``/``'pc'``/``'nc'`` or ``''``) for a metadata row.",
+      "source_sha256": "ae63fe648cbdd5e7c02d6ebf37ae18b548a3e71f73b8a32e2168082bc62c820a",
+      "context": "Return the condition label (``'screen'``/``'pc'``/``'nc'`` or ``''``) for a metadata row.",
+      "translation": "Returnerar villkorsetiketten (``'screen'``/``'pc'``/``'nc'`` eller ``''``) för en metadatarad.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._asl#0",
+      "source": "Return mean asymmetric multilabel loss for logits and targets.",
+      "source_sha256": "d34e6c303d0de87801dfe20bd7eb27df871beff85999b360b83605359a0fd449",
+      "context": "Return mean asymmetric multilabel loss for logits and targets.",
+      "translation": "Returnerar medelvärdet av asymmetrisk multietikettförlust för logits och mål.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._auto_choice#0",
+      "source": "Return the default loss name from class count and imbalance.",
+      "source_sha256": "621bede9a4254b7199b8d1fc05ee00acb46abdfaa42ef11f87c60fb006634069",
+      "context": "Return the default loss name from class count and imbalance.",
+      "translation": "Returnerar standardförlustens namn utifrån antal klasser och obalans.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._focal_bce#0",
+      "source": "Return mean focal binary cross-entropy for ``logits`` and ``y``.",
+      "source_sha256": "556a0112cbf17e8d49c2e8d48e2118a5c985400a96b5882d384de9f4c6fc6cab",
+      "context": "Return mean focal binary cross-entropy for ``logits`` and ``y``.",
+      "translation": "Returnerar medelvärdet av fokal binär korsentropi för ``logits`` och ``y``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._focal_ce#0",
+      "source": "Return mean focal cross-entropy for logits and class indices.",
+      "source_sha256": "786946137bdfa10ce881f7c6811b31ee2db99fdf3740b83bbc4f36f26fae7341",
+      "context": "Return mean focal cross-entropy for logits and class indices.",
+      "translation": "Returnerar medelvärdet av fokal korsentropi för logits och klassindex.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._infer_indices#0",
+      "source": "Return class indices from an index vector or 2-D target matrix.",
+      "source_sha256": "82aae658207cfcf4b683a6e4cd3fb9608a5828c1f8f9ef867a8a5bac4b83d621",
+      "context": "Return class indices from an index vector or 2-D target matrix.",
+      "translation": "Returnerar klassindex från en indexvektor eller en 2-D-målmatris.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss.loss_fn#0",
+      "source": "Closure: compute the selected per-batch loss from ``(logits, target)``.",
+      "source_sha256": "e8b405d32558af205f47128a20cf729605add6015cdecbe3f7234c09fd592880",
+      "context": "Closure: compute the selected per-batch loss from ``(logits, target)``.",
+      "translation": "Closure: beräknar den valda förlusten per batch från ``(logits, target)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.calculate_loss._focal_bce_with_logits#0",
+      "source": "Return focal binary cross-entropy for ``logits`` and targets ``y``.",
+      "source_sha256": "2fe2989b671605ba04fffaa99692c9bf30599cd639edffe36148cb449e5b42c2",
+      "context": "Return focal binary cross-entropy for ``logits`` and targets ``y``.",
+      "translation": "Returnerar fokal binär korsentropi för ``logits`` och målen ``y``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.calculate_loss._focal_cross_entropy#0",
+      "source": "Return focal cross-entropy for logits and class indices ``y_idx``.",
+      "source_sha256": "955285d2fc92b159b9c006c38b1e33fb4ccdc4c6c9d1006a7979c3558d2fd3b3",
+      "context": "Return focal cross-entropy for logits and class indices ``y_idx``.",
+      "translation": "Returnerar fokal korsentropi för logits och klassindexen ``y_idx``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.class_visualization.blur_image#0",
+      "source": "In-place Gaussian blur of each channel of ``img`` with standard deviation ``sigma``.",
+      "source_sha256": "4e47f98a8a5a7fd43dce03b7713a718818fa880037bf9ca912c19d14ba27258d",
+      "context": "In-place Gaussian blur of each channel of ``img`` with standard deviation ``sigma``.",
+      "translation": "Gaussisk oskärpa på plats för varje kanal i ``img`` med standardavvikelsen ``sigma``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.class_visualization.deprocess#0",
+      "source": "Undo ImageNet normalization and return an ``(H, W, 3)`` numpy image in ``[0, 1]``.",
+      "source_sha256": "2fbf0eef6012b9dbe85fcdf8cd52ce37ad3eca5a22f8e4a4f585ec75af28ec2e",
+      "context": "Undo ImageNet normalization and return an ``(H, W, 3)`` numpy image in ``[0, 1]``.",
+      "translation": "Ångrar ImageNet-normaliseringen och returnerar en numpy-bild ``(H, W, 3)`` i ``[0, 1]``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.class_visualization.jitter#0",
+      "source": "Return ``img`` shifted (rolled) by ``ox`` and ``oy`` pixels along the spatial axes.",
+      "source_sha256": "e3134887b6cb6175e95f2c6ed0163771ee1371a694abb26af648e71baef6c416",
+      "context": "Return ``img`` shifted (rolled) by ``ox`` and ``oy`` pixels along the spatial axes.",
+      "translation": "Returnerar ``img`` förskjuten (rullad) med ``ox`` och ``oy`` pixlar längs de rumsliga axlarna.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.debug.decorator#0",
+      "source": "Inner decorator that binds the logger for ``func`` and returns the wrapper.",
+      "source_sha256": "96517ba8b10971bb4ead7c3c1c13a74dbadf3d883fe264f2d286214caef1a503",
+      "context": "Inner decorator that binds the logger for ``func`` and returns the wrapper.",
+      "translation": "Inre dekoratör som binder loggaren för ``func`` och returnerar omslaget.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.debug.decorator.wrapper#0",
+      "source": "Temporarily bump the logger to DEBUG while ``func`` runs, then restore its level.",
+      "source_sha256": "1fa99d6506ca3eae70405642f236d11a3b5e734719ac180036731bd8722a6098",
+      "context": "Temporarily bump the logger to DEBUG while ``func`` runs, then restore its level.",
+      "translation": "Höjer tillfälligt loggaren till DEBUG medan ``func`` körs och återställer sedan dess nivå.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.feature_folder_name._one#0",
+      "source": "Return one filesystem-safe selection-member slug.",
+      "source_sha256": "5e4c921fcd5e0a45e59eefdf6dda510a360081ba97310af3e3fd597c3e02056a",
+      "context": "Return one filesystem-safe selection-member slug.",
+      "translation": "Returnerar en filsystemsäker slug för en urvalsmedlem.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.group_feature_class.find_feature_class#0",
+      "source": "Return the group label(s) matched in ``feature`` — joined with '-' when more than one hits.",
+      "source_sha256": "dfe2546cda1a4067f944e4c57e388d106b31f29dd7126f07c128938533399324",
+      "context": "Return the group label(s) matched in ``feature`` — joined with '-' when more than one hits.",
+      "translation": "Returnerar gruppetiketterna som matchas i ``feature`` — sammanfogade med '-' när fler än en träffar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.load_settings.parse_value#0",
+      "source": "Parse the string value into the appropriate Python data type.",
+      "source_sha256": "b92e1bfe3a4f90a809d3ed5eb2bdb9ba7daf64080a20dabd3e2bdceea84335d9",
+      "context": "Parse the string value into the appropriate Python data type.",
+      "translation": "Tolkar strängvärdet till lämplig Python-datatyp.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.merge_regression_res_with_metadata.extract_and_clean_gene#0",
+      "source": "Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``.",
+      "source_sha256": "ac2f191524fd7e9bd4ac9526600135466034abdd2d8bf843f45fd08f4f25d161",
+      "context": "Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``.",
+      "translation": "Returnerar gen-ID:t tolkat från en ``feature``-sträng som ``C(gene)[T.<id>_...]``, eller ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pick_best_model.sort_key#0",
+      "source": "Return ``(role, accuracy, epoch)`` from metadata or legacy name.",
+      "source_sha256": "0bbf37580b39d6761c55f57c2365f1c6943e3547ca59af0ade396a15298d8430",
+      "context": "Return ``(role, accuracy, epoch)`` from metadata or legacy name.",
+      "translation": "Returnerar ``(role, accuracy, epoch)`` från metadata eller ett äldre namn.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.plot_grid.cluster_color#0",
+      "source": "Resolve one cluster's color once for panels and legend.",
+      "source_sha256": "d3abb819ad880e2622b0fc359ca104616607c77e27681942df7e6cf93c5dcc6e",
+      "context": "Resolve one cluster's color once for panels and legend.",
+      "translation": "Bestämmer ett klusters färg en gång för paneler och förklaring.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pretty_print_settings._fmt#0",
+      "source": "Return ``v`` as text truncated to the table's value width.",
+      "source_sha256": "9ea92f111a56e10c04bd0bca66ee168b14ed39dc72afe0923bb42cb8f78f2637",
+      "context": "Return ``v`` as text truncated to the table's value width.",
+      "translation": "Returnerar ``v`` som text avkortad till tabellens värdebredd.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pretty_print_settings._row#0",
+      "source": "Return one padded key-and-formatted-value table row.",
+      "source_sha256": "08458da07bcaad31173844a75708c156c343c708a4ea4c55cbb86b92876762d5",
+      "context": "Return one padded structured-data name-and-formatted-value table row.",
+      "translation": "Returnerar en utfylld tabellrad med nyckel och formaterat värde.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pretty_print_settings._say#0",
+      "source": "Print a console-safe form of ``line`` and return ``None``.",
+      "source_sha256": "b715d28b7f0ea37bc8e974e7e4b1a6c4ad7c29be2fc037b73aec1a77f0fe08bf",
+      "context": "Print a console-safe form of ``line`` and return ``None``.",
+      "translation": "Skriver ut en konsolsäker form av ``line`` och returnerar ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.cluster_objects#0",
+      "source": "Return a fitted ``KMeans`` object clustering the property dicts into ``n_clusters`` groups.",
+      "source_sha256": "af693bf6fa13f128c3265295e292730d4b23e7182544284434086c3690c7c615",
+      "context": "Return a fitted ``KMeans`` object clustering the property key-value mappings into ``n_clusters`` groups.",
+      "translation": "Returnerar ett anpassat ``KMeans``-objekt som klustrar egenskaps-dicts i ``n_clusters`` grupper.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.measure_morphology_and_intensity#0",
+      "source": "Return a list of dicts with area/mean_intensity/perimeter/eccentricity per labeled region.",
+      "source_sha256": "dfb06dc78b0d013bc2b9dbf924b6b94b3df5551818d6d39148a8ddaf930dcd16",
+      "context": "Return a list of key-value mappings with area/mean_intensity/perimeter/eccentricity per labeled region.",
+      "translation": "Returnerar en lista med dicts med area/mean_intensity/perimeter/eccentricity per etiketterad region.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.plot_clusters#0",
+      "source": "Show a 2-D PCA scatter of the property vectors colored by cluster label.",
+      "source_sha256": "10f7cf16d10c41330aa819e710bec14a273c6e79cda0ba4c39b1c0ab54b3d519",
+      "context": "Show a 2-D PCA scatter of the property vectors colored by cluster label.",
+      "translation": "Visar ett 2-D PCA-spridningsdiagram av egenskapsvektorerna färgade efter klusteretikett.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.read_files_in_batches#0",
+      "source": "Yield sorted lists of ``.npy`` filenames from ``folder`` in chunks of ``batch_size``.",
+      "source_sha256": "7f63aa56878fe3994a0765220c3c7351c35dba50b58d883b1b95cb2dd7a1aa58",
+      "context": "Yield sorted lists of ``.npy`` filenames from ``folder`` in chunks of ``batch_size``.",
+      "translation": "Ger sorterade listor med ``.npy``-filnamn från ``folder`` i bitar om ``batch_size``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.remove_objects_not_in_largest_cluster#0",
+      "source": "Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``.",
+      "source_sha256": "4923d4493b4a563b059f78b2e041d4be8716be06de0551247e665003485a0a1e",
+      "context": "Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``.",
+      "translation": "Returnerar ``mask`` med alla etiketterade regioner borttagna utom de i ``largest_cluster_label``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._find_csv#0",
+      "source": "Return the lexically last matching CSV in ``root``, if any.",
+      "source_sha256": "91b2ecc0a12916e4d60550dddb920dbec1ec5e95c20512ce40828b6775e20539",
+      "context": "Return the lexically last matching CSV in ``root``, if any.",
+      "translation": "Returnerar den lexikalt sista matchande CSV-filen i ``root``, om någon finns.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._last_seq#0",
+      "source": "Return at most the final ``k`` values as a floating-point array.",
+      "source_sha256": "8c0a40db42c6f883f1da33ff9c2bcd142e023001a778e14c3feb3f1f5fab6a4a",
+      "context": "Return at most the final ``k`` values as a floating-point array.",
+      "translation": "Returnerar högst de sista ``k`` värdena som en flyttalsarray.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._normalize_cols#0",
+      "source": "Return ``df`` with normalized, aliased, first-occurrence columns.",
+      "source_sha256": "119f674ed9dd56ebf297ed5c5893f360e73e7e46c18df92ff7bbdfb4729dba8d",
+      "context": "Return ``df`` with normalized, aliased, first-occurrence columns.",
+      "translation": "Returnerar ``df`` med normaliserade kolumner med alias, där första förekomsten behålls.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._poly_slope#0",
+      "source": "Return the finite linear slope of ``y``, or zero when undefined.",
+      "source_sha256": "7b8851724c8a8cf4ea976300ef97be83591db1c643fc54fa18e95d81aadeec8c",
+      "context": "Return the finite linear slope of ``y``, or zero when undefined.",
+      "translation": "Returnerar den ändliga linjära lutningen för ``y``, eller noll när den är odefinierad.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._scalar#0",
+      "source": "Ensure a single float even if a Series sneaks through.",
+      "source_sha256": "90918489a2146afc550ac8051af0f0a0fa508cab435962709e52993fd30381f9",
+      "context": "Ensure a single float even if a Series sneaks through.",
+      "translation": "Säkerställer ett enda float även om en Series slinker igenom.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._scalar#1",
+      "source": "The Series branch is currently unreachable: every call site passes ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a deliberate guard because the label-based ``.loc`` lookups this function used to rely on returned a Series whenever the progress CSV had a duplicated index, and that is an easy regression to reintroduce.",
+      "source_sha256": "cd28b9bae50730040e029ffb45dbeb86b1469f8a3591e460fe8db62e2a015296",
+      "context": "The Series branch is currently unreachable: every call site passes ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a deliberate guard because the label-based ``.loc`` lookups this function used to rely on returned a Series whenever the progress CSV had a duplicated index, and that is an easy regression to reintroduce.",
+      "translation": "Series-grenen är för närvarande onåbar: varje anropsställe skickar ``<Series>.iloc[<int>]``, vilket ger en numpy-skalär. Den behålls som ett avsiktligt skydd eftersom de etikettbaserade ``.loc``-uppslagningar som denna funktion tidigare förlitade sig på returnerade en Series närhelst förlopps-CSV:n hade ett duplicerat index, och det är en regression som lätt återinförs.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

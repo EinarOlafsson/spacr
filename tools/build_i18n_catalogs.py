@@ -648,6 +648,34 @@ _PRODUCT_PROTECT_RE = re.compile(
     + r")(?:s)?(?![A-Za-z0-9_])"
 )
 
+#: A PROTECTED SQL KEYWORD INSIDE SHOUTED PROSE IS AN ENGLISH WORD. ``WHERE``
+#: is held because a query clause must survive translation, but docstrings
+#: also use upper-case headings such as "ONE SNAPSHOT NAMES WHERE THE THREAD
+#: WAS". There the word is ordinary prose and every locale must translate it;
+#: requiring it byte-for-byte rejected every correct translation. An
+#: occurrence counts as prose only when an adjacent word is itself an
+#: upper-case English word that is not a protected term, which a query
+#: (``... FROM cells WHERE well = ?``) never has.
+_SHOUTED_PROSE_TERMS = frozenset({"WHERE"})
+_SHOUTED_NEIGHBOUR_RE = re.compile(r"[A-Z]{2,}")
+
+
+def _shouted_prose_count(text: str, term: str) -> int:
+    """Count occurrences of ``term`` that sit inside upper-case prose."""
+    count = 0
+    pattern = re.compile(
+        r"(?:([A-Za-z]+)[ \t]+)?(?<![A-Za-z0-9_])" + re.escape(term)
+        + r"(?![A-Za-z0-9_])(?=(?:[ \t]+([A-Za-z]+))?)"
+    )
+    for match in pattern.finditer(str(text)):
+        for word in match.groups():
+            if (word and _SHOUTED_NEIGHBOUR_RE.fullmatch(word)
+                    and word not in _PROTECTED_TERMS):
+                count += 1
+                break
+    return count
+
+
 _PROTECT_RE = re.compile(
     "|".join(
         [f"(?:{pattern.pattern})" for pattern in _PROTECT_PATTERNS]
@@ -5333,6 +5361,12 @@ def _syntax_preserved(
 
     def product_matches(text: str) -> Counter[str]:
         products = matches(_PRODUCT_PROTECT_RE, text)
+        for term in _SHOUTED_PROSE_TERMS:
+            shouted = _shouted_prose_count(text, term)
+            if shouted:
+                products[term] -= shouted
+                if products[term] <= 0:
+                    del products[term]
         # English acronym plurals use a bare trailing ``s`` while reviewed
         # target prose normally inflects the surrounding noun (for example
         # ``CSVs`` -> ``CSV-filer``).  Preserve the acronym itself exactly and

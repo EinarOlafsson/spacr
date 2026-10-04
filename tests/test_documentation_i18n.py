@@ -248,7 +248,9 @@ TOOLS = ROOT / "tools"
 # (tools/nested_helper_docs.ENABLED_MODULES); all 12,546 prior symbols unchanged.
 # 2026-10-03 F411: +28/-0, documented nested helpers of 1 more module
 # (tools/nested_helper_docs.ENABLED_MODULES); all 12,700 prior symbols unchanged.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_728
+# 2026-10-03 F411: +159/-0, documented nested helpers of 11 more modules
+# (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 12_887
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

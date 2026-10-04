@@ -180,3 +180,22 @@ def test_the_implied_term_allowance_is_an_allowance_not_a_hole(
         f"{'accepted' if got else 'refused'}. _IMPLIED_BY_THE_SOURCE licenses "
         f"an acronym only where the source earns it; widening that to 'RNA "
         f"anywhere' would let a model invent a domain term.")
+
+
+def _catalogs():
+    sys.path.insert(0, TOOLS)
+    try:
+        import build_i18n_catalogs
+        return build_i18n_catalogs
+    finally:
+        sys.path.remove(TOOLS)
+
+
+def test_where_in_shouted_prose_is_translatable_but_a_query_keeps_it():
+    """``WHERE`` inside an upper-case English sentence is prose, not SQL."""
+    catalogs = _catalogs()
+    prose = "ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT."
+    assert catalogs._syntax_preserved(prose, "UN SEUL INSTANTANÉ INDIQUE OÙ ÉTAIT LE THREAD.")
+    query = "Rows come from ``SELECT`` FROM cells WHERE well = ?"
+    assert catalogs._shouted_prose_count(query, "WHERE") == 0
+    assert not catalogs._syntax_preserved(query, "Zeilen kommen aus ``SELECT`` FROM cells, wo well = ?")

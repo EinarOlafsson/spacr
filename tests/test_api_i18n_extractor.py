@@ -1342,7 +1342,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # (tools/nested_helper_docs.ENABLED_MODULES); all 12,546 prior symbols unchanged.
     # 2026-10-03 F411: +28/-0, documented nested helpers of 1 more module
     # (tools/nested_helper_docs.ENABLED_MODULES); all 12,700 prior symbols unchanged.
-    expected = 12_728
+    # 2026-10-03 F411: +159/-0, documented nested helpers of 11 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
+    expected = 12_887
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1389,7 +1391,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,816 -> 11,834 with `expected` above.
     # 11,865 -> 11,929 with `expected` above, for item 593's 64.
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_728
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 12_887
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1758,7 +1760,7 @@ def test_documented_dunders_exclude_init_private_and_package_forwarders():
     # The nested-helper directive explicitly renders this local constructor;
     # ordinary class constructors are still merged into their class prose.
     # See the seven exact admissions in 411_timeflows_guidance_2026-09-23.json.
-    # 2026-10-03 F411: fifteen more local constructors rendered by the same
+    # 2026-10-03 F411: sixteen more local constructors rendered by the same
     # directive once their modules joined nested_helper_docs.ENABLED_MODULES.
     assert {key for key in docs if key.endswith(".__init__")} == {
         "spacr.timeflows_model.TimeflowsNet._Net.__init__",
@@ -1778,6 +1780,7 @@ def test_documented_dunders_exclude_init_private_and_package_forwarders():
         "spacr.qt.screens.parameter_sweep._lazy_sweep_panel_class.LazySweepPanel.__init__",
         "spacr.qt.screens.parameter_sweep._make_screen.ParameterSweepScreen.__init__",
         "spacr.timelapse._event_network._EventNet.__init__",
+        "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.__init__",
     }
     assert "spacr.illumination._source_folders" not in docs
     # Package-level lazy forwarding hooks are not emitted in AutoAPI pages.

@@ -51826,6 +51826,16 @@
         "8718d2158b5b298da83cb7b2f7f8f446e5caddfe80b49a52e717bcfa01421fb5"
       ]
     },
+    "spacr.object_classifier._train_real_classifier.estimator": {
+      "source_blocks_sha256": [
+        "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3"
+      ],
+      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
+      "text": "Renvoie un nouveau pipeline de régression logistique, mis à l'échelle et équilibré par classe.",
+      "translation_source_blocks_sha256": [
+        "8f7cebe852dea0c128f22ba749e743444899966f3c1aa22e37e89d4981c42f15"
+      ]
+    },
     "spacr.object_classifier.bin_parasite_count": {
       "source_blocks_sha256": [
         "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
@@ -51912,6 +51922,16 @@
         "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
         "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb",
         "66f07fb9777f4334c03c941cfe80b72e994a48e8301c51fb7356d9af8e955d67"
+      ]
+    },
+    "spacr.object_classifier.merge_halves.root": {
+      "source_blocks_sha256": [
+        "7cec40920a09acfcf6ba639cb50299f2afd234b201a689d5e3e189502d79e8c7"
+      ],
+      "source_sha256": "7cec40920a09acfcf6ba639cb50299f2afd234b201a689d5e3e189502d79e8c7",
+      "text": "Résout un groupe de fusion et compresse le chemin jusqu'à son id le plus bas.",
+      "translation_source_blocks_sha256": [
+        "7cec40920a09acfcf6ba639cb50299f2afd234b201a689d5e3e189502d79e8c7"
       ]
     },
     "spacr.object_classifier.remove_labels": {
@@ -59476,6 +59496,76 @@
         "90753e96fad031eea6471e0d808a5fd46983dde8e723555b803684c33b4a806c"
       ]
     },
+    "spacr.plaque_papers._blocks.root": {
+      "source_blocks_sha256": [
+        "c93012c2f3c87cbcd22d1b882499fbcf7c18a19dc37f1cc5aa63b6261ac3d772"
+      ],
+      "source_sha256": "c93012c2f3c87cbcd22d1b882499fbcf7c18a19dc37f1cc5aa63b6261ac3d772",
+      "text": "Le bloc auquel ``i`` appartient, en compressant le chemin au passage.",
+      "translation_source_blocks_sha256": [
+        "c93012c2f3c87cbcd22d1b882499fbcf7c18a19dc37f1cc5aa63b6261ac3d772"
+      ]
+    },
+    "spacr.plaque_papers._cellpose_segmenter.segment": {
+      "source_blocks_sha256": [
+        "874570d4b5f3123d478fbc7e03c3f2f37c9fe7a251f3229c3b84d48cd3d364f2"
+      ],
+      "source_sha256": "874570d4b5f3123d478fbc7e03c3f2f37c9fe7a251f3229c3b84d48cd3d364f2",
+      "text": "Le masque d'étiquettes Cellpose d'un recadrage d'image de plage de lyse.",
+      "translation_source_blocks_sha256": [
+        "e8403d2e5025ea3e959bf1dfb46155a1978452b45cf28a3000a6a7dc8e72570c"
+      ]
+    },
+    "spacr.plaque_papers._doi_candidates.add": {
+      "source_blocks_sha256": [
+        "9c39c5e07bab3cfe41c404c21b1d3e8cde64624aa4984ac88b2088a0a40f240c"
+      ],
+      "source_sha256": "9c39c5e07bab3cfe41c404c21b1d3e8cde64624aa4984ac88b2088a0a40f240c",
+      "text": "Compte une observation d'un candidat nettoyé.",
+      "translation_source_blocks_sha256": [
+        "9c39c5e07bab3cfe41c404c21b1d3e8cde64624aa4984ac88b2088a0a40f240c"
+      ]
+    },
+    "spacr.plaque_papers._find_duplicate.found": {
+      "source_blocks_sha256": [
+        "1af62a10e7ee74285cb15e715b37d995009283f305c811db5e1fd52d02a12b80"
+      ],
+      "source_sha256": "1af62a10e7ee74285cb15e715b37d995009283f305c811db5e1fd52d02a12b80",
+      "text": "L'enregistrement en double pour ``row``.",
+      "translation_source_blocks_sha256": [
+        "1af62a10e7ee74285cb15e715b37d995009283f305c811db5e1fd52d02a12b80"
+      ]
+    },
+    "spacr.plaque_papers._find_duplicate.same_figure": {
+      "source_blocks_sha256": [
+        "a721e359922130eae70f5c6dbd41ead20a5abf18465d0c04345d84a1f0cba484"
+      ],
+      "source_sha256": "a721e359922130eae70f5c6dbd41ead20a5abf18465d0c04345d84a1f0cba484",
+      "text": "La ligne est ce fichier précis de cet article précis.",
+      "translation_source_blocks_sha256": [
+        "a721e359922130eae70f5c6dbd41ead20a5abf18465d0c04345d84a1f0cba484"
+      ]
+    },
+    "spacr.plaque_papers._grid_positions.ranks": {
+      "source_blocks_sha256": [
+        "d95e1ec0994e94c779bc829aeb9b34fda190f56a045a628ee0c916a9554714b6"
+      ],
+      "source_sha256": "d95e1ec0994e94c779bc829aeb9b34fda190f56a045a628ee0c916a9554714b6",
+      "text": "Un rang à base 1 par centre, partagé à moins d'une demi-taille.",
+      "translation_source_blocks_sha256": [
+        "d95e1ec0994e94c779bc829aeb9b34fda190f56a045a628ee0c916a9554714b6"
+      ]
+    },
+    "spacr.plaque_papers._label_words.size": {
+      "source_blocks_sha256": [
+        "0e531f29f0b828b8687f98682b7eb4529ca6e76201ff8e43bfd5ccab808a97c0"
+      ],
+      "source_sha256": "0e531f29f0b828b8687f98682b7eb4529ca6e76201ff8e43bfd5ccab808a97c0",
+      "text": "Mots d'une ligne, comptés à l'intérieur de chaque fragment de texte.",
+      "translation_source_blocks_sha256": [
+        "0e531f29f0b828b8687f98682b7eb4529ca6e76201ff8e43bfd5ccab808a97c0"
+      ]
+    },
     "spacr.plaque_papers.annotate_regions": {
       "source_blocks_sha256": [
         "04744b44fb595d2ebfaa60f1ae87739800367e1fc69d09b69f99198c08cbafa5",
@@ -59810,6 +59900,16 @@
         "09cf42d612d5b47499c032128788dc725afe8035690b7bcec29dad43b9b77437"
       ]
     },
+    "spacr.plaque_papers.measure_figure_folder.review": {
+      "source_blocks_sha256": [
+        "1b8050bd49d0641ab3208c754b17a48aa7a8e6e764e43c9bde952c17f0cdf1b2"
+      ],
+      "source_sha256": "1b8050bd49d0641ab3208c754b17a48aa7a8e6e764e43c9bde952c17f0cdf1b2",
+      "text": "Applique les substitutions enregistrées à une figure et compte ce qui attend encore une approbation.",
+      "translation_source_blocks_sha256": [
+        "1b8050bd49d0641ab3208c754b17a48aa7a8e6e764e43c9bde952c17f0cdf1b2"
+      ]
+    },
     "spacr.plaque_papers.measure_plaques_from_papers": {
       "source_blocks_sha256": [
         "3e1793a7e1db6b4d248772127a491eb51eb1ac2f4622f3eacb56296a13f71efa",
@@ -60118,6 +60218,36 @@
         "79e8edc0c90833b729b11b2bc399f03250df8a266cd2f0d6392476bfb02a5878",
         "a9257886c15f2c5790dd0903670a480b74a0d140e5df4f8f919aaa21c68b9d3d",
         "88a243d07deaf200311b851120d9699ec6ac0a275352e6526c6b21b3a19c923c"
+      ]
+    },
+    "spacr.plaque_papers.text_options_from_settings.patterns": {
+      "source_blocks_sha256": [
+        "5fbcc9e70e2f990edbc3822dc6d078b379b7b49898e482f67ac449fdf848c080"
+      ],
+      "source_sha256": "5fbcc9e70e2f990edbc3822dc6d078b379b7b49898e482f67ac449fdf848c080",
+      "text": "Un tuple de motifs issu d'une chaîne séparée par des virgules ou d'une séquence.",
+      "translation_source_blocks_sha256": [
+        "5fbcc9e70e2f990edbc3822dc6d078b379b7b49898e482f67ac449fdf848c080"
+      ]
+    },
+    "spacr.plaque_papers.text_options_from_settings.pick": {
+      "source_blocks_sha256": [
+        "73f499461b3e283ea691ac1cb6800b54e019c539117b422f0e897de67619a66a"
+      ],
+      "source_sha256": "73f499461b3e283ea691ac1cb6800b54e019c539117b422f0e897de67619a66a",
+      "text": "``settings[key]`` converti par ``cast``, ou ``default`` s'il est vide ou invalide.",
+      "translation_source_blocks_sha256": [
+        "73f499461b3e283ea691ac1cb6800b54e019c539117b422f0e897de67619a66a"
+      ]
+    },
+    "spacr.plaque_papers.text_options_from_settings.sides": {
+      "source_blocks_sha256": [
+        "378c1aa193bbd68dabf08bf19369973551ec8e87127ab79f2cbf11039884c36c"
+      ],
+      "source_sha256": "378c1aa193bbd68dabf08bf19369973551ec8e87127ab79f2cbf11039884c36c",
+      "text": "Les côtés valides nommés dans ``value``, ou l'ordre par défaut si aucun ne l'est.",
+      "translation_source_blocks_sha256": [
+        "378c1aa193bbd68dabf08bf19369973551ec8e87127ab79f2cbf11039884c36c"
       ]
     },
     "spacr.plaque_papers.write_annotation_overrides": {
@@ -76714,6 +76844,438 @@
         "3e8154109645ed5e610e305a168e5452d69dded6c717a828db8fd690d974b2c7"
       ]
     },
+    "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.__init__": {
+      "source_blocks_sha256": [
+        "04afea6f72234473b69aeedac62b8d094a05715c37792e07d3ba77c8d2b5ca24"
+      ],
+      "source_sha256": "04afea6f72234473b69aeedac62b8d094a05715c37792e07d3ba77c8d2b5ca24",
+      "text": "Construit la question et lance le compte à rebours.",
+      "translation_source_blocks_sha256": [
+        "04afea6f72234473b69aeedac62b8d094a05715c37792e07d3ba77c8d2b5ca24"
+      ]
+    },
+    "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog._show_left": {
+      "source_blocks_sha256": [
+        "a4e97d20148418fb38c3704a188bbeeb9b38cbf93c7242efacdb30738b916eae"
+      ],
+      "source_sha256": "a4e97d20148418fb38c3704a188bbeeb9b38cbf93c7242efacdb30738b916eae",
+      "text": "Indique le temps restant.",
+      "translation_source_blocks_sha256": [
+        "a4e97d20148418fb38c3704a188bbeeb9b38cbf93c7242efacdb30738b916eae"
+      ]
+    },
+    "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog._tick": {
+      "source_blocks_sha256": [
+        "04e828b073eb97ecbce97946ae96ce926b4fc265b3c3043fde65c426e0d0eac9"
+      ],
+      "source_sha256": "04e828b073eb97ecbce97946ae96ce926b4fc265b3c3043fde65c426e0d0eac9",
+      "text": "Une seconde de moins ; à zéro, rétablit.",
+      "translation_source_blocks_sha256": [
+        "04e828b073eb97ecbce97946ae96ce926b4fc265b3c3043fde65c426e0d0eac9"
+      ]
+    },
+    "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.done": {
+      "source_blocks_sha256": [
+        "0c95739b19aa44fd7efaa91f559451e392dcdc011cb403182c438cf447bc6d34",
+        "8aa1dd74c51332759e517dc005de573a578a85071e4cf9c6ff22ade94554d1ee"
+      ],
+      "source_sha256": "31460c61b289147f1ad04d0d950fc940732cfa25d78105dc95bea600cecc5ab7",
+      "text": "Arrête le compte à rebours à toute réponse.\n\n:param result: le résultat de la boîte de dialogue.",
+      "translation_source_blocks_sha256": [
+        "0c95739b19aa44fd7efaa91f559451e392dcdc011cb403182c438cf447bc6d34",
+        "8aa1dd74c51332759e517dc005de573a578a85071e4cf9c6ff22ade94554d1ee"
+      ]
+    },
+    "spacr.qt.gui_scale._install_application_sheet.setStyleSheet": {
+      "source_blocks_sha256": [
+        "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f"
+      ],
+      "source_sha256": "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f",
+      "text": "Enregistre la feuille de style à 100 % et applique ses tailles à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f"
+      ]
+    },
+    "spacr.qt.gui_scale._install_application_sheet.styleSheet": {
+      "source_blocks_sha256": [
+        "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce"
+      ],
+      "source_sha256": "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce",
+      "text": "La feuille de style telle que le code l'a définie, à 100 %.",
+      "translation_source_blocks_sha256": [
+        "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce"
+      ]
+    },
+    "spacr.qt.gui_scale._install_icon_setters.getter": {
+      "source_blocks_sha256": [
+        "b6a3dbe773a7eb2821835bd3995f0501715aa88919d136ea00f01e596b05144f"
+      ],
+      "source_sha256": "b6a3dbe773a7eb2821835bd3995f0501715aa88919d136ea00f01e596b05144f",
+      "text": "L'enveloppe qui renvoie une taille d'icône à 100 %.",
+      "translation_source_blocks_sha256": [
+        "b6a3dbe773a7eb2821835bd3995f0501715aa88919d136ea00f01e596b05144f"
+      ]
+    },
+    "spacr.qt.gui_scale._install_icon_setters.getter.iconSize": {
+      "source_blocks_sha256": [
+        "12eca43f121ec7c5d5cdebaa158be46a5363a4b6ffd3225583ed88cebf9adbac"
+      ],
+      "source_sha256": "12eca43f121ec7c5d5cdebaa158be46a5363a4b6ffd3225583ed88cebf9adbac",
+      "text": "La taille d'icône en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "12eca43f121ec7c5d5cdebaa158be46a5363a4b6ffd3225583ed88cebf9adbac"
+      ]
+    },
+    "spacr.qt.gui_scale._install_icon_setters.setter": {
+      "source_blocks_sha256": [
+        "ce6c032c42f4caa33f50e0e3ef5553137e55102d5733719ebad67c73a417b383"
+      ],
+      "source_sha256": "ce6c032c42f4caa33f50e0e3ef5553137e55102d5733719ebad67c73a417b383",
+      "text": "L'enveloppe qui enregistre une taille d'icône et la met à l'échelle.",
+      "translation_source_blocks_sha256": [
+        "ce6c032c42f4caa33f50e0e3ef5553137e55102d5733719ebad67c73a417b383"
+      ]
+    },
+    "spacr.qt.gui_scale._install_icon_setters.setter.setIconSize": {
+      "source_blocks_sha256": [
+        "52fc8a20be81847c4d2f9e1f44b3d6709ff322d8757c5b43c925bc8266c90c1c"
+      ],
+      "source_sha256": "52fc8a20be81847c4d2f9e1f44b3d6709ff322d8757c5b43c925bc8266c90c1c",
+      "text": "Enregistre la taille d'icône à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "52fc8a20be81847c4d2f9e1f44b3d6709ff322d8757c5b43c925bc8266c90c1c"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.addSpacing": {
+      "source_blocks_sha256": [
+        "082ec95d12a44682bfcf71b91b3346b429d105293156a61f5f7f7e0a344549aa"
+      ],
+      "source_sha256": "082ec95d12a44682bfcf71b91b3346b429d105293156a61f5f7f7e0a344549aa",
+      "text": "Ajoute un espaceur enregistré à 100 % et dessiné à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "082ec95d12a44682bfcf71b91b3346b429d105293156a61f5f7f7e0a344549aa"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.insertSpacing": {
+      "source_blocks_sha256": [
+        "2962739715ef19323807ab7df5df0dfe4e58e383bebedaf863ae6bef95a14561"
+      ],
+      "source_sha256": "2962739715ef19323807ab7df5df0dfe4e58e383bebedaf863ae6bef95a14561",
+      "text": "Insère un espaceur enregistré à 100 % et dessiné à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "2962739715ef19323807ab7df5df0dfe4e58e383bebedaf863ae6bef95a14561"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.margins_getter": {
+      "source_blocks_sha256": [
+        "dc28659bb0e8472e0085c0f5b125fb89dc406dab02dd9b5614b90f7dd636ab1c"
+      ],
+      "source_sha256": "dc28659bb0e8472e0085c0f5b125fb89dc406dab02dd9b5614b90f7dd636ab1c",
+      "text": "L'enveloppe qui renvoie les marges d'une mise en page à 100 %.",
+      "translation_source_blocks_sha256": [
+        "dc28659bb0e8472e0085c0f5b125fb89dc406dab02dd9b5614b90f7dd636ab1c"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.margins_getter.contentsMargins": {
+      "source_blocks_sha256": [
+        "6b425b5457121991e7d655d990f653e63dee20af371a466fa112e66ff8588bc0"
+      ],
+      "source_sha256": "6b425b5457121991e7d655d990f653e63dee20af371a466fa112e66ff8588bc0",
+      "text": "Les marges en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "6b425b5457121991e7d655d990f653e63dee20af371a466fa112e66ff8588bc0"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.margins_setter": {
+      "source_blocks_sha256": [
+        "9aa62d55617db6b8c004a49dc7e0c5dfdd6522fa518d33da8d54ca8bee68231e"
+      ],
+      "source_sha256": "9aa62d55617db6b8c004a49dc7e0c5dfdd6522fa518d33da8d54ca8bee68231e",
+      "text": "L'enveloppe qui enregistre les marges d'une mise en page et les met à l'échelle.",
+      "translation_source_blocks_sha256": [
+        "9aa62d55617db6b8c004a49dc7e0c5dfdd6522fa518d33da8d54ca8bee68231e"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.margins_setter.setContentsMargins": {
+      "source_blocks_sha256": [
+        "1a283e519b056a21107d8f11038cd67e0d46520dce836cfe67f600013ae1bd3d"
+      ],
+      "source_sha256": "1a283e519b056a21107d8f11038cd67e0d46520dce836cfe67f600013ae1bd3d",
+      "text": "Enregistre les marges à 100 % et les applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "1a283e519b056a21107d8f11038cd67e0d46520dce836cfe67f600013ae1bd3d"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacer": {
+      "source_blocks_sha256": [
+        "716174ffd3c0a58d7cb31cf98b0e359c5f18e963fc377c71af858e585baa1bd8"
+      ],
+      "source_sha256": "716174ffd3c0a58d7cb31cf98b0e359c5f18e963fc377c71af858e585baa1bd8",
+      "text": "Un espaceur fixe dans la direction de la boîte.",
+      "translation_source_blocks_sha256": [
+        "716174ffd3c0a58d7cb31cf98b0e359c5f18e963fc377c71af858e585baa1bd8"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacing_getter": {
+      "source_blocks_sha256": [
+        "949379b226a30978ae69c5e55c0cd05b7436ff207ea353094bd49f77af1b1012"
+      ],
+      "source_sha256": "949379b226a30978ae69c5e55c0cd05b7436ff207ea353094bd49f77af1b1012",
+      "text": "La fabrique d'un getter d'espacement, par sa clé d'enregistrement.",
+      "translation_source_blocks_sha256": [
+        "2f39cc0e2c4631c18b977dc3535fa31fb9c6af9f4f78801a9c73e0515945cb80"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacing_getter.make": {
+      "source_blocks_sha256": [
+        "2883e1bd8a7c8c5a4f5f6c27c5dd840da192bf2c10800e8f1bb0a7fa91bf3357"
+      ],
+      "source_sha256": "2883e1bd8a7c8c5a4f5f6c27c5dd840da192bf2c10800e8f1bb0a7fa91bf3357",
+      "text": "L'enveloppe qui renvoie un espacement à 100 %.",
+      "translation_source_blocks_sha256": [
+        "2883e1bd8a7c8c5a4f5f6c27c5dd840da192bf2c10800e8f1bb0a7fa91bf3357"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacing_getter.make.getter": {
+      "source_blocks_sha256": [
+        "b5a66f05fa6d29e1aa6e8b76a4f71605a7b5473b0d5a3e134f251faab4d23b65"
+      ],
+      "source_sha256": "b5a66f05fa6d29e1aa6e8b76a4f71605a7b5473b0d5a3e134f251faab4d23b65",
+      "text": "L'espacement en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "b5a66f05fa6d29e1aa6e8b76a4f71605a7b5473b0d5a3e134f251faab4d23b65"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacing_setter": {
+      "source_blocks_sha256": [
+        "2f348a7fb81145aabc33c94d65d12750ff01ad2c4de05d60eef19b2581d847ff"
+      ],
+      "source_sha256": "2f348a7fb81145aabc33c94d65d12750ff01ad2c4de05d60eef19b2581d847ff",
+      "text": "La fabrique d'un setter d'espacement, par sa clé d'enregistrement.",
+      "translation_source_blocks_sha256": [
+        "e2653e46b2a4dbc37752fd2456667838a8b28685914eaeceabba7ab2e6422785"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacing_setter.make": {
+      "source_blocks_sha256": [
+        "506d9a717b1837872d281effbdf124e1d6812cf9d7826582d8c9e886bcb56b3c"
+      ],
+      "source_sha256": "506d9a717b1837872d281effbdf124e1d6812cf9d7826582d8c9e886bcb56b3c",
+      "text": "L'enveloppe qui enregistre un espacement et le met à l'échelle.",
+      "translation_source_blocks_sha256": [
+        "506d9a717b1837872d281effbdf124e1d6812cf9d7826582d8c9e886bcb56b3c"
+      ]
+    },
+    "spacr.qt.gui_scale._install_layout_setters.spacing_setter.make.setter": {
+      "source_blocks_sha256": [
+        "279df9925c02c9028da1273be020e0e7f0909cc74b6c1465d6f61cdbdc657c6f"
+      ],
+      "source_sha256": "279df9925c02c9028da1273be020e0e7f0909cc74b6c1465d6f61cdbdc657c6f",
+      "text": "Enregistre l'espacement à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "279df9925c02c9028da1273be020e0e7f0909cc74b6c1465d6f61cdbdc657c6f"
+      ]
+    },
+    "spacr.qt.gui_scale._install_splitter_setters.setSizes": {
+      "source_blocks_sha256": [
+        "ffb600c696fbc9c7b89acd32d9f07dd52aeda5ce15c5c5287b4c77fad36d7a29"
+      ],
+      "source_sha256": "ffb600c696fbc9c7b89acd32d9f07dd52aeda5ce15c5c5287b4c77fad36d7a29",
+      "text": "Applique des tailles de 100 % à l'échelle de la GUI et les mémorise.",
+      "translation_source_blocks_sha256": [
+        "ffb600c696fbc9c7b89acd32d9f07dd52aeda5ce15c5c5287b4c77fad36d7a29"
+      ]
+    },
+    "spacr.qt.gui_scale._install_splitter_setters.sizes": {
+      "source_blocks_sha256": [
+        "3c7bc47c014799008f4617e7927e8b5e5d4317fce9c72b9f6295daa47ccb84dc"
+      ],
+      "source_sha256": "3c7bc47c014799008f4617e7927e8b5e5d4317fce9c72b9f6295daa47ccb84dc",
+      "text": "Les tailles en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "3c7bc47c014799008f4617e7927e8b5e5d4317fce9c72b9f6295daa47ccb84dc"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.maximumHeight": {
+      "source_blocks_sha256": [
+        "05710bba4a903540097947150b495d0c9ff10e089e49e5887cc2446092f9ac11"
+      ],
+      "source_sha256": "05710bba4a903540097947150b495d0c9ff10e089e49e5887cc2446092f9ac11",
+      "text": "La hauteur maximale en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "05710bba4a903540097947150b495d0c9ff10e089e49e5887cc2446092f9ac11"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.maximumSize": {
+      "source_blocks_sha256": [
+        "d518ab5d3ba7fac3593eee93bbf9086064f1901d0b9dabcaf4533978fa895f1c"
+      ],
+      "source_sha256": "d518ab5d3ba7fac3593eee93bbf9086064f1901d0b9dabcaf4533978fa895f1c",
+      "text": "La taille maximale en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "d518ab5d3ba7fac3593eee93bbf9086064f1901d0b9dabcaf4533978fa895f1c"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.maximumWidth": {
+      "source_blocks_sha256": [
+        "9f96ae8e97477442323a045b1900ac8a723d28899aac05664b05cd075d6589cd"
+      ],
+      "source_sha256": "9f96ae8e97477442323a045b1900ac8a723d28899aac05664b05cd075d6589cd",
+      "text": "La largeur maximale en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "9f96ae8e97477442323a045b1900ac8a723d28899aac05664b05cd075d6589cd"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.minimumHeight": {
+      "source_blocks_sha256": [
+        "5bc61abeb985a30c606f2abb4f92dfc3c0c4090bee80f6b91411f397fb4151fb"
+      ],
+      "source_sha256": "5bc61abeb985a30c606f2abb4f92dfc3c0c4090bee80f6b91411f397fb4151fb",
+      "text": "La hauteur minimale en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "5bc61abeb985a30c606f2abb4f92dfc3c0c4090bee80f6b91411f397fb4151fb"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.minimumSize": {
+      "source_blocks_sha256": [
+        "b9dec8a7e31c11cad2ecb81dbe3d90e1472876fe85853a995e3829151218582a"
+      ],
+      "source_sha256": "b9dec8a7e31c11cad2ecb81dbe3d90e1472876fe85853a995e3829151218582a",
+      "text": "La taille minimale en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "b9dec8a7e31c11cad2ecb81dbe3d90e1472876fe85853a995e3829151218582a"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.minimumWidth": {
+      "source_blocks_sha256": [
+        "4591e2bed31eb5d6051b8b94cf021a7e2610d109fdad6b70228ef1808d91dbb0"
+      ],
+      "source_sha256": "4591e2bed31eb5d6051b8b94cf021a7e2610d109fdad6b70228ef1808d91dbb0",
+      "text": "La largeur minimale en unités de 100 %.",
+      "translation_source_blocks_sha256": [
+        "4591e2bed31eb5d6051b8b94cf021a7e2610d109fdad6b70228ef1808d91dbb0"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.resize": {
+      "source_blocks_sha256": [
+        "bf48578a654e7085fd9fb238193caabaa6878534de2c76b42b2c3cfff0ae7441"
+      ],
+      "source_sha256": "bf48578a654e7085fd9fb238193caabaa6878534de2c76b42b2c3cfff0ae7441",
+      "text": "Redimensionne à l'échelle de la GUI ; la fenêtre principale garde sa taille.",
+      "translation_source_blocks_sha256": [
+        "bf48578a654e7085fd9fb238193caabaa6878534de2c76b42b2c3cfff0ae7441"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setFixedHeight": {
+      "source_blocks_sha256": [
+        "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2"
+      ],
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "text": "Enregistre ``h`` à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setFixedSize": {
+      "source_blocks_sha256": [
+        "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414"
+      ],
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "text": "Enregistre la taille à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setFixedWidth": {
+      "source_blocks_sha256": [
+        "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034"
+      ],
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "text": "Enregistre ``w`` à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setMaximumHeight": {
+      "source_blocks_sha256": [
+        "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2"
+      ],
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "text": "Enregistre ``h`` à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setMaximumSize": {
+      "source_blocks_sha256": [
+        "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414"
+      ],
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "text": "Enregistre la taille à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setMaximumWidth": {
+      "source_blocks_sha256": [
+        "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034"
+      ],
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "text": "Enregistre ``w`` à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setMinimumHeight": {
+      "source_blocks_sha256": [
+        "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2"
+      ],
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "text": "Enregistre ``h`` à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setMinimumSize": {
+      "source_blocks_sha256": [
+        "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414"
+      ],
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "text": "Enregistre la taille à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setMinimumWidth": {
+      "source_blocks_sha256": [
+        "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034"
+      ],
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "text": "Enregistre ``w`` à 100 % et l'applique à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.setStyleSheet": {
+      "source_blocks_sha256": [
+        "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f"
+      ],
+      "source_sha256": "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f",
+      "text": "Enregistre la feuille de style à 100 % et applique ses tailles à l'échelle de la GUI.",
+      "translation_source_blocks_sha256": [
+        "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f"
+      ]
+    },
+    "spacr.qt.gui_scale._install_widget_setters.styleSheet": {
+      "source_blocks_sha256": [
+        "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce"
+      ],
+      "source_sha256": "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce",
+      "text": "La feuille de style telle que le code l'a définie, à 100 %.",
+      "translation_source_blocks_sha256": [
+        "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce"
+      ]
+    },
     "spacr.qt.gui_scale.add_listener": {
       "source_blocks_sha256": [
         "c0d8eac3ec6fbc8b9ee8a50ac5ce52785e3e7b219212bb69b562c01693e09acd",
@@ -76786,6 +77348,16 @@
         "2c91bee6c339e8bc34a0d9544274406969c7fff333a56af9a588574b07e3455f",
         "a66a5eb4e4ac8e6625986c9dfc19ebfe4b1ca9b9d2ad91545081ed79f13793a2",
         "725c75df566e4820569573a430fdcbcd0feadb08281a55346d20b792ccf8931c"
+      ]
+    },
+    "spacr.qt.gui_scale.change_scales._answered": {
+      "source_blocks_sha256": [
+        "c6c05fcdc81ed38866e281014915e1f32b90126643281fa2f10b75489df01c7e"
+      ],
+      "source_sha256": "c6c05fcdc81ed38866e281014915e1f32b90126643281fa2f10b75489df01c7e",
+      "text": "Conserve les valeurs ou rétablit les anciennes.",
+      "translation_source_blocks_sha256": [
+        "c6c05fcdc81ed38866e281014915e1f32b90126643281fa2f10b75489df01c7e"
       ]
     },
     "spacr.qt.gui_scale.current_scale": {
@@ -76864,6 +77436,16 @@
         "86c6d8858d6c6526b60d9d5495f7cedacd816413a0d15c785c4c922407d402f2",
         "b0bc37950be6c1d7fbb417e3f4b3db6d04bedf809bb37eebf0dac27c87108af9",
         "eb27d3da71f4563b40df38c7ee9d4eb2d7e23930601ac1ca52189b52a76544b6"
+      ]
+    },
+    "spacr.qt.gui_scale.mend_matplotlib_icons._at_least_one": {
+      "source_blocks_sha256": [
+        "763dfd59926cc0dade1145aa29cf03b1eb5afe8a093f3b46a92a27b6a8affdde"
+      ],
+      "source_sha256": "763dfd59926cc0dade1145aa29cf03b1eb5afe8a093f3b46a92a27b6a8affdde",
+      "text": "Le rapport de pixels du périphérique de la barre d'outils, jamais inférieur à 1.",
+      "translation_source_blocks_sha256": [
+        "763dfd59926cc0dade1145aa29cf03b1eb5afe8a093f3b46a92a27b6a8affdde"
       ]
     },
     "spacr.qt.gui_scale.refresh_the_windows": {
@@ -88094,6 +88676,16 @@
         "0a4200cd6e06d170f4c5ac7bafbae6417b8de839e7831a7d3701ba1186ecb31c"
       ]
     },
+    "spacr.qt.preferences_navigation.reveal_row._unmark": {
+      "source_blocks_sha256": [
+        "16e828e2cf092e8f98bef3085576ce6d5775c0f1d28370b95c3c2556b5eecc15"
+      ],
+      "source_sha256": "16e828e2cf092e8f98bef3085576ce6d5775c0f1d28370b95c3c2556b5eecc15",
+      "text": "Remet la ligne dans l'état où elle a été trouvée.",
+      "translation_source_blocks_sha256": [
+        "16e828e2cf092e8f98bef3085576ce6d5775c0f1d28370b95c3c2556b5eecc15"
+      ]
+    },
     "spacr.qt.preferences_navigation.row_field": {
       "source_blocks_sha256": [
         "87b374a9b9307a5e48b3b4d4579b730e822f2b98b8f0955825bf9b6636e3bb28",
@@ -90498,6 +91090,26 @@
       "translation_source_blocks_sha256": [
         "5df688ae6238ae7d61a422db953301ed17699ce4c5c5de3bc0e8ad7b8cea58aa",
         "2c4cc32aa8ab51bcebf5a7387db694fe58a59c9fd94641f32cdf8b8d0c40911b"
+      ]
+    },
+    "spacr.qt.screens.activation._add_counterfactual_viewer_button._open": {
+      "source_blocks_sha256": [
+        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+      ],
+      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
+      "text": "Demande un dossier de contrefactuels et ouvre sa visionneuse.",
+      "translation_source_blocks_sha256": [
+        "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235"
+      ]
+    },
+    "spacr.qt.screens.activation._counterfactual_viewer._show": {
+      "source_blocks_sha256": [
+        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
+      ],
+      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
+      "text": "Affiche les images de la séquence à ``index`` sous forme de bande d'images.",
+      "translation_source_blocks_sha256": [
+        "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9"
       ]
     },
     "spacr.qt.screens.activation.apply_seed": {
@@ -101242,6 +101854,68 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ]
     },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._apply_magnifier_drag.common": {
+      "source_blocks_sha256": [
+        "36013a8e377d9aa07fa9bf032d4455a9c416ef453e8bf49463a90b1b5df5b73b"
+      ],
+      "source_sha256": "36013a8e377d9aa07fa9bf032d4455a9c416ef453e8bf49463a90b1b5df5b73b",
+      "text": "Renvoie une valeur d'image commune, ou la valeur explicite mixte/inconnue.",
+      "translation_source_blocks_sha256": [
+        "36013a8e377d9aa07fa9bf032d4455a9c416ef453e8bf49463a90b1b5df5b73b"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._apply_uncertainty_ranking.stem": {
+      "source_blocks_sha256": [
+        "efebf7d7de59e455323c3a93c42fbb27518be828c7f3c53641e98b99acbcdcc5",
+        "ea2d34937f1951855dcccf84d8933f8d83259dbfc6c861532669913c19b9154c"
+      ],
+      "source_sha256": "eed36eaa9ae0da0416fe4440926673fe83f8d7f020da18f179bc1ec9c88c92bc",
+      "text": ":param name: le nom de fichier d'un champ.\n\n:returns: sa racine, telle que la file de curation la nomme.",
+      "translation_source_blocks_sha256": [
+        "efebf7d7de59e455323c3a93c42fbb27518be828c7f3c53641e98b99acbcdcc5",
+        "1769023be46f11a433e311d23e420026f667cc1d4a8df4ed4a1b955288747fef"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._build_methods_card.row": {
+      "source_blocks_sha256": [
+        "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25"
+      ],
+      "source_sha256": "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25",
+      "text": "Ajoute une ligne de paramètre et la mémorise sous son nom de champ.",
+      "translation_source_blocks_sha256": [
+        "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._build_propagate_card.row": {
+      "source_blocks_sha256": [
+        "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25"
+      ],
+      "source_sha256": "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25",
+      "text": "Ajoute une ligne de paramètre et la mémorise sous son nom de champ.",
+      "translation_source_blocks_sha256": [
+        "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._end_blind.ask": {
+      "source_blocks_sha256": [
+        "e9c7bfca75c3da49e4e7cd6f505b8c0533b90e552c6dcc65043c083bbb94e552"
+      ],
+      "source_sha256": "e9c7bfca75c3da49e4e7cd6f505b8c0533b90e552c6dcc65043c083bbb94e552",
+      "text": "Confirme la révélation des chemins des champs et l'enregistrement de l'événement de levée d'aveugle.",
+      "translation_source_blocks_sha256": [
+        "e9c7bfca75c3da49e4e7cd6f505b8c0533b90e552c6dcc65043c083bbb94e552"
+      ]
+    },
+    "spacr.qt.screens.make_masks.MakeMasksScreen._offer_prompt_install.watch": {
+      "source_blocks_sha256": [
+        "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a"
+      ],
+      "source_sha256": "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a",
+      "text": "Affiche dans la console la progression de l'installation et sa fin.",
+      "translation_source_blocks_sha256": [
+        "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a"
+      ]
+    },
     "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action": {
       "source_blocks_sha256": [
         "129f8a00ddf4073ef2b31b4bddf2c1f8eac39d2086df441a6fb688518d1a4c96",
@@ -101898,6 +102572,66 @@
       "translation_source_blocks_sha256": [
         "eaf497cdadc74a6e4db0552e66bb404694cbf31e962b222b7e16b08c59b83d04",
         "952c97354608a76ae94e3047dae3291daa844a193f18da69211fd23592d1b750"
+      ]
+    },
+    "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work": {
+      "source_blocks_sha256": [
+        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+      ],
+      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
+      "text": "Propage les germes à travers les images et émet les étiquettes ou l'erreur.",
+      "translation_source_blocks_sha256": [
+        "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77"
+      ]
+    },
+    "spacr.qt.screens.make_masks._counting_tiles.before_a_tile": {
+      "source_blocks_sha256": [
+        "38160c094a0dc233ac212447f1ceee9e104dc5c365f2edd991f03075ea4fcbca"
+      ],
+      "source_sha256": "38160c094a0dc233ac212447f1ceee9e104dc5c365f2edd991f03075ea4fcbca",
+      "text": "Compte les tuiles de cet appel, ou arrête l'exécution ici.",
+      "translation_source_blocks_sha256": [
+        "38160c094a0dc233ac212447f1ceee9e104dc5c365f2edd991f03075ea4fcbca"
+      ]
+    },
+    "spacr.qt.screens.make_masks._uncertainty_snapshot._score": {
+      "source_blocks_sha256": [
+        "8d3a934e16ce49910e2b3e004ab8e0ef3094c71e5cb1c8c6b496f1276f75477c",
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "6e733083366fd410d2474a4eaa4ef43215f0e7b59f6b2b1f92ec3cd25dfc86eb"
+      ],
+      "source_sha256": "7a0d6cea8acbfb65efc5ab2662eaca8d6cf6c3359fb480d01a6626224f356086",
+      "text": "Évalue la TTA principale et le second modèle facultatif sur une image.\n\n:param image: un champ.\n:returns: son incertitude sur quatre ou huit passes alignées.",
+      "translation_source_blocks_sha256": [
+        "8d3a934e16ce49910e2b3e004ab8e0ef3094c71e5cb1c8c6b496f1276f75477c",
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "6e733083366fd410d2474a4eaa4ef43215f0e7b59f6b2b1f92ec3cd25dfc86eb"
+      ]
+    },
+    "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary": {
+      "source_blocks_sha256": [
+        "2ad0ac1b772e5e3074d6a3a6f4422df9c69cc33abfc476278fa048c04e3d5058",
+        "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+        "a962b1d4a747d6ad81f43bc9cef83ec1ee504a3e21ca645bde9201901dcceaec"
+      ],
+      "source_sha256": "3ae127091986e1faa894b956b600768819947f1088e32708ea1b59ec4c17c195",
+      "text": "Segmente une transformation avec le second modèle capturé.\n\n:param image: un champ transformé.\n:returns: étiquettes, probabilité de cellule et vecteurs.",
+      "translation_source_blocks_sha256": [
+        "2ad0ac1b772e5e3074d6a3a6f4422df9c69cc33abfc476278fa048c04e3d5058",
+        "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+        "a962b1d4a747d6ad81f43bc9cef83ec1ee504a3e21ca645bde9201901dcceaec"
+      ]
+    },
+    "spacr.qt.screens.make_masks._uncertainty_snapshot.segment": {
+      "source_blocks_sha256": [
+        "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+        "c76b9394f7aaededcbc6af63dea5e28d1946c12c792e5165abad95f4ca50c3fc"
+      ],
+      "source_sha256": "a4d31f96e10f9f8f611e79492f132405b53c41828baf3f3f618ca2ed7d421f44",
+      "text": ":param image: un champ transformé.\n\n:returns: ses étiquettes, sa probabilité de cellule et ses vecteurs de flux selon les paramètres de détection capturés.",
+      "translation_source_blocks_sha256": [
+        "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+        "c76b9394f7aaededcbc6af63dea5e28d1946c12c792e5165abad95f4ca50c3fc"
       ]
     },
     "spacr.qt.screens.make_masks.canonical_magnifier_mode": {
@@ -113474,6 +114208,74 @@
         "83b5dc563aedee7b5385b34a22e7d734bd50c7d4deb7a7a7c1a4e75f343db1d4"
       ]
     },
+    "spacr.qt.stall_watch.watch_this_application._flush_samples": {
+      "source_blocks_sha256": [
+        "58e4d7da6658b089e6fe09f070387c25d8dda111d48891b592e59290ae01b8ec"
+      ],
+      "source_sha256": "58e4d7da6658b089e6fe09f070387c25d8dda111d48891b592e59290ae01b8ec",
+      "text": "Écrit ce qui a retenu le thread pendant le blocage qui vient de se terminer.",
+      "translation_source_blocks_sha256": [
+        "58e4d7da6658b089e6fe09f070387c25d8dda111d48891b592e59290ae01b8ec"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends": {
+      "source_blocks_sha256": [
+        "2f1b43916d23016cbbd8ccf7f60446e6786f1b96c472d8f7bfa0d408a85771f0",
+        "5afad081e38fc8023643381b753dcbec91208fd8e9b849247434ae1292645c53",
+        "06b68e43a8a269203601ab8bfb390632c59fc1e29237f9f0a8bea0be79381ec8"
+      ],
+      "source_sha256": "e01c950bf88273e781fb82164cdb8f134cc9f6f8bb1d62b9f302cde98581d210",
+      "text": "Résume un blocage dès que la boucle répond de nouveau.\n\nLE DERNIER BLOCAGE D'UNE SESSION N'ÉTAIT JAMAIS SYNTHÉTISÉ, et c'est précisément celui pour lequel on lance cet outil. `_flush_samples` n'était appelée qu'au début du blocage SUIVANT, si bien qu'un processus qui se fige une fois puis est tué -- une exécution sur un montage autofs endormi, par exemple -- laissait la première trace d'appels et aucune distribution. Le résumé est la partie qui distingue l'appel qui RETIENT le thread de celui qui s'exécutait simplement au moment de l'échantillon.\n\nLa reprise du battement de cœur marque la fin du blocage ; c'est donc là que le résumé a sa place. `tick` ne peut pas le faire : elle s'exécute sur le thread de la GUI, et tout l'enjeu est que le thread de la GUI ne s'exécutait pas.",
+      "translation_source_blocks_sha256": [
+        "2f1b43916d23016cbbd8ccf7f60446e6786f1b96c472d8f7bfa0d408a85771f0",
+        "577b0cbad77579d531f95f3ec86f898ab25fa0efaa65c1039fa7486d61ab689f",
+        "4582ac1da9ba47a278814ba5f3cb1329a60f6c9d7e270c05025e49263c480051"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application._where": {
+      "source_blocks_sha256": [
+        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+      ],
+      "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
+      "text": "La trame la plus interne, sous la forme ``file:line function``.",
+      "translation_source_blocks_sha256": [
+        "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application.tick": {
+      "source_blocks_sha256": [
+        "93ee5709b51158694dab5a00831b1859048b632f779f3f37e650c197f2b678cc"
+      ],
+      "source_sha256": "93ee5709b51158694dab5a00831b1859048b632f779f3f37e650c197f2b678cc",
+      "text": "Enregistre que la boucle d'événements tourne encore.",
+      "translation_source_blocks_sha256": [
+        "93ee5709b51158694dab5a00831b1859048b632f779f3f37e650c197f2b678cc"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application.watch": {
+      "source_blocks_sha256": [
+        "3c79b9aa40eb57f4fc72b258d95da583cea7a4d8ce5dd879ff3260babad051dc",
+        "e4613ff696c05c5c96a240ebeb43047fe5ab69de469f0e174b30258fa30a776a",
+        "083c37c1ea876e7bbf488b12e38708e1f745f43db4ff200f8ef82f4fcac4d935"
+      ],
+      "source_sha256": "6f93a35bdabbcf887f5fd49854c6ecec1f1208f1f4bd5ddbcba9a31d06a158fa",
+      "text": "Échantillonne le thread de la GUI pendant chaque blocage et le résume.\n\nUN SEUL INSTANTANÉ INDIQUE OÙ ÉTAIT LE THREAD, PAS OÙ EST PASSÉ LE TEMPS, et ce sont deux questions différentes dès que le blocage est une boucle plutôt qu'un unique appel bloquant. Mesuré : quatre blocages du même balayage de modules ont donné quatre dernières trames différentes -- un filtre d'événements, un constructeur de vue, une installation de la recherche de paramètres, un autre filtre d'événements --, soit une liste de suspects plutôt qu'une réponse.\n\nLa pile est donc échantillonnée toutes les :data:`POLL_SECONDS` AUSSI LONGTEMPS QUE dure le blocage, et les dernières trames sont comptées. Un appel qui retient le thread apparaît dans la plupart des échantillons ; un appel qui s'exécutait simplement apparaît dans un seul.",
+      "translation_source_blocks_sha256": [
+        "81e6a2c72f02aa31a3d3c42face37c9a5f9e23563df674eb4e8d893150b773b6",
+        "e4613ff696c05c5c96a240ebeb43047fe5ab69de469f0e174b30258fa30a776a",
+        "85e0586742b564a36af47b0c3693d1d9cf6f3b39a0c3ea788726b4d8ec1cf285"
+      ]
+    },
+    "spacr.qt.stall_watch.watch_this_application.watch_and_flush": {
+      "source_blocks_sha256": [
+        "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
+      ],
+      "source_sha256": "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c",
+      "text": "Exécute le veilleur et résume, à la sortie, ce qui reste en attente.",
+      "translation_source_blocks_sha256": [
+        "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
+      ]
+    },
     "spacr.qt.starplast": {
       "source_blocks_sha256": [
         "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
@@ -115772,6 +116574,66 @@
       "translation_source_blocks_sha256": [
         "cf904778be0782daa507e7f9db408f12814da9d10d658e5bc3d5f8df94ccb90b",
         "b7f97d6ed8dc5867f36057b443bc9dee4e2378f6beba6a3a3f9b77e035b26cf6"
+      ]
+    },
+    "spacr.qt.thread_guard.install._report": {
+      "source_blocks_sha256": [
+        "f05aa028d642445e7c860ab47b0f88f5e8afefaab7506561da4d9e36672004ef",
+        "de18a3c9d73243aa0948538aae4ac95b227b11e1b7f8dad1129a5b6f3dd9ba49"
+      ],
+      "source_sha256": "791838708b7ffba55cbe027911426987d99054b5eb0cad8f67cfe5a99f6eee3d",
+      "text": "Enregistre et journalise une infraction inter-threads, avec sa pile.\n\nLa pile est débarrassée de cette fonction et de son appelant, de sorte que la trame du haut est LE CODE QUI L'A FAIT et non la garde qui l'a remarqué.",
+      "translation_source_blocks_sha256": [
+        "f05aa028d642445e7c860ab47b0f88f5e8afefaab7506561da4d9e36672004ef",
+        "d71d9fee73c4a2f06dfdb5ea4bcdcbeafc64063184624f7ddebb9fbe809d5de3"
+      ]
+    },
+    "spacr.qt.thread_guard.install._wrong_thread": {
+      "source_blocks_sha256": [
+        "ec25bcbed6f66858fd06705f514db41d6147cebb158e0818cfd3eafb90649c70",
+        "2eb8ae38b515dfbbf7b83bd8e4345aba44b022f1b3bcc350f311b57b3774a206",
+        "484409a1d0f1e91ee1c6dd7acbacd16219cbdc361b71673bc03cadd73750862f",
+        "f066a0dbf34dd6939b32f2654c7dbbd458c38ebe253d5663c5b2a39883034414"
+      ],
+      "source_sha256": "0b1f9a19faaa560671ce2ffc5280d2239562ed02d1eb1d074c5f84cf06af506a",
+      "text": "Pourquoi ce démarrage est illégal, ou \"\" s'il est correct.\n\nDEMANDE EXACTEMENT CE QUE Qt DEMANDE : le thread propre de l'objet est-il le thread appelant ? Qt refuse dès qu'ils diffèrent, ce qui arrive dans les deux sens -- un thread de travail qui touche un objet de la GUI, et le thread de la GUI qui touche un objet AFFINE À UN THREAD DE TRAVAIL ; ce second cas est bien plus facile à écrire par accident, car le code se lit comme du code ordinaire du thread de la GUI.\n\nCOMPARÉ AVEC `==`, PAS AVEC `is`. `QThread.currentThread()` renvoie à chaque appel une nouvelle enveloppe Python autour du même QThread sous-jacent, de sorte qu'un test d'identité signale chaque démarrage ordinaire comme illégal -- exactement ce que faisait la première version, qui signalait un simple `timer.start()` sur le thread de la GUI par « l'appelant est le Qt mainThread, pas le thread de la GUI ». Une garde qui crie au loup sur le chemin courant est pire que pas de garde du tout, car la seule ligne qui compte est alors noyée.\n\nIl n'y a délibérément aucun repli du type « l'appelant est-il le thread de la GUI ». Il n'apportait rien que le test d'affinité ne couvre déjà, et c'était la moitié qui se trompait.",
+      "translation_source_blocks_sha256": [
+        "ec25bcbed6f66858fd06705f514db41d6147cebb158e0818cfd3eafb90649c70",
+        "b1bcc64abe6e7876319fb1d60fd6b61e25bb35d343b85b9c0f82675ce033394a",
+        "a1d3d7888d897c22c2542e3b7d372a6474abdcfcaf08b59d7b08b68d0268d8ab",
+        "4a31aa7243f037329d5a5ecf7d5b9503037371e6af264aed65f30fb3136e1d2d"
+      ]
+    },
+    "spacr.qt.thread_guard.install.guarded_object_init": {
+      "source_blocks_sha256": [
+        "6c24fb98064320f49c1c4d34bf6181a9c5b1cf60734f47b618fb829d0550e3b1"
+      ],
+      "source_sha256": "6c24fb98064320f49c1c4d34bf6181a9c5b1cf60734f47b618fb829d0550e3b1",
+      "text": "Note un QObject construit hors du thread principal, après l'avoir construit.",
+      "translation_source_blocks_sha256": [
+        "6e7e2b0971b0118c766f3415c5b938fbd9ca3ddec77e1f5ba86cafc7a9a680c8"
+      ]
+    },
+    "spacr.qt.thread_guard.install.guarded_object_start": {
+      "source_blocks_sha256": [
+        "86bd1d73eec31fb629a659065106e7624b2e6658aa4a6fbe23b0997b3796b123"
+      ],
+      "source_sha256": "86bd1d73eec31fb629a659065106e7624b2e6658aa4a6fbe23b0997b3796b123",
+      "text": "Signale un minuteur de QObject démarré hors de son propre thread, puis le démarre.",
+      "translation_source_blocks_sha256": [
+        "86bd1d73eec31fb629a659065106e7624b2e6658aa4a6fbe23b0997b3796b123"
+      ]
+    },
+    "spacr.qt.thread_guard.install.guarded_timer_start": {
+      "source_blocks_sha256": [
+        "8370ecfb6d758b1822335776c17c42543d80024afc6edb7ed8558e4b6bf12afe",
+        "6a5f416cd33959bcb473885469afd81d2992755c3d1730bdd9bc9e9ef4ba6161"
+      ],
+      "source_sha256": "404322bc85184098db87e56dcc993e3dee5b34d642a863b9ff9d9a7d650a3d1e",
+      "text": "Signale un QTimer démarré hors de son propre thread, puis le démarre.\n\nSIGNALE ET CONTINUE. La garde est un diagnostic : refuser le démarrage changerait le comportement sous la garde et masquerait le bogue qu'elle est censée trouver.",
+      "translation_source_blocks_sha256": [
+        "8370ecfb6d758b1822335776c17c42543d80024afc6edb7ed8558e4b6bf12afe",
+        "d38d5b859475f6d824000a546d3229d31825cad8f872d60050a97c49ba7834b6"
       ]
     },
     "spacr.qt.thread_guard.offences": {
@@ -158326,6 +159188,16 @@
         "40fb496651c1fa82548034e01a415c4d4a5f96c4f806668463d6b5a9b297136a"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.ContributeDialog.add_image.work": {
+      "source_blocks_sha256": [
+        "63c3407164e743e95b31fdabf192601121976c22d7c0fc64dc5ed53be97b7950"
+      ],
+      "source_sha256": "63c3407164e743e95b31fdabf192601121976c22d7c0fc64dc5ed53be97b7950",
+      "text": "La proposition de spaCR pour une image, ou la raison pour laquelle il n'y en a pas.",
+      "translation_source_blocks_sha256": [
+        "63c3407164e743e95b31fdabf192601121976c22d7c0fc64dc5ed53be97b7950"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.ContributeDialog.count": {
       "source_blocks_sha256": [
         "bec6ea64590ccaa6aa2af518839d2daa2b74f197c5a461ae01e471440d8ea10a",
@@ -158604,6 +159476,66 @@
         "369a64765a262e715f7b5981265243d89ce3a34162b63cb20c371906532b0b30"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.cancelled": {
+      "source_blocks_sha256": [
+        "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad"
+      ],
+      "source_sha256": "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad",
+      "text": "Indique que rien n'a été installé et que rien n'a été laissé.",
+      "translation_source_blocks_sha256": [
+        "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.failure": {
+      "source_blocks_sha256": [
+        "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658"
+      ],
+      "source_sha256": "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658",
+      "text": "Indique pourquoi, dans les propres termes de l'installateur.",
+      "translation_source_blocks_sha256": [
+        "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.progressed": {
+      "source_blocks_sha256": [
+        "e91402e3e3edcb83502610803dd25707c13e3ac43fa764fee64446037f06f060"
+      ],
+      "source_sha256": "e91402e3e3edcb83502610803dd25707c13e3ac43fa764fee64446037f06f060",
+      "text": "Une ligne, réécrite, indiquant à quelle étape en est l'installation.",
+      "translation_source_blocks_sha256": [
+        "e91402e3e3edcb83502610803dd25707c13e3ac43fa764fee64446037f06f060"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._next_paper.job": {
+      "source_blocks_sha256": [
+        "d483a9259ea48824f4ca38077514110b66560fac6222d3116634ce1ffe036303"
+      ],
+      "source_sha256": "d483a9259ea48824f4ca38077514110b66560fac6222d3116634ce1ffe036303",
+      "text": "Lit un PDF en transformant son échec en réponse.",
+      "translation_source_blocks_sha256": [
+        "d483a9259ea48824f4ca38077514110b66560fac6222d3116634ce1ffe036303"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._save_review_file.finished": {
+      "source_blocks_sha256": [
+        "9a18ed0eeb2b580226948f6e3c6a8b64162401792af8f409f1513e5b1727a6f3"
+      ],
+      "source_sha256": "9a18ed0eeb2b580226948f6e3c6a8b64162401792af8f409f1513e5b1727a6f3",
+      "text": "Ignore les fins d'export périmées et signale l'échec ou appelle le callback de réussite courant.",
+      "translation_source_blocks_sha256": [
+        "9a18ed0eeb2b580226948f6e3c6a8b64162401792af8f409f1513e5b1727a6f3"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._use_pasted_legend.saved": {
+      "source_blocks_sha256": [
+        "4e51c7449c63afbc4d1fa24b83f2f427c32c4d87a3c3b32e1dee283b51490e60"
+      ],
+      "source_sha256": "4e51c7449c63afbc4d1fa24b83f2f427c32c4d87a3c3b32e1dee283b51490e60",
+      "text": "Normalise le texte de légende modifié, ferme son éditeur et reconstruit les annotations de la figure.",
+      "translation_source_blocks_sha256": [
+        "4e51c7449c63afbc4d1fa24b83f2f427c32c4d87a3c3b32e1dee283b51490e60"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.apply_settings": {
       "source_blocks_sha256": [
         "813a5afaae8651fd69c01c7011152505f5b74d67fc66f35099d637d226287f9e",
@@ -158650,6 +159582,18 @@
         "58b90e7b0c81d06ed1eb8d367c107a2d957377689473d7cacdf45c21cfbc7add"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data.seeder": {
+      "source_blocks_sha256": [
+        "06f1ef560a3a575928721dbce4dc6a8f708f91033fa5476ebe1975cd490b0f28",
+        "047536732a5f4655616184dbd2de337b7d9a59d9253f99bb2f3c5a07b4f3ec73"
+      ],
+      "source_sha256": "86cdf3b9eb927bfcde7b8880d5f6bc53aa7bde3f12edacd0525a83e1c9d0d66a",
+      "text": "Les cadres de puits de spaCR sur une page.\n\nLe masque de plages de lyse de spaCR pour une image.",
+      "translation_source_blocks_sha256": [
+        "06f1ef560a3a575928721dbce4dc6a8f708f91033fa5476ebe1975cd490b0f28",
+        "047536732a5f4655616184dbd2de337b7d9a59d9253f99bb2f3c5a07b4f3ec73"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.current_path": {
       "source_blocks_sha256": [
         "58fb79d509e13d7a3955d7c0daddad5f9fcf116c1c8f081851749a995a0d1e22"
@@ -158692,6 +159636,16 @@
         "f1dd6565cdbb5e81e806c194a888c1018991ac8dff62ab4ffd6c0747de551248",
         "ea2c524a335b5143cd5020eb02dde69bdd0ad5882bf127178d68721c59f05e5d",
         "d8cb4e587e3c7eaabf123b5eee21ea2065959e8d39d351350b4ba106e80a0754"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper.job": {
+      "source_blocks_sha256": [
+        "71c18748179d6c1a31d02c412c3d5542dc78abdcdcc318f3cf5116247db0d148"
+      ],
+      "source_sha256": "71c18748179d6c1a31d02c412c3d5542dc78abdcdcc318f3cf5116247db0d148",
+      "text": "Récupère, en transformant un lecteur qui doit être installé en réponse.",
+      "translation_source_blocks_sha256": [
+        "71c18748179d6c1a31d02c412c3d5542dc78abdcdcc318f3cf5116247db0d148"
       ]
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_papers": {
@@ -158820,6 +159774,16 @@
         "925d5da37408888c3035dc053cc37ca71db7d04d631ca56fe528079d6bf484e4"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.plaque_table_rows.annotation": {
+      "source_blocks_sha256": [
+        "30bfeaf2d46b94d9039f232de44c235b7809c7250ca3efa9f17edd9675ca0ddc"
+      ],
+      "source_sha256": "30bfeaf2d46b94d9039f232de44c235b7809c7250ca3efa9f17edd9675ca0ddc",
+      "text": "L'annotation de la région ``index``, ou None si elle n'en a pas.",
+      "translation_source_blocks_sha256": [
+        "30bfeaf2d46b94d9039f232de44c235b7809c7250ca3efa9f17edd9675ca0ddc"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.preview_running": {
       "source_blocks_sha256": [
         "52c6ba5940a051e36cd0575087352c4bb2be54791b81a8fbcbd7e67b7d09c47d"
@@ -158894,6 +159858,16 @@
         "2e48330e36f11a0058aec821aca592466464795832f3cdf63d6efab8a244be9e",
         "3fad12a67565777a89098a3cb260d05c2f5e60163ff673e323bf9d91cad679f7",
         "c00c37ebb65595d8c09a54e56bc9b2b10d7cb1e5e753539c484f14b0fe30482d"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.run_preview.work": {
+      "source_blocks_sha256": [
+        "1f7e3500dc5d3fc9721f6a5350900e7a407d386ab265c89862b2ec56db8d79fb"
+      ],
+      "source_sha256": "1f7e3500dc5d3fc9721f6a5350900e7a407d386ab265c89862b2ec56db8d79fb",
+      "text": "Détecte les puits de la figure et prépare un résultat de revue, sauf si la détection a déjà renvoyé une erreur.",
+      "translation_source_blocks_sha256": [
+        "34e2df5f1775a17ef3290ca589bb8410c2152caf69bee64a186be031598c3154"
       ]
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.save_annotations": {
@@ -159114,6 +160088,16 @@
         "5fb4d752ed08d6b0ba08a4d774810ba3e2c632dcfb44ac7d9b6ca1747819c903"
       ]
     },
+    "spacr.qt.widgets.plaque_preview._serialized_inference.run": {
+      "source_blocks_sha256": [
+        "d6bdd34a837498207395114362f71e2b4984047eefbedbaa0f750dd43927717e"
+      ],
+      "source_sha256": "d6bdd34a837498207395114362f71e2b4984047eefbedbaa0f750dd43927717e",
+      "text": "Sérialise l'appel d'inférence enveloppé afin que les instances de modèle en cache ne se chevauchent pas.",
+      "translation_source_blocks_sha256": [
+        "d6bdd34a837498207395114362f71e2b4984047eefbedbaa0f750dd43927717e"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.annotate_figure": {
       "source_blocks_sha256": [
         "d2fea90454dc85323b7961c0d5277b7b73b6eceb1aff3d2c453b13779e0dbc54",
@@ -159292,6 +160276,16 @@
         "e182c0dc3a90f5b249b3a98738b02f1084803fb3aae643d89707f8ad3f26cd93"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.figure_pass.segment": {
+      "source_blocks_sha256": [
+        "729b0c80565d59eb4975c13c409bc91f35e99711aed3a31e63a85b8ddccae022"
+      ],
+      "source_sha256": "729b0c80565d59eb4975c13c409bc91f35e99711aed3a31e63a85b8ddccae022",
+      "text": "Le masque d'étiquettes Cellpose d'un recadrage de puits avec plages de lyse.",
+      "translation_source_blocks_sha256": [
+        "7650d8b843e76c8c42d77ca5b19e76a9ce0521792b38e6926858ba46ef65b089"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.follow_the_input": {
       "source_blocks_sha256": [
         "6bf559670bd5d90add5cb8e2affd4a05f218a199ec89aa73a64e851c534a3576",
@@ -159396,6 +160390,26 @@
         "ee4d2b945ba37166d69b2c527f141c8cf418efb041ce1d7d37450ab935085837"
       ]
     },
+    "spacr.qt.widgets.plaque_preview.install_plaque_mode.choose": {
+      "source_blocks_sha256": [
+        "67f292b589886b68f9d16794968445e8cc9535fe15ef145c52343075190db399"
+      ],
+      "source_sha256": "67f292b589886b68f9d16794968445e8cc9535fe15ef145c52343075190db399",
+      "text": "Stocke ``mode`` dans le formulaire, puis l'affiche.",
+      "translation_source_blocks_sha256": [
+        "67f292b589886b68f9d16794968445e8cc9535fe15ef145c52343075190db399"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.install_plaque_mode.show": {
+      "source_blocks_sha256": [
+        "c1bbe47db59f4d9c541d4b71795394e32350436b9159380781c8cfcb29a447c3"
+      ],
+      "source_sha256": "c1bbe47db59f4d9c541d4b71795394e32350436b9159380781c8cfcb29a447c3",
+      "text": "Affiche ``mode`` sur le commutateur et dans l'aperçu, et masque les lignes de l'autre mode.",
+      "translation_source_blocks_sha256": [
+        "c1bbe47db59f4d9c541d4b71795394e32350436b9159380781c8cfcb29a447c3"
+      ]
+    },
     "spacr.qt.widgets.plaque_preview.keys_hidden_in": {
       "source_blocks_sha256": [
         "8a36bdd7ed0885dd989183462010f6abbdee456558e050637706c6fe492e9518",
@@ -159450,6 +160464,16 @@
         "b7efa2be36edf75d1d560d38cca365d7cfb8a7d5efbaa1bbe5ddfc78bc8daee0",
         "1db0927814a6cc456c7d1201fa49f64230005e97cb9a167e3d91db8f579db34b",
         "d4f8ead6056fe50c498c1c8181c9a85138732396f6b83e1989ed49e600078665"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.missing_papers_packages.found": {
+      "source_blocks_sha256": [
+        "1437f2497b74a390166bd7d470ab5fe186bedf78d44526ae7715c4cbefde24a6"
+      ],
+      "source_sha256": "1437f2497b74a390166bd7d470ab5fe186bedf78d44526ae7715c4cbefde24a6",
+      "text": "Indique si ``module`` peut être trouvé sans l'importer.",
+      "translation_source_blocks_sha256": [
+        "1437f2497b74a390166bd7d470ab5fe186bedf78d44526ae7715c4cbefde24a6"
       ]
     },
     "spacr.qt.widgets.plaque_preview.normalise_mode": {
@@ -159592,6 +160616,16 @@
         "317a5bf2f6d2a4a5ac54a3d1d7df2619e8c344836414177224c42e3cee8b03fc",
         "fa6422357a8f29abfd9710b8b1fbf23fece62cfe0f020385e4d7b6f9493f5288",
         "2938684842a08e6a0ab4ff66d5b373babb37aa2bad91123d7775d2d68ac2c9ef"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.plaque_pass.segment": {
+      "source_blocks_sha256": [
+        "8486908c69ad95c55aa0c1527b56c2c62f60221e96388adfa6b98a5bb609270e"
+      ],
+      "source_sha256": "8486908c69ad95c55aa0c1527b56c2c62f60221e96388adfa6b98a5bb609270e",
+      "text": "Le masque d'étiquettes des plages de lyse de l'image à ``p``, avec ses flux.",
+      "translation_source_blocks_sha256": [
+        "8486908c69ad95c55aa0c1527b56c2c62f60221e96388adfa6b98a5bb609270e"
       ]
     },
     "spacr.qt.widgets.plaque_preview.plaque_rows": {
@@ -159772,6 +160806,16 @@
         "317a5bf2f6d2a4a5ac54a3d1d7df2619e8c344836414177224c42e3cee8b03fc",
         "f877590d4a010a977e5493fe2b359dbbc412254185df27d89d076ba60519f50d",
         "8cc30ed632e804abcf9bd5cc19aabf60240c119222f30a80a068ed797bbcfc21"
+      ]
+    },
+    "spacr.qt.widgets.plaque_preview.segment_well.segment": {
+      "source_blocks_sha256": [
+        "4f3521251f7b254dd9a88b96d479399e066356d22162b25c70f385f39ddca716"
+      ],
+      "source_sha256": "4f3521251f7b254dd9a88b96d479399e066356d22162b25c70f385f39ddca716",
+      "text": "Le masque d'étiquettes des plages de lyse d'un recadrage de puits, avec ses flux.",
+      "translation_source_blocks_sha256": [
+        "3137f5e94a2cd96ff179e4374060cb13d0387ab4a551e7663c29bb78fead70e8"
       ]
     },
     "spacr.qt.widgets.plaque_preview.session_style": {
@@ -184764,6 +185808,32 @@
         "86b1f9abcf15b1b8237e4260a971d68d25f940eceb6e6b3f3439a46dc535885a"
       ]
     },
+    "spacr.settings._ensure_bundled_barcode.fetch": {
+      "source_blocks_sha256": [
+        "ea62fc2414900a983437d822f722ec064792690e4cbc84bd02ea8129b6817d64",
+        "ff2e0044de571fba92c7854bac651f32cb951cce32fae5ddf08df6c7ddc517f2",
+        "82b98322fe9cd09b0a5ba7d993e1f96a1bd626fa05bfbfbcc421affc9ac60456"
+      ],
+      "source_sha256": "ced42a16545bfa2919110625a57bbe42b44b12c80302d34580a8bb207dfd3a03",
+      "text": "Lit ``target`` sur le réseau et renvoie ses octets.\n\n:param target: l'URL GitHub brute d'un CSV fourni.\n:returns: le corps de la réponse, non vérifié -- l'appelant le vérifie.",
+      "translation_source_blocks_sha256": [
+        "ea62fc2414900a983437d822f722ec064792690e4cbc84bd02ea8129b6817d64",
+        "ff2e0044de571fba92c7854bac651f32cb951cce32fae5ddf08df6c7ddc517f2",
+        "82b98322fe9cd09b0a5ba7d993e1f96a1bd626fa05bfbfbcc421affc9ac60456"
+      ]
+    },
+    "spacr.settings._reject_a_threshold_that_cannot_mean_what_it_says._number": {
+      "source_blocks_sha256": [
+        "444b291ed8e5e3b92208486252f792d3b03da6e0a3d575e7fafa9270b9aca100",
+        "fdfadbe74e3cbdf69de8ad9f6852acfae448ce1422c77e6bbf1bfeb384ae9155"
+      ],
+      "source_sha256": "d51b0e5d8b5fdd12681bf31cf042da1d8b85665f9b928f121c722a67a03fde43",
+      "text": "Lit un paramètre comme un nombre dans l'intervalle, ou lève une erreur indiquant lequel.\n\nUn bool est REFUSÉ alors même qu'il est un int en Python : ``True`` comme seuil est une valeur que personne n'a saisie exprès, et l'accepter comme 1 change en silence ce que fait l'exécution.",
+      "translation_source_blocks_sha256": [
+        "444b291ed8e5e3b92208486252f792d3b03da6e0a3d575e7fafa9270b9aca100",
+        "fdfadbe74e3cbdf69de8ad9f6852acfae448ce1422c77e6bbf1bfeb384ae9155"
+      ]
+    },
     "spacr.settings.advanced_object_of": {
       "source_blocks_sha256": [
         "eb95a2f6f808fd54008e22b1e2f05375f66ffa2b3a073a1d28025c9e1986c030",
@@ -185194,6 +186264,122 @@
       "translation_source_blocks_sha256": [
         "cf6540f31379bc287e62e2658af544f42f28e2bfc96d8997aa33784152a362a0",
         "98584b56b23eab40bdcaa3f8e8af15ba398f6dbe7da6e8ef88c23fc9b9603baf"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._combined": {
+      "source_blocks_sha256": [
+        "04578bf24db28b011691c35b0c8849025fb7acc747a4a7497351dd304e00f53a",
+        "005d665c8ac71adb3213c0cd8032110acc17be3cffbcf8ff7e1b9e662cb0dc1f",
+        "c1c0a6d2400bed009ff78855a4040d6fcf4bb89ff5eaed3c5fed5da9334d1a1c"
+      ],
+      "source_sha256": "2b28387413d5ab1a27a94193835bfbd24a01bec737036582b31de6ef78340ebb",
+      "text": "Une seconde raison pour laquelle un paramètre peut être inapplicable, combinée à la première par un ET.\n\nUn paramètre peut être sans effet pour plus d'une raison à la fois -- un contrôle de permutation est sans effet sous inférence paramétrique ET sans effet sur une seule plaque --, et ce dict contient une entrée par paramètre. Remplacer l'entrée abandonne en silence la raison précédente, et c'est ainsi qu'un champ se retrouve activé parmi ses voisins grisés.\n\nApplicable uniquement lorsque LES DEUX concordent. La raison affichée est celle qui s'est réellement déclenchée, afin que l'utilisateur sache pourquoi CE contrôle est désactivé au lieu de recevoir l'explication de l'autre règle.",
+      "translation_source_blocks_sha256": [
+        "04578bf24db28b011691c35b0c8849025fb7acc747a4a7497351dd304e00f53a",
+        "37479e1d8d11a57cc517eb28dcbc61f843a874447acb14bc041f2d709301c073",
+        "c1c0a6d2400bed009ff78855a4040d6fcf4bb89ff5eaed3c5fed5da9334d1a1c"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._combined._predicate": {
+      "source_blocks_sha256": [
+        "d6e039ec00fd5d04e3c422bd21a0d47ee8e7c3f2ead414061f4a0b3b45461843"
+      ],
+      "source_sha256": "d6e039ec00fd5d04e3c422bd21a0d47ee8e7c3f2ead414061f4a0b3b45461843",
+      "text": "True uniquement lorsque la règle existante ET la nouvelle sont toutes deux satisfaites.",
+      "translation_source_blocks_sha256": [
+        "d6e039ec00fd5d04e3c422bd21a0d47ee8e7c3f2ead414061f4a0b3b45461843"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._combined._reason": {
+      "source_blocks_sha256": [
+        "1143b56cea3e5818c4b056f0589cd04a08569706b74de44716221772835d1403",
+        "fd5b5246631cb15832cf7360ef541071892110f796a71e0e38552a1f6a5e92a2"
+      ],
+      "source_sha256": "e90072066ee45195d6511c467a409e23700253e40656fe6aab46b9ff2caa51d1",
+      "text": "La raison de la règle qui échoue.\n\nLa règle EXISTANTE est interrogée en premier, de sorte qu'un paramètre soumis à deux conditions explique celle qui est vraie depuis le plus longtemps plutôt que la plus récemment ajoutée.",
+      "translation_source_blocks_sha256": [
+        "1143b56cea3e5818c4b056f0589cd04a08569706b74de44716221772835d1403",
+        "fd5b5246631cb15832cf7360ef541071892110f796a71e0e38552a1f6a5e92a2"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._is_nonparametric": {
+      "source_blocks_sha256": [
+        "44ad5ada92c278e3e738f211951b01a72db66353ae1b12743fd2b434c83240ec"
+      ],
+      "source_sha256": "44ad5ada92c278e3e738f211951b01a72db66353ae1b12743fd2b434c83240ec",
+      "text": "Indique si l'inférence est le test de permutation non paramétrique.",
+      "translation_source_blocks_sha256": [
+        "44ad5ada92c278e3e738f211951b01a72db66353ae1b12743fd2b434c83240ec"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._level_is_read": {
+      "source_blocks_sha256": [
+        "73a10d19454d811e6d43eafe2346fe76d715bb1bcb06d046608e0f5f61714f1c",
+        "e65864f28b7a9963a05e76d28fee1a4666542ebbc3d6015626ca6e77a1bb859e"
+      ],
+      "source_sha256": "9490d2dca8df2f489c67177291a97e7c3b562d3f4a2ecbdfadd59c3854d8c4de",
+      "text": "Indique si le paramètre de niveau est lu tout court avec ces paramètres.\n\nLE TEST DE PERMUTATION LE LIT. Il n'ajuste aucun modèle, donc `regression_type` ne dit rien à son sujet -- griser le contrôle sur la réponse paramétrique laissait le côté non paramétrique sans aucun moyen de demander des gènes.",
+      "translation_source_blocks_sha256": [
+        "73a10d19454d811e6d43eafe2346fe76d715bb1bcb06d046608e0f5f61714f1c",
+        "e01bbc4a69a775becde50d15a9afc618547af446e92f264af63491d23d3771e8"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._level_reason": {
+      "source_blocks_sha256": [
+        "fa9b6252127e019a70c3eca32b28214579c2adbc052137d9e3e17579efd0c4c9"
+      ],
+      "source_sha256": "fa9b6252127e019a70c3eca32b28214579c2adbc052137d9e3e17579efd0c4c9",
+      "text": "Pourquoi le contrôle de niveau est grisé, en nommant le paramètre responsable.",
+      "translation_source_blocks_sha256": [
+        "fa9b6252127e019a70c3eca32b28214579c2adbc052137d9e3e17579efd0c4c9"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies._streaming": {
+      "source_blocks_sha256": [
+        "d3427312456dcc951cd13f733f8b93d51b2bf83a0bd6f2cd928aecaf20c6252a"
+      ],
+      "source_sha256": "d3427312456dcc951cd13f733f8b93d51b2bf83a0bd6f2cd928aecaf20c6252a",
+      "text": "Indique si l'exécution lit les images depuis un flux plutôt que depuis le disque.",
+      "translation_source_blocks_sha256": [
+        "d3427312456dcc951cd13f733f8b93d51b2bf83a0bd6f2cd928aecaf20c6252a"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies.permutation_active": {
+      "source_blocks_sha256": [
+        "c9888681edd5de5d42154912e11d61fff6dd77b99c713f44110c8aa5bc1e8b23",
+        "8724734ade47fe84ff4e4c12f132828a9033660f4cb10d5bb6305b4c376e9913",
+        "0a1aa4665a8def3e2210641f987b054dad0d1aee51ccafc7919651ed9de83e33"
+      ],
+      "source_sha256": "ea4d81fda82c19b4acee8f40542938ef632222cca222ec7efdc7ee6d2ff635d5",
+      "text": "Indique si l'EXÉCUTION permuterait, décidé comme l'exécution le décide.\n\nLA MÊME TRADUCTION QUE CELLE QU'APPLIQUE `set_default_analysis_settings`, et il le faut : `inference` est l'interface lisible et elle ÉCRASE `analysis_mode` à l'exécution, si bien qu'un panneau qui lisait le `analysis_mode` périmé répondait à une question que l'ajustement ne pose pas. Mesuré sur le panneau de régression : choisir inference='parametric' laissait activés les huit contrôles de permutation de guides, parce que `analysis_mode` contenait encore la valeur sélectionnée par l'inférence précédente -- un contrôle proposé pour une étape qui ne va pas s'exécuter.\n\n`auto` est le seul cas où `analysis_mode` décide encore ici. Sa résolution réelle compte les guides et les puits, ce que ceci ne peut pas voir (`spacr.ml.resolve_auto_inference` le fait une fois les CSVs lus), donc les contrôles de permutation restent ACTIVÉS sous 'auto' -- griser un contrôle que l'exécution pourrait bien utiliser est la pire des deux erreurs.",
+      "translation_source_blocks_sha256": [
+        "c9888681edd5de5d42154912e11d61fff6dd77b99c713f44110c8aa5bc1e8b23",
+        "4a0b026b9abf80696f6fef52491514d43ac67f9481bc5ab3a09af6e05e6998e0",
+        "fa464e900a155034733ba641970f1a32ca02ee2442c25b24a9db7f71f18be81e"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies.permutation_is_certain": {
+      "source_blocks_sha256": [
+        "d2e7d5250d8b5f3baf76a4af01a82ca1868c6c74a94517c3f948ecb15f826868",
+        "dc3ec3ad4aabb9921e146e289e9aa5d8d5cf3605ff7262a917a80b365772ea45",
+        "8643a56eca0321b1e367e1ad7762f67014c0bd9150853c1913fc4908005625b3"
+      ],
+      "source_sha256": "e31efd87ebaaa81ad73bc4afbcace9306f93dc9cb6fb376738ed337a1f5def51",
+      "text": "Indique si l'exécution VA permuter -- pas seulement si elle le pourrait.\n\nPAS `not permutation_active(...)`, qui est l'erreur que ceci remplace et contre laquelle mon propre commentaire ci-dessous mettait en garde avant que je ne la commette. `permutation_active` répond True sous 'auto' À DESSEIN, afin que les contrôles de permutation restent actifs tant que la résolution est inconnue. Sa négation grise donc aussi les contrôles du MODÈLE sous 'auto' -- et 'auto' peut fort bien se résoudre en régression, auquel cas ce sont exactement les paramètres que l'exécution lit.\n\nCertain signifie que `inference` nomme explicitement la voie de permutation.",
+      "translation_source_blocks_sha256": [
+        "d2e7d5250d8b5f3baf76a4af01a82ca1868c6c74a94517c3f948ecb15f826868",
+        "cc493288ce6d10c6c7be9df6e5a96d0ee6906f028dec5c8a907edc2db6607377",
+        "8643a56eca0321b1e367e1ad7762f67014c0bd9150853c1913fc4908005625b3"
+      ]
+    },
+    "spacr.settings.get_setting_dependencies.rule": {
+      "source_blocks_sha256": [
+        "bbf451afe2f456181d1264ed76cf1d4f75c76c7fbcd9023ce845298acc272da0"
+      ],
+      "source_sha256": "bbf451afe2f456181d1264ed76cf1d4f75c76c7fbcd9023ce845298acc272da0",
+      "text": "Une règle de dépendance : ses sources, son prédicat et sa raison.",
+      "translation_source_blocks_sha256": [
+        "bbf451afe2f456181d1264ed76cf1d4f75c76c7fbcd9023ce845298acc272da0"
       ]
     },
     "spacr.settings.get_timelapse_settings": {
@@ -194026,6 +195212,18 @@
         "b4d62539bd1e337282868c5ee7111f6019541e5dc1bc70220e4da4efb2232854"
       ]
     },
+    "spacr.utils.GradCAM.__call__.hook": {
+      "source_blocks_sha256": [
+        "d74fe64f7472d23e36bacd5ceb8c1fe2503bdf7892dbb96b7c39a938b494aa80",
+        "b4748ef8cb3fd03c28ee7715fc0b26a4cc05f7d35a95971096953fceca4c8bf0"
+      ],
+      "source_sha256": "1c9a713ac740c4df1fd9b88a9d671909657503ea79b5769f83dbd914a75c6239",
+      "text": "Hook avant : ajoute la sortie de la couche cible à ``features``.\n\n``retain_grad()`` est nécessaire : PyTorch ne remplit ``.grad`` que sur les tenseurs feuilles, donc sans lui ``features[0].grad`` vaut None plus bas et GradCAM plantait avec \"'NoneType' object has no attribute 'cpu'\".",
+      "translation_source_blocks_sha256": [
+        "d74fe64f7472d23e36bacd5ceb8c1fe2503bdf7892dbb96b7c39a938b494aa80",
+        "b4748ef8cb3fd03c28ee7715fc0b26a4cc05f7d35a95971096953fceca4c8bf0"
+      ]
+    },
     "spacr.utils.GradCAM.forward": {
       "source_blocks_sha256": [
         "a44bc84a9182787f1bb908fe14bede42495c515ffdd407f6824b7d7b37b6a6f3",
@@ -194104,6 +195302,26 @@
       "text": "Enregistrez les crochets avant/arrière qui capturent les activations et les gradients.",
       "translation_source_blocks_sha256": [
         "5b890e512b554650c17ab6e422b4925c823886a9769537e6de27f7ae8055bcc5"
+      ]
+    },
+    "spacr.utils.GradCAMGenerator.hook_layers.backward_hook": {
+      "source_blocks_sha256": [
+        "98721273aceaf2ee87532face739fc289ab469d6477660f8c76b347e59a332f6"
+      ],
+      "source_sha256": "98721273aceaf2ee87532face739fc289ab469d6477660f8c76b347e59a332f6",
+      "text": "Hook arrière : met en cache le gradient qui entre dans la sortie de la couche cible.",
+      "translation_source_blocks_sha256": [
+        "98721273aceaf2ee87532face739fc289ab469d6477660f8c76b347e59a332f6"
+      ]
+    },
+    "spacr.utils.GradCAMGenerator.hook_layers.forward_hook": {
+      "source_blocks_sha256": [
+        "9dc8e9c511f6f0b862b811eba08b75a2bdd88c65f1cb49d1547b7b8c5910e048"
+      ],
+      "source_sha256": "9dc8e9c511f6f0b862b811eba08b75a2bdd88c65f1cb49d1547b7b8c5910e048",
+      "text": "Hook avant : met en cache les activations de sortie de la couche cible.",
+      "translation_source_blocks_sha256": [
+        "9dc8e9c511f6f0b862b811eba08b75a2bdd88c65f1cb49d1547b7b8c5910e048"
       ]
     },
     "spacr.utils.GradCAMGenerator.percentile_normalize": {
@@ -194538,6 +195756,16 @@
         "964524b994e9dc68017b2bf45a51d4aed615486efb685b2bbb81d79dfae7bd8f"
       ]
     },
+    "spacr.utils.TorchModel._run_backbone_raw.forward_fn": {
+      "source_blocks_sha256": [
+        "f21365b9bde70508f9bc4b6ab52736199a3b2908d1102d5a26d797bb41afcfbe"
+      ],
+      "source_sha256": "f21365b9bde70508f9bc4b6ab52736199a3b2908d1102d5a26d797bb41afcfbe",
+      "text": "Exécute le réseau de base sous-jacent sur ``t`` (utilisé comme cible du checkpoint).",
+      "translation_source_blocks_sha256": [
+        "f21365b9bde70508f9bc4b6ab52736199a3b2908d1102d5a26d797bb41afcfbe"
+      ]
+    },
     "spacr.utils.TorchModel.forward": {
       "source_blocks_sha256": [
         "55a8ae92a16103b0093667e621546b3eca1842db0f72af8c4ea54862a7ad7d23",
@@ -194586,6 +195814,76 @@
       "translation_source_blocks_sha256": [
         "55a8ae92a16103b0093667e621546b3eca1842db0f72af8c4ea54862a7ad7d23",
         "552ef95a954f9bf206d16d14a21a853947f605dbf10cd123b6f591e9cad86868"
+      ]
+    },
+    "spacr.utils._checkpoint_module.contexts": {
+      "source_blocks_sha256": [
+        "53b3853d75d86dcbe245128f7d6e8f7c9ad42cbb80c8609eaec4e795ce72c79d"
+      ],
+      "source_sha256": "53b3853d75d86dcbe245128f7d6e8f7c9ad42cbb80c8609eaec4e795ce72c79d",
+      "text": "Renvoie les contextes de passe avant et de recalcul pour un checkpointing non réentrant.",
+      "translation_source_blocks_sha256": [
+        "53b3853d75d86dcbe245128f7d6e8f7c9ad42cbb80c8609eaec4e795ce72c79d"
+      ]
+    },
+    "spacr.utils._filter_objects._failed_in": {
+      "source_blocks_sha256": [
+        "8ded5c252ab4ad663758b4ef7f77b0026a9eba4e7aac0ae111304bf1aedcbb7d"
+      ],
+      "source_sha256": "8ded5c252ab4ad663758b4ef7f77b0026a9eba4e7aac0ae111304bf1aedcbb7d",
+      "text": "Étiquettes qui échouent à une entrée dont l'indice est dans ``[low, high)``.",
+      "translation_source_blocks_sha256": [
+        "8ded5c252ab4ad663758b4ef7f77b0026a9eba4e7aac0ae111304bf1aedcbb7d"
+      ]
+    },
+    "spacr.utils._generate_representative_images._compartment_column": {
+      "source_blocks_sha256": [
+        "41122fdf2e80e42a3fb03a227abfe38db76f61903d49f341ec013b9916255607"
+      ],
+      "source_sha256": "41122fdf2e80e42a3fb03a227abfe38db76f61903d49f341ec013b9916255607",
+      "text": "Renvoie la série de compartiment sélectionnée, ou lève une erreur si la colonne manque.",
+      "translation_source_blocks_sha256": [
+        "87b058d7abcf2515f91d325aaad370ea5b24ce4c1419dbb57d45398647a23f0f"
+      ]
+    },
+    "spacr.utils._outline_and_overlay.process_dim": {
+      "source_blocks_sha256": [
+        "85905aee4183f3bb50f7d74656256814c5ffb7394cc6a5b9ff0d511b2f375f3a"
+      ],
+      "source_sha256": "85905aee4183f3bb50f7d74656256814c5ffb7394cc6a5b9ff0d511b2f375f3a",
+      "text": "Renvoie une image de contour dilatée du masque étiqueté à ``image[..., mask_dim]``.",
+      "translation_source_blocks_sha256": [
+        "85905aee4183f3bb50f7d74656256814c5ffb7394cc6a5b9ff0d511b2f375f3a"
+      ]
+    },
+    "spacr.utils._pivot_counts_table._pivot_dataframe": {
+      "source_blocks_sha256": [
+        "2568425cb3a0a2f6624f1d88d968212355661deff17baaa2e88c1bffbc9f95ab"
+      ],
+      "source_sha256": "2568425cb3a0a2f6624f1d88d968212355661deff17baaa2e88c1bffbc9f95ab",
+      "text": "Pivote les lignes de type comptage en une colonne par type d'objet, les NaNs étant remplacés par 0.",
+      "translation_source_blocks_sha256": [
+        "2568425cb3a0a2f6624f1d88d968212355661deff17baaa2e88c1bffbc9f95ab"
+      ]
+    },
+    "spacr.utils._pivot_counts_table._read_table_to_dataframe": {
+      "source_blocks_sha256": [
+        "3a6beab9cf847026d105eaef3e75ef8726c2fd04415d191f93f45d593f373235"
+      ],
+      "source_sha256": "3a6beab9cf847026d105eaef3e75ef8726c2fd04415d191f93f45d593f373235",
+      "text": "Renvoie la table SQLite donnée sous forme de DataFrame.",
+      "translation_source_blocks_sha256": [
+        "3a6beab9cf847026d105eaef3e75ef8726c2fd04415d191f93f45d593f373235"
+      ]
+    },
+    "spacr.utils._save_settings_json.plain": {
+      "source_blocks_sha256": [
+        "4a507cdd74108f3c446d62afaa73b5a40b63b2d9ff4e65960c646d9860873a9b"
+      ],
+      "source_sha256": "4a507cdd74108f3c446d62afaa73b5a40b63b2d9ff4e65960c646d9860873a9b",
+      "text": "La valeur sous une forme que JSON peut contenir, ou sa repr.",
+      "translation_source_blocks_sha256": [
+        "4a507cdd74108f3c446d62afaa73b5a40b63b2d9ff4e65960c646d9860873a9b"
       ]
     },
     "spacr.utils.activation_correlations_to_database": {
@@ -194730,6 +196028,26 @@
         "9f99df5663fdffe1a3a4b2b00b43e85c568f9231e48e4d31aca67b05af161aed"
       ]
     },
+    "spacr.utils.annotate_conditions._get_type": {
+      "source_blocks_sha256": [
+        "1d67a7dbf42c9e16657bafd30ef2a9a58e551e8d0445bfe3a49461ecb5373247"
+      ],
+      "source_sha256": "1d67a7dbf42c9e16657bafd30ef2a9a58e551e8d0445bfe3a49461ecb5373247",
+      "text": "Détermine si une valeur correspond à 'rowID' ou à 'columnID'.",
+      "translation_source_blocks_sha256": [
+        "1d67a7dbf42c9e16657bafd30ef2a9a58e551e8d0445bfe3a49461ecb5373247"
+      ]
+    },
+    "spacr.utils.annotate_conditions._map_or_default": {
+      "source_blocks_sha256": [
+        "0d45b7c743d4b5d8a7b262be6e43b79ce786a692bedf23345f12acc062868071"
+      ],
+      "source_sha256": "0d45b7c743d4b5d8a7b262be6e43b79ce786a692bedf23345f12acc062868071",
+      "text": "Affecte ou mappe ``values`` dans ``column_name`` selon le ``loc`` facultatif de ligne/colonne.",
+      "translation_source_blocks_sha256": [
+        "0d45b7c743d4b5d8a7b262be6e43b79ce786a692bedf23345f12acc062868071"
+      ]
+    },
     "spacr.utils.annotate_predictions": {
       "source_blocks_sha256": [
         "6d313d3cf4019667bc54af06971a2318acdc519257327338165f09deac6e6c24",
@@ -194742,6 +196060,16 @@
         "993691211c3313dab3748072b8854b17f6f933af2c017c11cd6a979b86ceccaa",
         "f85983a95fbda160858f80991141de9554aa90b1b084f659268a017ab0f95774",
         "f0e3252b14cd9f9692bf138ea69aba06b593d2279428762088f7dc4c08cfb008"
+      ]
+    },
+    "spacr.utils.annotate_predictions.assign_condition": {
+      "source_blocks_sha256": [
+        "ae63fe648cbdd5e7c02d6ebf37ae18b548a3e71f73b8a32e2168082bc62c820a"
+      ],
+      "source_sha256": "ae63fe648cbdd5e7c02d6ebf37ae18b548a3e71f73b8a32e2168082bc62c820a",
+      "text": "Renvoie l'étiquette de condition (``'screen'``/``'pc'``/``'nc'`` ou ``''``) d'une ligne de métadonnées.",
+      "translation_source_blocks_sha256": [
+        "ae63fe648cbdd5e7c02d6ebf37ae18b548a3e71f73b8a32e2168082bc62c820a"
       ]
     },
     "spacr.utils.apply_mask": {
@@ -194916,6 +196244,66 @@
         "865acc7f45e687472d55c1bf25dd065da270158daade25adeee81168f17718bf"
       ]
     },
+    "spacr.utils.build_loss._asl": {
+      "source_blocks_sha256": [
+        "d34e6c303d0de87801dfe20bd7eb27df871beff85999b360b83605359a0fd449"
+      ],
+      "source_sha256": "d34e6c303d0de87801dfe20bd7eb27df871beff85999b360b83605359a0fd449",
+      "text": "Renvoie la perte multi-étiquette asymétrique moyenne pour les logits et les cibles.",
+      "translation_source_blocks_sha256": [
+        "d34e6c303d0de87801dfe20bd7eb27df871beff85999b360b83605359a0fd449"
+      ]
+    },
+    "spacr.utils.build_loss._auto_choice": {
+      "source_blocks_sha256": [
+        "621bede9a4254b7199b8d1fc05ee00acb46abdfaa42ef11f87c60fb006634069"
+      ],
+      "source_sha256": "621bede9a4254b7199b8d1fc05ee00acb46abdfaa42ef11f87c60fb006634069",
+      "text": "Renvoie le nom de perte par défaut d'après le nombre de classes et le déséquilibre.",
+      "translation_source_blocks_sha256": [
+        "621bede9a4254b7199b8d1fc05ee00acb46abdfaa42ef11f87c60fb006634069"
+      ]
+    },
+    "spacr.utils.build_loss._focal_bce": {
+      "source_blocks_sha256": [
+        "556a0112cbf17e8d49c2e8d48e2118a5c985400a96b5882d384de9f4c6fc6cab"
+      ],
+      "source_sha256": "556a0112cbf17e8d49c2e8d48e2118a5c985400a96b5882d384de9f4c6fc6cab",
+      "text": "Renvoie l'entropie croisée binaire focale moyenne pour ``logits`` et ``y``.",
+      "translation_source_blocks_sha256": [
+        "556a0112cbf17e8d49c2e8d48e2118a5c985400a96b5882d384de9f4c6fc6cab"
+      ]
+    },
+    "spacr.utils.build_loss._focal_ce": {
+      "source_blocks_sha256": [
+        "786946137bdfa10ce881f7c6811b31ee2db99fdf3740b83bbc4f36f26fae7341"
+      ],
+      "source_sha256": "786946137bdfa10ce881f7c6811b31ee2db99fdf3740b83bbc4f36f26fae7341",
+      "text": "Renvoie l'entropie croisée focale moyenne pour les logits et les indices de classe.",
+      "translation_source_blocks_sha256": [
+        "786946137bdfa10ce881f7c6811b31ee2db99fdf3740b83bbc4f36f26fae7341"
+      ]
+    },
+    "spacr.utils.build_loss._infer_indices": {
+      "source_blocks_sha256": [
+        "82aae658207cfcf4b683a6e4cd3fb9608a5828c1f8f9ef867a8a5bac4b83d621"
+      ],
+      "source_sha256": "82aae658207cfcf4b683a6e4cd3fb9608a5828c1f8f9ef867a8a5bac4b83d621",
+      "text": "Renvoie les indices de classe à partir d'un vecteur d'indices ou d'une matrice cible 2-D.",
+      "translation_source_blocks_sha256": [
+        "82aae658207cfcf4b683a6e4cd3fb9608a5828c1f8f9ef867a8a5bac4b83d621"
+      ]
+    },
+    "spacr.utils.build_loss.loss_fn": {
+      "source_blocks_sha256": [
+        "e8b405d32558af205f47128a20cf729605add6015cdecbe3f7234c09fd592880"
+      ],
+      "source_sha256": "e8b405d32558af205f47128a20cf729605add6015cdecbe3f7234c09fd592880",
+      "text": "Fermeture : calcule la perte par lot sélectionnée à partir de ``(logits, target)``.",
+      "translation_source_blocks_sha256": [
+        "e8b405d32558af205f47128a20cf729605add6015cdecbe3f7234c09fd592880"
+      ]
+    },
     "spacr.utils.calculate_activation_correlations": {
       "source_blocks_sha256": [
         "d83d5367d57cb6dd1cfe764b4e174915e4d568d792f628ff5a92d8e64cb6f1ad",
@@ -194982,6 +196370,26 @@
         "063048ea0871e2da093498b8ed3847afb18f406d95041d872b726e3b011ee100",
         "5db94beddb67e7719b9174994e9cf27728990438384666047711000b53b80c6c",
         "3cb333e4b4dc11c486a4ccedb17ec2698e8fabb03a2da69bd30c424f6fa56e5a"
+      ]
+    },
+    "spacr.utils.calculate_loss._focal_bce_with_logits": {
+      "source_blocks_sha256": [
+        "2fe2989b671605ba04fffaa99692c9bf30599cd639edffe36148cb449e5b42c2"
+      ],
+      "source_sha256": "2fe2989b671605ba04fffaa99692c9bf30599cd639edffe36148cb449e5b42c2",
+      "text": "Renvoie l'entropie croisée binaire focale pour ``logits`` et les cibles ``y``.",
+      "translation_source_blocks_sha256": [
+        "2fe2989b671605ba04fffaa99692c9bf30599cd639edffe36148cb449e5b42c2"
+      ]
+    },
+    "spacr.utils.calculate_loss._focal_cross_entropy": {
+      "source_blocks_sha256": [
+        "955285d2fc92b159b9c006c38b1e33fb4ccdc4c6c9d1006a7979c3558d2fd3b3"
+      ],
+      "source_sha256": "955285d2fc92b159b9c006c38b1e33fb4ccdc4c6c9d1006a7979c3558d2fd3b3",
+      "text": "Renvoie l'entropie croisée focale pour les logits et les indices de classe ``y_idx``.",
+      "translation_source_blocks_sha256": [
+        "955285d2fc92b159b9c006c38b1e33fb4ccdc4c6c9d1006a7979c3558d2fd3b3"
       ]
     },
     "spacr.utils.calculate_shortest_distance": {
@@ -195182,6 +196590,36 @@
         "a1fdf08cd6e1199b468f7c86ce5f6de5cf3184c001d5fd257630969a5c5d061b",
         "3918ee80fa3a761f968c6d90f70e6a3d47565be327a95c4d683910cc0b2d6324",
         "2df297a6c2c716dfab9a9f4b21c927425e79f33299bc7906ace30dfd5269ad25"
+      ]
+    },
+    "spacr.utils.class_visualization.blur_image": {
+      "source_blocks_sha256": [
+        "4e47f98a8a5a7fd43dce03b7713a718818fa880037bf9ca912c19d14ba27258d"
+      ],
+      "source_sha256": "4e47f98a8a5a7fd43dce03b7713a718818fa880037bf9ca912c19d14ba27258d",
+      "text": "Flou gaussien en place de chaque canal de ``img`` avec l'écart type ``sigma``.",
+      "translation_source_blocks_sha256": [
+        "4e47f98a8a5a7fd43dce03b7713a718818fa880037bf9ca912c19d14ba27258d"
+      ]
+    },
+    "spacr.utils.class_visualization.deprocess": {
+      "source_blocks_sha256": [
+        "2fbf0eef6012b9dbe85fcdf8cd52ce37ad3eca5a22f8e4a4f585ec75af28ec2e"
+      ],
+      "source_sha256": "2fbf0eef6012b9dbe85fcdf8cd52ce37ad3eca5a22f8e4a4f585ec75af28ec2e",
+      "text": "Annule la normalisation ImageNet et renvoie une image numpy ``(H, W, 3)`` dans ``[0, 1]``.",
+      "translation_source_blocks_sha256": [
+        "2fbf0eef6012b9dbe85fcdf8cd52ce37ad3eca5a22f8e4a4f585ec75af28ec2e"
+      ]
+    },
+    "spacr.utils.class_visualization.jitter": {
+      "source_blocks_sha256": [
+        "e3134887b6cb6175e95f2c6ed0163771ee1371a694abb26af648e71baef6c416"
+      ],
+      "source_sha256": "e3134887b6cb6175e95f2c6ed0163771ee1371a694abb26af648e71baef6c416",
+      "text": "Renvoie ``img`` décalée (roulée) de ``ox`` et ``oy`` pixels le long des axes spatiaux.",
+      "translation_source_blocks_sha256": [
+        "e3134887b6cb6175e95f2c6ed0163771ee1371a694abb26af648e71baef6c416"
       ]
     },
     "spacr.utils.classification_metrics": {
@@ -195582,6 +197020,26 @@
         "6b749b05d27e9f395a37b42645578c6af81eeba9d44e731760aaa5f9767016a1"
       ]
     },
+    "spacr.utils.debug.decorator": {
+      "source_blocks_sha256": [
+        "96517ba8b10971bb4ead7c3c1c13a74dbadf3d883fe264f2d286214caef1a503"
+      ],
+      "source_sha256": "96517ba8b10971bb4ead7c3c1c13a74dbadf3d883fe264f2d286214caef1a503",
+      "text": "Décorateur interne qui lie le logger pour ``func`` et renvoie l'enveloppe.",
+      "translation_source_blocks_sha256": [
+        "96517ba8b10971bb4ead7c3c1c13a74dbadf3d883fe264f2d286214caef1a503"
+      ]
+    },
+    "spacr.utils.debug.decorator.wrapper": {
+      "source_blocks_sha256": [
+        "1fa99d6506ca3eae70405642f236d11a3b5e734719ac180036731bd8722a6098"
+      ],
+      "source_sha256": "1fa99d6506ca3eae70405642f236d11a3b5e734719ac180036731bd8722a6098",
+      "text": "Élève temporairement le logger à DEBUG pendant l'exécution de ``func``, puis rétablit son niveau.",
+      "translation_source_blocks_sha256": [
+        "1fa99d6506ca3eae70405642f236d11a3b5e734719ac180036731bd8722a6098"
+      ]
+    },
     "spacr.utils.delete_folder": {
       "source_blocks_sha256": [
         "8b3694f27a7a5376079d528c20b9d6f90d033b6c5830db7aa9ceb53ba3735837",
@@ -195770,6 +197228,16 @@
         "974e0d91b7aa38de887af8ecec7b5bb7214ed398a7cfd9289ce75840f46b4832",
         "558a7fb38cc9301448b2263d21af8492eb0dba6d94ff1c317a0358faea0ba855",
         "eb4b5279c2cfa22c3d92188b587c509ded2a1bbbea0e9cbc72e1bbd7305c841e"
+      ]
+    },
+    "spacr.utils.feature_folder_name._one": {
+      "source_blocks_sha256": [
+        "5e4c921fcd5e0a45e59eefdf6dda510a360081ba97310af3e3fd597c3e02056a"
+      ],
+      "source_sha256": "5e4c921fcd5e0a45e59eefdf6dda510a360081ba97310af3e3fd597c3e02056a",
+      "text": "Renvoie un slug de membre de sélection sûr pour le système de fichiers.",
+      "translation_source_blocks_sha256": [
+        "5e4c921fcd5e0a45e59eefdf6dda510a360081ba97310af3e3fd597c3e02056a"
       ]
     },
     "spacr.utils.filepaths_to_database": {
@@ -196130,6 +197598,16 @@
         "9b197ed1df0b38d01e403625b5151740c73b644a2b1bd72add520ec1fe3fc7eb"
       ]
     },
+    "spacr.utils.group_feature_class.find_feature_class": {
+      "source_blocks_sha256": [
+        "dfe2546cda1a4067f944e4c57e388d106b31f29dd7126f07c128938533399324"
+      ],
+      "source_sha256": "dfe2546cda1a4067f944e4c57e388d106b31f29dd7126f07c128938533399324",
+      "text": "Renvoie le ou les libellés de groupe trouvés dans ``feature`` — joints par '-' lorsqu'il y en a plusieurs.",
+      "translation_source_blocks_sha256": [
+        "dfe2546cda1a4067f944e4c57e388d106b31f29dd7126f07c128938533399324"
+      ]
+    },
     "spacr.utils.initiate_counter": {
       "source_blocks_sha256": [
         "1e724c3a782ea317bf5150f76adf8cfb0747d1a66062e509505ecb72e8582239",
@@ -196282,6 +197760,16 @@
         "2149bef075aa604172cdff181ddfe1b6d93d81a3d220cb5467d002c0e897ed27"
       ]
     },
+    "spacr.utils.load_settings.parse_value": {
+      "source_blocks_sha256": [
+        "b92e1bfe3a4f90a809d3ed5eb2bdb9ba7daf64080a20dabd3e2bdceea84335d9"
+      ],
+      "source_sha256": "b92e1bfe3a4f90a809d3ed5eb2bdb9ba7daf64080a20dabd3e2bdceea84335d9",
+      "text": "Convertit la valeur de chaîne dans le type de données Python approprié.",
+      "translation_source_blocks_sha256": [
+        "b92e1bfe3a4f90a809d3ed5eb2bdb9ba7daf64080a20dabd3e2bdceea84335d9"
+      ]
+    },
     "spacr.utils.map_condition": {
       "source_blocks_sha256": [
         "fb604d99d7357a303b773fed275e32ccc6c92a00199c17d7eb2c776a373f5b99",
@@ -196386,6 +197874,16 @@
         "07d6f8f251ccd02b8a6cee51cab8e2ac25663b3d1ddd1af9df6c57ecc781b6ab",
         "b7cbf37a3ef0451fcfa62034206412145593ee4729df5b2b586bde814eb0cabd",
         "2ae53bbe318cb4db16b2ceb0a0074847162497ac95038080da42b89f64ad9633"
+      ]
+    },
+    "spacr.utils.merge_regression_res_with_metadata.extract_and_clean_gene": {
+      "source_blocks_sha256": [
+        "ac2f191524fd7e9bd4ac9526600135466034abdd2d8bf843f45fd08f4f25d161"
+      ],
+      "source_sha256": "ac2f191524fd7e9bd4ac9526600135466034abdd2d8bf843f45fd08f4f25d161",
+      "text": "Renvoie l'ID de gène extrait d'une chaîne ``feature`` comme ``C(gene)[T.<id>_...]``, ou ``None``.",
+      "translation_source_blocks_sha256": [
+        "ac2f191524fd7e9bd4ac9526600135466034abdd2d8bf843f45fd08f4f25d161"
       ]
     },
     "spacr.utils.merge_split_objects": {
@@ -196586,6 +198084,16 @@
         "3aa196381bde683b09dd23a74e88dfa29cf294284f91bfae79fb9f2e96ce1e31"
       ]
     },
+    "spacr.utils.pick_best_model.sort_key": {
+      "source_blocks_sha256": [
+        "0bbf37580b39d6761c55f57c2365f1c6943e3547ca59af0ade396a15298d8430"
+      ],
+      "source_sha256": "0bbf37580b39d6761c55f57c2365f1c6943e3547ca59af0ade396a15298d8430",
+      "text": "Renvoie ``(role, accuracy, epoch)`` à partir des métadonnées ou d'un ancien nom.",
+      "translation_source_blocks_sha256": [
+        "0bbf37580b39d6761c55f57c2365f1c6943e3547ca59af0ade396a15298d8430"
+      ]
+    },
     "spacr.utils.plot_clusters": {
       "source_blocks_sha256": [
         "48fc0ab2f7a6f58ee07e7a18dafc38d77894365742cdf8f79cc582d5ce35a6bb",
@@ -196732,6 +198240,16 @@
         "d9f1f13161d3c2f27d5d023860bdd933a5fcb61cf136ea91da8fd8ecc1125dcd",
         "6056d5851a85508fecdf7bb091a3265c2381932ac4c9ed03ba42daeb89fb58bc",
         "79ba5e55718dfc7cd893c82c765949b875cbad791440928cbb822e5c3fd80147"
+      ]
+    },
+    "spacr.utils.plot_grid.cluster_color": {
+      "source_blocks_sha256": [
+        "d3abb819ad880e2622b0fc359ca104616607c77e27681942df7e6cf93c5dcc6e"
+      ],
+      "source_sha256": "d3abb819ad880e2622b0fc359ca104616607c77e27681942df7e6cf93c5dcc6e",
+      "text": "Résout une seule fois la couleur d'un cluster pour les panneaux et la légende.",
+      "translation_source_blocks_sha256": [
+        "d3abb819ad880e2622b0fc359ca104616607c77e27681942df7e6cf93c5dcc6e"
       ]
     },
     "spacr.utils.plot_image": {
@@ -196918,6 +198436,36 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
+    "spacr.utils.pretty_print_settings._fmt": {
+      "source_blocks_sha256": [
+        "9ea92f111a56e10c04bd0bca66ee168b14ed39dc72afe0923bb42cb8f78f2637"
+      ],
+      "source_sha256": "9ea92f111a56e10c04bd0bca66ee168b14ed39dc72afe0923bb42cb8f78f2637",
+      "text": "Renvoie ``v`` sous forme de texte tronqué à la largeur de valeur du tableau.",
+      "translation_source_blocks_sha256": [
+        "9ea92f111a56e10c04bd0bca66ee168b14ed39dc72afe0923bb42cb8f78f2637"
+      ]
+    },
+    "spacr.utils.pretty_print_settings._row": {
+      "source_blocks_sha256": [
+        "08458da07bcaad31173844a75708c156c343c708a4ea4c55cbb86b92876762d5"
+      ],
+      "source_sha256": "08458da07bcaad31173844a75708c156c343c708a4ea4c55cbb86b92876762d5",
+      "text": "Renvoie une ligne de tableau complétée avec la clé et la valeur formatée.",
+      "translation_source_blocks_sha256": [
+        "49e41b51e99f3f1e60a4787bf6b6a3a9b62487d5ec7eec3710cb954f6f57ec59"
+      ]
+    },
+    "spacr.utils.pretty_print_settings._say": {
+      "source_blocks_sha256": [
+        "b715d28b7f0ea37bc8e974e7e4b1a6c4ad7c29be2fc037b73aec1a77f0fe08bf"
+      ],
+      "source_sha256": "b715d28b7f0ea37bc8e974e7e4b1a6c4ad7c29be2fc037b73aec1a77f0fe08bf",
+      "text": "Affiche une forme de ``line`` sûre pour la console et renvoie ``None``.",
+      "translation_source_blocks_sha256": [
+        "b715d28b7f0ea37bc8e974e7e4b1a6c4ad7c29be2fc037b73aec1a77f0fe08bf"
+      ]
+    },
     "spacr.utils.print_progress": {
       "source_blocks_sha256": [
         "6ca67e8e57d6e1f7f5d55a073ec47e6bb304f56a1bde6a5cbf24b0c1a6b0267e",
@@ -196994,6 +198542,56 @@
         "63e938dd9b94f3ebf40f712067033c06d39cb8a0c18ec4ab4fe606f7d323144a",
         "f91cecd986bfbe69e65dfe113e342cb76b473d0390d222e439926cebbb8a8c6b",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.utils.process_masks.cluster_objects": {
+      "source_blocks_sha256": [
+        "af693bf6fa13f128c3265295e292730d4b23e7182544284434086c3690c7c615"
+      ],
+      "source_sha256": "af693bf6fa13f128c3265295e292730d4b23e7182544284434086c3690c7c615",
+      "text": "Renvoie un objet ``KMeans`` ajusté qui regroupe les dicts de propriétés en ``n_clusters`` groupes.",
+      "translation_source_blocks_sha256": [
+        "c9cc90a005afd4502c2f192cdbc6e1c2602c613856b4eaf68edfca9332c29098"
+      ]
+    },
+    "spacr.utils.process_masks.measure_morphology_and_intensity": {
+      "source_blocks_sha256": [
+        "dfb06dc78b0d013bc2b9dbf924b6b94b3df5551818d6d39148a8ddaf930dcd16"
+      ],
+      "source_sha256": "dfb06dc78b0d013bc2b9dbf924b6b94b3df5551818d6d39148a8ddaf930dcd16",
+      "text": "Renvoie une liste de dicts avec area/mean_intensity/perimeter/eccentricity par région étiquetée.",
+      "translation_source_blocks_sha256": [
+        "42b8b192866b2feeafe4b6a62c03d50820867f2d933fd24477355f1d29e4091d"
+      ]
+    },
+    "spacr.utils.process_masks.plot_clusters": {
+      "source_blocks_sha256": [
+        "10f7cf16d10c41330aa819e710bec14a273c6e79cda0ba4c39b1c0ab54b3d519"
+      ],
+      "source_sha256": "10f7cf16d10c41330aa819e710bec14a273c6e79cda0ba4c39b1c0ab54b3d519",
+      "text": "Affiche un nuage de points PCA 2-D des vecteurs de propriétés coloré par étiquette de cluster.",
+      "translation_source_blocks_sha256": [
+        "10f7cf16d10c41330aa819e710bec14a273c6e79cda0ba4c39b1c0ab54b3d519"
+      ]
+    },
+    "spacr.utils.process_masks.read_files_in_batches": {
+      "source_blocks_sha256": [
+        "7f63aa56878fe3994a0765220c3c7351c35dba50b58d883b1b95cb2dd7a1aa58"
+      ],
+      "source_sha256": "7f63aa56878fe3994a0765220c3c7351c35dba50b58d883b1b95cb2dd7a1aa58",
+      "text": "Produit des listes triées de noms de fichiers ``.npy`` de ``folder`` par paquets de ``batch_size``.",
+      "translation_source_blocks_sha256": [
+        "7f63aa56878fe3994a0765220c3c7351c35dba50b58d883b1b95cb2dd7a1aa58"
+      ]
+    },
+    "spacr.utils.process_masks.remove_objects_not_in_largest_cluster": {
+      "source_blocks_sha256": [
+        "4923d4493b4a563b059f78b2e041d4be8716be06de0551247e665003485a0a1e"
+      ],
+      "source_sha256": "4923d4493b4a563b059f78b2e041d4be8716be06de0551247e665003485a0a1e",
+      "text": "Renvoie ``mask`` dont toutes les régions étiquetées sont supprimées sauf celles de ``largest_cluster_label``.",
+      "translation_source_blocks_sha256": [
+        "4923d4493b4a563b059f78b2e041d4be8716be06de0551247e665003485a0a1e"
       ]
     },
     "spacr.utils.process_vision_results": {
@@ -197438,6 +199036,58 @@
         "a605775994f5a9a82bde5620e0ee3a8a1370fe77f68914899955f69262f8c231",
         "efd0780b4f8f8f9b8f32d12823bf2cfb9514c237a60c72aa2b993751c463480c",
         "2dd19499d7a4736146016fd62274de4cb7939de89a4f93beb10607f9b624d723"
+      ]
+    },
+    "spacr.utils.suggest_training_changes._find_csv": {
+      "source_blocks_sha256": [
+        "91b2ecc0a12916e4d60550dddb920dbec1ec5e95c20512ce40828b6775e20539"
+      ],
+      "source_sha256": "91b2ecc0a12916e4d60550dddb920dbec1ec5e95c20512ce40828b6775e20539",
+      "text": "Renvoie le dernier CSV correspondant dans l'ordre lexical dans ``root``, s'il y en a un.",
+      "translation_source_blocks_sha256": [
+        "91b2ecc0a12916e4d60550dddb920dbec1ec5e95c20512ce40828b6775e20539"
+      ]
+    },
+    "spacr.utils.suggest_training_changes._last_seq": {
+      "source_blocks_sha256": [
+        "8c0a40db42c6f883f1da33ff9c2bcd142e023001a778e14c3feb3f1f5fab6a4a"
+      ],
+      "source_sha256": "8c0a40db42c6f883f1da33ff9c2bcd142e023001a778e14c3feb3f1f5fab6a4a",
+      "text": "Renvoie au plus les ``k`` dernières valeurs sous forme de tableau à virgule flottante.",
+      "translation_source_blocks_sha256": [
+        "8c0a40db42c6f883f1da33ff9c2bcd142e023001a778e14c3feb3f1f5fab6a4a"
+      ]
+    },
+    "spacr.utils.suggest_training_changes._normalize_cols": {
+      "source_blocks_sha256": [
+        "119f674ed9dd56ebf297ed5c5893f360e73e7e46c18df92ff7bbdfb4729dba8d"
+      ],
+      "source_sha256": "119f674ed9dd56ebf297ed5c5893f360e73e7e46c18df92ff7bbdfb4729dba8d",
+      "text": "Renvoie ``df`` avec des colonnes normalisées, munies d'alias et de première occurrence.",
+      "translation_source_blocks_sha256": [
+        "119f674ed9dd56ebf297ed5c5893f360e73e7e46c18df92ff7bbdfb4729dba8d"
+      ]
+    },
+    "spacr.utils.suggest_training_changes._poly_slope": {
+      "source_blocks_sha256": [
+        "7b8851724c8a8cf4ea976300ef97be83591db1c643fc54fa18e95d81aadeec8c"
+      ],
+      "source_sha256": "7b8851724c8a8cf4ea976300ef97be83591db1c643fc54fa18e95d81aadeec8c",
+      "text": "Renvoie la pente linéaire finie de ``y``, ou zéro lorsqu'elle est indéfinie.",
+      "translation_source_blocks_sha256": [
+        "7b8851724c8a8cf4ea976300ef97be83591db1c643fc54fa18e95d81aadeec8c"
+      ]
+    },
+    "spacr.utils.suggest_training_changes._scalar": {
+      "source_blocks_sha256": [
+        "90918489a2146afc550ac8051af0f0a0fa508cab435962709e52993fd30381f9",
+        "cd28b9bae50730040e029ffb45dbeb86b1469f8a3591e460fe8db62e2a015296"
+      ],
+      "source_sha256": "42e0533af86caabc2153f256202129b343c804ab87bdae6d7bb54ead3fd0a30a",
+      "text": "Garantit un float unique même si une Series se glisse.\n\nLa branche Series est actuellement inaccessible : chaque site d'appel passe ``<Series>.iloc[<int>]``, ce qui donne un scalaire numpy. Elle est conservée comme garde délibérée, car les recherches ``.loc`` par étiquette sur lesquelles cette fonction s'appuyait auparavant renvoyaient une Series dès que le CSV de progression avait un index dupliqué, et c'est une régression facile à réintroduire.",
+      "translation_source_blocks_sha256": [
+        "90918489a2146afc550ac8051af0f0a0fa508cab435962709e52993fd30381f9",
+        "cd28b9bae50730040e029ffb45dbeb86b1469f8a3591e460fe8db62e2a015296"
       ]
     },
     "spacr.validate": {

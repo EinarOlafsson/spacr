@@ -1,0 +1,1519 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.object_classifier._train_real_classifier.estimator#0",
+      "source": "Return a fresh scaled, class-balanced logistic-regression pipeline.",
+      "source_sha256": "7a8a8609859ce66eb30db04094e00a3326df3beb4d515a627f972d6fa8890bc3",
+      "context": "Return a fresh scaled, class-balanced logistic-regression workflow.",
+      "translation": "스케일링되고 클래스 균형이 맞춰진 새 로지스틱 회귀 파이프라인을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.object_classifier.merge_halves.root#0",
+      "source": "Resolve a merge group and compress the path to its lowest id.",
+      "source_sha256": "7cec40920a09acfcf6ba639cb50299f2afd234b201a689d5e3e189502d79e8c7",
+      "context": "Resolve a merge group and compress the path to its lowest id.",
+      "translation": "병합 그룹을 확인하고 경로를 그 그룹의 가장 낮은 id로 압축합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._blocks.root#0",
+      "source": "The block ``i`` belongs to, compressing the path on the way.",
+      "source_sha256": "c93012c2f3c87cbcd22d1b882499fbcf7c18a19dc37f1cc5aa63b6261ac3d772",
+      "context": "The block ``i`` belongs to, compressing the path on the way.",
+      "translation": "``i``가 속한 블록이며, 그 과정에서 경로를 압축합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._cellpose_segmenter.segment#0",
+      "source": "The Cellpose label mask of one plaque image crop.",
+      "source_sha256": "874570d4b5f3123d478fbc7e03c3f2f37c9fe7a251f3229c3b84d48cd3d364f2",
+      "context": "The Cellpose label mask of one plaque extracted image region.",
+      "translation": "플라크 이미지 크롭 하나의 Cellpose 레이블 마스크입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._doi_candidates.add#0",
+      "source": "Count one sighting of a cleaned candidate.",
+      "source_sha256": "9c39c5e07bab3cfe41c404c21b1d3e8cde64624aa4984ac88b2088a0a40f240c",
+      "context": "Count one sighting of a cleaned candidate.",
+      "translation": "정리된 후보 하나의 발견 횟수를 셉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._find_duplicate.found#0",
+      "source": "The duplicate record for ``row``.",
+      "source_sha256": "1af62a10e7ee74285cb15e715b37d995009283f305c811db5e1fd52d02a12b80",
+      "context": "The duplicate record for ``row``.",
+      "translation": "``row``에 대한 중복 레코드입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._find_duplicate.same_figure#0",
+      "source": "The row is this very file of this very paper.",
+      "source_sha256": "a721e359922130eae70f5c6dbd41ead20a5abf18465d0c04345d84a1f0cba484",
+      "context": "The row is this very file of this very paper.",
+      "translation": "이 행은 바로 이 논문의 바로 이 파일입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._grid_positions.ranks#0",
+      "source": "A 1-based rank per centre, sharing a rank within half a size.",
+      "source_sha256": "d95e1ec0994e94c779bc829aeb9b34fda190f56a045a628ee0c916a9554714b6",
+      "context": "A 1-based rank per centre, sharing a rank within half a size.",
+      "translation": "중심마다 1부터 시작하는 순위이며, 크기의 절반 이내에서는 순위를 공유합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers._label_words.size#0",
+      "source": "Words in a line, counting inside each piece of text.",
+      "source_sha256": "0e531f29f0b828b8687f98682b7eb4529ca6e76201ff8e43bfd5ccab808a97c0",
+      "context": "Words in a line, counting inside each piece of text.",
+      "translation": "한 줄의 단어 수로, 각 텍스트 조각 안에서 셉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.measure_figure_folder.review#0",
+      "source": "Apply the saved overrides to a figure and count what still awaits approval.",
+      "source_sha256": "1b8050bd49d0641ab3208c754b17a48aa7a8e6e764e43c9bde952c17f0cdf1b2",
+      "context": "Apply the saved overrides to a figure and count what still awaits approval.",
+      "translation": "저장된 재정의를 그림에 적용하고 아직 승인을 기다리는 항목을 셉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.text_options_from_settings.patterns#0",
+      "source": "A tuple of patterns from a comma-separated string or a sequence.",
+      "source_sha256": "5fbcc9e70e2f990edbc3822dc6d078b379b7b49898e482f67ac449fdf848c080",
+      "context": "A tuple of patterns from a comma-separated string or a sequence.",
+      "translation": "쉼표로 구분된 문자열 또는 시퀀스에서 만든 패턴 튜플입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.text_options_from_settings.pick#0",
+      "source": "``settings[key]`` cast by ``cast``, or ``default`` if blank or invalid.",
+      "source_sha256": "73f499461b3e283ea691ac1cb6800b54e019c539117b422f0e897de67619a66a",
+      "context": "``settings[key]`` cast by ``cast``, or ``default`` if blank or invalid.",
+      "translation": "``settings[key]``를 ``cast``로 변환한 값이며, 비어 있거나 유효하지 않으면 ``default``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plaque_papers.text_options_from_settings.sides#0",
+      "source": "The valid sides named in ``value``, or the default order if none are.",
+      "source_sha256": "378c1aa193bbd68dabf08bf19369973551ec8e87127ab79f2cbf11039884c36c",
+      "context": "The valid sides named in ``value``, or the default order if none are.",
+      "translation": "``value``에 명시된 유효한 면들이며, 하나도 없으면 기본 순서입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.__init__#0",
+      "source": "Build the question and start the countdown.",
+      "source_sha256": "04afea6f72234473b69aeedac62b8d094a05715c37792e07d3ba77c8d2b5ca24",
+      "context": "Build the question and start the countdown.",
+      "translation": "질문을 구성하고 카운트다운을 시작합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog._show_left#0",
+      "source": "Say how long is left.",
+      "source_sha256": "a4e97d20148418fb38c3704a188bbeeb9b38cbf93c7242efacdb30738b916eae",
+      "context": "Say how long is left.",
+      "translation": "남은 시간을 알려 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog._tick#0",
+      "source": "One second less; at zero, revert.",
+      "source_sha256": "04e828b073eb97ecbce97946ae96ce926b4fc265b3c3043fde65c426e0d0eac9",
+      "context": "One second less; at zero, revert.",
+      "translation": "1초를 줄이고, 0이 되면 되돌립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.done#0",
+      "source": "Stop the countdown on any answer.",
+      "source_sha256": "0c95739b19aa44fd7efaa91f559451e392dcdc011cb403182c438cf447bc6d34",
+      "context": "Stop the countdown on any answer.",
+      "translation": "어떤 응답이든 받으면 카운트다운을 멈춥니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._dialog_classes.KeepOrRevertDialog.done#1",
+      "source": "the dialog result.",
+      "source_sha256": "8aa1dd74c51332759e517dc005de573a578a85071e4cf9c6ff22ade94554d1ee",
+      "context": "the dialog result.",
+      "translation": "대화 상자의 결과입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_application_sheet.setStyleSheet#0",
+      "source": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "source_sha256": "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f",
+      "context": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "translation": "스타일시트를 100 % 기준으로 기록하고 그 크기를 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_application_sheet.styleSheet#0",
+      "source": "The sheet as the code set it, at 100 %.",
+      "source_sha256": "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce",
+      "context": "The sheet as the code set it, at 100 %.",
+      "translation": "코드가 설정한 그대로의 100 % 기준 스타일시트입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.getter#0",
+      "source": "The wrapper that answers an icon size at 100 %.",
+      "source_sha256": "b6a3dbe773a7eb2821835bd3995f0501715aa88919d136ea00f01e596b05144f",
+      "context": "The wrapper that answers an icon size at 100 %.",
+      "translation": "100 % 기준 아이콘 크기를 응답하는 래퍼입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.getter.iconSize#0",
+      "source": "The icon size in 100 % units.",
+      "source_sha256": "12eca43f121ec7c5d5cdebaa158be46a5363a4b6ffd3225583ed88cebf9adbac",
+      "context": "The icon size in 100 % units.",
+      "translation": "100 % 단위의 아이콘 크기입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.setter#0",
+      "source": "The wrapper that records an icon size and scales it.",
+      "source_sha256": "ce6c032c42f4caa33f50e0e3ef5553137e55102d5733719ebad67c73a417b383",
+      "context": "The wrapper that records an icon size and scales it.",
+      "translation": "아이콘 크기를 기록하고 배율을 적용하는 래퍼입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_icon_setters.setter.setIconSize#0",
+      "source": "Record the icon size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "52fc8a20be81847c4d2f9e1f44b3d6709ff322d8757c5b43c925bc8266c90c1c",
+      "context": "Record the icon size at 100 % and apply it at the GUI scale.",
+      "translation": "아이콘 크기를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.addSpacing#0",
+      "source": "Add a spacer recorded at 100 % and drawn at the GUI scale.",
+      "source_sha256": "082ec95d12a44682bfcf71b91b3346b429d105293156a61f5f7f7e0a344549aa",
+      "context": "Add a spacer recorded at 100 % and drawn at the GUI scale.",
+      "translation": "100 % 기준으로 기록되고 GUI 배율로 그려지는 스페이서를 추가합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.insertSpacing#0",
+      "source": "Insert a spacer recorded at 100 % and drawn at the GUI scale.",
+      "source_sha256": "2962739715ef19323807ab7df5df0dfe4e58e383bebedaf863ae6bef95a14561",
+      "context": "Insert a spacer recorded at 100 % and drawn at the GUI scale.",
+      "translation": "100 % 기준으로 기록되고 GUI 배율로 그려지는 스페이서를 삽입합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_getter#0",
+      "source": "The wrapper that answers a layout's margins at 100 %.",
+      "source_sha256": "dc28659bb0e8472e0085c0f5b125fb89dc406dab02dd9b5614b90f7dd636ab1c",
+      "context": "The wrapper that answers a layout's margins at 100 %.",
+      "translation": "레이아웃의 여백을 100 % 기준으로 응답하는 래퍼입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_getter.contentsMargins#0",
+      "source": "The margins in 100 % units.",
+      "source_sha256": "6b425b5457121991e7d655d990f653e63dee20af371a466fa112e66ff8588bc0",
+      "context": "The margins in 100 % units.",
+      "translation": "100 % 단위의 여백입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_setter#0",
+      "source": "The wrapper that records a layout's margins and scales them.",
+      "source_sha256": "9aa62d55617db6b8c004a49dc7e0c5dfdd6522fa518d33da8d54ca8bee68231e",
+      "context": "The wrapper that records a layout's margins and scales them.",
+      "translation": "레이아웃의 여백을 기록하고 배율을 적용하는 래퍼입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.margins_setter.setContentsMargins#0",
+      "source": "Record the margins at 100 % and apply them at the GUI scale.",
+      "source_sha256": "1a283e519b056a21107d8f11038cd67e0d46520dce836cfe67f600013ae1bd3d",
+      "context": "Record the margins at 100 % and apply them at the GUI scale.",
+      "translation": "여백을 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacer#0",
+      "source": "A fixed spacer item along the box's direction.",
+      "source_sha256": "716174ffd3c0a58d7cb31cf98b0e359c5f18e963fc377c71af858e585baa1bd8",
+      "context": "A fixed spacer item along the box's direction.",
+      "translation": "박스 방향을 따르는 고정 스페이서 항목입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_getter#0",
+      "source": "The factory for one spacing getter, by its record key.",
+      "source_sha256": "949379b226a30978ae69c5e55c0cd05b7436ff207ea353094bd49f77af1b1012",
+      "context": "The factory for one spacing getter, by its record structured-data name.",
+      "translation": "기록 키별로 만드는 간격 getter 하나의 팩토리입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_getter.make#0",
+      "source": "The wrapper that answers a spacing at 100 %.",
+      "source_sha256": "2883e1bd8a7c8c5a4f5f6c27c5dd840da192bf2c10800e8f1bb0a7fa91bf3357",
+      "context": "The wrapper that answers a spacing at 100 %.",
+      "translation": "간격을 100 % 기준으로 응답하는 래퍼입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_getter.make.getter#0",
+      "source": "The spacing in 100 % units.",
+      "source_sha256": "b5a66f05fa6d29e1aa6e8b76a4f71605a7b5473b0d5a3e134f251faab4d23b65",
+      "context": "The spacing in 100 % units.",
+      "translation": "100 % 단위의 간격입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_setter#0",
+      "source": "The factory for one spacing setter, by its record key.",
+      "source_sha256": "2f348a7fb81145aabc33c94d65d12750ff01ad2c4de05d60eef19b2581d847ff",
+      "context": "The factory for one spacing setter, by its record structured-data name.",
+      "translation": "기록 키별로 만드는 간격 setter 하나의 팩토리입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_setter.make#0",
+      "source": "The wrapper that records a spacing and scales it.",
+      "source_sha256": "506d9a717b1837872d281effbdf124e1d6812cf9d7826582d8c9e886bcb56b3c",
+      "context": "The wrapper that records a spacing and scales it.",
+      "translation": "간격을 기록하고 배율을 적용하는 래퍼입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_layout_setters.spacing_setter.make.setter#0",
+      "source": "Record the spacing at 100 % and apply it at the GUI scale.",
+      "source_sha256": "279df9925c02c9028da1273be020e0e7f0909cc74b6c1465d6f61cdbdc657c6f",
+      "context": "Record the spacing at 100 % and apply it at the GUI scale.",
+      "translation": "간격을 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_splitter_setters.setSizes#0",
+      "source": "Apply 100 % sizes at the GUI scale, and remember them.",
+      "source_sha256": "ffb600c696fbc9c7b89acd32d9f07dd52aeda5ce15c5c5287b4c77fad36d7a29",
+      "context": "Apply 100 % sizes at the GUI scale, and remember them.",
+      "translation": "100 % 기준 크기를 GUI 배율로 적용하고 기억합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_splitter_setters.sizes#0",
+      "source": "The sizes in 100 % units.",
+      "source_sha256": "3c7bc47c014799008f4617e7927e8b5e5d4317fce9c72b9f6295daa47ccb84dc",
+      "context": "The sizes in 100 % units.",
+      "translation": "100 % 단위의 크기입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.maximumHeight#0",
+      "source": "The maximum height in 100 % units.",
+      "source_sha256": "05710bba4a903540097947150b495d0c9ff10e089e49e5887cc2446092f9ac11",
+      "context": "The maximum height in 100 % units.",
+      "translation": "100 % 단위의 최대 높이입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.maximumSize#0",
+      "source": "The maximum size in 100 % units.",
+      "source_sha256": "d518ab5d3ba7fac3593eee93bbf9086064f1901d0b9dabcaf4533978fa895f1c",
+      "context": "The maximum size in 100 % units.",
+      "translation": "100 % 단위의 최대 크기입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.maximumWidth#0",
+      "source": "The maximum width in 100 % units.",
+      "source_sha256": "9f96ae8e97477442323a045b1900ac8a723d28899aac05664b05cd075d6589cd",
+      "context": "The maximum width in 100 % units.",
+      "translation": "100 % 단위의 최대 너비입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.minimumHeight#0",
+      "source": "The minimum height in 100 % units.",
+      "source_sha256": "5bc61abeb985a30c606f2abb4f92dfc3c0c4090bee80f6b91411f397fb4151fb",
+      "context": "The minimum height in 100 % units.",
+      "translation": "100 % 단위의 최소 높이입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.minimumSize#0",
+      "source": "The minimum size in 100 % units.",
+      "source_sha256": "b9dec8a7e31c11cad2ecb81dbe3d90e1472876fe85853a995e3829151218582a",
+      "context": "The minimum size in 100 % units.",
+      "translation": "100 % 단위의 최소 크기입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.minimumWidth#0",
+      "source": "The minimum width in 100 % units.",
+      "source_sha256": "4591e2bed31eb5d6051b8b94cf021a7e2610d109fdad6b70228ef1808d91dbb0",
+      "context": "The minimum width in 100 % units.",
+      "translation": "100 % 단위의 최소 너비입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.resize#0",
+      "source": "Resize at the GUI scale; the main window keeps its size.",
+      "source_sha256": "bf48578a654e7085fd9fb238193caabaa6878534de2c76b42b2c3cfff0ae7441",
+      "context": "Resize at the GUI scale; the main window keeps its size.",
+      "translation": "GUI 배율로 크기를 조정하며, 메인 창은 크기를 유지합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setFixedHeight#0",
+      "source": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "context": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "translation": "``h``를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setFixedSize#0",
+      "source": "Record the size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "context": "Record the size at 100 % and apply it at the GUI scale.",
+      "translation": "크기를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setFixedWidth#0",
+      "source": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "context": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "translation": "``w``를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMaximumHeight#0",
+      "source": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "context": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "translation": "``h``를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMaximumSize#0",
+      "source": "Record the size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "context": "Record the size at 100 % and apply it at the GUI scale.",
+      "translation": "크기를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMaximumWidth#0",
+      "source": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "context": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "translation": "``w``를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMinimumHeight#0",
+      "source": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "415ac90cd40920a270518a4d8a80992b7371d867aa75e0e523e64d8b728fd7d2",
+      "context": "Record ``h`` at 100 % and apply it at the GUI scale.",
+      "translation": "``h``를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMinimumSize#0",
+      "source": "Record the size at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22ee82b319e074b31d942aea6ae5db56083581144e158444eab0c57a0b76c414",
+      "context": "Record the size at 100 % and apply it at the GUI scale.",
+      "translation": "크기를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setMinimumWidth#0",
+      "source": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "source_sha256": "22bf2c946941ca7610d5763fa7d7963aa02ba0abe269e45355c0b71b37722034",
+      "context": "Record ``w`` at 100 % and apply it at the GUI scale.",
+      "translation": "``w``를 100 % 기준으로 기록하고 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.setStyleSheet#0",
+      "source": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "source_sha256": "89cb6ddfb38bf9ee260f2dd395590664f12c694c5239ec6feccb244a284c926f",
+      "context": "Record the sheet at 100 % and apply its sizes at the GUI scale.",
+      "translation": "스타일시트를 100 % 기준으로 기록하고 그 크기를 GUI 배율로 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale._install_widget_setters.styleSheet#0",
+      "source": "The sheet as the code set it, at 100 %.",
+      "source_sha256": "1eea0af56553793e952be14b7b638172de33cbb8286fcd956ac604d66e2c9fce",
+      "context": "The sheet as the code set it, at 100 %.",
+      "translation": "코드가 설정한 그대로의 100 % 기준 스타일시트입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale.change_scales._answered#0",
+      "source": "Keep, or put the old values back.",
+      "source_sha256": "c6c05fcdc81ed38866e281014915e1f32b90126643281fa2f10b75489df01c7e",
+      "context": "Keep, or put the old values back.",
+      "translation": "유지하거나 이전 값을 되돌립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.gui_scale.mend_matplotlib_icons._at_least_one#0",
+      "source": "The toolbar's device ratio, never below 1.",
+      "source_sha256": "763dfd59926cc0dade1145aa29cf03b1eb5afe8a093f3b46a92a27b6a8affdde",
+      "context": "The toolbar's device ratio, never below 1.",
+      "translation": "도구 모음의 장치 픽셀 비율이며, 1 미만이 되지 않습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences_navigation.reveal_row._unmark#0",
+      "source": "Put the row back the way it was found.",
+      "source_sha256": "16e828e2cf092e8f98bef3085576ce6d5775c0f1d28370b95c3c2556b5eecc15",
+      "context": "Put the row back the way it was found.",
+      "translation": "행을 처음 발견된 상태로 되돌립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.activation._add_counterfactual_viewer_button._open#0",
+      "source": "Ask for a counterfactuals folder and open its viewer.",
+      "source_sha256": "cd7a4eb36b1ed9d946a1ce009e351f1051f715d0db72499d554c9d9917380235",
+      "context": "Ask for a counterfactuals folder and open its viewer.",
+      "translation": "반사실 폴더를 요청하고 그 뷰어를 엽니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.activation._counterfactual_viewer._show#0",
+      "source": "Show the frames of the sequence at ``index`` as a strip of images.",
+      "source_sha256": "a0c72fd068091c05ff1fb192fa56fd80b9fcfd882f79f5f1716397b381b706c9",
+      "context": "Show the frames of the sequence at ``index`` as a strip of images.",
+      "translation": "``index``에 있는 시퀀스의 프레임을 이미지 스트립으로 보여 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_magnifier_drag.common#0",
+      "source": "Return a shared frame value, or the explicit mixed/unknown value.",
+      "source_sha256": "36013a8e377d9aa07fa9bf032d4455a9c416ef453e8bf49463a90b1b5df5b73b",
+      "context": "Return a shared frame value, or the explicit mixed/unknown value.",
+      "translation": "공유 프레임 값을 반환하거나, 명시적인 혼합/알 수 없음 값을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_uncertainty_ranking.stem#0",
+      "source": "a field's file name.",
+      "source_sha256": "efebf7d7de59e455323c3a93c42fbb27518be828c7f3c53641e98b99acbcdcc5",
+      "context": "a field's file name.",
+      "translation": "필드 하나의 파일 이름입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._apply_uncertainty_ranking.stem#1",
+      "source": "its stem, as the curation queue names it.",
+      "source_sha256": "ea2d34937f1951855dcccf84d8933f8d83259dbfc6c861532669913c19b9154c",
+      "context": "its stem, as the curation work list names it.",
+      "translation": "큐레이션 대기열이 부르는 방식대로의 파일 이름 어간입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._build_methods_card.row#0",
+      "source": "Add one parameter row and remember it under its field name.",
+      "source_sha256": "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25",
+      "context": "Add one parameter row and remember it under its field name.",
+      "translation": "매개변수 행 하나를 추가하고 그 필드 이름으로 기억합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._build_propagate_card.row#0",
+      "source": "Add one parameter row and remember it under its field name.",
+      "source_sha256": "d6f6ce0b20dd58e0a233c225896732c02976bf120a755d8b2bfa0f626e1afb25",
+      "context": "Add one parameter row and remember it under its field name.",
+      "translation": "매개변수 행 하나를 추가하고 그 필드 이름으로 기억합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._end_blind.ask#0",
+      "source": "Confirm revealing field paths and recording the unblind event.",
+      "source_sha256": "e9c7bfca75c3da49e4e7cd6f505b8c0533b90e552c6dcc65043c083bbb94e552",
+      "context": "Confirm revealing field paths and recording the unblind event.",
+      "translation": "필드 경로 공개와 맹검 해제 이벤트 기록을 확인합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen._offer_prompt_install.watch#0",
+      "source": "Put the install's progress and its ending in the console.",
+      "source_sha256": "2c6b5c29b03ba5ed44d8e72c1af775895ab38bd111cb57ad8eeb3eab4b70f72a",
+      "context": "Put the install's progress and its ending in the console.",
+      "translation": "설치 진행 상황과 그 종료를 콘솔에 표시합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._Sam2SeedDialog.run.work#0",
+      "source": "Propagate the seeds through the frames and emit the labels or the error.",
+      "source_sha256": "ab8b5f24a1e0c989c885e1f427837794e6ae3e4fb2862270fc3e0f1988e7eb77",
+      "context": "Propagate the seeds through the frames and emit the labels or the error.",
+      "translation": "시드를 프레임 전체에 전파하고 레이블 또는 오류를 내보냅니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._counting_tiles.before_a_tile#0",
+      "source": "Count this call's tiles, or stop the run here.",
+      "source_sha256": "38160c094a0dc233ac212447f1ceee9e104dc5c365f2edd991f03075ea4fcbca",
+      "context": "Count this call's tiles, or stop the run here.",
+      "translation": "이 호출의 타일 수를 세거나, 여기서 실행을 중지합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#0",
+      "source": "Score primary TTA and the optional second model in one frame.",
+      "source_sha256": "8d3a934e16ce49910e2b3e004ab8e0ef3094c71e5cb1c8c6b496f1276f75477c",
+      "context": "Score primary TTA and the optional second model in one frame.",
+      "translation": "기본 TTA와 선택적 두 번째 모델을 한 프레임에서 채점합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#1",
+      "source": "one field.",
+      "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+      "context": "one field.",
+      "translation": "필드 하나입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot._score#2",
+      "source": "its uncertainty over four or eight aligned passes.",
+      "source_sha256": "6e733083366fd410d2474a4eaa4ef43215f0e7b59f6b2b1f92ec3cd25dfc86eb",
+      "context": "its uncertainty over four or eight aligned passes.",
+      "translation": "정렬된 네 번 또는 여덟 번의 패스에 걸친 불확실성입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary#0",
+      "source": "Segment a transform with the captured second model.",
+      "source_sha256": "2ad0ac1b772e5e3074d6a3a6f4422df9c69cc33abfc476278fa048c04e3d5058",
+      "context": "Segment a transform with the captured second model.",
+      "translation": "캡처된 두 번째 모델로 변환 하나를 분할합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary#1",
+      "source": "one transformed field.",
+      "source_sha256": "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+      "context": "one transformed field.",
+      "translation": "변환된 필드 하나입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.secondary#2",
+      "source": "labels, cell probability and vectors.",
+      "source_sha256": "a962b1d4a747d6ad81f43bc9cef83ec1ee504a3e21ca645bde9201901dcceaec",
+      "context": "labels, cell probability and vectors.",
+      "translation": "레이블, 세포 확률 및 벡터입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.segment#0",
+      "source": "one transformed field.",
+      "source_sha256": "869bd12758cafba3e973aa1c33ad9e08ba5055ac98ee92292a8c5756ae1ba963",
+      "context": "one transformed field.",
+      "translation": "변환된 필드 하나입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks._uncertainty_snapshot.segment#1",
+      "source": "its labels, cell probability and flow vectors under the captured detection settings.",
+      "source_sha256": "c76b9394f7aaededcbc6af63dea5e28d1946c12c792e5165abad95f4ca50c3fc",
+      "context": "its labels, cell probability and flow vectors under the captured detection settings.",
+      "translation": "캡처된 검출 설정에서의 레이블, 세포 확률 및 흐름 벡터입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_samples#0",
+      "source": "Write what held the thread through the stall that just ended.",
+      "source_sha256": "58e4d7da6658b089e6fe09f070387c25d8dda111d48891b592e59290ae01b8ec",
+      "context": "Write what held the thread through the stall that just ended.",
+      "translation": "방금 끝난 정지 동안 스레드를 붙잡고 있던 것을 기록합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends#0",
+      "source": "Summarise a stall the moment the loop answers again.",
+      "source_sha256": "2f1b43916d23016cbbd8ccf7f60446e6786f1b96c472d8f7bfa0d408a85771f0",
+      "context": "Summarise a stall the moment the loop answers again.",
+      "translation": "루프가 다시 응답하는 즉시 정지를 요약합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends#1",
+      "source": "THE LAST STALL OF A SESSION WAS NEVER SUMMARISED, and that is the one anybody runs this for. `_flush_samples` was called only when the NEXT stall began, so a process that wedges once and is then killed -- a run against a sleeping autofs mount, say -- left the first traceback and no distribution at all. The summary is the part that separates the call HOLDING the thread from the one that merely happened to be running when the sample was taken.",
+      "source_sha256": "5afad081e38fc8023643381b753dcbec91208fd8e9b849247434ae1292645c53",
+      "context": "The last stall of a session was never summarised, and that is the one anybody runs this for. `_flush_samples` was called only when the NEXT stall began, so a process that wedges once and is then killed -- a processing session against a sleeping autofs mount, say -- left the first traceback and no distribution at all. The summary is the part that separates the call HOLDING the independent execution path from the one that merely happened to be executing when the sample was taken.",
+      "translation": "세션의 마지막 정지는 한 번도 요약되지 않았으며, 바로 그것 때문에 이 도구를 실행합니다. `_flush_samples`는 다음 정지가 시작될 때만 호출되었으므로, 한 번 멈춘 뒤 강제 종료되는 프로세스는 -- 예를 들어 잠든 autofs 마운트를 대상으로 한 실행 -- 첫 번째 트레이스백만 남기고 분포는 전혀 남기지 않았습니다. 요약은 스레드를 실제로 붙잡고 있는 호출과 샘플을 채취할 때 우연히 실행 중이던 호출을 구분해 주는 부분입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._flush_when_the_stall_ends#2",
+      "source": "The heartbeat resuming is the end of the stall, so that is where the summary belongs. `tick` cannot do it: it runs on the GUI thread, and the whole point is that the GUI thread was not running.",
+      "source_sha256": "06b68e43a8a269203601ab8bfb390632c59fc1e29237f9f0a8bea0be79381ec8",
+      "context": "The heartbeat resuming is the end of the stall, so that is where the summary belongs. `tick` cannot do it: it runs on the main GUI execution path, and the whole point is that the main GUI execution path was not running.",
+      "translation": "하트비트가 다시 시작되는 것이 정지의 끝이므로 요약은 그곳에 속합니다. `tick`은 이를 할 수 없습니다. 그것은 GUI 스레드에서 실행되는데, 요점은 GUI 스레드가 실행되지 않았다는 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application._where#0",
+      "source": "The innermost frame, as ``file:line function``.",
+      "source_sha256": "6e61121d74abdadb9d8e5caef08a56edeb180613a73895dfddc5c550ffb03953",
+      "context": "The innermost frame, as ``file:line function``.",
+      "translation": "가장 안쪽 프레임으로, ``file:line function`` 형식입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.tick#0",
+      "source": "Record that the event loop is still turning.",
+      "source_sha256": "93ee5709b51158694dab5a00831b1859048b632f779f3f37e650c197f2b678cc",
+      "context": "Record that the event loop is still turning.",
+      "translation": "이벤트 루프가 아직 돌고 있음을 기록합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch#0",
+      "source": "Sample the GUI thread through each stall and summarise it.",
+      "source_sha256": "3c79b9aa40eb57f4fc72b258d95da583cea7a4d8ce5dd879ff3260babad051dc",
+      "context": "Sample the main GUI execution path through each stall and summarise it.",
+      "translation": "각 정지 동안 GUI 스레드를 샘플링하고 요약합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch#1",
+      "source": "ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT, and those are different questions whenever the stall is a loop rather than a single blocking call. Measured: four stalls of the same module sweep gave four different last frames -- an event filter, a screen constructor, a settings-search install, another event filter -- which is a list of suspects rather than an answer.",
+      "source_sha256": "e4613ff696c05c5c96a240ebeb43047fe5ab69de469f0e174b30258fa30a776a",
+      "context": "ONE SNAPSHOT NAMES WHERE THE THREAD WAS, NOT WHERE THE TIME WENT, and those are different questions whenever the stall is a loop rather than a single blocking call. Measured: four stalls of the same module sweep gave four different last frames -- an event filter, a screen constructor, a settings-search install, another event filter -- which is a list of suspects rather than an answer.",
+      "translation": "스냅샷 하나는 스레드가 어디에 있었는지를 알려 줄 뿐 시간이 어디에 쓰였는지는 알려 주지 않으며, 정지가 단일 차단 호출이 아니라 루프일 때 이 둘은 서로 다른 질문입니다. 측정 결과: 같은 모듈 순회에서 발생한 네 번의 정지가 서로 다른 네 개의 마지막 프레임을 남겼습니다 -- 이벤트 필터, 뷰 생성자, 설정 검색 설치, 또 다른 이벤트 필터 -- 이는 답이 아니라 용의자 목록입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch#2",
+      "source": "So the stack is sampled every :data:`POLL_SECONDS` FOR AS LONG AS the stall lasts, and the last frames are counted. A call that holds the thread appears in most samples; one that merely happened to be running appears in one.",
+      "source_sha256": "083c37c1ea876e7bbf488b12e38708e1f745f43db4ff200f8ef82f4fcac4d935",
+      "context": "So the stack is sampled every :data:`POLL_SECONDS` for as long as the stall lasts, and the last frames are counted. A call that holds the thread appears in most samples; one that merely happened to be running appears in one.",
+      "translation": "그래서 정지가 지속되는 동안 내내 :data:`POLL_SECONDS`마다 스택을 샘플링하고 마지막 프레임을 셉니다. 스레드를 붙잡고 있는 호출은 대부분의 샘플에 나타나고, 우연히 실행 중이던 호출은 한 번만 나타납니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.stall_watch.watch_this_application.watch_and_flush#0",
+      "source": "Run the watcher, and summarise whatever is pending on the way out.",
+      "source_sha256": "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c",
+      "context": "Run the watcher, and summarise whatever is pending on the way out.",
+      "translation": "감시기를 실행하고, 종료 시 남아 있는 것을 요약합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._report#0",
+      "source": "Record and log one cross-thread offence, with its stack.",
+      "source_sha256": "f05aa028d642445e7c860ab47b0f88f5e8afefaab7506561da4d9e36672004ef",
+      "context": "Record and log one cross-thread offence, with its stack.",
+      "translation": "스레드 간 위반 하나를 스택과 함께 기록하고 로그에 남깁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._report#1",
+      "source": "The stack is trimmed of this function and its caller, so the top frame is the CODE THAT DID IT rather than the guard that noticed.",
+      "source_sha256": "de18a3c9d73243aa0948538aae4ac95b227b11e1b7f8dad1129a5b6f3dd9ba49",
+      "context": "The stack is trimmed of this function and its caller, so the top frame is the code that did it rather than the guard that noticed.",
+      "translation": "스택에서 이 함수와 그 호출자를 잘라 내므로, 맨 위 프레임은 이를 알아챈 가드가 아니라 실제로 그 일을 한 코드입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#0",
+      "source": "Why this start is illegal, or \"\" when it is fine.",
+      "source_sha256": "ec25bcbed6f66858fd06705f514db41d6147cebb158e0818cfd3eafb90649c70",
+      "context": "Why this start is illegal, or \"\" when it is fine.",
+      "translation": "이 시작이 허용되지 않는 이유이며, 문제가 없으면 \"\"입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#1",
+      "source": "ASKS EXACTLY WHAT Qt ASKS: is the object's own thread the thread calling? Qt refuses whenever they differ, which happens both ways round -- a worker touching a GUI object, and the GUI thread touching a WORKER-AFFINE object, the second being far easier to write by accident because the code reads as ordinary GUI-thread code.",
+      "source_sha256": "2eb8ae38b515dfbbf7b83bd8e4345aba44b022f1b3bcc350f311b57b3774a206",
+      "context": "Asks exactly what Qt ASKS: is the object's own independent execution path the independent execution path calling? Qt refuses whenever they differ, which happens both ways round -- a worker touching a GUI object, and the main GUI execution path touching a WORKER-AFFINE object, the second being far easier to write by accident because the code reads as ordinary main GUI execution path code.",
+      "translation": "Qt가 묻는 것과 정확히 같은 것을 묻습니다. 객체 자신의 스레드가 호출하는 스레드인가? Qt는 둘이 다를 때마다 거부하며, 이는 양방향으로 일어납니다 -- 작업 스레드가 GUI 객체를 건드리는 경우와 GUI 스레드가 작업 스레드에 속한 객체를 건드리는 경우인데, 후자는 코드가 평범한 GUI 스레드 코드처럼 읽히기 때문에 실수로 작성하기가 훨씬 쉽습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#2",
+      "source": "COMPARED WITH `==`, NOT `is`. `QThread.currentThread()` hands back a fresh Python wrapper around the same underlying QThread on each call, so an identity test reports every ordinary start as illegal -- which is precisely what the first version of this did, flagging a plain GUI-thread `timer.start()` as \"the caller is Qt mainThread, not the GUI thread\". A guard that cries wolf on the common path is worse than none, because the one line that matters is then buried.",
+      "source_sha256": "484409a1d0f1e91ee1c6dd7acbacd16219cbdc361b71673bc03cadd73750862f",
+      "context": "Compared with `==`, NOT `is`. `QThread.currentThread()` hands back a fresh Python wrapper around the same underlying QThread on each call, so an identity test reports every ordinary start as illegal -- which is precisely what the first version of this did, flagging a plain main GUI execution path `timer.start()` as \"the caller is Qt mainThread, not the main GUI execution path\". A guard that cries wolf on the common path is worse than none, because the one line that matters is then buried.",
+      "translation": "`==`로 비교하며, `is`로 비교하지 않습니다. `QThread.currentThread()`는 호출할 때마다 같은 기반 QThread를 감싼 새 Python 래퍼를 돌려주므로, 동일성 검사는 모든 평범한 시작을 허용되지 않는 것으로 보고합니다 -- 첫 번째 버전이 바로 그렇게 해서 GUI 스레드의 평범한 `timer.start()`를 \"호출자가 GUI 스레드가 아니라 Qt mainThread입니다\"라고 표시했습니다. 일반 경로에서 거짓 경보를 울리는 가드는 없느니만 못합니다. 정말 중요한 한 줄이 묻혀 버리기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install._wrong_thread#3",
+      "source": "There is deliberately no \"is the caller the GUI thread\" fallback. It added nothing the affinity test does not already cover, and it was the half that misfired.",
+      "source_sha256": "f066a0dbf34dd6939b32f2654c7dbbd458c38ebe253d5663c5b2a39883034414",
+      "context": "There is deliberately no \"is the caller the main GUI execution path\" fallback. It added nothing the affinity test does not already cover, and it was the half that misfired.",
+      "translation": "\"호출자가 GUI 스레드인가\"라는 대체 검사는 의도적으로 두지 않았습니다. 친화도 검사가 이미 다루지 않는 것을 더해 주지 못했고, 오작동한 쪽이 바로 그 절반이었습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_object_init#0",
+      "source": "Note a QObject built off the main thread, after building it.",
+      "source_sha256": "6c24fb98064320f49c1c4d34bf6181a9c5b1cf60734f47b618fb829d0550e3b1",
+      "context": "Note a QObject built off the main execution path, after building it.",
+      "translation": "메인 스레드 밖에서 생성된 QObject를 생성한 뒤에 기록합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_object_start#0",
+      "source": "Report a QObject timer started off its own thread, then start it.",
+      "source_sha256": "86bd1d73eec31fb629a659065106e7624b2e6658aa4a6fbe23b0997b3796b123",
+      "context": "Report a QObject timer started off its own thread, then start it.",
+      "translation": "자신의 스레드 밖에서 시작된 QObject 타이머를 보고한 다음 시작합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_timer_start#0",
+      "source": "Report a QTimer started off its own thread, then start it.",
+      "source_sha256": "8370ecfb6d758b1822335776c17c42543d80024afc6edb7ed8558e4b6bf12afe",
+      "context": "Report a QTimer started off its own thread, then start it.",
+      "translation": "자신의 스레드 밖에서 시작된 QTimer를 보고한 다음 시작합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.thread_guard.install.guarded_timer_start#1",
+      "source": "REPORTS AND PROCEEDS. The guard is a diagnostic: refusing the start would change behaviour under the guard and hide the bug it exists to find.",
+      "source_sha256": "6a5f416cd33959bcb473885469afd81d2992755c3d1730bdd9bc9e9ef4ba6161",
+      "context": "Reports and proceeds. The guard is a diagnostic: refusing the start would change behaviour under the guard and hide the bug it exists to find.",
+      "translation": "보고하고 계속 진행합니다. 가드는 진단 도구입니다. 시작을 거부하면 가드 아래에서 동작이 바뀌고, 가드가 찾으려는 바로 그 버그가 숨겨집니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.ContributeDialog.add_image.work#0",
+      "source": "spaCR's proposal for one image, or the reason there is none.",
+      "source_sha256": "63c3407164e743e95b31fdabf192601121976c22d7c0fc64dc5ed53be97b7950",
+      "context": "spaCR's proposal for one image, or the reason there is none.",
+      "translation": "이미지 하나에 대한 spaCR의 제안이며, 없으면 그 이유입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.cancelled#0",
+      "source": "Say that nothing was installed and nothing was left.",
+      "source_sha256": "6f090480f9e51ea630d9c6ac0f8f575296538144f16dca49efca7cb27b2c0cad",
+      "context": "Say that nothing was installed and nothing was left.",
+      "translation": "아무것도 설치되지 않았고 아무것도 남지 않았다고 알려 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.failure#0",
+      "source": "Say why, in the installer's own words.",
+      "source_sha256": "d6076f2f84e6c04600461e8dc3436ed9e0351cb64c3ebc9ef72c463cf8043658",
+      "context": "Say why, in the installer's own words.",
+      "translation": "설치 프로그램 자신의 말로 이유를 알려 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._follow_reader_install.progressed#0",
+      "source": "One line, rewritten, saying which step the install is on.",
+      "source_sha256": "e91402e3e3edcb83502610803dd25707c13e3ac43fa764fee64446037f06f060",
+      "context": "One line, rewritten, saying which step the install is on.",
+      "translation": "설치가 어느 단계에 있는지 알려 주는, 다시 쓰인 한 줄입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._next_paper.job#0",
+      "source": "Read one PDF, turning its failure into an answer.",
+      "source_sha256": "d483a9259ea48824f4ca38077514110b66560fac6222d3116634ce1ffe036303",
+      "context": "Read one PDF, turning its failure into an answer.",
+      "translation": "PDF 하나를 읽고, 실패하면 그것을 답으로 바꿉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._save_review_file.finished#0",
+      "source": "Ignore stale export completions and report failure or invoke the current success callback.",
+      "source_sha256": "9a18ed0eeb2b580226948f6e3c6a8b64162401792af8f409f1513e5b1727a6f3",
+      "context": "Ignore stale export completions and report failure or invoke the current success callback.",
+      "translation": "오래된 내보내기 완료는 무시하고 실패를 보고하거나 현재 성공 콜백을 호출합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel._use_pasted_legend.saved#0",
+      "source": "Normalize the edited legend text, close its editor and rebuild the figure annotations.",
+      "source_sha256": "4e51c7449c63afbc4d1fa24b83f2f427c32c4d87a3c3b32e1dee283b51490e60",
+      "context": "Normalize the edited legend text, close its editor and rebuild the figure annotations.",
+      "translation": "편집된 범례 텍스트를 정규화하고 편집기를 닫은 뒤 그림 주석을 다시 빌드합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data.seeder#0",
+      "source": "spaCR's well boxes on one page.",
+      "source_sha256": "06f1ef560a3a575928721dbce4dc6a8f708f91033fa5476ebe1975cd490b0f28",
+      "context": "spaCR's well boxes on one page.",
+      "translation": "한 페이지에 있는 spaCR의 웰 상자입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.contribute_training_data.seeder#1",
+      "source": "spaCR's plaque mask of one image.",
+      "source_sha256": "047536732a5f4655616184dbd2de337b7d9a59d9253f99bb2f3c5a07b4f3ec73",
+      "context": "spaCR's plaque mask of one image.",
+      "translation": "이미지 하나에 대한 spaCR의 플라크 마스크입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.fetch_paper.job#0",
+      "source": "Fetch, turning a reader that must be installed into an answer.",
+      "source_sha256": "71c18748179d6c1a31d02c412c3d5542dc78abdcdcc318f3cf5116247db0d148",
+      "context": "Fetch, turning a reader that must be installed into an answer.",
+      "translation": "가져오되, 설치해야 하는 리더는 답으로 바꿉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.plaque_table_rows.annotation#0",
+      "source": "The annotation of region ``index``, or None if it has none.",
+      "source_sha256": "30bfeaf2d46b94d9039f232de44c235b7809c7250ca3efa9f17edd9675ca0ddc",
+      "context": "The annotation of region ``index``, or None if it has none.",
+      "translation": "영역 ``index``의 주석이며, 없으면 None입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.run_preview.work#0",
+      "source": "Detect figure wells and prepare a review result unless detection already returned an error.",
+      "source_sha256": "1f7e3500dc5d3fc9721f6a5350900e7a407d386ab265c89862b2ec56db8d79fb",
+      "context": "Detect figure microplate sample positions and prepare a review result unless detection already returned an error.",
+      "translation": "검출이 이미 오류를 반환한 경우가 아니면 그림의 웰을 검출하고 검토 결과를 준비합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview._serialized_inference.run#0",
+      "source": "Serialize the wrapped inference call so cached model instances cannot overlap.",
+      "source_sha256": "d6bdd34a837498207395114362f71e2b4984047eefbedbaa0f750dd43927717e",
+      "context": "Serialize the wrapped inference call so cached model instances cannot overlap.",
+      "translation": "캐시된 모델 인스턴스가 겹치지 않도록 래핑된 추론 호출을 직렬화합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.figure_pass.segment#0",
+      "source": "The Cellpose label mask of one plaque-well crop.",
+      "source_sha256": "729b0c80565d59eb4975c13c409bc91f35e99711aed3a31e63a85b8ddccae022",
+      "context": "The Cellpose label mask of one plaque-well extracted image region.",
+      "translation": "플라크 웰 크롭 하나의 Cellpose 레이블 마스크입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode.choose#0",
+      "source": "Store ``mode`` in the form, then show it.",
+      "source_sha256": "67f292b589886b68f9d16794968445e8cc9535fe15ef145c52343075190db399",
+      "context": "Store ``mode`` in the form, then show it.",
+      "translation": "``mode``를 양식에 저장한 다음 표시합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.install_plaque_mode.show#0",
+      "source": "Show ``mode`` on the switch and the preview, and hide the other mode's rows.",
+      "source_sha256": "c1bbe47db59f4d9c541d4b71795394e32350436b9159380781c8cfcb29a447c3",
+      "context": "Show ``mode`` on the switch and the preview, and hide the other mode's rows.",
+      "translation": "``mode``를 스위치와 미리보기에 표시하고 다른 모드의 행을 숨깁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.missing_papers_packages.found#0",
+      "source": "Whether ``module`` can be found without importing it.",
+      "source_sha256": "1437f2497b74a390166bd7d470ab5fe186bedf78d44526ae7715c4cbefde24a6",
+      "context": "Whether ``module`` can be found without importing it.",
+      "translation": "``module``을 가져오지 않고 찾을 수 있는지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.plaque_pass.segment#0",
+      "source": "The plaque label mask of the image at ``p``, with its flows.",
+      "source_sha256": "8486908c69ad95c55aa0c1527b56c2c62f60221e96388adfa6b98a5bb609270e",
+      "context": "The plaque label mask of the image at ``p``, with its flows.",
+      "translation": "``p``에 있는 이미지의 플라크 레이블 마스크와 그 흐름입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.plaque_preview.segment_well.segment#0",
+      "source": "The plaque label mask of one well crop, with its flows.",
+      "source_sha256": "4f3521251f7b254dd9a88b96d479399e066356d22162b25c70f385f39ddca716",
+      "context": "The plaque label mask of one microplate sample position extracted image region, with its flows.",
+      "translation": "웰 크롭 하나의 플라크 레이블 마스크와 그 흐름입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._ensure_bundled_barcode.fetch#0",
+      "source": "Read ``target`` over the network and return its bytes.",
+      "source_sha256": "ea62fc2414900a983437d822f722ec064792690e4cbc84bd02ea8129b6817d64",
+      "context": "Read ``target`` over the network and return its bytes.",
+      "translation": "``target``을 네트워크로 읽어 그 바이트를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._ensure_bundled_barcode.fetch#1",
+      "source": "the raw GitHub URL of one bundled CSV.",
+      "source_sha256": "ff2e0044de571fba92c7854bac651f32cb951cce32fae5ddf08df6c7ddc517f2",
+      "context": "the raw GitHub URL of one bundled CSV.",
+      "translation": "번들된 CSV 하나의 GitHub 원본 URL입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._ensure_bundled_barcode.fetch#2",
+      "source": "the response body, unchecked -- the caller verifies it.",
+      "source_sha256": "82b98322fe9cd09b0a5ba7d993e1f96a1bd626fa05bfbfbcc421affc9ac60456",
+      "context": "the response body, unchecked -- the caller verifies it.",
+      "translation": "확인되지 않은 응답 본문입니다 -- 호출자가 검증합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._reject_a_threshold_that_cannot_mean_what_it_says._number#0",
+      "source": "Read one setting as a number in range, or raise saying which.",
+      "source_sha256": "444b291ed8e5e3b92208486252f792d3b03da6e0a3d575e7fafa9270b9aca100",
+      "context": "Read one setting as a number in range, or raise saying which.",
+      "translation": "설정 하나를 범위 내의 숫자로 읽으며, 그렇지 않으면 어느 설정인지 밝히는 오류를 발생시킵니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings._reject_a_threshold_that_cannot_mean_what_it_says._number#1",
+      "source": "A bool is REFUSED even though it is an int in Python: ``True`` as a threshold is a value nobody typed on purpose, and accepting it as 1 silently changes what the run does.",
+      "source_sha256": "fdfadbe74e3cbdf69de8ad9f6852acfae448ce1422c77e6bbf1bfeb384ae9155",
+      "context": "A bool is REFUSED even though it is an int in Python: ``True`` as a threshold is a value nobody typed on purpose, and accepting it as 1 silently changes what the run does.",
+      "translation": "bool은 Python에서 int이지만 거부됩니다. 임계값으로서의 ``True``는 아무도 의도적으로 입력하지 않은 값이며, 이를 1로 받아들이면 실행이 하는 일이 조용히 바뀝니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined#0",
+      "source": "A second reason a setting can be inapplicable, ANDed with the first.",
+      "source_sha256": "04578bf24db28b011691c35b0c8849025fb7acc747a4a7497351dd304e00f53a",
+      "context": "A second reason a setting can be inapplicable, ANDed with the first.",
+      "translation": "설정이 적용되지 않을 수 있는 두 번째 이유이며, 첫 번째 이유와 AND로 결합됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined#1",
+      "source": "One setting can be dead for more than one reason at once -- a permutation control is dead under parametric inference AND dead on a single plate -- and this dict holds one entry per setting. Replacing the entry drops the earlier reason silently, which is how a field ends up enabled among its greyed siblings.",
+      "source_sha256": "005d665c8ac71adb3213c0cd8032110acc17be3cffbcf8ff7e1b9e662cb0dc1f",
+      "context": "One setting can be dead for more than one reason at once -- a permutation control is dead under parametric inference AND dead on a single laboratory microplate -- and this key-value mapping holds one entry per setting. Replacing the entry drops the earlier reason silently, which is how a microscope field of view ends up enabled among its greyed siblings.",
+      "translation": "하나의 설정은 동시에 둘 이상의 이유로 무의미할 수 있으며 -- 순열 컨트롤은 모수적 추론에서 무의미하고 단일 플레이트에서도 무의미합니다 -- 이 dict는 설정마다 항목 하나를 가집니다. 항목을 교체하면 이전 이유가 조용히 사라지며, 그렇게 해서 회색으로 비활성화된 형제들 사이에서 필드 하나만 활성화된 채로 남게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined#2",
+      "source": "Applicable only when BOTH agree. The reason shown is the one that actually fired, so the user is told why THIS control is off rather than being given the other rule's explanation.",
+      "source_sha256": "c1c0a6d2400bed009ff78855a4040d6fcf4bb89ff5eaed3c5fed5da9334d1a1c",
+      "context": "Applicable only when BOTH agree. The reason shown is the one that actually fired, so the user is told why THIS control is off rather than being given the other rule's explanation.",
+      "translation": "둘 다 동의할 때만 적용됩니다. 표시되는 이유는 실제로 작동한 규칙의 이유이므로, 사용자는 다른 규칙의 설명 대신 바로 이 컨트롤이 꺼진 이유를 듣게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined._predicate#0",
+      "source": "True only when BOTH the existing rule and the new one hold.",
+      "source_sha256": "d6e039ec00fd5d04e3c422bd21a0d47ee8e7c3f2ead414061f4a0b3b45461843",
+      "context": "True only when BOTH the existing rule and the new one hold.",
+      "translation": "기존 규칙과 새 규칙이 모두 성립할 때만 True입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined._reason#0",
+      "source": "The reason from whichever rule is the one failing.",
+      "source_sha256": "1143b56cea3e5818c4b056f0589cd04a08569706b74de44716221772835d1403",
+      "context": "The reason from whichever rule is the one failing.",
+      "translation": "실패하고 있는 규칙의 이유입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._combined._reason#1",
+      "source": "The EXISTING rule is asked first, so a setting gated by two conditions explains the one that has been true for longer rather than the one added most recently.",
+      "source_sha256": "fd5b5246631cb15832cf7360ef541071892110f796a71e0e38552a1f6a5e92a2",
+      "context": "The EXISTING rule is asked first, so a setting gated by two conditions explains the one that has been true for longer rather than the one added most recently.",
+      "translation": "기존 규칙을 먼저 확인하므로, 두 조건으로 제어되는 설정은 가장 최근에 추가된 조건이 아니라 더 오래 유지되어 온 조건을 설명합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._is_nonparametric#0",
+      "source": "Whether inference is the nonparametric permutation test.",
+      "source_sha256": "44ad5ada92c278e3e738f211951b01a72db66353ae1b12743fd2b434c83240ec",
+      "context": "Whether inference is the nonparametric permutation test.",
+      "translation": "추론이 비모수 순열 검정인지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._level_is_read#0",
+      "source": "Whether the level setting is read at all under these settings.",
+      "source_sha256": "73a10d19454d811e6d43eafe2346fe76d715bb1bcb06d046608e0f5f61714f1c",
+      "context": "Whether the level setting is read at all under these settings.",
+      "translation": "이 설정들에서 수준 설정을 읽기는 하는지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._level_is_read#1",
+      "source": "THE PERMUTATION TEST READS IT. It fits no model, so `regression_type` says nothing about it -- greying the control on the parametric answer left the nonparametric side with no way to ask for genes at all.",
+      "source_sha256": "e65864f28b7a9963a05e76d28fee1a4666542ebbc3d6015626ca6e77a1bb859e",
+      "context": "The permutation test reads it. It fits no model, so `regression_type` says nothing about it -- greying the control on the parametric answer left the nonparametric side with no way to ask for genes at all.",
+      "translation": "순열 검정은 이 설정을 읽습니다. 순열 검정은 모델을 적합하지 않으므로 `regression_type`은 그에 대해 아무것도 말해 주지 않습니다 -- 모수적 답에서 컨트롤을 회색으로 비활성화하면 비모수 쪽에는 유전자를 요청할 방법이 전혀 남지 않았습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._level_reason#0",
+      "source": "Why the level control is greyed, naming the setting responsible.",
+      "source_sha256": "fa9b6252127e019a70c3eca32b28214579c2adbc052137d9e3e17579efd0c4c9",
+      "context": "Why the level control is greyed, naming the setting responsible.",
+      "translation": "수준 컨트롤이 회색으로 비활성화된 이유이며, 책임 있는 설정의 이름을 밝힙니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies._streaming#0",
+      "source": "Whether the run reads images from a stream rather than from disk.",
+      "source_sha256": "d3427312456dcc951cd13f733f8b93d51b2bf83a0bd6f2cd928aecaf20c6252a",
+      "context": "Whether the run reads images from a stream rather than from disk.",
+      "translation": "실행이 디스크가 아닌 스트림에서 이미지를 읽는지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_active#0",
+      "source": "Whether the RUN would permute, decided the way the run decides.",
+      "source_sha256": "c9888681edd5de5d42154912e11d61fff6dd77b99c713f44110c8aa5bc1e8b23",
+      "context": "Whether the RUN would permute, decided the way the run decides.",
+      "translation": "실행이 순열을 수행할지 여부이며, 실행이 결정하는 방식 그대로 결정합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_active#1",
+      "source": "THE SAME TRANSLATION `set_default_analysis_settings` APPLIES, and it has to be: `inference` is the readable front end and it OVERWRITES `analysis_mode` at run time, so a panel that read the stale `analysis_mode` answered a question the fit does not ask. Measured on the regression panel: choosing inference='parametric' left all eight guide-permutation controls enabled, because `analysis_mode` still held the value the previous inference had selected -- a control offered for a step that is not going to run.",
+      "source_sha256": "8724734ade47fe84ff4e4c12f132828a9033660f4cb10d5bb6305b4c376e9913",
+      "context": "The same translation `set_default_analysis_settings` APPLIES, and it has to be: `inference` is the readable front end and it OVERWRITES `analysis_mode` at run time, so a panel that read the stale `analysis_mode` answered a question the fit does not ask. Measured on the regression panel: choosing inference='parametric' left all eight guide-permutation controls enabled, because `analysis_mode` still held the value the previous inference had selected -- a control offered for a step that is not going to execute.",
+      "translation": "`set_default_analysis_settings`가 적용하는 것과 같은 변환이며, 반드시 그래야 합니다. `inference`는 읽기 쉬운 프런트엔드로서 실행 시점에 `analysis_mode`를 덮어쓰므로, 오래된 `analysis_mode`를 읽던 패널은 적합이 묻지 않는 질문에 답하고 있었습니다. 회귀 패널에서 측정한 결과: inference='parametric'을 선택해도 가이드 순열 컨트롤 여덟 개가 모두 활성화된 채로 남았는데, `analysis_mode`가 이전 추론이 선택한 값을 여전히 갖고 있었기 때문입니다 -- 실행되지 않을 단계에 컨트롤이 제공된 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_active#2",
+      "source": "`auto` is the one case where `analysis_mode` still decides here. Its real resolution counts guides and wells, which this cannot see (`spacr.ml.resolve_auto_inference` does it once the CSVs are read), so the permutation controls stay ENABLED under 'auto' -- greying a control the run may well use is the worse error of the two.",
+      "source_sha256": "0a1aa4665a8def3e2210641f987b054dad0d1aee51ccafc7919651ed9de83e33",
+      "context": "`auto` is the one case where `analysis_mode` still decides here. Its real resolution counts guides and microplate sample positions, which this cannot see (`spacr.ml.resolve_auto_inference` does it once the CSVs are read), so the permutation controls stay ENABLED under 'auto' -- greying a control the run may well use is the worse error of the two.",
+      "translation": "`auto`는 여기서 여전히 `analysis_mode`가 결정하는 유일한 경우입니다. 실제 해석은 가이드와 웰 수를 세는데, 이 함수는 이를 볼 수 없으므로(`spacr.ml.resolve_auto_inference`가 CSV를 읽은 뒤에 이를 수행합니다) 'auto'에서는 순열 컨트롤이 활성화된 채로 유지됩니다 -- 실행이 실제로 사용할 수도 있는 컨트롤을 비활성화하는 것이 두 오류 중 더 나쁜 쪽입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_is_certain#0",
+      "source": "Whether the run WILL permute -- not merely whether it might.",
+      "source_sha256": "d2e7d5250d8b5f3baf76a4af01a82ca1868c6c74a94517c3f948ecb15f826868",
+      "context": "Whether the run WILL permute -- not merely whether it might.",
+      "translation": "실행이 순열을 수행할 수도 있는지가 아니라, 실제로 수행할 것인지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_is_certain#1",
+      "source": "NOT `not permutation_active(...)`, which is the mistake this replaces and which my own comment below warned about before I made it. `permutation_active` answers True under 'auto' ON PURPOSE, so the permutation controls stay live while the resolution is unknown. Negating it therefore greys the MODEL controls under 'auto' too -- and 'auto' may well resolve to regression, in which case those are exactly the settings the run reads.",
+      "source_sha256": "dc3ec3ad4aabb9921e146e289e9aa5d8d5cf3605ff7262a917a80b365772ea45",
+      "context": "NOT `not permutation_active(...)`, which is the mistake this replaces and which my own comment below warned about before I made it. `permutation_active` answers True under 'auto' on purpose, so the permutation controls stay live while the resolution is unknown. Negating it therefore greys the MODEL controls under 'auto' too -- and 'auto' may well resolve to regression, in which case those are exactly the settings the processing session reads.",
+      "translation": "`not permutation_active(...)`가 아닙니다. 그것이 이 함수가 대체하는 실수이며, 제가 그 실수를 하기 전에 아래의 제 주석이 경고했던 것입니다. `permutation_active`는 'auto'에서 의도적으로 True를 반환하여, 해석이 알려지지 않은 동안 순열 컨트롤이 활성 상태로 유지되게 합니다. 따라서 이를 부정하면 'auto'에서 모델 컨트롤까지 비활성화됩니다 -- 그런데 'auto'는 회귀로 해석될 수도 있으며, 그 경우 그것들이 바로 실행이 읽는 설정입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.permutation_is_certain#2",
+      "source": "Certain means `inference` names the permutation path outright.",
+      "source_sha256": "8643a56eca0321b1e367e1ad7762f67014c0bd9150853c1913fc4908005625b3",
+      "context": "Certain means `inference` names the permutation path outright.",
+      "translation": "확실하다는 것은 `inference`가 순열 경로를 명시적으로 지정한다는 뜻입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.settings.get_setting_dependencies.rule#0",
+      "source": "One dependency rule: its sources, its predicate and its reason.",
+      "source_sha256": "bbf451afe2f456181d1264ed76cf1d4f75c76c7fbcd9023ce845298acc272da0",
+      "context": "One dependency rule: its sources, its predicate and its reason.",
+      "translation": "의존성 규칙 하나로, 그 소스, 술어 및 이유입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAM.__call__.hook#0",
+      "source": "Forward hook: append the target layer's output to ``features``.",
+      "source_sha256": "d74fe64f7472d23e36bacd5ceb8c1fe2503bdf7892dbb96b7c39a938b494aa80",
+      "context": "Forward hook: append the target layer's output to ``features``.",
+      "translation": "순방향 훅: 대상 레이어의 출력을 ``features``에 추가합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAM.__call__.hook#1",
+      "source": "``retain_grad()`` is required: PyTorch only populates ``.grad`` on leaf tensors, so without it ``features[0].grad`` is None below and GradCAM died with \"'NoneType' object has no attribute 'cpu'\".",
+      "source_sha256": "b4748ef8cb3fd03c28ee7715fc0b26a4cc05f7d35a95971096953fceca4c8bf0",
+      "context": "``retain_grad()`` is required: PyTorch only populates ``.grad`` on leaf tensors, so without it ``features[0].grad`` is None below and GradCAM died with \"'NoneType' object has no attribute 'cpu'\".",
+      "translation": "``retain_grad()``가 필요합니다. PyTorch는 리프 텐서에만 ``.grad``를 채우므로, 이것이 없으면 아래에서 ``features[0].grad``가 None이 되어 GradCAM이 \"'NoneType' object has no attribute 'cpu'\" 오류로 중단되었습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator.hook_layers.backward_hook#0",
+      "source": "Backward hook: cache the gradient flowing into the target layer's output.",
+      "source_sha256": "98721273aceaf2ee87532face739fc289ab469d6477660f8c76b347e59a332f6",
+      "context": "Backward hook: cache the gradient flowing into the target layer's output.",
+      "translation": "역방향 훅: 대상 레이어의 출력으로 흘러 들어가는 그래디언트를 캐시합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.GradCAMGenerator.hook_layers.forward_hook#0",
+      "source": "Forward hook: cache the target layer's output activations.",
+      "source_sha256": "9dc8e9c511f6f0b862b811eba08b75a2bdd88c65f1cb49d1547b7b8c5910e048",
+      "context": "Forward hook: cache the target layer's output activations.",
+      "translation": "순방향 훅: 대상 레이어의 출력 활성화를 캐시합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.TorchModel._run_backbone_raw.forward_fn#0",
+      "source": "Run the underlying backbone on ``t`` (used as the checkpoint target).",
+      "source_sha256": "f21365b9bde70508f9bc4b6ab52736199a3b2908d1102d5a26d797bb41afcfbe",
+      "context": "Run the underlying backbone on ``t`` (used as the checkpoint target).",
+      "translation": "기반 백본을 ``t``에 대해 실행합니다(체크포인트 대상으로 사용됨).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._checkpoint_module.contexts#0",
+      "source": "Return forward and recomputation contexts for non-reentrant checkpointing.",
+      "source_sha256": "53b3853d75d86dcbe245128f7d6e8f7c9ad42cbb80c8609eaec4e795ce72c79d",
+      "context": "Return forward and recomputation contexts for non-reentrant checkpointing.",
+      "translation": "비재진입 체크포인팅을 위한 순방향 및 재계산 컨텍스트를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._filter_objects._failed_in#0",
+      "source": "Labels failing an entry whose index is in ``[low, high)``.",
+      "source_sha256": "8ded5c252ab4ad663758b4ef7f77b0026a9eba4e7aac0ae111304bf1aedcbb7d",
+      "context": "Labels failing an entry whose index is in ``[low, high)``.",
+      "translation": "인덱스가 ``[low, high)``에 있는 항목을 통과하지 못한 레이블입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._generate_representative_images._compartment_column#0",
+      "source": "Return the selected compartment series, or raise for a missing column.",
+      "source_sha256": "41122fdf2e80e42a3fb03a227abfe38db76f61903d49f341ec013b9916255607",
+      "context": "Return the selected compartment series, or produce an error for a missing column.",
+      "translation": "선택한 구획 시리즈를 반환하거나, 열이 없으면 오류를 발생시킵니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._outline_and_overlay.process_dim#0",
+      "source": "Return a dilated outline image of the labeled mask at ``image[..., mask_dim]``.",
+      "source_sha256": "85905aee4183f3bb50f7d74656256814c5ffb7394cc6a5b9ff0d511b2f375f3a",
+      "context": "Return a dilated outline image of the labeled mask at ``image[..., mask_dim]``.",
+      "translation": "``image[..., mask_dim]``에 있는 레이블 마스크의 팽창된 윤곽 이미지를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._pivot_counts_table._pivot_dataframe#0",
+      "source": "Pivot count-type rows into one column per object type, NaNs filled with 0.",
+      "source_sha256": "2568425cb3a0a2f6624f1d88d968212355661deff17baaa2e88c1bffbc9f95ab",
+      "context": "Pivot count-type rows into one column per object type, NaNs filled with 0.",
+      "translation": "개수 유형의 행을 객체 유형마다 하나의 열로 피벗하고, NaNs는 0으로 채웁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._pivot_counts_table._read_table_to_dataframe#0",
+      "source": "Return the given SQLite table as a DataFrame.",
+      "source_sha256": "3a6beab9cf847026d105eaef3e75ef8726c2fd04415d191f93f45d593f373235",
+      "context": "Return the given SQLite table as a DataFrame.",
+      "translation": "주어진 SQLite 테이블을 DataFrame으로 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils._save_settings_json.plain#0",
+      "source": "The value as something JSON can hold, or its repr.",
+      "source_sha256": "4a507cdd74108f3c446d62afaa73b5a40b63b2d9ff4e65960c646d9860873a9b",
+      "context": "The value as something JSON can hold, or its repr.",
+      "translation": "JSON이 담을 수 있는 형태의 값이며, 그렇지 않으면 그 repr입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.annotate_conditions._get_type#0",
+      "source": "Determine if a value maps to 'rowID' or 'columnID'.",
+      "source_sha256": "1d67a7dbf42c9e16657bafd30ef2a9a58e551e8d0445bfe3a49461ecb5373247",
+      "context": "Determine if a value maps to 'rowID' or 'columnID'.",
+      "translation": "값이 'rowID'에 대응하는지 'columnID'에 대응하는지 판별합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.annotate_conditions._map_or_default#0",
+      "source": "Assign or map ``values`` into ``column_name`` based on optional row/column ``loc``.",
+      "source_sha256": "0d45b7c743d4b5d8a7b262be6e43b79ce786a692bedf23345f12acc062868071",
+      "context": "Assign or map ``values`` into ``column_name`` based on optional row/column ``loc``.",
+      "translation": "``values``를 ``column_name``에 할당하거나 매핑하며, 선택적 행/열 ``loc``을 기준으로 합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.annotate_predictions.assign_condition#0",
+      "source": "Return the condition label (``'screen'``/``'pc'``/``'nc'`` or ``''``) for a metadata row.",
+      "source_sha256": "ae63fe648cbdd5e7c02d6ebf37ae18b548a3e71f73b8a32e2168082bc62c820a",
+      "context": "Return the condition label (``'screen'``/``'pc'``/``'nc'`` or ``''``) for a metadata row.",
+      "translation": "메타데이터 행의 조건 레이블(``'screen'``/``'pc'``/``'nc'`` 또는 ``''``)을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._asl#0",
+      "source": "Return mean asymmetric multilabel loss for logits and targets.",
+      "source_sha256": "d34e6c303d0de87801dfe20bd7eb27df871beff85999b360b83605359a0fd449",
+      "context": "Return mean asymmetric multilabel loss for logits and targets.",
+      "translation": "로짓과 타깃에 대한 비대칭 다중 레이블 손실의 평균을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._auto_choice#0",
+      "source": "Return the default loss name from class count and imbalance.",
+      "source_sha256": "621bede9a4254b7199b8d1fc05ee00acb46abdfaa42ef11f87c60fb006634069",
+      "context": "Return the default loss name from class count and imbalance.",
+      "translation": "클래스 수와 불균형으로부터 기본 손실 이름을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._focal_bce#0",
+      "source": "Return mean focal binary cross-entropy for ``logits`` and ``y``.",
+      "source_sha256": "556a0112cbf17e8d49c2e8d48e2118a5c985400a96b5882d384de9f4c6fc6cab",
+      "context": "Return mean focal binary cross-entropy for ``logits`` and ``y``.",
+      "translation": "``logits``와 ``y``에 대한 포컬 이진 교차 엔트로피의 평균을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._focal_ce#0",
+      "source": "Return mean focal cross-entropy for logits and class indices.",
+      "source_sha256": "786946137bdfa10ce881f7c6811b31ee2db99fdf3740b83bbc4f36f26fae7341",
+      "context": "Return mean focal cross-entropy for logits and class indices.",
+      "translation": "로짓과 클래스 인덱스에 대한 포컬 교차 엔트로피의 평균을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss._infer_indices#0",
+      "source": "Return class indices from an index vector or 2-D target matrix.",
+      "source_sha256": "82aae658207cfcf4b683a6e4cd3fb9608a5828c1f8f9ef867a8a5bac4b83d621",
+      "context": "Return class indices from an index vector or 2-D target matrix.",
+      "translation": "인덱스 벡터 또는 2-D 타깃 행렬에서 클래스 인덱스를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.build_loss.loss_fn#0",
+      "source": "Closure: compute the selected per-batch loss from ``(logits, target)``.",
+      "source_sha256": "e8b405d32558af205f47128a20cf729605add6015cdecbe3f7234c09fd592880",
+      "context": "Closure: compute the selected per-batch loss from ``(logits, target)``.",
+      "translation": "클로저: ``(logits, target)``에서 선택된 배치별 손실을 계산합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.calculate_loss._focal_bce_with_logits#0",
+      "source": "Return focal binary cross-entropy for ``logits`` and targets ``y``.",
+      "source_sha256": "2fe2989b671605ba04fffaa99692c9bf30599cd639edffe36148cb449e5b42c2",
+      "context": "Return focal binary cross-entropy for ``logits`` and targets ``y``.",
+      "translation": "``logits``와 타깃 ``y``에 대한 포컬 이진 교차 엔트로피를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.calculate_loss._focal_cross_entropy#0",
+      "source": "Return focal cross-entropy for logits and class indices ``y_idx``.",
+      "source_sha256": "955285d2fc92b159b9c006c38b1e33fb4ccdc4c6c9d1006a7979c3558d2fd3b3",
+      "context": "Return focal cross-entropy for logits and class indices ``y_idx``.",
+      "translation": "로짓과 클래스 인덱스 ``y_idx``에 대한 포컬 교차 엔트로피를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.class_visualization.blur_image#0",
+      "source": "In-place Gaussian blur of each channel of ``img`` with standard deviation ``sigma``.",
+      "source_sha256": "4e47f98a8a5a7fd43dce03b7713a718818fa880037bf9ca912c19d14ba27258d",
+      "context": "In-place Gaussian blur of each channel of ``img`` with standard deviation ``sigma``.",
+      "translation": "``img``의 각 채널에 표준편차 ``sigma``로 제자리 가우시안 블러를 적용합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.class_visualization.deprocess#0",
+      "source": "Undo ImageNet normalization and return an ``(H, W, 3)`` numpy image in ``[0, 1]``.",
+      "source_sha256": "2fbf0eef6012b9dbe85fcdf8cd52ce37ad3eca5a22f8e4a4f585ec75af28ec2e",
+      "context": "Undo ImageNet normalization and return an ``(H, W, 3)`` numpy image in ``[0, 1]``.",
+      "translation": "ImageNet 정규화를 되돌리고 ``(H, W, 3)`` numpy 이미지를 반환하며, 값의 범위는 ``[0, 1]``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.class_visualization.jitter#0",
+      "source": "Return ``img`` shifted (rolled) by ``ox`` and ``oy`` pixels along the spatial axes.",
+      "source_sha256": "e3134887b6cb6175e95f2c6ed0163771ee1371a694abb26af648e71baef6c416",
+      "context": "Return ``img`` shifted (rolled) by ``ox`` and ``oy`` pixels along the spatial axes.",
+      "translation": "``img``를 공간 축을 따라 ``ox``와 ``oy`` 픽셀만큼 이동(롤)한 결과를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.debug.decorator#0",
+      "source": "Inner decorator that binds the logger for ``func`` and returns the wrapper.",
+      "source_sha256": "96517ba8b10971bb4ead7c3c1c13a74dbadf3d883fe264f2d286214caef1a503",
+      "context": "Inner decorator that binds the logger for ``func`` and returns the wrapper.",
+      "translation": "``func``에 로거를 바인딩하고 래퍼를 반환하는 내부 데코레이터입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.debug.decorator.wrapper#0",
+      "source": "Temporarily bump the logger to DEBUG while ``func`` runs, then restore its level.",
+      "source_sha256": "1fa99d6506ca3eae70405642f236d11a3b5e734719ac180036731bd8722a6098",
+      "context": "Temporarily bump the logger to DEBUG while ``func`` runs, then restore its level.",
+      "translation": "``func``가 실행되는 동안 로거를 일시적으로 DEBUG로 올린 다음 수준을 복원합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.feature_folder_name._one#0",
+      "source": "Return one filesystem-safe selection-member slug.",
+      "source_sha256": "5e4c921fcd5e0a45e59eefdf6dda510a360081ba97310af3e3fd597c3e02056a",
+      "context": "Return one filesystem-safe selection-member slug.",
+      "translation": "파일 시스템에 안전한 선택 멤버 슬러그 하나를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.group_feature_class.find_feature_class#0",
+      "source": "Return the group label(s) matched in ``feature`` — joined with '-' when more than one hits.",
+      "source_sha256": "dfe2546cda1a4067f944e4c57e388d106b31f29dd7126f07c128938533399324",
+      "context": "Return the group label(s) matched in ``feature`` — joined with '-' when more than one hits.",
+      "translation": "``feature``에서 일치한 그룹 레이블을 반환합니다 — 둘 이상 일치하면 '-'로 연결합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.load_settings.parse_value#0",
+      "source": "Parse the string value into the appropriate Python data type.",
+      "source_sha256": "b92e1bfe3a4f90a809d3ed5eb2bdb9ba7daf64080a20dabd3e2bdceea84335d9",
+      "context": "Parse the string value into the appropriate Python data type.",
+      "translation": "문자열 값을 적절한 Python 데이터 유형으로 파싱합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.merge_regression_res_with_metadata.extract_and_clean_gene#0",
+      "source": "Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``.",
+      "source_sha256": "ac2f191524fd7e9bd4ac9526600135466034abdd2d8bf843f45fd08f4f25d161",
+      "context": "Return the gene ID parsed from a ``feature`` string like ``C(gene)[T.<id>_...]``, or ``None``.",
+      "translation": "``feature`` 문자열(예: ``C(gene)[T.<id>_...]``)에서 파싱한 유전자 ID를 반환하며, 없으면 ``None``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pick_best_model.sort_key#0",
+      "source": "Return ``(role, accuracy, epoch)`` from metadata or legacy name.",
+      "source_sha256": "0bbf37580b39d6761c55f57c2365f1c6943e3547ca59af0ade396a15298d8430",
+      "context": "Return ``(role, accuracy, epoch)`` from metadata or legacy name.",
+      "translation": "메타데이터 또는 레거시 이름에서 ``(role, accuracy, epoch)``를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.plot_grid.cluster_color#0",
+      "source": "Resolve one cluster's color once for panels and legend.",
+      "source_sha256": "d3abb819ad880e2622b0fc359ca104616607c77e27681942df7e6cf93c5dcc6e",
+      "context": "Resolve one cluster's color once for panels and legend.",
+      "translation": "패널과 범례에 쓸 클러스터 하나의 색을 한 번만 결정합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pretty_print_settings._fmt#0",
+      "source": "Return ``v`` as text truncated to the table's value width.",
+      "source_sha256": "9ea92f111a56e10c04bd0bca66ee168b14ed39dc72afe0923bb42cb8f78f2637",
+      "context": "Return ``v`` as text truncated to the table's value width.",
+      "translation": "``v``를 테이블의 값 너비에 맞춰 자른 텍스트로 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pretty_print_settings._row#0",
+      "source": "Return one padded key-and-formatted-value table row.",
+      "source_sha256": "08458da07bcaad31173844a75708c156c343c708a4ea4c55cbb86b92876762d5",
+      "context": "Return one padded structured-data name-and-formatted-value table row.",
+      "translation": "키와 형식화된 값으로 이루어진, 패딩된 테이블 행 하나를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.pretty_print_settings._say#0",
+      "source": "Print a console-safe form of ``line`` and return ``None``.",
+      "source_sha256": "b715d28b7f0ea37bc8e974e7e4b1a6c4ad7c29be2fc037b73aec1a77f0fe08bf",
+      "context": "Print a console-safe form of ``line`` and return ``None``.",
+      "translation": "``line``의 콘솔 안전 형태를 출력하고 ``None``을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.cluster_objects#0",
+      "source": "Return a fitted ``KMeans`` object clustering the property dicts into ``n_clusters`` groups.",
+      "source_sha256": "af693bf6fa13f128c3265295e292730d4b23e7182544284434086c3690c7c615",
+      "context": "Return a fitted ``KMeans`` object clustering the property key-value mappings into ``n_clusters`` groups.",
+      "translation": "적합된 ``KMeans`` 객체를 반환하며, 이 객체는 속성 dict를 ``n_clusters``개 그룹으로 클러스터링합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.measure_morphology_and_intensity#0",
+      "source": "Return a list of dicts with area/mean_intensity/perimeter/eccentricity per labeled region.",
+      "source_sha256": "dfb06dc78b0d013bc2b9dbf924b6b94b3df5551818d6d39148a8ddaf930dcd16",
+      "context": "Return a list of key-value mappings with area/mean_intensity/perimeter/eccentricity per labeled region.",
+      "translation": "레이블된 영역마다 area/mean_intensity/perimeter/eccentricity를 담은 dict 목록을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.plot_clusters#0",
+      "source": "Show a 2-D PCA scatter of the property vectors colored by cluster label.",
+      "source_sha256": "10f7cf16d10c41330aa819e710bec14a273c6e79cda0ba4c39b1c0ab54b3d519",
+      "context": "Show a 2-D PCA scatter of the property vectors colored by cluster label.",
+      "translation": "속성 벡터의 2-D PCA 산점도를 클러스터 레이블별 색으로 표시합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.read_files_in_batches#0",
+      "source": "Yield sorted lists of ``.npy`` filenames from ``folder`` in chunks of ``batch_size``.",
+      "source_sha256": "7f63aa56878fe3994a0765220c3c7351c35dba50b58d883b1b95cb2dd7a1aa58",
+      "context": "Yield sorted lists of ``.npy`` filenames from ``folder`` in chunks of ``batch_size``.",
+      "translation": "``.npy`` 파일 이름의 정렬된 목록을 ``folder``에서 ``batch_size`` 크기의 묶음으로 생성합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.process_masks.remove_objects_not_in_largest_cluster#0",
+      "source": "Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``.",
+      "source_sha256": "4923d4493b4a563b059f78b2e041d4be8716be06de0551247e665003485a0a1e",
+      "context": "Return ``mask`` with all labeled regions removed except those in ``largest_cluster_label``.",
+      "translation": "``mask``를 반환하되, ``largest_cluster_label``에 있는 영역을 제외한 모든 레이블 영역을 제거합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._find_csv#0",
+      "source": "Return the lexically last matching CSV in ``root``, if any.",
+      "source_sha256": "91b2ecc0a12916e4d60550dddb920dbec1ec5e95c20512ce40828b6775e20539",
+      "context": "Return the lexically last matching CSV in ``root``, if any.",
+      "translation": "``root``에서 사전순으로 마지막인 일치 CSV가 있으면 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._last_seq#0",
+      "source": "Return at most the final ``k`` values as a floating-point array.",
+      "source_sha256": "8c0a40db42c6f883f1da33ff9c2bcd142e023001a778e14c3feb3f1f5fab6a4a",
+      "context": "Return at most the final ``k`` values as a floating-point array.",
+      "translation": "최대 마지막 ``k``개의 값을 부동소수점 배열로 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._normalize_cols#0",
+      "source": "Return ``df`` with normalized, aliased, first-occurrence columns.",
+      "source_sha256": "119f674ed9dd56ebf297ed5c5893f360e73e7e46c18df92ff7bbdfb4729dba8d",
+      "context": "Return ``df`` with normalized, aliased, first-occurrence columns.",
+      "translation": "열을 정규화하고 별칭을 적용하며 처음 나온 열만 남긴 ``df``를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._poly_slope#0",
+      "source": "Return the finite linear slope of ``y``, or zero when undefined.",
+      "source_sha256": "7b8851724c8a8cf4ea976300ef97be83591db1c643fc54fa18e95d81aadeec8c",
+      "context": "Return the finite linear slope of ``y``, or zero when undefined.",
+      "translation": "``y``의 유한한 선형 기울기를 반환하며, 정의되지 않으면 0을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._scalar#0",
+      "source": "Ensure a single float even if a Series sneaks through.",
+      "source_sha256": "90918489a2146afc550ac8051af0f0a0fa508cab435962709e52993fd30381f9",
+      "context": "Ensure a single float even if a Series sneaks through.",
+      "translation": "Series가 끼어들더라도 단일 float를 보장합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.utils.suggest_training_changes._scalar#1",
+      "source": "The Series branch is currently unreachable: every call site passes ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a deliberate guard because the label-based ``.loc`` lookups this function used to rely on returned a Series whenever the progress CSV had a duplicated index, and that is an easy regression to reintroduce.",
+      "source_sha256": "cd28b9bae50730040e029ffb45dbeb86b1469f8a3591e460fe8db62e2a015296",
+      "context": "The Series branch is currently unreachable: every call site passes ``<Series>.iloc[<int>]``, which yields a numpy scalar. It is kept as a deliberate guard because the label-based ``.loc`` lookups this function used to rely on returned a Series whenever the progress CSV had a duplicated index, and that is an easy regression to reintroduce.",
+      "translation": "Series 분기는 현재 도달할 수 없습니다. 모든 호출 지점이 ``<Series>.iloc[<int>]``를 전달하며, 이는 numpy 스칼라를 반환합니다. 이 분기는 의도적인 보호 장치로 남겨 두었는데, 이 함수가 예전에 의존하던 레이블 기반 ``.loc`` 조회는 진행 상황 CSV에 중복 인덱스가 있을 때마다 Series를 반환했고, 그것은 다시 들어오기 쉬운 회귀이기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

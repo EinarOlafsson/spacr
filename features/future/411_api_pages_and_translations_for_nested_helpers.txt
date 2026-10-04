@@ -2188,3 +2188,25 @@ records byte-identical. Help index regenerated. Guards: all pass. Next: io,
 figure_settings, ml, gui_scale, utils, plot, fractal_travel; submodules once
 the "WHERE" product-token false positive is resolved in the tooling.
     BLOCKED / open: OPEN docs work: 456 of 1,158 nested helpers (11 unrenderable); upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — 11 MORE MODULES ENABLED (PARTIAL; 861 of 1,149 renderable)
+ENABLED_MODULES gains object_classifier, qt.screens.activation,
+qt.preferences_navigation, qt.thread_guard, qt.stall_watch,
+qt.screens.make_masks, plaque_papers, qt.widgets.plaque_preview, settings,
+qt.gui_scale and utils (159 helpers). Four nightly helpers that had no
+docstring (object_classifier estimator, two activation closures,
+make_masks _Sam2SeedDialog.run.work) got one-line docstrings. The writer
+adds 159 symbols (12,728 -> 12,887) in English and nine locales from 179
+AI-reviewed blocks (2026-10-03-nested-batch12.json, direct AI translation
+with AI technical review, no native-speaker signoff); generated=0,
+decoded=0. One local __init__ (gui_scale KeepOrRevertDialog) joins the
+documented-__init__ set; Help index regenerated.
+"WHERE" false positive fixed in the tooling: tools/build_i18n_catalogs.py
+no longer requires the protected SQL keyword verbatim when an adjacent word
+is upper-case English prose (_SHOUTED_PROSE_TERMS); a query keeps it.
+Regression test in tests/test_a_protected_term_survives_beside_cjk.py.
+OUT OF SCOPE: spacr._segmentation_backends (11 helpers) and
+spacr._v1_v2_bridge (2) are in AUTOAPI_NON_RENDERED_MODULES and have no API
+page, so their helpers can never render; they leave the denominator. The
+canonical documented-helper count is 1,162; renderable total 1,149.
+    BLOCKED / open: OPEN docs work: 288 of 1,149 renderable nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
