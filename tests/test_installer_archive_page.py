@@ -440,6 +440,11 @@ def test_download_entry_points_match_the_published_release_catalog():
                 "https://einarolafsson.github.io/spacr/installers.html", timeout=30) as response:
             html = response.read().decode("utf-8")
     except urllib.error.HTTPError as error:
+        if error.code in (403, 429) or error.code >= 500:
+            # Unauthenticated GitHub API rate limits answer 403/429; 5xx is
+            # an outage. Neither says anything about the published catalog.
+            pytest.skip(f"Publication endpoint unavailable ({error.code}): "
+                        f"{error.url}")
         pytest.fail(f"Publication endpoint answered {error.code}: {error.url}")
     except OSError as error:
         pytest.skip(f"Publication endpoints unreachable: {error}")
