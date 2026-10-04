@@ -2,10 +2,13 @@
 REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 ================================================================================
 
-Status: OPEN 2026-10-03 — tutorial capture and publication for the new scenes
-        of 601, 611-614 and 620-629 (tutorial lane). Runtime on nightly; API
-        translation leftovers closed 2026-10-03; 1.5.1.2 and 1.5.1.3 are on
-        PyPI. Native-speaker review is not claimed.
+Status: DONE 2026-10-04 — tutorial capture and publication for 601, 611-614
+        and 620-629 published in re-record waves 2 and 3 (48c4133c8); the
+        macOS updater scene (627) is deferred: requires macOS capture host.
+        Native-speaker review is not claimed. See 2026-10-04 STATUS below.
+
+Previous status (superseded 2026-10-04): OPEN 2026-10-03 — tutorial capture
+        and publication for the new scenes of 601, 611-614 and 620-629.
 
 Previous status (superseded 2026-10-04): IN PROGRESS — runtime implementation pushed to nightly; supporting
 translation, tutorial and platform acceptance remains. The requested main
@@ -569,3 +572,45 @@ Runtime ram_guard and the guide alpha paragraphs were settled on nightly
 (records retired in 8bce8174f; alpha passages removed from the guides), so
 no guide translation was needed.
 LEFT: tutorials (tutorial lane), PyPI/platform checks, native-speaker review.
+
+2026-10-04 — STATUS: TUTORIAL CAPTURE AND PUBLICATION
+Checked against the published English catalog
+(docs/source/_extra/tutorials/catalog/lessons_en.json) at nightly after wave 3
+(48c4133c8, candidate nmw7tksc, receipt
+tools/tutorials/evidence/2026-10-04-rerecord-wave3-publication.json; wave 2 was
+de8e9d961). The lessons below were last published in wave 3. Scene numbers are
+0-based catalog indices, with the recorded visual in brackets.
+Coverage map: /mnt/firecuda2/codex/scratch-docs/coverage/2026-10-03-615-batch.md.
+
+  601 Preferences Appearance folds .. 05_home s14-s17 [13_preferences_general,
+                                      13b_preferences_appearance,
+                                      13c_appearance_theme,
+                                      13d_appearance_animation]
+  603 Tooltip delay / Show tooltips . 05_home s15 [13b_preferences_appearance]
+  611 Thumbnail quality ............. 14_make_masks s37 [28_organize_images]
+  612 Measure Checked images ........ 08_measure s6 [preview_07c_checked_two_fields]
+  613 Merge tables .................. 58_graph_builder s1 [03_choose_database],
+                                      s20 [17_merge_tables];
+                                      64_gate_editor s1 [02_real_database_picker]
+  614 stored plane-layout check ..... 08_measure s1 [preview_03_data_ready] (narration;
+                                      the example has no conflict to show)
+  620 Annotate conditions, saving ... 58_graph_builder s11 [13_genotype_exact_values],
+                                      s19 [16b_save_annotated]
+  621 cleared chart channels ........ 58_graph_builder s8 [10b_channels_cleared]
+  622 plate preprocessing memory .... no UI change; no scene needed
+  623 Merge original filenames ...... no scene: the example archive has no
+                                      conversion map. 58 s14 says so; the
+                                      workflow is in table_workflows.rst
+  624 popup resize guides ........... no scene needed (incidental visual)
+  625 exact values, multi-column .... 58_graph_builder s11-s13
+  626 organizer copy failure ........ 14_make_masks s34 [25_organize_open] (narration;
+                                      no failure is staged in the recording)
+  627 macOS update and relaunch ..... DEFERRED: requires macOS capture host
+                                      (04_platform_installers; installer_guide.rst
+                                      documents it)
+  628 Extract text / Compose column . 58_graph_builder s13 [15_composed_condition_preview],
+                                      s14 [15b_extract_text]
+  629 Save / Load schema ............ 58_graph_builder s15-s17 [15c_save_schema,
+                                      15d_load_schema, 15e_loaded_rules]
+
+Nothing else is missing. Recorded with Show alpha features off.
