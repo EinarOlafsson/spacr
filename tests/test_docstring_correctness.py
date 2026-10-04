@@ -2898,7 +2898,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # lr_schedule and consistency_weight keywords; no row added or removed.
     # Moved 2026-10-04 for item 566: object_distances.local_maxima gained
     # the optional window= and threshold= keywords; no row added or removed.
-) == '7841ec23e8746966f420d764cac602cfae2e9b34d2c827480fe34387201e0e7a'
+    # Moved 2026-10-04 for item 641: home.RecentRunsPanel and
+    # home.TotalsPanel gained the optional read_now= keyword; no row added
+    # or removed.
+) == 'bd0f9dbd23835084532df1e5517a558f564107d9470591e4f6f0c8814d62a6c1'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
