@@ -1,0 +1,120 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: items 656/657 (rebindable shortcuts from the cheat sheet; settings profiles with rename and settings-CSV import), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A template called {name} already exists.",
+      "source": "A template called {name} already exists.",
+      "source_sha256": "0fde21a58393d345ed17fe4bebdc9410681787814cf591289cc93d087a9f6a80",
+      "translation": "Sniðmát sem heitir {name} er þegar til."
+    },
+    {
+      "table": "ui",
+      "key": "A template needs a name.",
+      "source": "A template needs a name.",
+      "source_sha256": "c819cd43a0d9a7cc641784e2a580abc7ca4fc724465ac2b269f6919295b1110c",
+      "translation": "Sniðmát þarf heiti."
+    },
+    {
+      "table": "ui",
+      "key": "Action",
+      "source": "Action",
+      "source_sha256": "64cff1319d2fd2cbb7a1e84ccecf22c1cc07b24435cdb522f8c0aa525d6002a6",
+      "translation": "Aðgerð"
+    },
+    {
+      "table": "ui",
+      "key": "Change shortcuts",
+      "source": "Change shortcuts",
+      "source_sha256": "cd5996d0548fe07c4461b7824f3cc089a1c4e47292bd4eb4cd533f324caf95ce",
+      "translation": "Breyta flýtilyklum"
+    },
+    {
+      "table": "ui",
+      "key": "Change shortcuts…",
+      "source": "Change shortcuts…",
+      "source_sha256": "3e2b35b7680b2132d578f165b33ae43b6ab5c9ad46175068497bf8e4b7300f30",
+      "translation": "Breyta flýtilyklum…"
+    },
+    {
+      "table": "ui",
+      "key": "Click a shortcut and press the new key. Clear it to leave the action without a key.",
+      "source": "Click a shortcut and press the new key. Clear it to leave the action without a key.",
+      "source_sha256": "ac181e284753f9e1b8a1cb47900d1a028bf99e0981ae0efcb3de69a0d133d222",
+      "translation": "Smelltu á flýtilykil og ýttu á nýja lykilinn. Hreinsaðu hann til að hafa aðgerðina án lykils."
+    },
+    {
+      "table": "ui",
+      "key": "Could not rename template",
+      "source": "Could not rename template",
+      "source_sha256": "bc478ba9adc11e431573920e772835b26329a95280a12ca622a66793c6ef8b1b",
+      "translation": "Ekki tókst að endurnefna sniðmátið"
+    },
+    {
+      "table": "ui",
+      "key": "Default",
+      "source": "Default",
+      "source_sha256": "21b111cbfe6e8fca2d181c43f53ad548b22e38aca955b9824706a504b0a07a2d",
+      "translation": "Sjálfgefið"
+    },
+    {
+      "table": "ui",
+      "key": "New name for this template:",
+      "source": "New name for this template:",
+      "source_sha256": "b0f68b646f42e6ef48dc7e44ad6cb4ce12c66725d9b71f852f39f5146229514d",
+      "translation": "Nýtt heiti á þetta sniðmát:"
+    },
+    {
+      "table": "ui",
+      "key": "Rename template",
+      "source": "Rename template",
+      "source_sha256": "91f36a2250b203a91a2b09783812d84e64a0110058536e03f5c874a8b9503a08",
+      "translation": "Endurnefna sniðmát"
+    },
+    {
+      "table": "ui",
+      "key": "Rename…",
+      "source": "Rename…",
+      "source_sha256": "6fa62b3dba2f02f2fe92df35669ff8ef242051be54b1d3aaadfd798e07abbce9",
+      "translation": "Endurnefna…"
+    },
+    {
+      "table": "ui",
+      "key": "Restore defaults",
+      "source": "Restore defaults",
+      "source_sha256": "602f8e637002a585092d04310da6f16cba500d1940e4201239bb56e00314137a",
+      "translation": "Endurheimta sjálfgefin gildi"
+    },
+    {
+      "table": "ui",
+      "key": "Shortcut",
+      "source": "Shortcut",
+      "source_sha256": "5753ea3780f34ad1295fb9957f1575e7e7578aa0e891d89524c26ad6f504cb1d",
+      "translation": "Flýtilykill"
+    },
+    {
+      "table": "ui",
+      "key": "That file holds no settings.",
+      "source": "That file holds no settings.",
+      "source_sha256": "ec7fa6601dc2939ae23051c15c21b783824dc51eb815c45b5ff614df5c16cf7d",
+      "translation": "Sú skrá inniheldur engar stillingar."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR settings template (*.json);;Settings CSV (*.csv);;All files (*)",
+      "source": "spaCR settings template (*.json);;Settings CSV (*.csv);;All files (*)",
+      "source_sha256": "866e220bade4d962f1df1dbabb2e53bb7b81c2d64cc05df84224dbacbb7cd611",
+      "translation": "spaCR-stillingasniðmát (*.json);;Stillinga-CSV (*.csv);;Allar skrár (*)"
+    },
+    {
+      "table": "ui",
+      "key": "{key} is used by: {actions}.",
+      "source": "{key} is used by: {actions}.",
+      "source_sha256": "b125b1cd6dd503b66d7e693c300fc5e4accd803d82674e51053c87d025c11500",
+      "translation": "{key} er notaður af: {actions}."
+    }
+  ]
+}
