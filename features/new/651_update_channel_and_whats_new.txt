@@ -2,7 +2,7 @@
 UPDATE CHANNEL AND WHATS NEW
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,18 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+IMPLEMENTATION
+  DONE 2026-10-04.
+  Preferences → Modules: "Update channel" (Stable releases / Nightly builds,
+  objectName UpdateChannel). Help → Check for updates passes the channel to
+  spacr.updater (stable: check_for_updates, nightly: _check_on_channel); nightly offers PyPI pre-releases and dev
+  builds (yanked versions skipped). After an update the next launch opens a
+  "What's new in spaCR" dialog with every release between the previous and
+  the running version: bundled spacr/resources/release_notes.json, merged
+  with GitHub releases when the release-news refresh is on (fetched on a
+  worker thread). Help → What's new… reopens it any time. Pure Python and
+  Qt, so the same on Linux, macOS and Windows.
+  Tests: tests/test_update_channel_and_proxy.py,
+  tests/qt/test_update_channel_whats_new_and_proxy_prefs.py (mocked network).
+  Left: the new captions await the next i18n catalogue rebuild.

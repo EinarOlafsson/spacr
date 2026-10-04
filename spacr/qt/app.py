@@ -6,6 +6,7 @@ QApplication bootstrap + MainWindow.
 """
 from __future__ import annotations
 
+import functools
 import importlib as _importlib
 import inspect
 import logging
@@ -3375,6 +3376,10 @@ class MainWindow(QMainWindow):
         act_update = QAction("Check for updates…", self)
         act_update.triggered.connect(self._check_for_updates)
         help_menu.addAction(act_update)
+        act_whats_new = QAction(tr("What's new…"), self)
+        act_whats_new.setObjectName("WhatsNewAction")
+        act_whats_new.triggered.connect(lambda: self._show_whats_new(None))
+        help_menu.addAction(act_whats_new)
         act_log = QAction("Open log folder…", self)
         act_log.setStatusTip(
             "Open the ~/.spacr/logs folder. Attach the newest log file "
@@ -3971,9 +3976,102 @@ class MainWindow(QMainWindow):
                                 f"Update check unavailable: {e}")
             return
 
+        from .preferences import _get_update_channel
+
+        check = check_for_updates
+        if _get_update_channel() == "nightly":
+            from spacr.updater import _check_on_channel
+
+            check = functools.partial(_check_on_channel, "nightly")
         self.statusBar().showMessage(tr("Checking for updates…"), 4000)
         self._start_update_worker(
-            "check", check_for_updates, self._on_update_check_done)
+            "check", check, self._on_update_check_done)
+
+    def _maybe_show_whats_new(self) -> None:
+        """Show what changed when this launch runs a newer version than the last.
+
+        The first launch only remembers the version. After an update the
+        bundled release notes are shown at once when the release-news
+        refresh is off; otherwise the published releases are read on a
+        worker thread first, so notes newer than this build's bundle appear
+        too, and the bundle is used alone when that read fails.
+        """
+        from spacr.updater import _installed_version
+
+        from .preferences import _note_running_version, get_refresh_news
+
+        previous = _note_running_version(_installed_version())
+        if not previous or self._closing:
+            return
+        if not get_refresh_news():
+            self._show_whats_new(previous)
+            return
+        from spacr.updater import fetch_release_notes
+
+        worker = _UpdateWorker("whats-new", fetch_release_notes, self)
+        worker.succeeded.connect(
+            lambda releases: self._show_whats_new(previous, releases))
+        worker.failed.connect(lambda *_: self._show_whats_new(previous))
+        worker.finished.connect(worker.deleteLater)
+        worker.start()
+        self._whats_new_worker = worker
+
+    def _show_whats_new(self, previous=None, releases=()):
+        """Show the release notes between ``previous`` and the running version.
+
+        :param previous: the version that ran before; ``None`` uses the one
+            remembered at the last update, or shows only the running
+            version's notes when there is none.
+        :param releases: fetched release records to prefer over the bundled
+            ones.
+        :returns: the dialog, or ``None`` while the window is closing.
+        """
+        if self._closing:
+            return None
+        from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QLabel,
+                                       QTextBrowser, QVBoxLayout)
+
+        from spacr.updater import _installed_version, _release_notes_between
+
+        from .preferences import _previous_version
+
+        current = _installed_version()
+        previous = previous or _previous_version()
+        notes = _release_notes_between(previous, current, releases) \
+            if previous else []
+        if not notes:
+            notes = _release_notes_between("0", current, releases)[:1]
+        dialog = QDialog(self)
+        dialog.setObjectName("WhatsNewDialog")
+        dialog.setWindowTitle(tr("What's new in spaCR"))
+        layout = QVBoxLayout(dialog)
+        if previous:
+            heading = tr("spaCR was updated from {old} to {new}.",
+                         old=previous, new=current)
+        else:
+            heading = tr("You are running spaCR {new}.", new=current)
+        layout.addWidget(QLabel(heading))
+        browser = QTextBrowser(dialog)
+        browser.setObjectName("WhatsNewNotes")
+        browser.setOpenExternalLinks(True)
+        parts = []
+        for record in notes:
+            title = record.get("name") or record.get("tag") or ""
+            date = record.get("published") or ""
+            parts.append(f"## {title}" + (f" ({date})" if date else ""))
+            parts.append(str(record.get("body") or "").strip())
+        browser.setMarkdown("\n\n".join(parts) if parts else tr(
+            "No release notes are available for this version."))
+        layout.addWidget(browser, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, dialog)
+        buttons.rejected.connect(dialog.reject)
+        buttons.accepted.connect(dialog.accept)
+        layout.addWidget(buttons)
+        dialog.resize(560, 420)
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.show()
+        self._whats_new_dialog = dialog
+        return dialog
 
     def _refresh_news(self) -> None:
         """Read the published releases for Home's News panel, off-thread.
@@ -6818,6 +6916,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
         QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
+        QTimer.singleShot(_ICON_WARM_AFTER_MS, win._maybe_show_whats_new)
 
     def _drain_ai():
         """Stop every job runner before Qt starts destroying widgets.

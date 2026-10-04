@@ -76,7 +76,43 @@ class UpdateInfo:
         """Return whether PyPI advertises a version newer than this install."""
         if not self.latest_release:
             return False
-        return _lt(self.installed_version, self.latest_release)
+        from packaging.version import InvalidVersion, Version
+        try:
+            return Version(self.installed_version) < Version(self.latest_release)
+        except InvalidVersion:
+            return _lt(self.installed_version, self.latest_release)
+
+
+def _newest_on_channel(payload, channel: str = "stable") -> str:
+    """The version PyPI's JSON answer offers on ``channel``.
+
+    The stable channel is PyPI's own latest release. The nightly channel is
+    the newest version PyPI holds at all, pre-releases and development
+    builds included, skipping versions whose every file was yanked.
+
+    :param payload: the decoded ``https://pypi.org/pypi/spacr/json`` answer.
+    :param channel: ``"stable"`` or ``"nightly"``.
+    :returns: a version string, or ``""`` when the answer names none.
+    """
+    best = str((payload or {}).get("info", {}).get("version") or "")
+    if channel != "nightly":
+        return best
+    from packaging.version import InvalidVersion, Version
+    try:
+        best_key = Version(best)
+    except InvalidVersion:
+        best_key = None
+    for text, files in ((payload or {}).get("releases") or {}).items():
+        files = [f for f in files or () if isinstance(f, dict)]
+        if not files or all(f.get("yanked") for f in files):
+            continue
+        try:
+            key = Version(str(text))
+        except InvalidVersion:
+            continue
+        if best_key is None or key > best_key:
+            best, best_key = str(text), key
+    return best
 
 
 def check_for_updates(timeout: float = 3.0) -> UpdateInfo:
@@ -84,6 +120,18 @@ def check_for_updates(timeout: float = 3.0) -> UpdateInfo:
 
     :param timeout: per-request timeout in seconds.
     """
+    return _check_on_channel("stable", timeout)
+
+
+def _check_on_channel(channel: str = "stable",
+                      timeout: float = 3.0) -> UpdateInfo:
+    """Query PyPI + GitHub for the versions ``channel`` offers.
+
+    :param channel: ``"stable"`` offers PyPI's latest release; ``"nightly"``
+        also offers pre-releases and development builds.
+    :param timeout: per-request timeout in seconds.
+    """
+    _apply_network_settings()
     installed = _installed_version()
     latest = None
     nightly = None
@@ -95,7 +143,7 @@ def check_for_updates(timeout: float = 3.0) -> UpdateInfo:
         )
         with urllib.request.urlopen(req, timeout=timeout) as r:
             payload = json.loads(r.read())
-        latest = str(payload.get("info", {}).get("version") or "")
+        latest = _newest_on_channel(payload, channel)
     except Exception as e:
         err = f"pypi: {e}"
         LOG.debug("pypi check failed: %s", e)
@@ -237,6 +285,7 @@ def fetch_release_notes(timeout: float = 4.0,
     cached = _read_news_cache(max_age)
     if cached is not None:
         return cached
+    _apply_network_settings()
     try:
         import urllib.request
         req = urllib.request.Request(
@@ -252,6 +301,198 @@ def fetch_release_notes(timeout: float = 4.0,
         return []
     _write_news_cache(entries)
     return entries
+
+
+def _bundled_release_notes() -> list:
+    """The release records shipped in this build, newest first, or ``[]``."""
+    try:
+        from importlib.resources import files
+
+        raw = files("spacr.resources") / "release_notes.json"
+        data = json.loads(raw.read_text(encoding="utf-8"))
+        return [r for r in data.get("releases") or [] if isinstance(r, dict)]
+    except Exception:
+        return []
+
+
+def _release_version(record):
+    """The :class:`packaging.version.Version` a release record names, or None."""
+    from packaging.version import InvalidVersion, Version
+    tag = str((record or {}).get("tag") or (record or {}).get("name") or "")
+    match = re.search(r"\d+(?:\.\d+)+\S*", tag)
+    if not match:
+        return None
+    try:
+        return Version(match.group(0))
+    except InvalidVersion:
+        return None
+
+
+def _release_notes_between(old: str, new: str, releases=()) -> list:
+    """The release records after ``old`` up to and including ``new``.
+
+    Fetched records come first so a newer description of the same release
+    replaces the bundled one; each version appears once.
+
+    :param old: the version that was running before the update.
+    :param new: the version running now.
+    :param releases: fetched release records, shaped like the bundled ones.
+    :returns: records newest first; empty when either version is unreadable
+        or nothing lies between them.
+    """
+    from packaging.version import InvalidVersion, Version
+    try:
+        low, high = Version(str(old)), Version(str(new))
+    except InvalidVersion:
+        return []
+    picked = {}
+    for record in list(releases or ()) + _bundled_release_notes():
+        version = _release_version(record)
+        if version is None or version in picked:
+            continue
+        if low < version <= high:
+            picked[version] = record
+    return [picked[v] for v in sorted(picked, reverse=True)]
+
+
+_UPDATE_CHANNELS = ("stable", "nightly")
+
+_ENV_NETWORK_CONFIG = "SPACR_NETWORK_CONFIG"
+
+_PROXY_VARIABLES = ("HTTPS_PROXY", "https_proxy", "HTTP_PROXY", "http_proxy")
+_CA_VARIABLES = ("REQUESTS_CA_BUNDLE", "SSL_CERT_FILE", "CURL_CA_BUNDLE",
+                 "PIP_CERT", "GIT_SSL_CAINFO", "NODE_EXTRA_CA_CERTS")
+_NO_PROXY_VARIABLES = ("NO_PROXY", "no_proxy")
+_LOCAL_HOSTS = "localhost,127.0.0.1,::1"
+_NETWORK_EXPORTED: dict = {}
+_NETWORK_DISPLACED: dict = {}
+
+
+def _network_config_path() -> Path:
+    """Where the proxy and certificate-bundle choice is kept for every process."""
+    override = os.environ.get(_ENV_NETWORK_CONFIG)
+    if override:
+        return Path(override)
+    return Path.home() / ".spacr" / "network.json"
+
+
+def _read_network_config() -> dict:
+    """The saved ``{"proxy": str, "ca_bundle": str}``, empty strings when unset."""
+    try:
+        data = json.loads(_network_config_path().read_text(encoding="utf-8"))
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    return {"proxy": str(data.get("proxy") or "").strip(),
+            "ca_bundle": str(data.get("ca_bundle") or "").strip()}
+
+
+def _write_network_config(proxy: str = "", ca_bundle: str = "") -> None:
+    """Save the proxy and certificate bundle and export them at once.
+
+    Nothing is written when the choice is unchanged.
+
+    :param proxy: proxy URL such as ``http://proxy.example.org:3128``; empty
+        uses ``HTTPS_PROXY`` from the environment.
+    :param ca_bundle: path to a PEM file of trusted certificates; empty uses
+        ``REQUESTS_CA_BUNDLE`` or ``SSL_CERT_FILE`` from the environment.
+    """
+    wanted = {"proxy": str(proxy or "").strip(),
+              "ca_bundle": str(ca_bundle or "").strip()}
+    if wanted != _read_network_config():
+        path = _network_config_path()
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(wanted), encoding="utf-8")
+    _apply_network_settings()
+
+
+def _undo_network_exports() -> None:
+    """Put back every variable the last export replaced and nobody changed since."""
+    for key, value in list(_NETWORK_EXPORTED.items()):
+        if os.environ.get(key) == value:
+            original = _NETWORK_DISPLACED.get(key)
+            if original is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = original
+    _NETWORK_EXPORTED.clear()
+    _NETWORK_DISPLACED.clear()
+
+
+def _export(key: str, value: str) -> None:
+    """Set one environment variable, remembering what it replaced."""
+    if os.environ.get(key) == value:
+        return
+    _NETWORK_DISPLACED[key] = os.environ.get(key)
+    _NETWORK_EXPORTED[key] = value
+    os.environ[key] = value
+
+
+def _effective_network(environ=None) -> dict:
+    """The proxy and certificate bundle every download will use.
+
+    A saved choice wins over the environment; otherwise ``HTTPS_PROXY`` (or
+    ``HTTP_PROXY``) and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``,
+    ``CURL_CA_BUNDLE``) are used as they are.
+
+    :param environ: the environment to read; the process environment when
+        omitted.
+    :returns: ``{"proxy", "ca_bundle", "proxy_source", "ca_source"}``.
+    """
+    environ = os.environ if environ is None else environ
+    saved = _read_network_config()
+    proxy, proxy_source = saved["proxy"], "preferences"
+    if not proxy:
+        proxy_source = ""
+        for key in _PROXY_VARIABLES:
+            if environ.get(key):
+                proxy, proxy_source = environ[key], key
+                break
+    ca, ca_source = saved["ca_bundle"], "preferences"
+    if not ca:
+        ca_source = ""
+        for key in _CA_VARIABLES[:3]:
+            if environ.get(key):
+                ca, ca_source = environ[key], key
+                break
+    return {"proxy": proxy, "ca_bundle": ca,
+            "proxy_source": proxy_source, "ca_source": ca_source}
+
+
+def _apply_network_settings() -> dict:
+    """Export the proxy and certificate bundle to every downloader.
+
+    ``requests``, ``urllib``, ``huggingface_hub``, pip, uv, conda, git and
+    the backend installers all run in this process or in children that
+    inherit its environment, and each reads a different variable: requests
+    and conda read ``REQUESTS_CA_BUNDLE``, urllib, httpx and uv read
+    ``SSL_CERT_FILE``, pip reads ``PIP_CERT``, git ``GIT_SSL_CAINFO``. One
+    certificate bundle is therefore written to all of them, and one proxy to
+    both spellings of ``HTTPS_PROXY`` and ``HTTP_PROXY``, with this
+    machine's own addresses exempted. A certificate bundle that is not a
+    file is not exported. Variables an earlier call exported are restored
+    first, so clearing the saved choice brings back what was there before.
+
+    :returns: the :func:`_effective_network` answer that was applied.
+    """
+    _undo_network_exports()
+    network = _effective_network()
+    if network["proxy"]:
+        for key in _PROXY_VARIABLES:
+            _export(key, network["proxy"])
+        if not any(os.environ.get(k) for k in _NO_PROXY_VARIABLES):
+            for key in _NO_PROXY_VARIABLES:
+                _export(key, _LOCAL_HOSTS)
+    if network["ca_bundle"] and os.path.isfile(network["ca_bundle"]):
+        for key in _CA_VARIABLES:
+            _export(key, network["ca_bundle"])
+    try:
+        import urllib.request
+        urllib.request.install_opener(None)
+    except Exception:
+        LOG.debug("could not reset urllib's opener", exc_info=True)
+    return network
 
 
 def _installed_version() -> str:
@@ -449,6 +690,7 @@ def run_install_command(args, timeout: float = 1800.0):
     :returns: ``(exit_code, output)`` with stdout and stderr combined.
     """
     args = [str(part) for part in args]
+    _apply_network_settings()
     LOG.info("running: %s", " ".join(args))
     try:
         completed = subprocess.run(

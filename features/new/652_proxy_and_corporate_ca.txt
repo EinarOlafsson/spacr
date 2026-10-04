@@ -2,7 +2,7 @@
 PROXY AND CORPORATE CA
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,21 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+IMPLEMENTATION
+  DONE 2026-10-04.
+  spacr.updater._apply_network_settings exports one proxy (HTTPS_PROXY /
+  HTTP_PROXY, both spellings, NO_PROXY for this machine) and one CA bundle
+  (REQUESTS_CA_BUNDLE, SSL_CERT_FILE, CURL_CA_BUNDLE, PIP_CERT,
+  GIT_SSL_CAINFO, NODE_EXTRA_CA_CERTS) to the process environment, so
+  requests, urllib, huggingface_hub (requests/httpx), pip, uv, conda, git
+  and the backend installers (children inherit os.environ) all honour it.
+  Source: Preferences → Proxy / Certificate bundle (saved in
+  ~/.spacr/network.json so CLI processes and spacr-doctor see it too), else
+  the environment. Applied at launch, on every Preferences save, before
+  every update check, release-news fetch and install command.
+  spacr-doctor row "proxy and certificates": PASS for a direct connection
+  (no socket), FAIL for a missing/unreadable bundle, WARN when PyPI cannot
+  be reached through the configured proxy/CA; credentials in the proxy URL
+  are masked.
+  Left: the new captions await the next i18n catalogue rebuild.

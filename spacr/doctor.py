@@ -1176,6 +1176,75 @@ def check_installer_backend(ctx: Context) -> Result:
         )
     return Result("installer backend", PASS, message)
 
+_NETWORK_PROBE_URL = "https://pypi.org/simple/spacr/"
+
+
+def _probe_url(url: str, timeout: float = 5.0) -> Optional[str]:
+    """Open ``url`` through the exported proxy and trust store.
+
+    :returns: ``None`` when the server answered, otherwise the error text.
+    """
+    import urllib.error
+    import urllib.request
+
+    request = urllib.request.Request(
+        url, method="HEAD", headers={"User-Agent": "spacr-doctor"})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout):
+            return None
+    except urllib.error.HTTPError:
+        return None
+    except Exception as exc:                                     # noqa: BLE001
+        return str(getattr(exc, "reason", None) or exc)
+
+
+@_register("proxy and certificates")
+def _check_network(ctx: Context) -> Result:
+    """Report the proxy and certificate bundle downloads use, and whether PyPI answers.
+
+    Nothing is opened when neither a proxy nor a certificate bundle is set,
+    so an ordinary direct connection costs no socket.
+    """
+    import ssl
+
+    from .updater import _apply_network_settings
+
+    label = "proxy and certificates"
+    network = _apply_network_settings()
+    proxy, ca = network["proxy"], network["ca_bundle"]
+    details = []
+    if proxy:
+        shown = re.sub(r"//[^/@]*@", "//<credentials>@", proxy)
+        details.append(f"proxy {shown} (from {network['proxy_source']})")
+    if ca:
+        details.append(f"certificate bundle {ca} (from {network['ca_source']})")
+    if not proxy and not ca:
+        return Result(label, PASS,
+                      "Direct connection with the system's trusted certificates.")
+    fix_prefs = ("Correct it in Preferences → Proxy and Certificate bundle, "
+                 "or in the HTTPS_PROXY and REQUESTS_CA_BUNDLE environment "
+                 "variables.")
+    if ca:
+        if not os.path.isfile(ca):
+            return Result(label, FAIL, f"The certificate bundle {ca} does not exist.",
+                          fix=fix_prefs, details=tuple(details))
+        try:
+            ssl.create_default_context(cafile=ca)
+        except (ssl.SSLError, OSError, ValueError) as exc:
+            return Result(label, FAIL,
+                          f"The certificate bundle {ca} is not a readable PEM file: {exc}",
+                          fix=fix_prefs, details=tuple(details))
+    error = _probe_url(_NETWORK_PROBE_URL)
+    if error:
+        return Result(label, WARN,
+                      f"PyPI could not be reached through these settings: {error}",
+                      fix=fix_prefs + " Ask your IT department for the proxy "
+                      "address and the certificate authority file.",
+                      details=tuple(details))
+    return Result(label, PASS, "PyPI answered through these settings.",
+                  details=tuple(details))
+
+
 def _import_torch() -> Any:
     """Import torch. Split out so the GPU checks can be tested without one."""
     import torch

@@ -87,6 +87,34 @@ update leaves the previous working environment in place. Project folders and
 results are not stored in the installation directory and are not removed by
 an update.
 
+Update channel and What's new
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Preferences → Update channel** chooses what **Help → Check for updates**
+offers. *Stable releases* offers PyPI's latest release. *Nightly builds* also
+offers pre-releases and development builds, which arrive sooner and are tested
+less. After an update, the next launch opens **What's new in spaCR** with the
+release notes of every version between the previous and the running one: the
+notes bundled with the build, plus the published GitHub releases when
+**Release news** is on and the network answers. **Help → What's new…** reopens
+it at any time.
+
+Proxies and corporate certificates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda
+and the segmentation-backend installers) honours ``HTTPS_PROXY`` and
+``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR
+instead, fill in **Preferences → Proxy** (for example
+``http://proxy.example.org:3128``) and **Preferences → Certificate bundle** (a
+PEM file from your IT department). These values override the environment, are
+kept in ``~/.spacr/network.json`` so command-line runs use them too, and are
+passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``,
+``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``.
+``spacr-doctor`` has a *proxy and certificates* row. It checks that the
+certificate bundle exists and can be read, and that PyPI answers through the
+configured proxy.
+
 macOS online installation: update and reopen
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

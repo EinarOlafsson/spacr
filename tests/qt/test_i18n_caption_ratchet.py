@@ -1312,6 +1312,27 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Nothing to redo.",
     "Redone.",
     "Portable mode: settings, caches, logs and runs are kept in {folder}.",
+    "A PEM file of certificates to trust, for networks that inspect HTTPS "
+    "with their own certificate authority. Empty uses the REQUESTS_CA_BUNDLE "
+    "or SSL_CERT_FILE environment variable when it is set. Default empty.",
+    "Certificate bundle",
+    "Nightly builds",
+    "No release notes are available for this version.",
+    "Proxy",
+    "Proxy for every download: model weights, updates, plug-ins, pip and "
+    "backend installers. Empty uses the HTTPS_PROXY environment variable "
+    "when it is set. spacr-doctor reports whether the proxy reaches PyPI. "
+    "Default empty.",
+    "Stable releases",
+    "Update channel",
+    "What's new in spaCR",
+    "What's new…",
+    "Which versions Help → Check for updates offers. Stable offers only full "
+    "releases. Nightly also offers pre-releases and development builds, "
+    "which arrive sooner and are tested less. After an update spaCR shows "
+    "what changed. Default stable.",
+    "You are running spaCR {new}.",
+    "spaCR was updated from {old} to {new}.",
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",

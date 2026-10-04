@@ -181,6 +181,9 @@ _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_PERFORMANCE_LOG = "prefs/performance_logging"
 _KEY_SHARE_DIAGNOSTICS = "privacy/share_diagnostic_logs"
 _KEY_REFRESH_NEWS = "privacy/refresh_news_from_github"
+_KEY_UPDATE_CHANNEL = "updates/channel"
+_KEY_SEEN_VERSION = "updates/last_seen_version"
+_KEY_PREVIOUS_VERSION = "updates/previous_version"
 _KEY_LOG_FILE_LEVELS = "prefs/log_file_levels"
 _KEY_LOG_CONSOLE_LEVELS = "prefs/log_console_levels"
 _KEY_DB_EDIT     = "prefs/db_browser_editable"
@@ -4850,6 +4853,50 @@ def set_refresh_news(on: bool) -> None:
     _settings().setValue(_KEY_REFRESH_NEWS, bool(on))
 
 
+def _get_update_channel() -> str:
+    """The release channel Help → Check for updates offers: stable or nightly."""
+    value = str(_settings().value(_KEY_UPDATE_CHANNEL, "stable") or "stable")
+    return value if value in ("stable", "nightly") else "stable"
+
+
+def _set_update_channel(channel: str) -> None:
+    """Persist the update channel; anything but ``"nightly"`` means stable."""
+    _settings().setValue(_KEY_UPDATE_CHANNEL,
+                         "nightly" if channel == "nightly" else "stable")
+
+
+def _note_running_version(version: str):
+    """Remember ``version`` as seen and say which version ran before it.
+
+    :param version: the version running now.
+    :returns: the previously seen version when it differs from ``version``,
+        otherwise ``None``; a first launch remembers without answering.
+    """
+    store = _settings()
+    seen = str(store.value(_KEY_SEEN_VERSION, "") or "")
+    if not version or version == "unknown" or seen == version:
+        return None
+    store.setValue(_KEY_SEEN_VERSION, version)
+    if not seen:
+        return None
+    store.setValue(_KEY_PREVIOUS_VERSION, seen)
+    return seen
+
+
+def _previous_version() -> str:
+    """The version that ran before the latest update, or ``""``."""
+    return str(_settings().value(_KEY_PREVIOUS_VERSION, "") or "")
+
+
+def _apply_network_preferences() -> None:
+    """Export the saved proxy and certificate bundle to every downloader."""
+    try:
+        from spacr.updater import _apply_network_settings
+        _apply_network_settings()
+    except Exception:                                       # noqa: BLE001
+        LOG.debug("could not apply the network settings", exc_info=True)
+
+
 #: The Database Browser opens ``measurements.db`` read-only. Editing is a
 #: separate, deliberate opt-in because an UPDATE against a measurements
 #: database is unrecoverable — there is no undo and no backup.
@@ -6146,6 +6193,7 @@ def apply_preferences_to_app(app=None) -> None:
         return
 
     app.setProperty("spacrLanguage", get_language())
+    _apply_network_preferences()
 
     try:
         apply_workspace_preference()
@@ -6985,7 +7033,7 @@ class PreferencesDialog:
         from PySide6.QtWidgets import (
             QCheckBox, QComboBox, QDialogButtonBox,
             QDoubleSpinBox, QFormLayout,
-            QFrame, QHBoxLayout, QLabel, QPushButton, QScrollArea, QSlider,
+            QFrame, QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSlider,
             QSpinBox, QTabWidget, QVBoxLayout, QWidget,
         )
         from .i18n import language_choices, tr
@@ -7871,6 +7919,41 @@ class PreferencesDialog:
         ))
         restore_session_check.setChecked(_get_restore_session())
         modules.addRow(tr("Session"), restore_session_check)
+        update_channel_combo = QComboBox()
+        update_channel_combo.setObjectName("UpdateChannel")
+        update_channel_combo.addItem(tr("Stable releases"), "stable")
+        update_channel_combo.addItem(tr("Nightly builds"), "nightly")
+        update_channel_combo.setToolTip(tr(
+            "Which versions Help → Check for updates offers. Stable offers "
+            "only full releases. Nightly also offers pre-releases and "
+            "development builds, which arrive sooner and are tested less. "
+            "After an update spaCR shows what changed. Default stable."))
+        update_channel_combo.setCurrentIndex(max(
+            0, update_channel_combo.findData(_get_update_channel())))
+        modules.addRow(tr("Update channel"), update_channel_combo)
+
+        from spacr.updater import _read_network_config
+
+        network_now = _read_network_config()
+        proxy_edit = QLineEdit(network_now["proxy"])
+        proxy_edit.setObjectName("NetworkProxy")
+        proxy_edit.setPlaceholderText("http://proxy.example.org:3128")
+        proxy_edit.setToolTip(tr(
+            "Proxy for every download: model weights, updates, plug-ins, "
+            "pip and backend installers. Empty uses the HTTPS_PROXY "
+            "environment variable when it is set. spacr-doctor reports "
+            "whether the proxy reaches PyPI. Default empty."))
+        modules.addRow(tr("Proxy"), proxy_edit)
+
+        ca_edit = QLineEdit(network_now["ca_bundle"])
+        ca_edit.setObjectName("NetworkCaBundle")
+        ca_edit.setPlaceholderText("/etc/ssl/certs/corporate-ca.pem")
+        ca_edit.setToolTip(tr(
+            "A PEM file of certificates to trust, for networks that inspect "
+            "HTTPS with their own certificate authority. Empty uses the "
+            "REQUESTS_CA_BUNDLE or SSL_CERT_FILE environment variable when "
+            "it is set. Default empty."))
+        modules.addRow(tr("Certificate bundle"), ca_edit)
 
         db_edit_check = Toggle(tr("Allow editing in the Database Browser"))
         db_edit_check.setToolTip(
@@ -8817,6 +8900,9 @@ class PreferencesDialog:
                     get_share_diagnostic_logs())
                 refresh_news_check.setChecked(get_refresh_news())
                 restore_session_check.setChecked(_get_restore_session())
+                _select(update_channel_combo, _get_update_channel())
+                proxy_edit.clear()
+                ca_edit.clear()
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
@@ -8886,6 +8972,13 @@ class PreferencesDialog:
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
             set_refresh_news(refresh_news_check.isChecked())
             _set_restore_session(restore_session_check.isChecked())
+            _set_update_channel(update_channel_combo.currentData())
+            try:
+                from spacr.updater import _write_network_config
+                _write_network_config(proxy_edit.text(), ca_edit.text())
+            except OSError:
+                LOG.warning("could not save the network settings",
+                            exc_info=True)
             verbose_holds_debug = verbose_check.isChecked()
             set_log_levels(
                 [level for level, (file_t, _c) in log_level_toggles.items()
