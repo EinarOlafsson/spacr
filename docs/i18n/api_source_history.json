@@ -1,6 +1,30 @@
 {
   "schema": 1,
   "sources": {
+    "a643f690ce21cf5ef25034d1f58db04c15236dc39ca1ef867ddb70dac74ac6a2": {
+      "source_blocks_sha256": [
+        "e81f3b239b6cd903a410e14b09085972d19b2bbe45585b2888080e1eae9d819e",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "da49e68b97882585b12dd874425ea54359919715d76e1bafa57b37d68dba4e1f",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ],
+      "source_sha256": "a643f690ce21cf5ef25034d1f58db04c15236dc39ca1ef867ddb70dac74ac6a2",
+      "text": "Aggregate counts from the automatically complete run journal.\n\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
+    },
+    "a8cd69e29f3c1af33994cc451db26791401a7662cf9e3eeeeb6a7b3b9b6f4372": {
+      "source_blocks_sha256": [
+        "b7bb881cacd1c768fd1b8426a0b72035003a2ae5005dc1dbfe113331137e6c33",
+        "bed05b0be9fb725825d7211d1fc0f894339ac0717ccf4174ef4634a2401f2f3c",
+        "b7d820b25e83921b93951aca6f3a6bbe2a475554a06286a080157034900567ad",
+        "b2b0fa0f3f9322b8551e4145b7c3bf361b7bca27c3c23813b417cc25b41dcfe5",
+        "82546f8e6ec14729b1a07659c3ad7413e547ad74412eb155a047a40038655187",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "da49e68b97882585b12dd874425ea54359919715d76e1bafa57b37d68dba4e1f",
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+      ],
+      "source_sha256": "a8cd69e29f3c1af33994cc451db26791401a7662cf9e3eeeeb6a7b3b9b6f4372",
+      "text": "Last few journalled runs of a REAL module; each row navigates.\n\n\"Real module\" is doing work here. The panel used to list whatever the\nrun journal's newest manifests said, and those rows were clickable\nwithout representing runs -- they opened a ``_job`` module. On one\nmachine the journal held 11,046 run folders of which 7,323 were written\nunder the app_key ``_job`` or ``job``: a test fixture's key, written\nstraight into the real `~/.spacr/runs` because nothing sandboxed it\n(fixed in ``tests/conftest.py``). So most rows named a module that does\nnot exist, and clicking one asked the window to open it.\n\nThe pollution is stopped at the source now, but a filter here is still\nthe right thing: this panel NAVIGATES, so a row it draws is a promise\nthat pressing it goes somewhere. Anything whose key is not a module Home\nknows about is dropped.\n\n:param limit: how many journalled runs to show.\n:param known_keys: callable returning the module keys that exist, or a\n    mapping of key to display name (or either, directly). ``None``\n    filters nothing, which is what a standalone panel with no registry\n    to consult has to do.\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
+    },
     "bb70abc1890f5bf036422fd87ea8cb37c1d3533eb5a381a61ca5eb7135bb621c": {
       "source_blocks_sha256": [
         "bb70abc1890f5bf036422fd87ea8cb37c1d3533eb5a381a61ca5eb7135bb621c"

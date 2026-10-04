@@ -95300,10 +95300,11 @@
         "82546f8e6ec14729b1a07659c3ad7413e547ad74412eb155a047a40038655187",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "da49e68b97882585b12dd874425ea54359919715d76e1bafa57b37d68dba4e1f",
-        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "63eae8f86842e8595971e5254d3426dfa70a85aac13468c7fab187f3b52541b6"
       ],
-      "source_sha256": "a8cd69e29f3c1af33994cc451db26791401a7662cf9e3eeeeb6a7b3b9b6f4372",
-      "text": "Last few journalled runs of a REAL module; each row navigates.\n\n\"Real module\" is doing work here. The panel used to list whatever the\nrun journal's newest manifests said, and those rows were clickable\nwithout representing runs -- they opened a ``_job`` module. On one\nmachine the journal held 11,046 run folders of which 7,323 were written\nunder the app_key ``_job`` or ``job``: a test fixture's key, written\nstraight into the real `~/.spacr/runs` because nothing sandboxed it\n(fixed in ``tests/conftest.py``). So most rows named a module that does\nnot exist, and clicking one asked the window to open it.\n\nThe pollution is stopped at the source now, but a filter here is still\nthe right thing: this panel NAVIGATES, so a row it draws is a promise\nthat pressing it goes somewhere. Anything whose key is not a module Home\nknows about is dropped.\n\n:param limit: how many journalled runs to show.\n:param known_keys: callable returning the module keys that exist, or a\n    mapping of key to display name (or either, directly). ``None``\n    filters nothing, which is what a standalone panel with no registry\n    to consult has to do.\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
+      "source_sha256": "f17cd7588c48d84cb8f12253361e75ea8bef57acd3524da5d1f0f67f7e2c3f8a",
+      "text": "Last few journalled runs of a REAL module; each row navigates.\n\n\"Real module\" is doing work here. The panel used to list whatever the\nrun journal's newest manifests said, and those rows were clickable\nwithout representing runs -- they opened a ``_job`` module. On one\nmachine the journal held 11,046 run folders of which 7,323 were written\nunder the app_key ``_job`` or ``job``: a test fixture's key, written\nstraight into the real `~/.spacr/runs` because nothing sandboxed it\n(fixed in ``tests/conftest.py``). So most rows named a module that does\nnot exist, and clicking one asked the window to open it.\n\nThe pollution is stopped at the source now, but a filter here is still\nthe right thing: this panel NAVIGATES, so a row it draws is a promise\nthat pressing it goes somewhere. Anything whose key is not a module Home\nknows about is dropped.\n\n:param limit: how many journalled runs to show.\n:param known_keys: callable returning the module keys that exist, or a\n    mapping of key to display name (or either, directly). ``None``\n    filters nothing, which is what a standalone panel with no registry\n    to consult has to do.\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget.\n:param read_now: read the journal on the calling thread now. Home\n    passes ``False`` and fills the panel from its worker read, so\n    the window is not held up by the journal."
     },
     "spacr.qt.widgets.home.RecentRunsPanel.clear_list": {
       "source_blocks_sha256": [
@@ -95465,10 +95466,11 @@
         "e81f3b239b6cd903a410e14b09085972d19b2bbe45585b2888080e1eae9d819e",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "da49e68b97882585b12dd874425ea54359919715d76e1bafa57b37d68dba4e1f",
-        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
+        "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
+        "17b7ee92573466a02a4ffd7a28f1419037a860e10140c9b1e614670590bb78b6"
       ],
-      "source_sha256": "a643f690ce21cf5ef25034d1f58db04c15236dc39ca1ef867ddb70dac74ac6a2",
-      "text": "Aggregate counts from the automatically complete run journal.\n\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget."
+      "source_sha256": "da88355b6be2816f47fa6a65e7f510a2bb65b3937ef56ff1224c26c16cd97aa8",
+      "text": "Aggregate counts from the automatically complete run journal.\n\n:param parent: parent widget.\nBuild the panel and its caption.\n\n:param parent: parent widget.\n:param read_now: read the journal on the calling thread now. Home\n    passes ``False`` and fills the panel from its worker read."
     },
     "spacr.qt.widgets.home.TotalsPanel.read": {
       "source_blocks_sha256": [
