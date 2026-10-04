@@ -3432,6 +3432,52 @@ def _archive_study_screens(lines: List[str]) -> Tuple[List[str], List[List[str]]
     return head, screens, tail
 
 
+def _write_archive_study_pagetab(pkg: Path, slug: str,
+                                  screens: Sequence[Dict[str, Any]]) -> Path:
+    """Write one BioStudies PageTab study for every screen of a study folder.
+
+    The Submission, Study, Author, Organization and REMBI sections come from
+    screen A's PageTab, since the form is shared. ``biostudies/file_list.tsv``
+    joins every screen's file list with a ``Screen`` column and each path
+    under ``screen<letter>/``, the folder that screen's images are uploaded
+    to, and the PageTab gets one ``Screen`` subsection per screen naming its
+    run folder and file count.
+
+    :param pkg: the study folder.
+    :param slug: the study's folder name.
+    :param screens: the study manifest's screen entries, screen A first.
+    :returns: the PageTab file.
+    """
+    import pandas as pd
+
+    from .tabular import read_table, write_table
+
+    bia = pkg / "biostudies"
+    bia.mkdir(exist_ok=True)
+    first = pkg / screens[0]["package"] / "biostudies" / f"{slug}.pagetab.tsv"
+    blocks = [b for b in first.read_text(encoding="utf-8").split("\n\n")
+              if b.strip()]
+    lists = []
+    for entry in screens:
+        letter = entry["screen"]
+        frame = read_table(pkg / entry["package"] / "biostudies" /
+                           "file_list.tsv", canonicalise=False, dtype=str,
+                           keep_default_na=False)
+        frame["Files"] = [f"screen{letter}/{f}" for f in frame["Files"]]
+        frame.insert(1, "Screen", f"screen{letter}")
+        lists.append(frame)
+        blocks.append(_archive_kv_text([
+            ["Screen", f"screen{letter}"],
+            ["Title", f"Screen {letter}"],
+            ["Source", Path(entry["source"]).name],
+            ["Number of files", len(frame)]]).rstrip("\n"))
+    write_table(pd.concat(lists, ignore_index=True), bia / "file_list.tsv",
+                canonicalise=False)
+    return _archive_write_text(bia / f"{slug}.pagetab.tsv",
+                               "\n\n".join(b.rstrip("\n") for b in blocks)
+                               + "\n")
+
+
 def _write_archive_study(srcs: Sequence[Any], out: Any, form: Dict[str, Any], *,
                          copy_images: bool = False,
                          progress: Optional[Any] = None) -> Path:
@@ -3443,7 +3489,10 @@ def _write_archive_study(srcs: Sequence[Any], out: Any, form: Dict[str, Any], *,
     ``idr/`` folder with one study file listing every screen (``Study
     Screens Number``, and per screen its number, IDR screen name, library,
     processed and plate files) next to those files, renamed
-    ``<title>-screen<letter>-*.txt``. ``study_manifest.json`` names the
+    ``<title>-screen<letter>-*.txt``. ``biostudies/`` holds one PageTab
+    study over every screen, with a ``Screen`` subsection each and one
+    joined file list whose paths sit under ``screen<letter>/``.
+    ``study_manifest.json`` names the
     screens and their run folders and ``checksums.md5`` covers the study
     files; each screen package keeps its own BioStudies, MIHCSME and
     checksum files. Nothing is uploaded and no run folder is written to.
@@ -3528,16 +3577,61 @@ def _write_archive_study(srcs: Sequence[Any], out: Any, form: Dict[str, Any], *,
             for line in head]
     _archive_write_text(idr / f"{slug}-study.txt",
                         "\n".join(head + blocks + tail) + "\n")
+    _write_archive_study_pagetab(pkg, slug, screens)
     _archive_write_text(pkg / "study_manifest.json", json.dumps(
         {"slug": slug, "copy_images": bool(copy_images),
          "screens": screens}, indent=2))
     say("Computing checksums")
     lines = [f"{_archive_md5(path)}  {path.relative_to(pkg).as_posix()}"
-             for path in sorted(idr.iterdir()) if path.is_file()]
+             for folder in (idr, pkg / "biostudies")
+             for path in sorted(folder.iterdir()) if path.is_file()]
     lines.append(f"{_archive_md5(pkg / 'study_manifest.json')}  "
                  "study_manifest.json")
     _archive_write_text(pkg / "checksums.md5", "\n".join(lines) + "\n")
     return pkg
+
+
+def _archive_study_pagetab_problems(pkg: Path, slug: str,
+                                    screens: Sequence[Dict[str, Any]]
+                                    ) -> List[str]:
+    """Problems with a study folder's combined BioStudies PageTab study."""
+    from .tabular import read_table
+
+    pagetab = pkg / "biostudies" / f"{slug}.pagetab.tsv"
+    if not pagetab.is_file():
+        return [f"BioStudies: {pagetab.name} is missing"]
+    blocks = _archive_read_pagetab(pagetab)
+    problems: List[str] = []
+    if not blocks or blocks[0][0] != "Submission":
+        problems.append("BioStudies: the first block is not Submission")
+    for section, keys in _BIA_REQUIRED.items():
+        found = [attrs for kind, attrs in blocks if kind == section]
+        if not found:
+            problems.append(f"BioStudies: no '{section}' section")
+            continue
+        for key in keys:
+            if not str(found[0].get(key, "")).strip():
+                problems.append(f"BioStudies {section}: '{key}' has no value")
+    wanted = [f"screen{e.get('screen')}" for e in screens]
+    lines = pagetab.read_text(encoding="utf-8").splitlines()
+    named = [line.split("\t")[1] for line in lines
+             if line.startswith("Screen\t")]
+    if named != wanted:
+        problems.append(f"BioStudies: Screen subsections {named} are not "
+                        f"{wanted}")
+    file_list = pkg / "biostudies" / "file_list.tsv"
+    if not file_list.is_file():
+        return problems + ["BioStudies: file_list.tsv is missing"]
+    frame = read_table(file_list, canonicalise=False, dtype=str,
+                       keep_default_na=False)
+    if list(frame.columns[:2]) != ["Files", "Screen"]:
+        problems.append("BioStudies file list: the first columns are not "
+                        "Files and Screen")
+    elif sorted(set(frame["Screen"])) != sorted(wanted):
+        problems.append("BioStudies file list: not every screen is listed")
+    elif frame["Files"].duplicated().any():
+        problems.append("BioStudies file list: a file is listed twice")
+    return problems
 
 
 def _validate_archive_study(pkg: Any, *, verify_checksums: bool = True
@@ -3549,7 +3643,10 @@ def _validate_archive_study(pkg: Any, *, verify_checksums: bool = True
     package is checked, each problem prefixed with its screen, and the
     study file must carry the required IDR keys, a ``Study Screens Number``
     equal to the number of screens, one block per screen with a unique IDR
-    screen name, and a library file present in ``idr/``. With
+    screen name, and a library file present in ``idr/``. The combined
+    PageTab must open with a Submission, carry the required BioStudies
+    sections, one ``Screen`` subsection per screen and a file list whose
+    ``Screen`` column names every screen. With
     ``verify_checksums`` the study's own checksums are re-hashed.
 
     :param pkg: the study folder.
@@ -3599,6 +3696,7 @@ def _validate_archive_study(pkg: Any, *, verify_checksums: bool = True
         if not library or not (pkg / "idr" / library).is_file():
             problems.append(f"IDR study: library file {library!r} of "
                             f"{name or 'a screen'} is missing")
+    problems += _archive_study_pagetab_problems(pkg, slug, entries)
     sums_path = pkg / "checksums.md5"
     if not sums_path.is_file():
         return problems + ["checksums.md5 is missing"]

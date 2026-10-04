@@ -7494,7 +7494,7 @@ ALPHA_FEATURES = {
         'models': ('careamics_v1',),
     },
     574: {
-        'widgets': ('ReportArchivePackage',),
+        'widgets': ('ReportArchivePackage', 'ArchiveScreenSources'),
     },
     579: {
         'widgets': ('ReportZenodoDeposit',),

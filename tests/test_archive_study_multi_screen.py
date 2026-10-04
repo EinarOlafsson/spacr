@@ -82,3 +82,29 @@ def test_the_command_line_adds_screens_with_screen_src(two_screens, tmp_path,
         "--out", str(tmp_path / "out2"),
         "--metadata-json", json.dumps(form)]) == cli.EXIT_USAGE
     assert not (tmp_path / "out2").exists()
+
+
+def test_the_study_has_one_pagetab_over_every_screen(two_screens, tmp_path):
+    from spacr.tabular import read_table
+
+    first, second = two_screens
+    pkg = rep._write_archive_study([first, second], tmp_path / "out",
+                                   _form(first))
+    pagetab = next((pkg / "biostudies").glob("*.pagetab.tsv"))
+    text = pagetab.read_text()
+    assert text.startswith("Submission")
+    assert [b.split("\n")[0] for b in text.split("\n\n")].count("Study") == 1
+    assert "Screen\tscreenA" in text and "Screen\tscreenB" in text
+    files = read_table(pkg / "biostudies" / "file_list.tsv",
+                       canonicalise=False, dtype=str)
+    assert set(files["Screen"]) == {"screenA", "screenB"}
+    assert all(f.startswith(s + "/") for f, s in zip(files["Files"],
+                                                      files["Screen"]))
+    assert "biostudies/file_list.tsv" in (pkg / "checksums.md5").read_text()
+
+    pagetab.write_text(text.replace("Screen\tscreenB", "Screen\tscreenZ"))
+    problems = rep._validate_archive_study(pkg)
+    assert any("Screen subsections" in p for p in problems)
+    (pkg / "biostudies" / "file_list.tsv").unlink()
+    assert any("file_list.tsv is missing" in p
+               for p in rep._validate_archive_study(pkg))

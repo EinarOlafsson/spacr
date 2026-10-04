@@ -170,3 +170,20 @@ service acceptance and ontology enrichment remain open.
     submission. Ontology enrichment partly done (offline term table).
     Not blocked, still OPEN code: multi-run Qt form, combined multi-screen
     PageTab. Status stays IMPLEMENTED AS ALPHA.
+
+
+2026-10-03 — MULTI-RUN FORM AND COMBINED PAGETAB (alpha, CPU)
+GUI: the Archive package form has a "Further screens" box (objectName
+ArchiveScreenSources, registered in ALPHA_FEATURES[574]); each run folder
+typed there, one per line, becomes screen B, C, ... of one study, written
+by _write_archive_study and checked by _validate_archive_study.
+BioStudies: a multi-screen study folder now has biostudies/ with one
+<title>.pagetab.tsv (screen A's Submission/Study/Author/REMBI sections plus
+one "Screen" subsection per screen) and one joined file_list.tsv with a
+Screen column and paths under screen<letter>/, the upload folder per
+screen; both are in the study checksums. _archive_study_pagetab_problems
+checks Submission first, required sections, the Screen subsections and
+the file list. Tests: test_the_study_has_one_pagetab_over_every_screen,
+test_further_screens_in_the_form_make_one_study.
+LEFT: only external points — IDR curator checks / accessions and a
+BioStudies service submission (no network writes allowed).

@@ -1270,6 +1270,10 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "[issue] Nothing was sent to GitHub: this run stopped on a path in its "
     "settings, not on a fault in spaCR. Correct the path and run again. To "
     "send a report anyway, press File as issue.",
+    # item 574: the archive form's further-screens field (alpha)
+    "Further screens",
+    "Optional: further run folders, one per line, each becoming another "
+    "screen of the same study.",
     # item 633: Load test data on Convert, Layer Viewer and External Masks
     "Download Import's test data, about 285 MB: four microscope fields "
     "with their cell, nucleus and pathogen masks, written in every "

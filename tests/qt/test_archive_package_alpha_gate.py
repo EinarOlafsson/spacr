@@ -50,7 +50,8 @@ def _screen(qtbot, src=None):
 
 
 def test_registered_as_alpha():
-    assert ALPHA_FEATURES[574] == {"widgets": ("ReportArchivePackage",)}
+    assert ALPHA_FEATURES[574] == {
+        "widgets": ("ReportArchivePackage", "ArchiveScreenSources")}
 
 
 def test_hidden_until_alpha_features_are_shown(qtbot, alpha):
@@ -121,3 +122,43 @@ def test_the_archive_button_opens_its_form(qtbot, alpha, screen_folder):
     dialog = screen.findChild(QDialog, "ReportArchiveDialog")
     assert dialog is not None and dialog.isVisible()
     dialog.reject()
+
+
+def test_further_screens_in_the_form_make_one_study(qtbot, alpha,
+                                                    screen_folder, tmp_path):
+    """Run folders typed under Further screens become screens B, C, ...
+
+    The field hides with the alpha switch off, and a study asked for while
+    the button is hidden is still written and passes its checks.
+    """
+    import shutil
+
+    from PySide6.QtWidgets import QPlainTextEdit
+
+    from spacr.qt.preferences import _apply_alpha_widgets
+
+    second = tmp_path / "plate2"
+    shutil.copytree(screen_folder, second)
+    screen = _screen(qtbot, screen_folder)
+    dialog = screen._archive_dialog()
+    qtbot.addWidget(dialog)
+    field = dialog.findChild(QPlainTextEdit, "ArchiveScreenSources")
+    assert field is not None
+    _apply_alpha_widgets(dialog)
+    assert field.isHidden()
+    alpha["on"] = True
+    _apply_alpha_widgets(dialog)
+    assert not field.isHidden()
+    alpha["on"] = False
+    assert screen._archive_screen_sources(f"\n {second} \n\n") == [
+        str(second)]
+    form = {"description": "Two plates.", "authors": "Doe Jane",
+            "email": "jane@example.org", "microscope": "Nikon Ti2"}
+    assert screen._write_archive(str(screen_folder), str(tmp_path / "out"),
+                                 form, screens=[str(second)])
+    pkg = tmp_path / "out" / "gate-test"
+    assert (pkg / "study_manifest.json").is_file()
+    assert (pkg / "biostudies" / "gate-test.pagetab.tsv").is_file()
+    assert screen._archive_problems == []
+    assert "passes the IDR, BioStudies and MIHCSME checks" in \
+        screen.status_text()

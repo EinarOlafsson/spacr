@@ -26,7 +26,7 @@ through :func:`spacr.qt.bridge.make_thread` like every other spaCR job.
 from __future__ import annotations
 
 import os
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QDesktopServices
@@ -562,7 +562,7 @@ class ReportScreen(QWidget):
         :returns: the dialog, not yet shown, or ``None`` without a folder.
         """
         from PySide6.QtWidgets import (QCheckBox, QDialog, QDialogButtonBox,
-                                       QFormLayout)
+                                       QFormLayout, QPlainTextEdit)
 
         raw = self._path_edit.text().strip()
         src = os.path.abspath(os.path.expanduser(raw)) if raw else ""
@@ -580,6 +580,13 @@ class ReportScreen(QWidget):
         copy = QCheckBox(tr("Copy the images into the package"), dialog)
         copy.setObjectName("ArchiveCopyImages")
         form.addRow("", copy)
+        more = QPlainTextEdit(dialog)
+        more.setObjectName("ArchiveScreenSources")
+        more.setPlaceholderText(tr(
+            "Optional: further run folders, one per line, each becoming "
+            "another screen of the same study."))
+        more.setFixedHeight(72)
+        form.addRow(tr("Further screens"), more)
         buttons = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
         buttons.accepted.connect(dialog.accept)
@@ -587,8 +594,15 @@ class ReportScreen(QWidget):
         form.addRow(buttons)
         dialog.accepted.connect(lambda: self._write_archive(
             src, out.text().strip(),
-            {k: e.text() for k, e in fields.items()}, copy.isChecked()))
+            {k: e.text() for k, e in fields.items()}, copy.isChecked(),
+            self._archive_screen_sources(more.toPlainText())))
         return dialog
+
+    @staticmethod
+    def _archive_screen_sources(text: str) -> List[str]:
+        """The further run folders typed in the form, one per line, expanded."""
+        return [os.path.abspath(os.path.expanduser(line.strip()))
+                for line in text.splitlines() if line.strip()]
 
     def _on_archive_package(self) -> None:
         """Show the archive form for the folder in the source box."""
@@ -598,13 +612,18 @@ class ReportScreen(QWidget):
             dialog.open()
 
     def _write_archive(self, src: str, out: str, form: Dict[str, str],
-                      copy_images: bool = False) -> bool:
+                      copy_images: bool = False,
+                      screens: Sequence[str] = ()) -> bool:
         """Write and validate an archive package off the GUI thread.
+
+        With further run folders in ``screens`` the package is one study
+        with a screen per run, ``src`` being screen A.
 
         :param src: the run folder.
         :param out: the folder the package folder is made in.
         :param form: the form values.
         :param copy_images: also copy the images into the package.
+        :param screens: further run folders, each another screen.
         :returns: True when the job was started (or, unthreaded, ran).
         """
         target = out or os.path.dirname(src.rstrip(os.sep))
@@ -612,6 +631,10 @@ class ReportScreen(QWidget):
 
         def _job():
             """Write the package, then check it against the templates."""
+            if screens:
+                pkg = rep._write_archive_study([src, *screens], target, form,
+                                               copy_images=copy_images)
+                return pkg, rep._validate_archive_study(pkg)
             pkg = rep._write_archive_package(src, target, form,
                                              copy_images=copy_images)
             return pkg, rep._validate_archive_package(pkg)
