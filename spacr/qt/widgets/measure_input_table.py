@@ -37,12 +37,6 @@ from PySide6.QtWidgets import (
 )
 
 from .sortable_table import install_sorting, table_item
-from ...measure import (
-    FieldRow,
-    FieldTable,
-    assign_paths_by_regex,
-    mask_role_of,
-)
 from ...object_roles import ORGANELLE_ROLES, organelle_label
 
 #: What the regex box starts with. It reads the shape hand-drawn exports
@@ -99,6 +93,7 @@ class MeasureInputTable(QWidget):
             the table on the next line.
         """
         super().__init__(parent)
+        from ...measure import FieldTable
         self._table = FieldTable(rows=[], n_channels=2, roles=('cell',),
                                  plate='drawn')
         self._unassigned: List[Tuple[str, str]] = []
@@ -344,6 +339,7 @@ class MeasureInputTable(QWidget):
 
     def add_field(self) -> FieldRow:
         """Add one empty row, numbered after the last one."""
+        from ...measure import FieldRow
         row = FieldRow(label=f"field {len(self._table.rows) + 1}",
                        well='A01', field=len(self._table.rows) + 1)
         self._table.rows.append(row)
@@ -395,6 +391,7 @@ class MeasureInputTable(QWidget):
                 return False
             target.channels[index] = str(path)
         else:
+            from ...measure import mask_role_of
             role = mask_role_of(text)
             if role is None or role not in self._table.ordered_roles():
                 return False
@@ -410,6 +407,7 @@ class MeasureInputTable(QWidget):
             self._rebuild()
             return 0
         try:
+            from ...measure import assign_paths_by_regex
             found = assign_paths_by_regex(
                 paths, self._regex.text(), table=self._table,
                 plate=self._table.plate)

@@ -5,6 +5,7 @@ import pytest
 from PySide6.QtWidgets import QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit, QSpinBox, QWidget
 
 from spacr.qt.screens import measure_inputs as mi
+from spacr import measure as _measure
 
 
 @pytest.mark.parametrize('value,expected', [('yes', True), ('1', True), ('false', False), (None, False)])
@@ -74,8 +75,8 @@ def screen(qtbot, qt_theme_applied):
 
 def test_a_failing_settings_reader_keeps_table_derived_answers(screen, monkeypatch, tmp_path):
     screen.set_destination(str(tmp_path/'features'))
-    expected = mi.field_table_settings(screen.inputs.table(), {},
-                                      dst=mi.field_table_destination(screen.inputs.table(), screen.destination()))
+    expected = _measure.field_table_settings(screen.inputs.table(), {},
+                                      dst=_measure.field_table_destination(screen.inputs.table(), screen.destination()))
     monkeypatch.setattr(screen.settings, 'collect', Mock(side_effect=RuntimeError('form rebuilding')))
     assert screen.derived_settings() == expected
 
@@ -95,8 +96,8 @@ def test_one_broken_derived_control_does_not_prevent_the_others_refreshing(scree
     broken.set_value = Mock(side_effect=RuntimeError('editor closed'))
     src = QLineEdit(screen)
     monkeypatch.setattr(screen, '_decided_widgets', {'unrecognized': broken, 'src': src})
-    expected = mi.field_table_settings(screen.inputs.table(), {},
-                                      dst=mi.field_table_destination(screen.inputs.table(), screen.destination()))
+    expected = _measure.field_table_settings(screen.inputs.table(), {},
+                                      dst=_measure.field_table_destination(screen.inputs.table(), screen.destination()))
     screen._show_decided_values()
     assert src.text() == str(expected['src'])
     broken.set_value.assert_called_once_with(None)

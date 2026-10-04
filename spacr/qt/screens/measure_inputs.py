@@ -58,11 +58,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...measure import (
-    FIELD_TABLE_DECIDED_KEYS,
-    field_table_destination,
-    field_table_settings,
-)
 from ..job_runner import JobRunner
 from ..widgets.card import Card
 from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
@@ -274,6 +269,7 @@ class MeasureInputsScreen(QDialog):
             layout.addWidget(self._nested_section(section, body))
         layout.addStretch(1)
         self._settings_area.setWidget(body)
+        from ...measure import FIELD_TABLE_DECIDED_KEYS
         self._decided_widgets = {
             key: model._widgets[key]
             for key in FIELD_TABLE_DECIDED_KEYS
@@ -363,6 +359,7 @@ class MeasureInputsScreen(QDialog):
             LOG.debug("Measure's settings form could not be read",
                       exc_info=True)
             answers = {}
+        from ...measure import field_table_destination, field_table_settings
         table = self.inputs.table()
         return field_table_settings(
             table, answers,
@@ -397,6 +394,7 @@ class MeasureInputsScreen(QDialog):
         """
         if not getattr(self, "_decided_widgets", None):
             return
+        from ...measure import field_table_destination, field_table_settings
         table = self.inputs.table()
         values = field_table_settings(
             table, {}, dst=field_table_destination(table, self._destination))
