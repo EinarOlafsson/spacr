@@ -215,3 +215,36 @@ def test_cellprofiler_tied_roles_with_supplied_labels_stay_unmatched(tmp_path):
     tables = m._cellprofiler_tables(reply, str(merged), settings)
     frame = tables["cellprofiler_things"]
     assert frame["object_type"].isna().all() or frame["object_label"].isna().all()
+
+
+def test_viability_without_qc_rows_writes_no_qc_table(tmp_path, monkeypatch):
+    import pandas as pd
+    from tests.test_live_dead_viability import _signal_table
+    from tests.test_viability_at_its_edges import _db
+
+    db = _db(tmp_path, _signal_table(n_live=120, n_dead=30), "nucleus")
+    monkeypatch.setattr(m, "_viability_qc", lambda wells, cuts: pd.DataFrame())
+    m._classify_viability(db, {"channels": [0, 1, 2], "viability_dead_channel": 1},
+                          plot=False)
+    with sqlite3.connect(db) as conn:
+        names = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+    assert m._VIABILITY_QC_TABLE not in names
+
+
+def test_cell_cycle_without_wells_writes_no_well_table(tmp_path, monkeypatch):
+    import pandas as pd
+    from spacr.tabular import write_database
+    from tests.test_cell_cycle_at_its_edges import _nucleus_table
+
+    table, _ = _nucleus_table(n=300)
+    db = tmp_path / "measurements" / "measurements.db"
+    db.parent.mkdir()
+    write_database(table, str(db), "nucleus", if_exists="replace")
+    monkeypatch.setattr(m, "_cell_cycle_by_well", lambda table, counted: pd.DataFrame())
+    m._classify_cell_cycle(str(db), {"channels": [0, 1], "cell_cycle_channel": 0,
+                                     "cell_cycle_method": "measurements"}, plot=False)
+    with sqlite3.connect(db) as conn:
+        names = {r[0] for r in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+    assert m._CELL_CYCLE_WELL_TABLE not in names
