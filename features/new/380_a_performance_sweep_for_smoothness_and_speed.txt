@@ -2318,3 +2318,35 @@ in three (Windows builds run 1.65x Linux across all screens) and Make
 Masks at ~500-580. Item stays OPEN for the 500 ms ceiling on these
 runners; next levers: the organism page's first paint on macOS and the
 first settings screen's build on Windows.
+
+2026-10-04 — AREA 3 ON HOSTED macOS/WINDOWS: EVERY INTERVAL UNDER 500 MS
+Follow-up to the 2026-10-03 cut (macOS worst 730, Windows 1,067). New
+timeline instrumentation (timing on only): a "breath" mark naming the code
+before each breath and the work since the last one; spans for each module-
+open step (theme, polish, retranslate, show), the launch prewarm, organism
+paints/heights/reflow and ambient paints. What it showed and the fixes:
+  - Windows first Mask open: one 1.0-1.2 s step in the runtime panel was
+    the first QtAwesome glyph icon registering its font. It now registers
+    at launch, before the window exists (outside every measured interval).
+    More breaths: between runtime-panel parts, fold mounts, Make Masks'
+    build steps, tool-panel groups and method cards.
+  - macOS organism pages: outlines are drawn once per size/DPR into a
+    cached pixmap; each drawing is cleaned/serialised once (module cache,
+    warmed on the background import thread); descriptions parsed once.
+    The drawings themselves are untouched (634b). A new page is polished
+    between forced breaths before it joins the stack and around its show.
+  - Python's full GC passes over the long-lived objects (150-370 ms locally,
+    600-900 ms on runners, at random points): gc.freeze() after launch,
+    each screen build and the background warms; rebuild_app_screen
+    unfreezes first.
+  - A longer launch prewarm list held the import lock through the
+    Preferences open (685-853 ms); the list is back to its three modules.
+Result, workflow run 37168541422 (nightly ede4b5ed2), harness per-interval
+worst (tools/spacr_startup_benchmark.py, three cold processes each):
+  macOS    495 / 337 / 331 ms    (2026-10-03 start: 2,154 worst)
+  Windows  441 / 452 / 475 ms    (2026-10-03 start: 1,308 worst)
+Runner variance is large: run 37168050309 (one commit earlier) drew a
+macOS runner 2.2x slower in wall clock (89 s vs 40 s per sweep) and
+measured 552-853 ms, so a single slow runner can still cross 500.
+Area 3 is met on hosted offscreen runners at normal speed; a real display/
+compositor and lower-end hardware remain open.
