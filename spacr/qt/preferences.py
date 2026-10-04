@@ -7919,6 +7919,7 @@ class PreferencesDialog:
         ))
         restore_session_check.setChecked(_get_restore_session())
         modules.addRow(tr("Session"), restore_session_check)
+
         update_channel_combo = QComboBox()
         update_channel_combo.setObjectName("UpdateChannel")
         update_channel_combo.addItem(tr("Stable releases"), "stable")
