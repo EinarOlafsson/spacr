@@ -181,13 +181,137 @@ Guards (tests/qt/test_641_startup_and_browse_budgets.py):
   run rate; notifier returns at once; 20 preference writes open one store;
   a settled folder listed once per preview load and re-listed after a change.
 
+6. THIRD PASS: MODULE FIRST OPEN (2026-10-04, CPU only, offscreen)
+   Harnesses in /mnt/wd4tb/scratch/641/r3: bench.sh + inter.sh (the
+   startup benchmark, warm process, 5 interleaved base/after pairs), cmp.py
+   (medians), wall.py + sampall.sh (one module per process after a warm-up
+   open; a 1 ms GUI-thread stack sampler -- cProfile on Python 3.12 profiles
+   every thread through sys.monitoring and mis-attributed the shading and
+   data-library threads to the GUI thread), agg.py / common.py.
+   Base = 68cde04a8; after = base + this pass's two commits (the current
+   nightly cannot be benchmarked as-is, see below). Load average 20-30
+   throughout, so absolute numbers are 1.5-2x the round-2 ones.
+
+   Per module, seconds (median of 5, warm process, base -> after):
+    mask                    2.741  3.228
+    regression              2.701  2.509
+    analyze_plaques         1.812  1.215
+    make_masks              1.795  1.686
+    measure                 1.695  1.374
+    classify_merged         1.604  1.629
+    toxoplasma              1.467  1.082
+    replication             1.306  1.073
+    annotate                1.296  1.554
+    umap                    1.276  1.167
+    invasion                1.212  0.659
+    recruitment             1.166  0.917
+    virus                   1.094  0.862
+    external_masks          1.076  1.035
+    candida                 1.065  0.925
+    map_barcodes            1.064  1.102
+    giardia                 1.019  0.916
+    plasmodium              1.018  0.857
+    host_pathogen           1.001  0.781
+    mammalian               0.970  0.776
+    control_chart           0.908  0.727
+    trypanosoma             0.890  0.881
+    leishmania              0.887  0.879
+    power                   0.797  0.720
+    gate_editor             0.689  0.879
+    experiment_design       0.675  0.669
+    embeddings              0.656  0.500
+    trellis                 0.651  0.483
+    dose_response           0.605  0.601
+    tabulate                0.584  0.535
+    graph_builder           0.525  0.440
+    investigate_hit         0.503  0.499
+    feature_explorer        0.479  0.559
+    align                   0.459  0.440
+    train_compare           0.446  0.305
+    foreign                 0.416  0.422
+    plate_view              0.414  0.445
+    run_compare             0.398  0.329
+    outliers                0.396  0.440
+    feature_dict            0.395  0.420
+    profiler                0.381  0.403
+    run_history             0.374  0.339
+    db_browser              0.360  0.346
+    convert                 0.351  0.459
+    layer_viewer            0.326  0.338
+    distributed_jobs        0.326  0.343
+    batch                   0.318  0.368
+    data_manager            0.312  0.386
+    project_browser         0.298  0.289
+    report                  0.285  0.350
+    lineage                 0.281  0.273
+    pipeline_graph          0.199  0.261
+    qc_dashboard            0.178  0.232
+    queue                   0.130  0.169
+   Sum of all 54: 44.3 s -> 41.1 s; geometric mean ratio 0.95 (an earlier
+   interleaved set of 5 at load 29: 31.9 -> 29.6 s, ratio 0.91). Single
+   modules move +-30 % between pairs at this load (Mask 2.7 vs 3.2 here,
+   2.0 vs 1.9 in the earlier set); only the sums and the profiles are firm.
+
+   Causes found (GUI-thread samples summed over the 11 slowest modules):
+   - Preference reads, 10-13 % under load: every get_font_scale /
+     get_theme / _get_show_alpha_features built its own QSettings (25 us
+     idle, several thousand per open). The module open now runs inside
+     preferences._one_store(): one store, 1 us a read.
+   - The cursor policy's Show handler, 7.6 %: one cursor read per child
+     widget shown. A widget without WA_SetCursor (and no override cursor)
+     is now passed over.
+   - PySide's per-import probe (shibokensupport.feature._mod_uses_pyside)
+     ran inspect.getsource on every newly imported module (tokenised read,
+     kept in linecache), 3-4 %. Replaced at launch by a raw-bytes test of
+     the same substring; modules without a .py file still go to PySide's.
+   - categories_for_app re-expanded every setting key 5-6 times per open
+     (2-3 % of Mask): memoised per module against the category table's
+     shape, fresh copies handed out.
+   - close_mark_side rasterised its glyph (tightBoundingRect) at every
+     style change: measured once per font.
+   - The data-library thread's run-environment read (0.8 s of metadata
+     parsing sharing the interpreter lock with the second and third opens)
+     parsed each distribution twice; once now (0.16 s).
+
+   Looked at and left:
+   - Settings categories already build on expand (item 380's waiting
+     headings plus SettingsWidgets.wait_for for plain controls); what is
+     left of _build_sections is the open categories' own widgets.
+   - Previews: none is built before shown in the 11 slow modules' samples.
+   - QSS: each screen gets the sheet once, at its Show (380); the
+     remaining _sheet_one_window cost (0.25-0.35 s on Mask / Make Masks,
+     8-10 %) is Qt repolishing 1,000-1,400 widgets.
+   - The walkthrough offer (3.5 %) runs only on a user's first visit.
+   - The rest of a slow open is Qt's own C++ work inside the breaths and
+     addWidget calls (polish, layout, paint: 25-30 % of samples, invisible
+     to a Python sampler), spread over hundreds of widgets.
+
+   Target (< 500 ms everywhere) NOT met: 30 of 54 stay over 500 ms at load
+   20-30; at load ~15 (the five base runs before this pass) it was 11 of 54
+   with Mask 1.4 s, Classify 1.5 s. What is left is per-widget Qt cost; the
+   next real step is fewer widgets per screen (lazy object grid / runtime
+   panel on Mask, Regression's 351 parentless plot menus), not more caching.
+
+   Found while measuring: since 488cae902 (647/648, every start reopens the
+   last module) the startup benchmark's warm process reopened the cold
+   process's last module, so Home never became interactive and no module
+   was measured. The benchmark worker now starts with --fresh.
+
+   Guards (tests/qt/test_641_module_first_open_budgets.py): every registry
+   module's first open in a real MainWindow under 10 s (measured 0.1-2.3 s
+   here); one QSettings for 150 reads inside _one_store and the window's
+   open uses it; a Show of a widget without a cursor reads no cursor;
+   categories_for_app computed once and copied; one ink measurement per
+   font; the PySide probe answers from bytes and falls back without a file.
+
 Left:
   - Chatty GUI runs: 1.7x bare headless (1.5x a logged headless run). The
     rest is the logging sinks themselves (master + level + dated file +
     console) and the journal's git status; dropping a duplicate sink is a
     product decision.
-  - Module first-open: icon PNG decode on the GUI thread, Qt polish/layout
-    (30 modules over 500 ms offscreen under load).
+  - Module first-open: 30 of 54 over 500 ms at load 20-30 (11 at load 15);
+    the rest is Qt polish/layout/stylesheet over 1,000+ widgets per slow
+    screen -- needs fewer widgets (section 6).
   - GUI-thread listings left: FilePathListWidget._folder_members,
     ask_for_the_path's folder check (one listdir each on user action).
   - A real-display (not offscreen) cold/warm run on a quiet machine for

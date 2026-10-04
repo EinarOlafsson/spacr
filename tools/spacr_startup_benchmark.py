@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Benchmark the real spaCR entry point through every live Qt app.
 
-Each run is a fresh interpreter executing ``spacr.qt.run(["--no-setup"])``.
+Each run is a fresh interpreter executing ``spacr.qt.run(["--no-setup", "--fresh"])``.
 Production instrumentation waits for a post-event-loop paint of Home and an
 enabled control, presses every live sidebar app button, and exits Qt after the
 last post-paint ready state.  The first process is labelled cold and the
@@ -61,7 +61,7 @@ except ValueError:
     raise SystemExit(
         f"benchmark imported {actual}, outside expected package root {expected}"
     )
-raise SystemExit(spacr.qt.run(["--no-setup"]))
+raise SystemExit(spacr.qt.run(["--no-setup", "--fresh"]))
 """
 
 
