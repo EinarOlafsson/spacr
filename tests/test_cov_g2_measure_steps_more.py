@@ -248,3 +248,50 @@ def test_cell_cycle_without_wells_writes_no_well_table(tmp_path, monkeypatch):
         names = {r[0] for r in conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
     assert m._CELL_CYCLE_WELL_TABLE not in names
+
+
+def test_a_missing_source_is_not_searched_for_a_manifest(tmp_path, monkeypatch):
+    import spacr.original_filenames as of
+
+    searched = []
+    monkeypatch.setattr(of, "discover_maps",
+                        lambda anchor: searched.append(anchor) or [])
+    assert m._original_filename_map(str(tmp_path / "db"), str(tmp_path / "gone")) is None
+    assert searched == []
+
+
+def test_original_columns_already_present_are_not_added_again(tmp_path,
+                                                             monkeypatch):
+    import pandas as pd
+    import spacr.original_filenames as of
+
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as con:
+        con.execute("CREATE TABLE cell (plateID TEXT, rowID TEXT, columnID TEXT, "
+                    "fieldID TEXT, original_filename TEXT)")
+        con.execute("INSERT INTO cell VALUES ('p', 'r1', 'c1', 'f1', NULL)")
+    monkeypatch.setattr(m, "_original_filename_map", lambda db, src: tmp_path / "map.csv")
+
+    def enrich(frame, path):
+        return frame.assign(original_filename="a.tif"), None
+
+    monkeypatch.setattr(of, "_original_columns", enrich)
+    done = m._add_original_filename_columns(str(db), str(tmp_path), report=lambda s: None)
+    assert done
+    with sqlite3.connect(db) as con:
+        assert con.execute("SELECT original_filename FROM cell").fetchone() == ("a.tif",)
+    assert pd
+
+
+def test_calibration_references_that_change_while_planning_are_refused(
+        monkeypatch):
+    hashes = iter([{"a": "1"}, {"a": "2"}])
+    monkeypatch.setattr(m, "_calibration_reference_hashes",
+                        lambda settings, files: next(hashes))
+    monkeypatch.setattr(m, "build_plate_plan", lambda src, files, settings: {
+        "version": 1, "plates": {}, "failures": []})
+    monkeypatch.setattr(m, "_build_intensity_calibration_plan",
+                        lambda src, files, resolved: {})
+    with pytest.raises(ValueError, match="changed while planning"):
+        m._prepare_measurement_calibration(
+            {"intensity_calibration": True, "src": "/x"}, ["a.npy"])
