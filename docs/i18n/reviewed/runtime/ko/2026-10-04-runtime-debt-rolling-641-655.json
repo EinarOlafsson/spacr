@@ -1,0 +1,498 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: items 643-655 (home-folder pruning and cache manager, update channel and What's new, proxy, portable mode, session reopen and crash-draft restore, read-only project windows, undo/redo, job progress, accessibility), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "A PEM file of certificates to trust, for networks that inspect HTTPS with their own certificate authority. Empty uses the REQUESTS_CA_BUNDLE or SSL_CERT_FILE environment variable when it is set. Default empty.",
+      "source": "A PEM file of certificates to trust, for networks that inspect HTTPS with their own certificate authority. Empty uses the REQUESTS_CA_BUNDLE or SSL_CERT_FILE environment variable when it is set. Default empty.",
+      "source_sha256": "d0eebbe36a837857681a908b95db577f81afd83f93a8c6c232f7faa3c37f56e5",
+      "translation": "신뢰할 인증서가 담긴 PEM 파일로, 자체 인증 기관으로 HTTPS 트래픽을 검사하는 네트워크용입니다. 비워 두면 REQUESTS_CA_BUNDLE 또는 SSL_CERT_FILE 환경 변수가 설정된 경우 그 값을 사용합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "ui",
+      "key": "A run is in progress. Try again when it has finished.",
+      "source": "A run is in progress. Try again when it has finished.",
+      "source_sha256": "ab25d83561a20e325c6105130b113b0626d92471bb913161d030267c9cb8e562",
+      "translation": "실행이 진행 중입니다. 완료된 후 다시 시도하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Another spaCR window (process {pid} on {host}) is using {path}.",
+      "source": "Another spaCR window (process {pid} on {host}) is using {path}.",
+      "source_sha256": "3eb5d96d0113cbdae0ded87fa9ff43a581260844da0b828196da92b51e1667ad",
+      "translation": "다른 spaCR 창(프로세스 {pid}, 호스트 {host})에서 {path} 경로를 사용 중입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Cache",
+      "source": "Cache",
+      "source_sha256": "a76ce82a974999d815b24e30286466c727c9bdbe92c88e676362ce22878ad12d",
+      "translation": "캐시"
+    },
+    {
+      "table": "ui",
+      "key": "Caches",
+      "source": "Caches",
+      "source_sha256": "c4d5ec97a1bc02153ab77a0da42fb2dcf7dc9b2438497cce21db78b36500d4ee",
+      "translation": "캐시 목록"
+    },
+    {
+      "table": "ui",
+      "key": "Certificate bundle",
+      "source": "Certificate bundle",
+      "source_sha256": "eda56e2a10a4370d6c042f26b60f9d736687e1666a94a134b283aed811aabf2a",
+      "translation": "인증서 번들"
+    },
+    {
+      "table": "ui",
+      "key": "Change {setting}",
+      "source": "Change {setting}",
+      "source_sha256": "d3adbae08e46131059336edf1084aac192732abf6b14d49a5b6e78240794634c",
+      "translation": "{setting} 설정 변경"
+    },
+    {
+      "table": "ui",
+      "key": "Clear cache",
+      "source": "Clear cache",
+      "source_sha256": "d33461e6c0b61742be9cc2dd67a6f86670bdae99791faa00f5b9e84c6a89ebce",
+      "translation": "캐시 비우기"
+    },
+    {
+      "table": "ui",
+      "key": "Clear…",
+      "source": "Clear…",
+      "source_sha256": "281a59abd11a0865897b71bbd4015590b31c32679cb8f54d287925c71e980802",
+      "translation": "비우기…"
+    },
+    {
+      "table": "ui",
+      "key": "Continue anyway",
+      "source": "Continue anyway",
+      "source_sha256": "873567be309f124e6edc194fcf510b5136d5b8b666e6215b62ce6e7868368d07",
+      "translation": "그래도 계속"
+    },
+    {
+      "table": "ui",
+      "key": "Delete everything inside {folder}? The folder stays. Other programs that share this cache download their files again too.",
+      "source": "Delete everything inside {folder}? The folder stays. Other programs that share this cache download their files again too.",
+      "source_sha256": "4680af27745cf1e4eeaf4fe8b51c391878c5a3b2ec71d2e561da4e6a5db9d8b3",
+      "translation": "{folder} 폴더 안의 모든 항목을 삭제할까요? 폴더 자체는 유지됩니다. 이 캐시를 공유하는 다른 프로그램도 파일을 다시 다운로드합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Deleted {count} item(s), freeing {size}.",
+      "source": "Deleted {count} item(s), freeing {size}.",
+      "source_sha256": "d7f257552f175abbe66bea1ed72fb8ed7bb7feb090f505043ca7afdb4e7fdbeb",
+      "translation": "항목 {count}개를 삭제하여 {size} 용량을 확보했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Edit gates",
+      "source": "Edit gates",
+      "source_sha256": "1a6e638b5c41cee2f3ec8f2cce695ef03e8f1807ae88e6da63923c63103024d4",
+      "translation": "게이트 편집"
+    },
+    {
+      "table": "ui",
+      "key": "Empty the selected cache after asking. Models and environments are downloaded again when next needed. Default nothing cleared.",
+      "source": "Empty the selected cache after asking. Models and environments are downloaded again when next needed. Default nothing cleared.",
+      "source_sha256": "cdf25979dcd2fbffea257a0d1a1c6d3a2c5212afad02841aa6a792264ed9034c",
+      "translation": "확인 후 선택한 캐시를 비웁니다. 모델과 환경은 다음에 필요할 때 다시 다운로드됩니다. 기본값은 아무것도 비우지 않음."
+    },
+    {
+      "table": "ui",
+      "key": "Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.",
+      "source": "Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.",
+      "source_sha256": "e8c6c51777940fcb456fb43b5d6f8ea39d601680d4224432c318f33921ed44aa",
+      "translation": "시작할 때마다 spaCR 앱이 마지막으로 닫히거나 충돌했을 때 화면에 있던 모듈을 설정 및 폴더와 함께 다시 엽니다. 상태 표시줄의 새로 열기 또는 --fresh 옵션으로 시작하면 한 번 건너뜁니다. 끄면 항상 홈에서 시작합니다. 기본값 켜짐."
+    },
+    {
+      "table": "ui",
+      "key": "Folder",
+      "source": "Folder",
+      "source_sha256": "74ccd43303847f2655300641a934959cdb11689ce171aa0f00faa92917fbd340",
+      "translation": "폴더"
+    },
+    {
+      "table": "ui",
+      "key": "Home folder",
+      "source": "Home folder",
+      "source_sha256": "6772da558a23e28185deb8d4bb7cdb20ae916f13a03eca9a9e5c0d4deffd4944",
+      "translation": "홈 폴더"
+    },
+    {
+      "table": "ui",
+      "key": "Keep: nothing modified within this many days is deleted. Cap: older entries are deleted, oldest first, only while the folder is bigger than this; no cap deletes every older entry. Pruning runs only when you press Prune now.",
+      "source": "Keep: nothing modified within this many days is deleted. Cap: older entries are deleted, oldest first, only while the folder is bigger than this; no cap deletes every older entry. Pruning runs only when you press Prune now.",
+      "source_sha256": "17d32d8e2ec555752fe2ef290b43a02343784c383ab44e3cc1fa4be1b30d8de3",
+      "translation": "보관: 이 일수 이내에 수정된 항목은 삭제되지 않습니다. 상한: 폴더가 이 크기보다 큰 동안에만 오래된 항목을 가장 오래된 것부터 삭제합니다. 상한 없음이면 오래된 항목을 모두 삭제합니다. 정리는 지금 정리를 누를 때만 실행됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "List what the caps above would delete from the spaCR home folder, then ask before deleting it. Nothing is deleted automatically. Default off.",
+      "source": "List what the caps above would delete from the spaCR home folder, then ask before deleting it. Nothing is deleted automatically. Default off.",
+      "source_sha256": "5249688c3f15465c4dbcff547d80efa1bee2c64d8db989641ba3b14263786505",
+      "translation": "위의 상한에 따라 spaCR 홈 폴더에서 삭제될 항목을 나열하고 삭제 전에 확인합니다. 자동으로 삭제되는 것은 없습니다. 기본값 꺼짐."
+    },
+    {
+      "table": "ui",
+      "key": "Measure reads every cache's size, Clear empties the selected cache and Move puts it in another folder. Clear and Move ask first.",
+      "source": "Measure reads every cache's size, Clear empties the selected cache and Move puts it in another folder. Clear and Move ask first.",
+      "source_sha256": "1d98c54e3998b09b4460a40984b24b0c4cb3687f2063ab0a8615c27433876ddf",
+      "translation": "Measure 버튼은 각 캐시의 크기를 읽고, 비우기는 선택한 캐시를 비우며, 이동은 캐시를 다른 폴더로 옮깁니다. 비우기와 이동은 먼저 확인합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Move cache",
+      "source": "Move cache",
+      "source_sha256": "ebf2d821276b8d956e5b8870ef0fef62cc795626d76a4a6e738724e0520c4765",
+      "translation": "캐시 이동"
+    },
+    {
+      "table": "ui",
+      "key": "Move the cache into this folder",
+      "source": "Move the cache into this folder",
+      "source_sha256": "0d7ae14f2e3a91621377aab5f4127aa4c8940ef7bbd95f686ac545b67ddfa121",
+      "translation": "캐시를 이 폴더로 이동"
+    },
+    {
+      "table": "ui",
+      "key": "Move the selected cache to another folder or drive after asking; spaCR uses the new place from then on. Default the standard folder.",
+      "source": "Move the selected cache to another folder or drive after asking; spaCR uses the new place from then on. Default the standard folder.",
+      "source_sha256": "8a9aada5a69d25d91545d1de250773fe9c0ece8c0d1cfb5001f6792a73dd9601",
+      "translation": "확인 후 선택한 캐시를 다른 폴더나 드라이브로 옮깁니다. 이후 spaCR 앱은 새 위치를 사용합니다. 기본값은 표준 폴더."
+    },
+    {
+      "table": "ui",
+      "key": "Move {source} to {target}? spaCR uses the new folder from now on; a program already holding the old path picks it up after a restart.",
+      "source": "Move {source} to {target}? spaCR uses the new folder from now on; a program already holding the old path picks it up after a restart.",
+      "source_sha256": "8b54e5ffae8c13cf555bac90ba75156c4d4fed0091e354d49416826ac31dbc63",
+      "translation": "{source} 항목을 {target} 위치로 옮길까요? 지금부터 spaCR 앱은 새 폴더를 사용합니다. 이미 이전 경로를 사용 중인 프로그램은 다시 시작한 후 반영합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Moved to {target}.",
+      "source": "Moved to {target}.",
+      "source_sha256": "ac3caf53e59e5606b705fda921ff172b6208cf4d15426e4cc4ce5b24f82142b9",
+      "translation": "{target} 위치로 이동했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Nightly builds",
+      "source": "Nightly builds",
+      "source_sha256": "fd8516ef948c7b5adce00ebedd91cb121d296372c360aa6fb0c8cda2f8fe518d",
+      "translation": "나이틀리 빌드"
+    },
+    {
+      "table": "ui",
+      "key": "No jobs are running.",
+      "source": "No jobs are running.",
+      "source_sha256": "f33087eff5691facf5d57bf39559c9a6dca8acb651a0e56c1154089ce4aae26f",
+      "translation": "실행 중인 작업이 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "No release notes are available for this version.",
+      "source": "No release notes are available for this version.",
+      "source_sha256": "d29de90b0ad80e33023849aa14bbb0e35b9faf2e92b0380bba9bcc0f0f1dee4b",
+      "translation": "이 버전에 대한 릴리스 노트가 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Not moved: {reason}",
+      "source": "Not moved: {reason}",
+      "source_sha256": "ed5e51c0269dc184d1eaaf3c1ea457cd9854a176740fa08d42be7402ef13ca40",
+      "translation": "이동하지 않음: {reason}"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing is over its caps; nothing was deleted.",
+      "source": "Nothing is over its caps; nothing was deleted.",
+      "source_sha256": "c5d6c3f05ab46799657a582c47c8eab477caef118c2450e7e9f37545ee06962d",
+      "translation": "상한을 넘은 항목이 없어 아무것도 삭제하지 않았습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing to redo.",
+      "source": "Nothing to redo.",
+      "source_sha256": "5909b2dc60615bb6d4e55d67f47de85078cf2807503a5a2c64e670b76e6f24da",
+      "translation": "다시 실행할 작업이 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Now",
+      "source": "Now",
+      "source_sha256": "fe18013d93d22f4f2a70344d30c00fe62d2ef29189ae5d25ccbda81fbd9c92b0",
+      "translation": "지금"
+    },
+    {
+      "table": "ui",
+      "key": "Open fresh",
+      "source": "Open fresh",
+      "source_sha256": "c72c959a7efac4c6e2db13c5288dddcfc60128b42b6a766e054a42d19094ed58",
+      "translation": "새로 열기"
+    },
+    {
+      "table": "ui",
+      "key": "Open read-only",
+      "source": "Open read-only",
+      "source_sha256": "95b971d67d83f23da842d17ee0237713b5cd5004f6463c3b230af487b3af2156",
+      "translation": "읽기 전용으로 열기"
+    },
+    {
+      "table": "ui",
+      "key": "Opened read-only",
+      "source": "Opened read-only",
+      "source_sha256": "43a53bfb49f6d74068762b7ca2947254e6a9cd52a28275715bb0fb258031dcf7",
+      "translation": "읽기 전용으로 열림"
+    },
+    {
+      "table": "ui",
+      "key": "Portable mode: settings, caches, logs and runs are kept in {folder}.",
+      "source": "Portable mode: settings, caches, logs and runs are kept in {folder}.",
+      "source_sha256": "4f0532d8786d2787345f38419c35acd52b0a9cb2751c3f1ed51f738eaaf3e7b4",
+      "translation": "포터블 모드: 설정, 캐시, 로그, 실행 기록이 {folder} 폴더에 보관됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Progress",
+      "source": "Progress",
+      "source_sha256": "4664827f8e89019280ba99cd889f9ea31eaeecf6fc1bb7541c4a0e546685599f",
+      "translation": "진행 상황"
+    },
+    {
+      "table": "ui",
+      "key": "Project open in another window",
+      "source": "Project open in another window",
+      "source_sha256": "7de69c0e0c7c866adeb505d32d3ebe6c3690f9e1339a3aa7358f45094b0f6cb2",
+      "translation": "다른 창에서 열려 있는 프로젝트"
+    },
+    {
+      "table": "ui",
+      "key": "Proxy",
+      "source": "Proxy",
+      "source_sha256": "a68ee4167406a050681e0ea3b78907f56b7dd167eff9c9f77dc38026802f0b52",
+      "translation": "프록시"
+    },
+    {
+      "table": "ui",
+      "key": "Proxy for every download: model weights, updates, plug-ins, pip and backend installers. Empty uses the HTTPS_PROXY environment variable when it is set. spacr-doctor reports whether the proxy reaches PyPI. Default empty.",
+      "source": "Proxy for every download: model weights, updates, plug-ins, pip and backend installers. Empty uses the HTTPS_PROXY environment variable when it is set. spacr-doctor reports whether the proxy reaches PyPI. Default empty.",
+      "source_sha256": "8d7d75db3c2e76a7be1a0f068c3dc8f994ccace9d6145436354ae50dfc4d8553",
+      "translation": "모든 다운로드에 쓰는 프록시: 모델 가중치, 업데이트, 플러그인, pip, 백엔드 설치 프로그램. 비워 두면 HTTPS_PROXY 환경 변수가 설정된 경우 그 값을 사용합니다. spacr-doctor 도구는 프록시가 PyPI 서버에 도달하는지 보고합니다. 기본값은 비어 있음."
+    },
+    {
+      "table": "ui",
+      "key": "Prune home folder",
+      "source": "Prune home folder",
+      "source_sha256": "f6a03c4c5f4b91be8213581440c7f13b18a518848729f776738b81205ad6f00d",
+      "translation": "홈 폴더 정리"
+    },
+    {
+      "table": "ui",
+      "key": "Prune now…",
+      "source": "Prune now…",
+      "source_sha256": "486f5b993b692739dddc992d26569cbb3ae3fd6816c01f738d7820b704f26df6",
+      "translation": "지금 정리…"
+    },
+    {
+      "table": "ui",
+      "key": "Put back this module's default settings and go to Home. Preferences can turn reopening off for good.",
+      "source": "Put back this module's default settings and go to Home. Preferences can turn reopening off for good.",
+      "source_sha256": "fd0975d09933d11842de8b49b10b8df5920b9bb6170e5b392c7c4aff2de7837f",
+      "translation": "이 모듈의 기본 설정을 되돌리고 홈으로 이동합니다. 환경설정에서 다시 열기를 영구히 끌 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Read the size of every cache. Default not measured.",
+      "source": "Read the size of every cache. Default not measured.",
+      "source_sha256": "aa54885c8cad403fd6be579d0e411696989724085c97f49bf25b9da4592b1ab1",
+      "translation": "모든 캐시의 크기를 읽습니다. 기본값은 측정 안 함."
+    },
+    {
+      "table": "ui",
+      "key": "Read-only: another spaCR window has this queue open.",
+      "source": "Read-only: another spaCR window has this queue open.",
+      "source_sha256": "f23318f62129b7fb76c76a22799577fdf71f84ff7c3ea415586e86bafa1a2d32",
+      "translation": "읽기 전용: 다른 spaCR 창에서 이 대기열을 열어 두었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Redone.",
+      "source": "Redone.",
+      "source_sha256": "fd083be17ff5c103b820e716626aeafe842db563e13862125c3803df7ae83b01",
+      "translation": "다시 실행했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Removed {count} item(s).",
+      "source": "Removed {count} item(s).",
+      "source_sha256": "722a62a73f6966742535025aa9a79b6d7bff2b0581a48eb087148cb5b7b0f443",
+      "translation": "항목 {count}개를 제거했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Reopen the last module, settings and folder on start",
+      "source": "Reopen the last module, settings and folder on start",
+      "source_sha256": "23b45c63a3f51ac27320a528303b96682ed5f301efdfdb2d66cd87746f4f9393",
+      "translation": "시작 시 마지막 모듈, 설정, 폴더 다시 열기"
+    },
+    {
+      "table": "ui",
+      "key": "Reopened {module} as you left it.",
+      "source": "Reopened {module} as you left it.",
+      "source_sha256": "f9a6eaab5e2453936ae5d3e1293daa013edb56302ecec7b39c0bac03c8db6098",
+      "translation": "{module} 모듈을 떠날 때 상태 그대로 다시 열었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Reopened {module} from {folder}.",
+      "source": "Reopened {module} from {folder}.",
+      "source_sha256": "bfe1b1c7a1e4cbe404d813770cd593f6d260b4731a6684b6c9e4f487f4f01375",
+      "translation": "{module} 모듈을 {folder} 폴더에서 다시 열었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Restore",
+      "source": "Restore",
+      "source_sha256": "a76e13b9839270eb73ed11417f7d8acca55df0ad52065799361631d0fff74f27",
+      "translation": "복원"
+    },
+    {
+      "table": "ui",
+      "key": "Restore unsaved settings",
+      "source": "Restore unsaved settings",
+      "source_sha256": "337b36dc281cdbc4d87e56d3574c08d0e13d97b1a67a050c54c96adb7a80b7e9",
+      "translation": "저장되지 않은 설정 복원"
+    },
+    {
+      "table": "ui",
+      "key": "Session",
+      "source": "Session",
+      "source_sha256": "6959b4159575d8dd76d9f3bbe2c6437904f861e7860c35abd18deffb1c3425a0",
+      "translation": "세션"
+    },
+    {
+      "table": "ui",
+      "key": "Show every running job with its progress and a Cancel button.",
+      "source": "Show every running job with its progress and a Cancel button.",
+      "source_sha256": "c96617ca3c1e09060ff39fbb2889bbf53b1c79f87eabda031d10454c23b1afe0",
+      "translation": "실행 중인 모든 작업을 진행 상황 및 취소 버튼과 함께 표시합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Stable releases",
+      "source": "Stable releases",
+      "source_sha256": "432d7d852d0e8e6d5bf8939053ba487d1c728962ab47e7c292ff9f0ba488e0b1",
+      "translation": "안정 릴리스"
+    },
+    {
+      "table": "ui",
+      "key": "This window has {path} open read-only, so it will not run a pipeline that writes there. Close the other spaCR window, then run again.",
+      "source": "This window has {path} open read-only, so it will not run a pipeline that writes there. Close the other spaCR window, then run again.",
+      "source_sha256": "28f36626663bc678487dab9da7ccee62ec887aaf017194759b63a0067619a7c1",
+      "translation": "이 창은 {path} 경로를 읽기 전용으로 열었으므로 그곳에 쓰는 파이프라인을 실행하지 않습니다. 다른 spaCR 창을 닫은 후 다시 실행하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Two windows writing the same queue, measurements.db or results folder can corrupt them. Open it read-only to look without writing, or continue if you are sure the other window is idle.",
+      "source": "Two windows writing the same queue, measurements.db or results folder can corrupt them. Open it read-only to look without writing, or continue if you are sure the other window is idle.",
+      "source_sha256": "bebeb4652c8355b5931170e0ba68398742b5e2ce86c7cf89a71bdc1134f16a43",
+      "translation": "두 창이 같은 대기열, measurements.db 파일 또는 결과 폴더에 쓰면 손상될 수 있습니다. 쓰지 않고 보려면 읽기 전용으로 여세요. 다른 창이 유휴 상태임이 확실하면 계속하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Update channel",
+      "source": "Update channel",
+      "source_sha256": "d4fc4230730665f7ebdf52d3ae8071025bd92e41eb56efc7a0d8200d665addf4",
+      "translation": "업데이트 채널"
+    },
+    {
+      "table": "ui",
+      "key": "What's new in spaCR",
+      "source": "What's new in spaCR",
+      "source_sha256": "c0ff0742c5c2762c0883c030754519d931ff45df038098ff831715d3a187635a",
+      "translation": "spaCR 새 기능"
+    },
+    {
+      "table": "ui",
+      "key": "What's new…",
+      "source": "What's new…",
+      "source_sha256": "7fef761bcf4c592fb0cc7d968fd51054758634d36c4e2bb62f1aa7194abb5b30",
+      "translation": "새 기능…"
+    },
+    {
+      "table": "ui",
+      "key": "Which versions Help → Check for updates offers. Stable offers only full releases. Nightly also offers pre-releases and development builds, which arrive sooner and are tested less. After an update spaCR shows what changed. Default stable.",
+      "source": "Which versions Help → Check for updates offers. Stable offers only full releases. Nightly also offers pre-releases and development builds, which arrive sooner and are tested less. After an update spaCR shows what changed. Default stable.",
+      "source_sha256": "c0bbe79fbd0960dce106035bbc557d0991dd648063656496e2ef9e328c43ef68",
+      "translation": "도움말 → 업데이트 확인 메뉴에서 제공할 버전입니다. 안정은 정식 릴리스만 제공합니다. 나이틀리는 시험판과 개발 빌드도 제공하며, 더 빨리 나오지만 테스트가 덜 되어 있습니다. 업데이트 후 spaCR 앱은 변경 내용을 보여 줍니다. 기본값은 안정."
+    },
+    {
+      "table": "ui",
+      "key": "You are running spaCR {new}.",
+      "source": "You are running spaCR {new}.",
+      "source_sha256": "ea59fcd805b077d3fd5abed159abb0e146bb0665b4e08fd607804828ca040931",
+      "translation": "spaCR {new} 버전을 실행 중입니다."
+    },
+    {
+      "table": "ui",
+      "key": "days",
+      "source": "days",
+      "source_sha256": "ab51004e9d71a485f160f655fb9e72bcdef8f5ca4178b26938b49471456fd11c",
+      "translation": "일"
+    },
+    {
+      "table": "ui",
+      "key": "empty",
+      "source": "empty",
+      "source_sha256": "2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d",
+      "translation": "비어 있음"
+    },
+    {
+      "table": "ui",
+      "key": "no cap",
+      "source": "no cap",
+      "source_sha256": "0e4084b4cf48eb86a7c18f14fb681e32d409269e267d08d3178221eed5c500a5",
+      "translation": "상한 없음"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?",
+      "source": "spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?",
+      "source_sha256": "a8af6643d0fc1c522e8d7ac0ad366cb3970b38c8b5c4708f2b4c3a0b6e4cf393",
+      "translation": "지난번에 spaCR 앱이 정상적으로 종료되지 않았습니다. 저장되지 않은 설정을 보관한 모듈: {modules}. 복원할까요?"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR keeps logs and a folder per run in its home folder. Pruning deletes the oldest of them once a folder is over its size cap, and never anything newer than the age you keep, the run in progress or a log that is open. You see the list before anything is deleted.",
+      "source": "spaCR keeps logs and a folder per run in its home folder. Pruning deletes the oldest of them once a folder is over its size cap, and never anything newer than the age you keep, the run in progress or a log that is open. You see the list before anything is deleted.",
+      "source_sha256": "63d4c3b320b2cf5339598d07a3391efc195a7b1e29980ded438c7413cb9a6596",
+      "translation": "spaCR 앱은 홈 폴더에 로그와 실행별 폴더를 보관합니다. 정리는 폴더가 크기 상한을 넘으면 그중 가장 오래된 것을 삭제하며, 보관 기간보다 새로운 항목, 진행 중인 실행, 열려 있는 로그는 절대 삭제하지 않습니다. 삭제하기 전에 목록을 볼 수 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR was updated from {old} to {new}.",
+      "source": "spaCR was updated from {old} to {new}.",
+      "source_sha256": "30f9b210d8d1b15f4209f41bc6825a3c562dccc3b7194f67440b3866f71b7828",
+      "translation": "spaCR 앱이 {old} 버전에서 {new} 버전으로 업데이트되었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's model, Hugging Face, Torch, backend and news caches with their sizes. Press Measure to read the sizes.",
+      "source": "spaCR's model, Hugging Face, Torch, backend and news caches with their sizes. Press Measure to read the sizes.",
+      "source_sha256": "873b55066c4f73e0bec03e51c3a4f34c5ff98daa62b53866ac3e0275f1b80514",
+      "translation": "spaCR 앱의 모델, Hugging Face, Torch, 백엔드, 뉴스 캐시와 그 크기입니다. 크기를 읽으려면 Measure 버튼을 누르세요."
+    },
+    {
+      "table": "ui",
+      "key": "{label}: delete {count} of {total} ({size} of {all})",
+      "source": "{label}: delete {count} of {total} ({size} of {all})",
+      "source_sha256": "07606d87d01507fe0a28acda1c4e82d66fd9d187b77fdde6e15bc4ebcb133a0d",
+      "translation": "{label}: {count}개 삭제, 전체 {total}개 ({size}, 전체 {all})"
+    }
+  ]
+}

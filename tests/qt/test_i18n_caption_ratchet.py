@@ -1278,63 +1278,6 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    'A template called {name} already exists.',
-    'A template needs a name.',
-    'Action',
-    'Change shortcuts',
-    'Change shortcuts…',
-    'Click a shortcut and press the new key. Clear it to leave the action without a key.',
-    'Could not rename template',
-    'Default',
-    'New name for this template:',
-    'Rename template',
-    'Rename…',
-    'Restore defaults',
-    'Shortcut',
-    'That file holds no settings.',
-    'spaCR settings template (*.json);;Settings CSV (*.csv);;All files (*)',
-    '{key} is used by: {actions}.',
-    "Another spaCR window (process {pid} on {host}) is using {path}.",
-    "Continue anyway",
-    "No jobs are running.",
-    "Now",
-    "Open read-only",
-    "Opened read-only",
-    "Progress",
-    "Project open in another window",
-    "Read-only: another spaCR window has this queue open.",
-    "Show every running job with its progress and a Cancel button.",
-    "This window has {path} open read-only, so it will not run a pipeline "
-    "that writes there. Close the other spaCR window, then run again.",
-    "Two windows writing the same queue, measurements.db or results "
-    "folder can corrupt them. Open it read-only to look without writing, "
-    "or continue if you are sure the other window is idle.",
-    "Change {setting}",
-    "Edit gates",
-    "Nothing to redo.",
-    "Redone.",
-    "Portable mode: settings, caches, logs and runs are kept in {folder}.",
-    "A PEM file of certificates to trust, for networks that inspect HTTPS "
-    "with their own certificate authority. Empty uses the REQUESTS_CA_BUNDLE "
-    "or SSL_CERT_FILE environment variable when it is set. Default empty.",
-    "Certificate bundle",
-    "Nightly builds",
-    "No release notes are available for this version.",
-    "Proxy",
-    "Proxy for every download: model weights, updates, plug-ins, pip and "
-    "backend installers. Empty uses the HTTPS_PROXY environment variable "
-    "when it is set. spacr-doctor reports whether the proxy reaches PyPI. "
-    "Default empty.",
-    "Stable releases",
-    "Update channel",
-    "What's new in spaCR",
-    "What's new…",
-    "Which versions Help → Check for updates offers. Stable offers only full "
-    "releases. Nightly also offers pre-releases and development builds, "
-    "which arrive sooner and are tested less. After an update spaCR shows "
-    "what changed. Default stable.",
-    "You are running spaCR {new}.",
-    "spaCR was updated from {old} to {new}.",
     "Giardia duodenalis",
     "High contrast",
     "White text and outlines on black with a yellow accent, for low vision "
@@ -1343,49 +1286,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Mammalian cells",
     "Trypanosoma spp.",
     "Virus infection",
-    'Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.',
-    'Open fresh',
-    "Put back this module's default settings and go to Home. Preferences can turn reopening off for good.",
-    'Reopen the last module, settings and folder on start',
-    'Reopened {module} as you left it.',
-    'Reopened {module} from {folder}.',
-    'Restore',
-    'Restore unsaved settings',
-    'Session',
-    'spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?',
-    # Items 643/644 (2026-10-04): the Preferences Storage tab, awaiting the
-    # next catalog rebuild.
-    'A run is in progress. Try again when it has finished.',
-    'Cache',
-    'Caches',
-    'Cap',
-    'Clear cache',
-    'Clear…',
-    'Delete everything inside {folder}? The folder stays. Other programs that share this cache download their files again too.',
-    'Deleted {count} item(s), freeing {size}.',
-    'Empty the selected cache after asking. Models and environments are downloaded again when next needed. Default nothing cleared.',
-    'Folder',
-    'Home folder',
-    'Keep: nothing modified within this many days is deleted. Cap: older entries are deleted, oldest first, only while the folder is bigger than this; no cap deletes every older entry. Pruning runs only when you press Prune now.',
-    'List what the caps above would delete from the spaCR home folder, then ask before deleting it. Nothing is deleted automatically. Default off.',
-    "Measure reads every cache's size, Clear empties the selected cache and Move puts it in another folder. Clear and Move ask first.",
-    'Move cache',
-    'Move the cache into this folder',
-    'Move the selected cache to another folder or drive after asking; spaCR uses the new place from then on. Default the standard folder.',
-    'Move {source} to {target}? spaCR uses the new folder from now on; a program already holding the old path picks it up after a restart.',
-    'Moved to {target}.',
-    'Not moved: {reason}',
-    'Nothing is over its caps; nothing was deleted.',
-    'Prune home folder',
-    'Prune now…',
-    'Read the size of every cache. Default not measured.',
-    'Removed {count} item(s).',
-    'days',
-    'empty',
-    'no cap',
-    'spaCR keeps logs and a folder per run in its home folder. Pruning deletes the oldest of them once a folder is over its size cap, and never anything newer than the age you keep, the run in progress or a log that is open. You see the list before anything is deleted.',
-    "spaCR's model, Hugging Face, Torch, backend and news caches with their sizes. Press Measure to read the sizes.",
-    '{label}: delete {count} of {total} ({size} of {all})',
 })
 
 
