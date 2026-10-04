@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, thirteenth pass 2026-10-04: the Gate Editor's 3D shape names that fe937d232 routed through tr() (item 632), written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Box with handles",
+      "source": "Box with handles",
+      "source_sha256": "1b37eb1fbe0026ccde226a502aa98842597c98f7d2d155fcd8bf1fd0169f4da4",
+      "translation": "Kassi með handföngum"
+    },
+    {
+      "table": "ui",
+      "key": "Circle gate",
+      "source": "Circle gate",
+      "source_sha256": "e26724d6021dd162e890d7a46949ac42e7036f7a852b377e0c7ab359a66a2b2e",
+      "translation": "Hringlaga gate"
+    },
+    {
+      "table": "ui",
+      "key": "Ellipsoid with handles",
+      "source": "Ellipsoid with handles",
+      "source_sha256": "910c149dd878669740dfbcf7a6fa7a1ba8c41a0779901028495b75a533cd60a1",
+      "translation": "Sporvala með handföngum"
+    },
+    {
+      "table": "ui",
+      "key": "Lasso through view",
+      "source": "Lasso through view",
+      "source_sha256": "2378165507975057ed6f2089a8d28a1c647fb76614119bca664a2e772a7c87d1",
+      "translation": "Snara gegnum sýnina"
+    },
+    {
+      "table": "ui",
+      "key": "Oval gate",
+      "source": "Oval gate",
+      "source_sha256": "09255289bd18d987cd88e1e28dc898d2249d3c012795d89d803ebcc9feb7c4ad",
+      "translation": "Sporöskjulaga gate"
+    },
+    {
+      "table": "ui",
+      "key": "Polygon gate",
+      "source": "Polygon gate",
+      "source_sha256": "676d6a90c3b5015f34057dbb3bb3bed7fdff0ea5bdd25306bddf54497e98122d",
+      "translation": "Marghyrnt gate"
+    },
+    {
+      "table": "ui",
+      "key": "Polygon through view",
+      "source": "Polygon through view",
+      "source_sha256": "5e928479c8d9e1aa4e8e65d03ae330f98670b69716df37bbcf6d8ba5b6c3df82",
+      "translation": "Marghyrningur gegnum sýnina"
+    },
+    {
+      "table": "ui",
+      "key": "Rectangle through view",
+      "source": "Rectangle through view",
+      "source_sha256": "67e76d7e3a178e8db0400b4922f0bb357022b32eac3199c0b0436b1e1015359b",
+      "translation": "Rétthyrningur gegnum sýnina"
+    }
+  ]
+}

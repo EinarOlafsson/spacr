@@ -1266,9 +1266,6 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 634, 2026-10-03, later: Preferences > Show alpha species and its tooltip;
 # the redrawn Leishmania, Giardia, virus and mammalian diagram notes.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Polygon through view",
-    "Ellipsoid with handles",
-    "Box with handles",
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",
