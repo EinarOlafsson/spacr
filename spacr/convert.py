@@ -2467,8 +2467,6 @@ def _conversion_sidecar_assignments(data, source_plates, path):
         if plate not in source_plates or not barcode or plate in assignments:
             raise ConfigurationError(f'Barcode sidecar has unknown, empty or duplicate assignments: {path}')
         assignments[plate] = barcode
-    if not assignments:
-        raise ConfigurationError(f'Barcode sidecar has no assignments: {path}')
     return assignments
 
 
