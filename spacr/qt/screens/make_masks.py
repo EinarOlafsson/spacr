@@ -9230,7 +9230,8 @@ class MakeMasksScreen(QWidget):
         from tifffile import imread
 
         from ..._segmentation_backends import _sam2_frames
-        dialog = _Sam2SeedDialog(_sam2_frames(imread(path)), parent=self)
+        dialog = _Sam2SeedDialog(_sam2_frames(imread(path)), parent=self,
+                                 source_path=path)
         dialog.exec()
 
     def _build_blind_toggle(self) -> QPushButton:
@@ -16447,18 +16448,22 @@ class _Sam2SeedDialog(QDialog):
     every seed to SAM2 (:func:`spacr._segmentation_backends._sam2_propagate`)
     in the background and shows the result over the frames. To correct a
     frame, click the object there again and propagate once more: a label
-    seeded on several frames is corrected on each of them.
+    seeded on several frames is corrected on each of them. Save writes the
+    labels, the tracks table (with division parents) and the seeds and
+    settings that made them into a ``sam2`` folder beside the movie.
     """
 
     finished_run = Signal(object, object)
 
-    def __init__(self, frames, propagate=None, radius=4, parent=None):
+    def __init__(self, frames, propagate=None, radius=4, parent=None,
+                 source_path=None):
         """Show ``frames`` for seeding; ``propagate`` defaults to SAM2."""
         from PySide6.QtWidgets import QCheckBox
 
         from ..i18n import tr
         super().__init__(parent)
         self.setWindowTitle(tr("SAM2 tracking"))
+        self.source_path = source_path
         self.frames = np.asarray(frames, dtype=np.uint8)
         self.seeds: dict = {}
         self.labels = None
@@ -16486,6 +16491,14 @@ class _Sam2SeedDialog(QDialog):
         self.run_button = QPushButton(tr("Propagate"), self)
         self.run_button.clicked.connect(self.run)
         row.addWidget(self.run_button)
+        self.save_button = QPushButton(tr("Save"), self)
+        self.save_button.setToolTip(tr(
+            "Write the propagated labels (TIFF), the tracks table with each "
+            "daughter's parent track (CSV) and the seeds and settings used "
+            "into a sam2 folder beside the movie."))
+        self.save_button.setEnabled(False)
+        self.save_button.clicked.connect(lambda: self.save())
+        row.addWidget(self.save_button)
         layout.addLayout(row)
         self.status = QLabel(tr("Click an object to seed it."), self)
         layout.addWidget(self.status)
@@ -16550,9 +16563,73 @@ class _Sam2SeedDialog(QDialog):
             self.status.setText(tr("SAM2 failed: {error}").format(error=error))
             return
         self.labels = np.asarray(labels)
+        self._last_backward = self.backward_box.isChecked()
+        self._last_seeds = {t: s.copy() for t, s in self.seeds.items()}
+        self.save_button.setEnabled(True)
         self.status.setText(tr(
             "Done. Click an object on a wrong frame and propagate again."))
         self._redraw()
+
+    def save(self, folder=None):
+        """Write the propagated labels, tracks, seeds and settings.
+
+        Files are named after the movie: ``<stem>_sam2_masks.tif`` (the
+        labels, one id per object across frames), ``<stem>_sam2_tracks.csv``
+        (spaCR's tracks table with ``parent_track_id``),
+        ``<stem>_sam2_seeds.npz`` (the seeds of the last propagation) and
+        ``<stem>_sam2_settings.json`` (movie, backward pass, seeded frames
+        and objects).
+
+        :param folder: where to write; ``sam2`` beside the movie when None,
+            or a folder the user picks when the movie has no path.
+        :returns: the folder written to, or None when nothing was saved.
+        """
+        import json
+
+        import tifffile
+
+        from ...tabular import write_table
+        from ...timelapse import (_native_lineage_columns, _relabelled_stack_to_tracks_df,
+                                  _sam2_parent_links)
+        from ..i18n import tr
+        if self.labels is None:
+            self.status.setText(tr("Propagate before saving."))
+            return None
+        if folder is None:
+            if self.source_path:
+                folder = os.path.join(os.path.dirname(self.source_path), "sam2")
+            else:
+                folder = QFileDialog.getExistingDirectory(
+                    self, tr("Choose a folder for the SAM2 results"))
+                if not folder:
+                    return None
+        os.makedirs(folder, exist_ok=True)
+        stem = (os.path.splitext(os.path.basename(self.source_path))[0]
+                if self.source_path else "movie")
+        labels = np.asarray(self.labels).astype(np.int32)
+        tifffile.imwrite(os.path.join(folder, f"{stem}_sam2_masks.tif"), labels,
+                         photometric="minisblack")
+        tracks = _relabelled_stack_to_tracks_df(labels)
+        if not tracks.empty:
+            tracks = _native_lineage_columns(tracks, _sam2_parent_links(labels), "sam2")
+        write_table(tracks, os.path.join(folder, f"{stem}_sam2_tracks.csv"))
+        seeds = getattr(self, "_last_seeds", self.seeds)
+        np.savez_compressed(os.path.join(folder, f"{stem}_sam2_seeds.npz"),
+                            **{f"frame_{t}": s for t, s in seeds.items()})
+        settings = {
+            "movie": self.source_path,
+            "frames": int(labels.shape[0]),
+            "backward": bool(getattr(self, "_last_backward",
+                                     self.backward_box.isChecked())),
+            "seed_radius": self.radius,
+            "seeds": {str(t): sorted(int(v) for v in np.unique(s) if v)
+                      for t, s in sorted(seeds.items())},
+        }
+        with open(os.path.join(folder, f"{stem}_sam2_settings.json"), "w",
+                  encoding="utf-8") as handle:
+            json.dump(settings, handle, indent=2)
+        self.status.setText(tr("Saved to {folder}").format(folder=folder))
+        return folder
 
     def _redraw(self, *_args):
         """Draw the frame on screen with its labels and seeds over it."""

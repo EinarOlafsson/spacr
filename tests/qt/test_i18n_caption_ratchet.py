@@ -1265,7 +1265,15 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # UniProt compartment names and SwissBioPics location descriptions.
 # 634, 2026-10-03, later: Preferences > Show alpha species and its tooltip;
 # the redrawn Leishmania, Giardia, virus and mammalian diagram notes.
+# 556, 2026-10-04: the SAM2 tracking dialog's Save tooltip, folder prompt
+# and two status lines.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Choose a folder for the SAM2 results",
+    "Propagate before saving.",
+    "Saved to {folder}",
+    "Write the propagated labels (TIFF), the tracks table with each "
+    "daughter's parent track (CSV) and the seeds and settings used into a "
+    "sam2 folder beside the movie.",
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",

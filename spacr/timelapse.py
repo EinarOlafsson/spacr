@@ -735,6 +735,9 @@ def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, image
         min_successor=min_successor, max_distance=max_distance)
 
     tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if not tracks_df.empty:
+        tracks_df = _native_lineage_columns(
+            tracks_df, _sam2_parent_links(masks_tracked), 'sam2')
     if timelapse_remove_transient and not tracks_df.empty:
         n_frames = masks_tracked.shape[0]
         keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
@@ -823,8 +826,9 @@ def _sam2_track_cells(src, name, batch_filenames, object_type, masks, images=Non
     cells entering the field, or daughters of a division -- are seeded on
     the frame they were first found and the movie is followed once more
     with every seed. The masks returned are SAM2's, not spaCR's per-frame
-    masks. A daughter after a division starts a new track; parent/child
-    lineage is not recorded.
+    masks. A daughter after a division starts a new track, and the track
+    it grew out of is written as its ``parent_track_id`` (0 for none), so
+    lineage trees can be drawn from the tracks table.
 
     SAM2 runs in an environment of its own, installed from the Model Zoo.
 
@@ -881,6 +885,9 @@ def _sam2_track_cells(src, name, batch_filenames, object_type, masks, images=Non
              device=reply.get('device')))
 
     tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
+    if not tracks_df.empty:
+        tracks_df = _native_lineage_columns(
+            tracks_df, _sam2_parent_links(masks_tracked), 'sam2')
     if timelapse_remove_transient and not tracks_df.empty:
         n_frames = masks_tracked.shape[0]
         keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
@@ -904,6 +911,46 @@ def _sam2_track_cells(src, name, batch_filenames, object_type, masks, images=Non
             batch_filenames, object_type, mode)
 
     return _masks_to_masks_stack(masks_tracked)
+
+
+_SAM2_PARENT_OVERLAP = 0.3
+
+
+def _sam2_parent_links(masks_tracked):
+    """The track each later-starting SAM2 track grew out of.
+
+    A track that starts after the first frame is a daughter of the track
+    that covers at least ``_SAM2_PARENT_OVERLAP`` of its first mask on the
+    frame before (the most-covering one when several do). A track that
+    starts where nothing was before, such as a cell entering the field, has
+    no parent.
+
+    :param masks_tracked: SAM2's ``T x H x W`` labels, ids consistent
+        across frames.
+    :returns: ``{daughter_track_id: mother_track_id}``, 0 for no parent.
+    """
+    stack = np.asarray(masks_tracked)
+    seen = set(int(v) for v in np.unique(stack[0]) if v) if len(stack) else set()
+    links = {track: 0 for track in seen}
+    for frame in range(1, len(stack)):
+        labels = stack[frame]
+        before = stack[frame - 1]
+        for track in np.unique(labels):
+            track = int(track)
+            if not track or track in seen:
+                continue
+            seen.add(track)
+            region = labels == track
+            under = before[region]
+            under = under[(under > 0) & (under != track)]
+            parent = 0
+            if under.size:
+                ids, counts = np.unique(under, return_counts=True)
+                best = int(np.argmax(counts))
+                if counts[best] >= _SAM2_PARENT_OVERLAP * int(region.sum()):
+                    parent = int(ids[best])
+            links[track] = parent
+    return links
 
 
 def _relabelled_stack_to_tracks_df(masks_tracked):

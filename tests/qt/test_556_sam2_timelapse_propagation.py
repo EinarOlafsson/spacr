@@ -384,3 +384,87 @@ def test_the_sam2_button_is_alpha(qtbot, monkeypatch):
     P._apply_alpha_widgets(root)
     assert not button.isHidden()
     assert hasattr(MakeMasksScreen, "_build_sam2_button")
+
+
+def _dividing_movie():
+    """Track 1 is followed from frame 0; at frame 2 it splits and track 2
+    starts inside where it was; track 3 enters far from anything."""
+    stack = np.zeros((4, 20, 20), np.int32)
+    stack[:2, 4:10, 4:10] = 1
+    stack[2:, 4:7, 4:10] = 1
+    stack[2:, 7:10, 4:10] = 2
+    stack[3, 15:18, 15:18] = 3
+    return stack
+
+
+def test_sam2_daughters_carry_their_mother_as_parent_for_lineage(tmp_path):
+    import pandas as pd
+
+    from spacr import timelapse
+    from spacr.timelapse import _sam2_parent_links, _sam2_track_cells
+
+    stack = _dividing_movie()
+    assert _sam2_parent_links(stack) == {1: 0, 2: 1, 3: 0}
+
+    def propagate(frames, seeds, model=None, device=None):
+        return stack.copy(), {"objects": 3, "seconds": 0.1, "device": "cpu"}
+
+    src = tmp_path / "run" / "stack"
+    src.mkdir(parents=True)
+    _sam2_track_cells(str(src), "b1", [f"f{i}" for i in range(4)], "cell",
+                      (stack > 0).astype(np.int32),
+                      images=np.zeros((4, 20, 20)), propagate=propagate)
+    table = pd.read_csv(tmp_path / "run" / "tracks" / "sam2_tracks_cell_b1.csv")
+    parents = table.groupby("track_id").parent_track_id.first().to_dict()
+    assert parents == {1: 0, 2: 1, 3: 0}
+    assert set(table.parent_track_id_source) == {"sam2"}
+    segments = timelapse._lineage_segments(table, max_distance=100)
+    by_track = segments.groupby("track_id")
+    daughter = segments[segments.track_id == 2].iloc[0]
+    mother_ids = set(segments[segments.track_id == 1].segment_id)
+    assert daughter.parent_segment_id in mother_ids
+    entering = segments[segments.track_id == 3].iloc[0]
+    assert entering.parent_segment_id == 0 and len(by_track) == 3
+
+
+def test_the_dialog_saves_labels_tracks_seeds_and_settings(qtbot, tmp_path):
+    import json
+
+    import pandas as pd
+    import tifffile
+
+    from spacr.qt.screens.make_masks import _Sam2SeedDialog
+
+    stack = _dividing_movie()
+
+    def fake_propagate(frames, seeds, backward=False):
+        return stack.copy(), {"objects": 3}
+
+    movie = tmp_path / "movie.tif"
+    dialog = _Sam2SeedDialog(np.zeros((4, 20, 20), np.uint8),
+                             propagate=fake_propagate, radius=1,
+                             source_path=str(movie))
+    qtbot.addWidget(dialog)
+    assert not dialog.save_button.isEnabled()
+    assert dialog.save() is None
+    dialog.view.clicked.emit(6, 6, False)
+    dialog.backward_box.setChecked(True)
+    dialog.run()
+    qtbot.waitUntil(lambda: dialog.labels is not None, timeout=5000)
+    assert dialog.save_button.isEnabled()
+    folder = dialog.save()
+    assert folder == str(tmp_path / "sam2")
+    np.testing.assert_array_equal(
+        tifffile.imread(tmp_path / "sam2" / "movie_sam2_masks.tif"), stack)
+    table = pd.read_csv(tmp_path / "sam2" / "movie_sam2_tracks.csv")
+    assert table.groupby("track_id").parent_track_id.first().to_dict() == {
+        1: 0, 2: 1, 3: 0}
+    seeds = np.load(tmp_path / "sam2" / "movie_sam2_seeds.npz")
+    assert seeds["frame_0"][6, 6] == 1
+    settings = json.loads(
+        (tmp_path / "sam2" / "movie_sam2_settings.json").read_text())
+    assert settings["backward"] is True and settings["seeds"] == {"0": [1]}
+    assert settings["movie"] == str(movie) and settings["frames"] == 4
+    other = dialog.save(str(tmp_path / "elsewhere"))
+    assert (tmp_path / "elsewhere" / "movie_sam2_tracks.csv").is_file()
+    assert other == str(tmp_path / "elsewhere")

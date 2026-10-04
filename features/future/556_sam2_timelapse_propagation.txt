@@ -1,8 +1,10 @@
 SAM2 VIDEO PROPAGATION: SEGMENT ONCE, FOLLOW EACH OBJECT OVER FRAMES
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27; DONE WHEN met 2026-10-04 (SAM2,
-trackastra and the stitcher scored on whole CTC movies). Not DONE: daughter
-parent links, Timeflows export and saving the seed dialog's tracks are open.
+Status: DONE 2026-10-04 (alpha). IMPLEMENTED AS ALPHA 2026-09-27; DONE WHEN
+met 2026-10-04 (SAM2, trackastra and the stitcher scored on whole CTC
+movies); daughter parent links and saving the seed dialog done 2026-10-04;
+Timeflows export N/A (Timeflows, item 426, closed and superseded by
+cellposeTIME).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -177,3 +179,26 @@ Not done
     eval/trackastra.out).
     Still open (item not DONE): daughter parent links, Timeflows (426)
     export, saving the seed dialog's labels/tracks to the project.
+
+2026-10-04 -- PARENT LINKS, DIALOG SAVING; TIMEFLOWS EXPORT N/A
+    Parent links: spacr.timelapse._sam2_parent_links gives every SAM2 track
+    that starts after the first frame the track covering at least 30 %
+    (_SAM2_PARENT_OVERLAP) of its first mask on the frame before (an
+    entering cell gets 0). _sam2_track_cells writes them through the shared
+    _native_lineage_columns, so tracks/sam2_tracks_*.csv carries
+    parent_track_id and parent_track_id_source='sam2'; _lineage_segments
+    (item 537) treats 'sam2' as a native source, so lineage trees are built
+    from SAM2's own links and roots are never re-inferred.
+    Dialog saving: _Sam2SeedDialog has a Save button (enabled after a
+    propagation) writing into <movie folder>/sam2: <stem>_sam2_masks.tif,
+    <stem>_sam2_tracks.csv (with parent links), <stem>_sam2_seeds.npz and
+    <stem>_sam2_settings.json (movie, frames, backward, seed radius, seeded
+    frames and objects).
+    Timeflows (426) export: N/A -- Timeflows is closed, superseded by
+    cellposeTIME.
+    ALPHA: unchanged (the dialog is reached only through the alpha
+    MakeMasksSam2Button). Tests (SAM2 stubbed):
+    tests/qt/test_556_sam2_timelapse_propagation.py
+    (test_sam2_daughters_carry_their_mother_as_parent_for_lineage,
+    test_the_dialog_saves_labels_tracks_seeds_and_settings).
+    Left: nothing in code; four new captions await the catalogue rebuild.

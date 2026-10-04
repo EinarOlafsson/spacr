@@ -267,7 +267,7 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
         # A native root (including an orphan after filtering) must not be
         # silently attached to whichever unrelated track is closest.
         native = df['parent_track_id_source'].fillna('').isin(
-            ['ultrack', 'btrack', 'trackastra'])
+            ['ultrack', 'btrack', 'trackastra', 'sam2'])
         known.update(df.loc[native, 'track_id'].astype(int))
     hours = _lineage_hours_per_frame(df, frame_interval_s)
     min_cycle = None
