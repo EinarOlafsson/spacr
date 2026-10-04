@@ -52,7 +52,11 @@ QT = ROOT / "spacr" / "qt"
 #: only literals are "spaCR" and "© Olafsson Lab" -- names, not prose, and its
 #: prose callers already pass `tr(...)`. Raise it only with the list of what
 #: arrived, the way item 65 records it.
-HIDDEN_CAPTIONS = 1
+#: Raised 2026-10-04 to 2: 641 (0af688ea0) routed the run console through
+#: `bridge.py`'s `_say`, so its English console line "Recording
+#: reproducibility input hashes…" -- emitted untranslated before as well --
+#: now reaches a helper with no caption rule.
+HIDDEN_CAPTIONS = 2
 
 
 def _call_name(node: ast.Call) -> str:

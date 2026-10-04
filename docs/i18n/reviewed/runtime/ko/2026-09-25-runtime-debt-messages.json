@@ -3072,13 +3072,6 @@
     },
     {
       "table": "ui",
-      "key": "spaCR settings template (*.json);;All files (*)",
-      "source": "spaCR settings template (*.json);;All files (*)",
-      "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
-      "translation": "spaCR 설정 템플릿 (*.json);;모든 파일 (*)"
-    },
-    {
-      "table": "ui",
       "key": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
       "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
       "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
@@ -3239,9 +3232,17 @@
       "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
       "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
       "translation": "홈에서 생물종 가이드를 열어 계획된 말라리아 이미징 워크플로를 읽고 공통 정단복합체 도식을 살펴보세요. 8개 어세이 타일은 모두 출시 예정이며, 어느 것도 분석을 시작하거나 결과를 생성하지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR settings template (*.json);;All files (*)",
+      "source": "spaCR settings template (*.json);;All files (*)",
+      "source_sha256": "3d266d93552cc353f5bb8643bedcfd7c7cc3a580c80add225e59bafb8f083160",
+      "translation": "spaCR 설정 템플릿 (*.json);;모든 파일 (*)"
     }
   ],
   "retirement_2026_09_27": "450/451: replaced fixed ten-field and unconditional-mask promises; full prechange file preserved in features/data/450_451_retired_runtime_review_2026-09-27.",
   "retired_note": "2026-10-01: the Make Masks re-layout replaced the FEATURES button with Organize for Measure and rewrote this English; the replacement is in 2026-09-30-runtime-debt-eleventh-pass-organize-phrases.json. Kept verbatim as evidence, not loaded. | 2026-10-04: 48c4133c8 withdrew the Plasmodium and Candida organism pages, so this note is no longer a runtime source. Kept verbatim as evidence, not loaded.",
-  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text."
+  "retirement_2026_10_01": "Source text changed during priority implementation. Prior source-bound reviews are retained here for history and are not reused as reviews of replacement text.",
+  "retirement_2026_10_04": "Preserved the obsolete settings-template file filter after 656/657 (699fe2c40) added Settings CSV to the open dialog. The new filter is translated separately; this review is not reused for it."
 }
