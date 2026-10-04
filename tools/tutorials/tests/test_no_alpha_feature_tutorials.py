@@ -251,9 +251,25 @@ def is_alpha_species_lesson(lesson):
             and str(lesson.get("title", "")).startswith("Alpha"))
 
 
+def is_alpha_features_lesson(lesson):
+    """The maintainer's exception (2026-10-04): the one allow-listed features
+    lesson, and only while its title says Alpha, may show and name what Show
+    alpha features hides, and that setting. It may not name alpha species."""
+    return (alpha_lesson_kind(lesson.get("id")) == "features"
+            and str(lesson.get("title", "")).startswith("Alpha"))
+
+
 def alpha_references(lesson, *, alpha_apps=()):
     """Every place ``lesson`` names an alpha feature, as readable strings."""
     found = []
+    if is_alpha_features_lesson(lesson):
+        # Only the species setting stays forbidden; species names are
+        # caught by species_references, which no features lesson escapes.
+        species_toggle = [_pattern(term) for term in SPECIES_TOGGLE_TERMS]
+        for where, text in _strings(lesson):
+            if any(pattern.search(text) for pattern in species_toggle):
+                found.append(f"{where}: the Show alpha species setting in the features lesson")
+        return found
     species_lesson = is_alpha_species_lesson(lesson)
     species_names = _species_registry_names() if species_lesson else set()
     if lesson.get("app_key") in alpha_apps or lesson.get("host_app_key") in alpha_apps:
@@ -447,8 +463,46 @@ def _species_lesson(lesson_id="86_alpha_organism_modules", title="Alpha: organis
             "Mammalian cells."}]}
 
 
+def _features_lesson(lesson_id="87_alpha_features", title="Alpha: experimental features"):
+    return {"id": lesson_id, "title": title, "scenes": [{"narration":
+            "In Preferences, turn on Show alpha features. Open Measure and turn "
+            "on Confluency, then try Spectral Unmixing and SAM2 tracking."}]}
+
+
+def test_only_the_allow_listed_features_lesson_may_show_alpha_features():
+    allowed = _features_lesson()
+    assert alpha_references(allowed, alpha_apps=_alpha_apps()) == []
+    for other in (_features_lesson("05_home"), _features_lesson("88_other_alpha"),
+                  _features_lesson("86_alpha_organism_modules", "Alpha: organism modules"),
+                  _features_lesson(title="Experimental features")):
+        assert alpha_references(other, alpha_apps=_alpha_apps()), other["id"]
+
+
+def test_the_features_lesson_still_may_not_show_alpha_species():
+    lesson = _features_lesson()
+    lesson["scenes"].append({"narration": "Open Plasmodium from Home."})
+    assert species_references(lesson)
+    lesson["scenes"][-1]["narration"] = "Turn on Show alpha species too."
+    assert alpha_references(lesson, alpha_apps=_alpha_apps())
+
+
+def test_the_capture_policy_allows_alpha_features_only_for_the_features_lesson(monkeypatch):
+    import capture_policy
+    from spacr.qt import preferences as prefs
+    monkeypatch.setattr(prefs, "_get_show_alpha_species", lambda: False)
+    monkeypatch.setattr(capture_policy, "_alpha_features_shown", lambda: True)
+    assert capture_policy.verify_alpha_features_off(alpha_lesson="87_alpha_features")
+    for other in (None, "05_home", "86_alpha_organism_modules", "88_other_alpha"):
+        with pytest.raises(RuntimeError):
+            capture_policy.verify_alpha_features_off(alpha_lesson=other)
+    monkeypatch.setattr(prefs, "_get_show_alpha_species", lambda: True)
+    with pytest.raises(RuntimeError):
+        capture_policy.verify_alpha_features_off(alpha_lesson="87_alpha_features")
+
+
 def test_the_alpha_lessons_allow_list_is_narrow():
     assert ALPHA_LESSONS.get("86_alpha_organism_modules") == "species"
+    assert ALPHA_LESSONS.get("87_alpha_features") == "features"
     assert set(ALPHA_LESSONS.values()) <= {"species", "features"}
     assert len(ALPHA_LESSONS) <= 2
 
@@ -457,7 +511,8 @@ def test_only_the_allow_listed_species_lesson_may_show_alpha_species():
     allowed = _species_lesson()
     assert species_references(allowed) == []
     assert alpha_references(allowed, alpha_apps=_alpha_apps()) == []
-    for other in (_species_lesson("05_home"), _species_lesson("87_other_alpha"),
+    for other in (_species_lesson("05_home"), _species_lesson("88_other_alpha"),
+                  _species_lesson("87_alpha_features"),
                   _species_lesson(title="Organism modules")):
         assert species_references(other), other["id"]
         assert alpha_references(other, alpha_apps=_alpha_apps()), other["id"]
@@ -478,6 +533,6 @@ def test_the_capture_policy_refuses_species_frames_for_any_other_lesson(monkeypa
     monkeypatch.setattr(prefs, "_get_show_alpha_species", lambda: True)
     monkeypatch.setattr(capture_policy, "_alpha_features_shown", lambda: False)
     capture_policy.verify_alpha_features_off(alpha_lesson="86_alpha_organism_modules")
-    for other in (None, "05_home", "87_other_alpha"):
+    for other in (None, "05_home", "87_alpha_features", "88_other_alpha"):
         with pytest.raises(RuntimeError):
             capture_policy.verify_alpha_features_off(alpha_lesson=other)

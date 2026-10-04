@@ -29,6 +29,7 @@ ALPHA_SPECIES_KEY = "prefs/show_alpha_species"
 #: same table, so the allow-list lives in one place.
 ALPHA_LESSONS = {
     "86_alpha_organism_modules": "species",
+    "87_alpha_features": "features",
 }
 
 
@@ -111,7 +112,7 @@ def verify_alpha_features_off(*, allow_alpha_toggle_scene=False, alpha_lesson=No
             "Capture refused: Preferences -> Show alpha species is on. Only "
             "Toxoplasma may appear in a tutorial; record with it off")
     shown = _alpha_features_shown()
-    if shown and not allow_alpha_toggle_scene:
+    if shown and not allow_alpha_toggle_scene and alpha_lesson_kind(alpha_lesson) != "features":
         raise RuntimeError(
             "Capture refused: Preferences -> Show alpha features is on. Alpha "
             "features get no tutorials; record with it off (only a Preferences "

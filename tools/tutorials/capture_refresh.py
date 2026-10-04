@@ -96,7 +96,7 @@ def main() -> int:
     parser.add_argument('--pca-host-only', action='store_true',
                         help='Recapture only the native Image UMAP PCA entry point; no data load or fit')
     parser.add_argument('--openings', action='store_true', help='Record only the shared Home, Help-menu and host openings of the tool lessons')
-    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels', 'ram_guard'), default='home',
+    parser.add_argument('--openings-set', choices=('home', 'illumination_apply', 'align_test_data', 'mask_source_channels', 'ram_guard', 'alpha_features'), default='home',
                         help='With --openings: which shared or lesson-extension frames to record')
     parser.add_argument('--preview-filter-only', action='store_true', help='With --preview-variants, record the size filter but no second model run')
     parser.add_argument('--plaque-current-tour', action='store_true', help='Record the current Plaque preview overlay settings, Help route and Figure mode on the synthetic example')
@@ -129,6 +129,11 @@ def main() -> int:
             parser.error('--alpha-lesson must name a lesson in capture_policy.ALPHA_LESSONS')
         if args.alpha_lesson == '86_alpha_organism_modules' and args.module != 'alpha_organisms':
             parser.error('--alpha-lesson 86_alpha_organism_modules records only --module alpha_organisms')
+        if args.alpha_lesson == '87_alpha_features' and not (
+                args.openings and args.openings_set == 'alpha_features'):
+            parser.error('--alpha-lesson 87_alpha_features records only --openings --openings-set alpha_features')
+    if args.openings and args.openings_set == 'alpha_features' and args.alpha_lesson != '87_alpha_features':
+        parser.error('--openings-set alpha_features requires --alpha-lesson 87_alpha_features')
     if args.module == 'alpha_organisms' and args.alpha_lesson != '86_alpha_organism_modules':
         parser.error('--module alpha_organisms requires --alpha-lesson 86_alpha_organism_modules')
     if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
@@ -450,6 +455,9 @@ def main() -> int:
             capture_openings.record_openings(app, window, captures, capture, settle, write_json)
         elif args.openings_set == 'illumination_apply':
             capture_openings.record_illumination_apply(app, window, stage, captures, capture, settle, write_json)
+        elif args.openings_set == 'alpha_features':
+            from capture_alpha_features import record_alpha_features
+            record_alpha_features(app, window, stage, captures, capture, settle, write_json)
         elif args.openings_set == 'ram_guard':
             capture_openings.record_ram_guard(app, window, stage, captures, capture, settle, write_json)
         elif args.openings_set == 'mask_source_channels':
