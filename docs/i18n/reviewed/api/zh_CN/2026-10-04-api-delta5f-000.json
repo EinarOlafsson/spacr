@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.gpu_reduce#5",
+      "source": "WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered here. Everything else spaCR does -- barcode mapping, format conversion, SQLite, report assembly, grouped statistics -- is decompression, filesystem and small-table work, and moving it to a GPU would cost transfer time and buy nothing. GPU acceleration is reserved for workloads where transfer overhead is outweighed by computation.",
+      "source_sha256": "5662a53c0578fcd9a889eb0dcac4305889b6a233d7e3654ca347bed83e89b63c",
+      "context": "WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered here. Everything else spaCR does -- barcode mapping, format conversion, SQLite, report assembly, grouped statistics -- is decompression, filesystem and small-table work, and moving it to a GPU would cost transfer time and buy nothing. GPU acceleration is reserved for workloads where transfer overhead is outweighed by computation.",
+      "translation": "真正有帮助的地方。cuML 实现了 spaCR 已经在大表上运行的那些算法：UMAP、t-SNE、PCA、DBSCAN 和 KMeans。这里提供的就是这些。spaCR 所做的其他一切——条形码映射、格式转换、SQLite、报告汇编、分组统计——都是解压缩、文件系统和小表工作，把它们移到 GPU 上只会耗费传输时间而毫无收益。GPU 加速只留给计算量足以抵消传输开销的工作负载。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.graph_types#2",
+      "source": "IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
+      "source_sha256": "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26",
+      "context": "IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
+      "translation": "这也是 spaCR 中每个图表获得其初始形式的地方。“默认图表类型”设置按数据形状存储（`spacr.qt.preferences`），通过 :func:`chosen_for` 读回，并由 :func:`default_for` 和 :func:`start_for` 转换为“第一次右键单击之前绘制的内容”。控件向这两者之一询问，得到的答案已经考虑了用户的选择、该选择是否适合数据，以及数据是否足够密集以支撑它——因此，设置之所以能作用于新图表，是因为图表做的是常规的事，而不是靠它记得去应用设置。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure#9",
+      "source": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D field is measured in real units or refused. A 2-D field takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "source_sha256": "3b26b2cc94e9e2ab4b48cf39602d8044ae66e0c2cfd49878df7db59f99e2d624",
+      "context": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D microscope field of view is measured in real units or refused. A 2-D microscope field of view takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "translation": "2-D 路径逐位一致，而且是有意为之。Mask 现在可以输出 ``(Z, Y, X)`` 标签体积（参见 :mod:`spacr.zstack`），而有关体素间距、体积列和单位标记的一切，都是为了让 3-D 视野要么以真实单位测量，要么被拒绝。2-D 视野走的代码与之前完全相同，使用 ``spacing=None``；去年测量、今天重新测量的筛选会得到相同的数字。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.nonparametric_fits.describe#2",
+      "source": "Said WHERE IT IS CHOSEN. The whole point of the three-way split is that a reader knows before picking, not after running.",
+      "source_sha256": "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c",
+      "context": "Said WHERE IT IS CHOSEN. The whole point of the three-way split is that a reader knows before picking, not after running.",
+      "translation": "在选择它的地方就说明。三分法的全部意义在于，读者在挑选之前就知道，而不是在运行之后才知道。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_accel#5",
+      "source": "THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in CI, and on the machine whose card is busy, which between them is most of the time this code will ever run.",
+      "source_sha256": "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d",
+      "context": "THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in CI, and on the machine whose card is busy, which between them is most of the time this code will ever run.",
+      "translation": "CPU 路径不是错误路径。它是在笔记本电脑上、在 CI 中以及在显卡正忙的机器上运行的路径，而这些情况加起来占了这段代码将来运行时间的绝大部分。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_merge#4",
+      "source": "WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:",
+      "source_sha256": "ad60fe656e90088b7a9b92134f33cd46562acb39e4eaf437a7fb83b3d165e98d",
+      "context": "WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:",
+      "translation": "它失效的地方，在 90 个细胞上测得，这些细胞分布在一个 500 px 的视野中，该视野与另一视野通过已知的 2.0 倍缩放、11 度旋转和 (137.5, -92.25) 平移相关联：",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_register#9",
+      "source": "THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must agree to within a pixel, which is what `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts. A fallback nobody compares is a second implementation, not a fallback.",
+      "source_sha256": "90c95204836925dff481463ff29947ad90f124864db553914909e6d5c0358402",
+      "context": "THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must agree to within a pixel, which is what `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts. A fallback nobody compares is a second implementation, not a fallback.",
+      "translation": "CPU 路径不是错误路径。两者运行相同的测试夹具，并且必须在一个像素以内一致，这正是 `tests/test_the_ops_registration_agrees_on_every_backend.py` 所断言的。没人去比较的后备方案是第二套实现，而不是后备方案。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sample#4",
+      "source": "THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are separate functions rather than one with a flag. A phenotype channel measured in several cycles IS several samples of one quantity and averaging it is the right thing, and what it emits is the schema ``measure`` already emits. Same plate, same objects, opposite correct answer; a shared flag would make that a caller's choice, and it is not one.",
+      "source_sha256": "1a7c609357bde860f3c8f5268e0fd45895ec4cc3731cb9cf1f0dbe2e4e371b0c",
+      "context": "THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are separate functions rather than one with a flag. A phenotype channel measured in several cycles IS several samples of one quantity and averaging it is the right thing, and what it emits is the schema ``measure`` already emits. Same laboratory microplate, same objects, opposite correct answer; a shared flag would make that a caller's choice, and it is not one.",
+      "translation": "表型路径是相反的情况，这就是为什么两者是两个独立的函数，而不是一个带标志的函数。在多个循环中测量的表型通道“就是”同一个量的多个样本，对其取平均是正确的做法，而它输出的正是 ``measure`` 已经输出的模式。同一块板、同样的对象，正确答案却相反；共享标志会让这成为调用者的选择，而它并不是一种选择。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.strip_report_paths#2",
+      "source": "A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "source_sha256": "534a20d92443850456fafa7bf5cf6c1b879ada5c2377d65701de93abdbe5874e",
+      "context": "A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "translation": "路径中可以包含空格，而在第一个空白处就截断路径的规则会把其余部分发布出去。``/Volumes/Lab Drive/Patient 042`` 被处理成了 ``<PATH> Drive/Patient 042``，而 ``C:\\Users\\anna\\OneDrive",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.apply#1",
+      "source": "SORTED BY WHAT THE PATH IS, not by drop order, so the same four files land in the same four fields however they are dropped.",
+      "source_sha256": "11f5bd9f2031bc4d04663db4a3f24adf44826033b7150d2e1082b97ac25a8e19",
+      "context": "SORTED BY WHAT THE PATH IS, not by drop order, so the same four files land in the same four fields however they are dropped.",
+      "translation": "按路径是什么来排序，而不是按拖放顺序，因此无论以何种方式拖放，同样的四个文件都会落入同样的四个字段。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design#7",
+      "source": "ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two plates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a plate map that says what each well holds rather than only whether it is chosen.",
+      "source_sha256": "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb",
+      "context": "ONE Laboratory microplate WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two laboratory microplates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a laboratory microplate map that says what each well holds rather than only whether it is chosen.",
+      "translation": "能只用一个板控件的地方就只用一个。方块、其尺寸所依据的常量以及行/列标题都来自 :mod:`spacr.qt.widgets.plate_map_picker`，而不是在这里再声明一次；这两个板此前已经出现过一次不一致。无法共享的是孔本身，而且这种差异是真实的而非历史遗留：选择器的孔是一个可勾选的 ``QPushButton``，其勾选状态“就是”选择本身，并用一对固定的颜色绘制自己；而这里的孔是一个 ``QLabel``，携带角色、边缘标记、名称和条件，由主题通过下面的属性绘制——这是一张说明每个孔中装着什么、而不仅仅是它是否被选中的板图。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#3",
+      "source": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two threads and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING THREAD, where the failure is a picture that differs from the one the GUI thread would have drawn. So the drive is an INPUT, set on the GUI thread between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
+      "context": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING Independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "translation": "为什么驱动信号在 :meth:`advance` 中读取，而不是在使用它的地方读取。其他每个引擎都承诺一帧是 ``(seed, clock, size)`` 的纯函数，并有两个测试确保这一点：一个在两个线程上对同一时钟着色并比较字节，另一个将一个引擎推进十二步，并让第二个引擎直接跳到同一时钟。在 :meth:`shade` 内部读取实时信号会破坏这两个测试，而且是在“着色线程”上破坏它们，此时的失败表现为一幅与 GUI 线程本应绘制的画面不同的图像。因此，驱动信号是一个“输入”，在帧与帧之间于 GUI 线程上、在引擎锁的保护下设置，与 :meth:`set_palette` 完全相同，承诺也随之变为“是 ``(seed, clock, size, drive)`` 的纯函数”——在没有播放任何内容时，这与原来的承诺相同，而测试正是在这种情况下运行的。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock#8",
+      "source": "WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly unwanted — but into the strip along the bottom of the window, which already exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered module for thirty seconds with its API and tutorial links. This dock only says which module is under the pointer, via :attr:`Dock.module_hovered`; the bar decides how to explain it.",
+      "source_sha256": "d77266e2252ddf0b4e5f8550d844cae2ab5a68feb9c9216f48d4c32bb3f98129",
+      "context": "WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly unwanted — but into the strip along the bottom of the window, which already exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered module for thirty seconds with its API and tutorial links. This dock only says which module is under the pointer, via :attr:`Dock.module_hovered`; the bar decides how to explain it.",
+      "translation": "解释去了哪里。不是放进弹出式工具提示——那是明确不想要的——而是放进窗口底部的那条栏，它已经以 :mod:`spacr.qt.widgets.module_hint_bar` 的形式存在，并且已经会把最后悬停的模块连同其 API 和教程链接保留三十秒。这个停靠栏只通过 :attr:`Dock.module_hovered` 说明指针下方是哪个模块；如何解释由该栏决定。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.loewe_surface#3",
+      "source": "WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve -- the dose achieving an observed effect -- and that dose does not exist when the observed effect lies outside a single agent's own plateaus. A combination that kills more than either agent can alone has no Loewe answer, and NaN is the honest one.",
+      "source_sha256": "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+      "context": "WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve -- the dose achieving an observed effect -- and that dose does not exist when the observed effect lies outside a single agent's own plateaus. A combination that kills more than either agent can alone has no Loewe answer, and NaN is the honest one.",
+      "translation": "为什么它可能是 NaN，而 Bliss 却不是：Loewe 需要“反向”曲线——即达到某一观测效应所需的剂量——而当观测效应超出单个药剂自身的平台区时，这个剂量并不存在。一个杀伤力超过任一药剂单独所能达到的组合没有 Loewe 答案，而 NaN 才是诚实的答案。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot.boundary_mask#1",
+      "source": "THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat colour as you descend into it; an exterior one escapes and the frame empties. Only the edge keeps producing detail at every magnification.",
+      "source_sha256": "37dd868299e0eba42140f631c1483eb37eef0a46dbd9e482bdc1849b562e90e8",
+      "context": "THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat colour as you descend into it; an exterior one escapes and the frame empties. Only the edge keeps producing detail at every magnification.",
+      "translation": "边界才是结构所在之处。内部点在你深入其中时会褪成平坦的颜色；外部点会逃逸，画面随之变空。只有边缘在每一级放大下都持续产生细节。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.regression_results.read_run_tables#2",
+      "source": "THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected them as their own family, wrote them to ``results_gene.csv``, and left ``results.csv`` holding guides alone -- so a reader who asked for genes was shown nothing while the rows sat in a file nothing opened. The writer is fixed, and this reads the older runs too, because a folder on disk does not update itself.",
+      "source_sha256": "44e5b5a94ff82c03a7b8f579d52e6741268ef61ee9db713b13e0cffdea28d58f",
+      "context": "THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected them as their own family, wrote them to ``results_gene.csv``, and left ``results.csv`` holding guides alone -- so a reader who asked for genes was shown nothing while the rows sat in a file nothing opened. The writer is fixed, and this reads the older runs too, because a folder on disk does not update itself.",
+      "translation": "置换路径并不总是这样做。它检验了基因，将其作为独立的一族进行校正，写入 ``results_gene.csv``，而让 ``results.csv`` 只保存引导 RNA——于是请求基因的读者什么也看不到，而这些行却躺在一个没有任何东西会打开的文件里。写入程序已经修复，而这里也会读取旧的运行结果，因为磁盘上的文件夹不会自行更新。",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_summary#12",
+      "source": "WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a run from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
+      "source_sha256": "89044fd753e29774a4026d8d0aad0a36d80d76f5866a53dd4d2a3df32e0be1f8",
+      "context": "WHERE IT GOES. The processing-session folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a processing session from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
+      "translation": "它存放在哪里。运行文件夹中，以 :data:`spacr.ml.SUMMARY_FILENAME` 为名——也就是 :func:`spacr.qt.widgets.regression_results.find_summary_file` 已经会读回的那个文件，因此从磁盘重新打开一次运行时，无需任何 GUI 改动即可显示这份摘要。statsmodels 文本（如果有的话）会被“原样”追加到末尾，而不是被替换。",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
