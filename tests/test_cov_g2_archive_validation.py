@@ -245,3 +245,74 @@ def test_the_zenodo_token_moves_into_a_refusing_or_willing_keyring(monkeypatch):
     assert rep._store_zenodo_token("tok-2") == "keyring"
     assert rep._load_zenodo_token() == "tok-2"
     assert rep._store_zenodo_token("") == "forgotten"
+
+
+class _Opener:
+    def __init__(self, outcome):
+        self.outcome = outcome
+
+    def open(self, request, timeout):
+        if isinstance(self.outcome, Exception):
+            raise self.outcome
+        outcome = self.outcome
+
+        class _Answer:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def read(self):
+                return outcome
+
+        return _Answer()
+
+
+@pytest.mark.parametrize("outcome, expected", [
+    (b"", {}),
+    (b"[1, 2]", {"items": [1, 2]}),
+])
+def test_zenodo_answers_are_decoded(monkeypatch, outcome, expected):
+    monkeypatch.setattr(rep, "_zenodo_opener", lambda: _Opener(outcome))
+    assert rep._zenodo_request("GET", "https://zenodo.example/api/x",
+                               "tok") == expected
+
+
+def test_zenodo_failures_name_the_problem_not_the_token(monkeypatch):
+    import io
+    import urllib.error
+
+    monkeypatch.setattr(rep, "_zenodo_opener", lambda: _Opener(b"<html>"))
+    with pytest.raises(RuntimeError, match="no JSON"):
+        rep._zenodo_request("GET", "https://zenodo.example/api/x", "tok")
+    refused = urllib.error.HTTPError("https://zenodo.example/api/x", 403,
+                                     "Forbidden", {}, io.BytesIO(b"not json"))
+    monkeypatch.setattr(rep, "_zenodo_opener", lambda: _Opener(refused))
+    with pytest.raises(RuntimeError, match="HTTP 403$"):
+        rep._zenodo_request("GET", "https://zenodo.example/api/x", "tok")
+    monkeypatch.setattr(rep, "_zenodo_opener",
+                        lambda: _Opener(urllib.error.URLError("no route")))
+    with pytest.raises(RuntimeError, match="Could not reach Zenodo"):
+        rep._zenodo_request("GET", "https://zenodo.example/api/x", "tok")
+
+
+def test_a_deposit_needs_a_token_a_bucket_and_matching_checksums(
+        monkeypatch, tmp_path):
+    with pytest.raises(ValueError, match="personal access token"):
+        rep._zenodo_deposit([], {}, " ")
+    monkeypatch.setattr(rep, "_zenodo_request",
+                        lambda method, url, token, **k: {"id": 1})
+    with pytest.raises(RuntimeError, match="no deposition with a file bucket"):
+        rep._zenodo_deposit([], {}, "tok", api="https://zenodo.example/api")
+    data = tmp_path / "a.zip"
+    data.write_bytes(b"payload")
+
+    def request(method, url, token, **kwargs):
+        if "bucket" in url:
+            return {"checksum": "md5:deadbeef"}
+        return {"id": 1, "links": {"bucket": "https://zenodo.example/bucket/1"}}
+
+    monkeypatch.setattr(rep, "_zenodo_request", request)
+    with pytest.raises(RuntimeError, match="different a.zip"):
+        rep._zenodo_deposit([data], {}, "tok", api="https://zenodo.example/api")
