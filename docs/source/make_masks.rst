@@ -472,6 +472,33 @@ channel, the masks and ``merged/``, and every move is recorded in
 ``sorted_channels`` folder. See :func:`spacr.channel_sorting.build_plan`
 and :ref:`Measure inputs and outputs <workflow-module-measure>`.
 
+Organize images in Mask Generation and Import Images
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The same popup, titled **Organize images**, also opens from two other
+modules. It fills its table the same ways: by regex, by dropping files and
+folders into the columns, or with **Teach me…**.
+
+* In **Mask Generation**, **Organize images…** above ``src`` arranges
+  intensity images, from any folder structure or naming, into the one folder
+  of Yokogawa-named images that Mask Generation reads. It has channel columns
+  only. After the move, ``src`` points at that folder, ``metadata_type`` is
+  set to ``cellvoyager``, ``channels`` lists the organized channels, and the
+  folder is added to the module's recent sources.
+* In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…**
+  takes intensity images and masks. **Write for** chooses the layout:
+  **Mask Generation** writes one folder of Yokogawa-named images with the
+  masks in its ``masks/`` folder, and **Measure** writes the channel folders,
+  the masks and ``merged/`` as Organize for Measure does. The organized
+  folder is then first in that module's recent sources.
+
+A file that holds several channels is split rather than refused: choose
+**Split multi-channel files**, or accept the offer when you press **Apply**.
+Each plane is copied into ``split_channels/`` with one channel column per
+plane, and the original files are not touched. Files move in the
+background, and the manifest records every move. If a move fails, the
+message names the error, and the manifest lists every move made before it.
+
 Upload data
 -----------
 
