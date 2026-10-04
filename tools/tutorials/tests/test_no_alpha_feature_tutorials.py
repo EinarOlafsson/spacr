@@ -20,6 +20,10 @@ import pytest
 
 from spacr import settings as spacr_settings
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from capture_policy import ALPHA_LESSONS, alpha_lesson_kind  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[3]
 LESSONS = sorted((REPO / "tools" / "tutorials" / "lessons").glob("*.json"))
 PUBLISHED_CATALOG = REPO / "docs" / "source" / "_extra" / "tutorials" / "catalog" / "lessons_en.json"
@@ -224,13 +228,41 @@ def _is_preferences_lesson(lesson):
                for field in ("id", "slug", "app_key", "host_app_key"))
 
 
+#: The Show alpha species setting, by the names a lesson would use.
+SPECIES_TOGGLE_TERMS = ("Show alpha species", "alpha species", "show_alpha_species")
+
+
+def _species_registry_names():
+    """Every name registered under ALPHA_SPECIES, with widget labels."""
+    names = set()
+    for entry in spacr_settings.ALPHA_SPECIES.values():
+        names.update(entry.get("apps", ()) or ())
+        for widget in entry.get("widgets", ()) or ():
+            names.add(widget)
+            names.update(WIDGET_LABELS.get(widget, ()))
+    return names
+
+
+def is_alpha_species_lesson(lesson):
+    """The maintainer's exception (2026-10-04): the one allow-listed species
+    lesson, and only while its title says Alpha, may show the organism pages
+    behind Show alpha species and name that setting. Nothing else is lifted."""
+    return (alpha_lesson_kind(lesson.get("id")) == "species"
+            and str(lesson.get("title", "")).startswith("Alpha"))
+
+
 def alpha_references(lesson, *, alpha_apps=()):
     """Every place ``lesson`` names an alpha feature, as readable strings."""
     found = []
+    species_lesson = is_alpha_species_lesson(lesson)
+    species_names = _species_registry_names() if species_lesson else set()
     if lesson.get("app_key") in alpha_apps or lesson.get("host_app_key") in alpha_apps:
-        found.append(f"app_key: alpha module {lesson.get('app_key')}")
-    terms = [(_pattern(term), what) for term, what in _registry_terms()]
-    toggle = [_pattern(term) for term in TOGGLE_TERMS]
+        if not (species_lesson and lesson.get("app_key") in species_names):
+            found.append(f"app_key: alpha module {lesson.get('app_key')}")
+    terms = [(_pattern(term), what) for term, what in _registry_terms()
+             if term not in species_names]
+    toggle = [_pattern(term) for term in TOGGLE_TERMS
+              if not (species_lesson and term in SPECIES_TOGGLE_TERMS)]
     for where, text in _strings(lesson):
         for pattern, what in terms:
             if pattern.search(text):
@@ -372,7 +404,7 @@ def species_references(lesson):
     its own organism until it is withdrawn; no other lesson may.
     """
     own = lesson.get("app_key") if lesson.get("app_key") in PUBLISHED_SPECIES_LESSONS else None
-    if own:
+    if own or is_alpha_species_lesson(lesson):
         return []
     return [f"{where}: {what}" for where, text in _strings(lesson)
             for pattern, what in _species_terms() if pattern.search(text)]
@@ -406,3 +438,46 @@ def test_the_species_guard_spares_toxoplasma_and_candidate():
     assert species_references(lesson) == []
     lesson["scenes"][0]["narration"] = "Open Assays and choose Candida."
     assert species_references(lesson)
+
+
+def _species_lesson(lesson_id="86_alpha_organism_modules", title="Alpha: organism modules"):
+    return {"id": lesson_id, "title": title, "scenes": [{"narration":
+            "In Preferences, turn on Show alpha species. Open Plasmodium, then "
+            "Candida, Trypanosoma, Leishmania, Giardia, Virus infection and "
+            "Mammalian cells."}]}
+
+
+def test_the_alpha_lessons_allow_list_is_narrow():
+    assert ALPHA_LESSONS.get("86_alpha_organism_modules") == "species"
+    assert set(ALPHA_LESSONS.values()) <= {"species", "features"}
+    assert len(ALPHA_LESSONS) <= 2
+
+
+def test_only_the_allow_listed_species_lesson_may_show_alpha_species():
+    allowed = _species_lesson()
+    assert species_references(allowed) == []
+    assert alpha_references(allowed, alpha_apps=_alpha_apps()) == []
+    for other in (_species_lesson("05_home"), _species_lesson("87_other_alpha"),
+                  _species_lesson(title="Organism modules")):
+        assert species_references(other), other["id"]
+        assert alpha_references(other, alpha_apps=_alpha_apps()), other["id"]
+
+
+def test_the_species_lesson_still_may_not_show_an_alpha_feature():
+    lesson = _species_lesson()
+    lesson["scenes"].append({"narration": "Turn on Show alpha features too."})
+    assert any("Show alpha features setting" in item
+               for item in alpha_references(lesson, alpha_apps=_alpha_apps()))
+    lesson["scenes"][-1]["narration"] = "Open Measure and turn on Confluency."
+    assert any("onfluency" in item for item in alpha_references(lesson, alpha_apps=_alpha_apps()))
+
+
+def test_the_capture_policy_refuses_species_frames_for_any_other_lesson(monkeypatch):
+    import capture_policy
+    from spacr.qt import preferences as prefs
+    monkeypatch.setattr(prefs, "_get_show_alpha_species", lambda: True)
+    monkeypatch.setattr(capture_policy, "_alpha_features_shown", lambda: False)
+    capture_policy.verify_alpha_features_off(alpha_lesson="86_alpha_organism_modules")
+    for other in (None, "05_home", "87_other_alpha"):
+        with pytest.raises(RuntimeError):
+            capture_policy.verify_alpha_features_off(alpha_lesson=other)

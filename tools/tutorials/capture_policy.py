@@ -22,6 +22,20 @@ ALPHA_FEATURES_KEY = "prefs/show_alpha_features"
 #: Every recording runs with it off too; only Toxoplasma may appear.
 ALPHA_SPECIES_KEY = "prefs/show_alpha_species"
 
+#: The maintainer's exception (2026-10-04): exactly these lessons may show
+#: alpha content, each only the kind named here ("species": the organism
+#: pages behind Show alpha species; "features": Show alpha features). Every
+#: other lesson stays alpha OFF. test_no_alpha_feature_tutorials reads this
+#: same table, so the allow-list lives in one place.
+ALPHA_LESSONS = {
+    "86_alpha_organism_modules": "species",
+}
+
+
+def alpha_lesson_kind(lesson_id):
+    """The alpha kind ``lesson_id`` may show, or None for every other lesson."""
+    return ALPHA_LESSONS.get(lesson_id)
+
 
 def _alpha_features_shown():
     """Whether the running app would show alpha features right now."""
@@ -78,18 +92,21 @@ def force_alpha_features_off_in_profiles(config_homes):
     return written
 
 
-def verify_alpha_features_off(*, allow_alpha_toggle_scene=False):
+def verify_alpha_features_off(*, allow_alpha_toggle_scene=False, alpha_lesson=None):
     """Refuse a frame while the running app shows alpha features.
 
     :param allow_alpha_toggle_scene: the explicit opt-in for a Preferences
         lesson scene that shows the Show alpha features toggle itself.
+    :param alpha_lesson: the lesson being recorded; only a lesson listed in
+        :data:`ALPHA_LESSONS` as ``"species"`` may record with Show alpha
+        species on.
     :returns: whether alpha features are shown (only ever True with the
         opt-in).
     """
     from spacr.qt import preferences as prefs
 
     species = getattr(prefs, "_get_show_alpha_species", None)
-    if species is not None and species():
+    if species is not None and species() and alpha_lesson_kind(alpha_lesson) != "species":
         raise RuntimeError(
             "Capture refused: Preferences -> Show alpha species is on. Only "
             "Toxoplasma may appear in a tutorial; record with it off")
@@ -116,7 +133,7 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP):
     force_alpha_features_off()
 
 
-def verify_appearance(window, *, allow_alpha_toggle_scene=False):
+def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=None):
     """Check the effective palette and the backdrop widgets being painted.
 
     Also refuses the frame while Show alpha features is on, unless
@@ -129,7 +146,7 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False):
     from spacr.qt.widgets.dna_rain import DnaRainWidget
 
     alpha_shown = verify_alpha_features_off(
-        allow_alpha_toggle_scene=allow_alpha_toggle_scene)
+        allow_alpha_toggle_scene=allow_alpha_toggle_scene, alpha_lesson=alpha_lesson)
     if prefs.resolve_effective_theme() != CAPTURE_THEME:
         raise RuntimeError("Capture refused: the effective theme is not dark")
     if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != CAPTURE_BACKDROP:

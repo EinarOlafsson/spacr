@@ -105,6 +105,8 @@ def main() -> int:
     parser.add_argument('--clear-console-after-load', action='store_true', help='Press Clear console after the example loads (its report lists hidden alpha setting names)')
     parser.add_argument('--measure-qc-tour', action='store_true', help='Record the QC switch popup and the Image Preprocessing category after loading Measure data')
     parser.add_argument('--timeout', type=float, default=600)
+    parser.add_argument('--alpha-lesson', help='The allow-listed alpha lesson being recorded (capture_policy.ALPHA_LESSONS); '
+                        'only it may record with its alpha kind shown')
     parser.add_argument('--preferences-alpha-toggle-scene', action='store_true',
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
@@ -121,6 +123,14 @@ def main() -> int:
         parser.error('--pca-host-only requires pca without run/download/preview')
     if args.openings and (args.module != 'home' or args.run or args.download or args.preview):
         parser.error('--openings requires --module home without run/download/preview')
+    if args.alpha_lesson is not None:
+        from capture_policy import alpha_lesson_kind
+        if alpha_lesson_kind(args.alpha_lesson) is None:
+            parser.error('--alpha-lesson must name a lesson in capture_policy.ALPHA_LESSONS')
+        if args.alpha_lesson == '86_alpha_organism_modules' and args.module != 'alpha_organisms':
+            parser.error('--alpha-lesson 86_alpha_organism_modules records only --module alpha_organisms')
+    if args.module == 'alpha_organisms' and args.alpha_lesson != '86_alpha_organism_modules':
+        parser.error('--module alpha_organisms requires --alpha-lesson 86_alpha_organism_modules')
     if args.preferences_alpha_toggle_scene and (args.run or args.download or args.preview):
         parser.error('--preferences-alpha-toggle-scene records only the Preferences toggle, without run/download/preview')
     if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
@@ -362,7 +372,8 @@ def main() -> int:
         if hidden_backdrops:
             settle(.2)
         appearance = verify_appearance(
-            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene)
+            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,
+            alpha_lesson=args.alpha_lesson)
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         except RuntimeError:
@@ -497,6 +508,9 @@ def main() -> int:
         finally:
             if browser is not None:
                 browser.close()
+    elif args.module == 'alpha_organisms':
+        from capture_alpha_organisms import record_alpha_organisms
+        record_alpha_organisms(app, window, stage, captures, capture, settle, write_json)
     elif args.module in ('toxoplasma', 'plasmodium', 'candida'):
         from capture_organisms import record_organism
         record_organism(app, window, stage, captures, capture, settle, write_json, args.module)
