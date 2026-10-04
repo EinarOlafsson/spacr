@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Home की Data श्रेणी से Import खोलें। मौजूदा इमेज, इंस्टेंस मास्क और माप को spaCR प्रोजेक्ट में लाने के लिए यह स्क्रीन इस्तेमाल करें।",
     "आपके पास जो है उसके अनुसार आयात टूल चुनें: केवल इमेज के लिए Import Images या Format Converter, मास्क वाली इमेज के लिए External Masks। यह स्क्रीन इमेज, मास्क और माप तालिका तीनों को एक साथ लेती है।",
+    "अगर आपकी इमेज और मास्क को अभी छाँटना बाकी है, तो Import Images खोलें और Organize images and masks पर क्लिक करें। हर चैनल और मास्क को एक कॉलम दें, चुनें कि Mask Generation के लिए लिखना है या Measure के लिए, और ज़रूरत हो तो कई चैनल वाली फ़ाइलें बाँटें। Apply उन्हें उस संरचना में ले जाता है जिसे वह मॉड्यूल पढ़ता है, ताकि वे वहाँ खोलने के लिए तैयार रहें।",
     "इमेज फ़ोल्डर चुनें। उदाहरण में माइक्रोस्कोपी के दो फ़ील्ड हैं, जिनमें एक तीव्रता चैनल और मेल खाते कोशिका लेबल हैं। हर फ़ाइल की मूल प्लेट, वेल और फ़ील्ड का रिकॉर्ड रखें।",
     "Cell mask फ़ोल्डर चुनें और Add दबाएँ। हर वस्तु का अपना पूर्णांक लेबल होना चाहिए। जब उन्हीं फ़ील्डों के लिए मेल खाते लेबल हों, तो और मास्क वर्ग जोड़ें।",
     "माप CSV चुनें। ImageNumber को हर फ़ील्ड से और ObjectNumber को उसके मास्क लेबल से मिलाएँ। अलग-अलग फ़ील्डों में वस्तुओं को पहचानने के लिए दोनों पहचानकर्ता इस्तेमाल करें।",

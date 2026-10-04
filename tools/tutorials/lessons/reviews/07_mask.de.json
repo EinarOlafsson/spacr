@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,6 +20,7 @@
   "prerequisite": "Öffnen Sie Mask und wählen Sie Load test data. Bereiten Sie für eigene Bilder einen Quellordner mit einheitlichen Dateinamen und bekannten Kanälen vor. Dieses Beispiel verwendet Kernkanal 0, Zellkanal 1 und Pathogenkanal 2 sowie einen zusätzlichen Intensitätskanal 3.",
   "scenes": [
     "Öffnen Sie von Home aus Mask. Mit diesem Modul umranden Sie Zellen, Kerne und Pathogene in Mikroskopbildern. Diese Anleitung verarbeitet zweidimensionale Bilder. Die Workflows für Time, 3D und OPS haben eigene Tutorials.",
+    "Wenn Ihre Bilder über mehrere Ordner verteilt sind oder Namen tragen, die Mask nicht lesen kann, klicken Sie oben in Input & Metadata auf Organize images. Geben Sie jedem Kanal eine Spalte, indem Sie seinen Ordner hineinziehen oder eine Regex verwenden, und prüfen Sie, dass jede Zeile ein vollständiges Bildfeld ist. Apply verschiebt die Bilder in einen Ordner mit Yokogawa-Namen und richtet Source darauf aus, mit bereits eingetragenen Kanälen.",
     "Klicken Sie auf Load test data und warten Sie, bis das Mikroskopiebeispiel geladen ist. Prüfen Sie Source, bevor Sie fortfahren. Wählen Sie für eigene Bilder deren Ordner und prüfen Sie, dass die Dateinamen Platte, Well, Bildfeld und Kanal angeben.",
     "Gleichen Sie die Kanalzuordnungen mit den Bildern ab. In diesem Beispiel ist die Kernintensität Kanal 0, die Zellintensität Kanal 1 und die Pathogenintensität Kanal 2. Kanal 3 ist ein zusätzliches Intensitätsbild. Wählen Sie nur die Objekttypen, die in Ihrem Experiment vorkommen.",
     "Unter den Eingaben enthält die Tabelle der objektbezogenen Einstellungen, was Sie für jedes Objekt wählen. Jedes Objekt ist eine Spalte, hier Zelle, Kern und Pathogen, und jede Zeile stellt eine Frage: ob der Hintergrund entfernt wird, der Objektdurchmesser, das Segmentierungsmodell, der Hintergrundwert und die Grenze für das Signal-Rausch-Verhältnis. Add a filter fügt eine Zeile hinzu, die Objekte nach einer gemessenen Eigenschaft wie der Fläche entfernt, und Add an organelle fügt eine weitere Objektspalte hinzu.",

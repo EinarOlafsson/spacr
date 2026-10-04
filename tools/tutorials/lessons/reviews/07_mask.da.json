@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,6 +20,7 @@
   "prerequisite": "Åbn Mask, og vælg Load test data. Til dine egne billeder forbereder du en kildemappe med ensartede filnavne og kendte kanaler. Eksemplet bruger kernekanal 0, cellekanal 1 og patogenkanal 2 samt en ekstra intensitetskanal 3.",
   "scenes": [
     "Fra Home åbner du Mask. Brug dette modul til at afgrænse celler, kerner og patogener i mikroskopbilleder. Denne gennemgang behandler todimensionelle billeder. Workflowene til Time, 3D og OPS har deres egne vejledninger.",
+    "Hvis dine billeder ligger spredt i flere mapper eller har navne, som Mask ikke kan læse, klikker du på Organize images øverst i Input & Metadata. Giv hver kanal en kolonne, ved at slippe dens mappe eller med en regex, og kontrollér, at hver række er ét komplet synsfelt. Apply flytter billederne til én mappe med Yokogawa-navne og peger Source på den, med kanalerne allerede udfyldt.",
     "Klik på Load test data, og vent, til mikroskopieksemplet er indlæst. Kontrollér Source, før du fortsætter. Til dine egne billeder vælger du deres mappe og bekræfter, at filnavnene angiver plade, brønd, synsfelt og kanal.",
     "Sammenhold kanaltildelingerne med billederne. I dette eksempel er kerneintensiteten kanal 0, celleintensiteten kanal 1 og patogenintensiteten kanal 2. Kanal 3 er et ekstra intensitetsbillede. Vælg kun de objekttyper, der findes i dit eksperiment.",
     "Under inputtene rummer tabellen med indstillinger pr. objekt det, du vælger for hvert objekt. Hvert objekt er en kolonne, her celle, kerne og patogen, og hver række stiller ét spørgsmål: om baggrunden skal fjernes, objektets diameter, segmenteringsmodellen, baggrundsniveauet og grænsen for signal-støj-forholdet. Add a filter tilføjer en række, der fjerner objekter efter en målt egenskab som areal, og Add an organelle tilføjer endnu en objektkolonne.",

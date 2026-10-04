@@ -27,6 +27,11 @@
       ]
     },
     {
+      "visual": "org_organize_popup",
+      "narration": "When you also have masks, click Organize images and masks beside the image folder. Drop each channel folder and the mask folder into their columns, set the mask's role, and under Write for choose Mask Generation or Measure. Files with several channels can be split into one column per channel first; Apply moves everything into that module's layout and records each move in a manifest.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "04_source_options",
       "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
       "hold_after": 0.7,

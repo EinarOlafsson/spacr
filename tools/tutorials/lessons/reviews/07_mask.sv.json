@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,6 +20,7 @@
   "prerequisite": "Öppna Mask och välj Load test data. För egna bilder förbereder du en källmapp med konsekventa filnamn och kända kanaler. Exemplet använder kärnkanal 0, cellkanal 1 och patogenkanal 2, samt en extra intensitetskanal 3.",
   "scenes": [
     "Från Home öppnar du Mask. Använd modulen för att avgränsa celler, kärnor och patogener i mikroskopbilder. Den här genomgången bearbetar tvådimensionella bilder. Arbetsflödena för Time, 3D och OPS har egna handledningar.",
+    "Om dina bilder ligger utspridda i flera mappar eller har namn som Mask inte kan läsa klickar du på Organize images högst upp i Input & Metadata. Ge varje kanal en kolumn, genom att släppa dess mapp eller med en regex, och kontrollera att varje rad är ett komplett synfält. Apply flyttar bilderna till en mapp med Yokogawa-namn och pekar Source dit, med kanalerna redan ifyllda.",
     "Klicka på Load test data och vänta tills mikroskopiexemplet har lästs in. Kontrollera Source innan du fortsätter. För egna bilder väljer du deras mapp och kontrollerar att filnamnen anger platta, brunn, synfält och kanal.",
     "Kontrollera kanaltilldelningarna mot bilderna. I exemplet är kärnintensiteten kanal 0, cellintensiteten kanal 1 och patogenintensiteten kanal 2. Kanal 3 är en extra intensitetsbild. Välj bara de objekttyper som finns i ditt experiment.",
     "Under indata samlar tabellen med inställningar per objekt det du väljer för varje objekt. Varje objekt är en kolumn, här cell, kärna och patogen, och varje rad ställer en fråga: om bakgrunden ska tas bort, objektets diameter, segmenteringsmodellen, bakgrundsnivån och gränsen för signal-brus-förhållandet. Add a filter lägger till en rad som tar bort objekt efter en mätt egenskap som yta, och Add an organelle lägger till ytterligare en objektkolumn.",

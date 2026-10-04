@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "Laden Sie zuerst das Mask-Beispiel herunter. Diese Anleitung verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit je vier Kanälen. Die vorbereiteten Kopien lassen das überflüssige Token A direkt vor Z weg und erhalten die Identitäten von Well, Bildfeld und Kanal. Bewahren Sie die Originale auf und klären Sie unbekannte Tokens anhand der Aufnahmeprotokolle.",
   "scenes": [
     "Öffnen Sie von Home aus Data, wählen Sie Import und dann Import Images. Beginnen Sie mit den Mikroskopbilddateien, die Sie in einem Projekt ordnen möchten.",
+    "Wenn Sie auch Masken haben, klicken Sie neben dem Bildordner auf Organize images and masks. Ziehen Sie jeden Kanalordner und den Maskenordner in ihre Spalten, legen Sie die Rolle der Maske fest und wählen Sie unter Write for Mask Generation oder Measure. Mehrkanaldateien lassen sich zuerst in eine Spalte pro Kanal aufteilen; Apply verschiebt alles in die Struktur dieses Moduls und hält jede Verschiebung in einem Manifest fest.",
     "Verwenden Sie für diese Anleitung das Mask-Beispiel. Wählen Sie Kopien je eines Bildfelds aus zwei Wells mit vier Kanälen pro Bildfeld. Lassen Sie den ursprünglichen Download unverändert.",
     "Klicken Sie auf Scan. Wenn gefragt wird, was ein Token im Dateinamen bedeutet, prüfen Sie die Aufnahmeprotokolle, bevor Sie es zuordnen. Fahren Sie erst fort, wenn die vorgeschlagenen Identitäten Bildfelder und Kanäle eindeutig unterscheiden.",
     "Scannen Sie die vorbereiteten Beispielkopien. Ihr überflüssiges Aufnahme-Token wurde entfernt, die Tokens für Well, Bildfeld und Kanal bleiben erhalten. Prüfen Sie, dass der Vorschlag acht Bilder, zwei Wells, zwei Bildfeldnummern und vier Kanäle aufführt.",

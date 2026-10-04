@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "I kategorin Data på Home öppnar du Import. Använd skärmen för att ta in befintliga bilder, instansmasker och mätningar i ett spaCR-projekt.",
     "Välj importverktyg efter vad du har: Import Images eller Format Converter för enbart bilder, External Masks för bilder med masker. Den här skärmen tar emot bilder, masker och en mättabell tillsammans.",
+    "Om dina bilder och masker fortfarande behöver sorteras öppnar du Import Images och klickar på Organize images and masks. Ge varje kanal och mask en kolumn, välj om det ska skrivas för Mask Generation eller Measure, och dela upp filer med flera kanaler vid behov. Apply flyttar dem till den struktur som modulen läser, redo att öppnas där.",
     "Välj bildmappen. Exemplet använder två mikroskopisynfält med en intensitetskanal och matchande celletiketter. Anteckna varje fils ursprungliga platta, brunn och synfält.",
     "Välj mappen för Cell mask och tryck på Add. Varje objekt behöver en egen heltalsetikett. Lägg till fler maskklasser när du har motsvarande etiketter för samma synfält.",
     "Välj CSV-filen med mätningar. Koppla ImageNumber till varje synfält och ObjectNumber till dess masketikett. Använd båda identifierarna för att skilja objekt åt mellan synfält.",

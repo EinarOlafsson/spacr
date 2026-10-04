@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Dans la catégorie Data de Home, ouvrez Import. Utilisez cet écran pour intégrer à un projet spaCR des images, des masques d’instances et des mesures existants.",
     "Choisissez l’outil d’import selon votre point de départ : Import Images ou Format Converter pour des images seules, External Masks pour des images avec masques. Cet écran prend à la fois des images, des masques et une table de mesures.",
+    "Si vos images et masques doivent encore être triés, ouvrez Import Images et cliquez sur Organize images and masks. Attribuez une colonne à chaque canal et à chaque masque, choisissez d’écrire pour Mask Generation ou pour Measure, et séparez les fichiers multicanaux si nécessaire. Apply les déplace dans l’organisation que lit ce module, prêts à y être ouverts.",
     "Choisissez le dossier d’images. L’exemple utilise deux champs de microscopie avec un canal d’intensité et les étiquettes de cellules correspondantes. Notez la plaque, le puits et le champ d’origine de chaque fichier.",
     "Choisissez le dossier Cell mask et appuyez sur Add. Chaque objet doit avoir sa propre étiquette entière. Ajoutez d’autres classes de masques si vous disposez d’étiquettes correspondantes pour les mêmes champs.",
     "Choisissez le CSV de mesures. Associez ImageNumber à chaque champ et ObjectNumber à son étiquette de masque. Utilisez les deux identifiants pour distinguer les objets d’un champ à l’autre.",

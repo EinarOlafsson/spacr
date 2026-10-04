@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,6 +20,7 @@
   "prerequisite": "Abre Mask y elige Load test data. Para tus propias imágenes, prepara una carpeta de origen con nombres de archivo coherentes y canales conocidos. Este ejemplo usa el canal de núcleos 0, el canal de células 1 y el canal de patógenos 2, con un canal de intensidad adicional 3.",
   "scenes": [
     "Desde Home, abre Mask. Usa este módulo para delimitar células, núcleos y patógenos en imágenes de microscopio. Este recorrido procesa imágenes bidimensionales. Los flujos de Time, tridimensional y OPS tienen sus propios tutoriales.",
+    "Si tus imágenes están repartidas en varias carpetas o tienen nombres que Mask no puede leer, haz clic en Organize images en la parte superior de Input & Metadata. Da a cada canal una columna, soltando su carpeta o con una expresión regular, y comprueba que cada fila sea un campo completo. Apply mueve las imágenes a una carpeta con nombres de Yokogawa y apunta Source a ella, con los canales ya completados.",
     "Haz clic en Load test data y espera a que se cargue el ejemplo de microscopía. Comprueba Source antes de continuar. Para tus propias imágenes, selecciona su carpeta y confirma que los nombres de archivo identifican la placa, el pocillo, el campo y el canal.",
     "Compara las asignaciones de canales con las imágenes. En este ejemplo, la intensidad de los núcleos es el canal cero, la de las células es el canal uno y la de los patógenos es el canal dos. El canal tres es una imagen de intensidad adicional. Elige solo los tipos de objeto presentes en tu experimento.",
     "Debajo de las entradas, la tabla de ajustes por objeto reúne lo que elige para cada objeto. Cada objeto es una columna, aquí célula, núcleo y patógeno, y cada fila plantea una pregunta: si se elimina el fondo, el diámetro del objeto, el modelo de segmentación, el nivel de fondo y el umbral de relación señal-ruido. Add a filter añade una fila que elimina objetos según una propiedad medida, como el área, y Add an organelle añade otra columna de objeto.",

@@ -77,6 +77,7 @@ def main() -> int:
     parser.add_argument('--workflow-lesson', choices=('78_spacr_screens', '79_module_inputs_outputs', '80_image_analysis_pathways', '81_sequencing_pathways'),
                         default='78_spacr_screens', help='Workflow map lesson to record through native navigation')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
+    parser.add_argument('--organize-popup', action='store_true', help='Mask or Import Images: open the item 639 organizer through its button, fill it with private example copies, capture and cancel')
     parser.add_argument('--model-zoo-additions', action='store_true', help='With --module model_zoo, also record the Cellpose 3 and bioimage.io headings (needs network) and Mask generation\'s Measure diameters popup on stage/mask_src')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
     parser.add_argument('--barcode-reference-source', type=Path, help='Existing validated plain/reverse-complement reference pairs to copy into the private barcode recording')
@@ -739,6 +740,14 @@ def main() -> int:
         settle(2)
         screen = window._screens[host_key]
         capture('01_module')
+        if args.organize_popup:
+            from capture_organize_popup import record_organize_popup
+            target = screen
+            if args.module == 'import_images':
+                from capture_image_import import open_import_images
+                target = open_import_images(app, window, screen, capture, settle)
+            record_organize_popup(app, window, target, stage, captures, capture, settle,
+                                  write_json, module=args.module)
         if args.module == 'agreement':
             from capture_agreement import record_agreement
             record_agreement(app, window, screen, stage, captures, capture,
@@ -766,7 +775,7 @@ def main() -> int:
                           readouts_only=args.mask_readouts_tour and not args.mask_editor_tour,
                           include_readouts=args.mask_readouts_tour and args.mask_editor_tour,
                           curation_organize=args.mask_curation_organize)
-        if args.module == 'import_images':
+        if args.module == 'import_images' and not args.organize_popup:
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
                                    capture, settle, write_json, args.timeout)

@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "Nella categoria Data di Home, apri Import. Usa questa schermata per portare in un progetto spaCR immagini, maschere di istanza e misure già esistenti.",
     "Scegli lo strumento di importazione in base a ciò da cui parti: Import Images o Format Converter per le sole immagini, External Masks per immagini con maschere. Questa schermata accetta insieme immagini, maschere e una tabella di misure.",
+    "Se le tue immagini e maschere vanno ancora ordinate, apri Import Images e fai clic su Organize images and masks. Assegna una colonna a ogni canale e maschera, scegli se scrivere per Mask Generation o per Measure, e dividi i file multicanale quando serve. Apply li sposta nella struttura che quel modulo legge, pronti per essere aperti lì.",
     "Scegli la cartella delle immagini. L’esempio usa due campi di microscopia con un canale di intensità e le etichette cellulari corrispondenti. Annota piastra, pozzetto e campo originali di ogni file.",
     "Scegli la cartella Cell mask e premi Add. Ogni oggetto deve avere la propria etichetta intera. Aggiungi altre classi di maschere quando hai etichette corrispondenti per gli stessi campi.",
     "Scegli il CSV delle misure. Abbina ImageNumber a ogni campo e ObjectNumber alla sua etichetta di maschera. Usa entrambi gli identificatori per distinguere gli oggetti tra i campi.",

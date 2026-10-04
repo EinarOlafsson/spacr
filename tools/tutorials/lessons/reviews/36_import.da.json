@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "I kategorien Data på Home åbner du Import. Brug denne skærm til at hente eksisterende billeder, instansmasker og målinger ind i et spaCR-projekt.",
     "Vælg importværktøj efter, hvad du har: Import Images eller Format Converter til billeder alene, External Masks til billeder med masker. Denne skærm modtager billeder, masker og en måletabel samlet.",
+    "Hvis dine billeder og masker stadig skal sorteres, åbner du Import Images og klikker på Organize images and masks. Giv hver kanal og maske en kolonne, vælg, om der skal skrives til Mask Generation eller Measure, og opdel filer med flere kanaler efter behov. Apply flytter dem til den struktur, som modulet læser, klar til at blive åbnet der.",
     "Vælg billedmappen. Eksemplet bruger to mikroskopisynsfelter med én intensitetskanal og matchende cellelabels. Notér hver fils oprindelige plade, brønd og synsfelt.",
     "Vælg mappen til Cell mask, og tryk på Add. Hvert objekt skal have sin egen heltalslabel. Tilføj flere maskeklasser, når du har tilsvarende labels til de samme synsfelter.",
     "Vælg CSV-filen med målinger. Forbind ImageNumber med hvert synsfelt og ObjectNumber med dets maskelabel. Brug begge identifikatorer til at skelne objekter på tværs af synsfelter.",

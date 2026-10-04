@@ -31,6 +31,11 @@
       ]
     },
     {
+      "visual": "org_organize_popup",
+      "narration": "If your images and masks still need sorting, open Import Images and click Organize images and masks. Give each channel and mask a column, choose whether to write for Mask Generation or Measure, and split multi-channel files when needed. Apply moves them into the layout that module reads, ready to open there.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "03_choose_images",
       "narration": "Choose the image folder. The example uses two microscopy fields with one intensity channel and matching cell labels. Keep a record of each file’s original plate, well and field.",
       "hold_after": 0.7,

@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "先にMaskの例をダウンロードします。このチュートリアルでは、視野E01/F001とL01/F009のコピーを使い、それぞれ四つのチャンネルがあります。用意したコピーでは、Zの直前にある余分なAの要素を省き、ウェル、視野、チャンネルの識別情報は残しています。元のファイルは保管し、見慣れない要素は撮像の記録で確かめます。",
   "scenes": [
     "HomeからDataを開き、Importを選んでからImport Imagesを選びます。プロジェクトにまとめたい顕微鏡画像のファイルから始めます。",
+    "マスクもある場合は、画像フォルダーの横にあるOrganize images and masksをクリックします。各チャンネルのフォルダーとマスクフォルダーをそれぞれの列にドロップし、マスクの役割を設定して、Write forでMask GenerationかMeasureを選びます。複数チャンネルのファイルは、先にチャンネルごとの列に分割できます。Applyはすべてをそのモジュールの構成に移動し、各移動をマニフェストに記録します。",
     "このチュートリアルではMaskの例を使います。二つのウェルからそれぞれ一つの視野のコピーを選びます。各視野には四つのチャンネルがあります。元のダウンロードは変更しません。",
     "Scanをクリックします。ファイル名の要素の意味を聞かれたら、割り当てる前に撮像の記録を確認します。提案された識別情報で視野とチャンネルがはっきり区別できるときだけ先に進みます。",
     "用意した例のコピーをスキャンします。余分な撮像の要素は取り除かれ、ウェル、視野、チャンネルの要素は残っています。提案に、画像八枚、ウェル二つ、視野番号二つ、チャンネル四つが表示されることを確認します。",

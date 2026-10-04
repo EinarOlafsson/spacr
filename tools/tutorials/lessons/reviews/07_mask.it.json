@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,6 +20,7 @@
   "prerequisite": "Apri Mask e scegli Load test data. Per le tue immagini, prepara una cartella di origine con nomi di file coerenti e canali noti. Questo esempio usa il canale dei nuclei 0, il canale delle cellule 1 e il canale dei patogeni 2, con un ulteriore canale di intensità 3.",
   "scenes": [
     "Da Home, apri Mask. Usa questo modulo per delineare cellule, nuclei e patogeni nelle immagini al microscopio. Questa procedura elabora immagini bidimensionali. I flussi Time, tridimensionale e OPS hanno tutorial dedicati.",
+    "Se le tue immagini sono sparse in più cartelle o hanno nomi che Mask non sa leggere, fai clic su Organize images in cima a Input & Metadata. Assegna una colonna a ogni canale, trascinandone la cartella o con una regex, e verifica che ogni riga sia un campo completo. Apply sposta le immagini in un’unica cartella con nomi Yokogawa e vi punta Source, con i canali già compilati.",
     "Fai clic su Load test data e attendi il caricamento dell’esempio di microscopia. Controlla Source prima di continuare. Per le tue immagini, seleziona la loro cartella e verifica che i nomi dei file identifichino piastra, pozzetto, campo e canale.",
     "Confronta le assegnazioni dei canali con le immagini. In questo esempio, l’intensità dei nuclei è il canale zero, quella delle cellule il canale uno e quella dei patogeni il canale due. Il canale tre è un’ulteriore immagine di intensità. Scegli solo i tipi di oggetto presenti nel tuo esperimento.",
     "Sotto gli input, la tabella delle impostazioni per oggetto raccoglie ciò che scegli per ciascun oggetto. Ogni oggetto è una colonna, qui cellula, nucleo e patogeno, e ogni riga pone una domanda: se rimuovere lo sfondo, il diametro dell’oggetto, il modello di segmentazione, il livello di sfondo e la soglia del rapporto segnale-rumore. Add a filter aggiunge una riga che rimuove oggetti in base a una proprietà misurata come l’area, e Add an organelle aggiunge un’altra colonna di oggetto.",

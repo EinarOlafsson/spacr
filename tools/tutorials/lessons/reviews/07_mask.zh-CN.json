@@ -1,6 +1,6 @@
 {
   "lesson": "07_mask",
-  "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
+  "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -20,6 +20,7 @@
   "prerequisite": "打开Mask并选择Load test data。对于您自己的图像，请准备文件名一致、通道明确的源文件夹。本例使用细胞核通道0、细胞通道1和病原体通道2，另有一个额外的强度通道3。",
   "scenes": [
     "从Home打开Mask。用这个模块勾勒显微图像中的细胞、细胞核和病原体。本演示处理二维图像。Time、三维和OPS工作流程各有单独的教程。",
+    "如果您的图像分散在多个文件夹中，或命名方式Mask无法识别，请点击Input & Metadata顶部的Organize images。通过拖入文件夹或使用正则表达式，为每个通道分配一列，并确认每一行都是一个完整的视野。Apply会把图像移入一个使用Yokogawa命名的文件夹，并将Source指向它，通道也已填好。",
     "点击Load test data，等待显微示例加载完成。继续之前请检查Source。对于您自己的图像，请选择其文件夹，并确认文件名能标识板、孔、视野和通道。",
     "把通道分配与图像进行核对。在本例中，细胞核强度是通道零，细胞强度是通道一，病原体强度是通道二。通道三是一张额外的强度图像。只选择您实验中实际存在的对象类型。",
     "输入下方的逐对象设置表汇集了您为每种对象选择的设置。每种对象是一列，这里是细胞、细胞核和病原体；每一行回答一个问题：是否去除背景、对象直径、分割模型、背景水平以及信噪比阈值。Add a filter 会添加一行，按面积等测量属性去除对象；Add an organelle 会再添加一个对象列。",

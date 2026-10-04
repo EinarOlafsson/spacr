@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "Hent først Mask-eksemplet. Gennemgangen bruger kopier af synsfelterne E01/F001 og L01/F009 med fire kanaler hver. De forberedte kopier udelader det overflødige token A lige før Z, men bevarer identiteterne for brønd, synsfelt og kanal. Behold originalerne, og brug optagelsesprotokollerne, når du fortolker ukendte tokens.",
   "scenes": [
     "Fra Home åbner du Data, vælger Import og derefter Import Images. Begynd med de mikroskopbilledfiler, du vil organisere i et projekt.",
+    "Når du også har masker, klikker du på Organize images and masks ved siden af billedmappen. Slip hver kanalmappe og maskemappen i deres kolonner, angiv maskens rolle, og vælg Mask Generation eller Measure under Write for. Filer med flere kanaler kan først opdeles i én kolonne pr. kanal; Apply flytter alt til det pågældende moduls struktur og registrerer hver flytning i et manifest.",
     "Brug Mask-eksemplet i denne gennemgang. Vælg kopier af ét synsfelt fra hver af to brønde med fire kanaler pr. synsfelt. Lad den oprindelige download være uændret.",
     "Klik på Scan. Hvis du bliver spurgt, hvad et token i filnavnet betyder, så tjek optagelsesprotokollerne, før du tildeler det. Fortsæt først, når de foreslåede identiteter skelner entydigt mellem synsfelter og kanaler.",
     "Scan de forberedte eksempelkopier. Det overflødige optagelsestoken er fjernet, mens tokens for brønd, synsfelt og kanal er bevaret. Kontrollér, at forslaget viser otte billeder, to brønde, to synsfeltnumre og fire kanaler.",

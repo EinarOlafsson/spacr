@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "Sæktu fyrst Mask-dæmið. Yfirferðin notar afrit af sjónsviðunum E01/F001 og L01/F009, með fjórum rásum hvort. Undirbúnu afritin sleppa óþarfa tákninu A beint á undan Z en halda auðkennum brunns, sjónsviðs og rásar. Geymdu frumritin og notaðu myndatökuskrár til að ráða í ókunnug tákn.",
   "scenes": [
     "Frá Home opnarðu Data, velur Import og svo Import Images. Byrjaðu á smásjármyndaskránum sem þú vilt skipuleggja í verkefni.",
+    "Þegar þú ert líka með grímur smellirðu á Organize images and masks við hlið myndamöppunnar. Dragðu hverja rásarmöppu og grímumöppuna í dálkana þeirra, stilltu hlutverk grímunnar og veldu Mask Generation eða Measure undir Write for. Skrám með mörgum rásum má fyrst skipta í einn dálk á hverja rás; Apply færir allt í skipulag þeirrar einingar og skráir hverja tilfærslu í færsluskrá.",
     "Notaðu Mask-dæmið í þessari yfirferð. Veldu afrit af einu sjónsviði úr hvorum tveggja brunna, með fjórum rásum á sjónsvið. Láttu upprunalega niðurhalið vera óbreytt.",
     "Smelltu á Scan. Ef spurt er hvað tákn í skráarheiti þýðir skaltu skoða myndatökuskrár áður en þú úthlutar því. Haltu aðeins áfram þegar tillögð auðkenni greina sjónsvið og rásir ótvírætt í sundur.",
     "Skannaðu undirbúnu dæmaafritin. Óþarfa myndatökutáknið hefur verið fjarlægt en tákn brunns, sjónsviðs og rásar halda sér. Athugaðu að tillagan telji átta myndir, tvo brunna, tvö sjónsviðsnúmer og fjórar rásir.",

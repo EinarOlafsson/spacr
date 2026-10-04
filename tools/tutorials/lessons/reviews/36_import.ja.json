@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "HomeのDataカテゴリーからImportを開きます。この画面を使うと、既存の画像、インスタンスマスク、測定値をspaCRのプロジェクトに取り込めます。",
     "手元にあるものに応じて取り込みツールを選びます。画像だけならImport ImagesかFormat Converter、マスク付きの画像ならExternal Masksを使います。この画面では、画像、マスク、測定テーブルをまとめて取り込みます。",
+    "画像とマスクをまだ整理する必要がある場合は、Import Imagesを開いてOrganize images and masksをクリックします。各チャネルとマスクに列を割り当て、Mask Generation向けかMeasure向けかを選び、必要に応じて複数チャネルのファイルを分割します。Applyはそれらをそのモジュールが読み込む構成に移動し、そこですぐ開けるようにします。",
     "画像フォルダーを選びます。この例では、強度チャネルが一つの顕微鏡フィールド二つと、対応する細胞ラベルを使います。各ファイルの元のプレート、ウェル、フィールドを記録しておきます。",
     "Cell maskのフォルダーを選び、Addを押します。各物体には、それぞれ固有の整数ラベルが必要です。同じフィールドに対応するラベルがあれば、ほかのマスクの種類も追加します。",
     "測定値のCSVを選びます。ImageNumberを各フィールドに、ObjectNumberをそのマスクのラベルに対応させます。フィールドをまたいで物体を区別するには、両方の識別子を使います。",

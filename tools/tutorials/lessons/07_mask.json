@@ -25,6 +25,11 @@
       "hold_after": 0.7
     },
     {
+      "visual": "org_organize_popup",
+      "narration": "If your images are scattered across folders or named in a way Mask cannot read, click Organize images at the top of Input & Metadata. Give each channel a column, by dropping its folder or by a regex, and check that every row is one complete field. Apply moves the images into one folder with Yokogawa names and points Source at it, with the channels already filled in.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "02_cached_load",
       "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
       "hold_after": 0.7

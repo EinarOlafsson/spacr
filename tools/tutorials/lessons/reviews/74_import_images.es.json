@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "Descarga primero el ejemplo de Mask. Este recorrido usa copias de los campos E01/F001 y L01/F009, con cuatro canales cada uno. Sus copias preparadas omiten el elemento A redundante justo antes de Z y conservan la identidad de pozo, campo y canal. Guarda los originales y usa los registros de adquisición para interpretar elementos desconocidos.",
   "scenes": [
     "Desde Home, abre Data, elige Import y luego Import Images. Empieza con los archivos de imagen de microscopio que quieres organizar en un proyecto.",
+    "Si también tienes máscaras, haz clic en Organize images and masks junto a la carpeta de imágenes. Suelta cada carpeta de canal y la carpeta de máscaras en sus columnas, define la función de la máscara y, en Write for, elige Mask Generation o Measure. Los archivos con varios canales pueden dividirse primero en una columna por canal; Apply mueve todo a la estructura de ese módulo y registra cada movimiento en un manifiesto.",
     "Usa el ejemplo de Mask en este recorrido. Selecciona copias de un campo de cada uno de dos pozos, con cuatro canales por campo. No modifiques la descarga original.",
     "Haz clic en Scan. Si te pregunta qué significa un elemento del nombre de archivo, consulta los registros de adquisición antes de asignarlo. Continúa solo cuando las identidades propuestas distingan sin ambigüedad los campos y los canales.",
     "Analiza las copias de ejemplo preparadas. Se les ha quitado el elemento de adquisición redundante y se conservan los de pozo, campo y canal. Comprueba que la propuesta enumere ocho imágenes, dos pozos, dos números de campo y cuatro canales.",

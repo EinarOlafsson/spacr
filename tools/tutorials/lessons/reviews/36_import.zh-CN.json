@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "从Home的Data类别中打开Import。使用这个界面把现有的图像、实例掩膜和测量数据导入spaCR项目。",
     "根据您手头的数据选择导入工具：只有图像时使用Import Images或Format Converter，有图像和掩膜时使用External Masks。这个界面同时接收图像、掩膜和测量表。",
+    "如果您的图像和掩膜还需要整理，请打开Import Images并点击Organize images and masks。为每个通道和掩膜分配一列，选择是为Mask Generation还是为Measure写入，并在需要时拆分多通道文件。Apply会把它们移入该模块读取的目录结构，可直接在那里打开。",
     "选择图像文件夹。本例使用两个显微视野，每个视野有一个强度通道和对应的细胞标签。请记录每个文件原始的板、孔和视野。",
     "选择Cell mask文件夹，然后按Add。每个对象都需要自己的整数标签。如果同一视野还有对应的标签，可以再添加其他掩膜类别。",
     "选择测量CSV。把ImageNumber对应到每个视野，把ObjectNumber对应到其掩膜标签。同时使用这两个标识符来区分不同视野中的对象。",

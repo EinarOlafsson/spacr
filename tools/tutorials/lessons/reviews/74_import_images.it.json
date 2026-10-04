@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "Scarica prima l’esempio di Mask. Questa guida usa copie dei campi E01/F001 e L01/F009, con quattro canali ciascuno. Le copie preparate omettono l’elemento A ridondante subito prima di Z e conservano l’identità di pozzetto, campo e canale. Conserva gli originali e usa i registri di acquisizione per interpretare elementi non familiari.",
   "scenes": [
     "Da Home, apri Data, scegli Import e poi Import Images. Parti dai file di immagini di microscopio che vuoi organizzare in un progetto.",
+    "Se hai anche delle maschere, fai clic su Organize images and masks accanto alla cartella delle immagini. Trascina ogni cartella di canale e la cartella delle maschere nelle loro colonne, imposta il ruolo della maschera e in Write for scegli Mask Generation o Measure. I file con più canali possono prima essere divisi in una colonna per canale; Apply sposta tutto nella struttura di quel modulo e registra ogni spostamento in un manifesto.",
     "Per questa guida usa l’esempio di Mask. Seleziona copie di un campo per ciascuno di due pozzetti, con quattro canali per campo. Non modificare il download originale.",
     "Fai clic su Scan. Se ti chiede che cosa significa un elemento del nome del file, controlla i registri di acquisizione prima di assegnarlo. Prosegui solo quando le identità proposte distinguono campi e canali senza ambiguità.",
     "Analizza le copie d’esempio preparate. L’elemento di acquisizione ridondante è stato rimosso, mentre restano quelli di pozzetto, campo e canale. Verifica che la proposta elenchi otto immagini, due pozzetti, due numeri di campo e quattro canali.",

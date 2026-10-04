@@ -1,10 +1,10 @@
 {
   "lesson": "36_import",
-  "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
+  "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -21,6 +21,7 @@
   "scenes": [
     "En la categoría Data de Home, abre Import. Usa esta pantalla para incorporar imágenes, máscaras de instancias y mediciones existentes a un proyecto de spaCR.",
     "Elige la herramienta de importación según lo que tengas: Import Images o Format Converter si solo tienes imágenes, External Masks si tienes imágenes con máscaras. Esta pantalla recibe imágenes, máscaras y una tabla de mediciones a la vez.",
+    "Si tus imágenes y máscaras aún necesitan ordenarse, abre Import Images y haz clic en Organize images and masks. Da a cada canal y máscara una columna, elige si escribir para Mask Generation o para Measure, y divide los archivos multicanal cuando haga falta. Apply los mueve a la estructura que lee ese módulo, listos para abrirse allí.",
     "Elige la carpeta de imágenes. El ejemplo usa dos campos de microscopía con un canal de intensidad y las etiquetas de células correspondientes. Anota la placa, el pocillo y el campo originales de cada archivo.",
     "Elige la carpeta de Cell mask y pulsa Add. Cada objeto necesita su propia etiqueta entera. Añade más clases de máscara cuando tengas etiquetas correspondientes para los mismos campos.",
     "Elige el CSV de mediciones. Asocia ImageNumber a cada campo y ObjectNumber a su etiqueta de máscara. Usa ambos identificadores para distinguir objetos entre campos.",

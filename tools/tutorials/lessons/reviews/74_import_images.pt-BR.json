@@ -1,10 +1,10 @@
 {
   "lesson": "74_import_images",
-  "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
+  "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-25",
+    "date": "2026-09-30",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -20,6 +20,7 @@
   "prerequisite": "Baixe primeiro o exemplo do Mask. Este passo a passo usa cópias dos campos E01/F001 e L01/F009, com quatro canais cada. As cópias preparadas omitem o elemento A redundante logo antes de Z e mantêm a identidade de poço, campo e canal. Guarde os originais e use os registros de aquisição para interpretar elementos desconhecidos.",
   "scenes": [
     "Na tela Home, abra Data, escolha Import e depois Import Images. Comece pelos arquivos de imagem de microscópio que você quer organizar em um projeto.",
+    "Quando você também tiver máscaras, clique em Organize images and masks ao lado da pasta de imagens. Solte cada pasta de canal e a pasta de máscaras nas colunas correspondentes, defina a função da máscara e, em Write for, escolha Mask Generation ou Measure. Arquivos com vários canais podem ser divididos antes em uma coluna por canal; Apply move tudo para a estrutura desse módulo e registra cada movimentação em um manifesto.",
     "Use o exemplo do Mask neste passo a passo. Selecione cópias de um campo de cada um de dois poços, com quatro canais por campo. Não altere o download original.",
     "Clique em Scan. Se ele perguntar o que significa um elemento do nome do arquivo, consulte os registros de aquisição antes de atribuí-lo. Continue somente quando as identidades propostas distinguirem campos e canais sem ambiguidade.",
     "Analise as cópias de exemplo preparadas. O elemento de aquisição redundante foi removido, e os de poço, campo e canal foram mantidos. Confira se a proposta lista oito imagens, dois poços, dois números de campo e quatro canais.",

@@ -232,3 +232,23 @@ def record_import(app, window, host, stage, captures, capture, settle, write_jso
                'plan_sha256': digest(plan_path),
                'outputs': [{'path': str(path), 'sha256': digest(path)} for path in outputs]})
     return screen
+
+
+def open_import_images(app, window, host, capture, settle):
+    """Open Import Images through Import's real fold button; return its screen."""
+    from PySide6.QtCore import Qt
+    from PySide6.QtTest import QTest
+    from spacr.qt.screens.image_import import ImageImportScreen
+    from spacr.qt.widgets.fold_strip import FoldButton
+
+    buttons = [button for button in host.findChildren(FoldButton)
+               if button.app_key == 'import_images' and button.isVisible()]
+    if len(buttons) != 1 or not buttons[0].isEnabled():
+        raise RuntimeError('Import must expose exactly one usable Import Images fold')
+    QTest.mouseClick(buttons[0], Qt.LeftButton)
+    settle(2)
+    screens = [screen for screen in window.findChildren(ImageImportScreen) if screen.isVisible()]
+    if len(screens) != 1:
+        raise RuntimeError(f'Fold did not reveal one Import Images screen: {len(screens)}')
+    capture('03_import_images')
+    return screens[0]
