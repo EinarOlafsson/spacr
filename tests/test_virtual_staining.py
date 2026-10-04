@@ -165,8 +165,15 @@ def test_the_scorecard_segments_with_cellpose_by_default(monkeypatch):
         def __init__(self, pretrained_model=None, gpu=False):
             calls.append(pretrained_model)
 
-        def eval(self, plane, diameter=None, channel_axis=None):
-            return (ds._vs_segment(plane, sigma=1, min_size=10),)
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=None, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            return (ds._vs_segment(x, sigma=1, min_size=10), None, None)
 
     fake = types.ModuleType("cellpose")
     fake.models = types.SimpleNamespace(CellposeModel=_Model)

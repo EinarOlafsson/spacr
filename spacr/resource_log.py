@@ -996,6 +996,7 @@ class _ram_guard_scope:
     """
 
     def __init__(self, settings: Optional[Mapping[str, Any]]):
+        """Read ``ram_guard`` from ``settings``; on unless it is ``False``."""
         value = True
         if isinstance(settings, Mapping):
             value = settings.get('ram_guard', True) is not False
@@ -1003,11 +1004,13 @@ class _ram_guard_scope:
         self._previous = None
 
     def __enter__(self):
+        """Apply this run's choice for the duration of the block."""
         self._previous = getattr(_RAM_GUARD_STATE, 'enabled', None)
         _RAM_GUARD_STATE.enabled = self._value
         return self
 
     def __exit__(self, *exc):
+        """Restore the previous choice; exceptions propagate."""
         _RAM_GUARD_STATE.enabled = self._previous
         return False
 

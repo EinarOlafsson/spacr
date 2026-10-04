@@ -77,6 +77,7 @@ def _add_counterfactual_viewer_button(screen: Optional[QWidget]) -> Optional[QWi
         "at every step. Default not opened."))
 
     def _open() -> None:
+        """Ask for a counterfactuals folder and show what it holds."""
         folder = QFileDialog.getExistingDirectory(
             screen, tr("Choose a counterfactuals folder"))
         if folder:
@@ -151,6 +152,7 @@ def _counterfactual_viewer(folder: str, parent: Optional[QWidget] = None) -> QWi
             + ("  ✓" if str(row.get("flipped")) == "True" else ""))
 
     def _show(index: int) -> None:
+        """Replace the strip with the sequence at ``index``."""
         for label in dialog.strip_labels:
             label.deleteLater()
         dialog.strip_labels = []

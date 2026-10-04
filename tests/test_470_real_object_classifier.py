@@ -162,8 +162,14 @@ def test_the_mask_run_applies_the_classifier_when_set(yokogawa_cellvoyager_dir,
         def __init__(self, *args, **kwargs):
             pass
 
-        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
-                 do_3D=False, stitch_threshold=0.0, **kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
             check_cellpose_eval_call(x, channel_axis, z_axis=z_axis,
                                      do_3D=do_3D, stitch_threshold=stitch_threshold)
             masks = []

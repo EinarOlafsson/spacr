@@ -12442,6 +12442,7 @@ class _RamGuardDialog(QDialog):
     """
 
     def __init__(self, parent, plan):
+        """Build the dialog for ``plan``, the RAM estimate the run was refused on."""
         super().__init__(parent)
         self.setObjectName("RamGuardDialog")
         self.setWindowTitle(tr("Not enough RAM for these workers"))
@@ -12502,6 +12503,7 @@ class _FreeRamDialog(QDialog):
     """
 
     def __init__(self, parent=None, psutil_module=None, confirm=None):
+        """List the processes that could be closed to free RAM."""
         super().__init__(parent)
         from ...resource_log import _closable_processes
         self.setObjectName("FreeRamDialog")

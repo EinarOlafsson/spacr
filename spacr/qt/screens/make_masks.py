@@ -16428,6 +16428,7 @@ class _Sam2ClickLabel(QLabel):
     clicked = Signal(int, int, bool)
 
     def __init__(self, parent=None):
+        """Start at a display scale of one screen pixel per image pixel."""
         super().__init__(parent)
         self.scale = 1.0
 
@@ -16452,6 +16453,7 @@ class _Sam2SeedDialog(QDialog):
     finished_run = Signal(object, object)
 
     def __init__(self, frames, propagate=None, radius=4, parent=None):
+        """Show ``frames`` for seeding; ``propagate`` defaults to SAM2."""
         from PySide6.QtWidgets import QCheckBox
 
         from ..i18n import tr
@@ -16529,6 +16531,7 @@ class _Sam2SeedDialog(QDialog):
         self.status.setText(tr("Propagating…"))
 
         def work():
+            """Propagate the seeds off the GUI thread and report the labels."""
             try:
                 labels, _reply = propagate(self.frames, seeds,
                                            backward=backward)

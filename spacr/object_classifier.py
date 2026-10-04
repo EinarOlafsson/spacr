@@ -529,6 +529,7 @@ class _RealObjectHead:
     """
 
     def __init__(self, bundle: Mapping[str, Any], threshold: float = 0.5):
+        """Keep the bundle's estimator and the not-real probability threshold."""
         self.estimator = bundle["estimator"]
         self.threshold = float(threshold)
         if not 0 <= self.threshold <= 1:
@@ -647,6 +648,7 @@ def _train_real_classifier(frame, object_type: str, *,
                          for path in frame["png_path"]])
 
     def estimator():
+        """A fresh scaled, class-balanced logistic regression."""
         return make_pipeline(StandardScaler(), LogisticRegression(
             C=0.1, max_iter=2000, class_weight="balanced"))
 

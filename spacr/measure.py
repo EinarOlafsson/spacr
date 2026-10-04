@@ -8708,6 +8708,7 @@ class _PeakChildMemory:
     """
 
     def __init__(self, psutil_module=None, interval=0.1):
+        """Prepare to sample child memory every ``interval`` seconds."""
         self._psutil = psutil_module or _psutil_or_none()
         self._interval = interval
         self._stop = threading.Event()
@@ -8733,12 +8734,14 @@ class _PeakChildMemory:
             self._stop.wait(self._interval)
 
     def __enter__(self):
+        """Start sampling in a daemon thread when psutil is available."""
         if self._psutil is not None:
             self._thread = threading.Thread(target=self._poll, daemon=True)
             self._thread.start()
         return self
 
     def __exit__(self, *exc):
+        """Stop sampling; exceptions propagate."""
         self._stop.set()
         if self._thread is not None:
             self._thread.join(timeout=2)
