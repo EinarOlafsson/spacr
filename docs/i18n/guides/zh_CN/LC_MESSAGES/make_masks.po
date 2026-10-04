@@ -393,16 +393,16 @@ msgid "Organize images in Mask Generation and Import Images"
 msgstr "在掩膜生成和导入图像中整理图像"
 
 msgid "The same popup, titled **Organize images**, also opens from two other modules. It fills its table the same ways: by regex, by dropping files and folders into the columns, or with **Teach me…**."
-msgstr "同一个标题为 **Organize images** 的弹出窗口也可以从另外两个模块打开。它以相同方式填写表格：使用正则表达式、将文件和文件夹拖放到各列中，或使用 **教我…** 。"
+msgstr "同一个标题为 **整理图像** 的弹出窗口也可以从另外两个模块打开。它以相同方式填写表格：使用正则表达式、将文件和文件夹拖放到各列中，或使用 **教我…** 。"
 
 msgid "In **Mask Generation**, **Organize images…** above ``src`` arranges intensity images, from any folder structure or naming, into the one folder of Yokogawa-named images that Mask Generation reads. It has channel columns only. After the move, ``src`` points at that folder, ``metadata_type`` is set to ``cellvoyager``, ``channels`` lists the organized channels, and the folder is added to the module's recent sources."
-msgstr "在 **掩膜生成** 中， ``src`` 上方的 **Organize images…** 会将任意文件夹结构或命名方式的强度图像整理到掩膜生成所读取的、以 Yokogawa 方式命名图像的单个文件夹中。它只有通道列。移动完成后， ``src`` 指向该文件夹， ``metadata_type`` 设为 ``cellvoyager`` ， ``channels`` 列出已整理的通道，并且该文件夹会被加入该模块的最近来源。"
+msgstr "在 **掩膜生成** 中， ``src`` 上方的 **整理图像…** 会将任意文件夹结构或命名方式的强度图像整理到掩膜生成所读取的、以 Yokogawa 方式命名图像的单个文件夹中。它只有通道列。移动完成后， ``src`` 指向该文件夹， ``metadata_type`` 设为 ``cellvoyager`` ， ``channels`` 列出已整理的通道，并且该文件夹会被加入该模块的最近来源。"
 
 msgid "In **Import Images**, **Organize images and masks…** beside the images folder's **Choose…** takes intensity images and masks. **Write for** chooses the layout: **Mask Generation** writes one folder of Yokogawa-named images with the masks in its ``masks/`` folder, and **Measure** writes the channel folders, the masks and ``merged/`` as Organize for Measure does. The organized folder is then first in that module's recent sources."
-msgstr "在 **导入图像** 中，图像文件夹 **选择...** 旁边的 **Organize images and masks…** 接收强度图像和掩膜。 **Write for** 用于选择布局： **掩膜生成** 写入一个以 Yokogawa 方式命名图像的文件夹，掩膜位于其 ``masks/`` 文件夹中； **测量** 则像 Organize for Measure 一样写入各通道文件夹、掩膜和 ``merged/`` 。随后，整理好的文件夹会排在该模块最近来源的首位。"
+msgstr "在 **导入图像** 中，图像文件夹 **选择...** 旁边的 **整理图像和掩膜…** 接收强度图像和掩膜。 **写入目标** 用于选择布局： **掩膜生成** 写入一个以 Yokogawa 方式命名图像的文件夹，掩膜位于其 ``masks/`` 文件夹中； **测量** 则像 Organize for Measure 一样写入各通道文件夹、掩膜和 ``merged/`` 。随后，整理好的文件夹会排在该模块最近来源的首位。"
 
 msgid "A file that holds several channels is split rather than refused: choose **Split multi-channel files**, or accept the offer when you press **Apply**. Each plane is copied into ``split_channels/`` with one channel column per plane, and the original files are not touched. Files move in the background, and the manifest records every move. If a move fails, the message names the error, and the manifest lists every move made before it."
-msgstr "包含多个通道的文件会被拆分而不是被拒绝：选择 **Split multi-channel files** ，或在按下 **应用** 时接受提示。每个平面都会复制到 ``split_channels/`` 中，每个平面对应一个通道列，原始文件不会被改动。文件在后台移动，清单会记录每一次移动。如果某次移动失败，消息会给出错误，清单会列出在此之前完成的每一次移动。"
+msgstr "包含多个通道的文件会被拆分而不是被拒绝：选择 **拆分多通道文件** ，或在按下 **应用** 时接受提示。每个平面都会复制到 ``split_channels/`` 中，每个平面对应一个通道列，原始文件不会被改动。文件在后台移动，清单会记录每一次移动。如果某次移动失败，消息会给出错误，清单会列出在此之前完成的每一次移动。"
 
 msgid "Upload data"
 msgstr "上传数据"
