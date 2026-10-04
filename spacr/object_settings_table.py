@@ -25,6 +25,7 @@ unchanged, so no settings file, notebook or tutorial migrates.
 """
 from __future__ import annotations
 
+import functools
 import re
 from collections import OrderedDict
 from typing import Dict, Iterable, List, Mapping, Optional, Tuple
@@ -76,6 +77,7 @@ _SINGLE_OBJECT_QUESTIONS = frozenset(
     question for _obj, question in _SINGLE_OBJECT_KEYS.values())
 
 
+@functools.lru_cache(maxsize=8192)
 def _split(key: str) -> Optional[Tuple[str, str]]:
     """``('cell', 'min_area')`` for ``'cell_min_area'``, else ``None``.
 

@@ -88,6 +88,9 @@ import os
 import random
 import re
 import sys
+import threading
+import time
+from collections import OrderedDict
 from dataclasses import dataclass, field as _field
 from functools import lru_cache
 from pathlib import Path
@@ -596,6 +599,54 @@ def _acquisition_regex(metadata_type: str = DEFAULT_METADATA_TYPE,
         return None
 
 
+_LISTINGS: "OrderedDict[str, Tuple[int, Tuple[str, ...]]]" = OrderedDict()
+_LISTINGS_LOCK = threading.Lock()
+_LISTINGS_KEPT = 8
+_LISTING_SETTLE_S = 2.0
+
+
+def _file_names(directory) -> Tuple[str, ...]:
+    """Names of the regular files directly inside ``directory``.
+
+    A plate folder on a network share takes a second or more to list, and
+    loading a preview read the same folder twice. The answer is kept for
+    the last few folders against the folder's modification time, so a
+    second read costs one ``stat``. A folder changed in the last two
+    seconds is listed again every time: some network file systems keep
+    that time to the second, and a file added in the same second would
+    otherwise be missed.
+
+    :param directory: the folder.
+    :returns: the file names, in directory order.
+    :raises OSError: when the folder cannot be read.
+    """
+    path = os.fspath(directory)
+    stamp = os.stat(path).st_mtime_ns
+    settled = time.time() - stamp / 1e9 > _LISTING_SETTLE_S
+    if settled:
+        with _LISTINGS_LOCK:
+            hit = _LISTINGS.get(path)
+            if hit is not None and hit[0] == stamp:
+                _LISTINGS.move_to_end(path)
+                return hit[1]
+    names = []
+    with os.scandir(path) as entries:
+        for entry in entries:
+            try:
+                if entry.is_file():
+                    names.append(entry.name)
+            except OSError:
+                continue
+    names = tuple(names)
+    if settled:
+        with _LISTINGS_LOCK:
+            _LISTINGS[path] = (stamp, names)
+            _LISTINGS.move_to_end(path)
+            while len(_LISTINGS) > _LISTINGS_KEPT:
+                _LISTINGS.popitem(last=False)
+    return names
+
+
 def enumerate_image_sets(directory, suffixes: Sequence[str],
                          metadata_type: str = DEFAULT_METADATA_TYPE,
                          custom_regex: Optional[str] = None,
@@ -632,33 +683,26 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
     grouped: Dict[Tuple[str, str, str], Dict[str, str]] = {}
     channels: set = set()
     try:
-        with os.scandir(directory) as entries:
-            for entry in entries:
-                name = entry.name
-                lowered = name.lower()
-                if name.startswith(".") or not lowered.endswith(wanted):
-                    continue
-                try:
-                    if not entry.is_file():
-                        continue
-                except OSError:
-                    continue
-                pattern = patterns.get(lowered.rpartition(".")[2])
-                match = pattern.match(name) if pattern is not None else None
-                slice_id = ""
-                if match:
-                    groups = match.groupdict()
-                    key = (str(groups.get("plateID") or ""),
-                           str(groups.get("wellID") or ""),
-                           str(groups.get("fieldID") or ""))
-                    chan = str(groups.get("chanID") or "")
-                    slice_id = str(groups.get("sliceID") or "")
-                    channels.add(chan)
-                else:
-                    key = ("", "", name)
-                    chan = ""
-                grouped.setdefault(key, {}).setdefault(chan, []).append(
-                    (_plane_sort_key(slice_id), name))
+        for name in _file_names(directory):
+            lowered = name.lower()
+            if name.startswith(".") or not lowered.endswith(wanted):
+                continue
+            pattern = patterns.get(lowered.rpartition(".")[2])
+            match = pattern.match(name) if pattern is not None else None
+            slice_id = ""
+            if match:
+                groups = match.groupdict()
+                key = (str(groups.get("plateID") or ""),
+                       str(groups.get("wellID") or ""),
+                       str(groups.get("fieldID") or ""))
+                chan = str(groups.get("chanID") or "")
+                slice_id = str(groups.get("sliceID") or "")
+                channels.add(chan)
+            else:
+                key = ("", "", name)
+                chan = ""
+            grouped.setdefault(key, {}).setdefault(chan, []).append(
+                (_plane_sort_key(slice_id), name))
     except (OSError, ValueError):
         return [], []
 

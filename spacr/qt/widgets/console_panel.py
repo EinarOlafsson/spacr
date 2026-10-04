@@ -1085,7 +1085,8 @@ class ConsolePanel(QWidget):
         if follow_log:
             try:
                 from ..logging_util import get_signal_handler
-                get_signal_handler().record_ready.connect(self._on_log_record)
+                get_signal_handler().records_ready.connect(
+                    self._on_log_records)
             except Exception:
                 pass
         retranslate_widget_tree(self)
@@ -1588,6 +1589,21 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             self.append_error(text)
         else:
             self.append_warning(text)
+
+    def _on_log_records(self, records: list) -> None:
+        """Slot for ``QtLogHandler.records_ready``: a batch, in order.
+
+        :param records: ``(text, level)`` pairs as :meth:`_on_log_record`
+            takes them.
+        """
+        import logging as _logging
+        for text, level in records:
+            if level < _logging.WARNING:
+                self._log_pending.append(text)
+            else:
+                self._on_log_record(text, level)
+        if self._log_pending and not self._log_flush.isActive():
+            self._log_flush.start()
 
     def _flush_log_records(self) -> None:
         """Append the informational records waiting, as one write.

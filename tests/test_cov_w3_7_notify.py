@@ -26,6 +26,8 @@ def recorded_runs(monkeypatch):
         return None
 
     monkeypatch.setattr(notify_module.subprocess, "run", fake_run)
+    monkeypatch.setattr(notify_module, "_in_background",
+                        lambda fn, *a, **k: fn(*a, **k))
     return calls
 
 

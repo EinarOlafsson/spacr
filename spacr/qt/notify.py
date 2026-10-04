@@ -38,10 +38,9 @@ def notify(title: str, body: str = "",
     system = platform.system()
     try:
         if system == "Linux" and shutil.which("notify-send"):
-            subprocess.run(
-                ["notify-send", "-a", app_name, title, body],
-                check=False, timeout=3,
-            )
+            _in_background(subprocess.run,
+                           ["notify-send", "-a", app_name, title, body],
+                           check=False, timeout=3)
             return True
         if system == "Darwin":
             script = (
@@ -49,8 +48,8 @@ def notify(title: str, body: str = "",
                 f'with title "{_esc(app_name)}" '
                 f'subtitle "{_esc(title)}"'
             )
-            subprocess.run(["osascript", "-e", script],
-                            check=False, timeout=3)
+            _in_background(subprocess.run, ["osascript", "-e", script],
+                           check=False, timeout=3)
             return True
         if system == "Windows":
             try:
@@ -65,6 +64,25 @@ def notify(title: str, body: str = "",
         LOG.debug("notify failed: %s", e)
         return False
     return False
+
+
+def _in_background(fn, *args, **kwargs) -> None:
+    """Call ``fn`` on a daemon thread and return at once.
+
+    The notifier is a separate program that talks to the desktop bus;
+    waiting for it held the interface for 60-200 ms at the end of every
+    run.
+    """
+    import threading
+
+    def call():
+        """Run the notifier; a failure is logged, never raised."""
+        try:
+            fn(*args, **kwargs)
+        except Exception as e:
+            LOG.debug("notify failed: %s", e)
+
+    threading.Thread(target=call, name="spacr-notify", daemon=True).start()
 
 
 def _esc(s: str) -> str:

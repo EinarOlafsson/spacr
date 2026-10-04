@@ -43,6 +43,7 @@ import logging.handlers
 import os
 import sys
 import threading
+import time
 from pathlib import Path
 from typing import Any, Callable, Iterable, Optional
 
@@ -79,11 +80,79 @@ def _quicken(handler):
         return handler
     handler.shouldRollover = functools.partial(
         _quick_should_rollover, handler, full_check)
+    real_flush = handler.flush
+    handler._spacr_flushed_at = 0.0
+    handler._spacr_late_flush_pid = 0
+    handler.flush = functools.partial(_paced_flush, handler, real_flush)
+    handler.emit = functools.partial(
+        _emit_flushing_the_loud, handler, handler.emit, real_flush)
     return handler
+
+
+_FLUSH_INTERVAL_S = 0.25
+
+
+def _paced_flush(handler, real_flush) -> None:
+    """Flush ``handler`` at most every :data:`_FLUSH_INTERVAL_S` seconds.
+
+    A run logging thousands of records a second paid one write system
+    call per record per file. Records between two flushes stay in the
+    stream's buffer, and one timer per interval writes out whatever the
+    last of a burst left there, so nothing waits longer than one interval.
+    Closing the handler still writes everything.
+
+    :param handler: the file handler.
+    :param real_flush: its own ``flush``.
+    """
+    now = time.monotonic()
+    if now - handler._spacr_flushed_at >= _FLUSH_INTERVAL_S:
+        handler._spacr_flushed_at = now
+        real_flush()
+        return
+    pid = os.getpid()
+    if handler._spacr_late_flush_pid == pid:
+        return
+    handler._spacr_late_flush_pid = pid
+    timer = threading.Timer(_FLUSH_INTERVAL_S, _late_flush,
+                            (handler, real_flush))
+    timer.daemon = True
+    timer.start()
+
+
+def _late_flush(handler, real_flush) -> None:
+    """Write out what a burst left in ``handler``'s buffer."""
+    handler._spacr_late_flush_pid = 0
+    handler._spacr_flushed_at = time.monotonic()
+    try:
+        real_flush()
+    except Exception:
+        pass
+
+
+def _emit_flushing_the_loud(handler, real_emit, real_flush, record) -> None:
+    """Write ``record``, and flush at once when it is a warning or worse.
+
+    :param handler: the file handler.
+    :param real_emit: its own ``emit``.
+    :param real_flush: its own ``flush``.
+    :param record: the record.
+    """
+    real_emit(record)
+    if record.levelno >= logging.WARNING:
+        handler._spacr_flushed_at = time.monotonic()
+        try:
+            real_flush()
+        except Exception:
+            handler.handleError(record)
 
 
 def _quick_should_rollover(handler, full_check, record) -> bool:
     """Whether ``record`` would take ``handler``'s file past ``maxBytes``.
+
+    The position is read from the byte buffer under the text layer: the
+    text stream's own ``tell`` flushes, which would undo the paced flush.
+    The text layer holds at most a few kilobytes more, well inside the
+    margin.
 
     :param handler: the rotating file handler.
     :param full_check: the handler's own ``shouldRollover``.
@@ -93,12 +162,46 @@ def _quick_should_rollover(handler, full_check, record) -> bool:
         return False
     if handler.stream is None:
         handler.stream = handler._open()
-    if handler.stream.tell() + _NEAR_LIMIT_BYTES < handler.maxBytes:
+    stream = handler.stream
+    try:
+        position = stream.buffer.tell()
+    except (AttributeError, OSError, ValueError):
+        position = stream.tell()
+    if position + _NEAR_LIMIT_BYTES < handler.maxBytes:
         return False
     return full_check(record)
 
 
-class _CompactTraceFormat(logging.Formatter):
+class _SecondFormatter(logging.Formatter):
+    """A ``logging.Formatter`` that renders each second's timestamp once.
+
+    ``formatTime`` converts and formats the clock for every record; a run
+    logging thousands of records a second asks for the same second
+    thousands of times.
+    """
+
+    _second = (None, "")
+
+    def formatTime(self, record, datefmt=None):
+        """The record's time, as ``logging.Formatter.formatTime`` gives it.
+
+        :param record: the record.
+        :param datefmt: a ``strftime`` format, or ``None`` for the default
+            with milliseconds.
+        :returns: the formatted time.
+        """
+        key = (int(record.created), datefmt)
+        cached_key, text = self._second
+        if key != cached_key:
+            text = time.strftime(datefmt or self.default_time_format,
+                                 self.converter(record.created))
+            self._second = (key, text)
+        if datefmt or not self.default_msec_format:
+            return text
+        return self.default_msec_format % (text, record.msecs)
+
+
+class _CompactTraceFormat(_SecondFormatter):
     """The ordinary format, except for `spacr.trace`, which gets a short one.
 
     MEASURED (297): twenty calls to a no-argument function wrote 5,520 bytes
@@ -130,13 +233,22 @@ class _CompactTraceFormat(logging.Formatter):
         """Render one record with the compact form reserved for trace events.
 
         :param record: logging record to render.
+        The ordinary text is kept on the record, so the master log and the
+        per-level file, which share this format, format a record once.
+
         :returns: time-and-message text for ``spacr.trace``, otherwise the
             ordinary configured format.
         """
 
         if record.name == "spacr.trace":
             return self._trace.format(record)
-        return super().format(record)
+        key = (self._fmt, self.datefmt)
+        cached = record.__dict__.get("_spacr_file_text")
+        if cached is not None and cached[0] == key:
+            return cached[1]
+        text = super().format(record)
+        record._spacr_file_text = (key, text)
+        return text
 
 #: Third-party loggers that spam INFO records — capped at WARNING.
 QUIET_LOGGERS: tuple[str, ...] = (
@@ -451,7 +563,8 @@ def _install_level_handlers(master_path: Path, levels: Iterable[int]) -> None:
     A level that is switched off keeps its handler, filtered to nothing,
     rather than being detached: attaching and detaching handlers on a live
     root logger races with any thread that is logging, and an idle handler
-    costs one open file.
+    costs one open file. Each handler's threshold is its own level, so a
+    record never reaches the files of the levels above it.
     """
     enabled = normalise_levels(levels)
     root = logging.getLogger()
@@ -467,7 +580,7 @@ def _install_level_handlers(master_path: Path, levels: Iterable[int]) -> None:
                 sys.stderr.write(
                     f"spaCR could not open {path}: {exc}\n")
                 continue
-            handler.setLevel(logging.DEBUG)
+            handler.setLevel(level)
             handler.setFormatter(_CompactTraceFormat(FILE_FORMAT))
             handler.addFilter(LevelSetFilter())
             root.addHandler(handler)

@@ -9452,13 +9452,14 @@ class SettingsWidgets:
         keep = {f"{role}_" for role in ALL_ORGANELLE_ROLES[:count]}
         every = {f"{role}_" for role in ALL_ORGANELLE_ROLES}
         drop = every - keep
+        longest_first = sorted(every, key=len, reverse=True)
         beyond = set()
         for key in settings:
             name = str(key)
             if name == NUMBER_OF_ORGANELLES:
                 continue
-            owner = max((p for p in every if name.startswith(p)),
-                        key=len, default=None)
+            owner = next((p for p in longest_first if name.startswith(p)),
+                         None)
             if owner is not None and owner in drop:
                 beyond.add(name)
             elif count == 0 and "organelle" in name.lower():

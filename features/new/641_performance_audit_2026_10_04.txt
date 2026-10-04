@@ -114,8 +114,85 @@ Guards (tests/qt/test_641_startup_and_browse_budgets.py):
   file skips the per-record stat and still rolls over; 3000 printed lines
   arrive in < 300 emissions, complete and in order. Each fails on base.
 
+5. SECOND PASS (2026-10-04, CPU only, load 17-22, interleaved against a
+   detached origin/nightly checkout; medians of 5; harnesses in
+   /mnt/wd4tb/scratch/641/b3: pb.py, final_chatty.sh, logbench2.py,
+   prefbench.py, pref2.py, list_bench.py, folder_bench.py, plate_bench.py)
+
+  Chatty run (print + log.info per step), Measure screen, full MainWindow:
+                                        headless   GUI before      GUI after
+    4,000 steps                          0.60 s     1.86 s (3.1x)   1.26 s (2.1x)
+    20,000 steps                         2.91 s     8.24 s (2.8x)   5.02 s (1.7x)
+    20,000 steps, headless with the
+      same spaCR file logging on         3.35 s                     (1.50x)
+    log.info per record, worker CPU      67 us      ->  42 us (9 sinks)
+  Causes found and fixed:
+  - Every log file flushed per record, and the rollover check's text
+    tell() flushed again; three files per INFO record. Files now flush
+    every 250 ms (a warning at once, a timer writes a burst's tail) and the
+    size check reads the byte buffer.
+  - The master log and its per-level file formatted each record twice; the
+    text is kept on the record. Timestamps formatted once a second. A
+    per-level file no longer sees quieter records (handler level = level).
+  - QtLogHandler queued one cross-thread event per record (4,000 slot
+    calls into every ConsolePanel). Worker records now go over in 50 ms
+    batches (records_ready list signal; warnings at once, order kept).
+  - The desktop notifier (notify-send) ran synchronously on the GUI
+    thread at every run end (60-200 ms); it now runs on a daemon thread.
+  - The ambient backdrop repaints the whole window; it drops to 4 fps
+    while a pipeline holds the interpreter (gil_priority.active()).
+  What remains of the gap is the logging itself (three files plus the
+  console sink, ~42 us a record, which a logged headless run also pays) and
+  ~0.2 s fixed per run for the journal (git status 50-120 ms).
+
+  Preferences:
+    200 set_* writes                     1.18 s (one file rewrite each)
+                                         -> 6 ms inside _one_store()
+    Preferences dialog Save              0.55 s -> 0.22 s
+    Preferences dialog build (warm)      0.08-0.16 s, unchanged
+  Each setter opened its own QSettings, whose destructor rewrote the file.
+  Save now runs under one store, synced once (and before the live apply).
+
+  Folder listing, 12,288-file plate, os.scandir/listdir wrapped with a
+  0.3 s sleep (NAS):
+    src set on Mask / Measure / Make Masks: no listing on the GUI thread,
+      worst event-loop gap 12-29 ms, before and after.
+    preview load (load_source_payload, worker)  0.77 s, 2 listings
+                                         -> 0.58 s first, 0.15 s again, 1
+    first_supported_image and enumerate_image_sets now share a listing
+    cached per folder against its mtime (8 folders; a folder changed in
+    the last 2 s is always re-listed).
+
+  Plate Viewer, 384 wells: there are no thumbnails in this screen (it is
+    a heatmap); set_plate 0.3-0.5 ms; paint 6.8-9.4 ms -> 4.2-5.9 ms
+    (brushes shared per colour, geometry computed once).
+
+  Module first open (benchmark, offscreen, base): 30 of 54 over 500 ms;
+    Mask 2.8 s, Regression 1.7-2.1 s, Annotate 1.3-1.8 s, Make Masks 1.6 s,
+    Classify 1.6 s, Plaques 1.4-1.6 s, UMAP 1.1-1.3 s. Profile of Mask: 0.65
+    s in Qt's own polish/layout inside processEvents, the rest spread thin.
+    Only micro-fixes here (object_settings_table._split memoised, organelle
+    slot prefix lookup longest-first); not re-benchmarked.
+
+  Guards (tests/qt/test_641_chatty_runs_settings_and_listing.py): paced
+  flush (<50 flushes per 2,000 records, warning on disk at once, tail
+  written by the timer); one format per record for master + level file;
+  level-file thresholds; worker records in <100 batches, in order; backdrop
+  run rate; notifier returns at once; 20 preference writes open one store;
+  a settled folder listed once per preview load and re-listed after a change.
+
 Left:
-  - Module first-open: icon PNG decode on the GUI thread, layout polish.
-  - Settings load/save, large-folder listing, plate viewer timings.
+  - Chatty GUI runs: 1.7x bare headless (1.5x a logged headless run). The
+    rest is the logging sinks themselves (master + level + dated file +
+    console) and the journal's git status; dropping a duplicate sink is a
+    product decision.
+  - Module first-open: icon PNG decode on the GUI thread, Qt polish/layout
+    (30 modules over 500 ms offscreen under load).
+  - GUI-thread listings left: FilePathListWidget._folder_members,
+    ask_for_the_path's folder check (one listdir each on user action).
   - A real-display (not offscreen) cold/warm run on a quiet machine for
     release-grade startup numbers.
+  - Pre-existing, not this item: test_a_qt_warning_reaches_the_console_once
+    fails after the logging_util tests in one process (also on base);
+    test_documentation_i18n en catalog stale for home.RecentRunsPanel /
+    TotalsPanel (from 0af688ea0..ea74caf5b, needs a catalog rebuild).

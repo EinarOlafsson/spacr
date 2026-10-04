@@ -385,18 +385,34 @@ class PlateGridWidget(QWidget):
 
         empty_pen = QPen(QColor(palette["border"]))
         empty_pen.setWidth(1)
+        empty_brush = QBrush(QColor(palette["surface_alt"]))
+        brushes: Dict[int, QBrush] = {}
+        left = _GRID_PAD + _ROW_LABEL_W + 0.5
+        top = _GRID_PAD + _COL_LABEL_H + 0.5
+        side = size - 1.0
+        values = self._values
+        pen_is_empty = None
         for r in range(1, self._n_rows + 1):
+            y = top + (r - 1) * size
             for c in range(1, self._n_cols + 1):
-                rect = self.cell_rect(r, c).adjusted(0.5, 0.5, -0.5, -0.5)
-                value = self._values.get((r, c))
+                rect = QRectF(left + (c - 1) * size, y, side, side)
+                value = values.get((r, c))
                 if value is None:
-                    painter.setPen(empty_pen)
-                    painter.setBrush(QBrush(QColor(palette["surface_alt"])))
+                    if pen_is_empty is not True:
+                        painter.setPen(empty_pen)
+                        painter.setBrush(empty_brush)
+                        pen_is_empty = True
                     painter.drawRect(rect)
                     painter.drawLine(rect.topLeft(), rect.bottomRight())
                 else:
-                    painter.setPen(Qt.NoPen)
-                    painter.setBrush(QBrush(self._colour(value)))
+                    if pen_is_empty is not False:
+                        painter.setPen(Qt.NoPen)
+                        pen_is_empty = False
+                    colour = self._colour(value)
+                    brush = brushes.get(id(colour))
+                    if brush is None:
+                        brush = brushes[id(colour)] = QBrush(colour)
+                    painter.setBrush(brush)
                     painter.drawRect(rect)
 
         if self._selected is not None:

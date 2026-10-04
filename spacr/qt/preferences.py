@@ -156,6 +156,7 @@ Values:
 """
 from __future__ import annotations
 
+import contextlib
 import logging
 import threading
 
@@ -718,6 +719,39 @@ def _settings():
     """The preference store: the real one, or safe mode's read shadow."""
     real = QSettings(_ORG, _APP)
     return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
+
+
+def _in_one_store(fn):
+    """Call ``fn`` inside :func:`_one_store` and return what it returns."""
+    with _one_store():
+        return fn()
+
+
+@contextlib.contextmanager
+def _one_store():
+    """Serve this thread's preference reads and writes from one store.
+
+    Each ``set_*`` opens its own ``QSettings``, and closing one that changed
+    rewrites the whole file: 6 ms a value, half a second for the Preferences
+    dialog's Save. Inside this block the calling thread shares one store,
+    written to disk once when the block ends. Other threads keep their own.
+
+    :yields: the shared store.
+    """
+    global _settings
+    shadowed = _settings
+    store = shadowed()
+    owner = threading.get_ident()
+    _settings = lambda: (store if threading.get_ident() == owner
+                         else shadowed())
+    try:
+        yield store
+    finally:
+        _settings = shadowed
+        try:
+            store.sync()
+        except Exception:
+            LOG.debug("could not write the preferences", exc_info=True)
 
 
 
@@ -8914,11 +8948,12 @@ class PreferencesDialog:
                 except Exception as exc:                     # noqa: BLE001
                     LOG.warning("could not save the notification settings "
                                 "(%s)", type(exc).__name__)
+            _settings().sync()
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
 
-        buttons.accepted.connect(_save)
+        buttons.accepted.connect(lambda: _in_one_store(_save))
         buttons.rejected.connect(dlg.reject)
         from .widgets.hint_bar import HintBar
         hints = HintBar(parent=dlg)

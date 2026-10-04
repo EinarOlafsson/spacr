@@ -68,7 +68,7 @@ from PySide6.QtWidgets import (
 from .preview_controls import (
     DEFAULT_MAX_SETS, DEFAULT_METADATA_TYPE, MAX_SETS_TOOLTIP, FlatButton,
     FlatComboBox, FlatSpinBox, ImageSetSampler, apply_sample_to_combo,
-    channel_view, enumerate_image_sets, populate_channel_combo,
+    _file_names, channel_view, enumerate_image_sets, populate_channel_combo,
     sample_image_sets, sample_seed, selected_channel,
 )
 from .preview_contract import (
@@ -760,6 +760,15 @@ def first_supported_image(source: Path) -> Optional[Path]:
         return source if source.suffix.lower() in SUPPORTED_SUFFIXES else None
     if not source.is_dir():
         return None
+
+    try:
+        top = sorted(_file_names(source), key=str.casefold)
+    except OSError:
+        top = []
+    for name in top:
+        if (not name.startswith(".")
+                and Path(name).suffix.lower() in SUPPORTED_SUFFIXES):
+            return source / name
 
     walk_errors: List[OSError] = []
     for folder, dirs, files in os.walk(

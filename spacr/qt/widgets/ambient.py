@@ -682,6 +682,7 @@ def dressed(theme: str, palette: str) -> Tuple[str, str]:
 #: Frame-rate cap. Nothing here moves fast enough to need more, and this
 #: matches the DNA rain so the app has one animation cadence.
 DEFAULT_FPS = 24
+_RUN_FPS = 4
 MIN_FPS = 1
 MAX_FPS = 60
 
@@ -4964,6 +4965,7 @@ class AmbientWidget(QWidget):
         #: running and drawing something invisible.
         self.frames_painted = 0
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
+        self._run_paced = False
         self._clock = QElapsedTimer()
         self._timer = QTimer(self)
         self._timer.setTimerType(Qt.CoarseTimer)
@@ -5292,10 +5294,35 @@ class AmbientWidget(QWidget):
             :data:`MIN_FPS` to :data:`MAX_FPS`.
         """
         self._fps = _clamp_int(fps, MIN_FPS, MAX_FPS)
-        self._timer.setInterval(max(1, 1000 // self._fps))
+        self._apply_rate()
+
+    def _rate(self) -> int:
+        """The frame cap in force: :attr:`fps`, or less while a run goes.
+
+        Every backdrop frame repaints the whole window above it, and each
+        widget there that draws itself in Python takes the interpreter lock
+        from the run to do it. While a pipeline holds
+        :func:`spacr.qt.gil_priority.active`, the backdrop moves at no more
+        than :data:`_RUN_FPS`.
+        """
+        return min(self._fps, _RUN_FPS) if self._run_paced else self._fps
+
+    def _apply_rate(self) -> None:
+        """Set the timer and the shading thread to :meth:`_rate`."""
+        rate = self._rate()
+        self._timer.setInterval(max(1, 1000 // rate))
         producer = self._producer_box[0]
         if producer is not None:
-            producer.set_fps(self._fps)
+            producer.set_fps(rate)
+
+    def _follow_the_run(self) -> None:
+        """Slow down when a run starts and speed up when it ends."""
+        from ..gil_priority import active
+
+        paced = bool(active())
+        if paced != self._run_paced:
+            self._run_paced = paced
+            self._apply_rate()
 
     def is_running(self) -> bool:
         """True while the animation timer is ticking."""
@@ -5370,7 +5397,8 @@ class AmbientWidget(QWidget):
         if not isinstance(engine, _BufferedEngine):
             return
         size = (max(0, self.width()), max(0, self.height()))
-        producer = _FrameProducer(engine, self._engine_lock, self._fps, size)
+        producer = _FrameProducer(engine, self._engine_lock, self._rate(),
+                                  size)
         if size[0] > 0 and size[1] > 0:
             with self._engine_lock:
                 first = engine.shade(*size)
@@ -5518,8 +5546,9 @@ class AmbientWidget(QWidget):
         shading passes, which is what keeps a frame a pure function of the
         clock even though two threads are involved.
         """
+        self._follow_the_run()
         dt = self._clock.restart() / 1000.0
-        step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
+        step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._rate()
         self._pending_dt += step
         advance_spaceout_drift(step)
         if self._engine_lock.acquire(blocking=False):
