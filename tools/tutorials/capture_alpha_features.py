@@ -222,18 +222,49 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
             widget_group(frame, module, names)
         except Exception as error:
             report['groups'].setdefault(frame, {})['error'] = repr(error)
-    # Model Zoo lists the alpha segmentation models.
+    # Make Masks' folded Model Zoo lists the alpha backends and models
+    # (DINOCell among them) once Scan lists the catalogue (642, 404).
+    frame = '09b_model_zoo_alpha_models'
     try:
-        screen = open_module('model_zoo')
-        table = getattr(screen, '_table', None)
-        deadline = time.monotonic() + 60
-        while table is not None and table.rowCount() == 0 and time.monotonic() < deadline:
+        from spacr.qt.screens.model_zoo import _stem_version
+        from spacr.settings import _is_alpha
+
+        masks = open_module('make_masks')
+        masks.open_folded('model_zoo')
+        settle(2)
+        zoo = masks.folded_screen('model_zoo')
+        QTest.mouseClick(zoo._btn_scan, Qt.LeftButton)
+        deadline = time.monotonic() + 120
+        while zoo._table.rowCount() == 0 and time.monotonic() < deadline:
             settle(0.5)
-        report['groups']['03_model_zoo_alpha_models'] = {
-            'rows': table.rowCount() if table is not None else None}
-        capture('03_model_zoo_alpha_models')
+        settle(2)
+        table = zoo._table
+        rows, names = [], []
+        for group, (stem, pairs) in enumerate(zoo._groups):
+            row = zoo._row_of_group(group)
+            if row is None or table.isRowHidden(row):
+                continue
+            keys = [entry.key for _label, entry in pairs]
+            if any(_is_alpha('models', key) or _is_alpha('models', _stem_version(entry)[0])
+                   for key, (_label, entry) in zip(keys, pairs)):
+                rows.append(row)
+                names.append(stem)
+        if 'dinocell' not in names:
+            raise RuntimeError(f'DINOCell is not among the alpha rows: {names}')
+        backends = sorted(r for r, n in zip(rows, names) if '_' not in n)
+        table.scrollToItem(table.item(backends[0], 0), table.ScrollHint.PositionAtTop)
+        settle(1)
+        top = table.visualItemRect(table.item(backends[0], 0))
+        bottom = table.visualItemRect(table.item(backends[-1], 0))
+        viewport = table.viewport()
+        origin = viewport.mapToGlobal(QPoint(0, top.top())) - window.mapToGlobal(QPoint(0, 0))
+        report['groups'][frame] = {
+            'alpha_rows': names, 'focus_rows': [table.item(r, 0).text() for r in backends],
+            'focus': [origin.x(), origin.y(), viewport.width(), bottom.bottom() - top.top() + 1],
+            'table': rect_of(table)}
+        capture(frame)
     except Exception as error:
-        report['groups'].setdefault('03_model_zoo_alpha_models', {})['error'] = repr(error)
+        report['groups'].setdefault(frame, {})['error'] = repr(error)
     # Preferences tabs that only exist with alpha on: Notifications, plugins.
     try:
         dialog = prefs.PreferencesDialog(window)
