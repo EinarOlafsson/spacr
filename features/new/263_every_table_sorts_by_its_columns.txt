@@ -5,6 +5,7 @@ EVERY TABLE SORTS BY ITS COLUMNS, THE SAME WAY
 Status:    DONE 2026-08-26 — Verified by CLICKING the header of the real
            coefficients table and reading the values back, not by checking
            that a flag was set.
+VERIFIED 2026-10-04: tests/qt/test_every_table_sorts_by_its_columns.py green.
 
            first click  -> descending, top 13.01, 9.84, 9.15, 8.94
            second click -> ascending,  top 0.03, 0.11, 0.11, 0.12

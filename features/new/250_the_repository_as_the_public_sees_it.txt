@@ -3,6 +3,7 @@ THE REPOSITORY AS THE PUBLIC SEES IT
 ================================================================================
 
 Status:    DONE 2026-08-27 — on everything this branch decides, 2026-08-27.
+VERIFIED 2026-10-04: origin/nightly log has 0 AI/bot authors or trailers; origin/main tracks none of instructions/skill/proposals/.claude (nightly keeps them by the maintainer's option B).
 
            AUTHORSHIP IS ALREADY CLEAN. `git log` carries ZERO commits with
            a Co-Authored-By naming an AI and ZERO authored by a bot, so the

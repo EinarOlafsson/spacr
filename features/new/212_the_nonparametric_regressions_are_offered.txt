@@ -5,6 +5,7 @@ THE NONPARAMETRIC REGRESSIONS ARE OFFERED
 Status:    DONE 2026-08-25 — closed in spaCR; the Qt panel reads the same
            table, and tools/build_i18n_catalogs.py now collects
            _REGRESSION_MENU_UI_SOURCES.
+VERIFIED 2026-10-04: tests green on nightly: test_analysis_mode_is_a_dropdown.py, test_a_settings_panel_does_not_import_torch.py, test_external_i18n_catalogs.py and others.
 
 Previous status (superseded 2026-10-04):    closed in spaCR. The Qt panel now reads the same table, which was
            the last open half; see THE LAST HALF at the end. One line remains

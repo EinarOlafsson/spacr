@@ -4,6 +4,7 @@ THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
 
 Status:    DONE 2026-08-21 — the last inert control, mark_colouring,
            wired 2026-09-25 (see the closing note).
+VERIFIED 2026-10-04: named tests green; the 'aspect ratio' wording is superseded by 245 (Graph shape).
 Requested: 2026-08-21 -- "when i right click and press Figure settings i get
            figure settings but i get some settings i dont want and lack some
            settings i want."

@@ -4,6 +4,7 @@ EVERY PICTURE IS DRAWN FOR THE SCREEN IT IS ON
 
 Status:    DONE 2026-08-26 — `spacr/qt/hidpi.py` holds the helper and 16
            files go through it. Measured on the pixmap, not the file:
+VERIFIED 2026-10-04: tests/qt/test_every_picture_is_drawn_for_the_screen_it_is_on.py green.
 
                ratio 2 -> 240x240 pixels, devicePixelRatio 2, logical 120x120
                ratio 1 -> 120x120 pixels, devicePixelRatio 1, logical 120x120

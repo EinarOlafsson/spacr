@@ -3,6 +3,7 @@ IMAGES ARE STREAMED, NOT ONLY LOADED
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: tests green on nightly: test_images_are_streamed.py.
 Requested: 2026-08-21 -- "in Computer vision images and cropping, change crop
            sourse to Image sourse and chang it to a drop down with the
            options load images and stream images. / Tables default should be

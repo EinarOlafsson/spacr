@@ -8,6 +8,7 @@ Status:    DONE 2026-09-12 — `SHARED_ICON_ASSETS` maps `investigate_hit` to
            purpose. Both are non-null in light and dark at 512x512, driven
            through `app_icon` rather than read off the table.
            tests/qt/test_investigate_hits_wears_the_hit_mark.py, 43 tests.
+VERIFIED 2026-10-04: tests green on nightly: test_investigate_hits_wears_the_hit_mark.py.
 Owner:     spacr/qt/iconset.py.
 
 "the investigate hits module should get the old hit icon"

@@ -3,6 +3,7 @@ THE UMAP SAYS WHETHER THE ANNOTATION WORKED
 ================================================================================
 
 Status:    DONE 2026-08-21 — The verdict, and the picture it is read off.
+VERIFIED 2026-10-04: tests green on nightly: test_annotation_umap_plot.py, test_annotation_umap_qc.py.
 Requested: 2026-08-21 -- "generate a umap, perform a hyperparamiter search
            find stucture that separates the positive and negative controlls
            and see where the annotated cells land, do they cluster with PC or

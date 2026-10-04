@@ -3,6 +3,7 @@ EVERY DISTANCE WORTH MEASURING, WITHIN AND BETWEEN OBJECTS
 ================================================================================
 
 Status:    DONE 2026-08-23 — Requested 2026-08-23, built and verified the same day.
+VERIFIED 2026-10-04: test_every_distance_worth_measuring.py green; headless probe at gaps 3/10/25 px gave surface 4/11/26 and centre 13/20/35 (within a pixel).
 Owner:     Measure.
 
 WHAT SHIPPED. `spacr/object_distances.py`, opt-in under `object_distances`

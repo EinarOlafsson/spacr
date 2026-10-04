@@ -4,6 +4,7 @@ EVERY SETTINGS WINDOW RESIZES, BOTH WAYS
 
 Status:    DONE 2026-08-26 — Requested 2026-08-26 -- "i should be able to resize all
            settings windows horizontally and verticaly".
+VERIFIED 2026-10-04: tests green on nightly: test_a_frameless_window_can_still_be_resized.py, test_dialog_detach.py.
 
            ONE PLACE, NOT THIRTY: the application-wide filter in dialogs.py
            calls `make_the_window_resizable` on Polish OR Show for every

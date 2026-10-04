@@ -4,6 +4,7 @@ THE WINDOW MARKS HAVE NO BLACK PLATE
 
 Status:    DONE 2026-08-27 — Reproduced in the dark theme, fixed and rendered
            in a regression test.
+VERIFIED 2026-10-04: tests/qt/test_the_window_chrome_reads_as_a_pair.py green.
 Owner:     spacr/qt/app.py window chrome.
 
 --------------------------------------------------------------------------------

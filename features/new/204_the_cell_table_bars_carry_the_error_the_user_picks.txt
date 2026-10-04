@@ -3,6 +3,7 @@ THE CELL TABLE'S BARS CARRY THE ERROR THE USER PICKS
 ================================================================================
 
 Status:    DONE 2026-08-21 — filed the same day.
+VERIFIED 2026-10-04: tests green on nightly: test_the_bar_says_what_its_whisker_means.py, test_the_cell_table_bar_carries_the_chosen_error.py.
 Requested: 2026-08-21 -- "for the cell table graphs if bar is chosen the user
            should be able to choose SD, Var, or SEM error bars."
 Owner:     Qt GUI (cell table graphs)

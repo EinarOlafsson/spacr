@@ -4,6 +4,7 @@ Status:    DONE 2026-09-15 — built on the maintainer's decision "Global in the
            only": the app and every pipeline run make the bundled Open Sans
            matplotlib's default, so a plain Figure() draws in it too; importing
            spaCR as a library changes no rcParam. See "BUILT" at the end.
+VERIFIED 2026-10-04: tests green on nightly: test_a_figure_drawn_without_open_sans_still_gets_it.py, test_cli.py, test_one_visual_system_not_twelve.py and others.
 
 Asked 2026-08-28. The font ships in the repository:
 

@@ -5,6 +5,7 @@ SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
 Status:    DONE 2026-08-27 — Item 1 was reopened because the count was
            inert; it is not any more, and the work that fixed it is the same
            work that closed instruction 256.
+VERIFIED 2026-10-04: tests green on nightly: test_3d_and_time_say_which_dimension_the_plate_has.py, test_activation_folds_into_classify.py, test_the_folded_rows_left_the_registry.py.
 
            THE COUNT DRIVES THE SLOTS. Set through the real dropdown with
            the event loop running, 7 renders seven, 2 renders two and 7

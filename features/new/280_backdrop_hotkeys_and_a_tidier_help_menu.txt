@@ -3,6 +3,7 @@ BACKDROP HOTKEYS, AND A HELP MENU WITHOUT BADGES
 ================================================================================
 
 Status:    DONE 2026-08-27 — 11 tests. ONE DEVIATION, named below.
+VERIFIED 2026-10-04: tests/qt/test_the_backdrop_hotkeys_and_help_menu.py green.
 Owner:     spacr/qt/app.py, spacr/qt/i18n.py.
 Requested: 2026-08-27, in two messages.
 

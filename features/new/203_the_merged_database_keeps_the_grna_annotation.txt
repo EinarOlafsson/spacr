@@ -3,6 +3,7 @@ THE MERGED DATABASE KEEPS THE gRNA ANNOTATION
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: test_the_merge_keeps_the_grna_annotation.py green.
 Requested: 2026-08-21 -- "when i merge the databases and pick a database
            measurement to compare i am not able to compare the gRNA annotated
            groups any longer. so the predictions do not seem to be merged with

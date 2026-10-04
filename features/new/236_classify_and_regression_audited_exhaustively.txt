@@ -5,6 +5,7 @@ CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
 Status:    DONE 2026-08-22 — Requested 2026-08-22, verified 2026-08-23. The AMP path,
            the one torch path never exercised, was driven on the GPU
            2026-09-25 (last entry).
+VERIFIED 2026-10-04: tests green on nightly: test_cov_8_deep_spacr_device.py, test_dead_settings.py, test_mixed_precision_is_a_setting_that_is_read.py.
 
            Every one of the thirteen items is driven. Re-verified against
            the current tree after the reboot rather than carried on trust:

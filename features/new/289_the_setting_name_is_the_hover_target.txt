@@ -8,6 +8,7 @@ Status:    DONE 2026-09-15 — The file's own last line has said "289 IS DONE" s
            remains is on widgets with no separate name to hover -- buttons
            and self-captioned toggles -- where hovering the widget IS
            hovering its name, which is what was asked for.
+VERIFIED 2026-10-04: test_the_name_carries_the_help.py green; a probe over all 48 registry screens found no labelled row with help on its field (only Power's unlabelled 'Held fixed...' note, which is its own caption).
 
 Asked repeatedly, most recently 2026-08-28: "in all settings i dont know how
 many times i have said this, when the mouse hovers over the settings name the

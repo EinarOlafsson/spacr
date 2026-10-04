@@ -12,6 +12,7 @@ Status:    DONE 2026-09-13 — verified against the tree 2026-09-13. This file c
            survives in preferences.py. Drift worth knowing: ask (d) names the
            Defaults / Close / Open buttons; that box is now Save / Cancel /
            Reset to defaults.
+VERIFIED 2026-10-04: tests/qt/test_preferences_explains_in_its_own_strip.py and test_hint_bar_uncovered_paths.py green.
 
 Asked 2026-08-28.
 

@@ -3,6 +3,7 @@ THE CELL TAB OFFERS THE BEST WAYS TO ANNOTATE, NOT ONLY THE OBVIOUS ONE
 ================================================================================
 
 Status:    DONE 2026-08-27 — audited 2026-08-27 against the built panel.
+VERIFIED 2026-10-04: tests green on nightly: test_a_strategy_the_cells_cannot_support_says_so.py, test_the_annotation_menu_refuses_before_it_fits.py.
 
            THE STRATEGIES ARE A NAMED CHOICE, each saying what it is for and
            what it costs rather than naming a mechanism:

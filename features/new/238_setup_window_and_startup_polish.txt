@@ -3,6 +3,7 @@ THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
 ================================================================================
 
 Status:    DONE 2026-08-23 — all six items, confirmed by the maintainer as each landed.
+VERIFIED 2026-10-04: tests/qt/test_the_setup_window_is_one_rounded_surface.py green; spacr/__init__ filters the pynvml warning.
 Owner:     spacr/qt -- setup slides, glass, home, preferences.
 
   1. One rounded translucent surface -- "the setup window now looks like i

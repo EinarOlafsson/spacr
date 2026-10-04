@@ -3,6 +3,7 @@ TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
 ================================================================================
 
 Status:    DONE 2026-08-22 — Found 2026-08-22, fixed 2026-08-23.
+VERIFIED 2026-10-04: tests green on nightly: test_chaining_gui.py, test_cov_annotate_screen.py, test_cov_io_datasets.py and others.
 
            BOTH WERE THE SAME MISTAKE IN TWO PLACES: a test whose premise
            was established by whatever happened to run before it.

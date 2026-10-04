@@ -1267,8 +1267,13 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # the redrawn Leishmania, Giardia, virus and mammalian diagram notes.
 # 556, 2026-10-04: the SAM2 tracking dialog's Save tooltip, folder prompt
 # and two status lines.
+# 245, 2026-10-04: the figure-size slider's tooltip says "proportions", not
+# "aspect ratio".
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Giardia duodenalis",
+    "How wide each figure is drawn, which is also how tall: the tiles keep "
+    "each figure's own proportions. Fewer, bigger figures per row to the "
+    "right.",
     "Leishmania spp.",
     "Mammalian cells",
     "Trypanosoma spp.",

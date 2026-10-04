@@ -5,6 +5,7 @@ THE NOTEBOOK THAT ANSWERS WHICH TEST FITS THIS SCREEN
 Status:    DONE 2026-08-27 — Delivered to ~/Desktop/permutation_vs_ols/
            screen_simulation.ipynb. Not spaCR source, but it is work that
            was asked for and it belongs on the list.
+VERIFIED 2026-10-04: notebook present as ~/Desktop/permutation_vs_ols/screen_simulation_final.ipynb (18 cells, 11 with outputs, no markdown); name differs from the 'screen_simulation.ipynb' above.
 Requested: 2026-08-26 and refined repeatedly through 2026-08-27.
 
 --------------------------------------------------------------------------------

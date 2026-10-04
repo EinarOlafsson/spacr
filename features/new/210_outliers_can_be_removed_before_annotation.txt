@@ -3,6 +3,7 @@ OUTLIERS CAN BE REMOVED BEFORE ANNOTATION
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: test_outliers_go_before_annotation.py green.
 Requested: 2026-08-21 -- "there should also be a remove outlier based on,
            cell_area, nucleus_area, cell_channel_intensity, nucleus
            channel_intensity that can be optionally applied before

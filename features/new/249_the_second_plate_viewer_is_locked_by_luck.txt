@@ -4,6 +4,7 @@ THE SECOND PLATE VIEWER IS LOCKED BY LUCK, AND DUPLICATES THE FIRST
 
 Status:    DONE 2026-08-26 — with ONE POINT ANSWERED DIFFERENTLY FROM THE
            WAY THIS FILE ASKED -- measured, and said out loud below.
+VERIFIED 2026-10-04: tests green on nightly: test_both_plates_are_locked_and_keep_what_was_chosen.py.
 
            LOCKED BY CONSTRUCTION. Both plates state their square in their
            OWN sheet, in content-box numbers, so the application sheet

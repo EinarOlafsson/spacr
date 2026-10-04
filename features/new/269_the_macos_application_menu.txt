@@ -3,6 +3,7 @@ ON MACOS, PREFERENCES AND QUIT ARE IN A MENU THAT IS NOT CALLED SPACR
 ================================================================================
 
 Status:    DONE 2026-08-27 — audited 2026-08-27.
+VERIFIED 2026-10-04: tests/qt/test_the_macos_application_menu.py green.
 
            THE NAME IS SET BEFORE THE APPLICATION EXISTS. `name_the_application`
            runs ahead of the `QApplication(...)` constructor, and returns what

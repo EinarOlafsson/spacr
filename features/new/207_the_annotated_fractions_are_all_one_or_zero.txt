@@ -4,6 +4,7 @@ THE ANNOTATED FRACTIONS ARE ALL ONE OR ZERO
 
 Status:    DONE 2026-08-21 — the missing measurement (criterion 1) made
            on the tsg101 screen 2026-09-25 -- no annotation bug.
+VERIFIED 2026-10-04: tests green on nightly: test_the_shown_cells_are_all_named.py.
 Requested: 2026-08-21 -- "i think there is a problem with the gRNA annotation
            alorithms or the graphing logic. if i pick tob py score, pick
            225160 on the volcano plot, and jitter plot and cell level i see a

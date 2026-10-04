@@ -3,6 +3,7 @@ THE ANNOTATION APP: TWO CRASHES FIRST, THEN SIX THINGS ABOUT THE VIEW
 ================================================================================
 
 Status:    DONE 2026-08-27 — audited 2026-08-27.
+VERIFIED 2026-10-04: tests green on nightly: test_a_cmy_crop_is_not_an_rgb_crop.py, test_annotate_resize_crash.py, test_annotate_worker_lifecycle.py.
 
            BOTH CRASHES ARE FIXED -- commit 40a5bbab, "Both annotator
            crashes, and the view settings that were decorative". Cellpose

@@ -4,6 +4,7 @@ REGRESSION OPENS IN LAPTOP AND EXTRA-PERFORMANCE MODES
 
 Status:    DONE 2026-08-27 — Reproduced, fixed and covered by the ordinary Qt
            suite.
+VERIFIED 2026-10-04: tests green on nightly: test_app_screen.py.
 Priority:  BLOCKING REGRESSION.
 Owner:     spacr/qt/screens/settings_model.py and its real-screen tests.
 

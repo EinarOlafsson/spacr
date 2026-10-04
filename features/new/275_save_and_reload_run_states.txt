@@ -5,6 +5,7 @@ SAVE A RUN'S STATE FROM THE LIST, AND MORE TO READ IN THE LIST
 Status:    DONE 2026-08-27 — 25 tests. Right-click one run or
            several to save; the existing restore finds what it wrote.
            regression_backend and guide_permutations are columns.
+VERIFIED 2026-10-04: tests/qt/test_saving_a_runs_state_from_the_list.py and test_the_runs_tab_holds_every_run.py green.
 Owner:     spacr/qt/widgets/sweep_runs.py for the menu and the columns,
            spacr/workspace.py for what a state is.
 Follows:   157 (the loaded mark), 146 (a run leaving the table).

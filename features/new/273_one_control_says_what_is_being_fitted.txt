@@ -3,6 +3,7 @@ ONE CONTROL SAYS WHAT IS BEING FITTED, AND THE PERMUTATION TESTS GENES TOO
 ================================================================================
 
 Status:    DONE 2026-08-27 — all three sections.
+VERIFIED 2026-10-04: test_the_formula_shown_is_the_formula_fitted.py and test_analysis_mode_is_a_dropdown_that_reads.py green.
 
            1. THE OPTIONS NAME THE ANALYSIS. `level` offers "one estimate
            per guide", "one estimate per gene, its guides pooled", and both

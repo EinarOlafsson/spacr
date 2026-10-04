@@ -3,6 +3,7 @@ FOUR THINGS ABOUT THE MODULES
 ================================================================================
 
 Status:    DONE 2026-08-26 — all four.
+VERIFIED 2026-10-04: tests green on nightly: test_mask_generation_loads_the_example_images.py.
 
            1. `spacr/qt/screens/napari_bridge.py` is gone -- folded into
               its host. `spacr/napari_bridge.py`, the LIBRARY, still stands:

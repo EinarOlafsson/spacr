@@ -4,6 +4,7 @@ THE GENE-LEVEL COEFFICIENTS ARE FITTED AND CANNOT BE SEEN
 
 Status:    DONE 2026-08-26 — verified on the drawn table and the drawn
            volcano rather than on a model call.
+VERIFIED 2026-10-04: test_the_gene_level_is_a_choice_on_the_panel.py green.
 
            Fitted run at level='both' (results/ols_3): the panel offers
            gRNA (789), Gene (380) and Both (1169), and each draws exactly

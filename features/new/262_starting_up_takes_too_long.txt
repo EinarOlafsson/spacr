@@ -3,6 +3,7 @@ STARTING UP TAKES TOO LONG
 ================================================================================
 
 Status:    DONE 2026-08-27 — measured the same way this file measured it.
+VERIFIED 2026-10-04: tests green on nightly: test_a_saved_file_that_names_no_channels_hides_the_objects.py.
 
                Mask screen build   2.73 s  ->  0.604 s   (4.5x)
                per row             1.78 ms ->  0.39 ms   (1,538 rows)

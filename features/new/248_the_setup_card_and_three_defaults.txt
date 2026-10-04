@@ -9,6 +9,7 @@ Status:    DONE 2026-09-12 — The stray sentence was the GPU note, shown having
            now. All three toggles ship on, each behind a named constant,
            and an explicit opt-out survives the change because every
            setter writes rather than storing a delta from the default.
+VERIFIED 2026-10-04: tests green on nightly: test_the_setup_card_has_no_stray_text.py.
 Owner:     spacr/qt/widgets/setup_slides.py for the stray text;
            spacr/qt/preferences.py for the three defaults.
 

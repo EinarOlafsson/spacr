@@ -10,6 +10,7 @@ Status:    DONE 2026-08-21 — after the gate below was passed; re-verified
            benchmark:330, baseline_majority:373, baseline_chance:394). It is
            wired, not shelved -- cell_montage.py:1197 imports sudoku -- and
            six test files exercise it.
+VERIFIED 2026-10-04: test_sudoku_annotation.py and test_each_annotation_method_explains_itself.py green.
 Requested: 2026-08-21.
 Owner:     Sequencing annotation (`guide_attribution.py`)
 

@@ -4,6 +4,7 @@ ORGANELLE COUNT THAT STILL CHANGES NOTHING
 ================================================================================
 
 Status:    DONE 2026-08-27 — audited 2026-08-27. 41 tests across three files.
+VERIFIED 2026-10-04: tests/qt/test_a_mask_dim_can_be_emptied.py and test_the_organelle_count_builds_the_panel.py green.
 
            The count is on the panel each module OPENS with, immediately
            before the slots it governs, and driving it through the real

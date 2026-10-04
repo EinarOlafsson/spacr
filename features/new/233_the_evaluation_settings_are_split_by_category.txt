@@ -3,6 +3,7 @@ THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
 ================================================================================
 
 Status:    DONE 2026-09-25 — split on the Classify panel (decision); see the closing section.
+VERIFIED 2026-10-04: tests green on nightly: test_classifier_evaluation_screen.py, test_cov_r6_screens_forms_and_masks.py, test_cov_r9_settings_model_group_order.py and others.
 Requested: 2026-08-21 -- "the evaluation section of classify has too many
            setting please devide them on category and machine learning vs
            computer vision and ther subcategories ther, best is if these

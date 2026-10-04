@@ -34,6 +34,7 @@ Status:    DONE 2026-08-26 — The montage cap is 2,000, and it is ONE constant 
            `picture_settings.MEASURED_PAGE_SIZES`, `MEASURED_CROP_BYTES`
            and `MEASURED_MS_PER_CROP`, and `montage_cap_cost()` turns them
            into the sentence the control carries as a cap is typed.
+VERIFIED 2026-10-04: test_the_settings_panel_nests.py and test_cov_w2_4_setup_screen.py green.
 Owner:     spacr/qt -- setup slides, terms, preferences, the picture settings
            dialog, the figure save dialog; spacr/ml.py for the intercept.
 

@@ -3,6 +3,7 @@ THE BOTTOM OF A CONSOLE IS ONE GESTURE AWAY
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: tests green on nightly: test_all_module_smoke.py, test_the_console_jumps_to_the_end.py.
 Requested: 2026-08-21 -- "it should be possible to go to the bottom of a
            console section without having to scroll through everything".
 Owner:     Qt GUI (console widget, every module that has one)

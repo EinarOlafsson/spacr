@@ -5,6 +5,7 @@ THE SAVE FIGURE DIALOG: FOUR THINGS
 Status:    DONE 2026-08-26 — Requested 2026-08-26, from the volcano's right-click
            Save figure. Verified by driving the real dialog on a real
            volcano, not by reading the code.
+VERIFIED 2026-10-04: tests green on nightly: test_the_save_figure_dialog_four_things.py.
 
            1. SQUARE. Renders 760 x 760 with no exception. A preview that
            does fail now carries the reason (`failure = self._why(exc)`)

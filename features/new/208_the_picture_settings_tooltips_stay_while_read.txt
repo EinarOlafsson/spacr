@@ -3,6 +3,7 @@ THE PICTURE SETTINGS TOOLTIPS STAY WHILE THEY ARE BEING READ
 ================================================================================
 
 Status:    DONE 2026-08-21 — filed the same day.
+VERIFIED 2026-10-04: tests green on nightly: test_each_annotation_method_explains_itself.py, test_the_tooltip_is_on_the_title_only.py.
 Requested: 2026-08-21 -- "the tooltipps for the settings in picture settings
            dissapear when the the mouse is hovering over the tooltip text. the
            tooltip should appera when hovering over the setting title text and

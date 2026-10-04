@@ -3,6 +3,7 @@ MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
 ================================================================================
 
 Status:    DONE 2026-08-27 — Recrop has landed, and it is the last of them.
+VERIFIED 2026-10-04: tests green on nightly: test_600_popup_layout_and_selection.py, test_make_masks_settings_explain_themselves.py, test_make_masks_wand_rescues.py and others.
 
            `MODE_RECROP` is on the tool row beside the other six, and
            `mask_engine.write_recrop` / `retire_recropped_original` do the

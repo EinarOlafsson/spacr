@@ -4,6 +4,7 @@ THE SETUP SCREEN IS A SEQUENCE OF SLIDES, NOT A FORM
 
 Status:    DONE 2026-09-13 — corrected 2026-09-13 -- "DONE 2026-08-22 -- THE SECOND
            PASS, FROM SEEING IT RUN". Originally filed 2026-08-21.
+VERIFIED 2026-10-04: tests/qt/test_the_setup_is_a_sequence_of_slides.py green.
 Requested: 2026-08-21 -- "for the spacr start up. i want one question per
            slide with a little explantaion. the blue rim should flow like
            water towards the mouse and every time i press nezt it should

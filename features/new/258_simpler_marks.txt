@@ -3,6 +3,7 @@ SIMPLER MARKS: NO INFORMATION DOTS, AND ONE CLOSE ICON EVERYWHERE
 ================================================================================
 
 Status:    DONE 2026-08-26 — Requested 2026-08-26 -- "i like simplisity!"
+VERIFIED 2026-10-04: tests green on nightly: test_one_close_mark.py.
 
            1. The dots are gone: `api_dots` was removed from
            `install_api_tooltips` entirely rather than defaulted to False,

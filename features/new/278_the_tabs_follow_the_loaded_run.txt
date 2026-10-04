@@ -3,6 +3,7 @@ THE MEASUREMENT AND CELLS TABS FOLLOW THE LOADED RUN
 ================================================================================
 
 Status:    DONE 2026-08-27 — 9 tests.
+VERIFIED 2026-10-04: test_the_tabs_follow_the_loaded_run.py green.
 Owner:     spacr/qt/screens/app_screen.py.
 Requested: 2026-08-27 -- "i think the measurement and cell tabs are always
            linked to the last run ...."

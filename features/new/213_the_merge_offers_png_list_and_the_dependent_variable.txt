@@ -3,6 +3,7 @@ THE MERGE OFFERS png_list AND THE DEPENDENT VARIABLE
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: test_the_dependent_variable_joins.py and test_the_dependent_join_tries_every_route_once.py green.
 Requested: 2026-08-21 -- "in merge the tables in each database in the
            measurements tab, the png_list table should also be a box as well
            as a box called dependent variable".

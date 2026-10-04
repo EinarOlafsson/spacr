@@ -7141,7 +7141,7 @@ class AppScreen(QWidget):
             self._figure_size.setMaximumWidth(220)
             self._figure_size.setToolTip(
                 "How wide each figure is drawn, which is also how tall: "
-                "the tiles keep each figure's own aspect ratio. Fewer, "
+                "the tiles keep each figure's own proportions. Fewer, "
                 "bigger figures per row to the right.")
             self._figure_size.valueChanged.connect(self._on_figure_size)
             size_row.addWidget(self._figure_size)

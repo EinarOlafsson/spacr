@@ -3,6 +3,7 @@ THE TRAINING GRAPHS UPDATE, THEY DO NOT REGENERATE
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: tests/qt/test_the_training_graphs_update.py green (same curve object, zoom kept).
 Requested: 2026-08-21 -- "in classify during training the graphs should be
            pyqtgraphs and they graphs should be updated not regenerated epch
            after epoch".

@@ -3,6 +3,7 @@ SPACEOUT: THE SAME APPLICATION, WEARING SOMETHING ELSE
 ================================================================================
 
 Status:    DONE 2026-08-27 — audited 2026-08-27.
+VERIFIED 2026-10-04: tests green on nightly: test_space_legibility.py.
 
            THE ENTRY POINT is `spaceout=spacr.qt.spaceout:main` in setup.py,
            beside `spacr` and `spacr-qt`. It starts the same application --

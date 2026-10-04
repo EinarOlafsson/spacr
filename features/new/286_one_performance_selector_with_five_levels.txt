@@ -7,6 +7,7 @@ Status:    DONE 2026-10-01 (evidence 4044d70de) — Current main publishes the e
            scene review, current-main playback and45 current control/setup/
            capture tests pass. Earlier bullets1–6 remain accepted. The newer
            N601 private Appearance scenes are not claimed as published.
+VERIFIED 2026-10-04: PERFORMANCE_LEVELS holds the five levels in order; test_one_performance_selector.py green.
 Owner:     spacr/qt/preferences.py, startup resource policy, cache policy,
            ambient quality, setup screen, translations, tutorials and tests.
 Follows:   282 and 284. Supersedes the separate Laptop mode selector.

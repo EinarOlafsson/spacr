@@ -4,6 +4,7 @@ WHEN IMAGE LOADING CANNOT FIND WHAT IT NEEDS, ASK FOR IT
 
 Status:    DONE 2026-08-27 — The mechanism, the three call sites and the
            three-answer coordinate form are all built and tested.
+VERIFIED 2026-10-04: tests green on nightly: test_it_asks_for_the_path_when_the_usual_one_is_missing.py, test_the_coordinate_form_asks_three_times.py, test_the_coordinate_seam_can_ask.py.
 
            `spacr/qt/ask_for_the_path.py` enforces all six things this file
            says every prompt owes, so a caller cannot forget one:

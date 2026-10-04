@@ -3,6 +3,7 @@ THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: tests/qt/test_the_measurements_columns_say_what_they_control.py green; HEADING_HELP has all five field-keyed entries.
 Requested: 2026-08-21 -- "for the measurements table tab, there needs to be a
            tooltip when the mouse is hovered over measurement, and level and
            plot and show and compare that explains what each field related to

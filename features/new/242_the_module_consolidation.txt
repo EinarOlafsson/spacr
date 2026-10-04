@@ -17,6 +17,7 @@ Status:    DONE 2026-08-26 — Every fold has landed, none of them opens a windo
            name, sentence and maturity colour survive the drop through
            its host's own record, resolved for every host rather than
            one.
+VERIFIED 2026-10-04: tests green on nightly: test_the_folded_rows_left_the_registry.py.
 Owner:     spacr/qt -- the app registry, and the host screen of each fold.
 
 Asked for: "i feel like these modules are kind of redundant now" -- a list

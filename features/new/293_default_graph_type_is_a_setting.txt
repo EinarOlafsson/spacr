@@ -14,6 +14,7 @@ Status: DONE 2026-09-19 — corrected 2026-09-19: every holdout now reads the se
         (Was: MOSTLY DONE — the mechanism is in place and the live Qt graphs
         consume it; the Matplotlib pipeline figures do not yet. Verified
         against the tree 2026-09-14.)
+VERIFIED 2026-10-04: tests green on nightly: test_every_graph_starts_where_the_setting_says.py, test_the_default_graph_type_is_a_setting.py, test_the_default_graph_type_starts_every_graph.py.
 
         THE MECHANISM. `spacr.graph_types` is the chokepoint, and it is Qt-free
         so a headless render answers the same question the same way:

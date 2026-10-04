@@ -3,6 +3,7 @@ CONSOLE, AI CHAT AND SYSTEM ALL COLLAPSE
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: tests/qt/test_the_bottom_panels_collapse.py green.
 Requested: 2026-08-21 -- "console, AI chat and system should all be
            colapsable to make space for the container above if necessary,
            this should be tru of all moduals that have the three".

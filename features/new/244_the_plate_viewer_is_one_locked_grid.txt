@@ -9,6 +9,7 @@ Status:    DONE 2026-08-25 — All three asks and the fourth defect are
            entry). Reported again 2026-08-25, having been
            asked for once before and never built -- "a long time ago i
            told you that ... none of this is true".
+VERIFIED 2026-10-04: tests green on nightly: test_cov_w2_6_plate_map_picker.py, test_the_plate_viewer_is_one_locked_grid.py.
 Owner:     spacr/qt/widgets/plate_map_picker.py, and every screen that
            offers a plate map (the regression control-well pickers are
            where it was met). Every one of those screens opens the same

@@ -3,6 +3,7 @@ THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
 ================================================================================
 
 Status:    DONE 2026-08-21
+VERIFIED 2026-10-04: test_the_volcano_takes_more_than_one_guide.py green.
 Requested: 2026-08-21 -- "the uesr should be able to select multiple grnas on
            the volcano plo at once."
 Owner:     Qt GUI (volcano plot, selection model)

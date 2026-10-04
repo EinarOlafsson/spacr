@@ -7,6 +7,7 @@ Status:    DONE 2026-09-25 — The measurement landed 2026-08-21; the QC folder
            missing are built (last entry), and the real branch now reaches
            the check at all -- it had been passing a LIST of outcomes and
            the guard swallowed the error.
+VERIFIED 2026-10-04: tests green on nightly: test_the_permutation_shows_its_residuals.py.
 Requested: 2026-08-21 -- "phenotype are first residualised against the block
            but no residual graph."
 Owner:     Regression QC, guide_permutation

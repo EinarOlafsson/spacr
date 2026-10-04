@@ -11,6 +11,7 @@ Status:    DONE 2026-08-27 — The final 2026-08-27 source sweep rebuilt and aud
            residual; no exact-English or wrong-script residual remains.
            Items 2 to 7 were already complete and remain covered by their
            focused tests.
+VERIFIED 2026-10-04: tests green on nightly: test_i18n.py, test_the_folded_rows_left_the_registry.py, test_the_live_preview_dropdowns_follow_the_language.py.
 Owner:     spacr/qt -- app registry, dock, window chrome, i18n.
 
 --------------------------------------------------------------------------------

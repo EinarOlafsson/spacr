@@ -8,6 +8,7 @@ Status: DONE 2026-09-13 — verified against the tree 2026-09-13. `terms_were_re
         tests/qt/test_the_terms_need_no_scrolling.py and
         tests/qt/test_the_terms_are_accepted_without_scrolling.py
         (TestTheGateIsOpen). The file carried no Status line at all.
+VERIFIED 2026-10-04: terms_were_read returns True unconditionally; both terms tests green.
 
 Asked 2026-08-28: "change it so the terms of service dont need to be scrolled
 through in the startup window."

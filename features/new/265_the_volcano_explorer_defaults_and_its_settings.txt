@@ -5,6 +5,7 @@ PLOT, AND SETTINGS THAT DO NOT OVERWHELM
 
 Status:    DONE 2026-08-27 — audited 2026-08-27. Every acceptance point has a named
            test and all 90 pass across the three explorer files.
+VERIFIED 2026-10-04: tests/qt/test_the_volcano_explorer_defaults_and_its_settings.py green.
 
            White ground, black axes, black threshold lines and black text
            are measured IN PIXELS on the drawn figure

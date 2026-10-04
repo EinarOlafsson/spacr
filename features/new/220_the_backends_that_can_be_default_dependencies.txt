@@ -3,6 +3,7 @@ WHICH REGRESSION BACKENDS CAN BE DEFAULT DEPENDENCIES
 ================================================================================
 
 Status:    DONE 2026-08-21 — filed the same day.
+VERIFIED 2026-10-04: setup.py gates pyfixest/glum/gpytorch on python_version >= 3.10; test_packaging_metadata.py green.
 Requested: 2026-08-21 -- "i get that cuML is disruptive and should be opt in
            because it limits to 3.11 and 3.12. but cant the other dependencies
            be included by default, check again if they would cause problems if

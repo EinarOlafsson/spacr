@@ -9,6 +9,7 @@ Status:    DONE 2026-08-27 — Both patterns ship, are wired through
            what was wanted -- "i liked the older version of the fractals
            better" -- so what is below stands only where it does not
            contradict the new direction in SECTION 0.
+VERIFIED 2026-10-04: test_spaceout_looks_alive.py green; no PyQt6 import in spacr/ (only _starplast's subprocess string).
 
            WHICH VERSION IS WHICH, so nothing is guessed:
              * `418f69ef` -- the first spaceout fractal. The maintainer saw
