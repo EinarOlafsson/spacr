@@ -440,6 +440,9 @@ class GraphSpec:
 
         :param kinds: column kinds for the current table.
         :returns: an actionable canvas message, or ``""`` when drawable.
+
+        Explicit bars also support a low-cardinality numeric Y (classified as
+        categorical) and fall back to counts when Y has no numeric values.
         """
         for channel in CHANNELS:
             column = self.column_for(channel)
@@ -458,8 +461,6 @@ class GraphSpec:
             if (x_kind or y_kind) != CONTINUOUS:
                 return "Histogram needs a continuous column on X or Y."
         elif kind == BAR:
-            # Explicit bars also support low-cardinality numeric Y (classified
-            # categorical) and count fallback when Y has no numeric values.
             if (x_kind or y_kind) != CATEGORICAL:
                 return ("Bar needs a categorical column on X, or a single "
                         "categorical column on Y for category counts.")

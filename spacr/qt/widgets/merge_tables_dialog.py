@@ -373,11 +373,14 @@ class MergeTablesDialog(QDialog):
         self._show_state()
 
     def _fill_rules(self):
-        """Offer type-compatible rules for selected children, excluding join keys."""
+        """Offer type-compatible rules for selected children, excluding join keys.
+
+        A small sample supplies the choices offered; execution validates the
+        full data.
+        """
         definition = self.configuration()
         self.rules.setRowCount(0)
         for join in definition["joins"]:
-            # A small sample supplies UI choices; execution validates full data.
             frame = column_sample(self.path, join["table"])
             identifiers = set(join.get("identifiers", []))
             for column in frame:

@@ -643,6 +643,10 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
 
         :param path: Destination CSV file. A .conditions.json sidecar stores rules.
         :returns: Destination path.
+
+        Both files are prepared before either destination is replaced, so a
+        failed CSV conversion never leaves a receipt describing an export that
+        did not run.
         """
         if self._frame is None:
             raise ValueError("Load a table before exporting.")
@@ -654,8 +658,6 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         payload = {"source": self._condition_source,
                    "merge_definition": self._merge_definition,
                    "condition_annotation": self._condition_definition}
-        # Prepare both files before replacing either destination; a failed CSV
-        # conversion never leaves a receipt describing an export that did not run.
         temporary = []
         try:
             for target in (destination, sidecar):

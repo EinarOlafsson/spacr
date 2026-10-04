@@ -1167,6 +1167,15 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     ``.npy`` behind. When no image yields a field at all, nothing is created,
     moved or deleted.
 
+    Only filenames are kept plate-wide; pixel buffers belong to one field at a
+    time. Keeping every MIP used plate-sized RAM before the first stack was
+    written (over 100 GB for a 2000 x 2000 multi-channel plate). One plane is
+    decoded at a time, also when a regex groups all z slices under one key, so
+    there is no z-stack-sized temporary, and loop locals are released so the
+    previous field's last plane is not held while the next is decoded. A failed
+    read leaves the input folder untouched, including its directory layout:
+    stack/ is created only when a field is ready to publish.
+
     Args:
         src (str): The source directory containing the z-stack images.
         regex (str): The regular expression pattern used to match the filenames of the z-stack images.
@@ -1232,9 +1241,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
         if stem_of[key] in existing:
             channels_seen.add(key[3])
 
-    # Keep only filenames plate-wide. Pixel buffers belong to one field at a
-    # time; retaining every MIP here used plate-sized RAM before the first
-    # stack was written (over 100 GB for a 2000 x 2000 multi-channel plate).
     from .cancellation import checkpoint
     field_keys = defaultdict(list)
     for key in pending_keys:
@@ -1256,8 +1262,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             channel = key[3]
             for path in image_paths_by_key[key]:
                 checkpoint()
-                # Decode one plane, including when a regex groups all z
-                # slices under one key. No z-stack-sized np.stack temporary.
                 loaded = load_images_from_paths({key: [path]})[key]
                 for plane in loaded:
                     previous = chan_mips.get(channel)
@@ -1269,8 +1273,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
                         chan_mips[channel] = np.maximum(previous, plane)
                     channels_seen.add(channel)
                 loaded.clear()
-                # Loop locals must not retain the last plane of the previous
-                # field while the next field is decoded.
                 plane = previous = None
                 files_processed += 1
         planes = []
@@ -1282,9 +1284,6 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
             planes.append(np.expand_dims(mip, axis=2))
         if planes:
             checkpoint()
-            # A failed read must leave the input folder untouched, including
-            # its directory layout. Create stack/ only when there is a field
-            # ready to publish.
             os.makedirs(stack_path, exist_ok=True)
             _save_array_atomic(new_file, np.concatenate(planes, axis=2))
         else:
@@ -3295,6 +3294,10 @@ def _preprocess_volume_tiffs(settings):
     field/channel identity, TIFF axes own spatial identity. Raw files stay
     untouched; an exact source/output receipt guards reuse of existing stacks.
     Unsupported layouts are refused before writing any stack.
+
+    Exclusive directory creation protects even against a late empty-folder
+    collision. The completion receipt is published only after every immutable
+    stack exists, so interrupted folders cannot be reused.
     """
     from .settings import set_default_settings_preprocess_img_data
     from .utils import _get_regex, _extract_filename_metadata
@@ -3412,9 +3415,6 @@ def _preprocess_volume_tiffs(settings):
                 json.dump(dict(version=1, axes='ZYXC', inputs=inputs,
                                channels=channels, recipe=recipe, stacks=stacks), handle, indent=2)
                 handle.write('\n')
-            # Exclusive directory creation protects even a late empty-folder
-            # collision. Publish the completion receipt only after every
-            # immutable stack exists; interrupted folders cannot be reused.
             os.mkdir(stack_path)
             published = []
             try:

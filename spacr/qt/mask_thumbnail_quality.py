@@ -46,6 +46,9 @@ def quality_combo(parent=None):
 
     :param parent: owning widget, if any.
     :returns: a combo whose item data uses stable untranslated quality keys.
+
+    The slot is connected with a context QObject, so it disconnects
+    automatically when that object is destroyed.
     """
     from PySide6.QtWidgets import QComboBox
     from .i18n import tr
@@ -59,7 +62,6 @@ def quality_combo(parent=None):
         "limited by the original image. Cell size and saved images and masks "
         "are unchanged."))
     combo.currentIndexChanged.connect(lambda _index: set_quality(combo.currentData()))
-    # Context-bearing QObject slot disconnects automatically on destruction.
     class _Sync(QObject):
         """Keeps one quality selector in step with changes made elsewhere."""
         def update(self, value):

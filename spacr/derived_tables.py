@@ -210,6 +210,9 @@ def _join_diagnostics(base, child, join, *, standard=False):
     :param child: Unaggregated source child frame.
     :param join: Explicit key, relationship and join-type configuration.
     :param standard: Normalize spaCR object IDs only for established default schemas.
+
+    A child may carry its own object_label while cell_id maps to the parent's
+    object_label; that separate label is kept with its table prefix.
     """
     left_keys, right_keys = join["left_keys"], join["right_keys"]
     table = join["table"]
@@ -218,8 +221,6 @@ def _join_diagnostics(base, child, join, *, standard=False):
     if len(left_keys) != len(right_keys):
         raise MergeError(f"{table}: left and right key lists must have the same length.")
     valid = child.dropna(subset=right_keys).copy()
-    # A child may carry its own object_label while cell_id maps to the
-    # parent's object_label. Retain that separate label with its table prefix.
     collision_names = set(left_keys) - set(right_keys)
     valid = valid.rename(columns={c: table + "_" + c for c in collision_names if c in valid})
     renamed = valid.rename(columns=dict(zip(right_keys, left_keys)))
@@ -257,6 +258,13 @@ def execute(path, definition):
     :param definition: Default or acknowledged custom merge configuration.
     :returns: ``(frame, diagnostics)`` with full counts and actual aggregation rules.
     :raises MergeError: Missing keys, changed schemas, cardinality or type violations.
+
+    Genuine base provenance is kept: external names are never turned into image
+    identities just because they happen to be unique. One-to-one joins, once
+    validated, still go through the same typed plan on their singleton groups,
+    so explicit count and nunique overrides stay real. Gate and filter
+    identities use timeID, and the original time_id spelling is preserved too,
+    so a chart that selects time_id stays reproducible.
     """
     validate_source(path, definition)
     definition = copy.deepcopy(definition)
@@ -289,8 +297,6 @@ def execute(path, definition):
     if mode == "default" and not set(IDENTITY).issubset(base.columns):
         raise MergeError("Default merging requires plateID, rowID, columnID and fieldID. "
                          "Use Customize merging for external data without image provenance.")
-    # Keep genuine base provenance. External names are never converted into
-    # image identities just because they happen to be unique.
     keep = set(definition["base_keys"]) | set(IDENTITY) | {OBJECT_COLUMN, "prcf", "prcfo", "timeID", "time_id"}
     keep.update(c for join in definition["joins"] for c in join["left_keys"])
     rename = {c: (c if c.startswith(base_name + "_") else base_name + "_" + c)
@@ -330,8 +336,6 @@ def execute(path, definition):
         reports.append(report)
         if mode == "default":
             continue
-        # One-to-one was validated above. Applying the same typed plan to
-        # its singleton groups keeps explicit count/nunique overrides real.
         rolled = roll_up(aligned, keys, name=table,
                          policy=MergePolicy(overrides=plans))
         collisions = (set(rolled) & set(output)) - set(keys)
@@ -345,8 +349,6 @@ def execute(path, definition):
         output = merge_tables(path, [j["table"] for j in definition["joins"]], policy=policy)
     if len(output) > len(base):
         raise MergeError("Merge increased the base observation count; check the composite keys.")
-    # Gate/filter identities use timeID. Preserve the original spelling too
-    # so a chart selecting time_id remains reproducible.
     if "time_id" in output and "timeID" not in output:
         output["timeID"] = output["time_id"]
     provenance = (base_name in ANCHOR_COLUMN and

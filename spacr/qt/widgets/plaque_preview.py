@@ -1050,7 +1050,12 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
 
 @_serialized_inference
 def _colony_preview_pass(path, settings):
-    """Count original photo pixels through the run's colony engine, without writes."""
+    """Count original photo pixels through the run's colony engine, without writes.
+
+    Labels are display geometry only: the detector's box rows remain the
+    authority for counts and sizes, even when two ellipses overlap or hide one
+    another.
+    """
     from cellpose.io import imread
 
     from ...plaque import _count_colony_plate, _load_colony_dilutions, crop_well, detect_wells
@@ -1081,8 +1086,6 @@ def _colony_preview_pass(path, settings):
     next_id = 0
     for well in wells or [None]:
         result = _count_colony_plate(image, name=path.name, well=well, settings=settings)
-        # Labels are display geometry. Detector box rows remain the authority for
-        # counts/sizes even when two ellipses overlap or hide one another.
         areas.extend(float(row["area_px"]) for row in result["colonies"])
         summaries.append(result["summary"])
         shape = crop_well(image, result["well"]).shape[:2]

@@ -26,13 +26,16 @@ from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox,
 
 LOG = logging.getLogger("spacr.qt.save_figure")
 
-# A notice outlives the save dialog, including a parentless dialog used via
-# exec(). Release it when closed or when its owning window is destroyed.
 _integrity_notices = set()
 
 
 def _show_integrity_notice(parent, report, chosen: str, sidecar):
-    """Present saved-output findings without a modal wait or another write."""
+    """Present saved-output findings without a modal wait or another write.
+
+    Open notices are held in a module-level set because a notice outlives the
+    save dialog, including a parentless dialog run with exec(); it is released
+    when closed or when its owning window is destroyed.
+    """
     from pathlib import Path
 
     from PySide6.QtCore import Qt, QUrl

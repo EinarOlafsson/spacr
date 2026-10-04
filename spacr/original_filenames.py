@@ -203,6 +203,9 @@ def _map_payload(path):
 
     :param path: resolved CSV or SQLite path.
     :returns: (payload bytes, ``"conversion_map"`` for a database or None).
+
+    The digest is order-independent, so unrelated database writes cannot
+    invalidate it.
     """
     map_table = None
     if path.suffix.lower() in (".db", ".sqlite", ".sqlite3"):
@@ -212,7 +215,6 @@ def _map_payload(path):
             with closing(sqlite3.connect(path.as_uri() + "?mode=ro", uri=True, timeout=30.0)) as connection:
                 stored = _read_query(connection, 'SELECT * FROM "conversion_map"',
                                      canonicalise=False, report=None)
-            # Order-independent digest: unrelated database writes cannot invalidate it.
             stored = stored.fillna("").astype(str)
             stored = stored.reindex(sorted(stored.columns), axis=1)
             stored = stored.sort_values(list(stored.columns), kind="stable")
@@ -245,6 +247,9 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
         matched/unmatched row counts and up to ten unmatched identity examples.
     :raises ValueError: for an unsupported or changed map, output collisions,
         conflicting/ambiguous identities, or zero matches on nonempty data.
+
+    Unparseable legacy names can still be restored by their exact target, and a
+    timed filename refines an untimed prcf without merging timepoints.
     """
     if not isinstance(frame, pd.DataFrame) or not frame.columns.is_unique:
         raise ValueError("Filename restoration needs a DataFrame with unique columns")
@@ -261,7 +266,6 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
     by_name, by_field, by_untimed = defaultdict(set), defaultdict(set), defaultdict(set)
     originals_by_field = defaultdict(set)
     for target, key, originals in entries:
-        # Unparseable legacy names can still be restored by their exact target.
         group = key if key is not None else ("target", target)
         by_name[_basename(target)].add(group)
         by_name[target.replace("\\", "/")].add(group)
@@ -289,7 +293,6 @@ def enrich(frame, map_path, *, expected_sha256=None, output_column="original_fil
                     found = by_name.get(value.replace("\\", "/")) or by_name.get(_basename(value))
                     if found:
                         candidates.append(set(found))
-            # A timed filename refines an untimed prcf without merging timepoints.
             if len({key[:4] for key in keys}) > 1 or len({key[4] for key in keys if key[4]}) > 1:
                 raise ValueError("Conflicting filename and plate/field identities in measurement row")
             for key in keys:

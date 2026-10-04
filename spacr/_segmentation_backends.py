@@ -2086,6 +2086,10 @@ def _serve_env(name, env):
     NVIDIA wheels' ``lib`` folders (:func:`_nvidia_lib_folders`) first on
     ``LD_LIBRARY_PATH`` and with GPU memory growth on, so TensorFlow finds
     cuDNN on the GPU and leaves the card's memory to the parent's Cellpose.
+
+    TensorFlow memory growth is switched on because TensorFlow otherwise takes
+    nearly all of the card's memory at its first call, leaving none for spaCR's
+    own Cellpose in the parent process.
     """
     environ = _worker_env(name, env)
     if name == _SPOTNET:
@@ -2094,8 +2098,6 @@ def _serve_env(name, env):
         if token:
             environ[_DEEPCELL_TOKEN_ENV] = token
     if name in (_SPOTNET, _STARDIST):
-        # TensorFlow otherwise takes nearly all of the card's memory at its
-        # first call, leaving none for spaCR's own Cellpose in the parent.
         environ.setdefault("TF_FORCE_GPU_ALLOW_GROWTH", "true")
         folders = _nvidia_lib_folders(env)
         if folders:
@@ -4801,6 +4803,9 @@ def _worker_hello(name):
     Importing the package is the point -- an environment whose package does
     not load fails here, during the install's self-test, rather than on the
     first field.
+
+    A backend that runs on TensorFlow reports TensorFlow's device: SpotNet's
+    environment also holds a CPU-only torch, which would misreport it.
     """
     from importlib import import_module
     from importlib.metadata import PackageNotFoundError, version
@@ -4818,8 +4823,6 @@ def _worker_hello(name):
     return {"backend": spec.name,
             "python": "%d.%d.%d" % tuple(sys.version_info[:3]),
             "packages": packages,
-            # SpotNet's environment holds a CPU torch next to the TensorFlow
-            # it runs on; its device is TensorFlow's (item 475, 2026-09-30).
             "device": (_tensorflow_device() if "tensorflow" in spec.probe
                        else _worker_device()),
             "models": list(spec.models)}

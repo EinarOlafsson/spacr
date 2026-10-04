@@ -335,6 +335,9 @@ class _TooltipFilter(QObject):
         :param obj: the object the event was sent to.
         :param event: the event; only ``ToolTip`` is ever consumed.
         :returns: ``True`` when the event was handled here.
+
+        A view owns many cell targets beneath one viewport widget, so a help
+        event is not replayed for the cell the pointer left.
         """
         try:
             kind = event.type()
@@ -344,8 +347,6 @@ class _TooltipFilter(QObject):
             return self._on_tooltip(obj, event)
         if (kind == QEvent.Type.MouseMove and obj is self._widget
                 and not self._text and self._show_timer.isActive()):
-            # A view owns many cell targets beneath one viewport widget.
-            # Do not replay a help event for the cell the pointer left.
             if event.globalPosition().toPoint() != self._pos:
                 self.hide_now()
             return False

@@ -16,6 +16,9 @@ def paint_collapse_arrow(painter, rect, orientation, towards_start, palette,
     :param towards_start: point left/up when true, right/down otherwise.
     :param palette: active theme colors.
     :param hovered: whether to accent the glyph and tab border.
+
+    Only the baseline glyph is scaled; the painted tab and the hit target stay
+    put.
     """
     painter.setRenderHint(QPainter.Antialiasing, True)
     tab = QColor(palette.get("surface_alt", palette.get("surface",
@@ -52,7 +55,6 @@ def paint_collapse_arrow(painter, rect, orientation, towards_start, palette,
                   [QPoint(cx - 2 * s, cy - s), QPoint(cx, cy + s),
                    QPoint(cx + 2 * s, cy - s)])
         thickness = max(1, h // 6)
-    # Scale the baseline glyph only; the painted tab and hit target stay put.
     painter.save()
     painter.translate(rect.center())
     painter.scale(ARROW_SCALE, ARROW_SCALE)

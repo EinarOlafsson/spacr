@@ -3067,6 +3067,11 @@ def _counterfactual_sequences(model: nn.Module,
         absolute change over the crop's intensity range and the fraction of
         pixels changed by more than a tenth of it) and a
         ``(keep, steps, C, H, W)`` array.
+
+    All steps are decoded in one batch. The same latent decoded under every
+    interpolated code at once gives exactly the frames one decode per step
+    would, in a single pass, which matters for the diffusion generator, where
+    one decode is a whole guided sampling run.
     """
     device = torch.device(device)
     wrapped = ClassScoreModel(model).to(device).eval()
@@ -3086,10 +3091,6 @@ def _counterfactual_sequences(model: nn.Module,
             one_src = F.one_hot(src[i:i + 1], n).float().to(device)
             one_tgt = F.one_hot(tgt[i:i + 1], n).float().to(device)
             base = generator.decode(z, one_src)
-            # ALL STEPS IN ONE BATCH. The same latent decoded under every
-            # interpolated code at once gives exactly the frames one decode
-            # per step would, in one pass -- which matters for the diffusion
-            # generator, where a decode is a whole guided sampling run.
             codes = torch.cat([(1 - a) * one_src + a * one_tgt for a in alphas])
             seq = _cf_edit(generator, x.expand(len(alphas), -1, -1, -1),
                            z.expand(len(alphas), *z.shape[1:]),

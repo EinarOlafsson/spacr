@@ -102,3 +102,12 @@ def test_check_and_apply(tmp_path, capsys):
     assert f.read_text() == "x = 1\n"
     assert sc.main([str(tmp_path), "--check"]) == 0
     assert "0 comments removable in 0 files" in capsys.readouterr().out
+
+
+def test_the_package_carries_no_ordinary_comment():
+    """Every reason belongs in a docstring; spacr/ keeps only tool directives."""
+    root = Path(__file__).resolve().parents[1]
+    left = [f"{r.path.relative_to(root)}: {r.removed}"
+            for r in map(sc.process, sc.iter_py([str(root / "spacr")]))
+            if r.removed]
+    assert left == [], "ordinary # comments remain in spacr/:\n" + "\n".join(left)

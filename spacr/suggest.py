@@ -254,6 +254,9 @@ def write_suggestions(db_path: str, annotation_column: str,
     :param suggestions: the frame from :func:`suggest_from_scores`.
     :param png_table: the crop table.
     :returns: how many rows were written.
+
+    Shared connections are in autocommit mode, so the connection context alone
+    would not make these updates one atomic batch.
     """
     if suggestions.empty or "png_path" not in suggestions.columns:
         return 0
@@ -300,8 +303,6 @@ def write_suggestions(db_path: str, annotation_column: str,
 
     written = 0
     with _connect_writable(db_path) as db:
-        # Shared connections are in autocommit mode: the connection context
-        # alone does not make these updates one atomic suggestion batch.
         with transaction(db):
             for value, path in rows:
                 cur = db.execute(

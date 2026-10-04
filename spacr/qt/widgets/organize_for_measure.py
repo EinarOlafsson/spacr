@@ -892,6 +892,9 @@ class _OrganizeTable(QTableWidget):
         """A press on a × is the ×'s, not the start of a drag.
 
         :param event: the mouse event.
+
+        A band selection starts from an empty slot, from outside the cells, or
+        with Ctrl or Shift held; a plain press on a file drags it.
         """
         pos = event.position().toPoint()
         hit = self._close_hit(pos)
@@ -907,8 +910,6 @@ class _OrganizeTable(QTableWidget):
         if event.button() == Qt.LeftButton and (
                 extend or not index.isValid()
                 or not index.data(Qt.UserRole)):
-            # A band starts from an empty slot, from outside the cells, or
-            # with Ctrl/Shift held; a plain press on a file drags it.
             self._band_origin = pos
             self._band_extend = extend
         super().mousePressEvent(event)
@@ -1012,6 +1013,8 @@ class _OrganizeTable(QTableWidget):
         """Hand the drop, and the column it landed in, to the dialog.
 
         :param event: the drop event.
+
+        A drop on the empty table's placeholder makes the first channel column.
         """
         if not self._accepts(event):
             event.ignore()
@@ -1019,8 +1022,6 @@ class _OrganizeTable(QTableWidget):
         event.setDropAction(Qt.CopyAction)
         event.accept()
         if not self.columnCount():
-            # The empty table's placeholder: the drop makes the first
-            # channel column.
             self.dropped.emit(-1, _mime_paths(event.mimeData()), -1)
             return
         column = self.columnAt(int(event.position().x()))
@@ -1195,6 +1196,9 @@ class OrganizeForMeasureDialog(QDialog):
             Make Masks drop of several folders or of channel-like
             subfolders.
         :param masks_dir: the source's masks folder, when not its ``masks/``.
+
+        The layout puts the fields on aligned rows at the top, every action
+        button on one line below them, then the view controls over the table.
         """
         super().__init__(parent)
         mode = self._mode
@@ -1253,8 +1257,6 @@ class OrganizeForMeasureDialog(QDialog):
         intro.setWordWrap(True)
         layout.addWidget(intro)
 
-        # The fields on aligned rows above, every action button on
-        # one line below them, then the view controls over the table.
         from PySide6.QtWidgets import QGridLayout, QSlider
 
         fields = QGridLayout()
@@ -1532,7 +1534,6 @@ class OrganizeForMeasureDialog(QDialog):
             folder=folder))
         return len(split)
 
-    # -- columns -----------------------------------------------------------
 
     def _channel_columns(self) -> List[int]:
         """The indices of the channel columns, in order."""
@@ -1616,7 +1617,6 @@ class OrganizeForMeasureDialog(QDialog):
         """
         return [row[index] for row in self.rows if row[index]]
 
-    # -- files -------------------------------------------------------------
 
     def add_files(self, column: int, paths: Iterable[str],
                   rematch: bool = True) -> List[str]:
@@ -1782,7 +1782,6 @@ class OrganizeForMeasureDialog(QDialog):
         self.row_keys = [None] * len(self.rows)
         self._refresh()
 
-    # -- the regex ---------------------------------------------------------
 
     def _source(self) -> str:
         """The source folder as typed, or ``""``."""
@@ -1857,12 +1856,13 @@ class OrganizeForMeasureDialog(QDialog):
         have lost what told the channels apart.
 
         :param path: an image path.
+
+        The alias keeps the file's folder, so two folders' field1.tif stay two
+        names; the regex reads the file name alone.
         """
         folder = os.path.dirname(path)
         if folder not in self._alias_cache:
             self._alias_cache[folder] = cs._original_names(folder)
-        # Kept in its folder, so two folders' field1.tif stay two names; the
-        # regex reads the file name alone.
         return os.path.join(folder, self._alias_cache[folder].get(
             os.path.basename(path), os.path.basename(path)))
 
@@ -2197,7 +2197,6 @@ class OrganizeForMeasureDialog(QDialog):
         dialog = ExampleSetsDialog(self._source() or "", sets, None, self)
         return dialog.exec() == QDialog.Accepted
 
-    # -- the plan ----------------------------------------------------------
 
     def _complete_sets(self, detected: bool = False):
         """``{set key: {channel: image}}`` for the rows with every channel.
@@ -2341,7 +2340,6 @@ class OrganizeForMeasureDialog(QDialog):
         self.plan = plan
         self.accept()
 
-    # -- drawing -----------------------------------------------------------
 
     def _caption(self, index: int) -> str:
         """A column's header.
@@ -2419,7 +2417,6 @@ class OrganizeForMeasureDialog(QDialog):
         self._rebuild_editors()
         self._refresh_table()
 
-    # -- the table's view, slots and × ---------------------------------------
 
     def _mask_of(self) -> Dict[int, int]:
         """``{channel column: its mask column}``, for moving masks along."""
@@ -2689,7 +2686,11 @@ class OrganizeForMeasureDialog(QDialog):
                 worker.wait(5000)
 
     def _refresh_table(self) -> None:
-        """Fill the table from the rows, empty cells flagged."""
+        """Fill the table from the rows, empty cells flagged.
+
+        The drop hint lives in the table while it is empty; the new-channel
+        strip appears only once there is something beside it.
+        """
         from PySide6.QtGui import QBrush, QColor
 
         self.table.clear()
@@ -2719,8 +2720,6 @@ class OrganizeForMeasureDialog(QDialog):
         self._size_cells()
         if self.delegate.view != "text":
             self._load_thumbnails()
-        # The drop hint lives in the table while it is empty; the "new
-        # channel" strip only once there is something beside it.
         self.new_zone.setVisible(not self.table._is_empty())
         self.table.viewport().update()
         missing = len(self._incomplete_rows())

@@ -1665,7 +1665,6 @@ def merge_sorted(dest: str, mask_roles: Dict[int, str], *,
     return stacks, merged
 
 
-# -- names before consolidation, and the "Teach me" mode ---------------------
 
 #: The file :mod:`spacr.folder_consolidation` writes beside its copies.
 CONSOLIDATION_MANIFEST = "rename_manifest.csv"
@@ -1714,6 +1713,10 @@ def _diff_region(a: str, b: str):
     :param b: another.
     :returns: ``(a's text, b's text, text after)`` over the stems, or None
         when the names differ in more than one place or not at all.
+
+    Several edits inside one word (DAPI and GFP share a P) form one region;
+    edits separated by a separator form two, and then there is no marker. The
+    region grows to whole letter runs, so DAPI/GFP is not read as DA/GF.
     """
     stem_a, stem_b = split_extension(a)[0], split_extension(b)[0]
     ops = [op for op in difflib.SequenceMatcher(
@@ -1722,12 +1725,9 @@ def _diff_region(a: str, b: str):
         return None
     _tag, i1, _i2, j1, _j2 = ops[0]
     _tag, _i1, i2, _j1, j2 = ops[-1]
-    # Several edits inside one word (DAPI/GFP share a P) are one region;
-    # edits separated by a separator are two, and no marker.
     if len(ops) > 1 and (re.search(r"[-_. ]", stem_a[i1:i2])
                          or re.search(r"[-_. ]", stem_b[j1:j2])):
         return None
-    # Grow the region to whole letter runs, so DAPI/GFP is not "DA"/"GF".
     while (i1 > 0 and j1 > 0 and stem_a[i1 - 1].isalpha()
            and stem_a[i1 - 1] == stem_b[j1 - 1]
            and ((i1 < i2 and stem_a[i1].isalpha())
@@ -1778,6 +1778,9 @@ def _teach_regex(answers: Dict[str, object], extensions: Iterable[str]):
     :param extensions: every extension among the names, with its dot.
     :returns: ``(regex, {marker: label})``, or ``(None, {})`` while the
         answers show no marker yet, or show one text for two labels.
+
+    The pattern anchors on what sits just before the marker, so an empty marker
+    cannot swallow an unknown one (7C is not 7 followed by nothing).
     """
     markers = _teach_markers(answers)
     by_marker: Dict[str, object] = {}
@@ -1800,8 +1803,6 @@ def _teach_regex(answers: Dict[str, object], extensions: Iterable[str]):
                     stem = split_extension(os.path.basename(name))[0]
                     prefix = stem[:len(stem) - len(region[2]) - len(region[0])]
                     before.add(prefix[-1:])
-    # What sits just before the marker, so an empty marker cannot swallow
-    # an unknown one ("7C" is not "7" + nothing).
     if before and all(c.isdigit() for c in before):
         edge = r"\d"
     elif before and all(c.isalpha() for c in before):
@@ -1837,6 +1838,9 @@ def _teach_step(names: Sequence[str], answers: Dict[str, object]):
         e.g. ``("channel", 1)`` or ``("mask", 1, "cell")``, or ``"skip"``
         for an image the user does not want placed.
     :returns: ``(regex or None, {marker: label}, next name or None)``.
+
+    An answer the pattern cannot explain needs its neighbour: the same field in
+    another channel shows what marks it.
     """
     names = list(names)
     placed = {n: label for n, label in answers.items() if label != "skip"}
@@ -1866,8 +1870,6 @@ def _teach_step(names: Sequence[str], answers: Dict[str, object]):
                 != placed[name]:
             unread.append(name)
     if unread and unanswered:
-        # An answer the regex cannot explain needs its neighbour: the same
-        # field in another channel shows what marks it.
         return pattern, by_marker, min(unanswered, key=lambda n: (
             name_distance(n, unread[0]), natural_key(n)))
     return pattern, by_marker, None

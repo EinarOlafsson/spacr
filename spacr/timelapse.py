@@ -1159,6 +1159,10 @@ def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=
     :param n_workers: worker processes for the segmentation and linking passes.
     :returns: the relabelled mask stack, ids consistent across frames.
     :raises RuntimeError: if ultrack is not installed, naming the fix.
+
+    The Napari lineage graph maps a child track ID to its parent track IDs.
+    Missing entries are native roots, never invitations to infer nearby
+    parents.
     """
     from .plot import _visualize_and_save_timelapse_stack_with_tracks
     from .utils import _masks_to_masks_stack
@@ -1231,8 +1235,6 @@ def _ultrack_track_cells(src, name, batch_filenames, object_type, masks, images=
         masks_tracked = _relabel_masks_based_on_tracks(masks_tracked, tracks_df)
 
     if lineage is not None:
-        # Napari lineage graph: child track ID -> parent track IDs. Missing
-        # entries are native roots, not invitations to infer nearby parents.
         parents = {int(child): parent for child, parent in lineage.items()}
         tracks_df = _native_lineage_columns(
             tracks_df, {int(t): parents.get(int(t), [])
@@ -8970,6 +8972,9 @@ def automated_motility_assay(settings):
         ``src``.
     :raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned
         table; see :func:`_validate_db_table_name`.
+
+    Pre-QC corrected values are persisted separately; the cached originals stay
+    raw.
     """
     import numpy as np
     import pandas as pd
@@ -9243,7 +9248,6 @@ def automated_motility_assay(settings):
         keys = ['plateID', 'wellID', 'fieldID', 'cellID', 'frame']
         all_df_original = bleach_raw.drop(columns=['infected'], errors='ignore').merge(
             all_df[keys + ['infected']], on=keys, how='inner', validate='one_to_one')
-        # Persist pre-QC corrected values separately; cached originals stay raw.
         from .tabular import write_database, write_table
         write_database(all_df, db_path, db_table_name + '_bleach_corrected',
                        if_exists='replace')

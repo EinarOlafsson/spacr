@@ -68,12 +68,14 @@ def _attach_preview(widget, model):
         widget.layout().addWidget(button)
 
     def open_preview():
-        """Open the gains preview for the current settings."""
+        """Open the gains preview for the current settings.
+
+        Closing detaches safely, and a second dialog never duplicates a
+        still-running scan parked by the first.
+        """
         dialog = _CalibrationPreview(lambda: _preview_settings(model), widget.window())
         QTimer.singleShot(0, dialog._start)
         dialog.exec()
-        # Closing detaches safely; do not let a second dialog duplicate a
-        # still-running scan parked by the first one.
         retiring = list(dialog._retiring_threads)
         if retiring:
             button.setEnabled(False)
@@ -97,8 +99,11 @@ def _attach_preview(widget, model):
 
 
 def _preview_settings(model):
-    # Only keys consumed by planning; no form mutation or source reads here.
-    """A copy of the committed settings that gain planning reads."""
+    """A copy of the committed settings that gain planning reads.
+
+    Only keys consumed by planning are read; there is no form mutation and no
+    source read here.
+    """
     keys = {'src', 'timelapse', 'test_mode', 'intensity_calibration',
             'intensity_calibration_wells', 'intensity_calibration_statistic',
             'intensity_calibration_offset'}
@@ -107,7 +112,10 @@ def _preview_settings(model):
 
 
 def _plan_gains(settings):
-    """Use production planning on private settings, without starting a run."""
+    """Use production planning on private settings, without starting a run.
+
+    A scan failure never looks like a complete, usable preview.
+    """
     from ...crops import reconcile_merged_mask_dims
     from ...image_quality import excluded_fields
     from ...io import _listdir_visible
@@ -144,7 +152,6 @@ def _plan_gains(settings):
         if not files:
             raise ValueError(tr('No eligible merged arrays were found.'))
         full_plan, calibration = _prepare_measurement_calibration(options, files)
-        # A scan failure must not look like a complete, usable preview.
         if full_plan.get('failures'):
             raise ValueError(tr('Some merged arrays could not be read. Check the source files.'))
         reports.append({'source': str(folder), 'calibration': calibration})

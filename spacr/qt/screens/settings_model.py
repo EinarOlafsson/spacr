@@ -507,6 +507,9 @@ def object_of_setting(key: str) -> Optional[str]:
 
     :param key: setting key; an organelle-slot prefix, or a
         ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object.
+
+    remove_background_organelle_7 is slot 7's switch: its last token is a
+    number, not a slot prefix.
     """
     from ...organelle_types import _background_switch_role, organelle_role_of
 
@@ -514,8 +517,6 @@ def object_of_setting(key: str) -> Optional[str]:
     role = organelle_role_of(text)
     if role is not None:
         return role
-    # ``remove_background_organelle_7`` is slot 7's switch (item 76,
-    # 2026-09-30); its last token is a number, not a slot prefix.
     switch = _background_switch_role(text)
     if switch is not None:
         return switch
@@ -9939,6 +9940,8 @@ class SettingsWidgets:
             :func:`_value_a_plain_control_holds` can read without building;
             ``("special", build)`` for every other control, with a callable
             that builds it; ``(None, None)`` when the kind has none.
+
+        A numeric default must still allow a per-plate dict or a CSV path.
         """
         parent = self._parent
         if self.app_key == "train_cellpose" and key in {"model_name", "channels"}:
@@ -10062,7 +10065,6 @@ class SettingsWidgets:
             )
         actual_default = self._defaults.get(key, default)
         if key == "colony_dilution":
-            # A numeric default must still allow a per-plate dict or CSV path.
             return "plain", {"control": "text", "value": actual_default}
         if key == "timelapse_objects" or (
             key in CHANNEL_LIST_KEYS
@@ -10292,7 +10294,11 @@ class SettingsWidgets:
             self._undo_replaying = False
 
     def _watch_setting_commit(self, key, widget):
-        """Connect settled-value signals, including editors created on demand."""
+        """Connect settled-value signals, including editors created on demand.
+
+        Composite fields may emit value_changed on each typed character, so
+        their focused text editors commit on editingFinished instead.
+        """
         if not callable(getattr(self, "_commit_observer", None)):
             return
         if getattr(widget, "_spacr_commit_model", None) is self:
@@ -10315,8 +10321,6 @@ class SettingsWidgets:
         elif isinstance(widget, (_ListEditor, RowExclusionEditor)):
             widget._committed.connect(callback)
         else:
-            # Composite fields may emit value_changed on each typed character.
-            # Their focused text editors commit on editingFinished instead.
             find = getattr(widget, "findChildren", None)
             for edit in (find(QLineEdit) if callable(find) else ()):
                 edit.editingFinished.connect(callback)

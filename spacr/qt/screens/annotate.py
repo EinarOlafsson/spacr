@@ -887,7 +887,11 @@ class _SimilarityWorker(QThread):
         self._writer = writer
 
     def _excluded_labels(self, index):
-        """Read fresh human-label state without caching it with the feature index."""
+        """Read fresh human-label state without caching it with the feature index.
+
+        Annotate represents cleared labels by NULL or zero and unanswered model
+        proposals above SUGGESTION_OFFSET; none of these is a human answer.
+        """
         import sqlite3
 
         if not self._unlabelled_only:
@@ -910,8 +914,6 @@ class _SimilarityWorker(QThread):
             value = column if self._annotation_column in fields else 'NULL'
             labels = dict(db.execute(f'SELECT png_path, {value} FROM {table}'))
         labels.update(self._pending_labels)
-        # Annotate represents cleared labels by NULL or zero and unanswered
-        # model proposals above SUGGESTION_OFFSET; none is a human answer.
         return {str(key) for key in index.keys if str(key) not in labels or
                 (labels[str(key)] is not None and int(labels[str(key)]) != 0
                  and int(labels[str(key)]) <= SUGGESTION_OFFSET)}
@@ -1075,6 +1077,10 @@ class _SuggestWorker(QThread):
         Guarded at both ends for the reason ``_RetrainWorker.run`` sets out:
         an exception out of a ``QThread.run`` override aborts the process,
         and a signal emitted at a destroyed C++ object raises out of ``run``.
+
+        Cancellation is honored before the write step. Once its transaction
+        commits, the saved result is reported even if Cancel arrived during the
+        write, since reporting a cancel would contradict the database.
         """
         try:
             from ... import active_learning as al
@@ -1126,9 +1132,6 @@ class _SuggestWorker(QThread):
                 pass
             return
         try:
-            # Cancellation is honored before step 5. Once its transaction
-            # commits, report the saved result even if Cancel arrived during
-            # the write; emitting cancelled here would contradict the database.
             self.done.emit((proposal, written, len(rejections)))
         except RuntimeError:
             pass
@@ -5041,11 +5044,12 @@ class AnnotateScreen(QWidget):
         """Hide or restore what on this screen says where the crops are from.
 
         :param on: true while blinded.
+
+        Train hands the source path to Classify or ML Analyze, and Generate
+        writes a table named after the source and reports its folder, so both
+        would carry the source onto a screen while it is hidden here.
         """
         self._set_blind_checked(on)
-        # Train hands the source path to Classify or ML Analyze, and Generate
-        # writes a table named after the source and reports its folder, so
-        # both would carry the source onto a screen while it is hidden here.
         for button in (self._btn_coverage, self._btn_auto,
                        self._btn_browse_db, self._btn_settings,
                        self._console_switch, self._ai_switch,

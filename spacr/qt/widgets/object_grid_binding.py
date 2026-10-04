@@ -82,12 +82,13 @@ class ObjectGridBinding(QObject):
         Read from the panel every time rather than remembered, because a
         panel hides the settings of an object whose channel names no plane
         and the grid must not claim a key that is no longer there.
+
+        Columns hidden because their channel is unset are still claimed, so
+        their rows stay off the flat form; their channels are not claimed,
+        because a hidden object's channel on the form is how it is brought
+        back.
         """
         owned = set()
-        # 2026-09-29 (item 592, "hide unset objects"): the columns hidden
-        # because their channel is unset are still claimed, so their rows
-        # stay off the flat form; the channels are NOT claimed, because a
-        # hidden object's channel on the form is how it is brought back.
         claimed = getattr(self._grid, "_claimed_table", None)
         table = claimed() if callable(claimed) else self._grid.table()
         for question, row in table.items():
@@ -186,6 +187,9 @@ class ObjectGridBinding(QObject):
         """Write the panel's answers into the cells, one cell at a time.
 
         :returns: how many cells changed.
+
+        When a channel on the form switches an object on or off, the columns
+        are redrawn from the panel, which also shows every value.
         """
         try:
             current = self._panel.collect()
@@ -194,8 +198,6 @@ class ObjectGridBinding(QObject):
             return 0
         same = getattr(self._grid, "_shows_the_same_objects_as", None)
         if callable(same) and not same(current):
-            # A channel on the form switched an object on or off: redraw the
-            # columns from the panel, which also shows every value.
             self._grid.set_settings(current)
             return 1
         keep = getattr(self._grid, "_keep_the_switches", None)

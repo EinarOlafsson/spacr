@@ -9646,6 +9646,8 @@ class AppScreen(QWidget):
 
         :param settings: the proposed run settings, never mutated here.
         :returns: whether the current settings may proceed unchanged.
+
+        An unknown legacy layout cannot share a correction.
         """
         from pathlib import Path
         from ...crops import (PlaneLayoutConflict, read_merged_plane_layout,
@@ -9661,7 +9663,6 @@ class AppScreen(QWidget):
                 if not folder.name.endswith("merged"):
                     folder = folder / "merged"
                 if read_merged_plane_layout(folder) is None:
-                    # An unknown legacy layout cannot share a correction.
                     corrections.append(None)
                     continue
                 resolved = reconcile_merged_mask_dims(settings, folder)
@@ -11365,7 +11366,12 @@ class AppScreen(QWidget):
                 "a while. The window is yours again.\n")
 
     def _observe_settings_commit(self, key=None):
-        """Timestamp valid committed settings only, without a full lock verdict."""
+        """Timestamp valid committed settings only, without a full lock verdict.
+
+        A source switch or a completed bulk load binds its complete, valid
+        snapshot to the new source, never to the previous lock. Drafts are left
+        untouched, since failed validation is not an edit.
+        """
         from ...run_journal import _observe_settings_changes
 
         model = getattr(self, "_settings_model", None)
@@ -11379,14 +11385,12 @@ class AppScreen(QWidget):
                             key: model._valid_committed_value(key)}
                 keys = [key]
             else:
-                # A source switch or completed bulk load binds its complete
-                # valid snapshot to the NEW source, never the previous lock.
                 settings = dict(model.collect())
                 for name in settings:
                     settings[name] = model._valid_committed_value(name)
                 keys = None
         except (TypeError, ValueError, RuntimeError):
-            return  # Leave drafts untouched; failed validation is not an edit.
+            return
         try:
             self._settings_lock_observation = _observe_settings_changes(
                 settings, self.app_key, keys)

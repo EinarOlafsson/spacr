@@ -8449,7 +8449,16 @@ class MakeMasksScreen(QWidget):
                         stem, exc_info=True)
 
     def _build_ui(self):
-        """Lay out the canvas, the tool panel and the navigation row."""
+        """Lay out the canvas, the tool panel and the navigation row.
+
+        The bottom row holds the toolbar on the left (Open folder, Organize for
+        Measure, Load test data, Uncertainty) and the curation buttons on the
+        right, under the console (Discard, Keep, Skip, Blind, ROIs, Upload
+        data). Save mask, Prev and Next share the scrolling editor action
+        toolbar above with detection, undo and redo. The status line under the
+        image never widens the pane, since a long status would otherwise push
+        the splitter and resize the canvas mid-edit.
+        """
         from .. import screens as _screens_package
 
         outer = QVBoxLayout(self)
@@ -8578,11 +8587,6 @@ class MakeMasksScreen(QWidget):
 
         outer.addWidget(self._body_stack, 1)
 
-        # The maintainer's layout (2026-09-30). The bottom row is the
-        # toolbar on the left -- Open folder, Organize for Measure, Load
-        # test data, Uncertainty -- and the curation buttons on the right,
-        # under the console: Discard, Keep, Skip, Blind, ROIs, Upload data.
-        # Save mask, Prev and Next share the editor action toolbar above.
         from ..i18n import tr
 
         _screens_package._breathe_while_a_window_opens()
@@ -8604,8 +8608,6 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._build_test_data_button())
         nav_row.addWidget(self._build_uncertainty_button())
 
-        # Curation stays on the bottom row; save/navigation use the same
-        # scrolling horizontal action row as detection, undo and redo.
         self._nav_curate_group, curate_row = self._nav_button_group()
         self._btn_prev = QPushButton(tr("Prev image"))
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -8678,8 +8680,6 @@ class MakeMasksScreen(QWidget):
         self._status_label._blind_owner = weakref.ref(self)
         self._status_label.setObjectName("SubtitleSmall")
         self._status_label.said.connect(self._report_status)
-        # Under the image the line must never widen the pane: a long status
-        # would otherwise push the splitter and resize the canvas mid-edit.
         self._status_label.setSizePolicy(QSizePolicy.Ignored,
                                          QSizePolicy.Preferred)
         self._status_label.setMinimumWidth(0)
@@ -12130,7 +12130,6 @@ class MakeMasksScreen(QWidget):
             self._masks_console, "Console", persist_key="make_masks/Console",
             stretch=1, extent=240, minimum=120)
         self._shortcut_panel = column
-        # Under the image: the status line, filled in by _build_ui.
         views = QWidget()
         views.setObjectName("MakeMasksViewsColumn")
         views_col = QVBoxLayout(views)
@@ -15354,9 +15353,11 @@ class MakeMasksScreen(QWidget):
         return QMessageBox.question(self, title, text) == QMessageBox.Yes
 
     def _on_pick_folder(self):
-        """Ask for a folder of images and open it."""
-        # Blinded, the picker opens at home: in the source its path bar would
-        # name the plate.
+        """Ask for a folder of images and open it.
+
+        When blinded, the picker opens at the home folder, because in the
+        source folder its path bar would name the plate.
+        """
         start = (os.path.expanduser("~") if self._blind is not None
                  else self._folder or os.getcwd())
         d = QFileDialog.getExistingDirectory(self, "Pick images folder", start)
@@ -15530,6 +15531,8 @@ class MakeMasksScreen(QWidget):
         """Report the sort and open the first channel folder.
 
         :param worker: the finished job.
+
+        Measure is pointed at the result, so features are one step away.
         """
         from ..i18n import tr
 
@@ -15545,7 +15548,6 @@ class MakeMasksScreen(QWidget):
             moved=result.moved, stacks=len(result.stacks),
             merged=len(result.merged), dest=result.dest,
             manifest=result.manifest))
-        # Point Measure at the result, so features are one step away.
         prefs.push_recent_source("measure", str(result.dest))
         self._masks_console.post(tr(
             "Ready for Measure: open Measure and use {dest} as its source (it "

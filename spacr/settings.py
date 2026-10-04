@@ -7222,6 +7222,9 @@ def _set_organelle_defaults(settings):
     active slots plus any further slot this dict already carries a key for,
     and every write is a ``setdefault``. Lowering the number is therefore
     reversible -- raising it again finds the old answers still there.
+
+    An old settings file without the per-slot switch keeps the old shared
+    behaviour: the slot's channel follows the generic remove_background.
     """
     settings.setdefault(NUMBER_OF_ORGANELLES, organelle_count(settings))
     defaults = {
@@ -7293,8 +7296,6 @@ def _set_organelle_defaults(settings):
             slot_key = _organelle_slot_key(key, role)
             base_value = view.get(key, value)
             settings.setdefault(slot_key, deepcopy(base_value))
-        # An old file without the switch keeps the old shared behaviour: the
-        # slot's channel follows the generic remove_background (item 76).
         settings.setdefault(_background_switch_key(role),
                             settings.get('remove_background', False))
     return settings

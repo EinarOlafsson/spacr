@@ -250,6 +250,9 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
         segment id), ``generation``, ``start_frame``, ``end_frame``,
         ``n_frames``, ``n_daughters``, ``generation_time`` and
         ``division_source`` (tracker, inferred or blank).
+
+    A native root, including an orphan left after filtering, is never attached
+    to whichever unrelated track happens to be closest.
     """
     df = tracks.dropna(subset=['track_id', 'frame', 'x', 'y']).copy()
     columns = ['segment_id', 'track_id', 'parent_segment_id', 'lineage_id',
@@ -264,8 +267,6 @@ def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
     explicit = _lineage_explicit_parents(df, spans)
     known = set(explicit)
     if 'parent_track_id_source' in df:
-        # A native root (including an orphan after filtering) must not be
-        # silently attached to whichever unrelated track is closest.
         native = df['parent_track_id_source'].fillna('').isin(
             ['ultrack', 'btrack', 'trackastra', 'sam2'])
         known.update(df.loc[native, 'track_id'].astype(int))

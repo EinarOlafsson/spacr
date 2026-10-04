@@ -48,6 +48,9 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
     :param protected_paths: scientific source images or masks never overwritten.
     :returns: the written Path; failed writes retain the previous destination.
     :raises ValueError: for invalid maps or a protected destination.
+
+    Metadata is validated before any file is opened; integer-keyed object
+    scores are JSON-safe.
     """
     import tifffile
     from .tiff_io import write_tiff
@@ -72,7 +75,6 @@ def save_uncertainty_map(path, result, *, provenance=None, protected_paths=()):
         raise ValueError("An uncertainty map must be a finite 2-D array in [0, 1].")
     metadata = dict(provenance or {})
     metadata["scores"] = {key: value for key, value in result.items() if key != "map"}
-    # Validate metadata before opening a file; int-keyed object scores are JSON-safe.
     metadata = json.loads(json.dumps(metadata, allow_nan=False, default=str))
     destination.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix=".uncertainty-", suffix=".tif", dir=destination.parent)
@@ -150,9 +152,12 @@ def compute_queue_uncertainty(queue, *, model="cpsam", second_model=None, device
     :returns: Dictionary of score summaries keyed by image filename without
         its extension. Each summary excludes the pixel map.
     :raises ValueError: for duplicate ensemble models or a field that cannot run.
+
+    This is pure image I/O: mask_engine imports no PySide6 and creates no Qt
+    objects. Each completed field is saved as it finishes, so it is recoverable
+    if a later field or model fails.
     """
     from .curation_queue import _write_uncertainty
-    # Pure image I/O: mask_engine imports no PySide6 and creates no Qt objects.
     from .qt.mask_engine import load_image_and_mask
 
     if second_model and str(second_model) == str(model):
@@ -182,7 +187,6 @@ def compute_queue_uncertainty(queue, *, model="cpsam", second_model=None, device
                                  provenance=provenance, protected_paths=protected)
         summary = {key: value for key, value in result.items() if key != "map"}
         scores[item.stem] = summary
-        # Each completed field is recoverable if a later field or model fails.
         _write_uncertainty(queue.folder, {item.stem: dict(
             uncertainty=result["field"], n_objects=result["n_objects"],
             passes=result["n_passes"], model=" + ".join(filter(None, (model, second_model))))})

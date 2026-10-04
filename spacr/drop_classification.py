@@ -367,6 +367,12 @@ def classify_drop(paths: Iterable) -> DropClassification:
 
     :param paths: the dropped files and folders, in drop order.
     :returns: a :class:`DropClassification`.
+
+    spaCR's own output counts only when it is the whole drop. Files named as
+    masks are masks; beside images, label TIFFs are too, but only when a
+    dropped image claims them by name, since a clean synthetic image can look
+    like labels. Masks dropped alone open the images they belong to, when those
+    are present.
     """
     paths = [os.path.abspath(os.fspath(p)) for p in paths]
     unrecognised: List[str] = []
@@ -384,7 +390,6 @@ def classify_drop(paths: Iterable) -> DropClassification:
         else:
             unrecognised.append(f"{path} (not found)")
 
-    # spaCR's own output: only when it is the whole drop.
     if len(folders) == 1 and not files:
         found = _spacr_output(folders[0])
         if found is not None:
@@ -402,7 +407,6 @@ def classify_drop(paths: Iterable) -> DropClassification:
         else:
             unrecognised.append(f"{folder} (no images directly in it)")
 
-    # Masks named as masks, then (only beside images) label TIFFs.
     mask_files = [f for f in files if _has_mask_word(f)]
     loose = [f for f in files if f not in mask_files]
     for folder in mask_folders:
@@ -411,8 +415,6 @@ def classify_drop(paths: Iterable) -> DropClassification:
     if (loose or image_folders) and len(loose) <= _PIXEL_CHECK_LIMIT and \
             len(loose) + len(mask_files) + len(image_folders) > 1:
         labels = [f for f in loose if _looks_like_labels(f)]
-        # A label image counts as a mask only when a dropped image claims
-        # it by name: a clean synthetic image can look like labels too.
         others = [f for f in loose if f not in labels]
         for folder in image_folders:
             others.extend(os.path.join(folder, n)
@@ -434,7 +436,6 @@ def classify_drop(paths: Iterable) -> DropClassification:
         unrecognised.extend(f"{m} (a mask no dropped image claims)"
                             for m in left)
     elif mask_files and not (loose or image_folders):
-        # Masks alone: open the images they belong to, when they are there.
         parents = {os.path.dirname(m) for m in mask_files}
         if len(parents) == 1:
             parent = parents.pop()

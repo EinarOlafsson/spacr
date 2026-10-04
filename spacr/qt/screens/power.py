@@ -925,6 +925,9 @@ class PowerScreen(QWidget):
 
         :param parent: the form the box sits in, so hiding it sticks.
         :returns: the planner group box.
+
+        The effect may be negative, since a proportion's or a count's power
+        depends on the direction of the change.
         """
         box = QGroupBox(tr("Arrayed-assay planner"), parent)
         box.setObjectName("PowerArrayedPlanner")
@@ -985,8 +988,6 @@ class PowerScreen(QWidget):
             "variance follows its mean, so the effect is the signed change "
             "from the pilot mean. Default Continuous."))
         form.addRow(tr("Readout"), self._plan_readout)
-        # 585, 2026-09-30: the effect may be negative, since a proportion's
-        # or a count's power depends on the direction of the change.
         self._plan_effect = self._float_box(-1e12, 1e12, 0.0, decimals=4)
         self._plan_effect.setToolTip(tr(
             "Difference between the two condition means to detect, in the "
@@ -1109,6 +1110,9 @@ class PowerScreen(QWidget):
         :returns: the design table, cheapest first, or None when the pilot
             could not be read or the effect is impossible for the readout;
             the summary line says why.
+
+        The plan is compared with a simulation of exactly the same whole-cell
+        design, as the real-pilot validation does.
         """
         from ...sp_stats import (_default_cells, _nested_variance_components,
                                  _plan_arrayed_design,
@@ -1138,8 +1142,6 @@ class PowerScreen(QWidget):
         paired = self._plan_paired.isChecked()
         alpha = self._plan_alpha.value()
         readout = self._plan_readout.currentData() or "continuous"
-        # Compare the plan with a simulation of exactly the same whole-cell
-        # design, as the real-pilot validation does.
         cells = max(1, int(round(_default_cells(components))))
         inputs = dict(effect=effect, power=self._plan_power.value(),
                       alpha=alpha, paired=paired, cells=cells,
@@ -1230,7 +1232,11 @@ class PowerScreen(QWidget):
         self._plan_summary.setText(summary)
 
     def _validate_arrayed_plan(self, plan):
-        """Preflight a saved snapshot without changing any widget or result."""
+        """Preflight a saved snapshot without changing any widget or result.
+
+        Silent QDoubleSpinBox rounding of a hand-edited saved form is rejected.
+        Earlier version 1 plans predate interaction estimation.
+        """
         _arrayed_plan_mapping(plan, 'plan')
         _arrayed_plan_finite_tree(plan)
         if plan.get('schema') != 'spacr-arrayed-plan-v1':
@@ -1268,7 +1274,6 @@ class PowerScreen(QWidget):
                 _arrayed_plan_number(inputs[key], key, low=0 if key == 'cells' else None)
                 if key == 'cells' and inputs[key] == 0:
                     raise ValueError('cells must be positive')
-        # Reject silent QDoubleSpinBox rounding of a hand-edited saved form.
         for control, value in values:
             if isinstance(control, QDoubleSpinBox) and round(value, control.decimals()) != value:
                 raise ValueError('saved setting exceeds the control precision')
@@ -1276,7 +1281,7 @@ class PowerScreen(QWidget):
         estimated = _arrayed_plan_mapping(components['estimated'], 'variance estimation flags')
         for key in ('replicate', 'well', 'field', 'cell', 'replicate_condition'):
             if key == 'replicate_condition' and key not in components:
-                continue  # Earlier v1 plans predate interaction estimation.
+                continue
             flag = estimated.get(key)
             if type(flag) is not bool:
                 raise ValueError(f'{key} estimation flag must be a boolean')

@@ -713,12 +713,13 @@ def b_scores(matrix, *, fit_mask=None, scale: Optional[float] = None
         which is how the pooled scope applies the screen-wide MAD.
     :returns: ``(scores, polish, scale_used)``; a score is NaN for an absent
         well, and everywhere when the fitted residuals have no spread.
+
+    The cellHTS2 Bscore settings override the looser stats::medpolish defaults.
     """
     values = np.asarray(matrix, dtype=float)
     fit = np.isfinite(values)
     if fit_mask is not None:
         fit &= np.asarray(fit_mask, dtype=bool)
-    # cellHTS2::Bscore overrides the looser stats::medpolish defaults.
     polish = median_polish(np.where(fit, values, np.nan),
                            max_iter=200, eps=1e-5)
     residuals = values - (polish.overall
@@ -1864,6 +1865,13 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
     :param limit: the most tiles drawn.
     :param target: ``'screen'`` or ``'print'``, for the label ink.
     :returns: how many structures were drawn; 0 draws a sentence instead.
+
+    The automatic figure ground is transparent in both themes, so the theme
+    target cannot tell a light canvas from a dark one; headless installations
+    may not include Qt at all. A Qt canvas gets its final geometry only after
+    this worker result is installed, so the layout is recomputed on every draw
+    and resize: a one-shot tight_layout can leave negative spacing and
+    overlapping molecule tiles.
     """
     from matplotlib import colormaps
 
@@ -1872,13 +1880,11 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
     figure.clear()
     ink = resolve_ink(target)
     if target == "screen":
-        # The automatic figure ground is transparent in both themes, so
-        # theme_target cannot distinguish a light canvas from a dark one.
         try:
             from .qt.preferences import get_figure_colors
             ink = get_figure_colors()[1]
         except ImportError:
-            pass  # Headless installations may not include Qt.
+            pass
     sar = chemistry.sar
     hits = sar[sar["hit"]]
     if "smiles_valid" in hits.columns:
@@ -1918,9 +1924,6 @@ def _draw_hit_structures(figure, chemistry: _ChemistryResult, *,
             caption += f"\ncytotoxicity {tox:.3g}"
         ax.set_title(str(row["compound"]), fontsize=8, color=ink)
         ax.set_xlabel(caption, fontsize=7, color=ink)
-    # A Qt canvas acquires its final geometry after this worker result is
-    # installed. Recompute the layout on draw/resize: a one-shot tight_layout
-    # can leave negative spacing and overlapping molecular tiles afterward.
     figure.set_layout_engine("constrained", w_pad=0.06, h_pad=0.06)
     return len(hits)
 
@@ -1972,7 +1975,12 @@ def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
 
 
 def _write_hit_structures_svg(chemistry, out_dir):
-    """Export the displayed hit structures as editable vector artwork."""
+    """Export the displayed hit structures as editable vector artwork.
+
+    RDKit emits empty glyph paths for spaces; those harmless paths are dropped
+    so SVG renderers do not warn about truncated paths. Full names and exact
+    numeric values are kept even when a tile label is shortened.
+    """
     import json
     import os
     from pathlib import Path
@@ -2029,8 +2037,6 @@ def _write_hit_structures_svg(chemistry, out_dir):
         draw.rdMolDraw2D.PrepareAndDrawMolecule(drawer, molecule)
         drawer.FinishDrawing()
         artwork = ET.fromstring(drawer.GetDrawingText())
-        # RDKit emits empty glyph paths for spaces; omit those harmless paths
-        # so SVG renderers do not report truncated-path warnings.
         for parent in artwork.iter():
             for child in list(parent):
                 if child.tag == namespace + "path" and not child.get("d", "").strip():
@@ -2047,7 +2053,6 @@ def _write_hit_structures_svg(chemistry, out_dir):
             ET.SubElement(tile, namespace + "text", {
                 "x": "150", "y": str(y), "text-anchor": "middle", "fill": "#231F20",
                 "font-family": "sans-serif", "font-size": "13"}).text = line
-    # Preserve full names and exact numeric values even if a tile label is shortened.
     metadata = ET.SubElement(document, "{http://www.w3.org/2000/svg}metadata")
     metadata.text = json.dumps({"structures": records}, ensure_ascii=False, allow_nan=False)
     destination = Path(out_dir) / "hit_structures.svg"
@@ -4196,6 +4201,10 @@ def _arrayed_power(components: Dict[str, Any], effect: float, *,
     :param baseline: the control mean for proportion and count readouts;
         the pilot's mean when None.
     :returns: the probability of a significant result, from 0 to 1.
+
+    A noncentral T(df, ncp) reflected about zero is T(df, -ncp). The mirrored
+    survival tail avoids SciPy's unstable negative-argument CDF at low degrees
+    of freedom without dropping a legitimate small tail.
     """
     from scipy.stats import nct, t as student_t
 
@@ -4216,9 +4225,6 @@ def _arrayed_power(components: Dict[str, Any], effect: float, *,
     crit = student_t.ppf(1.0 - alpha / 2.0, dof)
     with _warnings.catch_warnings():
         _warnings.simplefilter('ignore', RuntimeWarning)
-        # T(df, ncp) reflected about zero is T(df, -ncp).  The mirrored
-        # survival tail avoids SciPy's unstable negative-argument CDF at
-        # low degrees of freedom without dropping a legitimate small tail.
         achieved = nct.sf(crit, dof, ncp) + nct.sf(crit, dof, -ncp)
     if not np.isfinite(achieved):
         raise ValueError('noncentral t power could not be computed reliably')
@@ -4310,6 +4316,9 @@ def _simulated_field_means(rng, true_means: np.ndarray, cells: int,
     :param cell_sd: the cell standard deviation of a continuous readout.
     :param dispersion: variance over mean of a count readout, at least 1.
     :returns: the observed field means, shaped like ``true_means``.
+
+    A negative binomial with n = lam / (phi - 1) and p = 1 / phi has mean lam
+    and variance phi * lam; a sum over cells adds the n values.
     """
     if readout == 'continuous':
         return true_means + rng.normal(0.0, cell_sd / np.sqrt(cells),
@@ -4319,8 +4328,6 @@ def _simulated_field_means(rng, true_means: np.ndarray, cells: int,
     lam = np.clip(true_means, 0.0, None)
     if dispersion <= 1.0 + 1e-9:
         return rng.poisson(cells * lam) / cells
-    # A negative binomial with n = lam / (phi - 1) and p = 1 / phi has mean
-    # lam and variance phi * lam; a sum of cells of them adds the n's.
     n = np.maximum(cells * lam / (dispersion - 1.0), 1e-12)
     draws = rng.negative_binomial(n, 1.0 / dispersion)
     return np.where(lam > 0, draws, 0) / cells
@@ -4464,6 +4471,10 @@ def _resample_arrayed_power(frame: pd.DataFrame, value: str,
     :raises ValueError: for an unknown readout, or when (without
         replacement) a pilot replicate has fewer than ``2 * wells`` wells
         with ``fields`` fields.
+
+    Wells are ordered by replicate: the k-th well of replicate r sits at
+    rep_first[r] + k in a random order drawn per resample, and distinct fields
+    are drawn within each chosen well.
     """
     from scipy.stats import ttest_ind, ttest_rel
 
@@ -4494,8 +4505,6 @@ def _resample_arrayed_power(frame: pd.DataFrame, value: str,
             f'every pilot replicate needs {2 * wells} wells with at least '
             f'{fields} fields; the fewest has '
             f'{int(per_rep.min()) if len(per_rep) else 0}')
-    # Wells ordered by replicate: the k-th well of replicate r sits at
-    # rep_first[r] + k in a per-draw random order.
     rep_first = np.r_[0, np.cumsum(per_rep)[:-1]]
     n_wells = len(well_start)
     k_max = int(well_len.max())
@@ -4509,7 +4518,6 @@ def _resample_arrayed_power(frame: pd.DataFrame, value: str,
         reps = rng.integers(0, len(rep_names),
                             (n, 1 if paired else 2, replicates))
         reps = np.broadcast_to(reps, (n, 2, replicates))
-        # A random order of the wells within each replicate, per draw.
         if replace:
             chosen = rep_first[reps][..., None] + (
                 rng.random((n, 2, replicates, wells))
@@ -4528,7 +4536,6 @@ def _resample_arrayed_power(frame: pd.DataFrame, value: str,
             chosen = np.take_along_axis(
                 np.broadcast_to(order[:, None], (n, 2, replicates, n_wells)),
                 slot, axis=-1)
-            # Distinct fields within each chosen well.
             u = rng.random(chosen.shape + (k_max,))
             u[np.arange(k_max) >= well_len[chosen][..., None]] = np.inf
             pick = np.argsort(u, axis=-1)[..., :fields]

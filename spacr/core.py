@@ -250,6 +250,10 @@ def preprocess_generate_masks(settings):
     See Also:
         :func:`spacr.io.preprocess_img_data` — the preprocessing half only.
         :func:`spacr.measure.measure_crop` — downstream feature extraction.
+
+    Mask writes which object sits in which as its own table in measurements.db.
+    That table is built from Measure's object tables, so before Measure has run
+    there are none, and that is not a failure.
     """
     if settings.get('dry_run', False):
         from .validate import run_preflight
@@ -698,8 +702,6 @@ def preprocess_generate_masks(settings):
                     torch.cuda.empty_cache()
                     gc.collect()
 
-                    # Item 76, decided 2026-09-29: Mask writes which object
-                    # sits in which as its own table in measurements.db.
                     try:
                         from .filters import _write_object_relationships
                         _write_object_relationships(
@@ -726,9 +728,6 @@ def preprocess_generate_masks(settings):
                 ledger.stamp(db_path)
                 try:
                     from .filters import object_tables, write_relationships
-                    # The filters' relationships table is built from
-                    # Measure's object tables; before Measure has run there
-                    # are none, and that is not a failure (item 76).
                     if object_tables(db_path):
                         write_relationships(db_path)
                 except Exception as exc:
@@ -1755,6 +1754,9 @@ def _watch_ready_fields(context, now):
     :returns: ``(ready, waiting)``: the ready fields as
         ``(first seen, key, members, signature)`` tuples, and how many fields
         are seen but not analysed.
+
+    Convert binds exact basenames; relative folders are provenance only. Split
+    companions and duplicate locations are still rejected.
     """
     seen, fields = context['seen'], context['ledger']['fields']
     groups = {}
@@ -1770,8 +1772,6 @@ def _watch_ready_fields(context, now):
     waiting = sum(entry.get('status') == 'waiting' and key not in groups
                   for key, entry in fields.items())
     for key, members in sorted(groups.items()):
-        # Convert binds exact basenames; relative folders are provenance only.
-        # The guards below still reject split companions and duplicate locations.
         if manifest is not None and (key not in manifest or
                 {os.path.basename(name) for name, _channel in members} != manifest[key]):
             waiting += 1
@@ -2369,11 +2369,13 @@ def _watch_folder_and_analyse(settings, analyse=None):
     :raises ValueError: see :func:`_watch_check_settings`.
     :raises spacr.cancellation.PipelineCancelled: when Stop was pressed; the
         record is saved first.
+
+    The settings are deep-copied at the start, so a callback or UI edit cannot
+    change the recipe between live fields.
     """
     from .cancellation import PipelineCancelled, checkpoint
 
     src, pipeline, settle, poll, idle = _watch_check_settings(settings)
-    # A callback or UI edit must not change the recipe between live fields.
     from copy import deepcopy
 
     settings = deepcopy(dict(settings))

@@ -2803,8 +2803,11 @@ def _spawn_detached(argv: Sequence[str], env=None, cwd: Optional[str] = None,
 
 
 def _macos_online_update_record(records, *, system=None, strict=False):
-    # Recognize a damaged bootstrap too: it must fail without entering cleanup.
-    """The running macOS online environment's record, or None elsewhere."""
+    """The running macOS online environment's record, or None elsewhere.
+
+    A damaged bootstrap is recognized too, so it fails without entering
+    cleanup.
+    """
     machine = system or _Machine()
     if machine.platform != "macos" or getattr(sys, "frozen", False):
         return None
@@ -2846,7 +2849,11 @@ def _macos_online_commands(record, version, workdir):
 
 
 def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
-    """Carry out an approved macOS online update in its own environment."""
+    """Carry out an approved macOS online update in its own environment.
+
+    The actual paths are rechecked after shutdown; uv or Python found on PATH
+    is never substituted.
+    """
     records = [_record_from_json(data) for data in plan["records"]]
     record = _macos_online_update_record(records, system=machine, strict=True)
     if record is None or plan.get("frozen_application"):
@@ -2857,7 +2864,6 @@ def _run_macos_online_update(plan, machine, *, wait=None, run=None, spawn=None):
     handshake = _FrozenUpdateHandshake(plan)
     handshake.ready()
     handshake.wait_for_shutdown(wait)
-    # Recheck the actual paths after shutdown; never substitute PATH's uv/Python.
     _macos_online_commands(record, plan["version"], plan["workdir"])
     runner = run or _run
     code, output = runner(install)

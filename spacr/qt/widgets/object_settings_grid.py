@@ -1386,8 +1386,9 @@ class ObjectSettingsGrid(QWidget):
         slot from the start was fine while there were 26; there are now 702,
         and the caller that presses Add repeatedly turned an O(slots) scan
         into an O(slots squared) one.
+
+        Hidden slots count as in use too.
         """
-        # 2026-09-29 (item 592): hidden slots are in use too.
         used = {obj for row in self._claimed.values() for obj in row
                 if obj.startswith("organelle")}
         for number in range(len(used) + 1, MAX_ORGANELLES + 1):
@@ -1401,6 +1402,8 @@ class ObjectSettingsGrid(QWidget):
 
         :returns: False when there is no slot left, with the reason on screen
             rather than as an exception into a GUI slot.
+
+        A slot whose channel is unset is hidden.
         """
         from ...organelle_types import NUMBER_OF_ORGANELLES, organelle_count
 
@@ -1422,7 +1425,6 @@ class ObjectSettingsGrid(QWidget):
         self._model.set_table(self._visible_table())
         self._announce()
         if role not in self.objects():
-            # 2026-09-29 (item 592): a slot whose channel is unset is hidden.
             self._status.setText(
                 f"{column_label(role)} added. Give it a channel to show its "
                 f"column.")

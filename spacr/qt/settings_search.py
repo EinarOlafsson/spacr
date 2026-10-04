@@ -405,6 +405,9 @@ class SettingsSearchBar(QWidget):
 
         :param key: the setting to reveal.
         :returns: True when the module renders ``key`` and it was revealed.
+
+        A nested heading is reachable only with every containing heading open,
+        and logical ancestry also crosses bodies parked off the widget tree.
         """
         row = self._index.get(str(key))
         if row is None:
@@ -423,8 +426,6 @@ class SettingsSearchBar(QWidget):
         if not _row_is_visible(section, field) and self._level != ALL:
             self._show_all_without_remembering()
             self.apply()
-        # A nested heading is only reachable with every containing heading
-        # open. Logical ancestry also crosses bodies parked off the widget tree.
         ancestors = set()
         parent = section
         while parent is not None:

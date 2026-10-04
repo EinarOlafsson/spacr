@@ -68,12 +68,13 @@ def table_identity(frame):
 
     :param frame: Original unannotated source frame.
     :returns: Schema, ordered content digest, and opaque per-row tokens.
+
+    Hashing is vectorized so large measurement tables stay practical; the final
+    digest binds every row, in order, to the schema and the source definition.
     """
     if not frame.columns.is_unique:
         raise AnnotationError("The source has duplicate column names; select a table with unique names.")
     schema = [[str(column), str(dtype)] for column, dtype in frame.dtypes.items()]
-    # Vectorized hashing keeps large measurement tables practical. The final
-    # digest binds every row in order to its schema and source definition.
     hashes = pd.util.hash_pandas_object(frame, index=False).to_numpy(dtype=np.uint64)
     digest = hashlib.sha256(json.dumps(schema).encode() + hashes.tobytes()).hexdigest()
     occurrences = pd.Series(hashes).groupby(hashes, sort=False).cumcount().to_numpy()
@@ -140,8 +141,10 @@ def _exact_values(condition, key, name):
 
 
 def _predicate_selection(frame, criterion, name):
-    # Literal operators never interpret regex metacharacters.
-    """Rows where one literal criterion holds, as a boolean array."""
+    """Rows where one literal criterion holds, as a boolean array.
+
+    Literal operators never interpret regex metacharacters.
+    """
     if not isinstance(criterion, dict):
         raise AnnotationError(f"{name}: each criterion needs a column, operator and text value.")
     column = criterion.get("metadata_column")
@@ -192,7 +195,12 @@ def _criteria_selection(frame, conditions, name, match):
 
 
 def _rules_preview(frame, conditions, locations, *, legacy, version=2):
-    """Evaluate one output, unioning repeated labels before conflict detection."""
+    """Evaluate one output, unioning repeated labels before conflict detection.
+
+    A criteria-only rule needs no legacy metadata selector. pandas may return a
+    read-only view (notably under Copy-on-Write), so manual assignments and
+    exclusions always own their mask.
+    """
     if not isinstance(conditions, list):
         raise AnnotationError("Conditions must be a list of rules.")
     masks = {}
@@ -206,7 +214,6 @@ def _rules_preview(frame, conditions, locations, *, legacy, version=2):
         column_name = condition.get("metadata_column")
         criteria = version == 3 and "criteria" in condition
         mode = condition.get("match_mode", "regex")
-        # A criteria-only rule needs no unused legacy metadata selector.
         needs_column = (not criteria or bool(condition.get("exclude"))
                         or (mode == "values" and bool(condition.get("exclude_values"))))
         if needs_column and column_name not in frame.columns:
@@ -242,8 +249,6 @@ def _rules_preview(frame, conditions, locations, *, legacy, version=2):
                     excluded = matches
         else:
             raise AnnotationError(f"{name}: choose a supported matching mode.")
-        # pandas may return a read-only view (notably with Copy-on-Write).
-        # Manual assignments and exclusions must own their mask.
         selected = np.array(selected, dtype=bool, copy=True)
         for token in condition.get("manual_rows", []):
             if token not in locations:
@@ -429,14 +434,16 @@ def apply_conditions(frame, definition, source):
     :param definition: Complete condition configuration.
     :param source: Current source context.
     :returns: Copy with every requested output column; original remains unchanged.
+
+    Values are assigned by position, never by Series index alignment:
+    duplicated pandas indices are legal input and play no role in condition
+    identity.
     """
     result = preview(frame, definition, source)
     if len(result.overlaps):
         raise AnnotationError(f"{len(result.overlaps):,} rows match multiple conditions. "
                               "Adjust include/exclude patterns or remove manual assignments before applying.")
     output = frame.copy()
-    # Assign by position, never Series index alignment: duplicated pandas
-    # indices are legal input and have no role in condition identity.
     for column, values in result.column_values.items():
         output[column] = values.array
     output.attrs["condition_annotation"] = json.loads(json.dumps(definition))
@@ -447,7 +454,11 @@ _SCHEMA_MAX_BYTES = 8 * 1024 * 1024
 
 
 def _schema_columns(columns, *, importing, version):
-    """Copy only portable recipe fields; never import source-bound memberships."""
+    """Copy only portable recipe fields; never import source-bound memberships.
+
+    Inactive fields do not become active merely because an editor selects a
+    mode after loading; the evaluator's meaning is preserved.
+    """
     allowed = {
         "rules": {"column", "kind", "conditions"},
         "extract": {"column", "kind", "metadata_column", "pattern", "group"},
@@ -503,8 +514,6 @@ def _schema_columns(columns, *, importing, version):
                     rule["match_mode"] = "regex"
                     rule["include"] = ""
                     rule.pop("match_text", None)
-                # Inactive fields must not become active merely because an editor
-                # selects a mode after loading. Preserve the evaluator's meaning.
                 if rule.get("match_mode", "regex") == "values":
                     rule.pop("include", None)
                     rule.pop("exclude", None)
@@ -530,7 +539,11 @@ def _schema_columns(columns, *, importing, version):
 
 
 def _save_schema(path, frame, definition, source):
-    """Validate a snapshot and atomically save portable rules, returning omitted rows."""
+    """Validate a snapshot and atomically save portable rules, returning omitted rows.
+
+    Portable fields are validated before the legacy evaluator can coerce
+    malformed values or ignore fields the schema reader would reject.
+    """
     from .run_journal import _atomic_write_text
 
     target = Path(path).expanduser()
@@ -543,8 +556,6 @@ def _save_schema(path, frame, definition, source):
     version = definition.get("version")
     if type(version) is not int or version not in (1, 2, 3):
         raise AnnotationError("Unsupported annotation recipe version.")
-    # Validate portable fields before the legacy evaluator can coerce malformed
-    # values or ignore fields that the schema reader would have to reject.
     columns, omitted = _schema_columns(_entries(definition), importing=False, version=version)
     report = preview(frame, definition, source)
     if len(report.overlaps):
@@ -632,6 +643,12 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
     :param source: Original annotation source context.
     :param merge_definition: Original merged-source configuration, if applicable.
     :returns: Saved table name. A failure rolls back both table and provenance.
+
+    Reserved metadata is validated before the user table is created, so a
+    conflicting unrelated table is never silently repurposed as the receipt
+    store. Reopening and editing are bound to what SQLite actually stored,
+    including dtype normalization, rather than assuming a pandas to SQL round
+    trip is lossless.
     """
     import sqlite3
     from datetime import date, datetime
@@ -675,8 +692,6 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
         found = db.execute('SELECT name FROM sqlite_master WHERE lower(name)=lower(?)', (name,)).fetchone()
         if found:
             raise AnnotationError("That table or view already exists; choose a new name to preserve it.")
-        # Validate reserved metadata before creating the user table. A conflicting
-        # unrelated table is never silently repurposed as our receipt store.
         existing = db.execute('SELECT type FROM sqlite_master WHERE name=?', (PROVENANCE_TABLE,)).fetchone()
         if existing:
             fields = [row[1] for row in db.execute(f'PRAGMA table_info({_quote(PROVENANCE_TABLE)})')]
@@ -689,8 +704,6 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
         placeholders = ', '.join('?' for _ in columns)
         db.executemany(f'INSERT INTO {_quote(name)} VALUES ({placeholders})',
                        (tuple(scalar(value) for value in row) for row in frame.itertuples(index=False, name=None)))
-        # Bind reopen/edit to what SQLite actually stored, including dtype
-        # normalization, rather than assuming a pandas/SQL roundtrip is lossless.
         materialized = pd.read_sql_query(f'SELECT * FROM {_quote(name)}', db)
         editable_base = materialized.drop(columns=output_columns)
         editable = json.loads(json.dumps(definition))

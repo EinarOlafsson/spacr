@@ -1212,6 +1212,9 @@ def _prior_figure_findings(panels, destination):
     Only closed, small sidecars for existing figures are considered. This is
     intentionally an exact pixel check: approximate matches across figures
     need stronger evidence than a single thumbnail to avoid false alarms.
+
+    A stale sidecar never reports a repeat after its figure was replaced, even
+    on filesystems with coarse modification times.
     """
     import heapq
     import json
@@ -1258,8 +1261,6 @@ def _prior_figure_findings(panels, destination):
             if not any(p.get("displayed_sha256") in current
                        for p in old.get("panels", [])):
                 continue
-            # A stale sidecar must not report a repeat after its figure was
-            # replaced, even on filesystems with coarse modification times.
             from .run_journal import hash_file
             if old.get("figure_sha256") != hash_file(old_figure, full=True):
                 continue

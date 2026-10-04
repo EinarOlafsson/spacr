@@ -1077,6 +1077,8 @@ def _load_colony_dilutions(value):
     Numeric inputs and dictionaries retain their existing behavior. A CSV
     is read and validated completely before returning its filename/stem
     mapping, so a bad later row cannot yield a partially usable map.
+
+    Plain numeric strings are still accepted, as they were before CSV support.
     """
     import csv
     import io
@@ -1093,7 +1095,7 @@ def _load_colony_dilutions(value):
         except ValueError:
             pass
         else:
-            return value  # Numeric strings were accepted before CSV support.
+            return value
     path = Path(value).expanduser()
     limit = 8 * 1024 * 1024
     try:

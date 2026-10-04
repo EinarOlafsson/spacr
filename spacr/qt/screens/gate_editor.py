@@ -2177,6 +2177,10 @@ def _gate_export_lock_verdicts(strategy: str, gates: GateSet, *,
     :param resolved: Strategy path was already canonicalized at save/load time;
         avoid touching a potentially remote filesystem during live edits.
     :returns: Gate-specific verdicts for every applicable analysis lock.
+
+    Gate comparison is restricted before the journal helper is called, so
+    another locked strategy on a remote filesystem is never opened by this
+    edit.
     """
     if not strategy:
         return []
@@ -2191,8 +2195,6 @@ def _gate_export_lock_verdicts(strategy: str, gates: GateSet, *,
             continue
         if not isinstance(record, dict) or label not in (record.get("gates") or {}):
             continue
-        # Restrict gate comparison before calling the journal helper, so another
-        # locked strategy on a remote filesystem is never opened by this edit.
         target = {**record, "gates": {label: record["gates"][label]}}
         deviations = _gate_deviations(target, {label: gates})
         verdict = _lock_verdict(record, deviations)

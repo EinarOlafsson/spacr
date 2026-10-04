@@ -2884,6 +2884,8 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
     :param progress: called with a short text now and then, or ``None``.
     :returns: the package folder.
     :raises ValueError: when ``src`` is not a folder or holds no images.
+
+    The IDR template requires the title row even when no title is known.
     """
     import shutil
 
@@ -3023,7 +3025,6 @@ def _write_archive_package(src: Any, out: Any, form: Dict[str, Any], *,
         ["Study Screens Number", 1],
         ["Study Public Release Date", values["release_date"]],
         ["# Study Publication"],
-        # The IDR template requires the row even when no title is known.
         ["Study Publication Title", ""],
         ["Study Author List", author_list],
         ["# Study Contacts"],

@@ -2596,7 +2596,11 @@ class _SpatialPanelLifecycle(QObject):
         self._panel = ref(panel)
 
     def eventFilter(self, watched, event):  # noqa: N802
-        """Shut the panel down on deletion or on a close its host accepted."""
+        """Shut the panel down on deletion or on a close its host accepted.
+
+        A host can veto closing, so its final state is inspected after its
+        handler.
+        """
         from PySide6.QtCore import QEvent
 
         if event.type() == QEvent.DeferredDelete:
@@ -2604,7 +2608,6 @@ class _SpatialPanelLifecycle(QObject):
             if panel is not None:
                 panel._shutdown()
         elif event.type() == QEvent.Close and watched.isVisible():
-            # A host can veto closing. Inspect its final state after its handler.
             QTimer.singleShot(0, lambda: self._check_closed(watched))
         elif event.type() == QEvent.Show:
             panel = self._panel()
@@ -2618,7 +2621,7 @@ class _SpatialPanelLifecycle(QObject):
         try:
             if panel is not None and not watched.isVisible():
                 panel._shutdown()
-        except RuntimeError:  # QObject destruction already ran the fallback.
+        except RuntimeError:
             pass
 
 
@@ -2666,9 +2669,11 @@ class _SpatialTranscriptomicsPanel(QWidget):
         jobs, stop_holder = self._jobs, self._stop_holder
 
         def destroyed(*_args):
-            # Destruction may follow a reopen, after the initial token retired.
-            # This state remains usable without touching the destroyed QWidget.
-            """Stop the job runner when the panel object is destroyed."""
+            """Stop the job runner when the panel object is destroyed.
+
+            Destruction may follow a reopen, after the initial token retired;
+            this state stays usable without touching the destroyed widget.
+            """
             stop_holder[0].set()
             jobs.shutdown()
 
@@ -2930,12 +2935,15 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self.canvas.draw_idle()
 
     def _set_busy(self, action):
-        """Mark an action as running, or None as idle, and lock inputs to match."""
+        """Mark an action as running, or None as idle, and lock inputs to match.
+
+        Reading is safe to supersede; a write keeps its destination visibly
+        fixed.
+        """
         self._busy = action
         self.load_button.setEnabled(action is None)
         self.assign_button.setEnabled(action is None)
         self.gene.setEnabled(action is None)
-        # Reading is safe to supersede; a write keeps its destination visibly fixed.
         for edit in (self.folder, self.image, self.landmarks, self.region_mask,
                      self.db, *self.masks.values()):
             edit.parentWidget().setEnabled(action != "run")
@@ -2997,7 +3005,10 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._jobs.submit(work, self._action_finished)
 
     def _action_finished(self, payload):
-        """Show a finished load or run, ignoring results that were superseded."""
+        """Show a finished load or run, ignoring results that were superseded.
+
+        The write has succeeded even if its overlay cannot draw.
+        """
         if self._closed:
             return
         request, generation, loaded, summary, error = payload
@@ -3019,7 +3030,6 @@ class _SpatialTranscriptomicsPanel(QWidget):
                 self._show_summary(summary)
         except Exception as error:
             if summary is not None:
-                # The write has succeeded even if its GUI overlay cannot draw.
                 self._show_summary(summary)
                 LOG.exception("could not draw the spatial result overlay")
             else:
@@ -3036,7 +3046,10 @@ class _SpatialTranscriptomicsPanel(QWidget):
         self._jobs.shutdown()
 
     def _reopen(self):
-        """Make a closed panel usable again once its last job has ended."""
+        """Make a closed panel usable again once its last job has ended.
+
+        The token captured by an older worker is never revived.
+        """
         if not self._closed:
             return
         if not self._active_done.is_set():
@@ -3045,7 +3058,7 @@ class _SpatialTranscriptomicsPanel(QWidget):
         from threading import Event
 
         self._reopen_timer.stop()
-        self._stop = Event()  # Never revive the token captured by an older worker.
+        self._stop = Event()
         self._stop_holder[0] = self._stop
         self._closed = False
         self._set_busy(None)

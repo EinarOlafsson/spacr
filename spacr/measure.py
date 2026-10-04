@@ -9866,6 +9866,8 @@ def _cellprofiler_overlap_labels(paths, mask):
     shape as the spaCR mask. Background counts against a majority. Repeated
     object IDs across planes, malformed arrays, and ties are not guessed.
     Files are mapped read-only; at most 64 planes of 16M pixels are accepted.
+
+    Background is included in the totals so a tiny edge overlap is rejected.
     """
     if not isinstance(paths, (list, tuple)) or not paths or len(paths) > 64:
         return {}
@@ -9891,7 +9893,6 @@ def _cellprofiler_overlap_labels(paths, mask):
             if seen.intersection(ids):
                 return {}
             seen.update(ids)
-            # Include background in totals so a tiny edge overlap is rejected.
             foreground = positive & (mask > 0)
             pairs, counts = np.unique(np.column_stack((
                 plane[foreground].astype(np.int64),
@@ -9951,7 +9952,11 @@ def _cellprofiler_tables(reply, merged_folder, settings):
         return masks[stem]
 
     def lookup(role, image_numbers, xs, ys):
-        """The spaCR label under each centre in ``role``'s mask."""
+        """The spaCR label under each centre in ``role``'s mask.
+
+        A centre outside the image cannot identify an edge object; the check
+        comes before rounding so negative subpixel positions stay unmatched.
+        """
         found = np.zeros(len(xs))
         overlaps = {}
         supplied = reply.get('labels') or {}
@@ -9971,8 +9976,6 @@ def _cellprofiler_tables(reply, merged_folder, settings):
                 continue
             if not np.isfinite(x) or not np.isfinite(y):
                 continue
-            # A centre outside the image cannot identify an edge object.
-            # Check before rounding so negative subpixels stay unmatched.
             if not (0 <= x < mask.shape[1] and 0 <= y < mask.shape[0]):
                 continue
             row = int(min(max(round(y), 0), mask.shape[0] - 1))

@@ -2,7 +2,8 @@
 EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
 ================================================================================
 
-Status:    OPEN 2026-10-04 — regressed: `python tools/strip_comments.py --check spacr` reports 216 removable `#` comments in 46 files (e.g. sp_stats.py 19, foreign.py). Fix: run tools/extract_source_notes.py spacr --execute --discard-log <log>, then add a guard test that the check finds zero.
+Status:    DONE 2026-10-04 — the 220 ordinary comments in 47 files are gone: reasons, gotchas and units notes moved into their function's or module's docstring as prose (about 100 notes), the rest deleted; docstring insertion verified by AST equality with docstrings removed, the strip by tools/strip_comments.py's own AST check. tests/test_strip_comments_tool.py::test_the_package_carries_no_ordinary_comment now guards that the check finds zero.
+Previous status (superseded 2026-10-04): OPEN 2026-10-04 — regressed: `python tools/strip_comments.py --check spacr` reports 216 removable `#` comments in 46 files (e.g. sp_stats.py 19, foreign.py). Fix: run tools/extract_source_notes.py spacr --execute --discard-log <log>, then add a guard test that the check finds zero.
 Previous status (superseded 2026-10-04): DONE 2026-09-28 — Final pass applied: 16 comments removed (channel_sorting.py 15, make_masks.py 1); tools/strip_comments.py --check exits 0; 18,863 protected comments (#: Sphinx docs, directives, shebangs) kept by design.
            66 modules moved to notes or the recoverable discard log. The
            full package plus setup.py now has zero ordinary comment blocks;

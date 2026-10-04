@@ -434,6 +434,10 @@ class ConditionBox(QFrame):
         :param source_model: Source data model.
         :param condition: Initial condition definition.
         :param parent: Owning widget.
+
+        Old recipe and API editing is preserved: entering a legacy regex
+        explicitly switches to its editor rather than silently ignoring the
+        expression.
         """
         super().__init__(parent)
         self.setObjectName("ConditionBox")
@@ -549,8 +553,6 @@ class ConditionBox(QFrame):
         self._show_manual_rows()
         for control in (self.name, self.include, self.exclude):
             control.textChanged.connect(self.changed)
-        # Preserve old recipe/API editing: entering a legacy regex explicitly
-        # switches to its editor rather than silently ignoring the expression.
         self.include.textEdited.connect(lambda: self.match_mode.setCurrentIndex(0))
         self.include.textChanged.connect(lambda text: self.match_mode.setCurrentIndex(0)
                                          if text and self.match_mode.currentData() == "criteria" else None)
@@ -994,7 +996,11 @@ class ConditionAnnotationDialog(QDialog):
         self._jobs.submit(work, self._schema_loaded)
 
     def _schema_loaded(self, payload):
-        """Install only a successfully validated schema; never accept the dialog."""
+        """Install only a successfully validated schema; never accept the dialog.
+
+        A hand-edited portable recipe can use a newer version for a simpler
+        legacy shape, so the editor's normalized recipe is what gets validated.
+        """
         definition, report, result, prior_valid = payload
         if definition is None:
             self.status.setText(tr("Schema was not loaded: {reason}", reason=report))
@@ -1008,8 +1014,6 @@ class ConditionAnnotationDialog(QDialog):
         self._refresh_column_selector()
         self._load_column()
         if self.configuration() != definition:
-            # A hand-edited portable recipe can use a newer version for a
-            # simpler legacy shape. Validate the editor's normalized recipe.
             self.refresh_preview()
             return
         self._previewed((definition, report, result))
@@ -1132,7 +1136,11 @@ class ConditionAnnotationDialog(QDialog):
         self._changed()
 
     def _create_named_groups(self):
-        """Create ordered extraction outputs atomically from named captures."""
+        """Create ordered extraction outputs atomically from named captures.
+
+        The active extraction draft is replaced and every other output is
+        preserved.
+        """
         try:
             names = list(re.compile(self.extract_pattern.text()).groupindex)
         except re.error as exc:
@@ -1143,7 +1151,6 @@ class ConditionAnnotationDialog(QDialog):
             return
         self._save_column()
         current = self._columns[self._active_column]
-        # Replace the active extraction draft, preserving all other outputs.
         occupied = set(map(str, self.frame.columns)) | {
             c["column"] for i, c in enumerate(self._columns) if i != self._active_column}
         duplicates = occupied.intersection(names)
@@ -1532,9 +1539,11 @@ class ConditionAnnotationDialog(QDialog):
         definition = self.configuration()
         self.status.setText(tr("Checking condition assignments…"))
         def work():
-            # Carry failures through the generation-guarded result channel too;
-            # a slow invalid draft must not disable a newer valid preview.
-            """Preview the draft in a worker and apply it to a copy of the table."""
+            """Preview the draft in a worker and apply it to a copy of the table.
+
+            Failures travel through the generation-guarded result channel too,
+            so a slow invalid draft cannot disable a newer valid preview.
+            """
             try:
                 report = preview(self.frame, definition, self.source)
                 result = None

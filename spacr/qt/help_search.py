@@ -886,14 +886,15 @@ class HelpSearchField(QLineEdit):
         and reveals the next :data:`MORE_STEP` rows of its kind instead.
 
         :param item: the row the user chose.
+
+        Activation is deferred because this runs inside the list's own click or
+        activation signal, and _show_more clears the list, which would delete
+        the item the view is still delivering.
         """
         if item is None:
             return
         kind = item.data(MORE_ROLE)
         if kind:
-            # Deferred: this runs inside the list's own click or activation
-            # signal, and ``_show_more`` clears the list -- deleting the item
-            # the view is still in the middle of delivering.
             QTimer.singleShot(0, partial(self._show_more, str(kind)))
             return
         entry = item.data(ENTRY_ROLE)

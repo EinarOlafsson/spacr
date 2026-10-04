@@ -340,6 +340,9 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
     :param policy: merge policy supplying per-column aggregation overrides.
     :returns: one row per parent, columns prefixed with ``name``.
     :raises MergeError: the child has none of the keys.
+
+    An unmeasured group is missing, never a measured zero. Regression and both
+    interactive merge consumers use this same rule.
     """
     missing = [k for k in keys if k not in child.columns]
     if missing:
@@ -351,8 +354,6 @@ def roll_up(child: pd.DataFrame, keys: Sequence[str], *,
     plan = aggregation_plan(child, overrides=overrides, skip=keys)
     grouped = child.groupby(list(keys), dropna=False)
 
-    # An unmeasured group is missing, never a measured zero. Regression and
-    # both interactive merge consumers use this same rule.
     out = grouped.agg(plan)
     summed = [column for column, how in plan.items() if how == SUM]
     if summed:

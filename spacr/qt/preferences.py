@@ -6306,7 +6306,10 @@ class _PluginCatalogueJob(threading.Thread):
         self.refresh_error = None
 
     def run(self):
-        """Mutate the catalogue and fetch its refreshed rows off the GUI thread."""
+        """Mutate the catalogue and fetch its refreshed rows off the GUI thread.
+
+        A refresh failure never misreports a committed install as failed.
+        """
         from ..plugins import (
             _catalogue_rows,
             _install_from_catalogue,
@@ -6330,7 +6333,6 @@ class _PluginCatalogueJob(threading.Thread):
         try:
             self.rows = _catalogue_rows(self.source)
         except Exception as exc:
-            # A refresh failure must not misreport a committed install as failed.
             self.refresh_error = str(exc)
 
 
@@ -6573,7 +6575,11 @@ class _PluginCataloguePage:
         return True
 
     def _finish_job(self):
-        """Present a finished operation without coupling its lifetime to Qt."""
+        """Present a finished operation without coupling its lifetime to Qt.
+
+        A programmatic source change can occur while controls are disabled; the
+        old request's results or error are never attached to the new source.
+        """
         from .i18n import tr
 
         job = self._job
@@ -6582,8 +6588,6 @@ class _PluginCataloguePage:
         self._job_timer.stop()
         self._job = None
         if job.install is None:
-            # A programmatic source change can occur while controls are disabled.
-            # Never attach the old request's results or error to the new source.
             if (self.source.text().strip() or None) != job.source:
                 self.status.clear()
                 self._sync_buttons()

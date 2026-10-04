@@ -2611,7 +2611,12 @@ def _prepare_conversion_barcodes(resolved, conversion_plan, src, dst):
 
 
 def _finish_conversion_barcodes(prepared, result):
-    """Publish new CSVs with a completion receipt last; never replace a bundle."""
+    """Publish new CSVs with a completion receipt last; never replace a bundle.
+
+    The bundle folder is created exclusively, so a late collision never
+    overwrites it, and hard-link publication is atomic and refuses a late
+    receipt collision.
+    """
     import hashlib
     from .cancellation import checkpoint
     from .plate_qc import _link_barcode_wells
@@ -2633,7 +2638,7 @@ def _finish_conversion_barcodes(prepared, result):
         barcode_column=prepared['column'], existing_maps=prepared['existing'])
     bundle = prepared['bundle']
     checkpoint()
-    bundle.mkdir()  # exclusive reservation; a late collision must never overwrite
+    bundle.mkdir()
     owned = []
     try:
         for name, frame in [('plate_map_lims.csv', linked),
@@ -2664,7 +2669,6 @@ def _finish_conversion_barcodes(prepared, result):
             handle.write('\n')
             handle.flush()
             os.fsync(handle.fileno())
-        # Hard-link publication is atomic and refuses a late receipt collision.
         os.link(pending, bundle / 'complete.json')
         owned.append(bundle / 'complete.json')
         pending.unlink()

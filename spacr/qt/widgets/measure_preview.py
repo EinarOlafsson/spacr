@@ -482,6 +482,9 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
     divided among checked fields so the first field cannot consume every
     preview slot. Cancellation is observed between fields; superseded work
     never publishes a partial grid.
+
+    Crops own their RGB pixels, so the source mapping is released straight
+    away.
     """
     crops, errors = [], []
     plans = {}
@@ -527,7 +530,6 @@ def _compute_checked_crops(paths, current_path, current_data, crop_kwargs,
         except Exception as exc:
             errors.append(f"{Path(path).name}: {exc}")
         finally:
-            # Crops own their RGB pixels. Release the source mapping now.
             del data
     return {"crops": crops, "error": "", "warnings": errors,
             "export_settings": {"crop_settings": deepcopy(crop_kwargs),
@@ -2309,6 +2311,10 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         Says why when it cannot: returning in silence left the button doing
         nothing with nothing on the status line, which is the one thing no
         live view may do.
+
+        Spinbox drags call refresh repeatedly in one event-loop turn, so the
+        old grid is cleared once for the latest token and only its result is
+        drawn.
         """
         self._crop_token += 1
         self._cancel_crop_export()
@@ -2373,8 +2379,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             self._pending_crop_request = request
         else:
             self._start_crop_request(request)
-        # Spinbox drags call refresh repeatedly in one event-loop turn. Clear
-        # the old grid once for the latest token, then draw only its result.
         token = self._crop_token
         QTimer.singleShot(0, lambda: self._render_grid()
                           if token == self._crop_token and self._crop_running

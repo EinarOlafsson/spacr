@@ -21,6 +21,10 @@ other plugin until it is uninstalled.
 Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on``
 (case-insensitively) skips discovery entirely, so no plugin loads from either
 source.
+
+Two locks guard the registry: registry readers hold _LOCK only for snapshot
+access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem
+and module changes without blocking cached registry reads.
 """
 from __future__ import annotations
 
@@ -272,9 +276,7 @@ class _Registry:
     diagnostics: List[PluginDiagnostic] = field(default_factory=list)
 
 
-# Registry readers only hold this lock for snapshot access/publication.
 _LOCK = threading.RLock()
-# Serialize filesystem/module mutations without blocking cached registry reads.
 _CATALOGUE_MUTATION_LOCK = threading.RLock()
 _REGISTRY: Optional[_Registry] = None
 
@@ -1001,13 +1003,15 @@ def _install_from_catalogue(key: str, source: Any = None, home: Any = None,
     :param runner: replaces ``subprocess.run`` for pip.
     :returns: the install record.
     :raises KeyError: when the catalogue has no such key.
+
+    The previous, complete registry stays available throughout pip and the
+    imports.
     """
     entry = next((item for item in _read_catalogue(source) if item.key == key),
                  None)
     if entry is None:
         raise KeyError(f"the catalogue has no entry {key!r}")
     root = _plugin_home(home)
-    # Keep the previous, complete registry available throughout pip and imports.
     _registry()
     with _CATALOGUE_MUTATION_LOCK:
         record = (_install_plugin(entry, root, runner) if entry.kind == "plugin"
