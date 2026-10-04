@@ -1,7 +1,8 @@
 SAM2 VIDEO PROPAGATION: SEGMENT ONCE, FOLLOW EACH OBJECT OVER FRAMES
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27; CPU-validated 2026-09-28 on two
-CTC movies (see those notes). What is left is under "Not done".
+Status: IMPLEMENTED AS ALPHA 2026-09-27; DONE WHEN met 2026-10-04 (SAM2,
+trackastra and the stitcher scored on whole CTC movies). Not DONE: daughter
+parent links, Timeflows export and saving the seed dialog's tracks are open.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -155,3 +156,24 @@ Not done
     trackastra was not scored on the whole movies in this run, so the
     three-way comparison exists only for the short CPU clips.
     Logs: /mnt/wd4tb/scratch/556/gpu_u373.log, gpu_hela.log.
+
+2026-10-04 -- TRACKASTRA ON THE SAME WHOLE MOVIES (CPU)
+    Trackastra 0.5.6 pretrained general_2d, CPU (torch 2.14.0+cpu), greedy
+    linking over the same ST seed masks, scored by the same
+    timeflows_baseline.score_tracking (CTC DET/TRA vs GT/TRA):
+        movie              tracker          DET     TRA     switches (tracks)
+        U373 01, 115 fr    IoU stitcher     1.0000  1.0000   0 (0/8)
+        U373 01, 115 fr    trackastra CPU   1.0000  1.0000   0 (0/8)
+        U373 01, 115 fr    SAM2 tiny GPU    0.9882  0.9726  25 (1/8)
+        HeLa 01,  84 fr    IoU stitcher     0.9857  0.9832   8 (4/38)
+        HeLa 01,  84 fr    trackastra CPU   0.9804  0.9786   4 (2/38)
+        HeLa 01,  84 fr    SAM2 tiny GPU    0.9009  0.8687  61 (16/38)
+    Trackastra linking took ~2.4 s per movie. On these movies trackastra and
+    the stitcher are level and SAM2 propagation is last; SAM2 is not worth
+    recommending over them for linking given segmentations. The DONE WHEN
+    three-way comparison is now met. Env reused:
+    /mnt/wd4tb/codex_scratch/556/trackastra_env; scripts and output in
+    /mnt/wd4tb/scratch/556 (run_trackastra.py, score_trackastra.py,
+    eval/trackastra.out).
+    Still open (item not DONE): daughter parent links, Timeflows (426)
+    export, saving the seed dialog's labels/tracks to the project.
