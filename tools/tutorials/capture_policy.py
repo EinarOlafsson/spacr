@@ -45,6 +45,39 @@ SESSION_KEY = "session/last"
 DRAFTS_KEY = "session/drafts"
 FRESH_FLAG = "--fresh"
 
+#: 651/652: a launch running a version newer than the one last seen shows a
+#: "What's new" dialog. Every capture profile marks the running version as
+#: seen, so the dialog never appears in a recording, and capture refuses a
+#: frame while it is open.
+WHATS_NEW_SEEN_KEY = "updates/last_seen_version"
+WHATS_NEW_PREVIOUS_KEY = "updates/previous_version"
+WHATS_NEW_DIALOG = "WhatsNewDialog"
+
+
+def running_version():
+    """The installed spaCR version the way the app reads it, or ``"unknown"``.
+
+    Reads package metadata only (``spacr.updater._installed_version``), so
+    shell launchers need not import spaCR.
+    """
+    from importlib.metadata import PackageNotFoundError, version
+
+    for name in ("spacr", "spacr-nightly"):
+        try:
+            return version(name)
+        except PackageNotFoundError:
+            continue
+    return "unknown"
+
+
+def _mark_whats_new_seen(store, version=None):
+    """Store ``version`` (default: the running one) as the last seen."""
+    version = version or running_version()
+    if version and version != "unknown":
+        store.setValue(WHATS_NEW_SEEN_KEY, version)
+    store.remove(WHATS_NEW_PREVIOUS_KEY)
+    return version
+
 
 def fresh_argv(argv=()):
     """``argv`` for a spaCR launch that starts fresh (``--fresh`` first, once)."""
@@ -69,7 +102,8 @@ def force_fresh_start():
     In-process recorders build ``MainWindow`` without ``main()``, so the
     command-line flag is set the way ``main()`` sets it. Also removes the
     remembered session and any crash drafts, so nothing is reopened and no
-    recovery offer appears. Preferences -> Session is left at its default
+    recovery offer appears, and marks the running version as seen so no
+    "What's new" dialog opens. Preferences -> Session is left at its default
     (on) so Preferences scenes show it truthfully. Call before the main
     window is built. Returns True when the app has session restore at all.
     """
@@ -84,15 +118,18 @@ def force_fresh_start():
     store.remove(RESTORE_SESSION_KEY)            # back to the default (on)
     store.remove(SESSION_KEY)
     store.remove(DRAFTS_KEY)
+    _mark_whats_new_seen(store)                  # no "What's new" dialog
     store.sync()
     return True
 
 
-def force_fresh_start_in_profiles(config_homes):
+def force_fresh_start_in_profiles(config_homes, version=None):
     """Drop the remembered session and crash drafts from each profile.
 
     Preferences -> Session is put back to its default (on): the fresh start
     comes from ``--fresh`` and the empty session state, not from the switch.
+    The running spaCR version (or ``version``) is marked as seen, so no
+    "What's new" dialog opens.
 
     For launchers that prepare a profile before the app starts. Each
     ``config_home`` is an ``XDG_CONFIG_HOME`` (store ``spacr/qt.conf``).
@@ -109,6 +146,7 @@ def force_fresh_start_in_profiles(config_homes):
         store.remove(RESTORE_SESSION_KEY)        # the default (on)
         store.remove(SESSION_KEY)
         store.remove(DRAFTS_KEY)
+        _mark_whats_new_seen(store, version)     # no "What's new" dialog
         store.sync()
         if store.status() != QSettings.NoError:
             raise RuntimeError(f"Cannot clear the remembered session in {path}")
@@ -145,16 +183,50 @@ def verify_profile_starts_fresh(config_home):
                 f"Capture refused: {path} would reopen the last session")
     return path
 
+def verify_no_whats_new(window=None):
+    """Refuse while a "What's new" dialog is open (651/652)."""
+    candidates = []
+    if window is not None:
+        candidates.append(getattr(window, "_whats_new_dialog", None))
+    app_module = sys.modules.get("PySide6.QtWidgets")
+    app = app_module.QApplication.instance() if app_module is not None else None
+    if app is not None:
+        candidates.extend(app.topLevelWidgets())
+    for widget in candidates:
+        try:
+            shown = (widget is not None and widget.objectName() == WHATS_NEW_DIALOG
+                     and widget.isVisible())
+        except RuntimeError:                      # already deleted
+            shown = False
+        if shown:
+            raise RuntimeError(
+                "Capture refused: the \"What's new\" dialog is open; capture "
+                "profiles mark the running version as seen")
+
+def refuse_whats_new_titles(titles):
+    """Refuse when an X window title shows the "What's new" dialog.
+
+    For recordings of an installed spaCR in another process, where only the
+    window list is visible. A brand-new profile's first launch only
+    remembers its version, so the dialog should never be there.
+    """
+    for title in titles:
+        if str(title).startswith("What's new"):
+            raise RuntimeError(
+                f"Capture refused: the \"What's new\" dialog is open ({title!r})")
+
 def verify_fresh_start(window=None):
     """Refuse to record when spaCR started in restore mode.
 
-    Refused when the app was not started fresh (``--fresh`` or
+    Also refused while a "What's new" dialog is open. Refused when the app
+    was not started fresh (``--fresh`` or
     :func:`force_fresh_start`), when the window reopened a remembered
     session, or when crash drafts are offered. Preferences -> Session may be
     on (its default): ``--fresh`` skips it.
 
     :returns: True when checked; False for an app without session restore.
     """
+    verify_no_whats_new(window)
     gui = sys.modules.get("spacr.qt.app")
     flag = getattr(gui, "_OPEN_FRESH", None) if gui is not None else None
     if flag is None:

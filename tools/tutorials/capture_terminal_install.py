@@ -372,6 +372,10 @@ class Recorder:
 
     def shot(self, name, settle=1.5, evidence=False):
         time.sleep(settle)
+        # 651/652: never record a "What's new" dialog.
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from capture_policy import refuse_whats_new_titles
+        refuse_whats_new_titles(w[1] for w in self.app_windows())
         self.display.park_pointer()
         path = self.capture / (name + '.png')
         subprocess.run(['import', '-window', 'root', '-depth', '8', str(path)], check=True, timeout=60)

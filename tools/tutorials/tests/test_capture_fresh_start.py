@@ -257,3 +257,74 @@ def test_installed_app_recordings_start_fresh():
     terminal = (TUTORIALS / "capture_terminal_install.py").read_text()
     body = terminal[terminal.index("    def gui(self"):]
     assert body.index("verify_profile_starts_fresh(") < body.index("self.send(command")
+
+
+# 651/652: "What's new" after an update never appears in a recording.
+
+def test_force_fresh_start_marks_the_running_version_seen(_private_store):
+    from spacr.qt.preferences import _note_running_version
+    from spacr.updater import _installed_version
+
+    _private_store.setValue(capture_policy.WHATS_NEW_SEEN_KEY, "0.0.1")
+    force_fresh_start()
+    assert capture_policy.running_version() == _installed_version()
+    if _installed_version() != "unknown":
+        assert _private_store.value(capture_policy.WHATS_NEW_SEEN_KEY) == _installed_version()
+    assert _note_running_version(_installed_version()) is None    # no dialog
+
+
+def test_profiles_mark_the_version_seen(tmp_path):
+    from PySide6.QtCore import QSettings
+
+    store = QSettings(str(tmp_path / "spacr" / "qt.conf"), QSettings.IniFormat)
+    store.setValue(capture_policy.WHATS_NEW_SEEN_KEY, "0.0.1")
+    store.setValue(capture_policy.WHATS_NEW_PREVIOUS_KEY, "0.0.0")
+    store.sync()
+    force_fresh_start_in_profiles([tmp_path], version="9.9.9")
+    store = QSettings(str(tmp_path / "spacr" / "qt.conf"), QSettings.IniFormat)
+    assert store.value(capture_policy.WHATS_NEW_SEEN_KEY) == "9.9.9"
+    assert not store.contains(capture_policy.WHATS_NEW_PREVIOUS_KEY)
+
+
+def test_a_fresh_window_shows_no_whats_new(qtbot, _private_store):
+    _private_store.setValue(capture_policy.WHATS_NEW_SEEN_KEY, "0.0.1")
+    force_fresh_start()
+    window = _window(qtbot)
+    window._maybe_show_whats_new()
+    qtbot.wait(50)
+    assert getattr(window, "_whats_new_dialog", None) is None
+    assert verify_fresh_start(window) is True
+
+
+def test_capture_refuses_an_open_whats_new_dialog(qtbot, _private_store):
+    from PySide6.QtWidgets import QDialog
+
+    force_fresh_start()
+    dialog = QDialog()
+    dialog.setObjectName(capture_policy.WHATS_NEW_DIALOG)
+    qtbot.addWidget(dialog)
+    dialog.show()
+    with pytest.raises(RuntimeError, match="What's new"):
+        verify_fresh_start()
+    holder = _Window()
+    holder._whats_new_dialog = dialog
+    with pytest.raises(RuntimeError, match="What's new"):
+        capture_policy.verify_no_whats_new(holder)
+    dialog.hide()
+    assert verify_fresh_start(holder) is True
+
+
+def test_capture_refuses_a_whats_new_window_title():
+    capture_policy.refuse_whats_new_titles(["spaCR", "Set spaCR up — spaCR"])
+    with pytest.raises(RuntimeError, match="What's new"):
+        capture_policy.refuse_whats_new_titles(["spaCR", "What's new in spaCR — spaCR"])
+
+
+def test_installed_app_recordings_never_record_whats_new():
+    pip = (TUTORIALS / "capture_pip_installation.py").read_text()
+    assert "updates/last_seen_version" in pip
+    body = pip[pip.index("    def snapshot(name):"):]
+    assert body.index("refuse_whats_new_titles(") < body.index("grabWindow(0)")
+    terminal = (TUTORIALS / "capture_terminal_install.py").read_text()
+    body = terminal[terminal.index("    def shot(self"):]
+    assert body.index("refuse_whats_new_titles(") < body.index("'import', '-window'")

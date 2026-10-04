@@ -185,6 +185,11 @@ def record(stage, root, venv, prior, capture, route='pip'):
         'mark_tour_seen(); set_theme("dark"); set_font_scale(1.5)')
     if route != 'conda':
         preferences += '; from spacr.qt.preferences import set_preload_policy; set_preload_policy("on_demand")'
+    # 651/652: the installed version is the one last seen, so no "What's new"
+    # dialog opens in the recording (older packages ignore the key).
+    preferences += ('; import spacr as _s; from spacr.qt.preferences import _settings as _st; '
+                    '_st().setValue("updates/last_seen_version", getattr(__import__("spacr.updater").updater, "_installed_version", '
+                    'lambda: _s.__version__)()); _st().sync()')
     subprocess.run([str(venv / 'bin/python'), '-I', '-c', preferences],
         cwd=root, check=True, timeout=90)
     provenance['recording_preferences'] = dict(theme='dark', font_scale=1.5,
@@ -201,6 +206,10 @@ def record(stage, root, venv, prior, capture, route='pip'):
             time.sleep(.02)
 
     def snapshot(name):
+        # 651/652: never record a "What's new" dialog.
+        from capture_policy import refuse_whats_new_titles
+        refuse_whats_new_titles(re.findall(r'"([^"]*)"', subprocess.check_output(
+            ['xwininfo', '-root', '-tree'], text=True)))
         pixmap = app.primaryScreen().grabWindow(0)
         if (pixmap.width(), pixmap.height()) != (3840, 2160):
             raise RuntimeError('The actual private display must be native 4K')
