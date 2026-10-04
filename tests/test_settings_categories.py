@@ -372,6 +372,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "counterfactual_condition",
     # item 564 (2026-10-03): the chosen counterfactual target.
     "counterfactual_target",
+    # item 564 (d050bc6d4, 2026-10-04): the diffusion counterfactual generator.
+    "counterfactual_generator",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",
