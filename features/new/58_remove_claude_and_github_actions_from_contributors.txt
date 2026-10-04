@@ -2,7 +2,7 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    CLOSED 2026-09-09, re-verified 2026-09-13. The header used to read
+Status:    DONE 2026-09-09 (evidence 5ed7d9967) — re-verified 2026-09-13. The header used to read
            OPEN against the 2026-08-30 cache state; the rewrite has since
            landed and the page agrees with the API. Checked against the
            history rather than the prose: `git cat-file -e

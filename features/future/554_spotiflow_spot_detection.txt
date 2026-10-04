@@ -1,6 +1,10 @@
 SPOTIFLOW SPOT DETECTION IN ITS OWN ENVIRONMENT
 
-Status: DONE 2026-10-02 (alpha-gated); threshold/hybiss and FISH runs recorded 2026-10-03 (exploratory mode); only external points left: GPU timing (GPU turn) and the strict real-field replay.
+Status: DONE (alpha) 2026-10-02 — threshold/hybiss and FISH runs recorded
+        2026-10-03 (exploratory mode). Not yet measured: GPU timing (a GPU
+        turn) and the strict real-field replay.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); threshold/hybiss and FISH runs recorded 2026-10-03 (exploratory mode); only external points left: GPU timing (GPU turn) and the strict real-field replay.
         replay remains unavailable (2026-10-02).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 

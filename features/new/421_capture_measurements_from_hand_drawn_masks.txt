@@ -4,7 +4,7 @@ CAPTURE MEASUREMENTS FROM HAND-DRAWN MASKS IN MAKE MASKS
 
 Filed as 412 on 2026-09-18; renumbered 2026-09-19 because 412 also names features/new/412_a_ten_image_toxo_pv_test_dataset_that_opens_in_make_masks.txt.
 
-Status:    DONE 2026-09-19, and the last two open points closed 2026-09-21
+Status:    DONE 2026-09-19 — and the last two open points closed 2026-09-21
            (scenario 2 tested, grouping matched). The FEATURES button is in Make Masks, the
            measurement-input table is built, and a table run and a Measure
            run on the same pixels produce the same database. The maintainer's

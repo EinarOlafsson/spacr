@@ -2,7 +2,7 @@
 AN OBJECT'S EMBEDDING DEPENDS ON WHICH OTHER CROPS SHARE ITS BATCH
 ================================================================================
 
-Status:    DONE 2026-09-15, corrected 2026-09-19. Fixed in ce92c75c5 ("410:
+Status:    DONE 2026-09-15 — corrected 2026-09-19. Fixed in ce92c75c5 ("410:
            one fixed scale per channel per plate"), which is on nightly and
            inside v1.5.0.8; `EmbeddingSpec.channel_scale` is in
            spacr/embeddings.py and in all ten API catalogs, and

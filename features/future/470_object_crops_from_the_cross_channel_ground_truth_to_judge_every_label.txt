@@ -2,7 +2,10 @@
 OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL
 ================================================================================
 
-Status:    DONE 2026-10-03 (alpha-gated); only external point left: the
+Status:    BLOCKED 2026-10-03 — maintainer annotation of the crop sample; the
+           feature is built and alpha-gated.
+
+Previous status (superseded 2026-10-04):    DONE 2026-10-03 (alpha-gated); only external point left: the
            maintainer's annotation of the crop sample.
 
 Requested: 2026-09-21, verbatim -- "ok i need you to take the ground truth

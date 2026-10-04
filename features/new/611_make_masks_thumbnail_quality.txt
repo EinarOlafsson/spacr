@@ -2,7 +2,7 @@
 MAKE MASKS THUMBNAIL QUALITY: LOW, MEDIUM AND HIGH
 ================================================================================
 
-Status: IMPLEMENTED AND VERIFIED 2026-10-01 — runtime and persistence complete; catalog publication in N615.
+Status: DONE 2026-10-01 (evidence 25ba0c8ef) — runtime and persistence complete; catalog publication in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex inventory session (tracking only).
 

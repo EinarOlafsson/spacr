@@ -1,6 +1,6 @@
 PLAQUE ASSAY READS ANY NUMBER OF PDFS AND IMAGES
 
-Status: DONE, 2026-09-25 (filed the same day).
+Status: DONE 2026-09-25 — (filed the same day).
 Owner: agent (526 worktree). Related: 517 (drop files), 518 (mode follows the input),
 524 (four views in Figure mode).
 

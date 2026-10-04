@@ -2,7 +2,7 @@
 ONE ANCHOR, ONE COPY OF EACH COLUMN, AND THE RIGHT AGGREGATION FOR EACH KIND
 ================================================================================
 
-Status:    done, 2026-08-11. Supersedes the "drop policy" half of instruction
+Status:    DONE 2026-08-11 — Supersedes the "drop policy" half of instruction
            77 (3c), which asked a smaller question. Multi-organelle cytoplasm
            subtraction remains separately tracked by instruction 76.
 Requested: 2026-08-11 — "here is what i want instead. when i merge tables and

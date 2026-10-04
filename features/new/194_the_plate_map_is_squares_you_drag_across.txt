@@ -2,7 +2,7 @@
 THE PLATE MAP IS SQUARES YOU DRAG ACROSS, AND IT DOES NOT DRIFT
 ================================================================================
 
-Status:    DONE 2026-08-21. See the closing section.
+Status:    DONE 2026-08-21 — See the closing section.
 Requested: 2026-08-21 -- "the plate map should be made up of squares that are
            clickable nad the user should be able to drag and select. and the
            elements should be fixed to each other now if i change the size of

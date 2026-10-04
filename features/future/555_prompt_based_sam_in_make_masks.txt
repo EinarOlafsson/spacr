@@ -1,6 +1,6 @@
 CLICK- AND BOX-PROMPTED SEGMENTATION (micro-SAM) IN MAKE MASKS
 
-Status: DONE 2026-10-02 against the stated real-field acceptance boundary.
+Status: DONE (alpha) 2026-10-02 — against the stated real-field acceptance boundary.
 Fresh isolated CPU installation and actual Make Masks prompting passed: cached
 positive/negative clicks and a box reached the preview in 0.17-0.19 seconds;
 Enter/Save wrote the accepted mask and prompt provenance. Alpha remains enabled

@@ -2,7 +2,7 @@
 THE MEASUREMENTS TABLE'S COLUMNS SAY WHAT THEY CONTROL
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "for the measurements table tab, there needs to be a
            tooltip when the mouse is hovered over measurement, and level and
            plot and show and compare that explains what each field related to

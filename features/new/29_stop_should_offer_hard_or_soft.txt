@@ -2,7 +2,7 @@
 STOP DOES NOT STOP: OFFER SOFT AND HARD, LIKE THE QUIT BUTTON
 ================================================================================
 
-Status:    done - 2026-08-06
+Status:    DONE 2026-08-06
 Requested: 2026-08-06 - "spacr is really bad at stopping things. i have noticed this in many modules. the stop button doesnt seem to do much. when the stop button is pressed the user should be prompted to hard stop or soft stop. similar to the home screen quit button on module tasks"
 
 --------------------------------------------------------------------------------

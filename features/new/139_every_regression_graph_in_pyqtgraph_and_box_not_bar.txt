@@ -2,7 +2,7 @@
 EVERY REGRESSION GRAPH IN PYQTGRAPH, AND A BOXPLOT WHERE THERE WAS A BAR
 ================================================================================
 
-Status:    DONE 2026-08-22. See "DONE 2026-08-22 -- SECTION A, THE THREE THAT
+Status:    DONE 2026-08-22 — See "DONE 2026-08-22 -- SECTION A, THE THREE THAT
            WERE NOT TRANSLATIONS" at the foot of this file.
            HISTORY, kept because it is the reason the closing section exists:
            this file was CLOSED once on section C alone and REOPENED

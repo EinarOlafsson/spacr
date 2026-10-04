@@ -2,7 +2,7 @@
 A CONTROL CAN BE NAMED AS A GENE OR AS A GUIDE
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-20 -- "in the regression modual when adding controlls the
            user can add them as grna names (000000_1, 000000_2, 000000_3,
            ...), but they should also be able to add the grnas as a 'gene',

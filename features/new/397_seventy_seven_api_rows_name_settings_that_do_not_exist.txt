@@ -2,7 +2,7 @@
 SEVENTY-SEVEN API ROWS NAME A SETTING THAT DOES NOT EXIST
 ================================================================================
 
-Status:    DONE 2026-09-19. The SECOND bullet, the one still open, is
+Status:    DONE 2026-09-19 — The SECOND bullet, the one still open, is
            done: all twenty-one tooltip-without-type keys are read by
            live code, so each was TYPED (none was a stale tooltip), and
            the dead `umap.reduction_method` row is gone because the

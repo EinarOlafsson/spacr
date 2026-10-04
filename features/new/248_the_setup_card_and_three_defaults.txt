@@ -2,7 +2,7 @@
 A STRAY SENTENCE ON THE SETUP CARD, AND THREE TOGGLES THAT START OFF
 ================================================================================
 
-Status:    DONE. The stray sentence was the GPU note, shown having never
+Status:    DONE 2026-09-12 — The stray sentence was the GPU note, shown having never
            been laid out because the pass that places it gave up on a note
            that was not visible yet -- while running before the slide made
            it visible. The greeting and the note are placed independently

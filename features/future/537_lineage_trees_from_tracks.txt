@@ -1,6 +1,9 @@
 LINEAGE TREES FROM TRACKS
 
-Status: DONE 2026-10-02 (alpha-gated); only external point left: real tracked Toxoplasma endodyogeny movies (maintainer lab data).
+Status: BLOCKED 2026-10-02 — real tracked Toxoplasma endodyogeny movies
+        (unpublished maintainer lab data). Built and alpha-gated.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: real tracked Toxoplasma endodyogeny movies (maintainer lab data).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

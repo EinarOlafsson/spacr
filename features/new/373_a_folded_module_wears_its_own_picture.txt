@@ -3,7 +3,7 @@ THE CELLPOSE WORKBENCH DREW A DUMBBELL, AND FIVE MODULES WERE BORROWING ART
 THEY NO LONGER NEEDED TO
 ================================================================================
 
-Status:    DONE 2026-09-02, same day. Filed as a record rather than as work
+Status:    DONE 2026-09-02 — same day. Filed as a record rather than as work
            to do: the cause was found while measuring the request and the fix
            was two lines plus a table edit.
 Requested: 2026-09-02 — "the cellpose workbench icon should be the cellpose

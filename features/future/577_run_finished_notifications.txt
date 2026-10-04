@@ -1,6 +1,6 @@
 RUN-FINISHED NOTIFICATIONS: EMAIL, SLACK, NTFY, TEAMS, WEBHOOK
 
-Status: DONE AS ALPHA 2026-09-28 (see the notes of those dates). Desktop,
+Status: DONE (alpha) 2026-09-28 — (see the notes of those dates). Desktop,
 email (SMTP), Slack webhook and ntfy notifications for finished and failed
 runs, configured in Preferences -> Notifications, off until configured.
 Teams workflow and generic webhook adapters added and verified 2026-09-28

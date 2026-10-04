@@ -2,7 +2,7 @@
 THE WELL DETECTOR IS FED RGB AND ULTRALYTICS READS IT AS BGR
 ================================================================================
 
-Status:    DONE 2026-09-20. Measured against published ground truth, fixed at
+Status:    DONE 2026-09-20 — Measured against published ground truth, fixed at
            detect_wells' own door, pinned by a test, and the sibling caller
            that was already converting was corrected in the same pass. FOUND
            2026-09-19 by unit 424a, which hit the same bug in its own harness,

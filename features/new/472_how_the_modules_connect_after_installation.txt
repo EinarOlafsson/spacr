@@ -3,7 +3,7 @@ AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
 THAT SAY WHAT FEEDS WHAT, AND A HOME SCREEN THAT SHOWS WHERE TO START
 ================================================================================
 
-Status:    DONE, re-checked 2026-09-27 (Codex). Every part is built and live;
+Status:    DONE 2026-09-27 — re-checked 2026-09-27 (Codex). Every part is built and live;
            all 52 translations of lessons 78-81 match their current
            source-bound reviews on nightly. Issue #130 is answered and closed.
            Native-speaker and human listening signoff remain unclaimed.

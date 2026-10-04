@@ -2,7 +2,12 @@
 REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 ================================================================================
 
-Status: IN PROGRESS — runtime implementation pushed to nightly; supporting
+Status: OPEN 2026-10-03 — tutorial capture and publication for the new scenes
+        of 601, 611-614 and 620-629 (tutorial lane). Runtime on nightly; API
+        translation leftovers closed 2026-10-03; 1.5.1.2 and 1.5.1.3 are on
+        PyPI. Native-speaker review is not claimed.
+
+Previous status (superseded 2026-10-04): IN PROGRESS — runtime implementation pushed to nightly; supporting
 translation, tutorial and platform acceptance remains. The requested main
 promotion completed through PR #135 at 2429976f0 on 2026-10-01. Subsequent
 N625 multi-column annotations, N626 organizer repairs, N627 macOS updater and

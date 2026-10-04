@@ -2,7 +2,7 @@
 macOS: PREFERENCES AND QUIT VANISH, AND THE PYTHON MENU OPENS RECIPES
 ================================================================================
 
-Status:    DONE - 2026-09-27, installed macOS Cocoa acceptance verified
+Status:    DONE 2026-09-27 — installed macOS Cocoa acceptance verified
 Requested: 2026-08-06 - "om OSX the preferences and quit items in the drop down dont show up now. move these to the top of the list." and "on osx there is a apple logo, then python, spaCR, Deoms, Help drop downs ... the python dropdown on osx has a preferences item which spawns as module recipies window. please fix this"
 
 --------------------------------------------------------------------------------

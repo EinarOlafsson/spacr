@@ -2,7 +2,7 @@
 EVERY TABLE SORTS BY ITS COLUMNS, THE SAME WAY
 ================================================================================
 
-Status:    DONE 2026-08-26. Verified by CLICKING the header of the real
+Status:    DONE 2026-08-26 — Verified by CLICKING the header of the real
            coefficients table and reading the values back, not by checking
            that a flag was set.
 

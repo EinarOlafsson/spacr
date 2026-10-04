@@ -1,6 +1,6 @@
 FILTERS ARE ANY scikit-image REGIONPROP, ADDED BY THE USER
 
-Status: DONE 2026-09-25 (engine, Make Masks list, object_filters setting;
+Status: DONE 2026-09-25 — (engine, Make Masks list, object_filters setting;
         see BUILT below). Filed 2026-09-24. The old per-object bounds were
         retired into object_filters rows the same day, by the maintainer's
         decision (see the last note).

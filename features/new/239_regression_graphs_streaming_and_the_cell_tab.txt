@@ -2,7 +2,7 @@
 GRAPH TYPE ON EVERY PLOT, THE CELL TAB, AND ONE CROP FROM THREE METHODS
 ================================================================================
 
-Status:    DONE. Items 1 to 6 were already closed; item 7, the UniProt
+Status:    DONE 2026-08-23 — Items 1 to 6 were already closed; item 7, the UniProt
            organism list, resolves all of it -- the table carries 109
            organisms and every host, apicomplexan and other parasite the
            item names resolves by name or by taxon id.

@@ -2,7 +2,7 @@
 THE LICENCE IS NOT IDENTIFIABLE, AND THE TWO BRANCHES DO NOT AGREE ON IT
 ================================================================================
 
-Status:    DONE 2026-09-02. The maintainer chose the README's BSD 3-Clause.
+Status:    DONE 2026-09-02 — The maintainer chose the README's BSD 3-Clause.
            `main` now carries it, and
 
                gh api repos/EinarOlafsson/spacr --jq .license.spdx_id

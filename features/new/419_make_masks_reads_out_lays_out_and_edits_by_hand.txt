@@ -2,7 +2,7 @@
 MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
-Status:    DONE 2026-09-30. The maintainer's display check on a real
+Status:    DONE 2026-09-30 — The maintainer's display check on a real
            display passed ("419 OK"). See the 2026-09-25 notes.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:

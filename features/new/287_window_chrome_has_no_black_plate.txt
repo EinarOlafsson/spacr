@@ -2,7 +2,7 @@
 THE WINDOW MARKS HAVE NO BLACK PLATE
 ================================================================================
 
-Status:    DONE 2026-08-27. Reproduced in the dark theme, fixed and rendered
+Status:    DONE 2026-08-27 — Reproduced in the dark theme, fixed and rendered
            in a regression test.
 Owner:     spacr/qt/app.py window chrome.
 

@@ -2,7 +2,7 @@
 THE REAL-WINDOW THEME SWEEP IS ONE WIDGET AWAY FROM GOING RED AGAIN
 ================================================================================
 
-Status:    DONE 2026-09-19, WITH THE NAMED, GUARDED EXEMPTION, AND THE
+Status:    DONE 2026-09-19 — WITH THE NAMED, GUARDED EXEMPTION, AND THE
            STRIDE LEFT AS IT WAS. QWidget#CentralRow and the page stack are
            exempt by identity, through `_unreached_by_design(window)` in the
            test file. The test asserts three things. First, those two are

@@ -2,7 +2,7 @@
 A SAVED FIGURE IS FOR PAPER, NOT FOR THE SCREEN
 ================================================================================
 
-Status:    DONE 2026-08-20, re-audited 2026-08-27, re-verified 2026-09-13.
+Status:    DONE 2026-08-20 — re-audited 2026-08-27, re-verified 2026-09-13.
            figure_style.export_colour (584) and saved_figure_appearance (761)
            both exist, and FastPlot.export at qt/widgets/fast_plots.py:5157
            wraps the WHOLE export in _wear_the_print_look with a finally

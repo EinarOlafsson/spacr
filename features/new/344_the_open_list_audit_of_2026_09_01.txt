@@ -2,7 +2,7 @@
 THE OPEN LIST WAS AUDITED AGAINST THE CODE, AND FIVE ITEMS WERE WRONG
 ================================================================================
 
-Status:    done, 2026-09-01.
+Status:    DONE 2026-09-01
 Requested: 2026-09-01 -- "check the all list items, many of the percentages are
            wrong and many are already complete. so audit each item then remake
            the instructions list and save the changes to the instructions list

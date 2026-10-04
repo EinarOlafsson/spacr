@@ -2,7 +2,7 @@
 REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 ================================================================================
 
-Status:    COMPLETE — 2026-10-01 release closure verified against current main.
+Status:    DONE 2026-10-01 (evidence 48c4133c8) — release closure verified against current main.
            All 85 published lessons pass current-main mobile playback; exact
            published catalogs/media and release-merge ancestry are verified.
            Historical maintainer reviews/waiver are recorded below. Newer

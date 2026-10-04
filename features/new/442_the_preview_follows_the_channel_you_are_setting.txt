@@ -2,7 +2,7 @@
 THE PREVIEW ALREADY FOLLOWS THE CHANNEL YOU SET; IT REPAINTED TWICE DOING IT
 ================================================================================
 
-Status:    DONE 2026-09-19. The behaviour asked for was already on nightly by
+Status:    DONE 2026-09-19 — The behaviour asked for was already on nightly by
            the time it was asked for; what this item fixed is the redundant
            repaint behind it, and it pins the behaviour with tests so it
            cannot quietly go away.

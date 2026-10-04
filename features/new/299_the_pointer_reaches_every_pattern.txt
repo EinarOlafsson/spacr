@@ -1,6 +1,6 @@
 299 — The pointer reaches every pattern, and the cascade draws on CPU
 
-Status:    CLOSED, verified 2026-09-14 against the tree rather than against
+Status:    DONE 2026-09-14 (evidence 28a62f2e7) — verified 2026-09-14 against the tree rather than against
            this file. All three defects below are fixed and two of the three
            requested settings exist; THE THIRD WAS DELIBERATELY REMOVED by a
            later decision and is guarded by a test, so re-adding it would be a

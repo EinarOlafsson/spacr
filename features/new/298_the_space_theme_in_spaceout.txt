@@ -1,6 +1,6 @@
 298 — The space theme, in spaceout
 
-Status: DONE, verified 2026-09-13. spacr/qt/widgets/fractal_space.py holds
+Status: DONE 2026-09-13 — verified 2026-09-13. spacr/qt/widgets/fractal_space.py holds
         both backends -- GLSL `space_object`/`space_star_field` and the
         numba `sample_space`/`render_space_frame` with a no-numba refusal
         stub -- and "space" is a pattern in fractal_defaults.PATTERNS, wired

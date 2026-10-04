@@ -1,6 +1,6 @@
 TOOLTIPS WAIT TWO SECONDS, LINGER ONE, AND CAN BE SWITCHED OFF
 
-Status: DONE, 2026-09-25. Filed 2026-09-24.
+Status: DONE 2026-09-25 — Filed 2026-09-24.
 Owner: Claude.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)

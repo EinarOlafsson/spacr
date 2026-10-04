@@ -13,7 +13,7 @@ above the first condition row with copyable column-aware regex examples for
 multiple strings, variable characters and include/exclude rules. This extends
 N620; its completed core and SQLite persistence remain independently tracked.
 
-Status: IMPLEMENTED AND VALIDATED. Backend, merge integration and annotation
+Status: DONE 2026-10-01 (evidence: dated notes, record 02b5ef55d) — Backend, merge integration and annotation
 guidance were implemented in disjoint agent scopes. No original source files or
 measurement tables are renamed or overwritten by this feature.
 

@@ -2,7 +2,7 @@
 WHEN IMAGE LOADING CANNOT FIND WHAT IT NEEDS, ASK FOR IT
 ================================================================================
 
-Status:    DONE, 2026-08-27. The mechanism, the three call sites and the
+Status:    DONE 2026-08-27 — The mechanism, the three call sites and the
            three-answer coordinate form are all built and tested.
 
            `spacr/qt/ask_for_the_path.py` enforces all six things this file

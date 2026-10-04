@@ -2,7 +2,7 @@
 PLAQUE FIGURE MODE: ALPHA ESTIMATE COLUMNS SHOW, AND THE FIGURE FOLDER DOES NOT LOAD
 ================================================================================
 
-Status:    done 2026-10-01
+Status:    DONE 2026-10-01
 Requested: 2026-10-01 -- found by spacr-d7 while re-recording tutorials,
            2026-10-01: (a) the wells table shows 501's alpha columns
            ("Estimated pixels per µm / time") with Show alpha features OFF;

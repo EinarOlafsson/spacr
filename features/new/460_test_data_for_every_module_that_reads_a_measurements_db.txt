@@ -2,7 +2,7 @@
 TEST DATA FOR EVERY MODULE THAT READS A MEASUREMENTS DB, AND PLATE TEMPLATES
 ================================================================================
 
-Status:    DONE here, on nightly (7c4ac005a), re-verified 2026-09-25;
+Status:    DONE 2026-09-25 — , on nightly (7c4ac005a), re-verified 2026-09-25;
            remaining: docs lane -- the ten new public docstrings are in the
            English API catalog and the reviewed German pack, not yet in the
            es/fr/hi/is/ko/pt/sv/zh_CN reviewed API packs. The two runtime

@@ -2,7 +2,7 @@
 THE NAME IS spaCR
 ================================================================================
 
-Status:    done, 2026-08-13.
+Status:    DONE 2026-08-13
 Requested: 2026-08-12 - "add to instructions in the readme all mentions of
            space should be spaCR, little s capital CR, this includes
            generated file names like the installers"

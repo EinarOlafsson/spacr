@@ -2,7 +2,7 @@
 MAKE MASKS OFFERS EVERY DETECTION METHOD, AND WAYS TO MAKE OBJECTS EASIER TO SEE
 ================================================================================
 
-Status:    DONE 2026-09-25 (runtime). DONE WHEN met; the open question on
+Status:    DONE 2026-09-25 — (runtime). DONE WHEN met; the open question on
            Mask preprocessing was answered and built by 508 (on nightly).
            Caption rows were covered by the September27 catalogue pass.
            Supporting API/tutorial acceptance remains in the docs lane

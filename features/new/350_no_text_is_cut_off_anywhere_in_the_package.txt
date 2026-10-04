@@ -2,7 +2,7 @@
 A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
 ================================================================================
 
-Status:    DONE 2026-09-10. Every declared screen and all 47 dialogs are
+Status:    DONE 2026-09-10 — Every declared screen and all 47 dialogs are
            swept, in four locales at two font scales, and KNOWN_OFFENDERS is
            EMPTY -- every entry it ever held was closed rather than
            forgiven. 368 cases pass. See the closing note at the foot for

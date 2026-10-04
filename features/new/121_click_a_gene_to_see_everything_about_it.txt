@@ -2,7 +2,7 @@
 CLICK A GENE IN THE REGRESSION AND EVERYTHING KNOWN ABOUT IT APPEARS
 ================================================================================
 
-Status:    COMPLETE 2026-08-20 -- see the closing sections. Header corrected
+Status:    DONE 2026-08-20 (evidence 537828811) — see the closing sections. Header corrected
            2026-08-25: it still read "not started" long after the tile
            shipped and reached the figure grid.
 Requested: 2026-08-16 - "also if the grna or guide is a toxoplasma gene then i

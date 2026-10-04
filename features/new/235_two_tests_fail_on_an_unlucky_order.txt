@@ -2,7 +2,7 @@
 TWO TESTS FAIL ON AN UNLUCKY ORDER, AND THE SUITE HIDES IT
 ================================================================================
 
-Status:    DONE. Found 2026-08-22, fixed 2026-08-23.
+Status:    DONE 2026-08-22 — Found 2026-08-22, fixed 2026-08-23.
 
            BOTH WERE THE SAME MISTAKE IN TWO PLACES: a test whose premise
            was established by whatever happened to run before it.

@@ -1,6 +1,6 @@
 COMMUNITY IMAGES AND MASKS UPLOAD FROM MAKE MASKS
 
-Status: DONE 2026-09-30. A test contribution opened a pull request on
+Status: DONE 2026-09-30 — A test contribution opened a pull request on
 einarolafsson/community_toxoplasma_datasets. Filed 2026-09-25. Builds on 523 (community plaque
 training data uploads to Hugging Face): reuse its upload plumbing, consent
 step and conscience text rather than a second copy.

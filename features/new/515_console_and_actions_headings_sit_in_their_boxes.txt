@@ -1,6 +1,6 @@
 THE CONSOLE AND ACTIONS HEADINGS SIT IN THEIR BOXES, LIKE LIVE PREVIEW AND SYSTEM
 
-Status: DONE 2026-09-25 (927 tests in the console/fold/app_screen set pass
+Status: DONE 2026-09-25 — (927 tests in the console/fold/app_screen set pass
         after merging nightly), awaiting the maintainer's look on his display.
         Filed 2026-09-25.
 Owner: worktree agent (515). Related: 471 (folds), 110 (console heading), 452.

@@ -1,6 +1,6 @@
 WEAKLY SUPERVISED MULTIPLE-INSTANCE LEARNING: WELL LABELS -> WHICH CELLS RESPOND
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE (alpha) 2026-09-27 (evidence c0bf5d50d)
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

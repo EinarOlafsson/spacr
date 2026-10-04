@@ -1,6 +1,11 @@
 633 Test data for every module and submodule
 
-Status: IMPLEMENTED AS ALPHA 2026-10-03; Investigate Hit still BLOCKED (see third pass)
+Status: BLOCKED 2026-10-03 — a multi-dose plate with a concentration column
+        (maintainer to supply one or pick a public set such as cpg0004 LINCS)
+        for the Dose-Response, Profiler/Investigate Hit and compare/history
+        demos. The rest of the test data is implemented as alpha.
+
+Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-10-03; Investigate Hit still BLOCKED (see third pass)
 
 Request (maintainer, verbatim):
 "have an agent pass over each modular and sub modal, and check if there is any

@@ -2,7 +2,7 @@
 THE MASK EXAMPLE DATA: A CLIPPED DIALOG, AND SETTINGS THAT NEVER ARRIVE
 ================================================================================
 
-Status:    DONE, 2026-09-16: shared settings-pack import, example-button
+Status:    DONE 2026-09-16 — shared settings-pack import, example-button
            integration, reporting, runtime/API catalogs and focused gates
            complete. Full real-data imaging pipelines were not rerun.
            The dated notes below preserve the investigation, not live blockers.

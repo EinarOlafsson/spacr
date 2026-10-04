@@ -2,7 +2,7 @@
 MODULES THAT OVERLAP OR ARE REDUNDANT, MEASURED 2026-08-17
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "DONE 2026-08-19 -- every acceptance line is met; the remainder is YOUR
            decision."
            It was filed ANALYSIS ONLY, no code written on purpose, and it

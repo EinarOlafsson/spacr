@@ -2,7 +2,7 @@
 PLAQUE: THE BUNDLED PLAQUE CHECKPOINT IS CELLPOSE 3 AND CELLPOSE 4 REFUSES IT
 ================================================================================
 
-Status:    done 2026-10-01
+Status:    DONE 2026-10-01
 Requested: 2026-10-01 -- found by spacr-d7 while re-recording tutorials,
            2026-10-01: "the bundled plaque checkpoint is a Cellpose 3 model,
            and Cellpose 4 refuses to load it."

@@ -2,7 +2,7 @@
 CLASSIFY: CLASSES AS A DICT, HONEST CROP SOURCES, AND FEWER CATEGORIES
 ================================================================================
 
-Status:    COMPLETE. Header corrected 2026-08-25: it still said "selector
+Status:    DONE 2026-08-25 (evidence 98ae880c) — Header corrected 2026-08-25: it still said "selector
            redesign remains open" while the file's own closing section says
            "STILL OPEN IN THIS FILE: nothing" and the two-field chip
            selector is built. SCOPE REVISED 2026-08-09 -- the classes dict

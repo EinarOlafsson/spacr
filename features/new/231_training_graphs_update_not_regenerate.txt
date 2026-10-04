@@ -2,7 +2,7 @@
 THE TRAINING GRAPHS UPDATE, THEY DO NOT REGENERATE
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "in classify during training the graphs should be
            pyqtgraphs and they graphs should be updated not regenerated epch
            after epoch".

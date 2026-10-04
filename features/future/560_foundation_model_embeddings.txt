@@ -1,6 +1,6 @@
 FOUNDATION-MODEL EMBEDDINGS: SubCell, OpenPhenom, ChAda-ViT, Cell-DINO
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE (alpha) 2026-09-27 (evidence d8f7deeda)
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

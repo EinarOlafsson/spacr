@@ -2,7 +2,7 @@
 A MISSING METADATA COLUMN ASKS WHICH ONE IT IS, INSTEAD OF DYING
 ================================================================================
 
-Status:    done 2026-08-15.
+Status:    DONE 2026-08-15
 Requested: 2026-08-15 - "add to instructions for all moduals when error occurs
            because metadata column (plateID, wellID, fieldID, coulmnID,RowID,
            etc.) is not found the user should be prompted and asked which

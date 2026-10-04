@@ -3,7 +3,7 @@ AN OBJECT THAT IS NOT IN THE RUN: A MASK DIM THAT CANNOT BE EMPTIED, AND AN
 ORGANELLE COUNT THAT STILL CHANGES NOTHING
 ================================================================================
 
-Status:    DONE, audited 2026-08-27. 41 tests across three files.
+Status:    DONE 2026-08-27 — audited 2026-08-27. 41 tests across three files.
 
            The count is on the panel each module OPENS with, immediately
            before the slots it governs, and driving it through the real

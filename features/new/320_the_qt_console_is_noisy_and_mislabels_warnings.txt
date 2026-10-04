@@ -1,7 +1,7 @@
 320 — THE QT CONSOLE IS NOISY, DUPLICATES EVERY LINE, AND CALLS WARNINGS ERRORS
 ==============================================================================
 
-Status:    DONE 2026-09-13; the file used to open as three unfixed defects
+Status:    DONE 2026-09-13 — the file used to open as three unfixed defects
            with no status line at all. (1) and (2) are guarded by
            tests/qt/test_a_qt_warning_reaches_the_console_once.py, and (3) is
            repaired rather than filtered: `_LateCaptionTranslator.eventFilter`

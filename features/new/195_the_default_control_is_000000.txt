@@ -2,7 +2,7 @@
 THE DEFAULT CONTROL IN REGRESSION IS 000000
 ================================================================================
 
-Status:    DONE 2026-08-21. See the closing section.
+Status:    DONE 2026-08-21 — See the closing section.
            draft of this file had the biology backwards and said so about
            the wrong setting. See "WHICH CONTROL IS WHICH".
 Requested: 2026-08-21 -- "default for controlls in regression should be

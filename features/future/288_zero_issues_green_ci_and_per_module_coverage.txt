@@ -6,7 +6,12 @@ NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
 gained and what it might gain next -- and neither gates a release.
 The words below were written when a single instructions list did.
 
-Status:    OPEN, filed 2026-08-27. not blocking, see the note below.
+Status:    OPEN 2026-10-04 — the per-module coverage gate is still red (work
+           tracked in 43: 11 modules under 90%, 57 regressed). The i18n sv/fr
+           failures were fixed in 9f80fe5bf; zero open GitHub issues since
+           2026-10-01.
+
+Previous status (superseded 2026-10-04):    OPEN, filed 2026-08-27. not blocking, see the note below.
            2026-09-19: THE GOAL IS 90% PER MODULE, NOT 100% -- the
            maintainer answered the standing question and the gate was
            rewritten to a 90% FLOOR plus no-regression. 29 of 566 modules

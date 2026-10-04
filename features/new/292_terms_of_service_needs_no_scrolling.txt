@@ -1,6 +1,6 @@
 292 — The startup window does not make you scroll the terms of service
 
-Status: DONE — verified against the tree 2026-09-13. `terms_were_read` at
+Status: DONE 2026-09-13 — verified against the tree 2026-09-13. `terms_were_read` at
         spacr/qt/widgets/setup_slides.py:970 returns True unconditionally
         ("THE SCROLL GATE IS GONE") and the gate is re-read after layout from
         showEvent at :1800, with the full text still in the QScrollArea built

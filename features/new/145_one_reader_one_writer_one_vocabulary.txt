@@ -2,7 +2,7 @@
 ONE READER, ONE WRITER, ONE KEY VOCABULARY
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-18 --
 
   "filter column was columnID it worked but when i press the csv button i only

@@ -2,7 +2,7 @@
 THE FIGURE SETTINGS ARE THE GRAPH'S OWN CONTROLS
 ================================================================================
 
-Status:    DONE 2026-08-21; the last inert control, mark_colouring,
+Status:    DONE 2026-08-21 — the last inert control, mark_colouring,
            wired 2026-09-25 (see the closing note).
 Requested: 2026-08-21 -- "when i right click and press Figure settings i get
            figure settings but i get some settings i dont want and lack some

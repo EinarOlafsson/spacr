@@ -16,7 +16,7 @@ Done when: the slider is in the Fractal page, saved and read back, reaches
 a running backdrop without a rebuild, and the rendered lens visibly scales
 (Qt tests and PNGs in /mnt/wd4tb/scratch/604).
 
-Status: IMPLEMENTED 2026-09-30
+Status: DONE 2026-09-30 (evidence ffd050854)
 
 The "magnifying glass" is the 1/r^2 pointer warp in toward_pointer; its
 size was fixed by the shader constants ("Pointer reach" only fades the pull

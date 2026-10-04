@@ -2,7 +2,7 @@
 A COLOURBLIND MODE FOR EVERY IMAGE SPACR SHOWS
 ================================================================================
 
-Status:    done, 2026-08-13.
+Status:    DONE 2026-08-13
 Requested: 2026-08-13 - "we should have a colorblind mode that applies to
            images being shown, where RGB images are visualized as CMYK
            instead"

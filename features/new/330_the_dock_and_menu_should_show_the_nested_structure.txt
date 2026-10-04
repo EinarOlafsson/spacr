@@ -1,7 +1,7 @@
 330 — THE DOCK AND THE MENU BAR SHOULD SHOW THE NESTED STRUCTURE
 ================================================================
 
-Status:    DONE, corrected 2026-09-13. It shipped in 940542f5b on
+Status:    DONE 2026-09-13 — corrected 2026-09-13. It shipped in 940542f5b on
            2026-09-01 ("330: show the folded modules in the dock and the
            menu bar") and was audited against all three DONE MEANS criteria
            the same day.

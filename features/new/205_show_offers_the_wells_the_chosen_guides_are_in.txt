@@ -2,7 +2,7 @@
 "SHOW" OFFERS THE WELLS THE CHOSEN GUIDES ARE IN
 ================================================================================
 
-Status:    DONE 2026-09-25 -- opens on the top hits (decision); see the closing section.
+Status:    DONE 2026-09-25 — opens on the top hits (decision); see the closing section.
 Requested: 2026-08-21 -- "for the sow option in the cell table graphs, i
            whould be able to gRNAs, gRNAs + other datapoints in selected
            wells, and All datapoints. presently i cannot pick gRNAs + other

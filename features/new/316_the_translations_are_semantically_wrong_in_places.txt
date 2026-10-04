@@ -2,7 +2,11 @@
 THE TRANSLATIONS ARE PRESENT, CURRENT, AND IN PLACES WRONG
 ================================================================================
 
-Status:    CLOSED 2026-09-09. Filed 2026-08-31. Never release-blocking
+Status:    DONE 2026-09-28 — closed 2026-09-09; runtime translation deltas
+           reviewed through 2026-09-28 and later passes (ccbd26698,
+           2026-10-04). Native-speaker review is not claimed.
+
+Previous status (superseded 2026-10-04):    CLOSED 2026-09-09. Filed 2026-08-31. Never release-blocking
            for the release itself -- an English fallback is readable and a
            wrong translation is not -- and it is no longer blocking for the
            claim either, on the qualified wording the README carries.

@@ -2,7 +2,7 @@
 MAKE MASKS: THE TOOLS THAT ARE MISSING, AND THE ROW THEY BELONG IN
 ================================================================================
 
-Status:    DONE 2026-08-27. Recrop has landed, and it is the last of them.
+Status:    DONE 2026-08-27 — Recrop has landed, and it is the last of them.
 
            `MODE_RECROP` is on the tool row beside the other six, and
            `mask_engine.write_recrop` / `retire_recropped_original` do the

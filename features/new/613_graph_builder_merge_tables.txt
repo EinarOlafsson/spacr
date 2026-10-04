@@ -2,7 +2,7 @@
 GRAPH BUILDER MERGE-TABLES INTERFACE AND DERIVED-TABLE LIFECYCLE
 ================================================================================
 
-Status: IMPLEMENTED 2026-10-01 — focused backend/Qt acceptance passed; publication in N615.
+Status: DONE 2026-10-01 (evidence: dated notes, record d19c414c6) — focused backend/Qt acceptance passed; publication in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Graph Builder and shared table-merge implementation scope.
 

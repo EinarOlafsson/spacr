@@ -1,6 +1,6 @@
 THE EMBEDDING ICON'S LINES ARE THINNER
 
-Status: DONE, 2026-09-25.
+Status: DONE 2026-09-25
 Owner: agent (worktree agent-aa528cb41ed225335).
 
 REQUEST (the maintainer, 2026-09-25, verbatim)

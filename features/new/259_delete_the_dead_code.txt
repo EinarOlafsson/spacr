@@ -2,7 +2,7 @@
 DELETE THE DEAD CODE
 ================================================================================
 
-Status:    DONE. Seventeen unreachable blocks removed from timelapse.py
+Status:    DONE 2026-08-27 — Seventeen unreachable blocks removed from timelapse.py
            (3370 -> 3316 statements) and the package's only constant
            condition removed from io.py, each deletion naming the line above
            it that made it unreachable.

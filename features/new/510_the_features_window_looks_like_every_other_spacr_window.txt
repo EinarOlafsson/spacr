@@ -1,6 +1,6 @@
 THE FEATURES WINDOW LOOKS LIKE EVERY OTHER spaCR WINDOW
 
-Status: DONE, 2026-09-25. Filed 2026-09-24.
+Status: DONE 2026-09-25 — Filed 2026-09-24.
 Owner: Claude.
 
 REQUEST (the maintainer, 2026-09-24, verbatim)

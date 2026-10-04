@@ -3,7 +3,7 @@ A RE-RUN TRUSTS NOTHING A KILLED RUN LEFT: MASK RESUMES A PLATE IT ALREADY
 PROCESSED, AND CHECKS EVERY STACK AND ARCHIVE BEFORE IT REUSES THEM
 ================================================================================
 
-Status:    DONE 2026-09-19, on nightly. Reviewed, and the review's three
+Status:    DONE 2026-09-19 — on nightly. Reviewed, and the review's three
            should-fix defects fixed. Landed and #118 / #124 answered by the
            orchestrating session, which holds the maintainer's go-ahead
            first-hand ("Fix them, post a notice", asked through the question

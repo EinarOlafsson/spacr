@@ -2,7 +2,7 @@
 PLATE POSITION IS OPT IN, AND THE MODEL BOX IS SHORTER
 ================================================================================
 
-Status:    DONE 2026-09-19. The last thing owed, section A's release note,
+Status:    DONE 2026-09-19 — The last thing owed, section A's release note,
            is written at the foot of this file ("RELEASE NOTE FOR THE NEXT
            RELEASE BODY"), which is where the maintainer decided on
            2026-09-19, through the question prompt, that it should go. The

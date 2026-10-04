@@ -5,7 +5,7 @@ Filed as 439 on 2026-09-19 and renumbered 440 the same evening, because the
 work session had already filed 439 (the two hoechst models).
 ================================================================================
 
-Status:    DONE 2026-09-19. The five headings are built, the boolean is gone,
+Status:    DONE 2026-09-19 — The five headings are built, the boolean is gone,
            the partition is enforced by a test, and the same headings fold the
            Model Zoo page's table and filter Make Masks' Model box. What is
            left is listed under WHAT IS STILL OPEN at the bottom -- one item,

@@ -2,7 +2,7 @@
 ANNOTATION MODE OVERWRITES location_column, AND THE USER CANNOT GET OUT
 ================================================================================
 
-Status:    DONE, 2026-08-12. The fix is in `ml.py` and #91, #92 and #93 are
+Status:    DONE 2026-08-12 — The fix is in `ml.py` and #91, #92 and #93 are
            all closed as completed -- see the 2026-08-12 section at the end.
            RENUMBERED from 83 to 84: a concurrent codex session created its
            own 83 for the multilingual catalogs at almost the same moment.

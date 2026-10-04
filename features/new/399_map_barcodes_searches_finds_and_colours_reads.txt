@@ -2,7 +2,7 @@
 MAP BARCODES SEARCHES FOR BARCODES, SETS ITS OWN SETTINGS, AND COLOURS READS
 ================================================================================
 
-Status:    DONE 2026-09-13. Code landed on nightly 2026-09-12 and reached
+Status:    DONE 2026-09-13 — Code landed on nightly 2026-09-12 and reached
            the public site in the 16:15Z deploy; the tutorial was
            re-recorded by the other session the same day and is staged for
            promotion. Not blocking.

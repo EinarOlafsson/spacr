@@ -2,7 +2,7 @@
 REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
 ================================================================================
 
-Status:    DONE 2026-09-02, both halves. The buttons are at the top, and
+Status:    DONE 2026-09-02 — both halves. The buttons are at the top, and
            each is centred on the column it fills: measured -111.0, -125.0
            and -115.5 px out before, -0.0 after, and still -0.0 after
            dragging two columns wider and shrinking the screen to 1000 px.

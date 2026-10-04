@@ -2,7 +2,7 @@
 FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
 ================================================================================
 
-Status:   DONE — the five closed 2026-08-29 with the combined-order
+Status:   DONE 2026-08-29 — the five closed 2026-08-29 with the combined-order
           reproducer green, and the two further leaks found 2026-09-13 are
           fixed in the tree too: autouse `_no_mouse_button_is_held` at
           tests/qt/test_cov_r5_fractal_travel.py:82, and the named logger in

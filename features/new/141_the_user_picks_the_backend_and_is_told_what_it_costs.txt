@@ -2,7 +2,7 @@
 THE USER PICKS THE BACKEND, AND IS TOLD WHAT EACH ONE IS
 ================================================================================
 
-Status:    CLOSED 2026-08-20, re-checked 2026-09-13 -- the header used to
+Status:    DONE 2026-08-20 (evidence a3d8c65a5) — re-checked 2026-09-13 -- the header used to
            say only "filed 2026-08-18". All eight backends are registered
            (REGRESSION_BACKENDS, spacr/regression_spec.py:251), the run
            summary emits a de-duplicated `backend` row

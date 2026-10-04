@@ -1,6 +1,6 @@
 A SAMPLE-SIZE PLANNER FOR ARRAYED ASSAYS
 
-Status: DONE AS ALPHA 2026-10-01; real-pilot control acceptance and integrated regression checks passed.
+Status: DONE (alpha) 2026-10-01 — real-pilot control acceptance and integrated regression checks passed.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

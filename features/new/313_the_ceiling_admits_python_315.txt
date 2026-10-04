@@ -2,7 +2,7 @@
 THE PYTHON CEILING ADMITS 3.15
 ================================================================================
 
-Status:    DONE, 2026-08-30.
+Status:    DONE 2026-08-30
 Owner:     packaging. Sits with 308.
 Requested: 2026-08-29 — "please change spacr.py to support python 3.9 to 3.15
            so change <3.15 to <3.16".

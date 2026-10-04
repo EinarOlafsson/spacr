@@ -2,7 +2,12 @@
 THE FULL tests/qt RUN HANGS PART-WAY THROUGH
 ================================================================================
 
-Status:    OPEN: uninterrupted final-source Qt acceptance remains incomplete.
+Status:    OPEN 2026-10-02 — the whole-suite serial Qt run stops at the 10.8
+           GiB memory guard (about 71%); the growth has to be found and one
+           full uninterrupted run recorded. The three remaining real items are
+           green (2026-10-02).
+
+Previous status (superseded 2026-10-04):    OPEN: uninterrupted final-source Qt acceptance remains incomplete.
            The latest full original-order frozen run ended 2026-09-28 with
            exit3 at its memory guard after19,591 call reports out of27,269
            collected cases. It reported11.4GiB over its10.8GiB ceiling;

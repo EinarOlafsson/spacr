@@ -2,7 +2,7 @@
 AN UNAVAILABLE OPTION OFFERS TO MAKE ITSELF AVAILABLE
 ================================================================================
 
-Status:    DONE 2026-08-20, re-verified against the tree 2026-09-13; this
+Status:    DONE 2026-08-20 — re-verified against the tree 2026-09-13; this
            header said only "filed 2026-08-18" and never recorded the close.
            The last wire named in WHAT REMAINS is in:
            spacr/qt/screens/hyperparam.py:1534 request_gpu_enabled calls

@@ -2,7 +2,7 @@
 THE GENE-LEVEL COEFFICIENTS ARE FITTED AND CANNOT BE SEEN
 ================================================================================
 
-Status:    DONE 2026-08-26, verified on the drawn table and the drawn
+Status:    DONE 2026-08-26 — verified on the drawn table and the drawn
            volcano rather than on a model call.
 
            Fitted run at level='both' (results/ols_3): the panel offers

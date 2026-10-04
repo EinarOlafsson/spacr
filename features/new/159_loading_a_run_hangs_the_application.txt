@@ -2,7 +2,7 @@
 LOADING A RUN HANGS THE APPLICATION
 ================================================================================
 
-Status:    DONE 2026-09-25. Off the GUI thread and cancellable since
+Status:    DONE 2026-09-25 — Off the GUI thread and cancellable since
            2026-08-19/26; the staged narration counted against a total, the
            last criterion, landed 2026-09-25 (see the closing note).
            Originally filed 2026-08-18.

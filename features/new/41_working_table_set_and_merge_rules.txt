@@ -2,7 +2,7 @@
 GATE EDITOR: ADD TABLES TO A WORKING SET, AND MERGE THEM BY WHAT THEY MEASURE
 ================================================================================
 
-Status:    COMPLETE 2026-08-07 (5c15056c + item 7). Header corrected
+Status:    DONE 2026-08-07 (evidence 5c15056c) — (5c15056c + item 7). Header corrected
            2026-08-26: it still said "not started" while this file's
            own closing section records every item as landed. One
            defect found and fixed on 2026-08-26 -- see the last entry.

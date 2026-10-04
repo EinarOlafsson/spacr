@@ -2,7 +2,7 @@
 THE SUDOKU ANNOTATION METHODS
 ================================================================================
 
-Status:    DONE 2026-08-21 after the gate below was passed; re-verified
+Status:    DONE 2026-08-21 — after the gate below was passed; re-verified
            2026-09-13. spacr/sudoku.py defines anchors_for:93,
            similarity_graph:143, propagate:199, constrain_to_fractions:254,
            sudoku:320 and sudoku_all:437; spacr/annotation_validation.py the

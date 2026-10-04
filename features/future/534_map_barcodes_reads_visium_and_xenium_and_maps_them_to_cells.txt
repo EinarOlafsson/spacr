@@ -1,6 +1,11 @@
 MAP BARCODES READS VISIUM AND XENIUM DATA AND RELATES IT TO IMAGE COORDINATES
 
-Status: DONE 2026-10-02 (alpha-gated); only external points left: a public infected-tissue Visium HD/Xenium set with cell-resolution images, paired H&E-IF sections, and the maintainer's decision on SpatialData/h5py/pyarrow/anndata as optional dependencies.
+Status: BLOCKED 2026-10-02 — a public infected-tissue Visium HD/Xenium set
+        with cell-resolution images, paired H&E-IF sections, and the
+        maintainer's decision on SpatialData/h5py/pyarrow/anndata as optional
+        dependencies. Built and alpha-gated.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external points left: a public infected-tissue Visium HD/Xenium set with cell-resolution images, paired H&E-IF sections, and the maintainer's decision on SpatialData/h5py/pyarrow/anndata as optional dependencies.
 Owner: unassigned. Related: Map Barcodes (spacr/qt/screens/map_barcodes.py and
 the barcode mapping it drives), OPS (spacr/ops_engine.py: reads assigned to
 segmented nuclei by position), Measure (per-object tables), image UMAP.

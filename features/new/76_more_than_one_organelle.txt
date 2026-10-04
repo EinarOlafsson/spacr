@@ -2,7 +2,7 @@
 MORE THAN ONE ORGANELLE: organelle, organelle_1, organelle_2, ...
 ================================================================================
 
-Status:    DONE 2026-09-19. Later that day io.py's preprocessing, the last
+Status:    DONE 2026-09-19 — Later that day io.py's preprocessing, the last
            code that reached organelle slot one only, was made to give
            every slot its own background floor and signal-to-noise anchor,
            and two slots were proven end to end from raw TIFFs to

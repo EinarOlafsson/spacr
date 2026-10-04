@@ -2,7 +2,7 @@
 THE PERMUTATION TEST SHOWS THE RESIDUALS IT PERMUTES
 ================================================================================
 
-Status:    DONE 2026-09-25. The measurement landed 2026-08-21; the QC folder
+Status:    DONE 2026-09-25 — The measurement landed 2026-08-21; the QC folder
            and the residual-by-position panel the 2026-08-26 re-audit found
            missing are built (last entry), and the real branch now reaches
            the check at all -- it had been passing a LIST of outcomes and

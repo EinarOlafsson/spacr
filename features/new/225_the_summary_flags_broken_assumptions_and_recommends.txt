@@ -2,7 +2,7 @@
 THE SUMMARY MARKS A BROKEN ASSUMPTION, AND ENDS WITH WHAT TO DO
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "in the summary whan a test has a broken assumption
            the text showing that that assumption is broken should be red. at
            the end of summary there should be a new section that outlines

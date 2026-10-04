@@ -2,7 +2,7 @@
 AN INFECTION ASSAY MODULE: INFECTION RATE, AND EVERYTHING ELSE INFECTION MEANS
 ================================================================================
 
-Status:    BUILT AS (c), A REPORT -- `spacr/infection.py`, 2026-09-06.
+Status:    DONE 2026-09-06 (evidence 4f75efbb1) — AS (c), A REPORT -- `spacr/infection.py`, 2026-09-06.
            The maintainer answered 357's 377-A that day: "(c) A report, not a
            pipeline". The three metrics PART 0-A found were NOT derivable are
            deliberately absent rather than approximated. Filed 2026-09-04.

@@ -2,7 +2,7 @@
 HOME SCREEN: KEEP THE BOTTOM TOOLTIP, DROP THE PER-MODULE POPUP
 ================================================================================
 
-Status:    done 2026-08-09
+Status:    DONE 2026-08-09
 Requested: 2026-08-09 - "on the home screen keep the tooltip at the botom of the screen but remove the popup tooltip for each module."
 
 --------------------------------------------------------------------------------

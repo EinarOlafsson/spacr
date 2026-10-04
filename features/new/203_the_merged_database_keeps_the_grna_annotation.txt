@@ -2,7 +2,7 @@
 THE MERGED DATABASE KEEPS THE gRNA ANNOTATION
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "when i merge the databases and pick a database
            measurement to compare i am not able to compare the gRNA annotated
            groups any longer. so the predictions do not seem to be merged with

@@ -1,6 +1,6 @@
 SPACEOUT: THE FRACTAL SUPERSAMPLING SETTING DOES SOMETHING
 
-Status: DONE, 2026-09-26. Every renderer takes its sample grid from the
+Status: DONE 2026-09-26 — Every renderer takes its sample grid from the
 setting; saving it rebuilds the running backdrop (no restart).
 Owner: Claude (worktree agent). Related: item 530 (fractal changes apply
 without a restart); spacr/qt/widgets/ambient.py, fractal_travel.py,

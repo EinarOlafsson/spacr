@@ -2,7 +2,7 @@
 THE VOLCANO TAKES MORE THAN ONE GUIDE AT A TIME
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "the uesr should be able to select multiple grnas on
            the volcano plo at once."
 Owner:     Qt GUI (volcano plot, selection model)

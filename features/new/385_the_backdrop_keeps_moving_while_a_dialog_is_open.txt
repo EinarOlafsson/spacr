@@ -2,7 +2,10 @@
 THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
 ================================================================================
 
-Status:    CLOSED 2026-09-19 BY THE MAINTAINER'S DECISION. The one thing
+Status:    CLOSED 2026-09-19 (maintainer decision: closed now; reopen if the
+           backdrop freezes under a dialog on his 4K display).
+
+Previous status (superseded 2026-10-04):    CLOSED 2026-09-19 BY THE MAINTAINER'S DECISION. The one thing
            left, his own check on his NVIDIA/compositing 4K display, was put
            to him through the question prompt on 2026-09-19. He chose the
            option relayed as "closed now; reopen if the backdrop freezes

@@ -1,6 +1,6 @@
 IMAGE-BASED PROFILING: NORMALISE, SELECT, CONSENSUS, mAP
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure builds well and consensus
+Status: DONE (alpha) 2026-09-26 (evidence 1e5faac44) — Measure builds well and consensus
 profiles and scores them with mAP; on ten public LINCS Cell Painting plates
 the mAP, p values and calls equal copairs' and the kept features equal
 pycytominer's. Hidden unless Preferences -> Show alpha features is on

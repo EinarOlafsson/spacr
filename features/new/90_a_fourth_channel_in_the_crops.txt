@@ -2,7 +2,10 @@
 A FOURTH CHANNEL IN THE CROPS: A MASK, OR ANOTHER STAIN
 ================================================================================
 
-Status:    DROPPED 2026-08-13 by the maintainer. Kept for the reasoning,
+Status:    CLOSED 2026-08-13 (dropped by the maintainer; kept for the
+           reasoning; do not build this).
+
+Previous status (superseded 2026-10-04):    DROPPED 2026-08-13 by the maintainer. Kept for the reasoning,
            which is worth not re-deriving. Do not build this.
 Requested: 2026-08-13 - "when images are cropped they are cropped as PNGs and
            PNGs have 3 channels. but there is an extra alpha channel i could

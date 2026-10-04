@@ -2,7 +2,7 @@
 CLASSIFY DIES WITH SIGBUS: A QThread GETS 512 KB OF STACK, LAPACK WANTS MORE
 ================================================================================
 
-Status:    done — reproduced and fixed in the environment that crashed
+Status:    DONE 2026-08-25 — reproduced and fixed in the environment that crashed
 Requested: 2026-08-14 — "we got farther this time, i saw the [openmp_guard]
            messages at the top so that was working, and now i hit this error
            after it ran about 2x longer than before when segmentation

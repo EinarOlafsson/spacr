@@ -2,7 +2,7 @@
 EVERY NOTEBOOK CARRIES EVERY SETTING, WITH ITS TOOLTIP
 ================================================================================
 
-Status:    done, 2026-08-13.
+Status:    DONE 2026-08-13
 Requested: 2026-08-13 - "Add to instructions to make sure that all notebooks
            contain all settings for the functions (at least the main
            functions) and classes they use, with tooltips for each setting"

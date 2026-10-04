@@ -2,7 +2,7 @@
 SCORE AND COUNT CSVs ARE PAIRED WHEN THEY ARE ADDED, NOT BY LIST POSITION
 ================================================================================
 
-Status:    CLOSED 2026-08-16. The old header said "not started"; it was stale.
+Status:    DONE 2026-08-16 (evidence 58b3cccf) — The old header said "not started"; it was stale.
            The design WAS built (4f8cbf9c). Audited against the acceptance
            criteria, three gaps found and fixed, one patch still owed in
            spacr/settings.py. See the RESULT at the end.

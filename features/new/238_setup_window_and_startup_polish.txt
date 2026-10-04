@@ -2,7 +2,7 @@
 THE SETUP WINDOW, THE STARTUP NOISE, AND THE PROVIDER LOGINS
 ================================================================================
 
-Status:    DONE, all six items, confirmed by the maintainer as each landed.
+Status:    DONE 2026-08-23 — all six items, confirmed by the maintainer as each landed.
 Owner:     spacr/qt -- setup slides, glass, home, preferences.
 
   1. One rounded translucent surface -- "the setup window now looks like i

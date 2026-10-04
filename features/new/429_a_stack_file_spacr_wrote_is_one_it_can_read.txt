@@ -2,7 +2,7 @@
 A MASK RUN ON A MAC EXTERNAL DRIVE DIED READING A FILE SPACR NEVER WROTE
 ================================================================================
 
-Status:    DONE here (re-verified 2026-10-02, 93 regression checks pass on
+Status:    DONE 2026-10-02 — (re-verified 2026-10-02, 93 regression checks pass on
            nightly a93f937d2); remaining: (a) docs lane -- the consolidated
            API-page/translation pass for the changed public docstrings
            (handed off in #325); (b) the reporter (jak18015) confirming on

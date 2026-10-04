@@ -2,7 +2,7 @@
 THE DOCK: THE spaCR MARK FOR HOME, NAMES IN BLUE ON HOVER, NO GREY TRAY
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- "2026-09-02: ALL FIVE REMAINING
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- "2026-09-02: ALL FIVE REMAINING
            ASKS DONE. THE MARK HAD TO BE SIMPLIFIED", with 15 new tests and
            144 passing across the dock, fold, theme and icon suites.
            Originally filed 2026-09-02. MEASURED THE SAME DAY -- two of the

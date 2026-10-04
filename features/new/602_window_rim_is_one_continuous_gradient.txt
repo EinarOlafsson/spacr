@@ -16,7 +16,7 @@ along the rim and asserts there are no seam discontinuities.
 Done when: offscreen renders show a smooth run, and a Qt test walking the
 lit run pixel by pixel finds one rise and one fall.
 
-Status: IMPLEMENTED 2026-09-30
+Status: DONE 2026-09-30 (evidence 25ba0c8ef)
 
 Cause: the lit run round every glassed window (SetupCard, in
 spacr/qt/widgets/setup_card.py) was stroked as up to 320 short lines with

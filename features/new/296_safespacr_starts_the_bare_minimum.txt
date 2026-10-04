@@ -1,6 +1,6 @@
 296 — `safespacr` starts the bare minimum
 
-Status:    DONE 2026-09-19, CLOSED BY THE MAINTAINER'S DECISION on the one
+Status:    DONE 2026-09-19 — CLOSED BY THE MAINTAINER'S DECISION on the one
            verdict that was PARTLY (the default theme and fonts still load).
            Put to him through the question prompt on 2026-09-19, he chose
            the option relayed as "Safe mode keeps the default theme and

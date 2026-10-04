@@ -2,7 +2,7 @@
 EVERY SETTINGS CONTAINER RESIZES, AND FIRST LAUNCH CHOOSES A MEASURED LAYOUT
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-09-10 -- CLOSED. ALL FOUR REMAINING POINTS ARE ANSWERED."
            It was held "AFTER the version update" and then answered anyway.
 Requested: 2026-09-02 — in Regression's Measurements section, nested sections

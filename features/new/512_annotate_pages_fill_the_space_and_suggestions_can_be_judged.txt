@@ -1,6 +1,6 @@
 ANNOTATE: A PAGE FILLS THE SPACE, AND A SUGGESTION CAN BE JUDGED
 
-Status: BUILT 2026-09-25, both parts (4d87aaf4c, 0d10e425c), tests green.
+Status: DONE 2026-09-25 (evidence ae8f7ec74) — both parts (4d87aaf4c, 0d10e425c), tests green.
         Needs the maintainer to try it on a real plate. Translations for
         the new strings and the two new shortcut labels are for the docs
         lane (listed in the note at the end).

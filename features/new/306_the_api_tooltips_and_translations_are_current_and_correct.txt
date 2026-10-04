@@ -6,7 +6,7 @@ NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
 gained and what it might gain next -- and neither gates a release.
 The words below were written when a single instructions list did.
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-09-04 -- CLOSED. EVERY MECHANICAL GATE IS GREEN AND THE EVIDENCE
            REPORT IS WRITTEN."
            Originally filed 2026-08-28.

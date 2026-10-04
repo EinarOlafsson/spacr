@@ -2,7 +2,7 @@
 A TEN-IMAGE TOXO PV TEST DATASET THAT OPENS IN MAKE MASKS
 ================================================================================
 
-Status:    BUILT, ON NIGHTLY (20199e598), 2026-09-15. Ten in-house Toxo PV images and
+Status:    DONE 2026-09-15 (evidence ec6ef7d88) — ON NIGHTLY (20199e598), 2026-09-15. Ten in-house Toxo PV images and
            their curated masks are on Hugging Face
            (datasets/einarolafsson/spacr-example-make-masks); Make Masks'
            "Load test data…" downloads them off the GUI thread and opens the

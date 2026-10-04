@@ -2,7 +2,7 @@
 ONE BACKDROP, AND THE PANELS ABOVE IT LET IT THROUGH
 ================================================================================
 
-Status:    DONE 2026-09-11, corrected 2026-09-19. The window block is
+Status:    DONE 2026-09-11 — corrected 2026-09-19. The window block is
            transparent under a running backdrop (0fd75ac74), the dedup is back
            on (`_drop_a_redundant_screen_backdrop`, spacr/qt/app.py:4826,
            5f63fb77a), and the exact-one and real-display pixel tests are in

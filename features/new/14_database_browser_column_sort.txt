@@ -2,7 +2,7 @@
 DATABASE BROWSER: SORT BY CLICKING A COLUMN HEADER
 ================================================================================
 
-Status:    done - 2026-08-06, commit 2452d7c2
+Status:    DONE 2026-08-06 — commit 2452d7c2
 Requested: 2026-08-06 — "clicking the column header should give the user the option to sort ascending or descending (obviously always shifting other columns with the clicked column not only the clicked column)"
 
 --------------------------------------------------------------------------------

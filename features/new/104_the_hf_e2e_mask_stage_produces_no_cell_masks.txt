@@ -2,7 +2,11 @@
 THE HF E2E MASK STAGE PRODUCES NO CELL MASKS, IN BOTH ITS MODES
 ================================================================================
 
-Status:    CLOSED 2026-08-16. FOUR proposed causes were disproven and the
+Status:    CLOSED 2026-08-16 (not a defect: four causes disproven; the mask
+           stage deletes masks/ by design once merged/ is built, unless
+           keep_intermediate is set).
+
+Previous status (superseded 2026-10-04):    CLOSED 2026-08-16. FOUR proposed causes were disproven and the
            fifth is demonstrated: the mask stage DELETES masks/ on purpose
            once merged/ is built, unless keep_intermediate is set, and the
            test did not set it. Reproduced 5 times out of 5 by removing the

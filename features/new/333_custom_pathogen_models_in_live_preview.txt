@@ -1,7 +1,7 @@
 333 — CUSTOM PATHOGEN MODELS MUST BE AVAILABLE IN LIVE PREVIEW
 ===============================================================
 
-Status:    DONE, verified 2026-09-15 against the code: the preview seeds from
+Status:    DONE 2026-09-15 — verified 2026-09-15 against the code: the preview seeds from
            the run's own key order, names the model that ran, and states a
            fallback for a checkpoint not on disk. See the dated sections below.
 

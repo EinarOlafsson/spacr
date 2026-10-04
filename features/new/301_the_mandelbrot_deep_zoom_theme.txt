@@ -1,6 +1,6 @@
 301 — The Mandelbrot deep-zoom theme in spaceout
 
-Status:    DONE 2026-08-28, verified against the tree 2026-09-13; this file
+Status:    DONE 2026-08-28 — verified against the tree 2026-09-13; this file
            carried no Status line at all. spacr/qt/widgets/fractal_mandelbrot.py
            ships the pattern -- DEFAULTS at :75 is the second (superseding)
            default set verbatim, the Misiurewicz seed is at :98, and

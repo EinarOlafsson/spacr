@@ -1,6 +1,6 @@
 ARRAYED-SCREEN HIT STATISTICS: SSMD, ROBUST Z AGAINST NEGATIVE CONTROLS, B-SCORE
 
-Status: DONE AS ALPHA 2026-10-01. Statistics, report writer and the Control
+Status: DONE (alpha) 2026-10-01 — Statistics, report writer and the Control
 Charts option meet the public-screen/reference/plate-plot acceptance below.
 The final cellHTS2 B-score comparison exposed and corrected stopping/scaling
 differences; all 6,144 reference scores and hit calls now agree. Earlier

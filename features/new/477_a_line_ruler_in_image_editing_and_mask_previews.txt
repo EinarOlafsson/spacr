@@ -1,6 +1,6 @@
 A LINE RULER IN IMAGE EDITING AND MASK PREVIEWS
 
-Status: DONE 2026-09-25. Validated 2026-09-22; since 2026-09-25 the ruler also reads
+Status: DONE 2026-09-25 — Validated 2026-09-22; since 2026-09-25 the ruler also reads
 the micron spacing an opened file's header states (see the last note).
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 

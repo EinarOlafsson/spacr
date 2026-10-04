@@ -2,7 +2,7 @@
 HOW GOOD EACH SEGMENTATION STRATEGY IS
 ================================================================================
 
-Status:    DONE 2026-09-26. Every strategy in the list below went through
+Status:    DONE 2026-09-26 — Every strategy in the list below went through
            spaCR's own Mask generation, scored on 20 Toxo PV fields (1,611
            curated vacuoles) against the ground truth, with a full GPU pass
            (including Cellpose-DINO ViT-L, in a second GPU turn) and a CPU

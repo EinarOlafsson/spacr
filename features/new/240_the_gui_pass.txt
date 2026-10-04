@@ -2,7 +2,7 @@
 THE GUI PASS: NAVIGATION, WINDOW CHROME, AND THE LANGUAGE
 ================================================================================
 
-Status:    DONE. The final 2026-08-27 source sweep rebuilt and audited all
+Status:    DONE 2026-08-27 — The final 2026-08-27 source sweep rebuilt and audited all
            runtime and API catalogs. The source-bound runtime inventory is
            pinned at 997 setting tooltips, 192 category descriptions, 2,625
            UI captions and 64 module summaries in every supported language.

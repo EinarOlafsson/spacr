@@ -1,6 +1,6 @@
 PLAQUE PREVIEW: OUTLINE AND BOX STYLING, THE FOUR VIEWS, AND A RULER
 
-Status: DONE 2026-09-25 (line weights, ruler, and the four views through
+Status: DONE 2026-09-25 — (line weights, ruler, and the four views through
 505's shared widget). Filed 2026-09-24.
 Owner: unassigned. Related: 505 (the same views in Mask generation's live
 preview), and the plaque preview's existing overlay settings.

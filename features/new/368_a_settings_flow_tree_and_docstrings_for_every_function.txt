@@ -2,7 +2,7 @@
 EVERY FUNCTION DOCUMENTED, AND A CLICKABLE TREE OF WHERE EACH SETTING IS USED
 ================================================================================
 
-Status:    2026-09-27: DONE here. Package-wide callable documentation and
+Status:    DONE 2026-09-27 — Package-wide callable documentation and
            current settings-flow/API-link guards pass. The current API
            inventory and nine catalogs agree at 11,865 symbols; the former
            translation tail is resolved. Nested-helper publication remains

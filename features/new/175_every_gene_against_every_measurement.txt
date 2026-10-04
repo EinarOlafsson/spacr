@@ -2,7 +2,7 @@
 EVERY GENE AGAINST EVERY MEASUREMENT, IN ONE TABLE
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-19 -- "please bake all of this in to spacr. i would also
            like a button that compares every gene to every measurement and
            gives me a comprehensive table of this and visualises it in an

@@ -1,6 +1,6 @@
 THE DIAMETER ESTIMATE MOVES INTO THE MODEL ZOO POPUP
 
-Status: DONE, 2026-09-26. Filed 2026-09-26.
+Status: DONE 2026-09-26 — Filed 2026-09-26.
 Owner: Claude. Related: 516 (the diameter estimate itself), 503/504/525
 (the model zoo picker in Mask generation).
 

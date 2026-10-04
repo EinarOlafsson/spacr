@@ -3,7 +3,7 @@ THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
 OF THE MAINTAINER'S
 ================================================================================
 
-Status:    DONE, closed 2026-09-29 (CLAUDE). All five requirements are met
+Status:    DONE 2026-09-29 — closed 2026-09-29 (CLAUDE). All five requirements are met
            and live. The last automatable check, "pype" in the rendered
            audio, now has an ASR receipt: the only lesson that says PyPI (01)
            is heard as one-syllable "pipe". Waiting on the maintainer, and

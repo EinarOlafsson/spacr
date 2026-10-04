@@ -2,7 +2,7 @@
 CLASSIFY (CV): ONE GRAPH THAT GROWS, NOT ONE GRAPH PER EPOCH
 ================================================================================
 
-Status:    done - 2026-08-06
+Status:    DONE 2026-08-06
 Requested: 2026-08-06 - "the graphs keep updating for each epoch and i get a new graph for each epoch. I want one new datapoint in the graph at each epoch, not a completely new graph. the graphs have a black background when they should be dark gray like the container. best would be if they had a completely transparent background with white lines and white text in dark mode (teal, blue, purple and gray for the lines in the graph.)"
 
 --------------------------------------------------------------------------------

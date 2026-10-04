@@ -1,6 +1,6 @@
 FILLING HOLES MERGES TOUCHING CELLS, AND APPLY'S DEFAULT CHANNELS/PERCENTILES FAIL
 
-Status: DONE, 2026-09-26. See the closing note.
+Status: DONE 2026-09-26 — See the closing note.
 Was: OPEN, filed 2026-09-26.
 Owner: unassigned. Found by the docs session while recording the Train
 Cellpose tutorial (evidence: /mnt/firecuda2/codex/scratch-docs/status/t19.md,

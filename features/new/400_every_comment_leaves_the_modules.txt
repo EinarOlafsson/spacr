@@ -2,7 +2,7 @@
 EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
 ================================================================================
 
-Status:    DONE 2026-09-28. Final pass applied: 16 comments removed (channel_sorting.py 15, make_masks.py 1); tools/strip_comments.py --check exits 0; 18,863 protected comments (#: Sphinx docs, directives, shebangs) kept by design.
+Status:    DONE 2026-09-28 — Final pass applied: 16 comments removed (channel_sorting.py 15, make_masks.py 1); tools/strip_comments.py --check exits 0; 18,863 protected comments (#: Sphinx docs, directives, shebangs) kept by design.
            66 modules moved to notes or the recoverable discard log. The
            full package plus setup.py now has zero ordinary comment blocks;
            published attribute documentation and tool directives remain.

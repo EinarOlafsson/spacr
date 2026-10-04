@@ -2,7 +2,7 @@
 FLOWVIEW — OPTIONAL PIPELINE VISUALISATION PANEL
 ================================================================================
 
-Status:   DONE — implemented for Classify, audited 2026-08-30, re-verified
+Status:   DONE 2026-08-30 — implemented for Classify, audited 2026-08-30, re-verified
           against the tree 2026-09-13: spacr/flowview/ is imported lazily by
           spacr/qt/screens/classify.py:290-292 behind the collapsed footer,
           the theme hook is register_widget_qss(FLOWVIEW_SECTION_NAME) at

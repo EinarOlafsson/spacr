@@ -2,7 +2,10 @@
 IMAGE UMAP: THE NORMAL FIGURE VIEW, LIVE SETTINGS, AND A PROPAGATE BUTTON
 ================================================================================
 
-Status:    built 2026-08-12 -- all four parts -- and CLOSED 2026-08-14,
+Status:    CLOSED 2026-08-14 (superseded by 95 on the one open point; all four
+           parts built 2026-08-12).
+
+Previous status (superseded 2026-10-04):    built 2026-08-12 -- all four parts -- and CLOSED 2026-08-14,
            superseded by 95 on the one point that was open. This line used to
            say it was "Left in open/" over the reading of "no grid at the end";
            the maintainer answered that on 2026-08-13 and there is no open/

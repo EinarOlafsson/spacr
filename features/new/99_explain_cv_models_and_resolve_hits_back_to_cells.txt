@@ -2,7 +2,7 @@
 EXPLAIN CV MODELS, THEN RESOLVE REGRESSION HITS BACK TO LIKELY CELLS
 ================================================================================
 
-Status:    done, 2026-08-15.
+Status:    DONE 2026-08-15
 Requested: 2026-08-14 — "there should be a module that can generate suragate
            xgboost or simmilar models to explain what computer vision models
            are focusing on, whrough using human interpretable features, and

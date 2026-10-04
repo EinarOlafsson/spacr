@@ -2,7 +2,7 @@
 CLOSE THE GITHUB ISSUES BY FIXING THEM, AND CLOSE THEM AS THE MAINTAINER
 ================================================================================
 
-Status:    done, 2026-08-14. All 26 original issues are closed; #15 was fixed
+Status:    DONE 2026-08-14 — All 26 original issues are closed; #15 was fixed
            across local and shared filesystems in 13c41543.
 Requested: 2026-08-11 — "add to instructions to solve the github bug issues
            and mark them as solved, in my name,"

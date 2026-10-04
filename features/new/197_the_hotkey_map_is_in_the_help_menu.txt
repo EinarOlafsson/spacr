@@ -2,7 +2,7 @@
 THE HOTKEY MAP IS IN THE HELP MENU
 ================================================================================
 
-Status:    DONE 2026-08-21. See the closing section.
+Status:    DONE 2026-08-21 — See the closing section.
 Requested: 2026-08-21 -- "add hotkey map to help tab"
 Owner:     Qt GUI (Help menu, spacr/qt/shortcuts.py)
 

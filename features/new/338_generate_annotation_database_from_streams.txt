@@ -2,7 +2,7 @@
 GENERATE AN ANNOTATION DATABASE BY STREAMING, AND MAKE THE THREE ROUTES AGREE
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries a "DONE,
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries a "DONE,
            2026-09-01" section, written the same day it was requested.
 Requested: 2026-09-01 — "in the annotation application there should be a module
            button in the to pight that starts a new tab where the user can

@@ -1,7 +1,7 @@
 328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
 ==================================================
 
-Status:    DONE, 2026-09-19, AND WHAT IT ASKED FOR IS ALL BUILT; what is
+Status:    DONE 2026-09-19 — AND WHAT IT ASKED FOR IS ALL BUILT; what is
            left is translation quality that was never this item's, and it
            is listed rather than implied. README.rst has both light forms,
            measured, with their limits, and the launch test passes

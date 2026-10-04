@@ -2,7 +2,7 @@
 THE MAKE MASKS DIVIDER HOVERS AS A THIN LINE, NOT A BLUE BAR
 ================================================================================
 
-Status:    DONE 2026-09-28 (built 2026-09-21; rendered hover verified).
+Status:    DONE 2026-09-28 — (built 2026-09-21; rendered hover verified).
 
 Requested: 2026-09-21, verbatim -- "in make masks the bar between the settings
            and the image is too wide when hovered jsut a thin blue line in

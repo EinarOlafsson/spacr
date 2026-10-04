@@ -15,7 +15,7 @@ Done when: the label text contains "einarolafsson/community_<name>", the
 label is a link, and the same holds in Plaque Assay and after sending (Qt
 tests).
 
-Status: IMPLEMENTED 2026-09-30
+Status: DONE 2026-09-30 (evidence b40aa4349)
 
 Cause (2026-09-30): the text always held the slash. tr() formatting, every
 language's catalog and community_repo() all give

@@ -1,6 +1,6 @@
 COLONY / CFU COUNTING
 
-Status: DONE 2026-09-30 (alpha). The colony detector is published at
+Status: DONE (alpha) 2026-09-30 — The colony detector is published at
 datasets/einarolafsson/models/colony_detector/v1, Model Zoo key
 colony_yolo11n_makrai_v1. DONE WHEN met on held-out public photos with the
 colony detector (median error 2.4 % in 30-300, see DETECTOR); NOT met by

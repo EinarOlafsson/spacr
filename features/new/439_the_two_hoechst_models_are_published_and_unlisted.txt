@@ -2,7 +2,7 @@
 BOTH HOECHST CROSS-CHANNEL MODELS ARE PUBLISHED AND MISSING FROM THE MODEL ZOO
 ================================================================================
 
-Status:    DONE 2026-09-19. Both rows are in BUNDLED_REMOTE_MODELS and both
+Status:    DONE 2026-09-19 — Both rows are in BUNDLED_REMOTE_MODELS and both
            checksums match the ones this file recorded independently on the
            work machine. See the note at the foot.
 Requested: 2026-09-19 — "add a new features items to wire those new models into

@@ -1,7 +1,7 @@
 PIPELINE OVERVIEWS AND THE SPACR MODULE FLOWCHART
 
 Requested: 2026-09-22 by the maintainer.
-Status: DONE 2026-09-25. Implementation complete; the translation and docs
+Status: DONE 2026-09-25 — Implementation complete; the translation and docs
         handoff has landed (checked 2026-09-25). Only native compositor
         movement is unverified (needs a real desktop).
 

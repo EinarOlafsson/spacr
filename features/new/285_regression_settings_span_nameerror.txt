@@ -2,7 +2,7 @@
 REGRESSION OPENS IN LAPTOP AND EXTRA-PERFORMANCE MODES
 ================================================================================
 
-Status:    DONE 2026-08-27. Reproduced, fixed and covered by the ordinary Qt
+Status:    DONE 2026-08-27 — Reproduced, fixed and covered by the ordinary Qt
            suite.
 Priority:  BLOCKING REGRESSION.
 Owner:     spacr/qt/screens/settings_model.py and its real-screen tests.

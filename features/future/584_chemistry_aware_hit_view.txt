@@ -1,6 +1,6 @@
 A CHEMISTRY-AWARE HIT VIEW: SMILES, RDKIT CLUSTERING, SAR TABLES
 
-Status: DONE AS ALPHA 2026-10-01. Control Charts' hit scoring takes a
+Status: DONE (alpha) 2026-10-01 — Control Charts' hit scoring takes a
 compound table with SMILES, draws the hits' structures grouped by cluster
 (RDKit Morgan fingerprints, Butina), and exports SAR tables linking potency,
 phenotype and available host toxicity (item 540). Verified on a real CPJUMP1

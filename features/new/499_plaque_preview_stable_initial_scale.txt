@@ -1,6 +1,6 @@
 499 — PLAQUE PREVIEW STAYS AT ITS CHOSEN SCALE
 =============================================
-Status: implemented;109focused tests passed2026-09-23.
+Status: DONE 2026-09-23 (evidence b44eac836) — 109focused tests passed2026-09-23.
 
 _ImageView no longer fits and replaces a QLabel pixmap on every resize.
 Native pixels are painted directly into an explicit view rectangle; neither

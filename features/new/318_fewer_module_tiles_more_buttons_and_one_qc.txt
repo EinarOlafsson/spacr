@@ -2,7 +2,7 @@
 FEWER MODULE TILES: FOLD THE SATELLITES INTO WHAT THEY BELONG TO
 ================================================================================
 
-Status:    DONE 2026-09-01. Filed 2026-08-31. All thirteen changes are in;
+Status:    DONE 2026-09-01 — Filed 2026-08-31. All thirteen changes are in;
            the line below said OPEN long after the file moved to done/.
 
            VERIFIED 2026-09-01, and the first two checks were WRONG in a

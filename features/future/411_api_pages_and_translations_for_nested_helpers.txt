@@ -2,7 +2,7 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    DONE 2026-10-03. Every renderable documented nested helper is
+Status:    DONE 2026-10-03 — Every renderable documented nested helper is
            enabled: 1,149 of 1,149 (the canonical 1,162 minus the 13 in
            spacr._segmentation_backends and spacr._v1_v2_bridge, which are in
            AUTOAPI_NON_RENDERED_MODULES and have no API page). English and all

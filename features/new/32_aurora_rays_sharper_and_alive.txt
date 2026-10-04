@@ -2,7 +2,7 @@
 AURORA THEME: SHARPER RAYS THAT BREATHE
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13. The heading at line 44 reads
+Status:    DONE 2026-09-13 — corrected 2026-09-13. The heading at line 44 reads
            "2026-08-17 - CLOSED. THE WORK LANDED; NOBODY WROTE IT DOWN HERE",
            and a re-audit on 2026-08-26 passed with one citation corrected.
            So this file recorded that its own header was wrong and the header

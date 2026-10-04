@@ -1,6 +1,10 @@
 493 — PARALLEL MULTI-GPU MASK BATCHES
 ====================================
-Status: IMPLEMENTED AS ALPHA, requested2026-09-23. Pipeline, Mask Generation
+Status: BLOCKED 2026-09-23 — a second physical GPU: step 5 on two or more GPUs
+        and one real non-Cellpose two-GPU run. Implemented as alpha; 141
+        related tests pass on simulated devices.
+
+Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA, requested2026-09-23. Pipeline, Mask Generation
 and Cluster Distribution controls are wired; output matches the single-GPU run
 byte for byte on plate1. Validation on a machine with two physical GPUs remains
 open (this machine has one).

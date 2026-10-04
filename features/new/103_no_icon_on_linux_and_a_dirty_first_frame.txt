@@ -2,7 +2,7 @@
 NO ICON ON LINUX, AND A DIRTY FIRST FRAME AT LAUNCH
 ================================================================================
 
-Status:    done 2026-08-15. Automated package and paint-contract checks pass;
+Status:    DONE 2026-08-15 — Automated package and paint-contract checks pass;
            physical X11/Wayland shell checks remain part of release smoke.
 Requested: 2026-08-15 - "on my linux machine, when i run spacr i see a
            transparent icon blob in the doc where i preveously saw a spacr

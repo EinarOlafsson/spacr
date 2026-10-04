@@ -1,6 +1,6 @@
 291 — Open Sans everywhere, including figures
 
-Status:    DONE 2026-09-15, built on the maintainer's decision "Global in the app
+Status:    DONE 2026-09-15 — built on the maintainer's decision "Global in the app
            only": the app and every pipeline run make the bundled Open Sans
            matplotlib's default, so a plain Figure() draws in it too; importing
            spaCR as a library changes no rcParam. See "BUILT" at the end.

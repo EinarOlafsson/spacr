@@ -2,7 +2,7 @@
 THE REPOSITORY AS THE PUBLIC SEES IT
 ================================================================================
 
-Status:    DONE on everything this branch decides, 2026-08-27.
+Status:    DONE 2026-08-27 — on everything this branch decides, 2026-08-27.
 
            AUTHORSHIP IS ALREADY CLEAN. `git log` carries ZERO commits with
            a Co-Authored-By naming an AI and ZERO authored by a bot, so the

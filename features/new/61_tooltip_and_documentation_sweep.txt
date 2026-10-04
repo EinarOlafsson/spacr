@@ -2,7 +2,7 @@
 A TOOLTIP AND DOCUMENTATION SWEEP: SHORT, INFORMATIVE, CORRECTLY REFERENCED
 ================================================================================
 
-Status:    done 2026-08-19 after nightly reconciliation and branch removal.
+Status:    DONE 2026-08-19 — after nightly reconciliation and branch removal.
 Requested: 2026-08-08 — "do a full documentation and tooltips sweep to make the tool tips short and informative (not to short) with the correct api reference."
            2026-08-18 — "look through the spacr README and every tool tip and docstring (basically all user facing text) and make sure the tool tips are acurate, helpeful, and dont sound AI generated, and all text is directed at the USER not at me (the creator), use the API writer skill to have a reference for API conventions."
            2026-08-19 — "also i want the user facing text in the nightly repo not a agent-user-facing-documentation branch. delete that branch, after fixing nightly if changes havnt been mooved to nightly yet."

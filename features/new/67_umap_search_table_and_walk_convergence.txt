@@ -2,7 +2,7 @@
 IMAGE UMAP: THE RESULTS TABLE IS AMBIGUOUS, AND THE WALK MAY NOT BE WALKING
 ================================================================================
 
-Status:    done 2026-08-09. All three resolved -- and the convergence
+Status:    DONE 2026-08-09 — All three resolved -- and the convergence
            complaint was a DISPLAY bug, not a search bug.
 Requested: 2026-08-09 — "In image UMAP the table states score fold sd (whach seems to be allways NA) and paramiters and status. it is ambiguous what score is, is it trustwortheness if trustworthiness is chosen then sthe column should say trustworthiness. also the walf dosnt seem to converge towards a higher score ... which it shoul if it is walking and not at the max score."
 

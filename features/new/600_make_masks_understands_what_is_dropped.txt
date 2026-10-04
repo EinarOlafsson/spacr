@@ -2,7 +2,7 @@
 MAKE MASKS UNDERSTANDS WHAT IS DROPPED, AND ONE POPUP ORGANIZES FOR MEASURE
 ================================================================================
 
-Status:    DONE 2026-09-30. All three parts (600, 600b, 600c) are on nightly;
+Status:    DONE 2026-09-30 — All three parts (600, 600b, 600c) are on nightly;
            see the notes at the end.
 Requested: 2026-09-29, by the maintainer, relayed by the session that
            dispatched this item. His words:

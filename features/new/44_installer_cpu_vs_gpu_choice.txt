@@ -2,7 +2,7 @@
 THE INSTALLER ASKS CPU OR GPU, AND SAYS WHAT CPU COSTS
 ================================================================================
 
-Status:    complete 2026-08-14, re-verified 2026-09-13:
+Status:    DONE 2026-08-14 (evidence: dated notes, record 0f13c370b) — re-verified 2026-09-13:
            packaging/online/install_spacr_unix.sh probes `nvidia-smi -L`
            (:159) and passes `--torch-backend` to uv (:433), with the measured
            RTX 3090 comparison printed at :262;

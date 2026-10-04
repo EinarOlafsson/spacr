@@ -2,7 +2,7 @@
 A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
 ================================================================================
 
-Status:    CLOSED 2026-08-13, re-verified 2026-09-13; this header stopped at
+Status:    DONE 2026-08-13 (evidence: dated notes, record 0f13c370b) — re-verified 2026-09-13; this header stopped at
            "THREE causes fixed (2026-08-08)" and predates the handoff to 74.
            The closure condition this file set -- "close once 74 lands" -- is
            met: 74 is DONE, spacr/qt/widgets/loading_screen.py exists, and

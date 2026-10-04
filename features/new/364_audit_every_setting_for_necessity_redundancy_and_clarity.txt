@@ -2,7 +2,7 @@
 EVERY SETTING AUDITED: IS IT NEEDED, IS IT A DUPLICATE, IS ITS NAME HONEST
 ================================================================================
 
-Status:    DONE, implementation and runtime translation tail reconciled
+Status:    DONE 2026-09-27 — implementation and runtime translation tail reconciled
            2026-09-27. Shared API work remains under future/411. The three
            formerly parked runtime changes are already in nightly:
            ee6a608e6 declares every enabled slot's background switch;

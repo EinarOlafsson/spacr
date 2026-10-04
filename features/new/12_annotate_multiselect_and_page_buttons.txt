@@ -2,7 +2,7 @@
 ANNOTATE: RUBBER-BAND MULTI-SELECT, AND ANNOTATE/CLEAR PAGE
 ================================================================================
 
-Status:    done - 2026-08-06, commit 69a650e2
+Status:    DONE 2026-08-06 — commit 69a650e2
 Requested: 2026-08-06 — "if i click outside of an image i should be able to choose many images for annotation at once (when the mouse is released the user should be prompted, which number to annotate the selection)" and "beside clear column there should be a annotate page and clear page"
 
 --------------------------------------------------------------------------------

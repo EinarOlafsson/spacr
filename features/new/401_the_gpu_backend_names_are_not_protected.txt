@@ -2,7 +2,7 @@
 CUDA IS PROTECTED AND METAL IS NOT, SO ONE GPU BACKEND SURVIVES TRANSLATION
 ================================================================================
 
-Status:    DONE 2026-09-15, pending the docs audit it lands with. `Metal`,
+Status:    DONE 2026-09-15 — pending the docs audit it lands with. `Metal`,
            `MPS`, `ROCm`, `DirectML` and `Apple Silicon` are in
            `_PROTECTED_TERMS`, the blocker this file named (the `\\w`
            lookaround beside CJK) had already landed, and the fallout in the

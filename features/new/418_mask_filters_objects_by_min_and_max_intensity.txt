@@ -2,7 +2,7 @@
 MASK FILTERS OBJECTS BY MIN AND MAX INTENSITY; THE SPLIT AND MERGE SETTINGS GO
 ================================================================================
 
-Status:    DONE 2026-09-16. Run and Live Preview share original-own-channel
+Status:    DONE 2026-09-16 — Run and Live Preview share original-own-channel
            mean filtering, retired controls/code are removed, and legacy
            files remain readable. Replacement animations, runtime help and
            reviewed API catalogs are published in all nine locales. Focused

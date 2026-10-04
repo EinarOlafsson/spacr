@@ -3,7 +3,11 @@ EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
 HELD-OUT SET, IN THE TOOLTIP, ON HUGGING FACE, AND IN THE API
 ================================================================================
 
-Status:    2026-09-19: BOTH HOLD-OUT QUEUES ARE PREPARED AND WAITING FOR THE
+Status:    BLOCKED 2026-09-19 — maintainer curation of both hold-out queues
+           (he chose to curate them himself); queues, commands and the gate
+           are prepared, no ground truth drawn.
+
+Previous status (superseded 2026-10-04):    2026-09-19: BOTH HOLD-OUT QUEUES ARE PREPARED AND WAITING FOR THE
            CURATOR, who is the maintainer -- "I'll curate; prep it" (today,
            the question tool). The two commands, how long they should take,
            what done looks like, how a field is skipped and what happens

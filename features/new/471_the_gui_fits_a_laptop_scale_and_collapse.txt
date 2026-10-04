@@ -2,7 +2,7 @@
 THE GUI FITS A LAPTOP: A WHOLE-GUI SCALE, AND EVERYTHING COLLAPSES
 ================================================================================
 
-Status:    DONE 2026-09-25. GUI/preview scaling, Keep/Revert, reset and
+Status:    DONE 2026-09-25 — GUI/preview scaling, Keep/Revert, reset and
            collapsible panels are built and the DONE WHEN is met (checked
            2026-09-25, 43 tests pass). Not in this item: where the Live/3D/
            Time/OPS/AI switch lives (maintainer's call) and cross-platform

@@ -2,7 +2,7 @@
 CLASSIFY (MERGED) SENDS THE CV MODEL TYPE INTO THE ML ANALYSIS
 ================================================================================
 
-Status:    done, 2026-08-14
+Status:    DONE 2026-08-14
 Requested: 2026-08-14 — "hello, there is a new git hub issue make sure to add
            that to the instruction list."
            GitHub issue #98 — "[auto 10434d] [classify_merged] ValueError:

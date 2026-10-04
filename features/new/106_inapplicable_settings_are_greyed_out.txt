@@ -2,7 +2,7 @@
 A SETTING THAT CANNOT DO ANYTHING RIGHT NOW IS GREYED OUT, AND SAYS WHY
 ================================================================================
 
-Status:    CLOSED 2026-08-16. Read the CLOSED section at the very end; the
+Status:    DONE 2026-08-16 (evidence 830dd4b8c) — Read the CLOSED section at the very end; the
            "not started" this line used to say was false when it was written
            and the mechanism was already built. All three points from
            "STILL OPEN AFTER THIS" are settled there -- one of them by

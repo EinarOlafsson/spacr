@@ -2,7 +2,7 @@
 HIGH PRIORITY: TWO-SECOND STARTUP AND RESPONSIVE MODULE LOADING
 ================================================================================
 
-Status:    DONE 2026-09-26. Filed 2026-08-27, HIGH PRIORITY. The 5 s and
+Status:    DONE 2026-09-26 — Filed 2026-08-27, HIGH PRIORITY. The 5 s and
            10 s budgets have been met since 2026-09-15; the 500 ms stall
            ceiling since 2026-09-26: every module, Preferences included, is
            under it here at load 6-20 -- 0 intervals over in 10 runs (8

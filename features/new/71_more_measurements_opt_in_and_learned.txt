@@ -2,7 +2,7 @@
 MORE MEASUREMENTS: THE CHEAP ONES, THE OPT-IN ONES, AND LEARNED FEATURES
 ================================================================================
 
-Status:    done. The four sub-questions are answered and shipped, and the
+Status:    DONE 2026-08-26 — The four sub-questions are answered and shipped, and the
            CPU speedups instruction 70 handed here are applied in
            measure.py and proved bit-identical on real plate fields.
 Requested: 2026-08-10 — "In the measurements module I try to capture as many morphological and intensity measurements as possible, without using too much compute (e.g. not capturing granularity, texture CpU intensive measurements or just capturing light versions of them. My question is, are there measurements that I am missing that I could add? And are there high compute measurements that I could add that would be opt in, and if so what would they be? And could any measurements be captured on the GPU? And could I put each image through a cnn or transformer and capture feature layers, either in the database as measurements or some other object with this information that could be used for training?"

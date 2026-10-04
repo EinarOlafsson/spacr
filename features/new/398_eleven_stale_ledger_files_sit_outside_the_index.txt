@@ -2,7 +2,7 @@
 ELEVEN STALE LEDGER FILES SIT OUTSIDE THE INDEX
 ================================================================================
 
-Status:    DONE 2026-09-15 by the maintainer's decision: the nine stale
+Status:    DONE 2026-09-15 — by the maintainer's decision: the nine stale
            top-level twins are deleted. The two top-level files with no
            counterpart stay.
 Requested: not requested. Found while sweeping for stale `instructions/`

@@ -1,6 +1,6 @@
 628. Build metadata columns from extraction rules and compose labels with draggable tokens
 
-Status: DONE — implementation and focused acceptance completed 2026-10-01.
+Status: DONE 2026-10-01 — implementation and focused acceptance completed 2026-10-01.
 Supporting API, translation and tutorial refresh is tracked under N615.
 
 N625's exact-value labels and simple ordered combination are insufficient for

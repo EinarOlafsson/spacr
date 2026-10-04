@@ -2,7 +2,7 @@
 SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
 ================================================================================
 
-Status:    DONE 2026-09-25. Engine, GUI, queue/ledger, exact-ID editing/save
+Status:    DONE 2026-09-25 — Engine, GUI, queue/ledger, exact-ID editing/save
            and paired-data evaluation validated 2026-09-23; translations and
            the Make Masks guide section have landed (re-checked 2026-09-25).
 Owner:     spacr/qt/mask_engine.py (the propagation), spacr/qt/cpu_modes.py

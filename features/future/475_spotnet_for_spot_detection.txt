@@ -2,7 +2,7 @@
 SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT
 ================================================================================
 
-Status:    DONE 2026-09-28 (original acceptance verified). The zoo row, the backend, a real CPU install and
+Status:    DONE (alpha) 2026-09-28 — (original acceptance verified). The zoo row, the backend, a real CPU install and
            an opt-in OPS setting (ops_spot_detector) are BUILT; the token
            is read from a file. First real SpotNet-vs-native comparison
            DONE 2026-09-25 (CPU): SpotNet does NOT beat native on the two

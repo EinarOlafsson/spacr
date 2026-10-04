@@ -2,7 +2,7 @@
 THE STARTUP WINDOW'S TEXT IS BRIGHT IN DARK MODE
 ================================================================================
 
-Status:    DONE — native Windows technical acceptance completed 2026-10-01
+Status:    DONE 2026-10-01 — native Windows technical acceptance completed 2026-10-01
            (America/Detroit), run36944677475 on7c13c23d3. All six real OS
            light/dark × spaCR light/dark/system combinations passed; native
            screenshots were inspected. This is hosted Windows acceptance,

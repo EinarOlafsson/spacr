@@ -2,7 +2,7 @@
 PUBLISH spaCR ON CONDA-FORGE
 ================================================================================
 
-Status:    DONE. spaCR IS ON CONDA-FORGE AND HAS BEEN SINCE 2026-08-27.
+Status:    DONE 2026-08-27 — spaCR IS ON CONDA-FORGE AND HAS BEEN SINCE 2026-08-27.
            VERIFIED 2026-09-23 -- version 1.5.0.8 is published; see the foot.
            `conda install -c conda-forge spacr` works today and the package
            tracks PyPI without anybody doing anything.

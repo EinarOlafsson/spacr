@@ -2,7 +2,7 @@
 CLICK A CONSOLE SECTION HEADING TO BRING IT TO THE TOP AND EXPAND IT
 ================================================================================
 
-Status:    DONE 2026-08-15. See RESULT at the end.
+Status:    DONE 2026-08-15 — See RESULT at the end.
 Requested: 2026-08-15 - "add to instructions, the user should be able to click
            on a console section heading to bring it to the top of the console
            and expoand it"

@@ -2,7 +2,7 @@
 A UNIT THAT CONSTRAINS THE DESIGN SAYS SO BEFORE THE RUN
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "i still haven gotten analasys unit cell to work" and
            "if cell is only compatible with certain settings, if cell is
            chosen then the settings it needs should be chosen and displayed

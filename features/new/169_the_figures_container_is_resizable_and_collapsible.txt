@@ -2,7 +2,7 @@
 THE FIGURES CONTAINER IS RESIZABLE AND EACH CATEGORY COLLAPSES
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-08-19 -- DONE. A, B AND C."
            Originally filed 2026-08-19; the header was never moved off
            "filed" and the item read as unstarted until 2026-09-13.

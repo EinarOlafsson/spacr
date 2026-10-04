@@ -2,7 +2,7 @@
 THE MAGNIFIER, ROUND 2: LARGER BOX, MODELS, THRESHOLDS AND DRAG-TO-MERGE
 ================================================================================
 
-Status:    DONE, 2026-09-15 (Codex). Both recovered halves integrated,
+Status:    DONE 2026-09-15 — (Codex). Both recovered halves integrated,
            acceptance verified locally, including real Cellpose weights.
 Requested: 2026-09-15, by the maintainer, after trying item 407's magnifier,
            in these words:

@@ -2,7 +2,7 @@
 EVERY DISTANCE WORTH MEASURING, WITHIN AND BETWEEN OBJECTS
 ================================================================================
 
-Status:    DONE. Requested 2026-08-23, built and verified the same day.
+Status:    DONE 2026-08-23 — Requested 2026-08-23, built and verified the same day.
 Owner:     Measure.
 
 WHAT SHIPPED. `spacr/object_distances.py`, opt-in under `object_distances`

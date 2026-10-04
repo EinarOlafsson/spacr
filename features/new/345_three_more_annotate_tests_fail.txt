@@ -2,7 +2,7 @@
 THREE MORE ANNOTATE TESTS FAIL, AND ONE OF THEM ONLY IN COMPANY
 ================================================================================
 
-Status:    DONE 2026-09-02. Both order-dependent failures fixed, and
+Status:    DONE 2026-09-02 — Both order-dependent failures fixed, and
            neither was a test defect -- an unowned `QTimer.singleShot` that
            fired into a deleted button 1.2 s after teardown (a production bug
            too), and a dialog whose floor was read before the stylesheet

@@ -2,7 +2,7 @@
 PLAQUE FIGURE MODE FINDS NO PLAQUES ON PAPER FIGURES
 ================================================================================
 
-Status:    done 2026-10-03
+Status:    DONE 2026-10-03
 Requested: 2026-10-03 — spacr-d7: in Figure mode the default model
            (toxoplasma_plaque_v2) finds 0 plaques on CC BY paper figures
            (PLoS Biol pbio.3002110 Fig 8; 10.1186/s13071-023-05698-0 Fig 2)

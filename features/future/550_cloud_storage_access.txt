@@ -1,6 +1,6 @@
 LOAD AND SAVE DATA ON CLOUD STORAGE (S3 AND OTHERS)
 
-Status: ALPHA, built 2026-09-26. Make Masks and Measure read cloud sources,
+Status: DONE (alpha) 2026-09-26 (evidence acb6df12e) — built 2026-09-26. Make Masks and Measure read cloud sources,
 hidden unless Preferences -> Show alpha features is on (ALPHA_FEATURES[550]).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).

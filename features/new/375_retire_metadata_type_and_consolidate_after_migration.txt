@@ -2,7 +2,10 @@
 RETIRE metadata_type AND consolidate, ONCE IMPORT HAS ACTUALLY REPLACED THEM
 ================================================================================
 
-Status:    RESOLVED AS "NO CHANGE", corrected 2026-09-13. This said "not
+Status:    CLOSED 2026-09-13 (decision not to act: RETIRED_SETTINGS gains
+           nothing, settings and Mask's panel keep both keys).
+
+Previous status (superseded 2026-10-04):    RESOLVED AS "NO CHANGE", corrected 2026-09-13. This said "not
            started"; the note at the foot says steps 2 and 3 "ARE NOT DONE AND
            WILL NOT BE" -- RETIRED_SETTINGS gains nothing, settings keeps both
            keys, Mask's panel keeps both rows. A decision not to act is a

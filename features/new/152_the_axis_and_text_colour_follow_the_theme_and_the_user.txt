@@ -2,7 +2,7 @@
 TWO COLOURS -- LINES AND FONT -- AND THEY FOLLOW THE THEME
 ================================================================================
 
-Status:    DONE. Both controls reach all three renderers -- the live
+Status:    DONE 2026-08-27 — Both controls reach all three renderers -- the live
            pyqtgraph plots, the matplotlib figures the GUI renders, and
            the publication house style. Nothing open.
 Requested: 2026-08-18 -- two reports, one surface:

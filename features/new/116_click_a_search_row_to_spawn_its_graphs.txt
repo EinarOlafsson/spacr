@@ -2,7 +2,7 @@
 CLICK A SEARCH ROW TO SPAWN THAT RUN'S GRAPHS
 ================================================================================
 
-Status:    COMPLETE, 2026-08-20. This line read "partly done" until
+Status:    DONE 2026-08-20 (evidence d17c00718) — This line read "partly done" until
            2026-08-25, contradicting the section below it headed
            "116 IS COMPLETE". The "WHAT IS LEFT OF THIS FILE" list
            further down is likewise superseded by that section: both

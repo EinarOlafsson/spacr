@@ -2,7 +2,7 @@
 THE FONT ZOOM FLOOR IS 10%, NOT 75%
 ================================================================================
 
-Status:    DONE, 2026-09-15. The floor renders at 10% on every zoom path,
+Status:    DONE 2026-09-15 — The floor renders at 10% on every zoom path,
            including the console. Chips, the group button, run instruction
            and tour follow live zoom and return to their normal sizes.
            The range docstrings and nine languages were corrected in

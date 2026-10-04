@@ -13,7 +13,7 @@ Done when: the Mask generation panel draws Spectral Unmixing α nested under
 Image Preprocessing, hidden with alpha features off and shown with them on,
 and the category tests and generated files agree.
 
-Status: IMPLEMENTED AS ALPHA 2026-09-29
+Status: DONE (alpha) 2026-09-29 (evidence d1cf0d9af)
 
 ALPHA (2026-09-29): the settings stay registered alpha under item 538; no new
 setting was added. Spectral Unmixing α is now the first sub-category of Image

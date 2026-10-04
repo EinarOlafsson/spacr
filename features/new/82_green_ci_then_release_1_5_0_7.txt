@@ -2,7 +2,7 @@
 GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
 ================================================================================
 
-Status:    DONE 2026-09-12, corrected 2026-09-19. The release is complete:
+Status:    DONE 2026-09-12 — corrected 2026-09-19. The release is complete:
            1.5.0.5 and 1.5.0.6 on 2026-09-10, 1.5.0.7 on 2026-09-12 (the
            "DONE 2026-09-12 -- 1.5.0.7 IS OUT" section at the foot), and
            1.5.0.8 since, on 2026-09-16. Step 1, "every GitHub test green",

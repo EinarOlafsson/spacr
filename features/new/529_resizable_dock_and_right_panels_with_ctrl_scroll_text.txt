@@ -1,6 +1,6 @@
 THE DOCK AND THE RIGHT-HAND PANELS CAN BE RESIZED, AND CTRL+SCROLL SIZES THEIR TEXT
 
-Status: DONE 2026-09-25 (worktree agent; notes at the end), awaiting the
+Status: DONE 2026-09-25 — (worktree agent; notes at the end), awaiting the
         maintainer's look on his display. Filed 2026-09-25.
 Owner: worktree agent (529). Related: 471 (whole-GUI scale, collapsible splitter),
 378 (hold Z and scroll to resize the interface), 376 (the dock).

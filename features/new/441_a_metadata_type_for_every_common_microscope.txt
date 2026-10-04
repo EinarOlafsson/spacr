@@ -2,7 +2,7 @@
 THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA
 ================================================================================
 
-Status:    DONE 2026-09-19. Built, tested and pushed to nightly.
+Status:    DONE 2026-09-19 — Built, tested and pushed to nightly.
            The trailing notes at the end of this file are the current
            state; they list what was confirmed, what is provisional,
            and what is left.

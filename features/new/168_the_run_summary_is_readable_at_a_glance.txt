@@ -2,7 +2,7 @@
 THE RUN SUMMARY IS READABLE AT A GLANCE
 ================================================================================
 
-Status:    DONE 2026-08-19, re-verified against the tree 2026-09-13. A-D all
+Status:    DONE 2026-08-19 — re-verified against the tree 2026-09-13. A-D all
            shipped: D is `FoldingSummaryView`
            (spacr/qt/widgets/folding_summary.py:151), wired into the Summary
            tab at spacr/qt/widgets/regression_results.py:783-785 and covered

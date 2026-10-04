@@ -2,7 +2,7 @@
 THE REGRESSION FIGURE SURFACE: A GRID, A RESULTS TABLE, AND SPEED
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- and this file already knew. Its
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- and this file already knew. Its
            own closing note reads "Filed to done/ after re-reading the file
            rather than its header, which still said 'not started'". The file
            was moved and the header was not, so the sentence describing the

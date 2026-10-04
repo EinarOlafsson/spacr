@@ -1,7 +1,7 @@
 329 — README, LOGOS, CHROME AND BACKDROP POLISH (2026-09-01)
 ============================================================
 
-Status:    DONE, 2026-09-01. Every item below is implemented, tested and
+Status:    DONE 2026-09-01 — Every item below is implemented, tested and
            pushed to nightly. Filed after the fact at the maintainer's
            request so the batch is on the record.
 

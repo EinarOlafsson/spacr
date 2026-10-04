@@ -2,7 +2,7 @@
 ANNOTATE: AUTO-ANNOTATE BY METADATA, MEASUREMENT, GATE OR UMAP CLUSTER
 ================================================================================
 
-Status:    done - 2026-08-06
+Status:    DONE 2026-08-06
 Requested: 2026-08-06 — "i want an auto annotate button where the user can generate an annotation column in the database png_list table and annotate entries by metadata (like row and column) or by measurement ... simple thresholding on one or several measurements ... the Gate Editor should be wired into this ... the image UMAP application ... cluster labels to the database png_list table as annotations, so this could also be wired into this"
 
 --------------------------------------------------------------------------------

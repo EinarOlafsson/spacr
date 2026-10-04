@@ -2,7 +2,7 @@
 "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- "MAP BARCODES IS CLEAN. ALL FOUR
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- "MAP BARCODES IS CLEAN. ALL FOUR
            ROUTES ACCOUNTED FOR. CLOSING." Originally filed 2026-09-02 as a
            live defect the maintainer hit; the fix came from reading the
            CALLER rather than the published data pack.

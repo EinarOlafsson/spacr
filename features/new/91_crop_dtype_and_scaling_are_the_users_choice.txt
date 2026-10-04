@@ -2,7 +2,7 @@
 LET THE USER CHOOSE THE CROP'S DTYPE AND SCALING
 ================================================================================
 
-Status:    done, 2026-08-13.
+Status:    DONE 2026-08-13
 Requested: 2026-08-13 - "i would like the user to be able to choose to keep
            the origional dtpe or scale the images to either 1-255 (uint8) or
            between 0 and 1. what do you think, and what is the current code

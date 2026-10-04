@@ -1,6 +1,6 @@
 CONFLUENCY IN MEASURE, FOR ANY CHANNEL
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26; phase source 2026-09-30.
+Status: DONE (alpha) 2026-09-26 (evidence a5d0c3a62) — phase source 2026-09-30.
 Measure writes confluency per field and per well with a monolayer QC
 flag, from texture, intensity, a learned phase classifier or cell masks;
 the infection report and any per-well table use it as filter and

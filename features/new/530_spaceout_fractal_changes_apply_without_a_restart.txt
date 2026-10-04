@@ -1,6 +1,6 @@
 SPACEOUT: FRACTAL THEME CHANGES TAKE EFFECT WITHOUT A RESTART
 
-Status: DONE, 2026-09-25. Every setting applies live; none is restart-only,
+Status: DONE 2026-09-25 — Every setting applies live; none is restart-only,
 so no restart popup was built (see the note below).
 Owner: Claude (worktree agent). Related: spacr/qt/spaceout.py, fractal_defaults.py,
 night_themes.py; 471's Keep/Revert-with-countdown pattern for GUI scale.

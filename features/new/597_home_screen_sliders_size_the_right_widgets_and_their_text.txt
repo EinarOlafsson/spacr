@@ -13,7 +13,7 @@ minimum and maximum.
 Done when: both sliders change their size live, persist and restore, and
 nothing overlaps or clips at the extremes (Qt tests).
 
-Status: IMPLEMENTED 2026-09-29
+Status: DONE 2026-09-29 (evidence 0111bf792)
 
 Correction from the maintainer (2026-09-29), verbatim:
 "no the widgets should have the same gui elements as the settings container has in the moduals with the arrow and the font slider should be the only slider right bellow the lowest widget."

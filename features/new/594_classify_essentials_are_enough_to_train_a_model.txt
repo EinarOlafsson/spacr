@@ -1,6 +1,6 @@
 CLASSIFY'S ESSENTIALS ARE ENOUGH TO PICK AND TRAIN A MODEL
 
-Status:    DONE 2026-09-28.
+Status:    DONE 2026-09-28
 Requested: 2026-09-28, by the maintainer, verbatim:
   "for classify the essentialls category only includes the classifier
   category. this is not enough. essentialls should include enough to pick

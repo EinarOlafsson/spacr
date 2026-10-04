@@ -1,6 +1,6 @@
 GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE (alpha) 2026-09-27 (evidence f8ba5d412)
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

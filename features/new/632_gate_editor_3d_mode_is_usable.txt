@@ -1,6 +1,6 @@
 632. Gate editor 3D mode is usable
 
-Status: IMPLEMENTED 2026-10-03 — GateCanvas (spacr/qt/widgets/gate_editor.py):
+Status: DONE 2026-10-03 (evidence: dated notes, record 8d8d33f63) — GateCanvas (spacr/qt/widgets/gate_editor.py):
 free spin is an orbit (no roll, no snap, angle kept); zoom drops points
 outside the zoomed box; new 3D shapes "Polygon through view" (click corners,
 click first or double-click to close; swept along the line of sight as a

@@ -2,7 +2,7 @@
 SPACR MUST RUN WELL ON A LAPTOP -- OPTIMISE FIRST, DISABLE SECOND
 ================================================================================
 
-Status:    DONE 2026-08-27. Optimised first, disabled last, which is this
+Status:    DONE 2026-08-27 — Optimised first, disabled last, which is this
            file's own rule.
 
            WHAT SCALED UNEVENLY WAS FOUND. It was never the settings count:

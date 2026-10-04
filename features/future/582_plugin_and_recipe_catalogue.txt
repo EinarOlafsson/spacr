@@ -1,6 +1,6 @@
 A PLUGIN AND RECIPE CATALOGUE BROWSER
 
-Status: DONE (ALPHA) 2026-10-02 against the original local test-catalogue
+Status: DONE (alpha) 2026-10-02 — against the original local test-catalogue
         list/install/load/uninstall criterion.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 

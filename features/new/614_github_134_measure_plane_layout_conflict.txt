@@ -2,7 +2,7 @@
 GITHUB #134: MEASURE MASK-PLANE CONFIGURATION CONFLICTS WITH THE STORED LAYOUT
 ================================================================================
 
-Status: IMPLEMENTED AND VERIFIED 2026-10-01 — runtime fix; supporting catalog and release work remains in N615.
+Status: DONE 2026-10-01 (evidence 2429976f0) — runtime fix; supporting catalog and release work remains in N615.
 Merged into main through PR #135; GitHub #134 closed 2026-10-01.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex implementation session.

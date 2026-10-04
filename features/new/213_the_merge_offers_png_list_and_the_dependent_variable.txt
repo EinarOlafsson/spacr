@@ -2,7 +2,7 @@
 THE MERGE OFFERS png_list AND THE DEPENDENT VARIABLE
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "in merge the tables in each database in the
            measurements tab, the png_list table should also be a box as well
            as a box called dependent variable".

@@ -2,7 +2,7 @@
 A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
 ================================================================================
 
-Status:    DONE 2026-09-12, verified against the tree 2026-09-13; this header
+Status:    DONE 2026-09-12 — verified against the tree 2026-09-13; this header
            led with "ENGINE BUILT ... steps 1, 2 and half of 4", which the
            six step records below have long since overtaken. spacr/embeddings.py
            (EmbeddingSpec, embed_array, encoder_entry), "encoder" in

@@ -2,7 +2,7 @@
 A FAILED RUN SAYS WHERE ITS REPORT AND ITS AI EXPLANATION WENT
 ================================================================================
 
-Status:    done 2026-09-19, landed on nightly (4e533737f, efa9dabb6): an AI
+Status:    DONE 2026-09-19 — landed on nightly (4e533737f, efa9dabb6): an AI
            provider that exits non-zero is reported as failed, the reply
            keeps its "spaCR AI" heading, the sign-in hint names
            `claude auth login`, and with 'ask' the console says under

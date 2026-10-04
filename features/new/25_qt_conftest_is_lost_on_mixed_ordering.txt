@@ -2,7 +2,7 @@
 tests/qt/conftest.py IS LOST WHEN QT AND NON-QT FILES ARE INTERLEAVED
 ================================================================================
 
-Status:    FIXED; re-checked in the tree 2026-09-13 by reading it, not by
+Status:    DONE 2026-09-13 (evidence: dated notes, record 0f13c370b) — re-checked in the tree 2026-09-13 by reading it, not by
            running pytest. tests/conftest.py:1284
            `canonical_directory_children` and the `_OneNodePerDirectory`
            plugin at :1304, registered at :398, give one node per directory,

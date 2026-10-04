@@ -1,6 +1,6 @@
 CELL-CYCLE PHASE CLASSIFICATION: A TORCH, AN XGBOOST AND A MEASUREMENTS VERSION
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure calls G1, S, G2 or M for
+Status: DONE (alpha) 2026-09-26 (evidence 02cbf2ff9) — Measure calls G1, S, G2 or M for
 every nucleus three interchangeable ways -- DNA-content gates, xgboost on the
 nucleus measurements, torch on nucleus crops through Classify's training --
 into one cell_cycle_phase column, with per-well phase fractions among

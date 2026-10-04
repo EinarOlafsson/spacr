@@ -2,7 +2,7 @@
 TEST DATA FOR THE PLAQUE MODULE, AND IT HAD NONE
 ================================================================================
 
-Status:    DONE 2026-09-27. Runtime translations cover all nine locales and
+Status:    DONE 2026-09-27 — Runtime translations cover all nine locales and
            the plaque helper's private docstring is corrected. The two sets
            retain the live acceptance receipts below; no fresh download is
            claimed by the documentation follow-up.

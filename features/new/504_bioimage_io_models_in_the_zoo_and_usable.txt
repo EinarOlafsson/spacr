@@ -1,6 +1,6 @@
 THE BIOIMAGE.IO CATEGORY CARRIES REAL MODELS, AND THEY RUN
 
-Status: DONE 2026-09-25, on nightly (48bb8ea86, 57893157d, 901977a23; checked
+Status: DONE 2026-09-25 — on nightly (48bb8ea86, 57893157d, 901977a23; checked
 2026-09-25). Filed 2026-09-24.
 Owner: Claude session (worktree agent-aa57f62da94d0c63b). Related: 503 (the Cellpose 3 route it reuses), 423.
 

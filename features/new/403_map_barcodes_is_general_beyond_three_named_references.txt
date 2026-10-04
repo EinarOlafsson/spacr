@@ -2,7 +2,7 @@
 MAP BARCODES IS GENERAL BEYOND THREE NAMED REFERENCES
 ================================================================================
 
-Status:    DONE 2026-09-15; corrected, and moved from features/future/ to
+Status:    DONE 2026-09-15 — corrected, and moved from features/future/ to
            features/new/, on 2026-09-19. Every part that was asked for is
            built, on nightly and inside v1.5.0.8: requirements 1 and 2
            were found already built (`BarcodeSet`,

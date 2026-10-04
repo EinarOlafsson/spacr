@@ -2,7 +2,7 @@
 MASK SETTINGS FOLLOW THE CHANNELS THE USER SETS -- FORM, LIVE SETTINGS, TABLE
 ================================================================================
 
-Status:    DONE 2026-09-19, on nightly. All three reports were reproduced
+Status:    DONE 2026-09-19 — on nightly. All three reports were reproduced
            headless by driving the widgets and fixed. Review found the same
            #120 defect in Timelapse, fixed the same way, plus three smaller
            things (see the second trailing note). 27 tests press the controls.

@@ -2,7 +2,7 @@
 IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
 ================================================================================
 
-Status:    DONE 2026-08-14, re-verified against the tree 2026-09-13. The
+Status:    DONE 2026-08-14 — re-verified against the tree 2026-09-13. The
            second usability and reducer pass shipped: reducer settings grouped
            into tabs at spacr/qt/screens/hyperparam.py:2595, the sortable
            search table with neighbors/min dist/backend/clusters at

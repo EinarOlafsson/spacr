@@ -1,6 +1,6 @@
 FIGURE-INTEGRITY GUARD: DISPLAY RANGES, SATURATION, LOSSY FORMATS, PROVENANCE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26 (see the note of that date). A
+Status: DONE (alpha) 2026-09-26 (evidence 2964f0a0c) — (see the note of that date). A
 checked export in spacr.plot.save_figure (and the Save figure dialog) warns
 on mismatched display ranges, saturation/clipping, repeated panels and lossy
 formats, and stamps provenance into the file metadata and a sidecar.

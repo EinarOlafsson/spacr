@@ -2,7 +2,7 @@
 AN "ADVANCED SETTINGS" CATEGORY, ORGANISED BY WHAT A SETTING DOES
 ================================================================================
 
-Status:    done. Three levels exist, are rendered from the model AND are
+Status:    DONE 2026-08-25 — Three levels exist, are rendered from the model AND are
            drawn by the screen; one open dependency is named at the end.
 Requested: 2026-08-10 — "and actually when i think about it i would like to move several settings from the other object settings categories to a new 'advanced settings' category, move settings like remove background, intensity merge split, min distance, etc. but have all the similar settings here organized into sub and sub-sub sections with sub section headers like object filtration, image preprocessing with sub-sub sections for each object (cell, nuclei, pathogen, organelle)."
 

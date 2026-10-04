@@ -2,7 +2,7 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    DONE 2026-09-10. The goal was already met; the push check that
+Status:    DONE 2026-09-10 — The goal was already met; the push check that
            was the last piece is built and on nightly. See the closing note
            at the foot.
 

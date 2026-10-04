@@ -2,7 +2,7 @@
 THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
 ================================================================================
 
-Status:    DONE ON LINUX AND macOS 2026-09-21: the AI sign-ins run inside spaCR
+Status:    DONE 2026-09-21 — ON LINUX AND macOS 2026-09-21: the AI sign-ins run inside spaCR
            on a pseudo-terminal, no terminal window (Windows still opens one).
            Earlier: BUILT ON LINUX AND LANDED ON NIGHTLY 2026-09-19, after review.
            NOT DONE: the AI CLIs' sign-in still runs in a terminal window

@@ -1,6 +1,6 @@
 EXPORT FOR R (SingleCellExperiment) AND TIDY PARQUET
 
-Status: DONE AS ALPHA 2026-09-28. Parquet tables, the R loader and .rds
+Status: DONE (alpha) 2026-09-28 — Parquet tables, the R loader and .rds
 data frames round-trip in pandas/pyarrow/pyreadr and native R. The full
 SingleCellExperiment comparison passes for values, missing entries,
 annotations, embeddings and provenance. See the source-bound receipt below.

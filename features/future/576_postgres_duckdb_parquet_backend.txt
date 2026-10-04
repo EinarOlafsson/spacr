@@ -1,6 +1,6 @@
 A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
 
-Status: IMPLEMENTED AS ALPHA 2026-09-28.
+Status: DONE (alpha) 2026-09-28 (evidence 8a36fb334)
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

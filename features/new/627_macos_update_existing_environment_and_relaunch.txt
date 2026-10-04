@@ -1,6 +1,6 @@
 627. macOS updates must upgrade the existing spaCR environment and relaunch
 
-Status: DONE — implemented and focused validation completed 2026-10-01.
+Status: DONE 2026-10-01 — implemented and focused validation completed 2026-10-01.
 Native macOS acceptance remains unverified on this Linux host.
 
 The user reports Check for updates > Install update closes spaCR, but reopening

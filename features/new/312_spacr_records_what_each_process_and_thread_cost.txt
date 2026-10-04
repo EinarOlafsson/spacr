@@ -2,7 +2,7 @@
 SPACR RECORDS WHAT EACH PROCESS AND THREAD ACTUALLY COST, UNDER ITS OWN SETTING
 ================================================================================
 
-Status:    DONE, 2026-08-30.
+Status:    DONE 2026-08-30
 Owner:     spacr/qt (the preference and the sampler) and spacr (the accounting).
 Requested: 2026-08-29 -- "does spacr keep a log of how many resourses each of
            its processes and threads takes?" and, on the answer, "write it up

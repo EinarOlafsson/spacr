@@ -2,7 +2,7 @@
 THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
 ================================================================================
 
-Status:    done 2026-08-08.
+Status:    DONE 2026-08-08
 Requested: 2026-08-08 — "make the github issue generation work, now the user gets prompted with a page not found when this is triggered. the user should be able to not get prompted at all or get prompted (add another setting)."
 
 --------------------------------------------------------------------------------

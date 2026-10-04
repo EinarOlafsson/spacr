@@ -2,7 +2,7 @@
 THE PLATE VIEWER: ONE LOCKED GRID, SQUARE WELLS, AND DRAG TO SELECT
 ================================================================================
 
-Status:    done, 2026-08-25. All three asks and the fourth defect are
+Status:    DONE 2026-08-25 — All three asks and the fourth defect are
            built and measured; a fifth, found while driving the gesture,
            is fixed with them. The one thing left open -- a drag at the
            scroll area's edge did not scroll -- is built 2026-09-25 (last

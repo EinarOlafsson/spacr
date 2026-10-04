@@ -2,7 +2,7 @@
 THE INDEPENDENT-VARIABLE TABLE MAY BE LONG OR WIDE, AND PLATE IS A LAYOUT TERM
 ================================================================================
 
-Status:    done, 2026-09-01. Code complete and green; committed 2026-09-01.
+Status:    DONE 2026-09-01 — Code complete and green; committed 2026-09-01.
 Requested: 2026-09-01 -- "because Plate, row, and column terms can be added
            to an OLS these should be added to the analasys"; and "if the user
            inputs long form independent variable a transformation to wide and

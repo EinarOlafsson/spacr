@@ -2,7 +2,7 @@
 SURROGATE MODEL: EXPLAIN A CV CLASSIFIER WITH A FEATURE MODEL
 ================================================================================
 
-Status:    done - 2026-08-06
+Status:    DONE 2026-08-06
 Requested: 2026-08-06 — "a module that can take a CV module, apply it to a dataset, merge the feature dataset with the CV class predictions then train a ML model that can give feature importance, also do permutation importance and shap feature importance ... an alternative surrogate model strategy to understanding what the model is looking at in addition to the activation map module"
 
 --------------------------------------------------------------------------------

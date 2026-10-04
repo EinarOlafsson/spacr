@@ -19,7 +19,7 @@ Figures, Logging, AI (plus Fractal and Sound in spaceout mode); Appearance
 holds folded THEME and ANIMATION categories with every control they had;
 the Help search still lands on a Theme or Animation row (Qt tests).
 
-Status: IMPLEMENTED 2026-09-30; current tutorial capture recorded 2026-10-01,
+Status: DONE 2026-09-30 (evidence: dated notes, record 9729ef2d5) — current tutorial capture recorded 2026-10-01,
         full lesson/media publication remains pending.
 
 What was built: Theme and Animation are built as settings categories (the

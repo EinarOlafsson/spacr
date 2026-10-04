@@ -2,7 +2,7 @@
 THE README'S LANGUAGE PICKER: A DROPDOWN, AND WHY IT CANNOT STAY ON THE PAGE
 ================================================================================
 
-Status:    DONE 2026-09-02. Pushed, and READ ON GITHUB.COM -- which was the
+Status:    DONE 2026-09-02 — Pushed, and READ ON GITHUB.COM -- which was the
            one criterion a local checkout could not satisfy. Asking the API
            for `nightly`'s rendered README returns exactly one control:
 

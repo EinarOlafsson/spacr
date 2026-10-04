@@ -3,7 +3,7 @@ THE OLD VOLCANO, A CLEAR GRAPH SETTING, EVERY RUN IN THE RUNS TAB, AND QT BY
 DEFAULT
 ================================================================================
 
-Status:    DONE. Filed 2026-08-17; audited against the code on 2026-08-18
+Status:    DONE 2026-08-17 — Filed 2026-08-17; audited against the code on 2026-08-18
            and again on 2026-08-20, and all four parts (A-D) were already
            shipped. Re-audited 2026-08-25: still true -- the three legacy
            volcano call sites are gated on one resolved boolean, the

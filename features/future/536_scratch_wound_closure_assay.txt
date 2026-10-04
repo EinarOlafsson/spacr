@@ -1,6 +1,6 @@
 SCRATCH / WOUND-CLOSURE ASSAY
 
-Status: IMPLEMENTED AS ALPHA 2026-09-26. Measure finds the scratch wound in
+Status: DONE (alpha) 2026-09-26 (evidence fbee300da) — Measure finds the scratch wound in
 every frame (texture, intensity or cell masks), writes area, mean/min width,
 closure rate and half-closure time per field, well and condition, with
 closure curves and a plate map; the Measure preview draws the wound edge.

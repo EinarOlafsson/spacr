@@ -2,7 +2,7 @@
 REGRESS ACROSS SCREENS: screenID, MERGED TABLES, AND A MEASUREMENT SEARCH
 ================================================================================
 
-Status:    DONE IN ITS OWN SCOPE, corrected 2026-09-13. This said "not
+Status:    DONE 2026-09-13 — IN ITS OWN SCOPE, corrected 2026-09-13. This said "not
            started". The remaining leftover -- containment for the measurement
            scan -- is instruction 114's subject and stays there rather than
            being half-done here. Originally filed 2026-08-16.

@@ -3,7 +3,7 @@ TWO TOOLTIP SURFACES, EITHER OR BOTH, AND THE BOTTOM ONE STAYS LONG ENOUGH
 TO CLICK
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13. Parts 1, 2 and 3 closed
+Status:    DONE 2026-09-13 — corrected 2026-09-13. Parts 1, 2 and 3 closed
            2026-09-03; the fourth -- the strip's Animation word -- was done
            later the same night and hands off to the popup rather than
            duplicating it. 7 new tests, 328 passing across the tooltip

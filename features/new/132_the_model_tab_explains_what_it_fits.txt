@@ -2,7 +2,7 @@
 THE MODEL AND INFERENCE TAB EXPLAINS WHAT IT FITS, AND MIXED IS THE DEFAULT
 ================================================================================
 
-Status:    CLOSED 2026-08-20 (see the last section). This line still
+Status:    DONE 2026-08-20 (evidence: dated notes, record 8e9bd0b84) — (see the last section). This line still
            read "filed 2026-08-17, TOP PRIORITY" on 2026-08-25,
            contradicting the section below it that closes the item.
 Requested: 2026-08-17 --

@@ -2,7 +2,10 @@
 GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
 ================================================================================
 
-Status:    SUPERSEDED, 2026-09-19. READ 82_green_ci_then_release_1_5_0_7.txt
+Status:    CLOSED 2026-09-19 (superseded by
+           82_green_ci_then_release_1_5_0_7.txt).
+
+Previous status (superseded 2026-10-04):    SUPERSEDED, 2026-09-19. READ 82_green_ci_then_release_1_5_0_7.txt
            INSTEAD: it is the later copy of this same item, it records 1.5.0.5,
            1.5.0.6 and 1.5.0.7 shipping, and it closes DONE 2026-09-12. This
            copy stops at 2026-08-25, and "the version bump remains canceled"

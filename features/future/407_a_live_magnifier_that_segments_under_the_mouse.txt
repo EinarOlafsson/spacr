@@ -2,7 +2,7 @@
 A LIVE MAGNIFIER IN MAKE MASKS THAT SEGMENTS WHAT IS UNDER THE MOUSE
 ================================================================================
 
-Status:    DONE, 2026-09-21. Every point this item asked for, every
+Status:    DONE 2026-09-21 — Every point this item asked for, every
            DONE WHEN criterion under HOW TO KNOW IT WORKED, and the four
            things the 2026-09-20 notes left open are built and measured --
            see the 2026-09-21 note at the foot: the M key, the Overlap

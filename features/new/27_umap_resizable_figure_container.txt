@@ -2,7 +2,7 @@
 IMAGE UMAP: DRAG TO ENLARGE THE PLOT WITHOUT ENLARGING THE IMAGES
 ================================================================================
 
-Status:    DONE. The divider moves at every window size the application
+Status:    DONE 2026-08-06 — The divider moves at every window size the application
            opens at; what stops it going further is content, not a constant.
 Requested: 2026-08-06 - "i should also be able to make the figure container larger to enlarge the UMAP plot, this dragging should apply to the plot itself but not the images, that is to say the images should keep their coordinates on the graph but their size should not change, that should be controlled by image zoom i think."
 

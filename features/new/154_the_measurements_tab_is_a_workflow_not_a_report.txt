@@ -2,7 +2,7 @@
 THE MEASUREMENTS TAB IS A WORKFLOW, NOT A REPORT
 ================================================================================
 
-Status:    DONE -- sections A-G shipped 2026-08-18/19, re-verified against the
+Status:    DONE 2026-08-18 — sections A-G shipped 2026-08-18/19, re-verified against the
            tree 2026-09-13. The header used to say only "filed 2026-08-18".
            WORKFLOW_STEPS, regressable_columns, write_merged_frame,
            column_run_settings, run_column_fits and ColumnRegressionPanel are

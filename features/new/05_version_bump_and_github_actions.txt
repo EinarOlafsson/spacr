@@ -2,7 +2,7 @@
 THE VERSION BUMP AND GETTING ACTIONS GREEN
 ================================================================================
 
-Status:   DONE, corrected 2026-09-19. The bump this file describes has run
+Status:   DONE 2026-09-19 — corrected 2026-09-19. The bump this file describes has run
           four times, each a published GitHub release: v1.5.0.5 (bb33059ae)
           and v1.5.0.6 (e6661ad1a) on 2026-09-10, v1.5.0.7 (63d803f30) on
           2026-09-12 and v1.5.0.8 (c861ec10a, = origin/main) on 2026-09-16.

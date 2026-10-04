@@ -2,7 +2,7 @@
 THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
 ================================================================================
 
-Status:    DONE 2026-09-21 (a1ca9387a), re-verified on nightly 2026-09-25.
+Status:    DONE 2026-09-21 — (a1ca9387a), re-verified on nightly 2026-09-25.
            Its one runtime string is now in all eight locale catalogs.
 
 Requested: 2026-09-21, verbatim -- "if the downlode changes the dependencies

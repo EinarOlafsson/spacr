@@ -2,7 +2,7 @@
 THE FLOW THRESHOLD DEFAULT IS CELLPOSE'S OWN, 0.4, AND THE WARNING TELLS THE TRUTH
 ================================================================================
 
-Status:    DONE 2026-09-25 -- example pack at 0.4, real-data run recorded
+Status:    DONE 2026-09-25 — example pack at 0.4, real-data run recorded
            (closing section). Earlier: done 2026-09-19, reviewed and
            corrected the same day. See the
            trailing notes. Not yet listed in 00_INDEX.txt (its check is red

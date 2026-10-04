@@ -2,7 +2,7 @@
 IMAGE UMAP: SEARCH THE WHOLE HYPERPARAMETER SPACE, AND CALL IT WALK
 ================================================================================
 
-Status:    done 2026-08-08. Four parts built; the fifth -- the
+Status:    DONE 2026-08-08 — Four parts built; the fifth -- the
            presentation grid -- is not dropped but MERGED into
            instruction 35, which is the single home for that change.
 Requested: 2026-08-07 - "the hyperparameter search should search hyperparameter space, this space should be defined by all hyperparameters not just min dist and neighbours. the adaptive 2x2 should just be adaptive and should search more than just the n_neighbours and min dist... the user should be able to choose the grid the algorithm uses to make directional decisions in hyperparameter space, now that that space will be expanded beyond n_neighbours and min_dist, it is no longer 2X2... this dimensionality of the search should be reflected in the grid that the UMAPs are presented on." Also: "there should be a clustering algorithm option with a hyperparameter search and which should include a hyperparameter walk (that is what the setting should be called, Walk, this name should also apply to the new image UMAP adaptive setting!)"

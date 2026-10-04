@@ -2,7 +2,7 @@
 ANNOTATE SETTINGS: DROP THE API DOTS
 ================================================================================
 
-Status:    done - 2026-08-06, commit 9cebd643
+Status:    DONE 2026-08-06 — commit 9cebd643
 Requested: 2026-08-06 - "please also remove the API dot to the right of the
            annotation settings (the API link is now in the tooltips box)"
 

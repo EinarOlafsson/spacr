@@ -1,6 +1,6 @@
 488 — PYPI README IMAGES WITHOUT LOSING THE GITHUB PAGE
 =====================================================
-Status: DONE — implementation and package rendering verified; ships with1.5.1.0.
+Status: DONE 2026-09-24 — implementation and package rendering verified; ships with1.5.1.0.
 
 User request2026-09-23: keep every GitHub image and all content, making PyPI
 compatible or providing a PyPI-specific equivalent instead of broken images.

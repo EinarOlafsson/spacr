@@ -2,7 +2,7 @@
 AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
 ================================================================================
 
-Status:    DONE ON REAL WINDOWS, macOS AND LINUX RUNNERS 2026-09-21 (a CI run
+Status:    DONE 2026-09-21 — ON REAL WINDOWS, macOS AND LINUX RUNNERS 2026-09-21 (a CI run
            installs 1.5.0.7 and updates it; only the new version is left).
            Left: the maintainer's own 1.5.0.1 machine.
            Earlier: PARTLY DONE, corrected 2026-09-19. SLICE 1 IS RELEASED: its three

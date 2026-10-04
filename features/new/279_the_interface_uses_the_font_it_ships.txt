@@ -2,7 +2,7 @@
 THE INTERFACE USES THE FONT IT SHIPS
 ================================================================================
 
-Status:    DONE, 2026-08-27. 13 tests.
+Status:    DONE 2026-08-27 — 13 tests.
 Owner:     spacr/qt/app.py, spacr/qt/preferences.py.
 Requested: 2026-08-27 -- "i have the open sans font in the application in the
            font folder so that should be used. i want everything in the

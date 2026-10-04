@@ -1,6 +1,6 @@
 THE PUBLIC SLIDE DECK IS FLAWLESS AND HIGH RESOLUTION
 
-Status: BUILT 2026-09-26; all nine translated README Back links are also
+Status: DONE 2026-09-26 (evidence 428272de8) — all nine translated README Back links are also
 updated to slide 55. Integration verified 2026-09-27; see the closing note.
 Owner: Claude agent (worktree agent-af1616c9b018f601c).
 

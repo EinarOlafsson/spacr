@@ -4,7 +4,10 @@ TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
 
 Filed as 417 on 2026-09-18; renumbered 2026-09-19 because 417 also names features/new/417_the_magnifier_round_two.txt.
 
-Status:    CLOSED 2026-09-30 by the maintainer: superseded by the live_cell
+Status:    CLOSED 2026-09-30 (maintainer: superseded by the live_cell
+           session's cellposeTIME).
+
+Previous status (superseded 2026-10-04):    CLOSED 2026-09-30 by the maintainer: superseded by the live_cell
            session's cellposeTIME (github.com/EinarOlafsson/cellposeTIME,
            private). It has one --time flag, default OFF; with the flag off
            the model is stock Cellpose. spaCR will wrap that model later.

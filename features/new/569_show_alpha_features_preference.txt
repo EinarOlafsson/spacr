@@ -1,6 +1,6 @@
 A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM THE FUTURE LIST
 
-Status: DONE 2026-09-26. Switch, one registry, gate on every surface, 426
+Status: DONE 2026-09-26 — Switch, one registry, gate on every surface, 426
         and 493 registered, registry-walk and guard tests pass.
 Owner: Claude. Standing rule recorded in features/README.md.
 

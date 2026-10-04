@@ -2,7 +2,7 @@
 FOUND, CONFIRMED, DELIBERATELY LEFT
 ================================================================================
 
-Status: COMPLETE — 2026-10-01. The two Sept27 reopened repairs are now
+Status: DONE 2026-10-01 (evidence 1da2cbc90) — The two Sept27 reopened repairs are now
         published in lessons56/73 on main; source-current public return and
         summary contracts are verified. See the final dated acceptance note.
 

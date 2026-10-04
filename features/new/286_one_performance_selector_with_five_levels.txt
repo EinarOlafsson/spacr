@@ -2,7 +2,7 @@
 ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
 ================================================================================
 
-Status:    COMPLETE — 2026-10-01. Current main publishes the exact Performance
+Status:    DONE 2026-10-01 (evidence 4044d70de) — Current main publishes the exact Performance
            scene in installer/Home lessons04/05; full media readback, decoded
            scene review, current-main playback and45 current control/setup/
            capture tests pass. Earlier bullets1–6 remain accepted. The newer

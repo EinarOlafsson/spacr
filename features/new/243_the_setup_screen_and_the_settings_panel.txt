@@ -27,7 +27,7 @@ button itself. like it works for the modules on the main screen."
 THE SETTINGS PANEL, AND THE FIGURE EXPORT
 ================================================================================
 
-Status:    DONE. The montage cap is 2,000, and it is ONE constant rather
+Status:    DONE 2026-08-26 — The montage cap is 2,000, and it is ONE constant rather
            than three kept in step: `cell_montage.MAX_OBJECTS`, which the
            panel imports for its own default rather than repeating. The
            measurement behind the number is recorded in

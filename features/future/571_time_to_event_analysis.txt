@@ -1,6 +1,6 @@
 TIME-TO-EVENT ANALYSIS: KAPLAN-MEIER AND COX FOR EGRESS, LYSIS, HOST DEATH
 
-Status: DONE (ALPHA) 2026-10-02 against the original annotated-event
+Status: DONE (alpha) 2026-10-02 — against the original annotated-event
 comparison criterion. After measuring a timelapse, Measure
 follows every tracked object to an event (track end, an annotated label, a
 measurement crossing a threshold, or a fold change) or to censoring at the

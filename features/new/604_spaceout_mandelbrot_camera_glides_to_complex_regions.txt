@@ -20,7 +20,7 @@ Done when: a test shows frame-to-frame centre/zoom deltas are bounded (no
 jumps) and that chosen targets score above a complexity threshold; rendered
 frame strips in /mnt/wd4tb/scratch/604 show a smooth glide.
 
-Status: COMPLETE — hardware GPU acceptance verified 2026-10-01
+Status: DONE 2026-10-01 (evidence ffd050854) — hardware GPU acceptance verified 2026-10-01
 
 Why it jumped (2026-09-30): three causes. (1) The "tour" path aimed the
 camera at the twenty committed region coordinates, which are ABSOLUTE

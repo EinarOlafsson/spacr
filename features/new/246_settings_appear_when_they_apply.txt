@@ -2,7 +2,7 @@
 SETTINGS APPEAR WHEN THEY APPLY, AND THE OBJECTS ARE NOT A FIXED FOUR
 ================================================================================
 
-Status:    DONE 2026-08-27. Item 1 was reopened because the count was
+Status:    DONE 2026-08-27 — Item 1 was reopened because the count was
            inert; it is not any more, and the work that fixed it is the same
            work that closed instruction 256.
 

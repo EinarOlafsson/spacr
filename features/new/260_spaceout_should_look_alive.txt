@@ -2,7 +2,7 @@
 SPACEOUT SHOULD LOOK ALIVE
 ================================================================================
 
-Status:    DONE, 2026-08-27. Both patterns ship, are wired through
+Status:    DONE 2026-08-27 — Both patterns ship, are wired through
            `install_ambient` (all three call sites), and are settable.
            92 tests. Superseded twice; the history below is kept.
            WAS: REDIRECTED 2026-08-26. The budding-and-beating build was not

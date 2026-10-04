@@ -2,7 +2,7 @@
 THE IMPORT MODULE MUST ACCEPT ANY IMAGES, IN ANY LAYOUT, FROM ANY MICROSCOPE
 ================================================================================
 
-Status:    DONE, verified 2026-09-13. spacr/foreign.py and
+Status:    DONE 2026-09-13 — verified 2026-09-13. spacr/foreign.py and
            spacr/qt/screens/foreign.py carry the module and the screen; the ten
            layouts are the BUILDERS tuple in tests/import_corpus.py
            (cellvoyager through tiled), enforced by

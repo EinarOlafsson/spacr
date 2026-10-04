@@ -1,6 +1,6 @@
 303 — The fractal settings need real controls, and real ranges
 
-Status:    DONE, verified 2026-09-15 against the code: (a) declined by the
+Status:    DONE 2026-09-15 — verified 2026-09-15 against the code: (a) declined by the
            maintainer, (b) a drag moves the camera centre and it persists,
            (c) Up/Down/wheel set the zoom rate, (d) fields uncapped and
            supersampling on the panel. See the dated sections below.

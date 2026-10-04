@@ -2,7 +2,7 @@
 THE REGRESSION TABLE SHOULD NOT NEED THE PLATE NAME IN THE FILENAME
 ================================================================================
 
-Status:    DONE, 2026-09-12; the renumber-on-move/delete remainder DONE
+Status:    DONE 2026-09-12 — the renumber-on-move/delete remainder DONE
            2026-09-25. Both constraints removed in the proposal step; the
            engine was already right and is untouched. Filed 2026-09-10.
 Requested: 2026-09-10, verbatim -- "in the regression model as it is now the

@@ -2,7 +2,7 @@
 THE AI CHAT ALWAYS SEES THE CONSOLE, INCLUDING WHAT CAME BEFORE IT
 ================================================================================
 
-Status:    DONE 2026-08-15. Plumbing built by the concurrent session
+Status:    DONE 2026-08-15 — Plumbing built by the concurrent session
            (e5739730); the three-mode dropdown it shipped was refused by the
            maintainer and replaced with one Console aware setting. See
            RESULT at the very end.

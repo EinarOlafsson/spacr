@@ -1,4 +1,4 @@
-Status:    DONE 2026-08-15. Both reproduced failures fixed; four mechanical
+Status:    DONE 2026-08-15 — Both reproduced failures fixed; four mechanical
            guards added; the permanently-skipped link test now runs in CI.
            See RESULT at the end.
 Requested: 2026-08-15 - "add to instructions, do a sweep of the docstrings

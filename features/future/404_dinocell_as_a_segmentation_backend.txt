@@ -2,7 +2,12 @@
 DINOCELL AS A SEGMENTATION BACKEND
 ================================================================================
 
-Status:    LIVE_CELL SCORECARD DONE 2026-10-02 (the trailing section of that
+Status:    BLOCKED 2026-10-02 — the PV scorecard waits on item 370's curation
+           (maintainer); Windows/macOS runs on maintainer machines. live_cell
+           scorecard DONE 2026-10-02: DINOCell stays an alpha backend,
+           cpsam_v2 stays the default, the zero-shot claim is not supported.
+
+Previous status (superseded 2026-10-04):    LIVE_CELL SCORECARD DONE 2026-10-02 (the trailing section of that
            date): DINOCell stays an ALPHA backend, cpsam_v2 stays the
            default, and the zero-shot claim is not supported on the
            live_cell hold-out. PV SCORECARD WAITS on item 370's curation

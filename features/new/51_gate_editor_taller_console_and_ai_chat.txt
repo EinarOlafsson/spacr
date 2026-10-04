@@ -2,7 +2,7 @@
 THE CONSOLE AND THE AI CHAT BOX ARE TOO SHORT
 ================================================================================
 
-Status:    done 2026-08-09. The reopen was right and my first diagnosis
+Status:    DONE 2026-08-09 — The reopen was right and my first diagnosis
            was wrong: the console was NARROW, not short.
 Requested: 2026-08-08 — "also the console and the AI chatbox should be taller ."
 

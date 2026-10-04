@@ -3,7 +3,7 @@ PROSE THAT CANNOT BE TRANSLATED IS ONLY FOUND AFTER A 65-MINUTE BUILD, AND
 THE HOUSE STYLE IS WHAT PRODUCES IT
 ================================================================================
 
-Status:    DONE 2026-09-19, AS FAR AS A SOURCE CHECK CAN REACH. All three
+Status:    DONE 2026-09-19 — AS FAR AS A SOURCE CHECK CAN REACH. All three
            items of WHAT TO DO are in the tree. (1) and (2) have been there
            since 2026-09-12: `tools/check_translatable_prose.py`, run by
            `tests/test_prose_that_reaches_a_catalog_can_be_translated.py` and

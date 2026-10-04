@@ -2,7 +2,7 @@
 THE UMAP SAYS WHETHER THE ANNOTATION WORKED
 ================================================================================
 
-Status:    DONE. The verdict, and the picture it is read off.
+Status:    DONE 2026-08-21 — The verdict, and the picture it is read off.
 Requested: 2026-08-21 -- "generate a umap, perform a hyperparamiter search
            find stucture that separates the positive and negative controlls
            and see where the annotated cells land, do they cluster with PC or

@@ -3,7 +3,7 @@ MEASURE AN ENCODER THAT WAS TRAINED ON CELLS, BECAUSE THE ONE THAT LOST WAS
 TRAINED ON PHOTOGRAPHS
 ================================================================================
 
-Status:    DONE 2026-09-15; moved from features/future/ to features/new/ on
+Status:    DONE 2026-09-15 — moved from features/future/ to features/new/ on
            2026-09-19. The question was what a cell-trained encoder scores,
            and it was measured in a harness committed as
            tools/measure_encoder_retrieval.py: gene balanced accuracy

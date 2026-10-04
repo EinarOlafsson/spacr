@@ -2,7 +2,7 @@
 TRANSLATION COVERAGE: FULL UI, DOCUMENTATION AND INSTALLER SURFACES
 ================================================================================
 
-Status:    done, 2026-08-11.
+Status:    DONE 2026-08-11
 Requested: 2026-08-08 - "the user sets the default language of the programme."
 Requested: 2026-08-10 - "there are several translations of spacr, these seem moslty to be acurate however not all text is translated such as  the tooltips , or the dockstrings. please make sure that as much text as possible is tranlated for each language. when that is complete please do one more sweep and correct any translation errory you find, or sometimes the translation may be correct but the context is wrong and there was another word that was also correct and the wrong word was origionally chosen. thanks. if possible it would be great if the API and docstrings were translated but these translations should live in seperate files and not be inserted in the functions themselvs like the english dockstrings are."
 Requested: 2026-08-10 - "pleas e also translate the github page. and have the installers available in all supported languages"

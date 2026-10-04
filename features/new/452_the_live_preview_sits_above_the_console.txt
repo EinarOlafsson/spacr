@@ -2,7 +2,7 @@
 THE LIVE PREVIEW SITS ABOVE THE CONSOLE, NOT UNDER IT
 ================================================================================
 
-Status:    FIXED 2026-09-20, the day it was reported.
+Status:    DONE 2026-09-20 (evidence 1eadae49e) — the day it was reported.
 
 Requested: 2026-09-20 -- "put the live preview above the console not below",
            then, when asked which screen: "I'm talking about the plaque

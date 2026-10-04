@@ -2,7 +2,7 @@
 MEASURE LIVE DISPLAYS OBJECTS FROM MULTIPLE CHECKED IMAGES
 ================================================================================
 
-Status: IMPLEMENTED AND VERIFIED 2026-10-01 — checked-source runtime complete; catalog/tutorial publication in N615.
+Status: DONE 2026-10-01 (evidence 25ba0c8ef) — checked-source runtime complete; catalog/tutorial publication in N615.
 Requested: 2026-10-01 — record CLAUDE.md requirements and scope the remaining work.
 Owner: Codex inventory session (tracking only).
 

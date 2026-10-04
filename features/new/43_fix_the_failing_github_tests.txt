@@ -2,7 +2,11 @@
 GET THE GITHUB ACTIONS RUNS GREEN
 ================================================================================
 
-Status:    open, 83%. 2026-10-01: current completed CI was inspected through
+Status:    OPEN 2026-10-04 — the coverage gate is red: 11 modules below the
+           90% floor and 57 below their 2026-09-15 covered-line baseline need
+           tests (see the 2026-10-04 gh-green note, 96e33781f/b73de21c9).
+
+Previous status (superseded 2026-10-04):    open, 83%. 2026-10-01: current completed CI was inspected through
            the GitHub REST API. The tutorial alpha-guard test failure is
            reproduced and repaired locally; coverage regressions and a
            completed green run on final source remain outstanding. See the

@@ -1,6 +1,6 @@
 294 — Verbose logging must be cheap before it can be the default
 
-Status:    DONE 2026-09-19. The whole application was measured with verbose
+Status:    DONE 2026-09-19 — The whole application was measured with verbose
            on against 284's budgets and it costs nothing a benchmark can see;
            the tooltip states the measured figures; DEFAULT_VERBOSE_LOGGING is
            True. The two defects the first 2026-09-19 note left open are

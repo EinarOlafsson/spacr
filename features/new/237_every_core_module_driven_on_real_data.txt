@@ -2,7 +2,7 @@
 EVERY CORE MODULE DRIVEN ON REAL DATA, AND FULLY TESTED
 ================================================================================
 
-Status:    DONE 2026-09-25 -- retired keys WARN AND MIGRATE, unknown keys
+Status:    DONE 2026-09-25 — retired keys WARN AND MIGRATE, unknown keys
            warn, CPU versions of the cheap e2e tests (closing section).
            Earlier: DONE 2026-08-27. Section P is closed and the coverage half is
            out of scope by the maintainer's own instruction: "Don't waste

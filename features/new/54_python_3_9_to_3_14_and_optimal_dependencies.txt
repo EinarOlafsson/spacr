@@ -2,7 +2,7 @@
 spaCR MUST RUN ON PYTHON 3.9 THROUGH 3.14, ON THE RIGHT DEPENDENCY VERSIONS
 ================================================================================
 
-Status:    Done. Both entries in WHAT IS LEFT are applied; "optimal" is
+Status:    DONE 2026-09-25 — Both entries in WHAT IS LEFT are applied; "optimal" is
            DEFINED and enforced, the Python range is settled, and every
            declared floor names a release that exists.
 

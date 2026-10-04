@@ -2,7 +2,7 @@
 CROP CHANNEL MAPPING: png_dims BECOMES AN EXPLICIT {r,g,b} DICT
 ================================================================================
 
-Status:    done — 2026-08-06, verified end to end
+Status:    DONE 2026-08-06 — verified end to end
 Requested: 2026-08-06 — "when the user specifies png_dims as 0,1,2 that should mean that; 0=blue, 1=green, and 2=red ... it would actually be better to change the setting so the user explicitly states what is red what is green and what is blue ... the setting would change from a list to a dict"
 
 --------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 THE VOLCANO'S RIGHT-CLICK MENU, AND FOUR FILTERS THAT CANNOT FIRE
 ================================================================================
 
-Status:    DONE. The four filters are gone, the volcano's menu carries
+Status:    DONE 2026-09-12 — The four filters are gone, the volcano's menu carries
            what was asked of it, and the three places that still said
            "aspect ratio" to a user now say which of the two quantities
            they mean. The fourth was worse than a stale name: the style

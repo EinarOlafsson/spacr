@@ -1,6 +1,6 @@
 PHOTOBLEACHING CORRECTION FOR EVERY TIMELAPSE
 
-Status: DONE (ALPHA) 2026-10-02 against the original flat-trend and
+Status: DONE (alpha) 2026-10-02 — against the original flat-trend and
         recorded-method criterion, with explicit biological limits below.
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).

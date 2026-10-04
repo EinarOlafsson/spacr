@@ -1,6 +1,6 @@
 BLIND-SCORING MODE
 
-Status: DONE AS ALPHA 2026-09-30 (see the note of that date). Annotate and
+Status: DONE (alpha) 2026-09-30 — (see the note of that date). Annotate and
 Make Masks blind and unblind with a logged key and hold no identifier on
 screen while blinded; manual counting and partial unblinding are recorded as
 out of scope.

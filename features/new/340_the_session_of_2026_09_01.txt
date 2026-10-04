@@ -2,7 +2,7 @@
 WHAT WAS ASKED FOR AND FINISHED ON 2026-09-01
 ================================================================================
 
-Status:    done, 2026-09-01.
+Status:    DONE 2026-09-01
 Requested: 2026-09-01, across one working session, as the maintainer tested a
            1.5.0.5 candidate and reported what broke.
 Owner:     the session that did it.

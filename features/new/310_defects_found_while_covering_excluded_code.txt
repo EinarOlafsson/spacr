@@ -2,7 +2,7 @@
 DEFECTS FOUND WHILE COVERING CODE THAT WAS EXCLUDED FROM COVERAGE
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-09-04 -- CLOSED BY THE MAINTAINER, AGAINST THIS FILE'S OWN LAST
            LINE."
            It was a RUNNING LIST; its successors are named in it --

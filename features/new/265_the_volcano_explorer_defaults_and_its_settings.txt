@@ -3,7 +3,7 @@ THE VOLCANO EXPLORER: PUBLICATION DEFAULTS, A RED LABEL INSTEAD OF A BLANK
 PLOT, AND SETTINGS THAT DO NOT OVERWHELM
 ================================================================================
 
-Status:    DONE, audited 2026-08-27. Every acceptance point has a named
+Status:    DONE 2026-08-27 — audited 2026-08-27. Every acceptance point has a named
            test and all 90 pass across the three explorer files.
 
            White ground, black axes, black threshold lines and black text

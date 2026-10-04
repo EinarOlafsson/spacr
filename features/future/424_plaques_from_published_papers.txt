@@ -4,7 +4,7 @@ PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
 
 Filed as 415 on 2026-09-18; renumbered 2026-09-19 because 415 also names features/new/415_the_startup_window_text_is_bright_in_dark_mode.txt.
 
-Status:    DONE 2026-09-21. A DOI, PMID, PMC id or PDF goes in through
+Status:    DONE 2026-09-21 — A DOI, PMID, PMC id or PDF goes in through
            Plaque Assay's Figure mode ("From a paper...", or
            spacr.plaque_papers.fetch_paper_to_folder / measure_plaques_from_
            papers); the figures and their legends are fetched (Europe PMC

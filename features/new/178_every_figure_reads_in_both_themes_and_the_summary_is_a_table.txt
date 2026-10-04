@@ -3,7 +3,7 @@ EVERY FIGURE READS IN BOTH THEMES, THE SUMMARY IS A TABLE, AND A SAVED FIGURE
 IS STYLED BEFORE IT IS WRITTEN
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-19, three asks in one message.
 
 --------------------------------------------------------------------------------

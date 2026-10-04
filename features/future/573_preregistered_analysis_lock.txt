@@ -1,6 +1,6 @@
 PRE-REGISTERED ANALYSIS LOCK: HASH SETTINGS AND GATES BEFORE UNBLINDING
 
-Status: COMPLETED AS ALPHA 2026-10-01 after the remaining live settings-edit
+Status: DONE (alpha) 2026-10-01 (evidence eff30b8ba) — after the remaining live settings-edit
 and Gate Editor export/timing work (see the dated notes below). Lock, re-run verification and post-hoc flags in the
 manifest, report and methods text; Gate Editor gating strategies, models
 recorded during the run, multi-pipeline locks and first-seen (post-hoc)

@@ -1,6 +1,6 @@
 484 — INTEGRATED HOST–PATHOGEN ANALYSIS AND INFERENCE
 ===================================================
-Status: DONE 2026-09-25 (parts 1-5 built 2026-09-23; part 6 skipped as the
+Status: DONE 2026-09-25 — (parts 1-5 built 2026-09-23; part 6 skipped as the
 request allows). The whole-vacuole classifier is the maintainer's model and
 stays labelled coming soon until its weights exist.
 

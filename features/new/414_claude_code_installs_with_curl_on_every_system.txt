@@ -2,7 +2,7 @@
 CLAUDE CODE INSTALLS WITH CURL ON EVERY SYSTEM, WINDOWS INCLUDED
 ================================================================================
 
-Status:    done — native Windows, macOS and Linux command acceptance verified
+Status:    DONE 2026-10-01 — native Windows, macOS and Linux command acceptance verified
            2026-10-01; scope and receipt recorded below.
 Requested: 2026-09-15, by the maintainer, in these words (item 1 of three):
            "the claud on all systems if possible code installation on windows

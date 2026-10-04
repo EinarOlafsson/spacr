@@ -1,6 +1,6 @@
 A SCALED PREVIEW NO LONGER SCALES ITS DIALOGS
 
-Status: DONE, 2026-09-25.
+Status: DONE 2026-09-25
 
 THE PROBLEM
 Item 521 found the backend install dialog's buttons 59 px tall squares when

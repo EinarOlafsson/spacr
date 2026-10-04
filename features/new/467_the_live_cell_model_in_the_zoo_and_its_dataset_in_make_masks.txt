@@ -2,7 +2,7 @@
 THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
 ================================================================================
 
-Status:    DONE 2026-09-28. Published v1 installed through the model picker;
+Status:    DONE 2026-09-28 — Published v1 installed through the model picker;
            Make Masks opened all ten public sample fields from eight sources.
            See the dated acceptance note and features/data/467_* receipts.
 

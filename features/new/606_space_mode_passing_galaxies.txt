@@ -18,7 +18,7 @@ In space mode, add galaxies that pass by along with the star dots.
 Done when: both renderers draw them (tests), and a frame sequence in
 /mnt/wd4tb/scratch/604 shows galaxies approaching, growing and passing.
 
-Status: IMPLEMENTED 2026-09-30
+Status: DONE 2026-09-30 (evidence ffd050854)
 
 Built in fractal_space.py: eight galaxy pictures (two-armed, three-armed,
 barred and flocculent spirals with bulges, dust lanes and blue knots, and

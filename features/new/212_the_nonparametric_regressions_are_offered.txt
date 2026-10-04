@@ -2,7 +2,11 @@
 THE NONPARAMETRIC REGRESSIONS ARE OFFERED
 ================================================================================
 
-Status:    closed in spaCR. The Qt panel now reads the same table, which was
+Status:    DONE 2026-08-25 — closed in spaCR; the Qt panel reads the same
+           table, and tools/build_i18n_catalogs.py now collects
+           _REGRESSION_MENU_UI_SOURCES.
+
+Previous status (superseded 2026-10-04):    closed in spaCR. The Qt panel now reads the same table, which was
            the last open half; see THE LAST HALF at the end. One line remains
            in `tools/`, named there -- the catalog builder has to collect
            `_REGRESSION_MENU_UI_SOURCES` before a regeneration can give the

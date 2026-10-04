@@ -2,7 +2,7 @@
 MAKE MASKS SHOULD CURATE A QUEUE, NOT ONE FIELD AT A TIME
 ================================================================================
 
-Status:    BUILT, 100% OF THE BRIEF, 2026-09-25: the two gaps below are
+Status:    DONE 2026-09-25 (evidence 613417c9b) — 100% OF THE BRIEF, 2026-09-25: the two gaps below are
            closed (see the 2026-09-25 note at the foot) -- Make Masks has a
            Skip control that writes `skip`, and a save with no edit leaves the
            mask file untouched. Still not used by the maintainer on a real

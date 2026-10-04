@@ -3,7 +3,12 @@ ONE MODULE PER ORGANISM: TOXOPLASMA, PLASMODIUM AND CANDIDA, EACH A PAGE OF ITS
 OWN WITH THE ASSAYS INSIDE IT
 ================================================================================
 
-Status:    OPEN. Organism pages implemented 2026-09-22; proposals decided and
+Status:    DONE (alpha) 2026-10-04 (evidence d4871be96, 5dd5a360f) — organism
+           pages 2026-09-22, proposals built 2026-09-25 (8 live, 12 Coming
+           soon), workflow-note translations 2026-09-29, alpha lesson
+           86_alpha_organism_modules 2026-10-04.
+
+Previous status (superseded 2026-10-04):    OPEN. Organism pages implemented 2026-09-22; proposals decided and
            built 2026-09-25 (8 live, 12 Coming soon); translations of the
            rewritten prose and API/tutorial integration remain.
 Owner:     implementation lane; API/tutorial/translation lane for catalogs.

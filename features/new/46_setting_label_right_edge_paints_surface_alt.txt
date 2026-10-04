@@ -2,7 +2,7 @@
 FOUR MODULES PAINT surface_alt UNDER THE RIGHT HALF OF A SETTING LABEL
 ================================================================================
 
-Status:    done 2026-08-08. It was TWO bugs wearing one test failure.
+Status:    DONE 2026-08-08 — It was TWO bugs wearing one test failure.
 Requested: found while checking whether the Walk changes broke anything.
 Severity:  visual, and in the family the maintainer has reported most --
            a container showing the wrong colour behind settings.

@@ -2,7 +2,7 @@
 ANNOTATE: LINK TO THE DATABASE BROWSER AT png_list
 ================================================================================
 
-Status:    done - 2026-08-06, commit 69a650e2
+Status:    DONE 2026-08-06 — commit 69a650e2
 Requested: 2026-08-06 — "there should also be a link to database browser in the annotation app that takes the user to the png_list table to see their annotations column"
 
 --------------------------------------------------------------------------------

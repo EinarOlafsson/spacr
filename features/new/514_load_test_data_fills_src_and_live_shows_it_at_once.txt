@@ -1,6 +1,6 @@
 LOAD TEST DATA FILLS THE SOURCE, AND LIVE SHOWS IT AT ONCE
 
-Status: DONE 2026-09-25 (filed 2026-09-25). See the dated note at the end.
+Status: DONE 2026-09-25 — (filed 2026-09-25). See the dated note at the end.
 Owner: unassigned. Related: 494 (demos retired in favour of test data),
 450/451/460 (the test-data buttons per module), 464 (every live preview can
 be refreshed).

@@ -1,6 +1,6 @@
 CELLPOSE-DINO MODELS RUN IN AN ENVIRONMENT OF THEIR OWN
 
-Status: DONE 2026-10-02 against the stated acceptance boundary. Both bioimage.io
+Status: DONE 2026-10-02 — against the stated acceptance boundary. Both bioimage.io
 Cellpose-DINO ViT-B and ViT-L completed real full-field CPU Mask runs through
 the existing isolated backend, with objects/F1/time recorded below; missing
 backend rows refuse Use and offer Install. GPU performance remains unmeasured.

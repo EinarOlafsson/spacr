@@ -3,7 +3,7 @@ SETUP.PY DECLARES EVERY DEPENDENCY THE SHIPPED CODE NEEDS, ON EVERY SUPPORTED
 OPERATING SYSTEM AND EVERY PYTHON FROM 3.9 UP
 ================================================================================
 
-Status:    DONE, 2026-08-29. Verified on nightly commit b2dd50ff.
+Status:    DONE 2026-08-29 — Verified on nightly commit b2dd50ff.
 Owner:     packaging. Filed by the coverage session; it has NOT edited setup.py,
            packaging/ or any workflow, and will not. This item is entirely the
            packaging session's to execute.

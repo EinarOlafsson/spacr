@@ -2,7 +2,7 @@
 EVERY LIVE PREVIEW HAS A REFRESH BUTTON
 ================================================================================
 
-Status:    BUILT 2026-09-21.
+Status:    DONE 2026-09-21 (evidence: dated notes, record 1eadae49e)
 
 Requested: 2026-09-21, verbatim -- "there should also be a refresh button in
            every live preview that the user can pres and if pressed it checks

@@ -2,7 +2,7 @@
 THE POSITIVE CONTROL CALIBRATES THE gRNA FRACTIONS
 ================================================================================
 
-Status:    closed, sweep included and wired end to end, and the question of
+Status:    DONE 2026-08-26 (evidence: dated notes, record 8e9bd0b84) — sweep included and wired end to end, and the question of
            whether the sequencing path should read the switch is answered in
            the last section: it should not, and it now says which question
            its own number answers. Read WHAT WAS SAID BACK before changing

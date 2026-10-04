@@ -2,7 +2,7 @@
 THE INSTALLED PACKAGE LOADS QUICKLY AND RUNS WITHIN MEASURED RESOURCE BUDGETS
 ================================================================================
 
-Status:    DONE 2026-09-02, ON THE MAINTAINER'S ACCEPTANCE.
+Status:    DONE 2026-09-02 — ON THE MAINTAINER'S ACCEPTANCE.
 
            WHAT THAT MEANS, recorded plainly so the record is not stronger
            than the evidence: the measured half of this item is done --

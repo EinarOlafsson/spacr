@@ -1,7 +1,7 @@
 336 — A SETTING'S API LINK POINTS AT THE MODULE, NOT AT WHAT READS IT
 =====================================================================
 
-Status:    DONE, shipped in 05b7301b0 ("336: link a setting to the function
+Status:    DONE 2026-09-13 — shipped in 05b7301b0 ("336: link a setting to the function
            that reads it, not to the screen"); verified 2026-09-13. This file
            carried no Status line, and WHAT THE STATE IS below still reads as
            if nothing had shipped. tools/build_setting_consumer_map.py

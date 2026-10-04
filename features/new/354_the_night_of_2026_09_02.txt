@@ -2,7 +2,7 @@
 WHAT WAS DONE ON THE NIGHT OF 2026-09-02
 ================================================================================
 
-Status:    done, 2026-09-02.
+Status:    DONE 2026-09-02
 Requested: 2026-09-01 evening -- "dont stop working untill tomorrow", with the
            standing goal "finish all items on your instructions list, and the
            additional tasks you have been given", and the constraint "be

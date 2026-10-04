@@ -2,7 +2,7 @@
 THE MODEL BOX IS TYPESET, NOT DUMPED
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-08-18 -- SHIPPED, ALL OF A TO D. Commit 24149572."
            Originally filed 2026-08-18; the header stayed on "filed" and the
            item read as unstarted until 2026-09-13.

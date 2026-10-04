@@ -2,7 +2,7 @@
 THE NOTEBOOK THAT ANSWERS WHICH TEST FITS THIS SCREEN
 ================================================================================
 
-Status:    DONE, 2026-08-27. Delivered to ~/Desktop/permutation_vs_ols/
+Status:    DONE 2026-08-27 — Delivered to ~/Desktop/permutation_vs_ols/
            screen_simulation.ipynb. Not spaCR source, but it is work that
            was asked for and it belongs on the list.
 Requested: 2026-08-26 and refined repeatedly through 2026-08-27.

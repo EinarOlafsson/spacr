@@ -2,7 +2,7 @@
 GATE EDITOR: SETTINGS THAT ACTUALLY APPLY, COLOUR-CODED GATES, MODES, CONSOLE
 ================================================================================
 
-Status:    COMPLETE 2026-08-07 (fe32c5f0, 3a2dfae9, 5c15056c, bb5c56be,
+Status:    DONE 2026-08-07 (evidence 794439be) — (fe32c5f0, 3a2dfae9, 5c15056c, bb5c56be,
            1d2f952e, f1719e46, 794439be). Header corrected 2026-08-26:
            it still said "not started" while this file's own closing
            section says all thirteen items landed, and the code agrees.

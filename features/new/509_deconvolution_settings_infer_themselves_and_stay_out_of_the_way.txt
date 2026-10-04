@@ -1,6 +1,6 @@
 DECONVOLUTION INFERS ITS OWN VALUES, AND THE ADVANCED SETTINGS COLLAPSE
 
-Status: DONE 2026-09-27, built on nightly (1d9e6f0f5, 41f0f22b2; checked 2026-09-25).
+Status: DONE 2026-09-27 — built on nightly (1d9e6f0f5, 41f0f22b2; checked 2026-09-25).
         Inference, one-click PSF and the folds are done, and since the
         second pass the Mask Live preview infers too. The nine-locale
         runtime translation tail passed on 2026-09-27.

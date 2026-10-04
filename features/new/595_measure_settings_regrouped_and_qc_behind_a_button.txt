@@ -1,6 +1,6 @@
 MEASURE SETTINGS REGROUPED, AND THE MASK QC BEHIND A BUTTON
 
-Status:    DONE 2026-09-28 (Measure only; the Mask generation parts belong
+Status:    DONE 2026-09-28 — (Measure only; the Mask generation parts belong
            to items 591/592).
 Requested: 2026-09-28, by the maintainer, verbatim:
   "for the measure modual the qc from masks seems to disrupt the location of

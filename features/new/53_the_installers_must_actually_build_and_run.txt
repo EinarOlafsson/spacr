@@ -2,7 +2,12 @@
 THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
 ================================================================================
 
-Status:    Native online installers verified; legacy frozen-bundle acceptance
+Status:    BLOCKED 2026-09-27 — the maintainer's protected macOS steps (see
+           the 2026-09-27 reconciliation). Native online installers verified;
+           macOS identity defect closed (acceptance run 37136981353,
+           e2bebcf4c).
+
+Previous status (superseded 2026-10-04):    Native online installers verified; legacy frozen-bundle acceptance
            remains OPEN. See the 2026-09-27 reconciliation.
 Requested: 2026-08-08 — "make sure to add the CPU/GPU ask and GIThub, claude, gemeni, gpt, asks during installation and making sure the installers work."
 

@@ -1,6 +1,6 @@
 COMMUNITY PLAQUE TRAINING DATA: ANNOTATE WELLS AND PLAQUES, THEN UPLOAD TO HUGGING FACE
 
-Status: DONE 2026-10-02. Filed 2026-09-25.
+Status: DONE 2026-10-02 — Filed 2026-09-25.
 Owner: 523 agent. Related: 513 (the plaque Ruler, already on nightly: the
 Ruler button in the plaque live preview's zoom row), the Model Zoo's "share a
 model" upload (spacr/qt/widgets/model_share.py, einarolafsson/user-models),

@@ -2,7 +2,7 @@
 CLASSIFY: MERGE THE CV AND ML MODULES INTO ONE
 ================================================================================
 
-Status:    done - 2026-08-06
+Status:    DONE 2026-08-06
 Requested: 2026-08-06 - "the Classify CV and ML modules should be standardized ... shared settings should be called the same things ... shared categories the same thing ... for both there should be the option to train classifiers based on annotation, metadata, and measurements ... the user can choose multiple measurements at once ... gray out metadata-based settings when annotation-based training is chosen, and vice versa ... Best would be if we could have one module called Classify"
 
 --------------------------------------------------------------------------------

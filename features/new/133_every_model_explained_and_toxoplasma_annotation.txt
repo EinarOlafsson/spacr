@@ -2,7 +2,7 @@
 EVERY MODEL EXPLAINED AND FLAGGED, AND TOXOPLASMA ANNOTATION ON EVERY EXPORT
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-17 --
 
   "all of the above should be options with explinations in the text box (the

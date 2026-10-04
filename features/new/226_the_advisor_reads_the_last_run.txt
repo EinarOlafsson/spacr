@@ -2,7 +2,7 @@
 "SETTINGS FOR MY DATA" READS THE LAST RUN, NOT ONLY THE INPUT
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "the settings for my data button should base its
            choise also of the summary data if a run has been done".
 Owner:     Regression (settings_advisor)

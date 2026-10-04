@@ -2,7 +2,7 @@
 THE MEASURE PREVIEW IGNORES THE CROP SIZE, AND ASKS FOR IT TWICE
 ================================================================================
 
-Status:    DONE 2026-09-19, the same evening. Both halves: the preview cuts
+Status:    DONE 2026-09-19 — the same evening. Both halves: the preview cuts
            at the crop size now, and there is one control instead of three.
 Requested: 2026-09-19, by the maintainer, in these words:
 

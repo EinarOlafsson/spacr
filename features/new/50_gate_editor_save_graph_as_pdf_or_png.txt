@@ -2,7 +2,7 @@
 SAVE THE GATE EDITOR'S GRAPH AS PDF OR PNG
 ================================================================================
 
-Status:    DONE 2026-09-25 -- print style decided and built; see the closing section.
+Status:    DONE 2026-09-25 — print style decided and built; see the closing section.
 Requested: 2026-08-08 — "for the gate editor. the user should be able to save the graph as a pdf or png."
 
 --------------------------------------------------------------------------------

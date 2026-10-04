@@ -2,7 +2,7 @@
 THE REGRESSION MODULE WRITES COMPLETE, TRACEABLE SUBMISSION PANEL PACKAGES
 ================================================================================
 
-Status:    done, 2026-09-02.
+Status:    DONE 2026-09-02
 Requested: 2026-09-01 -- "make sure that the regression module in spacr
            produces all of these panels"; "all graphs should be accompanied
            by a stats csv and a data csv"; and "the threshold for effect size

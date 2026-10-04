@@ -2,7 +2,7 @@
 EVERY REGRESSION DIAGNOSTIC, SAVED AND SCORED -- NOT ONLY IN THE SEARCH
 ================================================================================
 
-Status:    COMPLETE, 2026-08-20. The header said "not started" until
+Status:    DONE 2026-08-20 (evidence d81171c77) — The header said "not started" until
            2026-08-25 while five RESULT sections below it -- the last of
            them headed "115 IS COMPLETE" -- described the shipped work.
            Read the body, not this line, for what was done.

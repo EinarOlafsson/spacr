@@ -2,7 +2,7 @@
 THE ANNOTATION APP: TWO CRASHES FIRST, THEN SIX THINGS ABOUT THE VIEW
 ================================================================================
 
-Status:    DONE, audited 2026-08-27.
+Status:    DONE 2026-08-27 — audited 2026-08-27.
 
            BOTH CRASHES ARE FIXED -- commit 40a5bbab, "Both annotator
            crashes, and the view settings that were decorative". Cellpose

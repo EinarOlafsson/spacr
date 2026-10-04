@@ -2,7 +2,7 @@
 RIGHT-CLICK ANY FIGURE AND CHANGE HOW IT LOOKS, WITHOUT RE-RUNNING ANYTHING
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-15 — "i want to be able to right click on each graph and have
            access to as many settings for the graph as possible: ledgend on/off,
            grid on/off, colors, symbols, line width, line color, font size, logx,

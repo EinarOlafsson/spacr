@@ -1,6 +1,6 @@
 EVERY ENHANCEMENT AND DECONVOLUTION OPTION REACHES MASK GENERATION
 
-Status: DONE 2026-09-27; built on nightly (5c207ad71 .. 2ca9d9a60, checked
+Status: DONE (alpha) 2026-09-27 — built on nightly (5c207ad71 .. 2ca9d9a60, checked
         2026-09-25); measured on real fields the same day (last note: a
         sensible chain moves pooled F1 by -0.04 to +0.01 on four Toxo PV
         fields -- plumbing proven, no default change earned). The runtime

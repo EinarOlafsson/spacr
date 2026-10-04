@@ -2,7 +2,7 @@
 CLASSIFY (MERGED): SAY WHICH SETTINGS ARE COMPUTER VISION
 ================================================================================
 
-Status:    done - 2026-08-06
+Status:    DONE 2026-08-06
 Requested: 2026-08-06 - "for the new classify module, the settings that are specifically for computer vision need to be under a settings category that states that. this module should make it obvious to the user what they are doing, computer vision or machine learning like XGBoost"
 
 --------------------------------------------------------------------------------

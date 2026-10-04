@@ -2,7 +2,7 @@
 MAKE MASKS: CONSOLIDATE A FOLDER TREE, AND SORT IMAGES INTO CHANNELS THEN MERGE
 ================================================================================
 
-Status:    DONE 2026-09-28, on nightly (4e6d3fd42, 12c4124c1). See the notes at the end.
+Status:    DONE 2026-09-28 — on nightly (4e6d3fd42, 12c4124c1). See the notes at the end.
 Requested: 2026-09-28, by the maintainer, relayed by the session that
            dispatched this item. In summary of his request: when a folder is
            dropped in Make Masks and its images sit in subfolders, offer to

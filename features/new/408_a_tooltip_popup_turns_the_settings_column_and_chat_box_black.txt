@@ -3,7 +3,7 @@ A TOOLTIP POPUP TURNS THE SETTINGS COLUMN AND THE AI CHAT BOX BLACK UNTIL THE
 MODULE IS LEFT AND REOPENED
 ================================================================================
 
-Status:    DONE 2026-09-15 -- CONFIRMED BY THE MAINTAINER on his own display:
+Status:    DONE 2026-09-15 — CONFIRMED BY THE MAINTAINER on his own display:
            "the black box is gone, so mark that as done". Was: OPEN, PRIORITY,
            filed 2026-09-15. HALF FIXED 2026-09-15: the
            per-object table mounted by a Preferences save on a screen already

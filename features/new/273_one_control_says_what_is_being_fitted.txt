@@ -2,7 +2,7 @@
 ONE CONTROL SAYS WHAT IS BEING FITTED, AND THE PERMUTATION TESTS GENES TOO
 ================================================================================
 
-Status:    DONE 2026-08-27, all three sections.
+Status:    DONE 2026-08-27 — all three sections.
 
            1. THE OPTIONS NAME THE ANALYSIS. `level` offers "one estimate
            per guide", "one estimate per gene, its guides pooled", and both

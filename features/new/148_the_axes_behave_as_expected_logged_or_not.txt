@@ -2,7 +2,7 @@
 THE X AND Y AXES BEHAVE AS EXPECTED, LOGGED OR NOT
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "INSTRUCTION 148 IS COMPLETE: A, B and C all shipped 2026-08-18."
            Originally filed 2026-08-18; the header was never moved off
            "filed" and the item read as unstarted until 2026-09-13.

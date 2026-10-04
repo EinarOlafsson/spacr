@@ -2,7 +2,7 @@
 INSTALLER: OPT-IN LOG SHARING, ACCOUNT SIGN-IN, AND THE ISSUE TOGGLE
 ================================================================================
 
-Status:    complete 2026-08-14, re-verified 2026-09-13. All three switches are
+Status:    DONE 2026-08-14 (evidence: dated notes, record 0f13c370b) — re-verified 2026-09-13. All three switches are
            off by default in every install path: ConsentPage/ConsentPageLeave
            in packaging/online/spacr_online_installer.nsi (:31, the three
            unchecked boxes at :69-74, their values zeroed at :55-58), the same

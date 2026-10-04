@@ -1,6 +1,6 @@
 631. RAM-aware worker guard for Measure
 
-Status: IMPLEMENTED 2026-10-03 — measure_crop clamps and throttles (spacr/measure.py
+Status: DONE 2026-10-03 (evidence f853a2dba) — measure_crop clamps and throttles (spacr/measure.py
 _ram_guard_plan, _wait_for_ram, _calibrated_wave); the Measure Run button asks
 first (AppScreen._confirm_ram_guard, _RamGuardDialog, _FreeRamDialog); process
 listing and closing in spacr/resource_log.py. Setting ram_guard (default True).

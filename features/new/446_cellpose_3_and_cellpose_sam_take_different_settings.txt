@@ -3,7 +3,7 @@ CELLPOSE 3 AND CELLPOSE-SAM TAKE DIFFERENT SETTINGS, AND MASK GENERATION HANDS
 THEM THE SAME ONES
 ================================================================================
 
-Status:    DONE, 100%, closed 2026-09-25. Both defects below are fixed,
+Status:    DONE 2026-09-25 — 100%, closed 2026-09-25. Both defects below are fixed,
            tested and on nightly; the real Cellpose 3 run over item 412's ten
            fields was done 2026-09-22; the settings surface this item left
            open was built by item 503 (2c63b3695). See the trailing notes.

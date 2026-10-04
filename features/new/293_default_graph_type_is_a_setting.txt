@@ -1,6 +1,6 @@
 293 — The default graph type is a setting, and it governs every graph
 
-Status: DONE, corrected 2026-09-19: every holdout now reads the setting.
+Status: DONE 2026-09-19 — corrected 2026-09-19: every holdout now reads the setting.
         The regression QC figures through `ml._qc_graph_type` (ml.py:5148,
         called at :7347); the three pipeline-figure defaults in settings.py
         through `graph_types.mark_to_start_on` (settings.py:1173, 5771,

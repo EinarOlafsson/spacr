@@ -1,6 +1,6 @@
 289 — The setting NAME is the hover target, throughout
 
-Status:    DONE. The file's own last line has said "289 IS DONE" since the
+Status:    DONE 2026-09-15 — The file's own last line has said "289 IS DONE" since the
            re-measurement below, but the file carried no Status line at all,
            so every reader and every survey counted it open. Re-measured
            across the whole registry: 45 screens, and ZERO screens with a

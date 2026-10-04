@@ -1,6 +1,6 @@
 629. Save and load reusable annotation schemas in Graph Builder
 
-Status: DONE — implemented and validated 2026-10-01; supporting publication remains N615.
+Status: DONE 2026-10-01 — implemented and validated 2026-10-01; supporting publication remains N615.
 
 Add Save schema and Load schema to Annotate conditions. A portable JSON file
 must retain all output-column names and ordering, extraction expressions and

@@ -2,7 +2,7 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    DONE 2026-09-27: repaired gutters measured equal on live GitHub at
+Status:    DONE 2026-09-27 — repaired gutters measured equal on live GitHub at
            both desktop widths, with zero spread and full-page screenshots.
            Translation and API landing-page tails are complete.
 

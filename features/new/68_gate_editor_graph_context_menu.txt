@@ -2,7 +2,7 @@
 GATE EDITOR: RIGHT-CLICK THE GRAPH FOR EVERYTHING YOU CAN DO TO IT
 ================================================================================
 
-Status:    done 2026-08-09
+Status:    DONE 2026-08-09
 Requested: 2026-08-09 — "in gate editor right clicking on the graph should give you as many options as possible to edit the graph including to save the graph."
 
 --------------------------------------------------------------------------------

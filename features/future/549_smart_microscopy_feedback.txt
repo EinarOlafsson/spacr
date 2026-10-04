@@ -1,6 +1,6 @@
 SMART MICROSCOPY: SEND HITS BACK FOR RE-IMAGING
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27. Hidden unless Preferences -> Show
+Status: DONE (alpha) 2026-09-27 (evidence 9077dd94a) — Hidden unless Preferences -> Show
 alpha features is on (ALPHA_FEATURES[549]).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).

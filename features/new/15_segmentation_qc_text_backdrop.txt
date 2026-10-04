@@ -2,7 +2,7 @@
 SEGMENTATION QC: TEXT SITS ON AN OPAQUE BLACK BOX
 ================================================================================
 
-Status:    done - 2026-08-06, commits 39296763 and 9cebd643 (the first was aimed one level too high)
+Status:    DONE 2026-08-06 — commits 39296763 and 9cebd643 (the first was aimed one level too high)
 Requested: 2026-08-06 — "in the measure module where the segmentation QC is the text should not be on top of a black box, make sure the color behind the text is the same as the container and subject to opacity"
 
 --------------------------------------------------------------------------------

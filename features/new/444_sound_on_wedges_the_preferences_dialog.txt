@@ -2,7 +2,7 @@
 WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
 ================================================================================
 
-Status:    FIXED 2026-09-19, in the same day it was filed and reported.
+Status:    DONE 2026-09-19 (evidence 6ee1deb64) — in the same day it was filed and reported.
            REGRESSION from the same day's item 427 (the sound engine).
            Every Qt Multimedia object is on the GUI thread now and the
            audio thread renders only; the connection is paid once, on an

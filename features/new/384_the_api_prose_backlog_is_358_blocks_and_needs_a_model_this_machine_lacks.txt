@@ -7,7 +7,10 @@ content errors to zero, and the build measured at 3m45s rather than the
 80 minutes previously quoted. If you are here because "the docs job is
 red", do not re-diagnose the Sphinx half. It is done.
 
-Status:    CLOSED 2026-09-09 BY THE MAINTAINER'S DECISION. Asked with the
+Status:    CLOSED 2026-09-09 (maintainer decision: English is acceptable for
+           these API blocks).
+
+Previous status (superseded 2026-10-04):    CLOSED 2026-09-09 BY THE MAINTAINER'S DECISION. Asked with the
            corrected measurement in front of him and answered: English is
            acceptable for these blocks. They are API docstring prose, the
            README already carries the qualified claim, and 316's header has

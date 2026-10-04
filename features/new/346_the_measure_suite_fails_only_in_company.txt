@@ -2,7 +2,7 @@
 TWENTY-ONE MEASURE TESTS FAIL ONLY IN COMPANY, AND HAVE FOR AT LEAST A DAY
 ================================================================================
 
-Status:    DONE 2026-09-02. The two leaked module bindings and the cached
+Status:    DONE 2026-09-02 — The two leaked module bindings and the cached
            optional-dependency verdict were restored by their owning tests;
            the one remaining baseline failure exposed during verification was
            a real accelerator defect in the SAM generator and is fixed too.

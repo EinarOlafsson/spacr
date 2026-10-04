@@ -2,7 +2,7 @@
 HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
 ================================================================================
 
-Status:    CLOSED 2026-09-09. Built 2026-09-05 in `spacr/qt/live_zoom.py`,
+Status:    DONE 2026-09-09 (evidence 98fa9cfff) — Built 2026-09-05 in `spacr/qt/live_zoom.py`,
            and the two things PART 5 listed as "rejected, with the reason"
            are now done -- both were deferred for the same reason, and it
            was never about the gesture.

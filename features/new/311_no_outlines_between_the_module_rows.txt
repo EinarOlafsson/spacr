@@ -2,7 +2,7 @@
 NOTHING ON A SCREEN IS OUTLINED UNLESS THE OUTLINE MEANS SOMETHING
 ================================================================================
 
-Status:    DONE, 2026-08-30.
+Status:    DONE 2026-08-30
 Owner:     spacr/qt — theme and Home.
 Requested: 2026-08-29 — "on the home screen and other screens there are
            outlines of modules that are otherwise transparent like e.g. there

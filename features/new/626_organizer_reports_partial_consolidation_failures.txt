@@ -4,7 +4,7 @@ Identified 2026-10-01 while auditing the unfinished backlog. The pre-session
 N593/N600 implementations are retained; this tracks a newly identified defect
 in their integration rather than reopening those completed feature requests.
 
-Status: DONE — implemented and verified 2026-10-01.
+Status: DONE 2026-10-01 — implemented and verified 2026-10-01.
 
 OrganizeForMeasureDialog._consolidate ignores ConsolidationResult.failed,
 discards the copy log, replaces the selected source with the output folder

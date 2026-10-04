@@ -1,6 +1,9 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: DONE 2026-10-02 (alpha-gated); only external point left: native desktop focus acceptance (maintainer desktop session).
+Status: BLOCKED 2026-10-02 — native desktop focus acceptance in the
+        maintainer's desktop session. Built and alpha-gated.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: native desktop focus acceptance (maintainer desktop session).
 validated 2026-09-23; real measured 3D PSF application validated 2026-09-24;
 guide in docs/source/point_spread.rst. Optics inference guide and current
 nine-locale runtime/API coverage verified 2026-09-27. Existing Gaussian PSF

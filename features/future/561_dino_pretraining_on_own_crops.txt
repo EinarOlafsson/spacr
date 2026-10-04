@@ -1,6 +1,6 @@
 SELF-SUPERVISED PRETRAINING (DINO) ON THE USER'S OWN UNLABELLED CROPS
 
-Status: IMPLEMENTED AS ALPHA 2026-09-28
+Status: DONE (alpha) 2026-09-28 (evidence dfe642354)
 Owner: item-561 branch. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

@@ -2,7 +2,7 @@
 HOME: WITH TEXT SIZE ABOVE 100% THE SYSTEM PANEL IS DRAWN TWICE
 ================================================================================
 
-Status:    done 2026-10-01
+Status:    DONE 2026-10-01
 Requested: 2026-10-01 -- found by spacr-d7 while re-recording tutorials,
            2026-10-01: "with the Text size slider above 100%, the System
            panel is drawn twice."

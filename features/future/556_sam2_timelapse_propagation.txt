@@ -1,6 +1,6 @@
 SAM2 VIDEO PROPAGATION: SEGMENT ONCE, FOLLOW EACH OBJECT OVER FRAMES
 
-Status: DONE 2026-10-04 (alpha). IMPLEMENTED AS ALPHA 2026-09-27; DONE WHEN
+Status: DONE (alpha) 2026-10-04 — IMPLEMENTED AS ALPHA 2026-09-27; DONE WHEN
 met 2026-10-04 (SAM2, trackastra and the stitcher scored on whole CTC
 movies); daughter parent links and saving the seed dialog done 2026-10-04;
 Timeflows export N/A (Timeflows, item 426, closed and superseded by

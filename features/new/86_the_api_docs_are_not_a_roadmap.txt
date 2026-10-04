@@ -2,7 +2,7 @@
 THE API DOCS ARE NOT A ROADMAP -- REMOVE THE MODULE AUDIT, KEEP THE INSIGHTS
 ================================================================================
 
-Status:    done, 2026-08-13.
+Status:    DONE 2026-08-13
 Requested: 2026-08-12 - "in the API there is a section called Module Audit
            that seems more like a document directed at me than a API
            document. Unless this is some convention that i am unaware of

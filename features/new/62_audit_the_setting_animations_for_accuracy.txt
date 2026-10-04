@@ -2,7 +2,7 @@
 THE SETTING ANIMATIONS MUST SHOW WHAT THE SETTING ACTUALLY DOES
 ================================================================================
 
-Status:    DONE -- closed 2026-08-20, re-checked 2026-09-13. The header used
+Status:    DONE 2026-08-20 — closed 2026-08-20, re-checked 2026-09-13. The header used
            to say the 27 silent animations still had to be regenerated;
            features/62_anim_audit.json now records 86 animations with GOOD 86
            and WEAK 0, and spacr/resources/setting_animations/manifest.json and

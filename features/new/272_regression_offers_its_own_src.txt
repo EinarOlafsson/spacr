@@ -2,7 +2,7 @@
 REGRESSION OFFERS ITS OWN src, AND CREATES ONE LEVEL IF IT HAS TO
 ================================================================================
 
-Status:    DONE. Requested 2026-08-26. Supersedes item 1 of instruction
+Status:    DONE 2026-08-26 — Requested 2026-08-26. Supersedes item 1 of instruction
            271, which reported the symptom.
 
            `src` is on the regression panel, last in Input Tables, EMPTY by

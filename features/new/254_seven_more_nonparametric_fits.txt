@@ -3,7 +3,12 @@ SEVEN MORE NONPARAMETRIC FITS, AND WHAT THE SCREEN DOES WITH A FIT THAT HAS
 NO COEFFICIENT
 ================================================================================
 
-Status:    DONE, 2026-08-27. THE ENGINE WAS BUILT -- `spacr/nonparametric_fits.py`,
+Status:    DONE 2026-08-27 (evidence c411694e8) — engine
+           spacr/nonparametric_fits.py built and fully wired: the category-A
+           families in regression_type, diagnostics on the plot, the agreement
+           check in the results panel.
+
+Previous status (superseded 2026-10-04):    DONE, 2026-08-27. THE ENGINE WAS BUILT -- `spacr/nonparametric_fits.py`,
            29 tests. What is left is the WIRING: the two category-A families
            into `regression_type`, the diagnostics onto the plot, and the
            agreement check into the results panel.

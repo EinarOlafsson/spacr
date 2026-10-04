@@ -10,7 +10,7 @@ Requested 2026-10-01: In Graph Builder, create user-named columns such as
  rules assigning the same label are compatible. Existing regex, include/
  exclude and manual drag/drop annotations remain available.
 
-Status: IMPLEMENTED AND VALIDATED on nightly. Supports an ordered, reproducible multi-column recipe,
+Status: DONE 2026-10-01 (evidence: dated notes, record 51511a6be) — on nightly. Supports an ordered, reproducible multi-column recipe,
  exact whole-value matching (c1 must not select c10), per-column preview,
  conflicting-label validation, source-column protection and blank handling.
  Combination rules may use existing columns or earlier generated columns;

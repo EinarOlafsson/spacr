@@ -1,6 +1,6 @@
 500 — PLAQUE WELL DIAMETER, SCALE AND FORMATION TIME
 ===================================================
-Status: implemented; CPU and offscreen regression tests verified 2026-09-23.
+Status: DONE 2026-09-23 (evidence 5b90b6598) — CPU and offscreen regression tests verified 2026-09-23.
 
 Plaque tables retain each detected well's mean bounding-box extent in pixels
 whether or not its physical diameter is known. This is explicitly recorded as

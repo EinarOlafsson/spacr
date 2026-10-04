@@ -2,7 +2,7 @@
 PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
 ================================================================================
 
-Status:    DONE 2026-09-21; per-well Figure preview added the same day.
+Status:    DONE 2026-09-21 — per-well Figure preview added the same day.
            Run side f7803de0b, preview and switch 42e03b752;
            240 tests passed on the merged tree. Plaque mode and the preview
            segment through one function, spacr.plaque.segment_plaque_image.

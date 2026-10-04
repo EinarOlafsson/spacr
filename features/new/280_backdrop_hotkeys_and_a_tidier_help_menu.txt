@@ -2,7 +2,7 @@
 BACKDROP HOTKEYS, AND A HELP MENU WITHOUT BADGES
 ================================================================================
 
-Status:    DONE, 2026-08-27. 11 tests. ONE DEVIATION, named below.
+Status:    DONE 2026-08-27 — 11 tests. ONE DEVIATION, named below.
 Owner:     spacr/qt/app.py, spacr/qt/i18n.py.
 Requested: 2026-08-27, in two messages.
 

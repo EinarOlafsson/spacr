@@ -2,7 +2,7 @@
 MORE ORGANISM MODULES: TRYPANOSOME, LEISHMANIA, GIARDIA, VIRUS, MAMMALIAN
 ================================================================================
 
-Status:    IMPLEMENTED AS ALPHA 2026-10-03 (filed 2026-10-03).
+Status:    DONE (alpha) 2026-10-03 (evidence e86e25966) — (filed 2026-10-03).
 Requested: 2026-10-03, by the maintainer, verbatim:
 
   "Also add to future features list to add in addition to candida, toxo and

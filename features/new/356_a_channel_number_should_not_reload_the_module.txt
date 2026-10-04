@@ -2,7 +2,7 @@
 TYPING A CHANNEL NUMBER SHOULD REVEAL ITS CATEGORY, NOT RELOAD THE MODULE
 ================================================================================
 
-Status:    DONE. Case 2 done 2026-09-25 (last entry): raising
+Status:    DONE 2026-09-25 — Case 2 done 2026-09-25 (last entry): raising
            `number_of_organelles` no longer rebuilds the screen either --
            the new slots' controls are built and laid out in place, every
            existing control keeps its identity, 479-585 ms against a

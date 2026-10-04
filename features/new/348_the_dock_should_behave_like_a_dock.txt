@@ -2,7 +2,7 @@
 THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13. Part 1 closed 2026-09-02 ("HELP IS
+Status:    DONE 2026-09-13 — corrected 2026-09-13. Part 1 closed 2026-09-02 ("HELP IS
            A DOCK HEADING"), parts 2 and 3 the same day ("THE ICONS GROW AND
            MAGNIFY, THE NAMES COME OFF"). The "STILL OPEN" note at line 130
            is superseded by the section six lines below it. Originally filed

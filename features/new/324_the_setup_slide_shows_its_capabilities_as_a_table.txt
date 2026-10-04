@@ -1,7 +1,7 @@
 324 — THE SETUP SLIDE'S CAPABILITY LIST BECOMES A TABLE
 =======================================================
 
-Status:    DONE, verified 2026-09-15. The derived setup table and spacr-doctor
+Status:    DONE 2026-09-15 — verified 2026-09-15. The derived setup table and spacr-doctor
            now report the same shared capability decisions. Every capability,
            including the backdrop, is reported; diagnostic failures and
            existing device/precision details remain intact. See closure below.

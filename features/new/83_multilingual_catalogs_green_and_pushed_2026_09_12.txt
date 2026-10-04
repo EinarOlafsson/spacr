@@ -2,7 +2,7 @@
 FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
 ================================================================================
 
-Status:    DONE, confirmed 2026-09-13. Both lanes audit clean and the
+Status:    DONE 2026-09-13 — confirmed 2026-09-13. Both lanes audit clean and the
            criterion in WHAT THE STATE IS -- "all nine target locales
            must be rebuilt" -- is met. Measured with this file's own
            rule, redirecting and reading $? rather than through a pipe:

@@ -1,6 +1,6 @@
 ALPHA CATEGORIES READ AS ALPHA, AND IMAGE PREPROCESSING HOLDS THE REST
 
-Status:    IMPLEMENTED AS ALPHA 2026-09-28 (see the notes below).
+Status:    DONE (alpha) 2026-09-28 (evidence 040717f99) — (see the notes below).
 Requested: 2026-09-28, by the maintainer, verbatim:
   "we need to add untested features to the alpha flag. and the settings
   categories dont need to say alpha just make them the alpha color and add an

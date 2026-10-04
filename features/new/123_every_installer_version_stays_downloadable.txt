@@ -2,7 +2,10 @@
 EVERY INSTALLER VERSION STAYS DOWNLOADABLE, ON ONE PAGE
 ================================================================================
 
-Status:    SHIPPED, then SUPERSEDED by instruction 120 on 2026-08-19,
+Status:    CLOSED 2026-08-19 (superseded by 120, which owns this surface; the
+           page shipped first).
+
+Previous status (superseded 2026-10-04):    SHIPPED, then SUPERSEDED by instruction 120 on 2026-08-19,
            which now owns this surface. This line read "filed
            2026-08-16, not started" until 2026-08-25, contradicting
            both the built page below it and the SUPERSEDED section at

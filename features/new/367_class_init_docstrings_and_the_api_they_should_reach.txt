@@ -2,7 +2,7 @@
 CLASSES DOCUMENT THEMSELVES BUT NOT THEIR __init__, WHERE THE PARAMETERS ARE
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-09-04 - CLOSED. ALL FOUR ACCEPTANCE CHECKS VERIFIED."
            It said "measured 2026-09-02, implementation started" for nine
            days after the implementation finished.

@@ -2,7 +2,7 @@
 EVERY MODULE AT 100% TEST COVERAGE
 ================================================================================
 
-Status:    DONE IN THE MAINTAINER-DEFINED SCOPE, corrected 2026-09-13 --
+Status:    DONE 2026-09-13 — IN THE MAINTAINER-DEFINED SCOPE, corrected 2026-09-13 --
            the closing line is "This completes instruction 60 in its
            maintainer-defined scope". It previously read "not started as a
            sweep". Two modules are close; the repository is

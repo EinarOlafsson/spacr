@@ -4,7 +4,7 @@ SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
 
 Filed as 418 on 2026-09-18; renumbered 2026-09-19 because 418 also names features/new/418_mask_filters_objects_by_min_and_max_intensity.txt.
 
-Status:    DONE 2026-09-19 -- ALL THREE PARTS BUILT. Built: the sound
+Status:    DONE 2026-09-19 — ALL THREE PARTS BUILT. Built: the sound
            engine (spacr/qt/sound.py), the synthesiser and its cache
            (spacr/qt/sound_synth.py), the Sound tab in Preferences
            (spacr/qt/sound_preferences.py), the reference sound set

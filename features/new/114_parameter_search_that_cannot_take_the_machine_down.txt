@@ -2,7 +2,7 @@
 A PARAMETER SEARCH THAT CANNOT TAKE THE MACHINE DOWN
 ================================================================================
 
-Status:    done. All five points are built and the audit's last gap is
+Status:    DONE 2026-08-25 — All five points are built and the audit's last gap is
            closed; re-verified against the code, with the one thing
            still open recorded in the final section.
 Requested: 2026-08-16 — "could you modify the paramiter search so it dosnt

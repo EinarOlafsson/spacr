@@ -2,7 +2,7 @@
 A MEASUREMENTS DATABASE PER PLATE, DROPPED INTO THE INPUT TABLE
 ================================================================================
 
-Status:    CLOSED 2026-08-17. The header read "filed 2026-08-17, not
+Status:    DONE 2026-08-17 (evidence: dated notes, record 8e9bd0b84) — The header read "filed 2026-08-17, not
            started" long after the CLOSED section below was written; it
            is corrected here rather than removed, because a status line
            that disagrees with its own file is the thing that makes a

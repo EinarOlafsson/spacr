@@ -2,7 +2,7 @@
 EVERY SETTINGS WINDOW RESIZES, BOTH WAYS
 ================================================================================
 
-Status:    DONE. Requested 2026-08-26 -- "i should be able to resize all
+Status:    DONE 2026-08-26 — Requested 2026-08-26 -- "i should be able to resize all
            settings windows horizontally and verticaly".
 
            ONE PLACE, NOT THIRTY: the application-wide filter in dialogs.py

@@ -7,7 +7,7 @@ Priority:  HIGHEST. Asked for 2026-08-25: "the instructions list item
            highest possible priority." Nothing else on the list comes
            before it.
 
-Status:    DONE. Every fold has landed, none of them opens a window, and
+Status:    DONE 2026-08-26 — Every fold has landed, none of them opens a window, and
            the registry no longer holds a row for anything folded: the
            sweep of every host's FOLDED_APPS against APPS comes back
            empty. The three notes this file kept open are all closed --

@@ -2,7 +2,7 @@
 THE MONTAGE KNOWS ITS OWN RUN, AND SAYS HOW IT CHOSE
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13 -- the file carries
+Status:    DONE 2026-09-13 — corrected 2026-09-13 -- the file carries
            "2026-08-20 -- CLOSED. Every section above is marked SHIPPED."
            Originally filed 2026-08-18; the header stayed on "filed" and the
            item read as unstarted until 2026-09-13.

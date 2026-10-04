@@ -2,7 +2,7 @@
 THE CLASSES COLUMN CAN BE FILLED IN, AND THE CLASSES DEFINE THE FOLDERS
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "in the classify modual in labels and classes, the
            classes column setting cannot be filled in and therefor classes
            cannot be added. class folder names should be preplaced with

@@ -3,7 +3,7 @@ GENERATE MASKS SAYS PERCENTILE WHERE THE USER MEANS INTENSITY, AND THE LIVE
 VIEW STILL DRAWS A STRAY FIELD OVER THE PATH
 ================================================================================
 
-Status:    DONE, 2026-09-13. All six parts are built and the catalog
+Status:    DONE 2026-09-13 — All six parts are built and the catalog
            rebuild that was the last outstanding item has run in both lanes.
            THIS LINE SAID "PARTLY DONE" UNTIL 2026-09-13 while the note at
            the foot of the file had already recorded all six parts closed on

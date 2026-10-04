@@ -1,6 +1,6 @@
 CELLPOSE 3 MODELS ARE USABLE AFTER THE BACKEND IS INSTALLED
 
-Status: DONE 2026-09-27. Built, tested, real CPU and GPU runs and
+Status: DONE 2026-09-27 — Built, tested, real CPU and GPU runs and
 Measure done; pipeline_style 'v2' and the Live preview run cellpose3: models
 too (see the last note). On nightly (2c63b3695 .. 147eb1a73, checked
 2026-09-25). The nine-locale runtime catalog tail passed on 2026-09-27.

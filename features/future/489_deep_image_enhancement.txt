@@ -1,6 +1,6 @@
 489 — DEEP IMAGE ENHANCEMENT
 ===========================
-Status: DONE AS ALPHA 2026-10-01. Runtime acceptance was completed
+Status: DONE (alpha) 2026-10-01 — Runtime acceptance was completed
 2026-09-30; the remaining restoration tutorial publication is now verified
 against actual hosted bytes and five-scene desktop/mobile playback. Later
 unrelated Make Masks authoring scenes remain outside this feature's claim.

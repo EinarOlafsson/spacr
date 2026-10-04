@@ -2,7 +2,7 @@
 IMAGE UMAP AND THE GATE EDITOR TAKE MORE THAN ONE DATABASE, AND MERGE THEM
 ================================================================================
 
-Status:    CLOSED 2026-08-20, re-verified 2026-09-13. The header used to say
+Status:    DONE 2026-08-20 (evidence 628723c19) — re-verified 2026-09-13. The header used to say
            Image UMAP was NOT wired; it is -- settings_model.py:7695-7696
            builds the `DatabaseSetWidget` for app_key "umap", key "src", and
            tests/qt/test_a_dropped_folder_joins_the_source_set.py drives the

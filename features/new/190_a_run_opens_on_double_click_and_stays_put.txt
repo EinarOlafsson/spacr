@@ -2,7 +2,7 @@
 A RUN OPENS ON DOUBLE-CLICK, AND THE TAB DOES NOT MOVE ON ITS OWN
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-20 -- "for some reason clicking once on a run shows the
            results. double click should loade the results, but the user
            should have to click the results tab to go there, no auto

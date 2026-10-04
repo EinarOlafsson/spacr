@@ -1,6 +1,6 @@
 304 — Release 1.5.0.5, archived on Zenodo
 
-Status:    DONE, verified 2026-09-15 against the code and Zenodo's API: v1.5.0.7
+Status:    DONE 2026-09-15 — verified 2026-09-15 against the code and Zenodo's API: v1.5.0.7
            is archived, and CITATION.cff and README.rst cite its version and
            concept DOIs. 1.5.0.5 itself never was. See the dated sections
            below.

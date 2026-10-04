@@ -1,6 +1,6 @@
 SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
 
-Status: DONE 2026-10-02 (alpha-gated); whole-field GPU and outside-pool fields measured 2026-10-04 (see GPU ACCEPTANCE).
+Status: DONE (alpha) 2026-10-02 — whole-field GPU and outside-pool fields measured 2026-10-04 (see GPU ACCEPTANCE).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

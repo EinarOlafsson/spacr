@@ -1,6 +1,6 @@
 297 — Verbose logging is broken
 
-Status:    DONE 2026-08-28, re-checked 2026-09-13. All three points are in
+Status:    DONE 2026-08-28 — re-checked 2026-09-13. All three points are in
            the tree: `get_log_file_levels` (spacr/qt/preferences.py) ORs
            DEBUG in on read while verbose is on, `_trace_profile`
            (spacr/logging_util.py:532) wraps its body in `except

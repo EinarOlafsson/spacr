@@ -2,7 +2,7 @@
 ONE NAME FOR LOADING AND ONE FOR STREAMING, EVERYWHERE
 ================================================================================
 
-Status:    closed; the two gaps the 2026-09-14 note left open (a file
+Status:    DONE 2026-09-14 (evidence 22dd7e2f1) — the two gaps the 2026-09-14 note left open (a file
            with crop_source alone, and merged_db) closed 2026-09-25.
            Every panel that offers this choice now offers the two
            names AS A CONTROL -- including the training panel, which until

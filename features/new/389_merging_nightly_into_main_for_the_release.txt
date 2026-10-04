@@ -2,7 +2,7 @@
 MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE
 ================================================================================
 
-Status:    DONE 2026-09-10 -- merged, pushed, and the release cut from
+Status:    DONE 2026-09-10 — merged, pushed, and the release cut from
            it. See the closing note at the foot.
 
            (Previously: THE MERGE IS DONE AND UNPUSHED, 2026-09-10, in the other session's

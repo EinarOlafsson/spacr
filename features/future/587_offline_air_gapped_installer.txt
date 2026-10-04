@@ -1,6 +1,6 @@
 AN OFFLINE / AIR-GAPPED INSTALLER
 
-Status: IMPLEMENTED / ALPHA. The literal DONE WHEN is freshly verified on
+Status: DONE (alpha) 2026-10-02 (evidence 5b9a352ed) — The literal DONE WHEN is freshly verified on
 Linux CPU with networking disabled (2026-10-02). Additional backend/model
 packaging and cross-platform acceptance remain separately listed below. Packaging
 only: no GUI, settings or app entry, so there is nothing for the alpha gate to

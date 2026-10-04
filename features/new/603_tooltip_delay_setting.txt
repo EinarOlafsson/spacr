@@ -13,7 +13,11 @@ checked too.
 Done when: default 2 s; a hover shows no tooltip before the delay and does
 show one after it (Qt tests).
 
-Status: REOPENED 2026-10-01 -- the setting exists (IMPLEMENTED 2026-09-30),
+Status: DONE 2026-10-01 (evidence 4d4ead7fc) — reopened 2026-10-01 and
+        completed: AppScreen setting and category strips schedule through
+        HoverDelay and cancel on leave; implementation complete on nightly.
+
+Previous status (superseded 2026-10-04): REOPENED 2026-10-01 -- the setting exists (IMPLEMENTED 2026-09-30),
 but a 4 s delay is not honoured everywhere; see the 2026-10-01 section.
 
 What was built: a Tooltip delay slider (object name TooltipDelay, 0-10 s

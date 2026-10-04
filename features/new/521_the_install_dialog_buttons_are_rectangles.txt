@@ -1,6 +1,6 @@
 THE INSTALL DIALOG'S BUTTONS ARE RECTANGLES, AND ITS BAR SITS ON THEM
 
-Status: DONE, 2026-09-25.
+Status: DONE 2026-09-25
 
 THE REQUEST
 The maintainer, 2026-09-25, about the backend install/Reinstall dialog

@@ -1,6 +1,6 @@
 THE DECK SHOWS FOUR OBJECT CLASSES AND AN ALPHA FEATURES SLIDE
 
-Status:    done — current published artifacts verified 2026-10-01.
+Status:    DONE 2026-10-01 — current published artifacts verified 2026-10-01.
 Requested: 2026-09-28, by the maintainer, verbatim:
   "to the slide deck, the model used to detect the nuclei needs to be
   changed, or its settigs, and there should be a pathogen object detection

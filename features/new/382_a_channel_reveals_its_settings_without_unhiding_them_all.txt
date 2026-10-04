@@ -2,7 +2,7 @@
 A CHANNEL REVEALS ITS OBJECT'S SETTINGS, AND "ALL SETTINGS" STILL DOES NOT
 ================================================================================
 
-Status:    DONE 2026-09-09 in ca60be697, by the other session. It needed
+Status:    DONE 2026-09-09 — in ca60be697, by the other session. It needed
            THREE fixes, not the one this file described: the keys stop
            being dropped from the build so the rows exist to reveal; the
            first visibility pass runs synchronously at the end of the

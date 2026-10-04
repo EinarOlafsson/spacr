@@ -2,7 +2,7 @@
 A SAMPLE OF EVERY TRAINING DATASET, PICKABLE IN MAKE MASKS
 ================================================================================
 
-Status:    DONE 2026-09-27. Runtime translations cover all nine locales;
+Status:    DONE 2026-09-27 — Runtime translations cover all nine locales;
            sample wording covers variable counts and optional masks, and the
            shared plaque helper's private docstring is corrected. Historical
            live receipts and current validation are recorded below.

@@ -2,7 +2,7 @@
 THE EVALUATION SETTINGS ARE SPLIT BY CATEGORY, AND BY ML VS CV
 ================================================================================
 
-Status:    DONE 2026-09-25 -- split on the Classify panel (decision); see the closing section.
+Status:    DONE 2026-09-25 — split on the Classify panel (decision); see the closing section.
 Requested: 2026-08-21 -- "the evaluation section of classify has too many
            setting please devide them on category and machine learning vs
            computer vision and ther subcategories ther, best is if these

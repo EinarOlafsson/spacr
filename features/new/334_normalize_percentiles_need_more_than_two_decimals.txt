@@ -1,7 +1,7 @@
 334 — NORMALIZE PERCENTILES ARE CAPPED AT TWO DECIMALS
 =======================================================
 
-Status:    DONE 2026-09-13. The control the body says "was not located in
+Status:    DONE 2026-09-13 — The control the body says "was not located in
            the time available" is found, and in four places, not one:
            spacr/qt/widgets/percentile_pair.py:46 `DECIMALS = 6`, plus the
            three pairs the 2026-09-01 note does not mention --

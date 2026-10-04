@@ -1,6 +1,6 @@
 496 — STARPLAST UPDATE CHECKS AND PIP UPGRADES
 ============================================
-Status: DONE 2026-09-25 (implemented 2026-09-23; re-checked against live PyPI 2026-09-25).
+Status: DONE 2026-09-25 — (implemented 2026-09-23; re-checked against live PyPI 2026-09-25).
 Owner: implementation lane; API/translations/tutorials in documentation lane.
 
 Every Starplast open now checks the actual distribution version in its separate

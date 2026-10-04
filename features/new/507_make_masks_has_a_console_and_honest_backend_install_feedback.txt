@@ -1,6 +1,11 @@
 MAKE MASKS: A CONSOLE, AND AN INSTALL BUTTON THAT SAYS WHAT HAPPENED
 
-Status: IMPLEMENTED 2026-09-25 on branch worktree-agent-ac2b40989d7ce7223
+Status: DONE 2026-09-26 (evidence 54109b6e1) — on nightly (6f6c65618 ..
+        54109b6e1): the Make Masks console, the install button that reads the
+        backend state, live worker progress and install output, and the
+        Diameter-0 note that follows the route.
+
+Previous status (superseded 2026-10-04): IMPLEMENTED 2026-09-25 on branch worktree-agent-ac2b40989d7ce7223
         (not pushed); see the trailing note. Filed 2026-09-24.
 Owner: Claude (item-507 agent). Related: 503, 473, 423.
 

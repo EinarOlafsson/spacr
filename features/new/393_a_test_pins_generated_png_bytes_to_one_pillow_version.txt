@@ -3,7 +3,7 @@ A TEST PINS GENERATED PNG BYTES, SO THE BUILD TOOL'S VERSION IS PART OF THE
 CONTRACT AND NOTHING SAYS SO
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13. Both halves of the recommendation
+Status:    DONE 2026-09-13 — corrected 2026-09-13. Both halves of the recommendation
            below are in the tree, dated 2026-09-12 in their own docstrings:
 
              * OPTION 1, the preferred one. `tests/test_readme_presentation.py`

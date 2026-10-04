@@ -2,7 +2,7 @@
 MODULES THAT OVERLAP — ANALYSIS ONLY, NOT ACTIONED
 ================================================================================
 
-Status:   DONE — measured and delivered; re-checked 2026-09-13. The one
+Status:   DONE 2026-09-13 — measured and delivered; re-checked 2026-09-13. The one
           code change made in passing is in the tree: spacr/qt/app.py:1051
           now describes Make Masks as the mask editor, and the Train
           Cellpose text it wrongly carried is gone from spacr/. The header

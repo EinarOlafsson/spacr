@@ -2,7 +2,7 @@
 A RELATIONSHIPS TABLE, AND FILTERS BUILT ON TOP OF IT
 ================================================================================
 
-Status:    COMPLETE 2026-08-07 (f1719e46). Header corrected 2026-08-26:
+Status:    DONE 2026-08-07 (evidence f1719e46) — (f1719e46). Header corrected 2026-08-26:
            it still said "not started" while this file's own closing
            section records the work as complete. One cross-object
            defect found and fixed on 2026-08-26 -- see the last entry.

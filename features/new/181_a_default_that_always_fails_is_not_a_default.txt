@@ -2,7 +2,7 @@
 A PENALTY THAT SHRINKS EVERY COEFFICIENT TO ZERO IS NOT A DEFAULT
 ================================================================================
 
-Status:    DONE, closed 2026-09-25. Part B (the chosen alpha in the run
+Status:    DONE 2026-09-25 — closed 2026-09-25. Part B (the chosen alpha in the run
            summary) is delivered and now tested end to end: a real CV fit of
            each penalised family writes "alpha=<alpha_> (cross-validated, not
            given)" into the summary file. Originally filed 2026-08-20.

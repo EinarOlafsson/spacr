@@ -1,6 +1,6 @@
 ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
 
-Status: DONE (ALPHA) 2026-10-02 against the original hit-ranking and
+Status: DONE (alpha) 2026-10-02 — against the original hit-ranking and
         outlier-review criterion; external validation remains limited.
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 

@@ -2,7 +2,7 @@
 THE REGRESSION SETTINGS ARE ONE PAGE A USER CAN READ
 ================================================================================
 
-Status:    DONE 2026-08-26, re-verified against the tree 2026-09-13. The
+Status:    DONE 2026-08-26 — re-verified against the tree 2026-09-13. The
            maintainer's own walk through every category, all of it shipped:
            the seven regression sections in the stated order at
            spacr/qt/screens/settings_model.py:1170-1219, score_column popped

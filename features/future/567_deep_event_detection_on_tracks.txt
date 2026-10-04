@@ -1,6 +1,6 @@
 DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE (alpha) 2026-09-27 (evidence 1b7606dc7)
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

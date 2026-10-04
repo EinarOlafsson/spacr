@@ -2,7 +2,7 @@
 "COLOUR BY" TAKES MORE THAN ONE COLUMN
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "when choosing color by i should be able to choose a
            selection of options not only one".
 Owner:     Qt GUI (results panel, graph builder)

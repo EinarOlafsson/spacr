@@ -2,7 +2,7 @@
 THE IMAGE TABS PAGE INSTEAD OF SCROLLING
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "for the image tabs fit the images to fit in the
            visable part of the container, do not use scroll, use next and
            preveous page instead. and remove the cell_per_page settings. this

@@ -2,7 +2,7 @@
 SAVING A GRAPH MAKES A FOLDER, NOT A FILE
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "whenever i save a graph i want to generate a folder
            not a file. the folder should contain a pdf and a png version of
            the graph, and a csv with the data the graph is based on, and

@@ -2,7 +2,7 @@
 TIMING THAT MEASURES THE REAL PROCESS
 ================================================================================
 
-Status:    DONE, 2026-08-27. `spacr/qt/timing.py`.
+Status:    DONE 2026-08-27 — `spacr/qt/timing.py`.
 Owner:     spacr/qt/timing.py, instrumented in app.py and settings_model.py.
 Requested: 2026-08-27 -- "can you just right a really in depthe timing debug
            that generates a log of evey single thing that happens when spacr

@@ -7,7 +7,10 @@ Renumbered: filed as 450 and renumbered 453 on 2026-09-20. The work session
            apart, and a contiguous 450/451/452 block is worth more intact
            than one number is worth to this item. Announced in 325.
 
-Status:    SUPERSEDED 2026-09-29 by ramguard.service (maintainer decision; see the last note).
+Status:    CLOSED 2026-09-29 (superseded by ramguard.service, maintainer
+           decision; this user unit is not installed).
+
+Previous status (superseded 2026-10-04):    SUPERSEDED 2026-09-29 by ramguard.service (maintainer decision; see the last note).
            with it. The watchdog, its selection rules and 22 tests are on
            nightly. TWO COMMANDS ON THE MAINTAINER'S MACHINE ARE LEFT and
            they are his by choice, not by accident -- see the last section.

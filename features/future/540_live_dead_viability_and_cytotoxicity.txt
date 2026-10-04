@@ -1,6 +1,6 @@
 LIVE/DEAD VIABILITY AND HOST CYTOTOXICITY INDEX
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27. Measure calls every nucleus live
+Status: DONE (alpha) 2026-09-27 (evidence 0db7dcd86) — Measure calls every nucleus live
 or dead -- from a dead stain, a live stain, both, or nuclear morphology --
 with thresholds fitted per plate or set by hand, and reports per well
 viability, a live-cell index and a cytotoxicity index scaled to the control

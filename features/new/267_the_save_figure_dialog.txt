@@ -2,7 +2,7 @@
 THE SAVE FIGURE DIALOG: FOUR THINGS
 ================================================================================
 
-Status:    DONE. Requested 2026-08-26, from the volcano's right-click
+Status:    DONE 2026-08-26 — Requested 2026-08-26, from the volcano's right-click
            Save figure. Verified by driving the real dialog on a real
            volcano, not by reading the code.
 

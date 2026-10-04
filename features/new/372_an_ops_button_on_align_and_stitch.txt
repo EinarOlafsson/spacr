@@ -2,7 +2,7 @@
 AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
-Status:    2026-09-26: DONE. The full plate 20200202_6W-LaC024A ran to the
+Status:    DONE 2026-09-26 — The full plate 20200202_6W-LaC024A ran to the
            end: all six wells complete, plate_summary.json failed = {},
            8,017,661 objects, 2,612,758 assigned, spot library-exact rate
            0.7317. Per-well table in the 2026-09-26 notes at the end. Open

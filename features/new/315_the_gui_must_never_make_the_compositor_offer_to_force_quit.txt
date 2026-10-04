@@ -1,7 +1,7 @@
 315 THE GUI MUST NEVER MAKE THE COMPOSITOR OFFER TO FORCE-QUIT
 ============================================================
 
-Status:    DONE 2026-09-02, ON THE MAINTAINER'S ACCEPTANCE.
+Status:    DONE 2026-09-02 — ON THE MAINTAINER'S ACCEPTANCE.
 
            Parts 3a, 3b and 3c were fixed and measured here, and 3d was
            itemised into three named optimisations. What could never be

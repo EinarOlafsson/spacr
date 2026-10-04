@@ -2,7 +2,7 @@
 SPACR KEEPS ITS SETTINGS IN ONE STORE UNDER ONE NAME, AND MIGRATES THE OLD ONES
 ================================================================================
 
-Status:    DONE, 2026-08-29.
+Status:    DONE 2026-08-29
 Owner:     spacr/qt. Filed by the coverage session, which has not edited any
            file under spacr/qt/ and will not.
 Requested: 2026-08-29 -- arising from "each spacr install should have its own

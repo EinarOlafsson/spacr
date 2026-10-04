@@ -2,7 +2,7 @@
 STANDARDISE EVERY LIVE VIEW AND EVERY HYPERPARAMETER SEARCH
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13. The heading at line 91 reads
+Status:    DONE 2026-09-13 — corrected 2026-09-13. The heading at line 91 reads
            "2026-08-13 - DONE. THE FILE'S 'not started' WAS WRONG, AND THIS IS
            THE SEVENTH" -- so this file diagnosed its own stale header a month
            ago, recorded the diagnosis, and kept the header. All five steps

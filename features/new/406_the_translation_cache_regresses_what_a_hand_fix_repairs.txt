@@ -3,7 +3,7 @@ THE TRANSLATION CACHE OUTLIVES A HAND FIX, AND A PLAIN BUILD PUTS THE BAD ROW
 BACK
 ================================================================================
 
-Status:    DONE 2026-09-15. Current committed runtime rows outrank the cache;
+Status:    DONE 2026-09-15 — Current committed runtime rows outrank the cache;
            accepted API review is published verbatim; ordinary API builds
            now retain source-proven unchanged paragraphs. Historical notes
            below describe the original incidents, not remaining work.

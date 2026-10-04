@@ -2,7 +2,7 @@
 A SUGGEST BUTTON THAT LABELS THE REST
 ================================================================================
 
-Status:    COMPLETE. 379-C CLOSED 2026-09-10, AND NOT THE WAY IT WAS ASKED
+Status:    DONE 2026-09-10 (evidence a04c78970) — 379-C CLOSED 2026-09-10, AND NOT THE WAY IT WAS ASKED
            -- it needed measuring rather than building. The question was
            "should the offset scheme extend past two classes"; it already
            does. Classes 1 to 9 round-trip today, driven in

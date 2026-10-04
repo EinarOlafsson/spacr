@@ -2,7 +2,7 @@
 FINISH THE MULTILINGUAL CATALOGS AND PUSH THE VERIFIED BATCH TO NIGHTLY
 ================================================================================
 
-Status:    done, 2026-08-15.
+Status:    DONE 2026-08-15
 Requested: 2026-08-11 — "push to nightly"
            2026-08-12 — "ok please finish everything. thanks and make sure to
            save anything you learn in terms of how to make the voises sound

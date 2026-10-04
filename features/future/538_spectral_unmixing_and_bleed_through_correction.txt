@@ -1,6 +1,6 @@
 SPECTRAL UNMIXING / BLEED-THROUGH CORRECTION
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27
+Status: DONE (alpha) 2026-09-27 (evidence b5ccf4887)
 Owner: item-538-work. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

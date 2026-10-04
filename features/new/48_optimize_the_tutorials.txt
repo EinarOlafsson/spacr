@@ -2,7 +2,7 @@
 OPTIMIZE THE spaCR TUTORIALS
 ================================================================================
 
-Status:    done, 2026-08-15.
+Status:    DONE 2026-08-15
 Requested: 2026-08-08 — "ok your task is to optimize the tutorials, do you see how they are setup?"
            2026-08-08 — "great. now we need to audit these lessons one at a time.
 

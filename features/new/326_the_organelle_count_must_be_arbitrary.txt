@@ -1,7 +1,7 @@
 326 — THE ORGANELLE COUNT MUST BE ARBITRARY
 ============================================
 
-Status:    COMPLETE 2026-09-04, re-verified 2026-09-13. The ceiling is gone:
+Status:    DONE 2026-09-04 (evidence d66c91e44) — re-verified 2026-09-13. The ceiling is gone:
            `MAX_ORGANELLES = 702` (spacr/organelle_types.py:433) and
            `schema.ORGANELLE_ROLES` is generated from the same carried-letter
            rule at the same ceiling (`_MAX_ORGANELLES = 702`,

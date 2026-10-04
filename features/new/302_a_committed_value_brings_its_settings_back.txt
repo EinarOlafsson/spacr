@@ -1,6 +1,6 @@
 302 — A committed value brings its settings back
 
-Status:    DONE 2026-08-28, re-verified 2026-09-13. The reveal works:
+Status:    DONE 2026-08-28 — re-verified 2026-09-13. The reveal works:
            `AppScreen.values_the_next_screen_is_built_for`
            (spacr/qt/screens/app_screen.py:2366) carries the committed values
            into the rebuilt screen and is set and cleared by

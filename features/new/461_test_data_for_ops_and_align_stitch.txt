@@ -2,7 +2,7 @@
 TEST DATA FOR OPS AND FOR ALIGN & STITCH, FROM THE PUBLISHED OPS SCREEN
 ================================================================================
 
-Status:    DONE, re-verified 2026-09-25 against the published sets (live
+Status:    DONE 2026-09-25 — re-verified 2026-09-25 against the published sets (live
            download); every runtime string is in all eight locales since
            the hi/is catch-up that landed on nightly the same evening.
            BUILT AND PUBLISHED 2026-09-21. The maintainer approved rehosting

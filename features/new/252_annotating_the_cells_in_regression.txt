@@ -2,7 +2,7 @@
 THE CELL TAB OFFERS THE BEST WAYS TO ANNOTATE, NOT ONLY THE OBVIOUS ONE
 ================================================================================
 
-Status:    DONE, audited 2026-08-27 against the built panel.
+Status:    DONE 2026-08-27 — audited 2026-08-27 against the built panel.
 
            THE STRATEGIES ARE A NAMED CHOICE, each saying what it is for and
            what it costs rather than naming a mechanism:

@@ -2,7 +2,7 @@
 WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
 ================================================================================
 
-Status:    DONE 2026-09-19. The five numbered tasks were built by
+Status:    DONE 2026-09-19 — The five numbered tasks were built by
            2026-09-13, reachable from the screen by 2026-09-15, and the two
            EXTRAS this file records outside the numbered list -- the
            five-parameter logistic and hormesis detection -- landed on

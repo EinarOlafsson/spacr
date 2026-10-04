@@ -2,7 +2,7 @@
 THE API HOMEPAGE MUST SHOW THE MODULE STRUCTURE THE REST OF spaCR SHOWS
 ================================================================================
 
-Status:    DONE, corrected 2026-09-13. This said "not started"; the whole
+Status:    DONE 2026-09-13 — corrected 2026-09-13. This said "not started"; the whole
            diff landed in commit ec4bc55dd (README.rst, docs/source/index.rst,
            the autoapi index template, two generated blocks,
            generate_readme_visuals.py and its test), under a message about

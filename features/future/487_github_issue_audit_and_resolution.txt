@@ -1,6 +1,9 @@
 487 — GITHUB ISSUE AUDIT AND RESOLUTION
 ======================================
-Status: RELEASE ISSUE AUDIT COMPLETE; zero open GitHub issues as of2026-09-24.
+Status: CLOSED 2026-10-01 (audit complete, nothing to build: zero open GitHub
+        issues; #134 closed after its fix reached main, 4e47fd87f, d4f89627d).
+
+Previous status (superseded 2026-10-04): RELEASE ISSUE AUDIT COMPLETE; zero open GitHub issues as of2026-09-24.
 All103issue bodies and discussions in the2026-09-23snapshot have been read;
 verified fixes and acceptance limitations are recorded below.
 131was closed externally at2026-09-24T02:07:17Z. Its closure is not evidence

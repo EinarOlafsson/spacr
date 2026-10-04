@@ -10,7 +10,7 @@ save/load and exports, and report invalid patterns or conflicting membership
 without silently overwriting input data. Sorting/filtering must preserve row
 identity, including duplicate indices.
 
-Status: IMPLEMENTED AND VALIDATED on nightly. Supporting catalogue and
+Status: DONE 2026-10-01 (evidence: dated notes, record 55db30be6) — on nightly. Supporting catalogue and
 tutorial publication is tracked with N615.
 Shared chart rendering crash is tracked separately in 621.
 

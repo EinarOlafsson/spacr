@@ -1,6 +1,6 @@
 OMNIPOSE AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: DONE for the stated 2-D CPU acceptance on 2026-10-02; remains alpha.
+Status: DONE (alpha) 2026-10-02 — for the stated 2-D CPU acceptance on 2026-10-02; remains alpha.
 Installed for real, segments Omnipose's bacteria fields through Mask generation
 and Make Masks, and is scored against Cellpose 3. No GPU. The noncommercial
 licence is presented before install.

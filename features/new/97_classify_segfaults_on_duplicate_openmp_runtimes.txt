@@ -2,7 +2,7 @@
 CLASSIFY SEGFAULTS IN libomp: THREE OpenMP RUNTIMES IN ONE PROCESS
 ================================================================================
 
-Status:    done — confirmed by the maintainer on 2026-08-14: the guard's
+Status:    DONE 2026-08-14 — confirmed by the maintainer on 2026-08-14: the guard's
            messages appeared and the run got roughly twice as far, past the
            OpenMP fault entirely. Classify then hit a SECOND, unrelated bug
            (instruction 98, worker-thread stack size); with both fixed the run

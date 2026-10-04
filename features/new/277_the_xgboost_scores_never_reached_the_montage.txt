@@ -2,7 +2,7 @@
 XGBOOST SCORES NEVER REACHED THE MONTAGE
 ================================================================================
 
-Status:    DONE, 2026-08-27. Verified on the real tsg101 screen: all four
+Status:    DONE 2026-08-27 — Verified on the real tsg101 screen: all four
            plates now join 100% of their score rows -- 204,610 objects that
            matched zero before.
 Owner:     spacr/predictions.py.

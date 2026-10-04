@@ -1,7 +1,7 @@
 321 — THE API AND README STILL SHOW THE OLD MODULE STRUCTURE
 ============================================================
 
-Status: DONE, confirmed 2026-09-13 -- satisfied by the generated-grid work
+Status: DONE 2026-09-13 — confirmed 2026-09-13 -- satisfied by the generated-grid work
         rather than by an edit made from this file. README.rst carries zero
         `App_` badges; the grid is generated as |Module_*| between
         README.rst:300 and :445 and repeated in the nine

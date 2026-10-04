@@ -2,7 +2,7 @@
 GATE EDITOR: A REDESIGN, NOT A CHANGE
 ================================================================================
 
-Status:    DONE. Every item of the request is built and covered, the last
+Status:    DONE 2026-08-26 — Every item of the request is built and covered, the last
            of them being the right-click-on-the-axis gesture and the
            per-axis cutoffs behind it.
 Requested: 2026-08-06, verbatim:

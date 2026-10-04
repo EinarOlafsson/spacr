@@ -1,6 +1,6 @@
 LOCK THE MAGNIFIER REGION AND ZOOM
 
-Status: IMPLEMENTED — validated 2026-09-22; see verification notes below.
+Status: DONE 2026-09-22 (evidence 9733f50f7) — validated 2026-09-22; see verification notes below.
 Owner: implementation; API/settings descriptions and translations coordinated with the documentation lane.
 
 REQUEST

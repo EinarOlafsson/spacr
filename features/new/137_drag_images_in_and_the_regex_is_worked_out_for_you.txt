@@ -2,7 +2,7 @@
 DRAG IMAGES IN, AND THE REGEX IS WORKED OUT FOR YOU
 ================================================================================
 
-Status:    DONE 2026-08-20. See the closing section.
+Status:    DONE 2026-08-20 — See the closing section.
 Requested: 2026-08-18 --
 
   "for the import data modulation the user should be able to drag and drop

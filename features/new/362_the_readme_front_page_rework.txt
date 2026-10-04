@@ -2,7 +2,7 @@
 THE README FRONT PAGE: ONE MODULE GRID, A MODEL ZOO, AND ONE DOWNLOAD COMMAND
 ================================================================================
 
-Status:    DONE 2026-09-02, all three parts. Part 3 verified against this
+Status:    DONE 2026-09-02 — all three parts. Part 3 verified against this
            file's own four criteria rather than by inspection:
 
              `spacr-download --help`   exit 0 in 0.1 s, no display, and torch

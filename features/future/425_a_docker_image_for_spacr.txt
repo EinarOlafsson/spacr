@@ -4,7 +4,7 @@ A DOCKER IMAGE FOR spaCR
 
 Filed as 416 on 2026-09-18; renumbered 2026-09-19 because 416 also names features/new/416_an_update_removes_every_older_spacr_first.txt.
 
-Status:    DONE 2026-09-26. Built, published, and GPU execution proven:
+Status:    DONE 2026-09-26 — Built, published, and GPU execution proven:
            the published ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4
            (manifest sha256:2863e27d...) ran a real Cellpose-SAM mask
            generation on an RTX 3090 through `--gpus all`, 45x faster warm

@@ -1,7 +1,7 @@
 323 — THE README NEEDS A TABLE OF WHAT EACH HARDWARE CONFIGURATION CAN DO
 =========================================================================
 
-Status:    CLOSED, verified 2026-09-14. The table exists, it is GENERATED
+Status:    DONE 2026-09-14 (evidence d6d7397f6) — verified 2026-09-14. The table exists, it is GENERATED
            rather than typed, and it is checked against the resolver that
            decides the answers at run time.
              * README.rst:73-113, between `.. spacr-hardware-begin` and

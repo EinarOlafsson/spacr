@@ -2,7 +2,7 @@
 ANCHOR EVERY CHANNEL PROMPT TO COLOUR, NOT LIST POSITION
 ================================================================================
 
-Status:    done - 2026-08-06, survey complete; png_dims was the only one
+Status:    DONE 2026-08-06 — survey complete; png_dims was the only one
 Requested: 2026-08-06 - "whenever the user is prompted for the channels anchor the prompt to the colors not position. this would be always asking the user for a dict where they specify what is red green and blue. this way it does not matter what order the color channels are in the file (although it would be good keep this constant) because the user will always specify where the colors are."
 
 --------------------------------------------------------------------------------

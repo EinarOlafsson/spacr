@@ -2,7 +2,7 @@
 FIX AND CLOSE EVERY GITHUB ISSUE
 ================================================================================
 
-Status:    done, 2026-09-02.
+Status:    DONE 2026-09-02
 Requested: 2026-09-02 -- "also now add to your instructions list to fix and
            close all github issues"
 Owner:     unassigned; whoever is running the session.

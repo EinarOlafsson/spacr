@@ -1,4 +1,4 @@
-Status:    FIXED 2026-09-14. `tests/conftest.py` carries an autouse fixture
+Status:    DONE 2026-09-14 (evidence 324524948) — `tests/conftest.py` carries an autouse fixture
            that hands the next test the collector this one was given, and
            `tests/flowview_trace_state.py` holds the snapshot/restore pair.
            tests/flowview/ goes 150 passed + 7 errors -> 171 passed, and

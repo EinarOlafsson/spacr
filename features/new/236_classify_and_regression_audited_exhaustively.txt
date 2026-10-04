@@ -2,7 +2,7 @@
 CLASSIFY AND REGRESSION, AUDITED EXHAUSTIVELY AGAINST A REAL SCREEN
 ================================================================================
 
-Status:    DONE. Requested 2026-08-22, verified 2026-08-23. The AMP path,
+Status:    DONE 2026-08-22 — Requested 2026-08-22, verified 2026-08-23. The AMP path,
            the one torch path never exercised, was driven on the GPU
            2026-09-25 (last entry).
 

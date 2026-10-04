@@ -2,7 +2,7 @@
 THE SETTINGS NOTHING READS, AND THE NUMBERS THAT COME OUT WRONG
 ================================================================================
 
-Status:    CLOSED 2026-08-12 -- all 24 findings accounted for; see the
+Status:    DONE 2026-08-12 (evidence c41a5f68) — all 24 findings accounted for; see the
            closing section. The header used to read "not started, 2026-08-11
            ... NONE of the fixes below are written yet", which was true the
            day it was written and has been false since, and this file is long

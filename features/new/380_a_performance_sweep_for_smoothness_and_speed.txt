@@ -2,7 +2,12 @@
 A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
 ================================================================================
 
-Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09; THE THEME
+Status:    DONE 2026-10-04 (evidence f984db2f1) — harness calibrated
+           2026-09-09, theme defect fixed 2026-09-11; area 3 met on hosted
+           macOS/Windows/Linux runners (every interval under 500 ms). A real
+           display/compositor and lower-end hardware are not measured.
+
+Previous status (superseded 2026-10-04):    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09; THE THEME
            DEFECT IT NAMED IS FIXED, 2026-09-11. Two of the five areas
            were already covered by tooling nobody had connected to this
            item; the two the request judges "smoothness" by were not, and

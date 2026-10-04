@@ -2,7 +2,7 @@
 MAKE THE API PAGE LOOK PROFESSIONAL, CLEAN AND USEFUL
 ================================================================================
 
-Status:    DONE 2026-09-19, AND SHOWN ON THE PUBLISHED PAGES. The build was
+Status:    DONE 2026-09-19 — AND SHOWN ON THE PUBLISHED PAGES. The build was
            run twice that day and the last trailing note has both: the first
            one found one leak the source detector could see and the earlier
            scan could not, in a docstring 420 had landed hours before; the

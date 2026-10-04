@@ -1,6 +1,6 @@
 290 — Tooltips read as paragraphs, and Preferences shows them in its own strip
 
-Status:    DONE, verified against the tree 2026-09-13. This file carried no
+Status:    DONE 2026-09-13 — verified against the tree 2026-09-13. This file carried no
            Status header and nothing in it claimed any of a-e was built; all
            five are. (a) hover_tooltip.py:459 and hint_bar.py:61 set
            Qt.AlignJustify. (b, c) preferences.py:6041-6050 builds the HintBar

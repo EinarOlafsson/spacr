@@ -2,7 +2,7 @@
 PR #74 -- LET A PROJECT CHOOSE WHICH STAIN RENDERS IN WHICH COLOUR
 ================================================================================
 
-Status:    done, 2026-08-13.
+Status:    DONE 2026-08-13
 Requested: 2026-08-12 - "there is one extra issue in github issues"
 
 --------------------------------------------------------------------------------

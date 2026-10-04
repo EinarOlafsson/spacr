@@ -2,7 +2,7 @@
 THE XFAIL BACKLOG IS FIFTEEN UNFIXED BUGS THE LEDGER CANNOT SEE
 ================================================================================
 
-Status:    DONE 2026-09-19. NO XFAIL MARKER IS LEFT UNDER tests/. The
+Status:    DONE 2026-09-19 — NO XFAIL MARKER IS LEFT UNDER tests/. The
            original fifteen were fixed by 2026-08-16 (RESULT 2026-08-16). The
            second backlog of nine (RE-AUDIT 2026-08-25) was closed by
            2026-09-14. Of the two markers that re-audit never counted, the

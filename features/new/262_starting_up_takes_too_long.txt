@@ -2,7 +2,7 @@
 STARTING UP TAKES TOO LONG
 ================================================================================
 
-Status:    DONE 2026-08-27, measured the same way this file measured it.
+Status:    DONE 2026-08-27 — measured the same way this file measured it.
 
                Mask screen build   2.73 s  ->  0.604 s   (4.5x)
                per row             1.78 ms ->  0.39 ms   (1,538 rows)

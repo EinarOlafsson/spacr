@@ -1,7 +1,7 @@
 331 — WHAT MUST BE TRUE BEFORE THE VERSION UPDATE
 =================================================
 
-Status:    DONE, corrected 2026-09-19. The update this checklist gated has
+Status:    DONE 2026-09-19 — corrected 2026-09-19. The update this checklist gated has
            shipped four times: 1.5.0.5 and 1.5.0.6 on 2026-09-10, 1.5.0.7 on
            2026-09-12 and 1.5.0.8 on 2026-09-16. The maintainer took it off
            the list on 2026-09-08 (the note at the foot). It was a view over

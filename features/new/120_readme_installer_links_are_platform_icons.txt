@@ -2,7 +2,7 @@
 THE README'S INSTALLER LINKS ARE PLATFORM ICONS, IN WHITE LINE ART
 ================================================================================
 
-Status:    completed 2026-08-19; re-verified 2026-09-13 -- all four assets in
+Status:    DONE 2026-08-19 (evidence: dated notes, record 0f13c370b) — re-verified 2026-09-13 -- all four assets in
            spacr/resources/icons/platforms/ exist and README.rst:128-143 wires
            them repository-relative, with docs/source/installers.rst as the
            legacy target. Two details in the RESULT sections below have drifted

@@ -2,7 +2,7 @@
 ANNOTATE: ONE SUGGEST ROUND NEVER FINISHES ON THE SMALL EXAMPLE SET
 ================================================================================
 
-Status:    done 2026-10-01
+Status:    DONE 2026-10-01
 Requested: 2026-10-01 -- from the tutorial-recording session: "in Annotate,
            one Suggest round (512) ran for more than 4 hours on CPU without
            finishing, on the tutorial's small example set."

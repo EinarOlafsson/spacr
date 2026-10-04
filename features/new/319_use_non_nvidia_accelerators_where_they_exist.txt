@@ -1,7 +1,7 @@
 319 — USE NON-NVIDIA ACCELERATORS WHERE THEY EXIST, AND SAY SO IN SETUP
 ======================================================================
 
-Status: DONE 2026-09-01, re-verified 2026-09-13. One resolver answers the
+Status: DONE 2026-09-01 — re-verified 2026-09-13. One resolver answers the
         three questions separately: spacr/accelerator.py KINDS:62,
         resolve:384, is_gpu:501, is_cuda:510, capabilities:682, _directml:329,
         with PYTORCH_ENABLE_MPS_FALLBACK set before torch is imported

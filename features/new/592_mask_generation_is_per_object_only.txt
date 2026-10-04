@@ -1,6 +1,6 @@
 MASK GENERATION IS PER-OBJECT ONLY
 
-Status:    DONE 2026-09-28 (see the note below). Not an alpha feature: it
+Status:    DONE 2026-09-28 — (see the note below). Not an alpha feature: it
            reshapes existing settings and adds none.
 Requested: 2026-09-28, by the maintainer, verbatim:
   "in mask generation, please make per object settings the default and only

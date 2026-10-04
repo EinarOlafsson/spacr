@@ -2,7 +2,7 @@
 INVERT DOES NOT INVERT, AND OTSU NEEDS MORE OPTIONS
 ================================================================================
 
-Status:    done 2026-09-20, on nightly, branch home/435-invert-otsu-build
+Status:    DONE 2026-09-20 — on nightly, branch home/435-invert-otsu-build
            cut from nightly 82d9b5f6f. Both halves are in: Invert is an
            intensity inversion of the displayed image, and the Otsu category
            holds multi-level Otsu, a local window and a histogram preview on

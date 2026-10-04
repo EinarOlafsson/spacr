@@ -2,7 +2,7 @@
 A SIMPLE DOCK: AN ICON, A NAME, AND A CATEGORY HEADING
 ================================================================================
 
-Status:    COMPLETE 2026-09-03, commit 21a280731. Filed after the fact, which
+Status:    DONE 2026-09-03 (evidence: dated notes, record 8e9bd0b84) — commit 21a280731. Filed after the fact, which
            is against this repository's own rule that a feature is filed
            before it is coded. Recorded rather than quietly skipped: the rule
            exists so the request survives in the maintainer's words, and that

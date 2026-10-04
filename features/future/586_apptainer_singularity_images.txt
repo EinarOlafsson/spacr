@@ -1,6 +1,10 @@
 APPTAINER / SINGULARITY IMAGES FOR HPC CLUSTERS
 
-Status: DONE 2026-10-02 (alpha-gated); only external points left: workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster). --nv Mask+Measure passed 2026-10-04.
+Status: BLOCKED 2026-10-04 — maintainer workflow adoption and GHCR visibility;
+        a cluster for SingularityCE and Slurm. Built and alpha-gated; --nv
+        Mask+Measure passed 2026-10-04.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external points left: workflow adoption and GHCR visibility (maintainer), SingularityCE and Slurm (a cluster). --nv Mask+Measure passed 2026-10-04.
         alpha registry does not apply). Built and CPU-proven; --nv run pending.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 

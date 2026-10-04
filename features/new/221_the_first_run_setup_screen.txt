@@ -2,7 +2,7 @@
 THE FIRST RUN ASKS, INSTEAD OF THE INSTALLER
 ================================================================================
 
-Status:    DONE 2026-08-21.
+Status:    DONE 2026-08-21
 Requested: 2026-08-21 -- "instead of having options in the installers like i
            have asked for preveously. instead the first time spacr is run
            have the user be prompted with a setup screen ... i basically want

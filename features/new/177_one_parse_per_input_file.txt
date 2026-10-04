@@ -2,7 +2,7 @@
 ONE PARSE PER INPUT FILE, NOT ONE PER PAIR ROW
 ================================================================================
 
-Status:    DONE, re-verified against the tree 2026-09-13. The reader, the
+Status:    DONE 2026-09-13 — re-verified against the tree 2026-09-13. The reader, the
            intermediate, the silence AND the last producer -- the Measurements
            panel -- all go through the handoff; nothing writes a CSV that
            nothing reads back. spacr/frame_handoff.py holds hold:80, held:99,

@@ -2,7 +2,7 @@
 IMAGE UMAP: FIGURE SETTINGS SHOULD CARRY THE UMAP DISPLAY SETTINGS
 ================================================================================
 
-Status:    done - the one display window ships in spacr/qt/widgets/umap_explorer.py
+Status:    DONE 2026-08-06 — the one display window ships in spacr/qt/widgets/umap_explorer.py
            (live half + deferred half) and the non-live figure's equivalent in
            umap_figure_settings.py
 Requested: 2026-08-06 - "in Image UMAP, in figure settings, i should also see all the relevant Image UMAP display settings and be able to propagate them to UMAP display. these settings should also live apply to the current image UMAP figure."

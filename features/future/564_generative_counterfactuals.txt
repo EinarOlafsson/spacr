@@ -1,6 +1,6 @@
 GENERATIVE COUNTERFACTUALS: MORPH A CONTROL CELL TOWARD A HIT PHENOTYPE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-28.
+Status: DONE (alpha) 2026-09-28 (evidence e3d185ee9)
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

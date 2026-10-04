@@ -1,6 +1,10 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
+Status: OPEN 2026-10-02 — vendor acquisition completion, unsupported series,
+        pooled normalisation and the classify/live plate view remain. First
+        version built as alpha 2026-09-26; mask recipe snapshot 2026-10-02.
+
+Previous status (superseded 2026-10-04): ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
 Preferences -> Show alpha features is on (ALPHA_FEATURES[548]).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).

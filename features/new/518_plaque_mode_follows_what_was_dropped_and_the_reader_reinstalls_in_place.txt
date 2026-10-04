@@ -1,6 +1,6 @@
 PLAQUE ASSAY: THE FIGURE READER REINSTALLS IN PLACE, AND THE MODE FOLLOWS WHAT WAS DROPPED
 
-Status: DONE 2026-09-25 -- built and verified on this machine; the
+Status: DONE 2026-09-25 — built and verified on this machine; the
 maintainer to confirm in his own session. Filed 2026-09-25.
 Owner: Claude. Related: 468 (plaque and figure modes), 469 (the figure
 reader in its own environment), 517 (dropping files and PDFs), 507 (an

@@ -2,7 +2,7 @@
 FIGURES ON A GRID, AT THEIR OWN ASPECT, NOT STRETCHED
 ================================================================================
 
-Status:    done - 2026-08-17. See the CLOSED section at the foot of this
+Status:    DONE 2026-08-17 — See the CLOSED section at the foot of this
            file; the header had been left at its original value.
 Requested: 2026-08-16 — "it would also be great if we could overhaul the
            figure showing mechanism to show the figures on a grid and not

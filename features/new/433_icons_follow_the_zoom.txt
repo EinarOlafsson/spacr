@@ -2,7 +2,7 @@
 THE ICONS FOLLOW THE ZOOM
 ================================================================================
 
-Status:    done 2026-09-19, on nightly. Every icon spaCR draws is now sized
+Status:    DONE 2026-09-19 — on nightly. Every icon spaCR draws is now sized
            from a BASE recorded on the widget and re-derived whenever the
            interface scale moves, so the marks go where the text goes. The
            work rides in the SETTLE half of the gesture (inside

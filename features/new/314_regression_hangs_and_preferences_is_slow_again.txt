@@ -2,7 +2,10 @@
 THE REGRESSION MODULE HANGS, AND PREFERENCES IS SLOW AGAIN
 ================================================================================
 
-Status:    CLOSED 2026-09-04 BY THE MAINTAINER -- the symptom is gone. Filed
+Status:    CLOSED 2026-09-04 (maintainer: the symptom is gone; never
+           reproduced).
+
+Previous status (superseded 2026-10-04):    CLOSED 2026-09-04 BY THE MAINTAINER -- the symptom is gone. Filed
            2026-08-29 as a REGRESSION against a CLOSED instruction; never
            reproduced on the machine that saw it, and never fixed. The
            closing note at the end of this file is the current state.

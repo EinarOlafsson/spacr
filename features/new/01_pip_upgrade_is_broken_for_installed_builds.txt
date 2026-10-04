@@ -2,7 +2,7 @@
 THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
 ================================================================================
 
-Status:   DONE 2026-09-10, publication confirmed 2026-09-13: PyPI carries
+Status:   DONE 2026-09-10 — publication confirmed 2026-09-13: PyPI carries
           spacr 1.5.0.5 (uploaded 2026-09-10) and GitHub release v1.5.0.5
           carries all three online installers plus the wheel, the sdist and
           SHA256SUMS.txt. The code half holds too -- the Windows-first `uv.exe`

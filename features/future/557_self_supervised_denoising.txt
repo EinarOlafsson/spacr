@@ -1,6 +1,11 @@
 SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27; done-when NOT met (GPU rounds 2026-09-30 and CPU round 4 2026-10-04: neither N2V, Cellpose 3 restoration nor non-local means raises F1 reliably over raw images)
+Status: BLOCKED 2026-10-04 — a second real low-light data set to tell whether
+        the Huh7 NLM/N2V gains hold. Implemented as alpha 2026-09-27; done-
+        when not met (GPU rounds 2026-09-30, CPU round 4 2026-10-04: no
+        denoiser raises F1 reliably), so none is a default.
+
+Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-09-27; done-when NOT met (GPU rounds 2026-09-30 and CPU round 4 2026-10-04: neither N2V, Cellpose 3 restoration nor non-local means raises F1 reliably over raw images)
 Owner: item-557-work. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

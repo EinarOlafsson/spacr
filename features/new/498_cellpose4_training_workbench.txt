@@ -1,6 +1,6 @@
 498 — CELLPOSE 4 TRAINING WORKBENCH
 ===================================
-Status: DONE 2026-10-02; actual CPU fine-tune, checkpoint reload and held-out
+Status: DONE 2026-10-02 — actual CPU fine-tune, checkpoint reload and held-out
 inference passed. This is workflow acceptance, not a model-accuracy claim.
 Owner: implementation lane; API/translations/tutorials in Codex lane.
 

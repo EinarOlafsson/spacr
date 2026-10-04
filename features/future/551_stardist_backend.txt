@@ -1,6 +1,6 @@
 STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: COMPLETE 2026-10-02 (CPU acceptance); GPU 2D+3D acceptance passed 2026-10-04; remains alpha-gated.
+Status: DONE (alpha) 2026-10-02 (evidence 86fcc7a14) — (CPU acceptance); GPU 2D+3D acceptance passed 2026-10-04; remains alpha-gated.
 Installed in its own environment; 2-D and native 3-D nucleus segmentation
 accepted through Mask, raw-volume ingestion and Measure/SQLite. Make Masks
 uses the real 2-D backend; comparison against Cellpose is recorded below. No GPU.

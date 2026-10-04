@@ -2,7 +2,7 @@
 EVERY BUTTON STILL WEARING THE DEFAULT ICON GETS AN INTUITIVE ONE
 ================================================================================
 
-Status:    DONE 2026-09-02. Seven buttons wore the default icon; ZERO do.
+Status:    DONE 2026-09-02 — Seven buttons wore the default icon; ZERO do.
            Measured by booting a window, opening all 36 module screens and
            comparing every QAbstractButton's icon pixel-for-pixel against
            the artwork `iconset.icon()` returns for a name it does not know.

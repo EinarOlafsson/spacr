@@ -1,6 +1,10 @@
 IMPORT VENDOR FLAT-FIELD PROFILES (OPERETTA/HARMONY, ZEN, ...)
 
-Status: DONE 2026-10-02 (alpha-gated); only external point left: vendor sample files (Harmony profile with a Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
+Status: BLOCKED 2026-10-02 — vendor sample files (Harmony profile with a
+        Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
+        Built and alpha-gated.
+
+Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); only external point left: vendor sample files (Harmony profile with a Foreground polynomial, CZI shading attachment, ND2/Olympus shading).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

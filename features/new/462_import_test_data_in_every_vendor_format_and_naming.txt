@@ -2,7 +2,7 @@
 IMPORT TEST DATA IN EVERY VENDOR FORMAT AND NAMING, READ BACK BY IMPORT
 ================================================================================
 
-Status:    DONE here, re-verified 2026-09-25 (188 checks pass on nightly);
+Status:    DONE 2026-09-25 — , re-verified 2026-09-25 (188 checks pass on nightly);
            remaining: docs lane -- the new public docstrings
            (spacr.import_examples, spacr.qt.import_demo, the ForeignScreen
            methods, naming_choices) are in the English API catalog and the

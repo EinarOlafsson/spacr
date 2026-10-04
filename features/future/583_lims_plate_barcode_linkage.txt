@@ -1,6 +1,6 @@
 LIMS / PLATE-BARCODE LINKAGE
 
-Status: DONE (ALPHA) 2026-10-02. The original CSV import and mismatch
+Status: DONE (alpha) 2026-10-02 — The original CSV import and mismatch
         criterion passes in both Measure and the Convert screen.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 

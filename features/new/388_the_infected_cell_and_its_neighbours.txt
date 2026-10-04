@@ -2,7 +2,7 @@
 WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
 ================================================================================
 
-Status:    DONE, confirmed 2026-09-13. All three steps are in the tree and
+Status:    DONE 2026-09-13 — confirmed 2026-09-13. All three steps are in the tree and
            the last blocker cleared itself. Step 1's setting is declared
            (`bystander_reach_in_diameters`, `bystander_measurements`:
            expected_types, tooltips, and the Measurements category), the

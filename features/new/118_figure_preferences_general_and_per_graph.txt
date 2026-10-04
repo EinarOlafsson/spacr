@@ -2,7 +2,7 @@
 FIGURE PREFERENCES: GENERAL, AND PER GRAPH TYPE
 ================================================================================
 
-Status:    DONE. The house style ships a transparent background.
+Status:    DONE 2026-08-26 — The house style ships a transparent background.
 Requested: 2026-08-16 — "the graphs look pretty ugly. in the general app
            preferences in the figure tab theere should be general graph
            settings and specialized settings for al the possible different

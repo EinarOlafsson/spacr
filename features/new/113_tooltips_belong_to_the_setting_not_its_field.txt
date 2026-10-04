@@ -2,7 +2,7 @@
 A TOOLTIP APPEARS OVER THE SETTING, NOT OVER ITS FIELD
 ================================================================================
 
-Status:    DONE 2026-08-15, 155 -> 0. The DIAGNOSIS in WHY IT HAPPENS is
+Status:    DONE 2026-08-15 — 155 -> 0. The DIAGNOSIS in WHY IT HAPPENS is
            WRONG and is kept only as a record; THE REAL SCOPE and RESULT at
            the end are what happened.
 Requested: 2026-08-15 - "add to instructions, tooltips should only appear whe

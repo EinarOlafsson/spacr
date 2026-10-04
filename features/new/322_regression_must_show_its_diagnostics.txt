@@ -1,7 +1,7 @@
 322 — REGRESSION MUST SHOW ITS DIAGNOSTICS, WHICH ARE ALREADY WRITTEN
 =====================================================================
 
-Status:    DONE -- all four items landed 2026-08-31 (a76f4223e, "322: call the
+Status:    DONE 2026-08-31 — all four items landed 2026-08-31 (a76f4223e, "322: call the
            regression diagnostics that were already written") and 2026-09-01;
            re-verified against the tree 2026-09-13. This file carried no
            Status header, and its body still says "AND NOTHING CALLS ANY OF

@@ -2,7 +2,7 @@
 EVERY TRAIN/TEST SPLIT GROUPS BY WELL
 ================================================================================
 
-Status:    done, 2026-08-14.
+Status:    DONE 2026-08-14
 Requested: 2026-08-13 - "Grouped splitting is not verified by the current
            code ... XGBoost uses ordinary train_test_split without a groups
            argument" / "do it on the more rigerous level the well level."

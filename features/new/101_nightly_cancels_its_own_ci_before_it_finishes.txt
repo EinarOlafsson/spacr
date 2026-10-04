@@ -2,7 +2,7 @@
 NIGHTLY CANCELS ITS OWN CI BEFORE IT CAN EVER FINISH
 ================================================================================
 
-Status:    DONE, verified 2026-09-13. This header said "fix applied the same
+Status:    DONE 2026-09-13 — verified 2026-09-13. This header said "fix applied the same
            day"; in fact only tests.yml was repaired on 2026-08-15 and
            compat-matrix.yml followed on 2026-08-16. Both now carry
            group: <name>-${{ github.ref }}-${{ github.event_name }} with

@@ -1,6 +1,6 @@
 INSTANSEG AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: ACCEPTED FOR CPU INFERENCE 2026-10-02. Installed in its own
+Status: DONE (alpha) 2026-10-02 (evidence 7ac12b426) — Installed in its own
 environment; segments through Mask generation and Make Masks; scored in item
 532; all configured intensity channels reach the model in batch Mask runs.
 No GPU result.

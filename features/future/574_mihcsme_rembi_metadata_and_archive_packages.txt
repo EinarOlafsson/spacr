@@ -1,6 +1,10 @@
 METADATA AND ARCHIVE PACKAGES: MIHCSME/REMBI, IDR AND BIOIMAGE ARCHIVE
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: BLOCKED 2026-10-03 — IDR curator checks/accessions and a BioStudies
+        submission (no network writes from here). Implemented as alpha
+        2026-09-27; multi-run form and combined PAGETAB 2026-10-03.
+
+Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-09-27.
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

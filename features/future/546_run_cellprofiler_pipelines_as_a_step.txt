@@ -1,6 +1,6 @@
 RUN CELLPROFILER .cppipe PIPELINES AS A spaCR STEP
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27.
+Status: DONE (alpha) 2026-09-27 (evidence 404565624)
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

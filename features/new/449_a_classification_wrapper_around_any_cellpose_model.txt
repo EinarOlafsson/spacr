@@ -3,7 +3,12 @@ A CLASSIFICATION WRAPPER AROUND ANY CELLPOSE-SAM MODEL: PARASITES PER VACUOLE,
 AND WHAT EACH OBJECT ACTUALLY IS
 ================================================================================
 
-Status:    OPEN on trained heads and biological validation, BLOCKED on the
+Status:    BLOCKED 2026-09-25 — maintainer hand counts: per-PV parasite
+           counts, parasite-stain source planes (NAS MTOC screen) and
+           independently labelled split/merged pairs. Wrapper done (f27c92aef,
+           repaired 2026-09-22).
+
+Previous status (superseded 2026-10-04):    OPEN on trained heads and biological validation, BLOCKED on the
            maintainer's hand counts. The wrapper (f27c92aef, repaired
            2026-09-22) is done. 2026-09-25: the only count labels on this
            machine (the MTOC screen's own parasite objects) were tried; heads

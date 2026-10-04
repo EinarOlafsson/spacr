@@ -2,7 +2,7 @@
 THE MONTAGE'S COUNT TABLES ARE READ LIKE EVERY OTHER TABLE
 ================================================================================
 
-Status:    DONE 2026-08-18, re-verified 2026-09-13.
+Status:    DONE 2026-08-18 — re-verified 2026-09-13.
            `cell_montage.fractions_from_counts` canonicalises each count table
            through `schema.correct_metadata_column_names` before reading it
            (spacr/cell_montage.py:1810-1811), then falls back to the grna and

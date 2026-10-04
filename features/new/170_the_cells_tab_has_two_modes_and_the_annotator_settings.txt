@@ -2,7 +2,7 @@
 THE CELLS TAB HAS TWO MODES, AND THE ANNOTATOR'S CONTROL OVER THE PICTURE
 ================================================================================
 
-Status:    DONE 2026-08-19, re-verified 2026-09-13. Both modes ship with the
+Status:    DONE 2026-08-19 — re-verified 2026-09-13. Both modes ship with the
            annotator's controls over them: picture_settings.to_crop_settings
            (:370) and draw_crop (:502) are called from cell_montage_view.py
            :531 and :1387, the choosers are built by available_arrays (:567)

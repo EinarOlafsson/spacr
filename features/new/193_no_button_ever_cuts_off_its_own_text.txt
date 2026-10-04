@@ -2,7 +2,7 @@
 NO BUTTON EVER CUTS OFF ITS OWN TEXT
 ================================================================================
 
-Status:    DONE 2026-08-21. See the closing section.
+Status:    DONE 2026-08-21 — See the closing section.
 Requested: 2026-08-21 -- "some buttons like the plate button cut off the text.
            make it impossible for any button to cut of anny text."
 Owner:     Qt GUI (every screen)

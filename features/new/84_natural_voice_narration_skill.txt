@@ -2,7 +2,7 @@
 TURN THE NATURAL NARRATION FINDINGS INTO A REUSABLE REPOSITORY SKILL
 ================================================================================
 
-Status:    done, 2026-08-12.
+Status:    DONE 2026-08-12
 Requested: 2026-08-12 — "ok please finish everything. thanks and make sure to
            save anything you learn in terms of how to make the voises sound
            natural as a skill in the repo folder"
