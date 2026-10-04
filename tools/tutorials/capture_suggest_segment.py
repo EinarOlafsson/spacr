@@ -46,7 +46,7 @@ def main():
     captures.mkdir()
 
     from capture_annotate import record_suggest_judgement
-    from capture_policy import configure_appearance
+    from capture_policy import configure_appearance, verify_fresh_start
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QApplication, QDialogButtonBox, QMenu
@@ -72,6 +72,8 @@ def main():
     window = MainWindow()
     window.resize(3840, 2160)
     window.show()
+    app.processEvents()
+    verify_fresh_start(window)
     window.open_module('annotate')
     screen = window._screens['annotate']
     annotation = 'tutorial_suggest_610'

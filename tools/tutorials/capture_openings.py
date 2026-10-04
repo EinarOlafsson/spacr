@@ -53,6 +53,11 @@ def record_openings(app, window, captures, capture, settle, write_json):
         if not window._startup.isVisible():
             raise RuntimeError('Home is not visible')
 
+    from capture_policy import verify_fresh_start
+
+    # The openings tour is a fresh start: refuse a reopened session or a
+    # crash-draft offer before Home is recorded.
+    verify_fresh_start(window)
     record = {'help': {}, 'hosts': {}, 'home_tiles': {}}
     go_home()
     capture('00_home')

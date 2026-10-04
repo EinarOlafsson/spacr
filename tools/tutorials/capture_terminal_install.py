@@ -399,6 +399,11 @@ class Recorder:
 
     def gui(self, command, setup_frame, home_frame):
         before = len(self.prompts())
+        # The typed `spacr` is the viewer's own command, so it stays as is; the
+        # brand-new home must hold nothing a start would reopen (647/648).
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from capture_policy import verify_profile_starts_fresh
+        verify_profile_starts_fresh(self.ctl.parent / 'home' / '.config')
         if command:
             self.send(command + '\r')
         deadline = time.monotonic() + 300

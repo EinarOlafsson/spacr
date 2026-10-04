@@ -18,7 +18,7 @@ import time
 from pathlib import Path
 
 from capture_acceptance import assess_pipeline
-from capture_policy import configure_appearance, exclude_release_history, exclude_special_backdrops, verify_appearance, verify_visible_paths
+from capture_policy import configure_appearance, exclude_release_history, exclude_special_backdrops, verify_appearance, verify_fresh_start, verify_visible_paths
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
@@ -356,6 +356,10 @@ def main() -> int:
     window.apply_dock_mode('locked')
     window.resize(3840, 2160)
     window.show()
+    # Every recording starts as `spacr --fresh` (configure_appearance):
+    # refuse a window that reopened a session or offers crash drafts.
+    app.processEvents()
+    verify_fresh_start(window)
     exclude_release_history(window)
     captures = stage / 'captures' / (args.capture_name or args.module)
     captures.mkdir(parents=True, exist_ok=True)

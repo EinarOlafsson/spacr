@@ -33,6 +33,155 @@ ALPHA_LESSONS = {
 }
 
 
+#: Session restore (647/648): an ordinary start reopens the last module, its
+#: settings and its folder (Preferences -> Session, default on), and unsaved
+#: settings autosave as drafts that are offered back after a crash. A
+#: recording must show exactly what a viewer gets on a fresh start, so every
+#: recording starts as ``spacr --fresh`` with the switch off in its profile,
+#: no remembered session and no crash drafts to offer.
+RESTORE_SESSION_KEY = "prefs/restore_last_session"
+SESSION_KEY = "session/last"
+DRAFTS_KEY = "session/drafts"
+FRESH_FLAG = "--fresh"
+
+
+def fresh_argv(argv=()):
+    """``argv`` for a spaCR launch that starts fresh (``--fresh`` first, once)."""
+    return [FRESH_FLAG, *[arg for arg in argv if arg != FRESH_FLAG]]
+
+
+def launcher_accepts_fresh(app_source):
+    """Whether the spaCR whose ``spacr/qt/app.py`` is ``app_source`` knows --fresh.
+
+    Older released packages (install recordings) predate the flag and would
+    read it as a module name; their brand-new profiles have nothing to reopen.
+    """
+    try:
+        return "_OPEN_FRESH" in Path(app_source).read_text(errors="replace")
+    except OSError:
+        return False
+
+
+def force_fresh_start():
+    """Make the in-process app start as ``spacr --fresh`` with restore off.
+
+    In-process recorders build ``MainWindow`` without ``main()``, so the
+    command-line flag is set the way ``main()`` sets it. Also turns
+    Preferences -> Session off and removes the remembered session and any
+    crash drafts, so nothing is reopened and no recovery offer appears. Call
+    before the main window is built. Returns True when the app has session
+    restore at all.
+    """
+    from spacr.qt import app as gui
+    from spacr.qt import preferences as prefs
+
+    flag = getattr(gui, "_OPEN_FRESH", None)
+    if flag is None:
+        return False
+    flag[0] = True
+    setter = getattr(prefs, "_set_restore_session", None)
+    if setter is not None:
+        setter(False)
+    store = prefs._settings()
+    store.remove(SESSION_KEY)
+    store.remove(DRAFTS_KEY)
+    store.sync()
+    return True
+
+
+def force_fresh_start_in_profiles(config_homes):
+    """Write Preferences -> Session = off and drop session and drafts per profile.
+
+    For launchers that prepare a profile before the app starts. Each
+    ``config_home`` is an ``XDG_CONFIG_HOME`` (store ``spacr/qt.conf``).
+
+    :returns: the store files written.
+    """
+    from PySide6.QtCore import QSettings
+
+    written = []
+    for config_home in config_homes:
+        path = Path(config_home) / "spacr" / "qt.conf"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        store = QSettings(str(path), QSettings.IniFormat)
+        store.setValue(RESTORE_SESSION_KEY, False)
+        store.remove(SESSION_KEY)
+        store.remove(DRAFTS_KEY)
+        store.sync()
+        if store.status() != QSettings.NoError:
+            raise RuntimeError(f"Cannot turn session restore off in {path}")
+        written.append(path)
+    return written
+
+
+def verify_profile_starts_fresh(config_home):
+    """Refuse a profile whose next spaCR start would reopen a session.
+
+    For recordings that launch an installed spaCR the way a user types it
+    (``spacr``, without ``--fresh``) in a brand-new home: the profile must
+    hold no remembered module and no crash drafts. Reads the store as text,
+    so the recorder needs no Qt. Returns the store path checked.
+    """
+    path = Path(config_home) / "spacr" / "qt.conf"
+    try:
+        text = path.read_text(errors="replace")
+    except FileNotFoundError:
+        return path
+    section = None
+    for line in text.splitlines():
+        line = line.strip()
+        if line.startswith("[") and line.endswith("]"):
+            section = line[1:-1]
+            continue
+        key = line.split("=", 1)[0].strip()
+        if section == "session" and key == "drafts":
+            raise RuntimeError(
+                f"Capture refused: {path} holds crash drafts spaCR would offer")
+        if section == "session" and key == "last" and re.search(
+                r'\\?"module\\?"\s*:\s*\\?"[^"\\]', line):
+            raise RuntimeError(
+                f"Capture refused: {path} would reopen the last session")
+    return path
+
+def verify_fresh_start(window=None):
+    """Refuse to record when spaCR started in restore mode.
+
+    Refused when the app was not started fresh (``--fresh`` or
+    :func:`force_fresh_start`), when Preferences -> Session is on, when the
+    window reopened a remembered session, or when crash drafts are offered.
+
+    :returns: True when checked; False for an app without session restore.
+    """
+    gui = sys.modules.get("spacr.qt.app")
+    flag = getattr(gui, "_OPEN_FRESH", None) if gui is not None else None
+    if flag is None:
+        return False
+    if not flag[0]:
+        raise RuntimeError(
+            "Capture refused: spaCR started in restore mode. Recordings start "
+            "with --fresh (force_fresh_start) and Preferences -> Session off")
+    from spacr.qt import preferences as prefs
+
+    getter = getattr(prefs, "_get_restore_session", None)
+    if getter is not None and getter():
+        raise RuntimeError(
+            "Capture refused: Preferences -> Session (reopen the last module) "
+            "is on; record with it off")
+    if window is not None:
+        restored = getattr(window, "_restored_session_settings", ("", {}))
+        if restored and restored[0]:
+            raise RuntimeError(
+                f"Capture refused: spaCR reopened the last session ({restored[0]})")
+        box = getattr(window, "_drafts_box", None)
+        try:
+            offered = box is not None and box.isVisible()
+        except RuntimeError:                      # the dialog was deleted
+            offered = False
+        if offered or getattr(window, "_pending_drafts", None):
+            raise RuntimeError(
+                "Capture refused: spaCR is offering unsaved settings from a crash")
+    return True
+
 def alpha_lesson_kind(lesson_id):
     """The alpha kind ``lesson_id`` may show, or None for every other lesson."""
     return ALPHA_LESSONS.get(lesson_id)
@@ -124,6 +273,8 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP):
     """Set the requested recording appearance in the isolated Qt store.
 
     Also turns Show alpha features off: no recording shows alpha features.
+    And starts the app fresh (``--fresh``, Preferences -> Session off, no
+    crash drafts): no recording reopens a remembered session.
     """
     if (theme, backdrop) != (CAPTURE_THEME, CAPTURE_BACKDROP):
         raise ValueError("Tutorial captures require dark mode and the Blobs backdrop")
@@ -132,6 +283,7 @@ def configure_appearance(theme=CAPTURE_THEME, backdrop=CAPTURE_BACKDROP):
     prefs.set_theme(theme)
     prefs.set_ambient_animation(backdrop)
     force_alpha_features_off()
+    force_fresh_start()
 
 
 def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=None):
@@ -148,6 +300,7 @@ def verify_appearance(window, *, allow_alpha_toggle_scene=False, alpha_lesson=No
 
     alpha_shown = verify_alpha_features_off(
         allow_alpha_toggle_scene=allow_alpha_toggle_scene, alpha_lesson=alpha_lesson)
+    verify_fresh_start(window)
     if prefs.resolve_effective_theme() != CAPTURE_THEME:
         raise RuntimeError("Capture refused: the effective theme is not dark")
     if not prefs.get_ambient_enabled() or prefs.get_ambient_animation() != CAPTURE_BACKDROP:
@@ -265,7 +418,7 @@ def verify_visible_paths(windows, prepared_root):
 
 
 def main(argv=None):
-    """``capture_policy.py --force-alpha-off CONFIG_HOME...`` for shell launchers."""
+    """``capture_policy.py --force-alpha-off CONFIG_HOME...`` for shell launchers (alpha off, session restore off)."""
     import argparse
 
     parser = argparse.ArgumentParser(description=main.__doc__)
@@ -274,6 +427,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
     for path in force_alpha_features_off_in_profiles(args.force_alpha_off):
         print(f"alpha features off: {path}")
+    # The same profiles also start fresh: no remembered session, no drafts.
+    for path in force_fresh_start_in_profiles(args.force_alpha_off):
+        print(f"session restore off: {path}")
     return 0
 
 
