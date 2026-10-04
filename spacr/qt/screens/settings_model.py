@@ -3935,8 +3935,9 @@ def get_tooltips() -> Dict[str, str]:
         from spacr.settings import descriptions, tooltips
     except Exception:
         return tips
-    tips.update({k: v for k, v in descriptions.items() if isinstance(v, str)})
-    tips.update({k: v for k, v in tooltips.items() if isinstance(v, str)})
+    for table in (descriptions, tooltips):
+        tips.update({k: v for k, v in tuple(table.items())
+                     if isinstance(v, str)})
     return tips
 
 
