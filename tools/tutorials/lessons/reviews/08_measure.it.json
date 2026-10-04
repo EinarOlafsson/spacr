@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "In All settings, Image Preprocessing raccoglie le correzioni che Measure può applicare a ogni campo prima di misurare: Image Deconvolution con una funzione di dispersione del punto e Illumination Correction con un modello stimato in precedenza. Cambiano i pixel misurati in questa esecuzione; le maschere e gli array su disco non vengono modificati.",
     "Disattiva Live e rimetti Normalize su disattivato per questo esempio. Scegli con cura la normalizzazione quando salvi i ritagli: il ridimensionamento per singolo ritaglio cambia le differenze di intensità che vedrà poi un classificatore di immagini. Conserva gli array uniti originali per le misure quantitative.",
     "Attiva il salvataggio delle misurazioni e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di uscita. Per una prima esecuzione, Test mode misura un solo campo; disattivalo per elaborare tutti e sedici i campi forniti. Fai clic su Run, segui la console fino al termine dell’esecuzione, poi controlla quali campi sono riusciti prima di proseguire.",
-    "Esamina la figura dei ritagli, poi individua measurements.db nella cartella measurements e le immagini degli oggetti salvate nell’output dei ritagli del progetto. Tieni insieme il database e i percorsi delle immagini. Prosegui con Annotate per etichettare oggetti di esempio, oppure con Classify se hai già dati di addestramento etichettati."
+    "Esamina la figura dei ritagli, poi individua measurements.db nella cartella measurements e le immagini degli oggetti salvate nell’output dei ritagli del progetto. Tieni insieme il database e i percorsi delle immagini. Prosegui con Annotate per etichettare oggetti di esempio, oppure con Classify se hai già dati di addestramento etichettati.",
+    "Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
   ]
 }

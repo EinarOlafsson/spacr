@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "Dans All settings, Image Preprocessing regroupe les corrections que Measure peut appliquer à chaque champ avant la mesure : Image Deconvolution avec une fonction d’étalement du point et Illumination Correction avec un modèle estimé auparavant. Elles modifient les pixels mesurés dans cette exécution ; les masques et les tableaux sur le disque ne sont pas modifiés.",
     "Désactivez Live et remettez Normalize sur désactivé pour cet exemple. Choisissez la normalisation avec soin lorsque vous enregistrez des vignettes : une mise à l’échelle par vignette modifie les différences d’intensité que verra ensuite un classificateur d’images. Conservez les tableaux fusionnés d’origine pour les mesures quantitatives.",
     "Activez l’enregistrement des mesures et des découpes d’objets, laissez Plot activé et choisissez la taille des découpes et les canaux de sortie. Pour un premier essai, Test mode mesure un seul champ ; désactivez-le pour traiter les seize champs fournis. Cliquez sur Run, suivez la console jusqu’à la fin de l’exécution, puis vérifiez quels champs ont réussi avant de continuer.",
-    "Inspectez la figure des vignettes, puis repérez measurements.db dans le dossier measurements et les images d’objets enregistrées dans la sortie de vignettes du projet. Gardez ensemble la base de données et les chemins des images. Poursuivez avec Annotate pour étiqueter des objets d’exemple, ou avec Classify si vous disposez déjà de données d’entraînement étiquetées."
+    "Inspectez la figure des vignettes, puis repérez measurements.db dans le dossier measurements et les images d’objets enregistrées dans la sortie de vignettes du projet. Gardez ensemble la base de données et les chemins des images. Poursuivez avec Annotate pour étiqueter des objets d’exemple, ou avec Classify si vous disposez déjà de données d’entraînement étiquetées.",
+    "Avant de lancer une exécution, spaCR estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spaCR vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire."
   ]
 }

@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "All settings 아래의 Image Preprocessing에는 Measure가 측정 전에 각 필드에 적용할 수 있는 보정이 모여 있습니다. 점 확산 함수를 쓰는 Image Deconvolution과, 앞서 추정한 모델을 쓰는 Illumination Correction입니다. 이 보정은 이번 실행에서 측정하는 픽셀을 바꾸며, 마스크와 디스크의 배열은 바뀌지 않습니다.",
     "Live를 끄고 이 예제에서는 Normalize도 다시 끄세요. 크롭을 저장할 때는 정규화를 신중하게 고르세요. 크롭별 스케일링은 나중에 이미지 분류기가 보게 될 강도 차이를 바꿉니다. 정량 측정에는 원본 병합 배열을 보관하세요.",
     "측정값과 객체 잘라낸 이미지 저장을 켜고, Plot은 켜 둔 채 잘라낼 크기와 출력 채널을 고르세요. 첫 실행에서는 Test mode가 필드 하나만 측정합니다. 제공된 열여섯 개 필드를 모두 처리하려면 끄세요. Run을 클릭하고 실행이 끝날 때까지 콘솔을 지켜본 뒤, 계속하기 전에 어떤 필드가 성공했는지 확인하세요.",
-    "크롭 그림을 확인한 뒤, measurements 폴더의 measurements.db와 프로젝트의 크롭 출력에 저장된 객체 이미지를 찾으세요. 데이터베이스와 이미지 경로를 함께 보관하세요. 예시 객체에 라벨을 붙이려면 Annotate로, 이미 라벨이 붙은 학습 데이터가 있다면 Classify로 넘어가세요."
+    "크롭 그림을 확인한 뒤, measurements 폴더의 measurements.db와 프로젝트의 크롭 출력에 저장된 객체 이미지를 찾으세요. 데이터베이스와 이미지 경로를 함께 보관하세요. 예시 객체에 라벨을 붙이려면 Annotate로, 이미 라벨이 붙은 학습 데이터가 있다면 Classify로 넘어가세요.",
+    "실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요."
   ]
 }

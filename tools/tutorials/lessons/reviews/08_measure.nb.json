@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "Under All settings holder Image Preprocessing korreksjonene Measure kan bruke på hvert felt før måling: Image Deconvolution med en punktspredningsfunksjon og Illumination Correction med en modell du har anslått tidligere. De endrer pikslene som måles i denne kjøringen; maskene og arrayene på disken endres ikke.",
     "Slå av Live og sett Normalize tilbake til av for dette eksemplet. Velg normaliseringen bevisst når du lagrer utsnitt: skalering per utsnitt endrer intensitetsforskjellene som en senere bildeklassifikator ser. Behold de opprinnelige sammenslåtte matrisene for kvantitative målinger.",
     "Slå på lagring av målinger og objektutsnitt, la Plot være på, og velg utsnittsstørrelse og utdatakanaler. I en første kjøring måler Test mode ett felt; slå det av for å behandle alle de seksten medfølgende feltene. Klikk Run, følg konsollen til kjøringen er ferdig, og sjekk deretter hvilke felt som lyktes før du går videre.",
-    "Undersøk utsnittsfiguren, og finn deretter measurements.db i mappen measurements og de lagrede objektbildene i prosjektets utsnittsutdata. Hold databasen og bildebanene samlet. Fortsett til Annotate for å merke eksempelobjekter, eller til Classify hvis du allerede har merkede treningsdata."
+    "Undersøk utsnittsfiguren, og finn deretter measurements.db i mappen measurements og de lagrede objektbildene i prosjektets utsnittsutdata. Hold databasen og bildebanene samlet. Fortsett til Annotate for å merke eksempelobjekter, eller til Classify hvis du allerede har merkede treningsdata.",
+    "Før en kjøring starter, anslår spaCR hvor mye minne hver arbeidsprosess trenger ut fra ett synsfelt i prosjektet ditt. Med svært store synsfelt, som sammensatte mosaikker, får kanskje ikke arbeidsprosessene du ba om plass i ledig RAM, og da spør spaCR først. Velg anbefalt antall arbeidsprosesser, behold ditt eget og la Measure vente med nye synsfelt mens minnet er knapt, eller lukk andre programmer for å frigjøre minne."
   ]
 }

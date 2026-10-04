@@ -68,6 +68,11 @@ WIDGET_LABELS = {
     "PowerTestDataButton": (),
     "ProjectBrowserTestDataButton": (),
     "TrellisTestDataButton": (),
+    "DoseResponseTestDataButton": (),
+    "ProfilerTestDataButton": (),
+    "RunCompareTestDataButton": (),
+    "RunHistoryTestDataButton": (),
+    "TrainCompareTestDataButton": (),
     "MakeMasksUseInMaskGeneration": ("Use in Mask generation",),
     # The settings category title is listed with the button (501), so
     # narration naming either is caught.

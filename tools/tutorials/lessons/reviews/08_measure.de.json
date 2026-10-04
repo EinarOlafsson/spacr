@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "Unter All settings enthält Image Preprocessing die Korrekturen, die Measure vor dem Messen auf jedes Feld anwenden kann: Image Deconvolution mit einer Punktspreizfunktion und Illumination Correction mit einem zuvor geschätzten Modell. Sie verändern die Pixel, die in diesem Lauf gemessen werden; die Masken und die Arrays auf dem Datenträger bleiben unverändert.",
     "Schalten Sie Live aus und setzen Sie Normalize für dieses Beispiel wieder auf aus. Wählen Sie die Normalisierung beim Speichern von Ausschnitten bewusst: Eine Skalierung pro Ausschnitt verändert die Intensitätsunterschiede, die ein späterer Bildklassifikator sieht. Behalten Sie die ursprünglichen zusammengeführten Arrays für quantitative Messungen.",
     "Aktivieren Sie das Speichern von Messungen und Objektausschnitten, lassen Sie Plot an und wählen Sie Ausschnittgröße und Ausgabekanäle. Für einen ersten Lauf misst Test mode ein Feld; schalten Sie es aus, um alle sechzehn mitgelieferten Felder zu verarbeiten. Klicken Sie auf Run, verfolgen Sie die Konsole bis zum Ende des Laufs und prüfen Sie dann, welche Felder erfolgreich waren, bevor Sie weitermachen.",
-    "Prüfen Sie die Ausschnittabbildung und finden Sie dann measurements.db im Ordner measurements sowie die gespeicherten Objektbilder in der Ausschnittausgabe des Projekts. Halten Sie Datenbank und Bildpfade zusammen. Fahren Sie mit Annotate fort, um Beispielobjekte zu beschriften, oder mit Classify, wenn Sie bereits beschriftete Trainingsdaten haben."
+    "Prüfen Sie die Ausschnittabbildung und finden Sie dann measurements.db im Ordner measurements sowie die gespeicherten Objektbilder in der Ausschnittausgabe des Projekts. Halten Sie Datenbank und Bildpfade zusammen. Fahren Sie mit Annotate fort, um Beispielobjekte zu beschriften, oder mit Classify, wenn Sie bereits beschriftete Trainingsdaten haben.",
+    "Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben."
   ]
 }

@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "Undir All settings geymir Image Preprocessing leiðréttingarnar sem Measure getur beitt á hvert svið fyrir mælingu: Image Deconvolution með punktdreififalli og Illumination Correction með líkani sem þú mast áður. Þær breyta pixlunum sem mældir eru í þessari keyrslu; grímurnar og fylkin á diskinum breytast ekki.",
     "Slökktu á Live og settu Normalize aftur á óvirkt fyrir þetta dæmi. Veldu stöðlun af ásettu ráði þegar úrklipp eru vistuð: kvörðun fyrir hvert úrklipp breytir þeim styrkmun sem myndflokkari sér síðar. Haltu upprunalegu sameinuðu fylkjunum fyrir megindlegar mælingar.",
     "Kveiktu á vistun mælinga og búta af hlutum, hafðu Plot á og veldu stærð búta og úttaksrásir. Í fyrstu keyrslu mælir Test mode eitt svið; slökktu á því til að vinna öll sextán sviðin sem fylgja. Smelltu á Run, fylgstu með stjórnborðinu þar til keyrslunni lýkur og athugaðu svo hvaða svið tókust áður en þú heldur áfram.",
-    "Skoðaðu úrklippamyndritið og finndu svo measurements.db í möppunni measurements og vistuðu myndir hlutanna í úrklippaúttaki verkefnisins. Haltu gagnagrunninum og slóðum myndanna saman. Haltu áfram í Annotate til að merkja dæmahluti, eða í Classify ef þú ert þegar með merkt þjálfunargögn."
+    "Skoðaðu úrklippamyndritið og finndu svo measurements.db í möppunni measurements og vistuðu myndir hlutanna í úrklippaúttaki verkefnisins. Haltu gagnagrunninum og slóðum myndanna saman. Haltu áfram í Annotate til að merkja dæmahluti, eða í Classify ef þú ert þegar með merkt þjálfunargögn.",
+    "Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni."
   ]
 }

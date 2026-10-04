@@ -1,10 +1,10 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
+  "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "date": "2026-10-03",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
     "listening_review": false
@@ -30,6 +30,7 @@
     "Em All settings, Image Preprocessing reúne as correções que Measure pode aplicar a cada campo antes de medir: Image Deconvolution com uma função de espalhamento de ponto e Illumination Correction com um modelo estimado antes. Elas alteram os pixels medidos nesta execução; as máscaras e os arrays no disco não mudam.",
     "Desative Live e volte a desativar Normalize para este exemplo. Escolha a normalização com cuidado ao salvar recortes: o escalonamento por recorte muda as diferenças de intensidade que um classificador de imagens verá depois. Mantenha os arranjos combinados originais para as medições quantitativas.",
     "Ative o salvamento das medições e dos recortes de objetos, mantenha Plot ativado e escolha o tamanho do recorte e os canais de saída. Em uma primeira execução, Test mode mede um campo; desative-o para processar os dezesseis campos fornecidos. Clique em Run, acompanhe o console até a execução terminar e verifique quais campos deram certo antes de continuar.",
-    "Inspecione a figura dos recortes e depois localize measurements.db na pasta measurements e as imagens de objetos salvas na saída de recortes do projeto. Mantenha juntos o banco de dados e os caminhos das imagens. Continue no Annotate para rotular objetos de exemplo, ou no Classify se você já tiver dados de treinamento rotulados."
+    "Inspecione a figura dos recortes e depois localize measurements.db na pasta measurements e as imagens de objetos salvas na saída de recortes do projeto. Mantenha juntos o banco de dados e os caminhos das imagens. Continue no Annotate para rotular objetos de exemplo, ou no Classify se você já tiver dados de treinamento rotulados.",
+    "Antes de qualquer execução começar, o spaCR estima a memória de que cada processo de trabalho precisa a partir de um campo do seu projeto. Com campos muito grandes, como mosaicos unidos, os processos que você pediu podem não caber na RAM livre, e o spaCR pergunta antes. Escolha o número de processos recomendado, mantenha o seu e deixe o Measure pausar campos novos enquanto faltar memória, ou feche outros programas para liberar memória."
   ]
 }
