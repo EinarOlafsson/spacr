@@ -6173,16 +6173,6 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     return tuple(installed)
 
 
-_FIRST_OPEN_LIBRARIES = ("psutil", "GPUtil", "qtawesome", "tifffile",
-                         "imageio", "imagecodecs", "PySide6.QtOpenGL",
-                         "PySide6.QtOpenGLWidgets",
-                         "PySide6.QtDataVisualization")
-"""Optional libraries the first settings screen imports, warmed after the
-spaCR modules. On a cold hosted Windows runner the first Mask open spent
-1.9 s in one uninterrupted step loading these from disk (0.18 s once warm).
-"""
-
-
 def _start_settings_prewarm() -> threading.Thread:
     """Own the path-notification QObject on the GUI thread before importing.
 
@@ -6197,11 +6187,6 @@ def _start_settings_prewarm() -> threading.Thread:
         """Import the remaining settings dependencies without building widgets."""
         with _timing.span("background warm", "settings screens"):
             _warm_the_settings_imports()
-        with _timing.span("background warm", "glyph fonts"):
-            try:
-                _read_the_glyph_fonts()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("Could not read the glyph fonts", exc_info=True)
         _freeze_what_survived()
 
     def _warm_the_settings_imports():
@@ -6209,20 +6194,10 @@ def _start_settings_prewarm() -> threading.Thread:
         try:
             for mod in ("spacr.settings",
                         "spacr.qt.screens.settings_model",
-                        "spacr.qt.imagery",
-                        "spacr.qt.screens.app_screen",
-                        "spacr.qt.screens.mask",
-                        "spacr.qt.screens.train_cellpose",
-                        "spacr.qt.screens.parameter_sweep",
-                        "spacr.qt.screens.hyperparam"):
+                        "spacr.qt.imagery"):
                 _importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
-        for mod in _FIRST_OPEN_LIBRARIES:
-            try:
-                _importlib.import_module(mod)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("Could not prewarm %s", mod, exc_info=True)
 
     thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
     thread.start()
@@ -6313,27 +6288,6 @@ def _register_the_glyph_font() -> None:
         iconset.icon("settings")
     except Exception:                                        # noqa: BLE001
         LOG.debug("Could not register the glyph font early", exc_info=True)
-
-
-def _read_the_glyph_fonts() -> None:
-    """Read QtAwesome's font files once, off the GUI thread.
-
-    Registering the glyph font is quick, but its first read from a cold disk
-    was not: 0.7 s on a cold hosted Windows runner, as one GUI freeze inside
-    the first screen that drew an icon. Reading the files here leaves them
-    in the system's file cache for that registration.
-    """
-    import importlib.util
-    from pathlib import Path
-
-    spec = importlib.util.find_spec("qtawesome")
-    if spec is None or not spec.origin:
-        return
-    for font in (Path(spec.origin).parent / "fonts").glob("*"):
-        try:
-            font.read_bytes()
-        except OSError:
-            continue
 
 
 _ICON_WARM_AFTER_MS = 1500

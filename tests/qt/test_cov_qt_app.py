@@ -2538,11 +2538,7 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
 #: Preferences before the home screen exists, so this thread always wins
 #: the race it has to win.
 PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
-                     "spacr.qt.imagery", "spacr.qt.screens.app_screen",
-                     "spacr.qt.screens.mask",
-                     "spacr.qt.screens.train_cellpose",
-                     "spacr.qt.screens.parameter_sweep",
-                     "spacr.qt.screens.hyperparam")
+                     "spacr.qt.imagery")
 
 
 def _prewarmed_module_names():
@@ -2619,8 +2615,7 @@ def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
     with monkeypatch.context() as m:
         m.setattr(importlib, "import_module", _record)
         thread.target()
-    assert requested[:len(PREWARMED_MODULES)] == list(PREWARMED_MODULES)
-    assert set(app_mod._FIRST_OPEN_LIBRARIES) <= set(requested)
+    assert requested == list(PREWARMED_MODULES)
     for name in PREWARMED_MODULES:
         assert name in sys.modules, f"{name} was not pre-warmed"
 
