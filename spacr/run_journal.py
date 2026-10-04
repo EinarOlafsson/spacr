@@ -243,15 +243,20 @@ def _installed_packages() -> Dict[str, str]:
 
     Distribution metadata is read without importing packages, so recording a
     run does not initialize CUDA, Qt, or another expensive optional runtime.
+    Each distribution's metadata file is parsed once for both its name and
+    its version (``dist.version`` would parse it a second time); a
+    metadata without a ``Version`` falls back to ``dist.version``.
     Duplicate normalized names are collapsed deterministically.
     """
     packages: Dict[str, str] = {}
     try:
         for dist in importlib.metadata.distributions():
-            name = str(dist.metadata.get("Name") or "").strip()
+            metadata = dist.metadata
+            name = str(metadata.get("Name") or "").strip()
             if name:
+                version = metadata.get("Version") or dist.version
                 packages[name.lower().replace("_", "-")] = str(
-                    dist.version or "unknown"
+                    version or "unknown"
                 )
     except Exception as exc:
         LOG.warning("Could not enumerate installed packages: %s", exc)

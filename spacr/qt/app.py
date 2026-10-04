@@ -6578,6 +6578,51 @@ def install_the_dialog_filters(app) -> tuple[str, ...]:
     return tuple(installed)
 
 
+def _quicken_the_pyside_import_probe() -> bool:
+    """Answer PySide's per-import "does this module use PySide6?" from bytes.
+
+    PySide6 asks that question of every module imported after it, by
+    ``inspect.getsource`` -- a tokenised, line-split read that is then kept
+    in ``linecache`` for the life of the process. A module screen's first
+    open imports dozens of spaCR modules, several of them hundreds of
+    kilobytes, and the probe was 3-4 % of each slow module's first open.
+    The answer is the same substring test on the file's raw bytes; a module
+    without a ``.py`` file still goes to PySide's own probe.
+
+    :returns: ``True`` when the faster probe is in place.
+    """
+    try:
+        feature = sys.modules.get("shibokensupport.feature")
+        original = getattr(feature, "_mod_uses_pyside", None)
+    except Exception:                                        # noqa: BLE001
+        return False
+    if original is None or getattr(original, "_spacr_quick", False):
+        return False
+
+    import functools
+
+    quick = functools.partial(_module_source_mentions_pyside, original)
+    quick._spacr_quick = True
+    feature._mod_uses_pyside = quick
+    return True
+
+
+def _module_source_mentions_pyside(original, module) -> bool:
+    """Whether ``module``'s source file mentions PySide6.
+
+    :param original: PySide's own probe, asked when there is no ``.py`` file.
+    :param module: the module just imported.
+    """
+    path = getattr(module, "__file__", None)
+    if isinstance(path, str) and path.endswith(".py"):
+        try:
+            with open(path, "rb") as handle:
+                return b"PySide6" in handle.read()
+        except OSError:
+            pass
+    return original(module)
+
+
 def _start_settings_prewarm() -> threading.Thread:
     """Own the path-notification QObject on the GUI thread before importing.
 
@@ -6762,6 +6807,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     initial_app = argv[0] if argv else None
 
     _install_crash_dump()
+    _quicken_the_pyside_import_probe()
 
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
