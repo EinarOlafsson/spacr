@@ -1,0 +1,15 @@
+================================================================================
+REBINDABLE SHORTCUTS
+================================================================================
+
+Status:    OPEN 2026-10-04 — not started.
+Requested: 2026-10-04, by the maintainer, who approved this program-level
+           feature in the step-4 review ("is the program itself missing
+           something?"), from the gap audit of the same day.
+
+WHAT TO BUILD
+  Rebindable keyboard shortcuts with user keymap overrides (a cheat sheet exists today).
+
+DONE WHEN
+  The feature works on Linux, macOS and Windows, is reachable from the GUI
+  where it applies, has tests, and is documented.
