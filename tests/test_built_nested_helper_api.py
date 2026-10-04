@@ -166,10 +166,16 @@ def _build_site(fixture_source, enabled, label, *, inventory_root=None):
         "API\n===\n\n.. toctree::\n\n   spacr/index\n", encoding="utf-8",
     )
     conf_tree = ast.parse((ROOT / "docs/source/conf.py").read_text())
+    # setup() connects _qualify_helper_annotations (68884079c), which reads
+    # _HELPER_ANNOTATION_TARGETS, so both travel with the hooks.
     hooks = "\n\n".join(ast.unparse(node) for node in conf_tree.body
-        if isinstance(node, ast.FunctionDef) and node.name in {
+        if (isinstance(node, ast.FunctionDef) and node.name in {
             "autoapi_prepare_jinja_env", "_skip_implementation_data", "setup",
-        })
+            "_qualify_helper_annotations",
+        }) or (isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name)
+            and target.id == "_HELPER_ANNOTATION_TARGETS"
+            for target in node.targets)))
     (source / "conf.py").write_text(
         f"import sys\nfrom pathlib import Path\nsys.path.insert(0, {str(ROOT / 'tools')!r})\n"
         "import nested_helper_docs as _nested_helper_docs\n"
