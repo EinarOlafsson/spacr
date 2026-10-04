@@ -298,6 +298,13 @@ class TrainCompareScreen(QWidget):
         src_row.addWidget(self._path_edit, 1)
         src_row.addWidget(self._btn_pick)
         src_row.addWidget(self._btn_scan)
+        from ..widgets.measurements_example import (
+            _install_dose_test_data_button)
+        example = _install_dose_test_data_button(
+            self, src_row,
+            lambda folder: self.scan(os.path.join(str(folder), "training")),
+            say=lambda message: self._set_status(message, error=True))
+        example.setObjectName("TrainCompareTestDataButton")
         outer.addLayout(src_row)
 
         split = CollapsibleSplitter(Qt.Horizontal, self,

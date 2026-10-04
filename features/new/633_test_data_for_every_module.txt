@@ -1,6 +1,6 @@
 633 Test data for every module and submodule
 
-Status: IMPLEMENTED AS ALPHA 2026-10-03; remaining screens BLOCKED on dose data
+Status: IMPLEMENTED AS ALPHA 2026-10-03; Investigate Hit still BLOCKED (see third pass)
 
 Request (maintainer, verbatim):
 "have an agent pass over each modular and sub modal, and check if there is any
@@ -30,6 +30,33 @@ The first three reuse Import's published archive
 spacr.qt.import_demo._import_test_data_button; nothing new downloaded or
 published. tests/qt/test_power_screen.py now simulates 12 genes, 2
 replicates, 150 ADVI steps (serial run 11 min -> 1.5 min).
+
+ALPHA 2026-10-03 (third pass): five more buttons in ALPHA_FEATURES[633]:
+DoseResponseTestDataButton (dose_uM / Cells_Number_Object_Number / compound
+picked, unit uM), ProfilerTestDataButton (the DMSO-normalised regression's
+results.csv), RunCompareTestDataButton (registers the two regression runs in
+the example's own artifact registry, then opens it as the project),
+RunHistoryTestDataButton (journals the same two runs once, through
+run_journal.open_run, and filters to them) and TrainCompareTestDataButton
+(scans training/: two SGD logistic runs, 20 epochs lr 0.01 vs 40 epochs lr
+0.001). All read one staged set through
+spacr.qt.widgets.measurements_example._load_dose_test_data.
+Data: LINCS Cell Painting, Cell Painting Gallery cpg0004-lincs, batch
+2016_04_01_a549_48hr_batch1, plates SQ00014812-15 (four replicates of plate
+map C-7161-01-LM6-022), A549, 56 compounds x six doses (0.041-10 uM) + DMSO,
+well-level profiles cut to 11 features. Licence CC0 1.0 (Way et al. 2022 Cell
+Systems; Cell Painting Gallery). Chosen over BBBC021 (CC BY-NC-SA 3.0, MCF7):
+BBBC021 ships per-image metadata but no features, so a feature subset would
+have to be computed from ~50 GB of images, and its licence is non-commercial;
+LINCS is CC0 and ships the doses and the features together.
+Built by tools/build_dose_example_dataset.py.
+Investigate Hit: still BLOCKED. It cross-fits a guide-fraction mixture over
+CELLS in target-free and target-containing wells; a dose plate has no guides
+and the LINCS profiles are per well. Tried the HF annotate plate (2,341
+cells, four wells) with its al_prob_1 scores and plate_1 guide fractions:
+four wells cannot cross-fit (every fold needs both well kinds). Needs a
+pooled-screen plate with cell measurements over >= 6 wells.
+Test: tests/qt/test_test_data_for_every_module.py (dose tests).
 
 Genuinely no data (checked 2026-10-03):
 - dose_response: CPJUMP1 (control_chart_cpjump1) has no concentration or
@@ -117,6 +144,10 @@ Local data considered (/mnt/wd4tb/scratch):
   published HF datasets above.
 
 To publish to HF (staged, NOT uploaded):
+- ~/.cache/spacr/example_data/dose_response_lincs/ (dose_plate.csv, runs/,
+  training/, README.txt; 316 KB, CC0 1.0) -> einarolafsson/spacr-example-dose
+  (repo type dataset; the buttons snapshot_download it when the folder is
+  missing, so until it is published they report the download failure).
 - ~/.cache/spacr/example_data/control_chart_cpjump1/ (4 x
   BR0011701{0..3}_augmented.csv.gz, 28 MB, CC0 1.0) -> proposed
   einarolafsson/spacr-example-control-chart. Then point Control Chart's
@@ -124,9 +155,9 @@ To publish to HF (staged, NOT uploaded):
 
 Left:
 - Publish the CPJUMP1 set and switch Control Chart to it.
-- Dose-Response: needs a multi-dose plate (see above).
-- Profiler / Investigate Hit: chain from Regression's test data.
-- run_compare, run_history, train_compare: a published demo registry.
+- Publish dose_response_lincs to einarolafsson/spacr-example-dose.
+- Investigate Hit: needs a pooled-screen plate with cell measurements over
+  >= 6 wells (see third pass).
 
 2026-10-03: the remaining screens in "Left" are BLOCKED on dose data: no
 multi-dose plate with a concentration column exists on HF or on disk.

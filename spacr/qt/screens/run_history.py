@@ -224,6 +224,12 @@ class RunHistoryScreen(QWidget):
         filters.addWidget(self._search, 1)
         filters.addWidget(self._module)
         filters.addWidget(self._status_filter)
+        from ..widgets.measurements_example import (
+            _install_dose_test_data_button)
+        example = _install_dose_test_data_button(
+            self, filters, self._open_the_dose_example,
+            say=lambda message: self._set_status(message, error=True))
+        example.setObjectName("RunHistoryTestDataButton")
         self._clear_all = QPushButton("Clear all", self)
         self._clear_all.setIcon(icon("trash"))
         self._clear_all.setToolTip(
@@ -342,6 +348,17 @@ class RunHistoryScreen(QWidget):
         super().showEvent(event)
         if not self._loaded_once and not self._busy:
             self.refresh()
+
+    def _open_the_dose_example(self, folder) -> None:
+        """Journal the dose example's two regression runs and list them.
+
+        :param folder: the dose example folder; the search is set to its name.
+        """
+        from ..widgets.measurements_example import _journal_dose_runs
+
+        _journal_dose_runs(folder)
+        self._search.setText(Path(folder).name)
+        self.refresh()
 
     def refresh(self) -> None:
         """Reload every run record without blocking the GUI thread."""

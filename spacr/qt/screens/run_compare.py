@@ -189,6 +189,12 @@ class RunCompareScreen(QWidget):
         self._browse_button = QPushButton("Browse…")
         self._browse_button.clicked.connect(self._on_browse)
         picker.addWidget(self._browse_button)
+        from ..widgets.measurements_example import (
+            _install_dose_test_data_button)
+        example = _install_dose_test_data_button(
+            self, picker, self._open_the_dose_example,
+            say=lambda message: self._set_verdict(message, blocked=True))
+        example.setObjectName("RunCompareTestDataButton")
         outer.addLayout(picker)
 
         runs = QHBoxLayout()
@@ -258,6 +264,16 @@ class RunCompareScreen(QWidget):
             self._tabs, "Comparison", persist_key="run_compare/Comparison")
         outer.addWidget(self._tabs_section, 1)
 
+
+    def _open_the_dose_example(self, folder) -> None:
+        """Register the dose example's two regression runs, then open it.
+
+        :param folder: the dose example folder, which is the project.
+        """
+        from ..widgets.measurements_example import _register_dose_runs
+
+        _register_dose_runs(folder)
+        self.load_project(str(folder))
 
     def load_project(self, project: str) -> List[RunRef]:
         """Fill both dropdowns with the runs ``project`` has registered.

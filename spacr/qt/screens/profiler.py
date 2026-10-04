@@ -356,6 +356,13 @@ class ProfilerScreen(QWidget):
         self._browse_button = QPushButton("Browse…")
         self._browse_button.clicked.connect(self._on_browse)
         picker.addWidget(self._browse_button)
+        from ..widgets.measurements_example import (
+            _DOSE_PROFILER_RUN, _install_dose_test_data_button)
+        example = _install_dose_test_data_button(
+            self, picker, lambda folder: self.load_coefficients(os.path.join(
+                str(folder), "runs", _DOSE_PROFILER_RUN, "results.csv")),
+            say=lambda message: self._set_status(message, problem=True))
+        example.setObjectName("ProfilerTestDataButton")
 
         self._link = QComboBox()
         self._link.addItems(sorted(LINKS))

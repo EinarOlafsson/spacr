@@ -1283,6 +1283,11 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "format spaCR reads. This screen is filled with the fields it can "
     "show. Cached afterwards.",
     "Opened test data: {path}", "The test data has no images.",
+    # item 633: Load test data on the dose-plate screens
+    "Load a public dose plate: four replicate A549 plates of the LINCS "
+    "Cell Painting set (CC0), 56 compounds at six doses with DMSO wells, "
+    "as well-level profiles, with regression and training runs made "
+    "from them. Under 1 MB, cached afterwards.",
     # item 632: the gate editor's 3D shapes, polygon closing and renaming
     # (the polygon help, renaming and 631's keep button were catalogued by
     # 9d4066a96 and left this list)

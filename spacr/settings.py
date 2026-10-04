@@ -7613,7 +7613,10 @@ ALPHA_FEATURES = {
                     'PowerTestDataButton', 'ConvertTestDataButton',
                     'LayerViewerTestDataButton', 'ExternalMasksTestDataButton',
                     'PipelineGraphTestDataButton',
-                    'ProjectBrowserTestDataButton'),
+                    'ProjectBrowserTestDataButton',
+                    'DoseResponseTestDataButton', 'ProfilerTestDataButton',
+                    'RunCompareTestDataButton', 'RunHistoryTestDataButton',
+                    'TrainCompareTestDataButton'),
     },
 }
 

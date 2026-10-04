@@ -169,3 +169,151 @@ def _report(screen, message: str) -> None:
         except Exception:
             LOG.debug("the screen's reporter failed", exc_info=True)
     LOG.warning("%s", message)
+
+
+_DOSE_FOLDER = "dose_response_lincs"
+_DOSE_REPO = "einarolafsson/spacr-example-dose"
+_DOSE_PLATE = "dose_plate.csv"
+_DOSE_RESPONSE = "Cells_Number_Object_Number"
+_DOSE_PROFILER_RUN = "regression_dmso_normalised"
+_DOSE_JOURNAL_MARK = ".journalled_runs"
+
+
+def _dose_example_folder() -> Path:
+    """The dose example's folder, beside the shared example plate.
+
+    Four replicate plates of the LINCS Cell Painting set (cpg0004, CC0 1.0):
+    56 compounds at six doses with DMSO wells, well-level profiles cut to
+    eleven features, plus two regression runs and two training runs made
+    from them.
+    """
+    return example_measurements_folder().parent / _DOSE_FOLDER
+
+
+def _install_dose_test_data_button(screen, layout, apply: Callable[[Path], Any],
+                                   *, say: Optional[Callable[[str], Any]] = None,
+                                   index: Optional[int] = None):
+    """Add a "Load test data…" button that hands the dose example to ``apply``.
+
+    :param screen: the screen the button, callback and reporter are kept on.
+    :param layout: the box layout the button goes into.
+    :param apply: called as ``apply(folder)`` with the dose example folder.
+    :param say: where a failure is reported; logged when omitted.
+    :param index: position in ``layout``; appended when omitted.
+    :returns: the button. The caller names it.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    button = QPushButton(tr("Load test data…"), screen)
+    button.setToolTip(tr(
+        "Load a public dose plate: four replicate A549 plates of the LINCS "
+        "Cell Painting set (CC0), 56 compounds at six doses with DMSO wells, "
+        "as well-level profiles, with regression and training runs made "
+        "from them. Under 1 MB, cached afterwards."))
+    screen._dose_test_data_apply = apply
+    screen._test_data_say = say
+    button.clicked.connect(lambda _checked=False: _load_dose_test_data(screen))
+    if layout is not None:
+        if index is None:
+            layout.addWidget(button)
+        else:
+            layout.insertWidget(index, button)
+    return button
+
+
+def _fetch_dose_example(folder: Path) -> None:
+    """Download the dose example from its dataset repository into ``folder``."""
+    from huggingface_hub import snapshot_download
+
+    snapshot_download(repo_id=_DOSE_REPO, repo_type="dataset",
+                      local_dir=str(folder))
+
+
+def _load_dose_test_data(screen, *, ask=None) -> bool:
+    """Reuse or fetch the dose example, then hand it to the screen.
+
+    :param screen: a screen :func:`_install_dose_test_data_button` was
+        called on.
+    :param ask: replaces the download, called with the folder. For tests.
+    :returns: whether the screen received the example.
+    """
+    folder = _dose_example_folder()
+    if not (folder / _DOSE_PLATE).is_file():
+        try:
+            (ask or _fetch_dose_example)(folder)
+        except Exception as exc:
+            _report(screen, tr("The test data could not be downloaded: "
+                               "{detail}", detail=str(exc) or
+                               exc.__class__.__name__))
+            return False
+    apply = getattr(screen, "_dose_test_data_apply", None)
+    try:
+        if apply is not None:
+            apply(folder)
+    except Exception as exc:
+        LOG.exception("the screen could not open the dose example")
+        _report(screen, str(exc) or exc.__class__.__name__)
+        return False
+    return True
+
+
+def _dose_runs(folder: Path):
+    """``[(run name, results.csv, settings)]`` for the example's recorded runs."""
+    import json
+
+    runs = []
+    for run in sorted((Path(folder) / "runs").glob("*/results.csv")):
+        settings_file = run.parent / "settings.json"
+        settings = (json.loads(settings_file.read_text(encoding="utf-8"))
+                    if settings_file.is_file() else {})
+        settings["src"] = str(Path(folder) / _DOSE_PLATE)
+        settings["dst"] = str(run.parent)
+        runs.append((run.parent.name, run, settings))
+    return runs
+
+
+def _register_dose_runs(folder: Path) -> int:
+    """Put the example's regression runs in its project's artifact registry.
+
+    Registering the same file again updates its row, so this is safe to
+    repeat.
+
+    :returns: how many runs were registered.
+    """
+    from ... import ports
+    from ...artifacts import Registry
+
+    registry = Registry(project=str(folder))
+    runs = _dose_runs(folder)
+    for name, results, settings in runs:
+        registry.register(module="regression", kind=ports.REGRESSION_RESULTS,
+                          path=str(results), settings=settings,
+                          run_id=f"dose-example-{name}")
+    return len(runs)
+
+
+def _journal_dose_runs(folder: Path) -> int:
+    """Write the example's regression runs into this computer's run journal.
+
+    Done once: the journal folders written are remembered beside the example
+    and nothing is written while they still exist.
+
+    :returns: how many runs were journalled now.
+    """
+    from ...run_journal import open_run, runs_root
+
+    mark = Path(folder) / _DOSE_JOURNAL_MARK
+    if mark.is_file():
+        names = [line for line in mark.read_text(encoding="utf-8").split()
+                 if line]
+        if names and all((runs_root() / name).is_dir() for name in names):
+            return 0
+    written = []
+    for _name, results, settings in _dose_runs(folder):
+        with open_run("regression", settings) as run:
+            run.record_input(settings["src"], setting_key="src")
+            run.record_output(results, setting_key="dst")
+            run.set_status("success")
+        written.append(Path(run.dir).name)
+    mark.write_text("\n".join(written) + "\n", encoding="utf-8")
+    return len(written)

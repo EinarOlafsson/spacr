@@ -9,6 +9,8 @@ reaches the screen.
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 from PySide6.QtWidgets import QPushButton
 
@@ -36,6 +38,16 @@ IMPORT_BUTTONS = {
     "layer_viewer": "LayerViewerTestDataButton",
     "external_masks": "ExternalMasksTestDataButton",
 }
+
+#: Screen key -> the alpha button that opens the dose example.
+DOSE_BUTTONS = {
+    "dose_response": "DoseResponseTestDataButton",
+    "profiler": "ProfilerTestDataButton",
+    "run_compare": "RunCompareTestDataButton",
+    "run_history": "RunHistoryTestDataButton",
+    "train_compare": "TrainCompareTestDataButton",
+}
+
 
 
 #: Screens whose catalog entry is an alpha stage, built from their own factory.
@@ -78,7 +90,8 @@ def test_every_button_is_registered_as_alpha():
     from spacr.settings import ALPHA_FEATURES
 
     assert set(ALPHA_FEATURES[633]["widgets"]) == (
-        set(BUTTONS.values()) | set(IMPORT_BUTTONS.values()))
+        set(BUTTONS.values()) | set(IMPORT_BUTTONS.values())
+        | set(DOSE_BUTTONS.values()))
 
 
 @pytest.mark.parametrize("key", sorted(BUTTONS))
@@ -197,3 +210,132 @@ def test_import_fields_button_is_alpha_and_loads_while_hidden(
     monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
     preferences._apply_alpha_widgets(screen)
     assert not button.isHidden()
+
+
+def _write_dose_example(folder):
+    """Write a small dose example in the staged layout: plate, runs, training."""
+    import json
+
+    import numpy as np
+    import pandas as pd
+
+    rows = []
+    for plate in ("P1", "P2"):
+        for compound, ec50 in (("alpha", 0.5), ("beta", 3.0)):
+            for dose in (0.041, 0.123, 0.37, 1.11, 3.33, 10.0):
+                rows.append((plate, compound, dose,
+                             40 + 110 / (1 + (dose / ec50) ** 1.5)))
+        rows += [(plate, "DMSO", 0.0, 150.0)] * 4
+    frame = pd.DataFrame(rows, columns=["plate", "compound", "dose_uM",
+                                        mx._DOSE_RESPONSE])
+    frame["Cells_AreaShape_Area"] = np.linspace(9000, 12000, len(frame))
+    folder.mkdir(parents=True)
+    frame.to_csv(folder / mx._DOSE_PLATE, index=False)
+    for name, slope in (("regression_raw", -100.0),
+                        (mx._DOSE_PROFILER_RUN, -0.7)):
+        run = folder / "runs" / name
+        run.mkdir(parents=True)
+        pd.DataFrame({"feature": ["Intercept", "alpha", "beta"],
+                      "coefficient": [150.0, slope, slope / 2],
+                      "p_value": [0.0, 0.001, 0.01]}).to_csv(
+            run / "results.csv", index=False)
+        (run / "settings.json").write_text(json.dumps(
+            {"regression_type": "ols", "plate_normalisation": name}))
+    for epochs in (3, 5):
+        run = (folder / "training" / "model" / "logistic_sgd" / "profiles"
+               / f"epochs_{epochs}")
+        run.mkdir(parents=True)
+        for split in ("train", "validation"):
+            pd.DataFrame({"epoch": range(1, epochs + 1),
+                          "loss": np.linspace(0.7, 0.3, epochs),
+                          "accuracy": np.linspace(0.6, 0.9, epochs)}).to_csv(
+                run / f"{split}.csv", index=False)
+        settings = folder / "training" / "settings"
+        settings.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame({"Key": ["epochs", "learning_rate"],
+                      "Value": [epochs, 0.01 / epochs]}).to_csv(
+            settings / f"train_test_logistic_sgd_{epochs}.csv", index=False)
+    return folder
+
+
+def _dose_reached(key, screen, folder) -> bool:
+    """Whether the dose example reached the screen and was opened."""
+    if key == "dose_response":
+        return (screen._frame is not None
+                and screen.concentration_picker.currentData() == "dose_uM"
+                and screen.response_picker.currentData() == mx._DOSE_RESPONSE
+                and screen.group_picker.currentData() == "compound"
+                and screen.fit_button.isEnabled())
+    if key == "profiler":
+        return (screen._path_edit.text().endswith("results.csv")
+                and mx._DOSE_PROFILER_RUN in screen._path_edit.text()
+                and len(screen._ranked) == 2)
+    if key == "run_compare":
+        return (screen._project_edit.text() == str(folder)
+                and len(screen.runs()) == 2)
+    if key == "run_history":
+        return len([record for record in screen.records
+                    if str(folder) in json.dumps(record, default=str)]) == 2
+    if key == "train_compare":
+        return len(screen.runs()) == 2
+    raise AssertionError(key)
+
+
+@pytest.mark.parametrize("key", sorted(DOSE_BUTTONS))
+def test_dose_button_is_alpha_and_loads_while_hidden(
+        qtbot, tmp_path, monkeypatch, key):
+    """Off hides it, on shows it, and a load while hidden still lands."""
+    from spacr import run_journal
+    from spacr.qt import preferences
+
+    folder = _write_dose_example(tmp_path / "example_data" / mx._DOSE_FOLDER)
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    journal = tmp_path / "journal"
+    journal.mkdir()
+    monkeypatch.setattr(run_journal, "runs_root", lambda: journal)
+
+    screen = _build_from_app(qtbot, key)
+    found = screen.findChildren(QPushButton, DOSE_BUTTONS[key])
+    assert len(found) == 1
+    button = found[0]
+    assert "test data" in button.text().lower()
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: False)
+    preferences._apply_alpha_widgets(screen)
+    assert button.isHidden()
+
+    def refuse(_folder):
+        """Fail if the cached example is downloaded again."""
+        raise AssertionError("downloaded a cached example")
+
+    assert mx._load_dose_test_data(screen, ask=refuse) is True
+    qtbot.waitUntil(lambda: _dose_reached(key, screen, folder),
+                    timeout=20_000)
+    if key == "run_history":
+        assert mx._journal_dose_runs(folder) == 0
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
+    preferences._apply_alpha_widgets(screen)
+    assert not button.isHidden()
+
+
+def test_a_missing_dose_example_is_fetched_and_a_failure_is_reported(
+        qtbot, tmp_path, monkeypatch):
+    """No cached plate asks the downloader; a failed download is said."""
+    folder = tmp_path / "example_data" / mx._DOSE_FOLDER
+    monkeypatch.setattr(mx, "example_measurements_folder",
+                        lambda: folder.parent / "plate1")
+    screen = _build_from_app(qtbot, "dose_response")
+    said = []
+    screen._test_data_say = said.append
+
+    def offline(_folder):
+        """Stand in for an unreachable dataset repository."""
+        raise OSError("offline")
+
+    assert mx._load_dose_test_data(screen, ask=offline) is False
+    assert said and "offline" in said[-1]
+    assert mx._load_dose_test_data(
+        screen, ask=lambda target: _write_dose_example(target)) is True
+    assert screen._frame is not None

@@ -414,6 +414,12 @@ class DoseResponseScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of dose and response")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        from ..widgets.measurements_example import (
+            _install_dose_test_data_button)
+        example = _install_dose_test_data_button(
+            self, head, self._open_the_dose_example,
+            say=self._source.setText)
+        example.setObjectName("DoseResponseTestDataButton")
         outer.addLayout(head)
 
         controls = QHBoxLayout()
@@ -867,6 +873,30 @@ class DoseResponseScreen(QWidget):
         self._jobs.submit(
             lambda p=path, t=chosen: (t, read_table(p, t)),
             self._on_frame_loaded)
+
+    def _open_the_dose_example(self, folder) -> None:
+        """Open the dose example's plate and pick its dose, response and group.
+
+        :param folder: the dose example folder.
+        """
+        from ..widgets.measurements_example import _DOSE_PLATE, _DOSE_RESPONSE
+
+        path = os.path.join(str(folder), _DOSE_PLATE)
+        frame = read_table(path, None)
+        self._path = path
+        self._table_picker.setVisible(False)
+        self.set_frame(frame)
+        for picker, value in ((self.concentration_picker, "dose_uM"),
+                              (self.response_picker, _DOSE_RESPONSE),
+                              (self.group_picker, "compound")):
+            index = picker.findData(value)
+            picker.setCurrentIndex(index if index >= 0
+                                   else picker.findText(value))
+        self.unit_edit.setText("µM")
+        set_translatable_text(
+            self._source, "{name} · {rows} rows × {columns} columns",
+            name=os.path.basename(path), rows=f"{len(frame):,}",
+            columns=len(frame.columns))
 
     def _on_frame_loaded(self, payload) -> None:
         """Hand a worker-read frame to the pickers. GUI thread only."""
