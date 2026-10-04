@@ -39,3 +39,30 @@ def test_a_target_every_held_out_crop_already_has_is_refused():
     crops = torch.rand(8, 1, 4, 4)
     with pytest.raises(ValueError, match="already in the target"):
         _counterfactual_report(_always_class_zero(), crops, epochs=1, target=0)
+
+
+def _tiny_classifier():
+    model = nn.Sequential(nn.Conv2d(1, 2, 3, padding=1), nn.AdaptiveAvgPool2d(1),
+                          nn.Flatten())
+    return model
+
+
+def test_diffusion_without_epochs_or_augmentation_trains_quietly():
+    from spacr.attribution import _train_counterfactual_diffusion
+
+    crops = torch.rand(8, 1, 16, 16)
+    tiny = {"width": 8, "timesteps": 20, "sample_steps": 4}
+    _gen, history = _train_counterfactual_diffusion(
+        _tiny_classifier(), crops, epochs=0, **tiny)
+    assert history == []
+    _gen, history = _train_counterfactual_diffusion(
+        _tiny_classifier(), crops, epochs=1, augment=False, **tiny)
+    assert len(history) == 1
+
+
+def test_realism_with_no_counterfactuals_is_unknown():
+    from spacr.attribution import _cf_realism
+
+    crops = torch.rand(4, 1, 16, 16)
+    value = _cf_realism(_tiny_classifier(), crops, crops, [], [])
+    assert all(v != v for v in value)
