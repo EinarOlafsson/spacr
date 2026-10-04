@@ -119,3 +119,19 @@ WHAT IS LEFT
     GPU runs: N/A for DONE WHEN (met on CPU in 9-11 s per run); optional.
     Not blocked, still OPEN code: embeddings carried with object ids and wells
     from the screen's own result. Status stays IMPLEMENTED AS ALPHA until then.
+
+2026-10-03 — STORED EMBEDDINGS AS MIL INPUT (alpha, CPU)
+    ALPHA: "Learn from well labels…" (EmbeddingsWellMilButton, still alpha)
+    now also opens a measurements.db. spacr.embeddings._mil_frame_from_db
+    joins the crop_embedding table (565) to png_list through prcfo, so each
+    row carries prcfo, png_path, plate/row/column/field, object, a wellID of
+    <plate>_<row>_<column> and the emb_ columns; a second file dialog asks
+    for the well-label table (wellID or well + well_label; wells may be
+    spelled plate_row_col, row_col or rowcol). The column form, run,
+    scorecard and montage are unchanged; outputs go beside the db.
+    Tests: tests/test_multiple_instance_learning.py (join, planted
+    responders get higher evidence, refusals), tests/qt/test_well_mil_alpha_gate.py
+    (db reaches the model while the button is hidden; no-embedding db says so).
+    Left: nothing in code. Note: no GUI step writes crop_embedding yet
+    (only spacr.active_learning._store_crop_embeddings); new captions await
+    the catalog lane (_AWAITING_CATALOG_REBUILD). GPU runs optional.

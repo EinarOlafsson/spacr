@@ -1568,6 +1568,77 @@ def _mil_from_table(frame: Any, *, folds: int = 4, seed: int = 0,
     return cells, well_frame, card
 
 
+def _mil_frame_from_db(db_path: str, labels: Any = None, *,
+                       label_column: str = _MIL_LABEL_COLUMN):
+    """A per-cell table for the well-label model from stored crop embeddings.
+
+    The embeddings saved in ``measurements.db`` by
+    :func:`spacr.active_learning._store_crop_embeddings` are joined through
+    ``prcfo`` to the crop table, so every row carries its object key
+    (``prcfo``), crop path, plate, row, column, field and object, a
+    ``wellID`` of ``<plate>_<row>_<column>``, and the ``emb_`` columns.
+
+    :param db_path: path to ``measurements.db``.
+    :param labels: optional well labels: a table, or a path to one, with a
+        ``wellID`` or ``well`` column and ``label_column``. Its wells may be
+        named ``<plate>_<row>_<column>``, ``<row>_<column>`` or
+        ``<row><column>``; the spelling that matches most cells is used.
+        Cells of an unlabelled well keep an empty label.
+    :param label_column: the label column of ``labels``.
+    :returns: one row per crop with a stored embedding.
+    :raises ValueError: when the database has no stored embeddings, none
+        joins a crop, or ``labels`` has no well or label column.
+    """
+    import pandas as pd
+
+    from . import tabular
+    from .active_learning import _stored_embedding_frame
+    from .agreement import PNG_TABLE
+
+    stored = _stored_embedding_frame(db_path)
+    if stored is None or stored.empty:
+        raise ValueError(
+            f"{db_path} has no stored crop embeddings (no crop_embedding "
+            "table with rows)")
+    crops = tabular.read_table(db_path, table=PNG_TABLE, canonicalise=False,
+                               report=None, repair_plate_ids=False)
+    keep = [c for c in ("prcfo", "png_path", "plateID", "rowID", "columnID",
+                        "fieldID") if c in crops.columns]
+    if "prcfo" not in keep:
+        raise ValueError(f"the {PNG_TABLE} table of {db_path} has no prcfo column")
+    crops = crops[keep].dropna(subset=["prcfo"]).copy()
+    crops["prcfo"] = crops["prcfo"].astype(str)
+    stored = stored.copy()
+    stored["prcfo"] = stored["prcfo"].astype(str)
+    frame = crops.drop_duplicates("prcfo").merge(stored, on="prcfo",
+                                                 how="inner")
+    if frame.empty:
+        raise ValueError(f"no stored embedding in {db_path} joins a crop")
+    parts = frame["prcfo"].str.split("_")
+    for column, at in (("plateID", 0), ("rowID", 1), ("columnID", 2),
+                       ("fieldID", 3)):
+        if column not in frame.columns:
+            frame[column] = parts.str[at]
+    frame["object"] = parts.str[-1]
+    frame.insert(1, _MIL_WELL_COLUMN, frame["plateID"].astype(str) + "_"
+                 + frame["rowID"].astype(str) + "_"
+                 + frame["columnID"].astype(str))
+    if labels is None:
+        return frame
+    if not isinstance(labels, pd.DataFrame):
+        labels = tabular.read_table(labels, canonicalise=False, report=None)
+    well_column = _mil_well_column(labels, _MIL_WELL_COLUMN)
+    for column in (well_column, label_column):
+        if column not in labels.columns:
+            raise ValueError(f"the well-label table has no {column!r} column")
+    named = dict(zip(labels[well_column].astype(str), labels[label_column]))
+    row, col = frame["rowID"].astype(str), frame["columnID"].astype(str)
+    spellings = (frame[_MIL_WELL_COLUMN], row + "_" + col, row + col)
+    best = max(spellings, key=lambda keys: int(keys.isin(named).sum()))
+    frame[label_column] = best.map(named)
+    return frame
+
+
 #: Key prefix for an encoder's model-zoo entry. Distinct from a checkpoint's
 #: filename-derived key because an encoder has no file of spaCR's own -- it is
 #: named by backbone and policy, which together are what a later run must

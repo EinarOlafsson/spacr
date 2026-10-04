@@ -370,6 +370,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "counterfactuals", "counterfactual_crops", "counterfactual_epochs",
     # item 564 (2026-10-03): the per-condition counterfactual target.
     "counterfactual_condition",
+    # item 564 (2026-10-03): the chosen counterfactual target.
+    "counterfactual_target",
     "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth",
     "plaque_growth_reference_um", "plaque_growth_reference_hours",
     "replication_method", "tta_enabled", "tta_rotations", "tta_horizontal_flip",

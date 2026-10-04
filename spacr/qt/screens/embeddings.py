@@ -659,7 +659,7 @@ class EmbeddingsScreen(QWidget):
                 "feature_columns": chosen or None}
 
     def _learn_from_well_labels(self, path: str = "",
-                                columns=None) -> str:
+                                columns=None, labels: str = "") -> str:
         """Train the well-label attention model on a per-cell table.
 
         The table is read, a form asks for the well, label and feature
@@ -668,21 +668,45 @@ class EmbeddingsScreen(QWidget):
         ``<name>_mil_wells.csv`` are written beside it. The scorecard and a
         montage of the highest-attention crops are shown on the screen.
 
-        :param path: the table; asks for one when empty.
+        A ``measurements.db`` is read through its stored crop embeddings,
+        joined to object ids and wells; the well labels then come from a
+        second table with a well column and a ``well_label`` column.
+
+        :param path: the table or database; asks for one when empty.
         :param columns: ``well_column``, ``label_column`` and
             ``feature_columns`` for the model; asks with a form when ``None``.
-        :returns: the table used, or ``''`` when a dialog was dismissed.
+        :param labels: the well-label table for a database; asks for one
+            when empty.
+        :returns: the table used, or ``''`` when a dialog was dismissed or
+            the database has no stored embeddings.
         """
         from ...tabular import read_table
 
         if not path:
             path, _filter = QFileDialog.getOpenFileName(
                 self, tr("Choose a per-cell table with well labels"), "",
-                tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+                tr("Tables or measurements.db (*.csv *.tsv *.parquet "
+                   "*.feather *.xlsx *.db)"))
         if not path:
             return ""
         path = str(path)
-        frame = read_table(path, report=None)
+        if path.lower().endswith(".db"):
+            from ...embeddings import _mil_frame_from_db
+
+            if not labels:
+                labels, _filter = QFileDialog.getOpenFileName(
+                    self, tr("Choose the well-label table for the stored "
+                             "embeddings"), os.path.dirname(path),
+                    tr("Tables (*.csv *.tsv *.parquet *.feather *.xlsx)"))
+            if not labels:
+                return ""
+            try:
+                frame = _mil_frame_from_db(path, str(labels))
+            except ValueError as exc:
+                self._status.setText(str(exc))
+                return ""
+        else:
+            frame = read_table(path, report=None)
         if columns is None:
             columns = self._ask_mil_columns(frame.columns)
             if columns is None:

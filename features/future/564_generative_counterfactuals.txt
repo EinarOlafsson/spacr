@@ -133,3 +133,17 @@ PER-CONDITION TARGET AND QT VIEWER 2026-10-03 (alpha, CPU)
     (c) diffusion/StyleGAN generator: many GPU-hours in its own env.
     Not blocked, still OPEN: choosing the target condition (code); caption
     catalog entries (catalog lane). Status stays IMPLEMENTED AS ALPHA.
+
+2026-10-03 — TARGET CHOICE (alpha, CPU)
+    ALPHA: new setting counterfactual_target (ALPHA_FEATURES[564],
+    Counterfactuals heading, default ''): a class index when
+    counterfactual_condition is 'class', else a condition name (e.g. 'c2'
+    for column, 'plate1_B03' for well). Every held-out crop morphs toward
+    it; crops already there are left out; an unknown target skips with a
+    note. Empty keeps the old next-in-sorted-order behaviour. The class-mean
+    baseline uses the same target; the summary gains a 'target' column.
+    Tests: tests/test_generative_counterfactuals.py (condition target, class
+    index target, run passes the setting), the alpha gate test (saved while
+    hidden reaches collect()).
+    Left: diffusion/StyleGAN generator (GPU, own env); catalog entries for
+    the new label and tooltip (catalog lane).

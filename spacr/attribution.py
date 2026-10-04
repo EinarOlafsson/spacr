@@ -2838,7 +2838,7 @@ def _counterfactual_sequences(model: nn.Module,
 def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
                          test: torch.Tensor, *, device: Any = 'cpu',
                          train_labels=None, test_labels=None,
-                         target_probs=None):
+                         target_probs=None, targets=None):
     """Flip rate and edit size of the naive counterfactual, a class-mean shift.
 
     Each test crop gets the difference between the mean training crop of its
@@ -2846,7 +2846,8 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     that does no better than this has learned nothing beyond the average
     difference between the classes. With condition labels and
     ``target_probs`` the means are per condition and a flip is the
-    target condition's most likely class.
+    target condition's most likely class. ``targets`` gives each test
+    crop's target code; ``None`` uses the next code after its own.
 
     :returns: ``(flip_rate, median_edit_l1)``, NaN when a class has no
         training crops.
@@ -2864,7 +2865,7 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
         if members.shape[0] == 0:
             return float('nan'), float('nan')
         means.append(members.mean(dim=0))
-    tgt = (src + 1) % n
+    tgt = (src + 1) % n if targets is None else torch.as_tensor(targets).long()
     shift = torch.stack([means[int(t)] - means[int(s)] for s, t in zip(src, tgt)])
     moved = test + shift
     wanted = target_probs.argmax(dim=1)[tgt].to(device)
@@ -2874,13 +2875,38 @@ def _class_mean_baseline(model: nn.Module, train: torch.Tensor,
     return float(flipped), float(l1.median())
 
 
+def _cf_target_index(target: Any, levels: Sequence[str], n_classes: int) -> int:
+    """The code index of a chosen counterfactual target.
+
+    With condition ``levels`` the target is one of them by name; otherwise
+    it is a class index of the classifier, ``0`` to ``n_classes - 1``.
+
+    :raises ValueError: when the target is not among them.
+    """
+    text = str(target).strip()
+    if levels:
+        if text not in levels:
+            raise ValueError(f'target condition {text!r} is not among the '
+                             f'training conditions {list(levels)}')
+        return list(levels).index(text)
+    try:
+        index = int(float(text))
+    except ValueError:
+        index = -1
+    if not 0 <= index < int(n_classes):
+        raise ValueError(f'target class {text!r} is not a class index from '
+                         f'0 to {int(n_classes) - 1}')
+    return index
+
+
 def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
                            names: Optional[Sequence[str]] = None,
                            epochs: int = 30, steps: int = 7,
                            holdout: float = 0.25, show: int = 6,
                            seed: int = 0, device: Any = 'cpu',
                            out_dir: Optional[str] = None,
-                           conditions: Optional[Sequence[str]] = None):
+                           conditions: Optional[Sequence[str]] = None,
+                           target: Any = None):
     """Train a counterfactual generator on crops and score it on held-out ones.
 
     The crops are split, seeded, into a training part and a held-out part.
@@ -2908,10 +2934,15 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         each condition's target is the classifier's mean class probabilities
         over its training crops, every held-out crop moves to the next
         condition in sorted order, and the rows name both conditions.
+    :param target: optional target every held-out crop morphs toward: a
+        condition name with ``conditions``, otherwise a class index.
+        Held-out crops already in the target are left out. ``None`` or an
+        empty string morphs each crop to the next class or condition.
     :returns: ``(summary, rows, frames)``: a dict of summary metrics, the
         held-out rows of ``_counterfactual_sequences`` and their frames.
-    :raises ValueError: for fewer than four crops, or fewer than two
-        conditions among the training crops.
+    :raises ValueError: for fewer than four crops, fewer than two
+        conditions among the training crops, a target that is not a class
+        or training condition, or no held-out crop outside the target.
     """
     crops = torch.as_tensor(crops).float()
     n = crops.shape[0]
@@ -2936,16 +2967,28 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         labels = torch.as_tensor([index.get(c, 0) for c in conditions])
         wrapped = ClassScoreModel(model).to(torch.device(device)).eval()
         probs = _cf_scores(wrapped, crops[train_idx].to(torch.device(device))).cpu()
-        target = torch.stack([probs[labels[train_idx] == k].mean(dim=0)
-                              for k in range(len(levels))])
-        codes = {'labels': labels, 'target_probs': target}
+        target_probs = torch.stack([probs[labels[train_idx] == k].mean(dim=0)
+                                    for k in range(len(levels))])
+        codes = {'labels': labels, 'target_probs': target_probs}
+    goal = None
+    if target is not None and str(target).strip():
+        wrapped = ClassScoreModel(model).to(torch.device(device)).eval()
+        scores = _cf_scores(wrapped, crops[test_idx].to(torch.device(device)))
+        goal = _cf_target_index(target, levels, scores.shape[1])
+        own = (scores.argmax(dim=1).cpu() if codes['labels'] is None
+               else codes['labels'][test_idx])
+        test_idx = test_idx[own != goal]
+        if not len(test_idx):
+            raise ValueError('every held-out crop is already in the target '
+                             f'{target!r}')
     generator, history = _train_counterfactual_generator(
         model, crops[train_idx], epochs=epochs, seed=seed, device=device,
         labels=None if codes['labels'] is None else codes['labels'][train_idx],
         target_probs=codes['target_probs'])
+    goals = None if goal is None else [goal] * len(test_idx)
     rows, frames = _counterfactual_sequences(
-        model, generator, crops[test_idx], steps=steps, keep=show,
-        device=device,
+        model, generator, crops[test_idx], targets=goals, steps=steps,
+        keep=show, device=device,
         labels=None if codes['labels'] is None else codes['labels'][test_idx],
         target_probs=codes['target_probs'])
     names = list(names) if names is not None else [str(i) for i in range(n)]
@@ -2958,7 +3001,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         model, crops[train_idx], crops[test_idx], device=device,
         train_labels=None if codes['labels'] is None else codes['labels'][train_idx],
         test_labels=None if codes['labels'] is None else codes['labels'][test_idx],
-        target_probs=codes['target_probs'])
+        target_probs=codes['target_probs'], targets=goals)
     spear = np.array([r['spearman'] for r in rows], dtype=float)
     summary = {
         'train_crops': int(len(train_idx)), 'heldout_crops': int(len(test_idx)),
@@ -2971,6 +3014,7 @@ def _counterfactual_report(model: nn.Module, crops: torch.Tensor, *,
         'median_changed_fraction': float(np.median([r['changed_fraction'] for r in rows])),
         'baseline_flip_rate': base_flip, 'baseline_median_edit_l1': base_l1,
         'conditions': len(levels),
+        'target': '' if goal is None else (levels[goal] if levels else str(goal)),
     }
     if out_dir:
         _write_counterfactual_outputs(out_dir, summary, rows, frames)

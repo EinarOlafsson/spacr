@@ -225,3 +225,52 @@ def test_the_activation_run_uses_the_condition_setting(trained, tmp_path,
         {"counterfactual_epochs": 1, "counterfactual_condition": "well"},
         model, [x[:12]], one, str(tmp_path / "cf2"), "cpu") is None
     assert "at least 2" in capsys.readouterr().out
+
+
+def test_every_crop_morphs_toward_the_chosen_condition(trained):
+    model, x = trained
+    _x, y = _crops(160)
+    wells = ["control" if int(label) == 0 else "hit" for label in y]
+    summary, rows, _frames = _counterfactual_report(
+        model, x, epochs=10, show=0, conditions=wells, target="hit")
+    assert summary["target"] == "hit" and rows
+    assert {(r["source_condition"], r["target_condition"]) for r in rows} == {
+        ("control", "hit")}
+    assert summary["flip_rate"] >= 0.7, summary
+    with pytest.raises(ValueError, match="not among"):
+        _counterfactual_report(model, x[:16], epochs=1,
+                               conditions=wells[:16], target="nowhere")
+
+
+def test_a_class_target_is_an_index_and_skips_crops_already_there(trained):
+    from spacr.attribution import _cf_target_index
+
+    model, x = trained
+    summary, rows, _frames = _counterfactual_report(
+        model, x[:40], epochs=2, show=0, target="0")
+    assert summary["target"] == "0"
+    assert rows and all(r["source_class"] == 1 and r["target_class"] == 0
+                        for r in rows)
+    assert _cf_target_index("1", [], 2) == 1
+    with pytest.raises(ValueError, match="class index"):
+        _cf_target_index("2", [], 2)
+    with pytest.raises(ValueError, match="class index"):
+        _cf_target_index("hit", [], 2)
+
+
+def test_the_activation_run_passes_the_target_setting(trained, tmp_path,
+                                                      capsys):
+    from spacr.deep_spacr import _run_counterfactuals
+
+    model, x = trained
+    names = [f"p1_A0{1 + i % 2}_1_{i}.png" for i in range(12)]
+    summary = _run_counterfactuals(
+        {"counterfactual_epochs": 1, "counterfactual_condition": "column",
+         "counterfactual_target": "c2"},
+        model, [x[:12]], names, str(tmp_path / "cf"), "cpu")
+    assert summary["target"] == "c2"
+    assert _run_counterfactuals(
+        {"counterfactual_epochs": 1, "counterfactual_condition": "column",
+         "counterfactual_target": "c9"},
+        model, [x[:12]], names, str(tmp_path / "cf2"), "cpu") is None
+    assert "not among" in capsys.readouterr().out

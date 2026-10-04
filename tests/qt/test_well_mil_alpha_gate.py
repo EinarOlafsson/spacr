@@ -156,3 +156,38 @@ def test_chosen_columns_reach_the_model(screen, tmp_path):
     assert screen._mil_montage_count == 24
     assert not screen._mil_result.findChild(
         object, "EmbeddingsWellMilMontage").pixmap().isNull()
+
+
+def test_a_database_reaches_the_model_through_its_stored_embeddings(
+        screen, monkeypatch, tmp_path):
+    import spacr.embeddings as emb
+    from tests.test_multiple_instance_learning import _embedded_project
+    from spacr.tabular import write_table
+
+    db, labels = _embedded_project(tmp_path)
+    table = tmp_path / "well_labels.csv"
+    write_table(labels, table)
+    seen = []
+
+    def fake(frame, **columns):
+        seen.append((len(frame), sorted(frame["well_label"].unique()),
+                     "prcfo" in frame.columns))
+        return frame.assign(mil_attention=1.0), frame.head(1), {
+            "mil_auroc": 1.0, "mean_auroc": 0.5, "wells": 8.0}
+
+    monkeypatch.setattr(emb, "_mil_from_table", fake)
+    assert screen._well_mil.isHidden()
+    assert screen._learn_from_well_labels(
+        db, columns={"well_column": "wellID", "label_column": "well_label",
+                     "feature_columns": None}, labels=str(table)) == db
+    assert seen == [(96, [0, 1], True)]
+    assert os.path.exists(os.path.splitext(db)[0] + "_mil_cells.csv")
+
+
+def test_a_database_without_embeddings_says_so(screen, tmp_path):
+    from tests.test_cov_active_learning_rounds import _make_project
+
+    db = _make_project(tmp_path)["db"]
+    assert screen._learn_from_well_labels(
+        db, columns={}, labels=str(tmp_path / "unused.csv")) == ""
+    assert "no stored crop embeddings" in screen._status.text()

@@ -1274,6 +1274,9 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Further screens",
     "Optional: further run folders, one per line, each becoming another "
     "screen of the same study.",
+    # item 562: well-label model from a measurements.db's stored embeddings
+    "Tables or measurements.db (*.csv *.tsv *.parquet *.feather *.xlsx *.db)",
+    "Choose the well-label table for the stored embeddings",
     # item 633: Load test data on Convert, Layer Viewer and External Masks
     "Download Import's test data, about 285 MB: four microscope fields "
     "with their cell, nucleus and pathogen masks, written in every "

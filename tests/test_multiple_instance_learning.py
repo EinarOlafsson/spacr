@@ -80,3 +80,67 @@ def test_refuses_labels_it_cannot_read():
     assert _mil_bags(named, positive="treated")[1].sum() == 8
     with pytest.raises(ValueError, match="no 'wellID' column"):
         _mil_bags(frame.drop(columns="well"))
+
+
+def _embedded_project(tmp_path):
+    """A measurements.db whose crops carry stored embeddings.
+
+    Row A's four wells are positive; a third of their cells have a raised
+    first embedding dimension. Row B's four wells are negative.
+    """
+    import sqlite3
+    from types import SimpleNamespace
+
+    from spacr import active_learning as al
+    from tests.test_cov_active_learning_rounds import _make_project
+
+    wells = [(r, str(c)) for r in "AB" for c in range(1, 5)]
+    project = _make_project(tmp_path, per_well=12, wells=wells)
+    with sqlite3.connect(project["db"]) as con:
+        rows = con.execute("SELECT prcfo, rowID FROM png_list").fetchall()
+    rng = np.random.default_rng(0)
+    values = rng.normal(0, 1, (len(rows), 4)).astype(np.float32)
+    for i, (key, row) in enumerate(rows):
+        if row == "A" and int(key.split("_o")[-1]) % 3 == 0:
+            values[i, 0] += 4.0
+    al._store_crop_embeddings(project["db"], [r[0] for r in rows],
+                              SimpleNamespace(values=values, columns=tuple(
+                                  f"emb_{i}" for i in range(4))))
+    labels = pd.DataFrame({"well": [f"{r}{c}" for r, c in wells],
+                           "well_label": [int(r == "A") for r, c in wells]})
+    return project["db"], labels
+
+
+def test_stored_embeddings_join_object_ids_and_wells(tmp_path):
+    from spacr.embeddings import _mil_frame_from_db, _mil_from_table
+
+    db, labels = _embedded_project(tmp_path)
+    frame = _mil_frame_from_db(db)
+    assert len(frame) == 96 and frame["wellID"].nunique() == 8
+    assert {"prcfo", "png_path", "plateID", "rowID", "columnID", "object",
+            "emb_0"} <= set(frame.columns)
+    assert (frame["wellID"] == "plate1_" + frame["rowID"] + "_"
+            + frame["columnID"]).all()
+    assert all(key.endswith("_" + obj)
+               for key, obj in zip(frame["prcfo"], frame["object"]))
+    labelled = _mil_frame_from_db(db, labels)
+    assert labelled["well_label"].notna().all()
+    assert (labelled["well_label"] == (labelled["rowID"] == "A")).all()
+    cells, wells, card = _mil_from_table(labelled, folds=2, epochs=30)
+    assert len(wells) == 8 and "prcfo" in cells.columns
+    planted = cells["rowID"].eq("A") & cells["object"].str[1:].astype(
+        int).mod(3).eq(0)
+    assert cells.loc[planted, "mil_evidence"].mean() > cells.loc[
+        ~planted, "mil_evidence"].mean()
+
+
+def test_a_database_without_stored_embeddings_is_refused(tmp_path):
+    from spacr.embeddings import _mil_frame_from_db
+    from tests.test_cov_active_learning_rounds import _make_project
+
+    db = _make_project(tmp_path)["db"]
+    with pytest.raises(ValueError, match="no stored crop embeddings"):
+        _mil_frame_from_db(db)
+    db, labels = _embedded_project(tmp_path / "e")
+    with pytest.raises(ValueError, match="no 'well_label' column"):
+        _mil_frame_from_db(db, labels.drop(columns="well_label"))

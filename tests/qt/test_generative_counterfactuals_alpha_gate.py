@@ -18,7 +18,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QSettings                              # noqa: E402
 
 KEYS = ("counterfactuals", "counterfactual_crops", "counterfactual_epochs",
-        "counterfactual_condition")
+        "counterfactual_condition", "counterfactual_target")
 
 
 @pytest.fixture
@@ -60,6 +60,7 @@ def test_the_activation_rows_follow_the_switch(qtbot, prefs):
         assert screen._alpha_hidden_sections()
         assert screen._settings_model.set_value_for_key(KEYS[0], True)
         assert screen._settings_model.set_value_for_key(KEYS[2], 5)
+        assert screen._settings_model.set_value_for_key(KEYS[4], "hit")
 
         prefs._set_show_alpha_features(True)
         screen._refresh_alpha_visibility()
@@ -71,6 +72,7 @@ def test_the_activation_rows_follow_the_switch(qtbot, prefs):
         collected = screen._settings_model.collect()
         assert collected[KEYS[0]] is True
         assert collected[KEYS[2]] == 5
+        assert collected[KEYS[4]] == "hit"
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()
