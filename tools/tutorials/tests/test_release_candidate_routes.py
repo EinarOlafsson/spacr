@@ -18,8 +18,8 @@ REMAINING_HOLDS = [identity for identity in PLACEHOLDERS
 
 def test_candidate_manifest_and_browser_evidence_match_the_actual_package():
     result = validate(ROOT, require_browser=True)
-    assert result['routes'] == 83  # 83/84 withdrawn in wave 3
-    assert result['ready'] == 83
+    assert result['routes'] == 85  # 83/84 withdrawn in wave 3; 86/87 alpha lessons added in wave 4
+    assert result['ready'] == 85
     assert result['coming_soon'] == 0
 
 
@@ -46,7 +46,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     # Map now includes real search, mapped counts and its explicit API subset.
     # Investigate Hit now has its native walkthrough on the real screen example,
     # so no Coming soon route remains.
-    assert len(ready) == 83 and len(lessons) == 83
+    assert len(ready) == 85 and len(lessons) == 85
     assert [x['id'] for x in unavailable] == REMAINING_HOLDS == []
     embeddings = next(x for x in ready if x['id'] == EMBEDDINGS)
     assert embeddings['app_key'] == 'embeddings'
@@ -100,7 +100,7 @@ def test_candidate_has_all_routes_without_claiming_placeholders_are_recorded():
     assert len(media_tracks) == len(set(media_tracks))
     assert set(media_tracks) == set(declared_tracks)
     assert manifest['narration_tracks'] == len(declared_tracks)
-    assert manifest['narration_tracks'] == 83 * 27 == 2241
+    assert manifest['narration_tracks'] == 85 * 27 == 2295
     assert all(sum(map(len, lesson['narration_voices'].values())) == 27 for lesson in ready)
     assert all((lesson['id'], 'en', 'af_heart') in declared_tracks for lesson in ready)
     local = {Path(r['path']).parts[2] for r in manifest['files']
@@ -133,4 +133,4 @@ def test_the_hold_is_lifted_only_beside_a_read_back_media_revision():
     assert readback['passed'] is True and not readback['download_failures'] and not readback['metadata_failures']
     assert readback['downloaded_sha256_matched'] == readback['files_expected'] == receipt['media_files']
     assert published['passed'] is True and published['media_root'] == receipt['media_root']
-    assert len(published['ready_playback_cases']) == 83
+    assert len(published['ready_playback_cases']) == 85

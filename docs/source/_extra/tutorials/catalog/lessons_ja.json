@@ -1043,6 +1043,12 @@
           "speech_text": "ホームからMaskを開きます。このモジュールでは、顕微鏡画像の細胞、核、病原体の輪郭を取ります。この手順では二次元の画像を処理します。Time、三次元、OPSのワークフローには、それぞれ専用のチュートリアルがあります。"
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "画像が複数のフォルダーに散らばっている場合や、Maskが読めない名前になっている場合は、Input & Metadataの上部にあるOrganize imagesをクリックします。各チャネルに列を割り当て、フォルダーをドロップするか正規表現で指定し、各行が一つの完全な視野になっていることを確認します。Applyは画像をYokogawa形式の名前で一つのフォルダーに移動し、Sourceをそこに設定します。チャネルはすでに入力されています。",
+          "hold_after": 0.7,
+          "speech_text": "画像が複数のフォルダーに散らばっている場合や、Maskが読めない名前になっている場合は、Input & Metadataの上部にあるOrganize imagesをクリックします。各チャネルに列を割り当て、フォルダーをドロップするか正規表現で指定し、各行が一つの完全な視野になっていることを確認します。Applyは画像をYokogawa形式の名前で一つのフォルダーに移動し、Sourceをそこに設定します。チャネルはすでに入力されています。"
+        },
+        {
           "visual": "02_cached_load",
           "narration": "Load test dataをクリックし、顕微鏡の例が読み込まれるまで待ちます。続ける前にSourceを確認します。自分の画像の場合はそのフォルダーを選び、ファイル名でプレート、ウェル、視野、チャネルがわかることを確かめます。",
           "hold_after": 0.7,
@@ -6634,6 +6640,12 @@
             "31_external_masks"
           ],
           "speech_text": "手元にあるものに応じて取り込みツールを選びます。画像だけならImport ImagesかFormat Converter、マスク付きの画像ならExternal Masksを使います。この画面では、画像、マスク、測定テーブルをまとめて取り込みます。"
+        },
+        {
+          "visual": "org_organize_popup",
+          "narration": "画像とマスクをまだ整理する必要がある場合は、Import Imagesを開いてOrganize images and masksをクリックします。各チャネルとマスクに列を割り当て、Mask Generation向けかMeasure向けかを選び、必要に応じて複数チャネルのファイルを分割します。Applyはそれらをそのモジュールが読み込む構成に移動し、そこですぐ開けるようにします。",
+          "hold_after": 0.7,
+          "speech_text": "画像とマスクをまだ整理する必要がある場合は、Import Imagesを開いてOrganize images and masksをクリックします。各チャネルとマスクに列を割り当て、Mask Generation向けかMeasure向けかを選び、必要に応じて複数チャネルのファイルを分割します。Applyはそれらをそのモジュールが読み込む構成に移動し、そこですぐ開けるようにします。"
         },
         {
           "visual": "03_choose_images",
@@ -14098,6 +14110,12 @@
           "speech_text": "ホームからDataを開き、Importを選んでからImport Imagesを選びます。プロジェクトにまとめたい顕微鏡画像のファイルから始めます。"
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "マスクもある場合は、画像フォルダーの横にあるOrganize images and masksをクリックします。各チャンネルのフォルダーとマスクフォルダーをそれぞれの列にドロップし、マスクの役割を設定して、Write forでMask GenerationかMeasureを選びます。複数チャンネルのファイルは、先にチャンネルごとの列に分割できます。Applyはすべてをそのモジュールの構成に移動し、各移動をマニフェストに記録します。",
+          "hold_after": 0.7,
+          "speech_text": "マスクもある場合は、画像フォルダーの横にあるOrganize images and masksをクリックします。各チャンネルのフォルダーとマスクフォルダーをそれぞれの列にドロップし、マスクの役割を設定して、Write forでMask GenerationかMeasureを選びます。複数チャンネルのファイルは、先にチャンネルごとの列に分割できます。Applyはすべてをそのモジュールの構成に移動し、各移動をマニフェストに記録します。"
+        },
+        {
           "visual": "04_source_options",
           "narration": "このチュートリアルではMaskの例を使います。二つのウェルからそれぞれ一つの視野のコピーを選びます。各視野には四つのチャンネルがあります。元のダウンロードは変更しません。",
           "hold_after": 0.7,
@@ -16376,6 +16394,560 @@
         }
       ],
       "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: 生物種モジュール",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Show alpha species をオンにして、未完成の生物種ページを見て回ります: Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells。",
+      "objectives": [
+        "Preferences で Show alpha species をオン・オフする。",
+        "生物種ページを読む: 紹介、細胞図、アッセイタイル。",
+        "使えるアッセイタイルと計画中のタイルを見分け、これらのページが alpha であることを理解する。"
+      ],
+      "prerequisite": "spaCR の Home を開きます。入力ファイルは不要です。これらの生物種ページは alpha であり、未完成で変更される可能性があります。",
+      "scenes": [
+        {
+          "visual": "00_home_assays_off",
+          "narration": "これは spaCR の alpha 生物種モジュールを紹介する唯一のチュートリアルです。通常のインストールでは、Home の Assays タブにある生物種は Toxoplasma だけです。ほかの生物種ページは、求めるまでオフのままです。",
+          "related_lessons": [
+            "82_toxoplasma",
+            "05_home"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "これは スペーカー の alpha 生物種モジュールを紹介する唯一のチュートリアルです。通常のインストールでは、ホーム の Assays タブにある生物種は Toxoplasma だけです。ほかの生物種ページは、求めるまでオフのままです。"
+        },
+        {
+          "visual": "01_prefs_species_off",
+          "narration": "spaCR メニューから Preferences を開き、Modules タブに移ります。Module visibility の最後のスイッチが Show alpha species です。初期設定ではオフになっています。",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "スペーカー メニューから Preferences を開き、Modules タブに移ります。Module visibility の最後のスイッチが Show alpha species です。初期設定ではオフになっています。"
+        },
+        {
+          "visual": "02_prefs_species_on",
+          "narration": "これをオンにします。表示されるものはすべて alpha として扱ってください。ページは未完成で、アッセイタイルの多くはまだ計画中です。名前、レイアウト、解析は公開までに変わる可能性があります。探索に使い、結果の報告には使わないでください。",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "これをオンにします。表示されるものはすべて alpha として扱ってください。ページは未完成で、アッセイタイルの多くはまだ計画中です。名前、レイアウト、解析は公開までに変わる可能性があります。探索に使い、結果の報告には使わないでください。"
+        },
+        {
+          "visual": "02_prefs_species_on_save",
+          "narration": "Save を押します。設定はすぐに反映され、次のセッションにも引き継がれるので、一度行えば十分です。",
+          "focus": [
+            2420,
+            1700,
+            260,
+            80
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Save を押します。設定はすぐに反映され、次のセッションにも引き継がれるので、一度行えば十分です。"
+        },
+        {
+          "visual": "03_home_assays_on",
+          "narration": "Home に戻ると、Assays タブには八つの生物種が並びます。Toxoplasma に続いて Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells です。どのタイルも同じ構成のページを開くので、一つ覚えればすべて読めます。",
+          "focus": [
+            30,
+            310,
+            2270,
+            200
+          ],
+          "hold_after": 0.7,
+          "speech_text": "ホーム に戻ると、Assays タブには八つの生物種が並びます。Toxoplasma に続いて Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection、Mammalian cells です。どのタイルも同じ構成のページを開くので、一つ覚えればすべて読めます。"
+        },
+        {
+          "visual": "plasmodium_page",
+          "narration": "まずマラリア原虫の Plasmodium から始めます。左側の短い紹介では、この生物種でイメージングが測定できることを説明しています。感染頻度、血液ステージの発達、肝臓感染、運動性、化合物への応答です。その下の各セクションは、生物学的な問いを右側のアッセイタイルに結び付けています。",
+          "hold_after": 0.7,
+          "speech_text": "まずマラリア原虫の Plasmodium から始めます。左側の短い紹介では、この生物種でイメージングが測定できることを説明しています。感染頻度、血液ステージの発達、肝臓感染、運動性、化合物への応答です。その下の各セクションは、生物学的な問いを右側のアッセイタイルに結び付けています。"
+        },
+        {
+          "visual": "plasmodium_diagram",
+          "narration": "細胞図は UniProt に基づくコンパートメントの対話型マップです。細胞にカーソルを合わせると構造が分かり、リストで複数のコンパートメントにチェックを入れると同時に強調表示されたままになります。Clear components で図が元に戻ります。",
+          "hold_after": 0.7,
+          "speech_text": "細胞図は UniProt に基づくコンパートメントの対話型マップです。細胞にカーソルを合わせると構造が分かり、リストで複数のコンパートメントにチェックを入れると同時に強調表示されたままになります。Clear components で図が元に戻ります。"
+        },
+        {
+          "visual": "plasmodium_modules",
+          "narration": "作業はアッセイタイルから始まります。明るいタイルはすでに動作するモジュールを開きます。Parasitaemia は Host–Pathogen Analysis を、Sporozoite motility は Motility Assay を開きます。暗いタイルは計画中で、まだ開けません。このルールはどの生物種ページでも同じです。",
+          "hold_after": 0.7,
+          "speech_text": "作業はアッセイタイルから始まります。明るいタイルはすでに動作するモジュールを開きます。Parasitaemia は Host–Pathogen Analysis を、Sporozoite motility は Motility Assay を開きます。暗いタイルは計画中で、まだ開けません。このルールはどの生物種ページでも同じです。"
+        },
+        {
+          "visual": "candida_page",
+          "narration": "Candida は、出芽細胞、発芽管、菌糸の間を行き来できる酵母を扱います。使えるタイルは、接着、上皮への侵入、貪食、抗真菌薬への応答に既存のモジュールを再利用します。計画中のタイルでは、菌糸形成、発芽管、バイオフィルム、形態を測定する予定です。",
+          "hold_after": 0.7,
+          "speech_text": "Candida は、出芽細胞、発芽管、菌糸の間を行き来できる酵母を扱います。使えるタイルは、接着、上皮への侵入、貪食、抗真菌薬への応答に既存のモジュールを再利用します。計画中のタイルでは、菌糸形成、発芽管、バイオフィルム、形態を測定する予定です。"
+        },
+        {
+          "visual": "trypanosoma_page",
+          "narration": "Trypanosoma は二つの寄生虫を一つのページにまとめています。血中を泳ぐ Trypanosoma brucei と、宿主細胞内で増殖する Trypanosoma cruzi です。Flagellar motility、Host-cell invasion、Amastigote infection、Drug response はすでに実際のモジュールを開きます。",
+          "hold_after": 0.7,
+          "speech_text": "Trypanosoma は二つの寄生虫を一つのページにまとめています。血中を泳ぐ Trypanosoma brucei と、宿主細胞内で増殖する Trypanosoma cruzi です。Flagellar motility、Host-cell invasion、Amastigote infection、Drug response はすでに実際のモジュールを開きます。"
+        },
+        {
+          "visual": "leishmania_page",
+          "narration": "Leishmania はマクロファージの中で増殖します。Macrophage infection は感染した割合とマクロファージあたりのアマスチゴート数を示し、Promastigote motility は遊泳を測定します。計画中のタイルでは、メタサイクロジェネシス、アマスチゴートへの変換、液胞の大きさを追跡する予定です。",
+          "hold_after": 0.7,
+          "speech_text": "Leishmania はマクロファージの中で増殖します。Macrophage infection は感染した割合とマクロファージあたりのアマスチゴート数を示し、Promastigote motility は遊泳を測定します。計画中のタイルでは、メタサイクロジェネシス、アマスチゴートへの変換、液胞の大きさを追跡する予定です。"
+        },
+        {
+          "visual": "giardia_page",
+          "narration": "Giardia duodenalis は腹側吸着円盤で腸の壁に付着します。ここでは上皮細胞上の栄養型を数え、その遊泳を追い、薬剤への応答を測定できます。シスト形成、脱シスト、円盤の形態はまだ計画中です。",
+          "hold_after": 0.7,
+          "speech_text": "Giardia duodenalis は腹側吸着円盤で腸の壁に付着します。ここでは上皮細胞上の栄養型を数え、その遊泳を追い、薬剤への応答を測定できます。シスト形成、脱シスト、円盤の形態はまだ計画中です。"
+        },
+        {
+          "visual": "virus_page",
+          "narration": "Virus infection は寄生虫ではなく宿主細胞のためのページです。Infection rate はウイルス陽性細胞を数え、Plaque Assay はプラークを測定し、Recruitment は複製部位に集まる宿主タンパク質を測定します。陽性の基準は模擬感染ウェルから決めてください。",
+          "hold_after": 0.7,
+          "speech_text": "Virus infection は寄生虫ではなく宿主細胞のためのページです。Infection rate はウイルス陽性細胞を数え、Plaque Assay はプラークを測定し、Recruitment は複製部位に集まる宿主タンパク質を測定します。陽性の基準は模擬感染ウェルから決めてください。"
+        },
+        {
+          "visual": "mammalian_page",
+          "narration": "Mammalian cells は病原体を含まないスクリーニングを扱います。使えるタイルからは Mask、Measure、Motility Assay、貪食、細胞毒性へ直接進めるので、中核のパイプラインは生物種ページからワンクリックです。",
+          "hold_after": 0.7,
+          "speech_text": "Mammalian cells は病原体を含まないスクリーニングを扱います。使えるタイルからは Mask、Measure、Motility Assay、貪食、細胞毒性へ直接進めるので、中核のパイプラインは生物種ページからワンクリックです。"
+        },
+        {
+          "visual": "91_prefs_species_off_again",
+          "narration": "見終わったら Preferences に戻り、Show alpha species を再びオフにして Save を押します。生物種ページは消えますが、測定したデータは何も変わりません。",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "見終わったら Preferences に戻り、Show alpha species を再びオフにして Save を押します。生物種ページは消えますが、測定したデータは何も変わりません。"
+        },
+        {
+          "visual": "92_home_assays_off_again",
+          "narration": "Home には再び Toxoplasma だけが表示されます。各生物種は成熟すると alpha を外れ、専用のチュートリアルが用意されます。それまでは、完全なアッセイの例には Toxoplasma のレッスンを、これらのタイルが開く各ワークフローにはモジュールのレッスンを使ってください。",
+          "related_lessons": [
+            "82_toxoplasma",
+            "85_host_pathogen",
+            "18_motility"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "ホーム には再び Toxoplasma だけが表示されます。各生物種は成熟すると alpha を外れ、専用のチュートリアルが用意されます。それまでは、完全なアッセイの例には Toxoplasma のレッスンを、これらのタイルが開く各ワークフローにはモジュールのレッスンを使ってください。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "87_alpha_features",
+      "number": 87,
+      "slug": "alpha_features",
+      "title": "Alpha：実験的な機能",
+      "series": 5,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Show alpha featuresをオンにして、spaCRのどこに実験的な設定が現れ、何をするのかを確認します。",
+      "objectives": [
+        "PreferencesでShow alpha featuresをオンとオフにする。",
+        "各画面でalphaの設定を見つける。",
+        "試す前に、作業に合うalphaのツールを見分ける。"
+      ],
+      "prerequisite": "spaCRを開きます。入力ファイルは不要です。このレッスンでは、各alphaの設定がどこに現れ何をするかを示し、結果は示しません。alphaの機能は未完成で、バージョンによって変わることがあります。",
+      "scenes": [
+        {
+          "visual": "01_prefs_alpha_on",
+          "narration": "このレッスンでは、spaCRの実験的な機能を順に見ていきます。Preferencesを開いてModulesを選び、Show alpha featuresをオンにしてSaveを押します。alphaの機能は未完成で、バージョンによって変わったり、場所が移ったり、なくなったりすることがあります。結果を頼りにする前に必ず確認してください。",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ],
+          "speech_text": "このレッスンでは、スペーカーの実験的な機能を順に見ていきます。Preferencesを開いてModulesを選び、Show alpha featuresをオンにしてSaveを押します。alphaの機能は未完成で、バージョンによって変わったり、場所が移ったり、なくなったりすることがあります。結果を頼りにする前に必ず確認してください。"
+        },
+        {
+          "visual": "02_mask_preprocessing",
+          "narration": "Mask generationでは、Image Preprocessingにalphaのカテゴリーが加わり、セグメンテーションの前に画素を変えます。単染色の対照ウェルを使ったスペクトル分離、自己教師ありのノイズ除去、照明補正、点拡がり関数によるデコンボリューション、局所ヒストグラム平坦化などのコントラスト強調です。",
+          "hold_after": 0.7,
+          "speech_text": "Mask generationでは、Image Preprocessingにalphaのカテゴリーが加わり、セグメンテーションの前に画素を変えます。単染色の対照ウェルを使ったスペクトル分離、自己教師ありのノイズ除去、照明補正、点拡がり関数によるデコンボリューション、局所ヒストグラム平坦化などのコントラスト強調です。"
+        },
+        {
+          "visual": "04_mask_quality",
+          "narration": "Quality Controlには、マスクそのものの確認が加わります。ロバスト性レポートは、設定を少し変えていくつかの視野を再びセグメンテーションし、物体がどれだけ変わるかを報告します。実物体分類器は本物の細胞に見えない物体を除き、画像品質ネットワークはぼけた視野、飽和した視野、空の視野に印を付けます。",
+          "hold_after": 0.7,
+          "focus": [
+            235,
+            0,
+            1039,
+            2130
+          ],
+          "speech_text": "Quality Controlには、マスクそのものの確認が加わります。ロバスト性レポートは、設定を少し変えていくつかの視野を再びセグメンテーションし、物体がどれだけ変わるかを報告します。実物体分類器は本物の細胞に見えない物体を除き、画像品質ネットワークはぼけた視野、飽和した視野、空の視野に印を付けます。"
+        },
+        {
+          "visual": "05_mask_automation",
+          "narration": "ほかのalphaの設定は実行を自動化します。複数のGPUでの同時セグメンテーション、顕微鏡が書き込んでいる最中の視野を解析する監視フォルダー、選んだ物体を顕微鏡に送り返すフィードバック、クラウドストレージ上の画像ソースです。",
+          "hold_after": 0.7,
+          "focus": [
+            207,
+            0,
+            1067,
+            1845
+          ],
+          "speech_text": "ほかのalphaの設定は実行を自動化します。複数のGPUでの同時セグメンテーション、顕微鏡が書き込んでいる最中の視野を解析する監視フォルダー、選んだ物体を顕微鏡に送り返すフィードバック、クラウドストレージ上の画像ソースです。"
+        },
+        {
+          "visual": "06_timelapse",
+          "narration": "Timeをオンにすると、Mask generationでalphaのトラッキングが使えます。追加のトラッキングモード、分裂のつながりから作る系統樹、そして各トラックに沿って分裂や細胞死などのイベントを見つけるイベント検出器です。",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            1274,
+            1026,
+            886
+          ],
+          "speech_text": "Timeをオンにすると、Mask generationでalphaのトラッキングが使えます。追加のトラッキングモード、分裂のつながりから作る系統樹、そして各トラックに沿って分裂や細胞死などのイベントを見つけるイベント検出器です。"
+        },
+        {
+          "visual": "07_measure_assays",
+          "narration": "Measureには、測定の後に実行するalphaのアッセイが加わります。生細胞と死細胞を判定する生存率、DNA染色からの細胞周期の時期、スクラッチ創傷の閉鎖、そして各視野のうち細胞に覆われた割合であるコンフルエンシーです。",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            851,
+            1013,
+            1279
+          ],
+          "speech_text": "Measureには、測定の後に実行するalphaのアッセイが加わります。生細胞と死細胞を判定する生存率、DNA染色からの細胞周期の時期、スクラッチ創傷の閉鎖、そして各視野のうち細胞に覆われた割合であるコンフルエンシーです。"
+        },
+        {
+          "visual": "07b_measure_time",
+          "narration": "タイムラプスのプロジェクトでは、Measureに光退色の補正と、追跡した各物体をイベントまで追いかけて条件を時間とともに比べるイベントまでの時間の解析が加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            200,
+            539,
+            1061,
+            88
+          ],
+          "speech_text": "タイムラプスのプロジェクトでは、Measureに光退色の補正と、追跡した各物体をイベントまで追いかけて条件を時間とともに比べるイベントまでの時間の解析が加わります。"
+        },
+        {
+          "visual": "08_measure_outputs",
+          "narration": "そのほかのalphaのオプションは、Measureが書き出す内容を変えます。ウェルごとの画像ベースのプロファイル、測定後に実行するCellProfilerパイプライン、GPUでの測定、非常に大きな実行のための追加の保存形式、撮影セッション間の強度キャリブレーションです。",
+          "hold_after": 0.7,
+          "focus": [
+            165,
+            0,
+            1096,
+            1845
+          ],
+          "speech_text": "そのほかのalphaのオプションは、Measureが書き出す内容を変えます。ウェルごとの画像ベースのプロファイル、測定後に実行するCellProfilerパイプライン、GPUでの測定、非常に大きな実行のための追加の保存形式、撮影セッション間の強度キャリブレーションです。"
+        },
+        {
+          "visual": "08b_anndata_format",
+          "narration": "AnnData Exportには、測定した物体の出力形式の選択が加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            226,
+            783,
+            1058,
+            88
+          ],
+          "speech_text": "AnnData Exportには、測定した物体の出力形式の選択が加わります。"
+        },
+        {
+          "visual": "09_make_masks_tools",
+          "narration": "Make Masksの下の列にはalphaのツールが表示されます。モデルが最も自信のない物体を探すUncertainty、整理の間は条件の名前を隠すBlindモード、ROIの読み込みと書き出し、動画を通してのSAM2 tracking、そしてApply virtual stainです。",
+          "hold_after": 0.7,
+          "focus": [
+            649,
+            2051,
+            2809,
+            94
+          ],
+          "speech_text": "Make Masksの下の列にはalphaのツールが表示されます。モデルが最も自信のない物体を探すUncertainty、整理の間は条件の名前を隠すBlindモード、ROIの読み込みと書き出し、動画を通してのSAM2 tracking、そしてApply virtual stainです。"
+        },
+        {
+          "visual": "10_workbench_virtual_stain",
+          "narration": "Cellpose WorkbenchにはVirtual stainingがあり、手元の画像から染色チャネルを予測します。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            2051,
+            228,
+            94
+          ],
+          "speech_text": "セルポーズ WorkbenchにはVirtual stainingがあり、手元の画像から染色チャネルを予測します。"
+        },
+        {
+          "visual": "11_annotate_tools",
+          "narration": "Annotateには、Blindモード、ラベル付け中のクロップに似たクロップを探すLike this、そして視野全体を良好、ピンぼけ、飽和としてラベル付けするField QCが加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            326,
+            132,
+            850,
+            94
+          ],
+          "speech_text": "Annotateには、Blindモード、ラベル付け中のクロップに似たクロップを探すLike this、そして視野全体を良好、ピンぼけ、飽和としてラベル付けするField QCが加わります。"
+        },
+        {
+          "visual": "12_plaque_growth",
+          "narration": "Plaque Analysisには、プレート写真でのコロニーの計数と、最も大きなプラークと線形の成長という仮定から時間やスケールを提案する実験的な成長推定が加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            247,
+            862,
+            1037,
+            680
+          ],
+          "speech_text": "Plaque Analysisには、プレート写真でのコロニーの計数と、最も大きなプラークと線形の成長という仮定から時間やスケールを提案する実験的な成長推定が加わります。"
+        },
+        {
+          "visual": "13_activation_counterfactuals",
+          "narration": "Activation MapsのCounterfactualsは、分類器に導かれる小さな生成モデルを学習し、クロップを一歩ずつもう一方のクラスへ変化させます。モデルがどの特徴に頼っているかが分かります。",
+          "hold_after": 0.7,
+          "focus": [
+            254,
+            582,
+            1030,
+            270
+          ],
+          "speech_text": "Activation MapsのCounterfactualsは、分類器に導かれる小さな生成モデルを学習し、クロップを一歩ずつもう一方のクラスへ変化させます。モデルがどの特徴に頼っているかが分かります。"
+        },
+        {
+          "visual": "14_embeddings_tools",
+          "narration": "Embeddingsには、基盤モデルのエンコーダー、自分のクロップでの自己教師あり事前学習、そして個々の細胞にラベルがないときのウェル単位のラベルからの学習が加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            988,
+            259,
+            2414,
+            94
+          ],
+          "speech_text": "Embeddingsには、基盤モデルのエンコーダー、自分のクロップでの自己教師あり事前学習、そして個々の細胞にラベルがないときのウェル単位のラベルからの学習が加わります。"
+        },
+        {
+          "visual": "15_control_chart",
+          "narration": "Control Chartsには、通常のグラフの横に異常スコアと化学のパネルが加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1039,
+            523,
+            1102
+          ],
+          "speech_text": "Control Chartsには、通常のグラフの横に異常スコアと化学のパネルが加わります。"
+        },
+        {
+          "visual": "16_report_archive",
+          "narration": "Reportには、プロジェクトを共有用にまとめるArchive packageと、Zenodoへの登録が加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            3370,
+            2011,
+            470,
+            94
+          ],
+          "speech_text": "Reportには、プロジェクトを共有用にまとめるArchive packageと、Zenodoへの登録が加わります。"
+        },
+        {
+          "visual": "17_run_history_export",
+          "narration": "Run Historyでは、記録された実行を再利用できるワークフローとして書き出せます。",
+          "hold_after": 0.7,
+          "focus": [
+            3590,
+            958,
+            250,
+            94
+          ],
+          "speech_text": "Run Historyでは、記録された実行を再利用できるワークフローとして書き出せます。"
+        },
+        {
+          "visual": "18_prefs_notifications",
+          "narration": "PreferencesにはNotificationsタブが加わり、長い実行が終わったときや失敗したときに、デスクトップ通知、メール、Slack、Webhookで知らせます。",
+          "hold_after": 0.7,
+          "speech_text": "PreferencesにはNotificationsタブが加わり、長い実行が終わったときや失敗したときに、デスクトップ通知、メール、Slack、Webhookで知らせます。"
+        },
+        {
+          "visual": "18b_prefs_plugins",
+          "narration": "Pluginsタブには、インストール、更新、削除ができるコミュニティのプラグインが並びます。",
+          "hold_after": 0.7,
+          "speech_text": "Pluginsタブには、インストール、更新、削除ができるコミュニティのプラグインが並びます。"
+        },
+        {
+          "visual": "19_ops_spot_detectors",
+          "narration": "光学的プールドスクリーンでは、OPSのスポット検出器に、シーケンシングのスポット用の追加のalpha検出器があります。",
+          "hold_after": 0.7,
+          "focus": [
+            201,
+            925,
+            1083,
+            88
+          ],
+          "speech_text": "光学的プールドスクリーンでは、OPSのスポット検出器に、シーケンシングのスポット用の追加のalpha検出器があります。"
+        },
+        {
+          "visual": "19b_map_barcodes_spatial",
+          "narration": "Map Barcodesには、空間トランスクリプトミクスのモードが加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            1277,
+            1788,
+            281,
+            83
+          ],
+          "speech_text": "Map Barcodesには、空間トランスクリプトミクスのモードが加わります。"
+        },
+        {
+          "visual": "20_convert_barcodes",
+          "narration": "Format Converterには、プレートのバーコードによる連携が加わり、サンプル表からプレートのバーコードに従ってプレートマップを埋めます。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            325,
+            3840,
+            173
+          ],
+          "speech_text": "Format Converterには、プレートのバーコードによる連携が加わり、サンプル表からプレートのバーコードに従ってプレートマップを埋めます。"
+        },
+        {
+          "visual": "20b_power_arrayed",
+          "narration": "PowerとDesignには、アレイ型スクリーンのためのプランナーが加わります。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1584,
+            740,
+            576
+          ],
+          "speech_text": "PowerとDesignには、アレイ型スクリーンのためのプランナーが加わります。"
+        },
+        {
+          "visual": "21_test_data",
+          "narration": "Feature Explorerなどの小さなツールにはLoad test dataが加わり、例をダウンロードしてすぐに試せます。",
+          "hold_after": 0.7,
+          "focus": [
+            3433,
+            63,
+            227,
+            94
+          ],
+          "speech_text": "Feature Explorerなどの小さなツールにはLoad test dataが加わり、例をダウンロードしてすぐに試せます。"
+        },
+        {
+          "visual": "22_prefs_alpha_off",
+          "narration": "終わったら、もう一度Preferencesを開いてShow alpha featuresをオフにします。alphaの設定はすべて消え、安定したワークフローは以前とまったく同じに見えます。",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ],
+          "speech_text": "終わったら、もう一度Preferencesを開いてShow alpha featuresをオフにします。alphaの設定はすべて消え、安定したワークフローは以前とまったく同じに見えます。"
+        }
+      ],
       "narration_voices": {
         "en": [
           "af_heart"

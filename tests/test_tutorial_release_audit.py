@@ -57,7 +57,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
     # Wave 3 (candidate nmw7tksc) withdrew 83_plasmodium and 84_candida.
-    assert len(catalog["lessons"]) == 83
+    # Wave 4 (candidate ake_bqpd) added the allow-listed alpha lessons 86 and 87.
+    assert len(catalog["lessons"]) == 85
     # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
@@ -67,7 +68,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Re-record wave 2 (candidate me1282u_): 05 19 (was 11), 08 12 (was 11), 09 22 (was 20), 24 19 (was 15).
     # Wave 3 (candidate nmw7tksc): 08 13 (was 12), 14 41 (was 32), 58 23 (was 12), 64 25 (was 22),
     # 79 78 (was 80); 83 and 84 (5 each) withdrawn.
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1142
+    # Wave 4 (candidate ake_bqpd): 07 13 (was 12), 36 17 (was 16), 74 11 (was 10); 86 adds 16, 87 adds 26.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1187
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

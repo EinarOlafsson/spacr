@@ -11,7 +11,7 @@
     "run",
     "outputs and next step"
   ],
-  "source_lessons": 83,
+  "source_lessons": 85,
   "manually_rewritten": [
     "01_pypi_github",
     "02_conda_install",
@@ -120,7 +120,9 @@
     "85_host_pathogen"
   ],
   "remaining_existing_scripts": [
-    "71_investigate_hit"
+    "71_investigate_hit",
+    "86_alpha_organism_modules",
+    "87_alpha_features"
   ],
   "live_verified_commit": "f33805514a0baae336c947468569bedde8b1a955",
   "live_catalog_sha256": "c395980afeba74bbd69b50f14e1bcbe560109e26170776901bad20a11de1b21f",
@@ -152,6 +154,7 @@
     "58_graph_builder",
     "64_gate_editor",
     "73_parameter_sweep",
+    "74_import_images",
     "75_regression_diagnostics",
     "76_ops",
     "78_spacr_screens",
@@ -239,8 +242,8 @@
     },
     {
       "lesson": "07_mask",
-      "english_sha256": "5dff109b61c6da7e14ab5908da60ece2ab418019f4e2ae161a17260b1bee17a1",
-      "scene_count": 12,
+      "english_sha256": "1f64831633c7cad6aca41260aff1255493505a8c0a79aeb2df4c930a832b3012",
+      "scene_count": 13,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
@@ -587,8 +590,8 @@
     },
     {
       "lesson": "36_import",
-      "english_sha256": "52575454fe4030afcfbbbccea242c6321aeae0dddb15d10479c239d5ad78c48e",
-      "scene_count": 16,
+      "english_sha256": "b800707fff402b0d029514dc418a12f20f29b2e96a9b4acb24d74f51faffb7d6",
+      "scene_count": 17,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
@@ -1068,15 +1071,15 @@
     },
     {
       "lesson": "74_import_images",
-      "english_sha256": "0b076b12bbb7ca7d95e3d4a70e30c235243e38fc2b9be05496e432df6a8a1883",
-      "scene_count": 10,
+      "english_sha256": "5eae3f02b4fb0b69c19170c6c13a3d39947b312e9067f35e2b6157b16651da98",
+      "scene_count": 11,
       "source_revised": true,
       "newly_authored": false,
-      "manual_review": "source rewritten; live narration aligned",
+      "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
       "prepared_rewrite": true,
-      "published_rewrite": true
+      "published_rewrite": false
     },
     {
       "lesson": "75_regression_diagnostics",
@@ -1255,6 +1258,30 @@
       "scene_count": 12,
       "source_revised": false,
       "newly_authored": true,
+      "manual_review": "pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
+      "published_rewrite": false
+    },
+    {
+      "lesson": "86_alpha_organism_modules",
+      "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+      "scene_count": 16,
+      "source_revised": false,
+      "newly_authored": false,
+      "manual_review": "pending",
+      "automated_review_flags": [],
+      "incompatible_translation_reviews": [],
+      "prepared_rewrite": false,
+      "published_rewrite": false
+    },
+    {
+      "lesson": "87_alpha_features",
+      "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+      "scene_count": 26,
+      "source_revised": false,
+      "newly_authored": false,
       "manual_review": "pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],

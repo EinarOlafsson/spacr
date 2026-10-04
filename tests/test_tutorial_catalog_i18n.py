@@ -50,8 +50,10 @@ def test_all_authored_catalogs_match_the_85_lesson_inventory_and_routes():
     # carrying the unavailable-route copy rather than a recorded walkthrough.
     # Tutorial wave 3 (2026-10-04) withdrew 83_plasmodium and 84_candida,
     # whose pages moved behind Show alpha species.
-    assert len(ids) == len(set(ids)) == 83
-    assert set(ids[-2:]) == {'82_toxoplasma', '85_host_pathogen'}
+    # Wave 4 appended the two allow-listed alpha lessons.
+    assert len(ids) == len(set(ids)) == 85
+    assert ids[-4:] == ['82_toxoplasma', '85_host_pathogen',
+                        '86_alpha_organism_modules', '87_alpha_features']
     assert not {'83_plasmodium', '84_candida'} & set(ids)
     # Folded-host routes grew from 25 to 39 in the same change, because the
     # catalogs are now stamped from the navigation tree instead of carrying a

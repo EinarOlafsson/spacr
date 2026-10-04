@@ -16,7 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE = ROOT / 'release_candidate'
 #: The newest publication evidence; it names the voices every lesson ships.
-PUBLICATION = ROOT / 'evidence/2026-10-04-rerecord-wave3-publication.json'
+PUBLICATION = ROOT / 'evidence/2026-10-04-rerecord-wave4-publication.json'
 sys.path.insert(0, str(ROOT / 'authoring/tools'))
 import render_all_voices as renderer  # noqa: E402
 
@@ -54,8 +54,10 @@ def check_published_lesson(identity, scenes):
     records = {item['path']: item for item in read(manifest_path)['files']}
     tracks = {tuple(path.split('/')[3:5]) for path in records
               if path.startswith(f'media_host/{identity}/audio/') and path.endswith('.m4a')}
-    voices = {(language, voice + '.m4a')
-              for language, voice in publication['narration_voices']['08_measure']}
+    # Every lesson in a publication ships the same full voice set.
+    sets = {tuple(map(tuple, pairs)) for pairs in publication['narration_voices'].values()}
+    assert len(sets) == 1, 'publication lessons ship different voice sets'
+    voices = {(language, voice + '.m4a') for language, voice in sets.pop()}
     assert tracks == voices and ('en', 'af_heart.m4a') in tracks
     for language, name in tracks:
         timing = f'media_host/{identity}/audio/{language}/{name[:-4]}.json'

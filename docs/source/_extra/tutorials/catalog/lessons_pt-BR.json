@@ -1043,6 +1043,12 @@
           "speech_text": "Na tela Home, abra Mask. Use este módulo para contornar células, núcleos e patógenos em imagens de microscópio. Este passo a passo processa imagens bidimensionais. Os fluxos de Time, tridimensional e OPS têm tutoriais próprios."
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "Se suas imagens estão espalhadas em várias pastas ou têm nomes que o Mask não consegue ler, clique em Organizar imagens no topo de Input & Metadata. Dê a cada canal uma coluna, soltando a pasta dele ou com uma expressão regular, e confira se cada linha é um campo completo. Apply move as imagens para uma pasta com nomes no padrão Yokogawa e aponta Source para ela, com os canais já preenchidos.",
+          "hold_after": 0.7,
+          "speech_text": "Se suas imagens estão espalhadas em várias pastas ou têm nomes que o Mask não consegue ler, clique em Organizar imagens no topo de Input & Metadata. Dê a cada canal uma coluna, soltando a pasta dele ou com uma expressão regular, e confira se cada linha é um campo completo. Apply move as imagens para uma pasta com nomes no padrão Yokogawa e aponta Source para ela, com os canais já preenchidos."
+        },
+        {
           "visual": "02_cached_load",
           "narration": "Clique em Load test data e aguarde o exemplo de microscopia carregar. Confira Source antes de continuar. Para suas próprias imagens, selecione a pasta delas e confirme que os nomes de arquivo identificam a placa, o poço, o campo e o canal.",
           "hold_after": 0.7,
@@ -6634,6 +6640,12 @@
             "31_external_masks"
           ],
           "speech_text": "Escolha a ferramenta de importação de acordo com o que você tem: Import Images ou Format Converter para imagens sozinhas, External Masks para imagens com máscaras. Esta tela recebe imagens, máscaras e uma tabela de medições ao mesmo tempo."
+        },
+        {
+          "visual": "org_organize_popup",
+          "narration": "Se suas imagens e máscaras ainda precisam ser organizadas, abra Import Images e clique em Organizar imagens e máscaras. Dê a cada canal e máscara uma coluna, escolha se vai gravar para Mask Generation ou para Measure, e divida os arquivos multicanal quando necessário. Apply os move para a estrutura que esse módulo lê, prontos para abrir lá.",
+          "hold_after": 0.7,
+          "speech_text": "Se suas imagens e máscaras ainda precisam ser organizadas, abra Import Images e clique em Organizar imagens e máscaras. Dê a cada canal e máscara uma coluna, escolha se vai gravar para Mask Generation ou para Measure, e divida os arquivos multicanal quando necessário. Apply os move para a estrutura que esse módulo lê, prontos para abrir lá."
         },
         {
           "visual": "03_choose_images",
@@ -14098,6 +14110,12 @@
           "speech_text": "Na tela Home, abra Data, escolha Import e depois Import Images. Comece pelos arquivos de imagem de microscópio que você quer organizar em um projeto."
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "Quando você também tiver máscaras, clique em Organizar imagens e máscaras ao lado da pasta de imagens. Solte cada pasta de canal e a pasta de máscaras nas colunas correspondentes, defina a função da máscara e, em Gravar para, escolha Mask Generation ou Measure. Arquivos com vários canais podem ser divididos antes em uma coluna por canal; Apply move tudo para a estrutura desse módulo e registra cada movimentação em um manifesto.",
+          "hold_after": 0.7,
+          "speech_text": "Quando você também tiver máscaras, clique em Organizar imagens e máscaras ao lado da pasta de imagens. Solte cada pasta de canal e a pasta de máscaras nas colunas correspondentes, defina a função da máscara e, em Gravar para, escolha Mask Generation ou Measure. Arquivos com vários canais podem ser divididos antes em uma coluna por canal; Apply move tudo para a estrutura desse módulo e registra cada movimentação em um manifesto."
+        },
+        {
           "visual": "04_source_options",
           "narration": "Use o exemplo do Mask neste passo a passo. Selecione cópias de um campo de cada um de dois poços, com quatro canais por campo. Não altere o download original.",
           "hold_after": 0.7,
@@ -16376,6 +16394,560 @@
         }
       ],
       "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: módulos de organismos",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Ative Show alpha species e percorra as páginas de organismos ainda inacabadas: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells.",
+      "objectives": [
+        "Ativar e desativar Show alpha species em Preferences.",
+        "Ler uma página de organismo: introdução, diagrama celular e blocos de ensaio.",
+        "Distinguir blocos abertos de planejados e saber que essas páginas são alfa."
+      ],
+      "prerequisite": "Abra Home no spaCR. Nenhum arquivo de entrada é necessário. Essas páginas de organismos são alfa: inacabadas e sujeitas a mudanças.",
+      "scenes": [
+        {
+          "visual": "00_home_assays_off",
+          "narration": "Este é o único tutorial que mostra os módulos alfa de organismos do spaCR. Em uma instalação normal, a aba Assays da Home tem um só organismo, Toxoplasma. As outras páginas de organismos ficam desligadas até você pedir por elas.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "05_home"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Este é o único tutorial que mostra os módulos alfa de organismos do espáquer. Em uma instalação normal, a aba Assays da Home tem um só organismo, Toxoplasma. As outras páginas de organismos ficam desligadas até você pedir por elas."
+        },
+        {
+          "visual": "01_prefs_species_off",
+          "narration": "Abra Preferences pelo menu spaCR e vá para a aba Modules. Em Module visibility, a última chave é Show alpha species. Ela vem desligada por padrão.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra Preferences pelo menu espáquer e vá para a aba Modules. Em Module visibility, a última chave é Show alpha species. Ela vem desligada por padrão."
+        },
+        {
+          "visual": "02_prefs_species_on",
+          "narration": "Ligue-a. Trate tudo o que ela revela como alfa: as páginas estão inacabadas, a maioria dos blocos de ensaio ainda é planejada, e nomes, layouts e análises podem mudar antes do lançamento. Use-as para explorar, não para relatar resultados.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Ligue-a. Trate tudo o que ela revela como alfa: as páginas estão inacabadas, a maioria dos blocos de ensaio ainda é planejada, e nomes, layouts e análises podem mudar antes do lançamento. Use-as para explorar, não para relatar resultados."
+        },
+        {
+          "visual": "02_prefs_species_on_save",
+          "narration": "Clique em Save. A configuração vale na hora e é mantida para a próxima sessão, então você só precisa fazer isso uma vez.",
+          "focus": [
+            2420,
+            1700,
+            260,
+            80
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Clique em Save. A configuração vale na hora e é mantida para a próxima sessão, então você só precisa fazer isso uma vez."
+        },
+        {
+          "visual": "03_home_assays_on",
+          "narration": "De volta à Home, a aba Assays agora lista oito organismos: Toxoplasma e depois Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Cada bloco abre uma página montada do mesmo jeito; quem conhece uma consegue ler todas.",
+          "focus": [
+            30,
+            310,
+            2270,
+            200
+          ],
+          "hold_after": 0.7,
+          "speech_text": "De volta à Home, a aba Assays agora lista oito organismos: Toxoplasma e depois Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Cada bloco abre uma página montada do mesmo jeito; quem conhece uma consegue ler todas."
+        },
+        {
+          "visual": "plasmodium_page",
+          "narration": "Comece por Plasmodium, os parasitas da malária. À esquerda, uma introdução curta explica o que a imagem pode medir nesse organismo: frequência de infecção, desenvolvimento dos estágios sanguíneos, infecção hepática, motilidade e resposta a compostos. Abaixo, cada seção liga uma pergunta biológica aos blocos de ensaio à direita.",
+          "hold_after": 0.7,
+          "speech_text": "Comece por Plasmodium, os parasitas da malária. À esquerda, uma introdução curta explica o que a imagem pode medir nesse organismo: frequência de infecção, desenvolvimento dos estágios sanguíneos, infecção hepática, motilidade e resposta a compostos. Abaixo, cada seção liga uma pergunta biológica aos blocos de ensaio à direita."
+        },
+        {
+          "visual": "plasmodium_diagram",
+          "narration": "O diagrama celular é um mapa interativo de compartimentos tirado do UniProt. Passe o cursor sobre a célula para identificar uma estrutura e marque vários compartimentos na lista para mantê-los destacados juntos. Clear components redefine o desenho.",
+          "hold_after": 0.7,
+          "speech_text": "O diagrama celular é um mapa interativo de compartimentos tirado do UniProt. Passe o cursor sobre a célula para identificar uma estrutura e marque vários compartimentos na lista para mantê-los destacados juntos. Clear components redefine o desenho."
+        },
+        {
+          "visual": "plasmodium_modules",
+          "narration": "Os blocos de ensaio são onde o trabalho começa. Blocos claros abrem um módulo que já funciona: Parasitaemia abre Host–Pathogen Analysis, Sporozoite motility abre Motility Assay. Blocos esmaecidos são planejados e ainda não abrem. A mesma regra vale em todas as páginas de organismos.",
+          "hold_after": 0.7,
+          "speech_text": "Os blocos de ensaio são onde o trabalho começa. Blocos claros abrem um módulo que já funciona: Parasitaemia abre Host–Pathogen Analysis, Sporozoite motility abre Motility Assay. Blocos esmaecidos são planejados e ainda não abrem. A mesma regra vale em todas as páginas de organismos."
+        },
+        {
+          "visual": "candida_page",
+          "narration": "Candida reúne leveduras que podem alternar entre células em brotamento, tubos germinativos e hifas. Seus blocos abertos reutilizam módulos existentes para adesão, invasão epitelial, fagocitose e resposta antifúngica; os planejados vão medir filamentação, tubos germinativos, biofilme e morfologia.",
+          "hold_after": 0.7,
+          "speech_text": "Candida reúne leveduras que podem alternar entre células em brotamento, tubos germinativos e hifas. Seus blocos abertos reutilizam módulos existentes para adesão, invasão epitelial, fagocitose e resposta antifúngica; os planejados vão medir filamentação, tubos germinativos, biofilme e morfologia."
+        },
+        {
+          "visual": "trypanosoma_page",
+          "narration": "Trypanosoma junta dois parasitas em uma página: Trypanosoma brucei, que nada no sangue, e Trypanosoma cruzi, que se replica dentro das células hospedeiras. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response já abrem módulos reais.",
+          "hold_after": 0.7,
+          "speech_text": "Trypanosoma junta dois parasitas em uma página: Trypanosoma brucei, que nada no sangue, e Trypanosoma cruzi, que se replica dentro das células hospedeiras. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response já abrem módulos reais."
+        },
+        {
+          "visual": "leishmania_page",
+          "narration": "Os parasitas Leishmania se replicam dentro de macrófagos. Macrophage infection informa a fração infectada e os amastigotas por macrófago, e Promastigote motility mede o nado. Blocos planejados vão acompanhar a metaciclogênese, a conversão em amastigota e o tamanho do vacúolo.",
+          "hold_after": 0.7,
+          "speech_text": "Os parasitas Leishmania se replicam dentro de macrófagos. Macrophage infection informa a fração infectada e os amastigotas por macrófago, e Promastigote motility mede o nado. Blocos planejados vão acompanhar a metaciclogênese, a conversão em amastigota e o tamanho do vacúolo."
+        },
+        {
+          "visual": "giardia_page",
+          "narration": "Giardia duodenalis se prende à parede do intestino pelo disco ventral. Aqui você pode contar trofozoítos sobre células epiteliais, acompanhar o nado e medir respostas a fármacos; encistamento, desencistamento e morfologia do disco ainda são planejados.",
+          "hold_after": 0.7,
+          "speech_text": "Giardia duodenalis se prende à parede do intestino pelo disco ventral. Aqui você pode contar trofozoítos sobre células epiteliais, acompanhar o nado e medir respostas a fármacos; encistamento, desencistamento e morfologia do disco ainda são planejados."
+        },
+        {
+          "visual": "virus_page",
+          "narration": "Virus infection é uma página para células hospedeiras, e não para um parasita. Infection rate conta células positivas para o vírus, Plaque Assay mede placas e Recruitment mede proteínas do hospedeiro que se acumulam nos locais de replicação. Defina a positividade a partir de poços com infecção simulada.",
+          "hold_after": 0.7,
+          "speech_text": "Virus infection é uma página para células hospedeiras, e não para um parasita. Infection rate conta células positivas para o vírus, Plaque Assay mede placas e Recruitment mede proteínas do hospedeiro que se acumulam nos locais de replicação. Defina a positividade a partir de poços com infecção simulada."
+        },
+        {
+          "visual": "mammalian_page",
+          "narration": "Mammalian cells cobre triagens sem nenhum patógeno. Seus blocos abertos levam direto a Mask, Measure, Motility Assay, fagocitose e citotoxicidade, então o pipeline principal fica a um clique da página do organismo.",
+          "hold_after": 0.7,
+          "speech_text": "Mammalian cells cobre triagens sem nenhum patógeno. Seus blocos abertos levam direto a Mask, Measure, Motility Assay, fagocitose e citotoxicidade, então o pipeline principal fica a um clique da página do organismo."
+        },
+        {
+          "visual": "91_prefs_species_off_again",
+          "narration": "Quando terminar de explorar, volte a Preferences, desligue Show alpha species e clique em Save. As páginas de organismos somem; nada do que você mediu é alterado.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Quando terminar de explorar, volte a Preferences, desligue Show alpha species e clique em Save. As páginas de organismos somem; nada do que você mediu é alterado."
+        },
+        {
+          "visual": "92_home_assays_off_again",
+          "narration": "A Home volta a mostrar só Toxoplasma. À medida que cada organismo amadurecer, ele sairá do alfa e ganhará seu próprio passo a passo. Até lá, use a lição de Toxoplasma para um exemplo completo de ensaio e as lições de módulos para cada fluxo de trabalho que esses blocos abrem.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "85_host_pathogen",
+            "18_motility"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "A Home volta a mostrar só Toxoplasma. À medida que cada organismo amadurecer, ele sairá do alfa e ganhará seu próprio passo a passo. Até lá, use a lição de Toxoplasma para um exemplo completo de ensaio e as lições de módulos para cada fluxo de trabalho que esses blocos abrem."
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "87_alpha_features",
+      "number": 87,
+      "slug": "alpha_features",
+      "title": "Alpha: recursos experimentais",
+      "series": 5,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Ative Show alpha features e veja onde cada controle experimental aparece no spaCR e o que ele faz.",
+      "objectives": [
+        "Ativar e desativar Show alpha features em Preferences.",
+        "Encontrar os controles alpha em cada tela.",
+        "Saber qual ferramenta alpha serve para uma tarefa antes de testá-la."
+      ],
+      "prerequisite": "Abra o spaCR. Não é preciso nenhum arquivo de entrada: esta lição mostra onde cada controle alpha aparece e o que ele faz, não resultados. Os recursos alpha estão inacabados e podem mudar entre versões.",
+      "scenes": [
+        {
+          "visual": "01_prefs_alpha_on",
+          "narration": "Esta lição percorre o lado experimental do spaCR. Abra Preferences, escolha Modules, ative Show alpha features e pressione Save. Os recursos alpha estão inacabados: podem mudar, mudar de lugar ou sumir entre versões, então confira os resultados antes de confiar neles.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ],
+          "speech_text": "Esta lição percorre o lado experimental do espáquer. Abra Preferences, escolha Modules, ative Show alpha features e pressione Save. Os recursos alpha estão inacabados: podem mudar, mudar de lugar ou sumir entre versões, então confira os resultados antes de confiar neles."
+        },
+        {
+          "visual": "02_mask_preprocessing",
+          "narration": "No Mask generation, Image Preprocessing ganha categorias alpha que alteram os pixels antes da segmentação: separação espectral a partir de poços controle com uma só marcação, remoção de ruído autossupervisionada, correção de iluminação, deconvolução com uma função de espalhamento de ponto e realce de contraste, como a equalização local do histograma.",
+          "hold_after": 0.7,
+          "speech_text": "No Mask generation, Image Preprocessing ganha categorias alpha que alteram os pixels antes da segmentação: separação espectral a partir de poços controle com uma só marcação, remoção de ruído autossupervisionada, correção de iluminação, deconvolução com uma função de espalhamento de ponto e realce de contraste, como a equalização local do histograma."
+        },
+        {
+          "visual": "04_mask_quality",
+          "narration": "Quality Control acrescenta verificações das próprias máscaras. Um relatório de robustez segmenta de novo alguns campos com ajustes um pouco diferentes e mostra o quanto os objetos mudam. Um classificador de objetos reais remove o que não parece célula de verdade, e uma rede de qualidade de imagem sinaliza campos desfocados, saturados ou vazios.",
+          "hold_after": 0.7,
+          "focus": [
+            235,
+            0,
+            1039,
+            2130
+          ],
+          "speech_text": "Quality Control acrescenta verificações das próprias máscaras. Um relatório de robustez segmenta de novo alguns campos com ajustes um pouco diferentes e mostra o quanto os objetos mudam. Um classificador de objetos reais remove o que não parece célula de verdade, e uma rede de qualidade de imagem sinaliza campos desfocados, saturados ou vazios."
+        },
+        {
+          "visual": "05_mask_automation",
+          "narration": "Outros ajustes alpha automatizam as execuções: segmentar em várias GPUs ao mesmo tempo, uma pasta monitorada que analisa os campos enquanto o microscópio ainda os grava, um retorno que envia objetos escolhidos de volta ao microscópio e fontes de imagens em armazenamento na nuvem.",
+          "hold_after": 0.7,
+          "focus": [
+            207,
+            0,
+            1067,
+            1845
+          ],
+          "speech_text": "Outros ajustes alpha automatizam as execuções: segmentar em várias GPUs ao mesmo tempo, uma pasta monitorada que analisa os campos enquanto o microscópio ainda os grava, um retorno que envia objetos escolhidos de volta ao microscópio e fontes de imagens em armazenamento na nuvem."
+        },
+        {
+          "visual": "06_timelapse",
+          "narration": "Com Time ativado, o Mask generation oferece rastreamento alpha: mais modos de rastreamento, árvores de linhagem montadas a partir das divisões e um detector de eventos que encontra eventos como divisões ou mortes ao longo de cada trajetória.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            1274,
+            1026,
+            886
+          ],
+          "speech_text": "Com Time ativado, o Mask generation oferece rastreamento alpha: mais modos de rastreamento, árvores de linhagem montadas a partir das divisões e um detector de eventos que encontra eventos como divisões ou mortes ao longo de cada trajetória."
+        },
+        {
+          "visual": "07_measure_assays",
+          "narration": "O Measure ganha ensaios alpha que rodam depois da medição: células vivas e mortas para a viabilidade, fases do ciclo celular a partir da marcação do DNA, o fechamento de uma ferida por arranhão e a confluência, ou seja, a fração de cada campo coberta por células.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            851,
+            1013,
+            1279
+          ],
+          "speech_text": "O Measure ganha ensaios alpha que rodam depois da medição: células vivas e mortas para a viabilidade, fases do ciclo celular a partir da marcação do DNA, o fechamento de uma ferida por arranhão e a confluência, ou seja, a fração de cada campo coberta por células."
+        },
+        {
+          "visual": "07b_measure_time",
+          "narration": "Em projetos de time-lapse, o Measure acrescenta correção de fotobranqueamento e uma análise de tempo até o evento, que acompanha cada objeto rastreado até um evento e compara condições ao longo do tempo.",
+          "hold_after": 0.7,
+          "focus": [
+            200,
+            539,
+            1061,
+            88
+          ],
+          "speech_text": "Em projetos de time-lapse, o Measure acrescenta correção de fotobranqueamento e uma análise de tempo até o evento, que acompanha cada objeto rastreado até um evento e compara condições ao longo do tempo."
+        },
+        {
+          "visual": "08_measure_outputs",
+          "narration": "Outras opções alpha mudam o que o Measure grava: perfis baseados em imagem por poço, um pipeline do CellProfiler depois da medição, medição na GPU, formatos de armazenamento extras para execuções muito grandes e calibração de intensidade entre sessões de aquisição.",
+          "hold_after": 0.7,
+          "focus": [
+            165,
+            0,
+            1096,
+            1845
+          ],
+          "speech_text": "Outras opções alpha mudam o que o Measure grava: perfis baseados em imagem por poço, um pipeline do CellProfiler depois da medição, medição na GPU, formatos de armazenamento extras para execuções muito grandes e calibração de intensidade entre sessões de aquisição."
+        },
+        {
+          "visual": "08b_anndata_format",
+          "narration": "O AnnData Export acrescenta uma escolha do formato de saída para os objetos medidos.",
+          "hold_after": 0.7,
+          "focus": [
+            226,
+            783,
+            1058,
+            88
+          ],
+          "speech_text": "O AnnData Export acrescenta uma escolha do formato de saída para os objetos medidos."
+        },
+        {
+          "visual": "09_make_masks_tools",
+          "narration": "O Make Masks mostra ferramentas alpha nas fileiras de baixo: Uncertainty, para encontrar os objetos de que um modelo tem menos certeza, o modo Blind, que esconde os nomes das condições durante a curadoria, importação e exportação de ROIs, SAM2 tracking ao longo de um filme e Apply virtual stain.",
+          "hold_after": 0.7,
+          "focus": [
+            649,
+            2051,
+            2809,
+            94
+          ],
+          "speech_text": "O Make Masks mostra ferramentas alpha nas fileiras de baixo: Uncertainty, para encontrar os objetos de que um modelo tem menos certeza, o modo Blind, que esconde os nomes das condições durante a curadoria, importação e exportação de ROIs, SAM2 tracking ao longo de um filme e Apply virtual stain."
+        },
+        {
+          "visual": "10_workbench_virtual_stain",
+          "narration": "O Cellpose Workbench oferece Virtual staining, que prevê um canal de marcação a partir das imagens que você já tem.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            2051,
+            228,
+            94
+          ],
+          "speech_text": "O cél pouz Workbench oferece Virtual staining, que prevê um canal de marcação a partir das imagens que você já tem."
+        },
+        {
+          "visual": "11_annotate_tools",
+          "narration": "O Annotate acrescenta o modo Blind, Like this, para achar recortes parecidos com o que você está rotulando, e Field QC, onde você rotula campos inteiros como bons, desfocados ou saturados.",
+          "hold_after": 0.7,
+          "focus": [
+            326,
+            132,
+            850,
+            94
+          ],
+          "speech_text": "O Annotate acrescenta o modo Blind, Like this, para achar recortes parecidos com o que você está rotulando, e Field QC, onde você rotula campos inteiros como bons, desfocados ou saturados."
+        },
+        {
+          "visual": "12_plaque_growth",
+          "narration": "O Plaque Analysis acrescenta a contagem de colônias em fotos de placas e estimativas experimentais de crescimento, que sugerem um tempo ou uma escala a partir das maiores placas e de um crescimento suposto linear.",
+          "hold_after": 0.7,
+          "focus": [
+            247,
+            862,
+            1037,
+            680
+          ],
+          "speech_text": "O Plaque Analysis acrescenta a contagem de colônias em fotos de placas e estimativas experimentais de crescimento, que sugerem um tempo ou uma escala a partir das maiores placas e de um crescimento suposto linear."
+        },
+        {
+          "visual": "13_activation_counterfactuals",
+          "narration": "No Activation Maps, Counterfactuals treina um pequeno gerador guiado pelo seu classificador e transforma recortes passo a passo em direção à outra classe, para você ver em quais características o modelo se apoia.",
+          "hold_after": 0.7,
+          "focus": [
+            254,
+            582,
+            1030,
+            270
+          ],
+          "speech_text": "No Activation Maps, Counterfactuals treina um pequeno gerador guiado pelo seu classificador e transforma recortes passo a passo em direção à outra classe, para você ver em quais características o modelo se apoia."
+        },
+        {
+          "visual": "14_embeddings_tools",
+          "narration": "O Embeddings acrescenta codificadores de modelos de fundação, pré-treinamento autossupervisionado nos seus próprios recortes e aprendizado a partir de rótulos por poço quando as células individuais não estão rotuladas.",
+          "hold_after": 0.7,
+          "focus": [
+            988,
+            259,
+            2414,
+            94
+          ],
+          "speech_text": "O Embeddings acrescenta codificadores de modelos de fundação, pré-treinamento autossupervisionado nos seus próprios recortes e aprendizado a partir de rótulos por poço quando as células individuais não estão rotuladas."
+        },
+        {
+          "visual": "15_control_chart",
+          "narration": "O Control Charts acrescenta uma pontuação de anomalias e um painel de química ao lado dos gráficos de sempre.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1039,
+            523,
+            1102
+          ],
+          "speech_text": "O Control Charts acrescenta uma pontuação de anomalias e um painel de química ao lado dos gráficos de sempre."
+        },
+        {
+          "visual": "16_report_archive",
+          "narration": "O Report acrescenta Archive package, que empacota um projeto para compartilhar, e um depósito no Zenodo.",
+          "hold_after": 0.7,
+          "focus": [
+            3370,
+            2011,
+            470,
+            94
+          ],
+          "speech_text": "O Report acrescenta Archive package, que empacota um projeto para compartilhar, e um depósito no Zenodo."
+        },
+        {
+          "visual": "17_run_history_export",
+          "narration": "O Run History pode exportar uma execução registrada como um fluxo de trabalho reutilizável.",
+          "hold_after": 0.7,
+          "focus": [
+            3590,
+            958,
+            250,
+            94
+          ],
+          "speech_text": "O Run History pode exportar uma execução registrada como um fluxo de trabalho reutilizável."
+        },
+        {
+          "visual": "18_prefs_notifications",
+          "narration": "Preferences ganha uma aba Notifications, para o spaCR avisar você por mensagem na área de trabalho, e-mail, Slack ou webhook quando uma execução longa termina ou falha.",
+          "hold_after": 0.7,
+          "speech_text": "Preferences ganha uma aba Notifications, para o espáquer avisar você por mensagem na área de trabalho, e-mail, Slack ou webhook quando uma execução longa termina ou falha."
+        },
+        {
+          "visual": "18b_prefs_plugins",
+          "narration": "Uma aba Plugins lista plugins da comunidade que você pode instalar, atualizar ou remover.",
+          "hold_after": 0.7,
+          "speech_text": "Uma aba Plugins lista plugins da comunidade que você pode instalar, atualizar ou remover."
+        },
+        {
+          "visual": "19_ops_spot_detectors",
+          "narration": "Para triagens ópticas em pool, o detector de pontos do OPS oferece outros detectores alpha para os pontos de sequenciamento.",
+          "hold_after": 0.7,
+          "focus": [
+            201,
+            925,
+            1083,
+            88
+          ],
+          "speech_text": "Para triagens ópticas em pool, o detector de pontos do OPS oferece outros detectores alpha para os pontos de sequenciamento."
+        },
+        {
+          "visual": "19b_map_barcodes_spatial",
+          "narration": "O Map Barcodes acrescenta um modo de transcriptômica espacial.",
+          "hold_after": 0.7,
+          "focus": [
+            1277,
+            1788,
+            281,
+            83
+          ],
+          "speech_text": "O Map Barcodes acrescenta um modo de transcriptômica espacial."
+        },
+        {
+          "visual": "20_convert_barcodes",
+          "narration": "O Format Converter acrescenta a ligação por código de barras da placa, que preenche o mapa da placa a partir de uma tabela de amostras pelo código de barras.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            325,
+            3840,
+            173
+          ],
+          "speech_text": "O Format Converter acrescenta a ligação por código de barras da placa, que preenche o mapa da placa a partir de uma tabela de amostras pelo código de barras."
+        },
+        {
+          "visual": "20b_power_arrayed",
+          "narration": "Power e Design acrescenta um planejador para triagens em formato arrayed.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1584,
+            740,
+            576
+          ],
+          "speech_text": "Power e Design acrescenta um planejador para triagens em formato arrayed."
+        },
+        {
+          "visual": "21_test_data",
+          "narration": "Várias ferramentas menores, como o Feature Explorer, ganham Load test data, que baixa um exemplo para você testá-las na hora.",
+          "hold_after": 0.7,
+          "focus": [
+            3433,
+            63,
+            227,
+            94
+          ],
+          "speech_text": "Várias ferramentas menores, como o Feature Explorer, ganham Load test data, que baixa um exemplo para você testá-las na hora."
+        },
+        {
+          "visual": "22_prefs_alpha_off",
+          "narration": "Quando terminar, abra Preferences de novo e desative Show alpha features. Todos os controles alpha somem, e seus fluxos de trabalho estáveis ficam exatamente como antes.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ],
+          "speech_text": "Quando terminar, abra Preferences de novo e desative Show alpha features. Todos os controles alpha somem, e seus fluxos de trabalho estáveis ficam exatamente como antes."
+        }
+      ],
       "narration_voices": {
         "en": [
           "af_heart"

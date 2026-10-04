@@ -978,6 +978,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "If your images are scattered across folders or named in a way Mask cannot read, click Organize images at the top of Input & Metadata. Give each channel a column, by dropping its folder or by a regex, and check that every row is one complete field. Apply moves the images into one folder with Yokogawa names and points Source at it, with the channels already filled in.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_cached_load",
           "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
           "hold_after": 0.7
@@ -6175,6 +6180,11 @@
             "35_converter",
             "31_external_masks"
           ]
+        },
+        {
+          "visual": "org_organize_popup",
+          "narration": "If your images and masks still need sorting, open Import Images and click Organize images and masks. Give each channel and mask a column, choose whether to write for Mask Generation or Measure, and split multi-channel files when needed. Apply moves them into the layout that module reads, ready to open there.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_choose_images",
@@ -13131,6 +13141,11 @@
           ]
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "When you also have masks, click Organize images and masks beside the image folder. Drop each channel folder and the mask folder into their columns, set the mask's role, and under Write for choose Mask Generation or Measure. Files with several channels can be split into one column per channel first; Apply moves everything into that module's layout and records each move in a manifest.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "04_source_options",
           "narration": "Use the Mask example for this walkthrough. Select copies of one field from each of two wells, with four channels per field. Keep the original download unchanged.",
           "hold_after": 0.7,
@@ -15234,6 +15249,518 @@
         }
       ],
       "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organism modules",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Turn on Show alpha species and tour the unfinished organism pages: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells.",
+      "objectives": [
+        "Turn Show alpha species on and off in Preferences.",
+        "Read an organism page: introduction, cell diagram and assay tiles.",
+        "Tell open assay tiles from planned ones and know these pages are alpha."
+      ],
+      "prerequisite": "Open spaCR Home. No input files are needed. These organism pages are alpha: unfinished and subject to change.",
+      "scenes": [
+        {
+          "visual": "00_home_assays_off",
+          "narration": "This is the one tutorial that shows spaCR's alpha organism modules. On a normal install the Assays tab on Home holds a single organism, Toxoplasma. The other organism pages are switched off until you ask for them.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "05_home"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_prefs_species_off",
+          "narration": "Open Preferences from the spaCR menu and go to the Modules tab. Under Module visibility, the last switch is Show alpha species. It is off by default.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_prefs_species_on",
+          "narration": "Turn it on. Treat everything it reveals as alpha: the pages are unfinished, most of their assay tiles are still planned, and names, layouts and analyses may change before they are released. Use them to explore, not to report results.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_prefs_species_on_save",
+          "narration": "Press Save. The setting applies at once and is kept for your next session, so you only need to do this once.",
+          "focus": [
+            2420,
+            1700,
+            260,
+            80
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_home_assays_on",
+          "narration": "Back on Home, the Assays tab now lists eight organisms: Toxoplasma, then Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells. Each tile opens a page built the same way, so once you know one, you can read them all.",
+          "focus": [
+            30,
+            310,
+            2270,
+            200
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_page",
+          "narration": "Start with Plasmodium, the malaria parasites. On the left, a short introduction explains what imaging can measure in this organism: infection frequency, blood-stage development, liver infection, motility and drug responses. Below it, each section ties a biological question to the assay tiles on the right.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_diagram",
+          "narration": "The cell diagram is an interactive map of compartments taken from UniProt. Hover over the cell to identify a structure, and tick several compartments in the list to keep them highlighted together. Clear components resets the drawing.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_modules",
+          "narration": "The assay tiles are where work starts. Bright tiles open a module that already runs: Parasitaemia opens Host–Pathogen Analysis, Sporozoite motility opens the Motility Assay. Dimmed tiles are planned and cannot be opened yet. The same rule holds on every organism page.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "candida_page",
+          "narration": "Candida covers yeasts that can switch between budding cells, germ tubes and hyphae. Its open tiles reuse existing modules for adhesion, epithelial invasion, phagocytosis and antifungal response; the planned ones will measure filamentation, germ tubes, biofilm and morphology.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "trypanosoma_page",
+          "narration": "Trypanosoma brings two parasites onto one page: Trypanosoma brucei, which swims in blood, and Trypanosoma cruzi, which replicates inside host cells. Flagellar motility, host-cell invasion, amastigote infection and drug response already open real modules.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "leishmania_page",
+          "narration": "Leishmania parasites replicate inside macrophages. Macrophage infection reports the infected fraction and amastigotes per macrophage, and promastigote motility measures swimming. Planned tiles will follow metacyclogenesis, amastigote conversion and vacuole size.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "giardia_page",
+          "narration": "Giardia duodenalis attaches to the gut wall with its ventral disc. Here you can count trophozoites on epithelial cells, track their swimming and measure drug responses; encystation, excystation and disc morphology are still planned.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "virus_page",
+          "narration": "Virus infection is a page for host cells rather than a parasite. Infection rate counts virus-positive cells, Plaque Assay measures plaques, and Recruitment measures host proteins gathering at replication sites. Define positivity from mock-infected wells.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "mammalian_page",
+          "narration": "Mammalian cells covers screens with no pathogen at all. Its open tiles lead straight to Mask, Measure, the Motility Assay, phagocytosis and cytotoxicity, so the core pipeline is one click away from the organism page.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "91_prefs_species_off_again",
+          "narration": "When you are done exploring, return to Preferences and switch Show alpha species off again, then Save. The organism pages disappear; nothing you have measured is changed.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "92_home_assays_off_again",
+          "narration": "Home is back to Toxoplasma alone. As each organism matures it will leave alpha and get its own walkthrough. Until then, use the Toxoplasma lesson for a full assay example, and the module lessons for each workflow these tiles open.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "85_host_pathogen",
+            "18_motility"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "87_alpha_features",
+      "number": 87,
+      "slug": "alpha_features",
+      "title": "Alpha: experimental features",
+      "series": 5,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Turn on Show alpha features and see where each experimental control appears in spaCR and what it does.",
+      "objectives": [
+        "Turn Show alpha features on and off in Preferences.",
+        "Find the alpha controls on each screen.",
+        "Know which alpha tool fits a task before trying it."
+      ],
+      "prerequisite": "Open spaCR. No input files are needed: this lesson shows where each alpha control appears and what it does, not results. Alpha features are unfinished and may change between releases.",
+      "scenes": [
+        {
+          "visual": "01_prefs_alpha_on",
+          "narration": "This lesson tours the experimental side of spaCR. Open Preferences, choose Modules and turn on Show alpha features, then press Save. Alpha features are unfinished: they can change, move or disappear between releases, so check their results before you rely on them.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ]
+        },
+        {
+          "visual": "02_mask_preprocessing",
+          "narration": "In Mask generation, Image Preprocessing gains alpha categories that change the pixels before segmentation: spectral unmixing from single-stain control wells, self-supervised denoising, illumination correction, deconvolution with a point spread function, and contrast enhancement such as local histogram equalisation.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_mask_quality",
+          "narration": "Quality Control adds checks on the masks themselves. A robustness report re-segments a few fields with slightly changed settings and reports how much the objects move. A real-object classifier removes objects that do not look like real cells, and an image-quality network flags blurred, saturated or empty fields.",
+          "hold_after": 0.7,
+          "focus": [
+            235,
+            0,
+            1039,
+            2130
+          ]
+        },
+        {
+          "visual": "05_mask_automation",
+          "narration": "Further alpha settings automate runs: segmenting on several GPUs at once, a watch folder that analyses fields while the microscope is still writing them, feedback that sends selected objects back to the microscope, and image sources in cloud storage.",
+          "hold_after": 0.7,
+          "focus": [
+            207,
+            0,
+            1067,
+            1845
+          ]
+        },
+        {
+          "visual": "06_timelapse",
+          "narration": "With Time on, Mask generation offers alpha tracking: further tracking modes, lineage trees built from division links, and an event detector that finds events such as divisions or deaths along each track.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            1274,
+            1026,
+            886
+          ]
+        },
+        {
+          "visual": "07_measure_assays",
+          "narration": "Measure gains alpha assays that run after measuring: live and dead calls for viability, cell-cycle phases from the DNA stain, the closure of a scratch wound, and confluency, the fraction of each field covered by cells.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            851,
+            1013,
+            1279
+          ]
+        },
+        {
+          "visual": "07b_measure_time",
+          "narration": "For timelapse projects, Measure adds photobleaching correction and a time-to-event analysis that follows every tracked object to an event and compares conditions over time.",
+          "hold_after": 0.7,
+          "focus": [
+            200,
+            539,
+            1061,
+            88
+          ]
+        },
+        {
+          "visual": "08_measure_outputs",
+          "narration": "Other alpha options change what Measure writes: image-based profiles aggregated per well, a CellProfiler pipeline run after measuring, GPU measurement, extra storage formats for very large runs, and intensity calibration across imaging sessions.",
+          "hold_after": 0.7,
+          "focus": [
+            165,
+            0,
+            1096,
+            1845
+          ]
+        },
+        {
+          "visual": "08b_anndata_format",
+          "narration": "AnnData Export adds a choice of output format for the measured objects.",
+          "hold_after": 0.7,
+          "focus": [
+            226,
+            783,
+            1058,
+            88
+          ]
+        },
+        {
+          "visual": "09_make_masks_tools",
+          "narration": "Make Masks shows alpha tools along its bottom rows: Uncertainty, to find the objects a model is least sure about, Blind mode to hide condition names while you curate, ROI import and export, SAM2 tracking through a movie, and Apply virtual stain.",
+          "hold_after": 0.7,
+          "focus": [
+            649,
+            2051,
+            2809,
+            94
+          ]
+        },
+        {
+          "visual": "10_workbench_virtual_stain",
+          "narration": "The Cellpose Workbench offers Virtual staining, which predicts a stain channel from the images you already have.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            2051,
+            228,
+            94
+          ]
+        },
+        {
+          "visual": "11_annotate_tools",
+          "narration": "Annotate adds Blind mode, Like this to find crops similar to the one you are labelling, and Field QC, where you label whole fields as good, out of focus or saturated.",
+          "hold_after": 0.7,
+          "focus": [
+            326,
+            132,
+            850,
+            94
+          ]
+        },
+        {
+          "visual": "12_plaque_growth",
+          "narration": "Plaque Analysis adds colony counting on plate photos and experimental growth estimates, which suggest a time or a scale from the largest plaques and an assumed linear growth.",
+          "hold_after": 0.7,
+          "focus": [
+            247,
+            862,
+            1037,
+            680
+          ]
+        },
+        {
+          "visual": "13_activation_counterfactuals",
+          "narration": "In Activation Maps, Counterfactuals trains a small generator guided by your classifier and morphs crops step by step toward the other class, so you can see which features the model relies on.",
+          "hold_after": 0.7,
+          "focus": [
+            254,
+            582,
+            1030,
+            270
+          ]
+        },
+        {
+          "visual": "14_embeddings_tools",
+          "narration": "Embeddings adds foundation-model encoders, self-supervised pretraining on your own crops, and learning from well-level labels when single cells are not labelled.",
+          "hold_after": 0.7,
+          "focus": [
+            988,
+            259,
+            2414,
+            94
+          ]
+        },
+        {
+          "visual": "15_control_chart",
+          "narration": "Control Charts adds anomaly scoring and a chemistry panel beside the regular charts.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1039,
+            523,
+            1102
+          ]
+        },
+        {
+          "visual": "16_report_archive",
+          "narration": "Report adds Archive package, which bundles a project for sharing, and a deposit to Zenodo.",
+          "hold_after": 0.7,
+          "focus": [
+            3370,
+            2011,
+            470,
+            94
+          ]
+        },
+        {
+          "visual": "17_run_history_export",
+          "narration": "Run History can export a recorded run as a reusable workflow.",
+          "hold_after": 0.7,
+          "focus": [
+            3590,
+            958,
+            250,
+            94
+          ]
+        },
+        {
+          "visual": "18_prefs_notifications",
+          "narration": "Preferences gains a Notifications tab, so spaCR can tell you by desktop message, email, Slack or a web hook when a long run finishes or fails.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18b_prefs_plugins",
+          "narration": "A Plugins tab lists community plugins that you can install, update or remove.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "19_ops_spot_detectors",
+          "narration": "For optical pooled screens, the OPS spot detector offers further alpha detectors for sequencing spots.",
+          "hold_after": 0.7,
+          "focus": [
+            201,
+            925,
+            1083,
+            88
+          ]
+        },
+        {
+          "visual": "19b_map_barcodes_spatial",
+          "narration": "Map Barcodes adds a spatial transcriptomics mode.",
+          "hold_after": 0.7,
+          "focus": [
+            1277,
+            1788,
+            281,
+            83
+          ]
+        },
+        {
+          "visual": "20_convert_barcodes",
+          "narration": "The Format Converter adds plate barcode linkage, which fills the plate map from a sample table by plate barcode.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            325,
+            3840,
+            173
+          ]
+        },
+        {
+          "visual": "20b_power_arrayed",
+          "narration": "Power and Design adds a planner for arrayed screens.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1584,
+            740,
+            576
+          ]
+        },
+        {
+          "visual": "21_test_data",
+          "narration": "Several smaller tools, such as Feature Explorer, gain Load test data, which downloads an example so you can try them straight away.",
+          "hold_after": 0.7,
+          "focus": [
+            3433,
+            63,
+            227,
+            94
+          ]
+        },
+        {
+          "visual": "22_prefs_alpha_off",
+          "narration": "When you are done, open Preferences again and turn Show alpha features off. Every alpha control disappears, and your stable workflows look exactly as before.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ]
+        }
+      ],
       "narration_voices": {
         "en": [
           "af_heart"

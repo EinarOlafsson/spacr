@@ -957,6 +957,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "Hvis dine billeder ligger spredt i flere mapper eller har navne, som Mask ikke kan læse, klikker du på Organize images øverst i Input & Metadata. Giv hver kanal en kolonne, ved at slippe dens mappe eller med en regex, og kontrollér, at hver række er ét komplet synsfelt. Apply flytter billederne til én mappe med Yokogawa-navne og peger Source på den, med kanalerne allerede udfyldt.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_cached_load",
           "narration": "Klik på Load test data, og vent, til mikroskopieksemplet er indlæst. Kontrollér Source, før du fortsætter. Til dine egne billeder vælger du deres mappe og bekræfter, at filnavnene angiver plade, brønd, synsfelt og kanal.",
           "hold_after": 0.7
@@ -6154,6 +6159,11 @@
             "35_converter",
             "31_external_masks"
           ]
+        },
+        {
+          "visual": "org_organize_popup",
+          "narration": "Hvis dine billeder og masker stadig skal sorteres, åbner du Import Images og klikker på Organize images and masks. Giv hver kanal og maske en kolonne, vælg, om der skal skrives til Mask Generation eller Measure, og opdel filer med flere kanaler efter behov. Apply flytter dem til den struktur, som modulet læser, klar til at blive åbnet der.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_choose_images",
@@ -13110,6 +13120,11 @@
           ]
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "Når du også har masker, klikker du på Organize images and masks ved siden af billedmappen. Slip hver kanalmappe og maskemappen i deres kolonner, angiv maskens rolle, og vælg Mask Generation eller Measure under Write for. Filer med flere kanaler kan først opdeles i én kolonne pr. kanal; Apply flytter alt til det pågældende moduls struktur og registrerer hver flytning i et manifest.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "04_source_options",
           "narration": "Brug Mask-eksemplet i denne gennemgang. Vælg kopier af ét synsfelt fra hver af to brønde med fire kanaler pr. synsfelt. Lad den oprindelige download være uændret.",
           "hold_after": 0.7,
@@ -15213,6 +15228,518 @@
         }
       ],
       "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: organismemoduler",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Slå Show alpha species til, og gennemgå de ufærdige organismesider: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+      "objectives": [
+        "Slå Show alpha species til og fra i Preferences.",
+        "Læse en organismeside: introduktion, cellediagram og assayfliser.",
+        "Skelne åbne fra planlagte assayfliser og vide, at disse sider er alfa."
+      ],
+      "prerequisite": "Åbn Home i spaCR. Der kræves ingen inputfiler. Disse organismesider er alfa: ufærdige og kan ændre sig.",
+      "scenes": [
+        {
+          "visual": "00_home_assays_off",
+          "narration": "Dette er den eneste vejledning, der viser spaCR's alfa-organismemoduler. I en normal installation indeholder fanen Assays på Home kun én organisme, Toxoplasma. De andre organismesider forbliver slået fra, indtil du beder om dem.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "05_home"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_prefs_species_off",
+          "narration": "Åbn Preferences fra spaCR-menuen, og gå til fanen Modules. Under Module visibility er den sidste kontakt Show alpha species. Den er som standard slået fra.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_prefs_species_on",
+          "narration": "Slå den til. Betragt alt, hvad den viser, som alfa: Siderne er ufærdige, de fleste assayfliser er stadig planlagte, og navne, layout og analyser kan ændre sig før udgivelsen. Brug dem til at udforske, ikke til at rapportere resultater.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_prefs_species_on_save",
+          "narration": "Tryk på Save. Indstillingen gælder med det samme og bevares til næste session, så du behøver kun at gøre det én gang.",
+          "focus": [
+            2420,
+            1700,
+            260,
+            80
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_home_assays_on",
+          "narration": "Tilbage på Home viser fanen Assays nu otte organismer: Toxoplasma og derefter Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver flise åbner en side, der er bygget på samme måde, så kender du én, kan du læse dem alle.",
+          "focus": [
+            30,
+            310,
+            2270,
+            200
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_page",
+          "narration": "Begynd med Plasmodium, malariaparasitterne. Til venstre forklarer en kort introduktion, hvad billeddannelse kan måle i denne organisme: infektionshyppighed, udvikling af blodstadier, leverinfektion, motilitet og respons på stoffer. Nedenunder knytter hver sektion et biologisk spørgsmål til assayfliserne til højre.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_diagram",
+          "narration": "Cellediagrammet er et interaktivt kort over kompartmenter fra UniProt. Hold musen over cellen for at identificere en struktur, og sæt flueben ved flere kompartmenter på listen for at holde dem fremhævet sammen. Clear components nulstiller tegningen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_modules",
+          "narration": "Det er ved assayfliserne, arbejdet begynder. Lyse fliser åbner et modul, der allerede kører: Parasitaemia åbner Host–Pathogen Analysis, Sporozoite motility åbner Motility Assay. Nedtonede fliser er planlagte og kan endnu ikke åbnes. Samme regel gælder på hver organismeside.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "candida_page",
+          "narration": "Candida omfatter gær, der kan skifte mellem knopskydende celler, kimrør og hyfer. De åbne fliser genbruger eksisterende moduler til adhæsion, epitelial invasion, fagocytose og svampemiddelrespons; de planlagte vil måle filamentering, kimrør, biofilm og morfologi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "trypanosoma_page",
+          "narration": "Trypanosoma samler to parasitter på én side: Trypanosoma brucei, der svømmer i blodet, og Trypanosoma cruzi, der formerer sig inde i værtsceller. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response åbner allerede rigtige moduler.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "leishmania_page",
+          "narration": "Leishmania-parasitter formerer sig inde i makrofager. Macrophage infection rapporterer den inficerede andel og amastigoter pr. makrofag, og Promastigote motility måler svømning. Planlagte fliser vil følge metacyklogenese, omdannelse til amastigoter og vakuolestørrelse.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "giardia_page",
+          "narration": "Giardia duodenalis hæfter sig til tarmvæggen med sin ventrale skive. Her kan du tælle trofozoitter på epitelceller, følge deres svømning og måle lægemiddelrespons; encystering, excystering og skivemorfologi er stadig planlagte.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "virus_page",
+          "narration": "Virus infection er en side for værtsceller frem for en parasit. Infection rate tæller viruspositive celler, Plaque Assay måler plaques, og Recruitment måler værtsproteiner, der samles ved replikationssteder. Fastlæg positivitet ud fra mock-inficerede brønde.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "mammalian_page",
+          "narration": "Mammalian cells dækker screeninger helt uden patogen. De åbne fliser fører direkte til Mask, Measure, Motility Assay, fagocytose og cytotoksicitet, så kernepipelinen er ét klik fra organismesiden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "91_prefs_species_off_again",
+          "narration": "Når du er færdig med at udforske, så gå tilbage til Preferences, slå Show alpha species fra igen, og tryk på Save. Organismesiderne forsvinder; intet af det, du har målt, ændres.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "92_home_assays_off_again",
+          "narration": "Home viser igen kun Toxoplasma. Efterhånden som hver organisme modnes, forlader den alfa og får sin egen gennemgang. Indtil da kan du bruge Toxoplasma-lektionen til et fuldt assayeksempel og modullektionerne til hvert workflow, som disse fliser åbner.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "85_host_pathogen",
+            "18_motility"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "87_alpha_features",
+      "number": 87,
+      "slug": "alpha_features",
+      "title": "Alpha: eksperimentelle funktioner",
+      "series": 5,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Slå Show alpha features til, og se hvor hver eksperimentel indstilling dukker op i spaCR, og hvad den gør.",
+      "objectives": [
+        "Slå Show alpha features til og fra i Preferences.",
+        "Finde alpha-indstillingerne på hver skærm.",
+        "Vide hvilket alpha-værktøj der passer til en opgave, før du prøver det."
+      ],
+      "prerequisite": "Åbn spaCR. Der kræves ingen inputfiler: lektionen viser, hvor hver alpha-indstilling dukker op, og hvad den gør, ikke resultater. Alpha-funktioner er ufærdige og kan ændre sig mellem versioner.",
+      "scenes": [
+        {
+          "visual": "01_prefs_alpha_on",
+          "narration": "Denne lektion gennemgår den eksperimentelle side af spaCR. Åbn Preferences, vælg Modules, slå Show alpha features til, og tryk på Save. Alpha-funktioner er ufærdige: de kan ændre sig, flytte eller forsvinde mellem versioner, så tjek resultaterne, før du stoler på dem.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ]
+        },
+        {
+          "visual": "02_mask_preprocessing",
+          "narration": "I Mask generation får Image Preprocessing alpha-kategorier, der ændrer pixlerne før segmentering: spektral adskillelse ud fra kontrolbrønde med én farvning, selvsuperviseret støjfjernelse, belysningskorrektion, dekonvolution med en punktspredningsfunktion og kontrastforstærkning som lokal histogramudligning.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_mask_quality",
+          "narration": "Quality Control tilføjer kontrol af selve maskerne. En robusthedsrapport segmenterer nogle synsfelter igen med let ændrede indstillinger og viser, hvor meget objekterne ændrer sig. En klassifikator for rigtige objekter fjerner objekter, der ikke ligner rigtige celler, og et billedkvalitetsnetværk markerer uskarpe, mættede eller tomme synsfelter.",
+          "hold_after": 0.7,
+          "focus": [
+            235,
+            0,
+            1039,
+            2130
+          ]
+        },
+        {
+          "visual": "05_mask_automation",
+          "narration": "Andre alpha-indstillinger automatiserer kørsler: segmentering på flere GPU'er på én gang, en overvåget mappe, der analyserer synsfelter, mens mikroskopet stadig skriver dem, feedback, der sender udvalgte objekter tilbage til mikroskopet, og billedkilder i skylager.",
+          "hold_after": 0.7,
+          "focus": [
+            207,
+            0,
+            1067,
+            1845
+          ]
+        },
+        {
+          "visual": "06_timelapse",
+          "narration": "Med Time slået til tilbyder Mask generation alpha-sporing: flere sporingstilstande, stamtræer bygget ud fra delingsforbindelser og en hændelsesdetektor, der finder hændelser som delinger eller celledød langs hvert spor.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            1274,
+            1026,
+            886
+          ]
+        },
+        {
+          "visual": "07_measure_assays",
+          "narration": "Measure får alpha-analyser, der kører efter målingen: levende og døde celler for viabilitet, cellecyklusfaser ud fra DNA-farvningen, lukningen af et ridsesår og konfluens, altså den andel af hvert synsfelt, der er dækket af celler.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            851,
+            1013,
+            1279
+          ]
+        },
+        {
+          "visual": "07b_measure_time",
+          "narration": "I timelapse-projekter tilføjer Measure korrektion for fotoblegning og en tid-til-hændelse-analyse, der følger hvert sporet objekt til en hændelse og sammenligner betingelser over tid.",
+          "hold_after": 0.7,
+          "focus": [
+            200,
+            539,
+            1061,
+            88
+          ]
+        },
+        {
+          "visual": "08_measure_outputs",
+          "narration": "Andre alpha-muligheder ændrer det, Measure skriver: billedbaserede profiler pr. brønd, en CellProfiler-pipeline efter målingen, måling på GPU, ekstra lagringsformater til meget store kørsler og intensitetskalibrering på tværs af optagelsessessioner.",
+          "hold_after": 0.7,
+          "focus": [
+            165,
+            0,
+            1096,
+            1845
+          ]
+        },
+        {
+          "visual": "08b_anndata_format",
+          "narration": "AnnData Export tilføjer et valg af outputformat for de målte objekter.",
+          "hold_after": 0.7,
+          "focus": [
+            226,
+            783,
+            1058,
+            88
+          ]
+        },
+        {
+          "visual": "09_make_masks_tools",
+          "narration": "Make Masks viser alpha-værktøjer i de nederste rækker: Uncertainty til at finde de objekter, en model er mindst sikker på, Blind-tilstand, der skjuler betingelsernes navne under kurateringen, import og eksport af ROI'er, SAM2 tracking gennem en film og Apply virtual stain.",
+          "hold_after": 0.7,
+          "focus": [
+            649,
+            2051,
+            2809,
+            94
+          ]
+        },
+        {
+          "visual": "10_workbench_virtual_stain",
+          "narration": "Cellpose Workbench tilbyder Virtual staining, der forudsiger en farvningskanal ud fra de billeder, du allerede har.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            2051,
+            228,
+            94
+          ]
+        },
+        {
+          "visual": "11_annotate_tools",
+          "narration": "Annotate tilføjer Blind-tilstand, Like this til at finde udsnit, der ligner det, du mærker, og Field QC, hvor du mærker hele synsfelter som gode, uskarpe eller mættede.",
+          "hold_after": 0.7,
+          "focus": [
+            326,
+            132,
+            850,
+            94
+          ]
+        },
+        {
+          "visual": "12_plaque_growth",
+          "narration": "Plaque Analysis tilføjer optælling af kolonier på pladefotos og eksperimentelle vækstestimater, der foreslår en tid eller en skala ud fra de største plaques og en antaget lineær vækst.",
+          "hold_after": 0.7,
+          "focus": [
+            247,
+            862,
+            1037,
+            680
+          ]
+        },
+        {
+          "visual": "13_activation_counterfactuals",
+          "narration": "I Activation Maps træner Counterfactuals en lille generator styret af din klassifikator og ændrer udsnit trin for trin mod den anden klasse, så du kan se, hvilke træk modellen lægger vægt på.",
+          "hold_after": 0.7,
+          "focus": [
+            254,
+            582,
+            1030,
+            270
+          ]
+        },
+        {
+          "visual": "14_embeddings_tools",
+          "narration": "Embeddings tilføjer encodere fra foundation-modeller, selvsuperviseret fortræning på dine egne udsnit og læring ud fra mærker pr. brønd, når de enkelte celler ikke er mærket.",
+          "hold_after": 0.7,
+          "focus": [
+            988,
+            259,
+            2414,
+            94
+          ]
+        },
+        {
+          "visual": "15_control_chart",
+          "narration": "Control Charts tilføjer en anomalivurdering og et kemipanel ved siden af de sædvanlige diagrammer.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1039,
+            523,
+            1102
+          ]
+        },
+        {
+          "visual": "16_report_archive",
+          "narration": "Report tilføjer Archive package, der samler et projekt til deling, og deponering på Zenodo.",
+          "hold_after": 0.7,
+          "focus": [
+            3370,
+            2011,
+            470,
+            94
+          ]
+        },
+        {
+          "visual": "17_run_history_export",
+          "narration": "Run History kan eksportere en registreret kørsel som et genbrugeligt workflow.",
+          "hold_after": 0.7,
+          "focus": [
+            3590,
+            958,
+            250,
+            94
+          ]
+        },
+        {
+          "visual": "18_prefs_notifications",
+          "narration": "Preferences får en Notifications-fane, så spaCR kan give dig besked via skrivebordsbesked, e-mail, Slack eller webhook, når en lang kørsel er færdig eller fejler.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18b_prefs_plugins",
+          "narration": "En Plugins-fane viser fællesskabets plugins, som du kan installere, opdatere eller fjerne.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "19_ops_spot_detectors",
+          "narration": "Til optiske poolede screeninger tilbyder OPS-spotdetektoren flere alpha-detektorer til sekventeringsspots.",
+          "hold_after": 0.7,
+          "focus": [
+            201,
+            925,
+            1083,
+            88
+          ]
+        },
+        {
+          "visual": "19b_map_barcodes_spatial",
+          "narration": "Map Barcodes tilføjer en tilstand til rumlig transkriptomik.",
+          "hold_after": 0.7,
+          "focus": [
+            1277,
+            1788,
+            281,
+            83
+          ]
+        },
+        {
+          "visual": "20_convert_barcodes",
+          "narration": "Format Converter tilføjer kobling via pladestregkode, der udfylder pladekortet ud fra en prøvetabel efter pladens stregkode.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            325,
+            3840,
+            173
+          ]
+        },
+        {
+          "visual": "20b_power_arrayed",
+          "narration": "Power og Design tilføjer en planlægger til arrayed screeninger.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1584,
+            740,
+            576
+          ]
+        },
+        {
+          "visual": "21_test_data",
+          "narration": "Flere mindre værktøjer, som Feature Explorer, får Load test data, der henter et eksempel, så du kan prøve dem med det samme.",
+          "hold_after": 0.7,
+          "focus": [
+            3433,
+            63,
+            227,
+            94
+          ]
+        },
+        {
+          "visual": "22_prefs_alpha_off",
+          "narration": "Når du er færdig, åbner du Preferences igen og slår Show alpha features fra. Alle alpha-indstillinger forsvinder, og dine stabile arbejdsgange ser præcis ud som før.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ]
+        }
+      ],
       "narration_voices": {
         "en": [
           "af_heart"

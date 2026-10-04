@@ -957,6 +957,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "Ef myndirnar þínar eru dreifðar um möppur eða heita nöfnum sem Mask getur ekki lesið smellirðu á Raða myndum efst í Input & Metadata. Gefðu hverri rás dálk, með því að draga möppuna hennar inn eða með regex, og athugaðu að hver lína sé eitt heilt sjónsvið. Apply færir myndirnar í eina möppu með Yokogawa-heitum og beinir Source að henni, með rásirnar þegar útfylltar.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_cached_load",
           "narration": "Smelltu á Load test data og bíddu þar til smásjárdæmið hefur hlaðist inn. Athugaðu Source áður en þú heldur áfram. Fyrir eigin myndir velurðu möppuna þeirra og staðfestir að skráarheitin tilgreini plötu, brunn, sjónsvið og rás.",
           "hold_after": 0.7
@@ -6154,6 +6159,11 @@
             "35_converter",
             "31_external_masks"
           ]
+        },
+        {
+          "visual": "org_organize_popup",
+          "narration": "Ef enn þarf að flokka myndirnar og grímurnar opnarðu Import Images og smellir á Raða myndum og grímum. Gefðu hverri rás og grímu dálk, veldu hvort skrifa eigi fyrir Mask Generation eða Measure og skiptu skrám með mörgum rásum eftir þörfum. Apply færir þær í skipulagið sem sú eining les, tilbúnar til að opna þar.",
+          "hold_after": 0.7
         },
         {
           "visual": "03_choose_images",
@@ -13110,6 +13120,11 @@
           ]
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "Þegar þú ert líka með grímur smellirðu á Raða myndum og grímum við hlið myndamöppunnar. Dragðu hverja rásarmöppu og grímumöppuna í dálkana þeirra, stilltu hlutverk grímunnar og veldu Mask Generation eða Measure undir Skrifa fyrir. Skrám með mörgum rásum má fyrst skipta í einn dálk á hverja rás; Apply færir allt í skipulag þeirrar einingar og skráir hverja tilfærslu í færsluskrá.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "04_source_options",
           "narration": "Notaðu Mask-dæmið í þessari yfirferð. Veldu afrit af einu sjónsviði úr hvorum tveggja brunna, með fjórum rásum á sjónsvið. Láttu upprunalega niðurhalið vera óbreytt.",
           "hold_after": 0.7,
@@ -15213,6 +15228,518 @@
         }
       ],
       "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha: lífverueiningar",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "Kveiktu á Show alpha species og skoðaðu ókláruðu lífverusíðurnar: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+      "objectives": [
+        "Kveikja og slökkva á Show alpha species í Preferences.",
+        "Lesa lífverusíðu: inngang, frumuskýringarmynd og prófunarreiti.",
+        "Greina opna prófunarreiti frá fyrirhuguðum og vita að þessar síður eru alfa."
+      ],
+      "prerequisite": "Opnaðu Home í spaCR. Engar inntaksskrár þarf. Þessar lífverusíður eru alfa: óklárar og geta breyst.",
+      "scenes": [
+        {
+          "visual": "00_home_assays_off",
+          "narration": "Þetta er eina kennsluefnið sem sýnir alfa-lífverueiningar spaCR. Í venjulegri uppsetningu er aðeins ein lífvera á Assays-flipanum á Home, Toxoplasma. Hinar lífverusíðurnar eru óvirkar þar til þú biður um þær.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "05_home"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "01_prefs_species_off",
+          "narration": "Opnaðu Preferences úr spaCR-valmyndinni og farðu á Modules-flipann. Undir Module visibility er síðasti rofinn Show alpha species. Sjálfgefið er slökkt á honum.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_prefs_species_on",
+          "narration": "Kveiktu á honum. Líttu á allt sem hann sýnir sem alfa: síðurnar eru óklárar, flestir prófunarreitir eru enn fyrirhugaðir, og heiti, útlit og greiningar geta breyst fyrir útgáfu. Notaðu þær til að skoða, ekki til að birta niðurstöður.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "02_prefs_species_on_save",
+          "narration": "Ýttu á Save. Stillingin tekur gildi strax og helst í næstu lotu, svo þú þarft aðeins að gera þetta einu sinni.",
+          "focus": [
+            2420,
+            1700,
+            260,
+            80
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_home_assays_on",
+          "narration": "Aftur á Home sýnir Assays-flipinn nú átta lífverur: Toxoplasma, síðan Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver reitur opnar síðu sem er byggð eins, svo ef þú þekkir eina geturðu lesið þær allar.",
+          "focus": [
+            30,
+            310,
+            2270,
+            200
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_page",
+          "narration": "Byrjaðu á Plasmodium, malaríusníklunum. Vinstra megin útskýrir stuttur inngangur hvað myndgreining getur mælt í þessari lífveru: tíðni sýkinga, þroska blóðstiga, lifrarsýkingu, hreyfigetu og svörun við efnum. Fyrir neðan tengir hver hluti líffræðilega spurningu við prófunarreitina til hægri.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_diagram",
+          "narration": "Frumuskýringarmyndin er gagnvirkt kort af hólfum úr UniProt. Haltu bendlinum yfir frumunni til að bera kennsl á byggingu, og hakaðu við nokkur hólf í listanum til að halda þeim auðkenndum saman. Clear components hreinsar teikninguna.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "plasmodium_modules",
+          "narration": "Vinnan hefst við prófunarreitina. Ljósir reitir opna einingu sem þegar virkar: Parasitaemia opnar Host–Pathogen Analysis og Sporozoite motility opnar Motility Assay. Daufir reitir eru fyrirhugaðir og opnast ekki enn. Sama regla gildir á hverri lífverusíðu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "candida_page",
+          "narration": "Candida nær yfir gersveppi sem geta skipt á milli frumna í knappskotum, kímröra og sveppþráða. Opnu reitirnir nota fyrirliggjandi einingar fyrir viðloðun, innrás í þekjufrumur, átfrumuát og svörun við sveppalyfjum; þeir fyrirhuguðu munu mæla þráðmyndun, kímrör, líffilmu og formgerð.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "trypanosoma_page",
+          "narration": "Trypanosoma sameinar tvo sníkla á einni síðu: Trypanosoma brucei, sem syndir í blóði, og Trypanosoma cruzi, sem fjölgar sér inni í hýsilfrumum. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response opna þegar raunverulegar einingar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "leishmania_page",
+          "narration": "Leishmania-sníklar fjölga sér inni í átfrumum. Macrophage infection sýnir hlutfall sýktra frumna og amastigota á hverja átfrumu, og Promastigote motility mælir sund. Fyrirhugaðir reitir munu fylgja metacyclogenesis, umbreytingu í amastigota og stærð bóla.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "giardia_page",
+          "narration": "Giardia duodenalis festir sig við þarmavegginn með kviðdiski sínum. Hér geturðu talið trophozoita á þekjufrumum, fylgst með sundi þeirra og mælt svörun við lyfjum; hjúpmyndun, losun úr hjúp og formgerð disksins eru enn fyrirhuguð.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "virus_page",
+          "narration": "Virus infection er síða fyrir hýsilfrumur frekar en sníkil. Infection rate telur veirujákvæðar frumur, Plaque Assay mælir skellur og Recruitment mælir hýsilprótein sem safnast saman við fjölföldunarstaði. Ákvarðaðu jákvæðni út frá gervismituðum brunnum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "mammalian_page",
+          "narration": "Mammalian cells nær yfir skimanir án nokkurs sýkils. Opnu reitirnir leiða beint í Mask, Measure, Motility Assay, átfrumuát og frumueiturhrif, svo kjarnaferlið er einum smelli frá lífverusíðunni.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "91_prefs_species_off_again",
+          "narration": "Þegar þú ert búin(n) að skoða skaltu fara aftur í Preferences, slökkva á Show alpha species og ýta á Save. Lífverusíðurnar hverfa; ekkert sem þú hefur mælt breytist.",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "92_home_assays_off_again",
+          "narration": "Home sýnir aftur aðeins Toxoplasma. Þegar hver lífvera þroskast fer hún úr alfa og fær eigin leiðsögn. Þangað til skaltu nota Toxoplasma-kennslustundina fyrir heilt dæmi um prófun og einingakennslustundirnar fyrir hvert vinnuflæði sem þessir reitir opna.",
+          "related_lessons": [
+            "82_toxoplasma",
+            "85_host_pathogen",
+            "18_motility"
+          ],
+          "hold_after": 0.7
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "87_alpha_features",
+      "number": 87,
+      "slug": "alpha_features",
+      "title": "Alpha: tilraunaeiginleikar",
+      "series": 5,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "Kveiktu á Show alpha features og sjáðu hvar hver tilraunastilling birtist í spaCR og hvað hún gerir.",
+      "objectives": [
+        "Kveikja og slökkva á Show alpha features í Preferences.",
+        "Finna alpha-stillingarnar á hverjum skjá.",
+        "Vita hvaða alpha-tól hentar verki áður en þú prófar það."
+      ],
+      "prerequisite": "Opnaðu spaCR. Engar inntaksskrár þarf: kennslustundin sýnir hvar hver alpha-stilling birtist og hvað hún gerir, ekki niðurstöður. Alpha-eiginleikar eru ófullgerðir og geta breyst milli útgáfa.",
+      "scenes": [
+        {
+          "visual": "01_prefs_alpha_on",
+          "narration": "Þessi kennslustund fer yfir tilraunahlið spaCR. Opnaðu Preferences, veldu Modules, kveiktu á Show alpha features og ýttu á Save. Alpha-eiginleikar eru ófullgerðir: þeir geta breyst, færst eða horfið milli útgáfa, svo athugaðu niðurstöðurnar áður en þú treystir á þær.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ]
+        },
+        {
+          "visual": "02_mask_preprocessing",
+          "narration": "Í Mask generation bætast við Image Preprocessing alpha-flokkar sem breyta dílunum fyrir sundurgreiningu: litrófsaðgreining út frá viðmiðunarholum með einni litun, sjálfstýrð suðhreinsun, birtuleiðrétting, afröndun með punktdreififalli og aukning birtuskila, til dæmis staðbundin jöfnun stuðlarits.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_mask_quality",
+          "narration": "Quality Control bætir við athugunum á grímunum sjálfum. Áreiðanleikaskýrsla sundurgreinir nokkur sjónsvið aftur með örlítið breyttum stillingum og sýnir hve mikið hlutirnir breytast. Flokkari fyrir raunverulega hluti fjarlægir hluti sem líkjast ekki raunverulegum frumum, og myndgæðanet merkir óskýr, mettuð eða tóm sjónsvið.",
+          "hold_after": 0.7,
+          "focus": [
+            235,
+            0,
+            1039,
+            2130
+          ]
+        },
+        {
+          "visual": "05_mask_automation",
+          "narration": "Aðrar alpha-stillingar sjálfvirknivæða keyrslur: sundurgreiningu á mörgum GPU í einu, vaktaða möppu sem greinir sjónsvið meðan smásjáin er enn að skrifa þau, endurgjöf sem sendir valda hluti aftur til smásjárinnar, og myndheimildir í skýjageymslu.",
+          "hold_after": 0.7,
+          "focus": [
+            207,
+            0,
+            1067,
+            1845
+          ]
+        },
+        {
+          "visual": "06_timelapse",
+          "narration": "Þegar kveikt er á Time býður Mask generation upp á alpha-rakningu: fleiri rakningarhami, ættartré byggð á skiptingartengslum og atburðanema sem finnur atburði eins og skiptingar eða frumudauða eftir hverri slóð.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            1274,
+            1026,
+            886
+          ]
+        },
+        {
+          "visual": "07_measure_assays",
+          "narration": "Measure fær alpha-greiningar sem keyra eftir mælingu: lifandi og dauðar frumur fyrir lífvænleika, stig frumuhringsins út frá DNA-litun, lokun rispusárs og þekju, það er hlutfall hvers sjónsviðs sem frumur hylja.",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            851,
+            1013,
+            1279
+          ]
+        },
+        {
+          "visual": "07b_measure_time",
+          "narration": "Fyrir tímaraðaverkefni bætir Measure við leiðréttingu á ljósbleikingu og greiningu á tíma að atburði, sem fylgir hverjum röktum hlut að atburði og ber saman aðstæður yfir tíma.",
+          "hold_after": 0.7,
+          "focus": [
+            200,
+            539,
+            1061,
+            88
+          ]
+        },
+        {
+          "visual": "08_measure_outputs",
+          "narration": "Aðrir alpha-valkostir breyta því sem Measure skrifar: myndtengdum sniðum fyrir hverja holu, CellProfiler-ferli eftir mælingu, mælingu á GPU, viðbótargeymslusniðum fyrir mjög stórar keyrslur og kvörðun styrks milli myndatökulota.",
+          "hold_after": 0.7,
+          "focus": [
+            165,
+            0,
+            1096,
+            1845
+          ]
+        },
+        {
+          "visual": "08b_anndata_format",
+          "narration": "AnnData Export bætir við vali á úttakssniði fyrir mældu hlutina.",
+          "hold_after": 0.7,
+          "focus": [
+            226,
+            783,
+            1058,
+            88
+          ]
+        },
+        {
+          "visual": "09_make_masks_tools",
+          "narration": "Make Masks sýnir alpha-tól í neðstu röðunum: Uncertainty til að finna hlutina sem líkan er síst visst um, Blind-ham sem felur heiti aðstæðna meðan þú yfirferð, inn- og útflutning ROI, SAM2 tracking í gegnum myndskeið og Apply virtual stain.",
+          "hold_after": 0.7,
+          "focus": [
+            649,
+            2051,
+            2809,
+            94
+          ]
+        },
+        {
+          "visual": "10_workbench_virtual_stain",
+          "narration": "Cellpose Workbench býður Virtual staining, sem spáir fyrir um litunarrás út frá myndunum sem þú átt þegar.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            2051,
+            228,
+            94
+          ]
+        },
+        {
+          "visual": "11_annotate_tools",
+          "narration": "Annotate bætir við Blind-ham, Like this til að finna búta sem líkjast þeim sem þú merkir, og Field QC, þar sem þú merkir heil sjónsvið sem góð, úr fókus eða mettuð.",
+          "hold_after": 0.7,
+          "focus": [
+            326,
+            132,
+            850,
+            94
+          ]
+        },
+        {
+          "visual": "12_plaque_growth",
+          "narration": "Plaque Analysis bætir við talningu kóloníu á myndum af plötum og tilraunamati á vexti, sem stingur upp á tíma eða kvarða út frá stærstu skellunum og gefnum línulegum vexti.",
+          "hold_after": 0.7,
+          "focus": [
+            247,
+            862,
+            1037,
+            680
+          ]
+        },
+        {
+          "visual": "13_activation_counterfactuals",
+          "narration": "Í Activation Maps þjálfar Counterfactuals lítinn myndgjafa sem flokkarinn þinn stýrir og breytir bútum skref fyrir skref í átt að hinum flokknum, svo þú sjáir á hvaða einkenni líkanið treystir.",
+          "hold_after": 0.7,
+          "focus": [
+            254,
+            582,
+            1030,
+            270
+          ]
+        },
+        {
+          "visual": "14_embeddings_tools",
+          "narration": "Embeddings bætir við kóðurum úr grunnlíkönum, sjálfstýrðri forþjálfun á þínum eigin bútum og námi út frá merkingum hverrar holu þegar einstakar frumur eru ekki merktar.",
+          "hold_after": 0.7,
+          "focus": [
+            988,
+            259,
+            2414,
+            94
+          ]
+        },
+        {
+          "visual": "15_control_chart",
+          "narration": "Control Charts bætir við fráviksmati og efnafræðiflipa við hlið venjulegu ritanna.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1039,
+            523,
+            1102
+          ]
+        },
+        {
+          "visual": "16_report_archive",
+          "narration": "Report bætir við Archive package, sem pakkar verkefni til deilingar, og innlögn á Zenodo.",
+          "hold_after": 0.7,
+          "focus": [
+            3370,
+            2011,
+            470,
+            94
+          ]
+        },
+        {
+          "visual": "17_run_history_export",
+          "narration": "Run History getur flutt út skráða keyrslu sem endurnýtanlegt verkflæði.",
+          "hold_after": 0.7,
+          "focus": [
+            3590,
+            958,
+            250,
+            94
+          ]
+        },
+        {
+          "visual": "18_prefs_notifications",
+          "narration": "Preferences fær flipann Notifications, svo spaCR geti látið þig vita með skjáboðum, tölvupósti, Slack eða vefkrók þegar löng keyrsla klárast eða mistekst.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18b_prefs_plugins",
+          "narration": "Flipinn Plugins sýnir viðbætur samfélagsins sem þú getur sett upp, uppfært eða fjarlægt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "19_ops_spot_detectors",
+          "narration": "Fyrir sjónrænar safnskimanir býður OPS-blettanemi upp á fleiri alpha-nema fyrir raðgreiningarbletti.",
+          "hold_after": 0.7,
+          "focus": [
+            201,
+            925,
+            1083,
+            88
+          ]
+        },
+        {
+          "visual": "19b_map_barcodes_spatial",
+          "narration": "Map Barcodes bætir við ham fyrir rúmfræðilega umritunarfræði.",
+          "hold_after": 0.7,
+          "focus": [
+            1277,
+            1788,
+            281,
+            83
+          ]
+        },
+        {
+          "visual": "20_convert_barcodes",
+          "narration": "Format Converter bætir við tengingu með strikamerki plötu, sem fyllir plötukortið út frá sýnatöflu eftir strikamerki plötunnar.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            325,
+            3840,
+            173
+          ]
+        },
+        {
+          "visual": "20b_power_arrayed",
+          "narration": "Power og Design bætir við skipuleggjanda fyrir skimanir í raðformi.",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1584,
+            740,
+            576
+          ]
+        },
+        {
+          "visual": "21_test_data",
+          "narration": "Nokkur smærri tól, eins og Feature Explorer, fá Load test data, sem sækir dæmi svo þú getir prófað þau strax.",
+          "hold_after": 0.7,
+          "focus": [
+            3433,
+            63,
+            227,
+            94
+          ]
+        },
+        {
+          "visual": "22_prefs_alpha_off",
+          "narration": "Þegar þú ert búin(n) opnarðu Preferences aftur og slekkur á Show alpha features. Allar alpha-stillingar hverfa og stöðugu verkflæðin þín líta nákvæmlega eins út og áður.",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ]
+        }
+      ],
       "narration_voices": {
         "en": [
           "af_heart"

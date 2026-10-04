@@ -29,7 +29,10 @@ def append_catalogs(published, lessons, voices, reviews, *, replace=False, curre
     """Preserve published objects and bind each added translation to its source."""
     existing = published['lessons_en.json']['lessons']
     identities = {item['id'] for item in existing}
-    numbers = list(range(len(existing) + 1, len(existing) + len(lessons) + 1))
+    # New lessons continue from the highest published number; withdrawn
+    # lessons (83, 84) leave gaps that are never reused.
+    last = max((item['number'] for item in existing), default=0)
+    numbers = list(range(last + 1, last + len(lessons) + 1))
     if not lessons or len({item['id'] for item in lessons}) != len(lessons):
         raise ValueError('Select at least one unique lesson')
     positions = {item['id']: index for index, item in enumerate(existing)}

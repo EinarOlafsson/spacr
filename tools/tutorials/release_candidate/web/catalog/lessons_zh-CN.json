@@ -1043,6 +1043,12 @@
           "speech_text": "从主页打开Mask。用这个模块勾勒显微图像中的细胞、细胞核和病原体。本演示处理二维图像。Time、三维和OPS工作流程各有单独的教程。"
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "如果您的图像分散在多个文件夹中，或命名方式Mask无法识别，请点击Input & Metadata顶部的整理图像。通过拖入文件夹或使用正则表达式，为每个通道分配一列，并确认每一行都是一个完整的视野。Apply会把图像移入一个使用Yokogawa命名的文件夹，并将Source指向它，通道也已填好。",
+          "hold_after": 0.7,
+          "speech_text": "如果您的图像分散在多个文件夹中，或命名方式Mask无法识别，请点击Input & Metadata顶部的整理图像。通过拖入文件夹或使用正则表达式，为每个通道分配一列，并确认每一行都是一个完整的视野。Apply会把图像移入一个使用Yokogawa命名的文件夹，并将Source指向它，通道也已填好。"
+        },
+        {
           "visual": "02_cached_load",
           "narration": "点击Load test data，等待显微示例加载完成。继续之前请检查Source。对于您自己的图像，请选择其文件夹，并确认文件名能标识板、孔、视野和通道。",
           "hold_after": 0.7,
@@ -6634,6 +6640,12 @@
             "31_external_masks"
           ],
           "speech_text": "根据您手头的数据选择导入工具：只有图像时使用Import Images或Format Converter，有图像和掩膜时使用External Masks。这个界面同时接收图像、掩膜和测量表。"
+        },
+        {
+          "visual": "org_organize_popup",
+          "narration": "如果您的图像和掩膜还需要整理，请打开Import Images并点击整理图像和掩膜。为每个通道和掩膜分配一列，选择是为Mask Generation还是为Measure写入，并在需要时拆分多通道文件。Apply会把它们移入该模块读取的目录结构，可直接在那里打开。",
+          "hold_after": 0.7,
+          "speech_text": "如果您的图像和掩膜还需要整理，请打开Import Images并点击整理图像和掩膜。为每个通道和掩膜分配一列，选择是为Mask Generation还是为Measure写入，并在需要时拆分多通道文件。Apply会把它们移入该模块读取的目录结构，可直接在那里打开。"
         },
         {
           "visual": "03_choose_images",
@@ -14098,6 +14110,12 @@
           "speech_text": "从主页打开Data，选择Import，然后选择Import Images。从您想整理成项目的显微镜图像文件开始。"
         },
         {
+          "visual": "org_organize_popup",
+          "narration": "如果还有掩膜，请点击图像文件夹旁边的整理图像和掩膜。把每个通道文件夹和掩膜文件夹拖入各自的列，设置掩膜的角色，并在写入目标下选择Mask Generation或Measure。多通道文件可以先拆分为每个通道一列；Apply会把所有文件移入该模块的目录结构，并把每次移动记录在清单中。",
+          "hold_after": 0.7,
+          "speech_text": "如果还有掩膜，请点击图像文件夹旁边的整理图像和掩膜。把每个通道文件夹和掩膜文件夹拖入各自的列，设置掩膜的角色，并在写入目标下选择Mask Generation或Measure。多通道文件可以先拆分为每个通道一列；Apply会把所有文件移入该模块的目录结构，并把每次移动记录在清单中。"
+        },
+        {
           "visual": "04_source_options",
           "narration": "本演示使用Mask示例。从两个孔中各选一个视野的副本，每个视野有四个通道。请保持原始下载不变。",
           "hold_after": 0.7,
@@ -16376,6 +16394,560 @@
         }
       ],
       "host_app_key": "toxoplasma",
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "86_alpha_organism_modules",
+      "number": 86,
+      "slug": "alpha-organism-modules",
+      "title": "Alpha：物种模块",
+      "series": 3,
+      "section": "Organisms and assays",
+      "description": "打开 Show alpha species，浏览尚未完成的物种页面：Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。",
+      "objectives": [
+        "在 Preferences 中打开和关闭 Show alpha species。",
+        "阅读物种页面：简介、细胞示意图和检测图块。",
+        "区分可用和计划中的检测图块，并了解这些页面属于 alpha。"
+      ],
+      "prerequisite": "打开 spaCR 的 Home。不需要输入文件。这些物种页面属于 alpha：尚未完成，可能会变化。",
+      "scenes": [
+        {
+          "visual": "00_home_assays_off",
+          "narration": "这是唯一展示 spaCR alpha 物种模块的教程。在常规安装中，Home 的 Assays 选项卡只有一个物种：Toxoplasma。其他物种页面在您主动开启之前一直处于关闭状态。",
+          "related_lessons": [
+            "82_toxoplasma",
+            "05_home"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "这是唯一展示 斯佩克尔 alpha 物种模块的教程。在常规安装中，主页 的 Assays 选项卡只有一个物种：Toxoplasma。其他物种页面在您主动开启之前一直处于关闭状态。"
+        },
+        {
+          "visual": "01_prefs_species_off",
+          "narration": "从 spaCR 菜单打开 Preferences，进入 Modules 选项卡。在 Module visibility 下，最后一个开关是 Show alpha species，默认是关闭的。",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "从 斯佩克尔 菜单打开 Preferences，进入 Modules 选项卡。在 Module visibility 下，最后一个开关是 Show alpha species，默认是关闭的。"
+        },
+        {
+          "visual": "02_prefs_species_on",
+          "narration": "把它打开。它显示出的所有内容都应视为 alpha：页面尚未完成，大多数检测图块仍在计划中，名称、布局和分析在发布前都可能改变。请用它们来探索，而不是用来报告结果。",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "把它打开。它显示出的所有内容都应视为 alpha：页面尚未完成，大多数检测图块仍在计划中，名称、布局和分析在发布前都可能改变。请用它们来探索，而不是用来报告结果。"
+        },
+        {
+          "visual": "02_prefs_species_on_save",
+          "narration": "点击 Save。设置立即生效，并会保留到下一次会话，所以只需操作一次。",
+          "focus": [
+            2420,
+            1700,
+            260,
+            80
+          ],
+          "hold_after": 0.7,
+          "speech_text": "点击 Save。设置立即生效，并会保留到下一次会话，所以只需操作一次。"
+        },
+        {
+          "visual": "03_home_assays_on",
+          "narration": "回到 Home，Assays 选项卡现在列出八个物种：Toxoplasma，然后是 Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。每个图块打开的页面结构都相同，熟悉一个就能读懂全部。",
+          "focus": [
+            30,
+            310,
+            2270,
+            200
+          ],
+          "hold_after": 0.7,
+          "speech_text": "回到 主页，Assays 选项卡现在列出八个物种：Toxoplasma，然后是 Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。每个图块打开的页面结构都相同，熟悉一个就能读懂全部。"
+        },
+        {
+          "visual": "plasmodium_page",
+          "narration": "先从疟原虫 Plasmodium 开始。左侧的简短介绍说明了成像在这种生物中能测量什么：感染频率、血液期发育、肝脏感染、运动性以及对化合物的反应。下方每个部分都把一个生物学问题与右侧的检测图块联系起来。",
+          "hold_after": 0.7,
+          "speech_text": "先从疟原虫 Plasmodium 开始。左侧的简短介绍说明了成像在这种生物中能测量什么：感染频率、血液期发育、肝脏感染、运动性以及对化合物的反应。下方每个部分都把一个生物学问题与右侧的检测图块联系起来。"
+        },
+        {
+          "visual": "plasmodium_diagram",
+          "narration": "细胞示意图是基于 UniProt 的区室交互地图。将指针悬停在细胞上可识别结构，在列表中勾选多个区室可让它们同时保持高亮。Clear components 会重置图示。",
+          "hold_after": 0.7,
+          "speech_text": "细胞示意图是基于 UniProt 的区室交互地图。将指针悬停在细胞上可识别结构，在列表中勾选多个区室可让它们同时保持高亮。Clear components 会重置图示。"
+        },
+        {
+          "visual": "plasmodium_modules",
+          "narration": "工作从检测图块开始。亮色图块会打开已经可以运行的模块：Parasitaemia 打开 Host–Pathogen Analysis，Sporozoite motility 打开 Motility Assay。变暗的图块仍在计划中，暂时无法打开。每个物种页面都遵循同样的规则。",
+          "hold_after": 0.7,
+          "speech_text": "工作从检测图块开始。亮色图块会打开已经可以运行的模块：Parasitaemia 打开 Host–Pathogen Analysis，Sporozoite motility 打开 Motility Assay。变暗的图块仍在计划中，暂时无法打开。每个物种页面都遵循同样的规则。"
+        },
+        {
+          "visual": "candida_page",
+          "narration": "Candida 涵盖能在出芽细胞、芽管和菌丝之间转换的酵母。其可用图块复用现有模块来研究黏附、上皮侵袭、吞噬作用和抗真菌反应；计划中的图块将测量丝状化、芽管、生物膜和形态。",
+          "hold_after": 0.7,
+          "speech_text": "Candida 涵盖能在出芽细胞、芽管和菌丝之间转换的酵母。其可用图块复用现有模块来研究黏附、上皮侵袭、吞噬作用和抗真菌反应；计划中的图块将测量丝状化、芽管、生物膜和形态。"
+        },
+        {
+          "visual": "trypanosoma_page",
+          "narration": "Trypanosoma 在一个页面中汇集了两种寄生虫：在血液中游动的 Trypanosoma brucei，以及在宿主细胞内增殖的 Trypanosoma cruzi。Flagellar motility、Host-cell invasion、Amastigote infection 和 Drug response 已经可以打开实际模块。",
+          "hold_after": 0.7,
+          "speech_text": "Trypanosoma 在一个页面中汇集了两种寄生虫：在血液中游动的 Trypanosoma brucei，以及在宿主细胞内增殖的 Trypanosoma cruzi。Flagellar motility、Host-cell invasion、Amastigote infection 和 Drug response 已经可以打开实际模块。"
+        },
+        {
+          "visual": "leishmania_page",
+          "narration": "Leishmania 寄生虫在巨噬细胞内增殖。Macrophage infection 报告被感染细胞的比例和每个巨噬细胞中的无鞭毛体数量，Promastigote motility 测量游动。计划中的图块将追踪循环后期发育、向无鞭毛体的转化以及液泡大小。",
+          "hold_after": 0.7,
+          "speech_text": "Leishmania 寄生虫在巨噬细胞内增殖。Macrophage infection 报告被感染细胞的比例和每个巨噬细胞中的无鞭毛体数量，Promastigote motility 测量游动。计划中的图块将追踪循环后期发育、向无鞭毛体的转化以及液泡大小。"
+        },
+        {
+          "visual": "giardia_page",
+          "narration": "Giardia duodenalis 用腹吸盘附着在肠壁上。在这里可以统计上皮细胞上的滋养体、追踪它们的游动并测量药物反应；成囊、脱囊和吸盘形态仍在计划中。",
+          "hold_after": 0.7,
+          "speech_text": "Giardia duodenalis 用腹吸盘附着在肠壁上。在这里可以统计上皮细胞上的滋养体、追踪它们的游动并测量药物反应；成囊、脱囊和吸盘形态仍在计划中。"
+        },
+        {
+          "visual": "virus_page",
+          "narration": "Virus infection 是面向宿主细胞而非寄生虫的页面。Infection rate 统计病毒阳性细胞，Plaque Assay 测量噬斑，Recruitment 测量在复制位点聚集的宿主蛋白。请根据模拟感染孔来确定阳性阈值。",
+          "hold_after": 0.7,
+          "speech_text": "Virus infection 是面向宿主细胞而非寄生虫的页面。Infection rate 统计病毒阳性细胞，Plaque Assay 测量噬斑，Recruitment 测量在复制位点聚集的宿主蛋白。请根据模拟感染孔来确定阳性阈值。"
+        },
+        {
+          "visual": "mammalian_page",
+          "narration": "Mammalian cells 涵盖完全没有病原体的筛选。其可用图块直接通往 Mask、Measure、Motility Assay、吞噬作用和细胞毒性，因此核心流程离物种页面只有一次点击。",
+          "hold_after": 0.7,
+          "speech_text": "Mammalian cells 涵盖完全没有病原体的筛选。其可用图块直接通往 Mask、Measure、Motility Assay、吞噬作用和细胞毒性，因此核心流程离物种页面只有一次点击。"
+        },
+        {
+          "visual": "91_prefs_species_off_again",
+          "narration": "浏览完毕后，回到 Preferences，再次关闭 Show alpha species 并点击 Save。物种页面随即消失；您测得的任何数据都不会改变。",
+          "focus": [
+            1330,
+            640,
+            1020,
+            70
+          ],
+          "hold_after": 0.7,
+          "speech_text": "浏览完毕后，回到 Preferences，再次关闭 Show alpha species 并点击 Save。物种页面随即消失；您测得的任何数据都不会改变。"
+        },
+        {
+          "visual": "92_home_assays_off_again",
+          "narration": "Home 又只显示 Toxoplasma。每个物种成熟后都会脱离 alpha，并拥有自己的教程。在此之前，完整的检测示例请参阅 Toxoplasma 课程，这些图块打开的各个工作流程请参阅相应的模块课程。",
+          "related_lessons": [
+            "82_toxoplasma",
+            "85_host_pathogen",
+            "18_motility"
+          ],
+          "hold_after": 0.7,
+          "speech_text": "主页 又只显示 Toxoplasma。每个物种成熟后都会脱离 alpha，并拥有自己的教程。在此之前，完整的检测示例请参阅 Toxoplasma 课程，这些图块打开的各个工作流程请参阅相应的模块课程。"
+        }
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ],
+        "es": [
+          "ef_dora",
+          "em_alex",
+          "em_santa"
+        ],
+        "fr": [
+          "ff_siwis"
+        ],
+        "hi": [
+          "hf_alpha",
+          "hf_beta",
+          "hm_omega",
+          "hm_psi"
+        ],
+        "it": [
+          "if_sara",
+          "im_nicola"
+        ],
+        "ja": [
+          "jf_alpha",
+          "jf_gongitsune",
+          "jf_nezumi",
+          "jf_tebukuro",
+          "jm_kumo"
+        ],
+        "pt-BR": [
+          "pf_dora",
+          "pm_alex",
+          "pm_santa"
+        ],
+        "zh-CN": [
+          "zf_xiaobei",
+          "zf_xiaoni",
+          "zf_xiaoxiao",
+          "zf_xiaoyi",
+          "zm_yunjian",
+          "zm_yunxi",
+          "zm_yunxia",
+          "zm_yunyang"
+        ]
+      }
+    },
+    {
+      "id": "87_alpha_features",
+      "number": 87,
+      "slug": "alpha_features",
+      "title": "Alpha：实验性功能",
+      "series": 5,
+      "app_key": null,
+      "section": "spaCR",
+      "description": "打开Show alpha features，看看每个实验性控件出现在spaCR的哪里以及它的作用。",
+      "objectives": [
+        "在Preferences中打开和关闭Show alpha features。",
+        "在每个界面上找到alpha控件。",
+        "在尝试之前，判断哪个alpha工具适合某项任务。"
+      ],
+      "prerequisite": "打开spaCR。不需要任何输入文件：本课展示每个alpha控件出现在哪里、作用是什么，而不是结果。alpha功能尚未完成，不同版本之间可能会变化。",
+      "scenes": [
+        {
+          "visual": "01_prefs_alpha_on",
+          "narration": "本课带您浏览spaCR的实验性部分。打开Preferences，选择Modules，打开Show alpha features，然后按Save。alpha功能尚未完成：它们可能在版本之间改变、移动或消失，因此在依赖其结果之前，请先加以核实。",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ],
+          "speech_text": "本课带您浏览斯佩克尔的实验性部分。打开Preferences，选择Modules，打开Show alpha features，然后按Save。alpha功能尚未完成：它们可能在版本之间改变、移动或消失，因此在依赖其结果之前，请先加以核实。"
+        },
+        {
+          "visual": "02_mask_preprocessing",
+          "narration": "在Mask generation中，Image Preprocessing增加了在分割之前改变像素的alpha类别：利用单染色对照孔的光谱解混、自监督去噪、照明校正、基于点扩散函数的反卷积，以及局部直方图均衡化等对比度增强。",
+          "hold_after": 0.7,
+          "speech_text": "在Mask generation中，Image Preprocessing增加了在分割之前改变像素的alpha类别：利用单染色对照孔的光谱解混、自监督去噪、照明校正、基于点扩散函数的反卷积，以及局部直方图均衡化等对比度增强。"
+        },
+        {
+          "visual": "04_mask_quality",
+          "narration": "Quality Control增加了对掩膜本身的检查。稳健性报告会用稍作改变的设置重新分割几个视野，并报告物体变化的程度。真实物体分类器会去除看起来不像真实细胞的物体，图像质量网络会标记模糊、饱和或空白的视野。",
+          "hold_after": 0.7,
+          "focus": [
+            235,
+            0,
+            1039,
+            2130
+          ],
+          "speech_text": "Quality Control增加了对掩膜本身的检查。稳健性报告会用稍作改变的设置重新分割几个视野，并报告物体变化的程度。真实物体分类器会去除看起来不像真实细胞的物体，图像质量网络会标记模糊、饱和或空白的视野。"
+        },
+        {
+          "visual": "05_mask_automation",
+          "narration": "其他alpha设置可以让运行自动化：同时在多块GPU上分割，监视文件夹在显微镜仍在写入时分析视野，反馈功能将选中的物体发回显微镜，以及云存储中的图像来源。",
+          "hold_after": 0.7,
+          "focus": [
+            207,
+            0,
+            1067,
+            1845
+          ],
+          "speech_text": "其他alpha设置可以让运行自动化：同时在多块GPU上分割，监视文件夹在显微镜仍在写入时分析视野，反馈功能将选中的物体发回显微镜，以及云存储中的图像来源。"
+        },
+        {
+          "visual": "06_timelapse",
+          "narration": "打开Time后，Mask generation提供alpha追踪：更多追踪模式、根据分裂关系构建的谱系树，以及沿每条轨迹寻找分裂或死亡等事件的事件检测器。",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            1274,
+            1026,
+            886
+          ],
+          "speech_text": "打开Time后，Mask generation提供alpha追踪：更多追踪模式、根据分裂关系构建的谱系树，以及沿每条轨迹寻找分裂或死亡等事件的事件检测器。"
+        },
+        {
+          "visual": "07_measure_assays",
+          "narration": "Measure增加了在测量之后运行的alpha检测：用于活力的活细胞与死细胞判定、基于DNA染色的细胞周期时相、划痕伤口的闭合，以及汇合度，即每个视野被细胞覆盖的比例。",
+          "hold_after": 0.7,
+          "focus": [
+            248,
+            851,
+            1013,
+            1279
+          ],
+          "speech_text": "Measure增加了在测量之后运行的alpha检测：用于活力的活细胞与死细胞判定、基于DNA染色的细胞周期时相、划痕伤口的闭合，以及汇合度，即每个视野被细胞覆盖的比例。"
+        },
+        {
+          "visual": "07b_measure_time",
+          "narration": "对于延时项目，Measure增加了光漂白校正，以及事件发生时间分析，它追踪每个物体直到发生事件，并随时间比较各条件。",
+          "hold_after": 0.7,
+          "focus": [
+            200,
+            539,
+            1061,
+            88
+          ],
+          "speech_text": "对于延时项目，Measure增加了光漂白校正，以及事件发生时间分析，它追踪每个物体直到发生事件，并随时间比较各条件。"
+        },
+        {
+          "visual": "08_measure_outputs",
+          "narration": "其他alpha选项会改变Measure写出的内容：按孔汇总的基于图像的特征谱、测量后运行的CellProfiler流程、在GPU上测量、适用于超大规模运行的额外存储格式，以及跨成像批次的强度校准。",
+          "hold_after": 0.7,
+          "focus": [
+            165,
+            0,
+            1096,
+            1845
+          ],
+          "speech_text": "其他alpha选项会改变Measure写出的内容：按孔汇总的基于图像的特征谱、测量后运行的CellProfiler流程、在GPU上测量、适用于超大规模运行的额外存储格式，以及跨成像批次的强度校准。"
+        },
+        {
+          "visual": "08b_anndata_format",
+          "narration": "AnnData Export增加了测量物体的输出格式选择。",
+          "hold_after": 0.7,
+          "focus": [
+            226,
+            783,
+            1058,
+            88
+          ],
+          "speech_text": "AnnData Export增加了测量物体的输出格式选择。"
+        },
+        {
+          "visual": "09_make_masks_tools",
+          "narration": "Make Masks在底部几行显示alpha工具：用于找出模型最不确定的物体的Uncertainty、整理时隐藏条件名称的Blind模式、ROI的导入和导出、贯穿整段影片的SAM2 tracking，以及Apply virtual stain。",
+          "hold_after": 0.7,
+          "focus": [
+            649,
+            2051,
+            2809,
+            94
+          ],
+          "speech_text": "Make Masks在底部几行显示alpha工具：用于找出模型最不确定的物体的Uncertainty、整理时隐藏条件名称的Blind模式、ROI的导入和导出、贯穿整段影片的SAM2 tracking，以及Apply virtual stain。"
+        },
+        {
+          "visual": "10_workbench_virtual_stain",
+          "narration": "Cellpose Workbench提供Virtual staining，它根据您已有的图像预测一个染色通道。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            2051,
+            228,
+            94
+          ],
+          "speech_text": "塞尔波斯 Workbench提供Virtual staining，它根据您已有的图像预测一个染色通道。"
+        },
+        {
+          "visual": "11_annotate_tools",
+          "narration": "Annotate增加了Blind模式、用于查找与当前标注的裁剪图相似的裁剪图的Like this，以及Field QC，可将整个视野标注为良好、失焦或饱和。",
+          "hold_after": 0.7,
+          "focus": [
+            326,
+            132,
+            850,
+            94
+          ],
+          "speech_text": "Annotate增加了Blind模式、用于查找与当前标注的裁剪图相似的裁剪图的Like this，以及Field QC，可将整个视野标注为良好、失焦或饱和。"
+        },
+        {
+          "visual": "12_plaque_growth",
+          "narration": "Plaque Analysis增加了在平板照片上计数菌落，以及实验性的生长估计，它根据最大的噬斑和假定的线性生长给出时间或比例尺的建议。",
+          "hold_after": 0.7,
+          "focus": [
+            247,
+            862,
+            1037,
+            680
+          ],
+          "speech_text": "Plaque Analysis增加了在平板照片上计数菌落，以及实验性的生长估计，它根据最大的噬斑和假定的线性生长给出时间或比例尺的建议。"
+        },
+        {
+          "visual": "13_activation_counterfactuals",
+          "narration": "在Activation Maps中，Counterfactuals训练一个由您的分类器引导的小型生成器，把裁剪图一步步变向另一类，让您看到模型依赖哪些特征。",
+          "hold_after": 0.7,
+          "focus": [
+            254,
+            582,
+            1030,
+            270
+          ],
+          "speech_text": "在Activation Maps中，Counterfactuals训练一个由您的分类器引导的小型生成器，把裁剪图一步步变向另一类，让您看到模型依赖哪些特征。"
+        },
+        {
+          "visual": "14_embeddings_tools",
+          "narration": "Embeddings增加了基础模型编码器、在您自己的裁剪图上进行自监督预训练，以及在单个细胞没有标注时从孔级标签学习。",
+          "hold_after": 0.7,
+          "focus": [
+            988,
+            259,
+            2414,
+            94
+          ],
+          "speech_text": "Embeddings增加了基础模型编码器、在您自己的裁剪图上进行自监督预训练，以及在单个细胞没有标注时从孔级标签学习。"
+        },
+        {
+          "visual": "15_control_chart",
+          "narration": "Control Charts在常规图表旁边增加了异常评分和化学面板。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1039,
+            523,
+            1102
+          ],
+          "speech_text": "Control Charts在常规图表旁边增加了异常评分和化学面板。"
+        },
+        {
+          "visual": "16_report_archive",
+          "narration": "Report增加了Archive package，用于将项目打包分享，以及向Zenodo存档。",
+          "hold_after": 0.7,
+          "focus": [
+            3370,
+            2011,
+            470,
+            94
+          ],
+          "speech_text": "Report增加了Archive package，用于将项目打包分享，以及向Zenodo存档。"
+        },
+        {
+          "visual": "17_run_history_export",
+          "narration": "Run History可以把一次记录的运行导出为可复用的工作流程。",
+          "hold_after": 0.7,
+          "focus": [
+            3590,
+            958,
+            250,
+            94
+          ],
+          "speech_text": "Run History可以把一次记录的运行导出为可复用的工作流程。"
+        },
+        {
+          "visual": "18_prefs_notifications",
+          "narration": "Preferences增加了Notifications选项卡，当长时间运行完成或失败时，spaCR可以通过桌面消息、电子邮件、Slack或Webhook通知您。",
+          "hold_after": 0.7,
+          "speech_text": "Preferences增加了Notifications选项卡，当长时间运行完成或失败时，斯佩克尔可以通过桌面消息、电子邮件、Slack或Webhook通知您。"
+        },
+        {
+          "visual": "18b_prefs_plugins",
+          "narration": "Plugins选项卡列出可以安装、更新或移除的社区插件。",
+          "hold_after": 0.7,
+          "speech_text": "Plugins选项卡列出可以安装、更新或移除的社区插件。"
+        },
+        {
+          "visual": "19_ops_spot_detectors",
+          "narration": "对于光学混池筛选，OPS的斑点检测器提供了更多用于测序斑点的alpha检测器。",
+          "hold_after": 0.7,
+          "focus": [
+            201,
+            925,
+            1083,
+            88
+          ],
+          "speech_text": "对于光学混池筛选，OPS的斑点检测器提供了更多用于测序斑点的alpha检测器。"
+        },
+        {
+          "visual": "19b_map_barcodes_spatial",
+          "narration": "Map Barcodes增加了空间转录组学模式。",
+          "hold_after": 0.7,
+          "focus": [
+            1277,
+            1788,
+            281,
+            83
+          ],
+          "speech_text": "Map Barcodes增加了空间转录组学模式。"
+        },
+        {
+          "visual": "20_convert_barcodes",
+          "narration": "Format Converter增加了按板条形码关联的功能，它根据板条形码从样品表填写板图。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            325,
+            3840,
+            173
+          ],
+          "speech_text": "Format Converter增加了按板条形码关联的功能，它根据板条形码从样品表填写板图。"
+        },
+        {
+          "visual": "20b_power_arrayed",
+          "narration": "Power和Design增加了用于阵列式筛选的规划器。",
+          "hold_after": 0.7,
+          "focus": [
+            0,
+            1584,
+            740,
+            576
+          ],
+          "speech_text": "Power和Design增加了用于阵列式筛选的规划器。"
+        },
+        {
+          "visual": "21_test_data",
+          "narration": "Feature Explorer等几个较小的工具增加了Load test data，它会下载一个示例，让您立刻试用。",
+          "hold_after": 0.7,
+          "focus": [
+            3433,
+            63,
+            227,
+            94
+          ],
+          "speech_text": "Feature Explorer等几个较小的工具增加了Load test data，它会下载一个示例，让您立刻试用。"
+        },
+        {
+          "visual": "22_prefs_alpha_off",
+          "narration": "完成后，再次打开Preferences并关闭Show alpha features。所有alpha控件都会消失，您稳定的工作流程与之前完全一样。",
+          "hold_after": 0.7,
+          "focus": [
+            1320,
+            700,
+            1200,
+            260
+          ],
+          "speech_text": "完成后，再次打开Preferences并关闭Show alpha features。所有alpha控件都会消失，您稳定的工作流程与之前完全一样。"
+        }
+      ],
       "narration_voices": {
         "en": [
           "af_heart"
