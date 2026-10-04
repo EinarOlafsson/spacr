@@ -182,3 +182,5 @@ LEFT
   deletes the old environment before building, so a failed reinstall
   leaves none (the dialog says so). The reader's (English) reasons from
   reader_problem are shown inside translated sentences.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_518_plaque_mode_follows_the_input_and_the_reader_reinstalls.py pass.

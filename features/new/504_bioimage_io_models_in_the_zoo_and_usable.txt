@@ -180,3 +180,5 @@ NOT DONE.
     bioimage.io Cellpose 3 checkpoint reaches Make Masks through its Model
     list (Model zoo… button), not through the Mode box.
   * No GPU run: CPU only, as asked.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_bioimageio_models_are_listed_and_usable.py, test_bioimageio_rows_in_the_picker.py, test_the_zoo_lists_every_backend_and_cellpose3_model.py pass.

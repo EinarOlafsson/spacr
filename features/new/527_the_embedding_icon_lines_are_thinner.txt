@@ -52,3 +52,5 @@ icons, at the sizes Home and the menu use, shows matching line weights
     icon reads at the same weight as foreign and run_compare.
     tests/qt/test_home_v2.py (163) and the packaging icon-manifest check
     pass.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_home_v2.py pass.

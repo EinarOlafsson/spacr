@@ -157,3 +157,5 @@ opens with Pipeline overviews (external input nodes, explanation cards, the
 blue divider, Start example and Walkthrough) and index.rst links it. What
 is not verified here: the window's movement under a native compositor,
 which needs a real desktop; offscreen tests cover the fallback dragging.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pipeline_overviews_and_flowchart.py pass.

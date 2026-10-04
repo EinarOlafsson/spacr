@@ -168,3 +168,5 @@ signoff is not claimed. Receipt: features/data/538_measure_crop_export_2026-10-0
 Feature-wide acceptance still needs a real double-stained sample with known
 amounts and correction of registration/PSF mismatch and strong-spill clipping
 bias described above.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_spectral_unmixing.py, test_spectral_unmixing_alpha_gate.py, test_unmix_preview_f538.py pass.

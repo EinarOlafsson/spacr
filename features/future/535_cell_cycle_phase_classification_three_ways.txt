@@ -198,3 +198,5 @@ A category made only of alpha settings now hides with its rows
     Phases are called at the end of a Measure run; calling them on an
     existing database without re-measuring has no button (the helper takes a
     db path). No Model Zoo entry for a trained cell-cycle model.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cell_cycle_alpha_gate.py, test_cell_cycle_phase_three_ways.py pass.

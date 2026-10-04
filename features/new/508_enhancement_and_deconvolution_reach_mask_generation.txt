@@ -185,3 +185,5 @@ Preferences -> Show alpha features is on. The enhance_* and psf_* settings
 on Mask generation's own form are not gated, so a chain written while the
 button is hidden still reaches the run. Test:
 tests/qt/test_use_in_mask_generation_alpha_gate.py.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_enhancement_reaches_mask.py, test_enhancement_reaches_mask_preview.py, test_use_in_mask_generation_alpha_gate.py pass.

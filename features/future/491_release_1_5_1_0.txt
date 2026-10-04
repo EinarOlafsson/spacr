@@ -170,3 +170,5 @@ would: setup.py carries 1.5.1.0 in 766bddb5b ("chore(release): spaCR
 on 2026-09-25, not inferred from the log). 131 stays open outside this
 milestone as instructed. Nothing in this file gates anything any more;
 it stays in features/future only because that is where it was filed.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: tag v1.5.1.0 is on main and 1.5.1.0 is listed on PyPI (later 1.5.1.1-1.5.1.3 supersede it).

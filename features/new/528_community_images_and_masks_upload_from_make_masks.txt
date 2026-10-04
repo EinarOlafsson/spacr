@@ -173,3 +173,5 @@ For the maintainer to decide
   and sizes and opens the pull request (creating the dataset with its
   README first when it is new). Tests in
   tests/qt/test_523_upload_space_takes_community_contributions.py.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_523_upload_space_takes_community_contributions.py, test_528_make_masks_contributes_images_and_masks.py pass.

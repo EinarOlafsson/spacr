@@ -272,3 +272,5 @@ or Space restores the same dock and saved width. Seven focused integration
 and glyph checks pass, including real MainWindow mouse collapse, keyboard
 restore, resize persistence and hide/show. Combined with the agent's scale-2
 render checks, this closes the requested collapse/75-percent glyph follow-up.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_529_the_dock_and_right_column_resize.py pass.

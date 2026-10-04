@@ -225,3 +225,5 @@ second-pass-setting-help.json); the rewrite above makes them stale, so the
 nine records were deleted as tools/check_reviewed_runtime_evidence.py
 directs. tests/test_runtime_i18n_syntax.py's sv/fr source pins moved by the
 deleted mask-mean-bounds sources (-7 sv, -12 fr), each marked in place.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_make_masks_filters_are_any_regionprop.py, test_object_filters_are_any_regionprop.py pass; spot-check _filter_objects with an eccentricity<=0.5 filter removed the elongated object only.

@@ -227,3 +227,5 @@ MEASURED, one capped offscreen CPU process, every tests/qt file matching
 annotat|suggest plus tests/ files for suggest, active_learning and
 agreement (55 files): before 1158 passed / 0 failed; after 1160 passed /
 0 failed.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_a_suggestion_can_be_judged.py, test_an_annotate_page_holds_what_fits.py pass.

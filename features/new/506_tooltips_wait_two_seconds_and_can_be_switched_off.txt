@@ -74,3 +74,5 @@ native requests arriving before and after custom-popup ownership, plus a
 positive control for ordinary native tooltips. This is offscreen Qt evidence,
 not a native-desktop screenshot or full-suite acceptance.
 Receipt: features/data/506_desktop_tooltip_duplicate_2026-09-27.json.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_tooltips.py, test_tooltips_wait_two_seconds.py pass; SHOW_DELAY_MS=2000 in tooltip_policy.

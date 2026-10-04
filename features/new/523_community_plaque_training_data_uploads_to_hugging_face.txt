@@ -313,3 +313,5 @@ For the maintainer to decide
   as a test and never entered the training set. Full immutable hashes and
   the verification steps are in features/data/523_live_upload_acceptance_2026-10-02.json.
   The current-source 523 annotation and upload-space suites pass: 48 tests.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_523_community_training_data_is_annotated_then_uploaded.py, test_523_upload_space_takes_community_contributions.py pass.

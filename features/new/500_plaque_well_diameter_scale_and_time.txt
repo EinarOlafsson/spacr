@@ -28,3 +28,5 @@ were included. Growth/time approximation is separate item 501.
 Final save-path regression cohort: 26 passed after resolved/provenance CSV
 fields were added. Focused calibration tests exercise invalid values,
 per-well precedence, zero time, unit conversion, review reload and SQL schema.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_plaque_calibration.py, test_plaque_calibration_controls.py pass.

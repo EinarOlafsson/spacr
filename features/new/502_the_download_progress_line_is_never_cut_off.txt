@@ -109,3 +109,5 @@ LEFT OPEN / FOR OTHER LANES
   * model_zoo_picker.py still imports QProgressBar, now unused; left to keep
     the hunk out of the import block 503/507 are editing.
 
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_the_download_progress_line_is_never_cut_off.py pass.

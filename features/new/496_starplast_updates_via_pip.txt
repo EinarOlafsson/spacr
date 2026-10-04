@@ -33,3 +33,5 @@ run once against live PyPI (read-only, nothing installed): pip printed
 which the function's ^starplast \(([^)]+)\)$ pattern parses to 0.43.0.
 No real user environment was upgraded. Nothing remains; the docs and
 translations are the docs lane's as the Owner line says.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_starplast_environment.py, test_starplast_launcher.py pass.

@@ -26,3 +26,5 @@ tests/qt/test_cursor_anchored_zoom.py, 20 passed (four quadrants, linked
 views, beyond-fit zoom, reciprocal scale, fit reset, Make Masks anchoring,
 orthogonal crosshair). Nothing buildable remains; a physical mouse wheel or
 trackpad on a real display is the maintainer's check.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cursor_anchored_zoom.py pass.

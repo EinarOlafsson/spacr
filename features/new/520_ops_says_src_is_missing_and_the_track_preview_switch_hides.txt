@@ -86,3 +86,5 @@ clickable after figures appear in Mask.
       preview_registry, cov_w2_2 preview_registry, host_pathogen preview,
       3d and time, 471c previews/figures folds, fold buttons not crowded):
       191 passed before, 191 passed after, plus the 4 new.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_ops_settings_check_reads_genotype_source.py, test_the_track_preview_switch_survives_the_figures.py pass.

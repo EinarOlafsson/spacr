@@ -59,3 +59,5 @@ and their order, the Return key, and both ways out stopping the run. The
 window's own 18 cases in
 `tests/qt/test_features_button_opens_the_measure_table.py` and the 27 in
 `tests/qt/test_every_popup_has_the_card_and_the_rim.py` still pass.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_every_popup_has_the_card_and_the_rim.py, test_features_button_opens_the_measure_table.py, test_the_features_window_wears_spacrs_dress.py pass.

@@ -134,3 +134,5 @@ LEFT
   reason. It is still offered once before the batch starts. A drop or src
   of PDFs that were read before reads them again, as a single PDF always
   has. Only a src written back after a read is skipped.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_526_plaque_assay_reads_any_number_of_pdfs_and_images.py pass.

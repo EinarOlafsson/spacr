@@ -27,3 +27,5 @@ cursor.py and test_cov_wf_qt_widgets_glass.py, 14 passed. Nothing
 buildable remains. Not verifiable here: the look of the OS arrow and the
 one-pixel edge hint under native compositors (GNOME/KDE Wayland and X11,
 Windows, macOS); that needs those desktops and a real display.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_fixed_arrow_cursor.py, test_cov_wf_qt_widgets_glass.py pass.

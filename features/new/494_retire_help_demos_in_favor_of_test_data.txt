@@ -61,3 +61,5 @@ Validation: 145 named tutorial/translation tests passed, one existing
 report-only translation xfail. Actual app and walkthrough menu-absence checks
 remain. No live Demos navigation reference remains in runtime or those notes.
 Status: COMPLETE on nightly.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cov_10_tutorial_scripts.py, test_cov_r4_tutorial_scripts.py, test_demo_menu.py (+1 more) pass.

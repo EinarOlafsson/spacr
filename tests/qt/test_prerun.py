@@ -703,8 +703,24 @@ def _laid_out_measure(qtbot, *, with_qc, src=None, size=(1400, 900)):
     screen.resize(*size)
     screen.show()
     qtbot.waitExposed(screen)
-    qtbot.wait(50)
+    _wait_for_a_settled_action_bar(qtbot, screen)
     return screen, banner
+
+
+def _wait_for_a_settled_action_bar(qtbot, screen, polls=60):
+    """Wait until the action bar keeps its geometry across two polls.
+
+    A loaded machine can deliver the deferred page build and its layout
+    passes later than a fixed short wait, so a fixed wait measured a row
+    that was still growing.
+    """
+    previous = None
+    for _ in range(polls):
+        qtbot.wait(50)
+        current = _action_bar_geometry(screen)
+        if current == previous:
+            return
+        previous = current
 
 
 def _action_bar_geometry(screen):

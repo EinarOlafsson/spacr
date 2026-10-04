@@ -155,3 +155,5 @@ Remaining, each outside this item's reach:
     (maintainer data), not wiring;
   * legacy Recruitment feature parity is not asserted; retiring the old
     submodule is the maintainer's call.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_host_pathogen.py, test_host_pathogen_registration.py pass.

@@ -92,3 +92,5 @@ TESTS
   tests/qt/test_the_bottom_panels_collapse.py -- the console-folds check now
   asserts the console is not visible (it goes with the card body) instead of
   its own hidden flag.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_the_bottom_panels_collapse.py, test_the_console_and_actions_headings_sit_in_their_boxes.py pass.

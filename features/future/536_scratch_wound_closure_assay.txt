@@ -372,3 +372,5 @@ API targets and the 02 notebook regenerated. 2026-10-01: wound_threshold
 added to ALPHA_FEATURES[536], the category, KEYS_ADDED_BY_REGROUP, and the
 tooltip default-claim census 899 -> 901; flow page, consumer map, API
 targets, Help index and the 02 notebook regenerated.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_measure_wound_preview.py, test_scratch_wound_closure.py pass.

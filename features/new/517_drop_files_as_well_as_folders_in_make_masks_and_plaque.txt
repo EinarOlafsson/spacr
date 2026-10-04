@@ -114,3 +114,5 @@ LEFT
   Several PDFs in one Figure-mode drop: the first is read, the rest are
   reported, not queued. The plaque_selection_<time> folder stays beside the
   images after the run (it holds the run's masks), links only.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_517_drop_files_as_well_as_folders.py, test_dnd_handlers_full.py pass.

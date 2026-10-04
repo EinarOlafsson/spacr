@@ -15,3 +15,5 @@ Validate real UI interaction and affected pixel/mask behavior with focused tests
 labelled Clear all objects. Verified button interaction clears every current
 label, leaves source pixels intact, and Undo/Redo restores/clears exact labels.
 Included in209 passing checks; existing no-field disable guard retained.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_make_masks_apply_and_adaptive.py, test_magnifier_request_provenance.py pass.

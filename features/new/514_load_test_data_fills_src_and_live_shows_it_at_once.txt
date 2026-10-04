@@ -70,3 +70,5 @@ before/after, measure, classify, replication, plaques); 4 fail on the old
 code (mask shows exactly <src>), all 6 pass. Existing example/live-preview
 suites: 477 passed after the fix (64 + 312 before). The 3 failures in
 tests/test_docstring_correctness.py are pre-existing on nightly.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_one_press_of_load_test_data_fills_src_and_live.py pass.

@@ -99,3 +99,5 @@ BUILT, 2026-09-25 (parts 1 and 3)
   Not reconciled: the frozen public-callable inventory
     (test_docstring_correctness) already failed on nightly (9572 vs 9527);
     this adds the new module's and widget's callables to the gap.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_505_cell_probability_and_mask_comparison.py, test_segmentation_views.py pass.

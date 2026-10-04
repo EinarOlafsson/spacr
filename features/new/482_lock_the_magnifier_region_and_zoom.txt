@@ -19,3 +19,5 @@ with updating state retained. Disabling the lens or changing fields unlocks.
 The chord cannot delete an object; plain Ctrl+right still deletes. Held-key
 state resets on release/deactivation.151 focused interaction, magnifier,
 settings and edit tests pass in31.70s under8GB. New tests use real Qt events.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_magnifier_lock.py pass.

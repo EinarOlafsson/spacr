@@ -345,3 +345,5 @@ The reference field belongs to the curated in-house toxoplasma_pv training-data
 set. This is functional model/backend acceptance, not an independent held-out
 accuracy benchmark or a claim about generalization. GPU timing and performance
 on other assays remain unmeasured; neither is required by the stated DONE WHEN.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cellpose_dino_rows_offer_their_backend.py, test_cellpose_dino_runs_in_its_own_environment.py pass.

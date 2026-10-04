@@ -96,3 +96,5 @@ NOTE 2026-09-25 (built)
   test_api_i18n_extractor::test_public_docstrings_matches_reviewed_visible_
   coverage (nightly +14; the new public rebuild_the_spaceout_backdrops makes
   it +15 -- the count bump needs a catalog regeneration, out of this lane).
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_fractal_changes_apply_without_a_restart.py pass.

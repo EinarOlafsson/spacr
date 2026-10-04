@@ -67,3 +67,5 @@ tests/test_cov_w2_4_prerun.py now build the panel through its popup. The
 install tests became popup tests, plus new ones for the screen lookup and
 for the remembered measurement. The register count test now also asserts
 that the Mask factory is left alone.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cov_w2_4_prerun.py, test_prerun.py, test_the_diameter_estimate_lives_in_the_model_zoo.py pass; tests/qt/test_prerun.py run-row geometry test was load-flaky (fixed wait), now waits for a settled layout.

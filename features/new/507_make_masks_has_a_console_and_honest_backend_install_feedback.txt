@@ -264,3 +264,5 @@ still in the code)
   and with Diameter 44 not at all. The console file passed whole in one run
   with the 528, 396 and 529 files (77 passed).
   No new tr() strings; no new public callables (both helpers private).
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_backends_live_in_their_own_environment.py, test_make_masks_console_and_install_feedback.py pass.

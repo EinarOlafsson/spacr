@@ -18,3 +18,5 @@ both scopes, an initial Adaptive error and a block-size correction to31 with
 real Adaptive recovery. Selected and executed method stay Adaptive. This
 fix targets the confirmed fallback path; a literal combobox reset from a
 successful block-size edit was not reproduced. Included in209 passing checks.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_make_masks_apply_and_adaptive.py pass.

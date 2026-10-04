@@ -51,3 +51,5 @@ back at 100 %. Also run, before and after: test_521, test_519,
 test_gui_scale_recovery, test_the_gui_scale_fits_a_laptop, the plaque
 preview/calibration/mode tests, the live settings and text-fit dialog
 tests, the help index and module coverage ratchet.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_522_a_scaled_preview_no_longer_scales_its_dialogs.py pass.

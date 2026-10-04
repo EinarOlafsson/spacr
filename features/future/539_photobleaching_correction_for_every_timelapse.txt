@@ -197,3 +197,5 @@ population-biology or image-histogram acceptance.
     photobleaching or biology. Exponential correction leaves residual drift
     in these real movies, and histogram matching can suppress true caspase
     or mitotic changes; the earlier cautions remain part of its use.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_bleach_correction.py pass.

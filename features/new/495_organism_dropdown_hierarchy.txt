@@ -17,3 +17,5 @@ and test_menu_roles.py: 16 passed, offscreen CPU, 6 GB/no-swap cap.
 Re-checked on nightly a93f937d2: the same three files, 16 passed
 (offscreen). Nothing remains in this item; the menu's documentation and
 translations are the docs lane's as the Owner line says.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_organism_dropdown.py pass.

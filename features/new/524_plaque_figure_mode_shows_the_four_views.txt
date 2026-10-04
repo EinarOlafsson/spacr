@@ -45,3 +45,5 @@ crop's flows. The 513 test that pinned the old Overlay-only rule
 (test_513_plaque_preview_shares_the_four_views.py) and one line of
 test_plaque_assay_has_plaque_and_figure_modes.py were updated to the new
 behaviour. All plaque preview and segmentation view tests pass (188).
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_524_plaque_figure_mode_shows_the_four_views.py pass.

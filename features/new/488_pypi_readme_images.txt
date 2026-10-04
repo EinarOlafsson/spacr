@@ -43,3 +43,5 @@ image destination was found. Receipt:
 features/data/488_rendered_image_urls_verified_2026-09-24.json.
 This checks the built package's description and live image hosts, not a
 publication of1.5.1.0. The maintainer retains the version/main release step.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_pypi_readme_images.py pass.

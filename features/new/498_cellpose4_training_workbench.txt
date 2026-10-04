@@ -53,3 +53,5 @@ Inference completed under 4 GiB. These bounds are recorded so the smoke is
 not mistaken for a low-memory promise. No GPU was used and no user source
 images or settings were modified. Exact hashes, settings and results:
 features/data/498_real_cpu_workbench_acceptance_2026-10-02.json.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cellpose4_training_controls/inputs/refuses tests pass.

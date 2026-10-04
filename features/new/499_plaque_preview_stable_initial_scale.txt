@@ -18,3 +18,5 @@ Validation: tests/qt/test_plaque_image_navigation.py plus four existing plaque
 preview suites:109passed, under6GB/no-swap offscreen CPU cap. Regressions drive
 idle layout cycles, pane resize without scale change, explicit fit, anchored
 wheel zoom, overlay refresh, panning and well selection.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_plaque_image_navigation.py pass.

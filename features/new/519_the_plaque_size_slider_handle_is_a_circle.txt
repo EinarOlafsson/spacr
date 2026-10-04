@@ -40,3 +40,5 @@ TESTS
   accent colour and its four corner pixels are not (8 cases, all failed
   before the fix), plus a scaler check that 2 x radius <= width at five
   factors. The gui-scale, preview-scale and theme suites (496 tests) pass.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_519_the_slider_handle_is_a_circle.py pass.

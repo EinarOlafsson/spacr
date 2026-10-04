@@ -162,3 +162,5 @@ API/publication work remains tracked separately under 411/358.
 Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
 Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
 AI technical review (Codex), no native-speaker signoff.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_live_preview_psf.py, test_make_masks_psf_infers_and_folds.py, test_psf_optics_inference.py pass.

@@ -135,3 +135,5 @@ FOR THE DOCS LANE
     spacr/qt/help_api_index.py was not regenerated: it still lists
     plaque_preview.render_cellprob/render_objects with the old docstrings
     and lacks boxed_picture and the _ImageView canvas methods.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_513_plaque_line_weights_persist_and_a_ruler_measures.py, test_513_plaque_preview_shares_the_four_views.py pass.

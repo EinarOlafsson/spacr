@@ -70,3 +70,5 @@ NOTE 2026-09-26 (built)
   test_public_docstrings_matches_reviewed_visible_coverage and
   ::test_assignment_docs_are_ast_source_text_without_show_value_artifact
   (35 vs 34, none of the keys are this item's).
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_the_fractal_supersampling_setting_does_something.py pass.

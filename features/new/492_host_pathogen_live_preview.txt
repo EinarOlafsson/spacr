@@ -82,3 +82,5 @@ is linked from index.rst and workflows.rst. Nothing buildable remains.
 Outside this machine: native macOS/Windows acceptance. Outside the data:
 marker states need the maintainer's thresholds and replication needs
 individual-parasite counts or 484's whole-vacuole model.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_host_pathogen_preview.py pass.

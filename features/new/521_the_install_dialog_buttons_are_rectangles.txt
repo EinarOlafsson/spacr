@@ -63,3 +63,5 @@ NOT DONE HERE
 Other dialogs parented to a scaled preview (Plaque's PaperDialog,
 PlaqueSettingsDialog, PlaqueOverlayDialog and the like) can inherit the
 preview's scaled sheet the same way; not measured.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_521_the_install_dialog_buttons_are_rectangles.py pass.

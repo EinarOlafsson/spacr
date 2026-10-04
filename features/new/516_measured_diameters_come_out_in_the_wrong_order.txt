@@ -68,3 +68,5 @@ plate of whole objects plus specks (old code: cell 5.6, pathogen 5.6 against
 population, and the real cached test plate against its own masks (order and
 20 %; skipped when the plate is not downloaded). tests/test_diameter_estimator.py
 78/78 before and after; prerun/Qt diameter panel tests pass.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_diameter_estimator.py, test_measured_diameters_come_out_in_order.py pass.

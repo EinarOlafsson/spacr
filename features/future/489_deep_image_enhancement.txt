@@ -259,3 +259,5 @@ this new review is AI technical only, without human/native/listening claims.
 Receipt: features/data/489_published_restoration_acceptance_2026-10-01.json.
 All new readback/support jobs used1GiB and live playback4GiB, CPU0 affinity,
 zero swap. No source, existing master, catalog or hosted media was changed.
+
+VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_restoration_backend.py, test_make_masks_restoration.py, test_591_alpha_categories_read_as_alpha.py pass.
