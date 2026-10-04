@@ -253,6 +253,10 @@ def test_opening_a_module_takes_what_it_hides_off_the_page(qtbot):
 def test_every_setting_still_reaches_the_run(qtbot):
     _window_, screen = _window(qtbot, "classify_merged")
     model = screen._settings_model
+    # Which categories a fresh window builds closed (detached) or leaves
+    # waiting depends on what earlier windows in the process already built;
+    # detach them all so there is a detached body to collect from.
+    _detach_every_built_category(screen)
     values = model.collect()
     key, _widget = _key_in_a_detached_body(screen)
     assert key in values

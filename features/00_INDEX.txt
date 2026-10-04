@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-551 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
+568 in features/new, 75 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -822,4 +822,20 @@ NEW FEATURES
   638  638 -- Verbose logging is usable
   639  Item 639: Organize images in Mask Generation and Import Images
   640  640. Measure adds original_* filename columns from the conversion manifest
+  641  641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit)
   642  642. Model Zoo's alpha models are missing with Show alpha features on
+  643  PRUNE THE SPACR HOME FOLDER
+  644  DISK CACHE MANAGER
+  645  MULTI INSTANCE LOCK
+  646  CLEAN UNINSTALL PURGE
+  647  SESSION RESTORE ON EVERY START
+  648  SETTINGS AUTOSAVE
+  649  UNDO REDO EVERYWHERE
+  650  JOBS WINDOW
+  651  UPDATE CHANNEL AND WHATS NEW
+  652  PROXY AND CORPORATE CA
+  653  PORTABLE MODE
+  654  ENVIRONMENT LOCKFILE PER RUN
+  655  ACCESSIBILITY PASS
+  656  REBINDABLE SHORTCUTS
+  657  SETTINGS PROFILES
