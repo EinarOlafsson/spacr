@@ -14632,7 +14632,9 @@ class MakeMasksScreen(QWidget):
     def _refresh_alpha_visibility(self) -> None:
         """Refresh alpha model choices immediately after Preferences changes.
 
-        The app already calls this hook on open screens. Hidden rows remain
+        The app already calls this hook on open screens, and this passes it
+        on to the folded screens built here, such as the Model Zoo, which the
+        app does not hold. Hidden rows remain
         in the model so an explicitly selected backend keeps its value and
         remains executable; they cannot be chosen from the popup or keyboard.
         """
@@ -14678,6 +14680,14 @@ class MakeMasksScreen(QWidget):
                     item.setSelectable(not hidden)
         self._resync_magnifier_modes()
         _apply_alpha_widgets(self)
+        for screen in list(self._fold_screens.values()):
+            refresh = getattr(screen, "_refresh_alpha_visibility", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:
+                    LOG.debug("could not apply the alpha gate to a folded "
+                              "screen", exc_info=True)
 
     def _resync_magnifier_modes(self) -> None:
         """Re-read where each backend stands and redraw the Mode box.

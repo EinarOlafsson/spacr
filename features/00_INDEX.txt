@@ -822,3 +822,4 @@ NEW FEATURES
   638  638 -- Verbose logging is usable
   639  Item 639: Organize images in Mask Generation and Import Images
   640  640. Measure adds original_* filename columns from the conversion manifest
+  642  642. Model Zoo's alpha models are missing with Show alpha features on

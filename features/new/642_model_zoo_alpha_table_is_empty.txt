@@ -1,0 +1,29 @@
+642. Model Zoo's alpha models are missing with Show alpha features on
+
+Reported 2026-10-04 by spacr-d7: with Show alpha features ON, the Model
+Zoo's alpha models table shows no rows, even online.
+
+Status: DONE 2026-10-04
+
+Done when:
+1. Every alpha zoo row (StarDist, InstanSeg, Omnipose, Spotiflow, micro-SAM,
+   SAM2, SAMCell, SpotNet, CAREamics, CellProfiler, the colony detector and
+   the 551/552/553/555 stock rows) is listed with the switch on and hidden
+   with it off.
+2. A Qt test covers both states.
+
+Cause: not a key mismatch and not the catalogue (all 26 registered alpha
+rows arrive offline and online, and the gate reads the preference live).
+The table decides its alpha rows when it is filled. The app re-applies the
+gate only to the screens it holds; the Model Zoo folded into Make Masks
+is held by MakeMasksScreen, which never passed the refresh on, so a zoo
+built with the switch off kept every alpha row hidden after it was turned
+on.
+
+Fix: MakeMasksScreen._refresh_alpha_visibility forwards the refresh to
+its folded screens, the Model Zoo among them.
+Test: tests/qt/test_642_model_zoo_alpha_rows_follow_the_switch.py.
+
+Note: DINOCell and the Cellpose 3 rows are not registered in ALPHA_FEATURES,
+so they show with the switch off too; registering them is a product
+decision left to the maintainer.
