@@ -4207,7 +4207,7 @@ def _vs_normalize(image, low: float = 1.0, high: float = 99.8):
     lo, hi = np.percentile(image, (low, high))
     if hi - lo <= 1e-6:
         return np.zeros_like(image)
-    return np.clip((image - lo) / (hi - lo), 0.0, 1.0)
+    return np.clip((image - lo) / (hi - lo), 0.0, 1.0).astype(np.float32)
 
 
 def _vs_downscale(image, scale: int):
