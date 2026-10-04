@@ -196,6 +196,60 @@ Picking up where you left off
   to the reopened session are not asked about). The same behaviour applies on
   Linux, macOS and Windows, because the store is Qt's own settings store.
 
+Undo and redo
+-------------
+
+**Ctrl+Z** undoes and **Ctrl+Shift+Z** or **Ctrl+Y** redoes in a module's
+settings panel, in the Gate Editor and in Annotate:
+
+- in the **settings panel**, each changed setting is one step. Loading
+  settings, applying a template or replaying a run does not add steps.
+  While you are typing in a text field, Ctrl+Z undoes the typing first;
+- in the **Gate Editor**, each change to the gates (drawing, moving,
+  renaming or deleting a gate) is one step;
+- in **Annotate**, **U** and Ctrl+Z undo the last label and Ctrl+Shift+Z or
+  Ctrl+Y puts it back;
+- the **Make Masks** editor keeps its own **Undo** and **Redo**.
+
+Running jobs
+------------
+
+**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the
+window. It lists every job that is running, with its module, a progress bar,
+the time elapsed and its last output line. **Cancel** asks that job to stop.
+With nothing running, the panel says **No jobs are running.**
+
+Two spaCR windows
+-----------------
+
+You can open more than one spaCR window. When a module runs, spaCR claims
+its source folder, which holds ``measurements.db`` and the results, and the
+Queue screen claims the plate queue. If another window already uses that
+folder or queue, **Project open in another window** names the other
+process and offers:
+
+- **Open read-only**: look without writing. This window then refuses to run
+  a pipeline that writes there, and the Queue screen cannot change or run
+  the queue;
+- **Continue anyway**: write as well, when you are sure the other window is
+  idle. Two windows writing the same queue, database or results folder can
+  corrupt them;
+- **Cancel**.
+
+The answer is remembered for that folder until the window closes. A window
+that ended without closing does not keep its claims: the next window takes
+them over. The lock files are in ``~/.spacr/locks``; set ``SPACR_LOCK_DIR``
+to keep them elsewhere.
+
+Accessibility
+-------------
+
+Every control has a name that screen readers announce, taken from its label,
+tooltip or placeholder, and the names follow the interface language. **Tab**
+moves out of text boxes and tables to the next control instead of typing a
+tab. **Preferences → Appearance → Theme** offers **High contrast**, in which
+all text has a contrast ratio of at least 7:1 against its background.
+
 Arranging the window
 --------------------
 

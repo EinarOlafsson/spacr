@@ -131,6 +131,36 @@ in ``~/.spacr/logs/update.log`` and does not trigger a successful-update
 relaunch. The update also stops if spaCR cannot finish closing safely. The
 separate frozen application bundle uses its bundle replacement workflow.
 
+Update channel and What's new
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Preferences → Modules → Update channel** chooses what **Help → Check for
+updates** offers. **Stable releases** (the default) offers full releases
+only. **Nightly builds** also offers pre-releases and development builds,
+which arrive sooner and are tested less; withdrawn (yanked) versions are
+never offered.
+
+After an update, the next start opens **What's new in spaCR** with the
+release notes of every version between the previous one and the one now
+running. **Help → What's new…** opens it at any time.
+
+Proxy and certificate bundle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+On a network that needs a proxy, or that inspects HTTPS with its own
+certificate authority, set **Preferences → Modules → Proxy** (for example
+``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file of
+the certificates to trust). Every download then uses them: model weights,
+updates, plug-ins, pip, uv, conda and the backend installers. An empty field
+uses ``HTTPS_PROXY``, or ``REQUESTS_CA_BUNDLE`` or ``SSL_CERT_FILE``, when
+they are set. The values are saved in ``~/.spacr/network.json``, so
+command-line runs use them too.
+
+``spacr-doctor`` has a **proxy and certificates** row. It fails when the
+certificate bundle is missing or unreadable, and warns when PyPI cannot be
+reached through the configured proxy and certificates. A password in the
+proxy address is masked in its output.
+
 Older installations and full installers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
