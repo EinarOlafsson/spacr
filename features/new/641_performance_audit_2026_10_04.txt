@@ -1,0 +1,121 @@
+641 -- Performance audit, 2026-10-04 (step 3 of the maintainer's audit)
+
+Status: DONE 2026-10-04 (CPU only; numbers below, what is left at the end)
+
+Request (maintainer): measure startup, per-module first open, memory, and
+the same small Mask / Measure / Classify run headless against launched from
+the GUI (an earlier agent saw the GUI 4-18x slower, item 638); find the
+slow paths, fix them, guard them, record before and after.
+
+Conditions: workstation, 32 cores, NO GPU used (CUDA_VISIBLE_DEVICES=''),
+Qt offscreen. Load average 30-70 from other sessions throughout, so every
+wall-clock number carries roughly +-20 % noise; before/after pairs were run
+interleaved against a detached checkout of 48006e30d ("base").
+Scratch and harnesses: /mnt/wd4tb/scratch/641/bin (startup_measure.py,
+prof_start.py, open_prof.py, pipe_bench.py, db_bench.py).
+
+1. STARTUP
+                                             before        after
+  import spacr (-X importtime, cumulative)   5 ms          5 ms
+  import spacr.qt                            6 ms          6 ms
+  (both already lazy: no numpy/pandas/torch/QtWidgets at import; now guarded)
+  first event-loop turn, real ~/.spacr       7.3-9.6 s     3.7-5.2 s
+    (11,091-run journal, Totals watermark set)
+  idle RSS 3 s after first paint, real home  815 MB        282 MB
+  benchmark (tools/spacr_startup_benchmark.py --offscreen, isolated home):
+    cold: Home interactive                   8.0 s         6.2 s
+    warm: Home interactive                   3.25 s        2.9 s
+    peak RSS after opening all 54 modules    ~1.0 GB       ~1.0 GB
+  `spacr` and `spacr-nightly` are the same entry point (spacr.qt.run).
+
+  Causes found and fixed:
+  - Home's Totals panel, with a Reset watermark set, called
+    recent_runs(limit=None): every manifest.json in ~/.spacr/runs parsed on
+    the GUI thread before the window existed (2.8 s, 11,209 json.loads) and
+    the full manifests kept in memory (~530 MB). Recent runs also read on
+    the GUI thread at construction. Both panels are now built empty and
+    filled by Home's existing worker; the watermark count opens only run
+    folders named from one hour before the watermark (folder names are the
+    UTC start second).
+  - The menu bar and fold strips ast.parse'd the same fold-host sources
+    several times (29 parses, 0.65 s). One shared, top-level-only parse per
+    module per process (app._top_level_nodes).
+  - theme import solved scrims through ~60k uncached colour parses;
+    _channels/relative_luminance are memoised (theme self time 94 -> 67 ms).
+
+2. PER MODULE (benchmark, offscreen, isolated home; first open, warm proc.)
+  All 54 registry screens open inside the 10 s budget before and after;
+  Mask is the slowest (1.9-3.1 s, noise-dominated under this load),
+  then Annotate, Regression, Make Masks, UMAP (0.8-1.9 s); the rest
+  0.1-0.9 s. Settings-panel build for Mask: 246 + 271 widgets, ~0.55 s.
+  Not changed here. What the Mask profile shows, for a later pass: 49
+  cached 512x512 icon PNGs decoded on the GUI thread (0.25 s alone, ~1 s
+  under contention with the icon pre-warm and backdrop threads), and 279
+  QBoxLayout.addWidget calls (0.7 s, Qt polish).
+
+3. PIPELINES, headless vs from the GUI (full MainWindow, Run with the same
+   settings, started 8 s after the screen opened)
+                                       headless   GUI before     GUI after
+  Measure (3 wells x 2 fields, n_jobs)   17-21 s    21.3 s (1.03x) 18.9 s (1.12x)
+  Classify (96 crops, resnet18, 2 ep)    14-17 s    25.0 s (1.6x)  21-25 s (1.25-1.45x)
+    (same-load pair at load ~15; an earlier pair at load 40-70 gave
+    103 s headless vs 60 s GUI, i.e. the noise is larger than the gap)
+  Mask (2 fields, cpsam, CPU)            606 s      600 s (0.99x)  not rerun
+  Synthetic, quiet (pure Python, 0.6 s)  0.6 s      1.48 s         0.99 s
+  Synthetic, chatty (13k lines/s out)    0.6 s      6.1-10.8 s     1.5-2.8 s
+  The real pipelines are already within 1.5x; the 4-18x of item 638
+  reproduces only with very chatty output (the synthetic row), which is
+  what was fixed:
+  - PipelineWorker emitted line_ready once per printed line; every line
+    became a queued slot call, a console append, a RunHandle update and a
+    Home banner refresh. Output is now joined into one chunk per 50 ms
+    (first line after a quiet spell still goes out at once; order kept;
+    drained before errors and before finished).
+  - The console trimmed its 200k-char head one paragraph per cursor
+    operation (qtpy's patched movePosition) on every line; now one edit.
+  - INFO/DEBUG log records reach the console batched every 50 ms; a
+    warning or error flushes first.
+  - RotatingFileHandler stats the log file and formats each record twice
+    per emit; spaCR's handlers now do that only near the size limit
+    (logging_util._quicken). Rollover point unchanged.
+  - The first run in a process enumerated every installed distribution
+    for the manifest (0.5-1 s on the worker); package versions are now
+    memoised and read on the post-startup background thread.
+  - Found while measuring and fixed before commit: the first version of
+    the output coalescing held its lock while emitting on the GUI thread,
+    so a DataLoader worker forked at that moment inherited it held and the
+    Classify run hung. The lock now never spans an emission.
+  Classify's remaining gap is matplotlib writing six progress PDFs per
+  epoch (35 % of the worker's samples) while sharing the interpreter lock
+  with the GUI thread at the 1 ms switch interval.
+  Remaining GUI overhead on the chatty case is the file logging the GUI
+  turns on (spacr.log, per-record flush) and interpreter-lock sharing with
+  the GUI thread at the 1 ms switch interval; the fixed per-run cost is
+  ~0.4 s (git hash for the manifest, thread start).
+
+4. OTHER
+  Database browser, 786,432-row x 297-column cell table (3.1 GB):
+                                 before     after
+    set_database                 0.40 s     0.01 s
+    first rows on screen         1.48 s     0.17 s
+    next page (scroll)           3.10 s     0.025 s
+  Every page read and COUNT(*) ran through make_thread with journal=True,
+  so each one wrote a run-journal folder (env snapshot, git subprocess) --
+  browsing a table polluted Run History -- and the next page queued behind
+  the full-table COUNT(*). Jobs now run journal=False, off Home's run list,
+  and the count has its own lane.
+  Settings load/save, large-folder listing and the plate viewer: not
+  measured in this pass.
+
+Guards (tests/qt/test_641_startup_and_browse_budgets.py):
+  import spacr / spacr.qt light and < 1.5 s; Totals window opens 3 of 31
+  manifests; Home panels build without reading the journal; next db page
+  not held behind a 6 s count and no journal record written; quickened log
+  file skips the per-record stat and still rolls over; 3000 printed lines
+  arrive in < 300 emissions, complete and in order. Each fails on base.
+
+Left:
+  - Module first-open: icon PNG decode on the GUI thread, layout polish.
+  - Settings load/save, large-folder listing, plate viewer timings.
+  - A real-display (not offscreen) cold/warm run on a quiet machine for
+    release-grade startup numbers.

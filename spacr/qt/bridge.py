@@ -1164,22 +1164,27 @@ class PipelineWorker(QObject):
         thread that built this worker sends it within one interval, so a
         run printing thousands of lines a second costs the GUI thread twenty
         appends a second rather than one per line. Every other emission of
-        this worker drains first, so the order of the output is kept.
+        this worker drains first, so the order of the output is kept. The
+        lock is held only to move text, never across an emission, so a
+        process forked mid-run (a DataLoader worker) cannot inherit it held.
 
         :param text: one chunk of the run's stdout or stderr.
         """
         with self._out_lock:
             now = time.monotonic()
-            if (not self._out_parts
-                    and now - self._out_last >= self._OUTPUT_INTERVAL_S):
+            immediate = (not self._out_parts
+                         and now - self._out_last >= self._OUTPUT_INTERVAL_S)
+            if immediate:
                 self._out_last = now
-                self.line_ready.emit(text)
-                return
-            self._out_parts.append(text)
-            if self._out_scheduled:
-                return
-            self._out_scheduled = True
-        self._output_pending.emit()
+            else:
+                self._out_parts.append(text)
+                if self._out_scheduled:
+                    return
+                self._out_scheduled = True
+        if immediate:
+            self.line_ready.emit(text)
+        else:
+            self._output_pending.emit()
 
     def _drain_output(self) -> None:
         """Emit whatever output is waiting, as one chunk. Any thread."""
@@ -1190,14 +1195,14 @@ class PipelineWorker(QObject):
             text = "".join(self._out_parts)
             self._out_parts.clear()
             self._out_last = time.monotonic()
-            self.line_ready.emit(text)
+        self.line_ready.emit(text)
 
     def _say(self, text: str) -> None:
         """Emit ``text`` after any output still waiting."""
+        self._drain_output()
         with self._out_lock:
-            self._drain_output()
             self._out_last = time.monotonic()
-            self.line_ready.emit(text)
+        self.line_ready.emit(text)
 
     def _say_error(self, tb: str) -> None:
         """Emit a traceback after any output still waiting."""
