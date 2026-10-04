@@ -72,6 +72,172 @@ _NOT_CONSOLIDATED = ("masks", "orig", cs.DEFAULT_DEST_NAME)
 #: The convention the regex box starts on: spaCR proposes a regex.
 _DEFAULT_METADATA_TYPE = "auto"
 
+#: The popup's modes: Make Masks' Measure layout, Mask Generation's images
+#: only, and Import's images and masks with either layout.
+_MODES = ("measure", "images", "import")
+
+
+def _flatten_for_masks(plan: cs.SortPlan) -> cs.SortPlan:
+    """Retarget ``plan`` to one folder of images, the input Mask Generation reads.
+
+    Each image goes to ``<dest>/<Yokogawa name>`` instead of its channel
+    folder, and its mask and curation ledger to ``<dest>/masks/``, where
+    Make Masks looks for an image's mask. The Yokogawa names carry the
+    channel, so no two images share a name.
+
+    :param plan: a plan from :func:`spacr.channel_sorting.build_plan`.
+    :returns: the same plan, retargeted.
+    """
+    for row in plan.rows:
+        row.target_image = os.path.join(plan.dest,
+                                        os.path.basename(row.target_image))
+        if row.target_mask:
+            row.target_mask = os.path.join(plan.dest, "masks",
+                                           os.path.basename(row.target_mask))
+        if row.target_ledger:
+            row.target_ledger = row.target_mask + ".curation.json"
+    return plan
+
+
+#: The most planes a multi-channel image may have for each to be a channel.
+_MAX_SPLIT_CHANNELS = 8
+
+
+def _split_channel_file(path: str, folder: str, base: str = "") -> List[str]:
+    """Write each channel of a multi-channel image as its own 2-D TIFF.
+
+    The channel axis is the image's shortest axis, first or last, of at most
+    :data:`_MAX_SPLIT_CHANNELS` planes; ``(H, W, 3)`` RGB images split into
+    their three colours. The copies are named after the file's path below
+    ``base`` with ``_ch1``, ``_ch2``... appended; the original is not touched.
+
+    :param path: the image.
+    :param folder: where the planes are written.
+    :param base: the folder whose relative path names the planes.
+    :returns: the plane files in channel order, or ``[]`` when the image is
+        not one 3-D multi-channel array or cannot be read.
+    """
+    from ...tiff_io import write_tiff
+
+    try:
+        if path.lower().endswith((".tif", ".tiff")):
+            import tifffile
+
+            array = tifffile.imread(path)
+        else:
+            from PIL import Image
+
+            with Image.open(path) as image:
+                array = np.asarray(image)
+    except Exception:
+        return []
+    array = np.squeeze(np.asarray(array))
+    if array.ndim != 3:
+        return []
+    first, last = array.shape[0], array.shape[-1]
+    if last <= _MAX_SPLIT_CHANNELS and last <= first:
+        axis = 2
+    elif first <= _MAX_SPLIT_CHANNELS:
+        axis = 0
+    else:
+        return []
+    relative = os.path.relpath(path, base) if base else os.path.basename(path)
+    stem = cs.split_extension(relative)[0].replace(os.sep, "_")
+    os.makedirs(folder, exist_ok=True)
+    planes = []
+    for index in range(array.shape[axis]):
+        target = os.path.join(folder, f"{stem}_ch{index + 1}.tif")
+        write_tiff(target, np.ascontiguousarray(np.take(array, index, axis)))
+        planes.append(target)
+    return planes
+
+
+def _apply_organized(plan: cs.SortPlan, target_layout: str = "measure",
+                     log=None) -> cs.ApplyResult:
+    """Move the files as planned into ``target_layout``.
+
+    :param plan: an ``ok`` plan.
+    :param target_layout: ``"measure"`` (channel folders, ``stack/`` and
+        ``merged/``) or ``"mask"`` (:func:`_flatten_for_masks`, nothing
+        merged).
+    :param log: progress lines; default prints.
+    :returns: the :class:`spacr.channel_sorting.ApplyResult`.
+    """
+    if target_layout == "mask":
+        return cs.apply_plan(_flatten_for_masks(plan), merge=False, log=log)
+    return cs.apply_plan(plan, log=log)
+
+
+def _mask_generation_settings(plan: cs.SortPlan) -> Dict[str, object]:
+    """The Mask Generation settings that read a folder written for it.
+
+    :param plan: the applied plan.
+    :returns: ``src``, the ``cellvoyager`` naming and one zero-based index
+        per channel.
+    """
+    return {"src": plan.dest, "metadata_type": "cellvoyager",
+            "channels": list(range(len(plan.channels)))}
+
+
+def _dialog_for(mode: str):
+    """The popup class for ``mode``: Make Masks' own, or one of its modes.
+
+    :param mode: one of :data:`_MODES`.
+    :returns: a subclass of :class:`OrganizeForMeasureDialog` whose
+        ``_mode`` is ``mode``.
+    :raises ValueError: for an unknown mode.
+    """
+    if mode not in _MODES:
+        raise ValueError(f"mode must be one of {_MODES}, not {mode!r}")
+    if mode == "measure":
+        return OrganizeForMeasureDialog
+    return type(f"_Organize{mode.title()}Dialog", (OrganizeForMeasureDialog,),
+                {"_mode": mode, "__doc__": OrganizeForMeasureDialog.__doc__})
+
+
+def _open_and_organize(host, mode: str, source: str = "", done=None):
+    """Open the popup in ``mode`` and, once accepted, apply it off the GUI thread.
+
+    :param host: the screen opening it; it keeps the popup as
+        ``_organize_dialog`` and the job as ``_organize_job``.
+    :param mode: ``"images"`` or ``"import"``.
+    :param source: the source folder to prefill.
+    :param done: called on the GUI thread as ``done(error, result, plan,
+        layout)`` when the move ends.
+    :returns: the popup.
+    """
+    dialog = _dialog_for(mode)(source, host)
+    host._organize_dialog = dialog
+    if _headless() or dialog.exec() != QDialog.Accepted or dialog.plan is None:
+        return dialog
+    _start_organized(host, dialog.plan, dialog._target_layout, done)
+    return dialog
+
+
+def _start_organized(host, plan: cs.SortPlan, target_layout: str, done=None):
+    """Apply ``plan`` on a worker thread and report to ``done``.
+
+    :param host: the parent of the worker, which keeps it as
+        ``_organize_job``.
+    :param plan: an ``ok`` plan.
+    :param target_layout: ``"measure"`` or ``"mask"``.
+    :param done: ``done(error, result, plan, layout)``, or None.
+    :returns: the started worker.
+    """
+    import logging
+
+    from ..screens.make_masks import _FolderJobWorker
+
+    log = logging.getLogger(__name__).info
+    worker = _FolderJobWorker(
+        lambda: _apply_organized(plan, target_layout, log=log), host)
+    if done is not None:
+        worker.finished.connect(lambda: done(worker.error, worker.result,
+                                             plan, target_layout))
+    host._organize_job = worker
+    worker.start()
+    return worker
+
 
 class _ConsolidationFailed(RuntimeError):
     """A reported partial copy that must not replace the current working table."""
@@ -1031,7 +1197,12 @@ class OrganizeForMeasureDialog(QDialog):
         :param masks_dir: the source's masks folder, when not its ``masks/``.
         """
         super().__init__(parent)
-        self.setWindowTitle(tr("Organize for Measure"))
+        mode = self._mode
+        if mode not in _MODES:
+            raise ValueError(f"mode must be one of {_MODES}, not {mode!r}")
+        self.mode = mode
+        self.setWindowTitle(tr("Organize for Measure") if mode == "measure"
+                            else tr("Organize images"))
         self.resize(1000, 760)
         self.masks_dir = masks_dir
         self.columns: List[_Column] = []
@@ -1054,14 +1225,31 @@ class OrganizeForMeasureDialog(QDialog):
         self.confirm_examples = self._ask_examples
 
         layout = QVBoxLayout(self)
-        intro = QLabel(tr(
-            "Organise images and their masks into the layout Measure reads. "
-            "Either give a source folder and sort it with a regex, or drop "
-            "files and folders into the columns below: each column is a "
-            "channel or a mask, each row one field, and dropped files are "
-            "matched across the columns by name. On Apply the images and "
-            "masks are MOVED into Yokogawa-named channel folders and merged "
-            "into merged/; every move is written to a manifest."))
+        intro = QLabel({
+            "measure": tr(
+                "Organise images and their masks into the layout Measure reads. "
+                "Either give a source folder and sort it with a regex, or drop "
+                "files and folders into the columns below: each column is a "
+                "channel or a mask, each row one field, and dropped files are "
+                "matched across the columns by name. On Apply the images and "
+                "masks are MOVED into Yokogawa-named channel folders and merged "
+                "into merged/; every move is written to a manifest."),
+            "images": tr(
+                "Organise intensity images, however they are named or "
+                "foldered, into the folder Mask Generation reads. Either give "
+                "a source folder and sort it with a regex, or drop files and "
+                "folders into the columns below: each column is a channel, "
+                "each row one field. On Apply the images are MOVED into one "
+                "folder with Yokogawa names and src is set to it; every move "
+                "is written to a manifest."),
+            "import": tr(
+                "Organise intensity images and their masks into the layout "
+                "Mask Generation or Measure reads. Either give a source folder "
+                "and sort it with a regex, or drop files and folders into the "
+                "columns below: each column is a channel or a mask, each row "
+                "one field. On Apply the files are MOVED; every move is "
+                "written to a manifest."),
+        }[mode])
         intro.setWordWrap(True)
         layout.addWidget(intro)
 
@@ -1108,6 +1296,23 @@ class OrganizeForMeasureDialog(QDialog):
         self.output_edit = QLineEdit()
         self.output_edit.textEdited.connect(self._output_edited)
         fields.addWidget(self.output_edit, 4, 1, 1, 2)
+        self.layout_box = QComboBox()
+        self.layout_box.setObjectName("OrganizeLayoutBox")
+        self.layout_box.addItem(tr("Measure: channel folders and merged/"),
+                                "measure")
+        self.layout_box.addItem(tr("Mask Generation: one folder of images, "
+                                   "masks in masks/"), "mask")
+        self.layout_box.setCurrentIndex(1 if mode == "images" else 0)
+        if mode == "import":
+            layout_label = QLabel(tr("Write for"))
+            layout_label.setToolTip(tr(
+                "Measure: channel folders, the masks and merged/*.npy. Mask "
+                "Generation: one folder of Yokogawa-named images, its src, "
+                "with any masks in its masks/ folder."))
+            fields.addWidget(layout_label, 5, 0)
+            fields.addWidget(self.layout_box, 5, 1, 1, 2)
+        else:
+            self.layout_box.hide()
         layout.addLayout(fields)
 
         self.sort_button = QPushButton(tr("Sort by regex"))
@@ -1135,19 +1340,32 @@ class OrganizeForMeasureDialog(QDialog):
             lambda: self.add_column("channel"))
         self.add_mask_button = QPushButton(tr("Add mask"))
         self.add_mask_button.clicked.connect(lambda: self.add_column("mask"))
+        self.add_mask_button.setVisible(mode != "images")
         self.remove_button = QPushButton(tr("Remove selected files"))
         self.remove_button.setToolTip(tr(
             "Take the selected cells' files out of the table; the files "
             "themselves are not touched."))
         self.remove_button.clicked.connect(self._remove_selected)
+        self.split_button = QPushButton(tr("Split multi-channel files"))
+        self.split_button.setObjectName("OrganizeSplitButton")
+        self.split_button.setToolTip(tr(
+            "Copy each channel of the table's multi-channel images into its "
+            "own file in split_channels/, one channel column per plane; the "
+            "originals are not touched."))
+        self.split_button.clicked.connect(
+            lambda _checked=False: self._split_multichannel())
         #: The one line of action buttons, in order.
         self.action_row = QHBoxLayout()
         for button in (self.sort_button, self.auto_button, self.detect_button,
                        self.teach_button):
             self.action_row.addWidget(button)
         self.action_row.addSpacing(12)
+        extra = (self.split_button,) if mode != "measure" else ()
+        if not extra:
+            self.split_button.setParent(self)
+            self.split_button.hide()
         for button in (self.add_channel_button, self.add_mask_button,
-                       self.remove_button):
+                       self.remove_button) + extra:
             self.action_row.addWidget(button)
         self.action_row.addStretch(1)
         layout.addLayout(self.action_row)
@@ -1255,6 +1473,64 @@ class OrganizeForMeasureDialog(QDialog):
         from ..screens.settings_model import retarget_field_tooltips
 
         retarget_field_tooltips(self)
+
+    #: ``"measure"`` writes Measure's layout; ``"images"`` takes intensity
+    #: images only and writes one folder of Yokogawa-named images, the input
+    #: Mask Generation reads; ``"import"`` takes images and masks and offers
+    #: both layouts. Set by :func:`_dialog_for`.
+    _mode = "measure"
+
+    @property
+    def _target_layout(self) -> str:
+        """``"measure"`` or ``"mask"``: the layout Apply writes."""
+        if self.mode == "measure":
+            return "measure"
+        return self.layout_box.currentData()
+
+    def _split_multichannel(self) -> int:
+        """Split the table's multi-channel images into one channel each.
+
+        Each plane of a multi-channel image in a channel column is written to
+        ``<base>/split_channels/`` by :func:`_split_channel_file` and put in
+        the channel column as many places right of the image's own as its
+        plane number, made when missing; the image leaves the table. The rows
+        are matched again afterwards.
+
+        :returns: how many images were split.
+        """
+        base = self._base_folder()
+        folder = ""
+        targets: Dict[int, List[str]] = {}
+        split: List[str] = []
+        for column in self._channel_columns():
+            channel = self._channel_of(column)
+            for row in self.rows:
+                path = row[column]
+                if not path or len(cs.image_shape(path) or ()) != 3:
+                    continue
+                if not folder:
+                    folder = cs.unused_folder(base or os.path.dirname(path),
+                                              "split_channels")
+                planes = _split_channel_file(path, folder, base)
+                if not planes:
+                    continue
+                split.append(path)
+                for index, plane in enumerate(planes):
+                    targets.setdefault(channel + index, []).append(plane)
+        if not split:
+            self.status.setText(tr("No multi-channel images in the table."))
+            return 0
+        self._forget(split)
+        while len(self._channel_columns()) < max(targets):
+            self.add_column("channel")
+        for channel, planes in sorted(targets.items()):
+            self.add_files(self._column_for_channel(channel), planes,
+                           rematch=False)
+        self._rematch()
+        self.status.setText(tr(
+            "Split {n} multi-channel image(s) into {folder}.", n=len(split),
+            folder=folder))
+        return len(split)
 
     # -- columns -----------------------------------------------------------
 
@@ -2040,6 +2316,13 @@ class OrganizeForMeasureDialog(QDialog):
                 "Add images to at least one channel column first."))
             self.custom_edit.setFocus()
             return
+        if plan.convertible and self.mode != "measure" and self.ask(
+                tr("Split multi-channel files?"), tr(
+                    "{n} image(s) hold more than one plane. Split each into "
+                    "one file per channel, one channel column per plane? The "
+                    "originals are not touched.", n=len(plan.convertible))):
+            self._split_multichannel()
+            return
         if plan.convertible:
             shown = "\n".join(os.path.basename(p) for p in plan.convertible[:8])
             if self.ask(tr("Convert RGB images and z-stacks?"), tr(
@@ -2052,7 +2335,8 @@ class OrganizeForMeasureDialog(QDialog):
         if not plan.ok:
             self.status.setText(plan.summary())
             return
-        if not self.ask(tr("Move and merge?"), plan.summary()):
+        if not self.ask(tr("Move and merge?") if self._target_layout == "measure"
+                        else tr("Move the images?"), plan.summary()):
             return
         self.plan = plan
         self.accept()

@@ -373,6 +373,95 @@ def install_example_data_button(screen: QWidget):
 
 
 
+def _install_organize_button(screen: QWidget):
+    """Add "Organize images…" above the source-directory setting.
+
+    It opens the organizer in its images-only mode; once the images are
+    moved into one Yokogawa-named folder, ``src`` and ``metadata_type``
+    are set to read it. Idempotent.
+
+    :param screen: Host module screen.
+    :returns: Installed button, or ``None`` when the screen has no
+        source-directory section.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    from ..i18n import tr
+
+    if getattr(screen, "app_key", None) != HOST_KEY:
+        return None
+    existing = getattr(screen, "_organize_images_button", None)
+    if existing is not None:
+        return existing
+    widget = getattr(getattr(screen, "_settings_model", None),
+                     "_widgets", {}).get("src")
+    if widget is None:
+        return None
+    section = next((c for c in getattr(screen, "_settings_sections", ()) or ()
+                    if hasattr(c, "add_prose") and c.isAncestorOf(widget)),
+                   None)
+    if section is None:
+        return None
+    button = QPushButton(tr("Organize images…"))
+    button.setObjectName("MaskOrganizeImagesButton")
+    button.setToolTip(tr(
+        "Arrange intensity images from any folder structure or naming, "
+        "single- or multi-channel, into the folder Mask Generation reads, "
+        "and point src at it. Same popup as Make Masks' Organize for "
+        "Measure."))
+    button.clicked.connect(lambda _checked=False: _open_organize(screen))
+    section.add_prose(button, at_top=True)
+    screen._organize_images_button = button
+    return button
+
+
+def _open_organize(screen: QWidget):
+    """Open the images-only organizer for ``screen``.
+
+    :param screen: the Mask Generation screen.
+    :returns: the popup.
+    """
+    from ..widgets.organize_for_measure import _open_and_organize
+
+    model = getattr(screen, "_settings_model", None)
+    try:
+        source = str((model.collect() or {}).get("src") or "")
+    except Exception:
+        source = ""
+    return _open_and_organize(
+        screen, "images", source if os.path.isdir(source) else "",
+        done=lambda *args: _on_organized(screen, *args))
+
+
+def _on_organized(screen: QWidget, error, result, plan, target_layout) -> bool:
+    """Point the form at the organised folder, or say why it failed.
+
+    :param screen: the Mask Generation screen.
+    :param error: the exception the move raised, or None.
+    :param result: the :class:`spacr.channel_sorting.ApplyResult`.
+    :param plan: the applied plan.
+    :param target_layout: the layout written.
+    :returns: whether the form now reads the folder.
+    """
+    from .. import prefs
+    from ..i18n import tr
+    from ..widgets.organize_for_measure import _mask_generation_settings
+
+    if error is not None or result is None:
+        _say(screen, tr("Organizing failed: {error}. Every move made before "
+                        "the failure is listed in the manifest.",
+                        error=str(error)) + "\n")
+        return False
+    if target_layout != "mask":
+        return False
+    screen.apply_settings_dict(_mask_generation_settings(plan))
+    prefs.push_recent_source(HOST_KEY, result.dest)
+    _say(screen, tr("Moved {moved} file(s) into {dest}; src now reads it. "
+                    "Every move is in {manifest}.", moved=result.moved,
+                    dest=result.dest, manifest=result.manifest) + "\n")
+    return True
+
+
 #: The registry key of the page fold, so the switch and the declaration
 #: cannot drift apart.
 OPS_KEY: str = PAGE_FOLDS[0]
@@ -559,6 +648,11 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
         install_example_data_button(screen)
     except Exception:
         LOG.debug("Could not install the example-plate button on %s", HOST_KEY,
+                  exc_info=True)
+    try:
+        _install_organize_button(screen)
+    except Exception:
+        LOG.debug("Could not install the organize button on %s", HOST_KEY,
                   exc_info=True)
     existing = getattr(screen, "_fold_strip", None)
     if isinstance(existing, FoldStrip):

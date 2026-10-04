@@ -489,6 +489,17 @@ class ImageImportScreen(QWidget):
         src_row.addWidget(QLabel("Images"))
         src_row.addWidget(self._root_edit, 1)
         src_row.addWidget(self._btn_pick_root)
+        from ..i18n import tr
+        self._btn_organize = QPushButton(tr("Organize images and masks…"), self)
+        self._btn_organize.setObjectName("ImportOrganizeButton")
+        self._btn_organize.setToolTip(tr(
+            "Drop intensity images and masks, however they are named or "
+            "foldered, assign their channel and mask columns, and move them "
+            "into the layout Mask Generation or Measure reads. Same popup as "
+            "Make Masks' Organize for Measure."))
+        self._btn_organize.clicked.connect(
+            lambda _checked=False: self._open_organize())
+        src_row.addWidget(self._btn_organize)
         outer.addLayout(src_row)
 
         opt_row = QHBoxLayout()
@@ -630,6 +641,46 @@ class ImageImportScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
+
+    def _open_organize(self):
+        """Open the organizer for images and masks, prefilled with the folder.
+
+        :returns: the popup.
+        """
+        from ..widgets.organize_for_measure import _open_and_organize
+
+        root = self._root_edit.text().strip()
+        return _open_and_organize(self, "import",
+                                  root if os.path.isdir(root) else "",
+                                  done=self._on_organized)
+
+    def _on_organized(self, error, result, plan, target_layout) -> bool:
+        """Say where the organised files went and queue them for their module.
+
+        :param error: the exception the move raised, or None.
+        :param result: the :class:`spacr.channel_sorting.ApplyResult`.
+        :param plan: the applied plan.
+        :param target_layout: ``"mask"`` or ``"measure"``.
+        :returns: whether the move succeeded.
+        """
+        from .. import prefs
+        from ..i18n import tr
+
+        if error is not None or result is None:
+            self._set_status(tr(
+                "Organizing failed: {error}. Every move made before the "
+                "failure is listed in the manifest.", error=str(error)),
+                error=True)
+            return False
+        module = "mask" if target_layout == "mask" else "measure"
+        prefs.push_recent_source(module, result.dest)
+        self._set_status(tr(
+            "Moved {moved} file(s) into {dest}; it is first in {module}'s "
+            "recent sources. Every move is in {manifest}.",
+            moved=result.moved, dest=result.dest,
+            module=tr("Mask Generation") if module == "mask" else tr("Measure"),
+            manifest=result.manifest))
+        return True
 
     def _set_status(self, text: str, error: bool = False) -> None:
         """Report inline. Deliberately never a QMessageBox — a modal dialog

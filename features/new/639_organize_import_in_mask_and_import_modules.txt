@@ -1,0 +1,42 @@
+Item 639: Organize images in Mask Generation and Import Images
+================================================================
+Status: DONE 2026-10-04
+
+Request (maintainer, verbatim):
+"the make masks has a super helpful data import setting for masking data
+importable into the measure modual. There should be something similar in the
+mask generation modual for intensity images and similar in the import modual
+for masks and intensity images"
+
+Reference: Make Masks' "Organize for Measure" popup (item 600,
+spacr/qt/widgets/organize_for_measure.py).
+
+Built
+-----
+1. The popup takes a mode: "measure" (Make Masks, unchanged), "images"
+   (intensity images only; no Add mask button) and "import" (images and
+   masks, with a "Write for" choice: Measure or Mask Generation).
+   - Mask Generation layout: one folder of Yokogawa-named images
+     (cellvoyager), masks in its masks/ (where Make Masks looks), nothing
+     merged (_flatten_for_masks, _apply_organized).
+   - Measure layout: the existing channel folders, stack/ and merged/.
+   - Multi-channel files: "Split multi-channel files" (and an offer on
+     Apply) copies each plane into split_channels/, one channel column per
+     plane; originals untouched.
+2. Mask Generation: "Organize images..." (MaskOrganizeImagesButton) above
+   src. After the move, src = the folder, metadata_type = cellvoyager,
+   channels = 0..n-1, and the folder is pushed to Mask's recent sources.
+3. Import Images: "Organize images and masks..." (ImportOrganizeButton)
+   beside Choose. After the move the folder is first in Mask Generation's or
+   Measure's recent sources.
+4. Moves run off the GUI thread (Make Masks' _FolderJobWorker); a manifest
+   records every move.
+
+Not alpha: covered by tests/qt/test_639_organize_in_mask_and_import.py,
+which organises synthetic sets into each layout and runs
+spacr.validate.validate_settings for mask / measure on the result.
+No settings were added, so the settings-flow and consumer-map artefacts
+are unchanged.
+
+Left: translations of the new tr() captions (catalog pass); tutorial for the
+two new buttons (docs lane, after features).
