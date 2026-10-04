@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
@@ -176,6 +176,7 @@ class MeasureInputTable(QWidget):
         self._grid.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._grid.setMinimumHeight(180)
         self._grid.cellDoubleClicked.connect(self._on_cell_activated)
+        self._rebuild_pending = False
         self._grid.itemChanged.connect(self._on_item_edited)
         self._grid.setToolTip(
             "Rows are fields, columns are channels and mask types. Drop "
@@ -569,6 +570,17 @@ class MeasureInputTable(QWidget):
                 pass
         else:
             return
+        if not self._rebuild_pending:
+            self._rebuild_pending = True
+            QTimer.singleShot(0, self._rebuild_after_edit)
+
+    def _rebuild_after_edit(self) -> None:
+        """Redraw once the edited item has finished taking its new value.
+
+        Rebuilding from inside ``itemChanged`` would delete the very item
+        whose ``setData`` is still on the stack.
+        """
+        self._rebuild_pending = False
         self._rebuild()
 
     def _on_cell_activated(self, row: int, column: int) -> None:

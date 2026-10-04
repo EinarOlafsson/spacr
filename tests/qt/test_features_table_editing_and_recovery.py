@@ -30,14 +30,16 @@ def test_sorted_browse_and_remove_reach_the_visible_field(table):
     assert table.remove_selected() == 0
 
 
-@pytest.mark.xfail(strict=True, raises=RuntimeError,
-    reason="288: editing rebuilds/deletes SortableTableItem during setData; reported in 325")
-def test_editing_a_sorted_well_finishes_without_deleting_the_active_item(table):
+def test_editing_a_sorted_well_finishes_without_deleting_the_active_item(table, qtbot):
     first = table.add_field()
     second = table.add_field()
     table._grid.sortItems(0, Qt.DescendingOrder)
     table._grid.item(0, 1).setText(" B03 ")
     assert second.well == "B03" and first.well == "A01"
+    qtbot.waitUntil(lambda: not table._rebuild_pending)
+    wells = {table._grid.item(r, 0).text(): table._grid.item(r, 1).text()
+             for r in range(table._grid.rowCount())}
+    assert wells[second.label] == "B03" and wells[first.label] == "A01"
 
 
 def test_cancelled_picker_and_identity_cells_preserve_assignments(table):
