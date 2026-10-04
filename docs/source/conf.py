@@ -323,7 +323,29 @@ def _skip_implementation_data(app, what, name, obj, skip, options):
     return None
 
 
+# Nested-helper signatures keep their source annotations, which name classes
+# imported into the helper's module. Sphinx cannot see those imports, so a
+# short name defined in several modules is ambiguous. Point each such
+# annotation at the class the module actually imports.
+_HELPER_ANNOTATION_TARGETS = {
+    ('spacr.flowview.collector', 'Node'): 'spacr.flowview.model.Node',
+}
+
+
+def _qualify_helper_annotations(app, doctree):
+    from sphinx.addnodes import pending_xref
+    for node in doctree.findall(pending_xref):
+        if node.get('refdomain') != 'py':
+            continue
+        key = (node.get('py:module'), node.get('reftarget'))
+        target = _HELPER_ANNOTATION_TARGETS.get(key)
+        if target:
+            node['reftarget'] = target
+            node.attributes.pop('refspecific', None)
+
+
 def setup(app):
+    app.connect('doctree-read', _qualify_helper_annotations)
     app.add_config_value('spacr_nested_helper_modules', (), 'env')
     app.add_config_value('spacr_explicit_api_modules', (), 'env')
     _nested_helper_docs.register_sphinx_directive(app)
