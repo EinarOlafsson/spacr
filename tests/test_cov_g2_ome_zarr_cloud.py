@@ -148,3 +148,34 @@ def test_a_store_that_refuses_access_reads_as_missing(plate_in_memory):  # noqa:
     assert refusing.is_file() is False
     assert refusing.exists() is False
     assert refusing.is_dir() is False
+
+
+def test_a_single_cloud_file_is_not_a_run_source(tmp_path):
+    fs = fsspec.filesystem("memory")
+    fs.pipe("/bucket-file/one.tif", b"not really a tiff")
+    try:
+        with pytest.raises(ome_zarr._CloudStorageError, match="single file"):
+            ome_zarr._localize_cloud_source(
+                "memory://bucket-file/one.tif",
+                {"cloud_cache": str(tmp_path)}, "mask", report=None)
+    finally:
+        fs.rm("/bucket-file", recursive=True)
+
+
+def test_results_upload_skips_folders_and_reports_a_missing_one(tmp_path):
+    said = []
+    assert ome_zarr._upload_cloud_results(
+        str(tmp_path), "memory://out", "memory://in/plate.zarr/merged",
+        ome_zarr._CloudOptions(), report=said.append) == []
+    assert "does not exist" in said[0]
+    nested = tmp_path / "merged"
+    (tmp_path / "measurements" / "sub").mkdir(parents=True)
+    (tmp_path / "measurements" / "sub" / "a.csv").write_text("x\n")
+    fs = fsspec.filesystem("memory")
+    try:
+        written = ome_zarr._upload_cloud_results(
+            str(nested), "memory://out-bucket", "memory://in/plate.zarr/merged",
+            ome_zarr._CloudOptions(), report=None)
+        assert written == ["memory://out-bucket/plate/measurements/sub/a.csv"]
+    finally:
+        fs.rm("/out-bucket", recursive=True)
