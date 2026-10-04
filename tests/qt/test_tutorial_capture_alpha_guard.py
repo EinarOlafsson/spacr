@@ -181,7 +181,9 @@ def test_capture_refresh_forces_off_before_the_window_and_passes_only_the_opt_in
         source.index("window = gui.MainWindow()")
     assert "'--preferences-alpha-toggle-scene', action='store_true'" in source
     calls = re.findall(r"verify_appearance\(([^)]*)\)", source)
-    assert calls == ["\n            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene"]
+    # 624134261 also passes the one allow-listed alpha lesson through.
+    assert calls == ["\n            window, allow_alpha_toggle_scene=args.preferences_alpha_toggle_scene,"
+                     "\n            alpha_lesson=args.alpha_lesson"]
 
 
 def test_authoring_capture_sessions_refuse_frames_while_alpha_is_on(prefs):

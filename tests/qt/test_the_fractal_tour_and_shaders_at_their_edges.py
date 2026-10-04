@@ -19,6 +19,7 @@ from __future__ import annotations
 import builtins
 import importlib
 import sys
+from pathlib import Path
 import types
 
 import numpy as np
@@ -155,17 +156,22 @@ def test_without_numba_the_weighted_blend_says_so(monkeypatch):
             raise ImportError("numba is not installed")
         return real_import(name, g, l, fromlist, level)
 
+    import importlib.util
+
     import spacr.qt.widgets as package
 
+    # A private copy under its own name: a worker thread left by an earlier
+    # test can re-import the shared module, numba and all, between a
+    # sys.modules purge and the import (seen once on a CI shard).
+    path = Path(package.__file__).with_name("fractal_travel.py")
+    spec = importlib.util.spec_from_file_location(
+        "spacr.qt.widgets._fractal_travel_without_numba", path)
+    scratch = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, spec.name, scratch)
     monkeypatch.setattr(builtins, "__import__", refuse)
-    monkeypatch.setattr(package, "fractal_travel",
-                        getattr(package, "fractal_travel", None),
-                        raising=False)
-    for name in [n for n in sys.modules
-                 if n.startswith("spacr.qt.widgets.fractal_travel")]:
-        monkeypatch.delitem(sys.modules, name, raising=False)
     monkeypatch.delitem(sys.modules, "numba", raising=False)
-    scratch = importlib.import_module("spacr.qt.widgets.fractal_travel")
+    spec.loader.exec_module(scratch)
+    assert scratch.njit is None
 
     with pytest.raises(RuntimeError, match="numba is required"):
         scratch._blend_weighted(1, 2, 3, 4)

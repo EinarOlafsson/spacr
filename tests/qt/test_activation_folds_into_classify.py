@@ -193,9 +193,10 @@ def test_the_attribution_settings_arrive_and_the_host_never_had_them(
     # 574 (93999a609, alpha) added its per-condition target.
     assert {"counterfactuals", "counterfactual_crops",
             "counterfactual_epochs", "counterfactual_condition",
-            "counterfactual_target"} <= only_here
+            "counterfactual_target", "counterfactual_generator"} <= only_here
     # 564 (2026-10-03, alpha): counterfactual_target, the chosen target.
-    assert len(only_here) == 24
+    # 564 (d050bc6d4, alpha): counterfactual_generator, the generator choice.
+    assert len(only_here) == 25
     assert page._btn_run is not None, "the page cannot run anything"
 
 
