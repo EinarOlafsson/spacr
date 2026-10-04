@@ -228,6 +228,16 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Upper percentile",
     # Control Charts translates this _ANOMALY_COLUMNS header via tr(label).
     "Control percentile",
+    # Gate Editor's 3D shape dropdown translates VOLUME_SHAPES via tr(label).
+    "Lasso through view",
+    "Polygon through view",
+    "Rectangle through view",
+    "Ellipsoid with handles",
+    "Box with handles",
+    "Box gate",
+    "Oval gate",
+    "Circle gate",
+    "Polygon gate",
     # Figure-settings rows. QFormLayout.addRow is intentionally not treated
     # as a generic text call: many panels use its first argument for dynamic
     # data labels, so this reviewed finite set avoids cataloguing data.
