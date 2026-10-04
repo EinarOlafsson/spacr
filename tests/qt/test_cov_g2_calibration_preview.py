@@ -143,3 +143,45 @@ def test_a_closed_dialog_does_not_start_again(dialog):
     dialog.done(0)
     dialog._start()
     assert dialog._snapshot is None
+
+
+def test_a_closed_dialog_ignores_settings_changes(dialog):
+    dialog._snapshot = {"intensity_calibration": True}
+    dialog._closed = True
+    dialog.state["settings"] = {"changed": True}
+    dialog._check_current()
+    assert dialog._snapshot == {"intensity_calibration": True}
+
+
+def test_the_button_waits_for_an_earlier_scan_to_end(qtbot, monkeypatch):
+    from PySide6.QtCore import QThread
+
+    thread = QThread()
+    thread.start()
+
+    class _Dialog:
+        def __init__(self, getter, parent):
+            self._retiring_threads = [thread]
+            self._start = lambda: None
+
+        def exec(self):
+            return 0
+
+        def deleteLater(self):
+            pass
+
+    host = QWidget()
+    QVBoxLayout(host)
+    qtbot.addWidget(host)
+    monkeypatch.setattr(preview, "_CalibrationPreview", _Dialog)
+    preview._attach_preview(host, _Model({}))
+    button = host.findChild(QPushButton, "CalibrationPreviewButton")
+    try:
+        button.click()
+        assert not button.isEnabled()
+        qtbot.wait(600)
+        assert not button.isEnabled()
+    finally:
+        thread.quit()
+        thread.wait()
+    qtbot.waitUntil(button.isEnabled, timeout=3000)
