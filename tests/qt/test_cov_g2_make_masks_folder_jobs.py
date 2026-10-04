@@ -90,3 +90,55 @@ def test_small_helpers_without_their_widgets(screen, monkeypatch):  # noqa: F811
     assert screen._enhancement_chain() == mm.detect_chain.NO_CHAIN
     screen._btn_discard = None
     screen._show_curation_verdict(True)
+
+
+def test_sam2_dialog_clicks_runs_and_saves_at_their_edges(qtbot, monkeypatch,
+                                                          tmp_path):
+    import sys
+    import types
+
+    import numpy as np
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+
+    dialog = mm._Sam2SeedDialog(np.zeros((2, 8, 8), np.uint8))
+    qtbot.addWidget(dialog)
+    clicks = []
+    dialog.view.clicked.connect(lambda x, y, right: clicks.append((x, y, right)))
+    event = QMouseEvent(QEvent.MouseButtonPress, QPointF(2, 2), QPointF(2, 2),
+                        Qt.RightButton, Qt.RightButton, Qt.NoModifier)
+    dialog.view.mousePressEvent(event)
+    assert clicks and clicks[0][2] is True
+    dialog._on_click(99, 99, False)
+    assert not dialog.seeds
+    backends = types.ModuleType("spacr._segmentation_backends")
+    backends._sam2_propagate = lambda frames, seeds, backward=False: (
+        np.zeros(frames.shape, np.int32), {})
+    import spacr._segmentation_backends as real
+
+    monkeypatch.setattr(real, "_sam2_propagate", backends._sam2_propagate,
+                        raising=False)
+    dialog._on_click(2, 2, False)
+    dialog.run()
+    qtbot.waitUntil(lambda: dialog.labels is not None, timeout=5000)
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        staticmethod(lambda *a, **k: ""))
+    assert dialog.save() is None
+    monkeypatch.setattr(QFileDialog, "getExistingDirectory",
+                        staticmethod(lambda *a, **k: str(tmp_path)))
+    assert dialog.save() == str(tmp_path)
+    assert sys
+
+
+def test_a_queue_of_one_folder_opens_it_and_of_no_images_warns(screen,  # noqa: F811
+                                                               monkeypatch,
+                                                               tmp_path):
+    opened, warned = [], []
+    monkeypatch.setattr(screen, "_open_folder",
+                        lambda folder, **k: opened.append(folder) or True)
+    monkeypatch.setattr(screen, "_warn", lambda title, text: warned.append(title))
+    assert screen._open_queue([str(tmp_path)]) is True
+    notes = tmp_path / "notes.txt"
+    notes.write_text("x")
+    assert screen._open_queue([str(notes), str(tmp_path / "gone.tif")]) is False
+    assert opened == [str(tmp_path)] and warned == ["No images"]
