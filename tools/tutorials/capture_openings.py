@@ -249,3 +249,64 @@ def record_mask_source_channels(app, window, stage, captures, capture, settle, w
     write_json(captures / 'mask_source_channels.json',
                {key: mask._settings_model.collect().get(key)
                 for key in ('src', 'nucleus_channel', 'cell_channel', 'pathogen_channel')})
+
+
+def record_ram_guard(app, window, stage, captures, capture, settle, write_json, timeout=120):
+    """Measure's RAM guard (631), triggered honestly by large fields.
+
+    The project holds one stitched 4 x 4 mosaic of an example field (real
+    pixels, about 0.9 GB as stored), so the real estimate (one field times
+    Measure's worker overhead against this machine's free RAM) cannot fit
+    a worker per core. The dialog is recorded and closed, which cancels the
+    run; nothing is measured and no setting outside the form is changed.
+    """
+    from PySide6.QtCore import QTimer
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.measure import resolve_n_jobs
+    from spacr.resource_log import _app_ram_plan
+
+    plate = Path.home() / '.cache/spacr/example_data/stitched_mosaic'
+    if not any((plate / 'merged').glob('*.npy')):
+        raise RuntimeError('The stitched mosaic project has no merged field')
+    screen = _open(window, settle, 'measure')
+    if not screen._settings_model.set_value_for_key('src', str(plate)):
+        raise RuntimeError('No Measure Source setting')
+    settle(1.0)
+    workers = resolve_n_jobs(10 ** 6)  # one worker per core, Measure's cap
+    if not screen._settings_model.set_value_for_key('n_jobs', workers):
+        raise RuntimeError('No Measure n_jobs setting')
+    settle(0.5)
+    probe = _app_ram_plan('measure', screen._settings_model.collect(), workers)
+    if probe is None or not probe.get('exceeds'):
+        raise RuntimeError(f'The guard would not refuse {workers} workers: {probe}')
+    seen = {'other': [], 'guard': None}
+
+    def watch():
+        dialog = app.activeModalWidget()
+        if dialog is not None and dialog.objectName() == 'RamGuardDialog':
+            settle(1.0)
+            capture('batch_21_ram_guard')
+            seen['guard'] = dialog.windowTitle()
+            dialog.reject()
+            return
+        if isinstance(dialog, QMessageBox):
+            seen['other'].append(dialog.windowTitle())
+            dialog.done(QMessageBox.Yes)
+        QTimer.singleShot(300, watch)
+
+    QTimer.singleShot(300, watch)
+    screen._btn_run.click()
+    deadline = time.monotonic() + timeout
+    while seen['guard'] is None and time.monotonic() < deadline:
+        settle(0.2)
+    if seen['guard'] is None:
+        raise RuntimeError(f'The RAM guard did not appear (other dialogs: {seen["other"]})')
+    settle(1.0)
+    if getattr(screen, '_worker_thread_is_running', lambda: False)():
+        raise RuntimeError('A run started; the guard should have cancelled it')
+    write_json(captures / 'ram_guard.json', {
+        'requested_workers': workers, 'probe': {k: probe[k] for k in (
+            'per_worker', 'nbytes', 'available', 'total', 'reserve', 'max_safe')},
+        'other_dialogs_accepted': seen['other'], 'dialog_title': seen['guard'],
+        'run_started': False})
