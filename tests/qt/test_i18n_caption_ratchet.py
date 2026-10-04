@@ -1272,31 +1272,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 639, 2026-10-04: the organizer popup's images and import modes, Mask
 # Generation's "Organize images…" and Import's "Organize images and masks…".
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
-    "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
-    "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
-    'Mask Generation: one folder of images, masks in masks/',
-    'Measure: channel folders and merged/',
-    'Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.',
-    'Move the images?',
-    "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
-    'Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.',
-    'No multi-channel images in the table.',
-    'Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.',
-    'Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.',
-    'Organize images',
-    'Organize images and masks…',
-    'Organize images…',
-    'Organizing failed: {error}. Every move made before the failure is listed in the manifest.',
-    'Split multi-channel files',
-    'Split multi-channel files?',
-    'Split {n} multi-channel image(s) into {folder}.',
-    'Write for',
-    '{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.',
     "Giardia duodenalis",
-    "How wide each figure is drawn, which is also how tall: the tiles keep "
-    "each figure's own proportions. Fewer, bigger figures per row to the "
-    "right.",
     "Leishmania spp.",
     "Mammalian cells",
     "Trypanosoma spp.",

@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, fourteenth pass 2026-10-04: the runtime strings nightly added in item 639 (Organize images in Mask Generation, Organize images and masks in Import, multi-channel split), the counterfactual_generator setting and the rewritten figure-width help, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
+      "source": "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
+      "source_sha256": "3b65eb63a72986e126e1595a6220f9caf5381f498e6489cca94e2141df500b1c",
+      "translation": "어떤 폴더 구조나 이름 규칙의 단일 채널 또는 다중 채널 강도 이미지든 마스크 생성 단계가 읽는 폴더로 정리하고, src 설정이 그 폴더를 가리키게 합니다. Make Masks 화면의 Measure용으로 정리와 같은 팝업입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
+      "source": "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
+      "source_sha256": "98cd87c691ecdb5de6b8b2c2847f2d05d4edde5dbdcb607c937703bdc6c82371",
+      "translation": "표에 있는 다중 채널 이미지의 각 채널을 split_channels/ 폴더 안의 개별 파일로 복사하며, 평면마다 채널 열 하나를 씁니다. 원본은 건드리지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
+      "source": "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
+      "source_sha256": "321a391cf4dc3e20c90e6aaeb9262e2d42d1d7fa93b554c463276d04edde850e",
+      "translation": "이름이나 폴더 구성에 관계없이 강도 이미지와 마스크를 끌어 놓고, 채널 열과 마스크 열을 지정한 뒤 마스크 생성 단계나 Measure 모듈이 읽는 구조로 이동합니다. Make Masks 화면의 Measure용으로 정리와 같은 팝업입니다."
+    },
+    {
+      "table": "ui",
+      "key": "How wide each figure is drawn, which is also how tall: the tiles keep each figure's own proportions. Fewer, bigger figures per row to the right.",
+      "source": "How wide each figure is drawn, which is also how tall: the tiles keep each figure's own proportions. Fewer, bigger figures per row to the right.",
+      "source_sha256": "511f2eb889f82c507a43f9838bbac645c604aa9181a5e159d82618633d26fee4",
+      "translation": "각 그림을 그리는 너비이며, 이는 높이이기도 합니다. 타일은 각 그림의 고유 비율을 유지합니다. 오른쪽으로 갈수록 행마다 그림이 더 적고 더 커집니다."
+    },
+    {
+      "table": "ui",
+      "key": "Mask Generation: one folder of images, masks in masks/",
+      "source": "Mask Generation: one folder of images, masks in masks/",
+      "source_sha256": "0a15cc3c829b6082da0f14be3ff24dd387ec75bf7e926852bdf8163f5def3731",
+      "translation": "마스크 생성: 이미지 폴더 하나, 마스크는 masks/ 폴더 안"
+    },
+    {
+      "table": "ui",
+      "key": "Measure: channel folders and merged/",
+      "source": "Measure: channel folders and merged/",
+      "source_sha256": "534850a2aed9c5fbae58b94cb5dee1d6d4d2a806c972d801b50f747eb72c584e",
+      "translation": "Measure 모듈: 채널 폴더와 merged/ 폴더"
+    },
+    {
+      "table": "ui",
+      "key": "Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.",
+      "source": "Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.",
+      "source_sha256": "2c3f9cffaf15dd2089765ef30745f5c4cf448ee3a91dc3c03079f298d3a885ac",
+      "translation": "Measure 모듈: 채널 폴더, 마스크, merged/*.npy 파일. 마스크 생성: Yokogawa 형식 이름의 이미지 폴더 하나(해당 src 폴더)이며, 마스크가 있으면 그 masks/ 폴더 안에 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Move the images?",
+      "source": "Move the images?",
+      "source_sha256": "8d2eebbaec46958d61281f0441f1768f88716bde67a7928ea7db8251a1b3a610",
+      "translation": "이미지를 이동할까요?"
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
+      "source_sha256": "fc838d9355ec2af3c18c5231fb7be51c9f6dc6a4f10fe094228ded56064cf29f",
+      "translation": "파일 {moved}개를 {dest} 폴더로 이동했습니다. 이 폴더는 {module} 모듈의 최근 원본 목록 맨 앞에 있습니다. 모든 이동은 {manifest} 파일에 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.",
+      "source_sha256": "90a374ff698e5cf60be627e4cc3a9f68e35d9d2b7bd5177a64288a58b9eb3bdc",
+      "translation": "파일 {moved}개를 {dest} 폴더로 이동했습니다. 이제 src 설정이 이 폴더를 읽습니다. 모든 이동은 {manifest} 파일에 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "No multi-channel images in the table.",
+      "source": "No multi-channel images in the table.",
+      "source_sha256": "d572ba91f3f836d23c07825744fd14f4e0cd25626bca058740caf4e65bddd0a8",
+      "translation": "표에 다중 채널 이미지가 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.",
+      "source": "Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.",
+      "source_sha256": "132ce9770564808ce1ba75ae92e9a7030b4fd18aa87e89ecca2b6a62244973f7",
+      "translation": "강도 이미지와 그 마스크를 마스크 생성 단계나 Measure 모듈이 읽는 구조로 정리합니다. 원본 폴더를 지정해 정규식으로 분류하거나, 아래 열에 파일과 폴더를 끌어 놓으세요. 각 열은 채널 또는 마스크이고 각 행은 시야 하나입니다. 적용하면 파일이 이동됩니다. 모든 이동은 매니페스트에 기록됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.",
+      "source": "Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.",
+      "source_sha256": "dfb852424706f7313c9192692067aaa032713c57157288e9e670fcf73a611615",
+      "translation": "이름이나 폴더 구성에 관계없이 강도 이미지를 마스크 생성 단계가 읽는 폴더로 정리합니다. 원본 폴더를 지정해 정규식으로 분류하거나, 아래 열에 파일과 폴더를 끌어 놓으세요. 각 열은 채널이고 각 행은 시야 하나입니다. 적용하면 이미지가 Yokogawa 형식 이름으로 폴더 하나에 이동되고 src 설정이 그 폴더로 지정됩니다. 모든 이동은 매니페스트에 기록됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Organize images",
+      "source": "Organize images",
+      "source_sha256": "a55d99296d25e1d7d976a397b999728caef852ebec51cda5b735761e9631c519",
+      "translation": "이미지 정리"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images and masks…",
+      "source": "Organize images and masks…",
+      "source_sha256": "0c03ff1bc6db945ba6f64c5a6a1548f3134df30f7c0aea12f7a4f21d7b74c33b",
+      "translation": "이미지와 마스크 정리…"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images…",
+      "source": "Organize images…",
+      "source_sha256": "cde83f08dcd35eece85b2664b81d26fa391521256883c2414007123376183982",
+      "translation": "이미지 정리…"
+    },
+    {
+      "table": "ui",
+      "key": "Organizing failed: {error}. Every move made before the failure is listed in the manifest.",
+      "source": "Organizing failed: {error}. Every move made before the failure is listed in the manifest.",
+      "source_sha256": "eb8e37179dd4602e324ee8e2a0ba7b6ba1ccc6dacb6056d6e6695d3a399858c9",
+      "translation": "정리 실패: {error}. 실패 전에 수행된 모든 이동은 매니페스트에 나열되어 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Split multi-channel files",
+      "source": "Split multi-channel files",
+      "source_sha256": "03845942dd51e2f591fe289c6a3a294c53f8dea1e3dae5c0fdb4be8452eb35da",
+      "translation": "다중 채널 파일 분할"
+    },
+    {
+      "table": "ui",
+      "key": "Split multi-channel files?",
+      "source": "Split multi-channel files?",
+      "source_sha256": "ce95c9b1a01786cd5ac2e42297aabf4bb4abd508061fe57b0027dee3f91e89c3",
+      "translation": "다중 채널 파일을 분할할까요?"
+    },
+    {
+      "table": "ui",
+      "key": "Split {n} multi-channel image(s) into {folder}.",
+      "source": "Split {n} multi-channel image(s) into {folder}.",
+      "source_sha256": "f4c7347aa330d23dc75eb853c486193fb33746d7b7f29ef68aa756b8b40e2915",
+      "translation": "다중 채널 이미지 {n}개를 {folder} 폴더로 분할했습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Write for",
+      "source": "Write for",
+      "source_sha256": "398187e60173d88a1152ce5b50e086bbd84886d2052cf0211bb42c79e04e99d6",
+      "translation": "기록 대상"
+    },
+    {
+      "table": "ui",
+      "key": "{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.",
+      "source": "{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.",
+      "source_sha256": "38bb959f366193b3cd85090bdd2542f6b2245eb9954485045ac33cc8bd0a7ffe",
+      "translation": "이미지 {n}개에 평면이 둘 이상 있습니다. 각 이미지를 채널마다 파일 하나로, 평면마다 채널 열 하나로 분할할까요? 원본은 건드리지 않습니다."
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_generator",
+      "source": "Counterfactual generator",
+      "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
+      "translation": "반사실적 생성기"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_generator",
+      "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+      "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
+      "translation": "반사실적 예시를 그리는 모델입니다. 'autoencoder' 모델은 빠르며 분류기의 판정을 뒤집도록 학습됩니다. 'diffusion' 모델은 각 클래스의 크롭을 그리도록만 학습되며, 부분적으로 노이즈가 추가된 크롭을 목표 클래스 조건으로 다시 그립니다. 따라서 판정 뒤집기는 이 모델의 최적화 목표가 아닙니다. 더 느리고 GPU 장치, 수천 개의 크롭, 수백 에포크가 필요하며, 크롭이 수백 개뿐이면 거의 편집하지 않습니다. 확산 가중치는 테이블 옆에 counterfactual_diffusion.pt 파일로 저장됩니다. counterfactuals 설정이 켜져 있을 때만 적용됩니다. 기본값 'autoencoder'."
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, fourteenth pass 2026-10-04: the runtime strings nightly added in item 639 (Organize images in Mask Generation, Organize images and masks in Import, multi-channel split), the counterfactual_generator setting and the rewritten figure-width help, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
+      "source": "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
+      "source_sha256": "3b65eb63a72986e126e1595a6220f9caf5381f498e6489cca94e2141df500b1c",
+      "translation": "किसी भी फ़ोल्डर संरचना या नामकरण वाली एकल- या बहु-चैनल तीव्रता छवियों को उस फ़ोल्डर में व्यवस्थित करें जिसे मास्क निर्माण पढ़ता है, और src को उस पर इंगित करें। यह वही पॉपअप है जो Make Masks में Measure के लिए व्यवस्थित करें है।"
+    },
+    {
+      "table": "ui",
+      "key": "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
+      "source": "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
+      "source_sha256": "98cd87c691ecdb5de6b8b2c2847f2d05d4edde5dbdcb607c937703bdc6c82371",
+      "translation": "तालिका की बहु-चैनल छवियों के हर चैनल को split_channels/ में उसकी अपनी फ़ाइल में कॉपी करें, हर प्लेन के लिए एक चैनल कॉलम; मूल फ़ाइलें नहीं बदली जातीं।"
+    },
+    {
+      "table": "ui",
+      "key": "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
+      "source": "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
+      "source_sha256": "321a391cf4dc3e20c90e6aaeb9262e2d42d1d7fa93b554c463276d04edde850e",
+      "translation": "तीव्रता छवियाँ और मास्क छोड़ें, चाहे उनका नाम या फ़ोल्डर कुछ भी हो, उनके चैनल और मास्क कॉलम निर्धारित करें, और उन्हें उस लेआउट में ले जाएँ जिसे मास्क निर्माण या Measure पढ़ता है। यह वही पॉपअप है जो Make Masks में Measure के लिए व्यवस्थित करें है।"
+    },
+    {
+      "table": "ui",
+      "key": "How wide each figure is drawn, which is also how tall: the tiles keep each figure's own proportions. Fewer, bigger figures per row to the right.",
+      "source": "How wide each figure is drawn, which is also how tall: the tiles keep each figure's own proportions. Fewer, bigger figures per row to the right.",
+      "source_sha256": "511f2eb889f82c507a43f9838bbac645c604aa9181a5e159d82618633d26fee4",
+      "translation": "हर आकृति कितनी चौड़ी बनाई जाती है, जो उसकी ऊँचाई भी है: टाइलें हर आकृति का अपना अनुपात बनाए रखती हैं। दाईं ओर हर पंक्ति में कम, बड़ी आकृतियाँ।"
+    },
+    {
+      "table": "ui",
+      "key": "Mask Generation: one folder of images, masks in masks/",
+      "source": "Mask Generation: one folder of images, masks in masks/",
+      "source_sha256": "0a15cc3c829b6082da0f14be3ff24dd387ec75bf7e926852bdf8163f5def3731",
+      "translation": "मास्क निर्माण: छवियों का एक फ़ोल्डर, मास्क masks/ में"
+    },
+    {
+      "table": "ui",
+      "key": "Measure: channel folders and merged/",
+      "source": "Measure: channel folders and merged/",
+      "source_sha256": "534850a2aed9c5fbae58b94cb5dee1d6d4d2a806c972d801b50f747eb72c584e",
+      "translation": "Measure: चैनल फ़ोल्डर और merged/"
+    },
+    {
+      "table": "ui",
+      "key": "Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.",
+      "source": "Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.",
+      "source_sha256": "2c3f9cffaf15dd2089765ef30745f5c4cf448ee3a91dc3c03079f298d3a885ac",
+      "translation": "Measure: चैनल फ़ोल्डर, मास्क और merged/*.npy। मास्क निर्माण: Yokogawa नाम वाली छवियों का एक फ़ोल्डर, उसका src, जिसमें कोई भी मास्क उसके masks/ फ़ोल्डर में हों।"
+    },
+    {
+      "table": "ui",
+      "key": "Move the images?",
+      "source": "Move the images?",
+      "source_sha256": "8d2eebbaec46958d61281f0441f1768f88716bde67a7928ea7db8251a1b3a610",
+      "translation": "छवियाँ स्थानांतरित करें?"
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
+      "source_sha256": "fc838d9355ec2af3c18c5231fb7be51c9f6dc6a4f10fe094228ded56064cf29f",
+      "translation": "{moved} फ़ाइल(ें) {dest} में स्थानांतरित; यह {module} के हाल के स्रोतों में पहले स्थान पर है। हर स्थानांतरण {manifest} में है।"
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.",
+      "source_sha256": "90a374ff698e5cf60be627e4cc3a9f68e35d9d2b7bd5177a64288a58b9eb3bdc",
+      "translation": "{moved} फ़ाइल(ें) {dest} में स्थानांतरित; src अब इसे पढ़ता है। हर स्थानांतरण {manifest} में है।"
+    },
+    {
+      "table": "ui",
+      "key": "No multi-channel images in the table.",
+      "source": "No multi-channel images in the table.",
+      "source_sha256": "d572ba91f3f836d23c07825744fd14f4e0cd25626bca058740caf4e65bddd0a8",
+      "translation": "तालिका में कोई बहु-चैनल छवि नहीं है।"
+    },
+    {
+      "table": "ui",
+      "key": "Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.",
+      "source": "Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.",
+      "source_sha256": "132ce9770564808ce1ba75ae92e9a7030b4fd18aa87e89ecca2b6a62244973f7",
+      "translation": "तीव्रता छवियों और उनके मास्क को उस लेआउट में व्यवस्थित करें जिसे मास्क निर्माण या Measure पढ़ता है। या तो एक स्रोत फ़ोल्डर दें और उसे regex से छाँटें, या नीचे के कॉलमों में फ़ाइलें और फ़ोल्डर छोड़ें: हर कॉलम एक चैनल या एक मास्क है, हर पंक्ति एक दृश्य क्षेत्र। लागू करने पर फ़ाइलें स्थानांतरित की जाती हैं; हर स्थानांतरण मैनिफ़ेस्ट में लिखा जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.",
+      "source": "Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.",
+      "source_sha256": "dfb852424706f7313c9192692067aaa032713c57157288e9e670fcf73a611615",
+      "translation": "तीव्रता छवियों को, चाहे उनका नाम या फ़ोल्डर कुछ भी हो, उस फ़ोल्डर में व्यवस्थित करें जिसे मास्क निर्माण पढ़ता है। या तो एक स्रोत फ़ोल्डर दें और उसे regex से छाँटें, या नीचे के कॉलमों में फ़ाइलें और फ़ोल्डर छोड़ें: हर कॉलम एक चैनल है, हर पंक्ति एक दृश्य क्षेत्र। लागू करने पर छवियाँ Yokogawa नामों के साथ एक फ़ोल्डर में स्थानांतरित की जाती हैं और src उस पर सेट किया जाता है; हर स्थानांतरण मैनिफ़ेस्ट में लिखा जाता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images",
+      "source": "Organize images",
+      "source_sha256": "a55d99296d25e1d7d976a397b999728caef852ebec51cda5b735761e9631c519",
+      "translation": "छवियाँ व्यवस्थित करें"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images and masks…",
+      "source": "Organize images and masks…",
+      "source_sha256": "0c03ff1bc6db945ba6f64c5a6a1548f3134df30f7c0aea12f7a4f21d7b74c33b",
+      "translation": "छवियाँ और मास्क व्यवस्थित करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images…",
+      "source": "Organize images…",
+      "source_sha256": "cde83f08dcd35eece85b2664b81d26fa391521256883c2414007123376183982",
+      "translation": "छवियाँ व्यवस्थित करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Organizing failed: {error}. Every move made before the failure is listed in the manifest.",
+      "source": "Organizing failed: {error}. Every move made before the failure is listed in the manifest.",
+      "source_sha256": "eb8e37179dd4602e324ee8e2a0ba7b6ba1ccc6dacb6056d6e6695d3a399858c9",
+      "translation": "व्यवस्थित करना विफल: {error}। विफलता से पहले किया गया हर स्थानांतरण मैनिफ़ेस्ट में सूचीबद्ध है।"
+    },
+    {
+      "table": "ui",
+      "key": "Split multi-channel files",
+      "source": "Split multi-channel files",
+      "source_sha256": "03845942dd51e2f591fe289c6a3a294c53f8dea1e3dae5c0fdb4be8452eb35da",
+      "translation": "बहु-चैनल फ़ाइलें विभाजित करें"
+    },
+    {
+      "table": "ui",
+      "key": "Split multi-channel files?",
+      "source": "Split multi-channel files?",
+      "source_sha256": "ce95c9b1a01786cd5ac2e42297aabf4bb4abd508061fe57b0027dee3f91e89c3",
+      "translation": "बहु-चैनल फ़ाइलें विभाजित करें?"
+    },
+    {
+      "table": "ui",
+      "key": "Split {n} multi-channel image(s) into {folder}.",
+      "source": "Split {n} multi-channel image(s) into {folder}.",
+      "source_sha256": "f4c7347aa330d23dc75eb853c486193fb33746d7b7f29ef68aa756b8b40e2915",
+      "translation": "{n} बहु-चैनल छवि(याँ) {folder} में विभाजित।"
+    },
+    {
+      "table": "ui",
+      "key": "Write for",
+      "source": "Write for",
+      "source_sha256": "398187e60173d88a1152ce5b50e086bbd84886d2052cf0211bb42c79e04e99d6",
+      "translation": "इसके लिए लिखें"
+    },
+    {
+      "table": "ui",
+      "key": "{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.",
+      "source": "{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.",
+      "source_sha256": "38bb959f366193b3cd85090bdd2542f6b2245eb9954485045ac33cc8bd0a7ffe",
+      "translation": "{n} छवि(यों) में एक से अधिक प्लेन हैं। हर एक को प्रति चैनल एक फ़ाइल में, प्रति प्लेन एक चैनल कॉलम के साथ विभाजित करें? मूल फ़ाइलें नहीं बदली जातीं।"
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_generator",
+      "source": "Counterfactual generator",
+      "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
+      "translation": "प्रतितथ्यात्मक जनरेटर"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_generator",
+      "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+      "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
+      "translation": "वह मॉडल जो प्रतितथ्यात्मक उदाहरण बनाता है। 'autoencoder' तेज़ है और क्लासिफ़ायर का निर्णय पलटने के लिए प्रशिक्षित है। 'diffusion' केवल हर वर्ग की छवि-कतरनें बनाने के लिए प्रशिक्षित है और आंशिक रूप से शोरयुक्त कतरन को लक्ष्य वर्ग के अंतर्गत फिर से बनाता है, इसलिए निर्णय पलटना वह लक्ष्य नहीं है जिसके लिए इसे अनुकूलित किया गया; यह धीमा है और इसे GPU, हज़ारों कतरनों और सैकड़ों epochs की आवश्यकता होती है; कुछ सौ कतरनों के साथ यह मुश्किल से कुछ बदलता है। डिफ़्यूज़न भार तालिकाओं के बगल में counterfactual_diffusion.pt के रूप में सहेजे जाते हैं। counterfactuals चालू होने पर ही लागू। डिफ़ॉल्ट 'autoencoder'।"
+    }
+  ]
+}

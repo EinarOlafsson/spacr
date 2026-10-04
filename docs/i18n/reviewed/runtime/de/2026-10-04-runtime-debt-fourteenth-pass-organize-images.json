@@ -1,0 +1,176 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, fourteenth pass 2026-10-04: the runtime strings nightly added in item 639 (Organize images in Mask Generation, Organize images and masks in Import, multi-channel split), the counterfactual_generator setting and the rewritten figure-width help, written and technically reviewed by AI against the English source and its code context. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
+      "source": "Arrange intensity images from any folder structure or naming, single- or multi-channel, into the folder Mask Generation reads, and point src at it. Same popup as Make Masks' Organize for Measure.",
+      "source_sha256": "3b65eb63a72986e126e1595a6220f9caf5381f498e6489cca94e2141df500b1c",
+      "translation": "Intensitätsbilder aus beliebiger Ordnerstruktur oder Benennung, ein- oder mehrkanalig, in den Ordner bringen, den die Maskenerstellung liest, und src darauf setzen. Dasselbe Popup wie in Make Masks unter Für Measure ordnen."
+    },
+    {
+      "table": "ui",
+      "key": "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
+      "source": "Copy each channel of the table's multi-channel images into its own file in split_channels/, one channel column per plane; the originals are not touched.",
+      "source_sha256": "98cd87c691ecdb5de6b8b2c2847f2d05d4edde5dbdcb607c937703bdc6c82371",
+      "translation": "Jeden Kanal der Mehrkanalbilder der Tabelle in eine eigene Datei in split_channels/ kopieren, eine Kanalspalte pro Ebene; die Originale bleiben unverändert."
+    },
+    {
+      "table": "ui",
+      "key": "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
+      "source": "Drop intensity images and masks, however they are named or foldered, assign their channel and mask columns, and move them into the layout Mask Generation or Measure reads. Same popup as Make Masks' Organize for Measure.",
+      "source_sha256": "321a391cf4dc3e20c90e6aaeb9262e2d42d1d7fa93b554c463276d04edde850e",
+      "translation": "Intensitätsbilder und Masken ablegen, wie auch immer sie benannt oder in Ordnern abgelegt sind, ihre Kanal- und Maskenspalten zuweisen und sie in die Struktur verschieben, die die Maskenerstellung oder Measure liest. Dasselbe Popup wie in Make Masks unter Für Measure ordnen."
+    },
+    {
+      "table": "ui",
+      "key": "How wide each figure is drawn, which is also how tall: the tiles keep each figure's own proportions. Fewer, bigger figures per row to the right.",
+      "source": "How wide each figure is drawn, which is also how tall: the tiles keep each figure's own proportions. Fewer, bigger figures per row to the right.",
+      "source_sha256": "511f2eb889f82c507a43f9838bbac645c604aa9181a5e159d82618633d26fee4",
+      "translation": "Wie breit jede Abbildung gezeichnet wird, was zugleich ihre Höhe ist: Die Kacheln behalten die eigenen Proportionen jeder Abbildung bei. Nach rechts weniger, größere Abbildungen pro Zeile."
+    },
+    {
+      "table": "ui",
+      "key": "Mask Generation: one folder of images, masks in masks/",
+      "source": "Mask Generation: one folder of images, masks in masks/",
+      "source_sha256": "0a15cc3c829b6082da0f14be3ff24dd387ec75bf7e926852bdf8163f5def3731",
+      "translation": "Maskenerstellung: ein Ordner mit Bildern, Masken in masks/"
+    },
+    {
+      "table": "ui",
+      "key": "Measure: channel folders and merged/",
+      "source": "Measure: channel folders and merged/",
+      "source_sha256": "534850a2aed9c5fbae58b94cb5dee1d6d4d2a806c972d801b50f747eb72c584e",
+      "translation": "Measure: Kanalordner und merged/"
+    },
+    {
+      "table": "ui",
+      "key": "Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.",
+      "source": "Measure: channel folders, the masks and merged/*.npy. Mask Generation: one folder of Yokogawa-named images, its src, with any masks in its masks/ folder.",
+      "source_sha256": "2c3f9cffaf15dd2089765ef30745f5c4cf448ee3a91dc3c03079f298d3a885ac",
+      "translation": "Measure: Kanalordner, die Masken und merged/*.npy. Maskenerstellung: ein Ordner mit Bildern in Yokogawa-Benennung, ihr src, mit allfälligen Masken in seinem Ordner masks/."
+    },
+    {
+      "table": "ui",
+      "key": "Move the images?",
+      "source": "Move the images?",
+      "source_sha256": "8d2eebbaec46958d61281f0441f1768f88716bde67a7928ea7db8251a1b3a610",
+      "translation": "Bilder verschieben?"
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s) into {dest}; it is first in {module}'s recent sources. Every move is in {manifest}.",
+      "source_sha256": "fc838d9355ec2af3c18c5231fb7be51c9f6dc6a4f10fe094228ded56064cf29f",
+      "translation": "{moved} Datei(en) nach {dest} verschoben; der Ordner steht an erster Stelle der zuletzt verwendeten Quellen von {module}. Jede Verschiebung steht in {manifest}."
+    },
+    {
+      "table": "ui",
+      "key": "Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.",
+      "source": "Moved {moved} file(s) into {dest}; src now reads it. Every move is in {manifest}.",
+      "source_sha256": "90a374ff698e5cf60be627e4cc3a9f68e35d9d2b7bd5177a64288a58b9eb3bdc",
+      "translation": "{moved} Datei(en) nach {dest} verschoben; src liest jetzt diesen Ordner. Jede Verschiebung steht in {manifest}."
+    },
+    {
+      "table": "ui",
+      "key": "No multi-channel images in the table.",
+      "source": "No multi-channel images in the table.",
+      "source_sha256": "d572ba91f3f836d23c07825744fd14f4e0cd25626bca058740caf4e65bddd0a8",
+      "translation": "Keine Mehrkanalbilder in der Tabelle."
+    },
+    {
+      "table": "ui",
+      "key": "Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.",
+      "source": "Organise intensity images and their masks into the layout Mask Generation or Measure reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel or a mask, each row one field. On Apply the files are MOVED; every move is written to a manifest.",
+      "source_sha256": "132ce9770564808ce1ba75ae92e9a7030b4fd18aa87e89ecca2b6a62244973f7",
+      "translation": "Intensitätsbilder und ihre Masken in die Struktur bringen, die die Maskenerstellung oder Measure liest. Geben Sie entweder einen Quellordner an und sortieren Sie ihn mit einer Regex, oder legen Sie Dateien und Ordner in den Spalten unten ab: Jede Spalte ist ein Kanal oder eine Maske, jede Zeile ein Feld. Bei Anwenden werden die Dateien VERSCHOBEN; jede Verschiebung wird in ein Manifest geschrieben."
+    },
+    {
+      "table": "ui",
+      "key": "Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.",
+      "source": "Organise intensity images, however they are named or foldered, into the folder Mask Generation reads. Either give a source folder and sort it with a regex, or drop files and folders into the columns below: each column is a channel, each row one field. On Apply the images are MOVED into one folder with Yokogawa names and src is set to it; every move is written to a manifest.",
+      "source_sha256": "dfb852424706f7313c9192692067aaa032713c57157288e9e670fcf73a611615",
+      "translation": "Intensitätsbilder, wie auch immer sie benannt oder in Ordnern abgelegt sind, in den Ordner bringen, den die Maskenerstellung liest. Geben Sie entweder einen Quellordner an und sortieren Sie ihn mit einer Regex, oder legen Sie Dateien und Ordner in den Spalten unten ab: Jede Spalte ist ein Kanal, jede Zeile ein Feld. Bei Anwenden werden die Bilder in einen Ordner mit Yokogawa-Namen VERSCHOBEN und src wird darauf gesetzt; jede Verschiebung wird in ein Manifest geschrieben."
+    },
+    {
+      "table": "ui",
+      "key": "Organize images",
+      "source": "Organize images",
+      "source_sha256": "a55d99296d25e1d7d976a397b999728caef852ebec51cda5b735761e9631c519",
+      "translation": "Bilder ordnen"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images and masks…",
+      "source": "Organize images and masks…",
+      "source_sha256": "0c03ff1bc6db945ba6f64c5a6a1548f3134df30f7c0aea12f7a4f21d7b74c33b",
+      "translation": "Bilder und Masken ordnen…"
+    },
+    {
+      "table": "ui",
+      "key": "Organize images…",
+      "source": "Organize images…",
+      "source_sha256": "cde83f08dcd35eece85b2664b81d26fa391521256883c2414007123376183982",
+      "translation": "Bilder ordnen…"
+    },
+    {
+      "table": "ui",
+      "key": "Organizing failed: {error}. Every move made before the failure is listed in the manifest.",
+      "source": "Organizing failed: {error}. Every move made before the failure is listed in the manifest.",
+      "source_sha256": "eb8e37179dd4602e324ee8e2a0ba7b6ba1ccc6dacb6056d6e6695d3a399858c9",
+      "translation": "Ordnen fehlgeschlagen: {error}. Jede vor dem Fehler ausgeführte Verschiebung ist im Manifest aufgeführt."
+    },
+    {
+      "table": "ui",
+      "key": "Split multi-channel files",
+      "source": "Split multi-channel files",
+      "source_sha256": "03845942dd51e2f591fe289c6a3a294c53f8dea1e3dae5c0fdb4be8452eb35da",
+      "translation": "Mehrkanaldateien aufteilen"
+    },
+    {
+      "table": "ui",
+      "key": "Split multi-channel files?",
+      "source": "Split multi-channel files?",
+      "source_sha256": "ce95c9b1a01786cd5ac2e42297aabf4bb4abd508061fe57b0027dee3f91e89c3",
+      "translation": "Mehrkanaldateien aufteilen?"
+    },
+    {
+      "table": "ui",
+      "key": "Split {n} multi-channel image(s) into {folder}.",
+      "source": "Split {n} multi-channel image(s) into {folder}.",
+      "source_sha256": "f4c7347aa330d23dc75eb853c486193fb33746d7b7f29ef68aa756b8b40e2915",
+      "translation": "{n} Mehrkanalbild(er) in {folder} aufgeteilt."
+    },
+    {
+      "table": "ui",
+      "key": "Write for",
+      "source": "Write for",
+      "source_sha256": "398187e60173d88a1152ce5b50e086bbd84886d2052cf0211bb42c79e04e99d6",
+      "translation": "Schreiben für"
+    },
+    {
+      "table": "ui",
+      "key": "{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.",
+      "source": "{n} image(s) hold more than one plane. Split each into one file per channel, one channel column per plane? The originals are not touched.",
+      "source_sha256": "38bb959f366193b3cd85090bdd2542f6b2245eb9954485045ac33cc8bd0a7ffe",
+      "translation": "{n} Bild(er) enthalten mehr als eine Ebene. Jedes in eine Datei pro Kanal aufteilen, eine Kanalspalte pro Ebene? Die Originale bleiben unverändert."
+    },
+    {
+      "table": "setting_labels",
+      "key": "counterfactual_generator",
+      "source": "Counterfactual generator",
+      "source_sha256": "a5d2f0189a49ece007c5ceac1de03810b27c91edffb54e02ce26aa8f1d96df19",
+      "translation": "Kontrafaktischer Generator"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "counterfactual_generator",
+      "source": "The model that draws the counterfactuals. 'autoencoder' is fast and trained to flip the classifier. 'diffusion' is trained only to draw crops of each class and redraws a partly noised crop under the target class, so a flip is not something it was optimised for; it is slower and needs a GPU, thousands of crops and hundreds of epochs; with a few hundred crops it barely edits. Diffusion weights are saved as counterfactual_diffusion.pt next to the tables. Ignored unless counterfactuals is on. Default 'autoencoder'.",
+      "source_sha256": "cc931e77b92c7cc2d17e64ac36a4f5b0612eda3f8a927e238e4aabe6730841d0",
+      "translation": "Das Modell, das die kontrafaktischen Beispiele zeichnet. 'autoencoder' ist schnell und darauf trainiert, die Entscheidung des Klassifikators umzukehren. 'diffusion' ist nur darauf trainiert, Bildausschnitte jeder Klasse zu zeichnen, und zeichnet einen teilweise verrauschten Bildausschnitt unter der Zielklasse neu, sodass eine Umkehr nicht das ist, worauf es optimiert wurde; es ist langsamer und braucht eine GPU, Tausende Bildausschnitte und Hunderte Epochen; mit einigen hundert Bildausschnitten verändert es kaum etwas. Die Diffusionsgewichte werden als counterfactual_diffusion.pt neben den Tabellen gespeichert. Wird ignoriert, wenn counterfactuals nicht aktiviert ist. Standard 'autoencoder'."
+    }
+  ]
+}
