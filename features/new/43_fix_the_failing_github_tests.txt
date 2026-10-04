@@ -2527,3 +2527,29 @@ counts and the 778->776 / 709->708 / 136->133 pins were rebound to the
 records 603423d0a retired, but the 2026-10-01/02 review batches are not yet
 classified by the test (older_sources 441 vs 305); translation lane.
 Qt shards were not rerun here.
+
+2026-10-04 (Claude, gh-green) -- tests.yml failures from run 37118685127 onward
+Fixed on nightly (product causes in the product, stale expectations cited to
+the intended commit): 603 hover delay honoured through new hover_now /
+flush_hover fixtures (d44bf7f57); AvailabilityPanel tolerates a deleted
+install handler (SystemError); merge_tables._read keeps stored column names
+(time_id); condition and well-label tables install sorting; Embeddings UMAP
+goes through spacr.utils (no TensorFlow); safe mode skips the early glyph
+font (qtawesome/qtpy pulled QtOpenGL); NumPy 2.5 fixes in detect_chain
+(clip before CLAHE), ComBat prior width, virtual-stain float32 and the GPU
+intensity table's percentile dtype; settings commit watcher tolerates
+non-QWidget editors; plugin catalogue settles its sort before reselecting;
+634 organism names in spacr.qt.i18n; ram_guard tooltip re-translated in
+nine locales; docstrings for 15 new callables; three Cellpose doubles,
+API manifest, alpha deck (470), instruction index and settings artefacts
+regenerated. Tests updated for 634/635/631/574/470/8d791272f/bfba7f77a.
+STILL RED (not external, needs its own lane): the coverage gate job
+"Coverage / every module at 90% and none loses coverage" -- 11 modules below
+the 90% floor (_lineage_measurements, derived_tables, original_filenames,
+qt/import_demo, qt/screens/__init__, qt/screens/graph_builder,
+qt/tooltip_policy, qt/widgets/calibration_preview, derived_table_source,
+fractal_space) and 57 modules with fewer covered lines than the 2026-09-15
+baseline (largest: run_journal +121 statements, deep_spacr +105, measure +85,
+core +91, report +83, plot +79, ome_zarr +74, make_masks +66, gate_editor
+widget +60). This is new code landed without tests since the baseline; it
+needs tests, not a raised ceiling.
