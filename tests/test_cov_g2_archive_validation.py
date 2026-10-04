@@ -136,3 +136,112 @@ def test_unparseable_wells_and_settings_are_skipped(tmp_path):
     (settings / "gen_mask_settings.csv").write_text("only\n1\n")
     (settings / "measure_crop_settings.csv").write_bytes(b"\xff\xfe\x00bad")
     assert rep._archive_settings(tmp_path) == {}
+
+
+@pytest.fixture
+def study(screen, tmp_path):  # noqa: F811
+    import shutil
+
+    second = tmp_path / "screen2"
+    shutil.copytree(screen, second)
+    pkg = rep._write_archive_study([screen, second], tmp_path / "study",
+                                   _form(screen))
+    assert rep._validate_archive_study(pkg) == []
+    return pkg
+
+
+def test_a_study_manifest_that_is_not_json_is_reported(study):
+    (study / "study_manifest.json").write_text("{broken")
+    assert "not readable JSON" in rep._validate_archive_study(study)[0]
+
+
+def test_a_study_without_its_study_file_is_reported(study):
+    next((study / "idr").glob("*-study.txt")).unlink()
+    assert any("study.txt is missing" in p
+               for p in rep._validate_archive_study(study))
+
+
+def test_a_study_whose_screen_blocks_disagree_is_reported(study):
+    path = next((study / "idr").glob("*-study.txt"))
+    text = path.read_text(encoding="utf-8")
+    text = text.replace("Study Screens Number\t2", "Study Screens Number\t3")
+    first = text.index("Comment[IDR Screen Name]")
+    end = text.index("\n", first)
+    text = text[:first] + "Comment[IDR Screen Name]\t" + text[end:]
+    path.write_text(text, encoding="utf-8")
+    problems = "\n".join(rep._validate_archive_study(study,
+                                                     verify_checksums=False))
+    assert "Study Screens Number" in problems
+    assert "empty or repeated" in problems
+
+
+def test_study_biostudies_damage_is_reported(study):
+    pagetab = next((study / "biostudies").glob("*.pagetab.tsv"))
+    file_list = study / "biostudies" / "file_list.tsv"
+    frame = pd.read_csv(file_list, sep="\t", dtype=str, keep_default_na=False)
+    pd.concat([frame, frame.iloc[[0]]]).to_csv(file_list, sep="\t", index=False)
+    assert "listed twice" in "\n".join(rep._validate_archive_study(
+        study, verify_checksums=False))
+    frame[frame["Screen"] == frame["Screen"].iloc[0]].to_csv(
+        file_list, sep="\t", index=False)
+    assert "not every screen" in "\n".join(rep._validate_archive_study(
+        study, verify_checksums=False))
+    frame.rename(columns={"Screen": "Group"}).to_csv(file_list, sep="\t",
+                                                     index=False)
+    assert "first columns are not" in "\n".join(rep._validate_archive_study(
+        study, verify_checksums=False))
+    pagetab.write_text("Notes\n", encoding="utf-8")
+    text = "\n".join(rep._validate_archive_study(study, verify_checksums=False))
+    assert "first block is not Submission" in text and "no '" in text
+    pagetab.unlink()
+    (study / "checksums.md5").unlink()
+    text = "\n".join(rep._validate_archive_study(study))
+    assert "pagetab.tsv is missing" in text and "checksums.md5 is missing" in text
+
+
+def test_zenodo_licences_and_empty_trees():
+    assert rep._zenodo_license("") == "cc-by-4.0"
+    assert rep._zenodo_license("CC0") == "cc0-1.0"
+    assert rep._zenodo_zip(Path("/never.zip"), []) is None
+    assert rep._zenodo_tree(Path("/no/such/folder"), "x") == []
+
+
+def test_zenodo_mask_folders_fall_back_to_masks(tmp_path):
+    (tmp_path / "masks").mkdir()
+    assert rep._zenodo_mask_dirs(tmp_path) == [tmp_path / "masks"]
+    assert rep._zenodo_mask_dirs(tmp_path / "none") == []
+
+
+def test_zenodo_staging_needs_a_folder(tmp_path):
+    with pytest.raises(ValueError, match="Not a folder"):
+        rep._zenodo_stage(tmp_path / "none", tmp_path / "out", {})
+
+
+def test_the_zenodo_token_moves_into_a_refusing_or_willing_keyring(monkeypatch):
+    from spacr import run_journal as rj
+
+    class _Ring:
+        def __init__(self, refuse):
+            self.refuse, self.values = refuse, {}
+
+        def set_password(self, service, name, value):
+            if self.refuse:
+                raise RuntimeError("locked")
+            self.values[name] = value
+
+        def get_password(self, service, name):
+            if self.refuse:
+                raise RuntimeError("locked")
+            return self.values.get(name)
+
+        def delete_password(self, service, name):
+            raise RuntimeError("absent")
+
+    monkeypatch.setattr(rj, "_notify_keyring", lambda: _Ring(refuse=True))
+    assert rep._store_zenodo_token("tok-1") == "file"
+    assert rep._load_zenodo_token() == "tok-1"
+    willing = _Ring(refuse=False)
+    monkeypatch.setattr(rj, "_notify_keyring", lambda: willing)
+    assert rep._store_zenodo_token("tok-2") == "keyring"
+    assert rep._load_zenodo_token() == "tok-2"
+    assert rep._store_zenodo_token("") == "forgotten"
