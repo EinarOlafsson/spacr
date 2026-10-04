@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: fr\n"
@@ -187,8 +187,8 @@ msgstr "**Le dock** : lorsqu’il est affiché, faites glisser son bord pour l�
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**La colonne de droite d’un module** (console, actions et autres panneaux) se redimensionne d’un bloc en faisant glisser son bord gauche. Maintenez **Ctrl** et faites défiler au-dessus pour agrandir ou réduire son texte ; **Ctrl+0** au-dessus de la colonne rétablit la taille par défaut."
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "Les **Infobulles** apparaissent après deux secondes d’immobilité du pointeur et restent affichées tant que le pointeur est dessus. Désactivez-les toutes avec **Préférences → Apparence → Infobulles**."
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "Les **Infobulles** apparaissent une fois que le pointeur est resté sur un contrôle pendant le **Délai des infobulles** défini dans **Préférences → Apparence** (2,0 s par défaut ; 0 les affiche immédiatement) et restent affichées tant que le pointeur s’y trouve. Le même délai s’applique à l’aide des paramètres, aux bandeaux d’indications et aux autres aides au survol. Désactivez-les avec **Afficher les infobulles** sur la même page."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Ces tailles sont mémorisées d’une session à l’autre."
@@ -225,6 +225,16 @@ msgstr "un paramètre propre à une morphologie est retiré pour un emplacement 
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "Les interrupteurs 3D et Temps déclarent les dimensions de la plaque. ``z_stack`` déclare un axe z et active les paramètres volumétriques -- mode de segmentation, anisotropie et taille des voxels -- et s’arrête avec une erreur plutôt que de deviner quel axe est z. ``timelapse`` déclare un axe temporel et fait apparaître le suivi ; une plaque à un seul instant l’ignore. Les paramètres 4D ne s’appliquent que lorsque les données sont à la fois une pile z et une série temporelle, et n’apparaissent qu’alors."
+
+msgid "Workers and free memory"
+msgstr "Processus de travail et mémoire libre"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "Avant qu’un module ne lance ses processus de travail, spaCR estime la mémoire dont chaque processus a besoin pour une entrée, par exemple un champ, un masque, un lot de recadrages ou une table. Si le ``n_jobs`` que vous avez défini laissait moins de 12,5 % de la RAM de l’ordinateur libre, une fenêtre contextuelle affiche l’estimation, la mémoire libre et le nombre de processus qui tiennent. Choisissez **Use N workers (recommended)** pour lancer avec ce nombre, ou conservez le vôtre ; Mesure met alors en pause les nouveaux champs chaque fois que la mémoire libre passe sous la réserve. **Libérer de la RAM en fermant des applications…** liste vos propres programmes les plus gourmands. Rien n’est coché au départ, et seuls les programmes que vous cochez sont invités à se fermer, après votre confirmation ; ils peuvent généralement enregistrer d’abord, mais le travail non enregistré qu’ils contiennent peut tout de même être perdu."
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Les exécutions lancées sans l’interface graphique abaissent ``n_jobs`` au nombre sûr et affichent un avertissement. Désactivez ``ram_guard`` dans **Avancé** pour conserver votre ``n_jobs`` inchangé ; Mesure attend toujours tant que la mémoire libre est sous la réserve."
 
 msgid "Maturity labels"
 msgstr "Niveaux de maturité"

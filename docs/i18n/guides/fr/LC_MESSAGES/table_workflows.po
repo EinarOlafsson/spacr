@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -209,6 +209,24 @@ msgstr "Dans Graph Builder, placez les colonnes du résultat sur **X**, **Y**, l
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "Lorsqu’un canal de Graph Builder est vidé, ou contient une colonne que le type de graphique choisi ne peut pas tracer, le canevas explique ce qui manque au lieu de dessiner un graphique. Par exemple, il vous demande de faire glisser une colonne sur **X** ou **Y**, indique qu’un histogramme nécessite une colonne continue, ou nomme une colonne que la table actuelle ne contient pas. Le type de graphique reste sélectionné, si bien que placer des colonnes adaptées trace de nouveau le graphique."
+
+msgid "Gate Editor in three dimensions"
+msgstr "Gate Editor en trois dimensions"
+
+msgid "Choose **3D** in Gate Editor and pick a third measurement for **Z**. Drag with the right mouse button to orbit the volume: the view keeps the angle you leave it at and does not snap back to an axis. The mouse wheel zooms about the pointer, and points outside the zoomed box are hidden."
+msgstr "Choisissez **3D** dans Gate Editor et sélectionnez une troisième mesure pour **Z**. Faites glisser avec le bouton droit de la souris pour faire orbiter le volume : la vue conserve l’angle où vous la laissez et ne revient pas sur un axe. La molette zoome autour du pointeur, et les points situés hors de la boîte agrandie sont masqués."
+
+msgid "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:"
+msgstr "En mode **Draw**, le menu des formes liste les régions de sélection que vous pouvez tracer en 3D :"
+
+msgid "**Polygon through view**: click the corners on screen, then click the first corner again or double-click to close the outline. The gate keeps every object whose position in the current view falls inside the outline, through the whole depth of the volume. **Lasso through view** and **Rectangle through view** select through the depth in the same way; drag to draw them."
+msgstr "**Polygon through view** : cliquez les sommets à l’écran, puis cliquez de nouveau sur le premier sommet ou double-cliquez pour fermer le contour. La région conserve chaque objet dont la position dans la vue actuelle se trouve à l’intérieur du contour, sur toute la profondeur du volume. **Lasso through view** et **Rectangle through view** sélectionnent à travers la profondeur de la même manière ; faites glisser pour les tracer."
+
+msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
+msgstr "**Ellipsoid with handles** et **Box with handles** : faites glisser un rectangle sur une population, et la forme est ajustée aux objets qu’il encadre. Tirez une poignée de face ou de rayon pour la redimensionner, ou faites glisser la poignée centrale pour la déplacer. Les régions tracées à travers la vue se déplacent aussi par leur poignée centrale."
+
+msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
+msgstr "Pendant que vous tracez ou ajustez une forme, les objets qu’elle contient sont mis en surbrillance. Double-cliquez sur le nom d’une région dans le tableau des régions pour la renommer ; les régions construites à partir d’elle suivent le nouveau nom. Les régions tracées en 3D sont enregistrées, chargées et exportées comme les régions 2D, avec les mêmes colonnes d’appartenance."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

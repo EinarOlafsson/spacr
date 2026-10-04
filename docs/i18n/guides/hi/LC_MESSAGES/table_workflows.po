@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -209,6 +209,24 @@ msgstr "Graph Builder में परिणाम स्तंभों को 
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "जब Graph Builder का कोई चैनल खाली कर दिया जाता है, या उसमें ऐसा कॉलम होता है जिसे चुना गया प्लॉट प्रकार नहीं बना सकता, तो कैनवास चार्ट बनाने के बजाय बताता है कि क्या कमी है। उदाहरण के लिए, वह आपसे किसी कॉलम को **X** या **Y** पर खींचने को कहता है, बताता है कि हिस्टोग्राम को सतत कॉलम चाहिए, या ऐसे कॉलम का नाम बताता है जो वर्तमान तालिका में नहीं है। प्लॉट प्रकार चुना रहता है, इसलिए उपयुक्त कॉलम रखने पर चार्ट फिर से बन जाता है।"
+
+msgid "Gate Editor in three dimensions"
+msgstr "तीन आयामों में Gate Editor"
+
+msgid "Choose **3D** in Gate Editor and pick a third measurement for **Z**. Drag with the right mouse button to orbit the volume: the view keeps the angle you leave it at and does not snap back to an axis. The mouse wheel zooms about the pointer, and points outside the zoomed box are hidden."
+msgstr "Gate Editor में **3D** चुनें और **Z** के लिए तीसरा माप चुनें। आयतन को घुमाने के लिए माउस के दाएँ बटन से खींचें: दृश्य उसी कोण पर रहता है जहाँ आप उसे छोड़ते हैं और किसी अक्ष पर वापस नहीं लौटता। माउस व्हील पॉइंटर के चारों ओर ज़ूम करता है, और ज़ूम किए गए बॉक्स के बाहर के बिंदु छिप जाते हैं।"
+
+msgid "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:"
+msgstr "**Draw** मोड में आकृति ड्रॉपडाउन उन गेट को सूचीबद्ध करता है जिन्हें आप 3D में बना सकते हैं:"
+
+msgid "**Polygon through view**: click the corners on screen, then click the first corner again or double-click to close the outline. The gate keeps every object whose position in the current view falls inside the outline, through the whole depth of the volume. **Lasso through view** and **Rectangle through view** select through the depth in the same way; drag to draw them."
+msgstr "**Polygon through view**: स्क्रीन पर कोनों पर क्लिक करें, फिर रूपरेखा बंद करने के लिए पहले कोने पर दोबारा क्लिक करें या डबल-क्लिक करें। गेट हर उस ऑब्जेक्ट को रखता है जिसकी वर्तमान दृश्य में स्थिति रूपरेखा के भीतर है, आयतन की पूरी गहराई में। **Lasso through view** और **Rectangle through view** भी इसी तरह गहराई के आर-पार चुनते हैं; उन्हें बनाने के लिए खींचें।"
+
+msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
+msgstr "**Ellipsoid with handles** और **Box with handles**: किसी समूह पर एक आयत खींचें, और आकृति उन ऑब्जेक्ट के अनुसार ढल जाती है जिन्हें वह घेरता है। आकार बदलने के लिए किसी फलक या त्रिज्या हैंडल को खींचें, या उसे खिसकाने के लिए केंद्र हैंडल खींचें। दृश्य के आर-पार बने गेट भी अपने केंद्र हैंडल से खिसकते हैं।"
+
+msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
+msgstr "जब आप कोई आकृति बनाते या समायोजित करते हैं, तो उसके भीतर के ऑब्जेक्ट हाइलाइट होते हैं। नाम बदलने के लिए गेट तालिका में गेट के नाम पर डबल-क्लिक करें; उससे बने गेट नया नाम अपनाते हैं। 3D में बने गेट 2D गेट की तरह, समान सदस्यता कॉलम के साथ, सहेजे, लोड और निर्यात किए जाते हैं।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

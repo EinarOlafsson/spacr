@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -24,8 +24,8 @@ msgid "Measure: preview checked images and verify mask planes"
 msgstr "Mæling: forskoða merktar myndir og sannreyna grímuplön"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
-msgstr "Opnaðu **Mæling** með vinnslumöppu eða ``merged``-möppunni í henni. Sýnin **Beint** hleður sjónsviði og sýnir myndskurði úr stilltri hlutagrímu þess. Notaðu **Stillingar myndskurðar…** til að velja hlut, grímuplön, myndrásir, skurðarstærð og síur áður en þú mælir alla tilraunina."
+msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "Opnaðu **Mæling** með vinnslumöppu eða ``merged``-möppunni í henni. Ef ``src`` vísar á eina af úttaksundirmöppum plötunnar, svo sem ``measurements`` eða ``masks``, les Mæling ``merged``-möppu þeirrar plötu og segir frá því í stjórnborðinu. Ef engin ``merged``-mappa er til að lesa ræsist Mæling ekki og skilaboðin nefna möppuna sem vantar og hvað eigi að stilla í staðinn. Sýnin **Beint** hleður sjónsviði og sýnir myndskurði úr stilltri hlutagrímu þess. Notaðu **Stillingar myndskurðar…** til að velja hlut, grímuplön, myndrásir, skurðarstærð og síur áður en þú mælir alla tilraunina."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

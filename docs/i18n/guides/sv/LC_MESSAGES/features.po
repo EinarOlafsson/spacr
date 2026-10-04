@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -187,8 +187,8 @@ msgstr "**Dockan**: medan den visas kan du dra i dess kant för att göra den br
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**En moduls högra kolumn** (konsol, åtgärder och de andra panelerna) ändrar storlek som en enhet när du drar i dess vänstra kant. Håll ned **Ctrl** och rulla över den för att göra texten större eller mindre; **Ctrl+0** över kolumnen återgår till standardstorleken."
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**Verktygstips** visas när pekaren har vilat i två sekunder och ligger kvar medan pekaren är på dem. Stäng av alla med **Inställningar → Utseende → Verktygstips**."
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "**Verktygstips** visas när pekaren har vilat på en kontroll under den **Fördröjning för knappbeskrivningar** som anges i **Inställningar → Utseende** (2,0 s som standard; 0 visar dem direkt) och ligger kvar medan pekaren är på dem. Samma fördröjning gäller för inställningshjälp, tipsremsor och annan hovringshjälp. Stäng av verktygstips med **Visa verktygstips** på samma sida."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Dessa storlekar sparas mellan sessionerna."
@@ -225,6 +225,16 @@ msgstr "en inställning som hör till en morfologi tas bort för en plats med en
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "Reglagen 3D och Tid anger vilka dimensioner plattan har. ``z_stack`` anger en z-axel och aktiverar volyminställningarna -- segmenteringsläge, anisotropi och voxelstorlek -- och stoppar med ett fel i stället för att gissa vilken axel som är z. ``timelapse`` anger en tidsaxel och visar spårningen; en platta med en enda tidpunkt ignorerar den. 4D-inställningarna gäller bara när data är både en z-stack och en tidsserie, och visas bara då."
+
+msgid "Workers and free memory"
+msgstr "Arbetsprocesser och ledigt minne"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "Innan en modul startar sina arbetsprocesser skattar spaCR hur mycket minne varje arbetsprocess behöver för en indataenhet, till exempel ett fält, en mask, en utsnittsbatch eller en tabell. Om det ``n_jobs`` du har angett skulle lämna mindre än 12,5 % av datorns RAM ledigt visar ett popupfönster skattningen, det lediga minnet och antalet arbetsprocesser som får plats. Välj **Use N workers (recommended)** för att köra med det antalet, eller behåll ditt eget antal; Mätning pausar då nya fält när det lediga minnet sjunker under reserven. **Frigör RAM genom att stänga program…** listar dina egna största program. Ingenting är markerat från början, och bara de program du markerar ombeds avsluta, efter att du har bekräftat; de kan oftast spara först, men osparat arbete i dem kan ändå gå förlorat."
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Körningar som startas utan GUI sänker ``n_jobs`` till det säkra antalet och skriver ut en varning. Stäng av ``ram_guard`` under **Avancerat** för att behålla ditt ``n_jobs`` oförändrat; Mätning väntar fortfarande medan det lediga minnet ligger under reserven."
 
 msgid "Maturity labels"
 msgstr "Mognadsnivåer"

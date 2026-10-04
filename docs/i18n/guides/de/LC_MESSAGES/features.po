@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: de\n"
@@ -187,8 +187,8 @@ msgstr "**Das Dock**: Solange es angezeigt wird, ziehen Sie an seinem Rand, um e
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**Die rechte Spalte eines Moduls** (Konsole, Aktionen und die übrigen Bereiche) ändert ihre Größe als Ganzes, wenn Sie ihren linken Rand ziehen. Halten Sie **Ctrl** gedrückt und scrollen Sie darüber, um den Text zu vergrößern oder zu verkleinern; **Ctrl+0** über der Spalte stellt die Standardgröße wieder her."
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**Kurzinfos** erscheinen, nachdem der Zeiger zwei Sekunden verweilt hat, und bleiben sichtbar, solange sich der Zeiger darauf befindet. Schalten Sie alle über **Einstellungen → Erscheinungsbild → Kurzinfos** aus."
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "**Kurzinfos** erscheinen, sobald der Zeiger für die unter **Einstellungen → Erscheinungsbild** festgelegte **Tooltip-Verzögerung** auf einem Steuerelement verweilt hat (standardmäßig 2,0 s; bei 0 erscheinen sie sofort), und bleiben sichtbar, solange der Zeiger darauf liegt. Dieselbe Verzögerung gilt für Einstellungshilfe, Hinweisleisten und andere Hover-Hilfen. Schalten Sie Kurzinfos auf derselben Seite mit **Kurzinfos anzeigen** aus."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Diese Größen werden zwischen Sitzungen gespeichert."
@@ -225,6 +225,16 @@ msgstr "eine Einstellung, die zu einer Morphologie gehört, entfällt für einen
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "Die Schalter 3D und Zeit geben an, welche Dimensionen die Platte hat. ``z_stack`` deklariert eine z-Achse und aktiviert die Volumeneinstellungen -- Segmentierungsmodus, Anisotropie und Voxelgröße -- und bricht mit einem Fehler ab, statt zu raten, welche Achse z ist. ``timelapse`` deklariert eine Zeitachse und blendet das Tracking ein; eine Platte mit nur einem Zeitpunkt ignoriert dies. Die 4D-Einstellungen gelten nur, wenn die Daten sowohl ein z-Stapel als auch eine Zeitreihe sind, und erscheinen nur dann."
+
+msgid "Workers and free memory"
+msgstr "Worker und freier Arbeitsspeicher"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "Bevor ein Modul seine Worker startet, schätzt spaCR, wie viel Speicher jeder Worker für eine Eingabe benötigt, etwa ein Bildfeld, eine Maske, einen Ausschnittstapel oder eine Tabelle. Würde das von Ihnen gesetzte ``n_jobs`` weniger als 12,5 % des Arbeitsspeichers des Computers frei lassen, zeigt ein Popup die Schätzung, den freien Speicher und die Anzahl der Worker, die hineinpassen. Wählen Sie **Use N workers (recommended)**, um mit dieser Anzahl zu arbeiten, oder behalten Sie Ihre eigene Anzahl; Messen pausiert dann neue Bildfelder, sobald der freie Speicher unter die Reserve fällt. **RAM durch Schließen von Anwendungen freigeben…** listet Ihre eigenen größten Programme auf. Anfangs ist nichts angehakt, und nur die Programme, die Sie anhaken, werden nach Ihrer Bestätigung zum Beenden aufgefordert; sie können meist vorher speichern, ungespeicherte Arbeit in ihnen kann aber dennoch verloren gehen."
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Ohne GUI gestartete Läufe senken ``n_jobs`` auf die sichere Anzahl und geben eine Warnung aus. Schalten Sie ``ram_guard`` unter **Erweitert** aus, um Ihr ``n_jobs`` unverändert zu lassen; Messen wartet weiterhin, solange der freie Speicher unter der Reserve liegt."
 
 msgid "Maturity labels"
 msgstr "Reifegrad-Kennzeichnungen"

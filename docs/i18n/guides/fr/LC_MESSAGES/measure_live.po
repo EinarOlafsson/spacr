@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -24,8 +24,8 @@ msgid "Measure: preview checked images and verify mask planes"
 msgstr "Mesure : prévisualiser les images cochées et vérifier les plans de masque"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
-msgstr "Ouvrez **Mesure** avec un dossier d’exécution ou son dossier ``merged``. La vue **Direct** charge un champ et montre des recadrages provenant du masque d’objets configuré. Utilisez **Paramètres de recadrage…** pour choisir l’objet, les plans de masque, les canaux d’image, la taille des recadrages et les filtres avant de mesurer toute l’expérience."
+msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "Ouvrez **Mesure** avec un dossier d’exécution ou son dossier ``merged``. Si ``src`` pointe vers l’un des sous-dossiers de sortie de la plaque, comme ``measurements`` ou ``masks``, Mesure lit le dossier ``merged`` de cette plaque et l’indique dans la console. S’il n’y a aucun dossier ``merged`` à lire, Mesure ne démarre pas et son message nomme le dossier manquant et ce qu’il faut indiquer à la place. La vue **Direct** charge un champ et montre des recadrages provenant du masque d’objets configuré. Utilisez **Paramètres de recadrage…** pour choisir l’objet, les plans de masque, les canaux d’image, la taille des recadrages et les filtres avant de mesurer toute l’expérience."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

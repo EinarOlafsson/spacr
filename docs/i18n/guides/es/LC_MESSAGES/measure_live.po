@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -24,8 +24,8 @@ msgid "Measure: preview checked images and verify mask planes"
 msgstr "Medición: previsualizar imágenes marcadas y verificar planos de máscara"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
-msgstr "Abra **Medición** con una carpeta de ejecución o su carpeta ``merged``. La vista **En vivo** carga un campo y muestra recortes de la máscara de objetos configurada. Use **Configuración del recorte…** para elegir el objeto, los planos de máscara, los canales de imagen, el tamaño del recorte y los filtros antes de medir todo el experimento."
+msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "Abra **Medición** con una carpeta de ejecución o su carpeta ``merged``. Si ``src`` apunta a una de las subcarpetas de salida de la placa, como ``measurements`` o ``masks``, Medición lee la carpeta ``merged`` de esa placa y lo indica en la consola. Si no hay ninguna carpeta ``merged`` que leer, Medición no se inicia y su mensaje nombra la carpeta que falta y qué indicar en su lugar. La vista **En vivo** carga un campo y muestra recortes de la máscara de objetos configurada. Use **Configuración del recorte…** para elegir el objeto, los planos de máscara, los canales de imagen, el tamaño del recorte y los filtros antes de medir todo el experimento."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

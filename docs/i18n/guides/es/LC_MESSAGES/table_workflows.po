@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -209,6 +209,24 @@ msgstr "En Graph Builder, coloque columnas del resultado en **X**, **Y**, color,
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "Cuando se vacía un canal de Graph Builder, o contiene una columna que el tipo de gráfico elegido no puede dibujar, el lienzo explica lo que falta en lugar de dibujar un gráfico. Por ejemplo, le pide que arrastre una columna a **X** o **Y**, indica que un histograma necesita una columna continua o nombra una columna que la tabla actual no contiene. El tipo de gráfico sigue seleccionado, de modo que al colocar columnas adecuadas el gráfico se vuelve a dibujar."
+
+msgid "Gate Editor in three dimensions"
+msgstr "Gate Editor en tres dimensiones"
+
+msgid "Choose **3D** in Gate Editor and pick a third measurement for **Z**. Drag with the right mouse button to orbit the volume: the view keeps the angle you leave it at and does not snap back to an axis. The mouse wheel zooms about the pointer, and points outside the zoomed box are hidden."
+msgstr "Elija **3D** en Gate Editor y seleccione una tercera medida para **Z**. Arrastre con el botón derecho del ratón para orbitar el volumen: la vista conserva el ángulo en que la deja y no vuelve a alinearse con un eje. La rueda del ratón hace zoom alrededor del puntero, y los puntos fuera de la caja ampliada se ocultan."
+
+msgid "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:"
+msgstr "En el modo **Draw**, el menú de formas enumera las compuertas que puede dibujar en 3D:"
+
+msgid "**Polygon through view**: click the corners on screen, then click the first corner again or double-click to close the outline. The gate keeps every object whose position in the current view falls inside the outline, through the whole depth of the volume. **Lasso through view** and **Rectangle through view** select through the depth in the same way; drag to draw them."
+msgstr "**Polygon through view**: haga clic en las esquinas en la pantalla y luego vuelva a hacer clic en la primera esquina o haga doble clic para cerrar el contorno. La compuerta conserva todos los objetos cuya posición en la vista actual queda dentro del contorno, a lo largo de toda la profundidad del volumen. **Lasso through view** y **Rectangle through view** seleccionan a través de la profundidad de la misma manera; arrastre para dibujarlos."
+
+msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
+msgstr "**Ellipsoid with handles** y **Box with handles**: arrastre un rectángulo sobre una población y la forma se ajusta a los objetos que encuadra. Tire de un tirador de cara o de radio para cambiar su tamaño, o arrastre el tirador central para moverla. Las compuertas dibujadas a través de la vista también se mueven con su tirador central."
+
+msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
+msgstr "Mientras dibuja o ajusta una forma, los objetos que contiene se resaltan. Haga doble clic en el nombre de una compuerta en la tabla de compuertas para cambiarle el nombre; las compuertas creadas a partir de ella adoptan el nuevo nombre. Las compuertas dibujadas en 3D se guardan, cargan y exportan como las de 2D, con las mismas columnas de pertenencia."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -24,8 +24,8 @@ msgid "Measure: preview checked images and verify mask planes"
 msgstr "मापन: चुने चित्रों का पूर्वावलोकन और मास्क प्लेन की जाँच"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
-msgstr "रन फ़ोल्डर या उसके ``merged`` फ़ोल्डर के साथ **मापन** खोलें। **लाइव** दृश्य एक दृश्य-क्षेत्र लोड करता है और उसके कॉन्फ़िगर किए ऑब्जेक्ट मास्क से क्रॉप दिखाता है। पूरा प्रयोग मापने से पहले ऑब्जेक्ट, मास्क प्लेन, चित्र चैनल, क्रॉप आकार और फ़िल्टर चुनने के लिए **इमेज क्रॉप सेटिंग्स…** उपयोग करें।"
+msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "रन फ़ोल्डर या उसके ``merged`` फ़ोल्डर के साथ **मापन** खोलें। यदि ``src`` प्लेट के किसी आउटपुट उप-फ़ोल्डर, जैसे ``measurements`` या ``masks``, की ओर इशारा करता है, तो मापन उस प्लेट का ``merged`` फ़ोल्डर पढ़ता है और कंसोल में यह बताता है। यदि पढ़ने के लिए कोई ``merged`` फ़ोल्डर नहीं है, तो मापन शुरू नहीं होता और उसका संदेश गायब फ़ोल्डर तथा उसके बजाय क्या सेट करना है, बताता है। **लाइव** दृश्य एक दृश्य-क्षेत्र लोड करता है और उसके कॉन्फ़िगर किए ऑब्जेक्ट मास्क से क्रॉप दिखाता है। पूरा प्रयोग मापने से पहले ऑब्जेक्ट, मास्क प्लेन, चित्र चैनल, क्रॉप आकार और फ़िल्टर चुनने के लिए **इमेज क्रॉप सेटिंग्स…** उपयोग करें।"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

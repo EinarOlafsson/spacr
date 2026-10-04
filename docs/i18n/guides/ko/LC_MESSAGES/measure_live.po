@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -24,8 +24,8 @@ msgid "Measure: preview checked images and verify mask planes"
 msgstr "측정: 선택한 이미지 미리보기와 마스크 평면 확인"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
-msgstr "실행 폴더 또는 그 안의 ``merged`` 폴더로 **측정**\\ 을 여세요. **실시간** 보기는 시야를 로드하고 설정된 객체 마스크에서 잘라낸 이미지를 표시합니다. 전체 실험을 측정하기 전에 **이미지 자르기 설정…**\\ 에서 객체, 마스크 평면, 이미지 채널, 잘라내기 크기 및 필터를 선택하세요."
+msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "실행 폴더 또는 그 안의 ``merged`` 폴더로 **측정**\\ 을 여세요. ``src`` 가 ``measurements`` 나 ``masks`` 처럼 플레이트의 출력 하위 폴더 중 하나를 가리키면, 측정은 그 플레이트의 ``merged`` 폴더를 읽고 콘솔에 그 사실을 알립니다. 읽을 ``merged`` 폴더가 없으면 측정이 시작되지 않으며, 메시지에 누락된 폴더와 대신 설정할 항목이 표시됩니다. **실시간** 보기는 시야를 로드하고 설정된 객체 마스크에서 잘라낸 이미지를 표시합니다. 전체 실험을 측정하기 전에 **이미지 자르기 설정…**\\ 에서 객체, 마스크 평면, 이미지 채널, 잘라내기 크기 및 필터를 선택하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

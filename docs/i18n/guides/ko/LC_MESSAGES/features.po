@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -187,8 +187,8 @@ msgstr "**도크**: 표시되어 있는 동안 가장자리를 끌어 너비를 
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**모듈의 오른쪽 열** (콘솔, 작업, 기타 패널)은 왼쪽 가장자리를 끌면 한꺼번에 크기가 조정됩니다. 그 위에서 **Ctrl** 을 누른 채 스크롤하면 텍스트가 커지거나 작아지며, 열 위에서 **Ctrl+0** 을 누르면 기본 크기로 돌아갑니다."
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**툴팁** 은 포인터가 2초 동안 머무르면 나타나고, 포인터가 그 위에 있는 동안 유지됩니다. **환경설정 → 모양 → 툴팁** 에서 모두 끌 수 있습니다."
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "**툴팁** 은 **환경설정 → 모양** 에서 설정한 **툴팁 지연** (기본값 2.0초, 0이면 즉시 표시) 동안 포인터가 컨트롤 위에 머물면 나타나며, 포인터가 그 위에 있는 동안 유지됩니다. 같은 지연이 설정 도움말, 힌트 띠, 기타 마우스오버 도움말에도 적용됩니다. 같은 페이지의 **툴팁 표시** 로 툴팁을 끌 수 있습니다."
 
 msgid "These sizes are remembered between sessions."
 msgstr "이 크기들은 세션 간에 기억됩니다."
@@ -225,6 +225,16 @@ msgstr "한 형태에 속한 설정은 다른 형태의 슬롯에서는 빠집�
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D 및 시간 스위치는 플레이트가 어떤 차원을 가지는지 선언합니다. ``z_stack`` 은 z축을 선언하고 볼륨 설정(분할 모드, 이방성, 복셀 크기)을 켜며, 어느 축이 z인지 추측하지 않고 오류와 함께 멈춥니다. ``timelapse`` 는 시간 축을 선언하고 추적 설정을 표시하며, 시점이 하나인 플레이트는 이를 무시합니다. 4D 설정은 데이터가 z 스택이면서 시계열일 때만 적용되고, 그때만 나타납니다."
+
+msgid "Workers and free memory"
+msgstr "작업자와 여유 메모리"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "모듈이 작업자를 시작하기 전에 spaCR은 시야, 마스크, 잘라낸 이미지 배치, 표와 같은 입력 하나에 작업자마다 필요한 메모리를 추정합니다. 설정한 ``n_jobs`` 로 인해 컴퓨터 RAM의 여유가 12.5% 미만이 된다면, 팝업에 추정값, 여유 메모리, 들어갈 수 있는 작업자 수가 표시됩니다. **Use N workers (recommended)** 를 선택해 그 수로 실행하거나 직접 정한 수를 유지합니다. 이때 측정은 여유 메모리가 예비량 아래로 떨어질 때마다 새 시야 처리를 일시 중지합니다. **애플리케이션을 닫아 RAM 확보…** 는 사용자 자신의 가장 큰 프로그램을 나열합니다. 처음에는 아무것도 선택되어 있지 않으며, 선택한 프로그램에만 확인 후 종료를 요청합니다. 대개 먼저 저장할 수 있지만 저장하지 않은 작업은 여전히 잃을 수 있습니다."
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "GUI 없이 시작한 실행은 ``n_jobs`` 를 안전한 수로 낮추고 경고를 출력합니다. **고급** 에서 ``ram_guard`` 를 끄면 ``n_jobs`` 가 그대로 유지되며, 측정은 여유 메모리가 예비량보다 적은 동안 여전히 기다립니다."
 
 msgid "Maturity labels"
 msgstr "성숙도 레이블"

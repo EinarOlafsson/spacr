@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -187,8 +187,8 @@ msgstr "**डॉक**: दिखाई देते समय इसकी क�
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**किसी मॉड्यूल का दायाँ स्तंभ** (कंसोल, क्रियाएँ और अन्य पैनल) अपनी बाईं किनारी खींचने पर एक इकाई के रूप में आकार बदलता है। पाठ बड़ा या छोटा करने के लिए **Ctrl** दबाए रखकर उस पर स्क्रॉल करें; स्तंभ पर **Ctrl+0** डिफ़ॉल्ट आकार पर लौटाता है।"
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**टूलटिप** सूचक के दो सेकंड रुकने के बाद दिखाई देते हैं और सूचक उन पर रहने तक बने रहते हैं। **प्राथमिकताएं → रूप-रंग → टूलटिप** से इन्हें पूरी तरह बंद करें।"
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "**टूलटिप** तब दिखते हैं जब पॉइंटर किसी नियंत्रण पर **प्राथमिकताएं → रूप-रंग** में सेट किए गए **टूलटिप विलंब** तक टिका रहता है (डिफ़ॉल्ट 2.0 s; 0 पर तुरंत दिखते हैं), और जब तक पॉइंटर उन पर रहता है तब तक बने रहते हैं। यही विलंब सेटिंग सहायता, संकेत पट्टियों और अन्य होवर सहायता पर भी लागू होता है। उसी पृष्ठ पर **टूलटिप दिखाएँ** से टूलटिप बंद करें।"
 
 msgid "These sizes are remembered between sessions."
 msgstr "ये आकार सत्रों के बीच याद रखे जाते हैं।"
@@ -225,6 +225,16 @@ msgstr "किसी एक आकृति की सेटिंग किस�
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D और समय स्विच घोषित करते हैं कि प्लेट के कौन-से आयाम हैं। ``z_stack`` z अक्ष घोषित करता है और आयतनात्मक सेटिंग्स -- विभाजन मोड, विषमदिशिकता और वॉक्सेल आकार -- सक्षम करता है, और यह अनुमान लगाने के बजाय कि कौन-सा अक्ष z है, त्रुटि के साथ रुक जाता है। ``timelapse`` समय अक्ष घोषित करता है और ट्रैकिंग दिखाता है; एकल-समय-बिंदु वाली प्लेट इसे अनदेखा करती है। 4D सेटिंग्स केवल तब लागू होती हैं जब डेटा z-स्टैक और समय-श्रृंखला दोनों हो, और केवल तभी दिखाई देती हैं।"
+
+msgid "Workers and free memory"
+msgstr "वर्कर और खाली मेमोरी"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "कोई मॉड्यूल अपने वर्कर शुरू करने से पहले spaCR अनुमान लगाता है कि हर वर्कर को एक इनपुट, जैसे एक फ़ील्ड, मास्क, क्रॉप बैच या तालिका, के लिए कितनी मेमोरी चाहिए। यदि आपका सेट किया ``n_jobs`` कंप्यूटर की RAM का 12.5% से कम खाली छोड़ेगा, तो एक पॉपअप अनुमान, खाली मेमोरी और फ़िट होने वाले वर्करों की संख्या दिखाता है। उस संख्या के साथ चलाने के लिए **Use N workers (recommended)** चुनें, या अपनी संख्या रखें; तब मापन नए फ़ील्ड को तब-तब रोक देता है जब खाली मेमोरी आरक्षित सीमा से नीचे जाती है। **एप्लिकेशन बंद करके RAM खाली करें…** आपके अपने सबसे बड़े प्रोग्राम सूचीबद्ध करता है। शुरू में कुछ भी चुना नहीं होता, और केवल आपके चुने प्रोग्रामों से ही, आपकी पुष्टि के बाद, बंद होने को कहा जाता है; वे आम तौर पर पहले सहेज सकते हैं, फिर भी उनमें बिना सहेजा काम खो सकता है।"
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "GUI के बिना शुरू किए गए रन ``n_jobs`` को सुरक्षित संख्या तक घटाते हैं और चेतावनी छापते हैं। अपना ``n_jobs`` अपरिवर्तित रखने के लिए **उन्नत** में ``ram_guard`` बंद करें; खाली मेमोरी आरक्षित सीमा से नीचे रहने तक मापन फिर भी प्रतीक्षा करता है।"
 
 msgid "Maturity labels"
 msgstr "परिपक्वता लेबल"

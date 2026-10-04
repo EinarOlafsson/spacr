@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -209,6 +209,24 @@ msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 �
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "Graph Builder 채널이 비워지거나 선택한 플롯 종류로 그릴 수 없는 열이 들어 있으면, 캔버스는 차트를 그리는 대신 무엇이 빠졌는지 설명합니다. 예를 들어 열을 **X** 또는 **Y** 로 끌어 놓으라고 요청하거나, 히스토그램에는 연속형 열이 필요하다고 알리거나, 현재 표에 없는 열 이름을 알려 줍니다. 플롯 종류는 선택된 채로 유지되므로 알맞은 열을 놓으면 차트가 다시 그려집니다."
+
+msgid "Gate Editor in three dimensions"
+msgstr "3차원 Gate Editor"
+
+msgid "Choose **3D** in Gate Editor and pick a third measurement for **Z**. Drag with the right mouse button to orbit the volume: the view keeps the angle you leave it at and does not snap back to an axis. The mouse wheel zooms about the pointer, and points outside the zoomed box are hidden."
+msgstr "Gate Editor에서 **3D** 를 선택하고 **Z** 에 사용할 세 번째 측정값을 고릅니다. 마우스 오른쪽 버튼으로 끌면 볼륨을 궤도 회전합니다. 보기는 놓아 둔 각도를 유지하며 축으로 되돌아가지 않습니다. 마우스 휠은 포인터를 중심으로 확대·축소하며, 확대된 상자 밖의 점은 숨겨집니다."
+
+msgid "In **Draw** mode, the shape dropdown lists the gates you can draw in 3D:"
+msgstr "**Draw** 모드에서는 모양 드롭다운에 3D로 그릴 수 있는 게이트가 나열됩니다."
+
+msgid "**Polygon through view**: click the corners on screen, then click the first corner again or double-click to close the outline. The gate keeps every object whose position in the current view falls inside the outline, through the whole depth of the volume. **Lasso through view** and **Rectangle through view** select through the depth in the same way; drag to draw them."
+msgstr "**Polygon through view** : 화면에서 꼭짓점을 클릭한 다음 첫 꼭짓점을 다시 클릭하거나 두 번 클릭해 윤곽을 닫습니다. 게이트는 현재 보기에서 위치가 윤곽 안에 있는 모든 객체를 볼륨의 전체 깊이에 걸쳐 유지합니다. **Lasso through view** 와 **Rectangle through view** 도 같은 방식으로 깊이 전체를 선택하며, 끌어서 그립니다."
+
+msgid "**Ellipsoid with handles** and **Box with handles**: drag a rectangle over a population and the shape is fitted to the objects it frames. Pull a face or radius handle to resize it, or drag the centre handle to move it. Gates drawn through the view also move by their centre handle."
+msgstr "**Ellipsoid with handles** 와 **Box with handles** : 집단 위로 사각형을 끌면 모양이 그 안의 객체에 맞춰집니다. 면 또는 반지름 핸들을 당겨 크기를 바꾸거나, 가운데 핸들을 끌어 이동합니다. 보기를 관통해 그린 게이트도 가운데 핸들로 이동합니다."
+
+msgid "While you draw or adjust a shape, the objects inside it are highlighted. Double-click a gate's name in the gate table to rename it; gates built from it follow the new name. Gates drawn in 3D are saved, loaded and exported like 2D gates, with the same membership columns."
+msgstr "모양을 그리거나 조정하는 동안 그 안의 객체가 강조 표시됩니다. 게이트 표에서 게이트 이름을 두 번 클릭하면 이름을 바꿀 수 있으며, 이를 바탕으로 만든 게이트도 새 이름을 따릅니다. 3D로 그린 게이트는 2D 게이트와 마찬가지로 같은 소속 열과 함께 저장, 로드, 내보내기됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The named definition is stored beside its database. For ``measurements.db``, the file is ``measurements.db.spacr-merges.json``. Refreshing or reopening the source makes the result available again and recalculates it from the source. This is a reproducible recipe, not a frozen copy of all result rows. Reuse checks the source path and selected tables' schemas. A different database or changed schema requires a newly reviewed mapping; definitions are not silently applied to unrelated sources."

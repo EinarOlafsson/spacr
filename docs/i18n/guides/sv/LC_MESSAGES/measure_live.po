@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -24,8 +24,8 @@ msgid "Measure: preview checked images and verify mask planes"
 msgstr "Mätning: förhandsgranska markerade bilder och kontrollera maskplan"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Open **Measure** with a run folder or its ``merged`` folder. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
-msgstr "Öppna **Mätning** med en körningsmapp eller dess ``merged``-mapp. Vyn **Live** läser in ett bildfält och visar utsnitt från dess konfigurerade objektmask. Använd **Beskärningsinställningar…** för att välja objekt, maskplan, bildkanaler, utsnittsstorlek och filter innan hela experimentet mäts."
+msgid "Open **Measure** with a run folder or its ``merged`` folder. If ``src`` points at one of the plate's output subfolders, such as ``measurements`` or ``masks``, Measure reads that plate's ``merged`` folder and says so in the console. If there is no ``merged`` folder to read, Measure does not start and its message names the missing folder and what to set instead. The **Live** view loads a field and shows crops from its configured object mask. Use **Crop settings…** to choose the object, mask planes, image channels, crop size and filters before measuring the whole experiment."
+msgstr "Öppna **Mätning** med en körningsmapp eller dess ``merged``-mapp. Om ``src`` pekar på en av plattans utdataundermappar, till exempel ``measurements`` eller ``masks``, läser Mätning plattans ``merged``-mapp och anger det i konsolen. Om det inte finns någon ``merged``-mapp att läsa startar Mätning inte, och meddelandet anger den saknade mappen och vad som ska anges i stället. Vyn **Live** läser in ett bildfält och visar utsnitt från dess konfigurerade objektmask. Använd **Beskärningsinställningar…** för att välja objekt, maskplan, bildkanaler, utsnittsstorlek och filter innan hela experimentet mäts."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Compare objects from several fields"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -187,8 +187,8 @@ msgstr "**Stikan**: á meðan hún er sýnd skaltu draga brún hennar til að ge
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**Hægri dálkur einingar** (stjórnborð, aðgerðir og hin spjöldin) breytir stærð sem ein heild þegar vinstri brún hans er dregin. Haltu inni **Ctrl** og skrunaðu yfir hann til að stækka eða minnka texta hans; **Ctrl+0** yfir dálkinum færir hann aftur í sjálfgefna stærð."
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**Skjábendingar** birtast eftir að bendillinn hefur hvílt í tvær sekúndur og haldast á meðan bendillinn er á þeim. Slökktu á þeim öllum með **Kjörstillingar → Útlit → Skjábendingar**."
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "**Skjábendingar** birtast þegar bendillinn hefur hvílt á stýringu í þá **Töf vísbendinga** sem stillt er í **Kjörstillingar → Útlit** (sjálfgefið 2,0 s; 0 sýnir þær strax) og haldast meðan bendillinn er á þeim. Sama töf gildir um hjálp við stillingar, ábendingaborða og aðra hjálp við yfirsveimun. Slökktu á skjábendingum með **Sýna skjábendingar** á sömu síðu."
 
 msgid "These sizes are remembered between sessions."
 msgstr "Þessar stærðir eru munaðar milli lota."
@@ -225,6 +225,16 @@ msgstr "stillingu sem tilheyrir einni formgerð er sleppt fyrir reit með aðra:
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "Rofarnir 3D og Tími gefa til kynna hvaða víddir platan hefur. ``z_stack`` lýsir yfir z-ás og virkjar rúmmálsstillingarnar -- hlutunarham, misáttun og rúmpixlastærð -- og stöðvast með villu frekar en að giska á hvaða ás er z. ``timelapse`` lýsir yfir tímaás og sýnir rakningu; plata með einum tímapunkti hunsar hann. 4D-stillingarnar eiga aðeins við þegar gögnin eru bæði z-stafli og tímaröð, og birtast aðeins þá."
+
+msgid "Workers and free memory"
+msgstr "Vinnsluferli og laust minni"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "Áður en eining ræsir vinnsluferli sín áætlar spaCR hve mikið minni hvert ferli þarf fyrir eitt inntak, svo sem sjónsvið, grímu, skurðarlotu eða töflu. Ef ``n_jobs`` sem þú stilltir myndi skilja eftir minna en 12,5% af vinnsluminni tölvunnar laust sýnir sprettigluggi áætlunina, lausa minnið og fjölda vinnsluferla sem komast fyrir. Veldu **Use N workers (recommended)** til að keyra með þeim fjölda, eða haltu þínum eigin; Mæling gerir þá hlé á nýjum sjónsviðum þegar laust minni fer undir varaforðann. **Losa RAM með því að loka forritum…** sýnir stærstu forritin þín. Ekkert er hakað í fyrstu og aðeins forrit sem þú hakar við eru beðin að loka, eftir að þú staðfestir; þau geta yfirleitt vistað fyrst, en óvistuð vinna í þeim getur samt glatast."
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "Keyrslur sem ræstar eru án myndræns viðmóts lækka ``n_jobs`` í örugga fjöldann og birta viðvörun. Slökktu á ``ram_guard`` í **Ítarlegt** til að halda ``n_jobs`` óbreyttu; Mæling bíður samt meðan laust minni er undir varaforðanum."
 
 msgid "Maturity labels"
 msgstr "Þroskamerkingar"

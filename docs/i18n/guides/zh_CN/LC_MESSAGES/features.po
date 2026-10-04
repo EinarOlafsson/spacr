@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-03 23:25-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -187,8 +187,8 @@ msgstr "**停靠栏**：显示时，拖动其边缘可使其变宽或变窄；�
 msgid "**A module's right-hand column** (console, actions and the other panels) resizes as one by dragging its left edge. Hold **Ctrl** and scroll over it to make its text larger or smaller; **Ctrl+0** over the column returns to the default size."
 msgstr "**模块的右侧列** （控制台、操作和其他面板）通过拖动其左边缘作为一个整体调整大小。按住 **Ctrl** 并在其上滚动可放大或缩小文字；在该列上按 **Ctrl+0** 可恢复默认大小。"
 
-msgid "**Tooltips** appear after the pointer rests for two seconds and stay while the pointer is on them. Turn them all off with **Preferences → Appearance → Tooltips**."
-msgstr "**工具提示** 在指针停留两秒后出现，并在指针位于其上时保持显示。可通过 **偏好 → 外观 → 工具提示** 将其全部关闭。"
+msgid "**Tooltips** appear once the pointer has rested on a control for the **Tooltip delay** set in **Preferences → Appearance** (2.0 s by default; 0 shows them at once) and stay while the pointer is on them. The same delay applies to setting help, hint strips and other hover help. Turn tooltips off with **Show tooltips** on the same page."
+msgstr "当指针在某个控件上停留达到 **偏好 → 外观** 中设置的 **工具提示延迟** （默认 2.0 秒；设为 0 则立即显示）后， **工具提示** 就会出现，并在指针停留其上时保持显示。同样的延迟也适用于设置帮助、提示条和其他悬停帮助。可在同一页面通过 **显示工具提示** 关闭工具提示。"
 
 msgid "These sizes are remembered between sessions."
 msgstr "这些尺寸会在会话之间被记住。"
@@ -225,6 +225,16 @@ msgstr "属于某种形态的设置不会出现在其他形态的槽位中：点
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D 和时间开关声明孔板具有哪些维度。``z_stack`` 声明存在 z 轴并启用体数据设置——分割模式、各向异性和体素大小——并且会以错误停止，而不是猜测哪个轴是 z。``timelapse`` 声明存在时间轴并显示跟踪设置；单时间点的孔板会忽略它。4D 设置仅在数据既是 z 栈又是时间序列时适用，也只在那时出现。"
+
+msgid "Workers and free memory"
+msgstr "工作进程与可用内存"
+
+#, python-format
+msgid "Before a module starts its workers, spaCR estimates how much memory each worker needs from one input, such as a field, mask, crop batch or table. If the ``n_jobs`` you set would leave less than 12.5% of the computer's RAM free, a popup shows the estimate, the free memory and the number of workers that fit. Choose **Use N workers (recommended)** to run with that number, or keep your own number; Measure then pauses new fields whenever free memory drops below the reserve. **Free RAM by closing applications…** lists your own largest programs. Nothing is ticked at first, and only the programs you tick are asked to quit, after you confirm; they can usually save first, but unsaved work in them may still be lost."
+msgstr "在模块启动其工作进程之前，spaCR 会估算每个工作进程处理一个输入（例如一个视野、一个掩膜、一批裁剪图或一张表）所需的内存。如果你设置的 ``n_jobs`` 会使计算机可用 RAM 低于 12.5%，弹出窗口会显示该估算值、可用内存以及可容纳的工作进程数。选择 **Use N workers (recommended)** 以该数量运行，或保留你自己的数量；此时只要可用内存低于预留值，测量就会暂停处理新的视野。 **关闭应用程序以释放 RAM…** 会列出你自己占用最大的程序。初始时不勾选任何程序，只有你勾选的程序会在你确认后被要求退出；它们通常可以先保存，但其中未保存的工作仍可能丢失。"
+
+msgid "Runs started without the GUI lower ``n_jobs`` to the safe number and print a warning. Turn ``ram_guard`` off in **Advanced** to keep your ``n_jobs`` unchanged; Measure still waits while free memory is below the reserve."
+msgstr "不通过图形界面启动的运行会将 ``n_jobs`` 降低到安全数量并输出警告。在 **高级** 中关闭 ``ram_guard`` 可保持你的 ``n_jobs`` 不变；当可用内存低于预留值时，测量仍会等待。"
 
 msgid "Maturity labels"
 msgstr "成熟度标签"
