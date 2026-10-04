@@ -590,6 +590,13 @@ def runtime_ui_name(name: str, language: str):
     exact = _exact_translation(name, language)
     if exact:
         return exact
+    if re.search(r"\bN\b", name):
+        # Guides write a counted button as "Use N workers (recommended)"; the
+        # app row is "Use {count} workers (recommended)". Show it with N.
+        template = _exact_translation(re.sub(r"\bN\b", "{count}", name, count=1),
+                                      language)
+        if template and template.count("{count}") == 1:
+            return template.replace("{count}", "N")
     for key, label in getattr(_english_catalog, "SETTING_LABELS", {}).items():
         if "." not in key and label == name:
             return setting_label(key, name, language)
@@ -726,13 +733,6 @@ def build_glossary(language: str, pot_dir: Path) -> dict[str, str]:
         # Exact catalog rows only: the composed/term fallbacks can splice
         # English and translated words, which is not a name the app shows.
         translated = runtime_ui_name(name, language)
-        if not translated and re.search(r"\bN\b", name):
-            # Guides write a counted button as "Use N workers"; the app row
-            # is "Use {count} workers". Show the app's wording with N.
-            templated = runtime_ui_name(re.sub(r"\bN\b", "{count}", name, count=1),
-                                        language)
-            if templated and "{count}" in templated:
-                translated = templated.replace("{count}", "N")
         if not translated or translated == name:
             continue
         record = snapshots.get(name)
