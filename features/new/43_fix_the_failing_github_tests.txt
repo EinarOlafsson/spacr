@@ -2553,3 +2553,15 @@ baseline (largest: run_journal +121 statements, deep_spacr +105, measure +85,
 core +91, report +83, plot +79, ome_zarr +74, make_masks +66, gate_editor
 widget +60). This is new code landed without tests since the baseline; it
 needs tests, not a raised ceiling.
+
+2026-10-04 later (Claude, gh-green) -- paused by the maintainer's re-prioritisation
+Last finished run 37186018951 (failure); 37195470436 still running on an older
+head. Fixed since and pushed: SAM2 TIFF via write_tiff, Timeflows no longer
+takes SAM2 parent links (03d7a7d42 bug), pandas-3 crop-join test, API pins
+13,176, help index/settings-flow regenerated. STILL RED: (1) coverage gate --
+11 modules under 90% and 57 below the 2026-09-15 baseline (needs tests);
+(2) Network: GitHub releases API 403 and the live SRA archive check
+(external); (3) runtime-i18n tests that failed on stale reviewed records
+(empty_flowchart_caption, reviewed_scientific_label_identities,
+reviewed_runtime_reporter) -- the i18n lane's ccbd26698 retired those records
+after the run started; unconfirmed on CI.
