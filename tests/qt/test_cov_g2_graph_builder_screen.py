@@ -117,3 +117,23 @@ def test_a_chart_is_not_saved_over_its_source(screen, tmp_path):
     screen._condition_source = {"path": str(source), "table": None}
     with pytest.raises(ValueError, match="new chart path"):
         screen.save_chart(source)
+
+
+def test_one_line_falls_back_when_the_traceback_is_blank(monkeypatch):
+    import traceback
+
+    monkeypatch.setattr(traceback, "format_exception_only",
+                        lambda kind, exc: ["\n", "  \n"])
+    assert gb._one_line(ValueError("")) == "ValueError"
+    assert gb._one_line(ValueError("why")) == "why"
+
+
+def test_cancelled_save_and_load_dialogs_change_nothing(screen, monkeypatch):
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        staticmethod(lambda *a, **k: ("", "")))
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *a, **k: ("", "")))
+    before = screen._source.text()
+    assert screen.choose_save_chart() is None
+    assert screen.choose_load_chart() is None
+    assert screen._source.text() == before
