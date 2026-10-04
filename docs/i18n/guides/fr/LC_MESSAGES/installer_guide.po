@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -149,6 +149,48 @@ msgstr "Supprimez l’environnement lui-même s’il a été créé uniquement p
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "La désinstallation ne supprime pas les projets de microscopie, les bases de données ni les résultats exportés. Les préférences utilisateur, les enregistrements d’exécution et les journaux sous ``~/.spacr`` sont aussi conservés afin de pouvoir être consultés ou réutilisés. Ne supprimez ce dossier séparément que si ces enregistrements ne sont plus nécessaires."
+
+msgid "Portable mode"
+msgstr "Mode portable"
+
+msgid "Portable mode keeps everything spaCR writes for a user next to the application instead of in the home folder: preferences, caches, logs, run records, model downloads, plugins and segmentation backends. Use it to run spaCR from a USB drive or an external disk, or on a shared computer where nothing should be left behind."
+msgstr "Le mode portable conserve tout ce que spaCR écrit pour un utilisateur à côté de l’application plutôt que dans le dossier personnel : préférences, caches, journaux, enregistrements d’exécution, modèles téléchargés, extensions et moteurs de segmentation. Utilisez-le pour exécuter spaCR depuis une clé USB ou un disque externe, ou sur un ordinateur partagé où rien ne doit rester."
+
+msgid "Turn it on in either of two ways:"
+msgstr "Activez-le de l’une de ces deux façons :"
+
+msgid "**Marker file.** Create an empty file named ``spacr-portable`` in the spaCR install folder, which is the folder that holds spaCR's Python environment. On Windows that is ``%LOCALAPPDATA%\\spaCR``; on macOS ``~/Library/Application Support/spaCR``; on Linux ``~/.local/share/spacr``. In a conda or virtual environment, the environment folder itself also works."
+msgstr "**Fichier marqueur.** Créez un fichier vide nommé ``spacr-portable`` dans le dossier d’installation de spaCR, c’est-à-dire le dossier qui contient l’environnement Python de spaCR. Sous Windows, c’est ``%LOCALAPPDATA%\\spaCR`` ; sous macOS, ``~/Library/Application Support/spaCR`` ; sous Linux, ``~/.local/share/spacr``. Dans un environnement conda ou virtuel, le dossier de l’environnement lui-même convient aussi."
+
+msgid "**Environment variable.** Set ``SPACR_PORTABLE=1`` to keep data next to the application, or ``SPACR_PORTABLE=/path/to/folder`` to choose the folder. ``SPACR_PORTABLE=0`` turns portable mode off even when a marker file exists."
+msgstr "**Variable d’environnement.** Définissez ``SPACR_PORTABLE=1`` pour conserver les données à côté de l’application, ou ``SPACR_PORTABLE=/path/to/folder`` pour choisir le dossier. ``SPACR_PORTABLE=0`` désactive le mode portable même lorsqu’un fichier marqueur existe."
+
+msgid "spaCR then keeps its data in a ``spacr-data`` folder beside the marker (or inside the chosen folder): ``settings`` holds the preferences as an INI file on every platform, so nothing is written to the Windows registry or the macOS preference files, and ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` and ``cache`` hold the rest. **Help → About spaCR** shows the folder in use while portable mode is on. Restart spaCR after creating or removing the marker."
+msgstr "spaCR conserve alors ses données dans un dossier ``spacr-data`` à côté du marqueur (ou dans le dossier choisi) : ``settings`` contient les préférences sous forme de fichier INI sur toutes les plateformes, si bien que rien n’est écrit dans le registre Windows ni dans les fichiers de préférences de macOS, et ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` et ``cache`` contiennent le reste. **Aide → À propos de spaCR** indique le dossier utilisé tant que le mode portable est actif. Redémarrez spaCR après avoir créé ou supprimé le marqueur."
+
+msgid "Portable mode is one switch for the folder variables that can also be set one at a time. It fills in any of them that are not already set, and a variable you set yourself always wins:"
+msgstr "Le mode portable est un interrupteur unique pour les variables de dossier qui peuvent aussi être définies une à une. Il renseigne celles qui ne le sont pas déjà, et une variable que vous définissez vous-même l’emporte toujours :"
+
+msgid "``SPACR_HOME``"
+msgstr "``SPACR_HOME``"
+
+msgid "Preferences, run records and every other per-user spaCR folder."
+msgstr "Préférences, enregistrements d’exécution et tous les autres dossiers spaCR propres à l’utilisateur."
+
+msgid "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+msgstr "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+
+msgid "Logs, segmentation backend environments and plugins."
+msgstr "Journaux, environnements des moteurs de segmentation et extensions."
+
+msgid "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+msgstr "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+
+msgid "Caches of example data, chained settings, PyTorch, Hugging Face, Matplotlib and Cellpose models."
+msgstr "Caches des données d’exemple, des paramètres chaînés et des modèles PyTorch, Hugging Face, Matplotlib et Cellpose."
+
+msgid "Existing data in ``~/.spacr`` is not moved. Copy it into ``spacr-data`` first to keep it."
+msgstr "Les données existantes dans ``~/.spacr`` ne sont pas déplacées. Copiez-les d’abord dans ``spacr-data`` pour les conserver."
 
 msgid "Offline installation"
 msgstr "Installation hors ligne"

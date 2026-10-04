@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "पाइपलाइन कोड द्वारा स्पष्ट रूप से संलग्न फ़ाइलें।"
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt``, रन द्वारा उपयोग किए गए Python वातावरण का ``pip freeze``, और जब spaCR किसी conda वातावरण में चलता है, तो ``conda-explicit.txt``, यानी ``conda list --explicit`` का आउटपुट। मैनिफ़ेस्ट ``environment_lock`` के अंतर्गत दोनों फ़ाइलों का नाम वातावरण के SHA-256 डाइजेस्ट के साथ दर्ज करता है। वातावरण को ``conda create --name rerun --file conda-explicit.txt`` और उसके बाद ``python -m pip install -r requirements-lock.txt`` से फिर से बनाएँ।"
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip और conda से हर वातावरण के लिए एक बार पूछा जाता है: सूचियाँ ``~/.spacr/env_locks/<digest>`` के अंतर्गत रखी जाती हैं और उसी डाइजेस्ट वाला हर बाद का रन उन्हें कॉपी करता है। किसी भी पैकेज को इंस्टॉल करने, हटाने या अपग्रेड करने से डाइजेस्ट बदल जाता है। यदि सूचियाँ लिखी नहीं जा सकतीं, तो रन जारी रहता है और कारण ``provenance_warnings`` के अंतर्गत सूचीबद्ध होता है।"
 
 msgid "File provenance"
 msgstr "फ़ाइल उद्गम"

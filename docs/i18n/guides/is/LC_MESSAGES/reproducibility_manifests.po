@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "Afurðir sem kóði vinnslukeðjunnar hengir sérstaklega við."
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt``, ``pip freeze`` af Python-umhverfinu sem keyrslan notaði, og, þegar spaCR keyrir í conda-umhverfi, ``conda-explicit.txt``, úttak ``conda list --explicit``. Manifest-skráin nefnir báðar skrárnar undir ``environment_lock`` ásamt SHA-256-tætigildi umhverfisins. Endurbyggðu umhverfið með ``conda create --name rerun --file conda-explicit.txt`` og síðan ``python -m pip install -r requirements-lock.txt``."
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip og conda eru spurð einu sinni fyrir hvert umhverfi: listarnir eru geymdir undir ``~/.spacr/env_locks/<digest>`` og hver síðari keyrsla með sama tætigildi afritar þá. Að setja upp, fjarlægja eða uppfæra pakka breytir tætigildinu. Ef ekki er hægt að skrifa listana heldur keyrslan áfram og ástæðan er skráð undir ``provenance_warnings``."
 
 msgid "File provenance"
 msgstr "Uppruni skráa"

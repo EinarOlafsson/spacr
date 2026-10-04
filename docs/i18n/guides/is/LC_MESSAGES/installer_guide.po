@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -149,6 +149,48 @@ msgstr "Fjarlægðu umhverfið sjálft ef það var eingöngu búið til fyrir s
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "Fjarlæging eyðir ekki smásjárverkefnum, gagnagrunnum eða útfluttum niðurstöðum. Kjörstillingar notanda, keyrsluskráningar og annálar undir ``~/.spacr`` eru einnig skilin eftir svo hægt sé að skoða þau eða endurnýta. Fjarlægðu þá möppu sérstaklega aðeins ef ekki er lengur þörf á þessum skráningum."
+
+msgid "Portable mode"
+msgstr "Færanlegur hamur"
+
+msgid "Portable mode keeps everything spaCR writes for a user next to the application instead of in the home folder: preferences, caches, logs, run records, model downloads, plugins and segmentation backends. Use it to run spaCR from a USB drive or an external disk, or on a shared computer where nothing should be left behind."
+msgstr "Færanlegur hamur geymir allt sem spaCR skrifar fyrir notanda við hlið forritsins í stað heimamöppunnar: kjörstillingar, skyndiminni, annála, keyrsluskrár, niðurhöluð líkön, viðbætur og bakenda fyrir hlutun. Notaðu hann til að keyra spaCR af USB-lykli eða ytri diski, eða á sameiginlegri tölvu þar sem ekkert á að verða eftir."
+
+msgid "Turn it on in either of two ways:"
+msgstr "Kveiktu á honum á annan af tveimur vegu:"
+
+msgid "**Marker file.** Create an empty file named ``spacr-portable`` in the spaCR install folder, which is the folder that holds spaCR's Python environment. On Windows that is ``%LOCALAPPDATA%\\spaCR``; on macOS ``~/Library/Application Support/spaCR``; on Linux ``~/.local/share/spacr``. In a conda or virtual environment, the environment folder itself also works."
+msgstr "**Merkiskrá.** Búðu til tóma skrá sem heitir ``spacr-portable`` í uppsetningarmöppu spaCR, sem er mappan sem geymir Python-umhverfi spaCR. Á Windows er það ``%LOCALAPPDATA%\\spaCR``; á macOS ``~/Library/Application Support/spaCR``; á Linux ``~/.local/share/spacr``. Í conda- eða sýndarumhverfi virkar umhverfismappan sjálf líka."
+
+msgid "**Environment variable.** Set ``SPACR_PORTABLE=1`` to keep data next to the application, or ``SPACR_PORTABLE=/path/to/folder`` to choose the folder. ``SPACR_PORTABLE=0`` turns portable mode off even when a marker file exists."
+msgstr "**Umhverfisbreyta.** Stilltu ``SPACR_PORTABLE=1`` til að geyma gögn við hlið forritsins, eða ``SPACR_PORTABLE=/path/to/folder`` til að velja möppuna. ``SPACR_PORTABLE=0`` slekkur á færanlegum ham jafnvel þótt merkiskrá sé til."
+
+msgid "spaCR then keeps its data in a ``spacr-data`` folder beside the marker (or inside the chosen folder): ``settings`` holds the preferences as an INI file on every platform, so nothing is written to the Windows registry or the macOS preference files, and ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` and ``cache`` hold the rest. **Help → About spaCR** shows the folder in use while portable mode is on. Restart spaCR after creating or removing the marker."
+msgstr "spaCR geymir þá gögn sín í möppunni ``spacr-data`` við hlið merkisins (eða í valinni möppu): ``settings`` geymir kjörstillingarnar sem INI-skrá á öllum stýrikerfum, svo ekkert er skrifað í Windows-skrásetninguna eða kjörstillingaskrár macOS, og ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` og ``cache`` geyma afganginn. **Hjálp → Um spaCR** sýnir möppuna sem er í notkun meðan færanlegur hamur er á. Endurræstu spaCR eftir að hafa búið til eða fjarlægt merkið."
+
+msgid "Portable mode is one switch for the folder variables that can also be set one at a time. It fills in any of them that are not already set, and a variable you set yourself always wins:"
+msgstr "Færanlegur hamur er einn rofi fyrir möppubreyturnar sem einnig má stilla hverja fyrir sig. Hann fyllir út þær sem ekki eru þegar stilltar, og breyta sem þú stillir sjálf/ur ræður alltaf:"
+
+msgid "``SPACR_HOME``"
+msgstr "``SPACR_HOME``"
+
+msgid "Preferences, run records and every other per-user spaCR folder."
+msgstr "Kjörstillingar, keyrsluskrár og allar aðrar spaCR-möppur hvers notanda."
+
+msgid "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+msgstr "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+
+msgid "Logs, segmentation backend environments and plugins."
+msgstr "Annálar, umhverfi bakenda fyrir hlutun og viðbætur."
+
+msgid "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+msgstr "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+
+msgid "Caches of example data, chained settings, PyTorch, Hugging Face, Matplotlib and Cellpose models."
+msgstr "Skyndiminni fyrir sýnigögn, keðjaðar stillingar og líkön fyrir PyTorch, Hugging Face, Matplotlib og Cellpose."
+
+msgid "Existing data in ``~/.spacr`` is not moved. Copy it into ``spacr-data`` first to keep it."
+msgstr "Fyrirliggjandi gögn í ``~/.spacr`` eru ekki flutt. Afritaðu þau fyrst í ``spacr-data`` til að halda þeim."
 
 msgid "Offline installation"
 msgstr "Uppsetning án nettengingar"

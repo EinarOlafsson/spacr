@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.18.0\n"
 
 msgid "Installer guide"
 msgstr "설치 안내서"
@@ -149,6 +149,48 @@ msgstr "spaCR만을 위해 만든 환경이면 환경 자체도 제거합니다.
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "제거해도 현미경 프로젝트, 데이터베이스, 내보낸 결과는 삭제되지 않습니다. ``~/.spacr`` 아래의 사용자 환경설정, 실행 기록, 로그도 검사하거나 재사용할 수 있도록 남겨 둡니다. 이 기록이 더 이상 필요 없을 때만 해당 디렉터리를 따로 제거합니다."
+
+msgid "Portable mode"
+msgstr "포터블 모드"
+
+msgid "Portable mode keeps everything spaCR writes for a user next to the application instead of in the home folder: preferences, caches, logs, run records, model downloads, plugins and segmentation backends. Use it to run spaCR from a USB drive or an external disk, or on a shared computer where nothing should be left behind."
+msgstr "포터블 모드는 spaCR이 사용자별로 쓰는 모든 것을 홈 폴더가 아니라 애플리케이션 옆에 보관합니다. 환경설정, 캐시, 로그, 실행 기록, 모델 다운로드, 플러그인, 분할 백엔드가 여기에 해당합니다. USB 드라이브나 외장 디스크에서 spaCR을 실행하거나, 아무것도 남기면 안 되는 공용 컴퓨터에서 사용할 때 쓰십시오."
+
+msgid "Turn it on in either of two ways:"
+msgstr "다음 두 가지 방법 중 하나로 켭니다."
+
+msgid "**Marker file.** Create an empty file named ``spacr-portable`` in the spaCR install folder, which is the folder that holds spaCR's Python environment. On Windows that is ``%LOCALAPPDATA%\\spaCR``; on macOS ``~/Library/Application Support/spaCR``; on Linux ``~/.local/share/spacr``. In a conda or virtual environment, the environment folder itself also works."
+msgstr "**마커 파일.** spaCR 설치 폴더, 즉 spaCR의 Python 환경이 들어 있는 폴더에 ``spacr-portable`` 이라는 빈 파일을 만듭니다. Windows에서는 ``%LOCALAPPDATA%\\spaCR``, macOS에서는 ``~/Library/Application Support/spaCR``, Linux에서는 ``~/.local/share/spacr`` 입니다. conda 또는 가상 환경에서는 환경 폴더 자체도 사용할 수 있습니다."
+
+msgid "**Environment variable.** Set ``SPACR_PORTABLE=1`` to keep data next to the application, or ``SPACR_PORTABLE=/path/to/folder`` to choose the folder. ``SPACR_PORTABLE=0`` turns portable mode off even when a marker file exists."
+msgstr "**환경 변수.** 데이터를 애플리케이션 옆에 두려면 ``SPACR_PORTABLE=1`` 을, 폴더를 직접 고르려면 ``SPACR_PORTABLE=/path/to/folder`` 를 설정합니다. ``SPACR_PORTABLE=0`` 은 마커 파일이 있어도 포터블 모드를 끕니다."
+
+msgid "spaCR then keeps its data in a ``spacr-data`` folder beside the marker (or inside the chosen folder): ``settings`` holds the preferences as an INI file on every platform, so nothing is written to the Windows registry or the macOS preference files, and ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` and ``cache`` hold the rest. **Help → About spaCR** shows the folder in use while portable mode is on. Restart spaCR after creating or removing the marker."
+msgstr "그러면 spaCR은 마커 옆(또는 선택한 폴더 안)의 ``spacr-data`` 폴더에 데이터를 보관합니다. ``settings`` 는 모든 플랫폼에서 환경설정을 INI 파일로 보관하므로 Windows 레지스트리나 macOS 환경설정 파일에는 아무것도 쓰지 않으며, 나머지는 ``logs``, ``runs``, ``backends``, ``plugins``, ``models``, ``cache`` 에 보관됩니다. 포터블 모드가 켜져 있는 동안 **도움말 → spaCR 정보** 에서 사용 중인 폴더를 볼 수 있습니다. 마커를 만들거나 지운 뒤에는 spaCR을 다시 시작하십시오."
+
+msgid "Portable mode is one switch for the folder variables that can also be set one at a time. It fills in any of them that are not already set, and a variable you set yourself always wins:"
+msgstr "포터블 모드는 하나씩 설정할 수도 있는 폴더 변수들을 한꺼번에 켜는 스위치입니다. 아직 설정되지 않은 변수만 채우며, 사용자가 직접 설정한 변수가 항상 우선합니다."
+
+msgid "``SPACR_HOME``"
+msgstr "``SPACR_HOME``"
+
+msgid "Preferences, run records and every other per-user spaCR folder."
+msgstr "환경설정, 실행 기록 및 기타 모든 사용자별 spaCR 폴더."
+
+msgid "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+msgstr "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+
+msgid "Logs, segmentation backend environments and plugins."
+msgstr "로그, 분할 백엔드 환경, 플러그인."
+
+msgid "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+msgstr "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+
+msgid "Caches of example data, chained settings, PyTorch, Hugging Face, Matplotlib and Cellpose models."
+msgstr "예제 데이터, 연결된 설정, PyTorch, Hugging Face, Matplotlib, Cellpose 모델의 캐시."
+
+msgid "Existing data in ``~/.spacr`` is not moved. Copy it into ``spacr-data`` first to keep it."
+msgstr "``~/.spacr`` 에 있는 기존 데이터는 옮겨지지 않습니다. 유지하려면 먼저 ``spacr-data`` 로 복사하십시오."
 
 msgid "Offline installation"
 msgstr "오프라인 설치"

@@ -6,6 +6,7 @@
  "terms": {
   "3D Calibration (Beta)": "3D 보정 (베타)",
   "A threshold algorithm's level": "임계값 알고리즘의 수준",
+  "About spaCR": "spaCR 정보",
   "Absolute intensity": "절대 강도",
   "Actions": "작업",
   "Add a filter": "필터 추가",
@@ -194,6 +195,7 @@
   "Model Compare": "모델 비교",
   "Model Zoo": "모델 라이브러리",
   "Model zoo…": "모델 라이브러리…",
+  "Modules": "모듈",
   "Motility Assay": "운동성 분석",
   "New table name (existing tables are preserved)": "새 테이블 이름 (기존 테이블은 보존됩니다)",
   "Next image": "다음 이미지",

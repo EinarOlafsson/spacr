@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: fr\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "Les artefacts explicitement joints par le code du pipeline."
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt``, un ``pip freeze`` de l’environnement Python utilisé par l’exécution, et, lorsque spaCR s’exécute dans un environnement conda, ``conda-explicit.txt``, la sortie de ``conda list --explicit``. Le manifeste cite les deux fichiers sous ``environment_lock`` avec une empreinte SHA-256 de l’environnement. Reconstruisez l’environnement avec ``conda create --name rerun --file conda-explicit.txt`` puis ``python -m pip install -r requirements-lock.txt``."
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip et conda ne sont interrogés qu’une fois par environnement : les listes sont conservées sous ``~/.spacr/env_locks/<digest>`` et chaque exécution ultérieure avec la même empreinte les copie. Installer, supprimer ou mettre à jour un paquet change l’empreinte. Si les listes ne peuvent pas être écrites, l’exécution continue et la raison est indiquée sous ``provenance_warnings``."
 
 msgid "File provenance"
 msgstr "Provenance des fichiers"

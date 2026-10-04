@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: de\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "Artefakte, die vom Pipeline-Code explizit angehängt wurden."
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt``, ein ``pip freeze`` der vom Lauf verwendeten Python-Umgebung, und, wenn spaCR in einer conda-Umgebung läuft, ``conda-explicit.txt``, die Ausgabe von ``conda list --explicit``. Das Manifest nennt beide Dateien unter ``environment_lock`` zusammen mit einem SHA-256-Digest der Umgebung. Bauen Sie die Umgebung mit ``conda create --name rerun --file conda-explicit.txt`` und anschließend ``python -m pip install -r requirements-lock.txt`` neu auf."
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip und conda werden einmal pro Umgebung abgefragt: Die Listen werden unter ``~/.spacr/env_locks/<digest>`` abgelegt, und jeder spätere Lauf mit demselben Digest kopiert sie. Das Installieren, Entfernen oder Aktualisieren eines Pakets ändert den Digest. Können die Listen nicht geschrieben werden, läuft der Lauf weiter, und der Grund wird unter ``provenance_warnings`` aufgeführt."
 
 msgid "File provenance"
 msgstr "Dateiprovenienz"

@@ -6,6 +6,7 @@
  "terms": {
   "3D Calibration (Beta)": "3D-kalibrering (beta)",
   "A threshold algorithm's level": "Nivå från en tröskelalgoritm",
+  "About spaCR": "Om spaCR",
   "Absolute intensity": "Absolut intensitet",
   "Actions": "Åtgärder",
   "Add a filter": "Lägg till ett filter",
@@ -192,6 +193,7 @@
   "Model Compare": "Modelljämförelse",
   "Model Zoo": "Modellbibliotek",
   "Model zoo…": "Modellbibliotek…",
+  "Modules": "Moduler",
   "Motility Assay": "Motilitetsanalys",
   "New table name (existing tables are preserved)": "Nytt tabellnamn (befintliga tabeller bevaras)",
   "Next image": "Nästa bild",

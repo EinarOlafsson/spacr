@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 23:25-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -174,6 +174,15 @@ msgstr "Cellpose-verkstad, Maskera hela mappen, Modelljämförelse, Modellbiblio
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "Parametersvep nås på ett tredje sätt: det är en panel på skärmen Regression som öppnas med reglaget **Parametergenomsökning** i dess inställningsformulär."
+
+msgid "Picking up where you left off"
+msgstr "Fortsätta där du slutade"
+
+msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
+msgstr "**Sessionsåterställning**: varje vanlig start öppnar igen den modul som visades när spaCR senast stängdes eller kraschade, med dess inställningar och indatamapp. Ingen körning startas. Medan statusfältet anger vad som öppnades igen återställer dess knapp **Open fresh** modulens standardinställningar och går till Hem; ``spacr-qt --fresh`` hoppar över återställningen för en start. Stäng av den i **Inställningar → Moduler → Session** (på som standard). En modul som anges på kommandoraden, eller en post från Force restart, har företräde."
+
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**Automatisk sparning av inställningar**: var 30:e sekund sparas de osparade inställningarna för varje öppen modul som ett utkast i inställningslagret; ingenting skrivs när ingenting har ändrats. En ren avslutning tar bort utkasten. Om spaCR avslutades utan att stängas frågar nästa start en gång om de ska återställas (utkast som är identiska med den återöppnade sessionen frågas det inte om). Samma beteende gäller på Linux, macOS och Windows, eftersom lagret är Qt:s eget inställningslager."
 
 msgid "Arranging the window"
 msgstr "Ordna fönstret"

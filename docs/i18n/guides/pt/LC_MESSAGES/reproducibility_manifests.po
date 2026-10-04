@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: pt\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "Artefatos anexados explicitamente pelo código do pipeline."
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt``, um ``pip freeze`` do ambiente Python usado pela execução, e, quando o spaCR roda dentro de um ambiente conda, ``conda-explicit.txt``, a saída de ``conda list --explicit``. O manifesto nomeia os dois arquivos em ``environment_lock`` junto com um resumo SHA-256 do ambiente. Reconstrua o ambiente com ``conda create --name rerun --file conda-explicit.txt`` seguido de ``python -m pip install -r requirements-lock.txt``."
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip e conda são consultados uma vez por ambiente: as listas ficam em ``~/.spacr/env_locks/<digest>`` e cada execução posterior com o mesmo resumo as copia. Instalar, remover ou atualizar qualquer pacote muda o resumo. Se as listas não puderem ser gravadas, a execução continua e o motivo é listado em ``provenance_warnings``."
 
 msgid "File provenance"
 msgstr "Proveniência dos arquivos"

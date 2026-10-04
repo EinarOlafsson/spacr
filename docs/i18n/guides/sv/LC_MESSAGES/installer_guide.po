@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -149,6 +149,48 @@ msgstr "Ta bort själva miljön om den skapades enbart för spaCR."
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "Avinstallationen raderar inte mikroskopiprojekt, databaser eller exporterade resultat. Användarinställningar, körningsposter och loggar under ``~/.spacr`` lämnas också kvar så att de kan granskas eller återanvändas. Ta bort den katalogen separat bara om posterna inte längre behövs."
+
+msgid "Portable mode"
+msgstr "Portabelt läge"
+
+msgid "Portable mode keeps everything spaCR writes for a user next to the application instead of in the home folder: preferences, caches, logs, run records, model downloads, plugins and segmentation backends. Use it to run spaCR from a USB drive or an external disk, or on a shared computer where nothing should be left behind."
+msgstr "Portabelt läge håller allt som spaCR skriver för en användare bredvid programmet i stället för i hemmappen: inställningar, cachar, loggar, körningsposter, modellnedladdningar, tillägg och segmenteringsbakändar. Använd det för att köra spaCR från ett USB-minne eller en extern disk, eller på en delad dator där inget ska lämnas kvar."
+
+msgid "Turn it on in either of two ways:"
+msgstr "Slå på det på något av två sätt:"
+
+msgid "**Marker file.** Create an empty file named ``spacr-portable`` in the spaCR install folder, which is the folder that holds spaCR's Python environment. On Windows that is ``%LOCALAPPDATA%\\spaCR``; on macOS ``~/Library/Application Support/spaCR``; on Linux ``~/.local/share/spacr``. In a conda or virtual environment, the environment folder itself also works."
+msgstr "**Markörfil.** Skapa en tom fil med namnet ``spacr-portable`` i spaCR:s installationsmapp, det vill säga mappen som innehåller spaCR:s Python-miljö. På Windows är det ``%LOCALAPPDATA%\\spaCR``; på macOS ``~/Library/Application Support/spaCR``; på Linux ``~/.local/share/spacr``. I en conda- eller virtuell miljö fungerar också själva miljömappen."
+
+msgid "**Environment variable.** Set ``SPACR_PORTABLE=1`` to keep data next to the application, or ``SPACR_PORTABLE=/path/to/folder`` to choose the folder. ``SPACR_PORTABLE=0`` turns portable mode off even when a marker file exists."
+msgstr "**Miljövariabel.** Sätt ``SPACR_PORTABLE=1`` för att hålla data bredvid programmet, eller ``SPACR_PORTABLE=/path/to/folder`` för att välja mappen. ``SPACR_PORTABLE=0`` stänger av portabelt läge även när en markörfil finns."
+
+msgid "spaCR then keeps its data in a ``spacr-data`` folder beside the marker (or inside the chosen folder): ``settings`` holds the preferences as an INI file on every platform, so nothing is written to the Windows registry or the macOS preference files, and ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` and ``cache`` hold the rest. **Help → About spaCR** shows the folder in use while portable mode is on. Restart spaCR after creating or removing the marker."
+msgstr "spaCR håller sedan sina data i en mapp ``spacr-data`` bredvid markören (eller i den valda mappen): ``settings`` innehåller inställningarna som en INI-fil på alla plattformar, så ingenting skrivs till Windows-registret eller macOS inställningsfiler, och ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` och ``cache`` innehåller resten. **Hjälp → Om spaCR** visar vilken mapp som används medan portabelt läge är på. Starta om spaCR efter att ha skapat eller tagit bort markören."
+
+msgid "Portable mode is one switch for the folder variables that can also be set one at a time. It fills in any of them that are not already set, and a variable you set yourself always wins:"
+msgstr "Portabelt läge är en enda växel för de mappvariabler som också kan anges en i taget. Det fyller i de av dem som inte redan är satta, och en variabel som du själv sätter vinner alltid:"
+
+msgid "``SPACR_HOME``"
+msgstr "``SPACR_HOME``"
+
+msgid "Preferences, run records and every other per-user spaCR folder."
+msgstr "Inställningar, körningsposter och alla andra spaCR-mappar per användare."
+
+msgid "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+msgstr "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+
+msgid "Logs, segmentation backend environments and plugins."
+msgstr "Loggar, miljöer för segmenteringsbakändar och tillägg."
+
+msgid "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+msgstr "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+
+msgid "Caches of example data, chained settings, PyTorch, Hugging Face, Matplotlib and Cellpose models."
+msgstr "Cachar för exempeldata, kedjade inställningar, PyTorch-, Hugging Face-, Matplotlib- och Cellpose-modeller."
+
+msgid "Existing data in ``~/.spacr`` is not moved. Copy it into ``spacr-data`` first to keep it."
+msgstr "Befintliga data i ``~/.spacr`` flyttas inte. Kopiera dem först till ``spacr-data`` för att behålla dem."
 
 msgid "Offline installation"
 msgstr "Offlineinstallation"

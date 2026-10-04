@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "파이프라인 코드가 명시적으로 첨부한 산출물입니다."
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt`` 는 실행에 사용된 Python 환경의 ``pip freeze`` 이며, spaCR이 conda 환경에서 실행될 때는 ``conda list --explicit`` 의 출력인 ``conda-explicit.txt`` 도 있습니다. 매니페스트는 ``environment_lock`` 아래에 두 파일과 환경의 SHA-256 다이제스트를 기록합니다. ``conda create --name rerun --file conda-explicit.txt`` 를 실행한 다음 ``python -m pip install -r requirements-lock.txt`` 를 실행해 환경을 다시 만듭니다."
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip와 conda는 환경마다 한 번만 조회됩니다. 목록은 ``~/.spacr/env_locks/<digest>`` 아래에 보관되며, 같은 다이제스트를 가진 이후 실행은 모두 이를 복사합니다. 패키지를 설치, 제거 또는 업그레이드하면 다이제스트가 바뀝니다. 목록을 쓸 수 없으면 실행은 계속되며 그 이유가 ``provenance_warnings`` 에 기록됩니다."
 
 msgid "File provenance"
 msgstr "파일 출처"

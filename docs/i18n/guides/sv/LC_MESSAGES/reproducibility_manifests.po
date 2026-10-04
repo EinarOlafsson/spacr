@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "Artefakter som pipelinekoden uttryckligen har bifogat."
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt``, en ``pip freeze`` av den Python-miljö som körningen använde, och, när spaCR körs i en conda-miljö, ``conda-explicit.txt``, utdata från ``conda list --explicit``. Manifestet anger båda filerna under ``environment_lock`` tillsammans med en SHA-256-sammanfattning av miljön. Bygg om miljön med ``conda create --name rerun --file conda-explicit.txt`` följt av ``python -m pip install -r requirements-lock.txt``."
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "pip och conda tillfrågas en gång per miljö: listorna sparas under ``~/.spacr/env_locks/<digest>``, och varje senare körning med samma sammanfattning kopierar dem. Att installera, ta bort eller uppgradera något paket ändrar sammanfattningen. Om listorna inte kan skrivas fortsätter körningen och orsaken listas under ``provenance_warnings``."
 
 msgid "File provenance"
 msgstr "Filhärkomst"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 23:25-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -174,6 +174,15 @@ msgstr "Cellpose 워크벤치, 전체 폴더의 마스크 생성, 모델 비교,
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "매개변수 탐색은 세 번째 방법으로 도달합니다. 회귀 화면의 패널이며, 설정 양식의 **파라미터 스윕** 스위치로 엽니다."
+
+msgid "Picking up where you left off"
+msgstr "중단한 곳에서 이어 하기"
+
+msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
+msgstr "**세션 복원**: 일반적으로 시작할 때마다 spaCR이 마지막으로 닫히거나 충돌했을 때 화면에 있던 모듈을 그 설정과 입력 폴더와 함께 다시 엽니다. 실행은 시작되지 않습니다. 상태 표시줄에 다시 열린 항목이 표시되는 동안 **Open fresh** 버튼을 누르면 그 모듈의 기본 설정으로 되돌리고 홈으로 이동합니다. ``spacr-qt --fresh`` 는 한 번의 시작에서 복원을 건너뜁니다. **환경설정 → 모듈 → Session** 에서 끌 수 있습니다(기본값은 켜짐). 명령줄에서 지정한 모듈이나 Force restart 기록이 우선합니다."
+
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**설정 자동 저장**: 30초마다 열려 있는 모든 모듈의 저장되지 않은 설정이 환경설정 저장소에 초안으로 보관되며, 바뀐 것이 없으면 아무것도 쓰지 않습니다. 정상적으로 종료하면 초안이 삭제됩니다. spaCR이 닫히지 않고 종료되었다면 다음 시작 시 복원할지 한 번 묻습니다(다시 열린 세션과 같은 초안은 묻지 않습니다). 저장소가 Qt 자체의 설정 저장소이므로 Linux, macOS, Windows에서 동작이 같습니다."
 
 msgid "Arranging the window"
 msgstr "창 배치"

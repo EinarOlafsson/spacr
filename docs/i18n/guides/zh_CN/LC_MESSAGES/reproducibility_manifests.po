@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -51,6 +51,15 @@ msgstr "``outputs/``"
 
 msgid "Artifacts explicitly attached by pipeline code."
 msgstr "流程代码显式附加的产物。"
+
+msgid "``environment/``"
+msgstr "``environment/``"
+
+msgid "``requirements-lock.txt``, a ``pip freeze`` of the Python environment the run used, and, when spaCR runs inside a conda environment, ``conda-explicit.txt``, the output of ``conda list --explicit``. The manifest names both files under ``environment_lock`` together with a SHA-256 digest of the environment. Rebuild the environment with ``conda create --name rerun --file conda-explicit.txt`` followed by ``python -m pip install -r requirements-lock.txt``."
+msgstr "``requirements-lock.txt`` ，即该运行所用 Python 环境的 ``pip freeze`` ；当 spaCR 在 conda 环境中运行时，还有 ``conda-explicit.txt`` ，即 ``conda list --explicit`` 的输出。清单在 ``environment_lock`` 下列出这两个文件以及该环境的 SHA-256 摘要。可先运行 ``conda create --name rerun --file conda-explicit.txt`` ，再运行 ``python -m pip install -r requirements-lock.txt`` 来重建环境。"
+
+msgid "pip and conda are asked once per environment: the lists are kept under ``~/.spacr/env_locks/<digest>`` and every later run with the same digest copies them. Installing, removing or upgrading any package changes the digest. If the lists cannot be written, the run continues and the reason is listed under ``provenance_warnings``."
+msgstr "每个环境只查询一次 pip 和 conda：这些列表保存在 ``~/.spacr/env_locks/<digest>`` 下，之后摘要相同的每次运行都会复制它们。安装、删除或升级任何软件包都会改变摘要。如果无法写入这些列表，运行会继续，原因会列在 ``provenance_warnings`` 下。"
 
 msgid "File provenance"
 msgstr "文件来源"

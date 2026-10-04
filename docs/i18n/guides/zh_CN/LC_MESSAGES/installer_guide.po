@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-01 17:36-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -149,6 +149,48 @@ msgstr "如果该环境仅为 spaCR 创建，请将环境本身也删除。"
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "卸载不会删除显微项目、数据库或导出的结果。``~/.spacr`` 下的用户偏好、运行记录和日志也会保留，以便查看或重用。仅当不再需要这些记录时，才单独删除该目录。"
+
+msgid "Portable mode"
+msgstr "便携模式"
+
+msgid "Portable mode keeps everything spaCR writes for a user next to the application instead of in the home folder: preferences, caches, logs, run records, model downloads, plugins and segmentation backends. Use it to run spaCR from a USB drive or an external disk, or on a shared computer where nothing should be left behind."
+msgstr "便携模式会把 spaCR 为用户写入的所有内容保存在应用程序旁边，而不是主文件夹中：偏好、缓存、日志、运行记录、模型下载、插件和分割后端。可用它从 U 盘或外置磁盘运行 spaCR，或在不应留下任何内容的共享计算机上使用。"
+
+msgid "Turn it on in either of two ways:"
+msgstr "可通过以下两种方式之一启用："
+
+msgid "**Marker file.** Create an empty file named ``spacr-portable`` in the spaCR install folder, which is the folder that holds spaCR's Python environment. On Windows that is ``%LOCALAPPDATA%\\spaCR``; on macOS ``~/Library/Application Support/spaCR``; on Linux ``~/.local/share/spacr``. In a conda or virtual environment, the environment folder itself also works."
+msgstr "**标记文件。** 在 spaCR 安装文件夹（即存放 spaCR Python 环境的文件夹）中创建一个名为 ``spacr-portable`` 的空文件。在 Windows 上是 ``%LOCALAPPDATA%\\spaCR`` ；在 macOS 上是 ``~/Library/Application Support/spaCR`` ；在 Linux 上是 ``~/.local/share/spacr`` 。在 conda 或虚拟环境中，环境文件夹本身也可以。"
+
+msgid "**Environment variable.** Set ``SPACR_PORTABLE=1`` to keep data next to the application, or ``SPACR_PORTABLE=/path/to/folder`` to choose the folder. ``SPACR_PORTABLE=0`` turns portable mode off even when a marker file exists."
+msgstr "**环境变量。** 设置 ``SPACR_PORTABLE=1`` 可将数据保存在应用程序旁边，或设置 ``SPACR_PORTABLE=/path/to/folder`` 以选择文件夹。即使存在标记文件， ``SPACR_PORTABLE=0`` 也会关闭便携模式。"
+
+msgid "spaCR then keeps its data in a ``spacr-data`` folder beside the marker (or inside the chosen folder): ``settings`` holds the preferences as an INI file on every platform, so nothing is written to the Windows registry or the macOS preference files, and ``logs``, ``runs``, ``backends``, ``plugins``, ``models`` and ``cache`` hold the rest. **Help → About spaCR** shows the folder in use while portable mode is on. Restart spaCR after creating or removing the marker."
+msgstr "随后 spaCR 会把数据保存在标记旁边（或所选文件夹内）的 ``spacr-data`` 文件夹中： ``settings`` 在所有平台上都以 INI 文件保存偏好，因此不会向 Windows 注册表或 macOS 偏好文件写入任何内容；其余内容保存在 ``logs`` 、 ``runs`` 、 ``backends`` 、 ``plugins`` 、 ``models`` 和 ``cache`` 中。便携模式开启时， **帮助 → 关于 spaCR** 会显示正在使用的文件夹。创建或删除标记后请重新启动 spaCR。"
+
+msgid "Portable mode is one switch for the folder variables that can also be set one at a time. It fills in any of them that are not already set, and a variable you set yourself always wins:"
+msgstr "便携模式是一个总开关，控制那些也可以逐个设置的文件夹变量。它会填写尚未设置的变量，而你自己设置的变量始终优先："
+
+msgid "``SPACR_HOME``"
+msgstr "``SPACR_HOME``"
+
+msgid "Preferences, run records and every other per-user spaCR folder."
+msgstr "偏好、运行记录以及其他所有按用户区分的 spaCR 文件夹。"
+
+msgid "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+msgstr "``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``"
+
+msgid "Logs, segmentation backend environments and plugins."
+msgstr "日志、分割后端环境和插件。"
+
+msgid "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+msgstr "``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``"
+
+msgid "Caches of example data, chained settings, PyTorch, Hugging Face, Matplotlib and Cellpose models."
+msgstr "示例数据、链式设置以及 PyTorch、Hugging Face、Matplotlib 和 Cellpose 模型的缓存。"
+
+msgid "Existing data in ``~/.spacr`` is not moved. Copy it into ``spacr-data`` first to keep it."
+msgstr "``~/.spacr`` 中的现有数据不会被移动。如需保留，请先将其复制到 ``spacr-data`` 中。"
 
 msgid "Offline installation"
 msgstr "离线安装"

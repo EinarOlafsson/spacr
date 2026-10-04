@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 23:25-0400\n"
+"POT-Creation-Date: 2026-10-04 15:32-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -174,6 +174,15 @@ msgstr "Cellpose वर्कबेंच, पूरे फ़ोल्डर �
 
 msgid "Parameter Sweep is reached a third way: it is a panel on the Regression screen, opened by the **Parameter sweep** switch on its settings form."
 msgstr "पैरामीटर स्वीप तक तीसरे तरीके से पहुँचा जाता है: यह प्रतिगमन स्क्रीन पर एक पैनल है, जो उसके सेटिंग फ़ॉर्म के **पैरामीटर स्वीप** स्विच से खुलता है।"
+
+msgid "Picking up where you left off"
+msgstr "जहाँ छोड़ा था वहीं से आगे बढ़ना"
+
+msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
+msgstr "**सत्र पुनर्स्थापन**: हर सामान्य शुरुआत वह मॉड्यूल फिर से खोलती है जो spaCR के पिछली बार बंद होने या क्रैश होने के समय स्क्रीन पर था, उसकी सेटिंग्स और इनपुट फ़ोल्डर के साथ। कोई रन शुरू नहीं होता। जब तक स्टेटस बार बताता है कि क्या फिर से खोला गया, उसका **Open fresh** बटन उस मॉड्यूल की डिफ़ॉल्ट सेटिंग्स लौटाता है और मुखपृष्ठ पर जाता है; ``spacr-qt --fresh`` एक शुरुआत के लिए पुनर्स्थापन छोड़ देता है। इसे **प्राथमिकताएं → मॉड्यूल → Session** में बंद करें (डिफ़ॉल्ट रूप से चालू)। कमांड लाइन पर नामित मॉड्यूल, या Force restart का रिकॉर्ड, प्राथमिकता पाता है।"
+
+msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
+msgstr "**सेटिंग्स का स्वतः सहेजना**: हर 30 सेकंड में हर खुले मॉड्यूल की बिना सहेजी सेटिंग्स प्राथमिकता भंडार में ड्राफ़्ट के रूप में रखी जाती हैं; कुछ न बदलने पर कुछ नहीं लिखा जाता। सामान्य निकास ड्राफ़्ट हटा देता है। यदि spaCR बिना बंद हुए समाप्त हुआ, तो अगली शुरुआत एक बार पूछती है कि उन्हें पुनर्स्थापित करना है या नहीं (फिर से खोले गए सत्र के समान ड्राफ़्ट के बारे में नहीं पूछा जाता)। Linux, macOS और Windows पर यही व्यवहार लागू होता है, क्योंकि भंडार Qt का अपना सेटिंग्स भंडार है।"
 
 msgid "Arranging the window"
 msgstr "विंडो की व्यवस्था"
