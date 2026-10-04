@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Alpha: experimentella funktioner",
+  "description": "Slå på Show alpha features och se var varje experimentell inställning dyker upp i spaCR och vad den gör.",
+  "objectives": [
+    "Slå på och av Show alpha features i Preferences.",
+    "Hitta alpha-inställningarna på varje skärm.",
+    "Veta vilket alpha-verktyg som passar en uppgift innan du provar det."
+  ],
+  "prerequisite": "Öppna spaCR. Inga indatafiler behövs: lektionen visar var varje alpha-inställning dyker upp och vad den gör, inte resultat. Alpha-funktioner är ofärdiga och kan ändras mellan versioner.",
+  "scenes": [
+    "Den här lektionen går igenom den experimentella sidan av spaCR. Öppna Preferences, välj Modules, slå på Show alpha features och tryck på Save. Alpha-funktioner är ofärdiga: de kan ändras, flyttas eller försvinna mellan versioner, så kontrollera resultaten innan du litar på dem.",
+    "I Mask generation får Image Preprocessing alpha-kategorier som ändrar pixlarna före segmenteringen: spektral separation utifrån kontrollbrunnar med en enda färgning, självövervakad brusreducering, belysningskorrigering, dekonvolution med en punktspridningsfunktion och kontrastförstärkning som lokal histogramutjämning.",
+    "Quality Control lägger till kontroller av själva maskerna. En robusthetsrapport segmenterar några synfält igen med lätt ändrade inställningar och visar hur mycket objekten ändras. En klassificerare för verkliga objekt tar bort objekt som inte ser ut som riktiga celler, och ett bildkvalitetsnätverk markerar suddiga, mättade eller tomma synfält.",
+    "Andra alpha-inställningar automatiserar körningar: segmentering på flera GPU:er samtidigt, en bevakad mapp som analyserar synfält medan mikroskopet fortfarande skriver dem, återkoppling som skickar utvalda objekt tillbaka till mikroskopet och bildkällor i molnlagring.",
+    "Med Time påslaget erbjuder Mask generation alpha-spårning: fler spårningslägen, släktträd byggda utifrån delningskopplingar och en händelsedetektor som hittar händelser som delningar eller celldöd längs varje spår.",
+    "Measure får alpha-analyser som körs efter mätningen: levande och döda celler för viabilitet, cellcykelfaser utifrån DNA-färgningen, läkningen av ett skrapsår och konfluens, alltså den andel av varje synfält som täcks av celler.",
+    "För timelapse-projekt lägger Measure till korrigering för fotoblekning och en tid-till-händelse-analys som följer varje spårat objekt fram till en händelse och jämför förhållanden över tid.",
+    "Andra alpha-alternativ ändrar vad Measure skriver: bildbaserade profiler per brunn, en CellProfiler-pipeline efter mätningen, mätning på GPU, extra lagringsformat för mycket stora körningar och intensitetskalibrering mellan bildtagningssessioner.",
+    "AnnData Export lägger till ett val av utdataformat för de mätta objekten.",
+    "Make Masks visar alpha-verktyg i de nedersta raderna: Uncertainty för att hitta de objekt som en modell är minst säker på, Blind-läget som döljer förhållandenas namn medan du kurerar, import och export av ROI:er, SAM2 tracking genom en film och Apply virtual stain.",
+    "Cellpose Workbench erbjuder Virtual staining, som förutsäger en färgningskanal utifrån de bilder du redan har.",
+    "Annotate lägger till Blind-läget, Like this för att hitta utsnitt som liknar det du märker, och Field QC, där du märker hela synfält som bra, ur fokus eller mättade.",
+    "Plaque Analysis lägger till räkning av kolonier på plattfoton och experimentella tillväxtuppskattningar, som föreslår en tid eller en skala utifrån de största plackarna och en antagen linjär tillväxt.",
+    "I Activation Maps tränar Counterfactuals en liten generator som styrs av din klassificerare och förvandlar utsnitt steg för steg mot den andra klassen, så att du ser vilka egenskaper modellen lutar sig mot.",
+    "Embeddings lägger till kodare från grundmodeller, självövervakad förträning på dina egna utsnitt och inlärning från etiketter per brunn när enskilda celler inte är märkta.",
+    "Control Charts lägger till en avvikelsebedömning och en kemipanel bredvid de vanliga diagrammen.",
+    "Report lägger till Archive package, som paketerar ett projekt för delning, och deponering på Zenodo.",
+    "Run History kan exportera en registrerad körning som ett återanvändbart arbetsflöde.",
+    "Preferences får en Notifications-flik, så att spaCR kan meddela dig med skrivbordsmeddelande, e-post, Slack eller webhook när en lång körning är klar eller misslyckas.",
+    "En Plugins-flik listar gemenskapens tillägg som du kan installera, uppdatera eller ta bort.",
+    "För optiska poolade screeningar erbjuder OPS-spotdetektorn fler alpha-detektorer för sekvenseringsspots.",
+    "Map Barcodes lägger till ett läge för spatial transkriptomik.",
+    "Format Converter lägger till koppling via plattstreckkod, som fyller plattkartan från en provtabell utifrån plattans streckkod.",
+    "Power och Design lägger till en planerare för arrayade screeningar.",
+    "Flera mindre verktyg, som Feature Explorer, får Load test data, som hämtar ett exempel så att du kan prova dem direkt.",
+    "När du är klar öppnar du Preferences igen och slår av Show alpha features. Alla alpha-inställningar försvinner, och dina stabila arbetsflöden ser ut precis som förut."
+  ]
+}

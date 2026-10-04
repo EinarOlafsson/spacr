@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Alpha: tilraunaeiginleikar",
+  "description": "Kveiktu á Show alpha features og sjáðu hvar hver tilraunastilling birtist í spaCR og hvað hún gerir.",
+  "objectives": [
+    "Kveikja og slökkva á Show alpha features í Preferences.",
+    "Finna alpha-stillingarnar á hverjum skjá.",
+    "Vita hvaða alpha-tól hentar verki áður en þú prófar það."
+  ],
+  "prerequisite": "Opnaðu spaCR. Engar inntaksskrár þarf: kennslustundin sýnir hvar hver alpha-stilling birtist og hvað hún gerir, ekki niðurstöður. Alpha-eiginleikar eru ófullgerðir og geta breyst milli útgáfa.",
+  "scenes": [
+    "Þessi kennslustund fer yfir tilraunahlið spaCR. Opnaðu Preferences, veldu Modules, kveiktu á Show alpha features og ýttu á Save. Alpha-eiginleikar eru ófullgerðir: þeir geta breyst, færst eða horfið milli útgáfa, svo athugaðu niðurstöðurnar áður en þú treystir á þær.",
+    "Í Mask generation bætast við Image Preprocessing alpha-flokkar sem breyta dílunum fyrir sundurgreiningu: litrófsaðgreining út frá viðmiðunarholum með einni litun, sjálfstýrð suðhreinsun, birtuleiðrétting, afröndun með punktdreififalli og aukning birtuskila, til dæmis staðbundin jöfnun stuðlarits.",
+    "Quality Control bætir við athugunum á grímunum sjálfum. Áreiðanleikaskýrsla sundurgreinir nokkur sjónsvið aftur með örlítið breyttum stillingum og sýnir hve mikið hlutirnir breytast. Flokkari fyrir raunverulega hluti fjarlægir hluti sem líkjast ekki raunverulegum frumum, og myndgæðanet merkir óskýr, mettuð eða tóm sjónsvið.",
+    "Aðrar alpha-stillingar sjálfvirknivæða keyrslur: sundurgreiningu á mörgum GPU í einu, vaktaða möppu sem greinir sjónsvið meðan smásjáin er enn að skrifa þau, endurgjöf sem sendir valda hluti aftur til smásjárinnar, og myndheimildir í skýjageymslu.",
+    "Þegar kveikt er á Time býður Mask generation upp á alpha-rakningu: fleiri rakningarhami, ættartré byggð á skiptingartengslum og atburðanema sem finnur atburði eins og skiptingar eða frumudauða eftir hverri slóð.",
+    "Measure fær alpha-greiningar sem keyra eftir mælingu: lifandi og dauðar frumur fyrir lífvænleika, stig frumuhringsins út frá DNA-litun, lokun rispusárs og þekju, það er hlutfall hvers sjónsviðs sem frumur hylja.",
+    "Fyrir tímaraðaverkefni bætir Measure við leiðréttingu á ljósbleikingu og greiningu á tíma að atburði, sem fylgir hverjum röktum hlut að atburði og ber saman aðstæður yfir tíma.",
+    "Aðrir alpha-valkostir breyta því sem Measure skrifar: myndtengdum sniðum fyrir hverja holu, CellProfiler-ferli eftir mælingu, mælingu á GPU, viðbótargeymslusniðum fyrir mjög stórar keyrslur og kvörðun styrks milli myndatökulota.",
+    "AnnData Export bætir við vali á úttakssniði fyrir mældu hlutina.",
+    "Make Masks sýnir alpha-tól í neðstu röðunum: Uncertainty til að finna hlutina sem líkan er síst visst um, Blind-ham sem felur heiti aðstæðna meðan þú yfirferð, inn- og útflutning ROI, SAM2 tracking í gegnum myndskeið og Apply virtual stain.",
+    "Cellpose Workbench býður Virtual staining, sem spáir fyrir um litunarrás út frá myndunum sem þú átt þegar.",
+    "Annotate bætir við Blind-ham, Like this til að finna búta sem líkjast þeim sem þú merkir, og Field QC, þar sem þú merkir heil sjónsvið sem góð, úr fókus eða mettuð.",
+    "Plaque Analysis bætir við talningu kóloníu á myndum af plötum og tilraunamati á vexti, sem stingur upp á tíma eða kvarða út frá stærstu skellunum og gefnum línulegum vexti.",
+    "Í Activation Maps þjálfar Counterfactuals lítinn myndgjafa sem flokkarinn þinn stýrir og breytir bútum skref fyrir skref í átt að hinum flokknum, svo þú sjáir á hvaða einkenni líkanið treystir.",
+    "Embeddings bætir við kóðurum úr grunnlíkönum, sjálfstýrðri forþjálfun á þínum eigin bútum og námi út frá merkingum hverrar holu þegar einstakar frumur eru ekki merktar.",
+    "Control Charts bætir við fráviksmati og efnafræðiflipa við hlið venjulegu ritanna.",
+    "Report bætir við Archive package, sem pakkar verkefni til deilingar, og innlögn á Zenodo.",
+    "Run History getur flutt út skráða keyrslu sem endurnýtanlegt verkflæði.",
+    "Preferences fær flipann Notifications, svo spaCR geti látið þig vita með skjáboðum, tölvupósti, Slack eða vefkrók þegar löng keyrsla klárast eða mistekst.",
+    "Flipinn Plugins sýnir viðbætur samfélagsins sem þú getur sett upp, uppfært eða fjarlægt.",
+    "Fyrir sjónrænar safnskimanir býður OPS-blettanemi upp á fleiri alpha-nema fyrir raðgreiningarbletti.",
+    "Map Barcodes bætir við ham fyrir rúmfræðilega umritunarfræði.",
+    "Format Converter bætir við tengingu með strikamerki plötu, sem fyllir plötukortið út frá sýnatöflu eftir strikamerki plötunnar.",
+    "Power og Design bætir við skipuleggjanda fyrir skimanir í raðformi.",
+    "Nokkur smærri tól, eins og Feature Explorer, fá Load test data, sem sækir dæmi svo þú getir prófað þau strax.",
+    "Þegar þú ert búin(n) opnarðu Preferences aftur og slekkur á Show alpha features. Allar alpha-stillingar hverfa og stöðugu verkflæðin þín líta nákvæmlega eins út og áður."
+  ]
+}

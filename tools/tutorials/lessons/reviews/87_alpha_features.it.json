@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Alpha: funzioni sperimentali",
+  "description": "Attiva Show alpha features e scopri dove compare ogni controllo sperimentale in spaCR e che cosa fa.",
+  "objectives": [
+    "Attivare e disattivare Show alpha features in Preferences.",
+    "Trovare i controlli alpha in ogni schermata.",
+    "Capire quale strumento alpha si adatta a un compito prima di provarlo."
+  ],
+  "prerequisite": "Apri spaCR. Non servono file di input: questa lezione mostra dove compare ogni controllo alpha e che cosa fa, non risultati. Le funzioni alpha non sono complete e possono cambiare tra una versione e l’altra.",
+  "scenes": [
+    "Questa lezione esplora il lato sperimentale di spaCR. Apri Preferences, scegli Modules, attiva Show alpha features e premi Save. Le funzioni alpha non sono complete: possono cambiare, spostarsi o sparire tra le versioni, quindi verifica i risultati prima di fidarti.",
+    "In Mask generation, Image Preprocessing ottiene categorie alpha che modificano i pixel prima della segmentazione: separazione spettrale dai pozzetti di controllo a singola colorazione, rimozione del rumore auto-supervisionata, correzione dell’illuminazione, deconvoluzione con una funzione di diffusione del punto e miglioramento del contrasto, come l’equalizzazione locale dell’istogramma.",
+    "Quality Control aggiunge controlli sulle maschere stesse. Un rapporto di robustezza risegmenta alcuni campi con impostazioni leggermente diverse e indica quanto cambiano gli oggetti. Un classificatore di oggetti reali rimuove quelli che non sembrano cellule vere, e una rete di qualità dell’immagine segnala campi sfocati, saturi o vuoti.",
+    "Altre impostazioni alpha automatizzano le esecuzioni: segmentazione su più GPU insieme, una cartella sorvegliata che analizza i campi mentre il microscopio li sta ancora scrivendo, un ritorno che rimanda al microscopio gli oggetti scelti e sorgenti di immagini nell’archiviazione cloud.",
+    "Con Time attivo, Mask generation offre il tracciamento alpha: altre modalità di tracciamento, alberi di discendenza costruiti dalle divisioni e un rilevatore di eventi che trova eventi come divisioni o morti lungo ogni traccia.",
+    "Measure ottiene saggi alpha eseguiti dopo la misura: cellule vive e morte per la vitalità, fasi del ciclo cellulare dalla colorazione del DNA, la chiusura di una ferita da graffio e la confluenza, cioè la frazione di ogni campo coperta da cellule.",
+    "Per i progetti time-lapse, Measure aggiunge la correzione del fotosbiancamento e un’analisi del tempo all’evento, che segue ogni oggetto tracciato fino a un evento e confronta le condizioni nel tempo.",
+    "Altre opzioni alpha cambiano ciò che Measure scrive: profili basati sulle immagini per pozzetto, una pipeline di CellProfiler dopo la misura, misura su GPU, formati di archiviazione aggiuntivi per esecuzioni molto grandi e calibrazione dell’intensità tra sessioni di acquisizione.",
+    "AnnData Export aggiunge una scelta del formato di uscita per gli oggetti misurati.",
+    "Make Masks mostra strumenti alpha nelle file in basso: Uncertainty, per trovare gli oggetti di cui un modello è meno sicuro, la modalità Blind che nasconde i nomi delle condizioni durante la cura, importazione ed esportazione di ROI, SAM2 tracking lungo un filmato e Apply virtual stain.",
+    "Cellpose Workbench offre Virtual staining, che prevede un canale di colorazione dalle immagini che hai già.",
+    "Annotate aggiunge la modalità Blind, Like this per trovare ritagli simili a quello che stai etichettando, e Field QC, dove etichetti interi campi come buoni, sfocati o saturi.",
+    "Plaque Analysis aggiunge il conteggio delle colonie su foto di piastre e stime di crescita sperimentali, che propongono un tempo o una scala dalle placche più grandi e da una crescita supposta lineare.",
+    "In Activation Maps, Counterfactuals addestra un piccolo generatore guidato dal tuo classificatore e trasforma i ritagli passo dopo passo verso l’altra classe, così vedi su quali caratteristiche si basa il modello.",
+    "Embeddings aggiunge encoder da modelli di fondazione, pre-addestramento auto-supervisionato sui tuoi ritagli e apprendimento da etichette per pozzetto quando le singole cellule non sono etichettate.",
+    "Control Charts aggiunge un punteggio di anomalia e un pannello di chimica accanto ai grafici abituali.",
+    "Report aggiunge Archive package, che raccoglie un progetto da condividere, e un deposito su Zenodo.",
+    "Run History può esportare un’esecuzione registrata come flusso di lavoro riutilizzabile.",
+    "Preferences ottiene una scheda Notifications, così spaCR ti avvisa con un messaggio sul desktop, un’email, Slack o un webhook quando un’esecuzione lunga termina o fallisce.",
+    "Una scheda Plugins elenca i plugin della comunità che puoi installare, aggiornare o rimuovere.",
+    "Per gli screening ottici in pool, il rilevatore di spot di OPS offre altri rilevatori alpha per gli spot di sequenziamento.",
+    "Map Barcodes aggiunge una modalità di trascrittomica spaziale.",
+    "Format Converter aggiunge il collegamento tramite codice a barre della piastra, che compila la mappa della piastra da una tabella di campioni in base al codice a barre.",
+    "Power e Design aggiunge un pianificatore per screening in formato arrayed.",
+    "Diversi strumenti più piccoli, come Feature Explorer, ottengono Load test data, che scarica un esempio per provarli subito.",
+    "Quando hai finito, riapri Preferences e disattiva Show alpha features. Tutti i controlli alpha scompaiono e i tuoi flussi di lavoro stabili restano esattamente come prima."
+  ]
+}

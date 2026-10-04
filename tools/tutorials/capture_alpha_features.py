@@ -225,6 +225,12 @@ def record_alpha_features(app, window, stage, captures, capture, settle, write_j
     # Model Zoo lists the alpha segmentation models.
     try:
         screen = open_module('model_zoo')
+        table = getattr(screen, '_table', None)
+        deadline = time.monotonic() + 60
+        while table is not None and table.rowCount() == 0 and time.monotonic() < deadline:
+            settle(0.5)
+        report['groups']['03_model_zoo_alpha_models'] = {
+            'rows': table.rowCount() if table is not None else None}
         capture('03_model_zoo_alpha_models')
     except Exception as error:
         report['groups'].setdefault('03_model_zoo_alpha_models', {})['error'] = repr(error)

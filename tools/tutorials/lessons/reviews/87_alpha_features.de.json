@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Alpha: experimentelle Funktionen",
+  "description": "Schalten Sie Show alpha features ein und sehen Sie, wo jede experimentelle Einstellung in spaCR erscheint und was sie tut.",
+  "objectives": [
+    "Show alpha features in den Preferences ein- und ausschalten.",
+    "Die Alpha-Einstellungen auf jedem Bildschirm finden.",
+    "Erkennen, welches Alpha-Werkzeug zu einer Aufgabe passt, bevor Sie es ausprobieren."
+  ],
+  "prerequisite": "Öffnen Sie spaCR. Es werden keine Eingabedateien benötigt: Diese Lektion zeigt, wo jede Alpha-Einstellung erscheint und was sie tut, nicht Ergebnisse. Alpha-Funktionen sind unfertig und können sich zwischen Versionen ändern.",
+  "scenes": [
+    "Diese Lektion führt durch die experimentelle Seite von spaCR. Öffnen Sie die Preferences, wählen Sie Modules, schalten Sie Show alpha features ein und drücken Sie Save. Alpha-Funktionen sind unfertig: Sie können sich zwischen Versionen ändern, verschieben oder verschwinden, prüfen Sie ihre Ergebnisse also, bevor Sie sich darauf verlassen.",
+    "In Mask generation erhält Image Preprocessing Alpha-Kategorien, die die Pixel vor der Segmentierung verändern: spektrale Entmischung anhand von Einzelfärbungs-Kontrollwells, selbstüberwachtes Entrauschen, Beleuchtungskorrektur, Dekonvolution mit einer Punktspreizfunktion und Kontrastverstärkung wie lokale Histogrammangleichung.",
+    "Quality Control ergänzt Prüfungen der Masken selbst. Ein Robustheitsbericht segmentiert einige Bildfelder mit leicht veränderten Einstellungen erneut und zeigt, wie stark sich die Objekte verändern. Ein Klassifikator für echte Objekte entfernt Objekte, die nicht wie echte Zellen aussehen, und ein Bildqualitätsnetz markiert unscharfe, übersättigte oder leere Bildfelder.",
+    "Weitere Alpha-Einstellungen automatisieren Läufe: Segmentierung auf mehreren GPUs gleichzeitig, ein überwachter Ordner, der Bildfelder analysiert, während das Mikroskop sie noch schreibt, eine Rückmeldung, die ausgewählte Objekte zurück an das Mikroskop schickt, und Bildquellen im Cloud-Speicher.",
+    "Mit eingeschaltetem Time bietet Mask generation Alpha-Tracking: weitere Tracking-Modi, Stammbäume aus Teilungsverknüpfungen und einen Ereignisdetektor, der Ereignisse wie Teilungen oder Zelltod entlang jeder Spur findet.",
+    "Measure erhält Alpha-Assays, die nach dem Messen laufen: lebend und tot für die Viabilität, Zellzyklusphasen aus der DNA-Färbung, das Schließen einer Kratzwunde und die Konfluenz, also den Anteil jedes Bildfelds, der von Zellen bedeckt ist.",
+    "Für Zeitraffer-Projekte ergänzt Measure eine Photobleichungs-Korrektur und eine Time-to-Event-Analyse, die jedes verfolgte Objekt bis zu einem Ereignis begleitet und Bedingungen über die Zeit vergleicht.",
+    "Weitere Alpha-Optionen ändern, was Measure schreibt: bildbasierte Profile pro Well, eine CellProfiler-Pipeline nach dem Messen, Messung auf der GPU, zusätzliche Speicherformate für sehr große Läufe und Intensitätskalibrierung über Aufnahmesitzungen hinweg.",
+    "AnnData Export ergänzt eine Wahl des Ausgabeformats für die gemessenen Objekte.",
+    "Make Masks zeigt Alpha-Werkzeuge in seinen unteren Leisten: Uncertainty, um die Objekte zu finden, bei denen ein Modell am unsichersten ist, den Blind-Modus, der Bedingungsnamen beim Kuratieren verbirgt, Import und Export von ROIs, SAM2 tracking durch einen Film und Apply virtual stain.",
+    "Die Cellpose Workbench bietet Virtual staining, das einen Färbekanal aus den vorhandenen Bildern vorhersagt.",
+    "Annotate ergänzt den Blind-Modus, Like this, um Crops zu finden, die dem gerade beschrifteten ähneln, und Field QC, mit dem Sie ganze Bildfelder als gut, unscharf oder übersättigt beschriften.",
+    "Plaque Analysis ergänzt das Zählen von Kolonien auf Plattenfotos und experimentelle Wachstumsschätzungen, die aus den größten Plaques und einem angenommenen linearen Wachstum eine Zeit oder einen Maßstab vorschlagen.",
+    "In Activation Maps trainiert Counterfactuals einen kleinen, vom Klassifikator geführten Generator und verwandelt Crops Schritt für Schritt in die andere Klasse, sodass Sie sehen, auf welche Merkmale sich das Modell stützt.",
+    "Embeddings ergänzt Encoder aus Foundation-Modellen, selbstüberwachtes Vortraining auf Ihren eigenen Crops und Lernen aus Well-Labels, wenn einzelne Zellen nicht beschriftet sind.",
+    "Control Charts ergänzt eine Anomaliebewertung und ein Chemie-Panel neben den üblichen Diagrammen.",
+    "Report ergänzt Archive package, das ein Projekt zum Teilen bündelt, und eine Hinterlegung bei Zenodo.",
+    "Run History kann einen aufgezeichneten Lauf als wiederverwendbaren Workflow exportieren.",
+    "Die Preferences erhalten einen Reiter Notifications, damit spaCR Ihnen per Desktop-Meldung, E-Mail, Slack oder Webhook mitteilt, wenn ein langer Lauf endet oder fehlschlägt.",
+    "Ein Reiter Plugins listet Community-Plugins auf, die Sie installieren, aktualisieren oder entfernen können.",
+    "Für optische gepoolte Screens bietet der OPS-Spotdetektor weitere Alpha-Detektoren für Sequenzierungsspots.",
+    "Map Barcodes ergänzt einen Modus für räumliche Transkriptomik.",
+    "Der Format Converter ergänzt die Verknüpfung von Plattenbarcodes, die die Plattenkarte anhand des Plattenbarcodes aus einer Probentabelle füllt.",
+    "Power und Design ergänzt einen Planer für Arrayed Screens.",
+    "Mehrere kleinere Werkzeuge wie Feature Explorer erhalten Load test data, das ein Beispiel herunterlädt, damit Sie sie sofort ausprobieren können.",
+    "Wenn Sie fertig sind, öffnen Sie die Preferences erneut und schalten Show alpha features aus. Alle Alpha-Einstellungen verschwinden, und Ihre stabilen Arbeitsabläufe sehen genauso aus wie vorher."
+  ]
+}

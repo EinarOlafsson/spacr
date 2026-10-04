@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Alpha: recursos experimentais",
+  "description": "Ative Show alpha features e veja onde cada controle experimental aparece no spaCR e o que ele faz.",
+  "objectives": [
+    "Ativar e desativar Show alpha features em Preferences.",
+    "Encontrar os controles alpha em cada tela.",
+    "Saber qual ferramenta alpha serve para uma tarefa antes de testá-la."
+  ],
+  "prerequisite": "Abra o spaCR. Não é preciso nenhum arquivo de entrada: esta lição mostra onde cada controle alpha aparece e o que ele faz, não resultados. Os recursos alpha estão inacabados e podem mudar entre versões.",
+  "scenes": [
+    "Esta lição percorre o lado experimental do spaCR. Abra Preferences, escolha Modules, ative Show alpha features e pressione Save. Os recursos alpha estão inacabados: podem mudar, mudar de lugar ou sumir entre versões, então confira os resultados antes de confiar neles.",
+    "No Mask generation, Image Preprocessing ganha categorias alpha que alteram os pixels antes da segmentação: separação espectral a partir de poços controle com uma só marcação, remoção de ruído autossupervisionada, correção de iluminação, deconvolução com uma função de espalhamento de ponto e realce de contraste, como a equalização local do histograma.",
+    "Quality Control acrescenta verificações das próprias máscaras. Um relatório de robustez segmenta de novo alguns campos com ajustes um pouco diferentes e mostra o quanto os objetos mudam. Um classificador de objetos reais remove o que não parece célula de verdade, e uma rede de qualidade de imagem sinaliza campos desfocados, saturados ou vazios.",
+    "Outros ajustes alpha automatizam as execuções: segmentar em várias GPUs ao mesmo tempo, uma pasta monitorada que analisa os campos enquanto o microscópio ainda os grava, um retorno que envia objetos escolhidos de volta ao microscópio e fontes de imagens em armazenamento na nuvem.",
+    "Com Time ativado, o Mask generation oferece rastreamento alpha: mais modos de rastreamento, árvores de linhagem montadas a partir das divisões e um detector de eventos que encontra eventos como divisões ou mortes ao longo de cada trajetória.",
+    "O Measure ganha ensaios alpha que rodam depois da medição: células vivas e mortas para a viabilidade, fases do ciclo celular a partir da marcação do DNA, o fechamento de uma ferida por arranhão e a confluência, ou seja, a fração de cada campo coberta por células.",
+    "Em projetos de time-lapse, o Measure acrescenta correção de fotobranqueamento e uma análise de tempo até o evento, que acompanha cada objeto rastreado até um evento e compara condições ao longo do tempo.",
+    "Outras opções alpha mudam o que o Measure grava: perfis baseados em imagem por poço, um pipeline do CellProfiler depois da medição, medição na GPU, formatos de armazenamento extras para execuções muito grandes e calibração de intensidade entre sessões de aquisição.",
+    "O AnnData Export acrescenta uma escolha do formato de saída para os objetos medidos.",
+    "O Make Masks mostra ferramentas alpha nas fileiras de baixo: Uncertainty, para encontrar os objetos de que um modelo tem menos certeza, o modo Blind, que esconde os nomes das condições durante a curadoria, importação e exportação de ROIs, SAM2 tracking ao longo de um filme e Apply virtual stain.",
+    "O Cellpose Workbench oferece Virtual staining, que prevê um canal de marcação a partir das imagens que você já tem.",
+    "O Annotate acrescenta o modo Blind, Like this, para achar recortes parecidos com o que você está rotulando, e Field QC, onde você rotula campos inteiros como bons, desfocados ou saturados.",
+    "O Plaque Analysis acrescenta a contagem de colônias em fotos de placas e estimativas experimentais de crescimento, que sugerem um tempo ou uma escala a partir das maiores placas e de um crescimento suposto linear.",
+    "No Activation Maps, Counterfactuals treina um pequeno gerador guiado pelo seu classificador e transforma recortes passo a passo em direção à outra classe, para você ver em quais características o modelo se apoia.",
+    "O Embeddings acrescenta codificadores de modelos de fundação, pré-treinamento autossupervisionado nos seus próprios recortes e aprendizado a partir de rótulos por poço quando as células individuais não estão rotuladas.",
+    "O Control Charts acrescenta uma pontuação de anomalias e um painel de química ao lado dos gráficos de sempre.",
+    "O Report acrescenta Archive package, que empacota um projeto para compartilhar, e um depósito no Zenodo.",
+    "O Run History pode exportar uma execução registrada como um fluxo de trabalho reutilizável.",
+    "Preferences ganha uma aba Notifications, para o spaCR avisar você por mensagem na área de trabalho, e-mail, Slack ou webhook quando uma execução longa termina ou falha.",
+    "Uma aba Plugins lista plugins da comunidade que você pode instalar, atualizar ou remover.",
+    "Para triagens ópticas em pool, o detector de pontos do OPS oferece outros detectores alpha para os pontos de sequenciamento.",
+    "O Map Barcodes acrescenta um modo de transcriptômica espacial.",
+    "O Format Converter acrescenta a ligação por código de barras da placa, que preenche o mapa da placa a partir de uma tabela de amostras pelo código de barras.",
+    "Power e Design acrescenta um planejador para triagens em formato arrayed.",
+    "Várias ferramentas menores, como o Feature Explorer, ganham Load test data, que baixa um exemplo para você testá-las na hora.",
+    "Quando terminar, abra Preferences de novo e desative Show alpha features. Todos os controles alpha somem, e seus fluxos de trabalho estáveis ficam exatamente como antes."
+  ]
+}

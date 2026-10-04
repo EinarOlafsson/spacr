@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Alpha：实验性功能",
+  "description": "打开Show alpha features，看看每个实验性控件出现在spaCR的哪里以及它的作用。",
+  "objectives": [
+    "在Preferences中打开和关闭Show alpha features。",
+    "在每个界面上找到alpha控件。",
+    "在尝试之前，判断哪个alpha工具适合某项任务。"
+  ],
+  "prerequisite": "打开spaCR。不需要任何输入文件：本课展示每个alpha控件出现在哪里、作用是什么，而不是结果。alpha功能尚未完成，不同版本之间可能会变化。",
+  "scenes": [
+    "本课带您浏览spaCR的实验性部分。打开Preferences，选择Modules，打开Show alpha features，然后按Save。alpha功能尚未完成：它们可能在版本之间改变、移动或消失，因此在依赖其结果之前，请先加以核实。",
+    "在Mask generation中，Image Preprocessing增加了在分割之前改变像素的alpha类别：利用单染色对照孔的光谱解混、自监督去噪、照明校正、基于点扩散函数的反卷积，以及局部直方图均衡化等对比度增强。",
+    "Quality Control增加了对掩膜本身的检查。稳健性报告会用稍作改变的设置重新分割几个视野，并报告物体变化的程度。真实物体分类器会去除看起来不像真实细胞的物体，图像质量网络会标记模糊、饱和或空白的视野。",
+    "其他alpha设置可以让运行自动化：同时在多块GPU上分割，监视文件夹在显微镜仍在写入时分析视野，反馈功能将选中的物体发回显微镜，以及云存储中的图像来源。",
+    "打开Time后，Mask generation提供alpha追踪：更多追踪模式、根据分裂关系构建的谱系树，以及沿每条轨迹寻找分裂或死亡等事件的事件检测器。",
+    "Measure增加了在测量之后运行的alpha检测：用于活力的活细胞与死细胞判定、基于DNA染色的细胞周期时相、划痕伤口的闭合，以及汇合度，即每个视野被细胞覆盖的比例。",
+    "对于延时项目，Measure增加了光漂白校正，以及事件发生时间分析，它追踪每个物体直到发生事件，并随时间比较各条件。",
+    "其他alpha选项会改变Measure写出的内容：按孔汇总的基于图像的特征谱、测量后运行的CellProfiler流程、在GPU上测量、适用于超大规模运行的额外存储格式，以及跨成像批次的强度校准。",
+    "AnnData Export增加了测量物体的输出格式选择。",
+    "Make Masks在底部几行显示alpha工具：用于找出模型最不确定的物体的Uncertainty、整理时隐藏条件名称的Blind模式、ROI的导入和导出、贯穿整段影片的SAM2 tracking，以及Apply virtual stain。",
+    "Cellpose Workbench提供Virtual staining，它根据您已有的图像预测一个染色通道。",
+    "Annotate增加了Blind模式、用于查找与当前标注的裁剪图相似的裁剪图的Like this，以及Field QC，可将整个视野标注为良好、失焦或饱和。",
+    "Plaque Analysis增加了在平板照片上计数菌落，以及实验性的生长估计，它根据最大的噬斑和假定的线性生长给出时间或比例尺的建议。",
+    "在Activation Maps中，Counterfactuals训练一个由您的分类器引导的小型生成器，把裁剪图一步步变向另一类，让您看到模型依赖哪些特征。",
+    "Embeddings增加了基础模型编码器、在您自己的裁剪图上进行自监督预训练，以及在单个细胞没有标注时从孔级标签学习。",
+    "Control Charts在常规图表旁边增加了异常评分和化学面板。",
+    "Report增加了Archive package，用于将项目打包分享，以及向Zenodo存档。",
+    "Run History可以把一次记录的运行导出为可复用的工作流程。",
+    "Preferences增加了Notifications选项卡，当长时间运行完成或失败时，spaCR可以通过桌面消息、电子邮件、Slack或Webhook通知您。",
+    "Plugins选项卡列出可以安装、更新或移除的社区插件。",
+    "对于光学混池筛选，OPS的斑点检测器提供了更多用于测序斑点的alpha检测器。",
+    "Map Barcodes增加了空间转录组学模式。",
+    "Format Converter增加了按板条形码关联的功能，它根据板条形码从样品表填写板图。",
+    "Power和Design增加了用于阵列式筛选的规划器。",
+    "Feature Explorer等几个较小的工具增加了Load test data，它会下载一个示例，让您立刻试用。",
+    "完成后，再次打开Preferences并关闭Show alpha features。所有alpha控件都会消失，您稳定的工作流程与之前完全一样。"
+  ]
+}

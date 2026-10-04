@@ -1,0 +1,49 @@
+{
+  "lesson": "87_alpha_features",
+  "english_sha256": "689081b011942377f573e176b93714720bbdd458af6c196817694309ddee19e4",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ja",
+  "title": "Alpha：実験的な機能",
+  "description": "Show alpha featuresをオンにして、spaCRのどこに実験的な設定が現れ、何をするのかを確認します。",
+  "objectives": [
+    "PreferencesでShow alpha featuresをオンとオフにする。",
+    "各画面でalphaの設定を見つける。",
+    "試す前に、作業に合うalphaのツールを見分ける。"
+  ],
+  "prerequisite": "spaCRを開きます。入力ファイルは不要です。このレッスンでは、各alphaの設定がどこに現れ何をするかを示し、結果は示しません。alphaの機能は未完成で、バージョンによって変わることがあります。",
+  "scenes": [
+    "このレッスンでは、spaCRの実験的な機能を順に見ていきます。Preferencesを開いてModulesを選び、Show alpha featuresをオンにしてSaveを押します。alphaの機能は未完成で、バージョンによって変わったり、場所が移ったり、なくなったりすることがあります。結果を頼りにする前に必ず確認してください。",
+    "Mask generationでは、Image Preprocessingにalphaのカテゴリーが加わり、セグメンテーションの前に画素を変えます。単染色の対照ウェルを使ったスペクトル分離、自己教師ありのノイズ除去、照明補正、点拡がり関数によるデコンボリューション、局所ヒストグラム平坦化などのコントラスト強調です。",
+    "Quality Controlには、マスクそのものの確認が加わります。ロバスト性レポートは、設定を少し変えていくつかの視野を再びセグメンテーションし、物体がどれだけ変わるかを報告します。実物体分類器は本物の細胞に見えない物体を除き、画像品質ネットワークはぼけた視野、飽和した視野、空の視野に印を付けます。",
+    "ほかのalphaの設定は実行を自動化します。複数のGPUでの同時セグメンテーション、顕微鏡が書き込んでいる最中の視野を解析する監視フォルダー、選んだ物体を顕微鏡に送り返すフィードバック、クラウドストレージ上の画像ソースです。",
+    "Timeをオンにすると、Mask generationでalphaのトラッキングが使えます。追加のトラッキングモード、分裂のつながりから作る系統樹、そして各トラックに沿って分裂や細胞死などのイベントを見つけるイベント検出器です。",
+    "Measureには、測定の後に実行するalphaのアッセイが加わります。生細胞と死細胞を判定する生存率、DNA染色からの細胞周期の時期、スクラッチ創傷の閉鎖、そして各視野のうち細胞に覆われた割合であるコンフルエンシーです。",
+    "タイムラプスのプロジェクトでは、Measureに光退色の補正と、追跡した各物体をイベントまで追いかけて条件を時間とともに比べるイベントまでの時間の解析が加わります。",
+    "そのほかのalphaのオプションは、Measureが書き出す内容を変えます。ウェルごとの画像ベースのプロファイル、測定後に実行するCellProfilerパイプライン、GPUでの測定、非常に大きな実行のための追加の保存形式、撮影セッション間の強度キャリブレーションです。",
+    "AnnData Exportには、測定した物体の出力形式の選択が加わります。",
+    "Make Masksの下の列にはalphaのツールが表示されます。モデルが最も自信のない物体を探すUncertainty、整理の間は条件の名前を隠すBlindモード、ROIの読み込みと書き出し、動画を通してのSAM2 tracking、そしてApply virtual stainです。",
+    "Cellpose WorkbenchにはVirtual stainingがあり、手元の画像から染色チャネルを予測します。",
+    "Annotateには、Blindモード、ラベル付け中のクロップに似たクロップを探すLike this、そして視野全体を良好、ピンぼけ、飽和としてラベル付けするField QCが加わります。",
+    "Plaque Analysisには、プレート写真でのコロニーの計数と、最も大きなプラークと線形の成長という仮定から時間やスケールを提案する実験的な成長推定が加わります。",
+    "Activation MapsのCounterfactualsは、分類器に導かれる小さな生成モデルを学習し、クロップを一歩ずつもう一方のクラスへ変化させます。モデルがどの特徴に頼っているかが分かります。",
+    "Embeddingsには、基盤モデルのエンコーダー、自分のクロップでの自己教師あり事前学習、そして個々の細胞にラベルがないときのウェル単位のラベルからの学習が加わります。",
+    "Control Chartsには、通常のグラフの横に異常スコアと化学のパネルが加わります。",
+    "Reportには、プロジェクトを共有用にまとめるArchive packageと、Zenodoへの登録が加わります。",
+    "Run Historyでは、記録された実行を再利用できるワークフローとして書き出せます。",
+    "PreferencesにはNotificationsタブが加わり、長い実行が終わったときや失敗したときに、デスクトップ通知、メール、Slack、Webhookで知らせます。",
+    "Pluginsタブには、インストール、更新、削除ができるコミュニティのプラグインが並びます。",
+    "光学的プールドスクリーンでは、OPSのスポット検出器に、シーケンシングのスポット用の追加のalpha検出器があります。",
+    "Map Barcodesには、空間トランスクリプトミクスのモードが加わります。",
+    "Format Converterには、プレートのバーコードによる連携が加わり、サンプル表からプレートのバーコードに従ってプレートマップを埋めます。",
+    "PowerとDesignには、アレイ型スクリーンのためのプランナーが加わります。",
+    "Feature Explorerなどの小さなツールにはLoad test dataが加わり、例をダウンロードしてすぐに試せます。",
+    "終わったら、もう一度Preferencesを開いてShow alpha featuresをオフにします。alphaの設定はすべて消え、安定したワークフローは以前とまったく同じに見えます。"
+  ]
+}
