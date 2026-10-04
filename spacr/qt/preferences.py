@@ -4986,6 +4986,27 @@ def _set_show_alpha_features(on: bool) -> None:
     settings.sync()
 
 
+DEFAULT_RESTORE_SESSION = True
+_KEY_RESTORE_SESSION = "prefs/restore_last_session"
+
+
+def _get_restore_session() -> bool:
+    """Whether an ordinary start reopens the last session (default on)."""
+    return _as_bool(
+        _settings().value(_KEY_RESTORE_SESSION, DEFAULT_RESTORE_SESSION),
+        DEFAULT_RESTORE_SESSION)
+
+
+def _set_restore_session(on: bool) -> None:
+    """Turn reopening the last module, settings and folder on or off.
+
+    :param on: true to reopen the last session on every start.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_RESTORE_SESSION, bool(on))
+    settings.sync()
+
+
 DEFAULT_SHOW_ALPHA_SPECIES = False
 
 
@@ -7838,6 +7859,18 @@ class PreferencesDialog:
         refresh_news_check.setChecked(get_refresh_news())
         modules.addRow(tr("Release news"), refresh_news_check)
 
+        restore_session_check = Toggle(
+            tr("Reopen the last module, settings and folder on start"))
+        restore_session_check.setObjectName("RestoreLastSession")
+        restore_session_check.setToolTip(tr(
+            "Every start reopens the module that was on screen when spaCR "
+            "last closed or crashed, with its settings and folder. Open "
+            "fresh in the status bar, or starting with --fresh, skips it "
+            "once. Off always starts on Home. Default on."
+        ))
+        restore_session_check.setChecked(_get_restore_session())
+        modules.addRow(tr("Session"), restore_session_check)
+
         db_edit_check = Toggle(tr("Allow editing in the Database Browser"))
         db_edit_check.setToolTip(
             "Off by default. The Database Browser opens measurements.db "
@@ -8782,6 +8815,7 @@ class PreferencesDialog:
                 share_diagnostics_check.setChecked(
                     get_share_diagnostic_logs())
                 refresh_news_check.setChecked(get_refresh_news())
+                restore_session_check.setChecked(_get_restore_session())
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
@@ -8850,6 +8884,7 @@ class PreferencesDialog:
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
             set_refresh_news(refresh_news_check.isChecked())
+            _set_restore_session(restore_session_check.isChecked())
             verbose_holds_debug = verbose_check.isChecked()
             set_log_levels(
                 [level for level, (file_t, _c) in log_level_toggles.items()

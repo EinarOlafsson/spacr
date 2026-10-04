@@ -8,6 +8,13 @@ new process starts so that stale state is not restored repeatedly.
 Only the interface configuration is restored. Active computations do not
 resume after a forced restart; output written before the restart remains in
 the recorded run folders.
+
+Two further records live in the preference store rather than in a file. The
+last session (module, its settings and its folder) is written while spaCR runs
+and when it closes, so an ordinary start can reopen where the user left off
+after any exit or crash. Settings drafts hold the unsaved settings of every
+open module; they are cleared on a clean exit, so a draft found at start-up
+means the previous run ended without closing.
 """
 from __future__ import annotations
 
@@ -260,6 +267,130 @@ def discard() -> bool:
     except Exception as exc:                              # noqa: BLE001
         LOG.warning("could not remove the restart state: %s", exc)
         return False
+
+
+_SESSION_KEY = "session/last"
+_DRAFTS_KEY = "session/drafts"
+_FOLDER_KEYS = ("src", "source_folder", "folder", "input_folder")
+
+
+def _store():
+    """Return the preference store that holds the session and the drafts."""
+    from .qt.preferences import _settings
+
+    return _settings()
+
+
+def _folder_of(settings: Mapping[str, Any]) -> str:
+    """Return the input folder named in ``settings``, or an empty string."""
+    for key in _FOLDER_KEYS:
+        value = settings.get(key) if isinstance(settings, Mapping) else None
+        if isinstance(value, (list, tuple)):
+            value = value[0] if value else ""
+        if value:
+            return str(value)
+    return ""
+
+
+def _write_json(key: str, document: Mapping[str, Any]) -> bool:
+    """Store ``document`` as JSON under ``key``; return whether it was kept."""
+    try:
+        store = _store()
+        store.setValue(key, json.dumps(_jsonable(document), default=str))
+        store.sync()
+    except Exception as exc:                              # noqa: BLE001
+        LOG.warning("could not store %s: %s", key, exc)
+        return False
+    return True
+
+
+def _read_json(key: str) -> Optional[Dict[str, Any]]:
+    """Return the JSON mapping stored under ``key``, or ``None``."""
+    try:
+        raw = _store().value(key, "")
+    except Exception as exc:                              # noqa: BLE001
+        LOG.warning("could not read %s: %s", key, exc)
+        return None
+    if not raw:
+        return None
+    try:
+        document = json.loads(str(raw))
+    except ValueError:
+        return None
+    return document if isinstance(document, dict) else None
+
+
+def _save_session(module: str,
+                  settings: Optional[Mapping[str, Any]] = None) -> bool:
+    """Record the visible module, its settings and its folder.
+
+    :param module: key of the module on screen, or ``""`` for Home.
+    :param settings: the module's current settings.
+    :returns: whether the record was stored.
+    """
+    settings = dict(settings or {})
+    return _write_json(_SESSION_KEY, {
+        "version": SCHEMA_VERSION,
+        "saved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "module": str(module or ""),
+        "settings": settings,
+        "folder": _folder_of(settings),
+    })
+
+
+def _last_session() -> Optional[Dict[str, Any]]:
+    """Return the last recorded session, or ``None`` when there is none.
+
+    The record is read, not consumed: every ordinary start may reopen it.
+    """
+    document = _read_json(_SESSION_KEY)
+    if document is None or not str(document.get("module") or ""):
+        return None
+    if not isinstance(document.get("settings"), dict):
+        document["settings"] = {}
+    return document
+
+
+def _save_drafts(drafts: Mapping[str, Mapping[str, Any]]) -> bool:
+    """Store the unsaved settings of every open module.
+
+    :param drafts: module key to that module's current settings.
+    :returns: whether the drafts were stored.
+    """
+    modules = {str(k): dict(v) for k, v in (drafts or {}).items()
+               if k and isinstance(v, Mapping)}
+    if not modules:
+        return _clear_drafts()
+    return _write_json(_DRAFTS_KEY, {
+        "version": SCHEMA_VERSION,
+        "saved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "modules": modules,
+    })
+
+
+def _take_drafts() -> Dict[str, Dict[str, Any]]:
+    """Consume the stored drafts and return them as module to settings.
+
+    The drafts are removed before this returns, so a draft is offered once.
+    """
+    document = _read_json(_DRAFTS_KEY)
+    _clear_drafts()
+    modules = (document or {}).get("modules")
+    if not isinstance(modules, dict):
+        return {}
+    return {str(k): v for k, v in modules.items() if isinstance(v, dict)}
+
+
+def _clear_drafts() -> bool:
+    """Remove the stored drafts; return whether the store accepted it."""
+    try:
+        store = _store()
+        store.remove(_DRAFTS_KEY)
+        store.sync()
+    except Exception as exc:                              # noqa: BLE001
+        LOG.warning("could not clear the settings drafts: %s", exc)
+        return False
+    return True
 
 
 def command() -> List[str]:

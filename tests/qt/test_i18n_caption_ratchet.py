@@ -1315,6 +1315,16 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Mammalian cells",
     "Trypanosoma spp.",
     "Virus infection",
+    'Every start reopens the module that was on screen when spaCR last closed or crashed, with its settings and folder. Open fresh in the status bar, or starting with --fresh, skips it once. Off always starts on Home. Default on.',
+    'Open fresh',
+    "Put back this module's default settings and go to Home. Preferences can turn reopening off for good.",
+    'Reopen the last module, settings and folder on start',
+    'Reopened {module} as you left it.',
+    'Reopened {module} from {folder}.',
+    'Restore',
+    'Restore unsaved settings',
+    'Session',
+    'spaCR did not close normally last time. Unsaved settings were kept for: {modules}. Restore them?',
 })
 
 

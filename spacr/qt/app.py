@@ -28,6 +28,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
+    QPushButton,
     QStackedWidget,
     QStatusBar,
     QToolButton,
@@ -44,6 +45,8 @@ from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
 from .widgets.dock import Dock
 
 LOG = logging.getLogger(__name__)
+
+_OPEN_FRESH = [False]
 
 #: Published documentation root. `docs/source/conf.py` copies everything in
 #: `docs/source/_extra/` verbatim into the site root (`html_extra_path`), so
@@ -2785,8 +2788,9 @@ class MainWindow(QMainWindow):
 
         if initial_app:
             self.open_module(initial_app)
-        else:
-            self.resume_after_restart()
+        elif not self.resume_after_restart():
+            self._resume_last_session()
+        self._start_settings_autosave()
 
         try:
             from .theme import take_the_scroll_arrows_off
@@ -4468,6 +4472,7 @@ class MainWindow(QMainWindow):
                 event.ignore()
                 self._closing = False
                 return
+        self._end_session_cleanly()
         self._closing = True
         from .widgets.console_panel import ConsolePanel
         for panel in self.findChildren(ConsolePanel):
@@ -4751,6 +4756,232 @@ class MainWindow(QMainWindow):
             LOG.exception("could not reopen %s after the restart", key)
             return ""
         return key
+
+    _SETTINGS_AUTOSAVE_MS = 30000
+    _OPEN_FRESH_SHOWN_MS = 20000
+
+    def _open_app_screens(self) -> dict:
+        """Return module key to screen for every built application screen."""
+        from .screens.app_screen import AppScreen
+
+        found = {}
+        for screen in list(getattr(self, "_screens", {}).values()):
+            if not isinstance(screen, AppScreen):
+                continue
+            key = str(getattr(screen, "app_key", "") or "")
+            if key and key not in found:
+                found[key] = screen
+        return found
+
+    @staticmethod
+    def _collect_screen(screen) -> dict:
+        """Return a screen's current settings, or an empty mapping."""
+        model = getattr(screen, "_settings_model", None)
+        try:
+            return dict((model.collect() if model is not None else {}) or {})
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not collect settings", exc_info=True)
+            return {}
+
+    def _current_session(self) -> tuple:
+        """Return the visible module key and its settings."""
+        screen = self._stack.currentWidget()
+        key = str(getattr(screen, "app_key", "") or "")
+        return key, (self._collect_screen(screen) if key else {})
+
+    def _start_settings_autosave(self) -> None:
+        """Start the timer that keeps the session and drafts current.
+
+        A draft left from a run that did not close normally is offered back
+        once the window is up.
+        """
+        from PySide6.QtCore import QTimer
+
+        self._last_autosave = ""
+        self._settings_autosave_timer = QTimer(self)
+        self._settings_autosave_timer.setObjectName("SettingsAutosaveTimer")
+        self._settings_autosave_timer.setInterval(self._SETTINGS_AUTOSAVE_MS)
+        self._settings_autosave_timer.timeout.connect(self._autosave_settings)
+        self._settings_autosave_timer.start()
+        QTimer.singleShot(0, self._offer_settings_drafts)
+
+    def _autosave_settings(self) -> bool:
+        """Store the session and every open module's settings as drafts.
+
+        Nothing is written when nothing changed since the last autosave.
+
+        :returns: whether anything was written.
+        """
+        import json
+
+        from .. import restart_state
+
+        if getattr(self, "_closing", False):
+            return False
+        drafts = {key: self._collect_screen(screen)
+                  for key, screen in self._open_app_screens().items()}
+        module, settings = self._current_session()
+        fingerprint = json.dumps([module, drafts], sort_keys=True,
+                                 default=str)
+        if fingerprint == getattr(self, "_last_autosave", ""):
+            return False
+        self._last_autosave = fingerprint
+        restart_state._save_session(module, settings)
+        restart_state._save_drafts(drafts)
+        return True
+
+    def _end_session_cleanly(self) -> None:
+        """Record where the user left off and drop the crash drafts."""
+        from .. import restart_state
+
+        timer = getattr(self, "_settings_autosave_timer", None)
+        if timer is not None:
+            timer.stop()
+        try:
+            module, settings = self._current_session()
+            restart_state._save_session(module, settings)
+            restart_state._clear_drafts()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not record the session on close", exc_info=True)
+
+    def _resume_last_session(self) -> str:
+        """Reopen the module, settings and folder of the last session.
+
+        Skipped when the Preferences switch is off or this start was asked
+        to open fresh. The settings are applied; no run is started.
+
+        :returns: the module key reopened, or ``""``.
+        """
+        from .. import restart_state
+        from .preferences import _get_restore_session
+
+        if _OPEN_FRESH[0] or not _get_restore_session():
+            return ""
+        state = restart_state._last_session()
+        if not state:
+            return ""
+        requested = str(state.get("module") or "")
+        try:
+            key = self.open_module(requested)
+            screen = _opened_module_screen(self, requested, key)
+            settings = state.get("settings") or {}
+            if screen is not None and settings:
+                self._fresh_settings = (key, self._collect_screen(screen))
+                screen.apply_settings_dict(settings)
+                self._restored_session_settings = (key, dict(settings))
+        except Exception:                                    # noqa: BLE001
+            LOG.exception("could not reopen the last session (%s)", requested)
+            return ""
+        self._offer_open_fresh(key, str(state.get("folder") or ""))
+        return key
+
+    def _offer_open_fresh(self, key: str, folder: str = "") -> None:
+        """Say what was reopened and offer an Open fresh button for a while."""
+        from PySide6.QtCore import QTimer
+
+        bar = self.statusBar()
+        message = (tr("Reopened {module} from {folder}.", module=key,
+                      folder=folder) if folder
+                   else tr("Reopened {module} as you left it.", module=key))
+        bar.showMessage(message, self._OPEN_FRESH_SHOWN_MS)
+        button = QPushButton(tr("Open fresh"), bar)
+        button.setObjectName("OpenFreshButton")
+        button.setToolTip(tr(
+            "Put back this module's default settings and go to Home. "
+            "Preferences can turn reopening off for good."))
+        button.clicked.connect(self._open_fresh)
+        bar.addPermanentWidget(button)
+        self._open_fresh_button = button
+        QTimer.singleShot(self._OPEN_FRESH_SHOWN_MS, self._drop_open_fresh)
+
+    def _drop_open_fresh(self) -> None:
+        """Remove the Open fresh button from the status bar."""
+        button = getattr(self, "_open_fresh_button", None)
+        self._open_fresh_button = None
+        if button is None:
+            return
+        try:
+            self.statusBar().removeWidget(button)
+            button.deleteLater()
+        except RuntimeError:
+            pass
+
+    def _open_fresh(self) -> None:
+        """Undo the reopened session: default settings, then Home."""
+        key, defaults = getattr(self, "_fresh_settings", ("", {}))
+        screen = self._open_app_screens().get(key)
+        if screen is not None and defaults:
+            try:
+                screen.apply_settings_dict(defaults)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not put the defaults back", exc_info=True)
+        self._restored_session_settings = ("", {})
+        self._drop_open_fresh()
+        self.statusBar().clearMessage()
+        self._on_nav_selected("__home__")
+
+    def _offer_settings_drafts(self) -> None:
+        """Offer the drafts a run that did not close normally left behind.
+
+        Drafts identical to the settings already reopened are not offered.
+        The question is opened, not executed, so start-up is never held.
+        """
+        from .. import restart_state
+
+        drafts = restart_state._take_drafts()
+        restored_key, restored = getattr(
+            self, "_restored_session_settings", ("", {}))
+        drafts = {k: v for k, v in drafts.items()
+                  if v and not (k == restored_key and v == restored)}
+        if not drafts:
+            return
+        self._pending_drafts = drafts
+        box = QMessageBox(self)
+        box.setObjectName("RestoreDraftsDialog")
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setWindowTitle(tr("Restore unsaved settings"))
+        box.setText(tr(
+            "spaCR did not close normally last time. Unsaved settings were "
+            "kept for: {modules}. Restore them?",
+            modules=", ".join(sorted(drafts))))
+        self._drafts_restore_button = box.addButton(
+            tr("Restore"), QMessageBox.ButtonRole.AcceptRole)
+        box.addButton(tr("Discard"), QMessageBox.ButtonRole.RejectRole)
+        box.buttonClicked.connect(self._on_drafts_answered)
+        self._drafts_box = box
+        box.open()
+
+    def _on_drafts_answered(self, button) -> None:
+        """Restore the drafts on Restore; forget them otherwise."""
+        if button is getattr(self, "_drafts_restore_button", None):
+            self._restore_settings_drafts()
+        else:
+            self._pending_drafts = {}
+
+    def _restore_settings_drafts(self) -> int:
+        """Apply the pending drafts, then return to the visible module.
+
+        :returns: how many modules received their draft.
+        """
+        drafts = dict(getattr(self, "_pending_drafts", {}) or {})
+        self._pending_drafts = {}
+        home_key = str(getattr(self._stack.currentWidget(), "app_key", "")
+                       or "__home__")
+        done = 0
+        for requested, settings in drafts.items():
+            try:
+                key = self.open_module(requested)
+                screen = _opened_module_screen(self, requested, key)
+                if screen is not None:
+                    screen.apply_settings_dict(settings)
+                    done += 1
+            except Exception:                                # noqa: BLE001
+                LOG.exception("could not restore the draft for %s", requested)
+        try:
+            self.open_module(home_key)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not return to %s", home_key, exc_info=True)
+        return done
 
     def open_module(self, app_key: str) -> str:
         """Navigate to the screen that carries ``app_key``, folded or not.
@@ -6410,6 +6641,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
 
     argv, told_to_skip_setup = take_the_setup_flags(argv)
 
+    _OPEN_FRESH[0] = "--fresh" in argv
+    argv = [arg for arg in argv if arg != "--fresh"]
     initial_app = argv[0] if argv else None
 
     _install_crash_dump()

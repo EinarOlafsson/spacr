@@ -179,6 +179,23 @@ Make Masks    Cellpose Workbench, Mask the whole folder, Model Compare,
 Parameter Sweep is reached a third way: it is a panel on the Regression
 screen, opened by the **Parameter sweep** switch on its settings form.
 
+Picking up where you left off
+-----------------------------
+
+- **Session restore**: every ordinary start reopens the module that was on
+  screen when spaCR last closed or crashed, with its settings and input
+  folder. No run is started. While the status bar says what was reopened, its
+  **Open fresh** button puts that module's default settings back and goes to
+  Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in
+  **Preferences → Modules → Session** (on by default). A module named on the
+  command line, or a Force restart record, takes precedence.
+- **Settings autosave**: every 30 seconds the unsaved settings of every open
+  module are kept as a draft in the preference store; nothing is written when
+  nothing changed. A clean exit drops the drafts. If spaCR ended without
+  closing, the next start asks once whether to restore them (drafts identical
+  to the reopened session are not asked about). The same behaviour applies on
+  Linux, macOS and Windows, because the store is Qt's own settings store.
+
 Arranging the window
 --------------------
 
