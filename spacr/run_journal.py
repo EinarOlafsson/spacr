@@ -1653,9 +1653,8 @@ def _send_notification(message: Dict[str, Any],
 
     def secret(name: str) -> str:
         """The secret supplied to try, else the stored one."""
-        if name not in secrets:
-            given = (notify.get("secrets") or {}).get(name)
-            secrets[name] = str(given) if given else _load_notify_secret(name)
+        given = (notify.get("secrets") or {}).get(name)
+        secrets[name] = str(given) if given else _load_notify_secret(name)
         return secrets[name]
 
     channels = []
