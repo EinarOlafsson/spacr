@@ -92,3 +92,81 @@ def test_samcell_stock_weights_follow_the_backend_setting(root):
     assert identity == {'backend': 'samcell', 'model': 'samcell',
                         'environment': identity['environment']}
     assert len(identity['environment']) == 64
+
+
+def _stub_segment(src, settings, role, *, batch_paths, on_batch_done, run_qc):
+    """CPU stand-in for the generator: one mask per field, plus its bound device."""
+    import os
+    from pathlib import Path
+
+    import numpy as np
+
+    assert run_qc is False
+    out = Path(src) / f'{role}_mask_stack'
+    out.mkdir(exist_ok=True)
+    for path in batch_paths:
+        with open(Path(src).parent / 'calls.log', 'a') as log:
+            log.write(f"{os.environ.get('CUDA_VISIBLE_DEVICES')} {Path(path).name}\n")
+        with np.load(path, allow_pickle=False) as data:
+            for plane, name in zip(data['data'], data['filenames']):
+                np.save(out / str(name), (plane[..., 0] > 0).astype(np.uint16))
+        on_batch_done(path)
+
+
+@pytest.mark.parametrize('settings, backend', [
+    ({'nucleus_model_name': 'stardist:2D_versatile_fluo'}, 'stardist'),
+    ({'nucleus_model_name': 'cellpose3:nuclei'}, 'cellpose3'),
+    ({'segmentation_backend': 'samcell'}, 'samcell'),
+])
+def test_dispatch_accepts_every_backend_with_a_contract(tmp_path, monkeypatch, capsys,
+                                                       settings, backend):
+    import numpy as np
+
+    import spacr.accelerator as acc
+    import spacr.object as sobj
+    from spacr import _mask_workers as mw
+
+    for key in ('CUDA_VISIBLE_DEVICES', 'HIP_VISIBLE_DEVICES', 'ROCR_VISIBLE_DEVICES'):
+        monkeypatch.delenv(key, raising=False)
+    root = tmp_path / 'backends'
+    _install(root, backend, {'requirements': [f'{backend}==1']})
+    monkeypatch.setenv(sb._ROOT_ENV, str(root))
+    monkeypatch.setattr(sobj, '_run_seg_qc', lambda *args, **kwargs: None)
+    monkeypatch.setattr(mw, '_prepare_mask_model',
+                        lambda *args: pytest.fail('Cellpose-SAM contract used'))
+    masks = tmp_path / 'plate' / 'masks'
+    masks.mkdir(parents=True)
+    for index in range(4):
+        np.savez(masks / f'batch{index}.npz', data=np.ones((2, 6, 6, 1), np.float32),
+                 filenames=np.array([f'p_A0{index}_{f}.npy' for f in range(2)]))
+    devices = [{'index': i, 'name': f'Card {i}', 'memory_bytes': 1 << 30, 'backend': 'cuda'}
+               for i in (0, 1)]
+    run = dict(settings, nucleus_channel=0, channels=[0], cell_channel=None,
+               pathogen_channel=None, verbose=False, plot=False, mask_parallel=True)
+    plan = mw._parallel_mask_plan(run, devices=devices)
+    plan['environments'] = {i: acc._mask_worker_environment(i, backend='cuda', count=2)
+                            for i in plan['devices']}
+
+    mw._generate_masks_in_parallel(str(masks), run, 'nucleus', plan, segmenter=_stub_segment)
+
+    calls = [line.split() for line in (masks.parent / 'calls.log').read_text().splitlines()]
+    assert sorted(name for _, name in calls) == [f'batch{i}.npz' for i in range(4)]
+    assert {device for device, _ in calls} == {'0', '1'}
+    assert len(list((masks / 'nucleus_mask_stack').glob('*.npy'))) == 8
+    ledger = json.loads((masks / '.mask-workers-nucleus.json').read_text())
+    assert ledger['status'] == 'finalized' and len(ledger['completed']) == 4
+    assert backend in capsys.readouterr().out
+
+
+def test_a_mixed_run_routes_each_role_to_its_own_contract(root, monkeypatch):
+    from spacr import _mask_workers as mw
+
+    _install(root, 'stardist', {'requirements': ['stardist==1']})
+    monkeypatch.setenv(sb._ROOT_ENV, str(root))
+    seen = []
+    monkeypatch.setattr(mw, '_prepare_mask_model',
+                        lambda settings, role: seen.append(role) or ({}, 'sam', {}))
+    settings = {'cell_model_name': 'cpsam', 'nucleus_model_name': 'stardist:'}
+    assert mw._mask_model_contract(settings, 'cell')[1] == 'sam'
+    _, _, identity = mw._mask_model_contract(settings, 'nucleus')
+    assert seen == ['cell'] and identity['backend'] == 'stardist'

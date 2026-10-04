@@ -258,3 +258,19 @@ Still open: per-backend worker segmenters and step 5 on two physical GPUs.
     Not blocked, still OPEN code: per-backend worker segmenters for the
     non-Cellpose backends (dispatch refuses them). Status stays IMPLEMENTED AS
     ALPHA until that code lands.
+
+2026-10-03 — Dispatch accepts every backend with a model contract
+_generate_masks_in_parallel now signs each role through _mask_model_contract:
+Cellpose-SAM roles use _prepare_mask_model, every other backend (Cellpose 3,
+Cellpose-DINO, StarDist/InstanSeg/Omnipose and the other prefixed backends,
+DINOCell, SAMCell) uses _resolved_backend_model. Routing is per role and
+follows the generator (_role_backend), so a run mixing cpsam cells with
+stardist: nuclei is accepted. Workers keep the same generator, which loads
+the backend's own environment worker; that child inherits the worker's
+single-GPU CUDA_VISIBLE_DEVICES. Tests (CPU, stub workers, two simulated
+devices, real spawned processes): stardist, cellpose3 and samcell runs each
+write all 8 fields once across both devices and finalize the ledger; a mixed
+run routes each role to its own contract. 141 related tests pass.
+Still open (BLOCKED on hardware): step 5 on two or more physical GPUs, and
+one real non-Cellpose backend run on two GPUs. Status stays IMPLEMENTED AS
+ALPHA; no new settings or widgets.

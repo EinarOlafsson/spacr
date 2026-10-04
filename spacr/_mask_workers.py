@@ -17,35 +17,73 @@ from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from pathlib import Path
 
 
+def _role_backend(settings, object_type):
+    """The backend the mask generator would load for one role's model.
+
+    Follows :func:`spacr.object.generate_cellpose_masks_sam`: a ``cellpose3:``,
+    ``cellpose_dino:`` or other backend prefix on the role's model wins, else
+    ``segmentation_backend`` decides.
+
+    :returns: ``(prepared, model, backend)`` with defaults filled in a copy.
+    """
+    from ._segmentation_backends import (_backend_name, _cellpose3_choice, _CELLPOSE3,
+                                         _cellpose_dino_choice, _CELLPOSE_DINO,
+                                         _prefixed_backend)
+    from .settings import _get_object_settings, set_default_settings_preprocess_generate_masks
+
+    if object_type not in ('cell', 'nucleus', 'pathogen'):
+        raise ValueError('Unsupported parallel mask object type')
+    prepared = set_default_settings_preprocess_generate_masks(copy.deepcopy(settings))
+    model = _get_object_settings(object_type, prepared)['model_name']
+    if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
+        model = prepared['pathogen_model']
+    backend = _backend_name(prepared.get('segmentation_backend', 'cellpose'))
+    if _cellpose3_choice(model) is not None:
+        backend = _CELLPOSE3
+    elif _cellpose_dino_choice(model) is not None:
+        backend = _CELLPOSE_DINO
+    elif _prefixed_backend(model) is not None:
+        backend = _prefixed_backend(model)
+    return prepared, model, backend
+
+
+def _mask_model_contract(settings, object_type):
+    """Resolve and sign the model of whichever backend serves this role.
+
+    Cellpose-SAM roles go through :func:`_prepare_mask_model`; every other
+    backend through :func:`_resolved_backend_model`. Both return
+    ``(prepared, signature, identity)``.
+    """
+    if _role_backend(settings, object_type)[2] == 'cellpose':
+        return _prepare_mask_model(settings, object_type)
+    return _resolved_backend_model(settings, object_type)
+
+
+def _model_label(identity):
+    """A short printable name for a resolved model identity."""
+    if identity.get('path'):
+        return identity['path']
+    return f"{identity.get('backend', '?')} {identity.get('model', '?')}"
+
+
 def _prepare_mask_model(settings, object_type):
     """Resolve Cellpose weights once and sign their bytes with material settings.
 
     Return a detached canonical settings dict, its settings/model SHA256 and
     inspectable model identity. Stock weights use Cellpose's own cache resolver;
     custom checkpoints stay explicit paths. No network is constructed, no GPU
-    allocation occurs, and the caller's settings remain unchanged. Other
-    backends require their own resolved-artifact contract before dispatch.
+    allocation occurs, and the caller's settings remain unchanged. A role
+    served by another backend is refused here; :func:`_mask_model_contract`
+    sends it to :func:`_resolved_backend_model`.
     """
-    from ._segmentation_backends import (_backend_name, _cellpose3_is_chosen,
-                                         _cellpose_dino_is_chosen,
-                                         _prefixed_is_chosen)
     from .artifacts import material_settings
     from .checkpoint import fingerprint
     from .model_zoo import sha256_file
-    from .settings import _get_object_settings, set_default_settings_preprocess_generate_masks
     from .utils import _resolve_cellpose_pretrained, cp_models
 
-    if object_type not in ('cell', 'nucleus', 'pathogen'):
-        raise ValueError('Unsupported parallel mask object type')
-    if (_backend_name(settings.get('segmentation_backend', 'cellpose')) != 'cellpose'
-            or _cellpose3_is_chosen(settings)
-            or _cellpose_dino_is_chosen(settings)
-            or _prefixed_is_chosen(settings)):
+    prepared, model, backend = _role_backend(settings, object_type)
+    if backend != 'cellpose':
         raise ValueError('Parallel model preparation currently requires the Cellpose backend')
-    prepared = set_default_settings_preprocess_generate_masks(copy.deepcopy(settings))
-    model = _get_object_settings(object_type, prepared)['model_name']
-    if object_type == 'pathogen' and prepared.get('pathogen_model') is not None:
-        model = prepared['pathogen_model']
     resolved = _resolve_cellpose_pretrained(model, object_type=object_type)
     path = Path(resolved).expanduser()
     if not path.is_file():
@@ -146,15 +184,15 @@ def _resolved_backend_model(settings, object_type, *, root=None):
         key, value = 'pathogen_model', prepared['pathogen_model']
     backend = sb._backend_name(prepared.get('segmentation_backend'))
     try:
-        if sb._cellpose3_choice(value) is not None or backend == sb._CELLPOSE3:
-            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type)
-        elif sb._cellpose_dino_choice(value) is not None:
+        if sb._cellpose_dino_choice(value) is not None:
             backend, model = sb._CELLPOSE_DINO, sb._cellpose_dino_choice(value)
             if not model or not os.path.exists(os.path.expanduser(model)):
                 raise FileNotFoundError(f'no Cellpose-DINO checkpoint at {model!r}')
-        elif sb._prefixed_backend(value) is not None:
+        elif sb._cellpose3_choice(value) is None and sb._prefixed_backend(value) is not None:
             backend = sb._prefixed_backend(value)
             model = sb._prefixed_model(backend, value)
+        elif sb._cellpose3_choice(value) is not None or backend == sb._CELLPOSE3:
+            backend, model = sb._CELLPOSE3, sb._cellpose3_model(value, object_type)
         elif backend in (sb._DINOCELL, sb._SAMCELL):
             text = str(value or '').strip()
             model = (os.path.abspath(os.path.expanduser(text))
@@ -932,13 +970,14 @@ def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
     :param object_type: ``cell``, ``nucleus`` or ``pathogen``.
     :param plan: result of :func:`_parallel_mask_plan`.
     :param context: optional multiprocessing context for tests.
-    :param segmenter: optional CPU stand-in for the Cellpose-SAM generator.
+    :param segmenter: optional CPU stand-in for the mask generator, which
+        serves Cellpose-SAM and every backend with a model contract.
     """
     from .io import _mask_batch_manifest
     from .object import _fill_cellpose_channel_positions, _run_seg_qc
     from .settings import set_default_settings_preprocess_generate_masks
 
-    prepared, signature, identity = _prepare_mask_model(settings, object_type)
+    prepared, signature, identity = _mask_model_contract(settings, object_type)
     records = _mask_batch_manifest(mask_src)
     ledger = _MaskBatchLedger(mask_src, records, object_type, signature,
                               excluded_fields=settings.get('image_qc_excluded_fields') or ())
@@ -946,7 +985,7 @@ def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
     names = ', '.join(f'GPU {device} ({plan["names"].get(device, "?")})'
                       for device in plan['devices'])
     print(f'Parallel {object_type} masks: {len(records)} archives on {names}; '
-          f'model {identity["path"]}')
+          f'model {_model_label(identity)}')
     last = {}
 
     def report(state):
