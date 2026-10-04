@@ -1,6 +1,6 @@
 SELF-SUPERVISED DENOISING TRAINED ON THE USER'S OWN IMAGES (Noise2Void / CAREamics)
 
-Status: IMPLEMENTED AS ALPHA 2026-09-27; done-when NOT met (GPU rounds 2026-09-30, see ROUND 3: no reliable F1 gain over raw images)
+Status: IMPLEMENTED AS ALPHA 2026-09-27; done-when NOT met (GPU rounds 2026-09-30 and CPU round 4 2026-10-04: neither N2V, Cellpose 3 restoration nor non-local means raises F1 reliably over raw images)
 Owner: item-557-work. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
@@ -230,3 +230,45 @@ wider threshold grid on the CPU). Branch val-557g.
       +0.13 F1 here with no denoiser.
     - structN2V is backend-only; expose it as a setting only if a real
       correlated-noise data set shows a gain.
+
+ROUND 4 2026-10-03/04 (CPU only; the GPU was held by another session's
+training). Other denoisers, same held-out sets and scoring as ROUND 3.
+    tools/validate_n2v_lowlight.py PREDENOISE=nlm|cp3_<model> denoises each
+    noisy field once, before Mask generation (linear rescale to uint16), then
+    runs the raw chain (off) with FLOWS=1, and --sweep re-tunes cellprob x
+    flow x area floor on one fold and scores the other, exactly as before.
+    nlm = scikit-image non-local means (fast, 5 px patches, 6 px search,
+    h 0.8 x estimate_sigma). cp3_* = Cellpose 3.1.1.3's restoration networks
+    (denoise_cyto3, denoise_nuclei; trained for segmentation) on the CPU at
+    each field's true diameter, in the Cellpose 3 backend environment. BM3D
+    was not tried (not installed; NLM is the non-deep baseline).
+    F1@.5, pooled (raw and N2V rows from ROUND 3):
+      data               arm                default  tuned held-out  in-sample best
+      toxo PEAK 10       raw                0.543    0.676           -
+                         N2V (150 ep)       0.540    0.543           -
+                         NLM                0.363    0.511           -
+                         CP3 denoise_cyto3  0.353    0.393           -
+                         CP3 denoise_nuclei 0.109    (not swept)     -
+      Huh7 real low      raw                0.549    0.656           0.792
+      light, 523 cells   N2V (40 ep)        0.560    0.721           0.787
+                         NLM                0.582    0.772           0.822
+                         CP3 denoise_cyto3  0.538    0.750           0.802
+                         CP3 denoise_nuclei 0.294    0.638           -
+    WHAT IT SAYS
+    - Nothing helps reliably. On simulated photon-starved toxo vacuoles
+      (small objects, PEAK 10) every denoiser lowers F1, with or without
+      re-tuning, mostly by losing recall: smoothing merges or erases the
+      small dim objects that Cellpose-SAM finds in the raw noise.
+    - On real low-light Huh7 (large cells), NLM is the best arm on every
+      measure (+0.033 default, +0.116 held-out, +0.030 in-sample best,
+      F1@.75 held-out 0.461 vs 0.377), and Cellpose 3 denoise_cyto3 helps
+      once re-tuned. One cell line, two sequences, 13 frames.
+    - Cellpose 3 denoise_nuclei is wrong for both (cyto-like objects).
+    - So no denoiser was made a default. NLM already exists as the
+      enhancement chain's enhance_denoise='nlm' (not alpha); use it for
+      large cells at low light, not for small objects. Outputs:
+      /mnt/wd4tb/scratch/557/out_r4/flows/*/sweep.json, r4_*.log.
+    WHAT IS LEFT
+    - Unchanged from ROUND 3: a second real low-light data set (another
+      cell line or more sequences) to tell whether the Huh7 NLM/N2V gains
+      hold; a raw-image threshold auto-tune is the bigger, safer win.

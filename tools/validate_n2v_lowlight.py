@@ -79,6 +79,8 @@ SPAN = int(os.environ.get("SPAN", 5))
 VARIANT = os.environ.get("VARIANT", "n2v2")
 STRUCT_SPAN = int(os.environ.get("STRUCT_SPAN", 9))
 FLOWS = os.environ.get("FLOWS", "0") == "1"
+PREDENOISE = os.environ.get("PREDENOISE", "")
+CP3_PYTHON = os.environ.get("CP3_PYTHON", str(Path.home() / ".spacr/backends/cellpose3/bin/python"))
 HUH7 = Path("/nas_mnt/data/training_data/projects/live_cell/datasets/Homo_sapiens/"
             "Masks/timelapse/Widefield_20x/Fluorescence/ctc_fluo_c2dl_huh7/"
             "unpacked/Fluo-C2DL-Huh7/Fluo-C2DL-Huh7")
@@ -101,7 +103,8 @@ def data_tag():
 def model_tag():
     """The data tag plus the N2V variant and epochs."""
     variant = f"_struct{STRUCT_SPAN}" if VARIANT == "struct" else ""
-    return f"{data_tag()}{variant}_e{EPOCHS}"
+    pre = f"_{PREDENOISE}" if PREDENOISE else ""
+    return f"{data_tag()}{pre}{variant}_e{EPOCHS}"
 
 
 def best_window(gt):
@@ -160,6 +163,70 @@ def stage_huh7():
             tifffile.imwrite(folder / "gt" / name, tifffile.imread(seg))
             pairs.append((folder / name, folder / "gt" / name))
     return pairs, planes
+
+
+_CP3_SCRIPT = """
+import sys, json, numpy as np, tifffile, torch
+from cellpose import denoise
+torch.set_num_threads(int(sys.argv[3]))
+model = denoise.DenoiseModel(model_type=sys.argv[1], gpu=False)
+for src, dst, diameter in json.loads(open(sys.argv[2]).read()):
+    image = tifffile.imread(src).astype(np.float32)
+    out = np.asarray(model.eval(image, channels=None, channel_axis=None, diameter=diameter,
+                                normalize=True, batch_size=8), dtype=np.float32)
+    np.save(dst, out.reshape(image.shape))
+    print(dst, flush=True)
+"""
+
+
+def _to_uint16(plane):
+    """A float plane mapped linearly onto the full uint16 range."""
+    low, high = float(plane.min()), float(plane.max())
+    return np.round((plane - low) / max(high - low, 1e-12) * 65535).astype(np.uint16)
+
+
+def predenoise(pairs, diameters):
+    """Denoise every noisy image once, before Mask generation sees it.
+
+    ``nlm``: scikit-image non-local means (fast mode, 5 px patches, 6 px
+    search, h = 0.8 sigma, sigma from ``estimate_sigma``) on the unit-scaled
+    plane. ``cp3_<model>``: Cellpose 3's restoration network (for example
+    denoise_cyto3, denoise_nuclei) run in the Cellpose 3 environment
+    (CP3_PYTHON) on the CPU at the field's true diameter. The result is
+    rescaled linearly onto uint16 and replaces the field image; the ground
+    truth is untouched.
+    """
+    import subprocess
+
+    folder = OUT / f"pre_{data_tag()}_{PREDENOISE}"
+    (folder / "gt").mkdir(parents=True, exist_ok=True)
+    out = [(folder / image.name, gt) for image, gt in pairs]
+    todo = [(src, dst, d) for (src, _), (dst, _), d in zip(pairs, out, diameters)
+            if not dst.is_file()]
+    if PREDENOISE == "nlm":
+        from skimage.restoration import denoise_nl_means, estimate_sigma
+        for src, dst, _ in todo:
+            raw = tifffile.imread(src).astype(np.float64)
+            unit = (raw - raw.min()) / max(raw.max() - raw.min(), 1e-12)
+            sigma = float(estimate_sigma(unit))
+            plane = denoise_nl_means(unit, h=0.8 * sigma, sigma=sigma, fast_mode=True,
+                                     patch_size=5, patch_distance=6)
+            tifffile.imwrite(dst, _to_uint16(plane))
+    elif PREDENOISE.startswith("cp3_"):
+        jobs = [(str(src), str(dst.with_suffix(".npy")), float(d)) for src, dst, d in todo]
+        if jobs:
+            spec = folder / "jobs.json"
+            spec.write_text(json.dumps(jobs))
+            env = dict(os.environ, CUDA_VISIBLE_DEVICES="",
+                       CELLPOSE_LOCAL_MODELS_PATH=str(Path(CP3_PYTHON).parents[1] / "models"))
+            subprocess.run([CP3_PYTHON, "-c", _CP3_SCRIPT, PREDENOISE[4:], str(spec),
+                            os.environ.get("CP3_THREADS", "8")], check=True, env=env)
+            for _, dst, _ in todo:
+                tifffile.imwrite(dst, _to_uint16(np.load(dst.with_suffix(".npy"))))
+                dst.with_suffix(".npy").unlink()
+    else:
+        raise ValueError(f"unknown PREDENOISE {PREDENOISE!r}")
+    return out
 
 
 class FlowKeeper:
@@ -224,9 +291,19 @@ def main():
     for f in fields:
         f.diameter = f.diameter or float(np.median(diameters))
 
+    if PREDENOISE:
+        pairs = predenoise(pairs, [f.diameter for f in fields])
+        fields = []
+        for index, (image, truth) in enumerate(pairs):
+            item = B._field("lowlight", image, truth, {})
+            item.well = B._well(index)
+            fields.append(item)
+        for f in fields:
+            f.diameter = f.diameter or float(np.median(diameters))
+
     models = OUT / f"n2v_{model_tag()}"
     ckpt = models / "channel_0.ckpt"
-    if not ckpt.is_file():
+    if not ckpt.is_file() and any(c.startswith("n2v") for c in CHAINS):
         planes = planes or [tifffile.imread(p).astype(np.float32) for p, _ in pairs]
         struct = dict(struct_axes="horizontal", struct_span=STRUCT_SPAN) if VARIANT == "struct" else {}
         record = SB._n2v_train(planes, ckpt, epochs=EPOCHS, device=DEVICE, **struct)
@@ -241,7 +318,7 @@ def main():
     chains = [n2v if c == "n2v" else c for c in CHAINS]
 
     results = {}
-    root = OUT / f"run_{data_tag()}_e{EPOCHS}"
+    root = OUT / f"run_{model_tag()}"
     for chain in chains:
         strategy = B.Strategy(f"cpsam_{chain}", f"Cellpose-SAM, chain {chain}",
                               "general", "cpsam", chain=chain)
