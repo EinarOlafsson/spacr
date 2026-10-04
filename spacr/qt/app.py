@@ -396,6 +396,14 @@ def _import_the_data_libraries_off_the_gui_thread():
             except Exception:
                 LOG.debug("could not prepare the organism artwork early",
                           exc_info=True)
+            try:
+                from spacr.run_journal import _warm_env_snapshot
+
+                with _timing.span("background warm", "run environment"):
+                    _warm_env_snapshot()
+            except Exception:
+                LOG.debug("could not read the package versions early",
+                          exc_info=True)
             _freeze_what_survived()
 
     thread = threading.Thread(target=_work, name="spacr-data-libraries",

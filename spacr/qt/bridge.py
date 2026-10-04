@@ -697,8 +697,9 @@ class RunHandle(QObject):
         if not text:
             return
         self.last_line = text.splitlines()[-1][:200]
-        match = _PROGRESS_RE.search(text)
-        if match:
+        matches = list(_PROGRESS_RE.finditer(text))
+        if matches:
+            match = matches[-1]
             self.progress = (int(match.group(1)), int(match.group(2)))
         self.changed.emit()
 
@@ -1041,6 +1042,39 @@ class _SkipFigureCapture(Exception):
     """Select the no-Matplotlib path for read-only background jobs."""
 
 
+class _OutputDrain(QObject):
+    """Sends a worker's waiting output from the thread that built the worker.
+
+    Lives in that thread (the GUI thread for every screen), so the chunk
+    is emitted where its receivers live. A worker built where no event
+    loop runs still loses nothing: the run drains its output before it
+    reports that it finished.
+
+    :param worker: the :class:`PipelineWorker` whose output this sends.
+    """
+
+    def __init__(self, worker: "PipelineWorker"):
+        """Connect to ``worker``'s pending-output signal."""
+        super().__init__()
+        import weakref
+
+        self._worker = weakref.ref(worker)
+        worker._output_pending.connect(self._schedule, Qt.QueuedConnection)
+
+    def _schedule(self) -> None:
+        """Drain the worker one interval from now."""
+        from PySide6.QtCore import QTimer
+
+        QTimer.singleShot(
+            int(PipelineWorker._OUTPUT_INTERVAL_S * 1000), self._drain)
+
+    def _drain(self) -> None:
+        """Emit what the worker has waiting, if it still exists."""
+        worker = self._worker()
+        if worker is not None:
+            worker._drain_output()
+
+
 class PipelineWorker(QObject):
     """Runs one pipeline function in its own thread.
 
@@ -1079,6 +1113,8 @@ class PipelineWorker(QObject):
     #: guess where it had written and re-read the CSV. Guessing a path is how
     #: a screen ends up showing last month's results, or none at all.
     result_ready = Signal(object)
+    _output_pending = Signal()
+    _OUTPUT_INTERVAL_S = 0.05
 
     def __init__(
         self,
@@ -1114,6 +1150,59 @@ class PipelineWorker(QObject):
         #: :func:`checkpoint`. Always present; only *effective* when
         #: :attr:`supports_pause` is True.
         self.gate = PauseGate()
+        self._out_lock = threading.RLock()
+        self._out_parts: List[str] = []
+        self._out_last = 0.0
+        self._out_scheduled = False
+        self._out_drain = _OutputDrain(self)
+
+    def _push_output(self, text: str) -> None:
+        """Hand worker output to ``line_ready``, joining bursts.
+
+        Emits at once when nothing is waiting and the last emission is
+        older than 50 ms; otherwise the text waits and the drain on the
+        thread that built this worker sends it within one interval, so a
+        run printing thousands of lines a second costs the GUI thread twenty
+        appends a second rather than one per line. Every other emission of
+        this worker drains first, so the order of the output is kept.
+
+        :param text: one chunk of the run's stdout or stderr.
+        """
+        with self._out_lock:
+            now = time.monotonic()
+            if (not self._out_parts
+                    and now - self._out_last >= self._OUTPUT_INTERVAL_S):
+                self._out_last = now
+                self.line_ready.emit(text)
+                return
+            self._out_parts.append(text)
+            if self._out_scheduled:
+                return
+            self._out_scheduled = True
+        self._output_pending.emit()
+
+    def _drain_output(self) -> None:
+        """Emit whatever output is waiting, as one chunk. Any thread."""
+        with self._out_lock:
+            self._out_scheduled = False
+            if not self._out_parts:
+                return
+            text = "".join(self._out_parts)
+            self._out_parts.clear()
+            self._out_last = time.monotonic()
+            self.line_ready.emit(text)
+
+    def _say(self, text: str) -> None:
+        """Emit ``text`` after any output still waiting."""
+        with self._out_lock:
+            self._drain_output()
+            self._out_last = time.monotonic()
+            self.line_ready.emit(text)
+
+    def _say_error(self, tb: str) -> None:
+        """Emit a traceback after any output still waiting."""
+        self._drain_output()
+        self.error.emit(tb)
 
     def request_cancel(self, reason: str = "cancelled by the user") -> bool:
         """Request a stop at the pipeline's next declared safe boundary."""
@@ -1160,7 +1249,7 @@ class PipelineWorker(QObject):
         """Invoked by QThread.started; runs the pipeline function to completion."""
         if self.cancel_token.cancelled:
             self.was_cancelled = True
-            self.line_ready.emit(
+            self._say(
                 f"Cancelled before start: {self.cancel_token.reason}\n")
             self.gate.resume()
             self.finished.emit(False)
@@ -1170,7 +1259,7 @@ class PipelineWorker(QObject):
 
         def _forward_output(text: str) -> None:
             """Emit worker text and retain warning lines in its manifest."""
-            self.line_ready.emit(text)
+            self._push_output(text)
             run = journal_holder[0]
             if run is not None and re.search(
                 r"\b(?:warning|warn)\b", text, flags=re.IGNORECASE,
@@ -1312,7 +1401,7 @@ class PipelineWorker(QObject):
             from spacr.run_journal import open_run
             if self._journal_enabled:
                 if self._settings.get("hash_inputs", False):
-                    self.line_ready.emit(
+                    self._say(
                         "Recording reproducibility input hashes…\n"
                     )
                 journal_context = open_run(
@@ -1321,12 +1410,12 @@ class PipelineWorker(QObject):
                 )
                 journal_run = journal_context.__enter__()
                 journal_holder[0] = journal_run
-                self.line_ready.emit(
+                self._say(
                     f"Reproducibility manifest: {journal_run.dir}\n"
                 )
                 lock = getattr(journal_run, "_analysis_lock", None)
                 if lock:
-                    self.line_ready.emit(f"{lock.get('summary')}\n")
+                    self._say(f"{lock.get('summary')}\n")
         except Exception as exc:
             journal_context = None
             journal_run = None
@@ -1335,7 +1424,7 @@ class PipelineWorker(QObject):
                 f"{type(exc).__name__}: {exc}\n"
             )
             LOG.exception("Could not open run journal")
-            self.line_ready.emit(message)
+            self._say(message)
 
         ok = False
         try:
@@ -1359,7 +1448,7 @@ class PipelineWorker(QObject):
             if journal_run is not None:
                 journal_run.set_status("cancelled")
                 journal_run.record_warning(message.strip())
-            self.line_ready.emit(message)
+            self._say(message)
         except SystemExit as exc:
             ok = exc.code in (None, 0)
             if not ok:
@@ -1368,21 +1457,21 @@ class PipelineWorker(QObject):
                 if journal_run is not None:
                     journal_run.set_status("failed")
                     journal_run.error_traceback = tb
-                self.error.emit(tb)
+                self._say_error(tb)
         except Exception:
             tb = traceback.format_exc()
             LOG.exception("Pipeline worker failed")
             if journal_run is not None:
                 journal_run.set_status("failed")
                 journal_run.error_traceback = tb
-            self.error.emit(tb)
+            self._say_error(tb)
         except BaseException:
             tb = traceback.format_exc()
             LOG.exception("Pipeline worker aborted")
             if journal_run is not None:
                 journal_run.set_status("failed")
                 journal_run.error_traceback = tb
-            self.error.emit(tb)
+            self._say_error(tb)
         finally:
             if journal_run is not None and ok:
                 try:
@@ -1392,7 +1481,7 @@ class PipelineWorker(QObject):
                     ok = False
                     journal_run.set_status("failed")
                     journal_run.error_traceback = traceback.format_exc()
-                    self.error.emit(journal_run.error_traceback)
+                    self._say_error(journal_run.error_traceback)
                 else:
                     journal_run.set_status("success")
             if journal_context is not None:
@@ -1400,7 +1489,7 @@ class PipelineWorker(QObject):
                     journal_context.__exit__(None, None, None)
                 except Exception as exc:
                     LOG.exception("Could not close run journal")
-                    self.line_ready.emit(
+                    self._say(
                         "WARNING: could not finalize reproducibility "
                         f"manifest: {type(exc).__name__}: {exc}\n"
                     )
@@ -1427,6 +1516,7 @@ class PipelineWorker(QObject):
                 delattr(_LOCAL, "gate")
             except AttributeError:
                 pass
+            self._drain_output()
             self.finished.emit(ok)
 
 

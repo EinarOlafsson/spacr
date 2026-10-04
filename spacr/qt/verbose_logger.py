@@ -56,6 +56,8 @@ import weakref
 from contextlib import contextmanager
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
+
+from spacr.logging_util import _quicken
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -192,12 +194,12 @@ def _ensure_file_handler() -> RotatingFileHandler:
             logging.getLogger(_SINK_LOGGER).addHandler(_file_handler)
         return _file_handler
     try:
-        handler = RotatingFileHandler(
+        handler = _quicken(RotatingFileHandler(
             str(current_log_file()),
             maxBytes=5 * 1024 * 1024,
             backupCount=5,
             encoding="utf-8",
-        )
+        ))
     except Exception:
         return None                                                       # type: ignore[return-value]
     from ..logging_util import _CompactTraceFormat

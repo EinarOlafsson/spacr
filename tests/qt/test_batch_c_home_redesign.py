@@ -116,6 +116,7 @@ class TestInsightsDashboard:
         qtbot.waitUntil(
             lambda: any(lbl.strip() == "3" for lbl in self._labels(win)),
             timeout=15000)
+        assert any(lbl.strip() == "3" for lbl in self._labels(win))
 
     def test_system_card_reports_gpu_or_no_cuda(self, qtbot,
                                                   _empty_journal):

@@ -57,6 +57,47 @@ FILE_FORMAT = (
 STREAM_FORMAT = "%(levelname)s %(name)s: %(message)s"
 
 
+_NEAR_LIMIT_BYTES = 64 * 1024
+
+
+def _quicken(handler):
+    """Stop a rotating file handler from statting its file on every record.
+
+    The standard ``RotatingFileHandler`` checks that the log path is a
+    regular file and formats each record a second time to see whether it
+    would cross ``maxBytes``. A run logging thousands of records a second
+    spent most of its logging time there. After this, those checks run only
+    once the file is within :data:`_NEAR_LIMIT_BYTES` of the limit, so
+    rollover happens at the same point for any record shorter than that.
+
+    :param handler: a ``RotatingFileHandler``; anything else is returned
+        unchanged.
+    :returns: ``handler``.
+    """
+    full_check = getattr(handler, "shouldRollover", None)
+    if full_check is None or not hasattr(handler, "maxBytes"):
+        return handler
+    handler.shouldRollover = functools.partial(
+        _quick_should_rollover, handler, full_check)
+    return handler
+
+
+def _quick_should_rollover(handler, full_check, record) -> bool:
+    """Whether ``record`` would take ``handler``'s file past ``maxBytes``.
+
+    :param handler: the rotating file handler.
+    :param full_check: the handler's own ``shouldRollover``.
+    :param record: the record about to be written.
+    """
+    if handler.maxBytes <= 0:
+        return False
+    if handler.stream is None:
+        handler.stream = handler._open()
+    if handler.stream.tell() + _NEAR_LIMIT_BYTES < handler.maxBytes:
+        return False
+    return full_check(record)
+
+
 class _CompactTraceFormat(logging.Formatter):
     """The ordinary format, except for `spacr.trace`, which gets a short one.
 
@@ -351,12 +392,12 @@ def setup_logging(level: Optional[int] = None,
     logging.getLogger("spacr").setLevel(level)
 
     try:
-        file_h = logging.handlers.RotatingFileHandler(
+        file_h = _quicken(logging.handlers.RotatingFileHandler(
             resolved_path,
             maxBytes=MAX_BYTES,
             backupCount=BACKUP_COUNT,
             encoding="utf-8",
-        )
+        ))
     except OSError as exc:
         sys.stderr.write(
             f"spaCR could not open diagnostic log {resolved_path}: {exc}\n")
@@ -419,9 +460,9 @@ def _install_level_handlers(master_path: Path, levels: Iterable[int]) -> None:
         if handler is None:
             path = master_path.parent / LEVEL_LOG_FILENAMES[level]
             try:
-                handler = logging.handlers.RotatingFileHandler(
+                handler = _quicken(logging.handlers.RotatingFileHandler(
                     path, maxBytes=MAX_BYTES, backupCount=BACKUP_COUNT,
-                    encoding="utf-8")
+                    encoding="utf-8"))
             except OSError as exc:
                 sys.stderr.write(
                     f"spaCR could not open {path}: {exc}\n")

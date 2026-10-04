@@ -672,21 +672,30 @@ class _StdoutBlock(QPlainTextEdit):
     def _trim_to_cap(self) -> None:
         """Drop whole paragraphs off the head until back under the cap.
 
-        Removing from the front costs what is removed. Re-setting the
-        document to its own tail — the previous approach — costs what is
-        kept, on every single line once the cap is reached.
+        Removing from the front costs what is removed, in one edit however
+        many paragraphs go. Re-setting the document to its own tail costs
+        what is kept, on every single line once the cap is reached.
         """
+        if self._chars <= self.MAX_CHARS:
+            return
         doc = self.document()
-        while self._chars > self.MAX_CHARS and doc.blockCount() > 1:
-            block = doc.begin()
-            removed = block.length()
-            if self._height_key == self._layout_key():
+        tracking = self._height_key == self._layout_key()
+        last = doc.lastBlock().blockNumber()
+        block = doc.begin()
+        removed = 0
+        while (self._chars - removed > self.MAX_CHARS
+               and block.isValid() and block.blockNumber() < last):
+            removed += block.length()
+            if tracking:
                 self._height_sum -= self._block_height(block)
-            cursor = QTextCursor(block)
-            cursor.movePosition(
-                QTextCursor.NextBlock, QTextCursor.KeepAnchor)
-            cursor.removeSelectedText()
-            self._chars = max(0, self._chars - removed)
+            block = block.next()
+        if not removed:
+            return
+        cursor = QTextCursor(doc)
+        cursor.setPosition(0)
+        cursor.setPosition(block.position(), QTextCursor.KeepAnchor)
+        cursor.removeSelectedText()
+        self._chars = max(0, self._chars - removed)
 
     def sizeHint(self) -> QSize:
         """Report the full document height; the outer console owns scrolling.
@@ -984,6 +993,9 @@ class _ChatInput(QTextEdit):
 
 
 
+_LOG_FLUSH_MS = 50
+
+
 class ConsolePanel(QWidget):
     """Merged pipeline stdout + AI chat panel.
 
@@ -1030,6 +1042,11 @@ class ConsolePanel(QWidget):
         """
         super().__init__(parent)
         self.setObjectName("ConsolePanel")
+        self._log_pending: List[str] = []
+        self._log_flush = QTimer(self)
+        self._log_flush.setSingleShot(True)
+        self._log_flush.setInterval(_LOG_FLUSH_MS)
+        self._log_flush.timeout.connect(self._flush_log_records)
         self._persist_key = str(persist_key or "").strip()
         self.setAttribute(Qt.WA_StyledBackground, True)
         self._active_app_label = active_app_label or ""
@@ -1561,12 +1578,30 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         Three bands now, not two.
         """
         import logging as _logging
+        if level < _logging.WARNING:
+            self._log_pending.append(text)
+            if not self._log_flush.isActive():
+                self._log_flush.start()
+            return
+        self._flush_log_records()
         if level >= _logging.ERROR:
             self.append_error(text)
-        elif level >= _logging.WARNING:
-            self.append_warning(text)
         else:
-            self.append_stdout(text)
+            self.append_warning(text)
+
+    def _flush_log_records(self) -> None:
+        """Append the informational records waiting, as one write.
+
+        A run logging thousands of records a second costs one append per
+        50 ms instead of one per record; a warning or an
+        error flushes what came before it, so the order is kept.
+        """
+        self._log_flush.stop()
+        if not self._log_pending:
+            return
+        text = "".join(self._log_pending)
+        self._log_pending.clear()
+        self.append_stdout(text)
 
     def append_warning(self, text: str) -> None:
         """Append warning text in the theme's amber, under the output banner.

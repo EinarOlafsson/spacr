@@ -8,6 +8,8 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 
+from spacr.logging_util import _quicken
+
 _LOGGER_NAME = "spacr"
 _HANDLER_KIND = "_spacr_handler_kind"
 
@@ -42,12 +44,12 @@ def configure_logger(
     ]
     if not file_handlers:
         log_path = Path.home() / log_file_name
-        file_handler = RotatingFileHandler(
+        file_handler = _quicken(RotatingFileHandler(
             log_path,
             maxBytes=2_000_000,
             backupCount=3,
             encoding="utf-8",
-        )
+        ))
         setattr(file_handler, _HANDLER_KIND, "file")
         file_handler.setFormatter(
             logging.Formatter(

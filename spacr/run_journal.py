@@ -197,8 +197,14 @@ def _new_run_dir(app_key: str) -> Path:
 
 
 
+@lru_cache(maxsize=None)
 def _pkg_version(name: str) -> str:
-    """Return an installed distribution version or ``"not installed"``."""
+    """Return an installed distribution version or ``"not installed"``.
+
+    Memoised for the life of the process, like :func:`_installed_packages`:
+    every run records the same dozen versions, and each lookup reads the
+    distribution's metadata from disk.
+    """
     try:
         from importlib.metadata import version as _v
         return _v(name)
@@ -251,24 +257,40 @@ def _installed_packages() -> Dict[str, str]:
     return dict(sorted(packages.items()))
 
 
+_ENV_VERSIONS = (
+    ("torch", "torch"), ("torchvision", "torchvision"),
+    ("cellpose", "cellpose"), ("pyside6", "PySide6"), ("numpy", "numpy"),
+    ("scipy", "scipy"), ("pandas", "pandas"),
+    ("scikit_image", "scikit-image"), ("scikit_learn", "scikit-learn"),
+)
+
+
 def _env_snapshot() -> Dict[str, Any]:
     """Capture host and complete package versions for reproduction."""
-    return {
+    snapshot: Dict[str, Any] = {
         "spacr":         _pkg_version("spacr"),
         "spacr_git":     _git_hash(),
         "python":        sys.version.split()[0],
         "platform":      platform.platform(),
-        "torch":         _pkg_version("torch"),
-        "torchvision":   _pkg_version("torchvision"),
-        "cellpose":      _pkg_version("cellpose"),
-        "pyside6":       _pkg_version("PySide6"),
-        "numpy":         _pkg_version("numpy"),
-        "scipy":         _pkg_version("scipy"),
-        "pandas":        _pkg_version("pandas"),
-        "scikit_image":  _pkg_version("scikit-image"),
-        "scikit_learn":  _pkg_version("scikit-learn"),
-        "packages":       _installed_packages(),
     }
+    for key, distribution in _ENV_VERSIONS:
+        snapshot[key] = _pkg_version(distribution)
+    snapshot["packages"] = _installed_packages()
+    return snapshot
+
+
+def _warm_env_snapshot() -> None:
+    """Read the package versions a run records, so the first run need not.
+
+    Enumerating every installed distribution reads hundreds of metadata
+    files, the largest part of opening a run's manifest. Both readers are
+    memoised, so calling this from a background thread once the window is
+    up moves that cost off the first run.
+    """
+    _pkg_version("spacr")
+    for _key, distribution in _ENV_VERSIONS:
+        _pkg_version(distribution)
+    _installed_packages()
 
 
 def hash_file(
