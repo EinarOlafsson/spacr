@@ -231,6 +231,25 @@ results. User preferences, run records and logs under ``~/.spacr`` are also
 left in place so they can be inspected or reused. Remove that directory
 separately only if those records are no longer needed.
 
+Clean uninstall (purge)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+A purge is opt-in. It also deletes spaCR's caches, backend environments and
+user data: ``~/.spacr`` (logs, run records, models, backends, news),
+``~/.cache/spacr``, ``~/.config/spacr``, ``~/.local/state/spacr``,
+``~/spacr-demos``, ``~/spacr-tutorials``, the macOS preferences file, the
+Windows ``HKCU\Software\spacr\qt`` settings, a backends folder named by
+``SPACR_BACKENDS_DIR`` and every cache moved from **Preferences → Storage**.
+It lists everything first and deletes only after you type ``purge`` (or pass
+``--yes``). Shared caches such as Hugging Face's and Torch's own folders, and
+your projects, are never touched.
+
+* **Windows:** run ``%LOCALAPPDATA%\spaCR\Uninstall.exe /PURGE``.
+* **macOS:** run ``uninstall-spacr.sh --purge`` as above.
+* **Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``.
+* **Any install, before uninstalling:** ``python -m spacr.install_cleanup
+  purge`` (add ``--dry-run`` to list only).
+
 .. _portable-mode:
 
 Portable mode

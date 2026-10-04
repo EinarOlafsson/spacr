@@ -596,7 +596,19 @@ EOF
     removed_message="$(spacr_say removed)"
     cat > "$uninstall_path" <<EOF
 #!/usr/bin/env sh
+# Usage: uninstall-spacr.sh [--purge [--yes]]
+# --purge also deletes spaCR's caches, backends and user data, after
+# listing them and asking (spacr/install_cleanup.py purge).
 set -eu
+for arg in "\$@"; do
+    if [ "\$arg" = "--purge" ]; then
+        yes_flag=""
+        for other in "\$@"; do
+            [ "\$other" = "--yes" ] && yes_flag="--yes"
+        done
+        "$VENV_DIR/bin/python" -m spacr.install_cleanup purge \$yes_flag || true
+    fi
+done
 rm -f "$LAUNCHER"
 rm -f "$DESKTOP_DIR/io.github.olafssonlab.spacr.desktop"
 rm -rf "$INSTALL_ROOT"

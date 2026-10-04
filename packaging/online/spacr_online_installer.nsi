@@ -2,6 +2,7 @@
 !include "LogicLib.nsh"
 !include "Sections.nsh"
 !include "nsDialogs.nsh"
+!include "FileFunc.nsh"
 
 !ifndef VERSION
   !define VERSION "0.0.0"
@@ -172,6 +173,14 @@ FunctionEnd
 ; NSIS identifies the uninstaller by this exact sentinel name. Localising it
 ; turns it into a normal install section, which then deletes the fresh install.
 Section "Uninstall"
+  ; Uninstall.exe /PURGE also deletes spaCR's caches, backends and user data.
+  ; The purge lists them in a console and asks before it deletes anything.
+  ${GetParameters} $R0
+  ClearErrors
+  ${GetOptions} $R0 "/PURGE" $R1
+  ${IfNot} ${Errors}
+    ExecWait '"$INSTDIR\venv\Scripts\python.exe" -m spacr.install_cleanup purge'
+  ${EndIf}
   Delete "$DESKTOP\spaCR.lnk"
   RMDir /r "$SMPROGRAMS\spaCR"
   DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\spaCR"

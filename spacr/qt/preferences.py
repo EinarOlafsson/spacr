@@ -5723,6 +5723,484 @@ _KEY_PLUGIN_CATALOGUE = "plugins/catalogue"
 _PLUGIN_CATALOGUE_ALPHA_WIDGET = "PluginCatalogueTable"
 
 
+_STORAGE_LABELS = (
+    ("logs", "Daily logs"),
+    ("run_logs", "Run logs"),
+    ("run_folders", "Run folders"),
+)
+
+
+def _get_storage_caps() -> dict:
+    """Return ``{kind: (keep days, size cap in MB)}`` for home-folder pruning.
+
+    A stored value that cannot be read gives the default for that kind.
+    """
+    from spacr.run_journal import _PRUNE_DEFAULTS
+
+    store = _settings()
+    caps = {}
+    for kind, (days, megabytes) in _PRUNE_DEFAULTS.items():
+        try:
+            stored_days = int(store.value(f"storage/{kind}_days", days))
+            stored_mb = int(store.value(f"storage/{kind}_cap_mb", megabytes))
+        except (TypeError, ValueError):
+            stored_days, stored_mb = days, megabytes
+        caps[kind] = (max(1, stored_days), max(0, stored_mb))
+    return caps
+
+
+def _set_storage_caps(caps: dict) -> None:
+    """Remember the pruning caps.
+
+    :param caps: ``{kind: (keep days, size cap in MB)}``; days below 1 are
+        stored as 1 and negative caps as 0.
+    """
+    store = _settings()
+    for kind, (days, megabytes) in caps.items():
+        store.setValue(f"storage/{kind}_days", max(1, int(days)))
+        store.setValue(f"storage/{kind}_cap_mb", max(0, int(megabytes)))
+
+
+def _confirm_storage_action(title: str, text: str, parent=None) -> bool:
+    """Ask before deleting or moving anything; Cancel is the default.
+
+    :param title: what will happen, also the accept button's label.
+    :param text: what exactly will be deleted or moved.
+    :param parent: the widget the box is parented to.
+    :returns: ``True`` only when the person pressed the accept button.
+    """
+    from PySide6.QtWidgets import QMessageBox
+    from .i18n import tr
+
+    box = QMessageBox(parent)
+    box.setObjectName("StorageActionConfirm")
+    box.setIcon(QMessageBox.Warning)
+    box.setWindowTitle(title)
+    box.setText(title)
+    box.setInformativeText(text)
+    proceed = box.addButton(title, QMessageBox.AcceptRole)
+    cancel = box.addButton(tr("Cancel"), QMessageBox.RejectRole)
+    box.setDefaultButton(cancel)
+    box.exec()
+    return box.clickedButton() is proceed
+
+
+def _show_storage_result(title: str, text: str, parent=None) -> None:
+    """Say what a storage action did.
+
+    :param title: the action.
+    :param text: the outcome.
+    :param parent: the widget the box is parented to.
+    """
+    from PySide6.QtWidgets import QMessageBox
+
+    box = QMessageBox(parent)
+    box.setObjectName("StorageActionResult")
+    box.setIcon(QMessageBox.Information)
+    box.setWindowTitle(title)
+    box.setText(text)
+    box.exec()
+
+
+def _choose_cache_parent(parent=None) -> str:
+    """Ask for the folder a cache moves into; ``""`` when cancelled.
+
+    :param parent: the widget the dialog is parented to.
+    """
+    from PySide6.QtWidgets import QFileDialog
+    from .i18n import tr
+
+    return QFileDialog.getExistingDirectory(
+        parent, tr("Move the cache into this folder"))
+
+
+class _StoragePage:
+    """The Storage tab: prune spaCR's home folder and manage disk caches.
+
+    Pruning has an age floor and a size cap for daily logs, run logs and run
+    folders. Nothing newer than the floor, the current run and open log
+    files are never deleted. The cache table lists the model, Hugging Face,
+    Torch, backend and news caches with their sizes, and empties or moves
+    the selected one. Every deletion and move is listed and asked about
+    first, and the disk is read on a worker thread.
+
+    :param form: the tab's form layout, from the dialog's ``_page``.
+    :param dialog: the Preferences dialog.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Build the caps, the prune button and the cache table."""
+        from PySide6.QtWidgets import (
+            QAbstractItemView, QHBoxLayout, QLabel, QPushButton, QSpinBox,
+            QTableWidget, QWidget,
+        )
+        from .i18n import tr
+
+        self._dialog = dialog
+        self._rows = []
+        help_label = QLabel(tr(
+            "spaCR keeps logs and a folder per run in its home folder. "
+            "Pruning deletes the oldest of them once a folder is over its "
+            "size cap, and never anything newer than the age you keep, the "
+            "run in progress or a log that is open. You see the list before "
+            "anything is deleted."))
+        help_label.setWordWrap(True)
+        help_label.setObjectName("StorageHelp")
+        form.addRow(help_label)
+
+        caps = _get_storage_caps()
+        self.spins = {}
+        for kind, label in _STORAGE_LABELS:
+            days, megabytes = caps[kind]
+            row = QWidget()
+            layout = QHBoxLayout(row)
+            layout.setContentsMargins(0, 0, 0, 0)
+            keep = QSpinBox()
+            keep.setObjectName(f"StorageKeepDays_{kind}")
+            keep.setRange(1, 3650)
+            keep.setSuffix(tr(" days"))
+            keep.setValue(days)
+            cap = QSpinBox()
+            cap.setObjectName(f"StorageCapMb_{kind}")
+            cap.setRange(0, 1_000_000)
+            cap.setSingleStep(100)
+            cap.setSuffix(tr(" MB"))
+            cap.setSpecialValueText(tr("no cap"))
+            cap.setValue(megabytes)
+            layout.addWidget(QLabel(tr("Keep")))
+            layout.addWidget(keep)
+            layout.addWidget(QLabel(tr("Cap")))
+            layout.addWidget(cap)
+            layout.addStretch(1)
+            row.setToolTip(tr(
+                "Keep: nothing modified within this many days is deleted. "
+                "Cap: older entries are deleted, oldest first, only while "
+                "the folder is bigger than this; no cap deletes every older "
+                "entry. Pruning runs only when you press Prune now."))
+            self.spins[kind] = (keep, cap)
+            form.addRow(tr(label), row)
+
+        self.prune_button = QPushButton(tr("Prune now…"))
+        self.prune_button.setObjectName("StoragePruneButton")
+        self.prune_button.setToolTip(tr(
+            "List what the caps above would delete from the spaCR home "
+            "folder, then ask before deleting it. Nothing is deleted "
+            "automatically. Default off."))
+        self.prune_button.clicked.connect(self.prune)
+        form.addRow(tr("Home folder"), self.prune_button)
+
+        columns = [tr("Cache"), tr("Size"), tr("Folder")]
+        self.table = QTableWidget(0, len(columns))
+        self.table.setObjectName("StorageCacheTable")
+        self.table.setHorizontalHeaderLabels(columns)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.itemSelectionChanged.connect(self._sync_buttons)
+        self.table.setToolTip(tr(
+            "spaCR's model, Hugging Face, Torch, backend and news caches "
+            "with their sizes. Press Measure to read the sizes."))
+        form.addRow(self.table)
+
+        buttons = QWidget()
+        buttons.setToolTip(tr(
+            "Measure reads every cache's size, Clear empties the selected "
+            "cache and Move puts it in another folder. Clear and Move ask "
+            "first."))
+        button_row = QHBoxLayout(buttons)
+        button_row.setContentsMargins(0, 0, 0, 0)
+        self.measure_button = QPushButton(tr("Measure"))
+        self.measure_button.setObjectName("StorageCacheMeasure")
+        self.measure_button.setToolTip(tr(
+            "Read the size of every cache. Default not measured."))
+        self.measure_button.clicked.connect(self.refresh)
+        self.clear_button = QPushButton(tr("Clear…"))
+        self.clear_button.setObjectName("StorageCacheClear")
+        self.clear_button.setToolTip(tr(
+            "Empty the selected cache after asking. Models and environments "
+            "are downloaded again when next needed. Default nothing cleared."))
+        self.clear_button.clicked.connect(self.clear)
+        self.move_button = QPushButton(tr("Move…"))
+        self.move_button.setObjectName("StorageCacheRelocate")
+        self.move_button.setToolTip(tr(
+            "Move the selected cache to another folder or drive after "
+            "asking; spaCR uses the new place from then on. Default the "
+            "standard folder."))
+        self.move_button.clicked.connect(self.relocate)
+        for button in (self.measure_button, self.clear_button,
+                       self.move_button):
+            button_row.addWidget(button)
+        button_row.addStretch(1)
+        form.addRow(tr("Caches"), buttons)
+        self._list(self._rows_without_sizes())
+
+    @staticmethod
+    def _rows_without_sizes():
+        """The caches with their folders, before the disk is read."""
+        from spacr.run_journal import _CACHE_ROWS, _cache_folder
+
+        return [{"key": key, "label": label, "path": str(_cache_folder(key)),
+                 "env": env, "exists": None, "size": None,
+                 "relocatable": bool(env)}
+                for key, label, env in _CACHE_ROWS]
+
+    def caps(self) -> dict:
+        """Return the caps as the spin boxes show them."""
+        return {kind: (keep.value(), cap.value())
+                for kind, (keep, cap) in self.spins.items()}
+
+    def save(self) -> None:
+        """Remember the caps; called by the dialog's Save."""
+        _set_storage_caps(self.caps())
+
+    def _list(self, rows) -> None:
+        """Show ``rows`` in the cache table."""
+        from PySide6.QtWidgets import QTableWidgetItem
+        from .i18n import tr
+        from .resource_cleanup import human_bytes
+
+        self._rows = list(rows)
+        self.table.setRowCount(len(self._rows))
+        for index, row in enumerate(self._rows):
+            if row["size"] is None:
+                size = "…"
+            elif not row["exists"]:
+                size = tr("empty")
+            else:
+                size = human_bytes(row["size"])
+            for column, text in enumerate((tr(row["label"]), size,
+                                           row["path"])):
+                item = QTableWidgetItem(text)
+                item.setToolTip(row["path"])
+                self.table.setItem(index, column, item)
+        self._sync_buttons()
+
+    def _selected(self):
+        """The selected cache row, or ``None``."""
+        index = self.table.currentRow()
+        if 0 <= index < len(self._rows) and self.table.selectedItems():
+            return self._rows[index]
+        return None
+
+    def _sync_buttons(self) -> None:
+        """Clear and Move work on a selected cache only."""
+        row = self._selected()
+        self.clear_button.setEnabled(row is not None)
+        self.move_button.setEnabled(row is not None and row["relocatable"])
+
+    @staticmethod
+    def _guarded(work):
+        """On the worker thread: ``work()``, or the exception it raised.
+
+        Returned rather than raised, so the callback always runs and can
+        give the buttons back.
+        """
+        try:
+            return work()
+        except Exception as exc:
+            return exc
+
+    def _finish(self, done, result) -> None:
+        """On the GUI thread: hand ``result`` to ``done`` while the tab lives."""
+        if isinstance(result, BaseException):
+            LOG.warning("a storage action failed", exc_info=result)
+            result = None
+        if _widget_is_alive(self.table):
+            done(result)
+
+    def _background(self, work, done) -> None:
+        """Run ``work`` on the disk worker and ``done`` with its result."""
+        from functools import partial
+
+        if not _disk_report_runner().submit(partial(self._guarded, work),
+                                            partial(self._finish, done)):
+            LOG.debug("the storage worker is busy")
+
+    def refresh(self) -> None:
+        """Measure every cache on the worker and list the sizes."""
+        from spacr.run_journal import _disk_caches
+
+        self.measure_button.setEnabled(False)
+        self._background(_disk_caches, self._measured)
+
+    def _measured(self, rows) -> None:
+        """List the measured caches."""
+        self.measure_button.setEnabled(True)
+        if rows is not None:
+            self._list(rows)
+
+    @staticmethod
+    def _busy() -> bool:
+        """Whether a run is going, which clearing or moving must wait for."""
+        from .resource_cleanup import _a_run_is_active
+
+        return _a_run_is_active()
+
+    def _refuse_while_busy(self, title: str) -> bool:
+        """Say so and return ``True`` when a run is going."""
+        from .i18n import tr
+
+        if not self._busy():
+            return False
+        _show_storage_result(title, tr(
+            "A run is in progress. Try again when it has finished."),
+            self._dialog)
+        return True
+
+    def clear(self) -> None:
+        """Ask, then empty the selected cache on the worker."""
+        from functools import partial
+
+        from spacr.run_journal import _clear_cache
+        from .i18n import tr
+
+        row = self._selected()
+        if row is None:
+            return
+        title = tr("Clear cache")
+        if self._refuse_while_busy(title):
+            return
+        text = tr("Delete everything inside {folder}? The folder stays. "
+                  "Other programs that share this cache download their "
+                  "files again too.").format(folder=row["path"])
+        if not _confirm_storage_action(title, text, self._dialog):
+            return
+        self._background(partial(_clear_cache, row["key"]),
+                         partial(self._cleared, title))
+
+    def _cleared(self, title: str, result) -> None:
+        """Report what clearing removed and measure again."""
+        from .i18n import tr
+
+        removed, refused = result if result else (0, [tr("failed")])
+        message = tr("Removed {count} item(s).").format(count=removed)
+        if refused:
+            message += "\n" + "\n".join(refused[:20])
+        _show_storage_result(title, message, self._dialog)
+        self.refresh()
+
+    def relocate(self, parent_folder: str = "") -> None:
+        """Ask for a folder, confirm, then move the selected cache there."""
+        from functools import partial
+        from pathlib import Path
+
+        from .i18n import tr
+
+        row = self._selected()
+        if row is None or not row["relocatable"]:
+            return
+        title = tr("Move cache")
+        if self._refuse_while_busy(title):
+            return
+        folder = parent_folder or _choose_cache_parent(self._dialog)
+        if not folder:
+            return
+        target = str(Path(folder) / f"spacr-{row['key']}")
+        text = tr("Move {source} to {target}? spaCR uses the new folder "
+                  "from now on; a program already holding the old path "
+                  "picks it up after a restart.").format(
+                      source=row["path"], target=target)
+        if not _confirm_storage_action(title, text, self._dialog):
+            return
+        self._background(partial(self._move, row["key"], folder),
+                         partial(self._moved, title))
+
+    @staticmethod
+    def _move(key: str, folder: str):
+        """On the worker: the new folder, or why it was not moved."""
+        from spacr.run_journal import _relocate_cache
+
+        try:
+            return str(_relocate_cache(key, folder))
+        except (ValueError, OSError) as error:
+            return ValueError(str(error))
+
+    def _moved(self, title: str, result) -> None:
+        """Report the move and measure again."""
+        from .i18n import tr
+
+        if isinstance(result, str):
+            message = tr("Moved to {target}.").format(target=result)
+        else:
+            message = tr("Not moved: {reason}").format(reason=result)
+        _show_storage_result(title, message, self._dialog)
+        self.refresh()
+
+    def prune(self) -> None:
+        """Plan on the worker, list what would go, ask, then delete."""
+        from functools import partial
+
+        from .i18n import tr
+
+        self.prune_button.setEnabled(False)
+        self._background(partial(self._plan, self.caps()),
+                         partial(self._planned, tr("Prune home folder")))
+
+    @staticmethod
+    def _plan(caps: dict) -> list:
+        """On the worker: one pruning plan per kind."""
+        from spacr.run_journal import _prune_plan
+
+        return [_prune_plan(kind, *caps[kind]) for kind, _l in _STORAGE_LABELS]
+
+    @staticmethod
+    def _delete(plans: list) -> list:
+        """On the worker: carry out the plans."""
+        from spacr.run_journal import _prune
+
+        return [_prune(one) for one in plans]
+
+    def _planned(self, title: str, plans) -> None:
+        """List the plans and ask before anything is deleted."""
+        from functools import partial
+
+        from .i18n import tr
+        from .resource_cleanup import human_bytes
+
+        if not plans:
+            self.prune_button.setEnabled(True)
+            return
+        labels = dict(_STORAGE_LABELS)
+        lines, chosen = [], 0
+        for one in plans:
+            size = sum(s for _p, s in one["delete"])
+            chosen += len(one["delete"])
+            lines.append(tr(
+                "{label}: delete {count} of {total} ({size} of {all})").format(
+                    label=tr(labels[one["kind"]]),
+                    count=len(one["delete"]), total=one["count"],
+                    size=human_bytes(size), all=human_bytes(one["total"])))
+        if not chosen:
+            self.prune_button.setEnabled(True)
+            _show_storage_result(title, tr(
+                "Nothing is over its caps; nothing was deleted.") + "\n"
+                + "\n".join(lines), self._dialog)
+            return
+        if not _confirm_storage_action(title, "\n".join(lines), self._dialog):
+            self.prune_button.setEnabled(True)
+            return
+        self._background(partial(self._delete, plans),
+                         partial(self._pruned, title))
+
+    def _pruned(self, title: str, results) -> None:
+        """Report what pruning freed."""
+        from .i18n import tr
+        from .resource_cleanup import human_bytes
+
+        self.prune_button.setEnabled(True)
+        if not results:
+            return
+        count = sum(r[0] for r in results)
+        freed = sum(r[1] for r in results)
+        refused = [why for r in results for why in r[2]]
+        message = tr("Deleted {count} item(s), freeing {size}.").format(
+            count=count, size=human_bytes(freed))
+        if refused:
+            message += "\n" + "\n".join(refused[:20])
+        _show_storage_result(title, message, self._dialog)
+
+
 def _get_plugin_catalogue() -> str:
     """The catalogue the Plugins tab opens with, or ``$SPACR_PLUGIN_CATALOGUE``."""
     import os
@@ -7109,6 +7587,8 @@ class PreferencesDialog:
         figures = _page("Figures", "PreferencesTabFigures")
         logging_form = _page("Logging", "PreferencesTabLogging")
         ai_form = _page("AI", "PreferencesTabAI")
+        dlg._storage_page = _StoragePage(
+            _page("Storage", "PreferencesTabStorage"), dlg)
 
         log_level_toggles = {}
         _log_header = QLabel(tr(
@@ -8931,6 +9411,7 @@ class PreferencesDialog:
             the theme work means one repaint rather than two.
             """
             set_rim_length(rim_length_slider.value())
+            dlg._storage_page.save()
             set_rim_lag(rim_lag_slider.value() / 100.0)
             set_rim_alignment(rim_align_combo.currentData())
             set_rim_mode(rim_mode_combo.currentData())

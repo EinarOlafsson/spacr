@@ -28,6 +28,25 @@ Right-click selected rows to open their folders or delete them; **Clear all**
 deletes every run the table lists. Deleting asks first and removes only the
 journal folders; outputs written into your projects are not touched.
 
+Storage: pruning and caches
+---------------------------
+
+**Preferences → Storage** keeps the spaCR home folder from growing without
+bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders
+(``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which
+nothing is ever deleted, and **Cap**, a size above which the oldest older
+entries are deleted (**no cap** deletes every older entry). The run in
+progress and open log files are never deleted. **Prune now…** lists what the
+caps would delete and asks before deleting; nothing is pruned automatically.
+
+The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend
+environment and news caches. **Measure** reads their sizes, **Clear…** empties
+the selected cache after asking, and **Move…** moves it into
+``<folder>/spacr-<cache>`` on another drive. The new place is recorded in
+``~/.spacr/cache_locations.json`` and used at every start; a cache whose
+variable (for example ``HF_HOME``) is set outside spaCR is not moved.
+Clearing and moving wait until no run is in progress.
+
 Headless search
 ---------------
 

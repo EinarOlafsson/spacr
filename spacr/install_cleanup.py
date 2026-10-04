@@ -35,7 +35,12 @@ an installer can run it with its bootstrapped Python before any spaCR exists,
 and a helper process can run a copy of it after the running spaCR has closed::
 
     python -I install_cleanup.py find [--json]
-    python -I install_cleanup.py remove [--keep PATH] [--sudo]
+    python -I install_cleanup.py remove [--keep PATH] [--sudo] [--purge [--yes]]
+    python -I install_cleanup.py purge [--yes] [--dry-run]
+
+``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches,
+backend environments and user data, after listing them and asking. It never
+runs on its own; ``remove --purge`` runs it after the removal succeeded.
     python -I install_cleanup.py run-plan PLAN.json
 """
 from __future__ import annotations
@@ -1176,6 +1181,174 @@ def _delete(path: str, keep: Sequence[str], report: RemovalReport,
         report.failed.append((path, _reason(exc, reason_on_denied)))
         return
     report.removed.append(path)
+
+
+_CACHE_LOCATIONS_FILE = "cache_locations.json"
+_SETTINGS_REGISTRY_KEY = "Software\\spacr\\qt"
+
+
+def _relocated_caches(machine: _Machine) -> List[str]:
+    """Return cache folders spaCR moved out of its home folder on request.
+
+    They are read from ``cache_locations.json`` in ``SPACR_HOME`` or
+    ``~/.spacr``. Only a folder whose
+    own name starts with ``spacr-`` counts, which is the name spaCR gives
+    every folder it relocates, so a hand-edited entry naming a shared folder
+    is never returned.
+
+    :param machine: the computer.
+    """
+    home = machine.env("SPACR_HOME") or os.path.join(machine.home, ".spacr")
+    path = os.path.join(home, _CACHE_LOCATIONS_FILE)
+    try:
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    found = []
+    for value in (data.values() if isinstance(data, dict) else ()):
+        folder = str(value or "")
+        name = os.path.basename(os.path.normpath(folder)).lower() if folder else ""
+        if name.startswith("spacr-"):
+            found.append(folder)
+    return found
+
+
+def _purge_targets(machine: _Machine) -> List[str]:
+    """Return the caches, backends and user data an opt-in purge deletes.
+
+    The list is spaCR's own home folder (logs, runs, models, backend
+    environments, news) or the folder ``SPACR_HOME`` names, its cache, state
+    and configuration folders, the demo and tutorial folders, the macOS
+    preferences file, a backends folder named by ``SPACR_BACKENDS_DIR`` and
+    every cache spaCR relocated. Shared
+    caches such as Hugging Face's and Torch's own folders, shared system
+    folders, anything that is not named after spaCR and the folder of the
+    running interpreter are never included. Only existing paths come back.
+
+    :param machine: the computer.
+    """
+    home = machine.home
+    cache = machine.xdg("XDG_CACHE_HOME", ".cache")
+    candidates = [
+        os.path.join(home, ".spacr"),
+        os.path.join(cache, "spacr"),
+        os.path.join(machine.xdg("XDG_STATE_HOME", os.path.join(".local", "state")), "spacr"),
+        os.path.join(machine.xdg("XDG_CONFIG_HOME", ".config"), "spacr"),
+        os.path.join(home, "spacr-demos"),
+        os.path.join(home, "spacr-tutorials"),
+        os.path.join(home, "Library", "Preferences", "com.spacr.qt.plist"),
+        os.path.join(home, "Library", "Caches", "spacr"),
+        machine.env("SPACR_HOME"),
+        machine.env("SPACR_BACKENDS_DIR"),
+    ] + _relocated_caches(machine)
+    shared = {_norm(f) for f in _never_delete(machine)}
+    running = machine.running_prefix
+    chosen: List[str] = []
+    for path in _dedupe(candidates):
+        name = os.path.basename(os.path.normpath(path)).lower()
+        if _norm(path) in shared or "spacr" not in name:
+            continue
+        if running and _inside(running, path):
+            continue
+        if any(_inside(path, kept) for kept in chosen):
+            continue
+        chosen = [kept for kept in chosen if not _inside(kept, path)] + [path]
+    return chosen
+
+
+def _delete_registry_tree(registry, key: str, report: RemovalReport) -> None:
+    """Delete a registry key and every key below it.
+
+    :param registry: the HKCU adapter.
+    :param key: path below HKCU.
+    :param report: where the outcome is recorded.
+    """
+    try:
+        for child in registry.subkeys(key):
+            _delete_registry_tree(registry, key + "\\" + child, report)
+        registry.delete_key(key)
+    except OSError as exc:
+        report.failed.append(("registry:" + key, _reason(exc, "access denied")))
+        return
+    report.removed.append("registry:" + key)
+
+
+def _purge(machine: _Machine, targets: Optional[Sequence[str]] = None) -> RemovalReport:
+    """Delete what :func:`_purge_targets` lists and spaCR's registry settings.
+
+    :param machine: the computer.
+    :param targets: the paths to delete; :func:`_purge_targets` when ``None``.
+    :returns: a report whose ``record`` is ``None``.
+    """
+    report = RemovalReport(record=None)
+    keep = [machine.running_prefix] if machine.running_prefix else []
+    for path in (_purge_targets(machine) if targets is None else targets):
+        _delete(path, keep, report, "permission denied; delete it by hand")
+    registry = machine.registry
+    if registry is not None and (registry.values(_SETTINGS_REGISTRY_KEY)
+                                 or registry.subkeys(_SETTINGS_REGISTRY_KEY)):
+        _delete_registry_tree(registry, _SETTINGS_REGISTRY_KEY, report)
+    return report
+
+
+def _ask_on_terminal(prompt: str) -> Optional[str]:
+    """Ask ``prompt`` on an interactive terminal, or return ``None``.
+
+    :param prompt: the question.
+    """
+    try:
+        if not (sys.stdin and sys.stdin.isatty()):
+            return None
+        return input(prompt)
+    except (EOFError, OSError):
+        return None
+
+
+def _purge_command(machine: _Machine, *, yes: bool = False, dry_run: bool = False,
+                   ask: Callable[[str], Optional[str]] = _ask_on_terminal) -> int:
+    """List what a purge deletes, ask, and delete it.
+
+    Nothing is deleted unless ``yes`` is given or the person types
+    ``purge`` at the prompt. Without a terminal to ask on, and without
+    ``yes``, nothing is deleted.
+
+    :param machine: the computer.
+    :param yes: delete without asking.
+    :param dry_run: list only.
+    :param ask: asks a question and returns the answer, or ``None``.
+    :returns: ``0`` when done or nothing was there, ``3`` when the purge
+        was not confirmed, ``1`` when something could not be deleted.
+    """
+    targets = _purge_targets(machine)
+    registry = machine.registry
+    has_settings = registry is not None and bool(
+        registry.values(_SETTINGS_REGISTRY_KEY)
+        or registry.subkeys(_SETTINGS_REGISTRY_KEY))
+    if not targets and not has_settings:
+        print("No spaCR caches, backends or user data were found.")
+        return 0
+    print("A purge deletes spaCR's caches, backends and user data:")
+    for path in targets:
+        print(f"  {path}")
+    if has_settings:
+        print(f"  registry: HKCU\\{_SETTINGS_REGISTRY_KEY}")
+    if dry_run:
+        return 0
+    if not yes:
+        answer = ask("Type purge to delete these, anything else to keep them: ")
+        if answer is None:
+            print("Nothing was deleted: pass --yes to purge without a terminal.")
+            return 3
+        if answer.strip().lower() != "purge":
+            print("Nothing was deleted.")
+            return 3
+    report = _purge(machine, targets)
+    for item in report.removed:
+        print(f"  removed: {item}")
+    for item, why in report.failed:
+        print(f"  could not remove: {item} ({why})")
+    return 0 if report.ok else 1
 
 
 class _Denied(Exception):
@@ -3065,6 +3238,15 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     remove.add_argument("--keep", action="append", default=[])
     remove.add_argument("--sudo", action="store_true")
     remove.add_argument("--root", default="/", help=argparse.SUPPRESS)
+    remove.add_argument("--purge", action="store_true",
+                        help="also delete caches, backends and user data")
+    remove.add_argument("--yes", action="store_true",
+                        help="purge without asking")
+    purge = commands.add_parser(
+        "purge", help="delete spaCR's caches, backends and user data")
+    purge.add_argument("--yes", action="store_true", help="do not ask first")
+    purge.add_argument("--dry-run", action="store_true", help="list only")
+    purge.add_argument("--root", default="/", help=argparse.SUPPRESS)
     plan = commands.add_parser("run-plan", help="finish an in-app update")
     plan.add_argument("plan")
     recover = commands.add_parser("recover-macos-frozen", help="recover one retained macOS bundle transaction")
@@ -3085,7 +3267,7 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
         return 0 if receipt["relaunch"]["status"] == "accepted" else 6
     if args.command == "run-plan":
         return _run_plan(args.plan)
-    if args.command not in ("find", "remove"):
+    if args.command not in ("find", "remove", "purge"):
         parser.print_help()
         return 2
     if args.root not in ("/", ""):
@@ -3093,6 +3275,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
                            sudo=getattr(args, "sudo", False))
     else:
         machine = _Machine(sudo=getattr(args, "sudo", False))
+    if args.command == "purge":
+        return _purge_command(machine, yes=args.yes, dry_run=args.dry_run)
     machine.running_prefix = None
     records = find_old_installs(system=machine)
     if args.command == "find":
@@ -3113,6 +3297,8 @@ def _main(argv: Optional[Sequence[str]] = None) -> int:
     if any(not r.ok for r in reports):
         print("An older spaCR could not be removed, so nothing new was installed.")
         return 1
+    if args.purge:
+        return _purge_command(machine, yes=args.yes)
     return 0
 
 

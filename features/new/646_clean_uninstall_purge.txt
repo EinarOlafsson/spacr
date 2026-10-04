@@ -2,7 +2,7 @@
 CLEAN UNINSTALL PURGE
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,13 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+DONE NOTE
+  DONE 2026-10-04
+  spacr/install_cleanup.py: "purge" command and "remove --purge" (lists,
+  asks for "purge" or --yes, --dry-run; never shared caches, the running
+  environment or anything not named after spaCR; deletes HKCU
+  Software\spacr\qt on Windows). Wired into uninstall-spacr.sh --purge
+  (Linux, macOS) and Uninstall.exe /PURGE (NSIS). Docs:
+  docs/source/installer_guide.rst. Tests use temp homes.
+  Left: not exercised on real Windows/macOS uninstallers (CPU-only Linux run).

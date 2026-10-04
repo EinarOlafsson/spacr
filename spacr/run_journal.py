@@ -3765,3 +3765,402 @@ def _check_model_for_run(run: "Run", name: str, path: Any) -> None:
     except Exception as exc:
         LOG.warning("model %r could not be checked against the analysis "
                     "lock: %s", name, exc)
+
+
+_PRUNE_KINDS = ("logs", "run_logs", "run_folders")
+_PRUNE_DEFAULTS = {"logs": (30, 200), "run_logs": (30, 500),
+                   "run_folders": (90, 2000)}
+_DAY_SECONDS = 86400.0
+
+
+def _tree_stats(path: Path) -> Tuple[int, float]:
+    """Return the bytes below ``path`` and the newest modification time.
+
+    Symbolic links are counted as links and never followed, so a link to a
+    large folder elsewhere neither inflates the size nor is walked.
+
+    :param path: a file or folder.
+    """
+    try:
+        info = os.lstat(path)
+    except OSError:
+        return 0, 0.0
+    size, newest = int(info.st_size), float(info.st_mtime)
+    if not os.path.isdir(path) or os.path.islink(path):
+        return size, newest
+    stack = [str(path)]
+    while stack:
+        folder = stack.pop()
+        try:
+            with os.scandir(folder) as entries:
+                for entry in entries:
+                    try:
+                        stat = entry.stat(follow_symlinks=False)
+                    except OSError:
+                        continue
+                    size += int(stat.st_size)
+                    newest = max(newest, float(stat.st_mtime))
+                    if entry.is_dir(follow_symlinks=False):
+                        stack.append(entry.path)
+        except OSError:
+            continue
+    return size, newest
+
+
+def _prune_root(kind: str) -> Path:
+    """Return the folder a kind of home-folder storage lives in.
+
+    :param kind: ``"logs"`` for the daily log files, ``"run_logs"`` for the
+        per-run log files, ``"run_folders"`` for the run journal's folders.
+    """
+    if kind == "logs":
+        from .logging_util import log_dir
+        return Path(log_dir())
+    if kind == "run_logs":
+        from .runctx import runs_log_dir
+        return Path(runs_log_dir())
+    if kind == "run_folders":
+        return runs_root()
+    raise ValueError(f"unknown storage kind: {kind!r}")
+
+
+def _is_prunable_name(kind: str, entry: Path) -> bool:
+    """Whether ``entry`` is something pruning may consider for ``kind``.
+
+    Daily logs are the ``spacr*.log`` files and their rotated copies; other
+    files in the log folder are left alone. Per-run logs are ``.jsonl`` and
+    ``.resources.json`` files. Run folders are real folders, never links.
+
+    :param kind: one of the storage kinds.
+    :param entry: a child of the kind's folder.
+    """
+    name = entry.name
+    if kind == "logs":
+        return (name.startswith("spacr") and ".log" in name
+                and entry.is_file() and not entry.is_symlink())
+    if kind == "run_logs":
+        return ((name.endswith(".jsonl") or name.endswith(".resources.json"))
+                and entry.is_file() and not entry.is_symlink())
+    return entry.is_dir() and not entry.is_symlink()
+
+
+def _protected_storage() -> Set[str]:
+    """Return resolved paths and run ids pruning must never delete.
+
+    The run open on this thread, the run id this process logs under, and
+    every log file a logging handler holds open.
+    """
+    protected: Set[str] = set()
+    try:
+        run = current_run()
+        if run is not None and getattr(run, "dir", None):
+            protected.add(str(Path(run.dir).resolve()))
+            protected.add(Path(run.dir).name)
+        from .runctx import current_run_id
+        run_id = current_run_id()
+        if run_id:
+            protected.add(run_id)
+    except Exception:
+        LOG.debug("Could not identify the running run", exc_info=True)
+    loggers = [logging.getLogger()] + [
+        logger for logger in list(logging.Logger.manager.loggerDict.values())
+        if isinstance(logger, logging.Logger)]
+    for logger in loggers:
+        for handler in list(getattr(logger, "handlers", ())):
+            name = getattr(handler, "baseFilename", None)
+            if name:
+                try:
+                    protected.add(str(Path(name).resolve()))
+                except OSError:
+                    protected.add(str(name))
+    return protected
+
+
+def _is_protected(entry: Path, protected: Set[str]) -> bool:
+    """Whether ``entry`` is the current run, its log, or an open log file.
+
+    :param entry: a candidate.
+    :param protected: from :func:`_protected_storage`.
+    """
+    try:
+        resolved = str(entry.resolve())
+    except OSError:
+        resolved = str(entry)
+    if resolved in protected or entry.name in protected:
+        return True
+    stem = entry.name.split(".", 1)[0]
+    return bool(stem) and stem in protected
+
+
+def _prune_plan(kind: str, keep_days: float, cap_mb: float, *,
+                now: Optional[float] = None) -> Dict[str, Any]:
+    """Work out what pruning one kind of storage would delete. Reads only.
+
+    Nothing modified within the last ``keep_days`` days is ever chosen, and
+    neither is the current run or a log file that is open. Among the older
+    entries, the oldest go first. With a size cap above zero, entries are
+    chosen only while the folder is over the cap; with a cap of zero, every
+    older entry is chosen.
+
+    :param kind: ``"logs"``, ``"run_logs"`` or ``"run_folders"``.
+    :param keep_days: entries newer than this many days are kept; at least 1.
+    :param cap_mb: size cap in megabytes; ``0`` for age alone.
+    :param now: the time to measure age from; now when ``None``.
+    :returns: ``kind``, ``root``, ``count``, ``total`` bytes, ``cutoff``
+        time, and ``delete``, a list of ``(path, bytes)`` oldest first.
+    """
+    root = _prune_root(kind)
+    now = time.time() if now is None else float(now)
+    cutoff = now - max(1.0, float(keep_days)) * _DAY_SECONDS
+    protected = _protected_storage()
+    entries = []
+    try:
+        children = list(root.iterdir())
+    except OSError:
+        children = []
+    for entry in children:
+        try:
+            if not _is_prunable_name(kind, entry):
+                continue
+        except OSError:
+            continue
+        size, newest = _tree_stats(entry)
+        entries.append((newest, entry, size))
+    entries.sort(key=lambda item: (item[0], item[1].name))
+    total = sum(size for _newest, _entry, size in entries)
+    cap = max(0.0, float(cap_mb)) * 1024 * 1024
+    remaining, chosen = total, []
+    for newest, entry, size in entries:
+        if newest >= cutoff:
+            break
+        if cap and remaining <= cap:
+            break
+        if _is_protected(entry, protected):
+            continue
+        chosen.append((str(entry), size))
+        remaining -= size
+    return {"kind": kind, "root": str(root), "count": len(entries),
+            "total": total, "cutoff": cutoff, "delete": chosen}
+
+
+def _prune(plan: Dict[str, Any]) -> Tuple[int, int, List[str]]:
+    """Delete what :func:`_prune_plan` chose, checking each entry again.
+
+    An entry is deleted only if it is still directly inside the plan's
+    folder, is still older than the plan's cut-off, and is not the current
+    run or an open log file. Run folders go through :func:`delete_runs`.
+
+    :param plan: a plan from :func:`_prune_plan`.
+    :returns: ``(deleted, bytes freed, refusals)``.
+    """
+    kind = plan["kind"]
+    root = _prune_root(kind).resolve()
+    protected = _protected_storage()
+    deleted, freed, refused = 0, 0, []
+    for raw, size in plan.get("delete", ()):
+        entry = Path(raw)
+        try:
+            if entry.resolve().parent != root or not _is_prunable_name(kind, entry):
+                refused.append(f"{entry.name}: not in {root}")
+                continue
+        except OSError as error:
+            refused.append(f"{entry.name}: {error}")
+            continue
+        if _is_protected(entry, protected):
+            refused.append(f"{entry.name}: in use")
+            continue
+        if _tree_stats(entry)[1] >= float(plan["cutoff"]):
+            refused.append(f"{entry.name}: changed since it was listed")
+            continue
+        if kind == "run_folders":
+            done, why = delete_runs([entry])
+            refused.extend(why)
+            if done:
+                deleted += done
+                freed += int(size)
+            continue
+        try:
+            entry.unlink()
+        except OSError as error:
+            refused.append(f"{entry.name}: {error}")
+            continue
+        deleted += 1
+        freed += int(size)
+    return deleted, freed, refused
+
+
+_CACHE_LOCATIONS_FILE = "cache_locations.json"
+_CACHE_ROWS = (
+    ("models", "spaCR models", ""),
+    ("cellpose", "Cellpose models", "CELLPOSE_LOCAL_MODELS_PATH"),
+    ("huggingface", "Hugging Face", "HF_HOME"),
+    ("torch", "Torch", "TORCH_HOME"),
+    ("backends", "Backend environments", "SPACR_BACKENDS_DIR"),
+    ("news", "News", "SPACR_NEWS_CACHE"),
+)
+
+
+def _cache_locations_path() -> Path:
+    """Return the file recording the caches spaCR relocated."""
+    return _spacr_home() / _CACHE_LOCATIONS_FILE
+
+
+def _read_cache_locations() -> Dict[str, str]:
+    """Return ``{environment variable: folder}`` for every relocated cache."""
+    try:
+        data = json.loads(_cache_locations_path().read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    return {str(k): str(v) for k, v in data.items()} if isinstance(data, dict) else {}
+
+
+def _apply_cache_locations() -> int:
+    """Point this process at every relocated cache. Returns how many.
+
+    A variable already set in the environment wins over the record.
+    """
+    applied = 0
+    for name, folder in _read_cache_locations().items():
+        if name and folder and not os.environ.get(name):
+            os.environ[name] = folder
+            applied += 1
+    return applied
+
+
+def _cache_folder(key: str) -> Path:
+    """Return the folder one cache lives in now.
+
+    :param key: a key of :data:`_CACHE_ROWS`.
+    """
+    home = Path.home()
+    spacr_home = _spacr_home()
+    xdg_cache = os.environ.get("XDG_CACHE_HOME", "").strip()
+    cache = Path(xdg_cache) if xdg_cache else home / ".cache"
+    env = dict((k, v) for k, _label, v in _CACHE_ROWS).get(key)
+    if env is None:
+        raise ValueError(f"unknown cache: {key!r}")
+    configured = os.environ.get(env, "").strip() if env else ""
+    if configured:
+        return Path(configured).expanduser()
+    defaults = {
+        "models": spacr_home / "models",
+        "cellpose": home / ".cellpose" / "models",
+        "huggingface": cache / "huggingface",
+        "torch": cache / "torch",
+        "backends": spacr_home / "backends",
+        "news": spacr_home / "news",
+    }
+    return defaults[key]
+
+
+def _disk_caches() -> List[Dict[str, Any]]:
+    """List the model, Hugging Face, Torch, backend and news caches.
+
+    :returns: one dict per cache with ``key``, ``label``, ``path``, ``env``,
+        ``exists``, ``size`` in bytes and ``relocatable``.
+    """
+    rows = []
+    for key, label, env in _CACHE_ROWS:
+        folder = _cache_folder(key)
+        exists = folder.is_dir()
+        rows.append({"key": key, "label": label, "path": str(folder),
+                     "env": env, "exists": exists,
+                     "size": _tree_stats(folder)[0] if exists else 0,
+                     "relocatable": bool(env)})
+    return rows
+
+
+def _cache_refusal(folder: Path) -> Optional[str]:
+    """Return why ``folder`` must not be emptied or moved, or ``None``.
+
+    :param folder: a cache folder.
+    """
+    try:
+        target = folder.resolve()
+    except OSError as error:
+        return str(error)
+    home = Path.home().resolve()
+    spacr_home = _spacr_home().resolve()
+    if target == Path(target.anchor) or target == home or target in home.parents:
+        return f"{target}: refusing a home or top-level folder"
+    if target == spacr_home or target in spacr_home.parents:
+        return f"{target}: refusing spaCR's own home folder"
+    return None
+
+
+def _clear_cache(key: str) -> Tuple[int, List[str]]:
+    """Empty one cache folder, keeping the folder itself.
+
+    Links inside are removed as links; what they point to is not touched.
+
+    :param key: a key of :data:`_CACHE_ROWS`.
+    :returns: ``(entries removed, refusals)``.
+    """
+    folder = _cache_folder(key)
+    if not folder.is_dir():
+        return 0, []
+    why = _cache_refusal(folder)
+    if why:
+        return 0, [why]
+    removed, refused = 0, []
+    for child in list(folder.iterdir()):
+        try:
+            if child.is_symlink() or not child.is_dir():
+                child.unlink()
+            else:
+                shutil.rmtree(child)
+            removed += 1
+        except OSError as error:
+            refused.append(f"{child.name}: {error}")
+    return removed, refused
+
+
+def _relocate_cache(key: str, parent: Any) -> Path:
+    """Move one cache into ``parent/spacr-<key>`` and remember it there.
+
+    The move works across drives. The new place is recorded in
+    ``cache_locations.json`` in spaCR's home folder and applied to this process; spaCR
+    applies it again at every start. A cache whose variable was set outside
+    spaCR is not moved.
+
+    :param key: a key of :data:`_CACHE_ROWS` that has a variable.
+    :param parent: the folder to move it into.
+    :returns: the cache's new folder.
+    :raises ValueError: when the cache cannot be moved there.
+    """
+    env = dict((k, v) for k, _label, v in _CACHE_ROWS).get(key)
+    if not env:
+        raise ValueError(f"{key}: this cache has no setting to move it with")
+    recorded = _read_cache_locations()
+    outside = os.environ.get(env, "").strip()
+    if outside and outside != recorded.get(env, ""):
+        raise ValueError(f"{env} is set outside spaCR; change it there")
+    source = _cache_folder(key)
+    target = Path(str(parent)).expanduser().resolve() / f"spacr-{key}"
+    why = _cache_refusal(source) if source.exists() else None
+    if why:
+        raise ValueError(why)
+    if target.exists() and any(target.iterdir()):
+        raise ValueError(f"{target} already holds files")
+    src = source.resolve() if source.exists() else source
+    if src == target or src in target.parents or target in src.parents:
+        raise ValueError(f"{target} overlaps {src}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if source.is_dir():
+        if target.exists():
+            target.rmdir()
+        shutil.move(str(source), str(target))
+    else:
+        target.mkdir(parents=True, exist_ok=True)
+    recorded[env] = str(target)
+    path = _cache_locations_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _atomic_write_text(path, json.dumps(recorded, indent=2, sort_keys=True))
+    os.environ[env] = str(target)
+    return target
+
+
+try:
+    _apply_cache_locations()
+except Exception:
+    LOG.debug("Relocated caches could not be applied", exc_info=True)

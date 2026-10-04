@@ -78,6 +78,20 @@ cat > "$SUPPORT/uninstall-spacr.sh" <<'EOF'
 #!/bin/sh
 set -eu
 . "/Library/Application Support/spaCR/installer_messages.sh"
+# --purge also deletes spaCR's caches, backends and user data, after
+# listing them and asking (spacr/install_cleanup.py purge).
+for arg in "$@"; do
+    if [ "$arg" = "--purge" ]; then
+        yes=""
+        for other in "$@"; do
+            [ "$other" = "--yes" ] && yes="--yes"
+        done
+        py="$HOME/Library/Application Support/spaCR/venv/bin/python"
+        if [ -x "$py" ]; then
+            "$py" -m spacr.install_cleanup purge $yes || true
+        fi
+    fi
+done
 rm -f /usr/local/bin/spacr
 rm -rf "/Applications/spaCR.app"
 rm -rf "/Library/Application Support/spaCR"

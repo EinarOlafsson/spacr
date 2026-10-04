@@ -2,7 +2,7 @@
 PRUNE THE SPACR HOME FOLDER
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,15 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+DONE NOTE
+  DONE 2026-10-04
+  spacr/run_journal.py: _prune_plan/_prune (age floor + size cap per kind:
+  daily logs, logs/runs, run folders; oldest first; never the current run,
+  an open log file or anything inside the age floor; re-checked before
+  deleting; run folders via delete_runs). Preferences -> Storage tab
+  (_StoragePage): Keep/Cap per kind, "Prune now..." lists and asks first;
+  no automatic pruning. Docs: docs/source/run_history.rst. Tests:
+  tests/test_home_storage_prune_caches_purge.py,
+  tests/qt/test_storage_preferences.py (temp homes).
+  Left: captions await the next catalog rebuild (_AWAITING_CATALOG_REBUILD).

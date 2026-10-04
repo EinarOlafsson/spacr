@@ -116,7 +116,7 @@ SPACEOUT_CONTROLS = {
 #: 2026-09-19 by item 427 -- last, and it must stay last. Sound and Fractal
 #: exist only in spaceout mode (:data:`EXPECTED_SPACEOUT_TABS`).
 EXPECTED_TABS = ("General", "Appearance", "Performance",
-                 "Modules", "Figures", "Logging", "AI")
+                 "Modules", "Figures", "Logging", "AI", "Storage")
 EXPECTED_SPACEOUT_TABS = EXPECTED_TABS + ("Fractal", "Sound")
 
 
