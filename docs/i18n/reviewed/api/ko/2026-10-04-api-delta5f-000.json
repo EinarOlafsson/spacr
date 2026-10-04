@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.gpu_reduce#5",
+      "source": "WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered here. Everything else spaCR does -- barcode mapping, format conversion, SQLite, report assembly, grouped statistics -- is decompression, filesystem and small-table work, and moving it to a GPU would cost transfer time and buy nothing. GPU acceleration is reserved for workloads where transfer overhead is outweighed by computation.",
+      "source_sha256": "5662a53c0578fcd9a889eb0dcac4305889b6a233d7e3654ca347bed83e89b63c",
+      "context": "WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered here. Everything else spaCR does -- barcode mapping, format conversion, SQLite, report assembly, grouped statistics -- is decompression, filesystem and small-table work, and moving it to a GPU would cost transfer time and buy nothing. GPU acceleration is reserved for workloads where transfer overhead is outweighed by computation.",
+      "translation": "실제로 도움이 되는 곳. cuML 은 spaCR 가 이미 큰 테이블에서 실행하는 알고리즘인 UMAP, t-SNE, PCA, DBSCAN, KMeans 를 구현합니다. 여기서 제공하는 것은 바로 그것들입니다. spaCR 가 하는 나머지 모든 일 -- 바코드 매핑, 형식 변환, SQLite, 보고서 조립, 그룹별 통계 -- 은 압축 해제, 파일 시스템, 작은 테이블 작업이며, 이를 GPU 로 옮기면 전송 시간만 들고 얻는 것은 없습니다. GPU 가속은 전송 오버헤드보다 계산량이 더 큰 작업 부하에만 씁니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.graph_types#2",
+      "source": "IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
+      "source_sha256": "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26",
+      "context": "IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
+      "translation": "이곳은 또한 spaCR 의 모든 그래프가 시작 형태를 얻는 곳이기도 합니다. \"기본 그래프 유형\" 설정은 데이터 형태별로 저장되고(`spacr.qt.preferences`), :func:`chosen_for` 를 통해 다시 읽히며, :func:`default_for` 와 :func:`start_for` 에 의해 \"첫 번째 오른쪽 클릭 전에 그려지는 것\"으로 바뀝니다. 위젯은 이 둘 중 하나에 묻고, 사용자의 선택과 그 선택이 데이터에 맞는지, 그리고 데이터가 그것을 뒷받침할 만큼 충분히 조밀한지를 이미 반영한 답을 받습니다 -- 따라서 설정은 그래프가 무언가를 기억해서가 아니라 평소대로 동작함으로써 새 그래프에 반영됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure#9",
+      "source": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D field is measured in real units or refused. A 2-D field takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "source_sha256": "3b26b2cc94e9e2ab4b48cf39602d8044ae66e0c2cfd49878df7db59f99e2d624",
+      "context": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D microscope field of view is measured in real units or refused. A 2-D microscope field of view takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "translation": "2-D 경로는 비트 단위로 동일하며, 이는 의도된 것입니다. 이제 Mask 는 ``(Z, Y, X)`` 라벨 볼륨을 출력할 수 있고(:mod:`spacr.zstack` 참조), 복셀 간격, 부피 열, 단위 표기에 관한 모든 것은 3-D 시야가 실제 단위로 측정되거나 아니면 거부되도록 하기 위해 존재합니다. 2-D 시야는 ``spacing=None`` 과 함께 예전과 똑같은 코드를 탑니다. 작년에 측정하고 오늘 다시 측정한 스크리닝은 같은 숫자를 냅니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.nonparametric_fits.describe#2",
+      "source": "Said WHERE IT IS CHOSEN. The whole point of the three-way split is that a reader knows before picking, not after running.",
+      "source_sha256": "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c",
+      "context": "Said WHERE IT IS CHOSEN. The whole point of the three-way split is that a reader knows before picking, not after running.",
+      "translation": "선택하는 곳에서 말합니다. 세 갈래로 나눈 요점은 전적으로, 독자가 실행한 뒤가 아니라 고르기 전에 알게 하는 데 있습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_accel#5",
+      "source": "THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in CI, and on the machine whose card is busy, which between them is most of the time this code will ever run.",
+      "source_sha256": "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d",
+      "context": "THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in CI, and on the machine whose card is busy, which between them is most of the time this code will ever run.",
+      "translation": "CPU 경로는 오류 경로가 아닙니다. 노트북에서, CI 에서, 그리고 그래픽 카드가 사용 중인 머신에서 실행되는 것이 바로 이 경로이며, 이 경우들을 합치면 이 코드가 실행될 시간의 대부분을 차지합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_merge#4",
+      "source": "WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:",
+      "source_sha256": "ad60fe656e90088b7a9b92134f33cd46562acb39e4eaf437a7fb83b3d165e98d",
+      "context": "WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:",
+      "translation": "작동이 멈추는 지점으로, 90 개 세포에서 측정했습니다. 세포들은 500 px 시야에 걸쳐 있으며, 두 시야는 알려진 배율 2.0, 11 도 회전, (137.5, -92.25) 이동으로 서로 관련됩니다:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_register#9",
+      "source": "THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must agree to within a pixel, which is what `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts. A fallback nobody compares is a second implementation, not a fallback.",
+      "source_sha256": "90c95204836925dff481463ff29947ad90f124864db553914909e6d5c0358402",
+      "context": "THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must agree to within a pixel, which is what `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts. A fallback nobody compares is a second implementation, not a fallback.",
+      "translation": "CPU 경로는 오류 경로가 아닙니다. 둘 다 같은 테스트 픽스처를 실행하며 한 픽셀 이내로 일치해야 하는데, 이것이 바로 `tests/test_the_ops_registration_agrees_on_every_backend.py` 가 검증하는 내용입니다. 아무도 비교하지 않는 폴백은 두 번째 구현일 뿐, 폴백이 아닙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sample#4",
+      "source": "THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are separate functions rather than one with a flag. A phenotype channel measured in several cycles IS several samples of one quantity and averaging it is the right thing, and what it emits is the schema ``measure`` already emits. Same plate, same objects, opposite correct answer; a shared flag would make that a caller's choice, and it is not one.",
+      "source_sha256": "1a7c609357bde860f3c8f5268e0fd45895ec4cc3731cb9cf1f0dbe2e4e371b0c",
+      "context": "THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are separate functions rather than one with a flag. A phenotype channel measured in several cycles IS several samples of one quantity and averaging it is the right thing, and what it emits is the schema ``measure`` already emits. Same laboratory microplate, same objects, opposite correct answer; a shared flag would make that a caller's choice, and it is not one.",
+      "translation": "표현형 경로는 정반대의 경우이며, 그래서 두 함수는 플래그 하나를 가진 함수가 아니라 별개의 함수입니다. 여러 사이클에 걸쳐 측정된 표현형 채널은 바로 한 양의 여러 샘플이므로 평균을 내는 것이 옳고, 그것이 내보내는 것은 ``measure`` 가 이미 내보내는 스키마입니다. 같은 마이크로플레이트, 같은 객체, 정반대의 정답입니다. 공유 플래그는 이것을 호출자의 선택으로 만들겠지만, 이것은 선택의 문제가 아닙니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.strip_report_paths#2",
+      "source": "A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "source_sha256": "534a20d92443850456fafa7bf5cf6c1b879ada5c2377d65701de93abdbe5874e",
+      "context": "A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "translation": "경로에는 공백이 들어갈 수 있으며, 첫 공백에서 경로를 끊던 규칙은 경로의 나머지를 게시해 버렸습니다. ``/Volumes/Lab Drive/Patient 042`` 는 ``<PATH> Drive/Patient 042`` 로 나왔고, ``C:\\Users\\anna\\OneDrive",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.apply#1",
+      "source": "SORTED BY WHAT THE PATH IS, not by drop order, so the same four files land in the same four fields however they are dropped.",
+      "source_sha256": "11f5bd9f2031bc4d04663db4a3f24adf44826033b7150d2e1082b97ac25a8e19",
+      "context": "SORTED BY WHAT THE PATH IS, not by drop order, so the same four files land in the same four fields however they are dropped.",
+      "translation": "끌어다 놓은 순서가 아니라 경로가 무엇인지에 따라 정렬되므로, 같은 네 파일은 어떻게 끌어다 놓든 같은 네 필드에 들어갑니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design#7",
+      "source": "ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two plates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a plate map that says what each well holds rather than only whether it is chosen.",
+      "source_sha256": "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb",
+      "context": "ONE Laboratory microplate WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two laboratory microplates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a laboratory microplate map that says what each well holds rather than only whether it is chosen.",
+      "translation": "하나로 될 수 있는 곳에는 마이크로플레이트 위젯 하나. 정사각형, 그 크기의 기준이 되는 상수, 행/열 머리글은 여기서 두 번째로 선언되지 않고 :mod:`spacr.qt.widgets.plate_map_picker` 에서 가져옵니다. 두 마이크로플레이트는 이미 한 번 서로 어긋난 적이 있습니다. 공유할 수 없는 것은 웰 자체이며, 그 차이는 역사적인 것이 아니라 실제적인 것입니다. 선택기의 웰은 체크 가능한 ``QPushButton`` 으로, 체크 상태가 곧 선택이며 고정된 한 쌍의 색으로 스스로를 그립니다. 반면 이 웰은 역할, 가장자리 표시, 이름, 조건을 담은 ``QLabel`` 이며, 아래 속성들을 통해 테마가 그립니다 -- 각 웰이 선택되었는지 여부만이 아니라 무엇을 담고 있는지를 말해 주는 마이크로플레이트 맵입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#3",
+      "source": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two threads and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING THREAD, where the failure is a picture that differs from the one the GUI thread would have drawn. So the drive is an INPUT, set on the GUI thread between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
+      "context": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING Independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "translation": "구동을 사용되는 곳이 아니라 :meth:`advance` 에서 읽는 이유. 다른 모든 엔진은 프레임이 ``(seed, clock, size)`` 의 순수 함수라고 약속하며, 두 테스트가 이를 지킵니다. 하나는 같은 시계를 두 스레드에서 셰이딩해 바이트를 비교하고, 다른 하나는 엔진 하나를 열두 번 진행시키고 두 번째 엔진을 같은 시계로 곧장 건너뛰게 합니다. :meth:`shade` 안에서 실시간 신호를 읽으면 둘 다 깨지며, 그것도 셰이딩 스레드에서 깨지는데, 그곳에서의 실패는 GUI 스레드가 그렸을 그림과 다른 그림으로 나타납니다. 그래서 구동은 입력이며, :meth:`set_palette` 와 똑같이 엔진 잠금 아래 프레임 사이에 GUI 스레드에서 설정되고, 약속은 \"``(seed, clock, size, drive)`` 의 순수 함수\"가 됩니다 -- 아무것도 재생되지 않는 동안에는 같은 약속이며, 테스트는 바로 그때 실행됩니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock#8",
+      "source": "WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly unwanted — but into the strip along the bottom of the window, which already exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered module for thirty seconds with its API and tutorial links. This dock only says which module is under the pointer, via :attr:`Dock.module_hovered`; the bar decides how to explain it.",
+      "source_sha256": "d77266e2252ddf0b4e5f8550d844cae2ab5a68feb9c9216f48d4c32bb3f98129",
+      "context": "WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly unwanted — but into the strip along the bottom of the window, which already exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered module for thirty seconds with its API and tutorial links. This dock only says which module is under the pointer, via :attr:`Dock.module_hovered`; the bar decides how to explain it.",
+      "translation": "설명이 간 곳. 팝업 툴팁이 아니라 — 툴팁은 명시적으로 원하지 않는 것입니다 — 창 하단을 따라 있는 띠로 갔습니다. 이 띠는 이미 :mod:`spacr.qt.widgets.module_hint_bar` 로 존재하며, 마지막으로 마우스를 올린 모듈을 그 API 및 튜토리얼 링크와 함께 이미 삼십 초 동안 유지합니다. 이 독은 :attr:`Dock.module_hovered` 를 통해 포인터 아래에 어떤 모듈이 있는지만 알리며, 그것을 어떻게 설명할지는 띠가 결정합니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.loewe_surface#3",
+      "source": "WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve -- the dose achieving an observed effect -- and that dose does not exist when the observed effect lies outside a single agent's own plateaus. A combination that kills more than either agent can alone has no Loewe answer, and NaN is the honest one.",
+      "source_sha256": "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+      "context": "WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve -- the dose achieving an observed effect -- and that dose does not exist when the observed effect lies outside a single agent's own plateaus. A combination that kills more than either agent can alone has no Loewe answer, and NaN is the honest one.",
+      "translation": "이것이 NaN 일 수 있는데 Bliss 는 그렇지 않은 이유: Loewe 는 역곡선 -- 관찰된 효과를 달성하는 용량 -- 을 필요로 하며, 관찰된 효과가 단일 약제 자체의 플래토 범위 밖에 있으면 그 용량은 존재하지 않습니다. 어느 약제가 단독으로 죽일 수 있는 것보다 더 많이 죽이는 조합에는 Loewe 답이 없으며, NaN 이 정직한 답입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot.boundary_mask#1",
+      "source": "THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat colour as you descend into it; an exterior one escapes and the frame empties. Only the edge keeps producing detail at every magnification.",
+      "source_sha256": "37dd868299e0eba42140f631c1483eb37eef0a46dbd9e482bdc1849b562e90e8",
+      "context": "THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat colour as you descend into it; an exterior one escapes and the frame empties. Only the edge keeps producing detail at every magnification.",
+      "translation": "경계가 바로 구조가 있는 곳입니다. 내부 점은 그 안으로 내려갈수록 단색으로 바래고, 외부 점은 탈출하여 프레임이 비게 됩니다. 모든 배율에서 계속 세부를 만들어 내는 것은 가장자리뿐입니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.regression_results.read_run_tables#2",
+      "source": "THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected them as their own family, wrote them to ``results_gene.csv``, and left ``results.csv`` holding guides alone -- so a reader who asked for genes was shown nothing while the rows sat in a file nothing opened. The writer is fixed, and this reads the older runs too, because a folder on disk does not update itself.",
+      "source_sha256": "44e5b5a94ff82c03a7b8f579d52e6741268ef61ee9db713b13e0cffdea28d58f",
+      "context": "THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected them as their own family, wrote them to ``results_gene.csv``, and left ``results.csv`` holding guides alone -- so a reader who asked for genes was shown nothing while the rows sat in a file nothing opened. The writer is fixed, and this reads the older runs too, because a folder on disk does not update itself.",
+      "translation": "순열 경로가 항상 그렇게 하지는 않았습니다. 그 경로는 유전자를 검정하고, 그것들을 별도의 패밀리로 보정하고, ``results_gene.csv`` 에 기록한 뒤, ``results.csv`` 에는 가이드만 남겨 두었습니다 -- 그래서 유전자를 요청한 독자에게는 아무것도 보이지 않았고, 그 행들은 아무것도 열지 않는 파일에 놓여 있었습니다. 기록기는 수정되었고, 디스크의 폴더는 스스로 갱신되지 않으므로 이 함수는 이전 실행도 읽습니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_summary#12",
+      "source": "WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a run from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
+      "source_sha256": "89044fd753e29774a4026d8d0aad0a36d80d76f5866a53dd4d2a3df32e0be1f8",
+      "context": "WHERE IT GOES. The processing-session folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a processing session from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
+      "translation": "저장되는 곳. 실행 폴더 안의 :data:`spacr.ml.SUMMARY_FILENAME` 아래입니다 — :func:`spacr.qt.widgets.regression_results.find_summary_file` 가 이미 다시 읽는 파일이므로, 디스크에서 실행을 다시 열면 GUI 변경 없이 이 요약이 표시됩니다. statsmodels 텍스트가 있는 경우, 그것은 대체되지 않고 끝에 그대로 덧붙여집니다.",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
