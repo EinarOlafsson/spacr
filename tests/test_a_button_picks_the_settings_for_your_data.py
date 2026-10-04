@@ -328,11 +328,15 @@ class TestTheFamilyAndTheTransformAreOneDecision:
 
         assert "carries its own link" in advice.why("transform")
 
-    def test_the_conflict_setting_is_decided_with_it(self):
+    def test_every_advised_key_is_a_setting_the_run_reads(self):
+        """A retired key in the advice would be applied to nothing."""
+        from spacr.settings import expected_types
+
         advice = self._advise(low=0.02, high=0.97, inside_unit=True,
                               on_unit=True)
 
-        assert advice.as_settings()["glm_transform_conflict"] == "untransformed"
+        assert "glm_transform_conflict" not in advice.as_settings()
+        assert set(advice.as_settings()) <= set(expected_types)
 
     def test_a_linkless_family_on_skewed_positive_data_takes_the_log(self):
         advice = self._advise(low=0.5, high=900.0, normal_p=1e-9, skew=3.4)

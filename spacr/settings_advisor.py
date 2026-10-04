@@ -529,9 +529,9 @@ class Advice:
 
 def _family_and_transform(reading: Reading, chosen: List[Choice],
                           undecided: List[Undecided]) -> None:
-    """regression_type, transform and glm_transform_conflict, TOGETHER.
+    """regression_type and transform, TOGETHER.
 
-    182's whole point: a link-carrying family and a link-like transform are
+    A link-carrying family and a link-like transform are
     two ways of doing one job, and applying both fits logit(log(y)). So they
     are decided in one place and the reason says which of the two is doing
     the transforming -- rather than being chosen by two rules that can
@@ -593,11 +593,6 @@ def _family_and_transform(reading: Reading, chosen: List[Choice],
             f"none: regression_type={family!r} carries its own link, and a "
             f"log or logit transform on top of it would fit the response "
             f"twice — logit(log(y))"))
-        chosen.append(Choice(
-            "glm_transform_conflict", "untransformed",
-            "the family does the transforming, so the response is fitted as "
-            "measured — which is what makes the printed pseudo-R-squared "
-            "describe the response you have"))
     elif reading.skew is not None and abs(reading.skew) > 1.0 \
             and reading.low is not None and reading.low > 0:
         chosen.append(Choice(
