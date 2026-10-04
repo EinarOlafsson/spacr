@@ -242,6 +242,8 @@ def after_the_loop_starts(*args, **kwargs):
 
 app_mod._timing.event_loop_started = after_the_loop_starts
 report["returncode"] = app_mod.launch(["--no-setup"])
+# 641 paces file flushes; closing every handler writes what is still buffered.
+logging.shutdown()
 logs = os.environ["SPACR_LOG_DIR"]
 report["files"] = {}
 for name in sorted(os.listdir(logs)):
