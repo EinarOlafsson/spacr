@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -99,6 +99,9 @@ msgstr "插件和实验分析方案也可以从目录中安装，目录是一个
 
 msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
 msgstr "将 ``SPACR_DISABLE_PLUGINS`` 设置为 ``1``、``true``、``yes`` 或 ``on`` （不区分大小写）会完全跳过发现，因此不会从任何来源加载插件。"
+
+msgid "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads."
+msgstr "注册表由两把锁保护：注册表读取方仅在快照访问和发布时持有 _LOCK，而 _CATALOGUE_MUTATION_LOCK 将文件系统和模块变更串行化，同时不阻塞已缓存的注册表读取。"
 
 msgid "One runnable GUI/headless application contributed by a plugin."
 msgstr "插件提供的一个可运行的 GUI/无界面应用。"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -99,6 +99,9 @@ msgstr "플러그인과 어세이 레시피는 카탈로그에서도 설치할 �
 
 msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
 msgstr "``SPACR_DISABLE_PLUGINS`` 를 ``1``, ``true``, ``yes`` 또는 ``on`` (대소문자 구분 없음)으로 설정하면 탐색을 완전히 건너뛰므로 어느 출처에서도 플러그인이 로드되지 않습니다."
+
+msgid "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads."
+msgstr "두 개의 잠금이 레지스트리를 보호합니다. 레지스트리 읽기 측은 스냅샷 접근과 게시 동안에만 _LOCK을 보유하고, _CATALOGUE_MUTATION_LOCK은 캐시된 레지스트리 읽기를 막지 않으면서 파일 시스템과 모듈 변경을 직렬화합니다."
 
 msgid "One runnable GUI/headless application contributed by a plugin."
 msgstr "플러그인이 제공하는 실행 가능한 GUI/헤드리스 애플리케이션 하나입니다."

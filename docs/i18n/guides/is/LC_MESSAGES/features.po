@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 15:32-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -183,6 +183,54 @@ msgstr "**Endurheimt lotu**: hver venjuleg ræsing opnar aftur eininguna sem var
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**Sjálfvirk vistun stillinga**: á 30 sekúndna fresti eru óvistaðar stillingar hverrar opinnar einingar geymdar sem drög í kjörstillingageymslunni; ekkert er skrifað ef ekkert hefur breyst. Eðlileg lokun fleygir drögunum. Ef spaCR hætti án þess að vera lokað spyr næsta ræsing einu sinni hvort endurheimta eigi þau (ekki er spurt um drög sem eru eins og enduropnaða lotan). Sama hegðun gildir á Linux, macOS og Windows, því geymslan er eigin stillingageymsla Qt."
+
+msgid "Undo and redo"
+msgstr "Afturkalla og endurtaka"
+
+msgid "**Ctrl+Z** undoes and **Ctrl+Shift+Z** or **Ctrl+Y** redoes in a module's settings panel, in the Gate Editor and in Annotate:"
+msgstr "**Ctrl+Z** afturkallar og **Ctrl+Shift+Z** eða **Ctrl+Y** endurtekur í stillingaspjaldi einingar, í Gate Editor og í Merking:"
+
+msgid "in the **settings panel**, each changed setting is one step. Loading settings, applying a template or replaying a run does not add steps. While you are typing in a text field, Ctrl+Z undoes the typing first;"
+msgstr "í **stillingaspjaldinu** er hver breytt stilling eitt skref. Hleðsla stillinga, beiting sniðmáts eða endurspilun keyrslu bætir ekki við skrefum. Á meðan þú skrifar í textareit afturkallar Ctrl+Z fyrst það sem var skrifað;"
+
+msgid "in the **Gate Editor**, each change to the gates (drawing, moving, renaming or deleting a gate) is one step;"
+msgstr "í **Gate Editor** er hver breyting á hliðunum (teikning, færsla, endurnefning eða eyðing hliðs) eitt skref;"
+
+msgid "in **Annotate**, **U** and Ctrl+Z undo the last label and Ctrl+Shift+Z or Ctrl+Y puts it back;"
+msgstr "í **Merking** afturkalla **U** og Ctrl+Z síðasta merkið og Ctrl+Shift+Z eða Ctrl+Y setur það aftur;"
+
+msgid "the **Make Masks** editor keeps its own **Undo** and **Redo**."
+msgstr "ritill **Búa til grímur** hefur eigin **Afturkalla** og **Endurtaka**."
+
+msgid "Running jobs"
+msgstr "Verk í gangi"
+
+msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
+msgstr "**Hjálp → Window → Verk** opnar spjaldið **Verk** við hægri jaðar gluggans. Það sýnir hvert verk sem er í gangi, með einingu þess, framvindustiku, liðnum tíma og síðustu úttakslínu. **Hætta við** biður það verk að stöðvast. Þegar ekkert er í gangi segir spjaldið **No jobs are running.**"
+
+msgid "Two spaCR windows"
+msgstr "Tveir spaCR-gluggar"
+
+msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
+msgstr "Þú getur opnað fleiri en einn spaCR-glugga. Þegar eining keyrir tekur spaCR frá upprunamöppu hennar, sem geymir ``measurements.db`` og niðurstöðurnar, og skjárinn Queue tekur frá biðröð platna. Ef annar gluggi notar þegar þá möppu eða biðröð nefnir **Project open in another window** hitt ferlið og býður upp á:"
+
+msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
+msgstr "**Open read-only**: skoða án þess að skrifa. Þessi gluggi neitar þá að keyra vinnslukeðju sem skrifar þangað og skjárinn Queue getur hvorki breytt biðröðinni né keyrt hana;"
+
+msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
+msgstr "**Continue anyway**: skrifa líka, þegar þú ert viss um að hinn glugginn sé aðgerðalaus. Tveir gluggar sem skrifa í sömu biðröð, gagnagrunn eða niðurstöðumöppu geta skemmt þau;"
+
+msgid "**Cancel**."
+msgstr "**Hætta við**."
+
+msgid "The answer is remembered for that folder until the window closes. A window that ended without closing does not keep its claims: the next window takes them over. The lock files are in ``~/.spacr/locks``; set ``SPACR_LOCK_DIR`` to keep them elsewhere."
+msgstr "Svarið er munað fyrir þá möppu þar til glugganum er lokað. Gluggi sem endaði án þess að lokast heldur ekki frátekningum sínum: næsti gluggi tekur þær yfir. Læsingaskrárnar eru í ``~/.spacr/locks``; stilltu ``SPACR_LOCK_DIR`` til að geyma þær annars staðar."
+
+msgid "Accessibility"
+msgstr "Aðgengi"
+
+msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
+msgstr "Hver stýring hefur heiti sem skjálesarar lesa upp, tekið úr merki hennar, skjábendingu eða staðgengilstexta, og heitin fylgja tungumáli viðmótsins. **Tab** færir úr textareitum og töflum í næstu stýringu í stað þess að skrifa dálkstopp. **Kjörstillingar → Útlit → Þema** býður upp á **High contrast**, þar sem allur texti hefur birtuskilahlutfall að minnsta kosti 7:1 gagnvart bakgrunni sínum."
 
 msgid "Arranging the window"
 msgstr "Uppröðun gluggans"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 15:32-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -73,6 +73,18 @@ msgstr "Uppfærsla"
 msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
 msgstr "Sæktu og keyrðu uppsetningarforritið fyrir nýrri útgáfuna. Uppsetningin er undirbúin og sannprófuð áður en hún kemur í stað virka einkaumhverfisins; misheppnuð uppfærsla skilur fyrra virka umhverfið eftir á sínum stað. Verkefnamöppur og niðurstöður eru ekki geymdar í uppsetningarmöppunni og eru ekki fjarlægðar við uppfærslu."
 
+msgid "Update channel and What's new"
+msgstr "Uppfærslurás og Hvað er nýtt"
+
+msgid "**Preferences → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and the network answers. **Help → What's new…** reopens it at any time."
+msgstr "**Kjörstillingar → Update channel** ræður því hvað **Hjálp → Check for updates** býður upp á. *Stable releases* býður upp á nýjustu útgáfu á PyPI. *Nightly builds* býður einnig upp á forútgáfur og þróunarútgáfur, sem berast fyrr og eru minna prófaðar. Eftir uppfærslu opnar næsta ræsing **What's new in spaCR** með útgáfuskýringum hverrar útgáfu milli fyrri útgáfunnar og þeirrar sem keyrir: skýringunum sem fylgja útgáfunni, auk birtra GitHub-útgáfna þegar kveikt er á **Útgáfufréttir** og netið svarar. **Hjálp → What's new…** opnar það aftur hvenær sem er."
+
+msgid "Proxies and corporate certificates"
+msgstr "Milliþjónar og fyrirtækjaskilríki"
+
+msgid "Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) honours ``HTTPS_PROXY`` and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR instead, fill in **Preferences → Proxy** (for example ``http://proxy.example.org:3128``) and **Preferences → Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy."
+msgstr "Hvert niðurhal sem spaCR framkvæmir (vægi líkana, uppfærslur, viðbætur, pip, uv, conda og uppsetningarforrit hlutunarbakenda) virðir ``HTTPS_PROXY`` og ``REQUESTS_CA_BUNDLE`` (eða ``SSL_CERT_FILE``). Til að stilla þau innan spaCR í staðinn skaltu fylla út **Kjörstillingar → Proxy** (til dæmis ``http://proxy.example.org:3128``) og **Kjörstillingar → Certificate bundle** (PEM-skrá frá upplýsingatæknideildinni). Þessi gildi hnekkja umhverfinu, eru geymd í ``~/.spacr/network.json`` svo keyrslur úr skipanalínu noti þau líka, og eru send áfram sem ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` og ``GIT_SSL_CAINFO``. ``spacr-doctor`` hefur röðina *proxy and certificates*. Hún athugar að skilríkjasafnið sé til og læsilegt og að PyPI svari í gegnum stillta milliþjóninn."
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "macOS online installation: update and reopen"
 msgstr "Netuppsetning á macOS: uppfæra og opna aftur"
@@ -84,6 +96,21 @@ msgstr "Veldu **Hjálp → Check for updates**, samþykktu tiltæka uppfærslu o
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
 msgstr "Skipunin er sú sama og endurheimtarskipunin fyrir macOS hér fyrir neðan, með raunverulegri uppsetningarmöppu. Ef uppfærsla eða útgáfuathugun mistekst er það skráð í ``~/.spacr/logs/update.log`` og endurræsing eftir heppnaða uppfærslu fer ekki fram. Uppfærslan stöðvast einnig ef spaCR nær ekki að ljúka lokun á öruggan hátt. Aðskildi sjálfstæði forritapakkinn notar verkflæði sem skiptir út pakkanum."
+
+msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. **Stable releases** (the default) offers full releases only. **Nightly builds** also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered."
+msgstr "**Kjörstillingar → Modúlar → Update channel** ræður því hvað **Hjálp → Check for updates** býður upp á. **Stable releases** (sjálfgildið) býður aðeins upp á fullar útgáfur. **Nightly builds** býður einnig upp á forútgáfur og þróunarútgáfur, sem berast fyrr og eru minna prófaðar; útgáfur sem hafa verið dregnar til baka (yanked) eru aldrei boðnar."
+
+msgid "After an update, the next start opens **What's new in spaCR** with the release notes of every version between the previous one and the one now running. **Help → What's new…** opens it at any time."
+msgstr "Eftir uppfærslu opnar næsta ræsing **What's new in spaCR** með útgáfuskýringum hverrar útgáfu milli þeirrar fyrri og þeirrar sem nú keyrir. **Hjálp → What's new…** opnar það hvenær sem er."
+
+msgid "Proxy and certificate bundle"
+msgstr "Milliþjónn og skilríkjasafn"
+
+msgid "On a network that needs a proxy, or that inspects HTTPS with its own certificate authority, set **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file of the certificates to trust). Every download then uses them: model weights, updates, plug-ins, pip, uv, conda and the backend installers. An empty field uses ``HTTPS_PROXY``, or ``REQUESTS_CA_BUNDLE`` or ``SSL_CERT_FILE``, when they are set. The values are saved in ``~/.spacr/network.json``, so command-line runs use them too."
+msgstr "Á neti sem þarfnast milliþjóns, eða sem skoðar HTTPS með eigin vottunarstöð, skaltu stilla **Kjörstillingar → Modúlar → Proxy** (til dæmis ``http://proxy.example.org:3128``) og **Certificate bundle** (PEM-skrá með skilríkjunum sem á að treysta). Hvert niðurhal notar þau þá: vægi líkana, uppfærslur, viðbætur, pip, uv, conda og uppsetningarforrit bakenda. Auður reitur notar ``HTTPS_PROXY``, eða ``REQUESTS_CA_BUNDLE`` eða ``SSL_CERT_FILE``, þegar þau eru stillt. Gildin eru vistuð í ``~/.spacr/network.json``, svo keyrslur úr skipanalínu nota þau líka."
+
+msgid "``spacr-doctor`` has a **proxy and certificates** row. It fails when the certificate bundle is missing or unreadable, and warns when PyPI cannot be reached through the configured proxy and certificates. A password in the proxy address is masked in its output."
+msgstr "``spacr-doctor`` hefur röðina **proxy and certificates**. Hún fellur þegar skilríkjasafnið vantar eða er ólæsilegt og varar við þegar ekki næst í PyPI í gegnum stillta milliþjóninn og skilríkin. Lykilorð í slóð milliþjónsins er hulið í úttaki hennar."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Older installations and full installers"
@@ -149,6 +176,24 @@ msgstr "Fjarlægðu umhverfið sjálft ef það var eingöngu búið til fyrir s
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "Fjarlæging eyðir ekki smásjárverkefnum, gagnagrunnum eða útfluttum niðurstöðum. Kjörstillingar notanda, keyrsluskráningar og annálar undir ``~/.spacr`` eru einnig skilin eftir svo hægt sé að skoða þau eða endurnýta. Fjarlægðu þá möppu sérstaklega aðeins ef ekki er lengur þörf á þessum skráningum."
+
+msgid "Clean uninstall (purge)"
+msgstr "Hrein fjarlæging (purge)"
+
+msgid "A purge is opt-in. It also deletes spaCR's caches, backend environments and user data: ``~/.spacr`` (logs, run records, models, backends, news), ``~/.cache/spacr``, ``~/.config/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the macOS preferences file, the Windows ``HKCU\\Software\\spacr\\qt`` settings, a backends folder named by ``SPACR_BACKENDS_DIR`` and every cache moved from **Preferences → Storage**. It lists everything first and deletes only after you type ``purge`` (or pass ``--yes``). Shared caches such as Hugging Face's and Torch's own folders, and your projects, are never touched."
+msgstr "Hreinsun er valkvæð. Hún eyðir einnig skyndiminnum spaCR, bakendaumhverfum og notendagögnum: ``~/.spacr`` (annálar, keyrsluskráningar, líkön, bakendar, fréttir), ``~/.cache/spacr``, ``~/.config/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, kjörstillingaskrá macOS, Windows-stillingunum ``HKCU\\Software\\spacr\\qt``, bakendamöppu sem ``SPACR_BACKENDS_DIR`` nefnir og hverju skyndiminni sem hefur verið fært úr **Kjörstillingar → Geymsla**. Hún telur allt upp fyrst og eyðir aðeins eftir að þú slærð inn ``purge`` (eða sendir ``--yes``). Sameiginleg skyndiminni eins og eigin möppur Hugging Face og Torch, og verkefnin þín, eru aldrei snert."
+
+msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
+msgstr "**Windows:** keyrðu ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
+
+msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above."
+msgstr "**macOS:** keyrðu ``uninstall-spacr.sh --purge`` eins og að ofan."
+
+msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
+msgstr "**Linux:** keyrðu ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
+
+msgid "**Any install, before uninstalling:** ``python -m spacr.install_cleanup purge`` (add ``--dry-run`` to list only)."
+msgstr "**Hvaða uppsetning sem er, áður en fjarlægt er:** ``python -m spacr.install_cleanup purge`` (bættu við ``--dry-run`` til að telja aðeins upp)."
 
 msgid "Portable mode"
 msgstr "Færanlegur hamur"

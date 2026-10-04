@@ -1,0 +1,66 @@
+# spaCR user guide translation (de).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "Tastenkürzel und Einstellungsvorlagen"
+
+msgid "Keyboard shortcuts"
+msgstr "Tastenkürzel"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Drücken Sie **F1** oder **?**, um die Übersicht der Tastenkürzel zu öffnen. Sie listet die Tasten auf, die überall im Fenster funktionieren, etwa **Ctrl+K** für die Befehlspalette, **Ctrl+P** für die Einstellungen, **Ctrl+F** zum Durchsuchen der Einstellungen des aktuellen Moduls und **F11** für den Vollbildmodus, gefolgt von den Tasten des aktuellen Bildschirms."
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "Um eine Taste zu ändern, wählen Sie in der Übersicht **Change shortcuts…**. Das Fenster **Change shortcuts** hat eine Zeile pro fensterweiter Aktion mit ihrer Taste unter **Default** und dem verwendeten **Shortcut**. Klicken Sie auf ein Tastenkürzel und drücken Sie die neue Taste, oder leeren Sie es, um die Aktion ohne Taste zu lassen. **Restore defaults** setzt jede Zeile auf ihre voreingestellte Taste zurück."
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Wird eine Taste bereits von einer anderen Aktion oder von einer Taste eines Bildschirms verwendet, nennt die Zeile unter der Tabelle die Aktionen, die sie sich teilen, und **Speichern** bleibt nicht verfügbar, bis der Konflikt gelöst ist. Gespeicherte Tasten gelten sofort, auch für die entsprechenden Menüeinträge, und die Übersicht zeigt sie an. Sie werden mit Ihren Einstellungen gespeichert und unter Linux, macOS und Windows gleich gelesen."
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "Tasten, die zu einem einzelnen Bildschirm gehören, etwa die Label-Tasten von Annotieren oder die Bearbeitungstasten von Masken erstellen, werden in der Übersicht aufgeführt, können aber nicht geändert werden."
+
+msgid "Settings templates"
+msgstr "Einstellungsvorlagen"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "Eine Einstellungsvorlage sind die Einstellungen eines Moduls, gespeichert unter einem von Ihnen gewählten Namen, zum Beispiel ``Toxo PVM, 40x``. Öffnen Sie ein Modul mit einem Einstellungsbereich und drücken Sie **Ctrl+Shift+R**, um die **Einstellungsvorlagen** dieses Moduls zu öffnen."
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**Aktuelle Einstellungen speichern…** speichert das Formular als neue Vorlage."
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**Anwenden** füllt das Formular aus der ausgewählten Vorlage. Eine mit einer anderen spaCR-Version gespeicherte Vorlage listet die Einstellungen auf, die nicht mehr existieren, und die seither hinzugekommenen. Eine Vorlage für ein anderes Modul wird abgelehnt."
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**Teilen...** schreibt die Vorlage in eine JSON-Datei, die Sie an andere senden können."
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**Importieren...** liest eine geteilte Vorlagendatei oder eine Einstellungs-CSV, etwa die, die jede Ausführung neben ihre Ergebnisse schreibt. Eine CSV wird zu einer Vorlage, die nach der Datei benannt ist. Eine Datei für ein anderes Modul oder eine ohne Einstellungen wird abgelehnt."
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** gibt der ausgewählten Vorlage einen neuen Namen. Ein Name, den bereits eine andere Vorlage des Moduls verwendet, wird abgelehnt."
+
+msgid "**Delete** removes the selected template."
+msgstr "**Löschen** entfernt die ausgewählte Vorlage."
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "Vorlagen werden in ``~/.spacr/recipes/<module>/`` gespeichert, eine JSON-Datei pro Vorlage. Setzen Sie die Umgebungsvariable ``SPACR_RECIPE_DIR``, um sie in einem anderen Ordner abzulegen, zum Beispiel einem gemeinsamen Laborordner."
+

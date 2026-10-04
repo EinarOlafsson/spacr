@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -54,6 +54,15 @@ msgstr "Veldu röð til að skoða upplýsingar hennar. **Hlaða stillingum í e
 
 msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
 msgstr "Hægrismelltu á valdar raðir til að opna möppur þeirra eða eyða þeim; **Hreinsa allt** eyðir öllum keyrslum sem taflan sýnir. Beðið er um staðfestingu áður en eytt er og aðeins dagbókarmöppunum er eytt; úttök sem skrifuð voru í verkefnin þín eru ekki snert."
+
+msgid "Storage: pruning and caches"
+msgstr "Geymsla: grisjun og skyndiminni"
+
+msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**Kjörstillingar → Geymsla** kemur í veg fyrir að heimamappa spaCR vaxi takmarkalaust. Fyrir daglega annála, keyrsluannála (``~/.spacr/logs/runs``) og keyrslumöppur (``~/.spacr/runs``) heldur hún tvenn mörk: **Halda**, aldur í dögum þar sem engu er nokkru sinni eytt, og **Hámark**, stærð þar yfir sem elstu eldri færslum er eytt (**no cap** eyðir öllum eldri færslum). Keyrslunni sem er í gangi og opnum annálaskrám er aldrei eytt. **Prune now…** telur upp það sem mörkin myndu eyða og spyr áður en eytt er; ekkert er grisjað sjálfkrafa."
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "Skyndiminnistaflan sýnir skyndiminni spaCR-líkana, Cellpose, Hugging Face, Torch, bakendaumhverfa og frétta. **Mæling** les stærð þeirra, **Clear…** tæmir valið skyndiminni eftir að hafa spurt og **Færa…** færir það í ``<folder>/spacr-<cache>`` á öðru drifi. Nýi staðurinn er skráður í ``~/.spacr/cache_locations.json`` og notaður við hverja ræsingu; skyndiminni sem hefur breytu sína (til dæmis ``HF_HOME``) stillta utan spaCR er ekki fært. Hreinsun og færsla bíða þar til engin keyrsla er í gangi."
 
 msgid "Headless search"
 msgstr "Leit án myndræns viðmóts"

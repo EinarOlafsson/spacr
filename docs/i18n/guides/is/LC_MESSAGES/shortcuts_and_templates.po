@@ -1,0 +1,66 @@
+# spaCR user guide translation (is).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: is\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "Flýtilyklar og stillingasniðmát"
+
+msgid "Keyboard shortcuts"
+msgstr "Skráningar á keyboard"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Ýttu á **F1** eða **?** til að opna yfirlit flýtilykla. Það sýnir lyklana sem virka hvar sem er í glugganum, svo sem **Ctrl+K** fyrir skipanaspjaldið, **Ctrl+P** fyrir kjörstillingar, **Ctrl+F** til að leita í stillingum núverandi einingar og **F11** fyrir allan skjáinn, og síðan lykla skjásins sem þú ert á."
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "Til að breyta lykli skaltu velja **Change shortcuts…** í yfirlitinu. Glugginn **Change shortcuts** hefur eina röð fyrir hverja aðgerð sem gildir í öllum glugganum, með **Default**-lyklinum og **Shortcut** sem er í notkun. Smelltu á flýtilykil og ýttu á nýja lykilinn, eða hreinsaðu hann til að láta aðgerðina vera án lykils. **Restore defaults** setur allar raðir aftur á sjálfgefinn lykil."
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Ef lykill er þegar notaður af annarri aðgerð, eða af lykli eins skjásins, nefnir línan undir töflunni aðgerðirnar sem deila honum og **Vista** er óvirkt þar til ósamræmið er leyst. Vistaðir lyklar gilda strax, einnig fyrir samsvarandi valmyndaratriði, og yfirlitið sýnir þá. Þeir eru geymdir með kjörstillingunum þínum og lesnir eins á Linux, macOS og Windows."
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "Lyklar sem tilheyra einum skjá, svo sem merkingalyklar Merking eða breytingalyklar Búa til grímur, eru taldir upp í yfirlitinu en ekki er hægt að breyta þeim."
+
+msgid "Settings templates"
+msgstr "Stillingasniðmát"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "Stillingasniðmát er stillingar einnar einingar vistaðar undir heiti sem þú velur, til dæmis ``Toxo PVM, 40x``. Opnaðu einingu með stillingaspjaldi og ýttu á **Ctrl+Shift+R** til að opna **Stillingasniðmát** fyrir þá einingu."
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**Vista núverandi stillingar…** geymir eyðublaðið sem nýtt sniðmát."
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**Beita** fyllir eyðublaðið út frá völdu sniðmáti. Sniðmát sem vistað var með annarri spaCR-útgáfu telur upp stillingarnar sem eru ekki lengur til og þær sem hefur verið bætt við síðan. Sniðmáti fyrir aðra einingu er hafnað."
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**Að deila...** skrifar sniðmátið í JSON-skrá sem þú getur sent öðrum."
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**Flytja inn…** les deilda sniðmátsskrá, eða stillinga-CSV eins og þá sem hver keyrsla skrifar við hlið niðurstaðna sinna. CSV-skrá verður að sniðmáti sem nefnt er eftir skránni. Skrá fyrir aðra einingu, eða skrá án stillinga, er hafnað."
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** gefur völdu sniðmáti nýtt heiti. Heiti sem annað sniðmát einingarinnar notar þegar er hafnað."
+
+msgid "**Delete** removes the selected template."
+msgstr "**Að eyða** fjarlægir valið sniðmát."
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "Sniðmát eru geymd í ``~/.spacr/recipes/<module>/``, ein JSON-skrá fyrir hvert sniðmát. Stilltu umhverfisbreytuna ``SPACR_RECIPE_DIR`` til að geyma þau í annarri möppu, til dæmis sameiginlegri möppu rannsóknastofunnar."
+

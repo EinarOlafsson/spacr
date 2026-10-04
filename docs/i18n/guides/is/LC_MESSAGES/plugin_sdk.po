@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -99,6 +99,9 @@ msgstr "Viðbætur og prófunaruppskriftir er einnig hægt að setja upp úr vö
 
 msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
 msgstr "Ef ``SPACR_DISABLE_PLUGINS`` er stillt á ``1``, ``true``, ``yes`` eða ``on`` (óháð há- og lágstöfum) er leit sleppt alfarið, svo engin viðbót hleðst frá hvorugum uppruna."
+
+msgid "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads."
+msgstr "Tvær læsingar gæta skrárinnar: lesendur skrárinnar halda _LOCK aðeins fyrir aðgang að skyndimynd og birtingu, á meðan _CATALOGUE_MUTATION_LOCK raðar breytingum á skráakerfi og einingum án þess að hindra lestur úr skyndiminni skrárinnar."
 
 msgid "One runnable GUI/headless application contributed by a plugin."
 msgstr "Eitt keyranlegt forrit með eða án myndræns viðmóts sem viðbót leggur til."

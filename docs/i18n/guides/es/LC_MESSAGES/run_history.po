@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: es\n"
@@ -54,6 +54,15 @@ msgstr "Seleccione una fila para examinar sus detalles. **Cargar ajustes en el m
 
 msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
 msgstr "Haga clic con el botón derecho en las filas seleccionadas para abrir sus carpetas o eliminarlas; **Limpiar todo** elimina todas las ejecuciones que muestra la tabla. La eliminación pide confirmación primero y solo borra las carpetas del diario; las salidas escritas en sus proyectos no se modifican."
+
+msgid "Storage: pruning and caches"
+msgstr "Almacenamiento: limpieza y cachés"
+
+msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**Preferencias → Almacenamiento** evita que la carpeta personal de spaCR crezca sin límite. Para los registros diarios, los registros de ejecución (``~/.spacr/logs/runs``) y las carpetas de ejecución (``~/.spacr/runs``) mantiene dos límites: **Mantener**, una antigüedad en días dentro de la cual nunca se elimina nada, y **Límite**, un tamaño por encima del cual se eliminan las entradas más antiguas de entre las anteriores (**no cap** elimina todas las entradas anteriores). La ejecución en curso y los archivos de registro abiertos nunca se eliminan. **Prune now…** enumera lo que eliminarían los límites y pregunta antes de eliminar; nada se limpia automáticamente."
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "La tabla de cachés enumera las cachés de modelos de spaCR, Cellpose, Hugging Face, Torch, entornos de backends y novedades. **Medición** lee sus tamaños, **Clear…** vacía la caché seleccionada tras preguntar, y **Mover…** la traslada a ``<folder>/spacr-<cache>`` en otra unidad. La nueva ubicación se registra en ``~/.spacr/cache_locations.json`` y se usa en cada inicio; una caché cuya variable (por ejemplo ``HF_HOME``) está definida fuera de spaCR no se mueve. Vaciar y mover esperan a que no haya ninguna ejecución en curso."
 
 msgid "Headless search"
 msgstr "Búsqueda sin interfaz gráfica"

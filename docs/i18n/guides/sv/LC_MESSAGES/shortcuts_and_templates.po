@@ -1,0 +1,66 @@
+# spaCR user guide translation (sv).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: sv\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "Kortkommandon och inställningsmallar"
+
+msgid "Keyboard shortcuts"
+msgstr "Tangentbordsgenvägar"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Tryck på **F1** eller **?** för att öppna översikten över kortkommandon. Den listar tangenterna som fungerar var som helst i fönstret, till exempel **Ctrl+K** för kommandopaletten, **Ctrl+P** för Inställningar, **Ctrl+F** för att söka i den aktuella modulens inställningar och **F11** för helskärm, följt av tangenterna för den skärm du befinner dig på."
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "För att ändra en tangent väljer du **Change shortcuts…** i översikten. Fönstret **Change shortcuts** har en rad per fönsteromfattande åtgärd, med dess **Default**-tangent och den **Shortcut** som används. Klicka på ett kortkommando och tryck på den nya tangenten, eller rensa det för att lämna åtgärden utan tangent. **Restore defaults** återställer varje rad till dess standardtangent."
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Om en tangent redan används av en annan åtgärd, eller av en tangent på någon av skärmarna, anger raden under tabellen vilka åtgärder som delar den, och **Spara** förblir otillgänglig tills konflikten är löst. Sparade tangenter gäller direkt, också för motsvarande menyalternativ, och översikten visar dem. De sparas med dina inställningar och läses på samma sätt på Linux, macOS och Windows."
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "Tangenter som hör till en enda skärm, till exempel etiketteringstangenterna i Annotering eller redigeringstangenterna i Skapa masker, listas i översikten men kan inte ändras."
+
+msgid "Settings templates"
+msgstr "Inställningsmallar"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "En inställningsmall är en moduls inställningar sparade under ett namn som du väljer, till exempel ``Toxo PVM, 40x``. Öppna en modul med en inställningspanel och tryck på **Ctrl+Shift+R** för att öppna **Inställningsmallar** för den modulen."
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**Spara aktuella inställningar…** sparar formuläret som en ny mall."
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**Verkställ** fyller i formuläret från den valda mallen. En mall som sparats med en annan spaCR-version listar de inställningar som inte längre finns och de som har lagts till sedan dess. En mall för en annan modul avvisas."
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**Dela...** skriver mallen till en JSON-fil som du kan skicka till någon annan."
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**Importera...** läser en delad mallfil, eller en inställnings-CSV som den som varje körning skriver bredvid sina resultat. En CSV blir en mall med filens namn. En fil för en annan modul, eller en utan inställningar, avvisas."
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** ger den valda mallen ett nytt namn. Ett namn som en annan mall för modulen redan använder avvisas."
+
+msgid "**Delete** removes the selected template."
+msgstr "**Ta bort** tar bort den valda mallen."
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "Mallarna lagras i ``~/.spacr/recipes/<module>/``, en JSON-fil per mall. Sätt miljövariabeln ``SPACR_RECIPE_DIR`` för att hålla dem i en annan mapp, till exempel en delad labbmapp."
+

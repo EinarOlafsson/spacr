@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: sv\n"
@@ -54,6 +54,15 @@ msgstr "Markera en rad för att granska detaljerna. **Läs in inställningar i m
 
 msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
 msgstr "Högerklicka på markerade rader för att öppna deras mappar eller ta bort dem; **Rensa alla** tar bort alla körningar som tabellen listar. Borttagning kräver bekräftelse och tar bara bort journalmapparna; utdata som skrivits till dina projekt berörs inte."
+
+msgid "Storage: pruning and caches"
+msgstr "Lagring: rensning och cachar"
+
+msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**Inställningar → Lagring** hindrar spaCR:s hemmapp från att växa obegränsat. För dagliga loggar, körningsloggar (``~/.spacr/logs/runs``) och körningsmappar (``~/.spacr/runs``) finns två gränser: **Behåll**, en ålder i dagar inom vilken ingenting någonsin raderas, och **Tak**, en storlek över vilken de äldsta av de äldre posterna raderas (**no cap** raderar varje äldre post). Den pågående körningen och öppna loggfiler raderas aldrig. **Prune now…** listar vad gränserna skulle radera och frågar innan något raderas; ingenting rensas automatiskt."
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "Cachetabellen listar cacharna för spaCR-modeller, Cellpose, Hugging Face, Torch, bakändemiljöer och nyheter. **Mätning** läser deras storlekar, **Clear…** tömmer den valda cachen efter en fråga, och **Flytta…** flyttar den till ``<folder>/spacr-<cache>`` på en annan enhet. Den nya platsen registreras i ``~/.spacr/cache_locations.json`` och används vid varje start; en cache vars variabel (till exempel ``HF_HOME``) är satt utanför spaCR flyttas inte. Rensning och flytt väntar tills ingen körning pågår."
 
 msgid "Headless search"
 msgstr "Sökning utan grafiskt gränssnitt"

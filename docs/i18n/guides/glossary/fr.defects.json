@@ -2,6 +2,8 @@
  "schema": 1,
  "language": "fr",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
+ "defects": {
+  "Cap": "the runtime row reads 'object cap'; the Storage setting is a size cap on stored logs and runs ('Plafond')"
+ },
  "snapshot": {}
 }

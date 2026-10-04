@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -54,6 +54,15 @@ msgstr "选择一行即可查看其详细信息。**在模块中加载设置** �
 
 msgid "Right-click selected rows to open their folders or delete them; **Clear all** deletes every run the table lists. Deleting asks first and removes only the journal folders; outputs written into your projects are not touched."
 msgstr "右键单击所选行可打开或删除其文件夹；**全部清除** 会删除表中列出的所有运行。删除前会先询问，并且只删除日志文件夹；写入项目中的输出不会受到影响。"
+
+msgid "Storage: pruning and caches"
+msgstr "存储：清理与缓存"
+
+msgid "**Preferences → Storage** keeps the spaCR home folder from growing without bound. For daily logs, run logs (``~/.spacr/logs/runs``) and run folders (``~/.spacr/runs``) it holds two caps: **Keep**, an age in days within which nothing is ever deleted, and **Cap**, a size above which the oldest older entries are deleted (**no cap** deletes every older entry). The run in progress and open log files are never deleted. **Prune now…** lists what the caps would delete and asks before deleting; nothing is pruned automatically."
+msgstr "**偏好 → 存储** 可防止 spaCR 主文件夹无限增长。对于每日日志、运行日志（``~/.spacr/logs/runs``）和运行文件夹（``~/.spacr/runs``），它设有两个限制：**保留**，即以天为单位的期限，期限内的内容绝不删除；以及 **上限**，即大小上限，超过时会删除较早条目中最旧的部分（**no cap** 会删除所有较早条目）。正在进行的运行和打开的日志文件绝不会被删除。**Prune now…** 会列出这些限制将删除的内容，并在删除前询问；不会自动清理任何内容。"
+
+msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
+msgstr "缓存表列出 spaCR 模型、Cellpose、Hugging Face、Torch、后端环境和新闻缓存。**测量** 读取它们的大小，**Clear…** 在询问后清空所选缓存，**移动…** 将其移动到另一个驱动器上的 ``<folder>/spacr-<cache>``。新位置记录在 ``~/.spacr/cache_locations.json`` 中，并在每次启动时使用；其变量（例如 ``HF_HOME``）已在 spaCR 外部设置的缓存不会被移动。清除和移动会等到没有运行在进行时才执行。"
 
 msgid "Headless search"
 msgstr "无界面搜索"

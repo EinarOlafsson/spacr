@@ -1,0 +1,66 @@
+# spaCR user guide translation (pt).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: pt\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "Atalhos de teclado e modelos de configuração"
+
+msgid "Keyboard shortcuts"
+msgstr "Atalhos de teclado"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Pressione **F1** ou **?** para abrir a folha de referência de atalhos. Ela lista as teclas que funcionam em qualquer lugar da janela, como **Ctrl+K** para a paleta de comandos, **Ctrl+P** para as Preferências, **Ctrl+F** para pesquisar nas configurações do módulo atual e **F11** para tela cheia, seguidas das teclas da tela em que você está."
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "Para alterar uma tecla, escolha **Change shortcuts…** na folha de referência. A janela **Change shortcuts** tem uma linha por ação da janela inteira, com sua tecla **Default** e o **Shortcut** em uso. Clique em um atalho e pressione a nova tecla, ou limpe-o para deixar a ação sem tecla. **Restore defaults** restaura a tecla padrão de todas as linhas."
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Se uma tecla já é usada por outra ação, ou por uma tecla de uma das telas, a linha abaixo da tabela indica as ações que a compartilham, e **Salvar** fica indisponível até que o conflito seja resolvido. As teclas salvas valem imediatamente, também para os itens de menu correspondentes, e a folha de referência as mostra. Elas são guardadas com suas preferências e lidas da mesma forma no Linux, no macOS e no Windows."
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "Teclas que pertencem a uma única tela, como as teclas de rotulagem de Anotação ou as teclas de edição de Criar máscaras, aparecem na folha de referência, mas não podem ser alteradas."
+
+msgid "Settings templates"
+msgstr "Modelos de configuração"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "Um modelo de configuração são as configurações de um módulo salvas com um nome escolhido por você, por exemplo ``Toxo PVM, 40x``. Abra um módulo com painel de configurações e pressione **Ctrl+Shift+R** para abrir os **Modelos de configuração** desse módulo."
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**Salvar configurações atuais…** guarda o formulário como um novo modelo."
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**Aplicar** preenche o formulário com o modelo selecionado. Um modelo salvo com outra versão do spaCR lista as configurações que não existem mais e as adicionadas desde então. Um modelo de outro módulo é recusado."
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**Partilhar...** grava o modelo em um arquivo JSON que você pode enviar a outra pessoa."
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**Importar...** lê um arquivo de modelo compartilhado, ou um CSV de configurações como o que cada execução grava ao lado de seus resultados. Um CSV se torna um modelo com o nome do arquivo. Um arquivo de outro módulo, ou sem configurações, é recusado."
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** dá um novo nome ao modelo selecionado. Um nome já usado por outro modelo do módulo é recusado."
+
+msgid "**Delete** removes the selected template."
+msgstr "**Apagar** remove o modelo selecionado."
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "Os modelos são armazenados em ``~/.spacr/recipes/<module>/``, um arquivo JSON por modelo. Defina a variável de ambiente ``SPACR_RECIPE_DIR`` para mantê-los em outra pasta, por exemplo uma pasta compartilhada do laboratório."
+

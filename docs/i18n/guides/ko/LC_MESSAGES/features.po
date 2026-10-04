@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 15:32-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -183,6 +183,54 @@ msgstr "**세션 복원**: 일반적으로 시작할 때마다 spaCR이 마지�
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**설정 자동 저장**: 30초마다 열려 있는 모든 모듈의 저장되지 않은 설정이 환경설정 저장소에 초안으로 보관되며, 바뀐 것이 없으면 아무것도 쓰지 않습니다. 정상적으로 종료하면 초안이 삭제됩니다. spaCR이 닫히지 않고 종료되었다면 다음 시작 시 복원할지 한 번 묻습니다(다시 열린 세션과 같은 초안은 묻지 않습니다). 저장소가 Qt 자체의 설정 저장소이므로 Linux, macOS, Windows에서 동작이 같습니다."
+
+msgid "Undo and redo"
+msgstr "실행 취소와 다시 실행"
+
+msgid "**Ctrl+Z** undoes and **Ctrl+Shift+Z** or **Ctrl+Y** redoes in a module's settings panel, in the Gate Editor and in Annotate:"
+msgstr "모듈의 설정 패널, Gate Editor, 어노테이션에서 **Ctrl+Z** 는 실행 취소하고 **Ctrl+Shift+Z** 또는 **Ctrl+Y** 는 다시 실행합니다."
+
+msgid "in the **settings panel**, each changed setting is one step. Loading settings, applying a template or replaying a run does not add steps. While you are typing in a text field, Ctrl+Z undoes the typing first;"
+msgstr "**설정 패널** 에서는 변경한 설정 하나가 한 단계입니다. 설정을 불러오거나, 템플릿을 적용하거나, 실행을 재생해도 단계가 추가되지 않습니다. 텍스트 필드에 입력하는 중에는 Ctrl+Z가 먼저 입력 내용을 취소합니다."
+
+msgid "in the **Gate Editor**, each change to the gates (drawing, moving, renaming or deleting a gate) is one step;"
+msgstr "**Gate Editor** 에서는 게이트에 대한 변경(게이트 그리기, 이동, 이름 변경, 삭제) 하나가 한 단계입니다."
+
+msgid "in **Annotate**, **U** and Ctrl+Z undo the last label and Ctrl+Shift+Z or Ctrl+Y puts it back;"
+msgstr "**어노테이션** 에서는 **U** 와 Ctrl+Z가 마지막 레이블을 취소하고, Ctrl+Shift+Z 또는 Ctrl+Y가 다시 적용합니다."
+
+msgid "the **Make Masks** editor keeps its own **Undo** and **Redo**."
+msgstr "**마스크 만들기** 편집기에는 자체 **실행 취소** 와 **다시 실행** 이 있습니다."
+
+msgid "Running jobs"
+msgstr "실행 중인 작업"
+
+msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
+msgstr "**도움말 → Window → 작업** 은 창 오른쪽 가장자리에 **작업** 패널을 엽니다. 실행 중인 모든 작업이 모듈, 진행률 표시줄, 경과 시간, 마지막 출력 줄과 함께 나열됩니다. **취소** 는 해당 작업에 중지를 요청합니다. 실행 중인 작업이 없으면 패널에 **No jobs are running.** 이 표시됩니다."
+
+msgid "Two spaCR windows"
+msgstr "spaCR 창 두 개"
+
+msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
+msgstr "spaCR 창을 여러 개 열 수 있습니다. 모듈이 실행되면 spaCR은 ``measurements.db`` 와 결과가 있는 소스 폴더를 점유하고, 대기열 화면은 플레이트 대기열을 점유합니다. 다른 창이 이미 그 폴더나 대기열을 사용 중이면 **Project open in another window** 가 다른 프로세스를 알려 주고 다음 선택지를 제공합니다."
+
+msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
+msgstr "**Open read-only**: 쓰지 않고 보기만 합니다. 그러면 이 창은 그곳에 쓰는 파이프라인 실행을 거부하고, 대기열 화면은 대기열을 변경하거나 실행할 수 없습니다."
+
+msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
+msgstr "**Continue anyway**: 다른 창이 유휴 상태라고 확신할 때 함께 씁니다. 두 창이 같은 대기열, 데이터베이스 또는 결과 폴더에 쓰면 손상될 수 있습니다."
+
+msgid "**Cancel**."
+msgstr "**취소**."
+
+msgid "The answer is remembered for that folder until the window closes. A window that ended without closing does not keep its claims: the next window takes them over. The lock files are in ``~/.spacr/locks``; set ``SPACR_LOCK_DIR`` to keep them elsewhere."
+msgstr "이 선택은 창을 닫을 때까지 해당 폴더에 대해 기억됩니다. 정상적으로 닫히지 않고 끝난 창은 점유를 유지하지 않으며, 다음 창이 이를 넘겨받습니다. 잠금 파일은 ``~/.spacr/locks`` 에 있으며, 다른 곳에 두려면 ``SPACR_LOCK_DIR`` 을 설정합니다."
+
+msgid "Accessibility"
+msgstr "접근성"
+
+msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
+msgstr "모든 컨트롤에는 화면 판독기가 읽어 주는 이름이 있으며, 이 이름은 레이블, 툴팁 또는 자리 표시자에서 가져오고 인터페이스 언어를 따릅니다. **Tab** 은 탭 문자를 입력하지 않고 텍스트 상자와 표에서 다음 컨트롤로 이동합니다. **환경설정 → 모양 → 테마** 에는 모든 텍스트의 배경 대비율이 최소 7:1인 **High contrast** 가 있습니다."
 
 msgid "Arranging the window"
 msgstr "창 배치"

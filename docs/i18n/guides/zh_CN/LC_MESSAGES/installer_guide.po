@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 15:32-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -73,6 +73,18 @@ msgstr "更新"
 msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
 msgstr "下载并运行较新版本的安装程序。安装会先在暂存区进行并通过验证，然后才替换当前的私有环境；更新失败时，之前可用的环境会保持不变。项目文件夹和结果不存储在安装目录中，更新不会删除它们。"
 
+msgid "Update channel and What's new"
+msgstr "更新通道与新功能"
+
+msgid "**Preferences → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and the network answers. **Help → What's new…** reopens it at any time."
+msgstr "**偏好 → Update channel** 决定 **帮助 → Check for updates** 提供哪些版本。*Stable releases* 提供 PyPI 上的最新版本。*Nightly builds* 还会提供预发布版和开发版，它们发布更早，但测试更少。更新后，下次启动会打开 **What's new in spaCR**，其中包含从上一个版本到当前运行版本之间每个版本的发行说明：包括随构建附带的说明，以及在开启 **版本新闻** 且网络可访问时已发布的 GitHub 版本。**帮助 → What's new…** 可随时重新打开它。"
+
+msgid "Proxies and corporate certificates"
+msgstr "代理与企业证书"
+
+msgid "Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) honours ``HTTPS_PROXY`` and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR instead, fill in **Preferences → Proxy** (for example ``http://proxy.example.org:3128``) and **Preferences → Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy."
+msgstr "spaCR 进行的每次下载（模型权重、更新、插件、pip、uv、conda 以及分割后端安装程序）都会遵循 ``HTTPS_PROXY`` 和 ``REQUESTS_CA_BUNDLE`` （或 ``SSL_CERT_FILE``）。如需改为在 spaCR 中设置，请填写 **偏好 → Proxy** （例如 ``http://proxy.example.org:3128``）和 **偏好 → Certificate bundle** （由 IT 部门提供的 PEM 文件）。这些值会覆盖环境变量，保存在 ``~/.spacr/network.json`` 中以便命令行运行也使用它们，并以 ``HTTPS_PROXY``、``HTTP_PROXY``、``REQUESTS_CA_BUNDLE``、``SSL_CERT_FILE``、``CURL_CA_BUNDLE``、``PIP_CERT`` 和 ``GIT_SSL_CAINFO`` 的形式向下传递。``spacr-doctor`` 有一行 *proxy and certificates*，用于检查证书包是否存在且可读，以及 PyPI 能否通过所配置的代理访问。"
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "macOS online installation: update and reopen"
 msgstr "macOS 在线安装：更新并重新打开"
@@ -84,6 +96,21 @@ msgstr "选择 **帮助 → Check for updates**，接受可用更新，并确认
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
 msgstr "该命令与下方的 macOS 恢复命令相同，但使用实际安装目录。升级或版本检查失败会记录在 ``~/.spacr/logs/update.log`` 中，且不会触发更新成功后的重新启动。如果 spaCR 无法安全完成关闭，更新也会停止。独立的冻结应用程序包使用其程序包替换流程。"
+
+msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. **Stable releases** (the default) offers full releases only. **Nightly builds** also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered."
+msgstr "**偏好 → 模块 → Update channel** 决定 **帮助 → Check for updates** 提供哪些版本。**Stable releases** （默认）只提供正式版本。**Nightly builds** 还会提供预发布版和开发版，它们发布更早，但测试更少；已撤回（yanked）的版本绝不会提供。"
+
+msgid "After an update, the next start opens **What's new in spaCR** with the release notes of every version between the previous one and the one now running. **Help → What's new…** opens it at any time."
+msgstr "更新后，下次启动会打开 **What's new in spaCR**，其中包含从上一个版本到当前运行版本之间每个版本的发行说明。**帮助 → What's new…** 可随时打开它。"
+
+msgid "Proxy and certificate bundle"
+msgstr "代理与证书包"
+
+msgid "On a network that needs a proxy, or that inspects HTTPS with its own certificate authority, set **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file of the certificates to trust). Every download then uses them: model weights, updates, plug-ins, pip, uv, conda and the backend installers. An empty field uses ``HTTPS_PROXY``, or ``REQUESTS_CA_BUNDLE`` or ``SSL_CERT_FILE``, when they are set. The values are saved in ``~/.spacr/network.json``, so command-line runs use them too."
+msgstr "如果网络需要代理，或使用自己的证书颁发机构检查 HTTPS，请设置 **偏好 → 模块 → Proxy** （例如 ``http://proxy.example.org:3128``）和 **Certificate bundle** （包含需信任证书的 PEM 文件）。之后每次下载都会使用它们：模型权重、更新、插件、pip、uv、conda 和后端安装程序。字段为空时，如已设置 ``HTTPS_PROXY``、``REQUESTS_CA_BUNDLE`` 或 ``SSL_CERT_FILE``，则使用它们。这些值保存在 ``~/.spacr/network.json`` 中，因此命令行运行也会使用。"
+
+msgid "``spacr-doctor`` has a **proxy and certificates** row. It fails when the certificate bundle is missing or unreadable, and warns when PyPI cannot be reached through the configured proxy and certificates. A password in the proxy address is masked in its output."
+msgstr "``spacr-doctor`` 有一行 **proxy and certificates**。当证书包缺失或不可读时，该行判定失败；当无法通过所配置的代理和证书访问 PyPI 时，会给出警告。代理地址中的密码会在输出中被遮蔽。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Older installations and full installers"
@@ -149,6 +176,24 @@ msgstr "如果该环境仅为 spaCR 创建，请将环境本身也删除。"
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "卸载不会删除显微项目、数据库或导出的结果。``~/.spacr`` 下的用户偏好、运行记录和日志也会保留，以便查看或重用。仅当不再需要这些记录时，才单独删除该目录。"
+
+msgid "Clean uninstall (purge)"
+msgstr "彻底卸载（purge）"
+
+msgid "A purge is opt-in. It also deletes spaCR's caches, backend environments and user data: ``~/.spacr`` (logs, run records, models, backends, news), ``~/.cache/spacr``, ``~/.config/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the macOS preferences file, the Windows ``HKCU\\Software\\spacr\\qt`` settings, a backends folder named by ``SPACR_BACKENDS_DIR`` and every cache moved from **Preferences → Storage**. It lists everything first and deletes only after you type ``purge`` (or pass ``--yes``). Shared caches such as Hugging Face's and Torch's own folders, and your projects, are never touched."
+msgstr "清除需要主动选择。它还会删除 spaCR 的缓存、后端环境和用户数据：``~/.spacr`` （日志、运行记录、模型、后端、新闻）、``~/.cache/spacr``、``~/.config/spacr``、``~/.local/state/spacr``、``~/spacr-demos``、``~/spacr-tutorials``、macOS 偏好设置文件、Windows ``HKCU\\Software\\spacr\\qt`` 设置、由 ``SPACR_BACKENDS_DIR`` 指定的后端文件夹，以及从 **偏好 → 存储** 移动过的每个缓存。它会先列出所有内容，只有在您输入 ``purge`` （或传入 ``--yes``）后才删除。Hugging Face 和 Torch 自己的文件夹等共享缓存以及您的项目绝不会被触及。"
+
+msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
+msgstr "**Windows：** 运行 ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``。"
+
+msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above."
+msgstr "**macOS：** 如上所述运行 ``uninstall-spacr.sh --purge``。"
+
+msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
+msgstr "**Linux：** 运行 ``~/.local/share/spacr/uninstall-spacr.sh --purge``。"
+
+msgid "**Any install, before uninstalling:** ``python -m spacr.install_cleanup purge`` (add ``--dry-run`` to list only)."
+msgstr "**任何安装方式，在卸载之前：** ``python -m spacr.install_cleanup purge`` （添加 ``--dry-run`` 则只列出）。"
 
 msgid "Portable mode"
 msgstr "便携模式"

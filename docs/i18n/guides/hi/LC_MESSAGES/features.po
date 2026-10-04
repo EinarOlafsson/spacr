@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 15:32-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -183,6 +183,54 @@ msgstr "**सत्र पुनर्स्थापन**: हर सामा�
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**सेटिंग्स का स्वतः सहेजना**: हर 30 सेकंड में हर खुले मॉड्यूल की बिना सहेजी सेटिंग्स प्राथमिकता भंडार में ड्राफ़्ट के रूप में रखी जाती हैं; कुछ न बदलने पर कुछ नहीं लिखा जाता। सामान्य निकास ड्राफ़्ट हटा देता है। यदि spaCR बिना बंद हुए समाप्त हुआ, तो अगली शुरुआत एक बार पूछती है कि उन्हें पुनर्स्थापित करना है या नहीं (फिर से खोले गए सत्र के समान ड्राफ़्ट के बारे में नहीं पूछा जाता)। Linux, macOS और Windows पर यही व्यवहार लागू होता है, क्योंकि भंडार Qt का अपना सेटिंग्स भंडार है।"
+
+msgid "Undo and redo"
+msgstr "पूर्ववत करना और फिर से करना"
+
+msgid "**Ctrl+Z** undoes and **Ctrl+Shift+Z** or **Ctrl+Y** redoes in a module's settings panel, in the Gate Editor and in Annotate:"
+msgstr "किसी मॉड्यूल के सेटिंग पैनल, Gate Editor और एनोटेशन में **Ctrl+Z** पूर्ववत करता है और **Ctrl+Shift+Z** या **Ctrl+Y** फिर से करता है:"
+
+msgid "in the **settings panel**, each changed setting is one step. Loading settings, applying a template or replaying a run does not add steps. While you are typing in a text field, Ctrl+Z undoes the typing first;"
+msgstr "**सेटिंग पैनल** में हर बदली गई सेटिंग एक चरण है। सेटिंग्स लोड करने, टेम्पलेट लागू करने या रन को दोबारा चलाने से चरण नहीं जुड़ते। किसी पाठ फ़ील्ड में टाइप करते समय Ctrl+Z पहले टाइप किए गए पाठ को पूर्ववत करता है;"
+
+msgid "in the **Gate Editor**, each change to the gates (drawing, moving, renaming or deleting a gate) is one step;"
+msgstr "**Gate Editor** में गेट में हर परिवर्तन (गेट बनाना, खिसकाना, नाम बदलना या हटाना) एक चरण है;"
+
+msgid "in **Annotate**, **U** and Ctrl+Z undo the last label and Ctrl+Shift+Z or Ctrl+Y puts it back;"
+msgstr "**एनोटेशन** में **U** और Ctrl+Z अंतिम लेबल को पूर्ववत करते हैं और Ctrl+Shift+Z या Ctrl+Y उसे वापस लाते हैं;"
+
+msgid "the **Make Masks** editor keeps its own **Undo** and **Redo**."
+msgstr "**मास्क बनाएँ** संपादक के अपने **पूर्ववत करें** और **फिर से करें** हैं।"
+
+msgid "Running jobs"
+msgstr "चल रहे कार्य"
+
+msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
+msgstr "**सहायता → Window → कार्य** विंडो के दाएँ किनारे पर **कार्य** पैनल खोलता है। यह चल रहे हर कार्य को उसके मॉड्यूल, प्रगति पट्टी, बीते समय और अंतिम आउटपुट पंक्ति के साथ सूचीबद्ध करता है। **रद्द करें** उस कार्य से रुकने का अनुरोध करता है। कुछ भी न चलने पर पैनल **No jobs are running.** दिखाता है।"
+
+msgid "Two spaCR windows"
+msgstr "दो spaCR विंडो"
+
+msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
+msgstr "आप एक से अधिक spaCR विंडो खोल सकते हैं। जब कोई मॉड्यूल चलता है, तो spaCR उसके स्रोत फ़ोल्डर पर दावा करता है, जिसमें ``measurements.db`` और परिणाम होते हैं, और Queue स्क्रीन प्लेट कतार पर दावा करती है। यदि कोई दूसरी विंडो पहले से उस फ़ोल्डर या कतार का उपयोग कर रही है, तो **Project open in another window** दूसरी प्रक्रिया का नाम बताता है और ये विकल्प देता है:"
+
+msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
+msgstr "**Open read-only**: बिना लिखे देखें। तब यह विंडो वहाँ लिखने वाली पाइपलाइन चलाने से इनकार करती है, और Queue स्क्रीन कतार को न बदल सकती है न चला सकती है;"
+
+msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
+msgstr "**Continue anyway**: जब आप निश्चित हों कि दूसरी विंडो निष्क्रिय है, तब साथ में लिखें। एक ही कतार, डेटाबेस या परिणाम फ़ोल्डर में लिखने वाली दो विंडो उन्हें दूषित कर सकती हैं;"
+
+msgid "**Cancel**."
+msgstr "**रद्द करें**।"
+
+msgid "The answer is remembered for that folder until the window closes. A window that ended without closing does not keep its claims: the next window takes them over. The lock files are in ``~/.spacr/locks``; set ``SPACR_LOCK_DIR`` to keep them elsewhere."
+msgstr "विंडो बंद होने तक उस फ़ोल्डर के लिए उत्तर याद रखा जाता है। बिना बंद हुए समाप्त हुई विंडो अपने दावे नहीं रखती: अगली विंडो उन्हें ले लेती है। लॉक फ़ाइलें ``~/.spacr/locks`` में होती हैं; उन्हें कहीं और रखने के लिए ``SPACR_LOCK_DIR`` सेट करें।"
+
+msgid "Accessibility"
+msgstr "सुगम्यता"
+
+msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
+msgstr "हर नियंत्रण का एक नाम होता है जिसे स्क्रीन रीडर पढ़ते हैं, जो उसके लेबल, टूलटिप या प्लेसहोल्डर से लिया जाता है, और नाम इंटरफ़ेस भाषा का अनुसरण करते हैं। **Tab** टैब टाइप करने के बजाय पाठ बॉक्स और तालिकाओं से अगले नियंत्रण पर ले जाता है। **प्राथमिकताएं → रूप-रंग → थीम** में **High contrast** उपलब्ध है, जिसमें सारे पाठ का अपनी पृष्ठभूमि से कंट्रास्ट अनुपात कम से कम 7:1 होता है।"
 
 msgid "Arranging the window"
 msgstr "विंडो की व्यवस्था"

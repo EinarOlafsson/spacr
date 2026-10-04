@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 14:42-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -99,6 +99,9 @@ msgstr "Les plugins et les recettes d’essais peuvent aussi être installés de
 
 msgid "Setting ``SPACR_DISABLE_PLUGINS`` to ``1``, ``true``, ``yes`` or ``on`` (case-insensitively) skips discovery entirely, so no plugin loads from either source."
 msgstr "Régler ``SPACR_DISABLE_PLUGINS`` sur ``1``, ``true``, ``yes`` ou ``on`` (sans tenir compte de la casse) désactive entièrement la découverte, de sorte qu’aucun plugin n’est chargé depuis l’une ou l’autre source."
+
+msgid "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads."
+msgstr "Deux verrous protègent le registre : les lecteurs du registre ne détiennent _LOCK que pour l’accès aux instantanés et la publication, tandis que _CATALOGUE_MUTATION_LOCK sérialise les modifications du système de fichiers et des modules sans bloquer les lectures du registre en cache."
 
 msgid "One runnable GUI/headless application contributed by a plugin."
 msgstr "Une application exécutable avec ou sans interface graphique fournie par un plugin."

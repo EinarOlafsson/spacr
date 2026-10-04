@@ -1,0 +1,66 @@
+# spaCR user guide translation (es).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "Atajos de teclado y plantillas de configuración"
+
+msgid "Keyboard shortcuts"
+msgstr "Accesos rápidos de teclado"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "Pulse **F1** o **?** para abrir la hoja de referencia de atajos. Enumera las teclas que funcionan en cualquier parte de la ventana, como **Ctrl+K** para la paleta de comandos, **Ctrl+P** para Preferencias, **Ctrl+F** para buscar en la configuración del módulo actual y **F11** para la pantalla completa, seguidas de las teclas de la pantalla en la que se encuentra."
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "Para cambiar una tecla, elija **Change shortcuts…** en la hoja de referencia. La ventana **Change shortcuts** tiene una fila por cada acción de toda la ventana, con su tecla **Default** y el **Shortcut** en uso. Haga clic en un atajo y pulse la nueva tecla, o bórrelo para dejar la acción sin tecla. **Restore defaults** restablece la tecla predeterminada de todas las filas."
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "Si una tecla ya la usa otra acción, o una tecla de alguna de las pantallas, la línea bajo la tabla indica las acciones que la comparten, y **Guardar** sigue sin estar disponible hasta que se resuelva el conflicto. Las teclas guardadas se aplican de inmediato, también a los elementos de menú correspondientes, y la hoja de referencia las muestra. Se guardan con sus preferencias y se leen igual en Linux, macOS y Windows."
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "Las teclas propias de una pantalla, como las teclas de etiquetado de Anotación o las de edición de Crear máscaras, aparecen en la hoja de referencia pero no se pueden cambiar."
+
+msgid "Settings templates"
+msgstr "Plantillas de configuración"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "Una plantilla de configuración es la configuración de un módulo guardada con el nombre que usted elija, por ejemplo ``Toxo PVM, 40x``. Abra un módulo con panel de configuración y pulse **Ctrl+Shift+R** para abrir las **Plantillas de configuración** de ese módulo."
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**Guardar la configuración actual…** guarda el formulario como una plantilla nueva."
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**Aplicar** rellena el formulario a partir de la plantilla seleccionada. Una plantilla guardada con otra versión de spaCR enumera los ajustes que ya no existen y los añadidos desde entonces. Se rechaza una plantilla de otro módulo."
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**Compartir...** escribe la plantilla en un archivo JSON que puede enviar a otra persona."
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**Importar...** lee un archivo de plantilla compartido, o un CSV de configuración como el que cada ejecución escribe junto a sus resultados. Un CSV se convierte en una plantilla con el nombre del archivo. Se rechaza un archivo de otro módulo, o uno sin configuración."
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** asigna un nombre nuevo a la plantilla seleccionada. Se rechaza un nombre que ya use otra plantilla del módulo."
+
+msgid "**Delete** removes the selected template."
+msgstr "**Eliminar** elimina la plantilla seleccionada."
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "Las plantillas se guardan en ``~/.spacr/recipes/<module>/``, un archivo JSON por plantilla. Establezca la variable de entorno ``SPACR_RECIPE_DIR`` para guardarlas en otra carpeta, por ejemplo una carpeta compartida del laboratorio."
+

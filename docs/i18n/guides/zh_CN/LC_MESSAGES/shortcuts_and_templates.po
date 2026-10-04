@@ -1,0 +1,66 @@
+# spaCR user guide translation (zh_CN).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: zh_CN\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "键盘快捷键与设置模板"
+
+msgid "Keyboard shortcuts"
+msgstr "键盘短片"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "按 **F1** 或 **?** 打开快捷键速查表。它列出在窗口任何位置都有效的按键，例如 **Ctrl+K** 打开命令面板、**Ctrl+P** 打开偏好设置、**Ctrl+F** 搜索当前模块的设置、**F11** 切换全屏，随后列出您所在屏幕的按键。"
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "如需更改按键，请在速查表中选择 **Change shortcuts…**。**Change shortcuts** 窗口中每个全窗口操作占一行，显示其 **Default** 按键和正在使用的 **Shortcut**。单击某个快捷键并按下新按键，或将其清除，使该操作不绑定按键。**Restore defaults** 会将每一行恢复为默认按键。"
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "如果某个按键已被另一个操作或某个屏幕的按键占用，表格下方的一行会列出共用该按键的操作，并且在冲突解决之前 **保存** 保持不可用。保存的按键会立即生效，也适用于对应的菜单项，速查表也会显示它们。它们与您的偏好设置一起保存，在 Linux、macOS 和 Windows 上读取方式相同。"
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "属于单个屏幕的按键，例如标注的标签按键或创建掩膜的编辑按键，会列在速查表中，但无法更改。"
+
+msgid "Settings templates"
+msgstr "设置模板"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "设置模板是以您选择的名称保存的单个模块设置，例如 ``Toxo PVM, 40x``。打开带有设置面板的模块，按 **Ctrl+Shift+R** 即可打开该模块的 **设置模板**。"
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**保存当前设置…** 将表单保存为新模板。"
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**应用** 根据所选模板填写表单。用其他 spaCR 版本保存的模板会列出已不存在的设置以及之后新增的设置。针对其他模块的模板会被拒绝。"
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**分享...** 将模板写入一个 JSON 文件，您可以把它发送给其他人。"
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**导入…** 读取共享的模板文件，或设置 CSV（例如每次运行在其结果旁写入的那种）。CSV 会成为以该文件命名的模板。针对其他模块的文件或不含设置的文件会被拒绝。"
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** 为所选模板指定新名称。该模块另一个模板已使用的名称会被拒绝。"
+
+msgid "**Delete** removes the selected template."
+msgstr "**删除** 移除所选模板。"
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "模板保存在 ``~/.spacr/recipes/<module>/`` 中，每个模板一个 JSON 文件。设置环境变量 ``SPACR_RECIPE_DIR`` 可将它们保存在其他文件夹中，例如实验室共享文件夹。"
+

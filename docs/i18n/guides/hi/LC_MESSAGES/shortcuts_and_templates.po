@@ -1,0 +1,66 @@
+# spaCR user guide translation (hi).
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# English source: docs/source (authoritative). Built by
+# tools/build_guide_i18n.py; a changed English message is kept only
+# as a fuzzy hint and renders in English until re-translated.
+msgid ""
+msgstr ""
+"Project-Id-Version: spaCR user guide VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: hi\n"
+"Language-Team: spaCR AI translation <noreply@spacr>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+msgid "Keyboard shortcuts and settings templates"
+msgstr "कीबोर्ड शॉर्टकट और सेटिंग टेम्पलेट"
+
+msgid "Keyboard shortcuts"
+msgstr "Keyboard कटौती"
+
+msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys that work anywhere in the window, such as **Ctrl+K** for the command palette, **Ctrl+P** for Preferences, **Ctrl+F** to search the current module's settings and **F11** for full screen, followed by the keys of the screen you are on."
+msgstr "शॉर्टकट सूची खोलने के लिए **F1** या **?** दबाएँ। यह उन कुंजियों को सूचीबद्ध करती है जो विंडो में कहीं भी काम करती हैं, जैसे कमांड पैलेट के लिए **Ctrl+K**, प्राथमिकताओं के लिए **Ctrl+P**, वर्तमान मॉड्यूल की सेटिंग्स खोजने के लिए **Ctrl+F** और पूर्ण स्क्रीन के लिए **F11**, और फिर आप जिस स्क्रीन पर हैं उसकी कुंजियाँ।"
+
+msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
+msgstr "कोई कुंजी बदलने के लिए शॉर्टकट सूची में **Change shortcuts…** चुनें। **Change shortcuts** विंडो में हर विंडो-व्यापी क्रिया की एक पंक्ति होती है, जिसमें उसकी **Default** कुंजी और उपयोग में **Shortcut** होता है। किसी शॉर्टकट पर क्लिक करके नई कुंजी दबाएँ, या क्रिया को बिना कुंजी के छोड़ने के लिए उसे साफ़ करें। **Restore defaults** हर पंक्ति को उसकी डिफ़ॉल्ट कुंजी पर लौटाता है।"
+
+msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
+msgstr "यदि कोई कुंजी पहले से किसी दूसरी क्रिया या किसी स्क्रीन की कुंजी द्वारा उपयोग में है, तो तालिका के नीचे की पंक्ति उसे साझा करने वाली क्रियाओं के नाम बताती है, और टकराव हल होने तक **सहेजें** अनुपलब्ध रहता है। सहेजी गई कुंजियाँ तुरंत लागू होती हैं, संबंधित मेनू आइटम पर भी, और शॉर्टकट सूची उन्हें दिखाती है। ये आपकी प्राथमिकताओं के साथ रखी जाती हैं और Linux, macOS और Windows पर एक जैसी पढ़ी जाती हैं।"
+
+msgid "Keys that belong to one screen, such as Annotate's labelling keys or the Make Masks editing keys, are listed in the cheat sheet but cannot be changed."
+msgstr "किसी एक स्क्रीन की कुंजियाँ, जैसे एनोटेशन की लेबलिंग कुंजियाँ या मास्क बनाएँ की संपादन कुंजियाँ, शॉर्टकट सूची में दिखाई देती हैं लेकिन बदली नहीं जा सकतीं।"
+
+msgid "Settings templates"
+msgstr "सेटिंग टेम्पलेट"
+
+msgid "A settings template is one module's settings saved under a name you choose, for example ``Toxo PVM, 40x``. Open a module with a settings panel and press **Ctrl+Shift+R** to open **Settings templates** for that module."
+msgstr "सेटिंग टेम्पलेट किसी एक मॉड्यूल की सेटिंग्स है जिसे आपके चुने नाम से सहेजा गया हो, उदाहरण के लिए ``Toxo PVM, 40x``। सेटिंग पैनल वाला कोई मॉड्यूल खोलें और उस मॉड्यूल के **सेटिंग टेम्पलेट** खोलने के लिए **Ctrl+Shift+R** दबाएँ।"
+
+msgid "**Save current settings…** stores the form as a new template."
+msgstr "**वर्तमान सेटिंग्स सहेजें…** फ़ॉर्म को नए टेम्पलेट के रूप में सहेजता है।"
+
+msgid "**Apply** fills the form from the selected template. A template saved with another spaCR version lists the settings that no longer exist and the ones added since. A template for a different module is refused."
+msgstr "**लागू करें** चुने गए टेम्पलेट से फ़ॉर्म भरता है। किसी दूसरे spaCR संस्करण से सहेजा गया टेम्पलेट उन सेटिंग्स को सूचीबद्ध करता है जो अब मौजूद नहीं हैं और जो बाद में जोड़ी गईं। किसी दूसरे मॉड्यूल का टेम्पलेट अस्वीकार किया जाता है।"
+
+msgid "**Share…** writes the template to a JSON file you can send to someone else."
+msgstr "**साझा करें...** टेम्पलेट को एक JSON फ़ाइल में लिखता है जिसे आप किसी और को भेज सकते हैं।"
+
+msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
+msgstr "**आयात...** एक साझा टेम्पलेट फ़ाइल, या एक सेटिंग CSV पढ़ता है, जैसे वह जो हर रन अपने परिणामों के बगल में लिखता है। CSV फ़ाइल के नाम पर एक टेम्पलेट बन जाती है। किसी दूसरे मॉड्यूल की फ़ाइल, या बिना सेटिंग्स वाली फ़ाइल, अस्वीकार की जाती है।"
+
+msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
+msgstr "**Rename…** चुने गए टेम्पलेट को नया नाम देता है। मॉड्यूल के किसी दूसरे टेम्पलेट द्वारा पहले से उपयोग किया गया नाम अस्वीकार किया जाता है।"
+
+msgid "**Delete** removes the selected template."
+msgstr "**हटाए** चुने गए टेम्पलेट को हटाता है।"
+
+msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
+msgstr "टेम्पलेट ``~/.spacr/recipes/<module>/`` में संग्रहीत होते हैं, हर टेम्पलेट के लिए एक JSON फ़ाइल। उन्हें किसी दूसरे फ़ोल्डर में, उदाहरण के लिए प्रयोगशाला के साझा फ़ोल्डर में, रखने के लिए ``SPACR_RECIPE_DIR`` परिवेश चर सेट करें।"
+

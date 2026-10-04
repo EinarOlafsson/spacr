@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 15:32-0400\n"
+"POT-Creation-Date: 2026-10-04 19:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -73,6 +73,18 @@ msgstr "업데이트"
 msgid "Download and run the installer for the newer version. Installation is staged and validated before it replaces the active private environment; a failed update leaves the previous working environment in place. Project folders and results are not stored in the installation directory and are not removed by an update."
 msgstr "더 새로운 버전의 설치 프로그램을 다운로드하여 실행합니다. 설치는 준비 단계에서 검증된 뒤에 현재 전용 환경을 교체하며, 업데이트에 실패하면 이전의 정상 환경이 그대로 남습니다. 프로젝트 폴더와 결과는 설치 디렉터리에 저장되지 않으므로 업데이트로 삭제되지 않습니다."
 
+msgid "Update channel and What's new"
+msgstr "업데이트 채널과 새로운 기능"
+
+msgid "**Preferences → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and the network answers. **Help → What's new…** reopens it at any time."
+msgstr "**환경설정 → Update channel** 은 **도움말 → Check for updates** 가 제공할 버전을 정합니다. *Stable releases* 는 PyPI의 최신 릴리스를 제공합니다. *Nightly builds* 는 더 일찍 나오지만 테스트가 덜 된 사전 릴리스와 개발 빌드도 제공합니다. 업데이트 후 다음 실행 시 **What's new in spaCR** 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전 릴리스 노트를 보여 줍니다. 빌드에 포함된 노트와 함께, **릴리스 소식** 이 켜져 있고 네트워크가 응답하면 게시된 GitHub 릴리스도 표시됩니다. **도움말 → What's new…** 로 언제든 다시 열 수 있습니다."
+
+msgid "Proxies and corporate certificates"
+msgstr "프록시와 기업 인증서"
+
+msgid "Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) honours ``HTTPS_PROXY`` and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR instead, fill in **Preferences → Proxy** (for example ``http://proxy.example.org:3128``) and **Preferences → Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy."
+msgstr "spaCR이 수행하는 모든 다운로드(모델 가중치, 업데이트, 플러그인, pip, uv, conda, 분할 백엔드 설치 프로그램)는 ``HTTPS_PROXY`` 와 ``REQUESTS_CA_BUNDLE`` (또는 ``SSL_CERT_FILE``)을 따릅니다. 대신 spaCR 안에서 설정하려면 **환경설정 → Proxy** (예: ``http://proxy.example.org:3128``)와 **환경설정 → Certificate bundle** (IT 부서에서 받은 PEM 파일)을 입력합니다. 이 값은 환경 변수보다 우선하고, 명령줄 실행에서도 사용되도록 ``~/.spacr/network.json`` 에 저장되며, ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT``, ``GIT_SSL_CAINFO`` 로 전달됩니다. ``spacr-doctor`` 에는 *proxy and certificates* 행이 있습니다. 인증서 번들이 존재하고 읽을 수 있는지, 그리고 구성된 프록시를 통해 PyPI가 응답하는지 확인합니다."
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "macOS online installation: update and reopen"
 msgstr "macOS 온라인 설치: 업데이트 후 다시 열기"
@@ -84,6 +96,21 @@ msgstr "**도움말 → Check for updates**\\ 를 선택하고 사용 가능한 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
 msgstr "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``\\ 에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다."
+
+msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. **Stable releases** (the default) offers full releases only. **Nightly builds** also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered."
+msgstr "**환경설정 → 모듈 → Update channel** 은 **도움말 → Check for updates** 가 제공할 버전을 정합니다. **Stable releases** (기본값)는 정식 릴리스만 제공합니다. **Nightly builds** 는 더 일찍 나오지만 테스트가 덜 된 사전 릴리스와 개발 빌드도 제공하며, 철회된(yanked) 버전은 절대 제공하지 않습니다."
+
+msgid "After an update, the next start opens **What's new in spaCR** with the release notes of every version between the previous one and the one now running. **Help → What's new…** opens it at any time."
+msgstr "업데이트 후 다음 시작 시 **What's new in spaCR** 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전 릴리스 노트를 보여 줍니다. **도움말 → What's new…** 로 언제든 열 수 있습니다."
+
+msgid "Proxy and certificate bundle"
+msgstr "프록시와 인증서 번들"
+
+msgid "On a network that needs a proxy, or that inspects HTTPS with its own certificate authority, set **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file of the certificates to trust). Every download then uses them: model weights, updates, plug-ins, pip, uv, conda and the backend installers. An empty field uses ``HTTPS_PROXY``, or ``REQUESTS_CA_BUNDLE`` or ``SSL_CERT_FILE``, when they are set. The values are saved in ``~/.spacr/network.json``, so command-line runs use them too."
+msgstr "프록시가 필요하거나 자체 인증 기관으로 HTTPS를 검사하는 네트워크에서는 **환경설정 → 모듈 → Proxy** (예: ``http://proxy.example.org:3128``)와 **Certificate bundle** (신뢰할 인증서가 담긴 PEM 파일)을 설정합니다. 그러면 모델 가중치, 업데이트, 플러그인, pip, uv, conda, 백엔드 설치 프로그램 등 모든 다운로드가 이를 사용합니다. 필드가 비어 있으면 ``HTTPS_PROXY``, ``REQUESTS_CA_BUNDLE`` 또는 ``SSL_CERT_FILE`` 이 설정되어 있을 때 그것을 사용합니다. 값은 ``~/.spacr/network.json`` 에 저장되므로 명령줄 실행에서도 사용됩니다."
+
+msgid "``spacr-doctor`` has a **proxy and certificates** row. It fails when the certificate bundle is missing or unreadable, and warns when PyPI cannot be reached through the configured proxy and certificates. A password in the proxy address is masked in its output."
+msgstr "``spacr-doctor`` 에는 **proxy and certificates** 행이 있습니다. 인증서 번들이 없거나 읽을 수 없으면 실패로 표시하고, 구성된 프록시와 인증서로 PyPI에 연결할 수 없으면 경고합니다. 프록시 주소에 포함된 비밀번호는 출력에서 가려집니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Older installations and full installers"
@@ -149,6 +176,24 @@ msgstr "spaCR만을 위해 만든 환경이면 환경 자체도 제거합니다.
 
 msgid "Uninstalling does not delete microscopy projects, databases or exported results. User preferences, run records and logs under ``~/.spacr`` are also left in place so they can be inspected or reused. Remove that directory separately only if those records are no longer needed."
 msgstr "제거해도 현미경 프로젝트, 데이터베이스, 내보낸 결과는 삭제되지 않습니다. ``~/.spacr`` 아래의 사용자 환경설정, 실행 기록, 로그도 검사하거나 재사용할 수 있도록 남겨 둡니다. 이 기록이 더 이상 필요 없을 때만 해당 디렉터리를 따로 제거합니다."
+
+msgid "Clean uninstall (purge)"
+msgstr "완전 제거(purge)"
+
+msgid "A purge is opt-in. It also deletes spaCR's caches, backend environments and user data: ``~/.spacr`` (logs, run records, models, backends, news), ``~/.cache/spacr``, ``~/.config/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, the macOS preferences file, the Windows ``HKCU\\Software\\spacr\\qt`` settings, a backends folder named by ``SPACR_BACKENDS_DIR`` and every cache moved from **Preferences → Storage**. It lists everything first and deletes only after you type ``purge`` (or pass ``--yes``). Shared caches such as Hugging Face's and Torch's own folders, and your projects, are never touched."
+msgstr "완전 제거는 직접 선택해야 합니다. spaCR의 캐시, 백엔드 환경, 사용자 데이터도 삭제합니다. 대상은 ``~/.spacr`` (로그, 실행 기록, 모델, 백엔드, 소식), ``~/.cache/spacr``, ``~/.config/spacr``, ``~/.local/state/spacr``, ``~/spacr-demos``, ``~/spacr-tutorials``, macOS 환경설정 파일, Windows ``HKCU\\Software\\spacr\\qt`` 설정, ``SPACR_BACKENDS_DIR`` 로 지정한 백엔드 폴더, 그리고 **환경설정 → 저장** 에서 옮긴 모든 캐시입니다. 먼저 모든 항목을 나열하고, ``purge`` 를 입력하거나 ``--yes`` 를 전달한 뒤에만 삭제합니다. Hugging Face와 Torch 자체 폴더 같은 공유 캐시와 사용자 프로젝트는 절대 건드리지 않습니다."
+
+msgid "**Windows:** run ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE``."
+msgstr "**Windows:** ``%LOCALAPPDATA%\\spaCR\\Uninstall.exe /PURGE`` 를 실행합니다."
+
+msgid "**macOS:** run ``uninstall-spacr.sh --purge`` as above."
+msgstr "**macOS:** 위와 같이 ``uninstall-spacr.sh --purge`` 를 실행합니다."
+
+msgid "**Linux:** run ``~/.local/share/spacr/uninstall-spacr.sh --purge``."
+msgstr "**Linux:** ``~/.local/share/spacr/uninstall-spacr.sh --purge`` 를 실행합니다."
+
+msgid "**Any install, before uninstalling:** ``python -m spacr.install_cleanup purge`` (add ``--dry-run`` to list only)."
+msgstr "**모든 설치 방식, 제거 전:** ``python -m spacr.install_cleanup purge`` (목록만 보려면 ``--dry-run`` 추가)."
 
 msgid "Portable mode"
 msgstr "포터블 모드"
