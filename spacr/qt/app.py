@@ -6193,6 +6193,11 @@ def _start_settings_prewarm() -> threading.Thread:
         """Import the remaining settings dependencies without building widgets."""
         with _timing.span("background warm", "settings screens"):
             _warm_the_settings_imports()
+        with _timing.span("background warm", "glyph fonts"):
+            try:
+                _read_the_glyph_fonts()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("Could not read the glyph fonts", exc_info=True)
         _freeze_what_survived()
 
     def _warm_the_settings_imports():
@@ -6291,20 +6296,25 @@ def _freeze_what_survived() -> None:
     gc.freeze()
 
 
-def _warm_the_glyph_font() -> None:
-    """Load the icon glyph font before Home is first painted.
+def _read_the_glyph_fonts() -> None:
+    """Read QtAwesome's font files once, off the GUI thread.
 
-    Qt registers an application font on the GUI thread, and on a cold
-    hosted Windows runner the glyph font took 0.7 s there -- inside the
-    first module screen that drew an icon, as one freeze. ``launch`` queues
-    this for the first turn of the event loop, so it is paid while the
-    window first appears rather than when a module opens.
+    Registering the glyph font is quick, but its first read from a cold disk
+    was not: 0.7 s on a cold hosted Windows runner, as one GUI freeze inside
+    the first screen that drew an icon. Reading the files here leaves them
+    in the system's file cache for that registration.
     """
-    try:
-        with _timing.span("warm", "glyph font"):
-            iconset.icon("settings")
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("Could not load the glyph font early", exc_info=True)
+    import importlib.util
+    from pathlib import Path
+
+    spec = importlib.util.find_spec("qtawesome")
+    if spec is None or not spec.origin:
+        return
+    for font in (Path(spec.origin).parent / "fonts").glob("*"):
+        try:
+            font.read_bytes()
+        except OSError:
+            continue
 
 
 _ICON_WARM_AFTER_MS = 1500
@@ -6514,7 +6524,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _start_settings_prewarm()
         from PySide6.QtCore import QTimer
 
-        QTimer.singleShot(0, _warm_the_glyph_font)
         QTimer.singleShot(0, _freeze_what_survived)
         QTimer.singleShot(_ICON_WARM_AFTER_MS, _start_icon_prewarm)
 
