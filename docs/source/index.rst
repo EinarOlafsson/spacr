@@ -133,6 +133,7 @@ Contents
    table_workflows
    installers
    features
+   shortcuts_and_templates
    make_masks
    measure_live
    cellpose_training

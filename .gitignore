@@ -210,6 +210,7 @@ tutorial_colab.ipynb
 !/docs/source/python_api.rst
 !/docs/source/anndata_export.rst
 !/docs/source/workflows.rst
+!/docs/source/shortcuts_and_templates.rst
 # The model zoo's own page, added 2026-09-03 for instruction 370. It
 # includes the two generated blocks beside it; before it existed
 # `_generated/model_zoo_table.rst` was written on every run and
