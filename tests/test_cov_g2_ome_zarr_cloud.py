@@ -62,10 +62,11 @@ def test_a_plain_group_is_not_stageable(plate_in_memory, tmp_path):  # noqa: F81
 def test_listing_refuses_local_and_http_paths():
     with pytest.raises(ValueError, match="not a cloud address"):
         ome_zarr._cloud_listing("/local/folder")
+    http = ome_zarr._CloudPath(object(), "https", "host/plate.zarr")
     with pytest.raises(ome_zarr._CloudStorageError, match="plain HTTP"):
-        ome_zarr._cloud_listing("https://host/plate.zarr")
+        ome_zarr._cloud_listing(http)
     with pytest.raises(ome_zarr._CloudStorageError, match="plain HTTP"):
-        ome_zarr._sync_cloud_folder("https://host/data", "/tmp/never")
+        ome_zarr._sync_cloud_folder(http, "/tmp/never")
 
 
 def test_wells_are_parsed_or_refused():
