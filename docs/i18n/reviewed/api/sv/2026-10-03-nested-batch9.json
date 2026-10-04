@@ -393,7 +393,9 @@
       "source_sha256": "b85a795f6b697a50bc7619c03548f3966515603b29b4a1151ce0f2971adb30fd",
       "context": "The string an AST node stands for, or ``None`` if it is not one.",
       "translation": "Strängen som en AST-nod står för, eller ``None`` om den inte är en sådan.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: two reviewed records gave the same English block different translations, which the loader refuses; the earlier record is kept and this one is retired in place."
     },
     {
       "label": "spacr.qt.app._declared_folds._as_string#1",
