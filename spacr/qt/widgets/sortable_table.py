@@ -574,6 +574,21 @@ def _stamp_initial_order(view) -> None:
                 item.setData(column, Qt.InitialSortOrderRole, descending)
 
 
+def _settle_sorting(view) -> None:
+    """Re-apply a sort suspended for a fill now, instead of on the next turn.
+
+    For code that fills a table and then reads or selects rows in the same
+    call: the deferred resume would otherwise run after it.
+
+    :param view: a view :func:`install_sorting` was called on.
+    """
+    state = getattr(view, _STATE_ATTR, None)
+    if state is None or not _alive(state):
+        return
+    state._resume_timer.stop()
+    state.resume_after_fill()
+
+
 def restore_natural_order(view) -> None:
     """Restore rows to the order in which the view was populated.
 

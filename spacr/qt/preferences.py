@@ -5869,7 +5869,7 @@ class _PluginCataloguePage:
     def _show_rows(self, rows):
         """Render a previously fetched catalogue snapshot on the GUI thread."""
         from .i18n import tr
-        from .widgets.sortable_table import table_item
+        from .widgets.sortable_table import _settle_sorting, table_item
 
         self._rows = rows
         kinds = {"plugin": tr("Plugin"), "recipe": tr("Recipe")}
@@ -5888,6 +5888,7 @@ class _PluginCataloguePage:
                 item.setData(Qt.UserRole, row["key"])
                 item.setToolTip(row["summary"] or row["name"])
                 self.table.setItem(index, column, item)
+        _settle_sorting(self.table)
         self.table.resizeColumnsToContents()
         self.status.setText(tr("{count} entries in the catalogue.")
                             .format(count=len(self._rows)))
