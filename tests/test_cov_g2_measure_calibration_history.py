@@ -101,4 +101,6 @@ def test_timed_rows_with_matching_timed_provenance_are_accepted(tmp_path):
     path = _db(tmp_path, rescale_columns=columns,
                rescale=[(*FIELD, 1.0, _matching())], recorded={KEY: "abc"},
                cell_columns=("plateID", "rowID", "columnID", "fieldID", "timeID"))
+    before = open(path, "rb").read()
     _check(path, "abc")
+    assert open(path, "rb").read() == before

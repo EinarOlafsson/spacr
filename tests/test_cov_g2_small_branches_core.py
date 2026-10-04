@@ -100,7 +100,8 @@ def test_a_cellpose3_plaque_model_given_a_flat_image_reads_it_as_is():
     seen = []
 
     class _Backend:
-        def eval(self, images, **kwargs):
+        def eval(self, images, diameter=None, flow_threshold=None,
+                 cellprob_threshold=None):
             seen.append(images[0].shape)
             return [np.zeros((4, 4), int)], [], None
 
