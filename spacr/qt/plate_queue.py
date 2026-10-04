@@ -123,6 +123,7 @@ class PlateQueue:
         """
         self._path = path or _queue_path()
         self._items: List[QueueItem] = []
+        self.read_only = False
         self.load()
 
 
@@ -232,7 +233,9 @@ class PlateQueue:
 
 
     def save(self) -> None:
-        """Write the queue to disk."""
+        """Write the queue to disk, unless it was opened read-only."""
+        if getattr(self, "read_only", False):
+            return
         try:
             payload = {"items": [self._serialise(i) for i in self._items]}
             self._path.write_text(json.dumps(payload, indent=2))

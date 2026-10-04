@@ -160,6 +160,8 @@ class QueueScreen(QWidget):
         self._runner: Optional[_QueueRunner] = None
 
         self._build_ui()
+        if queue is None:
+            self._claim_the_queue()
         from ..dnd import install_dropzone
         from ..dnd_handlers import get_handler
         install_dropzone(self, get_handler("queue"), self)
@@ -228,6 +230,26 @@ class QueueScreen(QWidget):
                                           persist_key="queue/Queue")
         outer.addWidget(self._table_section, 1)
 
+
+    def _claim_the_queue(self) -> None:
+        """Lock the shared queue file, or open it read-only if another
+        spaCR window already has it.
+
+        Read-only shows the queue but never writes it or runs it: the
+        buttons that would are disabled and the queue stops saving.
+        """
+        from ..crash_recovery import _claim_project
+        from ..i18n import tr
+
+        answer = _claim_project(self, getattr(self._queue, "_path", None))
+        if answer in ("locked", "continue"):
+            return
+        self._queue.read_only = True
+        for button in (self._btn_add, self._btn_import, self._btn_clear,
+                       self._btn_run):
+            button.setEnabled(False)
+            button.setToolTip(tr(
+                "Read-only: another spaCR window has this queue open."))
 
     def wire_add_current(self, callback):
         """Route the "Add current plate" button through ``callback``.

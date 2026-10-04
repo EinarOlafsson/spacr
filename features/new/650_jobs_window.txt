@@ -2,7 +2,7 @@
 JOBS WINDOW
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,13 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  Help > Window > Jobs opens a right-edge "Jobs" dock (MainWindow.
+  _show_jobs_dock, built on first use) holding _JobsPanel
+  (spacr/qt/widgets/activity_spinner.py): one row per user-visible job in
+  the run registry with module, progress bar (busy when unknown), elapsed,
+  last output line and Cancel (RunHandle.request_cancel). Rebuilds at most
+  4x/s; ticks only while jobs run. Tests:
+  tests/qt/test_multi_instance_lock_and_jobs_dock.py.
+  Left: user-guide page and tr() catalog rebuild (docs lane).

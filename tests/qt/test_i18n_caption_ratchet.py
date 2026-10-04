@@ -1271,6 +1271,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # "aspect ratio".
 # 639, 2026-10-04: the organizer popup's images and import modes, Mask
 # Generation's "Organize images…" and Import's "Organize images and masks…".
+# 645/650, 2026-10-04: the project-lock warning and the Jobs dock.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'A template called {name} already exists.',
     'A template needs a name.',
@@ -1288,6 +1289,21 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'That file holds no settings.',
     'spaCR settings template (*.json);;Settings CSV (*.csv);;All files (*)',
     '{key} is used by: {actions}.',
+    "Another spaCR window (process {pid} on {host}) is using {path}.",
+    "Continue anyway",
+    "No jobs are running.",
+    "Now",
+    "Open read-only",
+    "Opened read-only",
+    "Progress",
+    "Project open in another window",
+    "Read-only: another spaCR window has this queue open.",
+    "Show every running job with its progress and a Cancel button.",
+    "This window has {path} open read-only, so it will not run a pipeline "
+    "that writes there. Close the other spaCR window, then run again.",
+    "Two windows writing the same queue, measurements.db or results "
+    "folder can corrupt them. Open it read-only to look without writing, "
+    "or continue if you are sure the other window is idle.",
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",

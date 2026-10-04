@@ -2,7 +2,7 @@
 MULTI INSTANCE LOCK
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +13,18 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+DONE 2026-10-04
+  QLockFile locks in ~/.spacr/locks (SPACR_LOCK_DIR moves it), Qt's own
+  dead-PID check clears stale locks (age limit off). spacr/qt/crash_recovery.py:
+  _claim_the_instance (taken at launch; a second window no longer counts the
+  first one's running marker as a crash), _claim_project, _release_all_locks
+  (at clean shutdown), _ask_about_a_locked_project (warning: Open read-only /
+  Continue anyway / Cancel, remembered per project for the session).
+  Claimed: each module's src folder (holds measurements.db) on Run
+  (AppScreen._claim_the_project; read-only refuses the run), and
+  ~/.spacr/queue.json when the Queue screen opens (read-only disables its
+  write/run buttons and PlateQueue.save). Tests:
+  tests/qt/test_multi_instance_lock_and_jobs_dock.py (real second process).
+  Left: user-guide page and tr() catalog rebuild (docs lane); macOS/Windows
+  verified only through QLockFile's cross-platform contract, not on hardware.

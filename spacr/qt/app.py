@@ -3477,6 +3477,14 @@ class MainWindow(QMainWindow):
         self._act_fullscreen = act_full
         menu.addAction(act_full)
 
+        act_jobs = QAction(tr("Jobs"), self)
+        act_jobs.setObjectName("ShowJobsAction")
+        act_jobs.setStatusTip(tr(
+            "Show every running job with its progress and a Cancel button."))
+        act_jobs.triggered.connect(self._show_jobs_dock)
+        menu.addAction(act_jobs)
+        self._act_jobs = act_jobs
+
         act_close = QAction("Close window", self)
         act_close.setStatusTip("Close the main window. spaCR quits with it.")
         act_close.triggered.connect(self.close)
@@ -3501,6 +3509,28 @@ class MainWindow(QMainWindow):
         self._act_quit_here = act_quit_here
 
         return menu
+
+    def _show_jobs_dock(self, *_args):
+        """Open the Jobs dock on the right edge, building it on first use.
+
+        Built lazily so a session that never opens it pays nothing for it.
+
+        :returns: the dock widget.
+        """
+        from PySide6.QtWidgets import QDockWidget
+
+        from .widgets.activity_spinner import _JobsPanel
+
+        dock = getattr(self, "_jobs_dock", None)
+        if dock is None:
+            dock = QDockWidget(tr("Jobs"), self)
+            dock.setObjectName("JobsDock")
+            dock.setWidget(_JobsPanel(dock))
+            self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
+            self._jobs_dock = dock
+        dock.show()
+        dock.raise_()
+        return dock
 
     def _toggle_maximised(self, *_args) -> bool:
         """Maximise the window, or restore it. Returns whether it is now full.

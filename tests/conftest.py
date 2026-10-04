@@ -948,6 +948,21 @@ def _isolated_chaining_pin_store(request, monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def _isolated_lock_folder(request, monkeypatch):
+    """Give every test its own instance and project lock folder.
+
+    Project locks are claimed by path, and parallel workers share fixture
+    folders: without this, a worker would find another worker's lock and
+    open the "project open in another window" dialog with nobody to answer.
+    """
+    digest = _hashlib.sha1(
+        request.node.nodeid.encode("utf-8", "replace")).hexdigest()[:16]
+    monkeypatch.setenv("SPACR_LOCK_DIR",
+                       str(_PIN_SANDBOX / "locks" / digest))
+    yield
+
+
+@pytest.fixture(autouse=True)
 def _isolated_qsettings_store(request):
     """Give every test its own QSettings directory, and prove it stayed there.
 

@@ -84,7 +84,10 @@ from typing import List, Optional
 
 from PySide6.QtCore import QPointF, Qt, QTimer
 from PySide6.QtGui import QColor, QPainter, QPen, QPolygonF
-from PySide6.QtWidgets import QPushButton, QWidget
+from PySide6.QtWidgets import (
+    QAbstractItemView, QHeaderView, QLabel, QProgressBar, QPushButton,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+)
 
 from ..theme import active_palette
 
@@ -494,3 +497,145 @@ def attach_activity_spinner(screen: QWidget) -> Optional[ActivitySpinner]:
         return None
     host._activity_spinner = spinner
     return spinner
+
+
+class _JobsPanel(QWidget):
+    """Every job spaCR is running, with its progress and a Cancel button.
+
+    Fed by the same process-wide run registry as the spinner, so a job
+    started from any screen, the queue or a background tool appears here
+    without reporting in. Housekeeping the user did not start is left out.
+    Registry changes arrive once per output line, so the table is rebuilt at
+    most four times a second; while jobs run, elapsed times tick once a
+    second, and nothing ticks when the list is empty.
+
+    :param parent: parent widget, or ``None``.
+    """
+
+    _COLUMNS = ("Job", "Progress", "Elapsed", "Now", "")
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Build the empty table and follow the run registry.
+
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self.setObjectName("JobsPanel")
+        from ..i18n import tr
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(6, 6, 6, 6)
+        self._empty = QLabel(tr("No jobs are running."), self)
+        self._empty.setObjectName("JobsEmpty")
+        layout.addWidget(self._empty)
+        self._table = QTableWidget(0, len(self._COLUMNS), self)
+        self._table.setObjectName("JobsTable")
+        self._table.setHorizontalHeaderLabels(
+            [tr("Job"), tr("Progress"), tr("Elapsed"), tr("Now"), ""])
+        self._table.verticalHeader().setVisible(False)
+        self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._table.setSelectionMode(QAbstractItemView.NoSelection)
+        self._table.horizontalHeader().setSectionResizeMode(
+            3, QHeaderView.Stretch)
+        layout.addWidget(self._table, 1)
+        self._handles: List = []
+        self._cancelled: set = set()
+        self._rebuild_timer = QTimer(self)
+        self._rebuild_timer.setSingleShot(True)
+        self._rebuild_timer.setInterval(250)
+        self._rebuild_timer.timeout.connect(self.refresh)
+        self._tick = QTimer(self)
+        self._tick.setInterval(1000)
+        self._tick.timeout.connect(self._update_elapsed)
+        try:
+            from ..bridge import registry
+            registry().changed.connect(self._schedule_refresh)
+        except Exception:
+            pass
+        self.refresh()
+
+    def _schedule_refresh(self) -> None:
+        """Coalesce a burst of registry changes into one rebuild."""
+        if not self._rebuild_timer.isActive():
+            self._rebuild_timer.start()
+
+    def _visible_handles(self) -> List:
+        """The registered jobs the user would recognise, oldest first."""
+        try:
+            from ..bridge import registry
+            handles = registry().active()
+        except Exception:
+            return []
+        return [h for h in handles
+                if h is not None and getattr(h, "user_visible", True)]
+
+    def job_count(self) -> int:
+        """How many rows the table shows."""
+        return self._table.rowCount()
+
+    def refresh(self) -> None:
+        """Rebuild the table from the registry."""
+        from ..i18n import tr
+        self._handles = self._visible_handles()
+        self._cancelled &= {id(h) for h in self._handles}
+        table = self._table
+        table.setRowCount(len(self._handles))
+        for row, handle in enumerate(self._handles):
+            table.setItem(row, 0, QTableWidgetItem(str(handle.app_key)))
+            bar = QProgressBar(table)
+            fraction = handle.fraction()
+            if fraction is None:
+                bar.setRange(0, 0)
+            else:
+                bar.setRange(0, 1000)
+                bar.setValue(int(round(fraction * 1000)))
+                done, total = handle.progress
+                bar.setFormat(f"{done}/{total}")
+            table.setCellWidget(row, 1, bar)
+            table.setItem(row, 2, QTableWidgetItem(
+                self._format_elapsed(handle.elapsed())))
+            table.setItem(row, 3, QTableWidgetItem(handle.last_line or ""))
+            button = QPushButton(tr("Cancel"), table)
+            button.setObjectName("JobsCancel")
+            button.clicked.connect(
+                lambda _checked=False, h=handle, b=button:
+                self._cancel(h, b))
+            if id(handle) in self._cancelled:
+                button.setEnabled(False)
+                button.setText(tr("Cancelling…"))
+            table.setCellWidget(row, 4, button)
+        empty = not self._handles
+        self._empty.setVisible(empty)
+        self._table.setVisible(not empty)
+        if empty:
+            self._tick.stop()
+        elif not self._tick.isActive():
+            self._tick.start()
+
+    @staticmethod
+    def _format_elapsed(seconds: float) -> str:
+        """Elapsed seconds as ``h:mm:ss``."""
+        seconds = int(max(0.0, seconds))
+        return f"{seconds // 3600}:{seconds // 60 % 60:02d}:{seconds % 60:02d}"
+
+    def _update_elapsed(self) -> None:
+        """Advance the elapsed column without rebuilding the rows."""
+        for row, handle in enumerate(self._handles):
+            item = self._table.item(row, 2)
+            if item is not None:
+                item.setText(self._format_elapsed(handle.elapsed()))
+
+    def _cancel(self, handle, button: QPushButton) -> None:
+        """Ask one job to stop at its next safe point.
+
+        :param handle: the job's run handle.
+        :param button: its Cancel button, disabled so a second click cannot
+            look like it did something more.
+        """
+        from ..i18n import tr
+        try:
+            handle.request_cancel("cancelled from the Jobs window")
+        except Exception:
+            return
+        self._cancelled.add(id(handle))
+        button.setEnabled(False)
+        button.setText(tr("Cancelling…"))

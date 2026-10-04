@@ -8400,6 +8400,33 @@ class AppScreen(QWidget):
             focus.end_view()
         super().hideEvent(event)
 
+    def _claim_the_project(self, settings) -> bool:
+        """Lock the run's source folder for this window before writing it.
+
+        The source folder holds the run's masks and ``measurements.db``.
+        When another spaCR window already holds it, the user chooses: open
+        it read-only, which refuses the run, or continue anyway.
+
+        :param settings: the settings about to run; ``src`` names the folder,
+            and the first entry of a list-valued ``src`` is used.
+        :returns: whether the run may go ahead.
+        """
+        from ..crash_recovery import _claim_project
+        src = settings.get("src") if isinstance(settings, dict) else None
+        if isinstance(src, (list, tuple)):
+            src = next((str(s) for s in src if str(s).strip()), None)
+        if not src or not isinstance(src, (str, os.PathLike)):
+            return True
+        answer = _claim_project(self, src)
+        if answer == "read_only":
+            QMessageBox.information(
+                self, tr("Opened read-only"),
+                tr("This window has {path} open read-only, so it will not "
+                   "run a pipeline that writes there. Close the other spaCR "
+                   "window, then run again.", path=str(src)))
+            return False
+        return answer in ("locked", "continue")
+
     def _on_run(self, _checked=False, *, override=None):
         """Start the pipeline.
 
@@ -8436,6 +8463,10 @@ class AppScreen(QWidget):
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
 
+        if not self._claim_the_project(settings):
+            log_button_press(f"{self.app_key}.Run",
+                             {"result": "project_locked"})
+            return
         if (self.app_key == "measure"
                 and not self._confirm_measure_plane_layout(settings)):
             return
