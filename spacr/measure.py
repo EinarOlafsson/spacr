@@ -205,6 +205,21 @@ def _pool_context():
         return mp
 
 
+def _measure_pool_context(settings):
+    """Return the pool context for a Measure run with these ``settings``.
+
+    With ``measure_gpu`` on and no start method asked for through
+    :data:`START_METHOD_ENV_VAR`, the workers are started with ``spawn``: a
+    CUDA context cannot be re-initialised in a forked child, so every forked
+    worker would fail the moment it touched the GPU. Otherwise this is
+    :func:`_pool_context`.
+    """
+    if (settings.get('measure_gpu', False)
+            and not os.environ.get(START_METHOD_ENV_VAR, '').strip()):
+        return mp.get_context('spawn')
+    return _pool_context()
+
+
 class ManagerStartError(ConfigurationError):
     """Raised when Measure cannot start its multiprocessing manager.
 
@@ -9228,7 +9243,7 @@ def measure_crop(settings):
                         ledger.record_failure(job_file, stage='measure_worker', exc=exc)
                     return _on_error
 
-                ctx = _pool_context()
+                ctx = _measure_pool_context(settings)
                 start_method = ctx.get_start_method()
                 warn_if_hooks_will_not_reach_workers(start_method)
                 pool_jobs = resolve_pool_size(n_jobs, len(files),

@@ -121,3 +121,25 @@ WHAT IS LEFT
     the parent) when measure_gpu is on; fix the cuCIM morphology fallback on
     labels with empty regions; rerun run_plate.sh gpu + compare_db.py.
     Logs: /mnt/wd4tb/scratch/566/gpu_turn.log, plate/gpu.log.
+
+2026-10-04 — SPAWNED WORKERS; REAL-PLATE GPU RUN PASSES ON AGREEMENT, NOT ON SPEED
+    Fix: with measure_gpu on (and SPACR_START_METHOD unset) measure_crop
+    starts its pool with the 'spawn' context (measure._measure_pool_context),
+    so no worker inherits a forked CUDA state. An explicit
+    SPACR_START_METHOD still wins. CPU tests in tests/test_gpu_measurement.py.
+    Rerun: tools/gpu_turn.sh 566-plate-spawn timeout 30m run_plate.sh gpu
+    (copy pointing PYTHONPATH at the fix branch), RTX 3090, same 4 plate1
+    fields, n_jobs 2: rc=0, 148 s wall (measure 145 s) vs CPU reference
+    177 s -> 1.2x. compare_sorted.py (rows matched on plate/row/column/field
+    and label; spawned workers write rows in another order, so the
+    unsorted compare_db.py shows false differences): cell 190, nucleus 193,
+    pathogen 97, cytoplasm 190 rows, identical columns, max relative
+    difference 4.0e-10 (kurtosis), 0 columns over 1e-3.
+    Why only 1.2x: cuCIM morphology still fails on every object table
+    ("No coordinates to process", 16 times) and falls back to the CPU, cuCIM
+    distances fall back to SciPy (no cuVS), and blur, periphery, radial
+    distribution and correlation stay on the CPU; spawn adds interpreter
+    start-up per worker.
+    LEFT: fix the cuCIM morphology path on labels with empty regions; move
+    the remaining CPU features before "several times faster" can hold on a
+    plate. Logs: /mnt/wd4tb/scratch/566/gpu_turn_spawn.log, plate/gpu.log.

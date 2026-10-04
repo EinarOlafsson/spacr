@@ -180,3 +180,19 @@ def test_cucim_morphology_matches_scikit_image():
     assert gpu is not None and list(gpu.columns) == list(cpu.columns)
     np.testing.assert_allclose(gpu.values.astype(float),
                                cpu.values.astype(float), rtol=1e-5, atol=1e-6)
+
+
+def test_measure_pool_spawns_workers_when_measure_gpu_is_on(monkeypatch):
+    """A forked worker cannot re-initialise CUDA, so measure_gpu starts the pool with spawn."""
+    import multiprocessing as mp
+    from spacr import measure as M
+    monkeypatch.delenv(M.START_METHOD_ENV_VAR, raising=False)
+    assert M._measure_pool_context({'measure_gpu': True}).get_start_method() == 'spawn'
+    assert M._measure_pool_context({'measure_gpu': False}) is mp
+    assert M._measure_pool_context({}) is mp
+
+
+def test_an_explicit_start_method_still_wins_over_measure_gpu(monkeypatch):
+    from spacr import measure as M
+    monkeypatch.setenv(M.START_METHOD_ENV_VAR, 'forkserver')
+    assert M._measure_pool_context({'measure_gpu': True}).get_start_method() == 'forkserver'
