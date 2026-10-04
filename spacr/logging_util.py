@@ -38,6 +38,7 @@ Public API:
 """
 from __future__ import annotations
 
+import functools
 import logging
 import logging.handlers
 import os
@@ -436,6 +437,130 @@ _TRACE_SKIP_MODULES = (
 
 
 
+_PORTABLE_ENV = "SPACR_PORTABLE"
+_PORTABLE_MARKER = "spacr-portable"
+_PORTABLE_DATA = "spacr-data"
+_PORTABLE_ON = frozenset({"1", "true", "yes", "on"})
+_PORTABLE_OFF = frozenset({"0", "false", "no", "off"})
+
+
+def _app_folders() -> list:
+    """Return the folders that count as "next to the app", nearest first.
+
+    They are ``SPACR_LAUNCHER_DIR`` when an installer set it, the folder
+    holding the Python executable, the environment's prefix and the folder
+    that contains that environment, which is the install folder of the
+    Windows, macOS and Linux installers.
+    """
+    found = []
+    launcher = os.environ.get("SPACR_LAUNCHER_DIR", "").strip()
+    candidates = [Path(launcher).expanduser()] if launcher else []
+    candidates += [Path(os.path.abspath(sys.executable)).parent,
+                   Path(sys.prefix), Path(sys.prefix).parent]
+    for folder in candidates:
+        if folder not in found:
+            found.append(folder)
+    return found
+
+
+def _portable_root() -> Optional[Path]:
+    """Return the folder portable mode keeps its data beside, or ``None``.
+
+    ``SPACR_PORTABLE`` decides first: ``0``/``off`` turns portable mode off
+    even when a marker exists, a folder path turns it on in that folder, and
+    ``1``/``on`` turns it on next to the app. Otherwise portable mode is on
+    when an empty ``spacr-portable`` marker file sits in one of
+    :func:`_app_folders`, and it is off by default. The answer is remembered
+    per process for each value of the two variables, so a marker created
+    while spaCR runs takes effect at the next start.
+    """
+    return _portable_root_for(
+        os.environ.get(_PORTABLE_ENV, "").strip(),
+        os.environ.get("SPACR_LAUNCHER_DIR", "").strip())
+
+
+@functools.lru_cache(maxsize=16)
+def _portable_root_for(raw: str, launcher: str) -> Optional[Path]:
+    """Resolve :func:`_portable_root` for one ``SPACR_PORTABLE`` value."""
+    if raw.lower() in _PORTABLE_OFF:
+        return None
+    if raw and raw.lower() not in _PORTABLE_ON:
+        return Path(raw).expanduser().absolute()
+    folders = _app_folders()
+    for folder in folders:
+        try:
+            if (folder / _PORTABLE_MARKER).is_file():
+                return folder
+        except OSError:
+            continue
+    if raw:
+        return folders[0]
+    return None
+
+
+def _spacr_home() -> Path:
+    """Return the folder spaCR keeps settings, caches, logs and runs in.
+
+    ``SPACR_HOME`` wins when set. In portable mode it is the ``spacr-data``
+    folder beside the app; otherwise ``~/.spacr``. Every per-user spaCR
+    folder (runs, logs, backends, plugins, models, recipes, macros) lives
+    under it.
+    """
+    configured = os.environ.get("SPACR_HOME", "").strip()
+    if configured:
+        return Path(configured).expanduser()
+    root = _portable_root()
+    if root is not None:
+        return root / _PORTABLE_DATA
+    return Path.home() / ".spacr"
+
+
+def _apply_portable_mode() -> Optional[Path]:
+    """Point every per-user folder at the portable data folder, if enabled.
+
+    Sets ``SPACR_HOME``, ``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR`` and
+    ``SPACR_PLUGIN_HOME`` and the cache variables of the libraries spaCR
+    loads (``XDG_CACHE_HOME``, ``TORCH_HOME``, ``HF_HOME``,
+    ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``,
+    ``XDG_STATE_HOME``) beneath it, so child
+    processes and backend workers follow. A variable the user already set is
+    kept. Does nothing when portable mode is off.
+
+    :returns: the data folder, or ``None`` when portable mode is off.
+    """
+    root = _portable_root()
+    if root is None:
+        return None
+    data = Path(os.environ.get("SPACR_HOME", "").strip()
+                or (root / _PORTABLE_DATA)).expanduser()
+    cache = data / "cache"
+    for name, value in (
+        ("SPACR_HOME", data),
+        ("SPACR_LOG_DIR", data / "logs"),
+        ("SPACR_BACKENDS_DIR", data / "backends"),
+        ("SPACR_PLUGIN_HOME", data / "plugins"),
+        ("XDG_CACHE_HOME", cache),
+        ("XDG_STATE_HOME", data / "state"),
+        ("TORCH_HOME", cache / "torch"),
+        ("HF_HOME", cache / "huggingface"),
+        ("MPLCONFIGDIR", cache / "matplotlib"),
+        ("CELLPOSE_LOCAL_MODELS_PATH", data / "models" / "cellpose"),
+    ):
+        os.environ.setdefault(name, str(value))
+    try:
+        data.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    return data
+
+
+def _portable_settings_dir() -> Optional[Path]:
+    """Return the folder Qt settings are kept in when portable, else ``None``."""
+    if _portable_root() is None:
+        return None
+    return _spacr_home() / "settings"
+
+
 def log_dir() -> Path:
     """Return the folder where spacr log files live.
 
@@ -446,7 +571,7 @@ def log_dir() -> Path:
     """
     override = os.environ.get("SPACR_LOG_DIR", "").strip()
     root = Path(override).expanduser() if override else (
-        Path.home() / ".spacr" / "logs")
+        _spacr_home() / "logs")
     root.mkdir(parents=True, exist_ok=True)
     return root
 

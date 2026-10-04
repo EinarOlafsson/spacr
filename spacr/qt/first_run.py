@@ -32,6 +32,7 @@ from typing import Callable, List, Optional
 
 from PySide6.QtCore import QEvent, QPoint, QRect, Qt
 from PySide6.QtGui import QColor, QKeyEvent, QPainter, QPainterPath, QPen
+from .prefs import _store_args
 from PySide6.QtWidgets import (
     QLabel, QMainWindow, QPushButton, QScrollArea, QVBoxLayout, QWidget,
 )
@@ -51,7 +52,7 @@ def _settings():
     :returns: the settings store.
     """
     from PySide6.QtCore import QSettings
-    return QSettings(_ORG, _APP)
+    return QSettings(*_store_args(_ORG, _APP))
 
 
 

@@ -39,6 +39,7 @@ from typing import (Callable, Dict, Iterable, List, NamedTuple, Optional,
                     Sequence, Tuple)
 
 import numpy as np
+from ..logging_util import _spacr_home
 
 __all__ = [
     "BED",
@@ -1709,7 +1710,7 @@ def sound_cache_root() -> Path:
     override = os.environ.get(CACHE_ENV, "").strip()
     if override:
         return Path(override)
-    return Path.home() / ".spacr" / "sounds"
+    return _spacr_home() / "sounds"
 
 
 def theme_fingerprint(theme: SoundTheme, sr: int = SAMPLE_RATE) -> str:

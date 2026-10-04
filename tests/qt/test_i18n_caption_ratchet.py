@@ -1274,6 +1274,7 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 645/650, 2026-10-04: the project-lock warning and the Jobs dock.
 # 649, 2026-10-04: undo and redo in the settings panel, the gate editor and
 # Annotate.
+# 653, 2026-10-04: About spaCR's portable-mode line.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'A template called {name} already exists.',
     'A template needs a name.',
@@ -1310,6 +1311,7 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Edit gates",
     "Nothing to redo.",
     "Redone.",
+    "Portable mode: settings, caches, logs and runs are kept in {folder}.",
     "Giardia duodenalis",
     "Leishmania spp.",
     "Mammalian cells",

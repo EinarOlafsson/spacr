@@ -26,6 +26,7 @@ import sys
 import urllib.parse
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from ...logging_util import _spacr_home
 
 REPO = "EinarOlafsson/spacr"
 ISSUE_LABEL = "auto-filed"
@@ -450,7 +451,7 @@ def log_tail(n_lines: int = LOG_TAIL_LINES,
 
 def log_bundle_dir() -> Path:
     """Where a report's log copy is written."""
-    return Path.home() / ".spacr" / "reports"
+    return _spacr_home() / "reports"
 
 
 def save_log_bundle(fingerprint: str,

@@ -46,13 +46,14 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List
+from .logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.custom_features")
 
 
 def features_dir() -> Path:
     """Return ``~/.spacr/features/`` — created if it doesn't exist."""
-    p = Path.home() / ".spacr" / "features"
+    p = _spacr_home() / "features"
     p.mkdir(parents=True, exist_ok=True)
     return p
 

@@ -114,6 +114,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 import numpy as np
+from ..logging_util import _spacr_home
 
 
 #: Bumped whenever the generators change output, so old cached PNGs are
@@ -1023,7 +1024,7 @@ def cache_dir() -> Path:
     verbose logger already writes.
     """
     override = os.environ.get(ENV_CACHE_DIR)
-    root = Path(override) if override else Path.home() / ".spacr" / "backgrounds"
+    root = Path(override) if override else _spacr_home() / "backgrounds"
     return root
 
 

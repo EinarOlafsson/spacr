@@ -63,6 +63,7 @@ from typing import Any, Callable, Optional
 
 from PySide6.QtCore import QCoreApplication, QObject, Signal
 from shiboken6 import isValid
+from ..logging_util import _spacr_home
 
 
 
@@ -167,7 +168,7 @@ def log_dir() -> Path:
     if override:
         p = Path(override)
     else:
-        p = Path.home() / ".spacr" / "logs"
+        p = _spacr_home() / "logs"
     p.mkdir(parents=True, exist_ok=True)
     return p
 

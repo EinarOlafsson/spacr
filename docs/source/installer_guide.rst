@@ -203,6 +203,53 @@ results. User preferences, run records and logs under ``~/.spacr`` are also
 left in place so they can be inspected or reused. Remove that directory
 separately only if those records are no longer needed.
 
+.. _portable-mode:
+
+Portable mode
+-------------
+
+Portable mode keeps everything spaCR writes for a user next to the
+application instead of in the home folder: preferences, caches, logs, run
+records, model downloads, plugins and segmentation backends. Use it to run
+spaCR from a USB drive or an external disk, or on a shared computer where
+nothing should be left behind.
+
+Turn it on in either of two ways:
+
+* **Marker file.** Create an empty file named ``spacr-portable`` in the
+  spaCR install folder, which is the folder that holds spaCR's Python
+  environment. On Windows that is ``%LOCALAPPDATA%\spaCR``; on macOS
+  ``~/Library/Application Support/spaCR``; on Linux
+  ``~/.local/share/spacr``. In a conda or virtual environment, the
+  environment folder itself also works.
+* **Environment variable.** Set ``SPACR_PORTABLE=1`` to keep data next to
+  the application, or ``SPACR_PORTABLE=/path/to/folder`` to choose the
+  folder. ``SPACR_PORTABLE=0`` turns portable mode off even when a marker
+  file exists.
+
+spaCR then keeps its data in a ``spacr-data`` folder beside the marker (or
+inside the chosen folder): ``settings`` holds the preferences as an INI file
+on every platform, so nothing is written to the Windows registry or the macOS
+preference files, and ``logs``, ``runs``, ``backends``, ``plugins``,
+``models`` and ``cache`` hold the rest. **Help → About spaCR** shows the
+folder in use while portable mode is on. Restart spaCR after creating or
+removing the marker.
+
+Portable mode is one switch for the folder variables that can also be set
+one at a time. It fills in any of them that are not already set, and a
+variable you set yourself always wins:
+
+``SPACR_HOME``
+   Preferences, run records and every other per-user spaCR folder.
+``SPACR_LOG_DIR``, ``SPACR_BACKENDS_DIR``, ``SPACR_PLUGIN_HOME``
+   Logs, segmentation backend environments and plugins.
+``XDG_CACHE_HOME``, ``XDG_STATE_HOME``, ``TORCH_HOME``, ``HF_HOME``, ``MPLCONFIGDIR``, ``CELLPOSE_LOCAL_MODELS_PATH``
+   Caches of example data, chained settings, PyTorch, Hugging Face,
+   Matplotlib and Cellpose models.
+
+Existing data in ``~/.spacr`` is not moved. Copy it into ``spacr-data`` first
+to keep it.
+
 .. _offline-bundle:
 
 Offline installation

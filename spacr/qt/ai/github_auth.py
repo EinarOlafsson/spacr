@@ -26,6 +26,7 @@ import urllib.request
 from typing import List, Optional, Tuple
 
 from PySide6.QtCore import QSettings
+from ..prefs import _store_args
 
 _ORG = "spacr"
 _APP = "qt"
@@ -41,7 +42,7 @@ def _settings() -> QSettings:
 
     :returns: the settings store.
     """
-    return QSettings(_ORG, _APP)
+    return QSettings(*_store_args(_ORG, _APP))
 
 
 

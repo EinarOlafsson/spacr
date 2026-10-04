@@ -70,6 +70,7 @@ from PySide6.QtWidgets import (
 
 from .widgets.flow import FlowLayout
 from .i18n import tr
+from ..logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.recipes")
 
@@ -146,7 +147,7 @@ def recipes_dir(app_key: Optional[str] = None) -> str:
     """
     override = os.environ.get(RECIPE_DIR_ENV, "").strip()
     root = (os.path.abspath(os.path.expanduser(override)) if override
-            else os.path.join(os.path.expanduser("~"), ".spacr", "recipes"))
+            else os.path.join(str(_spacr_home()), "recipes"))
     if app_key:
         root = os.path.join(root, _slug(app_key) or "unknown")
     os.makedirs(root, exist_ok=True)

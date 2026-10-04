@@ -96,6 +96,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from .logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.macro")
 
@@ -184,7 +185,7 @@ def macros_dir() -> str:
     """
     override = os.environ.get(MACRO_DIR_ENV, "").strip()
     root = (os.path.abspath(os.path.expanduser(override)) if override
-            else os.path.join(os.path.expanduser("~"), ".spacr", "macros"))
+            else os.path.join(str(_spacr_home()), "macros"))
     os.makedirs(root, exist_ok=True)
     return root
 

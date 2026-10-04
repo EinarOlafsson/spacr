@@ -43,6 +43,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from PySide6.QtGui import QIcon
+from ..logging_util import _spacr_home
 
 from .theme import (
     contrast_ratio,
@@ -466,7 +467,7 @@ def icon_cache_dir() -> Path:
     override = os.environ.get(ENV_ICON_CACHE)
     if override:
         return Path(override)
-    return Path.home() / ".spacr" / "icons"
+    return _spacr_home() / "icons"
 
 
 def _cache_path(stamp, theme: str) -> Path:

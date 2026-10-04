@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 import os
 from typing import Optional
+from ..logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.crash_recovery")
 
@@ -45,7 +46,7 @@ def _folder() -> str:
     except Exception:                                        # noqa: BLE001
         folder = ""
     if not folder:
-        folder = os.path.join(os.path.expanduser("~"), ".spacr", "logs")
+        folder = os.path.join(str(_spacr_home()), "logs")
     os.makedirs(folder, exist_ok=True)
     return folder
 

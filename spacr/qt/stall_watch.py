@@ -44,6 +44,7 @@ import time
 import traceback
 from pathlib import Path
 from typing import Optional
+from ..logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.stall_watch")
 
@@ -57,7 +58,7 @@ POLL_SECONDS = 0.25
 #: Where the stacks are appended, so a user can send the file back.
 LOG_PATH = Path(os.environ.get(
     "SPACR_STALL_LOG",
-    str(Path.home() / ".spacr" / "logs" / "gui-stalls.log")))
+    str(_spacr_home() / "logs" / "gui-stalls.log")))
 
 
 def _write(text: str) -> None:

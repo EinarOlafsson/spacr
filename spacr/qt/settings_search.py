@@ -63,6 +63,7 @@ from PySide6.QtWidgets import (
 from .i18n import tr
 from .widgets.section import _logical_parent
 from .widgets.toggle import Toggle
+from .prefs import _store_args
 
 LOG = logging.getLogger("spacr.qt.settings_search")
 
@@ -101,7 +102,7 @@ def _settings():
     :returns: the settings store.
     """
     from PySide6.QtCore import QSettings
-    return QSettings(_QSETTINGS_ORG, _QSETTINGS_APP)
+    return QSettings(*_store_args(_QSETTINGS_ORG, _QSETTINGS_APP))
 
 
 def disclosure_for(app_key: str) -> str:

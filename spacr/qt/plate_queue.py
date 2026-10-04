@@ -31,13 +31,14 @@ from dataclasses import asdict, dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
+from ..logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.plate_queue")
 
 
 def _queue_path() -> Path:
     """Return the on-disk queue file — creating the parent if needed."""
-    p = Path.home() / ".spacr" / "queue.json"
+    p = _spacr_home() / "queue.json"
     p.parent.mkdir(parents=True, exist_ok=True)
     return p
 

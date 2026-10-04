@@ -2,7 +2,9 @@
 PORTABLE MODE
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04 — SPACR_PORTABLE or a spacr-portable marker next
+           to the app moves settings (INI on every OS), caches, logs, runs,
+           models, plugins and backends into spacr-data; About shows it.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +15,18 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+BUILT 2026-10-04
+  spacr/logging_util.py: _portable_root, _spacr_home, _apply_portable_mode,
+  _portable_settings_dir. SPACR_HOME is the one root every ~/.spacr path now
+  goes through; portable mode fills SPACR_HOME, SPACR_LOG_DIR,
+  SPACR_BACKENDS_DIR, SPACR_PLUGIN_HOME and the library cache variables
+  (setdefault, a user's own value wins). Applied at GUI launch and in
+  spacr-run. Qt stores go through spacr.qt.prefs._store_args (IniFormat in
+  the portable settings folder). GUI: Help > About spaCR names the folder.
+  Docs: installer_guide.rst "Portable mode".
+  Tests: tests/test_portable_mode_and_environment_lock.py.
+
+LEFT
+  Translate the new installer-guide section and the About caption at the
+  next catalog rebuild. install_cleanup still looks only in ~/.spacr.

@@ -79,6 +79,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Set, Tuple
 
 from .macro import begin_recording, finish_recording
+from .logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.run_journal")
 
@@ -112,7 +113,7 @@ _IGNORED_TREE_NAMES = frozenset({
 
 def runs_root() -> Path:
     """Return ``~/.spacr/runs``; created on first access."""
-    p = Path.home() / ".spacr" / "runs"
+    p = _spacr_home() / "runs"
     p.mkdir(parents=True, exist_ok=True)
     return p
 
@@ -279,18 +280,158 @@ def _env_snapshot() -> Dict[str, Any]:
     return snapshot
 
 
+_ENV_LOCK_FOLDER = "environment"
+_PIP_LOCK_NAME = "requirements-lock.txt"
+_CONDA_LOCK_NAME = "conda-explicit.txt"
+_ENV_LOCK_TIMEOUT_S = 120
+
+
+def _environment_digest(packages: Dict[str, str]) -> str:
+    """Return the SHA-256 that names one Python environment's lockfiles."""
+    return _json_digest({
+        "python": sys.version,
+        "executable": os.path.abspath(sys.executable),
+        "prefix": os.path.abspath(sys.prefix),
+        "packages": packages,
+    })
+
+
+def _run_quiet(command: List[str]) -> Optional[str]:
+    """Run ``command`` and return its standard output, or ``None`` on failure."""
+    try:
+        done = subprocess.run(
+            command, capture_output=True, text=True,
+            timeout=_ENV_LOCK_TIMEOUT_S, check=False,
+            stdin=subprocess.DEVNULL,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        LOG.debug("environment lock command %s failed: %s", command, exc)
+        return None
+    if done.returncode != 0 or not done.stdout.strip():
+        LOG.debug("environment lock command %s exited %s",
+                  command, done.returncode)
+        return None
+    return done.stdout
+
+
+def _pip_lock_text(packages: Dict[str, str]) -> str:
+    """Return a ``pip freeze`` of this interpreter's environment.
+
+    Falls back to ``name==version`` lines read from the installed
+    distributions' metadata when pip cannot be run, so a lockfile is always
+    written.
+    """
+    frozen = _run_quiet([sys.executable, "-m", "pip", "freeze",
+                         "--all", "--disable-pip-version-check"])
+    if frozen:
+        return frozen if frozen.endswith("\n") else frozen + "\n"
+    lines = ["# pip freeze was unavailable; read from package metadata."]
+    lines += [f"{name}=={version}" for name, version in packages.items()]
+    return "\n".join(lines) + "\n"
+
+
+def _conda_lock_text() -> Optional[str]:
+    """Return ``conda list --explicit`` for this environment, inside conda.
+
+    :returns: the explicit spec list, or ``None`` outside a conda
+        environment or when conda cannot be run.
+    """
+    prefix = os.path.abspath(sys.prefix)
+    if not os.path.isdir(os.path.join(prefix, "conda-meta")):
+        return None
+    conda = (os.environ.get("CONDA_EXE", "").strip()
+             or shutil.which("conda") or shutil.which("mamba")
+             or shutil.which("micromamba"))
+    if not conda:
+        return None
+    return _run_quiet([conda, "list", "--explicit", "--prefix", prefix])
+
+
+_ENV_LOCK_MEMO: Dict[str, Dict[str, Optional[str]]] = {}
+_ENV_LOCK_MEMO_GUARD = threading.Lock()
+
+
+def _environment_lock_texts(digest: str,
+                            packages: Dict[str, str]) -> Dict[str, Optional[str]]:
+    """Return the pip and conda lockfile texts for one environment digest.
+
+    Built at most once per digest: first from this process's memory, then
+    from the shared store beside the run journal (``env_locks/<digest>``),
+    and only when neither has it by running pip and conda, whose output is
+    then saved to that store for every later run and process.
+    """
+    with _ENV_LOCK_MEMO_GUARD:
+        cached = _ENV_LOCK_MEMO.get(digest)
+        if cached is not None:
+            return cached
+        store = runs_root().parent / "env_locks" / digest[:32]
+        pip_file = store / _PIP_LOCK_NAME
+        conda_file = store / _CONDA_LOCK_NAME
+        texts: Dict[str, Optional[str]]
+        if pip_file.is_file():
+            texts = {
+                "pip": pip_file.read_text(encoding="utf-8"),
+                "conda": (conda_file.read_text(encoding="utf-8")
+                          if conda_file.is_file() else None),
+            }
+        else:
+            texts = {"pip": _pip_lock_text(packages),
+                     "conda": _conda_lock_text()}
+            try:
+                store.mkdir(parents=True, exist_ok=True)
+                if texts["conda"]:
+                    _atomic_write_text(conda_file, texts["conda"])
+                _atomic_write_text(pip_file, texts["pip"] or "")
+            except OSError as exc:
+                LOG.warning("Could not save the environment lock in %s: %s",
+                            store, exc)
+        _ENV_LOCK_MEMO[digest] = texts
+        return texts
+
+
+def _write_environment_lock(run_dir: Path,
+                            packages: Dict[str, str]) -> Dict[str, Any]:
+    """Write this environment's lockfiles into ``run_dir/environment``.
+
+    The pip freeze, and the conda explicit list inside a conda environment,
+    are produced once per environment digest (see
+    :func:`_environment_lock_texts`); each run only writes the small text
+    files into its own folder.
+
+    :returns: the manifest's ``environment_lock`` record: ``sha256`` (the
+        environment digest), ``pip`` and ``conda`` (paths relative to the run
+        folder, ``conda`` ``None`` outside conda).
+    """
+    digest = _environment_digest(packages)
+    texts = _environment_lock_texts(digest, packages)
+    folder = run_dir / _ENV_LOCK_FOLDER
+    folder.mkdir(parents=True, exist_ok=True)
+    record: Dict[str, Any] = {"sha256": digest, "pip": None, "conda": None}
+    for key, name in (("pip", _PIP_LOCK_NAME), ("conda", _CONDA_LOCK_NAME)):
+        text = texts.get(key)
+        if text:
+            _atomic_write_text(folder / name, text)
+            record[key] = f"{_ENV_LOCK_FOLDER}/{name}"
+    return record
+
+
 def _warm_env_snapshot() -> None:
     """Read the package versions a run records, so the first run need not.
 
     Enumerating every installed distribution reads hundreds of metadata
     files, the largest part of opening a run's manifest. Both readers are
     memoised, so calling this from a background thread once the window is
-    up moves that cost off the first run.
+    up moves that cost off the first run. The environment's pip freeze and
+    conda explicit list are prepared here too, for the same reason.
     """
     _pkg_version("spacr")
     for _key, distribution in _ENV_VERSIONS:
         _pkg_version(distribution)
-    _installed_packages()
+    packages = _installed_packages()
+    try:
+        _environment_lock_texts(_environment_digest(packages), packages)
+    except Exception as exc:
+        LOG.debug("could not prepare the environment lock: %s", exc)
 
 
 def hash_file(
@@ -611,6 +752,7 @@ class Run:
     provenance_warnings: List[str] = field(default_factory=list)
     run_warnings: List[str] = field(default_factory=list)
     environment: Dict[str, Any] = field(default_factory=dict)
+    environment_lock: Dict[str, Any] = field(default_factory=dict, init=False)
     stages: List[Dict[str, Any]] = field(default_factory=list)
     stdout_path: Optional[Path] = None
     error_traceback: str = ""
@@ -1023,6 +1165,7 @@ class Run:
             "elapsed_s":     elapsed,
             "status":        self.status,
             "env":           self.environment,
+            "environment_lock": self.environment_lock or None,
             "model_hashes":  self.model_hashes,
             "model_files":   self.model_files,
             "settings_file": "settings.json",
@@ -1155,6 +1298,13 @@ def open_run(app_key: str, settings: Dict[str, Any]) -> Iterator[Run]:
     run = Run(app_key=app_key, settings=dict(settings or {}),
                 dir=_new_run_dir(app_key))
     run.environment = _env_snapshot()
+    try:
+        run.environment_lock = _write_environment_lock(
+            run.dir, run.environment.get("packages") or {})
+    except Exception as exc:
+        warning = f"environment lockfile not written: {exc}"
+        run.provenance_warnings.append(warning)
+        LOG.warning(warning)
     _check_lock_for_run(run)
     run._write_settings()
     run._capture_initial_provenance()
@@ -1219,7 +1369,7 @@ _DESKTOP_NOTIFIER: List[Any] = [None]
 
 def _notify_secrets_path() -> Path:
     """Return ``~/.spacr/notification_secrets.json``, the keyring fallback."""
-    return Path.home() / ".spacr" / "notification_secrets.json"
+    return _spacr_home() / "notification_secrets.json"
 
 
 def _notify_keyring() -> Any:

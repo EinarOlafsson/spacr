@@ -49,9 +49,11 @@ from PySide6.QtWidgets import (QAbstractItemView, QDialog,
 
 from .sortable_table import install_sorting, table_item
 from ..i18n import tr
+from ...logging_util import _spacr_home
+from ..prefs import _store_args
 
 #: Where checkpoints land unless the user says otherwise.
-DEFAULT_MODEL_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
+DEFAULT_MODEL_DIR = os.path.join(str(_spacr_home()), "models")
 
 #: QSettings key remembering the chosen folder.
 _DIR_SETTING = "model_zoo/download_dir"
@@ -80,7 +82,7 @@ def _store():
 
     from ..preferences import _APP, _ORG
 
-    return QSettings(_ORG, _APP)
+    return QSettings(*_store_args(_ORG, _APP))
 
 
 def remembered_model_dir() -> str:

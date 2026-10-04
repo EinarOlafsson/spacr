@@ -12,6 +12,7 @@ from typing import Dict, List
 from PySide6.QtCore import QSettings
 
 from .prompts import default_system_prompt
+from ..prefs import _store_args
 
 _SETTINGS_ORG = "spacr"
 _SETTINGS_APP = "qt"
@@ -52,7 +53,7 @@ def _settings() -> QSettings:
 
     :returns: the settings store.
     """
-    return QSettings(_SETTINGS_ORG, _SETTINGS_APP)
+    return QSettings(*_store_args(_SETTINGS_ORG, _SETTINGS_APP))
 
 
 

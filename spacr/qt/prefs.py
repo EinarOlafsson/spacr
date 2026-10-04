@@ -36,7 +36,7 @@ def _migrate_legacy_settings(current: QSettings) -> None:
         if current_file in _MIGRATED_FILES:
             return
         for organization, application in _LEGACY_NAMESPACES:
-            legacy = QSettings(organization, application)
+            legacy = QSettings(*_store_args(organization, application))
             if str(legacy.fileName()) == current_file:
                 continue
             legacy.sync()
@@ -47,9 +47,27 @@ def _migrate_legacy_settings(current: QSettings) -> None:
         _MIGRATED_FILES.add(current_file)
 
 
+def _store_args(organization: str, application: str) -> tuple:
+    """Return the ``QSettings`` constructor arguments for one store.
+
+    Normally ``(organization, application)``, the platform's native store.
+    In portable mode an INI file in the portable settings folder instead, on
+    every platform, so the registry on Windows and the preferences plists on
+    macOS are left untouched.
+    """
+    from ..logging_util import _portable_settings_dir
+
+    folder = _portable_settings_dir()
+    if folder is None:
+        return (organization, application)
+    QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, str(folder))
+    return (QSettings.IniFormat, QSettings.UserScope, organization,
+            application)
+
+
 def _s() -> QSettings:
     """Return spaCR's canonical store after a non-destructive migration."""
-    settings = QSettings(ORG, APP)
+    settings = QSettings(*_store_args(ORG, APP))
     _migrate_legacy_settings(settings)
     return settings
 

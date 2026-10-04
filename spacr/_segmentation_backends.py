@@ -115,6 +115,7 @@ import time
 from dataclasses import dataclass, field
 
 import numpy as np
+from .logging_util import _spacr_home
 
 LOG = logging.getLogger(__name__)
 
@@ -1312,7 +1313,7 @@ def _backends_root(root=None):
     configured = os.environ.get(_ROOT_ENV, "").strip()
     if configured:
         return os.path.abspath(os.path.expanduser(configured))
-    return os.path.join(os.path.expanduser("~"), ".spacr", "backends")
+    return os.path.join(str(_spacr_home()), "backends")
 
 
 def _env_python(env, windows=None):
@@ -2041,7 +2042,7 @@ def _deepcell_token_path():
 
     :returns: ``~/.spacr/deepcell_token``.
     """
-    return os.path.join(os.path.expanduser("~"), ".spacr", "deepcell_token")
+    return os.path.join(str(_spacr_home()), "deepcell_token")
 
 
 def _deepcell_token(environ=None, path=None):

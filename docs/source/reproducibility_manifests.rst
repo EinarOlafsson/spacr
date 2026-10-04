@@ -23,6 +23,21 @@ Each folder contains:
 ``outputs/``
    Artifacts explicitly attached by pipeline code.
 
+``environment/``
+   ``requirements-lock.txt``, a ``pip freeze`` of the Python environment the
+   run used, and, when spaCR runs inside a conda environment,
+   ``conda-explicit.txt``, the output of ``conda list --explicit``. The
+   manifest names both files under ``environment_lock`` together with a
+   SHA-256 digest of the environment. Rebuild the environment with
+   ``conda create --name rerun --file conda-explicit.txt`` followed by
+   ``python -m pip install -r requirements-lock.txt``.
+
+   pip and conda are asked once per environment: the lists are kept under
+   ``~/.spacr/env_locks/<digest>`` and every later run with the same digest
+   copies them. Installing, removing or upgrading any package changes the
+   digest. If the lists cannot be written, the run continues and the reason
+   is listed under ``provenance_warnings``.
+
 File provenance
 ---------------
 

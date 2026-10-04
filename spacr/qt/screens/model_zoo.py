@@ -102,6 +102,7 @@ from ..theme import (RADIUS, SPACING, active_palette,
                      register_widget_qss)
 from ..widgets import Divider
 from ..widgets.sortable_table import install_sorting, table_item
+from ...logging_util import _spacr_home
 
 __all__ = ["ModelZooScreen", "DEFAULT_DOWNLOAD_DIR", "FIELD_RANGE",
            "PREVIEW_PX", "compose_labels"]
@@ -121,7 +122,7 @@ PREVIEW_PX = 320
 COLOUR_OBJECT = (46, 196, 182)
 
 #: Where a downloaded model goes unless the user says otherwise.
-DEFAULT_DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
+DEFAULT_DOWNLOAD_DIR = os.path.join(str(_spacr_home()), "models")
 
 _ZOO_HEADERS = ("model", "kind", "trained on", "status", "version")
 

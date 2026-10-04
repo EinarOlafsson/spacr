@@ -40,6 +40,7 @@ from PySide6.QtWidgets import QMainWindow, QMenu, QWidget
 
 from .first_run import TourStep, _TourOverlay, find_menu
 from .i18n import tr
+from .prefs import _store_args
 
 LOG = logging.getLogger("spacr.qt.walkthrough")
 
@@ -60,7 +61,7 @@ def _settings():
     :returns: the settings store.
     """
     from PySide6.QtCore import QSettings
-    return QSettings(_ORG, _APP)
+    return QSettings(*_store_args(_ORG, _APP))
 
 
 

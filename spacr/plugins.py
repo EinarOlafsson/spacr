@@ -31,6 +31,7 @@ import re
 import threading
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from .logging_util import _spacr_home
 
 _CATALOGUE_ENV = "SPACR_PLUGIN_CATALOGUE"
 _PLUGIN_HOME_ENV = "SPACR_PLUGIN_HOME"
@@ -671,7 +672,7 @@ def _plugin_home(home: Any = None) -> str:
     configured = os.environ.get(_PLUGIN_HOME_ENV, "").strip()
     if configured:
         return os.path.abspath(os.path.expanduser(configured))
-    return os.path.join(os.path.expanduser("~"), ".spacr", "plugins")
+    return os.path.join(str(_spacr_home()), "plugins")
 
 
 def _is_url(source: str) -> bool:

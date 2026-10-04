@@ -28,6 +28,7 @@ import wave
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple
+from ...logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.tutorial")
 
@@ -38,7 +39,7 @@ DEFAULT_HOLD_MS = 500
 SPOTLIGHT_PADDING = 10
 SPOTLIGHT_OPACITY = 150
 DEFAULT_VOICE = (
-    Path.home() / ".spacr" / "piper" / "en_US-lessac-medium.onnx"
+    _spacr_home() / "piper" / "en_US-lessac-medium.onnx"
 )
 
 

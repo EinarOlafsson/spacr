@@ -156,6 +156,7 @@ import numpy as np
 
 from ._segmentation_backends import _SPECS as _BACKEND_SPECS
 from ._segmentation_backends import _BACKEND_NAMES as _SEGMENTATION_BACKEND_NAMES
+from .logging_util import _spacr_home
 
 LOG = logging.getLogger(__name__)
 
@@ -1631,7 +1632,7 @@ def default_local_roots() -> List[Path]:
     roots = [
         package_model_root(),
         Path.home() / ".cellpose" / "models",
-        Path.home() / ".spacr" / "models",
+        _spacr_home() / "models",
     ]
     return [r for r in roots if r.is_dir()]
 
@@ -2212,7 +2213,7 @@ def _looks_like_cellpose_dino(manifest: Mapping[str, Any]) -> bool:
 
 def _bioimageio_cache(name: str) -> Path:
     """Where a bioimage.io cache file lives: ``~/.spacr/<name>``."""
-    return Path.home() / ".spacr" / name
+    return _spacr_home() / name
 
 
 def _bioimageio_payload(timeout: float, url: Optional[str],
@@ -2728,7 +2729,7 @@ def community_entries(allow_network: bool = False,
     import json as _json
     import time as _time
 
-    cache = Path.home() / ".spacr" / "community_models.json"
+    cache = _spacr_home() / "community_models.json"
     records = None
     try:
         if (not allow_network and cache.is_file()

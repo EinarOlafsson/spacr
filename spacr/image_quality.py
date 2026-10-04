@@ -9,6 +9,7 @@ import os
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
+from .logging_util import _spacr_home
 
 DEFAULTS = {
     'image_qc_mode': 'off',
@@ -348,7 +349,7 @@ _QC_LABEL_ALIASES = {'good': (), 'ok': (), 'pass': (), 'blur': ('out_of_focus',)
 
 def _builtin_qc_model_path():
     """Where the built-in classifier is cached after it is first trained."""
-    return Path.home() / '.spacr' / 'models' / f'image_qc_classifier_v{_QC_MODEL_VERSION}.pt'
+    return _spacr_home() / 'models' / f'image_qc_classifier_v{_QC_MODEL_VERSION}.pt'
 
 
 def _best_focus_plane(plane):

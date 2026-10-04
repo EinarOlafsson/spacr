@@ -42,6 +42,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Tuple
+from .logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.updater")
 
@@ -141,7 +142,7 @@ NEWS_MAX_AGE_S = 24 * 60 * 60
 def news_cache_path() -> Path:
     """Where the fetched release list is remembered between launches."""
     override = os.environ.get(ENV_NEWS_CACHE)
-    root = Path(override) if override else Path.home() / ".spacr" / "news"
+    root = Path(override) if override else _spacr_home() / "news"
     return root / "releases.json"
 
 

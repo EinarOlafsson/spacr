@@ -59,6 +59,7 @@ from typing import (
 import pandas as pd
 
 from . import schema, tabular
+from .logging_util import _spacr_home
 
 __all__ = [
     "SOURCE_COLUMN",
@@ -775,7 +776,7 @@ def decision_log_path() -> str:
     Beside ``~/.spacr/runs``, which is where this application already keeps
     the record of what it was asked to do.
     """
-    return os.path.join(os.path.expanduser("~"), ".spacr",
+    return os.path.join(str(_spacr_home()),
                         "merge_decisions.jsonl")
 
 

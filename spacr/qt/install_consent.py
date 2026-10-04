@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
 from ..install_profile import read_profile
 from .i18n import tr
 from .widgets.toggle import Toggle
+from .prefs import _store_args
 
 
 _ORG = "spacr"
@@ -27,7 +28,7 @@ def _settings() -> QSettings:
 
     :returns: the settings store.
     """
-    return QSettings(_ORG, _APP)
+    return QSettings(*_store_args(_ORG, _APP))
 
 
 def _as_bool(value: Any) -> bool:

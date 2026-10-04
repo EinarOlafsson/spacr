@@ -163,6 +163,7 @@ import threading
 from PySide6.QtCore import QSettings, Qt
 
 from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
+from .prefs import _store_args
 
 LOG = logging.getLogger(__name__)
 
@@ -717,7 +718,7 @@ def in_safe_mode() -> bool:
 
 def _settings():
     """The preference store: the real one, or safe mode's read shadow."""
-    real = QSettings(_ORG, _APP)
+    real = QSettings(*_store_args(_ORG, _APP))
     return _DefaultsForReadingRealForWriting(real) if _SAFE_MODE else real
 
 
@@ -6957,7 +6958,7 @@ class PreferencesDialog:
         global _settings
         shadowed = _settings
         if _SAFE_MODE:
-            _settings = lambda: QSettings(_ORG, _APP)
+            _settings = lambda: QSettings(*_store_args(_ORG, _APP))
         try:
             with ui_language_resolved_once():
                 return cls._build_the_dialog(parent)

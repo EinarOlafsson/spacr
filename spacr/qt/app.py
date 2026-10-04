@@ -43,6 +43,7 @@ from . import iconset
 from .app_catalog import (LazyScreenFactory, declared_for as _declared_for,
                           register_declared as _register_declared)
 from .widgets.dock import Dock
+from ..logging_util import _spacr_home
 
 LOG = logging.getLogger(__name__)
 
@@ -3763,6 +3764,12 @@ class MainWindow(QMainWindow):
             + tr("Open source. Free for any use, including commercial."),
             11, muted=True, gap=10)
         _line("© Olafsson Lab", 11, muted=True)
+        from ..logging_util import _portable_root
+        if _portable_root() is not None:
+            col.addSpacing(10)
+            _line(tr("Portable mode: settings, caches, logs and runs are "
+                     "kept in {folder}.", folder=str(_spacr_home())),
+                  11, muted=True)
 
         dialog.setFixedWidth(420)
         dialog.exec()
@@ -6402,7 +6409,7 @@ def _install_crash_dump():
     except Exception:                                    # noqa: BLE001
         folder = None
     if not folder:
-        folder = os.path.join(os.path.expanduser("~"), ".spacr", "logs")
+        folder = os.path.join(str(_spacr_home()), "logs")
     try:
         os.makedirs(folder, exist_ok=True)
         path = os.path.join(folder, CRASH_DUMP_NAME)
@@ -6623,6 +6630,8 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _timing.begin()
     if argv is None:
         argv = sys.argv[1:]
+    from ..logging_util import _apply_portable_mode
+    _apply_portable_mode()
 
     from .crash_recovery import (note_that_a_launch_began,
                                  should_start_without_the_backdrop,

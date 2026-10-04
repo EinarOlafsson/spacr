@@ -31,6 +31,7 @@ from typing import Any, List
 
 from .engine import Step
 from ..i18n import tr
+from ...logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.tutorial")
 
@@ -1126,6 +1127,6 @@ def _tutorial_scratch(name: str) -> str:
     """Per-tutorial scratch dir. Kept out of tmp so demos survive
     inspection after render finishes."""
     from pathlib import Path
-    p = Path.home() / ".spacr" / "tutorial-scratch" / name
+    p = _spacr_home() / "tutorial-scratch" / name
     p.mkdir(parents=True, exist_ok=True)
     return str(p)

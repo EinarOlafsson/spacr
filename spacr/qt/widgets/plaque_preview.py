@@ -68,6 +68,7 @@ from .preview_contract import (
 )
 
 from ...plaque import segment_plaque_image
+from ...logging_util import _spacr_home
 
 LOG = logging.getLogger("spacr.qt.plaque_preview")
 
@@ -900,7 +901,7 @@ def resolve_detector(key: Any, src: Any = None) -> Tuple[str, str, Any]:
                       "detector.", key=text), None
     name = str(getattr(entry, "name", "") or "")
     candidates = [str(getattr(entry, "path", "") or ""),
-                  os.path.join(os.path.expanduser("~"), ".spacr", "models", name)]
+                  os.path.join(str(_spacr_home()), "models", name)]
     if src:
         candidates.append(os.path.join(str(src), "plaque_figures", "models", name))
     for candidate in candidates:
@@ -4605,7 +4606,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return
         from ..model_install import CheckpointDownload
 
-        folder = os.path.join(os.path.expanduser("~"), ".spacr", "models")
+        folder = os.path.join(str(_spacr_home()), "models")
         os.makedirs(folder, exist_ok=True)
         self._download = CheckpointDownload(entry, folder)
         self._download.progressed.connect(self._on_download_progress)

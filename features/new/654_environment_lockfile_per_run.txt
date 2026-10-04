@@ -2,7 +2,9 @@
 ENVIRONMENT LOCKFILE PER RUN
 ================================================================================
 
-Status:    OPEN 2026-10-04 — not started.
+Status:    DONE 2026-10-04 — every run folder gets environment/
+           requirements-lock.txt (pip freeze) and, inside conda,
+           conda-explicit.txt; manifest.json names them under environment_lock.
 Requested: 2026-10-04, by the maintainer, who approved this program-level
            feature in the step-4 review ("is the program itself missing
            something?"), from the gap audit of the same day.
@@ -13,3 +15,16 @@ WHAT TO BUILD
 DONE WHEN
   The feature works on Linux, macOS and Windows, is reachable from the GUI
   where it applies, has tests, and is documented.
+
+BUILT 2026-10-04
+  spacr/run_journal.py: _environment_digest, _pip_lock_text,
+  _conda_lock_text, _environment_lock_texts, _write_environment_lock. pip
+  and conda run at most once per environment digest (in-process memo plus
+  <spacr home>/env_locks/<digest>), and the GUI's startup warm-up prepares
+  them off the first run. A failure is a provenance warning, never a failed
+  run. GUI runs and spacr-run both go through open_run, so both get them.
+  Docs: reproducibility_manifests.rst. Tests:
+  tests/test_portable_mode_and_environment_lock.py.
+
+LEFT
+  Translate the new manifest paragraph at the next docs translation pass.

@@ -40,9 +40,8 @@ MAX_AGE_SECONDS = 24 * 60 * 60
 
 def state_path() -> Path:
     """Return the path used for the pending restart record."""
-    root = os.environ.get("SPACR_HOME") or os.path.join(
-        os.path.expanduser("~"), ".spacr")
-    return Path(root) / FILE_NAME
+    from .logging_util import _spacr_home
+    return _spacr_home() / FILE_NAME
 
 
 def describe_running(running: Sequence[Mapping[str, Any]]) -> str:

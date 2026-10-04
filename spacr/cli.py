@@ -1965,6 +1965,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         raised ``SystemExit`` itself; :func:`cmd_run` passes that code through
         unchanged.
     """
+    from .logging_util import _apply_portable_mode
+    _apply_portable_mode()
     arguments = list(argv) if argv is not None else sys.argv[1:]
     if arguments and arguments[0] == "archive-package":
         return _cmd_archive_package(arguments[1:])
