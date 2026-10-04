@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "Alpha：物种模块",
+  "description": "打开 Show alpha species，浏览尚未完成的物种页面：Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。",
+  "objectives": [
+    "在 Preferences 中打开和关闭 Show alpha species。",
+    "阅读物种页面：简介、细胞示意图和检测图块。",
+    "区分可用和计划中的检测图块，并了解这些页面属于 alpha。"
+  ],
+  "prerequisite": "打开 spaCR 的 Home。不需要输入文件。这些物种页面属于 alpha：尚未完成，可能会变化。",
+  "scenes": [
+    "这是唯一展示 spaCR alpha 物种模块的教程。在常规安装中，Home 的 Assays 选项卡只有一个物种：Toxoplasma。其他物种页面在您主动开启之前一直处于关闭状态。",
+    "从 spaCR 菜单打开 Preferences，进入 Modules 选项卡。在 Module visibility 下，最后一个开关是 Show alpha species，默认是关闭的。",
+    "把它打开。它显示出的所有内容都应视为 alpha：页面尚未完成，大多数检测图块仍在计划中，名称、布局和分析在发布前都可能改变。请用它们来探索，而不是用来报告结果。",
+    "点击 Save。设置立即生效，并会保留到下一次会话，所以只需操作一次。",
+    "回到 Home，Assays 选项卡现在列出八个物种：Toxoplasma，然后是 Plasmodium、Candida、Trypanosoma、Leishmania、Giardia、Virus infection 和 Mammalian cells。每个图块打开的页面结构都相同，熟悉一个就能读懂全部。",
+    "先从疟原虫 Plasmodium 开始。左侧的简短介绍说明了成像在这种生物中能测量什么：感染频率、血液期发育、肝脏感染、运动性以及对化合物的反应。下方每个部分都把一个生物学问题与右侧的检测图块联系起来。",
+    "细胞示意图是基于 UniProt 的区室交互地图。将指针悬停在细胞上可识别结构，在列表中勾选多个区室可让它们同时保持高亮。Clear components 会重置图示。",
+    "工作从检测图块开始。亮色图块会打开已经可以运行的模块：Parasitaemia 打开 Host–Pathogen Analysis，Sporozoite motility 打开 Motility Assay。变暗的图块仍在计划中，暂时无法打开。每个物种页面都遵循同样的规则。",
+    "Candida 涵盖能在出芽细胞、芽管和菌丝之间转换的酵母。其可用图块复用现有模块来研究黏附、上皮侵袭、吞噬作用和抗真菌反应；计划中的图块将测量丝状化、芽管、生物膜和形态。",
+    "Trypanosoma 在一个页面中汇集了两种寄生虫：在血液中游动的 Trypanosoma brucei，以及在宿主细胞内增殖的 Trypanosoma cruzi。Flagellar motility、Host-cell invasion、Amastigote infection 和 Drug response 已经可以打开实际模块。",
+    "Leishmania 寄生虫在巨噬细胞内增殖。Macrophage infection 报告被感染细胞的比例和每个巨噬细胞中的无鞭毛体数量，Promastigote motility 测量游动。计划中的图块将追踪循环后期发育、向无鞭毛体的转化以及液泡大小。",
+    "Giardia duodenalis 用腹吸盘附着在肠壁上。在这里可以统计上皮细胞上的滋养体、追踪它们的游动并测量药物反应；成囊、脱囊和吸盘形态仍在计划中。",
+    "Virus infection 是面向宿主细胞而非寄生虫的页面。Infection rate 统计病毒阳性细胞，Plaque Assay 测量噬斑，Recruitment 测量在复制位点聚集的宿主蛋白。请根据模拟感染孔来确定阳性阈值。",
+    "Mammalian cells 涵盖完全没有病原体的筛选。其可用图块直接通往 Mask、Measure、Motility Assay、吞噬作用和细胞毒性，因此核心流程离物种页面只有一次点击。",
+    "浏览完毕后，回到 Preferences，再次关闭 Show alpha species 并点击 Save。物种页面随即消失；您测得的任何数据都不会改变。",
+    "Home 又只显示 Toxoplasma。每个物种成熟后都会脱离 alpha，并拥有自己的教程。在此之前，完整的检测示例请参阅 Toxoplasma 课程，这些图块打开的各个工作流程请参阅相应的模块课程。"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Alpha: organismemoduler",
+  "description": "Slå Show alpha species til, og gennemgå de ufærdige organismesider: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells.",
+  "objectives": [
+    "Slå Show alpha species til og fra i Preferences.",
+    "Læse en organismeside: introduktion, cellediagram og assayfliser.",
+    "Skelne åbne fra planlagte assayfliser og vide, at disse sider er alfa."
+  ],
+  "prerequisite": "Åbn Home i spaCR. Der kræves ingen inputfiler. Disse organismesider er alfa: ufærdige og kan ændre sig.",
+  "scenes": [
+    "Dette er den eneste vejledning, der viser spaCR's alfa-organismemoduler. I en normal installation indeholder fanen Assays på Home kun én organisme, Toxoplasma. De andre organismesider forbliver slået fra, indtil du beder om dem.",
+    "Åbn Preferences fra spaCR-menuen, og gå til fanen Modules. Under Module visibility er den sidste kontakt Show alpha species. Den er som standard slået fra.",
+    "Slå den til. Betragt alt, hvad den viser, som alfa: Siderne er ufærdige, de fleste assayfliser er stadig planlagte, og navne, layout og analyser kan ændre sig før udgivelsen. Brug dem til at udforske, ikke til at rapportere resultater.",
+    "Tryk på Save. Indstillingen gælder med det samme og bevares til næste session, så du behøver kun at gøre det én gang.",
+    "Tilbage på Home viser fanen Assays nu otte organismer: Toxoplasma og derefter Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection og Mammalian cells. Hver flise åbner en side, der er bygget på samme måde, så kender du én, kan du læse dem alle.",
+    "Begynd med Plasmodium, malariaparasitterne. Til venstre forklarer en kort introduktion, hvad billeddannelse kan måle i denne organisme: infektionshyppighed, udvikling af blodstadier, leverinfektion, motilitet og respons på stoffer. Nedenunder knytter hver sektion et biologisk spørgsmål til assayfliserne til højre.",
+    "Cellediagrammet er et interaktivt kort over kompartmenter fra UniProt. Hold musen over cellen for at identificere en struktur, og sæt flueben ved flere kompartmenter på listen for at holde dem fremhævet sammen. Clear components nulstiller tegningen.",
+    "Det er ved assayfliserne, arbejdet begynder. Lyse fliser åbner et modul, der allerede kører: Parasitaemia åbner Host–Pathogen Analysis, Sporozoite motility åbner Motility Assay. Nedtonede fliser er planlagte og kan endnu ikke åbnes. Samme regel gælder på hver organismeside.",
+    "Candida omfatter gær, der kan skifte mellem knopskydende celler, kimrør og hyfer. De åbne fliser genbruger eksisterende moduler til adhæsion, epitelial invasion, fagocytose og svampemiddelrespons; de planlagte vil måle filamentering, kimrør, biofilm og morfologi.",
+    "Trypanosoma samler to parasitter på én side: Trypanosoma brucei, der svømmer i blodet, og Trypanosoma cruzi, der formerer sig inde i værtsceller. Flagellar motility, Host-cell invasion, Amastigote infection og Drug response åbner allerede rigtige moduler.",
+    "Leishmania-parasitter formerer sig inde i makrofager. Macrophage infection rapporterer den inficerede andel og amastigoter pr. makrofag, og Promastigote motility måler svømning. Planlagte fliser vil følge metacyklogenese, omdannelse til amastigoter og vakuolestørrelse.",
+    "Giardia duodenalis hæfter sig til tarmvæggen med sin ventrale skive. Her kan du tælle trofozoitter på epitelceller, følge deres svømning og måle lægemiddelrespons; encystering, excystering og skivemorfologi er stadig planlagte.",
+    "Virus infection er en side for værtsceller frem for en parasit. Infection rate tæller viruspositive celler, Plaque Assay måler plaques, og Recruitment måler værtsproteiner, der samles ved replikationssteder. Fastlæg positivitet ud fra mock-inficerede brønde.",
+    "Mammalian cells dækker screeninger helt uden patogen. De åbne fliser fører direkte til Mask, Measure, Motility Assay, fagocytose og cytotoksicitet, så kernepipelinen er ét klik fra organismesiden.",
+    "Når du er færdig med at udforske, så gå tilbage til Preferences, slå Show alpha species fra igen, og tryk på Save. Organismesiderne forsvinder; intet af det, du har målt, ændres.",
+    "Home viser igen kun Toxoplasma. Efterhånden som hver organisme modnes, forlader den alfa og får sin egen gennemgang. Indtil da kan du bruge Toxoplasma-lektionen til et fuldt assayeksempel og modullektionerne til hvert workflow, som disse fliser åbner."
+  ]
+}

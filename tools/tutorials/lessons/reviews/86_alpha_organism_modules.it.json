@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Alpha: moduli degli organismi",
+  "description": "Attivi Show alpha species ed esplori le pagine degli organismi non ancora complete: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells.",
+  "objectives": [
+    "Attivare e disattivare Show alpha species in Preferences.",
+    "Leggere una pagina di organismo: introduzione, diagramma cellulare e riquadri dei saggi.",
+    "Distinguere i riquadri aperti da quelli pianificati e sapere che queste pagine sono alfa."
+  ],
+  "prerequisite": "Apra Home in spaCR. Non servono file di input. Queste pagine di organismi sono alfa: incomplete e soggette a modifiche.",
+  "scenes": [
+    "Questo è l’unico tutorial che mostra i moduli alfa degli organismi di spaCR. In un’installazione normale la scheda Assays di Home contiene un solo organismo, Toxoplasma. Le altre pagine di organismi restano disattivate finché non le richiede.",
+    "Apra Preferences dal menu spaCR e vada alla scheda Modules. In Module visibility, l’ultimo interruttore è Show alpha species. È disattivato per impostazione predefinita.",
+    "Lo attivi. Consideri alfa tutto ciò che rende visibile: le pagine sono incomplete, la maggior parte dei riquadri dei saggi è ancora pianificata, e nomi, layout e analisi possono cambiare prima del rilascio. Le usi per esplorare, non per riportare risultati.",
+    "Prema Save. L’impostazione si applica subito e resta valida per la sessione successiva, quindi basta farlo una volta.",
+    "Tornati su Home, la scheda Assays elenca ora otto organismi: Toxoplasma, poi Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Ogni riquadro apre una pagina costruita allo stesso modo: chi ne conosce una le sa leggere tutte.",
+    "Cominci da Plasmodium, i parassiti della malaria. A sinistra, una breve introduzione spiega cosa può misurare l’imaging in questo organismo: frequenza di infezione, sviluppo degli stadi ematici, infezione epatica, motilità e risposta ai composti. Sotto, ogni sezione collega una domanda biologica ai riquadri dei saggi a destra.",
+    "Il diagramma cellulare è una mappa interattiva dei compartimenti tratta da UniProt. Passi il cursore sulla cellula per identificare una struttura e spunti più compartimenti nell’elenco per mantenerli evidenziati insieme. Clear components ripristina il disegno.",
+    "Il lavoro comincia dai riquadri dei saggi. I riquadri luminosi aprono un modulo già funzionante: Parasitaemia apre Host–Pathogen Analysis, Sporozoite motility apre Motility Assay. I riquadri attenuati sono pianificati e non si aprono ancora. La stessa regola vale su ogni pagina di organismo.",
+    "Candida comprende lieviti che possono passare da cellule gemmanti a tubi germinativi e ife. I riquadri aperti riutilizzano moduli esistenti per adesione, invasione epiteliale, fagocitosi e risposta agli antifungini; quelli pianificati misureranno filamentazione, tubi germinativi, biofilm e morfologia.",
+    "Trypanosoma riunisce due parassiti in una pagina: Trypanosoma brucei, che nuota nel sangue, e Trypanosoma cruzi, che si replica nelle cellule ospiti. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response aprono già moduli reali.",
+    "I parassiti Leishmania si replicano nei macrofagi. Macrophage infection riporta la frazione infetta e gli amastigoti per macrofago, e Promastigote motility misura il nuoto. I riquadri pianificati seguiranno metaciclogenesi, conversione in amastigote e dimensione del vacuolo.",
+    "Giardia duodenalis aderisce alla parete intestinale con il disco ventrale. Qui può contare i trofozoiti sulle cellule epiteliali, seguirne il nuoto e misurare la risposta ai farmaci; incistamento, excistamento e morfologia del disco sono ancora pianificati.",
+    "Virus infection è una pagina dedicata alle cellule ospiti anziché a un parassita. Infection rate conta le cellule positive al virus, Plaque Assay misura le placche e Recruitment misura le proteine dell’ospite che si raccolgono nei siti di replicazione. Definisca la positività dai pozzetti con infezione simulata.",
+    "Mammalian cells copre screening senza alcun patogeno. I riquadri aperti portano direttamente a Mask, Measure, Motility Assay, fagocitosi e citotossicità, quindi la pipeline principale è a un clic dalla pagina dell’organismo.",
+    "Quando ha finito di esplorare, torni a Preferences, disattivi Show alpha species e prema Save. Le pagine degli organismi scompaiono; nulla di ciò che ha misurato viene modificato.",
+    "Home mostra di nuovo solo Toxoplasma. Man mano che ogni organismo maturerà, uscirà dall’alfa e avrà un proprio percorso guidato. Nel frattempo usi la lezione su Toxoplasma per un esempio completo di saggio e le lezioni sui moduli per ogni flusso di lavoro aperto da questi riquadri."
+  ]
+}

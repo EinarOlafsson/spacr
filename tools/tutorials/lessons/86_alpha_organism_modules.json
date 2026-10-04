@@ -1,0 +1,136 @@
+{
+  "id": "86_alpha_organism_modules",
+  "number": 86,
+  "slug": "alpha-organism-modules",
+  "title": "Alpha: organism modules",
+  "series": 3,
+  "section": "Organisms and assays",
+  "description": "Turn on Show alpha species and tour the unfinished organism pages: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells.",
+  "objectives": [
+    "Turn Show alpha species on and off in Preferences.",
+    "Read an organism page: introduction, cell diagram and assay tiles.",
+    "Tell open assay tiles from planned ones and know these pages are alpha."
+  ],
+  "prerequisite": "Open spaCR Home. No input files are needed. These organism pages are alpha: unfinished and subject to change.",
+  "scenes": [
+    {
+      "visual": "00_home_assays_off",
+      "narration": "This is the one tutorial that shows spaCR's alpha organism modules. On a normal install the Assays tab on Home holds a single organism, Toxoplasma. The other organism pages are switched off until you ask for them.",
+      "related_lessons": [
+        "82_toxoplasma",
+        "05_home"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_prefs_species_off",
+      "narration": "Open Preferences from the spaCR menu and go to the Modules tab. Under Module visibility, the last switch is Show alpha species. It is off by default.",
+      "focus": [
+        1330,
+        640,
+        1020,
+        70
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_prefs_species_on",
+      "narration": "Turn it on. Treat everything it reveals as alpha: the pages are unfinished, most of their assay tiles are still planned, and names, layouts and analyses may change before they are released. Use them to explore, not to report results.",
+      "focus": [
+        1330,
+        640,
+        1020,
+        70
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_prefs_species_on_save",
+      "narration": "Press Save. The setting applies at once and is kept for your next session, so you only need to do this once.",
+      "focus": [
+        2420,
+        1700,
+        260,
+        80
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_home_assays_on",
+      "narration": "Back on Home, the Assays tab now lists eight organisms: Toxoplasma, then Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection and Mammalian cells. Each tile opens a page built the same way, so once you know one, you can read them all.",
+      "focus": [
+        30,
+        310,
+        2270,
+        200
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "plasmodium_page",
+      "narration": "Start with Plasmodium, the malaria parasites. On the left, a short introduction explains what imaging can measure in this organism: infection frequency, blood-stage development, liver infection, motility and drug responses. Below it, each section ties a biological question to the assay tiles on the right.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "plasmodium_diagram",
+      "narration": "The cell diagram is an interactive map of compartments taken from UniProt. Hover over the cell to identify a structure, and tick several compartments in the list to keep them highlighted together. Clear components resets the drawing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "plasmodium_modules",
+      "narration": "The assay tiles are where work starts. Bright tiles open a module that already runs: Parasitaemia opens Host–Pathogen Analysis, Sporozoite motility opens the Motility Assay. Dimmed tiles are planned and cannot be opened yet. The same rule holds on every organism page.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "candida_page",
+      "narration": "Candida covers yeasts that can switch between budding cells, germ tubes and hyphae. Its open tiles reuse existing modules for adhesion, epithelial invasion, phagocytosis and antifungal response; the planned ones will measure filamentation, germ tubes, biofilm and morphology.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "trypanosoma_page",
+      "narration": "Trypanosoma brings two parasites onto one page: Trypanosoma brucei, which swims in blood, and Trypanosoma cruzi, which replicates inside host cells. Flagellar motility, host-cell invasion, amastigote infection and drug response already open real modules.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "leishmania_page",
+      "narration": "Leishmania parasites replicate inside macrophages. Macrophage infection reports the infected fraction and amastigotes per macrophage, and promastigote motility measures swimming. Planned tiles will follow metacyclogenesis, amastigote conversion and vacuole size.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "giardia_page",
+      "narration": "Giardia duodenalis attaches to the gut wall with its ventral disc. Here you can count trophozoites on epithelial cells, track their swimming and measure drug responses; encystation, excystation and disc morphology are still planned.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "virus_page",
+      "narration": "Virus infection is a page for host cells rather than a parasite. Infection rate counts virus-positive cells, Plaque Assay measures plaques, and Recruitment measures host proteins gathering at replication sites. Define positivity from mock-infected wells.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "mammalian_page",
+      "narration": "Mammalian cells covers screens with no pathogen at all. Its open tiles lead straight to Mask, Measure, the Motility Assay, phagocytosis and cytotoxicity, so the core pipeline is one click away from the organism page.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "91_prefs_species_off_again",
+      "narration": "When you are done exploring, return to Preferences and switch Show alpha species off again, then Save. The organism pages disappear; nothing you have measured is changed.",
+      "focus": [
+        1330,
+        640,
+        1020,
+        70
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "92_home_assays_off_again",
+      "narration": "Home is back to Toxoplasma alone. As each organism matures it will leave alpha and get its own walkthrough. Until then, use the Toxoplasma lesson for a full assay example, and the module lessons for each workflow these tiles open.",
+      "related_lessons": [
+        "82_toxoplasma",
+        "85_host_pathogen",
+        "18_motility"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

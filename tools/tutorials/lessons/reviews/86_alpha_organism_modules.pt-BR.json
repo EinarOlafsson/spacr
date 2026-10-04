@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Alpha: módulos de organismos",
+  "description": "Ative Show alpha species e percorra as páginas de organismos ainda inacabadas: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells.",
+  "objectives": [
+    "Ativar e desativar Show alpha species em Preferences.",
+    "Ler uma página de organismo: introdução, diagrama celular e blocos de ensaio.",
+    "Distinguir blocos abertos de planejados e saber que essas páginas são alfa."
+  ],
+  "prerequisite": "Abra Home no spaCR. Nenhum arquivo de entrada é necessário. Essas páginas de organismos são alfa: inacabadas e sujeitas a mudanças.",
+  "scenes": [
+    "Este é o único tutorial que mostra os módulos alfa de organismos do spaCR. Em uma instalação normal, a aba Assays da Home tem um só organismo, Toxoplasma. As outras páginas de organismos ficam desligadas até você pedir por elas.",
+    "Abra Preferences pelo menu spaCR e vá para a aba Modules. Em Module visibility, a última chave é Show alpha species. Ela vem desligada por padrão.",
+    "Ligue-a. Trate tudo o que ela revela como alfa: as páginas estão inacabadas, a maioria dos blocos de ensaio ainda é planejada, e nomes, layouts e análises podem mudar antes do lançamento. Use-as para explorar, não para relatar resultados.",
+    "Clique em Save. A configuração vale na hora e é mantida para a próxima sessão, então você só precisa fazer isso uma vez.",
+    "De volta à Home, a aba Assays agora lista oito organismos: Toxoplasma e depois Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection e Mammalian cells. Cada bloco abre uma página montada do mesmo jeito; quem conhece uma consegue ler todas.",
+    "Comece por Plasmodium, os parasitas da malária. À esquerda, uma introdução curta explica o que a imagem pode medir nesse organismo: frequência de infecção, desenvolvimento dos estágios sanguíneos, infecção hepática, motilidade e resposta a compostos. Abaixo, cada seção liga uma pergunta biológica aos blocos de ensaio à direita.",
+    "O diagrama celular é um mapa interativo de compartimentos tirado do UniProt. Passe o cursor sobre a célula para identificar uma estrutura e marque vários compartimentos na lista para mantê-los destacados juntos. Clear components redefine o desenho.",
+    "Os blocos de ensaio são onde o trabalho começa. Blocos claros abrem um módulo que já funciona: Parasitaemia abre Host–Pathogen Analysis, Sporozoite motility abre Motility Assay. Blocos esmaecidos são planejados e ainda não abrem. A mesma regra vale em todas as páginas de organismos.",
+    "Candida reúne leveduras que podem alternar entre células em brotamento, tubos germinativos e hifas. Seus blocos abertos reutilizam módulos existentes para adesão, invasão epitelial, fagocitose e resposta antifúngica; os planejados vão medir filamentação, tubos germinativos, biofilme e morfologia.",
+    "Trypanosoma junta dois parasitas em uma página: Trypanosoma brucei, que nada no sangue, e Trypanosoma cruzi, que se replica dentro das células hospedeiras. Flagellar motility, Host-cell invasion, Amastigote infection e Drug response já abrem módulos reais.",
+    "Os parasitas Leishmania se replicam dentro de macrófagos. Macrophage infection informa a fração infectada e os amastigotas por macrófago, e Promastigote motility mede o nado. Blocos planejados vão acompanhar a metaciclogênese, a conversão em amastigota e o tamanho do vacúolo.",
+    "Giardia duodenalis se prende à parede do intestino pelo disco ventral. Aqui você pode contar trofozoítos sobre células epiteliais, acompanhar o nado e medir respostas a fármacos; encistamento, desencistamento e morfologia do disco ainda são planejados.",
+    "Virus infection é uma página para células hospedeiras, e não para um parasita. Infection rate conta células positivas para o vírus, Plaque Assay mede placas e Recruitment mede proteínas do hospedeiro que se acumulam nos locais de replicação. Defina a positividade a partir de poços com infecção simulada.",
+    "Mammalian cells cobre triagens sem nenhum patógeno. Seus blocos abertos levam direto a Mask, Measure, Motility Assay, fagocitose e citotoxicidade, então o pipeline principal fica a um clique da página do organismo.",
+    "Quando terminar de explorar, volte a Preferences, desligue Show alpha species e clique em Save. As páginas de organismos somem; nada do que você mediu é alterado.",
+    "A Home volta a mostrar só Toxoplasma. À medida que cada organismo amadurecer, ele sairá do alfa e ganhará seu próprio passo a passo. Até lá, use a lição de Toxoplasma para um exemplo completo de ensaio e as lições de módulos para cada fluxo de trabalho que esses blocos abrem."
+  ]
+}

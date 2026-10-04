@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Alpha: organismmoduler",
+  "description": "Slå på Show alpha species och gå igenom de ofärdiga organismsidorna: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection och Mammalian cells.",
+  "objectives": [
+    "Slå på och av Show alpha species i Preferences.",
+    "Läsa en organismsida: introduktion, celldiagram och analysrutor.",
+    "Skilja öppna från planerade analysrutor och veta att dessa sidor är alfa."
+  ],
+  "prerequisite": "Öppna Home i spaCR. Inga indatafiler behövs. Dessa organismsidor är alfa: ofärdiga och kan ändras.",
+  "scenes": [
+    "Det här är den enda handledningen som visar spaCR:s alfa-organismmoduler. I en vanlig installation innehåller fliken Assays på Home bara en organism, Toxoplasma. De andra organismsidorna är avstängda tills du ber om dem.",
+    "Öppna Preferences från spaCR-menyn och gå till fliken Modules. Under Module visibility är den sista reglaget Show alpha species. Det är avstängt som standard.",
+    "Slå på det. Betrakta allt det visar som alfa: sidorna är ofärdiga, de flesta analysrutor är fortfarande planerade, och namn, layouter och analyser kan ändras före lansering. Använd dem för att utforska, inte för att rapportera resultat.",
+    "Tryck på Save. Inställningen gäller direkt och sparas till nästa session, så du behöver bara göra det en gång.",
+    "Tillbaka på Home visar fliken Assays nu åtta organismer: Toxoplasma, sedan Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection och Mammalian cells. Varje ruta öppnar en sida som är byggd på samma sätt, så kan du läsa en kan du läsa alla.",
+    "Börja med Plasmodium, malariaparasiterna. Till vänster förklarar en kort introduktion vad avbildning kan mäta hos denna organism: infektionsfrekvens, blodstadiernas utveckling, leverinfektion, motilitet och svar på substanser. Nedanför kopplar varje avsnitt en biologisk fråga till analysrutorna till höger.",
+    "Celldiagrammet är en interaktiv karta över kompartment hämtade från UniProt. Håll pekaren över cellen för att identifiera en struktur, och kryssa i flera kompartment i listan för att hålla dem markerade tillsammans. Clear components återställer teckningen.",
+    "Det är vid analysrutorna arbetet börjar. Ljusa rutor öppnar en modul som redan fungerar: Parasitaemia öppnar Host–Pathogen Analysis, Sporozoite motility öppnar Motility Assay. Nedtonade rutor är planerade och kan ännu inte öppnas. Samma regel gäller på varje organismsida.",
+    "Candida omfattar jästsvampar som kan växla mellan knoppande celler, groddrör och hyfer. De öppna rutorna återanvänder befintliga moduler för adhesion, epitelial invasion, fagocytos och svar på svampmedel; de planerade ska mäta filamentering, groddrör, biofilm och morfologi.",
+    "Trypanosoma samlar två parasiter på en sida: Trypanosoma brucei, som simmar i blodet, och Trypanosoma cruzi, som förökar sig inne i värdceller. Flagellar motility, Host-cell invasion, Amastigote infection och Drug response öppnar redan riktiga moduler.",
+    "Leishmania-parasiter förökar sig inne i makrofager. Macrophage infection rapporterar den infekterade andelen och amastigoter per makrofag, och Promastigote motility mäter simning. Planerade rutor ska följa metacyklogenes, omvandling till amastigoter och vakuolstorlek.",
+    "Giardia duodenalis fäster vid tarmväggen med sin ventrala skiva. Här kan du räkna trofozoiter på epitelceller, följa deras simning och mäta läkemedelssvar; encystering, excystering och skivmorfologi är fortfarande planerade.",
+    "Virus infection är en sida för värdceller snarare än en parasit. Infection rate räknar viruspositiva celler, Plaque Assay mäter plack och Recruitment mäter värdproteiner som samlas vid replikationsställen. Bestäm positivitet utifrån skeninfekterade brunnar.",
+    "Mammalian cells täcker screeningar helt utan patogen. De öppna rutorna leder direkt till Mask, Measure, Motility Assay, fagocytos och cytotoxicitet, så kärnflödet är ett klick bort från organismsidan.",
+    "När du är klar med att utforska går du tillbaka till Preferences, stänger av Show alpha species igen och trycker på Save. Organismsidorna försvinner; inget av det du har mätt ändras.",
+    "Home visar åter bara Toxoplasma. När varje organism mognar lämnar den alfa och får en egen genomgång. Fram till dess kan du använda Toxoplasma-lektionen för ett fullständigt analysexempel och modullektionerna för varje arbetsflöde som de här rutorna öppnar."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "lesson": "86_alpha_organism_modules",
+  "english_sha256": "8204ced0750ca0d01888008a305efed088437e92d6dcca510fa3b4b9d888713d",
+  "review": {
+    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+    "date": "2026-10-04",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Alpha: Organismusmodule",
+  "description": "Schalten Sie Show alpha species ein und erkunden Sie die unfertigen Organismusseiten: Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection und Mammalian cells.",
+  "objectives": [
+    "Show alpha species in den Preferences ein- und ausschalten.",
+    "Eine Organismusseite lesen: Einführung, Zelldiagramm und Assay-Kacheln.",
+    "Offene von geplanten Assay-Kacheln unterscheiden und wissen, dass diese Seiten Alpha sind."
+  ],
+  "prerequisite": "Öffnen Sie Home in spaCR. Es werden keine Eingabedateien benötigt. Diese Organismusseiten sind Alpha: unfertig und können sich ändern.",
+  "scenes": [
+    "Dies ist das einzige Tutorial, das die Alpha-Organismusmodule von spaCR zeigt. In einer normalen Installation enthält der Assays-Tab auf Home nur einen Organismus, Toxoplasma. Die anderen Organismusseiten bleiben ausgeschaltet, bis Sie sie anfordern.",
+    "Öffnen Sie die Preferences über das spaCR-Menü und wechseln Sie zum Modules-Tab. Unter Module visibility ist der letzte Schalter Show alpha species. Er ist standardmäßig aus.",
+    "Schalten Sie ihn ein. Behandeln Sie alles, was er sichtbar macht, als Alpha: Die Seiten sind unfertig, die meisten Assay-Kacheln sind noch geplant, und Namen, Layouts und Analysen können sich bis zur Veröffentlichung ändern. Nutzen Sie sie zum Erkunden, nicht um Ergebnisse zu berichten.",
+    "Drücken Sie Save. Die Einstellung gilt sofort und bleibt für Ihre nächste Sitzung erhalten, Sie müssen das also nur einmal tun.",
+    "Zurück auf Home listet der Assays-Tab jetzt acht Organismen: Toxoplasma, dann Plasmodium, Candida, Trypanosoma, Leishmania, Giardia, Virus infection und Mammalian cells. Jede Kachel öffnet eine gleich aufgebaute Seite; wer eine kennt, kann alle lesen.",
+    "Beginnen Sie mit Plasmodium, den Malariaerregern. Links erklärt eine kurze Einführung, was die Bildgebung bei diesem Organismus messen kann: Infektionshäufigkeit, Blutstadienentwicklung, Leberinfektion, Motilität und Wirkstoffantworten. Darunter verbindet jeder Abschnitt eine biologische Frage mit den Assay-Kacheln rechts.",
+    "Das Zelldiagramm ist eine interaktive Karte der Kompartimente aus UniProt. Fahren Sie mit der Maus über die Zelle, um eine Struktur zu erkennen, und haken Sie mehrere Kompartimente in der Liste an, um sie gemeinsam hervorzuheben. Clear components setzt die Zeichnung zurück.",
+    "Bei den Assay-Kacheln beginnt die Arbeit. Helle Kacheln öffnen ein Modul, das bereits läuft: Parasitaemia öffnet Host–Pathogen Analysis, Sporozoite motility öffnet den Motility Assay. Abgedunkelte Kacheln sind geplant und lassen sich noch nicht öffnen. Diese Regel gilt auf jeder Organismusseite.",
+    "Candida umfasst Hefen, die zwischen knospenden Zellen, Keimschläuchen und Hyphen wechseln können. Die offenen Kacheln nutzen vorhandene Module für Adhäsion, epitheliale Invasion, Phagozytose und Antimykotika-Antwort; die geplanten werden Filamentierung, Keimschläuche, Biofilm und Morphologie messen.",
+    "Trypanosoma vereint zwei Parasiten auf einer Seite: Trypanosoma brucei, das im Blut schwimmt, und Trypanosoma cruzi, das sich in Wirtszellen vermehrt. Flagellar motility, Host-cell invasion, Amastigote infection und Drug response öffnen bereits echte Module.",
+    "Leishmania-Parasiten vermehren sich in Makrophagen. Macrophage infection berichtet den infizierten Anteil und die Amastigoten pro Makrophage, und Promastigote motility misst das Schwimmen. Geplante Kacheln werden Metazyklogenese, Amastigoten-Umwandlung und Vakuolengröße verfolgen.",
+    "Giardia duodenalis haftet mit seiner Ventralscheibe an der Darmwand. Hier können Sie Trophozoiten auf Epithelzellen zählen, ihr Schwimmen verfolgen und Wirkstoffantworten messen; Enzystierung, Exzystierung und Scheibenmorphologie sind noch geplant.",
+    "Virus infection ist eine Seite für Wirtszellen statt für einen Parasiten. Infection rate zählt virus-positive Zellen, Plaque Assay misst Plaques, und Recruitment misst Wirtsproteine, die sich an Replikationsorten sammeln. Legen Sie die Positivität anhand scheininfizierter Wells fest.",
+    "Mammalian cells deckt Screens ganz ohne Erreger ab. Die offenen Kacheln führen direkt zu Mask, Measure, dem Motility Assay, Phagozytose und Zytotoxizität, die Kernpipeline ist also nur einen Klick von der Organismusseite entfernt.",
+    "Wenn Sie mit dem Erkunden fertig sind, kehren Sie zu den Preferences zurück, schalten Show alpha species wieder aus und drücken Save. Die Organismusseiten verschwinden; nichts, was Sie gemessen haben, wird verändert.",
+    "Home zeigt wieder nur Toxoplasma. Sobald ein Organismus ausgereift ist, verlässt er Alpha und erhält eine eigene Anleitung. Bis dahin nutzen Sie die Toxoplasma-Lektion für ein vollständiges Assay-Beispiel und die Modullektionen für jeden Workflow, den diese Kacheln öffnen."
+  ]
+}
