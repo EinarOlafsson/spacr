@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -24,7 +24,7 @@
     "För mikroskopbilder börjar du med Mask för att avgränsa objekt och fortsätter med Measure för att ta fram deras egenskaper och utsnitt. Med Annotate märker du exempelobjekt, och Classify lär sig av märkningarna för att poängsätta fler objekt. Map Barcodes läser sekvensdata. Regression kombinerar de resulterande fenotyppoängen med guideräkningarna för att hitta samband.",
     "I Data kommer filer in och resultat kontrolleras. Om du redan har bilder, masker eller mättabeller tar Import in dem i ett projekt som de andra modulerna kan läsa. Före ett experiment planerar Experiment Design dina plattor; efteråt visar QC de registrerade kvalitetskontrollerna och Run Compare ställer två körningar sida vid sida.",
     "Tools samlar de praktiska redigerarna och utforskarna. I Make Masks rättar du masker, och där öppnas även Cellpose Workbench. Align and Stitch fogar samman överlappande bildrutor till en bild. När du har mätvärden kan du utforska och plotta dem med Image UMAP, Gate Editor och Graph Builder. Varje moduls verktygsfält öppnar dess relaterade verktyg.",
-    "Öppna Assays och välj din organism: Toxoplasma, Plasmodium eller Candida. Välj sedan en analys i organismens meny. Öppna till exempel Toxoplasma för plackanalys eller mätningar av värd och patogen. Följ handledningen för den valda analysen för att förbereda dess bilder, masker och mätindata.",
+    "Öppna Assays för arbetsflöden som är knutna till en organism. Toxoplasma öppnar sin analysmeny, till exempel plackanalys eller värd–patogen-mätningar. Följ handledningen för den valda analysen för att förbereda dess bilder, masker och mätdata.",
     "Öppna Classify och välj indata med Classifier family. Välj Computer Vision för objektbilder eller Tabular Machine Learning för kolumner med uppmätta egenskaper. De länkade handledningarna tar dig igenom träning, utvärdering och poängsättning för varje familj.",
     "När en modell är tränad hjälper verktygsfältet i Classify dig att granska den. Classifier Evaluation visar hur den presterade på undanhållna data, Explain CV Model och Activation visar vad som styr dess beslut, Training Runs jämför träningshistorik och Feature Explorer rangordnar egenskaperna som skiljer dina grupper åt. Håll pekaren över en ikon för att se dess namn.",
     "För att prova en modul klickar du på Load test data när det finns. Vänta tills nedladdningen är klar och granska sedan de ifyllda indata och inställningarna. I Mask klickar du på Live för att granska ett synfält innan du trycker på Run. Slå på Time för en tidsserie eller 3D för en volymbild.",

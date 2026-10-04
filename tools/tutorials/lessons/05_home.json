@@ -81,13 +81,11 @@
       ]
     },
     {
-      "visual": "04_assays  (3)",
-      "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+      "visual": "04_assays  (1)",
+      "narration": "Open Assays for organism-specific workflows. Toxoplasma opens its assay menu: for example, plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
       "hold_after": 0.7,
       "focus_modules": [
-        "toxoplasma",
-        "plasmodium",
-        "candida"
+        "toxoplasma"
       ],
       "related_lessons": [
         "24_plaque",

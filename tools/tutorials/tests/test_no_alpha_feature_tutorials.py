@@ -380,9 +380,7 @@ def species_references(lesson):
 #: Lessons whose species mentions are routed and not yet fixed, as
 #: {lesson id: number of findings}. Each must still be found, so a fixed
 #: lesson fails until its entry is removed.
-#: - 05_home scene 5 (Assays: Toxoplasma, Plasmodium or Candida) is recorder
-#:   A's lesson.
-SPECIES_PENDING = {"05_home": 8}
+SPECIES_PENDING = {}
 
 
 @pytest.mark.parametrize("path", LESSONS, ids=[path.stem for path in LESSONS])

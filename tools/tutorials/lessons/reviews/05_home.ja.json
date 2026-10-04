@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -24,7 +24,7 @@
     "顕微鏡画像の場合は、まずMaskで物体の輪郭を取り、次にMeasureで特徴量と切り出し画像を抽出します。Annotateでは例となる物体にラベルを付けられ、Classifyはそのラベルから学習して、さらに多くの物体にスコアを付けます。Map Barcodesはシーケンシングデータを読み取ります。Regressionは、得られた表現型スコアとガイドのカウントを組み合わせて関連を見つけます。",
     "Dataは、ファイルを取り込み、結果を確認する場所です。画像、マスク、測定テーブルがすでにある場合は、Importでほかのモジュールが読める形でプロジェクトに取り込みます。実験の前にはExperiment Designでプレートを設計し、実験の後にはQCで記録された品質チェックを確認し、Run Compareで二つの実行を並べて比べます。",
     "Toolsには、実際に手を動かすエディターやエクスプローラーがまとめられています。Make Masksではマスクを修正でき、そこからCellpose Workbenchも開けます。Align and Stitchは、重なり合う画像タイルをつなぎ合わせて一枚の画像にします。測定値がそろったら、Image UMAP、Gate Editor、Graph Builderで探索やプロットができます。各モジュールのツールバーから、関連するツールを開けます。",
-    "Assaysを開き、生物種としてToxoplasma、Plasmodium、Candidaのいずれかを選びます。次に、その生物種のメニューからアッセイを選びます。たとえば、プラーク解析や宿主と病原体の測定にはToxoplasmaを開きます。選んだアッセイのチュートリアルに従って、画像、マスク、測定の入力を準備してください。",
+    "生物ごとのワークフローはAssaysを開いて探します。Toxoplasmaを開くと、プラーク解析や宿主と病原体の測定などのアッセイのメニューが表示されます。選んだアッセイのチュートリアルに従って、画像、マスク、測定の入力を準備します。",
     "Classifyを開き、Classifier familyで入力を選びます。物体の画像にはComputer Visionを、測定した特徴量の列にはTabular Machine Learningを選びます。リンク先のチュートリアルでは、それぞれの手法の学習、評価、スコア付けを説明しています。",
     "モデルを学習したら、Classifyのツールバーでその中身を検証できます。Classifier Evaluationは取り分けておいたデータでの成績を示し、Explain CV ModelとActivationは判定の決め手を示します。Training Runsは学習の履歴を比べ、Feature Explorerはグループを分ける特徴量を順位付けします。アイコンにポインターを合わせると名前が表示されます。",
     "モジュールを試すには、Load test dataがあればクリックします。ダウンロードが終わるのを待ってから、入力された項目と設定を確認します。Maskでは、Runを押す前にLiveをクリックしてフィールドを確認します。時系列にはTimeを、立体画像には3Dをオンにします。",

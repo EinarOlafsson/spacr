@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -24,7 +24,7 @@
     "Beginnen Sie bei Mikroskopbildern mit Mask, um Objekte zu umranden, und extrahieren Sie dann mit Measure deren Merkmale und Ausschnitte. Mit Annotate beschriften Sie Beispielobjekte, und Classify lernt aus diesen Labels, um weitere Objekte zu bewerten. Map Barcodes liest Sequenzierdaten. Regression kombiniert die entstandenen Phänotyp-Scores mit den Guide-Zählungen, um Zusammenhänge zu finden.",
     "In Data kommen Dateien herein und Ergebnisse werden geprüft. Wenn Sie bereits Bilder, Masken oder Messtabellen haben, bringt Import sie in ein Projekt, das die anderen Module lesen können. Vor einem Experiment plant Experiment Design Ihre Platten; danach zeigt QC die aufgezeichneten Qualitätsprüfungen, und Run Compare stellt zwei Läufe nebeneinander.",
     "Tools enthält die praktischen Editoren und Explorer. In Make Masks korrigieren Sie Masken, und von dort öffnet sich auch die Cellpose Workbench. Align and Stitch fügt überlappende Bildkacheln zu einem Bild zusammen. Sobald Sie Messwerte haben, können Sie sie mit Image UMAP, Gate Editor und Graph Builder erkunden und darstellen. Die Werkzeugleiste jedes Moduls öffnet dessen zugehörige Werkzeuge.",
-    "Öffnen Sie Assays und wählen Sie Ihren Organismus: Toxoplasma, Plasmodium oder Candida. Wählen Sie dann einen Assay im Menü dieses Organismus. Öffnen Sie zum Beispiel Toxoplasma für die Plaque-Analyse oder für Wirt-Pathogen-Messungen. Folgen Sie dem Tutorial des gewählten Assays, um dessen Bilder, Masken und Messeingaben vorzubereiten.",
+    "Öffnen Sie Assays für organismusspezifische Workflows. Toxoplasma öffnet sein Assay-Menü, zum Beispiel für die Plaque-Analyse oder Wirt-Pathogen-Messungen. Folgen Sie dem Tutorial des gewählten Assays, um seine Bilder, Masken und Messeingaben vorzubereiten.",
     "Öffnen Sie Classify und wählen Sie über Classifier family Ihre Eingabe. Wählen Sie Computer Vision für Objektbilder oder Tabular Machine Learning für gemessene Merkmalsspalten. Die verlinkten Tutorials führen Sie für jede Familie durch Training, Bewertung und Scoring.",
     "Ist ein Modell trainiert, hilft Ihnen die Werkzeugleiste von Classify, es zu hinterfragen. Classifier Evaluation zeigt seine Leistung auf zurückgehaltenen Daten, Explain CV Model und Activation zeigen, was seine Entscheidungen bestimmt, Training Runs vergleicht Trainingsverläufe, und Feature Explorer ordnet die Merkmale, die Ihre Gruppen trennen. Fahren Sie mit der Maus über ein Symbol, um seinen Namen zu sehen.",
     "Um ein Modul auszuprobieren, klicken Sie auf Load test data, sofern vorhanden. Warten Sie, bis der Download abgeschlossen ist, und prüfen Sie dann die ausgefüllten Eingaben und Einstellungen. Klicken Sie in Mask auf Live, um ein Bildfeld zu prüfen, bevor Sie Run drücken. Schalten Sie Time für eine Zeitreihe oder 3D für ein Volumenbild ein.",

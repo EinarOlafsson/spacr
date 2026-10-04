@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -24,7 +24,7 @@
     "Para imagens de microscópio, comece com Mask para contornar os objetos e depois use Measure para extrair suas características e recortes. Annotate permite rotular objetos de exemplo, e Classify aprende com esses rótulos para pontuar mais objetos. Map Barcodes lê dados de sequenciamento. Regression combina as pontuações de fenótipo resultantes com as contagens de guias para encontrar associações.",
     "Data é onde os arquivos entram e os resultados são conferidos. Se você já tem imagens, máscaras ou tabelas de medições, Import as traz para um projeto que os outros módulos conseguem ler. Antes de um experimento, Experiment Design organiza suas placas; depois, QC mostra as verificações de qualidade registradas e Run Compare coloca duas execuções lado a lado.",
     "Tools reúne os editores e exploradores práticos. Em Make Masks você corrige máscaras, e por ali também se abre o Cellpose Workbench. Align and Stitch junta blocos de imagem sobrepostos em uma única imagem. Quando você tem medições, Image UMAP, Gate Editor e Graph Builder permitem explorá-las e representá-las em gráficos. A barra de ferramentas de cada módulo abre suas ferramentas relacionadas.",
-    "Abra Assays e escolha seu organismo: Toxoplasma, Plasmodium ou Candida. Depois escolha um ensaio no menu desse organismo. Por exemplo, abra Toxoplasma para a análise de placas de lise ou para medições de hospedeiro e patógeno. Siga o tutorial do ensaio escolhido para preparar as imagens, as máscaras e as medições de entrada.",
+    "Abra Assays para fluxos de trabalho específicos de um organismo. Toxoplasma abre seu menu de ensaios, por exemplo a análise de placas ou as medições hospedeiro–patógeno. Siga o tutorial do ensaio escolhido para preparar suas imagens, máscaras e dados de medição.",
     "Abra Classify e use Classifier family para escolher sua entrada. Selecione Computer Vision para imagens de objetos, ou Tabular Machine Learning para colunas de características medidas. Os tutoriais vinculados conduzem você pelo treinamento, pela avaliação e pela pontuação de cada família.",
     "Depois que um modelo é treinado, a barra de ferramentas de Classify ajuda você a examiná-lo. Classifier Evaluation mostra como ele se saiu com dados reservados, Explain CV Model e Activation mostram o que orienta as decisões, Training Runs compara históricos de treinamento e Feature Explorer ordena as características que separam seus grupos. Passe o cursor sobre um ícone para ver o nome.",
     "Para experimentar um módulo, clique em Load test data quando estiver disponível. Aguarde o download terminar e confira as entradas e as configurações preenchidas. Em Mask, clique em Live para inspecionar um campo antes de apertar Run. Ative Time para uma série temporal ou 3D para uma imagem volumétrica.",

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -24,7 +24,7 @@
     "Fyrir smásjármyndir byrjarðu á Mask til að afmarka hluti og notar svo Measure til að draga út eiginleika þeirra og útskurði. Með Annotate merkirðu dæmihluti og Classify lærir af merkingunum til að gefa fleiri hlutum stig. Map Barcodes les raðgreiningargögn. Regression tengir svipgerðarstigin sem fást við talningu leiðsagnar-RNA til að finna tengsl.",
     "Í Data koma skrár inn og niðurstöður eru athugaðar. Ef þú ert þegar með myndir, grímur eða mælitöflur færir Import þær inn í verkefni sem hinar einingarnar geta lesið. Fyrir tilraun skipuleggur Experiment Design plöturnar; eftir hana sýnir QC skráðar gæðaathuganir og Run Compare setur tvær keyrslur hlið við hlið.",
     "Tools geymir verklegu ritlana og könnunartólin. Í Make Masks lagarðu grímur og þaðan opnast líka Cellpose Workbench. Align and Stitch skeytir saman myndreitum sem skarast í eina mynd. Þegar mælingar liggja fyrir geturðu kannað þær og teiknað með Image UMAP, Gate Editor og Graph Builder. Verkfærastika hverrar einingar opnar tengd verkfæri hennar.",
-    "Opnaðu Assays og veldu lífveruna þína: Toxoplasma, Plasmodium eða Candida. Veldu svo greiningu í valmynd þeirrar lífveru. Opnaðu til dæmis Toxoplasma fyrir greiningu á skellum eða mælingar á hýsli og sýkli. Fylgdu kennslu valinnar greiningar til að undirbúa myndir hennar, grímur og mæliinntak.",
+    "Opnaðu Assays fyrir verkferla sem eru bundnir lífveru. Toxoplasma opnar prófavalmynd sína, til dæmis skelluagreiningu eða mælingar á hýsli og sýkli. Fylgdu kennsluefni valda prófsins til að undirbúa myndir þess, grímur og mæligögn.",
     "Opnaðu Classify og veldu inntakið með Classifier family. Veldu Computer Vision fyrir myndir af hlutum eða Tabular Machine Learning fyrir dálka með mældum eiginleikum. Tengdu kennslurnar leiða þig í gegnum þjálfun, mat og stigagjöf fyrir hvora fjölskyldu.",
     "Þegar líkan hefur verið þjálfað hjálpar verkfærastika Classify þér að rýna í það. Classifier Evaluation sýnir hvernig því gekk á gögnum sem haldið var til hliðar, Explain CV Model og Activation sýna hvað ræður niðurstöðum þess, Training Runs ber saman þjálfunarsögu og Feature Explorer raðar þeim eiginleikum sem aðgreina hópana. Haltu bendlinum yfir tákni til að sjá heiti þess.",
     "Til að prófa einingu smellirðu á Load test data þegar það er í boði. Bíddu þar til niðurhalinu lýkur og farðu svo yfir útfyllt inntök og stillingar. Í Mask smellirðu á Live til að skoða sjónsvið áður en þú ýtir á Run. Kveiktu á Time fyrir tímaröð eða 3D fyrir rúmmálsmynd.",

@@ -1,6 +1,6 @@
 {
   "lesson": "05_home",
-  "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+  "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
   "review": {
     "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
     "translator": "Claude Opus 5.5 (AI), translated from the current English source",
@@ -24,7 +24,7 @@
     "对于显微镜图像，先用Mask勾勒出对象轮廓，再用Measure提取它们的特征和裁剪图像。Annotate让您为示例对象添加标签，Classify则从这些标签中学习，为更多对象打分。Map Barcodes读取测序数据。Regression把得到的表型分数与向导计数结合起来，寻找关联。",
     "Data是导入文件和检查结果的地方。如果您已有图像、掩膜或测量表，Import会把它们导入其他模块可以读取的项目。实验之前，Experiment Design用于规划板布局；实验之后，QC显示记录的质量检查，Run Compare则把两次运行并排比较。",
     "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开Cellpose Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image UMAP、Gate Editor和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。",
-    "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。",
+    "打开 Assays 查找特定生物的工作流程。Toxoplasma 会打开它的检测菜单，例如噬斑分析或宿主–病原体测量。按照所选检测的教程准备其图像、掩膜和测量输入。",
     "打开Classify，使用Classifier family选择输入类型。对象图像请选择Computer Vision，已测量的特征列请选择Tabular Machine Learning。链接的教程会带您完成每一类方法的训练、评估和打分。",
     "模型训练好之后，Classify的工具栏可以帮助您审视它。Classifier Evaluation显示模型在预留数据上的表现，Explain CV Model和Activation显示是什么驱动了它的判断，Training Runs比较训练历史，Feature Explorer则对区分各组的特征进行排序。把指针悬停在图标上即可看到名称。",
     "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开3D。",
