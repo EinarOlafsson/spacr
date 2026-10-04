@@ -45012,6 +45012,16 @@
         "cd2b1f99742ac5174eecacd59ea2ca57bbb94274bf491a086189012a84e408a5"
       ]
     },
+    "spacr.measure._pin_cupy_cudart_headers._pinned": {
+      "source_blocks_sha256": [
+        "0e3022285d5af1215038aa8862c4e6c1bf3591a8266600421c53ac35240843bc"
+      ],
+      "source_sha256": "0e3022285d5af1215038aa8862c4e6c1bf3591a8266600421c53ac35240843bc",
+      "text": "Festa mappan með keyrsluhausum fyrir ``cudart``, annars svar leitarans.",
+      "translation_source_blocks_sha256": [
+        "0e3022285d5af1215038aa8862c4e6c1bf3591a8266600421c53ac35240843bc"
+      ]
+    },
     "spacr.measure._save_viability_figures._keep": {
       "source_blocks_sha256": [
         "f6f700548a23187d32333b2c028165509562087fa081ceb0d2462cc6cf34c614"
@@ -53004,15 +53014,19 @@
         "a09553f688ccd113ec765ba8d5aeb24d54d04a5c7f2d5b1fc33f911b42f0ada1",
         "eda5dccb67be6e7772a30d5f94684dc856d333a012f737695fd9751135e96beb",
         "74f762cbf62d608294266ffbc49609264467634b48086b7a442691f911ba80b3",
+        "a47e77e2d65b720062000e800bab33244f6835f82334f102f14de7966f1b3aa9",
+        "3bda373563984627dc62144f438fb53c07a8ac51527e1fa8c77a87e06c4069c3",
         "c24ee8882cd9e4fb050c80c4f42380dce4ec26058bffd70a732064783d6983b8"
       ],
-      "source_sha256": "d9a509070f64ff5f96ec4f195979f6d4988399c81b64a0fe5f527a5e2f283d1d",
-      "text": "Samstæður hærra toppar í einum hlutum.\n\n:param image: Myndin er í tengslum við ``mask``.\n:param mask: Leyfð mynd sem takmarka uppsökun.\n:param label: Lítan sem innri þeirra er leitað.\n:returns: ``(n, ndim)`` áreiðan, kannski óþægilegt.",
+      "source_sha256": "2297804489389a2b0273e4a13ea2dbb93ff502062205ab7ef2c95c79348cee6a",
+      "text": "Samstæður hærra toppar í einum hlutum.\n\n:param image: Myndin er í tengslum við ``mask``.\n:param mask: Leyfð mynd sem takmarka uppsökun.\n:param label: Lítan sem innri þeirra er leitað.\n:param window: valfrjáls túpla af sneiðum (afmörkunarkassi hlutarins, eins og frá ``scipy.ndimage.find_objects``). Leitin keyrir þá aðeins í þeim glugga, sem gefur sömu toppa og öll myndin á broti af tímanum; hnitin eru áfram í vísum allrar myndarinnar.\n:param threshold: valfrjáls lægsta styrkleiki sem toppur þarf að fara yfir. Sendu lágmark allrar myndarinnar með ``window`` svo glugginn gefi sömu toppa og öll myndin. ``None`` notar lágmark myndarinnar sem leitað er í.\n:returns: ``(n, ndim)`` áreiðan, kannski óþægilegt.",
       "translation_source_blocks_sha256": [
         "b8d69a0750234302a44fe0c949f2759ea14ec64a0453d32064b37bdfc4a1b621",
         "a09553f688ccd113ec765ba8d5aeb24d54d04a5c7f2d5b1fc33f911b42f0ada1",
         "eda5dccb67be6e7772a30d5f94684dc856d333a012f737695fd9751135e96beb",
         "74f762cbf62d608294266ffbc49609264467634b48086b7a442691f911ba80b3",
+        "a47e77e2d65b720062000e800bab33244f6835f82334f102f14de7966f1b3aa9",
+        "3bda373563984627dc62144f438fb53c07a8ac51527e1fa8c77a87e06c4069c3",
         "c24ee8882cd9e4fb050c80c4f42380dce4ec26058bffd70a732064783d6983b8"
       ]
     },
@@ -87961,14 +87975,14 @@
     "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild": {
       "source_blocks_sha256": [
         "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
-        "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+        "553b3f736f70244f556ca82c704fe3ac1df4644c2cdac18d68b228a263016d3d",
         "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc"
       ],
-      "source_sha256": "bc3f2d6931ef658bf753a9d0f0f1100789d76192c536b059fda8b1d9f96a1b84",
-      "text": "``QObject.findChild``, sem finnur stýringu þar sem síðan bíður.\n\nStýring sem beðið er um eftir heiti tilheyrir glugganum hvar sem síða hennar er, svo það sem smiðurinn, Vista og próf finna eftir heiti veltur ekki á því hvaða flipar hafa verið valdir. Síðan sem hún er á kemur aftur í flipann sinn, falin nema flipinn hennar sé núverandi, eins og var áður en síður biðu: kallandi sem síðan smellir á eða les rúmfræði þess sem hann fann heldur á græju í glugganum.\n\n:returns: fyrsta samsvörunin, eða ``None``.",
+      "source_sha256": "dea36cfc63d89d47244ef2a4d584f13075934fe381da1678fe9640a1e4adcc56",
+      "text": "``QObject.findChild``, sem finnur stýringu þar sem síðan bíður.\n\nStýring sem flett er upp eftir hlutarheiti sínu tilheyrir glugganum hvar sem síða hennar er, svo það sem smiðurinn, Save og próf finna eftir heiti fer ekki eftir því hvaða flipar hafa verið valdir. Síðan sem hún er á kemur aftur í flipann sinn, falin nema flipinn sé virkur, eins og áður en síður biðu: kallandi sem síðan smellir á það sem hann fann eða les rúmfræði þess heldur á græju í glugganum.\n\n:returns: fyrsta samsvörunin, eða ``None``.",
       "translation_source_blocks_sha256": [
         "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
-        "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+        "553b3f736f70244f556ca82c704fe3ac1df4644c2cdac18d68b228a263016d3d",
         "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc"
       ]
     },
