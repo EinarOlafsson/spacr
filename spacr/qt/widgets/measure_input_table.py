@@ -213,7 +213,7 @@ class MeasureInputTable(QWidget):
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 
-    def table(self) -> FieldTable:
+    def table(self):
         """The model this widget edits. Live, not a copy."""
         return self._table
 
@@ -338,7 +338,7 @@ class MeasureInputTable(QWidget):
         self._unassigned = []
         return self._apply(remembered)
 
-    def add_field(self) -> FieldRow:
+    def add_field(self):
         """Add one empty row, numbered after the last one."""
         from ...measure import FieldRow
         row = FieldRow(label=f"field {len(self._table.rows) + 1}",
