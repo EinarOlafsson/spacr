@@ -1569,7 +1569,9 @@
       "source_sha256": "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
       "context": "A control asked for by name is the dialog's wherever its page is, so what the builder, Save and a test find by name does not depend on which tabs have been chosen. The page it is on comes back into its tab, hidden unless its tab is current, as it was before pages waited: a caller that goes on to click or read the geometry of what it found is holding a widget in the window.",
       "translation": "Un control pedido por nombre pertenece al diálogo esté donde esté su página, así que lo que el constructor, Guardar y una prueba encuentran por nombre no depende de qué pestañas se hayan elegido. La página en la que está vuelve a su pestaña, oculta salvo que su pestaña sea la actual, como era antes de que las páginas esperaran: quien llama y luego hace clic o lee la geometría de lo que encontró tiene en la mano un widget dentro de la ventana.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild#2",

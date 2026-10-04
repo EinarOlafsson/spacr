@@ -1569,7 +1569,9 @@
       "source_sha256": "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
       "context": "A control asked for by name is the dialog's wherever its page is, so what the builder, Save and a test find by name does not depend on which tabs have been chosen. The page it is on comes back into its tab, hidden unless its tab is current, as it was before pages waited: a caller that goes on to click or read the geometry of what it found is holding a widget in the window.",
       "translation": "Un contrôle demandé par son nom appartient à la boîte de dialogue où que soit sa page, donc ce que le constructeur, Enregistrer et un test trouvent par nom ne dépend pas des onglets qui ont été choisis. La page sur laquelle il se trouve revient dans son onglet, masquée sauf si son onglet est l'onglet courant, comme avant que les pages attendent : un appelant qui clique ensuite ou lit la géométrie de ce qu'il a trouvé tient un widget dans la fenêtre.",
-      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff.",
+      "retired": true,
+      "retired_reason": "2026-10-04: the English block this record translated is no longer in the docstring (rewritten on nightly before the 11942-symbol manifest); kept verbatim as evidence, not loaded."
     },
     {
       "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild#2",
