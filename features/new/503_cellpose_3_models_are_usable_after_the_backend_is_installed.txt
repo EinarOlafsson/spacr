@@ -259,3 +259,10 @@ Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
 AI technical review (Codex), no native-speaker signoff.
 
 VERIFIED 2026-10-04: on nightly 85c3e41c2, CPU offscreen: test_cellpose_3_models_are_selectable.py, test_cellpose_3_models_are_usable.py pass.
+
+2026-10-04 -- NOT ALPHA (checked with item 404's alpha registration): Cellpose 3
+is a released option, not an alpha one. This item is DONE with real CPU and GPU
+runs, neither it nor its zoo notes (cellpose3_v1, _CELLPOSE3_NOTES) call it
+alpha, and it predates the alpha rule through 423, which
+tests/qt/test_alpha_features_gate.py lists as released. Its zoo rows stay
+visible with Show alpha features off.

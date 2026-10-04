@@ -406,3 +406,11 @@ item was filed to test is NOT supported on this hold-out: it is usable on
 small compact cells (bacteria, yeast) and unfit on mammalian label-free
 fields without tuning. Left: the PV scorecard after 370's curation
 (maintainer); Windows and macOS runs.
+
+2026-10-04 -- ALPHA: the conclusion above is now enforced. ALPHA_FEATURES[404]
+registers the 'dinocell' choice of segmentation_backend and the dinocell_v1
+Model Zoo row, as 405 does for SAMCell, so both show only with Preferences ->
+"Show alpha features" on; 404 left RELEASED_BEFORE_THE_ALPHA_RULE in
+tests/qt/test_alpha_features_gate.py and joined the alpha deck slide (61).
+Cellpose-DINO (cellpose_dino_v1, item 525) is a separate, done feature and is
+not registered.

@@ -25,6 +25,7 @@ GROUPS = (
         (551, "StarDist segmentation backend"),
         (552, "InstanSeg segmentation backend"),
         (553, "Omnipose segmentation backend"),
+        (404, "DINOCell segmentation backend"),
         (405, "SAMCell segmentation backend"),
         (554, "Spotiflow spot detection"),
         (475, "SpotNet spot detection"),

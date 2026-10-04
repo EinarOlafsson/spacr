@@ -505,8 +505,11 @@ def test_the_screen_says_each_backends_state(screen):
 
 def test_the_screen_installs_and_uninstalls_from_its_buttons(screen,
                                                              monkeypatch):
-    # DINOCell, not SAMCell: SAMCell's zoo row is an alpha feature (405) and
-    # is hidden from the screen while "Show alpha features" is off.
+    # DINOCell (404) and SAMCell (405) zoo rows are alpha features, hidden
+    # while "Show alpha features" is off, so this screen shows alpha rows.
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "_get_show_alpha_features", lambda: True)
     asked, removed, scanned = [], [], []
     monkeypatch.setattr(mzp, "install_backend_package",
                         lambda parent, entry: asked.append(entry.name) or True)

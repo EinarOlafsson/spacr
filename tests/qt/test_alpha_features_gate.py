@@ -42,7 +42,6 @@ FUTURE = ROOT / "features" / "future"
 # same for all of them.
 RELEASED_BEFORE_THE_ALPHA_RULE = {
     59: "released before the alpha rule of 2026-09-26",
-    404: "released before the alpha rule of 2026-09-26",
     407: "released before the alpha rule of 2026-09-26",
     423: "released before the alpha rule of 2026-09-26",
     424: "released before the alpha rule of 2026-09-26",
@@ -55,6 +54,8 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     # 405, 475 and 501 left this list on 2026-09-28 (item 591): SAMCell, SpotNet
     # and the plaque growth estimate are validated only on synthetic data or
     # miss their real-data target, so they register with the gate instead.
+    # 404 left it on 2026-10-04: its live_cell scorecard concluded DINOCell
+    # stays an alpha backend, so its choice and zoo row register too.
     586: "packaging only (Apptainer definition and recipes): nothing in the app to hide",
     587: "packaging only (offline installer bundle): nothing in the app to hide",
     411: "API documentation only (nested-helper pages and translations): nothing in the app to hide",

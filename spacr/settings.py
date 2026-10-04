@@ -7591,6 +7591,10 @@ ALPHA_FEATURES = {
             for app_key in ('mask', 'timelapse')
         },
     },
+    404: {
+        'choices': {'segmentation_backend': ('dinocell',)},
+        'models': ('dinocell_v1',),
+    },
     405: {
         'choices': {'segmentation_backend': ('samcell',)},
         'models': ('samcell_v1',),
