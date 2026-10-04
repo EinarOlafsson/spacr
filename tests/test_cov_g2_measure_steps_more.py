@@ -163,3 +163,55 @@ def test_a_postgres_url_is_kept_as_given(tmp_path):
         str(tmp_path / "measurements.db"),
         {"measurement_backend": "postgres",
          "measurement_backend_target": url}) == url
+
+
+def _cp_reply(tmp_path, objects, *, images=None, labels=None):
+    merged = tmp_path / "merged"
+    merged.mkdir(exist_ok=True)
+    mask = np.zeros((4, 5), np.uint16)
+    mask[1:3, 1:3] = 1
+    mask2 = np.zeros((4, 5), np.uint16)
+    mask2[0, 0] = 2
+    np.save(merged / "plate1_A01_1.npy", np.stack([mask, mask2], axis=-1))
+    blocks = {}
+    for name, (columns, rows) in objects.items():
+        path = tmp_path / f"{name}.npy"
+        np.save(path, np.asarray(rows, dtype=float))
+        blocks[name] = {"columns": columns, "path": str(path)}
+    reply = {"images": images if images is not None else
+             {"1": ["plate1_A01_1_ch0.tif", "notes.txt"], "2": ["other.txt"]},
+             "objects": blocks}
+    if labels is not None:
+        reply["labels"] = labels
+    return reply, merged
+
+
+def test_cellprofiler_objects_without_centres_or_fields_are_handled(
+        tmp_path, capsys):
+    columns = ["ImageNumber", "ObjectNumber", "Location_Center_X",
+               "Location_Center_Y"]
+    reply, merged = _cp_reply(tmp_path, {
+        "Blobs": (["ImageNumber", "ObjectNumber", "AreaShape_Area"],
+                  [[1, 1, 5.0]]),
+        "Things": (columns, [[1, 1, 1.5, 1.5], [2, 2, 1.0, 1.0],
+                             [1, 3, 0.0, 0.0]]),
+    })
+    settings = {"cell_mask_dim": 0, "nucleus_mask_dim": 1,
+                "pathogen_mask_dim": None, "timelapse": False}
+    tables = m._cellprofiler_tables(reply, str(merged), settings)
+    assert "has no Location_Center_X/Y" in capsys.readouterr().out
+    assert list(tables) == ["cellprofiler_things"]
+
+
+def test_cellprofiler_tied_roles_with_supplied_labels_stay_unmatched(tmp_path):
+    columns = ["ImageNumber", "ObjectNumber"]
+    plane = tmp_path / "cp_label.npy"
+    np.save(plane, np.zeros((4, 5), np.int32))
+    reply, merged = _cp_reply(
+        tmp_path, {"Things": (columns, [[1, 1]])},
+        labels={"1": {"Things": [str(plane)]}})
+    settings = {"cell_mask_dim": 0, "nucleus_mask_dim": 1,
+                "pathogen_mask_dim": None, "timelapse": False}
+    tables = m._cellprofiler_tables(reply, str(merged), settings)
+    frame = tables["cellprofiler_things"]
+    assert frame["object_type"].isna().all() or frame["object_label"].isna().all()
