@@ -13,6 +13,7 @@ import build_guide_i18n as guide  # noqa: E402
 
 
 def _template(path, messages):
+    pytest.importorskip("babel")
     from babel.messages.catalog import Catalog
     from babel.messages.pofile import write_po
     path.mkdir(parents=True, exist_ok=True)
