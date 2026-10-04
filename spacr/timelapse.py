@@ -735,9 +735,6 @@ def _timeflows_track_cells(src, name, batch_filenames, object_type, masks, image
         min_successor=min_successor, max_distance=max_distance)
 
     tracks_df = _relabelled_stack_to_tracks_df(masks_tracked)
-    if not tracks_df.empty:
-        tracks_df = _native_lineage_columns(
-            tracks_df, _sam2_parent_links(masks_tracked), 'sam2')
     if timelapse_remove_transient and not tracks_df.empty:
         n_frames = masks_tracked.shape[0]
         keep = tracks_df.groupby('track_id')['frame'].nunique() == n_frames
