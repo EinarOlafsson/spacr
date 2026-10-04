@@ -263,12 +263,8 @@ def test_no_lesson_teaches_or_shows_an_alpha_feature(path):
 #: the next publication, as {lesson id: {exact finding}}. Each entry must
 #: still be found in the published catalog: once the corrected lesson is
 #: published, the stale entry fails the test until it is removed.
-PUBLISHED_PENDING_REPUBLICATION = {
-    # 24_plaque scene 15 named 501's "Experimental growth estimates"; the
-    # source narration drops it and the re-recorded lesson awaits publication.
-    "24_plaque": {".scenes[14].narration: 501 widget PlaqueEstimateScaleTime "
-                  "('Experimental growth estimates')"},
-}
+#: (24_plaque's 501 reference was republished in wave 2 on 2026-10-03.)
+PUBLISHED_PENDING_REPUBLICATION = {}
 
 
 def test_the_published_catalog_teaches_no_alpha_feature():

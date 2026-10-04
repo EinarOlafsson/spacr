@@ -532,7 +532,8 @@
       "objectives": [
         "Choose a starting module for images, measurements or sequencing reads.",
         "Find related tools and organism-specific assays.",
-        "Load an example, find help and open a pipeline overview."
+        "Arrange the Home column and module panels to suit your screen.",
+        "Load an example, find help with search or Control-K, and set Preferences."
       ],
       "prerequisite": "Install spaCR and open the desktop application.",
       "scenes": [
@@ -650,14 +651,102 @@
           ]
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "Every module screen can be arranged to suit your screen. Drag the handle between the settings and the right-hand panels to give either side more room, or click its arrow to fold the settings away. Hold Control and scroll over the right-hand panels to make their text larger or smaller, and press Control-0 to reset it.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Back on Home, the column on the right keeps track of your work. Recent runs lists what you ran, Totals counts runs, masks and measurements, and System shows the load on your computer. While a run is going or waiting, it appears here too. The Text size slider under the lowest panel makes this column's text larger or smaller.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "The arrow handle on the column's left edge works like the module handles. Drag it to make the column wider or narrower, or click it to fold the column away so the tiles get the whole width. Click the arrow again to bring the column back.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
           "visual": "08_help_search",
           "narration": "Type a module, setting or function name into the search field beside Help. Here, searching for Performance finds the matching Preferences page. Click a result to open its destination. API results open the documentation for the selected function.",
           "hold_after": 0.7
         },
         {
+          "visual": "12_command_palette",
+          "narration": "Press Control-K anywhere to open the command palette. Start typing a name, such as Measure, and the list narrows as you type. Press Enter to jump to the highlighted module, recent run or menu action without reaching for the mouse.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
           "visual": "09_performance",
           "narration": "In Preferences, choose a Performance profile for your computer. Laptop uses fewer resources; the higher profiles allow more caching and background work. Start with a modest profile if memory is limited. Your analysis settings stay under your control in each module.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "The General tab of Preferences sets the interface language, the font and GUI scale, whether the app dock stays open, and a palette for plots that suits colour vision deficiency. The Figures tab chooses the format and resolution of saved figures, and Appearance controls when tooltips appear.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance decides how help appears as you work. Tooltip delay is how long the pointer rests on a control before its tip appears: two seconds by default, and zero shows tips at once. Show tooltips turns them off entirely, and the Theme and Animation sections fold open below for the window's look.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme and Animation are folded sections of Appearance. Click Theme to open it: it sets the interface theme and page opacity, whether fields fade towards the right, and the window rim, with its length, how closely it follows the pointer, its alignment, mode and cycle.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Click Animation to open it instead. It chooses the animated backdrop and its palette, with sliders for detail, blur, speed, size and density, whether setting tooltips animate, and the backdrop shown behind settings.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
         },
         {
           "visual": "00_home",
@@ -669,10 +758,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ]
         }
       ],
@@ -876,15 +965,12 @@
       "objectives": [
         "Load the microscopy example and identify its intensity channels.",
         "Compare model settings and object-size filters in Live preview.",
-        "Run segmentation, inspect overlays and find the merged outputs."
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "Run segmentation, inspect its figures and find the merged outputs."
       ],
       "prerequisite": "Open Mask and choose Load test data. For your own images, prepare a source folder with consistent filenames and known channel identities. This example uses nucleus channel 0, cell channel 1 and pathogen channel 2, with an additional intensity channel 3.",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "From Home, open Mask. Use this module to outline cells, nuclei and pathogens in microscope images. This walkthrough processes two-dimensional images. The Time, three-dimensional and OPS workflows have their own tutorials.",
           "related_lessons": [
             "05_home",
@@ -894,80 +980,62 @@
           "hold_after": 0.7
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "Click Load test data and wait for the microscopy example to load. Check Source before continuing. For your own images, select their folder and confirm that the filenames identify the plate, well, field and channel.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "Check the channel assignments against the images. In this example, nucleus intensity is channel zero, cell intensity is channel one, and pathogen intensity is channel two. Channel three is an additional intensity image. Choose only the object types present in your experiment.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "Below the inputs, the per-object table holds the settings you choose for each object. Each object is a column, here cell, nucleus and pathogen, and each row asks one question: whether to remove background, the object diameter, the segmentation model, the background level and the signal-to-noise cutoff. Add a filter adds a row that removes objects by a measured property such as area, and Add an organelle adds another object column.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_live_image",
           "narration": "Turn on Live and select a field. Inspect the image and proposed masks together before running the full folder. Try several fields that represent the range of image quality in your experiment.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter and run the preview. Compare the outlines with the image, paying attention to missed objects and objects joined together.",
+          "visual": "05_live_settings",
+          "narration": "Open Live settings and choose the model for the object you want to segment. Set the approximate object diameter, then click Run preview.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "When the preview finishes, compare the outlines with the image. Look for missed objects and for neighbouring objects joined into one. The status line reports how many objects were found.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "Use the minimum-area filter to hide objects smaller than the chosen number of pixels. Increasing it removes small labels from the preview. This filter updates an existing mask result, so you can compare size cutoffs quickly.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "Change diameter when the model is splitting or joining objects at the wrong scale, then run the preview again. Check the boundaries as well as the object count. Restore the settings you want to use before moving to the batch run.",
+          "visual": "10_filters_restored",
+          "narration": "Set the minimum area back to zero to bring every object back. If the model splits or joins objects at the wrong scale, change Diameter and run the preview again, checking the boundaries as well as the count. Restore the settings you want before the batch run.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "For a small first run, select two test images, keep Plot on, and review the cell, nucleus and pathogen flow thresholds. Here they are zero point four. Check the output and original-image retention settings, then click Run.",
+          "visual": "run_20_batch_settings",
+          "narration": "For a quick first run, this recording points Source at centred crops of two example fields; with your own data, turn on Test mode and choose a few test images instead. Keep Plot on, check the per-object diameters and flow thresholds, keep Save on under Quality Control, then click Run.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "Follow the console and inspect any failed fields or missing plots. The merged folder contains the image intensities and final object labels. Keep its plane-layout metadata with the arrays so Measure can identify each channel and mask.",
+          "visual": "run_23_batch_finished",
+          "narration": "When the run finishes, the figure list fills with its plots. The last figure draws each object's outlines on its own channel, nuclei, cells and pathogens, and the combined objects on the right. Check small objects, touching cells and missed regions in each figure.",
           "hold_after": 0.7
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "If an overlay export is missing, the linked plotting helper can export the saved arrays separately. Extract the helper and choose this run’s merged folder. Keep the layout file in place; the helper uses it to check the intensity and mask planes.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "The other figures show each channel and the mask and flow arrays the model produced. The run writes a merged folder with the image intensities and the final object labels, and keeps its plane-layout metadata beside the arrays so Measure can identify each channel and mask. Keep the inputs, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "Run the helper with the merged folder as its source and a new output folder as its destination. It saves a separate overlay for each image array. Open the saved PNG files to inspect the results.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "Review the outlines on each intensity channel and the combined mask view. Check small objects, touching cells and missed regions. Keep the input images, settings, masks and quality reports together, then continue to Measure to extract object features and crops.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -1045,7 +1113,7 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six.",
+          "narration": "Click Load test data and wait for the example to load, or select your own merged project. Check the plane mapping: this example has four intensity channels followed by cell, nucleus and pathogen masks in planes four, five and six. When you press Run, Measure compares these mask planes with the layout stored for the folder; if they disagree, it offers Use stored image layout and asks you to review the mapping and run again.",
           "hold_after": 0.7
         },
         {
@@ -1065,8 +1133,26 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Choose another field and compare its objects. Review the segmentation-quality banner before measuring the project. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
+          "narration": "Choose another field and compare its objects. If masks are missing or joined incorrectly, correct them or adjust Mask before continuing.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "To compare fields side by side, open Checked images and tick the fields you want. The grid groups the crops by their source field; hover a crop to see its path, or double-click it to open that exact field. Uncheck all images clears the grid. This changes only the preview, not what Measure processes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "To check segmentation quality across the project before measuring, turn on QC in the Actions row, beside 3D and Time. Its popup lists the fields and wells whose masks look unusual, such as far fewer objects than the rest of the plate, with links to inspect them. The check is advisory and never stops Measure; closing the popup turns the switch off.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "Under All settings, Image Preprocessing holds the corrections Measure can apply to each field before measuring: Image Deconvolution with a point spread function, and Illumination Correction with a model you estimated earlier. They change the pixels that are measured in this run; the masks and the arrays on disk are not changed.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ]
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1078,17 +1164,7 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. Use one worker for this example. Leave Test mode off to process all sixteen supplied fields, then click Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "Follow the console until the run completes. Check which fields succeeded and inspect any failures before proceeding. Keep the settings saved with this run so you can reproduce the measurements.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "Use the figure list to compare objects before and after filtering. Size filters and parent-child relationships can change which objects are measured. Drag the divider to give the figures more space and inspect any unexpected changes.",
+          "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. For a first run, Test mode measures one field; turn it off to process all sixteen supplied fields. Click Run and follow the console until the run completes, then check which fields succeeded before proceeding.",
           "hold_after": 0.7
         },
         {
@@ -1302,8 +1378,37 @@
           ]
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest proposes labels for the crops you have not answered yet, so first give it examples of both classes from several wells. Here a few crops of each class are labelled in four wells, then Next saves them.",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "Open Suggest and choose Suggest for the images on this page. The round takes a few seconds, and every crop on the page now wears a question-mark badge. The bar above the grid counts how many suggestions are left to judge.",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_judged",
+          "narration": "Click a suggested crop or press Y to confirm it, and right-click it or press N to reject it. Both answers are recorded, rejections train the next round, and Confirm the rest of the page settles what is left once you have checked it.",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
           "hold_after": 0.7
         },
         {
@@ -3080,7 +3185,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "Open Live preview, choose one image and press Run preview, with the same channel and percentiles. It segments that image with your checkpoint, here finding seventy-six cells. Adjust settings here before running the whole folder.",
+          "narration": "Open Live preview, choose one image and press Run preview, with the same channel and percentiles. It segments that image with your checkpoint, here finding seventy-eight cells. Adjust settings here before running the whole folder.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3091,7 +3196,7 @@
         },
         {
           "visual": "apply_result",
-          "narration": "Press Run. Apply writes one mask per image into a masks subfolder beside those images, and Verbose shows each result as a figure. Here the three masks hold seventy-six, forty-eight and fifty-five cells. Before using a model on a whole experiment, compare its masks with separately labelled fields.",
+          "narration": "Press Run. Apply writes one mask per image into a masks subfolder beside those images, and Verbose shows each result as a figure. Here the three masks hold seventy-nine, fifty and fifty-five cells. Before using a model on a whole experiment, compare its masks with separately labelled fields.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3735,7 +3840,8 @@
       "objectives": [
         "Open Plaque Assay from Toxoplasma and select the image folder.",
         "Choose a model, inspect a preview and set area filters.",
-        "Run the analysis and inspect counts, areas and calibration in the output database."
+        "Run the analysis and inspect counts, areas and calibration in the output database.",
+        "Read plaque wells and their conditions from a published figure in Figure mode."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -3820,13 +3926,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "Choose an example image and click Run preview. Switch View between outlines and coloured masks to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
+          "visual": "16b_overlay_settings",
+          "narration": "Choose an example image and click Run preview. Right-click the picture and open Overlay settings, where Display switches between outlines and a filled overlay, to check whether the predicted regions follow plaque boundaries. Inspect several representative images before running a plate.",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7
         },
@@ -3864,7 +3970,7 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "Open Help, then Database browser. Select plaques_analysis.db in the masks folder. Leave Edit mode off while inspecting the output, and choose a table from the table list.",
           "related_lessons": [
             "34_database"
@@ -3895,13 +4001,33 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings. Experimental growth estimates additionally require a known scale to estimate time, or a known time to estimate scale; validate the reference curve for your assay.",
+          "narration": "Open details to inspect individual plaque areas. Physical-area columns are empty when calibration is unavailable. Save the database together with the images, masks and settings.",
           "focus": [
             345,
             278,
             1420,
             410
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay also reads published figures. Switch the preview's Mode from Plaque to Figure. In Figure mode the run finds the plaque wells inside each figure, reads the text printed around them to name each condition, and then segments the plaques. Drop PDFs or figure pictures anywhere on the screen, or fetch a paper.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "Click From a paper and enter a DOI, PubMed or PMC id. spaCR fetches the paper's figures and their legends from Europe PMC into a new folder, notes the licence, and points the preview at them. This example uses an open-access paper.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "Choose a figure and click Run preview. Each well found is boxed on the figure and listed in the table with the label text read beside it; here eight wells were found, each named by its strain and drug concentration. Check each condition, correct it where needed, and click Save annotations before Run so the measurements carry the right names.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "Click Find plaques in all wells. Each well is segmented with the default plaque model, and the Plaques tab lists every plaque found. Here sixty-six plaques were found across the eight wells, seventeen of them in the wild-type well without drug. Compare the counts with the figure before you rely on them.",
           "hold_after": 0.7
         }
       ],
@@ -5571,7 +5697,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "From Home, open Graph Builder in Data, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
+          "narration": "From Home, open Graph Builder in Tools, then choose Plate Viewer. Use it to summarize object measurements by well and inspect their distribution across a plate.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"

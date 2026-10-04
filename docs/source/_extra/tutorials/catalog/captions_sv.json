@@ -511,7 +511,8 @@
       "objectives": [
         "Välja en startmodul för bilder, mätvärden eller sekvensläsningar.",
         "Hitta relaterade verktyg och organismspecifika analyser.",
-        "Läsa in ett exempel, hitta hjälp och öppna en pipelineöversikt."
+        "Anpassa Home-kolumnen och modulpanelerna efter din skärm.",
+        "Läsa in ett exempel, hitta hjälp med sökning eller Control-K och ställa in Preferences."
       ],
       "prerequisite": "Installera spaCR och öppna skrivbordsprogrammet.",
       "scenes": [
@@ -629,14 +630,102 @@
           ]
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "Varje modulskärm kan anpassas efter din skärm. Dra i handtaget mellan inställningarna och panelerna till höger för att ge ena sidan mer plats, eller klicka på dess pil för att fälla undan inställningarna. Håll ned Control och skrolla över panelerna till höger för att göra deras text större eller mindre, och tryck Control-0 för att återställa den.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Tillbaka på Home håller kolumnen till höger reda på ditt arbete. Recent runs visar vad du har kört, Totals räknar körningar, masker och mätningar, och System visar belastningen på datorn. En körning som pågår eller väntar visas också här. Skjutreglaget Text size under den nedersta panelen gör kolumnens text större eller mindre.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "Pilhandtaget på kolumnens vänstra kant fungerar som modulernas handtag. Dra i det för att göra kolumnen bredare eller smalare, eller klicka på det för att fälla undan kolumnen så att rutorna får hela bredden. Klicka på pilen igen för att få tillbaka kolumnen.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
           "visual": "08_help_search",
           "narration": "Skriv namnet på en modul, en inställning eller en funktion i sökfältet bredvid Help. Här hittar en sökning på Performance motsvarande sida i Preferences. Klicka på ett resultat för att öppna dess mål. API-resultat öppnar dokumentationen för den valda funktionen.",
           "hold_after": 0.7
         },
         {
+          "visual": "12_command_palette",
+          "narration": "Tryck Control-K var som helst för att öppna kommandopaletten. Börja skriva ett namn, till exempel Measure, så krymper listan medan du skriver. Tryck Enter för att gå till den markerade modulen, en nylig körning eller en menyåtgärd utan att ta musen.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
           "visual": "09_performance",
           "narration": "I Preferences väljer du en Performance-profil för din dator. Laptop använder mindre resurser; de högre profilerna tillåter mer cachning och bakgrundsarbete. Börja med en måttlig profil om minnet är begränsat. Dina analysinställningar förblir under din kontroll i varje modul.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "Fliken General i Preferences ställer in gränssnittets språk, teckensnitts- och GUI-skalning, om appdockan hålls öppen och en färgblindvänlig palett för diagram. Fliken Figures väljer format och upplösning för sparade figurer, och Appearance styr när verktygstips visas.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance bestämmer hur hjälpen visas medan du arbetar. Tooltip delay är hur länge pekaren vilar på en kontroll innan tipset visas: två sekunder som standard, och noll visar tips direkt. Show tooltips stänger av dem helt, och avsnitten Theme och Animation kan fällas ut nedanför för fönstrets utseende.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme och Animation är hopfällda avsnitt i Appearance. Klicka på Theme för att öppna det: det ställer in gränssnittets tema och sidans opacitet, om fält tonar ut åt höger, och fönsterkanten med dess längd, hur tätt den följer pekaren, justering, läge och cykel.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Klicka i stället på Animation för att öppna det. Det väljer den animerade bakgrunden och dess palett, med reglage för detalj, oskärpa, hastighet, storlek och täthet, om verktygstips för inställningar animeras, och bakgrunden bakom inställningarna.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
         },
         {
           "visual": "00_home",
@@ -648,10 +737,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ]
         }
       ],
@@ -855,15 +944,12 @@
       "objectives": [
         "Läsa in mikroskopiexemplet och identifiera dess intensitetskanaler.",
         "Jämföra modellinställningar och storleksfilter i Live-förhandsvisningen.",
-        "Köra segmenteringen, granska överlägg och hitta de sammanslagna utdata."
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "Köra segmentering, granska dess figurer och hitta de sammanslagna utdata."
       ],
       "prerequisite": "Öppna Mask och välj Load test data. För egna bilder förbereder du en källmapp med konsekventa filnamn och kända kanaler. Exemplet använder kärnkanal 0, cellkanal 1 och patogenkanal 2, samt en extra intensitetskanal 3.",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "Från Home öppnar du Mask. Använd modulen för att avgränsa celler, kärnor och patogener i mikroskopbilder. Den här genomgången bearbetar tvådimensionella bilder. Arbetsflödena för Time, 3D och OPS har egna handledningar.",
           "related_lessons": [
             "05_home",
@@ -873,80 +959,62 @@
           "hold_after": 0.7
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "Klicka på Load test data och vänta tills mikroskopiexemplet har lästs in. Kontrollera Source innan du fortsätter. För egna bilder väljer du deras mapp och kontrollerar att filnamnen anger platta, brunn, synfält och kanal.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "Kontrollera kanaltilldelningarna mot bilderna. I exemplet är kärnintensiteten kanal 0, cellintensiteten kanal 1 och patogenintensiteten kanal 2. Kanal 3 är en extra intensitetsbild. Välj bara de objekttyper som finns i ditt experiment.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "Under indata samlar tabellen med inställningar per objekt det du väljer för varje objekt. Varje objekt är en kolumn, här cell, kärna och patogen, och varje rad ställer en fråga: om bakgrunden ska tas bort, objektets diameter, segmenteringsmodellen, bakgrundsnivån och gränsen för signal-brus-förhållandet. Add a filter lägger till en rad som tar bort objekt efter en mätt egenskap som yta, och Add an organelle lägger till ytterligare en objektkolumn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_live_image",
           "narration": "Slå på Live och välj ett synfält. Granska bilden och de föreslagna maskerna tillsammans innan du bearbetar hela mappen. Prova flera synfält som representerar spännvidden i bildkvalitet i ditt experiment.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "Öppna Live settings och välj modellen för det objekt du vill segmentera. Ange den ungefärliga objektdiametern och kör förhandsvisningen. Jämför konturerna med bilden och var uppmärksam på missade och sammanslagna objekt.",
+          "visual": "05_live_settings",
+          "narration": "Öppna Live settings och välj modellen för objektet du vill segmentera. Ange ungefärlig objektdiameter och klicka sedan på Run preview.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "När förhandsvisningen är klar jämför du konturerna med bilden. Leta efter missade objekt och närliggande objekt som slagits ihop till ett. Statusraden visar hur många objekt som hittades.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "Använd filtret för minsta area för att dölja objekt som är mindre än det valda antalet pixlar. Om du höjer det försvinner små etiketter från förhandsvisningen. Filtret uppdaterar ett befintligt maskresultat, så du kan snabbt jämföra storleksgränser.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "Ändra diametern när modellen delar eller slår ihop objekt i fel skala och kör förhandsvisningen igen. Kontrollera gränserna och inte bara antalet objekt. Återställ de inställningar du vill använda innan du går vidare till batchkörningen.",
+          "visual": "10_filters_restored",
+          "narration": "Sätt minsta ytan till noll igen för att få tillbaka alla objekt. Om modellen delar eller slår ihop objekt i fel skala ändrar du Diameter och kör förhandsvisningen igen, och kontrollerar både gränserna och antalet. Återställ de inställningar du vill använda före batchkörningen.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "För en liten första körning väljer du två testbilder, låter Plot vara på och granskar flödeströsklarna för celler, kärnor och patogener. Här är de 0,4. Kontrollera inställningarna för utdata och för att behålla originalbilderna och klicka sedan på Run.",
+          "visual": "run_20_batch_settings",
+          "narration": "För en snabb första körning pekar den här inspelningen Source mot centrerade utsnitt av två exempelfält; med dina egna data slår du i stället på Test mode och väljer några testbilder. Låt Plot vara på, kontrollera diametrar och flödeströsklar per objekt, låt Save under Quality Control vara på och klicka sedan på Run.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "Följ konsolen och granska synfält som misslyckats eller figurer som saknas. Mappen merged innehåller bildintensiteterna och objektens slutliga etiketter. Behåll dess metadata om planlayout tillsammans med arrayerna så att Measure kan identifiera varje kanal och mask.",
+          "visual": "run_23_batch_finished",
+          "narration": "När körningen är klar fylls figurlistan med dess diagram. Den sista figuren ritar varje objekts konturer på dess egen kanal, kärnor, celler och patogener, och de kombinerade objekten till höger. Kontrollera små objekt, celler som rör varandra och missade områden i varje figur.",
           "hold_after": 0.7
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "Om en överläggsexport saknas kan det länkade ritverktyget exportera de sparade arrayerna separat. Packa upp verktyget och välj körningens mapp merged. Låt layoutfilen ligga kvar; verktyget använder den för att kontrollera intensitets- och maskplanen.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "De övriga figurerna visar varje kanal och de mask- och flödesarrayer som modellen skapade. Körningen skriver en merged-mapp med bildintensiteterna och de slutliga objektetiketterna, och lägger metadata om planlayouten bredvid arrayerna så att Measure kan identifiera varje kanal och mask. Håll indata, inställningar, masker och kvalitetsrapporter samlade och fortsätt sedan till Measure för att extrahera objektegenskaper och utsnitt.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "Kör verktyget med mappen merged som källa och en ny utdatamapp som mål. Det sparar ett separat överlägg för varje bildarray. Öppna de sparade PNG-filerna för att granska resultaten.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "Granska konturerna på varje intensitetskanal och i den kombinerade maskvyn. Kontrollera små objekt, celler som rör vid varandra och missade områden. Håll ihop indatabilder, inställningar, masker och kvalitetsrapporter och fortsätt sedan till Measure för att ta fram objektens egenskaper och utsnitt.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -1024,7 +1092,7 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Klicka på Load test data och vänta tills exemplet har lästs in, eller välj ditt eget sammanslagna projekt. Kontrollera planmappningen: exemplet har fyra intensitetskanaler följda av masker för celler, kärnor och patogener i planen 4, 5 och 6.",
+          "narration": "Klicka på Load test data och vänta tills exemplet har lästs in, eller välj ditt eget sammanslagna projekt. Kontrollera planmappningen: exemplet har fyra intensitetskanaler följda av masker för celler, kärnor och patogener i planen 4, 5 och 6. När du trycker på Run jämför Measure dessa maskplan med layouten som sparats för mappen; om de inte stämmer erbjuder den Use stored image layout och ber dig granska mappningen och köra igen.",
           "hold_after": 0.7
         },
         {
@@ -1044,8 +1112,26 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Välj ett annat synfält och jämför dess objekt. Granska meddelandet om segmenteringskvalitet innan du mäter projektet. Om masker saknas eller är felaktigt sammanslagna rättar du dem eller justerar Mask innan du fortsätter.",
+          "narration": "Välj ett annat fält och jämför dess objekt. Om masker saknas eller är felaktigt sammanslagna rättar du dem eller justerar Mask innan du fortsätter.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "För att jämföra fält sida vid sida öppnar du Checked images och kryssar i de fält du vill se. Rutnätet grupperar utsnitten efter källfält; håll pekaren över ett utsnitt för att se dess sökväg, eller dubbelklicka för att öppna just det fältet. Uncheck all images tömmer rutnätet. Det ändrar bara förhandsvisningen, inte vad Measure bearbetar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "För att kontrollera segmenteringskvaliteten i hela projektet före mätning slår du på QC i Actions-raden, bredvid 3D och Time. Fönstret listar fält och brunnar vars masker ser ovanliga ut, till exempel med betydligt färre objekt än resten av plattan, med länkar för att granska dem. Kontrollen är bara vägledande och stoppar aldrig Measure; när du stänger fönstret slås reglaget av.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "Under All settings samlar Image Preprocessing de korrigeringar som Measure kan tillämpa på varje fält före mätning: Image Deconvolution med en punktspridningsfunktion och Illumination Correction med en modell som du skattat tidigare. De ändrar pixlarna som mäts i den här körningen; maskerna och arrayerna på disken ändras inte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ]
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1057,17 +1143,7 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Aktivera sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Använd en arbetsprocess i det här exemplet. Låt Test mode vara avstängt för att bearbeta alla sexton medföljande synfält och klicka sedan på Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "Följ konsolen tills körningen är klar. Kontrollera vilka synfält som lyckades och undersök eventuella fel innan du går vidare. Behåll de inställningar som sparats med körningen så att du kan återskapa mätningarna.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "Använd figurlistan för att jämföra objekten före och efter filtrering. Storleksfilter och förälder-barn-relationer kan ändra vilka objekt som mäts. Dra i avdelaren för att ge figurerna mer utrymme och granska oväntade förändringar.",
+          "narration": "Slå på sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Vid en första körning mäter Test mode ett fält; stäng av det för att bearbeta alla sexton medföljande fält. Klicka på Run, följ konsolen tills körningen är klar och kontrollera sedan vilka fält som lyckades innan du fortsätter.",
           "hold_after": 0.7
         },
         {
@@ -1281,8 +1357,37 @@
           ]
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest kan föreslå etiketter som du granskar. Retrain uppdaterar modellen när du har lagt till etiketter, och Rounds hjälper dig att följa granskningscykeln. Kontrollera föreslagna etiketter innan du godtar dem.",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest föreslår etiketter för de utsnitt du ännu inte har besvarat, så ge den först exempel på båda klasserna från flera brunnar. Här märks några utsnitt av varje klass i fyra brunnar, och Next sparar dem.",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "Öppna Suggest och välj Suggest for the images on this page. Omgången tar några sekunder, och varje utsnitt på sidan får nu ett frågetecken. Fältet ovanför rutnätet räknar hur många förslag som återstår att bedöma.",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_judged",
+          "narration": "Klicka på ett föreslaget utsnitt eller tryck Y för att bekräfta det, och högerklicka eller tryck N för att avvisa det. Båda svaren registreras, avvisningar tränar nästa omgång och Confirm the rest of the page avgör resten när du har kontrollerat det.",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
           "hold_after": 0.7
         },
         {
@@ -3059,7 +3164,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "Öppna Live preview, välj en bild och tryck på Run preview med samma kanal och percentiler. Bilden segmenteras med din kontrollpunkt, som här hittar 76 celler. Justera inställningarna här innan du kör hela mappen.",
+          "narration": "Öppna Live preview, välj en bild och tryck på Run preview med samma kanal och percentiler. Bilden segmenteras med din kontrollpunkt, som här hittar 78 celler. Justera inställningarna här innan du kör hela mappen.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3070,7 +3175,7 @@
         },
         {
           "visual": "apply_result",
-          "narration": "Tryck på Run. Apply skriver en mask per bild i en undermapp masks bredvid bilderna, och Verbose visar varje resultat som en figur. Här innehåller de tre maskerna 76, 48 och 55 celler. Jämför en modells masker med separat märkta synfält innan du använder den på ett helt experiment.",
+          "narration": "Tryck på Run. Apply skriver en mask per bild i en undermapp masks bredvid bilderna, och Verbose visar varje resultat som en figur. Här innehåller de tre maskerna 79, 50 och 55 celler. Jämför en modells masker med separat märkta synfält innan du använder den på ett helt experiment.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3714,7 +3819,8 @@
       "objectives": [
         "Öppna Plaque Assay från Toxoplasma och välja bildmappen.",
         "Välja en modell, granska en förhandsvisning och ställa in ytfilter.",
-        "Köra analysen och granska antal, ytor och kalibrering i utdatadatabasen."
+        "Köra analysen och granska antal, ytor och kalibrering i utdatadatabasen.",
+        "Läsa plackbrunnar och deras villkor från en publicerad figur i Figure-läget."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -3799,13 +3905,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "Välj en exempelbild och klicka på Run preview. Växla View mellan konturer och färgade masker för att kontrollera att de predicerade områdena följer plackens gränser. Granska flera representativa bilder innan du kör en platta.",
+          "visual": "16b_overlay_settings",
+          "narration": "Välj en exempelbild och klicka på Run preview. Högerklicka på bilden och öppna Overlay settings, där Display växlar mellan konturer och en fylld överlagring, för att kontrollera att de förutsagda områdena följer plackens kanter. Granska flera representativa bilder innan du kör en hel platta.",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7
         },
@@ -3843,7 +3949,7 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "Öppna Help och sedan Database browser. Välj plaques_analysis.db i mappen masks. Låt Edit mode vara avstängt medan du granskar utdata och välj en tabell i tabellistan.",
           "related_lessons": [
             "34_database"
@@ -3874,13 +3980,33 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna. Experimentella tillväxtskattningar kräver dessutom en känd skala för att skatta tid, eller en känd tid för att skatta skala; validera referenskurvan för din analys.",
+          "narration": "Öppna details för att granska enskilda placks ytor. Kolumner med fysisk yta är tomma när kalibrering saknas. Spara databasen tillsammans med bilderna, maskerna och inställningarna.",
           "focus": [
             345,
             278,
             1420,
             410
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay läser även publicerade figurer. Byt Mode i förhandsvisningen från Plaque till Figure. I Figure-läget hittar körningen plackbrunnarna i varje figur, läser texten runt dem för att namnge varje villkor och segmenterar sedan placken. Släpp PDF-filer eller figurbilder var som helst på skärmen, eller hämta en artikel.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "Klicka på From a paper och ange en DOI, PubMed- eller PMC-id. spaCR hämtar artikelns figurer och deras figurtexter från Europe PMC till en ny mapp, noterar licensen och riktar förhandsvisningen mot dem. Det här exemplet använder en fritt tillgänglig artikel.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "Välj en figur och klicka på Run preview. Varje brunn som hittas ramas in i figuren och listas i tabellen med etikettexten som lästs bredvid; här hittades åtta brunnar, var och en namngiven efter stam och läkemedelskoncentration. Kontrollera varje villkor, rätta det vid behov och klicka på Save annotations före Run så att mätningarna får rätt namn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "Klicka på Find plaques in all wells. Varje brunn segmenteras med standardmodellen för plack, och fliken Plaques listar varje plack som hittats. Här hittades sextiosex plack i de åtta brunnarna, sjutton av dem i vildtypsbrunnen utan läkemedel. Jämför antalen med figuren innan du litar på dem.",
           "hold_after": 0.7
         }
       ],
@@ -5550,7 +5676,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Från Home öppnar du Graph Builder under Data och väljer sedan Plate Viewer. Använd det för att sammanfatta objektmätningar per brunn och granska hur de fördelar sig över en platta.",
+          "narration": "Från Home öppnar du Graph Builder under Tools och väljer sedan Plate Viewer. Använd det för att sammanfatta objektmätningar per brunn och granska hur de fördelar sig över en platta.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"

@@ -63,7 +63,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # the republished Platform Installers lesson (4014dbdef) has 11 (was 10).
     # Make Masks gains the five item-489 restoration scenes (1101 -> 1106).
     # Re-record wave 1 (candidate kq8y8lq2): 22 13 (was 7), 32 10 (was 9), 41 12 (was 11), 43 14 (was 13).
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1115
+    # Re-record wave 2 (candidate me1282u_): 05 19 (was 11), 08 12 (was 11), 09 22 (was 20), 24 19 (was 15).
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1130
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

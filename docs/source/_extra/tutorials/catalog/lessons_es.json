@@ -571,7 +571,8 @@
       "objectives": [
         "Elegir un módulo inicial para imágenes, mediciones o lecturas de secuenciación.",
         "Encontrar las herramientas relacionadas y los ensayos específicos de cada organismo.",
-        "Cargar un ejemplo, encontrar ayuda y abrir una vista general de un flujo de trabajo."
+        "Ajustar la columna de Home y los paneles de los módulos a su pantalla.",
+        "Cargar un ejemplo, buscar ayuda con la búsqueda o Control-K y ajustar Preferences."
       ],
       "prerequisite": "Instala spaCR y abre la aplicación de escritorio.",
       "scenes": [
@@ -697,16 +698,112 @@
           "speech_text": "Para probar un módulo, haz clic en Load test data cuando esté disponible. Espera a que termine la descarga y revisa las entradas y los ajustes rellenados. En Mask, haz clic en Live para inspeccionar un campo antes de pulsar Run. Activa Time para una serie temporal o tres de para una imagen volumétrica."
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "Cada pantalla de módulo se puede ajustar a su pantalla. Arrastre el asa entre los ajustes y los paneles de la derecha para dar más espacio a un lado, o haga clic en su flecha para plegar los ajustes. Mantenga pulsado Control y desplace la rueda sobre los paneles de la derecha para agrandar o reducir su texto, y pulse Control-0 para restablecerlo.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ],
+          "speech_text": "Cada pantalla de módulo se puede ajustar a su pantalla. Arrastre el asa entre los ajustes y los paneles de la derecha para dar más espacio a un lado, o haga clic en su flecha para plegar los ajustes. Mantenga pulsado Control y desplace la rueda sobre los paneles de la derecha para agrandar o reducir su texto, y pulse Control-0 para restablecerlo."
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "De vuelta en Home, la columna de la derecha sigue su trabajo. Recent runs lista lo que ejecutó, Totals cuenta ejecuciones, máscaras y mediciones, y System muestra la carga de su ordenador. Una ejecución en curso o en espera también aparece aquí. El control deslizante Text size, bajo el último panel, agranda o reduce el texto de esta columna.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ],
+          "speech_text": "De vuelta en Home, la columna de la derecha sigue su trabajo. Recent runs lista lo que ejecutó, Totals cuenta ejecuciones, máscaras y mediciones, y System muestra la carga de su ordenador. Una ejecución en curso o en espera también aparece aquí. El control deslizante Text size, bajo el último panel, agranda o reduce el texto de esta columna."
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "El asa con flecha del borde izquierdo de la columna funciona como las asas de los módulos. Arrástrela para ensanchar o estrechar la columna, o haga clic en ella para plegar la columna y dar a los mosaicos todo el ancho. Haga clic de nuevo en la flecha para recuperar la columna.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ],
+          "speech_text": "El asa con flecha del borde izquierdo de la columna funciona como las asas de los módulos. Arrástrela para ensanchar o estrechar la columna, o haga clic en ella para plegar la columna y dar a los mosaicos todo el ancho. Haga clic de nuevo en la flecha para recuperar la columna."
+        },
+        {
           "visual": "08_help_search",
           "narration": "Escribe el nombre de un módulo, un ajuste o una función en el campo de búsqueda junto a Help. Aquí, al buscar Performance aparece la página de Preferences correspondiente. Haz clic en un resultado para abrir su destino. Los resultados de API abren la documentación de la función seleccionada.",
           "hold_after": 0.7,
           "speech_text": "Escribe el nombre de un módulo, un ajuste o una función en el campo de búsqueda junto a Help. Aquí, al buscar Performance aparece la página de Preferences correspondiente. Haz clic en un resultado para abrir su destino. Los resultados de API abren la documentación de la función seleccionada."
         },
         {
+          "visual": "12_command_palette",
+          "narration": "Pulse Control-K en cualquier lugar para abrir la paleta de comandos. Empiece a escribir un nombre, como Measure, y la lista se acorta mientras escribe. Pulse Enter para ir al módulo, la ejecución reciente o la acción de menú resaltada sin tocar el ratón.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ],
+          "speech_text": "Pulse Control-K en cualquier lugar para abrir la paleta de comandos. Empiece a escribir un nombre, como Measure, y la lista se acorta mientras escribe. Pulse Enter para ir al módulo, la ejecución reciente o la acción de menú resaltada sin tocar el ratón."
+        },
+        {
           "visual": "09_performance",
           "narration": "En Preferences, elige un perfil de Performance para tu ordenador. Laptop usa menos recursos; los perfiles más altos permiten más caché y más trabajo en segundo plano. Empieza con un perfil modesto si la memoria es limitada. Los ajustes de tus análisis siguen bajo tu control en cada módulo.",
           "hold_after": 0.7,
           "speech_text": "En Preferences, elige un perfil de Performance para tu ordenador. Laptop usa menos recursos; los perfiles más altos permiten más caché y más trabajo en segundo plano. Empieza con un perfil modesto si la memoria es limitada. Los ajustes de tus análisis siguen bajo tu control en cada módulo."
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "La pestaña General de Preferences fija el idioma de la interfaz, la escala de fuente y de la interfaz, si el dock de aplicaciones permanece abierto y una paleta apta para daltónicos en los gráficos. La pestaña Figures elige el formato y la resolución de las figuras guardadas, y Appearance controla cuándo aparecen las descripciones emergentes.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ],
+          "speech_text": "La pestaña General de Preferences fija el idioma de la interfaz, la escala de fuente y de la interfaz, si el dock de aplicaciones permanece abierto y una paleta apta para daltónicos en los gráficos. La pestaña Figures elige el formato y la resolución de las figuras guardadas, y Appearance controla cuándo aparecen las descripciones emergentes."
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance decide cómo aparece la ayuda mientras trabaja. Tooltip delay es el tiempo que el puntero descansa sobre un control antes de que aparezca su descripción: dos segundos por defecto, y cero las muestra al instante. Show tooltips las desactiva por completo, y las secciones Theme y Animation se despliegan debajo para el aspecto de la ventana.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ],
+          "speech_text": "Appearance decide cómo aparece la ayuda mientras trabaja. Tooltip delay es el tiempo que el puntero descansa sobre un control antes de que aparezca su descripción: dos segundos por defecto, y cero las muestra al instante. Show tooltips las desactiva por completo, y las secciones Theme y Animation se despliegan debajo para el aspecto de la ventana."
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme y Animation son secciones plegadas de Appearance. Haga clic en Theme para abrirla: fija el tema de la interfaz y la opacidad de la página, si los campos se desvanecen hacia la derecha y el borde de la ventana, con su longitud, cuánto sigue al puntero, su alineación, su modo y su ciclo.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "Theme y Animation son secciones plegadas de Appearance. Haga clic en Theme para abrirla: fija el tema de la interfaz y la opacidad de la página, si los campos se desvanecen hacia la derecha y el borde de la ventana, con su longitud, cuánto sigue al puntero, su alineación, su modo y su ciclo."
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Haga clic en Animation para abrirla en su lugar. Elige el fondo animado y su paleta, con controles deslizantes de detalle, desenfoque, velocidad, tamaño y densidad, si las descripciones de los ajustes se animan y el fondo que aparece detrás de los ajustes.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "Haga clic en Animation para abrirla en su lugar. Elige el fondo animado y su paleta, con controles deslizantes de detalle, desenfoque, velocidad, tamaño y densidad, si las descripciones de los ajustes se animan y el fondo que aparece detrás de los ajustes."
         },
         {
           "visual": "00_home",
@@ -718,10 +815,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ],
           "speech_text": "Vuelve a Home y haz clic en Pipeline overviews para elegir un flujo de trabajo. Empieza con espáquer screens para un cribado agrupado basado en imágenes, o elige una ruta de análisis de imágenes o de secuenciación para tus datos. Los siguientes tutoriales muestran cómo se conectan esos módulos, y las lecciones de cada módulo recorren después cada tarea."
         }
@@ -932,15 +1029,12 @@
       "objectives": [
         "Cargar el ejemplo de microscopía e identificar sus canales de intensidad.",
         "Comparar ajustes del modelo y filtros de tamaño de objeto en la vista previa Live.",
-        "Ejecutar la segmentación, revisar las superposiciones y encontrar las salidas combinadas."
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "Ejecutar la segmentación, revisar sus figuras y encontrar las salidas combinadas."
       ],
       "prerequisite": "Abre Mask y elige Load test data. Para tus propias imágenes, prepara una carpeta de origen con nombres de archivo coherentes y canales conocidos. Este ejemplo usa el canal de núcleos 0, el canal de células 1 y el canal de patógenos 2, con un canal de intensidad adicional 3.",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "Desde Home, abre Mask. Usa este módulo para delimitar células, núcleos y patógenos en imágenes de microscopio. Este recorrido procesa imágenes bidimensionales. Los flujos de Time, tridimensional y OPS tienen sus propios tutoriales.",
           "related_lessons": [
             "05_home",
@@ -951,91 +1045,73 @@
           "speech_text": "Desde Home, abre Mask. Usa este módulo para delimitar células, núcleos y patógenos en imágenes de microscopio. Este recorrido procesa imágenes bidimensionales. Los flujos de Time, tridimensional y OPS tienen sus propios tutoriales."
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "Haz clic en Load test data y espera a que se cargue el ejemplo de microscopía. Comprueba Source antes de continuar. Para tus propias imágenes, selecciona su carpeta y confirma que los nombres de archivo identifican la placa, el pocillo, el campo y el canal.",
           "hold_after": 0.7,
           "speech_text": "Haz clic en Load test data y espera a que se cargue el ejemplo de microscopía. Comprueba Source antes de continuar. Para tus propias imágenes, selecciona su carpeta y confirma que los nombres de archivo identifican la placa, el pocillo, el campo y el canal."
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "Compara las asignaciones de canales con las imágenes. En este ejemplo, la intensidad de los núcleos es el canal cero, la de las células es el canal uno y la de los patógenos es el canal dos. El canal tres es una imagen de intensidad adicional. Elige solo los tipos de objeto presentes en tu experimento.",
           "hold_after": 0.7,
           "speech_text": "Compara las asignaciones de canales con las imágenes. En este ejemplo, la intensidad de los núcleos es el canal cero, la de las células es el canal uno y la de los patógenos es el canal dos. El canal tres es una imagen de intensidad adicional. Elige solo los tipos de objeto presentes en tu experimento."
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "Debajo de las entradas, la tabla de ajustes por objeto reúne lo que elige para cada objeto. Cada objeto es una columna, aquí célula, núcleo y patógeno, y cada fila plantea una pregunta: si se elimina el fondo, el diámetro del objeto, el modelo de segmentación, el nivel de fondo y el umbral de relación señal-ruido. Add a filter añade una fila que elimina objetos según una propiedad medida, como el área, y Add an organelle añade otra columna de objeto.",
+          "hold_after": 0.7,
+          "speech_text": "Debajo de las entradas, la tabla de ajustes por objeto reúne lo que elige para cada objeto. Cada objeto es una columna, aquí célula, núcleo y patógeno, y cada fila plantea una pregunta: si se elimina el fondo, el diámetro del objeto, el modelo de segmentación, el nivel de fondo y el umbral de relación señal-ruido. Add a filter añade una fila que elimina objetos según una propiedad medida, como el área, y Add an organelle añade otra columna de objeto."
+        },
+        {
+          "visual": "04_live_image",
           "narration": "Activa Live y selecciona un campo. Revisa la imagen y las máscaras propuestas juntas antes de procesar toda la carpeta. Prueba varios campos que representen el rango de calidad de imagen de tu experimento.",
           "hold_after": 0.7,
           "speech_text": "Activa Live y selecciona un campo. Revisa la imagen y las máscaras propuestas juntas antes de procesar toda la carpeta. Prueba varios campos que representen el rango de calidad de imagen de tu experimento."
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "Abre Live settings y elige el modelo para el objeto que quieres segmentar. Define el diámetro aproximado del objeto y ejecuta la vista previa. Compara los contornos con la imagen, fijándote en los objetos que se pierden y en los que quedan unidos.",
+          "visual": "05_live_settings",
+          "narration": "Abra Live settings y elija el modelo para el objeto que quiere segmentar. Indique el diámetro aproximado del objeto y haga clic en Run preview.",
           "hold_after": 0.7,
-          "speech_text": "Abre Live settings y elige el modelo para el objeto que quieres segmentar. Define el diámetro aproximado del objeto y ejecuta la vista previa. Compara los contornos con la imagen, fijándote en los objetos que se pierden y en los que quedan unidos."
+          "speech_text": "Abra Live settings y elija el modelo para el objeto que quiere segmentar. Indique el diámetro aproximado del objeto y haga clic en Run preview."
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "Cuando termine la vista previa, compare los contornos con la imagen. Busque objetos omitidos y objetos vecinos unidos en uno solo. La línea de estado indica cuántos objetos se encontraron.",
+          "hold_after": 0.7,
+          "speech_text": "Cuando termine la vista previa, compare los contornos con la imagen. Busque objetos omitidos y objetos vecinos unidos en uno solo. La línea de estado indica cuántos objetos se encontraron."
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "Usa el filtro de área mínima para ocultar los objetos más pequeños que el número de píxeles elegido. Al aumentarlo desaparecen las etiquetas pequeñas de la vista previa. Este filtro actualiza un resultado de máscara ya existente, así que puedes comparar límites de tamaño rápidamente.",
           "hold_after": 0.7,
           "speech_text": "Usa el filtro de área mínima para ocultar los objetos más pequeños que el número de píxeles elegido. Al aumentarlo desaparecen las etiquetas pequeñas de la vista previa. Este filtro actualiza un resultado de máscara ya existente, así que puedes comparar límites de tamaño rápidamente."
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "Cambia el diámetro cuando el modelo divida o una objetos a una escala equivocada y vuelve a ejecutar la vista previa. Revisa los bordes además del recuento de objetos. Restablece los ajustes que quieras usar antes de pasar a la ejecución por lotes.",
+          "visual": "10_filters_restored",
+          "narration": "Vuelva a poner el área mínima en cero para recuperar todos los objetos. Si el modelo divide o une objetos a una escala incorrecta, cambie Diameter y vuelva a ejecutar la vista previa, revisando tanto los bordes como el recuento. Restablezca los ajustes que desea antes de la ejecución por lotes.",
           "hold_after": 0.7,
-          "speech_text": "Cambia el diámetro cuando el modelo divida o una objetos a una escala equivocada y vuelve a ejecutar la vista previa. Revisa los bordes además del recuento de objetos. Restablece los ajustes que quieras usar antes de pasar a la ejecución por lotes."
+          "speech_text": "Vuelva a poner el área mínima en cero para recuperar todos los objetos. Si el modelo divide o une objetos a una escala incorrecta, cambie Diameter y vuelva a ejecutar la vista previa, revisando tanto los bordes como el recuento. Restablezca los ajustes que desea antes de la ejecución por lotes."
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "Para una primera ejecución pequeña, selecciona dos imágenes de prueba, deja Plot activado y revisa los umbrales de flujo de células, núcleos y patógenos. Aquí son de cero coma cuatro. Comprueba los ajustes de salida y de conservación de las imágenes originales y haz clic en Run.",
+          "visual": "run_20_batch_settings",
+          "narration": "Para una primera ejecución rápida, esta grabación apunta Source a recortes centrados de dos campos de ejemplo; con sus propios datos, active Test mode y elija unas pocas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run.",
           "hold_after": 0.7,
-          "speech_text": "Para una primera ejecución pequeña, selecciona dos imágenes de prueba, deja Plot activado y revisa los umbrales de flujo de células, núcleos y patógenos. Aquí son de cero coma cuatro. Comprueba los ajustes de salida y de conservación de las imágenes originales y haz clic en Run."
+          "speech_text": "Para una primera ejecución rápida, esta grabación apunta Source a recortes centrados de dos campos de ejemplo; con sus propios datos, active Test mode y elija unas pocas imágenes de prueba. Deje Plot activado, revise los diámetros y umbrales de flujo por objeto, deje Save activado en Quality Control y haga clic en Run."
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "Sigue la consola y revisa los campos que fallen o los gráficos que falten. La carpeta merged contiene las intensidades de imagen y las etiquetas finales de los objetos. Conserva sus metadatos de disposición de planos junto a los arreglos para que Measure pueda identificar cada canal y cada máscara.",
+          "visual": "run_23_batch_finished",
+          "narration": "Cuando termina la ejecución, la lista de figuras se llena con sus gráficos. La última figura dibuja los contornos de cada objeto sobre su propio canal, núcleos, células y patógenos, y a la derecha los objetos combinados. Revise en cada figura los objetos pequeños, las células que se tocan y las regiones omitidas.",
           "hold_after": 0.7,
-          "speech_text": "Sigue la consola y revisa los campos que fallen o los gráficos que falten. La carpeta merged contiene las intensidades de imagen y las etiquetas finales de los objetos. Conserva sus metadatos de disposición de planos junto a los arreglos para que Measure pueda identificar cada canal y cada máscara."
+          "speech_text": "Cuando termina la ejecución, la lista de figuras se llena con sus gráficos. La última figura dibuja los contornos de cada objeto sobre su propio canal, núcleos, células y patógenos, y a la derecha los objetos combinados. Revise en cada figura los objetos pequeños, las células que se tocan y las regiones omitidas."
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "Si falta una exportación de superposición, la herramienta de gráficos enlazada puede exportar por separado los arreglos guardados. Extrae la herramienta y elige la carpeta merged de esta ejecución. Deja el archivo de disposición en su sitio; la herramienta lo usa para comprobar los planos de intensidad y de máscara.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "Las demás figuras muestran cada canal y los arrays de máscara y de flujo que produjo el modelo. La ejecución escribe una carpeta merged con las intensidades de la imagen y las etiquetas finales de los objetos, y guarda junto a los arrays los metadatos de disposición de planos para que Measure identifique cada canal y máscara. Mantenga juntas las entradas, los ajustes, las máscaras y los informes de calidad, y continúe con Measure para extraer características y recortes de los objetos.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
+            "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Si falta una exportación de superposición, la herramienta de gráficos enlazada puede exportar por separado los arreglos guardados. Extrae la herramienta y elige la carpeta merged de esta ejecución. Deja el archivo de disposición en su sitio; la herramienta lo usa para comprobar los planos de intensidad y de máscara."
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "Ejecuta la herramienta con la carpeta merged como origen y una carpeta de salida nueva como destino. Guarda una superposición separada para cada arreglo de imagen. Abre los archivos PNG guardados para revisar los resultados.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Ejecuta la herramienta con la carpeta merged como origen y una carpeta de salida nueva como destino. Guarda una superposición separada para cada arreglo de imagen. Abre los archivos PNG guardados para revisar los resultados."
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "Revisa los contornos en cada canal de intensidad y en la vista combinada de máscaras. Comprueba los objetos pequeños, las células que se tocan y las regiones perdidas. Guarda juntos las imágenes de entrada, los ajustes, las máscaras y los informes de calidad, y continúa con Measure para extraer las características y los recortes de los objetos.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7,
-          "speech_text": "Revisa los contornos en cada canal de intensidad y en la vista combinada de máscaras. Comprueba los objetos pequeños, las células que se tocan y las regiones perdidas. Guarda juntos las imágenes de entrada, los ajustes, las máscaras y los informes de calidad, y continúa con Measure para extraer las características y los recortes de los objetos."
+          "speech_text": "Las demás figuras muestran cada canal y los arrays de máscara y de flujo que produjo el modelo. La ejecución escribe una carpeta merged con las intensidades de la imagen y las etiquetas finales de los objetos, y guarda junto a los arrays los metadatos de disposición de planos para que Measure identifique cada canal y máscara. Mantenga juntas las entradas, los ajustes, las máscaras y los informes de calidad, y continúe con Measure para extraer características y recortes de los objetos."
         }
       ],
       "narration_voices": {
@@ -1114,9 +1190,9 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Haz clic en Load test data y espera a que se cargue el ejemplo, o selecciona tu propio proyecto combinado. Comprueba la asignación de planos: este ejemplo tiene cuatro canales de intensidad seguidos de las máscaras de células, núcleos y patógenos en los planos cuatro, cinco y seis.",
+          "narration": "Haz clic en Load test data y espera a que se cargue el ejemplo, o selecciona tu propio proyecto combinado. Comprueba la asignación de planos: este ejemplo tiene cuatro canales de intensidad seguidos de las máscaras de células, núcleos y patógenos en los planos cuatro, cinco y seis. Al pulsar Run, Measure compara estos planos de máscara con el diseño guardado para la carpeta; si no coinciden, ofrece Use stored image layout y le pide que revise la asignación y vuelva a ejecutar.",
           "hold_after": 0.7,
-          "speech_text": "Haz clic en Load test data y espera a que se cargue el ejemplo, o selecciona tu propio proyecto combinado. Comprueba la asignación de planos: este ejemplo tiene cuatro canales de intensidad seguidos de las máscaras de células, núcleos y patógenos en los planos cuatro, cinco y seis."
+          "speech_text": "Haz clic en Load test data y espera a que se cargue el ejemplo, o selecciona tu propio proyecto combinado. Comprueba la asignación de planos: este ejemplo tiene cuatro canales de intensidad seguidos de las máscaras de células, núcleos y patógenos en los planos cuatro, cinco y seis. Al pulsar Run, Measure compara estos planos de máscara con el diseño guardado para la carpeta; si no coinciden, ofrece Use stored image layout y le pide que revise la asignación y vuelva a ejecutar."
         },
         {
           "visual": "preview_04_preview_normalization_setup",
@@ -1138,9 +1214,30 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Elige otro campo y compara sus objetos. Revisa el aviso de calidad de segmentación antes de medir el proyecto. Si faltan máscaras o están mal unidas, corrígelas o ajusta Mask antes de continuar.",
+          "narration": "Elija otro campo y compare sus objetos. Si faltan máscaras o hay objetos unidos por error, corríjalas o ajuste Mask antes de continuar.",
           "hold_after": 0.7,
-          "speech_text": "Elige otro campo y compara sus objetos. Revisa el aviso de calidad de segmentación antes de medir el proyecto. Si faltan máscaras o están mal unidas, corrígelas o ajusta Mask antes de continuar."
+          "speech_text": "Elija otro campo y compare sus objetos. Si faltan máscaras o hay objetos unidos por error, corríjalas o ajuste Mask antes de continuar."
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "Para comparar campos uno junto a otro, abra Checked images y marque los campos que desee. La cuadrícula agrupa los recortes por su campo de origen; pase el cursor sobre un recorte para ver su ruta o haga doble clic para abrir ese campo exacto. Uncheck all images vacía la cuadrícula. Esto solo cambia la vista previa, no lo que procesa Measure.",
+          "hold_after": 0.7,
+          "speech_text": "Para comparar campos uno junto a otro, abra Checked images y marque los campos que desee. La cuadrícula agrupa los recortes por su campo de origen; pase el cursor sobre un recorte para ver su ruta o haga doble clic para abrir ese campo exacto. Uncheck all images vacía la cuadrícula. Esto solo cambia la vista previa, no lo que procesa Measure."
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "Para revisar la calidad de la segmentación en todo el proyecto antes de medir, active QC en la fila Actions, junto a 3D y Time. Su ventana enumera los campos y pocillos cuyas máscaras parecen inusuales, por ejemplo con muchos menos objetos que el resto de la placa, con enlaces para revisarlos. La revisión es solo orientativa y nunca detiene Measure; al cerrar la ventana, el interruptor se desactiva.",
+          "hold_after": 0.7,
+          "speech_text": "Para revisar la calidad de la segmentación en todo el proyecto antes de medir, active QC en la fila Actions, junto a tres de y Time. Su ventana enumera los campos y pocillos cuyas máscaras parecen inusuales, por ejemplo con muchos menos objetos que el resto de la placa, con enlaces para revisarlos. La revisión es solo orientativa y nunca detiene Measure; al cerrar la ventana, el interruptor se desactiva."
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "En All settings, Image Preprocessing reúne las correcciones que Measure puede aplicar a cada campo antes de medir: Image Deconvolution con una función de dispersión de punto e Illumination Correction con un modelo estimado previamente. Cambian los píxeles que se miden en esta ejecución; las máscaras y los arrays en disco no se modifican.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ],
+          "speech_text": "En All settings, Image Preprocessing reúne las correcciones que Measure puede aplicar a cada campo antes de medir: Image Deconvolution con una función de dispersión de punto e Illumination Correction con un modelo estimado previamente. Cambian los píxeles que se miden en esta ejecución; las máscaras y los arrays en disco no se modifican."
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1153,21 +1250,9 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Activa el guardado de mediciones y de recortes de objetos, deja Plot activado y elige el tamaño de recorte y los canales de salida. Usa un proceso de trabajo en este ejemplo. Deja Test mode desactivado para procesar los dieciséis campos incluidos y haz clic en Run.",
+          "narration": "Active el guardado de mediciones y recortes de objetos, deje Plot activado y elija el tamaño del recorte y los canales de salida. En una primera ejecución, Test mode mide un campo; desactívelo para procesar los dieciséis campos incluidos. Haga clic en Run, siga la consola hasta que termine la ejecución y compruebe qué campos se completaron antes de continuar.",
           "hold_after": 0.7,
-          "speech_text": "Activa el guardado de mediciones y de recortes de objetos, deja Plot activado y elige el tamaño de recorte y los canales de salida. Usa un proceso de trabajo en este ejemplo. Deja Test mode desactivado para procesar los dieciséis campos incluidos y haz clic en Run."
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "Sigue la consola hasta que termine la ejecución. Comprueba qué campos se procesaron bien y revisa los fallos antes de continuar. Mantén los ajustes guardados con esta ejecución para poder reproducir las mediciones.",
-          "hold_after": 0.7,
-          "speech_text": "Sigue la consola hasta que termine la ejecución. Comprueba qué campos se procesaron bien y revisa los fallos antes de continuar. Mantén los ajustes guardados con esta ejecución para poder reproducir las mediciones."
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "Usa la lista de figuras para comparar los objetos antes y después del filtrado. Los filtros de tamaño y las relaciones entre objetos padre e hijo pueden cambiar qué objetos se miden. Arrastra el divisor para dar más espacio a las figuras y revisa cualquier cambio inesperado.",
-          "hold_after": 0.7,
-          "speech_text": "Usa la lista de figuras para comparar los objetos antes y después del filtrado. Los filtros de tamaño y las relaciones entre objetos padre e hijo pueden cambiar qué objetos se miden. Arrastra el divisor para dar más espacio a las figuras y revisa cualquier cambio inesperado."
+          "speech_text": "Active el guardado de mediciones y recortes de objetos, deje Plot activado y elija el tamaño del recorte y los canales de salida. En una primera ejecución, Test mode mide un campo; desactívelo para procesar los dieciséis campos incluidos. Haga clic en Run, siga la consola hasta que termine la ejecución y compruebe qué campos se completaron antes de continuar."
         },
         {
           "visual": "batch_25_measure_figure_02",
@@ -1397,10 +1482,41 @@
           "speech_text": "Cuando tus etiquetas estén listas, abre Train. Elige imágenes para un clasificador de imágenes o características medidas para un clasificador tabular. Las lecciones de Classify enlazadas explican los ajustes de entrenamiento."
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest puede proponerte etiquetas para que las revises. Retrain actualiza el modelo después de añadir etiquetas, y Rounds te ayuda a seguir ese ciclo de revisión. Comprueba las etiquetas sugeridas antes de aceptarlas.",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en cuatro pocillos y Next los guarda.",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest puede proponerte etiquetas para que las revises. Retrain actualiza el modelo después de añadir etiquetas, y Rounds te ayuda a seguir ese ciclo de revisión. Comprueba las etiquetas sugeridas antes de aceptarlas."
+          "speech_text": "Suggest propone etiquetas para los recortes que aún no ha respondido, así que primero dele ejemplos de ambas clases de varios pocillos. Aquí se etiquetan unos pocos recortes de cada clase en cuatro pocillos y Next los guarda."
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y cada recorte de la página lleva ahora un signo de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar.",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Abra Suggest y elija Suggest for the images on this page. La ronda tarda unos segundos y cada recorte de la página lleva ahora un signo de interrogación. La barra sobre la cuadrícula cuenta cuántas sugerencias quedan por juzgar."
+        },
+        {
+          "visual": "21_judged",
+          "narration": "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas se registran, los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado.",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en un recorte sugerido o pulse Y para confirmarlo, y haga clic derecho o pulse N para rechazarlo. Ambas respuestas se registran, los rechazos entrenan la siguiente ronda y Confirm the rest of the page resuelve lo que queda una vez que lo ha revisado."
         },
         {
           "visual": "17_generate_database_entry",
@@ -3320,7 +3436,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y seis células. Ajusta la configuración aquí antes de procesar toda la carpeta.",
+          "narration": "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y ocho células. Ajusta la configuración aquí antes de procesar toda la carpeta.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3328,11 +3444,11 @@
             3410,
             1240
           ],
-          "speech_text": "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y seis células. Ajusta la configuración aquí antes de procesar toda la carpeta."
+          "speech_text": "Abre Live preview, elige una imagen y pulsa Run preview, con el mismo canal y los mismos percentiles. Segmenta esa imagen con tu punto de control; aquí encuentra setenta y ocho células. Ajusta la configuración aquí antes de procesar toda la carpeta."
         },
         {
           "visual": "apply_result",
-          "narration": "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Aquí las tres máscaras contienen setenta y seis, cuarenta y ocho y cincuenta y cinco células. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado.",
+          "narration": "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Aquí las tres máscaras contienen setenta y nueve, cincuenta y cincuenta y cinco células. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3344,7 +3460,7 @@
             3410,
             390
           ],
-          "speech_text": "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Aquí las tres máscaras contienen setenta y seis, cuarenta y ocho y cincuenta y cinco células. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado."
+          "speech_text": "Pulsa Run. Apply escribe una máscara por imagen en una subcarpeta masks junto a esas imágenes, y Verbose muestra cada resultado como una figura. Aquí las tres máscaras contienen setenta y nueve, cincuenta y cincuenta y cinco células. Antes de usar un modelo en todo un experimento, compara sus máscaras con campos etiquetados por separado."
         }
       ],
       "narration_voices": {
@@ -4017,7 +4133,8 @@
       "objectives": [
         "Abrir Plaque Assay desde Toxoplasma y seleccionar la carpeta de imágenes.",
         "Elegir un modelo, revisar una vista previa y ajustar los filtros de área.",
-        "Ejecutar el análisis y revisar recuentos, áreas y calibración en la base de datos de salida."
+        "Ejecutar el análisis y revisar recuentos, áreas y calibración en la base de datos de salida.",
+        "Leer los pocillos de placas y sus condiciones de una figura publicada en el modo Figure."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -4109,16 +4226,16 @@
           "speech_text": "En Model Zoo, selecciona el modelo de placas, elige una carpeta en Save to y haz clic en Download. Espera a que el modelo esté disponible localmente y luego selecciona ese punto de control para la vista previa. Guarda su ruta para ejecuciones posteriores."
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "Elige una imagen de ejemplo y haz clic en Run preview. Cambia View entre contornos y máscaras de color para comprobar si las regiones predichas siguen los bordes de las placas. Revisa varias imágenes representativas antes de procesar una placa de cultivo.",
+          "visual": "16b_overlay_settings",
+          "narration": "Elige una imagen de ejemplo y haz clic en Run preview. Haz clic derecho en la imagen y abre Overlay settings, donde Display alterna entre contornos y una superposición rellena, para comprobar si las regiones predichas siguen los bordes de las placas. Revisa varias imágenes representativas antes de procesar una placa.",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7,
-          "speech_text": "Elige una imagen de ejemplo y haz clic en Run preview. Cambia View entre contornos y máscaras de color para comprobar si las regiones predichas siguen los bordes de las placas. Revisa varias imágenes representativas antes de procesar una placa de cultivo."
+          "speech_text": "Elige una imagen de ejemplo y haz clic en Run preview. Haz clic derecho en la imagen y abre Overlay settings, donde Display alterna entre contornos y una superposición rellena, para comprobar si las regiones predichas siguen los bordes de las placas. Revisa varias imágenes representativas antes de procesar una placa."
         },
         {
           "visual": "18_actual_filter_changed",
@@ -4157,7 +4274,7 @@
           "speech_text": "Pulsa Run y sigue la consola hasta que termine el análisis. Con Masks desactivado, el ejemplo lee las etiquetas proporcionadas y escribe masks/plaques_analysis.db. La base de datos contiene los recuentos y las áreas de las imágenes de Source."
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "Abre Help y luego Database browser. Selecciona plaques_analysis.db en la carpeta masks. Deja Edit mode desactivado mientras revisas la salida y elige una tabla de la lista de tablas.",
           "related_lessons": [
             "34_database"
@@ -4191,7 +4308,7 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes. Las estimaciones experimentales de crecimiento requieren además una escala conocida para estimar el tiempo, o un tiempo conocido para estimar la escala; valida la curva de referencia de tu ensayo.",
+          "narration": "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes.",
           "focus": [
             345,
             278,
@@ -4199,7 +4316,31 @@
             410
           ],
           "hold_after": 0.7,
-          "speech_text": "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes. Las estimaciones experimentales de crecimiento requieren además una escala conocida para estimar el tiempo, o un tiempo conocido para estimar la escala; valida la curva de referencia de tu ensayo."
+          "speech_text": "Abre details para revisar el área de cada placa. Las columnas de área física quedan vacías cuando no hay calibración. Guarda la base de datos junto con las imágenes, las máscaras y los ajustes."
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay también lee figuras publicadas. Cambie Mode en la vista previa de Plaque a Figure. En el modo Figure, la ejecución encuentra los pocillos de placas en cada figura, lee el texto impreso a su alrededor para nombrar cada condición y luego segmenta las placas. Arrastre PDF o imágenes de figuras a cualquier parte de la pantalla, u obtenga un artículo.",
+          "hold_after": 0.7,
+          "speech_text": "Plaque Assay también lee figuras publicadas. Cambie Mode en la vista previa de Plaque a Figure. En el modo Figure, la ejecución encuentra los pocillos de placas en cada figura, lee el texto impreso a su alrededor para nombrar cada condición y luego segmenta las placas. Arrastre PDF o imágenes de figuras a cualquier parte de la pantalla, u obtenga un artículo."
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "Haga clic en From a paper e introduzca un DOI, o un identificador de PubMed o PMC. spaCR descarga las figuras del artículo y sus leyendas desde Europe PMC en una carpeta nueva, anota la licencia y dirige la vista previa a ellas. Este ejemplo usa un artículo de acceso abierto.",
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en From a paper e introduzca un DOI, o un identificador de PubMed o PMC. espáquer descarga las figuras del artículo y sus leyendas desde Europe PMC en una carpeta nueva, anota la licencia y dirige la vista previa a ellas. Este ejemplo usa un artículo de acceso abierto."
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "Elija una figura y haga clic en Run preview. Cada pocillo encontrado se enmarca en la figura y aparece en la tabla con el texto de etiqueta leído a su lado; aquí se encontraron ocho pocillos, cada uno nombrado por su cepa y la concentración del fármaco. Revise cada condición, corríjala si hace falta y haga clic en Save annotations antes de Run para que las mediciones lleven los nombres correctos.",
+          "hold_after": 0.7,
+          "speech_text": "Elija una figura y haga clic en Run preview. Cada pocillo encontrado se enmarca en la figura y aparece en la tabla con el texto de etiqueta leído a su lado; aquí se encontraron ocho pocillos, cada uno nombrado por su cepa y la concentración del fármaco. Revise cada condición, corríjala si hace falta y haga clic en Save annotations antes de Run para que las mediciones lleven los nombres correctos."
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "Haga clic en Find plaques in all wells. Cada pocillo se segmenta con el modelo de placas predeterminado y la pestaña Plaques enumera cada placa encontrada. Aquí se encontraron sesenta y seis placas en los ocho pocillos, diecisiete de ellas en el pocillo de tipo silvestre sin fármaco. Compare los recuentos con la figura antes de fiarse de ellos.",
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en Find plaques in all wells. Cada pocillo se segmenta con el modelo de placas predeterminado y la pestaña Plaques enumera cada placa encontrada. Aquí se encontraron sesenta y seis placas en los ocho pocillos, diecisiete de ellas en el pocillo de tipo silvestre sin fármaco. Compare los recuentos con la figura antes de fiarse de ellos."
         }
       ],
       "host_app_key": "toxoplasma",
@@ -5973,12 +6114,12 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Desde Home, abre Graph Builder en Data y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa.",
+          "narration": "Desde Home, abre Graph Builder en Tools y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
           ],
-          "speech_text": "Desde Home, abre Graph Builder en Data y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa."
+          "speech_text": "Desde Home, abre Graph Builder en Tools y elige Plate Viewer. Úsalo para resumir las mediciones de objetos por pocillo y revisar cómo se distribuyen en una placa."
         },
         {
           "visual": "03_example_mean",

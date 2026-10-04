@@ -511,7 +511,8 @@
       "objectives": [
         "Ein Startmodul für Bilder, Messwerte oder Sequenzier-Reads wählen.",
         "Zugehörige Werkzeuge und organismusspezifische Assays finden.",
-        "Ein Beispiel laden, Hilfe finden und eine Pipeline-Übersicht öffnen."
+        "Die Home-Spalte und die Modulbereiche an Ihren Bildschirm anpassen.",
+        "Ein Beispiel laden, Hilfe über die Suche oder Control-K finden und Preferences einstellen."
       ],
       "prerequisite": "Installieren Sie spaCR und öffnen Sie die Desktop-Anwendung.",
       "scenes": [
@@ -629,14 +630,102 @@
           ]
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "Jeder Modulbildschirm lässt sich an Ihren Bildschirm anpassen. Ziehen Sie den Griff zwischen den Einstellungen und den rechten Bereichen, um einer Seite mehr Platz zu geben, oder klicken Sie auf seinen Pfeil, um die Einstellungen einzuklappen. Halten Sie Control gedrückt und scrollen Sie über den rechten Bereichen, um deren Text zu vergrößern oder zu verkleinern; mit Control-0 setzen Sie ihn zurück.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Zurück in Home behält die rechte Spalte Ihre Arbeit im Blick. Recent runs listet Ihre Läufe, Totals zählt Läufe, Masken und Messungen, und System zeigt die Auslastung Ihres Computers. Ein laufender oder wartender Lauf erscheint ebenfalls hier. Der Regler Text size unter dem untersten Bereich macht den Text dieser Spalte größer oder kleiner.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "Der Pfeilgriff am linken Rand der Spalte funktioniert wie die Griffe der Module. Ziehen Sie ihn, um die Spalte breiter oder schmaler zu machen, oder klicken Sie darauf, um die Spalte einzuklappen, damit die Kacheln die ganze Breite erhalten. Ein weiterer Klick auf den Pfeil holt die Spalte zurück.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
           "visual": "08_help_search",
           "narration": "Geben Sie den Namen eines Moduls, einer Einstellung oder einer Funktion in das Suchfeld neben Help ein. Hier findet die Suche nach Performance die passende Seite in Preferences. Klicken Sie auf ein Ergebnis, um das Ziel zu öffnen. API-Ergebnisse öffnen die Dokumentation der ausgewählten Funktion.",
           "hold_after": 0.7
         },
         {
+          "visual": "12_command_palette",
+          "narration": "Drücken Sie überall Control-K, um die Befehlspalette zu öffnen. Beginnen Sie, einen Namen wie Measure einzugeben, und die Liste wird beim Tippen kürzer. Mit Enter springen Sie zum markierten Modul, Lauf oder Menübefehl, ohne zur Maus zu greifen.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
           "visual": "09_performance",
           "narration": "Wählen Sie in Preferences ein Performance-Profil für Ihren Computer. Laptop verbraucht weniger Ressourcen; die höheren Profile erlauben mehr Caching und Hintergrundarbeit. Beginnen Sie mit einem bescheidenen Profil, wenn der Arbeitsspeicher begrenzt ist. Ihre Analyseeinstellungen bleiben in jedem Modul unter Ihrer Kontrolle.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "Die Registerkarte General in Preferences legt die Sprache der Oberfläche, die Schrift- und GUI-Skalierung, das dauerhafte Offenhalten des App-Docks und eine farbenblindenfreundliche Palette für Diagramme fest. Die Registerkarte Figures wählt Format und Auflösung gespeicherter Abbildungen, und Appearance steuert, wann Tooltips erscheinen.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance legt fest, wie Hilfe während der Arbeit erscheint. Tooltip delay ist die Zeit, die der Mauszeiger auf einem Element ruhen muss, bevor der Hinweis erscheint: standardmäßig zwei Sekunden, und null zeigt Hinweise sofort. Show tooltips schaltet sie ganz ab, und darunter lassen sich die Abschnitte Theme und Animation für das Aussehen des Fensters aufklappen.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme und Animation sind eingeklappte Abschnitte von Appearance. Klicken Sie auf Theme, um ihn zu öffnen: Er legt das Oberflächendesign und die Seitendeckkraft fest, ob Felder nach rechts ausblenden, und den Fensterrand mit seiner Länge, wie eng er dem Mauszeiger folgt, seiner Ausrichtung, seinem Modus und seinem Zyklus.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Klicken Sie stattdessen auf Animation, um diesen Abschnitt zu öffnen. Er wählt den animierten Hintergrund und seine Palette, mit Reglern für Detail, Unschärfe, Tempo, Größe und Dichte, ob Einstellungs-Tooltips animiert werden, und den Hintergrund hinter den Einstellungen.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
         },
         {
           "visual": "00_home",
@@ -648,10 +737,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ]
         }
       ],
@@ -855,15 +944,12 @@
       "objectives": [
         "Das Mikroskopiebeispiel laden und seine Intensitätskanäle erkennen.",
         "Modelleinstellungen und Objektgrößenfilter in der Live-Vorschau vergleichen.",
-        "Die Segmentierung ausführen, Überlagerungen prüfen und die zusammengeführten Ausgaben finden."
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "Die Segmentierung ausführen, ihre Abbildungen prüfen und die zusammengeführten Ausgaben finden."
       ],
       "prerequisite": "Öffnen Sie Mask und wählen Sie Load test data. Bereiten Sie für eigene Bilder einen Quellordner mit einheitlichen Dateinamen und bekannten Kanälen vor. Dieses Beispiel verwendet Kernkanal 0, Zellkanal 1 und Pathogenkanal 2 sowie einen zusätzlichen Intensitätskanal 3.",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "Öffnen Sie von Home aus Mask. Mit diesem Modul umranden Sie Zellen, Kerne und Pathogene in Mikroskopbildern. Diese Anleitung verarbeitet zweidimensionale Bilder. Die Workflows für Time, 3D und OPS haben eigene Tutorials.",
           "related_lessons": [
             "05_home",
@@ -873,80 +959,62 @@
           "hold_after": 0.7
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "Klicken Sie auf Load test data und warten Sie, bis das Mikroskopiebeispiel geladen ist. Prüfen Sie Source, bevor Sie fortfahren. Wählen Sie für eigene Bilder deren Ordner und prüfen Sie, dass die Dateinamen Platte, Well, Bildfeld und Kanal angeben.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "Gleichen Sie die Kanalzuordnungen mit den Bildern ab. In diesem Beispiel ist die Kernintensität Kanal 0, die Zellintensität Kanal 1 und die Pathogenintensität Kanal 2. Kanal 3 ist ein zusätzliches Intensitätsbild. Wählen Sie nur die Objekttypen, die in Ihrem Experiment vorkommen.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "Unter den Eingaben enthält die Tabelle der objektbezogenen Einstellungen, was Sie für jedes Objekt wählen. Jedes Objekt ist eine Spalte, hier Zelle, Kern und Pathogen, und jede Zeile stellt eine Frage: ob der Hintergrund entfernt wird, der Objektdurchmesser, das Segmentierungsmodell, der Hintergrundwert und die Grenze für das Signal-Rausch-Verhältnis. Add a filter fügt eine Zeile hinzu, die Objekte nach einer gemessenen Eigenschaft wie der Fläche entfernt, und Add an organelle fügt eine weitere Objektspalte hinzu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_live_image",
           "narration": "Schalten Sie Live ein und wählen Sie ein Bildfeld. Prüfen Sie Bild und vorgeschlagene Masken gemeinsam, bevor Sie den ganzen Ordner verarbeiten. Probieren Sie mehrere Bildfelder, die die Bandbreite der Bildqualität Ihres Experiments abbilden.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "Öffnen Sie Live settings und wählen Sie das Modell für das zu segmentierende Objekt. Legen Sie den ungefähren Objektdurchmesser fest und starten Sie die Vorschau. Vergleichen Sie die Umrisse mit dem Bild und achten Sie auf übersehene und zusammengefügte Objekte.",
+          "visual": "05_live_settings",
+          "narration": "Öffnen Sie Live settings und wählen Sie das Modell für das Objekt, das Sie segmentieren möchten. Legen Sie den ungefähren Objektdurchmesser fest und klicken Sie dann auf Run preview.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "Wenn die Vorschau fertig ist, vergleichen Sie die Umrisse mit dem Bild. Achten Sie auf übersehene Objekte und auf benachbarte Objekte, die zu einem verschmolzen sind. Die Statuszeile meldet, wie viele Objekte gefunden wurden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "Blenden Sie mit dem Mindestflächenfilter Objekte aus, die kleiner als die gewählte Pixelzahl sind. Ein höherer Wert entfernt kleine Labels aus der Vorschau. Dieser Filter aktualisiert ein vorhandenes Maskenergebnis, sodass Sie Größengrenzen schnell vergleichen können.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "Ändern Sie den Durchmesser, wenn das Modell Objekte im falschen Maßstab teilt oder verbindet, und starten Sie die Vorschau erneut. Prüfen Sie die Grenzen ebenso wie die Objektzahl. Stellen Sie die gewünschten Einstellungen wieder her, bevor Sie zum Batch-Lauf wechseln.",
+          "visual": "10_filters_restored",
+          "narration": "Setzen Sie die Mindestfläche wieder auf null, um alle Objekte zurückzuholen. Wenn das Modell Objekte im falschen Maßstab teilt oder verbindet, ändern Sie Diameter und führen Sie die Vorschau erneut aus; prüfen Sie dabei die Grenzen ebenso wie die Anzahl. Stellen Sie vor dem Batch-Lauf die gewünschten Einstellungen wieder her.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "Wählen Sie für einen kleinen ersten Lauf zwei Testbilder, lassen Sie Plot eingeschaltet und prüfen Sie die Flow-Schwellenwerte für Zellen, Kerne und Pathogene. Hier liegen sie bei 0,4. Prüfen Sie die Einstellungen für Ausgabe und Aufbewahrung der Originalbilder und klicken Sie dann auf Run.",
+          "visual": "run_20_batch_settings",
+          "narration": "Für einen schnellen ersten Lauf richtet diese Aufnahme Source auf zentrierte Ausschnitte zweier Beispielfelder; bei Ihren eigenen Daten schalten Sie stattdessen Test mode ein und wählen einige Testbilder. Lassen Sie Plot an, prüfen Sie die objektbezogenen Durchmesser und Flow-Schwellen, lassen Sie Save unter Quality Control an und klicken Sie dann auf Run.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "Verfolgen Sie die Konsole und prüfen Sie fehlgeschlagene Bildfelder oder fehlende Plots. Der Ordner merged enthält die Bildintensitäten und die endgültigen Objekt-Labels. Bewahren Sie seine Metadaten zum Ebenenlayout bei den Arrays auf, damit Measure jeden Kanal und jede Maske erkennen kann.",
+          "visual": "run_23_batch_finished",
+          "narration": "Wenn der Lauf fertig ist, füllt sich die Abbildungsliste mit seinen Plots. Die letzte Abbildung zeichnet die Umrisse jedes Objekts auf seinem eigenen Kanal, Kerne, Zellen und Pathogene, und rechts die kombinierten Objekte. Prüfen Sie in jeder Abbildung kleine Objekte, sich berührende Zellen und übersehene Bereiche.",
           "hold_after": 0.7
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "Fehlt ein Überlagerungsexport, kann das verlinkte Plot-Hilfsprogramm die gespeicherten Arrays separat exportieren. Entpacken Sie das Hilfsprogramm und wählen Sie den Ordner merged dieses Laufs. Lassen Sie die Layoutdatei an ihrem Platz; das Hilfsprogramm prüft damit die Intensitäts- und Maskenebenen.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "Die übrigen Abbildungen zeigen jeden Kanal sowie die Masken- und Flow-Arrays, die das Modell erzeugt hat. Der Lauf schreibt einen merged-Ordner mit den Bildintensitäten und den endgültigen Objektlabels und legt die Metadaten zum Ebenenlayout neben die Arrays, damit Measure jeden Kanal und jede Maske erkennt. Bewahren Sie Eingaben, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie dann mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "Führen Sie das Hilfsprogramm mit dem Ordner merged als Quelle und einem neuen Ausgabeordner als Ziel aus. Es speichert für jedes Bild-Array eine eigene Überlagerung. Öffnen Sie die gespeicherten PNG-Dateien, um die Ergebnisse zu prüfen.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "Prüfen Sie die Umrisse auf jedem Intensitätskanal und in der kombinierten Maskenansicht. Achten Sie auf kleine Objekte, sich berührende Zellen und übersehene Bereiche. Bewahren Sie Eingabebilder, Einstellungen, Masken und Qualitätsberichte zusammen auf und fahren Sie mit Measure fort, um Objektmerkmale und Ausschnitte zu extrahieren.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -1024,7 +1092,7 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Klicken Sie auf Load test data und warten Sie, bis das Beispiel geladen ist, oder wählen Sie Ihr eigenes zusammengeführtes Projekt. Prüfen Sie die Ebenenzuordnung: Dieses Beispiel hat vier Intensitätskanäle, gefolgt von Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6.",
+          "narration": "Klicken Sie auf Load test data und warten Sie, bis das Beispiel geladen ist, oder wählen Sie Ihr eigenes zusammengeführtes Projekt. Prüfen Sie die Ebenenzuordnung: Dieses Beispiel hat vier Intensitätskanäle, gefolgt von Zell-, Kern- und Pathogenmasken in den Ebenen 4, 5 und 6. Wenn Sie Run drücken, vergleicht Measure diese Maskenebenen mit dem für den Ordner gespeicherten Layout; stimmen sie nicht überein, bietet es Use stored image layout an und bittet Sie, die Zuordnung zu prüfen und erneut zu starten.",
           "hold_after": 0.7
         },
         {
@@ -1044,8 +1112,26 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Wählen Sie ein anderes Bildfeld und vergleichen Sie dessen Objekte. Prüfen Sie den Hinweis zur Segmentierungsqualität, bevor Sie das Projekt messen. Fehlen Masken oder sind sie falsch verbunden, korrigieren Sie sie oder passen Sie Mask an, bevor Sie fortfahren.",
+          "narration": "Wählen Sie ein weiteres Feld und vergleichen Sie seine Objekte. Wenn Masken fehlen oder falsch verbunden sind, korrigieren Sie sie oder passen Sie Mask an, bevor Sie fortfahren.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "Um Felder nebeneinander zu vergleichen, öffnen Sie Checked images und haken die gewünschten Felder an. Das Raster gruppiert die Ausschnitte nach ihrem Quellfeld; zeigen Sie auf einen Ausschnitt, um seinen Pfad zu sehen, oder doppelklicken Sie, um genau dieses Feld zu öffnen. Uncheck all images leert das Raster. Das ändert nur die Vorschau, nicht, was Measure verarbeitet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "Um die Segmentierungsqualität im ganzen Projekt vor dem Messen zu prüfen, schalten Sie QC in der Actions-Zeile neben 3D und Time ein. Das Fenster listet Felder und Wells, deren Masken ungewöhnlich wirken, etwa mit weit weniger Objekten als der Rest der Platte, und verlinkt sie zur Prüfung. Die Prüfung ist nur ein Hinweis und hält Measure nie an; wenn Sie das Fenster schließen, schaltet sich der Schalter aus.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "Unter All settings enthält Image Preprocessing die Korrekturen, die Measure vor dem Messen auf jedes Feld anwenden kann: Image Deconvolution mit einer Punktspreizfunktion und Illumination Correction mit einem zuvor geschätzten Modell. Sie verändern die Pixel, die in diesem Lauf gemessen werden; die Masken und die Arrays auf dem Datenträger bleiben unverändert.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ]
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1057,17 +1143,7 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Aktivieren Sie das Speichern von Messwerten und Objektausschnitten, lassen Sie Plot eingeschaltet und wählen Sie Ausschnittgröße und Ausgabekanäle. Verwenden Sie für dieses Beispiel einen Worker. Lassen Sie Test mode ausgeschaltet, um alle sechzehn mitgelieferten Bildfelder zu verarbeiten, und klicken Sie dann auf Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "Verfolgen Sie die Konsole, bis der Lauf abgeschlossen ist. Prüfen Sie, welche Bildfelder erfolgreich waren, und untersuchen Sie Fehler, bevor Sie fortfahren. Bewahren Sie die mit diesem Lauf gespeicherten Einstellungen auf, damit Sie die Messungen reproduzieren können.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "Vergleichen Sie mit der Abbildungsliste die Objekte vor und nach dem Filtern. Größenfilter und Eltern-Kind-Beziehungen können ändern, welche Objekte gemessen werden. Ziehen Sie den Trenner, um den Abbildungen mehr Platz zu geben, und prüfen Sie unerwartete Änderungen.",
+          "narration": "Aktivieren Sie das Speichern von Messungen und Objektausschnitten, lassen Sie Plot an und wählen Sie Ausschnittgröße und Ausgabekanäle. Für einen ersten Lauf misst Test mode ein Feld; schalten Sie es aus, um alle sechzehn mitgelieferten Felder zu verarbeiten. Klicken Sie auf Run, verfolgen Sie die Konsole bis zum Ende des Laufs und prüfen Sie dann, welche Felder erfolgreich waren, bevor Sie weitermachen.",
           "hold_after": 0.7
         },
         {
@@ -1281,8 +1357,37 @@
           ]
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest kann Ihnen Labels zur Prüfung vorschlagen. Retrain aktualisiert das Modell, nachdem Sie Labels hinzugefügt haben, und Rounds hilft Ihnen, diesen Prüfzyklus zu verfolgen. Prüfen Sie vorgeschlagene Labels, bevor Sie sie übernehmen.",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest schlägt Labels für die Ausschnitte vor, die Sie noch nicht beantwortet haben. Geben Sie ihm daher zuerst Beispiele beider Klassen aus mehreren Wells. Hier werden in vier Wells einige Ausschnitte jeder Klasse beschriftet, und Next speichert sie.",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "Öffnen Sie Suggest und wählen Sie Suggest for the images on this page. Die Runde dauert einige Sekunden, danach trägt jeder Ausschnitt der Seite ein Fragezeichen. Die Leiste über dem Raster zählt, wie viele Vorschläge noch zu beurteilen sind.",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_judged",
+          "narration": "Klicken Sie auf einen vorgeschlagenen Ausschnitt oder drücken Sie Y, um ihn zu bestätigen, und klicken Sie mit der rechten Maustaste oder drücken Sie N, um ihn abzulehnen. Beide Antworten werden festgehalten, Ablehnungen trainieren die nächste Runde, und Confirm the rest of the page erledigt den Rest, sobald Sie ihn geprüft haben.",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
           "hold_after": 0.7
         },
         {
@@ -3059,7 +3164,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert; hier werden 76 Zellen gefunden. Passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
+          "narration": "Öffnen Sie Live preview, wählen Sie ein Bild und drücken Sie Run preview, mit demselben Kanal und denselben Perzentilen. Das Bild wird mit Ihrem Checkpoint segmentiert; hier werden 78 Zellen gefunden. Passen Sie hier die Einstellungen an, bevor Sie den ganzen Ordner verarbeiten.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3070,7 +3175,7 @@
         },
         {
           "visual": "apply_result",
-          "narration": "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Hier enthalten die drei Masken 76, 48 und 55 Zellen. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden.",
+          "narration": "Drücken Sie Run. Apply schreibt pro Bild eine Maske in einen Unterordner masks neben diesen Bildern, und Verbose zeigt jedes Ergebnis als Abbildung. Hier enthalten die drei Masken 79, 50 und 55 Zellen. Vergleichen Sie die Masken eines Modells mit separat gelabelten Bildfeldern, bevor Sie es für ein ganzes Experiment verwenden.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3714,7 +3819,8 @@
       "objectives": [
         "Plaque Assay über Toxoplasma öffnen und den Bildordner auswählen.",
         "Ein Modell wählen, eine Vorschau prüfen und Flächenfilter einstellen.",
-        "Die Analyse ausführen und Anzahlen, Flächen und Kalibrierung in der Ausgabedatenbank prüfen."
+        "Die Analyse ausführen und Anzahlen, Flächen und Kalibrierung in der Ausgabedatenbank prüfen.",
+        "Plaque-Wells und ihre Bedingungen im Figure-Modus aus einer veröffentlichten Abbildung lesen."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -3799,13 +3905,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "Wählen Sie ein Beispielbild und klicken Sie auf Run preview. Wechseln Sie unter View zwischen Umrissen und farbigen Masken, um zu prüfen, ob die vorhergesagten Bereiche den Plaque-Grenzen folgen. Prüfen Sie mehrere repräsentative Bilder, bevor Sie eine Platte verarbeiten.",
+          "visual": "16b_overlay_settings",
+          "narration": "Wählen Sie ein Beispielbild und klicken Sie auf Run preview. Klicken Sie mit der rechten Maustaste auf das Bild und öffnen Sie Overlay settings; dort wechselt Display zwischen Umrissen und einer gefüllten Überlagerung, damit Sie prüfen können, ob die vorhergesagten Bereiche den Plaque-Rändern folgen. Prüfen Sie mehrere repräsentative Bilder, bevor Sie eine Platte auswerten.",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7
         },
@@ -3843,7 +3949,7 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "Öffnen Sie Help und dann Database browser. Wählen Sie plaques_analysis.db im Ordner masks. Lassen Sie Edit mode beim Prüfen der Ausgabe ausgeschaltet und wählen Sie eine Tabelle aus der Tabellenliste.",
           "related_lessons": [
             "34_database"
@@ -3874,13 +3980,33 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen. Experimentelle Wachstumsschätzungen erfordern zusätzlich einen bekannten Maßstab zur Schätzung der Zeit oder eine bekannte Zeit zur Schätzung des Maßstabs; validieren Sie die Referenzkurve für Ihren Assay.",
+          "narration": "Öffnen Sie details, um einzelne Plaque-Flächen zu prüfen. Spalten mit physikalischer Fläche bleiben leer, wenn keine Kalibrierung vorliegt. Speichern Sie die Datenbank zusammen mit Bildern, Masken und Einstellungen.",
           "focus": [
             345,
             278,
             1420,
             410
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay liest auch veröffentlichte Abbildungen. Stellen Sie Mode in der Vorschau von Plaque auf Figure um. Im Figure-Modus findet der Lauf die Plaque-Wells in jeder Abbildung, liest den Text um sie herum, um jede Bedingung zu benennen, und segmentiert dann die Plaques. Ziehen Sie PDFs oder Abbildungen irgendwo auf den Bildschirm oder holen Sie ein Paper.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "Klicken Sie auf From a paper und geben Sie eine DOI, PubMed- oder PMC-ID ein. spaCR lädt die Abbildungen des Papers und ihre Legenden von Europe PMC in einen neuen Ordner, vermerkt die Lizenz und richtet die Vorschau darauf aus. Dieses Beispiel verwendet ein frei zugängliches Paper.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "Wählen Sie eine Abbildung und klicken Sie auf Run preview. Jedes gefundene Well wird in der Abbildung umrahmt und in der Tabelle mit dem daneben gelesenen Beschriftungstext aufgeführt; hier wurden acht Wells gefunden, jedes nach Stamm und Wirkstoffkonzentration benannt. Prüfen Sie jede Bedingung, korrigieren Sie sie bei Bedarf und klicken Sie vor Run auf Save annotations, damit die Messungen die richtigen Namen tragen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "Klicken Sie auf Find plaques in all wells. Jedes Well wird mit dem Standard-Plaquemodell segmentiert, und die Registerkarte Plaques listet jede gefundene Plaque auf. Hier wurden sechsundsechzig Plaques in den acht Wells gefunden, siebzehn davon im Wildtyp-Well ohne Wirkstoff. Vergleichen Sie die Zahlen mit der Abbildung, bevor Sie sich darauf verlassen.",
           "hold_after": 0.7
         }
       ],
@@ -5550,7 +5676,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Öffnen Sie von Home aus Graph Builder unter Data und wählen Sie dann Plate Viewer. Damit fassen Sie Objektmessungen pro Well zusammen und prüfen ihre Verteilung über eine Platte.",
+          "narration": "Öffnen Sie von Home aus Graph Builder unter Tools und wählen Sie dann Plate Viewer. Damit fassen Sie Objektmessungen pro Well zusammen und prüfen ihre Verteilung über eine Platte.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"

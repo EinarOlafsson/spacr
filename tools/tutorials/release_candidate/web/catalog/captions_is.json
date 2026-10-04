@@ -511,7 +511,8 @@
       "objectives": [
         "Velja upphafseiningu fyrir myndir, mælingar eða raðgreiningarlestra.",
         "Finna tengd verkfæri og greiningar fyrir einstakar lífverur.",
-        "Hlaða inn dæmi, finna hjálp og opna yfirlit yfir greiningarferli."
+        "Laga Home-dálkinn og einingaspjöldin að skjánum þínum.",
+        "Hlaða inn dæmi, finna hjálp með leit eða Control-K og stilla Preferences."
       ],
       "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið.",
       "scenes": [
@@ -629,14 +630,102 @@
           ]
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "Hægt er að laga hvern einingarskjá að skjánum þínum. Dragðu handfangið milli stillinganna og spjaldanna hægra megin til að gefa annarri hliðinni meira pláss, eða smelltu á örina til að fella stillingarnar frá. Haltu Control niðri og skrunaðu yfir spjöldunum hægra megin til að stækka eða minnka textann í þeim, og ýttu á Control-0 til að núllstilla hann.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Aftur á Home heldur dálkurinn hægra megin utan um vinnuna þína. Recent runs sýnir það sem þú keyrðir, Totals telur keyrslur, grímur og mælingar, og System sýnir álagið á tölvunni. Keyrsla sem er í gangi eða bíður birtist hér líka. Sleðinn Text size undir neðsta spjaldinu stækkar eða minnkar textann í dálkinum.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "Örvarhandfangið á vinstri brún dálksins virkar eins og handföng eininganna. Dragðu það til að breikka eða mjókka dálkinn, eða smelltu á það til að fella dálkinn frá svo reitirnir fái alla breiddina. Smelltu aftur á örina til að fá dálkinn til baka.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
           "visual": "08_help_search",
           "narration": "Sláðu inn heiti einingar, stillingar eða falls í leitarreitinn við hliðina á Help. Hér finnur leit að Performance samsvarandi síðu í Preferences. Smelltu á niðurstöðu til að opna áfangastað hennar. API-niðurstöður opna skjölun valins falls.",
           "hold_after": 0.7
         },
         {
+          "visual": "12_command_palette",
+          "narration": "Ýttu á Control-K hvar sem er til að opna skipanaspjaldið. Byrjaðu að slá inn nafn, til dæmis Measure, og listinn styttist á meðan þú skrifar. Ýttu á Enter til að fara í valda einingu, nýlega keyrslu eða valmyndaraðgerð án þess að grípa í músina.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
           "visual": "09_performance",
           "narration": "Í Preferences velurðu Performance-snið fyrir tölvuna þína. Laptop notar minni tilföng; hærri sniðin leyfa meiri skyndiminnisnotkun og bakgrunnsvinnu. Byrjaðu á hóflegu sniði ef minni er takmarkað. Greiningarstillingarnar eru áfram á þínu valdi í hverri einingu.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "Flipinn General í Preferences stillir tungumál viðmótsins, leturstærð og kvörðun viðmótsins, hvort forritabryggjan haldist opin og litaspjald fyrir litblinda í gröfum. Flipinn Figures velur snið og upplausn vistaðra mynda, og Appearance ræður hvenær vísbendingar birtast.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance ræður hvernig hjálp birtist á meðan þú vinnur. Tooltip delay er hversu lengi bendillinn hvílir á stjórnhlut áður en ábendingin birtist: tvær sekúndur sjálfgefið, og núll sýnir ábendingar strax. Show tooltips slekkur alveg á þeim, og hlutarnir Theme og Animation opnast fyrir neðan fyrir útlit gluggans.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme og Animation eru felldir hlutar af Appearance. Smelltu á Theme til að opna hann: hann stillir þema viðmótsins og ógegnsæi síðunnar, hvort svið dofni til hægri, og gluggarammann með lengd hans, hve vel hann fylgir bendlinum, jöfnun, ham og lotu.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "Smelltu frekar á Animation til að opna hann. Hann velur hreyfðan bakgrunn og litaspjald hans, með sleðum fyrir smáatriði, móðu, hraða, stærð og þéttleika, hvort vísbendingar stillinga hreyfist, og bakgrunninn á bak við stillingarnar.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
         },
         {
           "visual": "00_home",
@@ -648,10 +737,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ]
         }
       ],
@@ -855,15 +944,12 @@
       "objectives": [
         "Hlaða inn smásjárdæminu og greina styrkleikarásir þess.",
         "Bera saman stillingar líkans og stærðarsíur hluta í Live-forskoðun.",
-        "Keyra aðgreiningu, skoða yfirlagnir og finna sameinaða úttakið."
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "Keyra skiptingu, skoða myndir hennar og finna sameinuð úttök."
       ],
       "prerequisite": "Opnaðu Mask og veldu Load test data. Fyrir eigin myndir útbýrðu upprunamöppu með samræmdum skráarheitum og þekktum rásum. Dæmið notar kjarnarás 0, frumurás 1 og sýkilrás 2, auk viðbótarstyrkleikarásar 3.",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "Frá Home opnarðu Mask. Notaðu þessa einingu til að afmarka frumur, kjarna og sýkla í smásjármyndum. Þessi yfirferð vinnur úr tvívíðum myndum. Verkferlin fyrir Time, þrívídd og OPS hafa eigin kennslur.",
           "related_lessons": [
             "05_home",
@@ -873,80 +959,62 @@
           "hold_after": 0.7
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "Smelltu á Load test data og bíddu þar til smásjárdæmið hefur hlaðist inn. Athugaðu Source áður en þú heldur áfram. Fyrir eigin myndir velurðu möppuna þeirra og staðfestir að skráarheitin tilgreini plötu, brunn, sjónsvið og rás.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "Berðu rásaúthlutanirnar saman við myndirnar. Í þessu dæmi er styrkur kjarna rás 0, styrkur frumna rás 1 og styrkur sýkla rás 2. Rás 3 er viðbótarstyrkleikamynd. Veldu aðeins þær gerðir hluta sem eru í tilrauninni þinni.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "Undir inntakinu geymir taflan með stillingum fyrir hvern hlut það sem þú velur fyrir hvern hlut. Hver hlutur er dálkur, hér fruma, kjarni og sýkill, og hver lína spyr einnar spurningar: hvort fjarlægja eigi bakgrunn, þvermál hlutarins, skiptingarlíkanið, bakgrunnsgildið og mörk fyrir hlutfall merkis og suðs. Add a filter bætir við línu sem fjarlægir hluti eftir mældum eiginleika eins og flatarmáli, og Add an organelle bætir við öðrum hlutadálki.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_live_image",
           "narration": "Kveiktu á Live og veldu sjónsvið. Skoðaðu myndina og tillögur að grímum saman áður en þú vinnur úr allri möppunni. Prófaðu nokkur sjónsvið sem endurspegla breidd myndgæða í tilrauninni.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "Opnaðu Live settings og veldu líkanið fyrir hlutinn sem þú vilt aðgreina. Stilltu áætlað þvermál hlutarins og keyrðu forskoðunina. Berðu útlínurnar saman við myndina og gefðu gaum að hlutum sem misstust og hlutum sem runnu saman.",
+          "visual": "05_live_settings",
+          "narration": "Opnaðu Live settings og veldu líkanið fyrir hlutinn sem þú vilt skipta. Stilltu áætlað þvermál hlutarins og smelltu svo á Run preview.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "Þegar forskoðuninni lýkur skaltu bera útlínurnar saman við myndina. Leitaðu að hlutum sem misstust og nágrannahlutum sem runnu saman í einn. Stöðulínan segir hve margir hlutir fundust.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "Notaðu síu fyrir lágmarksflatarmál til að fela hluti sem eru minni en valinn fjöldi díla. Hærra gildi fjarlægir litlar merkingar úr forskoðuninni. Sían uppfærir grímuniðurstöðu sem þegar er til, svo þú getur borið stærðarmörk saman hratt.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "Breyttu þvermálinu þegar líkanið skiptir eða sameinar hluti á röngum kvarða og keyrðu forskoðunina aftur. Athugaðu mörkin jafnt sem fjölda hluta. Settu aftur inn stillingarnar sem þú vilt nota áður en þú ferð í runukeyrsluna.",
+          "visual": "10_filters_restored",
+          "narration": "Settu lágmarksflatarmálið aftur á núll til að fá alla hluti til baka. Ef líkanið skiptir eða sameinar hluti í rangri stærð skaltu breyta Diameter og keyra forskoðunina aftur, og skoða bæði jaðrana og fjöldann. Settu inn þær stillingar sem þú vilt áður en keyrt er á öllu.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "Fyrir litla fyrstu keyrslu velurðu tvær prófunarmyndir, hefur kveikt á Plot og ferð yfir flæðisþröskulda frumna, kjarna og sýkla. Hér eru þeir 0,4. Athugaðu stillingar fyrir úttak og varðveislu upprunalegu myndanna og smelltu svo á Run.",
+          "visual": "run_20_batch_settings",
+          "narration": "Fyrir fljótlega fyrstu keyrslu beinir þessi upptaka Source að miðjubútum úr tveimur dæmasviðum; með þínum eigin gögnum kveikirðu frekar á Test mode og velur nokkrar prófmyndir. Hafðu Plot á, athugaðu þvermál og flæðimörk hvers hlutar, hafðu Save á undir Quality Control og smelltu svo á Run.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "Fylgstu með stjórnborðinu og skoðaðu sjónsvið sem mistókust eða myndrit sem vantar. Mappan merged inniheldur styrk myndanna og lokamerkingar hlutanna. Geymdu lýsigögn hennar um uppsetningu laga með fylkjunum svo Measure geti greint hverja rás og grímu.",
+          "visual": "run_23_batch_finished",
+          "narration": "Þegar keyrslunni lýkur fyllist myndalistinn af gröfum hennar. Síðasta myndin teiknar útlínur hvers hlutar á eigin rás, kjarna, frumur og sýkla, og sameinuðu hlutina hægra megin. Athugaðu litla hluti, frumur sem snertast og svæði sem misstust á hverri mynd.",
           "hold_after": 0.7
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "Ef útflutning yfirlagnar vantar getur tengda teiknihjálpartólið flutt út vistuðu fylkin sérstaklega. Afþjappaðu hjálpartólið og veldu möppuna merged úr þessari keyrslu. Láttu uppsetningarskrána vera á sínum stað; hjálpartólið notar hana til að athuga styrkleika- og grímulögin.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "Hinar myndirnar sýna hverja rás og grímu- og flæðifylkin sem líkanið bjó til. Keyrslan skrifar merged-möppu með styrk myndanna og endanlegum merkjum hlutanna, og geymir lýsigögn um lagaskipan við hlið fylkjanna svo Measure þekki hverja rás og grímu. Haltu inntaki, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og búta hlutanna.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "Keyrðu hjálpartólið með möppuna merged sem uppruna og nýja úttaksmöppu sem áfangastað. Það vistar sérstaka yfirlögn fyrir hvert myndfylki. Opnaðu vistuðu PNG-skrárnar til að skoða niðurstöðurnar.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "Farðu yfir útlínurnar á hverri styrkleikarás og í sameinaðri grímusýn. Athugaðu litla hluti, frumur sem snertast og svæði sem misstust. Haltu inntaksmyndum, stillingum, grímum og gæðaskýrslum saman og haltu svo áfram í Measure til að draga út eiginleika og úrklipp hlutanna.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -1024,7 +1092,7 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Smelltu á Load test data og bíddu þar til dæmið hefur hlaðist inn, eða veldu þitt eigið sameinaða verkefni. Athugaðu vörpun laganna: dæmið hefur fjórar styrkleikarásir og svo grímur fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6.",
+          "narration": "Smelltu á Load test data og bíddu þar til dæmið hefur hlaðist inn, eða veldu þitt eigið sameinaða verkefni. Athugaðu vörpun laganna: dæmið hefur fjórar styrkleikarásir og svo grímur fyrir frumur, kjarna og sýkla í lögum 4, 5 og 6. Þegar þú ýtir á Run ber Measure þessi grímulög saman við uppsetninguna sem er vistuð fyrir möppuna; ef þau stemma ekki býður það Use stored image layout og biður þig að yfirfara vörpunina og keyra aftur.",
           "hold_after": 0.7
         },
         {
@@ -1044,8 +1112,26 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "Veldu annað sjónsvið og berðu hluti þess saman. Farðu yfir tilkynninguna um gæði aðgreiningar áður en þú mælir verkefnið. Ef grímur vantar eða eru ranglega sameinaðar skaltu laga þær eða stilla Mask áður en þú heldur áfram.",
+          "narration": "Veldu annað svið og berðu saman hluti þess. Ef grímur vantar eða eru ranglega sameinaðar skaltu laga þær eða stilla Mask áður en þú heldur áfram.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "Til að bera reiti saman hlið við hlið opnarðu Checked images og hakar við reitina sem þú vilt. Grindin flokkar úrklippurnar eftir upprunareit; haltu bendlinum yfir úrklippu til að sjá slóð hennar, eða tvísmelltu til að opna nákvæmlega þann reit. Uncheck all images tæmir grindina. Þetta breytir aðeins forskoðuninni, ekki því sem Measure vinnur úr.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "Til að athuga gæði skiptingarinnar í öllu verkefninu fyrir mælingu skaltu kveikja á QC í Actions-röðinni, við hlið 3D og Time. Glugginn sýnir svið og brunna þar sem grímur virðast óvenjulegar, til dæmis með miklu færri hluti en restin af plötunni, með tenglum til að skoða þá. Athugunin er aðeins ráðgefandi og stöðvar aldrei Measure; þegar glugganum er lokað slokknar á rofanum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "Undir All settings geymir Image Preprocessing leiðréttingarnar sem Measure getur beitt á hvert svið fyrir mælingu: Image Deconvolution með punktdreififalli og Illumination Correction með líkani sem þú mast áður. Þær breyta pixlunum sem mældir eru í þessari keyrslu; grímurnar og fylkin á diskinum breytast ekki.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ]
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1057,17 +1143,7 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "Virkjaðu vistun mælinga og úrklippa hluta, hafðu kveikt á Plot og veldu stærð úrklippa og úttaksrásir. Notaðu eitt vinnsluferli í þessu dæmi. Hafðu slökkt á Test mode til að vinna úr öllum sextán sjónsviðunum og smelltu svo á Run.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "Fylgstu með stjórnborðinu þar til keyrslunni lýkur. Athugaðu hvaða sjónsvið tókust og skoðaðu villur áður en þú heldur áfram. Haltu stillingunum sem vistaðar voru með keyrslunni svo þú getir endurtekið mælingarnar.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "Notaðu myndritalistann til að bera hlutina saman fyrir og eftir síun. Stærðarsíur og tengsl foreldra og afkvæma geta breytt því hvaða hlutir eru mældir. Dragðu skilrúmið til að gefa myndritunum meira pláss og skoðaðu óvæntar breytingar.",
+          "narration": "Kveiktu á vistun mælinga og búta af hlutum, hafðu Plot á og veldu stærð búta og úttaksrásir. Í fyrstu keyrslu mælir Test mode eitt svið; slökktu á því til að vinna öll sextán sviðin sem fylgja. Smelltu á Run, fylgstu með stjórnborðinu þar til keyrslunni lýkur og athugaðu svo hvaða svið tókust áður en þú heldur áfram.",
           "hold_after": 0.7
         },
         {
@@ -1281,8 +1357,37 @@
           ]
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest getur stungið upp á merkjum sem þú ferð svo yfir. Retrain uppfærir líkanið eftir að þú bætir við merkjum og Rounds hjálpar þér að fylgja þeirri yfirferðarlotu. Athugaðu tillögð merki áður en þú samþykkir þau.",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest leggur til merki fyrir úrklippurnar sem þú hefur ekki svarað enn, svo gefðu því fyrst dæmi um báða flokkana úr nokkrum brunnum. Hér eru nokkrar úrklippur af hvorum flokki merktar í fjórum brunnum og Next vistar þær.",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "Opnaðu Suggest og veldu Suggest for the images on this page. Umferðin tekur nokkrar sekúndur og nú ber hver úrklippa á síðunni spurningarmerki. Stikan fyrir ofan grindina telur hve margar tillögur á eftir að meta.",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_judged",
+          "narration": "Smelltu á tillögu eða ýttu á Y til að staðfesta hana, og hægrismelltu eða ýttu á N til að hafna henni. Bæði svörin eru skráð, höfnun þjálfar næstu umferð og Confirm the rest of the page afgreiðir afganginn þegar þú hefur farið yfir hann.",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
           "hold_after": 0.7
         },
         {
@@ -3059,7 +3164,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 76 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
+          "narration": "Opnaðu Live preview, veldu eina mynd og ýttu á Run preview með sömu rás og hundraðshlutum. Myndinni er skipt með eftirlitspunktinum þínum, sem hér finnur 78 frumur. Stilltu hér áður en þú keyrir alla möppuna.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3070,7 +3175,7 @@
         },
         {
           "visual": "apply_result",
-          "narration": "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 76, 48 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun.",
+          "narration": "Ýttu á Run. Apply skrifar eina grímu á hverja mynd í undirmöppuna masks við hlið myndanna og Verbose sýnir hverja niðurstöðu sem mynd. Hér innihalda grímurnar þrjár 79, 50 og 55 frumur. Berðu grímur líkans saman við sérstaklega merkt sjónsvið áður en þú notar það á heila tilraun.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3714,7 +3819,8 @@
       "objectives": [
         "Opna Plaque Assay úr Toxoplasma og velja myndamöppuna.",
         "Velja líkan, skoða forskoðun og stilla flatarmálssíur.",
-        "Keyra greininguna og skoða fjölda, flatarmál og kvörðun í úttaksgagnagrunninum."
+        "Keyra greininguna og skoða fjölda, flatarmál og kvörðun í úttaksgagnagrunninum.",
+        "Lesa skellubrunna og skilyrði þeirra úr birtri mynd í Figure-ham."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -3799,13 +3905,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "Veldu dæmamynd og smelltu á Run preview. Skiptu View á milli útlína og litaðra grímna til að athuga hvort spáð svæði fylgi mörkum skellnanna. Skoðaðu nokkrar dæmigerðar myndir áður en þú keyrir heila plötu.",
+          "visual": "16b_overlay_settings",
+          "narration": "Veldu dæmamynd og smelltu á Run preview. Hægrismelltu á myndina og opnaðu Overlay settings, þar sem Display skiptir milli útlína og fylltrar yfirlagnar, til að athuga hvort spáðu svæðin fylgja jöðrum skellnanna. Skoðaðu nokkrar dæmigerðar myndir áður en þú keyrir heila plötu.",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7
         },
@@ -3843,7 +3949,7 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "Opnaðu Help og svo Database browser. Veldu plaques_analysis.db í möppunni masks. Hafðu slökkt á Edit mode meðan þú skoðar úttakið og veldu töflu úr töflulistanum.",
           "related_lessons": [
             "34_database"
@@ -3874,13 +3980,33 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum. Tilraunamat á vexti krefst auk þess þekkts kvarða til að meta tíma, eða þekkts tíma til að meta kvarða; staðfestu viðmiðunarferilinn fyrir prófið þitt.",
+          "narration": "Opnaðu details til að skoða flatarmál einstakra skellna. Dálkar fyrir eðlisfræðilegt flatarmál eru tómir þegar kvörðun vantar. Vistaðu gagnagrunninn með myndunum, grímunum og stillingunum.",
           "focus": [
             345,
             278,
             1420,
             410
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay les líka birtar myndir. Skiptu Mode í forskoðuninni úr Plaque í Figure. Í Figure-ham finnur keyrslan skellubrunnana á hverri mynd, les textann umhverfis þá til að nefna hvert skilyrði og skiptir síðan skellunum. Slepptu PDF-skjölum eða myndum hvar sem er á skjáinn, eða sæktu grein.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "Smelltu á From a paper og sláðu inn DOI, PubMed- eða PMC-auðkenni. spaCR sækir myndir greinarinnar og myndatexta þeirra frá Europe PMC í nýja möppu, skráir leyfið og beinir forskoðuninni að þeim. Þetta dæmi notar grein í opnum aðgangi.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "Veldu mynd og smelltu á Run preview. Hver brunnur sem finnst er rammaður inn á myndinni og skráður í töfluna með merkitextanum sem lesinn var við hlið hans; hér fundust átta brunnar, hver nefndur eftir stofni og lyfjastyrk. Athugaðu hvert skilyrði, leiðréttu ef þarf og smelltu á Save annotations fyrir Run svo mælingarnar beri rétt nöfn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "Smelltu á Find plaques in all wells. Hverjum brunni er skipt með sjálfgefnu skellulíkani og flipinn Plaques sýnir hverja skellu sem fannst. Hér fundust sextíu og sex skellur í brunnunum átta, sautján þeirra í villigerðarbrunninum án lyfs. Berðu fjöldann saman við myndina áður en þú treystir honum.",
           "hold_after": 0.7
         }
       ],
@@ -5550,7 +5676,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Frá Home opnarðu Graph Builder undir Data og velur síðan Plate Viewer. Notaðu það til að taka saman mælingar hluta eftir brunnum og skoða dreifingu þeirra yfir plötuna.",
+          "narration": "Frá Home opnarðu Graph Builder undir Tools og velur síðan Plate Viewer. Notaðu það til að taka saman mælingar hluta eftir brunnum og skoða dreifingu þeirra yfir plötuna.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"

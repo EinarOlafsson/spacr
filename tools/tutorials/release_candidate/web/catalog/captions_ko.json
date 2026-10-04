@@ -511,7 +511,8 @@
       "objectives": [
         "이미지, 측정값, 시퀀싱 리드에 맞는 시작 모듈을 고릅니다.",
         "관련 도구와 생물별 분석을 찾습니다.",
-        "예제를 불러오고 도움말을 찾고 파이프라인 개요를 엽니다."
+        "Home 열과 모듈 패널을 화면에 맞게 배치하기.",
+        "예제를 불러오고, 검색이나 Control-K로 도움말을 찾고, Preferences를 설정하기."
       ],
       "prerequisite": "spaCR을 설치하고 데스크톱 애플리케이션을 여세요.",
       "scenes": [
@@ -629,14 +630,102 @@
           ]
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "모든 모듈 화면은 사용하는 화면에 맞게 배치할 수 있습니다. 설정과 오른쪽 패널 사이의 핸들을 끌어 한쪽에 더 많은 공간을 주거나, 화살표를 클릭해 설정을 접으세요. Control을 누른 채 오른쪽 패널 위에서 스크롤하면 글자가 커지거나 작아지고, Control-0을 누르면 원래대로 돌아갑니다.",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ]
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "Home으로 돌아오면 오른쪽 열이 작업 상황을 보여 줍니다. Recent runs는 실행한 작업 목록, Totals는 실행, 마스크, 측정 수, System은 컴퓨터의 부하를 보여 줍니다. 실행 중이거나 대기 중인 작업도 여기에 나타납니다. 맨 아래 패널 밑의 Text size 슬라이더로 이 열의 글자 크기를 바꿉니다.",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ]
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "열 왼쪽 가장자리의 화살표 핸들은 모듈의 핸들과 같은 방식으로 동작합니다. 끌어서 열을 넓히거나 좁히고, 클릭하면 열이 접혀 타일이 전체 너비를 씁니다. 화살표를 다시 클릭하면 열이 돌아옵니다.",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ]
+        },
+        {
           "visual": "08_help_search",
           "narration": "Help 옆의 검색 창에 모듈, 설정, 함수 이름을 입력하세요. 여기서는 Performance를 검색하면 해당 Preferences 페이지가 나옵니다. 결과를 클릭하면 그 위치가 열립니다. API 결과는 선택한 함수의 문서를 엽니다.",
           "hold_after": 0.7
         },
         {
+          "visual": "12_command_palette",
+          "narration": "어디서나 Control-K를 누르면 명령 팔레트가 열립니다. Measure처럼 이름을 입력하기 시작하면 입력하는 대로 목록이 좁혀집니다. Enter를 누르면 강조된 모듈, 최근 실행 또는 메뉴 동작으로 마우스 없이 이동합니다.",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ]
+        },
+        {
           "visual": "09_performance",
           "narration": "Preferences에서 컴퓨터에 맞는 Performance 프로필을 고르세요. Laptop은 자원을 적게 쓰고, 더 높은 프로필은 더 많은 캐시와 백그라운드 작업을 허용합니다. 메모리가 부족하다면 적당한 프로필로 시작하세요. 분석 설정은 각 모듈에서 여전히 직접 관리합니다.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "Preferences의 General 탭에서는 인터페이스 언어, 글꼴과 GUI 배율, 앱 도크를 열어 둘지 여부, 그래프용 색각 이상 친화 팔레트를 설정합니다. Figures 탭은 저장할 그림의 형식과 해상도를 고르고, Appearance는 도움말 풍선이 언제 나타날지 정합니다.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance는 작업 중 도움말이 나타나는 방식을 정합니다. Tooltip delay는 포인터가 컨트롤 위에 머문 뒤 도움말이 나타나기까지의 시간으로, 기본값은 2초이고 0이면 바로 나타납니다. Show tooltips로 도움말을 완전히 끌 수 있고, 아래의 Theme와 Animation 섹션을 펼치면 창의 모양을 정할 수 있습니다.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ]
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme와 Animation은 Appearance 안의 접힌 섹션입니다. Theme를 클릭해 열면 인터페이스 테마와 페이지 불투명도, 필드가 오른쪽으로 흐려지는지 여부, 그리고 창 테두리의 길이, 포인터를 따라가는 정도, 정렬, 모드, 주기를 설정합니다.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "대신 Animation을 클릭해 여세요. 움직이는 배경과 그 팔레트를 고르고, 세부, 흐림, 속도, 크기, 밀도 슬라이더와 함께 설정 도움말 풍선의 애니메이션 여부, 설정 뒤에 보이는 배경을 정합니다.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ]
         },
         {
           "visual": "00_home",
@@ -648,10 +737,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ]
         }
       ],
@@ -855,15 +944,12 @@
       "objectives": [
         "현미경 예제를 불러오고 강도 채널을 확인합니다.",
         "Live 미리 보기에서 모델 설정과 객체 크기 필터를 비교합니다.",
-        "분할을 실행하고 오버레이를 확인한 뒤 병합된 출력을 찾습니다."
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "분할을 실행하고 그림을 확인한 뒤 통합된 출력을 찾기."
       ],
       "prerequisite": "Mask를 열고 Load test data를 선택하세요. 자신의 이미지라면 파일 이름이 일관되고 채널이 분명한 원본 폴더를 준비하세요. 이 예제는 핵 채널 0, 세포 채널 1, 병원체 채널 2와 추가 강도 채널 3을 사용합니다.",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "Home에서 Mask를 여세요. 이 모듈로 현미경 이미지의 세포, 핵, 병원체 윤곽을 잡습니다. 이 안내는 2차원 이미지를 처리합니다. Time, 3D, OPS 워크플로에는 각각 별도의 튜토리얼이 있습니다.",
           "related_lessons": [
             "05_home",
@@ -873,80 +959,62 @@
           "hold_after": 0.7
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "Load test data를 클릭하고 현미경 예제가 불러와질 때까지 기다리세요. 계속하기 전에 Source를 확인하세요. 자신의 이미지라면 그 폴더를 선택하고, 파일 이름으로 플레이트, 웰, 시야, 채널을 알 수 있는지 확인하세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "채널 배정을 이미지와 대조하세요. 이 예제에서 핵 강도는 채널 0, 세포 강도는 채널 1, 병원체 강도는 채널 2입니다. 채널 3은 추가 강도 이미지입니다. 실험에 실제로 있는 객체 유형만 고르세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "입력 아래의 객체별 설정 표에는 각 객체에 대해 고르는 설정이 모여 있습니다. 각 객체가 하나의 열이며 여기서는 세포, 핵, 병원체이고, 각 행은 하나의 질문을 묻습니다. 배경 제거 여부, 객체 지름, 분할 모델, 배경 수준, 신호 대 잡음비 기준입니다. Add a filter는 면적 같은 측정 속성으로 객체를 제거하는 행을 추가하고, Add an organelle은 객체 열을 하나 더 추가합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_live_image",
           "narration": "Live를 켜고 시야를 고르세요. 폴더 전체를 실행하기 전에 이미지와 제안된 마스크를 함께 확인하세요. 실험의 이미지 품질 범위를 대표하는 여러 시야를 시험해 보세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "Live settings를 열고 분할할 객체에 맞는 모델을 고르세요. 대략적인 객체 지름을 설정하고 미리 보기를 실행하세요. 윤곽을 이미지와 비교하며 놓친 객체와 붙어 버린 객체에 주의하세요.",
+          "visual": "05_live_settings",
+          "narration": "Live settings를 열고 분할할 객체의 모델을 고르세요. 대략적인 객체 지름을 설정한 다음 Run preview를 클릭하세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "미리보기가 끝나면 윤곽선을 이미지와 비교하세요. 놓친 객체와 하나로 합쳐진 이웃 객체를 찾아보세요. 상태 줄에 찾은 객체 수가 표시됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "최소 면적 필터로 지정한 픽셀 수보다 작은 객체를 숨길 수 있습니다. 값을 높이면 작은 라벨이 미리 보기에서 사라집니다. 이 필터는 기존 마스크 결과를 업데이트하므로 크기 하한을 빠르게 비교할 수 있습니다.",
           "hold_after": 0.7
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "모델이 잘못된 크기로 객체를 나누거나 합치면 지름을 바꾸고 미리 보기를 다시 실행하세요. 객체 수뿐 아니라 경계도 확인하세요. 배치 실행으로 넘어가기 전에 사용할 설정으로 되돌리세요.",
+          "visual": "10_filters_restored",
+          "narration": "최소 면적을 다시 0으로 설정하면 모든 객체가 돌아옵니다. 모델이 잘못된 크기로 객체를 나누거나 합치면 Diameter를 바꾸고 미리보기를 다시 실행해, 개수뿐 아니라 경계도 확인하세요. 일괄 실행 전에 원하는 설정으로 되돌리세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "작은 첫 실행에서는 테스트 이미지 두 장을 고르고 Plot을 켠 채로 세포, 핵, 병원체의 흐름 임곗값을 검토하세요. 여기서는 0.4입니다. 출력 설정과 원본 이미지 보존 설정을 확인한 뒤 Run을 클릭하세요.",
+          "visual": "run_20_batch_settings",
+          "narration": "빠른 첫 실행을 위해 이 녹화에서는 Source를 예제 필드 두 개의 가운데를 잘라낸 이미지로 지정합니다. 자신의 데이터에서는 대신 Test mode를 켜고 테스트 이미지 몇 장을 고르세요. Plot은 켜 두고, 객체별 지름과 흐름 임계값을 확인하고, Quality Control의 Save를 켜 둔 다음 Run을 클릭하세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "콘솔을 따라가며 실패한 시야나 빠진 그래프를 확인하세요. merged 폴더에는 이미지 강도와 객체의 최종 라벨이 들어 있습니다. Measure가 각 채널과 마스크를 식별할 수 있도록 평면 배치 메타데이터를 배열과 함께 보관하세요.",
+          "visual": "run_23_batch_finished",
+          "narration": "실행이 끝나면 그림 목록이 실행 결과 그래프로 채워집니다. 마지막 그림은 핵, 세포, 병원체 각각의 윤곽선을 해당 채널 위에 그리고, 오른쪽에 합친 객체를 보여 줍니다. 각 그림에서 작은 객체, 맞닿은 세포, 놓친 영역을 확인하세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "오버레이 내보내기가 빠졌다면, 연결된 그래프 도우미로 저장된 배열을 따로 내보낼 수 있습니다. 도우미의 압축을 풀고 이번 실행의 merged 폴더를 고르세요. 배치 파일은 그 자리에 두세요. 도우미가 이 파일로 강도 평면과 마스크 평면을 확인합니다.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "나머지 그림에는 각 채널과 모델이 만든 마스크 및 흐름 배열이 표시됩니다. 실행은 이미지 강도와 최종 객체 레이블이 담긴 merged 폴더를 쓰고, 배열 옆에 평면 배치 메타데이터를 두어 Measure가 각 채널과 마스크를 식별하게 합니다. 입력, 설정, 마스크, 품질 보고서를 함께 보관한 뒤 Measure로 넘어가 객체 특징과 잘라낸 이미지를 추출하세요.",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "merged 폴더를 원본으로, 새 출력 폴더를 대상으로 지정해 도우미를 실행하세요. 이미지 배열마다 별도의 오버레이가 저장됩니다. 저장된 PNG 파일을 열어 결과를 확인하세요.",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "각 강도 채널과 결합된 마스크 보기에서 윤곽을 검토하세요. 작은 객체, 맞닿은 세포, 놓친 영역을 확인하세요. 입력 이미지, 설정, 마스크, 품질 보고서를 함께 보관한 뒤, 객체 특징과 크롭을 추출하러 Measure로 넘어가세요.",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7
+            "08_measure"
+          ]
         }
       ],
       "narration_voices": {
@@ -1024,7 +1092,7 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "Load test data를 클릭하고 예제가 불러와질 때까지 기다리거나, 자신의 병합된 프로젝트를 고르세요. 평면 매핑을 확인하세요. 이 예제는 강도 채널 네 개 다음에 평면 4, 5, 6에 세포, 핵, 병원체 마스크가 이어집니다.",
+          "narration": "Load test data를 클릭하고 예제가 불러와질 때까지 기다리거나, 자신의 병합된 프로젝트를 고르세요. 평면 매핑을 확인하세요. 이 예제는 강도 채널 네 개 다음에 평면 4, 5, 6에 세포, 핵, 병원체 마스크가 이어집니다. Run을 누르면 Measure가 이 마스크 평면을 폴더에 저장된 레이아웃과 비교합니다. 일치하지 않으면 Use stored image layout을 제안하고, 매핑을 검토한 뒤 다시 실행하도록 요청합니다.",
           "hold_after": 0.7
         },
         {
@@ -1044,8 +1112,26 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "다른 시야를 골라 객체를 비교하세요. 프로젝트를 측정하기 전에 분할 품질 안내를 확인하세요. 마스크가 빠졌거나 잘못 합쳐졌다면, 계속하기 전에 고치거나 Mask를 조정하세요.",
+          "narration": "다른 필드를 골라 객체를 비교하세요. 마스크가 빠졌거나 잘못 합쳐졌다면 계속하기 전에 고치거나 Mask를 조정하세요.",
           "hold_after": 0.7
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "필드를 나란히 비교하려면 Checked images를 열고 원하는 필드를 체크합니다. 그리드는 크롭을 원본 필드별로 묶습니다. 크롭 위에 마우스를 올리면 경로가 보이고, 더블 클릭하면 바로 그 필드가 열립니다. Uncheck all images는 그리드를 비웁니다. 이는 미리보기만 바꾸며 Measure가 처리하는 내용은 바꾸지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "측정 전에 프로젝트 전체의 분할 품질을 확인하려면 Actions 줄에서 3D와 Time 옆의 QC를 켜세요. 팝업에는 플레이트의 나머지보다 객체가 훨씬 적은 경우처럼 마스크가 이상해 보이는 필드와 웰이 나열되고, 확인할 수 있는 링크가 붙습니다. 이 점검은 참고용이며 Measure를 멈추지 않습니다. 팝업을 닫으면 스위치가 꺼집니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "All settings 아래의 Image Preprocessing에는 Measure가 측정 전에 각 필드에 적용할 수 있는 보정이 모여 있습니다. 점 확산 함수를 쓰는 Image Deconvolution과, 앞서 추정한 모델을 쓰는 Illumination Correction입니다. 이 보정은 이번 실행에서 측정하는 픽셀을 바꾸며, 마스크와 디스크의 배열은 바뀌지 않습니다.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ]
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1057,17 +1143,7 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "측정값과 객체 크롭 저장을 켜고, Plot을 켠 채로 크롭 크기와 출력 채널을 고르세요. 이 예제에서는 작업자 하나를 쓰세요. 제공된 시야 16개를 모두 처리하도록 Test mode는 끈 채로 두고 Run을 클릭하세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "실행이 끝날 때까지 콘솔을 지켜보세요. 어떤 시야가 성공했는지 확인하고, 다음으로 넘어가기 전에 실패한 것을 검토하세요. 측정을 재현할 수 있도록 이번 실행과 함께 저장된 설정을 보관하세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "그림 목록으로 필터링 전후의 객체를 비교하세요. 크기 필터와 부모-자식 관계에 따라 측정되는 객체가 달라질 수 있습니다. 구분선을 드래그해 그림 공간을 넓히고, 예상치 못한 변화가 없는지 확인하세요.",
+          "narration": "측정값과 객체 잘라낸 이미지 저장을 켜고, Plot은 켜 둔 채 잘라낼 크기와 출력 채널을 고르세요. 첫 실행에서는 Test mode가 필드 하나만 측정합니다. 제공된 열여섯 개 필드를 모두 처리하려면 끄세요. Run을 클릭하고 실행이 끝날 때까지 콘솔을 지켜본 뒤, 계속하기 전에 어떤 필드가 성공했는지 확인하세요.",
           "hold_after": 0.7
         },
         {
@@ -1281,8 +1357,37 @@
           ]
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest는 검토할 라벨을 제안해 줄 수 있습니다. Retrain은 라벨을 추가한 뒤 모델을 업데이트하고, Rounds는 그 검토 주기를 따라가도록 돕습니다. 제안된 라벨은 받아들이기 전에 확인하세요.",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest는 아직 답하지 않은 크롭에 라벨을 제안하므로, 먼저 여러 웰에서 두 클래스의 예시를 제공하세요. 여기서는 네 개 웰에서 각 클래스의 크롭 몇 개를 라벨링하고 Next로 저장합니다.",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "Suggest를 열고 Suggest for the images on this page를 선택합니다. 라운드는 몇 초면 끝나고, 이제 페이지의 모든 크롭에 물음표 배지가 붙습니다. 그리드 위의 막대는 판정할 제안이 몇 개 남았는지 셉니다.",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_judged",
+          "narration": "제안된 크롭을 클릭하거나 Y를 눌러 확정하고, 오른쪽 클릭하거나 N을 눌러 거절합니다. 두 답 모두 기록되며 거절은 다음 라운드 학습에 쓰이고, 나머지를 확인한 뒤에는 Confirm the rest of the page로 한 번에 처리합니다.",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
           "hold_after": 0.7
         },
         {
@@ -3059,7 +3164,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 76개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",
+          "narration": "Live preview를 열고 이미지 하나를 고른 뒤, 같은 채널과 백분위수로 Run preview를 누르세요. 체크포인트로 그 이미지를 분할하며, 여기서는 세포 78개를 찾습니다. 폴더 전체를 실행하기 전에 여기서 설정을 조정하세요.",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3070,7 +3175,7 @@
         },
         {
           "visual": "apply_result",
-          "narration": "Run을 누르세요. Apply는 이미지마다 마스크 하나를 그 이미지 옆의 masks 하위 폴더에 기록하고, Verbose는 각 결과를 그림으로 보여 줍니다. 여기서 세 마스크에는 세포가 각각 76개, 48개, 55개 있습니다. 모델을 실험 전체에 쓰기 전에 그 마스크를 별도로 라벨을 붙인 시야와 비교하세요.",
+          "narration": "Run을 누르세요. Apply는 이미지마다 마스크 하나를 그 이미지 옆의 masks 하위 폴더에 기록하고, Verbose는 각 결과를 그림으로 보여 줍니다. 여기서 세 마스크에는 세포가 각각 79개, 50개, 55개 있습니다. 모델을 실험 전체에 쓰기 전에 그 마스크를 별도로 라벨을 붙인 시야와 비교하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3714,7 +3819,8 @@
       "objectives": [
         "Toxoplasma에서 Plaque Assay를 열고 이미지 폴더를 선택합니다.",
         "모델을 고르고, 미리 보기를 확인하고, 면적 필터를 설정합니다.",
-        "분석을 실행하고 출력 데이터베이스에서 개수, 면적, 보정을 확인합니다."
+        "분석을 실행하고 출력 데이터베이스에서 개수, 면적, 보정을 확인합니다.",
+        "Figure 모드에서 출판된 그림으로부터 플라크 웰과 그 조건을 읽기."
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -3799,13 +3905,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "예제 이미지를 하나 고르고 Run preview를 클릭하세요. View를 윤곽선과 색 마스크 사이에서 바꿔 가며 예측된 영역이 플라크 경계를 따라가는지 확인하세요. 플레이트 전체를 실행하기 전에 대표 이미지 여러 장을 확인하세요.",
+          "visual": "16b_overlay_settings",
+          "narration": "예제 이미지를 고르고 Run preview를 클릭하세요. 그림을 마우스 오른쪽 버튼으로 클릭해 Overlay settings를 열고, Display에서 윤곽선과 채워진 오버레이를 바꿔 가며 예측된 영역이 플라크 경계를 따르는지 확인하세요. 플레이트 전체를 처리하기 전에 대표 이미지를 여러 장 살펴보세요.",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7
         },
@@ -3843,7 +3949,7 @@
           "hold_after": 0.7
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "Help를 연 뒤 Database browser를 여세요. masks 폴더의 plaques_analysis.db를 선택하세요. 출력을 확인하는 동안에는 Edit mode를 끈 채로 두고, 표 목록에서 표를 고르세요.",
           "related_lessons": [
             "34_database"
@@ -3874,13 +3980,33 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "details를 열어 개별 플라크의 면적을 확인하세요. 보정 값이 없으면 물리적 면적 열은 비어 있습니다. 데이터베이스를 이미지, 마스크, 설정과 함께 저장하세요. 실험적 성장 추정에는 시간을 추정하기 위한 알려진 배율이나 배율을 추정하기 위한 알려진 시간도 필요합니다. 분석법의 기준 곡선을 검증하세요.",
+          "narration": "details를 열어 개별 플라크의 면적을 확인하세요. 보정 값이 없으면 물리적 면적 열은 비어 있습니다. 데이터베이스를 이미지, 마스크, 설정과 함께 저장하세요.",
           "focus": [
             345,
             278,
             1420,
             410
           ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay는 출판된 그림도 읽습니다. 미리보기의 Mode를 Plaque에서 Figure로 바꾸세요. Figure 모드에서는 각 그림 안의 플라크 웰을 찾고, 그 주변에 인쇄된 글자를 읽어 각 조건의 이름을 붙인 다음 플라크를 분할합니다. PDF나 그림 이미지를 화면 어디에나 끌어다 놓거나 논문을 가져오세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "From a paper를 클릭하고 DOI, PubMed 또는 PMC ID를 입력하세요. spaCR은 Europe PMC에서 논문의 그림과 설명을 새 폴더로 가져오고, 라이선스를 기록한 뒤 미리보기를 그 그림들로 바꿉니다. 이 예제는 오픈 액세스 논문을 사용합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "그림을 고르고 Run preview를 클릭하세요. 찾은 각 웰은 그림 위에 상자로 표시되고, 옆에서 읽은 레이블 글자와 함께 표에 나열됩니다. 여기서는 웰 여덟 개를 찾았고, 각각 균주와 약물 농도로 이름이 붙었습니다. 각 조건을 확인하고 필요하면 고친 다음, Run 전에 Save annotations를 클릭해 측정값에 올바른 이름이 붙도록 하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "Find plaques in all wells를 클릭하세요. 각 웰이 기본 플라크 모델로 분할되고, Plaques 탭에 찾은 플라크가 모두 나열됩니다. 여기서는 웰 여덟 개에서 플라크 예순여섯 개를 찾았고, 그중 열일곱 개는 약물이 없는 야생형 웰에 있었습니다. 이 수를 믿기 전에 그림과 비교해 보세요.",
           "hold_after": 0.7
         }
       ],
@@ -5550,7 +5676,7 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "Home에서 Data의 Graph Builder를 연 다음 Plate Viewer를 선택하세요. 객체 측정값을 웰별로 요약하고 플레이트 전체의 분포를 확인하는 데 사용합니다.",
+          "narration": "Home에서 Tools의 Graph Builder를 연 다음 Plate Viewer를 선택하세요. 객체 측정값을 웰별로 요약하고 플레이트 전체의 분포를 확인하는 데 사용합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"

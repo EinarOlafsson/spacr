@@ -571,7 +571,8 @@
       "objectives": [
         "为图像、测量数据或测序读段选择起始模块。",
         "找到相关工具和特定生物的检测。",
-        "加载示例、查找帮助并打开流程概览。"
+        "按屏幕调整 Home 右侧栏和模块面板。",
+        "加载示例，用搜索或 Control-K 查找帮助，并设置 Preferences。"
       ],
       "prerequisite": "安装spaCR并打开桌面应用程序。",
       "scenes": [
@@ -697,16 +698,112 @@
           "speech_text": "要试用某个模块，请在有Load test data时点击它。等待下载完成，然后检查已填好的输入和设置。在Mask中，按下Run之前先点击Live检查一个视野。时间序列请打开Time，体积图像请打开三维。"
         },
         {
+          "visual": "14_resize_panels",
+          "narration": "每个模块界面都可以按您的屏幕来调整。拖动设置与右侧面板之间的把手，可以让任一侧获得更多空间；点击把手上的箭头可以把设置折叠起来。按住 Control 在右侧面板上滚动，可放大或缩小其中的文字；按 Control-0 可恢复原样。",
+          "hold_after": 0.7,
+          "focus": [
+            1800,
+            171,
+            300,
+            1950
+          ],
+          "speech_text": "每个模块界面都可以按您的屏幕来调整。拖动设置与右侧面板之间的把手，可以让任一侧获得更多空间；点击把手上的箭头可以把设置折叠起来。按住 Control 在右侧面板上滚动，可放大或缩小其中的文字；按 Control-0 可恢复原样。"
+        },
+        {
+          "visual": "10_home_column",
+          "narration": "回到 Home，右侧一栏会记录您的工作。Recent runs 列出您运行过的任务，Totals 统计运行、掩膜和测量的数量，System 显示计算机的负载。正在运行或排队等待的任务也会显示在这里。最下方面板下面的 Text size 滑块用来放大或缩小这一栏的文字。",
+          "hold_after": 0.7,
+          "focus": [
+            3138,
+            205,
+            678,
+            1874
+          ],
+          "speech_text": "回到 主页，右侧一栏会记录您的工作。Recent runs 列出您运行过的任务，Totals 统计运行、掩膜和测量的数量，System 显示计算机的负载。正在运行或排队等待的任务也会显示在这里。最下方面板下面的 Text size 滑块用来放大或缩小这一栏的文字。"
+        },
+        {
+          "visual": "11_column_folded",
+          "narration": "这一栏左边缘的箭头把手与模块中的把手用法相同。拖动它可以让这一栏变宽或变窄；点击它可以把这一栏折叠起来，让磁贴占满整个宽度。再次点击箭头即可恢复这一栏。",
+          "hold_after": 0.7,
+          "focus": [
+            3700,
+            205,
+            140,
+            1874
+          ],
+          "speech_text": "这一栏左边缘的箭头把手与模块中的把手用法相同。拖动它可以让这一栏变宽或变窄；点击它可以把这一栏折叠起来，让磁贴占满整个宽度。再次点击箭头即可恢复这一栏。"
+        },
+        {
           "visual": "08_help_search",
           "narration": "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。",
           "hold_after": 0.7,
           "speech_text": "在Help旁边的搜索框中输入模块、设置或函数的名称。这里搜索Performance会找到对应的Preferences页面。点击结果即可打开相应位置。API结果会打开所选函数的文档。"
         },
         {
+          "visual": "12_command_palette",
+          "narration": "在任何地方按 Control-K 都能打开命令面板。开始输入名称，例如 Measure，列表会随着输入不断缩小。按 Enter 即可跳转到高亮的模块、最近的运行或菜单操作，无需动用鼠标。",
+          "hold_after": 0.7,
+          "focus": [
+            1490,
+            830,
+            840,
+            420
+          ],
+          "speech_text": "在任何地方按 Control-K 都能打开命令面板。开始输入名称，例如 Measure，列表会随着输入不断缩小。按 Enter 即可跳转到高亮的模块、最近的运行或菜单操作，无需动用鼠标。"
+        },
+        {
           "visual": "09_performance",
           "narration": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。",
           "hold_after": 0.7,
           "speech_text": "在Preferences中，为您的电脑选择一个Performance配置。Laptop占用的资源较少；更高的配置允许更多缓存和后台工作。如果内存有限，请从较低的配置开始。每个模块中的分析设置仍由您自己掌控。"
+        },
+        {
+          "visual": "13_preferences_general",
+          "narration": "Preferences 的 General 选项卡用于设置界面语言、字体和 GUI 缩放、应用停靠栏是否保持打开，以及适合色觉障碍者的绘图配色。Figures 选项卡选择保存图片的格式和分辨率，Appearance 决定工具提示何时出现。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ],
+          "speech_text": "Preferences 的 General 选项卡用于设置界面语言、字体和 GUI 缩放、应用停靠栏是否保持打开，以及适合色觉障碍者的绘图配色。Figures 选项卡选择保存图片的格式和分辨率，Appearance 决定工具提示何时出现。"
+        },
+        {
+          "visual": "13b_preferences_appearance",
+          "narration": "Appearance 决定工作时帮助信息如何出现。Tooltip delay 是指针停在控件上多久后才显示提示：默认两秒，设为零则立即显示。Show tooltips 可以完全关闭提示，下方的 Theme 和 Animation 部分可以展开，用来设置窗口外观。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            1200
+          ],
+          "speech_text": "Appearance 决定工作时帮助信息如何出现。Tooltip delay 是指针停在控件上多久后才显示提示：默认两秒，设为零则立即显示。Show tooltips 可以完全关闭提示，下方的 Theme 和 Animation 部分可以展开，用来设置窗口外观。"
+        },
+        {
+          "visual": "13c_appearance_theme",
+          "narration": "Theme 和 Animation 是 Appearance 中折叠起来的部分。点击 Theme 将其展开：它设置界面主题和页面不透明度、字段是否向右淡出，以及窗口边框的长度、跟随指针的程度、对齐方式、模式和周期。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "Theme 和 Animation 是 Appearance 中折叠起来的部分。点击 Theme 将其展开：它设置界面主题和页面不透明度、字段是否向右淡出，以及窗口边框的长度、跟随指针的程度、对齐方式、模式和周期。"
+        },
+        {
+          "visual": "13d_appearance_animation",
+          "narration": "改为点击 Animation 将其展开。它选择动画背景及其配色，提供细节、模糊、速度、大小和密度滑块，并设置设置项提示是否带动画，以及设置项背后显示的背景。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "改为点击 Animation 将其展开。它选择动画背景及其配色，提供细节、模糊、速度、大小和密度滑块，并设置设置项提示是否带动画，以及设置项背后显示的背景。"
         },
         {
           "visual": "00_home",
@@ -718,10 +815,10 @@
             "81_sequencing_pathways"
           ],
           "focus": [
-            3341,
-            180,
-            499,
-            96
+            3150,
+            205,
+            666,
+            46
           ],
           "speech_text": "回到主页，点击Pipeline overviews选择工作流程。对于基于图像的混池筛选，请从斯佩克尔 screens开始；也可以根据您的数据选择图像分析或测序路径。接下来的教程展示这些模块如何衔接，随后各模块的课程会逐一讲解每项任务。"
         }
@@ -932,15 +1029,12 @@
       "objectives": [
         "加载显微示例并识别其强度通道。",
         "在Live预览中比较模型设置和对象大小过滤。",
-        "运行分割，检查叠加图并找到合并输出。"
-      ],
-      "example_files": [
-        "Mask_overlay_API_workaround.zip"
+        "运行分割，检查其生成的图，并找到合并后的输出。"
       ],
       "prerequisite": "打开Mask并选择Load test data。对于您自己的图像，请准备文件名一致、通道明确的源文件夹。本例使用细胞核通道0、细胞通道1和病原体通道2，另有一个额外的强度通道3。",
       "scenes": [
         {
-          "visual": "native_01_module",
+          "visual": "01_module",
           "narration": "从Home打开Mask。用这个模块勾勒显微图像中的细胞、细胞核和病原体。本演示处理二维图像。Time、三维和OPS工作流程各有单独的教程。",
           "related_lessons": [
             "05_home",
@@ -951,91 +1045,73 @@
           "speech_text": "从主页打开Mask。用这个模块勾勒显微图像中的细胞、细胞核和病原体。本演示处理二维图像。Time、三维和OPS工作流程各有单独的教程。"
         },
         {
-          "visual": "native_02_download",
+          "visual": "02_cached_load",
           "narration": "点击Load test data，等待显微示例加载完成。继续之前请检查Source。对于您自己的图像，请选择其文件夹，并确认文件名能标识板、孔、视野和通道。",
           "hold_after": 0.7,
           "speech_text": "点击Load test data，等待显微示例加载完成。继续之前请检查Source。对于您自己的图像，请选择其文件夹，并确认文件名能标识板、孔、视野和通道。"
         },
         {
-          "visual": "native_03_data_ready",
+          "visual": "03_data_ready",
           "narration": "把通道分配与图像进行核对。在本例中，细胞核强度是通道零，细胞强度是通道一，病原体强度是通道二。通道三是一张额外的强度图像。只选择您实验中实际存在的对象类型。",
           "hold_after": 0.7,
           "speech_text": "把通道分配与图像进行核对。在本例中，细胞核强度是通道零，细胞强度是通道一，病原体强度是通道二。通道三是一张额外的强度图像。只选择您实验中实际存在的对象类型。"
         },
         {
-          "visual": "preview_04_live_image",
+          "visual": "03b_object_table",
+          "narration": "输入下方的逐对象设置表汇集了您为每种对象选择的设置。每种对象是一列，这里是细胞、细胞核和病原体；每一行回答一个问题：是否去除背景、对象直径、分割模型、背景水平以及信噪比阈值。Add a filter 会添加一行，按面积等测量属性去除对象；Add an organelle 会再添加一个对象列。",
+          "hold_after": 0.7,
+          "speech_text": "输入下方的逐对象设置表汇集了您为每种对象选择的设置。每种对象是一列，这里是细胞、细胞核和病原体；每一行回答一个问题：是否去除背景、对象直径、分割模型、背景水平以及信噪比阈值。Add a filter 会添加一行，按面积等测量属性去除对象；Add an organelle 会再添加一个对象列。"
+        },
+        {
+          "visual": "04_live_image",
           "narration": "打开Live并选择一个视野。在处理整个文件夹之前，把图像和建议的掩膜放在一起检查。多试几个能代表实验中各种图像质量的视野。",
           "hold_after": 0.7,
           "speech_text": "打开Live并选择一个视野。在处理整个文件夹之前，把图像和建议的掩膜放在一起检查。多试几个能代表实验中各种图像质量的视野。"
         },
         {
-          "visual": "preview_05_live_settings",
-          "narration": "打开Live settings，为要分割的对象选择模型。设置对象的大致直径并运行预览。把轮廓与图像进行比较，留意遗漏的对象和被合并在一起的对象。",
+          "visual": "05_live_settings",
+          "narration": "打开 Live settings，选择要分割对象的模型。设置对象的大致直径，然后点击 Run preview。",
           "hold_after": 0.7,
-          "speech_text": "打开Live settings，为要分割的对象选择模型。设置对象的大致直径并运行预览。把轮廓与图像进行比较，留意遗漏的对象和被合并在一起的对象。"
+          "speech_text": "打开 Live settings，选择要分割对象的模型。设置对象的大致直径，然后点击 Run preview。"
         },
         {
-          "visual": "preview_09_filters_after",
+          "visual": "07_preview_result",
+          "narration": "预览完成后，将轮廓与图像进行比较。留意漏检的对象，以及被合并成一个的相邻对象。状态行会显示找到的对象数量。",
+          "hold_after": 0.7,
+          "speech_text": "预览完成后，将轮廓与图像进行比较。留意漏检的对象，以及被合并成一个的相邻对象。状态行会显示找到的对象数量。"
+        },
+        {
+          "visual": "09_filters_after",
           "narration": "使用最小面积过滤，隐藏小于所选像素数的对象。调大它会从预览中移除较小的标签。这个过滤器更新的是已有的掩膜结果，因此可以快速比较不同的大小下限。",
           "hold_after": 0.7,
           "speech_text": "使用最小面积过滤，隐藏小于所选像素数的对象。调大它会从预览中移除较小的标签。这个过滤器更新的是已有的掩膜结果，因此可以快速比较不同的大小下限。"
         },
         {
-          "visual": "preview_12_model_result",
-          "narration": "如果模型在错误的尺度上拆分或合并对象，请更改直径，然后再次运行预览。除了对象数量，也要检查边界。进入批量运行之前，请恢复您想使用的设置。",
+          "visual": "10_filters_restored",
+          "narration": "把最小面积重新设为零，即可恢复所有对象。如果模型以错误的尺度拆分或合并对象，请修改 Diameter 并重新运行预览，同时检查边界和数量。在批量运行之前，恢复您想使用的设置。",
           "hold_after": 0.7,
-          "speech_text": "如果模型在错误的尺度上拆分或合并对象，请更改直径，然后再次运行预览。除了对象数量，也要检查边界。进入批量运行之前，请恢复您想使用的设置。"
+          "speech_text": "把最小面积重新设为零，即可恢复所有对象。如果模型以错误的尺度拆分或合并对象，请修改 Diameter 并重新运行预览，同时检查边界和数量。在批量运行之前，恢复您想使用的设置。"
         },
         {
-          "visual": "native_20_batch_settings",
-          "narration": "第一次小规模运行时，选择两张测试图像，保持Plot开启，并检查细胞、细胞核和病原体的流阈值。这里它们都是零点四。检查输出和原始图像保留设置，然后点击Run。",
+          "visual": "run_20_batch_settings",
+          "narration": "为了快速完成第一次运行，本录制把 Source 指向两个示例视野的中心裁剪图像；处理您自己的数据时，请改为打开 Test mode 并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。",
           "hold_after": 0.7,
-          "speech_text": "第一次小规模运行时，选择两张测试图像，保持Plot开启，并检查细胞、细胞核和病原体的流阈值。这里它们都是零点四。检查输出和原始图像保留设置，然后点击Run。"
+          "speech_text": "为了快速完成第一次运行，本录制把 Source 指向两个示例视野的中心裁剪图像；处理您自己的数据时，请改为打开 Test mode 并选择几张测试图像。保持 Plot 开启，检查逐对象的直径和流阈值，保持 Quality Control 下的 Save 开启，然后点击 Run。"
         },
         {
-          "visual": "native_23_batch_finished",
-          "narration": "在控制台中跟踪运行，检查失败的视野或缺失的图。merged文件夹包含图像强度和对象的最终标签。请把其中的平面布局元数据与数组放在一起，以便Measure识别每个通道和掩膜。",
+          "visual": "run_23_batch_finished",
+          "narration": "运行结束后，图列表会填入它生成的图。最后一张图在各自的通道上绘制每个对象的轮廓，包括细胞核、细胞和病原体，右侧是合并后的对象。请在每张图中检查小对象、相互接触的细胞和遗漏的区域。",
           "hold_after": 0.7,
-          "speech_text": "在控制台中跟踪运行，检查失败的视野或缺失的图。merged文件夹包含图像强度和对象的最终标签。请把其中的平面布局元数据与数组放在一起，以便Measure识别每个通道和掩膜。"
+          "speech_text": "运行结束后，图列表会填入它生成的图。最后一张图在各自的通道上绘制每个对象的轮廓，包括细胞核、细胞和病原体，右侧是合并后的对象。请在每张图中检查小对象、相互接触的细胞和遗漏的区域。"
         },
         {
-          "visual": "command_01_explicit_numeric_inputs",
-          "narration": "如果缺少叠加图导出，链接的绘图辅助工具可以单独导出已保存的数组。解压辅助工具，选择本次运行的merged文件夹。请把布局文件留在原处；辅助工具会用它来检查强度平面和掩膜平面。",
-          "focus": [
-            190,
-            80,
-            3450,
-            1120
-          ],
+          "visual": "run_25_mask_figure_02",
+          "narration": "其余的图显示每个通道，以及模型生成的掩膜和流数组。运行会写出 merged 文件夹，其中包含图像强度和最终的对象标签，并在数组旁保存平面布局元数据，使 Measure 能识别每个通道和掩膜。把输入、设置、掩膜和质量报告放在一起，然后继续使用 Measure 提取对象特征和裁剪图像。",
+          "hold_after": 0.7,
           "related_lessons": [
-            "06_api"
+            "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "如果缺少叠加图导出，链接的绘图辅助工具可以单独导出已保存的数组。解压辅助工具，选择本次运行的merged文件夹。请把布局文件留在原处；辅助工具会用它来检查强度平面和掩膜平面。"
-        },
-        {
-          "visual": "command_02_explicit_plotting_api",
-          "narration": "以merged文件夹为源、以一个新的输出文件夹为目标运行辅助工具。它会为每个图像数组保存一张单独的叠加图。打开保存的PNG文件检查结果。",
-          "focus": [
-            190,
-            80,
-            3450,
-            1000
-          ],
-          "hold_after": 0.7,
-          "speech_text": "以merged文件夹为源、以一个新的输出文件夹为目标运行辅助工具。它会为每个图像数组保存一张单独的叠加图。打开保存的PNG文件检查结果。"
-        },
-        {
-          "visual": "viewer_10_saved_plate1_L02_18_1",
-          "narration": "在每个强度通道以及合并的掩膜视图上检查轮廓。检查小对象、相互接触的细胞和遗漏的区域。把输入图像、设置、掩膜和质量报告放在一起，然后继续使用Measure提取对象特征和裁剪图像。",
-          "focus": [
-            200,
-            680,
-            3440,
-            880
-          ],
-          "hold_after": 0.7,
-          "speech_text": "在每个强度通道以及合并的掩膜视图上检查轮廓。检查小对象、相互接触的细胞和遗漏的区域。把输入图像、设置、掩膜和质量报告放在一起，然后继续使用Measure提取对象特征和裁剪图像。"
+          "speech_text": "其余的图显示每个通道，以及模型生成的掩膜和流数组。运行会写出 merged 文件夹，其中包含图像强度和最终的对象标签，并在数组旁保存平面布局元数据，使 Measure 能识别每个通道和掩膜。把输入、设置、掩膜和质量报告放在一起，然后继续使用 Measure 提取对象特征和裁剪图像。"
         }
       ],
       "narration_voices": {
@@ -1114,9 +1190,9 @@
         },
         {
           "visual": "preview_03_data_ready",
-          "narration": "点击Load test data并等待示例加载，或选择您自己的合并项目。检查平面映射：本例有四个强度通道，其后平面四、五、六分别是细胞、细胞核和病原体掩膜。",
+          "narration": "点击Load test data并等待示例加载，或选择您自己的合并项目。检查平面映射：本例有四个强度通道，其后平面四、五、六分别是细胞、细胞核和病原体掩膜。 按下 Run 后，Measure 会将这些掩膜平面与该文件夹保存的布局进行比较；如果不一致，它会提供 Use stored image layout，并请您检查映射后重新运行。",
           "hold_after": 0.7,
-          "speech_text": "点击Load test data并等待示例加载，或选择您自己的合并项目。检查平面映射：本例有四个强度通道，其后平面四、五、六分别是细胞、细胞核和病原体掩膜。"
+          "speech_text": "点击Load test data并等待示例加载，或选择您自己的合并项目。检查平面映射：本例有四个强度通道，其后平面四、五、六分别是细胞、细胞核和病原体掩膜。 按下 Run 后，Measure 会将这些掩膜平面与该文件夹保存的布局进行比较；如果不一致，它会提供 Use stored image layout，并请您检查映射后重新运行。"
         },
         {
           "visual": "preview_04_preview_normalization_setup",
@@ -1138,9 +1214,30 @@
         },
         {
           "visual": "preview_07_live_second_field",
-          "narration": "选择另一个视野并比较其中的对象。测量项目之前，请查看分割质量提示栏。如果掩膜缺失或被错误合并，请先修正它们或调整Mask，然后再继续。",
+          "narration": "选择另一个视野并比较其中的对象。如果掩膜缺失或被错误合并，请在继续之前修正它们或调整 Mask。",
           "hold_after": 0.7,
-          "speech_text": "选择另一个视野并比较其中的对象。测量项目之前，请查看分割质量提示栏。如果掩膜缺失或被错误合并，请先修正它们或调整Mask，然后再继续。"
+          "speech_text": "选择另一个视野并比较其中的对象。如果掩膜缺失或被错误合并，请在继续之前修正它们或调整 Mask。"
+        },
+        {
+          "visual": "preview_07c_checked_two_fields",
+          "narration": "要并排比较视野，请打开 Checked images 并勾选所需视野。网格会按来源视野对裁剪图像分组；将指针悬停在裁剪图像上可查看其路径，双击则打开该视野。Uncheck all images 会清空网格。这只改变预览，不改变 Measure 处理的内容。",
+          "hold_after": 0.7,
+          "speech_text": "要并排比较视野，请打开 Checked images 并勾选所需视野。网格会按来源视野对裁剪图像分组；将指针悬停在裁剪图像上可查看其路径，双击则打开该视野。Uncheck all images 会清空网格。这只改变预览，不改变 Measure 处理的内容。"
+        },
+        {
+          "visual": "09a_qc_popup",
+          "narration": "要在测量前检查整个项目的分割质量，请打开 Actions 行中 3D 和 Time 旁边的 QC。弹出窗口会列出掩膜看起来异常的视野和孔，例如对象数量远少于板上其他部分，并提供可供检查的链接。该检查仅供参考，从不会阻止 Measure；关闭弹出窗口时开关会随之关闭。",
+          "hold_after": 0.7,
+          "speech_text": "要在测量前检查整个项目的分割质量，请打开 Actions 行中 三维 和 Time 旁边的 QC。弹出窗口会列出掩膜看起来异常的视野和孔，例如对象数量远少于板上其他部分，并提供可供检查的链接。该检查仅供参考，从不会阻止 Measure；关闭弹出窗口时开关会随之关闭。"
+        },
+        {
+          "visual": "09b_image_preprocessing",
+          "narration": "在 All settings 下，Image Preprocessing 汇集了 Measure 在测量前可对每个视野应用的校正：使用点扩散函数的 Image Deconvolution，以及使用先前估计模型的 Illumination Correction。它们会改变本次运行中被测量的像素；掩膜和磁盘上的数组不会改变。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "43_illumination"
+          ],
+          "speech_text": "在 All settings 下，Image Preprocessing 汇集了 Measure 在测量前可对每个视野应用的校正：使用点扩散函数的 Image Deconvolution，以及使用先前估计模型的 Illumination Correction。它们会改变本次运行中被测量的像素；掩膜和磁盘上的数组不会改变。"
         },
         {
           "visual": "preview_08_saved_normalization_restored",
@@ -1153,21 +1250,9 @@
         },
         {
           "visual": "batch_20_batch_settings",
-          "narration": "开启测量数据和对象裁剪图像的保存，保持Plot开启，并选择裁剪尺寸和输出通道。本例使用一个工作进程。保持Test mode关闭，以处理提供的全部十六个视野，然后点击Run。",
+          "narration": "开启测量值和对象裁剪图像的保存，保持 Plot 开启，并选择裁剪尺寸和输出通道。第一次运行时，Test mode 只测量一个视野；关闭它即可处理全部十六个附带视野。点击 Run，关注控制台直到运行完成，然后在继续之前检查哪些视野成功。",
           "hold_after": 0.7,
-          "speech_text": "开启测量数据和对象裁剪图像的保存，保持Plot开启，并选择裁剪尺寸和输出通道。本例使用一个工作进程。保持Test mode关闭，以处理提供的全部十六个视野，然后点击Run。"
-        },
-        {
-          "visual": "batch_26_measure_console_complete",
-          "narration": "在控制台中跟踪，直到运行完成。检查哪些视野成功，继续之前先排查失败的视野。把与本次运行一起保存的设置留好，以便重现测量结果。",
-          "hold_after": 0.7,
-          "speech_text": "在控制台中跟踪，直到运行完成。检查哪些视野成功，继续之前先排查失败的视野。把与本次运行一起保存的设置留好，以便重现测量结果。"
-        },
-        {
-          "visual": "batch_25_measure_figure_00",
-          "narration": "使用图列表比较过滤前后的对象。大小过滤和父子关系可能改变哪些对象被测量。拖动分隔条给图留出更多空间，并检查任何意外的变化。",
-          "hold_after": 0.7,
-          "speech_text": "使用图列表比较过滤前后的对象。大小过滤和父子关系可能改变哪些对象被测量。拖动分隔条给图留出更多空间，并检查任何意外的变化。"
+          "speech_text": "开启测量值和对象裁剪图像的保存，保持 Plot 开启，并选择裁剪尺寸和输出通道。第一次运行时，Test mode 只测量一个视野；关闭它即可处理全部十六个附带视野。点击 Run，关注控制台直到运行完成，然后在继续之前检查哪些视野成功。"
         },
         {
           "visual": "batch_25_measure_figure_02",
@@ -1397,10 +1482,41 @@
           "speech_text": "标签准备好后，打开Train。为图像分类器选择图像，或为表格分类器选择测得的特征。相关的Classify课程会讲解训练设置。"
         },
         {
-          "visual": "14_restored_rgb",
-          "narration": "Suggest可以提出标签供您审核。添加标签后，Retrain会更新模型，Rounds帮助您跟踪这一审核循环。接受建议的标签之前请先检查。",
+          "visual": "19_labels_for_suggest",
+          "narration": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。",
+          "focus": [
+            360,
+            380,
+            3450,
+            1000
+          ],
+          "related_lessons": [],
           "hold_after": 0.7,
-          "speech_text": "Suggest可以提出标签供您审核。添加标签后，Retrain会更新模型，Rounds帮助您跟踪这一审核循环。接受建议的标签之前请先检查。"
+          "speech_text": "Suggest 会为您尚未回答的裁剪图像提出标签建议，因此请先提供来自多个孔的两类示例。这里在四个孔中为每个类别标注了几个裁剪图像，然后 Next 将其保存。"
+        },
+        {
+          "visual": "20_suggestions",
+          "narration": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。",
+          "focus": [
+            350,
+            250,
+            3460,
+            1150
+          ],
+          "hold_after": 0.7,
+          "speech_text": "打开 Suggest，选择 Suggest for the images on this page。这一轮只需几秒钟，页面上的每个裁剪图像都会带上问号标记。网格上方的栏会统计还有多少建议待判断。"
+        },
+        {
+          "visual": "21_judged",
+          "narration": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。",
+          "focus": [
+            350,
+            250,
+            3460,
+            700
+          ],
+          "hold_after": 0.7,
+          "speech_text": "单击建议的裁剪图像或按 Y 确认，右键单击或按 N 拒绝。两种回答都会被记录，拒绝会用于训练下一轮；检查完剩余内容后，Confirm the rest of the page 会一次性处理它们。"
         },
         {
           "visual": "17_generate_database_entry",
@@ -3320,7 +3436,7 @@
         },
         {
           "visual": "apply_preview",
-          "narration": "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十六个细胞。在处理整个文件夹之前，请在这里调整设置。",
+          "narration": "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十八个细胞。在处理整个文件夹之前，请在这里调整设置。",
           "hold_after": 0.7,
           "focus": [
             390,
@@ -3328,11 +3444,11 @@
             3410,
             1240
           ],
-          "speech_text": "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十六个细胞。在处理整个文件夹之前，请在这里调整设置。"
+          "speech_text": "打开Live preview，选择一张图像，并用相同的通道和百分位数按Run preview。它会用您的检查点分割这张图像，这里找到七十八个细胞。在处理整个文件夹之前，请在这里调整设置。"
         },
         {
           "visual": "apply_result",
-          "narration": "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十六、四十八和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。",
+          "narration": "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十九、五十和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。",
           "hold_after": 0.7,
           "related_lessons": [
             "20_cellpose_masks",
@@ -3344,7 +3460,7 @@
             3410,
             390
           ],
-          "speech_text": "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十六、四十八和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。"
+          "speech_text": "按Run。Apply会为每张图像写一个掩膜，放在这些图像旁边的masks子文件夹中，Verbose会把每个结果显示为一幅图。这里三个掩膜分别包含七十九、五十和五十五个细胞。在把模型用于整个实验之前，请将其掩膜与单独标注的视野进行比较。"
         }
       ],
       "narration_voices": {
@@ -4017,7 +4133,8 @@
       "objectives": [
         "从Toxoplasma打开Plaque Assay并选择图像文件夹。",
         "选择模型，检查预览，并设置面积过滤。",
-        "运行分析，并在输出数据库中检查计数、面积和标定。"
+        "运行分析，并在输出数据库中检查计数、面积和标定。",
+        "在 Figure 模式下从已发表的图中读取噬斑孔及其条件。"
       ],
       "example_files": [
         "SYNTHETIC_plaque_example.zip"
@@ -4109,16 +4226,16 @@
           "speech_text": "在Model Zoo中选择噬斑模型，在Save to中选择文件夹，然后点击Download。等待模型在本地可用，再为预览选择该检查点。保留其保存路径，供以后的运行使用。"
         },
         {
-          "visual": "16_readable_preview",
-          "narration": "选择一张示例图像，点击Run preview。在View中切换轮廓和彩色掩膜，检查预测区域是否贴合噬斑边界。处理整块板之前，请检查几张有代表性的图像。",
+          "visual": "16b_overlay_settings",
+          "narration": "选择一张示例图像并点击 Run preview。右键点击图片并打开 Overlay settings，在 Display 中切换轮廓和填充叠加，检查预测区域是否沿着噬斑边界。处理整板之前，先检查几张有代表性的图像。",
           "focus": [
-            1510,
-            1248,
-            2300,
-            598
+            1700,
+            280,
+            1100,
+            1320
           ],
           "hold_after": 0.7,
-          "speech_text": "选择一张示例图像，点击Run preview。在View中切换轮廓和彩色掩膜，检查预测区域是否贴合噬斑边界。处理整块板之前，请检查几张有代表性的图像。"
+          "speech_text": "选择一张示例图像并点击 Run preview。右键点击图片并打开 Overlay settings，在 Display 中切换轮廓和填充叠加，检查预测区域是否沿着噬斑边界。处理整板之前，先检查几张有代表性的图像。"
         },
         {
           "visual": "18_actual_filter_changed",
@@ -4157,7 +4274,7 @@
           "speech_text": "按Run，并在控制台中跟踪直到分析完成。Masks关闭时，示例会读取提供的标签并写入masks/plaques_analysis.db。该数据库包含Source中各图像的计数和面积。"
         },
         {
-          "visual": "20_actual_database_help_route",
+          "visual": "20_help_route",
           "narration": "打开Help，再打开Database browser。选择masks文件夹中的plaques_analysis.db。检查输出时保持Edit mode关闭，并从表列表中选择一个表。",
           "related_lessons": [
             "34_database"
@@ -4191,7 +4308,7 @@
         },
         {
           "visual": "23_actual_details_table",
-          "narration": "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。实验性的生长估计还需要已知的比例尺来估计时间，或已知的时间来估计比例尺；请验证您检测方法的参考曲线。",
+          "narration": "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。",
           "focus": [
             345,
             278,
@@ -4199,7 +4316,31 @@
             410
           ],
           "hold_after": 0.7,
-          "speech_text": "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。实验性的生长估计还需要已知的比例尺来估计时间，或已知的时间来估计比例尺；请验证您检测方法的参考曲线。"
+          "speech_text": "打开details检查单个噬斑的面积。没有标定时，物理面积列为空。把数据库与图像、掩膜和设置一起保存。"
+        },
+        {
+          "visual": "30_figure_mode",
+          "narration": "Plaque Assay 也能读取已发表的图。将预览中的 Mode 从 Plaque 切换为 Figure。在 Figure 模式下，运行会在每张图中找到噬斑孔，读取周围印刷的文字来命名每个条件，然后分割噬斑。把 PDF 或图片拖放到屏幕任意位置，或获取一篇论文。",
+          "hold_after": 0.7,
+          "speech_text": "Plaque Assay 也能读取已发表的图。将预览中的 Mode 从 Plaque 切换为 Figure。在 Figure 模式下，运行会在每张图中找到噬斑孔，读取周围印刷的文字来命名每个条件，然后分割噬斑。把 PDF 或图片拖放到屏幕任意位置，或获取一篇论文。"
+        },
+        {
+          "visual": "30b_from_a_paper",
+          "narration": "点击 From a paper，输入 DOI、PubMed 或 PMC 编号。spaCR 会从 Europe PMC 把论文的图及其图注下载到新文件夹，记录许可证，并让预览指向这些图。本例使用一篇开放获取论文。",
+          "hold_after": 0.7,
+          "speech_text": "点击 From a paper，输入 DOI、PubMed 或 PMC 编号。斯佩克尔 会从 Europe PMC 把论文的图及其图注下载到新文件夹，记录许可证，并让预览指向这些图。本例使用一篇开放获取论文。"
+        },
+        {
+          "visual": "31_figure_wells",
+          "narration": "选择一张图并点击 Run preview。找到的每个孔都会在图上框出，并连同旁边读取的标签文字列在表中；这里找到了八个孔，每个孔都以菌株和药物浓度命名。检查每个条件，必要时更正，并在 Run 之前点击 Save annotations，使测量结果带有正确的名称。",
+          "hold_after": 0.7,
+          "speech_text": "选择一张图并点击 Run preview。找到的每个孔都会在图上框出，并连同旁边读取的标签文字列在表中；这里找到了八个孔，每个孔都以菌株和药物浓度命名。检查每个条件，必要时更正，并在 Run 之前点击 Save annotations，使测量结果带有正确的名称。"
+        },
+        {
+          "visual": "32_figure_all_wells",
+          "narration": "点击 Find plaques in all wells。每个孔都会用默认噬斑模型进行分割，Plaques 选项卡会列出找到的每个噬斑。这里在八个孔中共找到六十六个噬斑，其中十七个位于未加药的野生型孔中。在依赖这些计数之前，请先与图进行对照。",
+          "hold_after": 0.7,
+          "speech_text": "点击 Find plaques in all wells。每个孔都会用默认噬斑模型进行分割，Plaques 选项卡会列出找到的每个噬斑。这里在八个孔中共找到六十六个噬斑，其中十七个位于未加药的野生型孔中。在依赖这些计数之前，请先与图进行对照。"
         }
       ],
       "host_app_key": "toxoplasma",
@@ -5973,12 +6114,12 @@
       "scenes": [
         {
           "visual": "01_graph_builder_host",
-          "narration": "从Home打开Data中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。",
+          "narration": "从Home打开Tools中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。",
           "hold_after": 0.7,
           "related_lessons": [
             "58_graph_builder"
           ],
-          "speech_text": "从主页打开Data中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。"
+          "speech_text": "从主页打开Tools中的Graph Builder，然后选择Plate Viewer。用它按孔汇总对象测量值，并检查它们在板上的分布。"
         },
         {
           "visual": "03_example_mean",
