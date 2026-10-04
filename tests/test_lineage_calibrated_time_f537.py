@@ -129,7 +129,8 @@ def test_missing_calibration_does_not_use_motility_default_or_movie_rate(tmp_pat
     assert result['statistics']['generation_time_hours_mean'].isna().all()
     assert result['calibration']['time_calibration_source'] == 'missing'
     calibrated = _run_lineage_step(str(src), 'p', 'cell', 'iou', {
-        'frame_interval_s': 900, 'seconds_per_frame': 60, 'save': False})
+        'frame_interval_s': 900, 'seconds_per_frame': 60, 'save': False,
+        'timelapse_lineage_min_division_h': None})
     assert _complete(calibrated)['generation_time_hours'].tolist() == [2, 2.5]
 
 

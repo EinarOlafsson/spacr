@@ -43,7 +43,9 @@ def _lineage_explicit_parents(df, spans):
     return links
 
 
-def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False):
+def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False, *,
+                              persist_frames=1, border_margin=0.0,
+                              field_shape=None):
     """Infer division links from where new tracks start.
 
     A track that starts after the field's first frame is a daughter of the
@@ -64,9 +66,33 @@ def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False):
         start together beside a mother whose track ends in the frame before
         them form a division; a lone new track, or one beside a mother that
         goes on, is a track entering or breaking and stays a root.
+    :param persist_frames: every daughter, and a mother that goes on after
+        the division, must be seen in at least this many frames from the
+        division (fewer only when the movie ends sooner), and the mother
+        must be seen in each of this many frames before it (fewer only when
+        her track starts later). A flickering mask or a track that breaks
+        just before the event therefore gives no division. A new track that
+        ends sooner is not a daughter unless it ends at the edge of the field
+        (it left the field).
+    :param border_margin: pixels from the edge of the field. A mother whose
+        track ends this close to the edge has left the field; no division is
+        inferred from her.
+    :param field_shape: the image ``(height, width)`` in pixels; without it
+        no track counts as being at the edge.
     :returns: ``{daughter_track_id: mother_track_id}``.
     """
     first_frame = spans['start'].min()
+    last_frame = spans['end'].max()
+    persist = max(int(persist_frames), 1)
+    frames_of = df.groupby('track_id')['frame'].agg(lambda f: set(f.tolist()))
+    last_xy = df.sort_values('frame').groupby('track_id')[['x', 'y']].last()
+    if field_shape is not None and border_margin > 0:
+        height, width = (float(v) - 1 for v in field_shape[-2:])
+        edge = pd.concat([last_xy['x'], width - last_xy['x'],
+                          last_xy['y'], height - last_xy['y']], axis=1).min(axis=1)
+        at_edge = edge < border_margin
+    else:
+        at_edge = pd.Series(False, index=last_xy.index)
     starts = df.sort_values('frame').groupby('track_id').first()
     candidates = {}
     for track, row in starts.iterrows():
@@ -85,6 +111,20 @@ def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False):
     links = {}
     for (mother, frame), daughters in candidates.items():
         continues = spans.loc[mother, 'end'] >= frame
+        after = min(persist, last_frame - frame + 1)
+        before = range(max(frame - persist, spans.loc[mother, 'start']), frame)
+        steady = [d for d in daughters if len(frames_of[d]) >= after or at_edge[d]]
+        settled = not continues and frame - persist >= spans.loc[mother, 'start']
+        if not (settled and steady and len(daughters) >= 2):
+            daughters = steady
+        if not daughters:
+            continue
+        if continues and sum(f >= frame for f in frames_of[mother]) < after:
+            continue
+        if not set(before) <= frames_of[mother]:
+            continue
+        if not continues and at_edge[mother]:
+            continue
         if strict:
             if len(daughters) >= 2 and spans.loc[mother, 'end'] == frame - 1:
                 links.update({d: mother for d in daughters})
@@ -93,7 +133,84 @@ def _lineage_inferred_parents(df, spans, max_distance, skip, strict=False):
     return links
 
 
-def _lineage_segments(tracks, max_distance=30.0):
+def _lineage_hours_per_frame(df, frame_interval_s):
+    """Hours per frame from a ``time_s`` column or a seconds-per-frame value.
+
+    :returns: a positive float, or None when the table carries no usable
+        timing and no interval is given.
+    """
+    if 'time_s' in df.columns and not df['time_s'].map(
+            lambda value: isinstance(value, (bool, np.bool_))).any():
+        times = pd.to_numeric(df['time_s'], errors='coerce')
+        frames = df['frame'][times.notna()]
+        span = frames.max() - frames.min() if len(frames) else 0
+        if span > 0:
+            elapsed = times.max() - times.min()
+            if np.isfinite(elapsed) and elapsed > 0:
+                return float(elapsed) / float(span) / 3600.0
+    try:
+        interval = float(frame_interval_s)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if isinstance(frame_interval_s, (bool, np.bool_)) or not np.isfinite(interval) or interval <= 0:
+        return None
+    return interval / 3600.0
+
+
+def _lineage_drop_short_cycles(parents, explicit, spans, min_cycle):
+    """Remove inferred divisions that would make a cell cycle implausibly short.
+
+    Divisions are visited in time order. The cycle of a dividing cell starts
+    at her own birth by a division, or at an earlier division her track went
+    on through. When that start is fewer than ``min_cycle`` frames before
+    the new division, one of the two is an artefact. A division whose mother
+    track ends there outweighs an earlier inferred one that the track went
+    on through, or that gave more than two daughters (only this cell is
+    taken out of it); otherwise the later inferred division is dropped.
+    Tracker-reported divisions are always kept.
+
+    :param parents: ``{daughter_track_id: mother_track_id}``.
+    :param explicit: daughter track ids whose link the tracker reported.
+    :param spans: first and last frame per track, indexed by track id.
+    :param min_cycle: shortest plausible cycle in frames.
+    :returns: the kept ``{daughter_track_id: mother_track_id}``.
+    """
+    events = {}
+    for daughter, mother in parents.items():
+        events.setdefault((mother, int(spans.loc[daughter, 'start'])), []).append(daughter)
+    kept = {}
+    for mother, birth in sorted(events, key=lambda e: e[1]):
+        daughters = events[(mother, birth)]
+        starts = [(int(spans.loc[mother, 'start']), event)
+                  for event, kids in kept.items() if mother in kids]
+        starts += [(event[1], event) for event in kept
+                   if event[0] == mother and event[1] < birth
+                   and spans.loc[mother, 'end'] >= event[1]]
+        if starts:
+            start, earlier = max(starts)
+            if birth - start < min_cycle:
+                later_known = any(d in explicit for d in daughters)
+                earlier_known = any(d in explicit for d in kept[earlier])
+                earlier_goes_on = spans.loc[earlier[0], 'end'] >= earlier[1]
+                later_ends = spans.loc[mother, 'end'] < birth
+                if earlier_known or not (later_ends and (
+                        earlier_goes_on or len(kept[earlier]) > 2)):
+                    if not later_known:
+                        continue
+                else:
+                    kids = [d for d in kept[earlier] if d != mother]
+                    if earlier[0] == mother or not kids or (
+                            len(kids) < 2 and not earlier_goes_on):
+                        del kept[earlier]
+                    else:
+                        kept[earlier] = kids
+        kept[(mother, birth)] = daughters
+    return {d: m for (m, _), kids in kept.items() for d in kids}
+
+
+def _lineage_segments(tracks, max_distance=30.0, *, min_division_h=None,
+                      frame_interval_s=None, persist_frames=3, border_margin=10.0,
+                      field_shape=None):
     """Cut one field's tracks into cell-cycle segments linked by divisions.
 
     A segment is one cell from its birth, or its first frame, to its last
@@ -114,6 +231,20 @@ def _lineage_segments(tracks, max_distance=30.0):
     :param tracks: tracks table with ``frame``, ``track_id``, ``x`` and ``y``.
     :param max_distance: largest mother-to-daughter distance in pixels for an
         inferred division.
+    :param min_division_h: shortest plausible time between divisions in
+        hours. With a frame time (``time_s`` or ``frame_interval_s``), no
+        division is inferred in a movie shorter than half of it, and of two
+        divisions closer together in one cell's history the inferred one is
+        dropped (see :func:`_lineage_drop_short_cycles`). None, or no
+        frame time, leaves inference unlimited by time.
+    :param frame_interval_s: seconds per frame, used when the table has no
+        ``time_s`` column.
+    :param persist_frames: frames an inferred daughter must persist, and
+        the mother must be seen without a gap before dividing.
+    :param border_margin: pixels from the field edge within which a track
+        that ends has left the field rather than divided.
+    :param field_shape: the image ``(height, width)`` the positions lie in;
+        None turns the field-edge rule off.
     :returns: one row per segment with ``segment_id``, ``track_id``,
         ``parent_segment_id`` (0 for a root), ``lineage_id`` (the root's
         segment id), ``generation``, ``start_frame``, ``end_frame``,
@@ -138,10 +269,21 @@ def _lineage_segments(tracks, max_distance=30.0):
         native = df['parent_track_id_source'].fillna('').isin(
             ['ultrack', 'btrack', 'trackastra'])
         known.update(df.loc[native, 'track_id'].astype(int))
+    hours = _lineage_hours_per_frame(df, frame_interval_s)
+    min_cycle = None
+    if min_division_h and hours:
+        min_cycle = float(min_division_h) / hours
+        if (spans['end'].max() - spans['start'].min()) < min_cycle / 2:
+            known.update(spans.index.astype(int))
     inferred = _lineage_inferred_parents(df, spans, float(max_distance),
                                          known,
-                                         strict='parent_track_id' in df.columns)
+                                         strict='parent_track_id' in df.columns,
+                                         persist_frames=persist_frames,
+                                         border_margin=float(border_margin or 0.0),
+                                         field_shape=field_shape)
     parents = {**inferred, **explicit}
+    if min_cycle is not None:
+        parents = _lineage_drop_short_cycles(parents, set(explicit), spans, min_cycle)
 
     segments = {}
     by_track = {}
@@ -488,7 +630,8 @@ def _lineage_hour_statistics(segments, statistics, calibration):
 
 def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
                                color_by='generation_time', max_distance=30.0,
-                               measurements=None, plot=True, frame_interval_s=None, tracks_snapshot=None):
+                               measurements=None, plot=True, frame_interval_s=None, tracks_snapshot=None,
+                               min_division_h=None, field_shape=None):
     """Build lineage trees from one tracks table and write them beside it.
 
     Reads a tracks CSV written by any spaCR tracker (one field per file),
@@ -511,6 +654,10 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
         against time_s when present, otherwise calibrates generation times.
         Missing calibration leaves the added hours columns NaN.
     :param tracks_snapshot: optional validated tracks snapshot from the measured-feature reader.
+    :param min_division_h: shortest plausible hours between divisions for
+        inferred divisions (see :func:`_lineage_segments`); None for no limit.
+    :param field_shape: optional image ``(height, width)`` for the field-edge
+        rule of inferred divisions.
     :returns: dict with the ``segments`` and ``statistics`` frames and the
         ``paths`` written.
     """
@@ -520,7 +667,10 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
               else tracks_snapshot.copy())
     stem = os.path.splitext(os.path.basename(tracks_path))[0]
     out_dir = out_dir or os.path.join(os.path.dirname(os.path.abspath(tracks_path)), 'lineage')
-    segments = _lineage_segments(tracks, max_distance=max_distance)
+    segments = _lineage_segments(tracks, max_distance=max_distance,
+                                  min_division_h=min_division_h,
+                                  frame_interval_s=frame_interval_s,
+                                  field_shape=field_shape)
     segments, calibration = _lineage_calibrate_time(segments, tracks, frame_interval_s)
     try:
         values = _lineage_colour_values(segments, tracks, color_by, measurements)
@@ -548,14 +698,34 @@ def _lineage_trees_from_tracks(tracks_path, out_dir=None, *,
             'calibration': calibration}
 
 
+def _lineage_min_division_h(settings):
+    """The ``timelapse_lineage_min_division_h`` setting in hours, or None.
+
+    A missing key gives the 6-hour default; blank, zero or a negative value
+    turns the limit off; anything that is not a finite number is refused.
+    """
+    value = settings.get('timelapse_lineage_min_division_h', 6.0)
+    if value is None or value == '':
+        return None
+    if isinstance(value, (bool, np.bool_)):
+        raise ValueError('timelapse_lineage_min_division_h must be a number of hours')
+    try:
+        hours = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError('timelapse_lineage_min_division_h must be a number of hours') from exc
+    if not np.isfinite(hours):
+        raise ValueError('timelapse_lineage_min_division_h must be finite')
+    return hours if hours > 0 else None
+
+
 def _run_lineage_step(src, name, object_type, mode, settings, *,
                       frame_sources=None, label_stack=None):
     """Draw lineage trees from the tracks one field just produced.
 
     Looks for ``<dirname(src)>/tracks/<tracker>_tracks_<object>_<name>.csv``
     and passes it to :func:`_lineage_trees_from_tracks` with the
-    ``timelapse_lineage_color_by`` and ``timelapse_lineage_max_distance``
-    settings. A failure is reported and does not stop the run.
+    ``timelapse_lineage_color_by``, ``timelapse_lineage_max_distance`` and
+    ``timelapse_lineage_min_division_h`` settings. A failure is reported and does not stop the run.
 
     :returns: the result of :func:`_lineage_trees_from_tracks`, or None.
     """
@@ -576,6 +746,8 @@ def _run_lineage_step(src, name, object_type, mode, settings, *,
             color_by=settings.get('timelapse_lineage_color_by') or 'generation_time',
             max_distance=float(settings.get('timelapse_lineage_max_distance') or 30.0),
             frame_interval_s=settings.get('frame_interval_s'),
+            min_division_h=_lineage_min_division_h(settings),
+            field_shape=None if label_stack is None else np.shape(label_stack)[-2:],
             plot=bool(settings.get('save', True) or settings.get('plot', False)))
         if source_record is not None:
             _atomic_json(tracks_path + _SUFFIX, source_record)

@@ -170,7 +170,8 @@ def test_tracker_provenance_preflight_preserves_old_manifest(project, bad):
 def test_measured_colour_retains_explicit_tracking_calibration(project, capsys):
     path, db, _, names, labels = project
     _write_lineage_sources(path, 'cell', names, labels, frame_interval_s=900)
-    result, = _run_measured_lineage_step(db, {'save': False, 'timelapse_lineage_color_by': 'cell_intensity'})
+    result, = _run_measured_lineage_step(db, {'save': False, 'timelapse_lineage_color_by': 'cell_intensity',
+                                             'timelapse_lineage_min_division_h': None})
     complete = result['segments'].dropna(subset=['generation_time'])
     assert complete['generation_time_hours'].tolist() == [2, 2.5]
     paths = list((path.parent / 'lineage_measured').iterdir())

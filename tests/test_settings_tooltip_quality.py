@@ -989,7 +989,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_470 = {("mask", key) for key in ("real_object_classifier",
                                           "real_object_threshold")}
     assert item_470 <= compared_pairs
-    assert comparisons == 916
+    # 916 -> 918 on 2026-10-03, +2/-0 (item 537): timelapse_lineage_min_division_h
+    # (6.0), the minimum division interval, resolved by Measure and by
+    # External Masks.
+    item_537_min_division = {(app, "timelapse_lineage_min_division_h")
+                             for app in ("measure", "external_masks")}
+    assert item_537_min_division <= compared_pairs
+    assert comparisons == 918
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
@@ -1024,6 +1030,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # + 2: item 536's wound_threshold in two apps, pinned above.
     # + 4: item 537's lineage claims in two apps, pinned above.
     # + 3: item 583's vendor channel map in three apps, pinned above.
+    # + 2: item 537's minimum division interval in two apps, pinned above.
     assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
@@ -1036,6 +1043,7 @@ def test_real_default_claims_have_no_unrecorded_drift():
             + len(item_583_channel_map) + len(item_631)
             + len(item_631_all)
             + len(item_470)
+            + len(item_537_min_division)
             == comparisons)
     assert census_508['removed_pairs'] == []
     assert {tuple(pair) for pair in census_508['added_pairs']} <= compared_pairs

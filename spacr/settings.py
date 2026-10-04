@@ -1147,6 +1147,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_lineage', False)
     settings.setdefault('timelapse_lineage_color_by', 'generation_time')
     settings.setdefault('timelapse_lineage_max_distance', 30.0)
+    settings.setdefault('timelapse_lineage_min_division_h', 6.0)
     settings.setdefault('timelapse_events', False)
     settings.setdefault('timelapse_events_annotations', None)
     settings.setdefault('timelapse_events_model', None)
@@ -1820,6 +1821,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('timelapse_lineage', False)
     settings.setdefault('timelapse_lineage_color_by', 'generation_time')
     settings.setdefault('timelapse_lineage_max_distance', 30.0)
+    settings.setdefault('timelapse_lineage_min_division_h', 6.0)
 
     settings.setdefault('plot',False)
     settings.setdefault('n_jobs', _default_worker_count(reserve=2))
@@ -3427,6 +3429,7 @@ expected_types = {
     "timelapse_lineage": bool,
     "timelapse_lineage_color_by": str,
     "timelapse_lineage_max_distance": (int, float),
+    "timelapse_lineage_min_division_h": (int, float, type(None)),
     "timelapse_events": bool,
     "timelapse_events_annotations": (str, type(None)),
     "timelapse_events_model": (str, type(None)),
@@ -5109,6 +5112,7 @@ tooltips = {
     "timelapse_lineage": "(bool) - Build lineage trees after tracking, preserving native division links and recording the actual frame filenames and final object labels. Measure can rebuild trees using a numeric measured feature, with outputs in tracks/lineage_measured; original tracks, measurements and pre-Measure lineage outputs remain unchanged. Measured colours require the saved frame/source mapping; rerun tracking with lineage enabled if it is missing. Frame quantities are retained, with hours added only when time_s or frame_interval_s supplies calibration. Default False.",
     "timelapse_lineage_color_by": "(str) - Colour each lineage segment by generation_time (frames), generation_time_hours, generation, start_frame or n_frames, or a numeric feature averaged over its observed frames. Tracking reads tracks-table columns; Measure reads the selected tracked object's measurement table using saved frame and label identities. Means use available measured frames; segments with no measured values remain uncoloured. Ambiguous identities or invalid features stop that field's measured-colour export. Default generation_time.",
     "timelapse_lineage_max_distance": "(float) - Largest distance in pixels between a mother's last position and a new track's first position for the new track to count as her daughter when divisions are inferred. Raise it for large cells or long frame intervals, lower it when neighbours are wrongly joined. Not used for division links the tracker reports. Ignored unless timelapse_lineage. Default 30.0.",
+    "timelapse_lineage_min_division_h": "(float) - Shortest plausible time in hours between two divisions of one cell; 6 suits Toxoplasma endodyogeny. With a frame time (time_s or frame_interval_s), no division is inferred in a movie shorter than half of it, nor from a cell born less than this long before. Inferred daughters must also persist for 3 frames, and a track ending at the field edge or after a gap counts as leaving the field. Blank turns the time limit off. Ignored unless timelapse_lineage. Default 6.0.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. Runs on the CPU. Default False.",
     "timelapse_events_annotations": "(str or None) - Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
     "timelapse_events_model": "(str or None) - A trained event model (event_model.pt from an earlier run) to apply when timelapse_events_annotations is blank. It is read as tensors only. Default None.",
@@ -5447,7 +5451,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -7507,7 +7511,8 @@ ALPHA_FEATURES = {
     },
     537: {
         'settings': ('timelapse_lineage', 'timelapse_lineage_color_by',
-                     'timelapse_lineage_max_distance'),
+                     'timelapse_lineage_max_distance',
+                     'timelapse_lineage_min_division_h'),
     },
     567: {
         'settings': ('timelapse_events', 'timelapse_events_annotations',

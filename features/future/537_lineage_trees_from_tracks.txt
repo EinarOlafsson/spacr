@@ -275,3 +275,25 @@ close the remaining real parasite endodyogeny acceptance for F537.
     replication time-lapse found.
     STILL BLOCKED: needs a maintainer movie at >=40x, >=12 h, interval
     <=30 min, with parasite (not vacuole) masks.
+
+2026-10-03 — ALPHA: GUARDS AGAINST SPURIOUS INFERRED DIVISIONS (CPU)
+    New alpha setting timelapse_lineage_min_division_h (default 6.0 h,
+    Toxoplasma; blank turns it off), under "Lineage Trees α". Inferred
+    divisions (tracker-reported links untouched) now need:
+    - a frame time (time_s or frame_interval_s) movie at least half the
+      minimum interval long; cycles shorter than it keep only the stronger
+      division (mother ending beats a mother going on / a >2-daughter event)
+    - daughters persisting 3 frames (fewer only at movie end or field edge;
+      a short sibling is allowed beside a mother seen steadily 3 frames)
+    - a mother seen without a gap in the 3 frames before; one ending within
+      10 px of the image edge (run step passes the mask shape) left the field
+    Re-run (scratch /mnt/wd4tb/scratch/537/guards/: hela.py, barr.py, abl.py):
+      Barragan motility (156 s, 45 fr): A02_1 325 -> 0, A04_3 1394 -> 0
+        divisions (62 / 240 without the time guard).
+      CTC HeLa inferred-only, links P/R before -> after:
+        01 0.842/0.904 -> 0.854/0.904 (6 h @30 min: 0.885/0.904)
+        02 0.777/0.931 -> 0.794/0.931 (6 h @30 min: 0.851/0.931)
+      Tracker-parent runs unchanged (1.00/1.00; 0.99, 0.97 / 1.00).
+    Tests: test_lineage_division_guards_f537.py; alpha gate tests cover the key.
+    LEFT: Measure-stage trees have no image shape, so the edge rule is off
+    there; parasite endodyogeny on real movies still needs maintainer data.

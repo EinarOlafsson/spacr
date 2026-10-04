@@ -1222,6 +1222,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'timelapse_lineage',
     'timelapse_lineage_color_by',
     'timelapse_lineage_max_distance',
+    'timelapse_lineage_min_division_h',
     'timelapse_memory',
     'timelapse_mode',
     'timelapse_objects',

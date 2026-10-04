@@ -832,6 +832,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # category and shown under "Lineage Trees α" on the Timelapse app.
     "timelapse_lineage", "timelapse_lineage_color_by",
     "timelapse_lineage_max_distance",
+    # NEW SETTING, not a regrouping (item 537, 2026-10-03): the minimum
+    # division interval in hours, under the same "Lineage Trees α" heading.
+    "timelapse_lineage_min_division_h",
     # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
     # detection on tracks, appended to the Timelapse category and shown under
     # "Event Detection α" on the Timelapse app.

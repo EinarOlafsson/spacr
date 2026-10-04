@@ -1,7 +1,7 @@
 """Lineage trees from tracks on the Timelapse app are an alpha feature.
 
 Everything built from the future-features list is hidden until Preferences ->
-Show alpha features is turned on. For lineage trees that is its three
+Show alpha features is turned on. For lineage trees that is its four
 settings under the "Lineage Trees α" heading of the Timelapse form; a
 value saved while hidden still reaches the run.
 """
@@ -19,7 +19,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QSettings                              # noqa: E402
 
 KEYS = ("timelapse_lineage", "timelapse_lineage_color_by",
-        "timelapse_lineage_max_distance")
+        "timelapse_lineage_max_distance", "timelapse_lineage_min_division_h")
 
 
 @pytest.fixture
@@ -58,6 +58,7 @@ def test_the_timelapse_rows_follow_the_switch(qtbot, prefs):
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
         assert screen._settings_model.set_value_for_key(KEYS[0], True)
         assert screen._settings_model.collect()[KEYS[0]] is True
+        assert screen._settings_model.set_value_for_key(KEYS[3], 12.0)
 
         prefs._set_show_alpha_features(True)
         screen._refresh_alpha_visibility()
@@ -67,6 +68,7 @@ def test_the_timelapse_rows_follow_the_switch(qtbot, prefs):
         screen._refresh_alpha_visibility()
         assert not any(screen.setting_row_is_visible(k) for k in KEYS)
         assert screen._settings_model.collect()[KEYS[0]] is True
+        assert screen._settings_model.collect()[KEYS[3]] == 12.0
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()
