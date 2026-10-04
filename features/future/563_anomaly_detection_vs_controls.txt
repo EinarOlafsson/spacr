@@ -2,6 +2,7 @@ ANOMALY / NOVELTY DETECTION AGAINST NEGATIVE CONTROLS
 
 Status: DONE (alpha) 2026-10-02 — against the original hit-ranking and
         outlier-review criterion; external validation remains limited.
+VERIFIED 2026-10-04: test_anomaly_detection_vs_controls, test_anomaly_crop_join_f563, qt anomaly gate + crop loading pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

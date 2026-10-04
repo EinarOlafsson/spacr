@@ -4,6 +4,7 @@ Status: DONE (alpha) 2026-10-02 (evidence 86fcc7a14) — (CPU acceptance); GPU 2
 Installed in its own environment; 2-D and native 3-D nucleus segmentation
 accepted through Mask, raw-volume ingestion and Measure/SQLite. Make Masks
 uses the real 2-D backend; comparison against Cellpose is recorded below. No GPU.
+VERIFIED 2026-10-04: test_stardist_native_volume_f551, prefixed/own-env backend and mask-worker contract tests, qt backend-row tests pass; 4 zoo rows alpha-registered (nightly 85c3e41c2, CPU).
 Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

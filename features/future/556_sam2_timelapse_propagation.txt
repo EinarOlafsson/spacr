@@ -5,6 +5,7 @@ met 2026-10-04 (SAM2, trackastra and the stitcher scored on whole CTC
 movies); daughter parent links and saving the seed dialog done 2026-10-04;
 Timeflows export N/A (Timeflows, item 426, closed and superseded by
 cellposeTIME).
+VERIFIED 2026-10-04: qt/test_556_sam2_timelapse_propagation passes; later cellposeTIME supersedes the Timeflows export (item 426 closed), as recorded (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

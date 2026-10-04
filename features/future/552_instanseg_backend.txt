@@ -4,6 +4,7 @@ Status: DONE (alpha) 2026-10-02 (evidence 7ac12b426) — Installed in its own
 environment; segments through Mask generation and Make Masks; scored in item
 532; all configured intensity channels reach the model in batch Mask runs.
 No GPU result.
+VERIFIED 2026-10-04: own-env backend, mask-worker contract and qt backend-row tests pass; 3 zoo rows alpha-registered (nightly 85c3e41c2, CPU).
 Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

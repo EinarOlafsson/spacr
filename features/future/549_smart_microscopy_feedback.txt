@@ -2,6 +2,7 @@ SMART MICROSCOPY: SEND HITS BACK FOR RE-IMAGING
 
 Status: DONE (alpha) 2026-09-27 (evidence 9077dd94a) — Hidden unless Preferences -> Show
 alpha features is on (ALPHA_FEATURES[549]).
+VERIFIED 2026-10-04: test_microscope_feedback, qt/test_microscope_feedback_alpha_gate pass (548 itself not audited here) (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

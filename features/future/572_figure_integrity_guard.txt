@@ -4,6 +4,7 @@ Status: DONE (alpha) 2026-09-26 (evidence 2964f0a0c) — (see the note of that d
 checked export in spacr.plot.save_figure (and the Save figure dialog) warns
 on mismatched display ranges, saturation/clipping, repeated panels and lossy
 formats, and stamps provenance into the file metadata and a sidecar.
+VERIFIED 2026-10-04: test_figure_integrity_guard, qt figure-integrity gate + notice pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

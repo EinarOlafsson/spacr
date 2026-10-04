@@ -9,6 +9,7 @@ to event per condition and per well, log-rank tests and a Cox model to
 measurements.db, with the curves and hazard ratios drawn under
 results/time_to_event. Matches lifelines on the same table (numbers below).
 Hidden with Alpha features.
+VERIFIED 2026-10-04: test_time_to_event, test_time_to_event_at_its_edges, qt gate pass; _kaplan_meier returns the survival/CI table (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

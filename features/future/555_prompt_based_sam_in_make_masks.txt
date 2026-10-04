@@ -6,6 +6,7 @@ positive/negative clicks and a box reached the preview in 0.17-0.19 seconds;
 Enter/Save wrote the accepted mask and prompt provenance. Alpha remains enabled
 only by preference. GPU and additional model/multidimensional extensions are
 not claimed by this acceptance.
+VERIFIED 2026-10-04: qt/test_555_prompt_based_sam_in_make_masks, qt/test_make_masks_prompts_rois_and_blinding_through_the_window pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

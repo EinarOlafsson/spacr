@@ -1,6 +1,7 @@
 RUN CELLPROFILER .cppipe PIPELINES AS A spaCR STEP
 
 Status: DONE (alpha) 2026-09-27 (evidence 404565624)
+VERIFIED 2026-10-04: test_cellprofiler_step/_bounds/_overlap/_python_provision, qt cellprofiler gate + example export pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

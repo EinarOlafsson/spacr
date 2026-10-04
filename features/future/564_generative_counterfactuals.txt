@@ -1,6 +1,7 @@
 GENERATIVE COUNTERFACTUALS: MORPH A CONTROL CELL TOWARD A HIT PHENOTYPE
 
 Status: DONE (alpha) 2026-09-28 (evidence e3d185ee9)
+VERIFIED 2026-10-04: test_generative_counterfactuals, qt/test_generative_counterfactuals_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

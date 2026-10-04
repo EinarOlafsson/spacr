@@ -5,6 +5,7 @@ profiles and scores them with mAP; on ten public LINCS Cell Painting plates
 the mAP, p values and calls equal copairs' and the kept features equal
 pycytominer's. Hidden unless Preferences -> Show alpha features is on
 (ALPHA_FEATURES[547]).
+VERIFIED 2026-10-04: test_image_based_profiling, qt/test_profiling_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

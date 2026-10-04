@@ -5,6 +5,7 @@ email (SMTP), Slack webhook and ntfy notifications for finished and failed
 runs, configured in Preferences -> Notifications, off until configured.
 Teams workflow and generic webhook adapters added and verified 2026-09-28
 against local receivers (see the note of that date).
+VERIFIED 2026-10-04: test_run_finished_notifications, test_cov_w3_7_notify, qt notifications preferences pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

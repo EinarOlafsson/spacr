@@ -1,6 +1,7 @@
 SEGMENTATION PARAMETER-ROBUSTNESS REPORT
 
 Status: DONE (alpha) 2026-09-27 (evidence 4b847cc1a)
+VERIFIED 2026-10-04: test_segmentation_robustness_report, qt/test_segmentation_robustness_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

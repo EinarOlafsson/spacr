@@ -2,6 +2,7 @@ EXPORT A RECORDED RUN AS A NEXTFLOW OR SNAKEMAKE WORKFLOW
 
 Status: DONE (alpha) 2026-10-02 — against the original small-plate GUI/workflow
         output-equivalence criterion; cluster/container deployment unclaimed.
+VERIFIED 2026-10-04: test_workflow_export, qt/test_workflow_export_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

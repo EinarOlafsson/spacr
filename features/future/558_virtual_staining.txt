@@ -4,6 +4,7 @@ Status: DONE (alpha) 2026-10-03 — CPU-validated, GPU run 2026-09-28. Not yet
         measured: the Cellpose-cpsam scorecard on GPU.
 
 Previous status (superseded 2026-10-04): DONE 2026-10-03 (alpha-gated; CPU-validated, GPU run 2026-09-28); only external point left: the Cellpose-cpsam scorecard on GPU.
+VERIFIED 2026-10-04: test_virtual_staining, qt/test_virtual_stain_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

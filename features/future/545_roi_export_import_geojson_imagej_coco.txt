@@ -2,6 +2,7 @@ MASKS AND ROIS IN AND OUT: QUPATH GEOJSON, IMAGEJ ROISET, COCO
 
 Status: DONE (alpha) 2026-09-28 — (original acceptance verified); remains ALPHA.
 Exact round trips and actual QuPath and Fiji/ImageJ GUI opening are verified.
+VERIFIED 2026-10-04: test_545_roi_export_import, qt/test_545_make_masks_exports_and_imports_rois pass; masks_to_geojson->geojson_to_masks round trip exact on 2 objects (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

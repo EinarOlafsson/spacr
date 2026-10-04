@@ -6,6 +6,7 @@ flag, from texture, intensity, a learned phase classifier or cell masks;
 the infection report and any per-well table use it as filter and
 denominator; the Measure preview draws the covered area. Hidden with
 Alpha features.
+VERIFIED 2026-10-04: test_confluency_in_measure/_phase_source/_edges, qt/test_measure_confluency_preview pass; _field_confluency on a 40%-covered synthetic field gave 0.401 (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

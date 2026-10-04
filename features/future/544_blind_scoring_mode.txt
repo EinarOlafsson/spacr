@@ -4,6 +4,7 @@ Status: DONE (alpha) 2026-09-30 — (see the note of that date). Annotate and
 Make Masks blind and unblind with a logged key and hold no identifier on
 screen while blinded; manual counting and partial unblinding are recorded as
 out of scope.
+VERIFIED 2026-10-04: test_544_573_blind_key_and_analysis_lock, qt/test_544_blinding_leaves_no_identifier_on_screen, qt blind-scoring screen tests pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

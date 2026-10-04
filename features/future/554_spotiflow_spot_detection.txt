@@ -6,6 +6,7 @@ Status: DONE (alpha) 2026-10-02 — threshold/hybiss and FISH runs recorded
 
 Previous status (superseded 2026-10-04): DONE 2026-10-02 (alpha-gated); threshold/hybiss and FISH runs recorded 2026-10-03 (exploratory mode); only external points left: GPU timing (GPU turn) and the strict real-field replay.
         replay remains unavailable (2026-10-02).
+VERIFIED 2026-10-04: test_spotiflow_spot_detection and own-env backend tests pass; choice + 5 zoo rows alpha-registered (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

@@ -1,6 +1,7 @@
 GPU SIMILARITY SEARCH: "FIND CELLS LIKE THIS" OVER MILLIONS OF CROPS
 
 Status: DONE (alpha) 2026-09-27 (evidence f8ba5d412)
+VERIFIED 2026-10-04: test_similarity_search, qt find-similar gate + similarity options pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

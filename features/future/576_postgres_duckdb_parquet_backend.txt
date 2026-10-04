@@ -1,6 +1,7 @@
 A POSTGRES OR DUCKDB/PARQUET MEASUREMENT BACKEND
 
 Status: DONE (alpha) 2026-09-28 (evidence 8a36fb334)
+VERIFIED 2026-10-04: test_measurement_backends, qt/test_measurement_backend_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

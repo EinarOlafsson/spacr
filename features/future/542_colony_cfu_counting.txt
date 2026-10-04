@@ -5,6 +5,7 @@ datasets/einarolafsson/models/colony_detector/v1, Model Zoo key
 colony_yolo11n_makrai_v1. DONE WHEN met on held-out public photos with the
 colony detector (median error 2.4 % in 30-300, see DETECTOR); NOT met by
 thresholding (14.4 %).
+VERIFIED 2026-10-04: test_colony_cfu_counting/_finite/_dilution_csv, qt colony gate/preview/dilution tests pass; colony detector model registered (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

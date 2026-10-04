@@ -1,6 +1,7 @@
 SEGMENTATION UNCERTAINTY MAPS (TEST-TIME AUGMENTATION / ENSEMBLES)
 
 Status: DONE (alpha) 2026-10-02 — whole-field GPU and outside-pool fields measured 2026-10-04 (see GPU ACCEPTANCE).
+VERIFIED 2026-10-04: test_568_segmentation_uncertainty, test_568_uncertainty_compute, qt 568 make-masks + ensemble export pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

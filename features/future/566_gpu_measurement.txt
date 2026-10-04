@@ -1,6 +1,7 @@
 GPU MEASUREMENT: cuCIM REGIONPROPS, HARALICK ON CuPy
 
 Status: DONE (alpha) 2026-09-27 (evidence a71b646a7)
+VERIFIED 2026-10-04: test_gpu_measurement (CPU fallback), qt/test_gpu_measurement_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

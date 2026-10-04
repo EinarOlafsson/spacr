@@ -4,6 +4,7 @@ Status: DONE (alpha) 2026-10-02 — for the stated 2-D CPU acceptance on 2026-10
 Installed for real, segments Omnipose's bacteria fields through Mask generation
 and Make Masks, and is scored against Cellpose 3. No GPU. The noncommercial
 licence is presented before install.
+VERIFIED 2026-10-04: own-env backend, mask-worker contract and qt backend-row tests pass; 7 zoo rows alpha-registered (nightly 85c3e41c2, CPU).
 Owner: Claude (551-553 worktree). Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

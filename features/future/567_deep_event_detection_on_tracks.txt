@@ -1,6 +1,7 @@
 DEEP-LEARNING EVENT DETECTION ON TRACKS: MITOSIS, EGRESS, INVASION, HOST DEATH
 
 Status: DONE (alpha) 2026-09-27 (evidence 1b7606dc7)
+VERIFIED 2026-10-04: test_event_detection_on_tracks, qt/test_event_detection_alpha_gate pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from the 2026-09-26 deep-learning/GPU list.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

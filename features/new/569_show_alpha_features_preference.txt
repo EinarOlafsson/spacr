@@ -2,6 +2,7 @@ A "SHOW ALPHA FEATURES" PREFERENCE, OFF BY DEFAULT, HIDES EVERYTHING BUILT FROM 
 
 Status: DONE 2026-09-26 — Switch, one registry, gate on every surface, 426
         and 493 registered, registry-walk and guard tests pass.
+VERIFIED 2026-10-04: qt/test_alpha_features_gate, qt/test_preferences_tabs pass; all 34 DONE (alpha) items 540-579 have ALPHA_FEATURES entries (nightly 85c3e41c2, CPU).
 Owner: Claude. Standing rule recorded in features/README.md.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

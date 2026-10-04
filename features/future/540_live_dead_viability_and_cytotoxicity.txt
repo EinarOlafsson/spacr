@@ -10,6 +10,7 @@ plates of known viability and (2026-09-30) on one public real stained
 plate: per-cell calls agree with blind hand calls on 95-97 % of random
 cells after a fix, but Z' > 0.5 is NOT met on the real plate (see
 2026-09-30 below). Hidden with Alpha features.
+VERIFIED 2026-10-04: test_live_dead_viability, test_viability_at_its_edges, qt/test_viability_alpha_gate pass; ALPHA_FEATURES[540] 7 settings (nightly 85c3e41c2, CPU).
 Owner: unassigned. Proposed from image.sc research on 2026-09-26 (what users
 ask for in other applications).
 

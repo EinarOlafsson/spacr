@@ -5,6 +5,7 @@ and Gate Editor export/timing work (see the dated notes below). Lock, re-run ver
 manifest, report and methods text; Gate Editor gating strategies, models
 recorded during the run, multi-pipeline locks and first-seen (post-hoc)
 edit times are covered since 2026-09-30.
+VERIFIED 2026-10-04: test_573_lock_gates_models_pipelines_report, qt lock tests pass; lock_analysis then check_analysis_lock: unchanged -> verified, changed setting -> deviation naming it (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)

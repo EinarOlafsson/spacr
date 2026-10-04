@@ -5,6 +5,7 @@ Charts option meet the public-screen/reference/plate-plot acceptance below.
 The final cellHTS2 B-score comparison exposed and corrected stopping/scaling
 differences; all 6,144 reference scores and hit calls now agree. Earlier
 public-screen robust-z/SSMD and known-active evidence is retained below.
+VERIFIED 2026-10-04: test_arrayed_hit_statistics, test_control_chart_hit_scoring_screen pass (nightly 85c3e41c2, CPU).
 Owner: unassigned. From the 2026-09-26 non-GPU list. Ships as an ALPHA feature (features/README.md, item 569): hidden unless Preferences -> Show alpha features is on.
 
 REQUEST (the maintainer, 2026-09-26, verbatim)
