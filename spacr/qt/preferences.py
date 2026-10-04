@@ -6759,7 +6759,7 @@ def _preferences_window_class():
         def findChild(self, *args, **kwargs):     # noqa: N802 - Qt naming
             """``QObject.findChild``, finding a control whose page is waiting.
 
-            A control asked for by name is the dialog's wherever its page
+            A control looked up by its object name is the dialog's wherever its page
             is, so what the builder, Save and a test find by name does not
             depend on which tabs have been chosen. The page it is on comes
             back into its tab, hidden unless its tab is current, as it was
