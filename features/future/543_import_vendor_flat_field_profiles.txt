@@ -160,3 +160,42 @@ features/data/543_vendor_profile_validation_2026-10-01.json.
     Zenodo set; Background-only profiles now supported, median error 0).
     (c) a Harmony export carrying a Foreground polynomial, and CZI/ND2/Olympus
     files with embedded shading: none public. Unblocks: one sample of each.
+
+2026-10-03 — VENDOR SAMPLE HUNT (OME sample repository + Zenodo, CPU)
+    Files in /mnt/wd4tb/scratch/543/{ome,czi,nd2,olympus,vendor};
+    scripts work/ome_import.py, czi_probe.py, import_run.py.
+    Harmony (downloads.openmicroscopy.org/images/PerkinElmer-Operetta):
+      omer/006P_M3 Index.idx.xml: 12 FlatfieldProfiles, 6 channels, 1080x1080
+      idr0034 HipSci Index.idx.xml: 8 profiles, 3 channels, Dims [1360, 1024]
+      59549 (Index.ref.xml) and zenodo-7841360 (Sonata): no profiles.
+      All profiles are Background-only (Acapella:2013); none carries a
+      Foreground polynomial. _vendor_illumination loads both: unit gain,
+      darkfield (6,1080,1080) range -70..33 and (3,1024,1360) range -30..10;
+      non-square Dims map to (rows=1024, cols=1360) as expected. No
+      Harmony-corrected export exists for these, so no pixel comparison.
+    Zeiss CZI: 3 OME CZIs plus 42 Zenodo CZIs probed by HTTP range reads
+      of the attachment directory and metadata (LSM 710/780/880/800,
+      Celldiscoverer 7, Axio Observer/Imager/Scan, Lightsheet Z.1, lattice).
+      No attachment holds a shading reference image (only EventList,
+      TimeStamps, Label, SlidePreview, Thumbnail, LookupTables, Profile, SLM).
+      One Axio Scan.Z1 file (zenodo 7149674) has ShadingReference=true:
+      ZEN applied shading at acquisition, the pixels are already corrected
+      and the reference itself is not stored (its gzip Profile attachment
+      holds only settings). spaCR import of idr0011 CZI: scan/describe OK
+      (BCZYX 3x21x512x672); as a vendor reference it is correctly refused
+      (not a single plane per channel).
+    Nikon ND2: 10 files (OME ND2/ and zenodo 21162526). Only shading
+      metadata anywhere is the flag bLiveShadingCorrection=false; no
+      reference image. spaCR import describes 9/10 (Exception_2.nd2 is a
+      deliberately broken test file: "No axes"); the vendor loader refuses
+      .nd2 with a clear message.
+    Olympus: OIR (Map_A01, venus stack), OIB, cellSens VSI, omp2info: no
+      shading or flat-field metadata. spaCR import does not read
+      .oir/.oib/.vsi at all (ConfigurationError, unsupported format).
+    CONCLUSION: public CZI/ND2/Olympus samples never embed a shading
+    reference; ZEN and NIS apply it at acquisition and record only a flag.
+    The existing shading-reference-image path (ZEN/NIS exported reference
+    .tif/.czi) is the only route. Possible follow-up (not done): warn when a
+    CZI's metadata says ShadingReference=true, since applying a second
+    correction would double-correct. Still unseen: a Harmony profile with
+    a Foreground polynomial.

@@ -247,3 +247,31 @@ close the remaining real parasite endodyogeny acceptance for F537.
     (c) endodyogeny: no tracked parasite time-lapse with daughter links on disk
     or public. Unblocks: one maintainer Toxoplasma movie with tracked
     mother/daughter pairs.
+
+2026-10-03 — DATA HUNT FOR ENDODYOGENY MOVIES (CPU)
+    Local search (/mnt/wd4tb/af3/projects/*, /mnt/wd4tb/scratch/*,
+    /nas_mnt/data; names toxo/tachyz/endodyog/lapse/movie/replicat/egress,
+    .nd2/.czi/.lif): the only Toxoplasma time-lapse is
+    /nas_mnt/data/barragan (motility_test_CMTMR.czi, Zeiss, EC Plan-Neofluar
+    10x/0.30 Ph1, 4 wells x 45-60 frames, ~156 s interval, ~2.6 h; spaCR
+    pathogen masks in plate3/masks/pathogen_mask_stack). It is a host-cell
+    motility assay, not a replication movie: at 10x a tachyzoite is a few
+    pixels, and 2.6 h is under one 6-8 h endodyogeny cycle. No other
+    Toxoplasma movie on disk (live_cell and toxoplasma_pv_model hold none).
+    Run anyway as a negative control (spaCR _track_by_iou with the same
+    contingency linker as run_rd3.py, then _lineage_segments inference):
+      well    frames objs t0->tN  tracks  full-length  median len  inferred div
+      A02_1   45     153 -> 79    1310    11           1 frame     325
+      A04_3   45     670 -> 376   5148    49           1 frame     1394
+    Object count halves rather than doubles (expected 2^n is not
+    observable); masks flicker (median track 1 frame, checked on crops), so
+    every "division" is a fragment-reappearance artefact. Not usable for
+    endodyogeny. Script/results: /mnt/wd4tb/scratch/537/barragan/ (run.py,
+    results.csv, crop_*.png, tree_*.png).
+    Public search: Zenodo (toxoplasma time-lapse / live imaging replication /
+    endodyogeny / tracking division) and BioImage Archive (14 Toxoplasma
+    studies: EMPIAR CLEM volumes, S-BSST429 static zebrafish confocal,
+    S-BIAD2135/S-BIAD2076 fixed screens): no tracked or untracked Toxoplasma
+    replication time-lapse found.
+    STILL BLOCKED: needs a maintainer movie at >=40x, >=12 h, interval
+    <=30 min, with parasite (not vacuole) masks.
