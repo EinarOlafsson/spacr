@@ -150,3 +150,95 @@ def test_a_failed_provenance_sidecar_is_reported(tmp_path, monkeypatch, capsys):
     plot.save_figure(fig, target, fmt="png", close=True)
     assert target.exists()
     assert "sidecar" in capsys.readouterr().out
+
+
+def _panel(number, **fields):
+    record = {"panel": number, "kind": "scalar", "shape": [4, 4],
+              "display_range": [[0.0, 1.0]], "tagged": False}
+    record.update(fields)
+    return record
+
+
+def test_range_findings_compare_only_comparable_panels():
+    panels = [
+        _panel(1, display_range=None),
+        _panel(2, compare="pair", display_range=[[0.0, 1.0]]),
+        _panel(3, compare="pair", display_range=[[0.0, 2.0]]),
+        _panel(4),
+        _panel(5, tagged=True, channel="DAPI", display_range=[[1.0, 1.0]]),
+        _panel(6, tagged=True, channel="DAPI", display_range=[[1.0, 1.0]]),
+    ]
+    findings = plot._range_findings(panels)
+    assert [f["panels"] for f in findings] == [[2, 3]]
+
+
+def test_lossy_and_resampling_checks_need_panels_to_judge():
+    assert plot._lossy_findings("jpg", "jpg", []) == []
+    panels = [{"panel": 1, "shape": [400, 400], "exported_pixels": [40, 40]},
+              {"panel": 2, "shape": [4], "exported_pixels": [10, 10]},
+              {"panel": 3, "shape": [4, 4], "exported_pixels": None}]
+    notes = plot._resampling_findings(panels)
+    assert [n["panels"] if "panels" in n else n.get("panel") for n in notes]
+
+
+def test_the_version_reads_unknown_without_a_version_module(monkeypatch):
+    import builtins
+
+    real_import = builtins.__import__
+
+    def no_version(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "_version" and level:
+            raise ImportError("no version file")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", no_version)
+    assert plot._spacr_version() == "unknown"
+
+
+def test_finishing_without_a_writable_sidecar_still_reports(tmp_path,
+                                                            monkeypatch,
+                                                            capsys):
+    from spacr import run_journal
+
+    figure = tmp_path / "f.png"
+    figure.write_bytes(b"png")
+
+    class _Run:
+        def record_warning(self, line):
+            raise RuntimeError("journal closed")
+
+        def record_output(self, path, setting_key=None):
+            raise RuntimeError("journal closed")
+
+    monkeypatch.setattr(run_journal, "current_run", lambda: _Run())
+    report = {"integrity": {"findings": [
+        {"severity": "note", "message": "fine"},
+        {"severity": "warning", "message": "ranges differ"}],
+        "warnings": 1, "notes": 1}}
+    assert plot._finish_integrity(report, figure) is not None
+    real_open = open
+
+    def refuse(path, *a, **k):
+        if str(path).endswith(".tmp"):
+            raise OSError("read-only")
+        return real_open(path, *a, **k)
+
+    monkeypatch.setattr("builtins.open", refuse)
+
+    def broken():
+        raise RuntimeError("no journal")
+
+    monkeypatch.setattr(run_journal, "current_run", broken)
+    assert plot._finish_integrity(report, figure) is None
+    assert "ranges differ" in capsys.readouterr().out
+
+
+def test_steps_replay_and_npy_sources_are_read(tmp_path):
+    np.save(tmp_path / "a.npy", np.arange(24, dtype=np.float32).reshape(2, 3, 4))
+    image = plot._read_panel_source(tmp_path / "a.npy")
+    out = plot._replay_steps(image, [
+        {"op": "max_project", "axis": 0}, {"op": "crop", "box": [0, 2, 0, 2]},
+        {"op": "rescale", "ranges": [0, 30]}, {"op": "to_uint8"}])
+    assert out.dtype == np.uint8 and out.shape == (2, 2)
+    with pytest.raises(ValueError, match="cannot be replayed"):
+        plot._replay_steps(image, [{"op": "rotate"}])
