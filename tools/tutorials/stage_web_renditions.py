@@ -72,7 +72,9 @@ def require_timestamps(before, after, frames):
     import math
     if (len(before) != frames or len(after) != frames
             or any(not math.isfinite(x) for x in before + after)
-            or any(abs(a - b) > 2 / 90000 for a, b in zip(before, after))):
+            # Half a tick of the web copy's 1/15360 time base: a long master's
+            # 1/90000 stamps drift by ~23 us after 40 min, far below a frame.
+            or any(abs(a - b) > 1 / 30720 for a, b in zip(before, after))):
         raise ValueError('Frame presentation times changed during downscaling')
 
 
