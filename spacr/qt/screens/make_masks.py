@@ -16586,9 +16586,8 @@ class _Sam2SeedDialog(QDialog):
         """
         import json
 
-        import tifffile
-
         from ...tabular import write_table
+        from ...tiff_io import write_tiff
         from ...timelapse import (_native_lineage_columns, _relabelled_stack_to_tracks_df,
                                   _sam2_parent_links)
         from ..i18n import tr
@@ -16607,8 +16606,8 @@ class _Sam2SeedDialog(QDialog):
         stem = (os.path.splitext(os.path.basename(self.source_path))[0]
                 if self.source_path else "movie")
         labels = np.asarray(self.labels).astype(np.int32)
-        tifffile.imwrite(os.path.join(folder, f"{stem}_sam2_masks.tif"), labels,
-                         photometric="minisblack")
+        write_tiff(os.path.join(folder, f"{stem}_sam2_masks.tif"), labels,
+                   photometric="minisblack")
         tracks = _relabelled_stack_to_tracks_df(labels)
         if not tracks.empty:
             tracks = _native_lineage_columns(tracks, _sam2_parent_links(labels), "sam2")
