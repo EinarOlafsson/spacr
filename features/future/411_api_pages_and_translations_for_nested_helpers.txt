@@ -2224,3 +2224,16 @@ locales). The shouted-prose exemption now also covers "PATH" ("ON THIS
 PATH ONLY"). Help index regenerated; guards pass (385 passed, 13
 report-only xfails).
     BLOCKED / open: OPEN docs work: 185 of 1,149 renderable nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — IO AND FRACTAL_TRAVEL ENABLED (PARTIAL; 1,045 of 1,149)
+ENABLED_MODULES gains spacr.io and qt.widgets.fractal_travel (81 helpers).
+The writer adds 81 symbols (12,990 -> 13,071) in English and nine locales
+from 178 AI-reviewed blocks (2026-10-03-nested-batch14.json, direct AI
+translation with AI technical review, no native-speaker signoff);
+generated=0, decoded=0. Four fractal_travel local constructors join the
+documented-__init__ set; Help index regenerated. Guards: all pass except
+tests/test_built_nested_helper_api.py, which nightly's 68884079c broke
+(it copies named conf.py hooks into a scratch Sphinx project, and the new
+setup() hook _qualify_helper_annotations is not among them: NameError).
+Owned by the CI-test lane; not changed here.
+    BLOCKED / open: OPEN docs work: 104 of 1,149 renderable nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).

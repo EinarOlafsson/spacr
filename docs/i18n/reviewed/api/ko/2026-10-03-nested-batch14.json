@@ -1,0 +1,1487 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.io._check_masks.needs_processing#0",
+      "source": "Report whether a field still has to be generated.",
+      "source_sha256": "c42909f20ccc0305a395b17b5c94d33f98069f18b4bfe803e795958fb594ac9e",
+      "context": "Report whether a field still has to be generated.",
+      "translation": "필드를 아직 생성해야 하는지 알려 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._check_masks.needs_processing#1",
+      "source": "Args: filename (str): Name relative to the enclosing ``output_folder``, not a full path — it is joined onto that folder here. An existing file is validated by its header and length, so an empty or truncated ``.npy`` left behind by a killed run counts as missing, is named in the log, and is generated again.",
+      "source_sha256": "9bb79c312349411e1d0f4d077bceb888e9861843be3383f5ae0e73a14e45bda4",
+      "context": "Args: filename (str): Name relative to the enclosing ``output_folder``, not a full path — it is joined onto that folder here. An existing file is validated by its header and length, so an empty or truncated ``.npy`` left behind by a killed run counts as missing, is named in the log, and is generated again.",
+      "translation": "Args: filename (str): 상위 ``output_folder``에 대한 상대 이름이며 전체 경로가 아닙니다 — 여기서 그 폴더에 결합됩니다. 기존 파일은 헤더와 길이로 검증하므로, 중단된 실행이 남긴 비어 있거나 잘린 ``.npy``는 없는 것으로 간주되어 로그에 이름이 기록되고 다시 생성됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._dataset_crop_refs._filter#0",
+      "source": "Keep the rows whose ``column`` contains any of the wanted terms.",
+      "source_sha256": "ace0ee5354e4f90637b1006cf3a6ab251163ae8a45118f54b4684b14ca597698",
+      "context": "Keep the rows whose ``column`` contains any of the wanted terms.",
+      "translation": "``column``에 원하는 용어 중 하나라도 포함된 행을 유지합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._dataset_crop_refs._filter#1",
+      "source": "SUBSTRING AND NOT REGEX (`regex=False`): the terms come from a user naming plates or wells, and a stray `(` or `+` in one of them would otherwise raise out of pandas rather than simply matching nothing. Any term matching is enough -- several terms are alternatives, which is what a user listing them means.",
+      "source_sha256": "b5386b459acd0f3840d901eb11f0edcb0d47b6bbc37b70dcfb3f017aa1ce5815",
+      "context": "Substring and not regex (`regex=False`): the terms come from a user naming laboratory microplates or microplate sample positions, and a stray `(` or `+` in one of them would otherwise raise out of pandas rather than simply matching nothing. Any term matching is enough -- several terms are alternatives, which is what a user listing them means.",
+      "translation": "정규식이 아닌 부분 문자열입니다(`regex=False`). 용어는 플레이트나 웰 이름을 입력하는 사용자에게서 오므로, 그중 하나에 잘못 들어간 `(`나 `+`가 있으면 단순히 아무것과도 일치하지 않는 대신 pandas에서 오류가 발생합니다. 용어 하나만 일치해도 충분합니다 -- 여러 용어는 대안이며, 사용자가 그것들을 나열할 때 뜻하는 바가 바로 그것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._dataset_crop_refs._filter#2",
+      "source": "the rows to filter.",
+      "source_sha256": "29f568dba5dc31fd2dd9b087e532f78a64618ba2aeebff414aab94c06ea09f56",
+      "context": "the rows to filter.",
+      "translation": "필터링할 행입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._dataset_crop_refs._filter#3",
+      "source": "the column to search; an absent one filters nothing, because a frame that never had it cannot contradict the request.",
+      "source_sha256": "ebefa699b4adb3e69c63c33e9ddcec2959e0899897df2a106d5dd64837a8348f",
+      "context": "the column to search; an absent one filters nothing, because a frame that never had it cannot contradict the request.",
+      "translation": "검색할 열이며, 없는 열은 아무것도 필터링하지 않습니다. 그 열을 가진 적이 없는 프레임은 요청과 모순될 수 없기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._describe_processed_folder.count#0",
+      "source": "Count the files in ``folder/name`` ending in ``suffixes``.",
+      "source_sha256": "5ce99dc92089d347363fe0215f1f05edcdd6cc472548c17007094f01abc216c8",
+      "context": "Count the files in ``folder/name`` ending in ``suffixes``.",
+      "translation": "``folder/name``에서 ``suffixes``로 끝나는 파일 수를 셉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._load_and_concatenate_arrays.add_mask_folder#0",
+      "source": "Queue one object's mask stack, if this run has that object.",
+      "source_sha256": "a98babd9f4624ea1d2d09f63528542ca1d92b0bb8820cd4132271fab35c9d329",
+      "context": "Work list one object's mask stack, if this run has that object.",
+      "translation": "이번 실행에 그 객체가 있으면 객체 하나의 마스크 스택을 대기열에 넣습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._load_and_concatenate_arrays.add_mask_folder#1",
+      "source": "EITHER the caller named a channel dimension for it OR the folder is on disk: a run that segmented an object always has the folder, and a run being re-read from settings may name the object before the folder is written. Requiring both would drop a mask stack that is sitting right there.",
+      "source_sha256": "01f5e1c68fbad680f3ef487d5a810275d66a853645fd6e017ddd8489df18e552",
+      "context": "EITHER the caller named an image data channel dimension for it OR the folder is on disk: a processing session that segmented an object always has the folder, and a processing session being re-read from settings may name the object before the folder is written. Requiring both would drop a mask stack that is sitting right there.",
+      "translation": "호출자가 그 객체의 채널 차원을 지정했거나 폴더가 디스크에 있으면 됩니다. 객체를 분할한 실행에는 항상 폴더가 있고, 설정에서 다시 읽는 실행은 폴더가 쓰이기 전에 객체 이름을 지정할 수 있습니다. 둘 다 요구하면 바로 거기 있는 마스크 스택을 버리게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._load_and_concatenate_arrays.add_mask_folder#2",
+      "source": "the object, e.g. ``'cell'``.",
+      "source_sha256": "004d84a5ca9b793c9ac281f5b96f03f2d4a555158291248676ee6cc0bc2c98c4",
+      "context": "the object, e.g. ``'cell'``.",
+      "translation": "객체이며, 예: ``'cell'``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._load_and_concatenate_arrays.add_mask_folder#3",
+      "source": "that object's channel dimension, or None.",
+      "source_sha256": "83b52a1d371ff86dc765ad2d2cdb6da69cb893cf23a11bf8372a71ecf5d451dc",
+      "context": "that object's channel dimension, or None.",
+      "translation": "그 객체의 채널 차원이며, 없으면 None입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._mask_movie_frame_geometry._points#0",
+      "source": "A font size in POINTS for a fraction of the frame's short side.",
+      "source_sha256": "7818f055ff5bdf3d83a9c2533351a59b683ec0b9d5f3d87c8e55dbb8f9dfb5f2",
+      "context": "A font size in POINTS for a fraction of the frame's short side.",
+      "translation": "프레임 짧은 변의 일정 비율에 해당하는 글꼴 크기(포인트 단위)입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._mask_movie_frame_geometry._points#1",
+      "source": "Matplotlib sizes text in points and this geometry is in pixels, so the conversion has to use the dpi the writer will actually use -- computing it against a default dpi puts the labels at the wrong size in the file while looking right on screen. Floored at 5 pt, below which a label is ink rather than text.",
+      "source_sha256": "f1d9be0016e453724469a80246267301da980cd1e3a6f549947616183c2528a1",
+      "context": "Matplotlib sizes text in points and this geometry is in pixels, so the conversion has to use the dpi the writer will actually use -- computing it against a default dpi puts the labels at the wrong size in the file while looking right on application view. Floored at 5 pt, below which a label is ink rather than text.",
+      "translation": "Matplotlib은 텍스트 크기를 포인트로 정하고 이 기하는 픽셀 단위이므로, 변환에는 작성기가 실제로 사용할 dpi를 써야 합니다 -- 기본 dpi로 계산하면 표시에서는 맞아 보여도 파일에서는 레이블 크기가 틀립니다. 하한은 5 pt이며, 그보다 작으면 레이블은 텍스트가 아니라 잉크 얼룩입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#0",
+      "source": "Merge grouped tables while keeping only one copy of shared acquisition metadata.",
+      "source_sha256": "5185a956a86401f15af74761baea8bc0841fdb5ac1eb578348a396381ba769b3",
+      "context": "Merge grouped tables while keeping only one copy of shared acquisition metadata.",
+      "translation": "공유 획득 메타데이터의 사본을 하나만 남기고 그룹화된 테이블을 병합합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#1",
+      "source": "THE JOIN TYPE NOW COMES FROM THE REGISTRY. It used to be inner unconditionally -- pandas' default, since no ``how=`` was passed -- and this docstring said the choice was \"deliberately left alone\" because the decision had not been made. It has since: `object_roles. join_how` records it and `_read_and_join_tables` already reads it, so the two readers of the same tables were disagreeing about which objects exist.",
+      "source_sha256": "9ea78d5e5fcd580314a032216e910cad2c23524f026da3c21a86042318df5a16",
+      "context": "The join type now comes from the registry. It used to be inner unconditionally -- pandas' default, since no ``how=`` was passed -- and this docstring said the choice was \"deliberately left alone\" because the decision had not been made. It has since: `object_roles. join_how` records it and `_read_and_join_tables` already reads it, so the two readers of the same tables were disagreeing about which objects exist.",
+      "translation": "이제 조인 유형은 레지스트리에서 옵니다. 예전에는 무조건 inner였는데 -- ``how=``를 전달하지 않았으므로 pandas의 기본값 -- 이 docstring은 결정이 내려지지 않았기 때문에 그 선택이 \"deliberately left alone\"이라고 했습니다. 이제는 결정되었습니다. `object_roles. join_how`가 그것을 기록하고 `_read_and_join_tables`가 이미 그것을 읽으므로, 같은 테이블을 읽는 두 곳이 어떤 객체가 존재하는지에 대해 서로 달랐던 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#2",
+      "source": "nucleus     INNER   a cell with no nucleus is debris png_list    INNER   a cell with no crop cannot be classified cytoplasm   LEFT    one row per cell; it makes no difference pathogen    LEFT    an UNINFECTED cell is usually the control organelle   LEFT    same reasoning",
+      "source_sha256": "f17e47e0d5ababc22834a688dff345d814f30c91fb2e6569e435a6a8a88f0b65",
+      "context": "nucleus     INNER   a cell with no nucleus is debris png_list    INNER   a cell with no extracted image region cannot be classified cytoplasm   LEFT    one row per cell; it makes no difference pathogen    LEFT    an UNINFECTED cell is usually the control organelle   LEFT    same reasoning",
+      "translation": "nucleus     INNER   핵이 없는 세포는 잔해입니다 png_list    INNER   크롭이 없는 세포는 분류할 수 없습니다 cytoplasm   LEFT    세포당 한 행이므로 차이가 없습니다 pathogen    LEFT    감염되지 않은 세포는 대개 대조군입니다 organelle   LEFT    같은 이유",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#3",
+      "source": "Inner for pathogen was the consequential one: it silently conditioned every result on infection, deleting the control population from the denominator without a word.",
+      "source_sha256": "13e102d3a1239ef7b11d63eaee50fffb837e68ce3f555ab4033b243de681b1a4",
+      "context": "Inner for pathogen was the consequential one: it silently conditioned every result on infection, deleting the control population from the denominator without a word.",
+      "translation": "pathogen에 대한 inner가 결과에 큰 영향을 준 경우였습니다. 모든 결과를 조용히 감염 여부에 조건부로 만들고, 아무 말 없이 대조군 집단을 분모에서 지웠습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#4",
+      "source": "A ``right_name`` the registry does not know keeps the historical inner join rather than being guessed at -- the metadata and stamp merges go through here too, and they are not object tables.",
+      "source_sha256": "2e2260c3c9e6a5ad152c49f2b8fc42724490aa4130e7fcea46e7fc0239c80f9c",
+      "context": "A ``right_name`` the registry does not know keeps the historical inner join rather than being guessed at -- the metadata and stamp merges go through here too, and they are not object tables.",
+      "translation": "레지스트리가 모르는 ``right_name``은 추측하지 않고 기존의 inner join을 유지합니다 -- 메타데이터와 스탬프 병합도 여기를 거치며, 그것들은 객체 테이블이 아닙니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#5",
+      "source": "What is NOT defensible is doing it in silence, which is what this used to do. The discontinuity is brutal: on a 100-cell plate where NO crop carries a usable object id, png_list drops out before the join and all 100 cells survive; where exactly ONE does, the merge keeps that one and deletes the other 99. Nothing printed either way, and every shipped caller passes verbose=False.",
+      "source_sha256": "c7066a542cf67d226f800124e43cbffc2aee204e003305b631cf029c1dbf4082",
+      "context": "What is NOT defensible is doing it in silence, which is what this used to do. The discontinuity is brutal: on a 100-cell plate where NO extracted image region carries a usable object id, png_list drops out before the join and all 100 cells survive; where exactly ONE does, the merge keeps that one and deletes the other 99. Nothing printed either way, and every shipped caller passes verbose=False.",
+      "translation": "변호할 수 없는 것은 이를 조용히 하는 것이며, 예전에는 바로 그렇게 했습니다. 불연속성은 가혹합니다. 세포 100개짜리 플레이트에서 사용 가능한 객체 id를 가진 크롭이 하나도 없으면 png_list는 조인 전에 빠지고 세포 100개가 모두 남습니다. 정확히 하나만 있으면 병합은 그 하나를 남기고 나머지 99개를 지웁니다. 어느 경우에도 아무것도 출력되지 않았고, 배포된 모든 호출자는 verbose=False를 전달합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._merge_grouped#6",
+      "source": "So the shortfall is reported, named by table. This is the mirror of `_report_fan_out` for the shrinking direction.",
+      "source_sha256": "f8eff66d9827632d2a2629901848412427f852a10613ce8099427cafaf61e528",
+      "context": "So the shortfall is reported, named by table. This is the mirror of `_report_fan_out` for the shrinking direction.",
+      "translation": "그래서 부족분을 테이블 이름과 함께 보고합니다. 이는 줄어드는 방향에 대한 `_report_fan_out`의 대칭입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_and_merge_data._split_object_data#0",
+      "source": "Group object data while retaining its complete provenance stamp.",
+      "source_sha256": "c19a8f93d8d3a6a331c6f6e6bd57ad6595fd22604fdf7d940447f0ab6e758a96",
+      "context": "Group object data while retaining its complete provenance stamp.",
+      "translation": "완전한 출처 스탬프를 유지하면서 객체 데이터를 그룹화합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._read_db._quote_identifier#0",
+      "source": "Safely quote SQLite identifiers (e.g., table names).",
+      "source_sha256": "038fd28dea56e64393c2cdd61079459c255719a17ac6a2c92ccd272009a33c5a",
+      "context": "Safely quote SQLite identifiers (e.g., table names).",
+      "translation": "SQLite 식별자(예: 테이블 이름)를 안전하게 인용 부호로 감쌉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_mask_timelapse_as_gif._update#0",
+      "source": "Update the frame of the animation.",
+      "source_sha256": "ebf1396b09a2bbabc11aad6f847c1089ddbcd3f0d32110aeba09270db475d819",
+      "context": "Update the frame of the animation.",
+      "translation": "애니메이션의 프레임을 업데이트합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_mask_timelapse_as_gif._update#1",
+      "source": "Parameters:",
+      "source_sha256": "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+      "context": "Parameters:",
+      "translation": "매개변수:",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_mask_timelapse_as_gif._update#2",
+      "source": "frame (int): The frame number to update.",
+      "source_sha256": "bf00b4effac3ed6b75f57bcccc5ecb50c5c39db3dfc4981c4e8b15810d6e29b1",
+      "context": "frame (int): The frame number to update.",
+      "translation": "frame (int): 업데이트할 프레임 번호입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_mask_timelapse_as_gif._update#3",
+      "source": "Returns: None",
+      "source_sha256": "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974",
+      "context": "Returns: None",
+      "translation": "반환: None",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_object_counts_to_database._count_objects#0",
+      "source": "Count unique objects in a mask, assuming 0 is the background.",
+      "source_sha256": "4e35ac9568eb2ced8cd127823060d2adb6f05ce3ecdae846799a167a10e07005",
+      "context": "Count unique objects in a mask, assuming 0 is the background.",
+      "translation": "0을 배경으로 가정하고 마스크의 고유 객체 수를 셉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_progress._save_df_to_csv#0",
+      "source": "Save the given DataFrame to the specified CSV file, either creating a new file or appending to an existing one.",
+      "source_sha256": "8c1176c9f0ae5bd36f5d76da5bb573540029ceacaf916debd3666f1e549913a1",
+      "context": "Save the given DataFrame to the specified CSV file, either creating a new file or appending to an existing one.",
+      "translation": "주어진 DataFrame을 지정한 CSV 파일에 저장하며, 새 파일을 만들거나 기존 파일에 덧붙입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io._save_progress._save_df_to_csv#1",
+      "source": "Parameters: file_path (str): The file path where the CSV will be saved. df (pandas.DataFrame): The DataFrame to save.",
+      "source_sha256": "4247c7dfe162ecdfb6be4fb6dd918791b2b4b80eafdfc555565e992ec6b8bbd2",
+      "context": "Parameters: file_path (str): The file path where the CSV will be saved. df (pandas.DataFrame): The DataFrame to save.",
+      "translation": "매개변수: file_path (str): CSV를 저장할 파일 경로입니다. df (pandas.DataFrame): 저장할 DataFrame입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.convert_to_yokogawa._get_next_well#0",
+      "source": "Return the next free well, filling one plate before the next.",
+      "source_sha256": "7fc1972b2c3caf2f6a5317d2b4db160e85beb17ee649af9300a942a5ac84124f",
+      "context": "Return the next free microplate sample position, filling one laboratory microplate before the next.",
+      "translation": "다음 빈 웰을 반환하며, 한 플레이트를 다 채운 뒤 다음 플레이트로 넘어갑니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.convert_to_yokogawa._get_next_well#1",
+      "source": "The well ids come from :func:`spacr.convert.well_sequence`, which builds them out of :data:`spacr.schema.PLATE_FORMATS` — one definition instead of the three copies of ``\"ABCDEFGHIJKLMNOP\"`` and ``range(1, 25)`` this module used to carry.",
+      "source_sha256": "6e9f0af09ca53d43eeef787339e5d113702685ac0fe026b7fb44ead074d8ba7f",
+      "context": "The microplate sample position ids come from :func:`spacr.convert.well_sequence`, which builds them out of :data:`spacr.schema.PLATE_FORMATS` — one definition instead of the three copies of ``\"ABCDEFGHIJKLMNOP\"`` and ``range(1, 25)`` this module used to carry.",
+      "translation": "웰 id는 :func:`spacr.convert.well_sequence`에서 오며, 이 함수는 :data:`spacr.schema.PLATE_FORMATS`로부터 웰 id를 만듭니다 — 이 모듈이 예전에 갖고 있던 ``\"ABCDEFGHIJKLMNOP\"``와 ``range(1, 25)``의 사본 세 개 대신 정의 하나입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.convert_to_yokogawa._get_next_well#2",
+      "source": "The plate format stays 384 here: unlike :func:`convert_separate_files_to_yokogawa`, the inputs carry no well names at all, so nothing in them can ask for a bigger plate and the addresses are synthetic either way.",
+      "source_sha256": "549d05d249f2d98ee1afdf69fbc6257453f93ee08d7d4b35d55fb24b5be0b0b5",
+      "context": "The laboratory microplate format stays 384 here: unlike :func:`convert_separate_files_to_yokogawa`, the inputs carry no microplate sample position names at all, so nothing in them can ask for a bigger laboratory microplate and the addresses are synthetic either way.",
+      "translation": "여기서 플레이트 형식은 384로 유지됩니다. :func:`convert_separate_files_to_yokogawa`와 달리 입력에는 웰 이름이 전혀 없으므로, 그 안의 어떤 것도 더 큰 플레이트를 요구할 수 없고 주소는 어차피 합성된 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.crop_refs_for_rows._col#0",
+      "source": "One column as a plain list, or a column of None when it is absent.",
+      "source_sha256": "7028bd76b41ac10f1966045f92f57ee7a8547a185a6e9d7d25f3247a41571631",
+      "context": "One column as a plain list, or a column of None when it is absent.",
+      "translation": "열 하나를 일반 리스트로, 없으면 None으로 채운 열로 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.crop_refs_for_rows._col#1",
+      "source": "PLAIN LISTS RATHER THAN `itertuples`, for two measured reasons: the joined UMAP frame carries a couple of hundred columns, so building a namedtuple per row of it costs more than reading the crops does, and itertuples silently RENAMES any column whose name is not a valid identifier -- which is how a lookup starts missing a column that is plainly there.",
+      "source_sha256": "3f44bf1bde2b744eae1a3cde98259fcd8fad7dee60cd667cb8ed9fe1302138da",
+      "context": "Plain lists rather than `itertuples`, for two measured reasons: the joined UMAP frame carries a couple of hundred columns, so building a namedtuple per row of it costs more than reading the extracted image regions does, and itertuples silently RENAMES any column whose name is not a valid identifier -- which is how a lookup starts missing a column that is plainly there.",
+      "translation": "`itertuples` 대신 일반 리스트를 쓰는 데에는 측정된 이유가 두 가지 있습니다. 조인된 UMAP 프레임에는 열이 이백 개쯤 있어서 행마다 namedtuple을 만드는 비용이 크롭을 읽는 비용보다 크고, itertuples는 이름이 유효한 식별자가 아닌 열의 이름을 조용히 바꿉니다 -- 분명히 있는 열을 조회가 놓치기 시작하는 것은 바로 그 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.crop_refs_for_rows._col#2",
+      "source": "the column, or a falsy value for \"this frame has none\".",
+      "source_sha256": "3e336616d665e3472f9217afa74dffe0d1c134da49da9626a8d0aea23809be79",
+      "context": "the column, or a falsy value for \"this frame has none\".",
+      "translation": "열이며, \"this frame has none\"이면 거짓 값입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.crop_refs_for_rows._missing#0",
+      "source": "Whether a cell carries no answer.",
+      "source_sha256": "23cdb918ae613e647efc0713ceda9ea9c3e1d8a4eb3930c1ac4fbd9eb63e1ce1",
+      "context": "Whether a cell carries no answer.",
+      "translation": "셀에 답이 없는지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.crop_refs_for_rows._missing#1",
+      "source": "NaN AS WELL AS None, because a column read out of pandas holds NaN where a row had nothing and `None is not float('nan')`. Testing only for None lets a NaN through as if it were a value, and it then reaches a path name or an object label.",
+      "source_sha256": "c2d8a73a5de873899710789bf40e6aafd3833d3a7113e79ee27bc4bb70839643",
+      "context": "NaN as well as None, because a column read out of pandas holds NaN where a row had nothing and `None is not float('nan')`. Testing only for None lets a NaN through as if it were a value, and it then reaches a path name or an object label.",
+      "translation": "None뿐 아니라 NaN도 확인합니다. pandas에서 읽은 열은 행에 아무것도 없던 곳에 NaN을 담고 있고, `None is not float('nan')`이기 때문입니다. None만 검사하면 NaN이 값인 것처럼 통과하여 경로 이름이나 객체 레이블에 도달합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._annotation_classes_from_columns#0",
+      "source": "Build classes per (column,value). If a column only has one annotated value in {1,2}, also create '<column>_random' from unannotated rows (same count as positives). Optionally persist '<column>_random' as a new INT column with 1's for sampled rows.",
+      "source_sha256": "98f1bb2b9e1e3124cad7f8ac822cd5c384267639def6f53fcc2cda4166b6605e",
+      "context": "Build classes per (column,value). If a column only has one annotated value in {1,2}, also create '<column>_random' from unannotated rows (same count as positives). Optionally persist '<column>_random' as a new INT column with 1's for sampled rows.",
+      "translation": "(열, 값)마다 클래스를 만듭니다. 열에 {1,2} 중 주석이 달린 값이 하나뿐이면, 주석이 없는 행에서 '<column>_random'도 만듭니다(양성과 같은 수). 선택적으로 '<column>_random'을 샘플링된 행에 1을 담은 새 INT 열로 저장합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._annotation_classes_from_columns#1",
+      "source": "Returns (names, lists) aligned.",
+      "source_sha256": "7b4347293c7b4c1635ac1b6f027dcc54a2f65fb4dfe3748b3d8386cf9b148cb1",
+      "context": "Returns (names, lists) aligned.",
+      "translation": "정렬된 (names, lists)를 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._apply_where#0",
+      "source": "where: list of {'column','op','value'} AND-combined.",
+      "source_sha256": "59de56d0f467733678d0d03d25f983032763b90eb7fdd5cee3b801f1d5d26082",
+      "context": "where: list of {'column','op','value'} AND-combined.",
+      "translation": "where: list of {'column','op','value'}이며 AND로 결합됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._balance_lists#0",
+      "source": "Cut every class down to the smallest one, when that was asked for.",
+      "source_sha256": "a5a394ba4b6780b28412618e9d5869dab14a12fad97f735b9758d32466ae79ef",
+      "context": "Cut every class down to the smallest one, when that was asked for.",
+      "translation": "요청된 경우 모든 클래스를 가장 작은 클래스 크기로 줄입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._balance_lists#1",
+      "source": "A CLASSIFIER TRAINED ON 9,000 negatives and 300 positives learns to say \"negative\", so balancing is the ordinary case rather than an exotic one -- but it THROWS AWAY DATA, which is why it is a setting and not a default of this function.",
+      "source_sha256": "1b0682835a1aa330b5a67378d582deaf545fb2031c1a4d700cfe5975e42cc8e1",
+      "context": "A machine-learning classification model trained on 9,000 negatives and 300 positives learns to say \"negative\", so balancing is the ordinary case rather than an exotic one -- but it throws away data, which is why it is a setting and not a default of this function.",
+      "translation": "음성 9,000개와 양성 300개로 학습한 분류기는 \"negative\"라고 말하는 법을 배우므로, 균형화는 특이한 경우가 아니라 일반적인 경우입니다 -- 하지만 균형화는 데이터를 버리므로, 이 함수의 기본값이 아니라 설정입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._balance_lists#2",
+      "source": "Sampled rather than truncated: the first N crops of a class share a plate, a well and often a field, so taking them in order would trade a class imbalance for a batch imbalance.",
+      "source_sha256": "b7f7b5a8d2dd445689a860663b40ec1804d245bf228a30b1cc1ae06f26ab3c53",
+      "context": "Sampled rather than truncated: the first N extracted image regions of a class share a laboratory microplate, a microplate sample position and often a microscope field of view, so taking them in order would trade a class imbalance for a batch imbalance.",
+      "translation": "자르지 않고 샘플링합니다. 한 클래스의 처음 N개 크롭은 같은 플레이트, 웰, 그리고 종종 같은 필드에 있으므로, 순서대로 가져오면 클래스 불균형을 배치 불균형과 맞바꾸게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._balance_lists#3",
+      "source": "The no-classes gate immediately before the call rejects an empty list, so only populated collections reach this.",
+      "source_sha256": "2c0178d05e0c57c8cbd4a4276335ef65b656ede5c1803f80856abf0ba83a01cb",
+      "context": "The no-classes data-selection boundary immediately before the call rejects an empty list, so only populated collections reach this.",
+      "translation": "호출 바로 앞의 클래스 없음 검사가 빈 리스트를 거부하므로, 내용이 있는 컬렉션만 여기에 도달합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._balance_lists#4",
+      "source": "one list of crop paths per class.",
+      "source_sha256": "fe720b025358bb0c1ef1f41debe0c876745c15d14ffabab1411791154c83ad5b",
+      "context": "one list of extracted image region paths per class.",
+      "translation": "클래스마다 크롭 경로 리스트 하나입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._class_items#0",
+      "source": "Return the per-row crop entries a class list is built from.",
+      "source_sha256": "d11ae085621a12e17dba4928c0d59555772dd92aa322ee58acea44a16e2841b9",
+      "context": "Return the per-row extracted image region entries a class list is built from.",
+      "translation": "클래스 리스트를 만드는 행별 크롭 항목을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._class_items#1",
+      "source": "On-demand handles when the merged source is in play, PNG paths otherwise -- generate_dataset_from_lists takes either.",
+      "source_sha256": "8fd953056d3514119a4d97c2422002cf6943bb68a8d377e6455ff7640f12179a",
+      "context": "On-demand handles when the merged source is in play, PNG paths otherwise -- generate_dataset_from_lists takes either.",
+      "translation": "병합된 소스가 쓰일 때는 요청 시 핸들을, 그렇지 않으면 PNG 경로를 씁니다 -- generate_dataset_from_lists는 둘 다 받습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._ensure_unique_dir#0",
+      "source": "``dst_base``, or the first ``dst_base_N`` that does not exist yet.",
+      "source_sha256": "50c5919a268b314b45ab4f0f5f10d045c1ffb136498fd5de972ce0eff59e914e",
+      "context": "``dst_base``, or the first ``dst_base_N`` that does not exist yet.",
+      "translation": "``dst_base``이며, 또는 아직 존재하지 않는 첫 번째 ``dst_base_N``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._ensure_unique_dir#1",
+      "source": "A TRAINING SET IS NEVER WRITTEN OVER ONE THAT IS ALREADY THERE. The folder is the record of what a model was trained on, so reusing the name would leave a model whose training data cannot be reconstructed.",
+      "source_sha256": "8210f74dec038e5ebf9f7bd606deb115988025311f5c7bdff49c3f95a359e955",
+      "context": "A training set is never written over one that is already there. The folder is the record of what a model was trained on, so reusing the name would leave a model whose training data cannot be reconstructed.",
+      "translation": "학습 세트는 이미 있는 학습 세트 위에 절대 쓰지 않습니다. 폴더는 모델이 무엇으로 학습되었는지에 대한 기록이므로, 이름을 재사용하면 학습 데이터를 재구성할 수 없는 모델이 남습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._ensure_unique_dir#2",
+      "source": "the folder that was asked for.",
+      "source_sha256": "4004277989569867c0d3680308a609c789a1bbe112c92349808d40367ec7e1ee",
+      "context": "the folder that was asked for.",
+      "translation": "요청된 폴더입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._ensure_unique_dir#3",
+      "source": "a folder path nothing occupies.",
+      "source_sha256": "a524a1cbabf80edc74f25fd521a89bfbd9f3a7cc251f7f6d664d2b76f0ed0bf1",
+      "context": "a folder path nothing occupies.",
+      "translation": "아무것도 차지하지 않은 폴더 경로입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._fix_path_under_src#0",
+      "source": "Make sure png_path lives under the current src root (portable absolute fix).",
+      "source_sha256": "888bd2b4b19c146fd1623bfc0b2d5e51983553217efebdec04c8b8cd969d2f49",
+      "context": "Make sure png_path lives under the current src root (portable absolute fix).",
+      "translation": "png_path가 현재 src 루트 아래에 있도록 합니다(이식 가능한 절대 경로 수정).",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._fix_path_under_src#1",
+      "source": "THE RULE ITSELF LIVES IN `spacr.portable_paths` and is shared with the montage, which needs exactly this and used to get none of it -- the rule was a nested local here, reachable only from this generator, so a screen that had moved computer showed the montage 60,816 dead paths while this function resolved every one.",
+      "source_sha256": "77692a64c8e0b2524f78aa8b3e6913d951aea46c1cd2a91b4cf593ee84e34644",
+      "context": "The rule itself lives in `spacr.portable_paths` and is shared with the montage, which needs exactly this and used to get none of it -- the rule was a nested local here, reachable only from this generator, so a screen that had moved computer showed the montage 60,816 dead paths while this function resolved every one.",
+      "translation": "규칙 자체는 `spacr.portable_paths`에 있으며 몽타주와 공유됩니다. 몽타주는 정확히 이것이 필요한데 예전에는 전혀 받지 못했습니다 -- 규칙이 여기의 중첩된 지역 함수여서 이 생성기에서만 접근할 수 있었으므로, 컴퓨터를 옮긴 screen은 이 함수가 모든 경로를 해석하는 동안 몽타주에 죽은 경로 60,816개를 보여 주었습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._fix_path_under_src#2",
+      "source": "The `/data/` rebuild is now only applied when it lands on a file that EXISTS. Rewriting to somewhere equally absent is strictly worse than leaving the recorded path alone: the copy below then fails naming a folder the user never chose.",
+      "source_sha256": "2c52baa7e20ac55c19e540991f68e33adafc7e53c1c1e787fe4c5e56f7b8d206",
+      "context": "The `/data/` rebuild is now only applied when it lands on a file that EXISTS. Rewriting to somewhere equally absent is strictly worse than leaving the recorded path alone: the copy below then fails naming a folder the user never chose.",
+      "translation": "이제 `/data/` 재구성은 실제로 존재하는 파일에 도달할 때만 적용됩니다. 똑같이 없는 곳으로 다시 쓰는 것은 기록된 경로를 그대로 두는 것보다 분명히 나쁩니다. 그러면 아래의 복사가 사용자가 고른 적 없는 폴더 이름을 대며 실패합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._load_png_table#0",
+      "source": "The per-object crop table, or the measurements standing in for it.",
+      "source_sha256": "79f9a56d5076a4d806cb13995897a1da04bee6e3b7ec71da28dcbdd8f651bff6",
+      "context": "The per-object-image-region table, or the measurements standing in for it.",
+      "translation": "객체별 크롭 테이블이며, 없으면 그것을 대신하는 측정값입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._load_png_table#1",
+      "source": "`png_list` ALONE, deliberately: joining it against the measurement tables would drop every object those tables do not also carry, and a training set is allowed to be a subset of what was measured.",
+      "source_sha256": "025cb547ac57cdb5648d7013fe63e7e9f79a7774d4084dac8114c392c81f6fa3",
+      "context": "`png_list` ALONE, deliberately: joining it against the measurement tables would drop every object those tables do not also carry, and a training set is allowed to be a subset of what was measured.",
+      "translation": "`png_list`만 의도적으로 씁니다. 측정 테이블과 조인하면 그 테이블에 함께 없는 모든 객체가 빠지며, 학습 세트는 측정된 것의 부분집합이어도 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._load_png_table#2",
+      "source": "NO `png_list` MEANS NO PNG FOLDER WAS EVER WRITTEN, which is not the same as no data. The objects are still in the measurement table with the same well metadata the class rules select on, so that is read instead -- otherwise a project holding everything it needs reports \"0 classes\".",
+      "source_sha256": "781e764e801d44924f80e04d759da37664730ef334e0ccf8f8e4cd6068d8f657",
+      "context": "NO `png_list` means no PNG folder was ever written, which is not the same as no data. The objects are still in the measurement table with the same well metadata the class rules select on, so that is read instead -- otherwise a project holding everything it needs reports \"0 classes\".",
+      "translation": "`png_list`가 없다는 것은 PNG 폴더가 한 번도 쓰이지 않았다는 뜻이며, 데이터가 없다는 것과는 다릅니다. 객체는 클래스 규칙이 선택 기준으로 삼는 것과 같은 웰 메타데이터와 함께 여전히 측정 테이블에 있으므로 대신 그것을 읽습니다 -- 그렇지 않으면 필요한 것을 모두 가진 프로젝트가 \"0 classes\"라고 보고합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._load_png_table#3",
+      "source": "the measurements database.",
+      "source_sha256": "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+      "context": "the measurements database.",
+      "translation": "측정 데이터베이스입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.generate_training_dataset._load_png_table#4",
+      "source": "which object's table to fall back to.",
+      "source_sha256": "a97b1bd814cf69f5ad5a6c5bfa0de05bfa06a4aaa1399f13f4a370313ae54b25",
+      "context": "which object's table to fall back to.",
+      "translation": "대체로 쓸 객체의 테이블입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.make_validation_holdout.score#0",
+      "source": "Rank one candidate fold; lower is a better holdout.",
+      "source_sha256": "57496742ba9cdf83f492547f23ce41a2b52937bcad0541d6e68025e2b8081a86",
+      "context": "Rank one candidate fold; lower is a better holdout.",
+      "translation": "후보 fold 하나의 순위를 매기며, 낮을수록 더 좋은 holdout입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.make_validation_holdout.score#1",
+      "source": "A ``(train_idx, val_idx)`` pair as produced by :func:`make_cv_folds`; only the validation half is looked at.",
+      "source_sha256": "990515630faa1e7410f2fcaf0978d332d4a092f6f00b001c8b5167b467c85a85",
+      "context": "A ``(train_idx, val_idx)`` pair as produced by :func:`make_cv_folds`; only the validation half is looked at.",
+      "translation": "``(train_idx, val_idx)`` 쌍이며 :func:`make_cv_folds`가 만든 것과 같고, 검증 절반만 살펴봅니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.make_validation_holdout.score#2",
+      "source": "``(cost, n_validation)`` where cost adds the size error (as a fraction of the dataset) to the mean absolute per-class deviation from the whole dataset's distribution. The trailing count is a tie-break, so equally good folds resolve to the smaller holdout.",
+      "source_sha256": "0b22e17f8e0bafca70d4ea018e2b1f854ba63c46e50dc530612a8667e987f60b",
+      "context": "``(cost, n_validation)`` where cost adds the size error (as a fraction of the dataset) to the mean absolute per-class deviation from the whole dataset's distribution. The trailing count is a tie-break, so equally good folds resolve to the smaller holdout.",
+      "translation": "``(cost, n_validation)``이며, cost는 크기 오차(데이터셋에 대한 비율)에 전체 데이터셋 분포로부터의 클래스별 평균 절대 편차를 더한 값입니다. 끝의 개수는 동점 처리용이므로, 똑같이 좋은 fold는 더 작은 holdout으로 정해집니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.prepare_cellpose_dataset.find_image_mask_pairs#0",
+      "source": "Return ``(image_path, mask_path)`` pairs found under ``dataset_path``.",
+      "source_sha256": "f00d18396f7ea3bd9625942de02ee7fc6d68d061e76bbc7f068d1db9fea7c5c0",
+      "context": "Return ``(image_path, mask_path)`` pairs found under ``dataset_path``.",
+      "translation": "``(image_path, mask_path)`` 쌍을 반환하며, ``dataset_path`` 아래에서 찾은 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.prepare_cellpose_dataset.find_image_mask_pairs#1",
+      "source": "One dataset folder holding its images at the top level and a ``masks`` subfolder in which each mask carries exactly the same file name as its image. Only ``.tif``/``.tiff`` images are considered, matching is by name rather than by order, and an image whose mask is absent is dropped without a message — so a short pair count here means missing or renamed masks.",
+      "source_sha256": "d00a3043d5304849c1f098947807521d93049df2f16df477741a1b25e57c3f90",
+      "context": "One dataset folder holding its images at the top level and a ``masks`` subfolder in which each mask carries exactly the same file name as its image. Only ``.tif``/``.tiff`` images are considered, matching is by name rather than by order, and an image whose mask is absent is dropped without a message — so a short pair count here means missing or renamed masks.",
+      "translation": "이미지를 최상위에 두고, 각 마스크가 해당 이미지와 정확히 같은 파일 이름을 가진 ``masks`` 하위 폴더가 있는 데이터셋 폴더 하나입니다. ``.tif``/``.tiff`` 이미지만 고려하고, 순서가 아니라 이름으로 짝을 지으며, 마스크가 없는 이미지는 메시지 없이 버립니다 — 따라서 여기서 쌍 수가 적다면 마스크가 없거나 이름이 바뀐 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.prepare_cellpose_dataset.get_augmentations#0",
+      "source": "Return the list of augmentation names used to expand datasets.",
+      "source_sha256": "16c3fb3cbe805a6b88a8fd7c1a3446d95f7d5823b4e3e0c748422a4d1cea76a3",
+      "context": "Return the list of augmentation names used to expand datasets.",
+      "translation": "데이터셋 확장에 쓰는 증강 이름 목록을 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.prepare_cellpose_dataset.prepare_output_folders#0",
+      "source": "Create ``train/{images,masks}`` and ``test/{images,masks}`` under ``base``.",
+      "source_sha256": "dc35ea59a740903099ab39ca88815c15fad122613153695863d3eb0daeb5a343",
+      "context": "Create ``train/{images,masks}`` and ``test/{images,masks}`` under ``base``.",
+      "translation": "``train/{images,masks}``와 ``test/{images,masks}``를 ``base`` 아래에 만듭니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.prepare_cellpose_dataset.prepare_output_folders#1",
+      "source": "Output root, which the caller sets to ``<input_root>/cellpose_dataset``. Creation is ``exist_ok``, so rerunning does not fail, but nothing is emptied first and the copies are renumbered from ``00000``, so a smaller second run leaves the tail of a larger earlier one mixed into the split.",
+      "source_sha256": "953aecc7e4b282cef216d6aebd338496c18aca29da6a271f053eae8dde34363a",
+      "context": "Output root, which the caller sets to ``<input_root>/cellpose_dataset``. Creation is ``exist_ok``, so rerunning does not fail, but nothing is emptied first and the copies are renumbered from ``00000``, so a smaller second processing session leaves the tail of a larger earlier one mixed into the split.",
+      "translation": "출력 루트이며, 호출자가 ``<input_root>/cellpose_dataset``으로 설정합니다. 생성은 ``exist_ok``이므로 다시 실행해도 실패하지 않지만, 먼저 비우지 않고 사본 번호를 ``00000``부터 다시 매기므로, 더 작은 두 번째 실행은 더 큰 이전 실행의 끝부분을 분할에 섞인 채 남깁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.convert_grayscale_to_tiff#0",
+      "source": "Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth.",
+      "source_sha256": "f68ab03fdf64ab2a72a33e291720d61b2c323ca2221d8e26f912ffb36d29a270",
+      "context": "Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth.",
+      "translation": "TIFF 형식이 아닌 회색조 이미지를 비트 깊이를 유지하며 TIFF로 변환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.convert_grayscale_to_tiff#1",
+      "source": "The decoded 2D plane to write.",
+      "source_sha256": "3f37320328e52eb56cd83838557ae019bafb503924b5e4cdab55597a51080cdd",
+      "context": "The decoded 2D image layer to write.",
+      "translation": "쓸 디코딩된 2D 평면입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.convert_grayscale_to_tiff#2",
+      "source": "Base name of the source file, not a path. Only the extension is stripped, so an absolute path here would be joined with ``folder`` and win, writing the TIFF back next to the original instead of into ``folder``.",
+      "source_sha256": "03e6ef3d55d91a4c98c5efc8034b0c208bd19bc071433841e1da4848fcb1881d",
+      "context": "Base name of the source file, not a path. Only the extension is stripped, so an absolute path here would be joined with ``folder`` and win, writing the TIFF back next to the original instead of into ``folder``.",
+      "translation": "원본 파일의 기본 이름이며 경로가 아닙니다. 확장자만 제거하므로, 여기에 절대 경로를 주면 ``folder``와 결합될 때 절대 경로가 우선하여, TIFF가 ``folder`` 안이 아니라 원본 옆에 쓰입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.convert_grayscale_to_tiff#3",
+      "source": "Directory the ``.tif`` is written into; the original file is left in place next to it rather than replaced.",
+      "source_sha256": "d3dc9a2508e635e5affa457dc09ebbad74d94563f8862e14e306c03388504187",
+      "context": "Directory the ``.tif`` is written into; the original file is left in place next to it rather than replaced.",
+      "translation": "``.tif``를 쓰는 디렉터리이며, 원본 파일은 교체되지 않고 그 옆에 그대로 남습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.convert_grayscale_to_tiff#4",
+      "source": "NumPy dtype the plane is cast to, which is what carries the source bit depth into the TIFF.",
+      "source_sha256": "2b5f01d3b05f31b924dd156b3c2e540d0d44e85df8e3d71fd85334b99e23c292",
+      "context": "NumPy dtype the image layer is cast to, which is what carries the source bit depth into the TIFF.",
+      "translation": "평면을 변환할 NumPy dtype이며, 이것이 원본의 비트 깊이를 TIFF로 옮겨 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.load_image#0",
+      "source": "Loads image from various formats and returns it as a numpy array along with its dtype.",
+      "source_sha256": "daa933533a14098369c4890ca61d638c32ebf3de9d07115ebd2666edb4edfd68",
+      "context": "Loads image from various formats and returns it as a numpy array along with its dtype.",
+      "translation": "여러 형식에서 이미지를 불러와 dtype과 함께 numpy 배열로 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.load_image#1",
+      "source": "Path to the image. Only the extension selects the reader: ``.tif`` and ``.tiff`` go to tifffile, ``.png``, ``.jpg`` and ``.jpeg`` to PIL, ``.czi`` to czifile, ``.nd2`` to ND2Reader. Content is never sniffed, so a mislabelled file is read with the wrong reader, and any other extension raises ``ValueError``.",
+      "source_sha256": "a9eae808170138a5af5fd409c5e11eab63ab6f9f5faa52623723bb7269f118b2",
+      "context": "Path to the image. Only the extension selects the reader: ``.tif`` and ``.tiff`` go to tifffile, ``.png``, ``.jpg`` and ``.jpeg`` to PIL, ``.czi`` to czifile, ``.nd2`` to ND2Reader. Content is never sniffed, so a mislabelled file is read with the wrong reader, and any other extension raises ``ValueError``.",
+      "translation": "이미지 경로입니다. 확장자만으로 리더를 고릅니다. ``.tif``와 ``.tiff``는 tifffile로, ``.png``, ``.jpg``, ``.jpeg``는 PIL로, ``.czi``는 czifile로, ``.nd2``는 ND2Reader로 갑니다. 내용은 절대 검사하지 않으므로 잘못 이름 붙은 파일은 틀린 리더로 읽히고, 다른 확장자는 ``ValueError``를 발생시킵니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#0",
+      "source": "Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth.",
+      "source_sha256": "4ef192102f5459c130d786fafce272b8940d7cafbe03605430191dc23e700d96",
+      "context": "Save grayscale images with appropriate suffix based on image data channel, z, and t, preserving bit depth.",
+      "translation": "채널, z, t에 따른 적절한 접미사로 회색조 이미지를 저장하며 비트 깊이를 유지합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#1",
+      "source": "A single 2D plane already sliced out of the stack.",
+      "source_sha256": "f9ce7d4fd6f43b3b070cea45c9370d61cf4d7e63b78f42f72ef5846624891c71",
+      "context": "A single 2D image layer already sliced out of the stack.",
+      "translation": "이미 스택에서 잘라 낸 단일 2D 평면입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#2",
+      "source": "Stem of the source file. Every plane cut from one source shares it, so the ``_C``/``_Z``/``_T`` suffix built below is the only thing keeping those planes from overwriting each other.",
+      "source_sha256": "533ba2890f2b4a0a32ddd4538519f80ee1ab7659ae79dae00d450c5d121fc9b4",
+      "context": "Stem of the source file. Every image layer cut from one source shares it, so the ``_C``/``_Z``/``_T`` suffix built below is the only thing keeping those image layers from overwriting each other.",
+      "translation": "원본 파일의 어간입니다. 한 원본에서 잘라 낸 모든 평면이 이를 공유하므로, 아래에서 만드는 ``_C``/``_Z``/``_T`` 접미사만이 그 평면들이 서로 덮어쓰지 않게 막아 줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#3",
+      "source": "Directory the TIFF is written to. The converter passes the folder it is scanning, so planes land beside the multi-dimensional file they came from.",
+      "source_sha256": "15db3bc783ef8a3d860ed4b28bd8e870c2fcb59a283a235f9453e6838ec7a277",
+      "context": "Directory the TIFF is written to. The converter passes the folder it is scanning, so planes land beside the multi-dimensional file they came from.",
+      "translation": "TIFF를 쓰는 디렉터리입니다. 변환기는 자신이 검색 중인 폴더를 전달하므로, 평면은 원래의 다차원 파일 옆에 놓입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#4",
+      "source": "NumPy dtype the plane is cast to before writing. This cast is the whole of the \"bit depth is preserved\" promise — pass the dtype ``load_image`` reported for the source rather than a convenient default, or 16-bit data is silently rewritten.",
+      "source_sha256": "937a3c4919b5eeafd3e66e3f9b6cfdc5bfba3acf63fdd72371f76fb7bb98d693",
+      "context": "NumPy dtype the image layer is cast to before writing. This cast is the whole of the \"bit depth is preserved\" promise — pass the dtype ``load_image`` reported for the source rather than a convenient default, or 16-bit data is silently rewritten.",
+      "translation": "쓰기 전에 평면을 변환할 NumPy dtype입니다. 이 변환이 \"bit depth is preserved\"라는 약속의 전부입니다 — 편리한 기본값 대신 ``load_image``가 원본에 대해 보고한 dtype을 전달하세요. 그렇지 않으면 16비트 데이터가 조용히 다시 쓰입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#5",
+      "source": "1-based channel index appended as ``_C``. ``None`` leaves that part of the suffix off.",
+      "source_sha256": "84e24bb7f6cef06877db8714e0a3a8c03984875bcc38a54b7be69a2cbc20b524",
+      "context": "1-based channel index appended as ``_C``. ``None`` leaves that part of the suffix off.",
+      "translation": "``_C``로 덧붙이는 1부터 시작하는 채널 인덱스입니다. ``None``이면 접미사의 그 부분을 생략합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#6",
+      "source": "1-based Z index appended as ``_Z``; ``None`` omits it.",
+      "source_sha256": "ebd1b420eeffe4ace955db506a3eb9f17b95cb26384053c9273583a816debf0e",
+      "context": "1-based Z index appended as ``_Z``; ``None`` omits it.",
+      "translation": "``_Z``로 덧붙이는 1부터 시작하는 Z 인덱스이며, ``None``이면 생략합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.save_grayscale_images#7",
+      "source": "1-based time index appended as ``_T``; ``None`` omits it.",
+      "source_sha256": "2eddc213573cacd0b3aa8565020ce4a5011da1076d6bad65eea1a43ea1f5bc5f",
+      "context": "1-based time index appended as ``_T``; ``None`` omits it.",
+      "translation": "``_T``로 덧붙이는 1부터 시작하는 시간 인덱스이며, ``None``이면 생략합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.split_channels#0",
+      "source": "Splits the image into channels and handles 3D, 4D, and 5D image cases.",
+      "source_sha256": "da84537c0adb8be600502b226a8700680b623796ff857955d0dcc02297f769c9",
+      "context": "Splits the image into image data channels and handles 3D, 4D, and 5D image cases.",
+      "translation": "이미지를 채널로 나누고 3D, 4D, 5D 이미지의 경우를 처리합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.split_channels#1",
+      "source": "Array whose axis order is assumed to be ``(height, width, channel[, Z[, T]])``. A 2D array returns without writing anything (the caller handles those), and anything with more than five axes falls through silently, writing nothing. The axis order is never checked, so a channel-first array from some other reader is sliced along width instead of being rejected.",
+      "source_sha256": "5322eb4b2b20ffdd720c086f2aa5c51ca9fa90ba68755f3e07ac6cb5c010fa1d",
+      "context": "Array whose axis order is assumed to be ``(height, width, channel[, Z[, T]])``. A 2D array returns without writing anything (the caller handles those), and anything with more than five axes falls through silently, writing nothing. The axis order is never checked, so an image-channel-first array from some other reader is sliced along width instead of being rejected.",
+      "translation": "축 순서를 ``(height, width, channel[, Z[, T]])``로 가정하는 배열입니다. 2D 배열은 아무것도 쓰지 않고 반환되며(호출자가 처리합니다), 축이 다섯 개보다 많은 것은 아무것도 쓰지 않고 조용히 통과합니다. 축 순서는 절대 확인하지 않으므로, 다른 리더에서 온 채널 우선 배열은 거부되지 않고 너비 방향으로 잘립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.split_channels#2",
+      "source": "Directory the per-plane TIFFs are written into.",
+      "source_sha256": "077d2ada5f3e22f68937436881fae6864e3593f36cf3d7d653c5dc61bb212ad9",
+      "context": "Directory the per-image-layer TIFFs are written into.",
+      "translation": "평면별 TIFF를 쓰는 디렉터리입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.split_channels#3",
+      "source": "Stem shared by every plane written from this image; the ``_C``/``_Z``/``_T`` indices are appended to it, all 1-based.",
+      "source_sha256": "6ccc0d77408551a5a6f1e4043dec422095e4390096f70069c722f87f3b871c2e",
+      "context": "Stem shared by every image layer written from this image; the ``_C``/``_Z``/``_T`` indices are appended to it, all 1-based.",
+      "translation": "이 이미지에서 쓰는 모든 평면이 공유하는 어간이며, ``_C``/``_Z``/``_T`` 인덱스가 여기에 덧붙고 모두 1부터 시작합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.process_non_tif_non_2D_images.split_channels#4",
+      "source": "NumPy dtype passed straight through to each write, so it should be the source image's own dtype to keep its bit depth.",
+      "source_sha256": "1ebf3c843193ee736b46f466dd1a75978ee4145084cc43bf10d8929149096722",
+      "context": "NumPy dtype passed straight through to each write, so it should be the source image's own dtype to keep its bit depth.",
+      "translation": "각 쓰기에 그대로 전달하는 NumPy dtype이므로, 비트 깊이를 유지하려면 원본 이미지 자체의 dtype이어야 합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#0",
+      "source": "Draw one training curve -- train against validation -- and write it.",
+      "source_sha256": "562c4d34f2c18ee88103a1275d96373f015cadfd35d0e9f48d0233f8c3e87cd1",
+      "context": "Draw one training curve -- train against validation -- and write it.",
+      "translation": "학습 곡선 하나 -- 학습 대 검증 -- 를 그리고 씁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#1",
+      "source": "One function per COLUMN rather than per figure because the caller asks for accuracy, loss and the rest by name, and every one of them is the same plot of the same two frames.",
+      "source_sha256": "b4f84b2bb7515e3c78a701072fe64665e69149c400a8e17b7521c6b50a109050",
+      "context": "One function per COLUMN rather than per figure because the caller asks for accuracy, loss and the rest by name, and every one of them is the same plot of the same two frames.",
+      "translation": "그림마다가 아니라 열마다 함수 하나인 이유는 호출자가 정확도, 손실 등을 이름으로 요청하고, 그 각각이 같은 두 프레임의 같은 플롯이기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#2",
+      "source": "per-epoch training statistics.",
+      "source_sha256": "e773afe2213f2664c65cd5100c9b72be1b3dbc50114f3d34c300026b7444eb3e",
+      "context": "per-epoch training statistics.",
+      "translation": "에포크별 학습 통계입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#3",
+      "source": "the same for validation.",
+      "source_sha256": "e3ccd34e72c7ad87dbc4736f252048cd7bfd93e7d082fb3bb111d7f47ae8963c",
+      "context": "the same for validation.",
+      "translation": "검증에 대한 같은 것입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#4",
+      "source": "which statistic to draw.",
+      "source_sha256": "c919c56c9f1360915b445977d28427e2920c058beda3f20b278b7b13af50edf5",
+      "context": "which statistic to draw.",
+      "translation": "그릴 통계입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#5",
+      "source": "write a PDF beside the model rather than only showing it.",
+      "source_sha256": "7d2f36f093e5aba92a573397fc6b3faf94486dece8e1ccc5e921c6c7103c3f32",
+      "context": "write a PDF beside the model rather than only showing it.",
+      "translation": "보여 주기만 하지 않고 모델 옆에 PDF를 씁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#6",
+      "source": "the folder to write into.",
+      "source_sha256": "439a9ffa8c39ea28522242162f02ffc08b32dd6c61c3f5ec66114d90bf5cb98c",
+      "context": "the folder to write into.",
+      "translation": "쓸 폴더입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.read_plot_model_stats._plot_and_save#7",
+      "source": "resolution for the written file.",
+      "source_sha256": "aa41f065c1efe0c8240fa7f6d5d48754f9604d12b919ea40c304f0d1044568a5",
+      "context": "resolution for the written file.",
+      "translation": "쓴 파일의 해상도입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.select_fields.field_of#0",
+      "source": "One field's canonical token, so 'f3', '3' and 'F003' are one field.",
+      "source_sha256": "e86b84efdc1d5ef44e69ceeede7783a4019c40d947b6c65a9f5b70f06b3fc7d2",
+      "context": "One field's canonical token, so 'f3', '3' and 'F003' are one field.",
+      "translation": "필드 하나의 정규 토큰이므로, 'f3', '3', 'F003'은 같은 필드입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.io.select_fields.field_of#1",
+      "source": "NORMALISED THROUGH `schema`, which is the same rule the file names themselves were written by -- matching the raw text instead would make a selection depend on which of three spellings the user typed. Anything schema cannot read is lower-cased and passed through, so a token from a convention it has not met still selects itself.",
+      "source_sha256": "09eae3e35c64e7415bcb5bbf28fa45e94b946d024b8c7c9d33342eae3ff0ec9c",
+      "context": "Normalised through `schema`, which is the same rule the file names themselves were written by -- matching the raw text instead would make a selection depend on which of three spellings the user typed. Anything schema cannot read is lower-cased and passed through, so a token from a convention it has not met still selects itself.",
+      "translation": "`schema`를 통해 정규화합니다. 파일 이름 자체가 쓰일 때 따른 규칙과 같습니다 -- 원본 텍스트로 비교하면 선택이 사용자가 세 가지 표기 중 무엇을 입력했는지에 좌우됩니다. schema가 읽을 수 없는 것은 소문자로 바꿔 그대로 넘기므로, 모르는 규칙에서 온 토큰도 여전히 자기 자신을 선택합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._join_on_destroy._join#0",
+      "source": "Stop and join the render thread. Closes over the thread ONLY.",
+      "source_sha256": "1cc238870198d0871ff85d82ba15b352f29398212b6a2f12938cd109854466b6",
+      "context": "Stop and join the render thread. Closes over the thread ONLY.",
+      "translation": "렌더 스레드를 중지하고 조인합니다. 클로저는 스레드만 캡처합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.__init__#0",
+      "source": "Build the CPU canvas, painting its own background.",
+      "source_sha256": "e4b007b9aedd129e017c5b26d88e6be19544cabc0aaf36b2d99c9aa573824814",
+      "context": "Build the CPU canvas, painting its own background.",
+      "translation": "자체 배경을 칠하는 CPU 캔버스를 만듭니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._accept_frame#0",
+      "source": "Take a rendered frame, note how long it took, and repaint.",
+      "source_sha256": "f27692162080453df1a90011dc5ec424c7234c69a858091801f81e5f222785b8",
+      "context": "Take a rendered frame, note how long it took, and repaint.",
+      "translation": "렌더링된 프레임을 받아 걸린 시간을 기록하고 다시 칠합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._adapt_resolution#0",
+      "source": "Trade resolution for frame rate, from the measured render time.",
+      "source_sha256": "83d42b631314a5d770121ef34a8911df1c74720ca7826b823e92d0f9cd384e28",
+      "context": "Trade resolution for frame rate, from the measured render time.",
+      "translation": "측정된 렌더 시간을 바탕으로 해상도와 프레임률을 맞바꿉니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._adapt_resolution#1",
+      "source": "WAITS FOR TWELVE FRAMES and then only reconsiders every twenty-fourth, so the scale settles instead of oscillating on a single slow frame. The budget is 78% of the period rather than all of it, because Qt's own conversion and the rest of the application have to fit in the remainder.",
+      "source_sha256": "52c2295c8d4d5e5e9ee12d320e9071ba8a1b0a6ee5e46012f487025ba62680a2",
+      "context": "Waits for twelve frames and then only reconsiders every twenty-fourth, so the scale settles instead of oscillating on a single slow frame. The budget is 78% of the period rather than all of it, because Qt's own conversion and the rest of the application have to fit in the remainder.",
+      "translation": "열두 프레임을 기다린 뒤 스물네 번째 프레임마다 다시 검토하므로, 느린 프레임 하나에 흔들리지 않고 배율이 안정됩니다. 예산은 주기 전체가 아니라 78%인데, Qt 자체의 변환과 애플리케이션의 나머지가 남은 부분에 들어가야 하기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._adapt_resolution#2",
+      "source": "Both directions are damped and clamped -- down no further than 0.58, up no further than 1.35 -- so a stall cannot drive the picture to nothing and a fast machine cannot drive it past what the window can show.",
+      "source_sha256": "e0ada14570fd1d5dc506809c21409270d0783a536c22822bfb6cb877ac9d7ac3",
+      "context": "Both directions are damped and clamped -- down no further than 0.58, up no further than 1.35 -- so a stall cannot drive the picture to nothing and a fast machine cannot drive it past what the window can show.",
+      "translation": "양방향 모두 감쇠되고 제한됩니다 -- 아래로는 0.58까지, 위로는 1.35까지 -- 그래서 정지가 그림을 무로 만들 수 없고, 빠른 컴퓨터가 창이 보여 줄 수 있는 것 이상으로 끌어올릴 수 없습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._on_failure#0",
+      "source": "Record the worker's error and stop treating a frame as pending.",
+      "source_sha256": "61af02245acafee688eb81cc8802f23d8d672bc1a7111c6e4294181a4b60c574",
+      "context": "Record the worker's error and stop treating a frame as pending.",
+      "translation": "작업자의 오류를 기록하고 더 이상 프레임을 대기 중으로 취급하지 않습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._request_frame#0",
+      "source": "Ask the worker for the next frame, unless stopped or paused.",
+      "source_sha256": "78cb9f1ce9d227edeae1fccf1f5ff39859195ca89a64ff676f6f6f55b9cf4df5",
+      "context": "Ask the worker for the next frame, unless stopped or paused.",
+      "translation": "중지되었거나 일시 정지되지 않았다면 작업자에게 다음 프레임을 요청합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._target_size#0",
+      "source": "The pixel size to shade at, from the render scale and the window.",
+      "source_sha256": "5fecd42ea6398cc9c8a681748bd90d9c2fa5eeef77a03c82839260ed8c7ff73f",
+      "context": "The pixel size to shade at, from the render scale and the window.",
+      "translation": "렌더 배율과 창으로부터 정한, 셰이딩할 픽셀 크기입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._target_size#1",
+      "source": "RENDER SCALE is the fraction of the window's own pixels to shade: 1.0 is native and anything less trades sharpness for speed. It was a setting nobody read, and it is the direct answer to \"how do I get the image sharper\".",
+      "source_sha256": "085a39f50139efa0eb5fbb48471b058baf86e5b28bdfdaffe9efe5303ea6d9c2",
+      "context": "Render scale is the fraction of the window's own pixels to shade: 1.0 is native and anything less trades sharpness for speed. It was a setting nobody read, and it is the direct answer to \"how do I get the image sharper\".",
+      "translation": "RENDER SCALE은 창 자체 픽셀 중 셰이딩하는 비율입니다. 1.0은 원래 해상도이고, 그보다 작으면 선명도를 속도와 맞바꿉니다. 아무도 읽지 않는 설정이었으며, \"어떻게 하면 이미지를 더 선명하게 할 수 있나\"에 대한 직접적인 답입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._target_size#2",
+      "source": "ON THIS PATH ONLY, AND THAT IS WORTH SAYING WHERE THE CLAIM IS MADE. `_render_scale()` is read here and nowhere else: the GPU canvas shades its physical size at every one of its three uses and never calls `target_render_size`. So on a machine with a working GPU -- which is the default, `backend='auto'` -- this setting has no effect whatever, and a reader who came here from the sentence above would otherwise go looking for the code that applies it.",
+      "source_sha256": "dda19db68ee0c9afad9d1b1b35a394dc714ae090e3693df81d074fe0e1733f0a",
+      "context": "ON THIS PATH ONLY, AND THAT IS WORTH SAYING WHERE THE CLAIM IS MADE. `_render_scale()` is read here and nowhere else: the GPU canvas shades its physical size at every one of its three uses and never calls `target_render_size`. So on a machine with a working GPU -- which is the default, `backend='auto'` -- this setting has no effect whatever, and a reader who came here from the sentence above would otherwise go looking for the code that applies it.",
+      "translation": "이 경로에서만이며, 그 주장을 하는 곳에서 그렇게 말할 가치가 있습니다. `_render_scale()`은 여기서만 읽히고 다른 곳에서는 읽히지 않습니다. GPU 캔버스는 세 가지 용도 모두에서 물리적 크기로 셰이딩하며 `target_render_size`를 절대 호출하지 않습니다. 그래서 GPU가 작동하는 컴퓨터에서는 -- 이것이 기본값 `backend='auto'`입니다 -- 이 설정은 아무 효과가 없고, 위의 문장을 보고 여기 온 독자는 그렇지 않으면 이를 적용하는 코드를 찾아 헤매게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._target_size#3",
+      "source": "IT IS NOT A VISIBLE CONTROL, which is why this is a comment rather than a tooltip: `spaceout/fractal_render_scale` is a bare QSettings key with no row in Preferences, so nobody can move a slider and watch nothing happen. Making the GPU honour it would mean render-to-texture, which was measured and rejected: every shader runs 7x to 25x inside its frame budget at 4K, so there is no headroom to buy back.",
+      "source_sha256": "35324e44680841d970e8cd6a6260d2b024dd5acbb8c8b5fd8bda3761f29bc720",
+      "context": "It is not a visible control, which is why this is a comment rather than a tooltip: `spaceout/fractal_render_scale` is a bare QSettings structured-data name with no row in Preferences, so nobody can move a slider and watch nothing happen. Making the GPU honour it would mean render-to-texture, which was measured and rejected: every shader runs 7x to 25x inside its frame budget at 4K, so there is no headroom to buy back.",
+      "translation": "보이는 컨트롤이 아니므로 이것은 도움말이 아니라 주석입니다. `spaceout/fractal_render_scale`은 환경설정에 행이 없는 순수 QSettings 키이므로, 아무도 슬라이더를 움직이고 아무 일도 일어나지 않는 것을 볼 수 없습니다. GPU가 이를 따르게 하려면 텍스처 렌더링이 필요한데, 측정 후 기각되었습니다. 모든 셰이더가 4K에서 프레임 예산 안에서 7x에서 25x의 여유를 두고 실행되므로, 되찾을 여유가 없습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.closeEvent#0",
+      "source": "Shut the render thread down before the widget goes.",
+      "source_sha256": "52b8153bfc4a5f60a1088c4d7bf87a86485c6fa28a9962a23de4d03ea3b75061",
+      "context": "Shut the render independent execution path down before the widget goes.",
+      "translation": "위젯이 사라지기 전에 렌더 스레드를 종료합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.is_paused#0",
+      "source": "Whether the animation is currently held.",
+      "source_sha256": "30d3ac86172e78ff45f8cece013ad0377b4e2331f15802e478f79bc82978dc21",
+      "context": "Whether the animation is currently held.",
+      "translation": "애니메이션이 현재 멈춰 있는지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.paintEvent#0",
+      "source": "Draw the last frame, or the ground colour before there is one.",
+      "source_sha256": "4faddc371a6433dbb88a2cdd5dece92cb21f17019bcf434d4588bd97e6d1e89e",
+      "context": "Draw the last frame, or the ground colour before there is one.",
+      "translation": "마지막 프레임을 그리며, 아직 없으면 배경색을 그립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.pause#0",
+      "source": "Stop rendering and leave the last frame on screen.",
+      "source_sha256": "faf153e51a34b353af780dfd494e53255f48713ba1b1e5455a4459f5d5f3278c",
+      "context": "Stop rendering and leave the last frame on application view.",
+      "translation": "렌더링을 멈추고 마지막 프레임을 화면에 남깁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.pause#1",
+      "source": "Called when a RUN STARTS. A backdrop taking nineteen cores while a segmentation is queued is the opposite of what it is for, and stopping is better than thinning: a slower fractal still holds the threads.",
+      "source_sha256": "d5de068d6e6f64417e990af173b5f638edd1fae4c6e2bdb0d93a1e568c7b280a",
+      "context": "Called when a run starts. A backdrop taking nineteen cores while a segmentation is queued is the opposite of what it is for, and stopping is better than thinning: a slower fractal still holds the threads.",
+      "translation": "실행이 시작될 때 호출됩니다. 분할이 대기 중일 때 코어 열아홉 개를 차지하는 배경은 존재 목적과 정반대이며, 줄이는 것보다 멈추는 것이 낫습니다. 더 느린 프랙털도 여전히 스레드를 붙잡고 있기 때문입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.pause#2",
+      "source": "True when this call did the stopping, False when it was already paused -- so a caller can tell whether to resume.",
+      "source_sha256": "a31f183f932c82abb9a2a33a422747a79230f7c953042a774477074b81ebec09",
+      "context": "True when this call did the stopping, False when it was already paused -- so a caller can tell whether to resume.",
+      "translation": "이 호출이 멈췄으면 True, 이미 일시 정지 상태였으면 False입니다 -- 호출자가 재개할지 판단할 수 있도록 합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.resizeEvent#0",
+      "source": "Ask for a frame at the new size, unless one is already in flight.",
+      "source_sha256": "4ed7eb1ba508c4c2b8b0de5bd5ef536ab45af22e2ac99dd29c992e5095979b9b",
+      "context": "Ask for a frame at the new size, unless one is already in flight.",
+      "translation": "이미 진행 중인 프레임이 없으면 새 크기로 프레임을 요청합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.resizeEvent#1",
+      "source": "Guarded so a drag-resize does not queue a render per pixel of travel -- the worker would then be shading sizes the window has already left.",
+      "source_sha256": "1ee52e86fa177a73cdacc60eba3441a1f1788bcaaa2da2433ef16d76235d9db4",
+      "context": "Guarded so a drag-resize does not schedule a render per pixel of travel -- the worker would then be shading sizes the window has already left.",
+      "translation": "드래그로 크기를 바꿀 때 이동한 픽셀마다 렌더가 대기열에 쌓이지 않도록 막습니다 -- 그렇지 않으면 작업자가 창이 이미 벗어난 크기를 셰이딩하게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.resume#0",
+      "source": "Start rendering again from where the clock left off.",
+      "source_sha256": "741fdd77b5aacdc82edaa6047104192dee2cef4e3f02ad015d79abe77fbe7865",
+      "context": "Start rendering again from where the clock left off.",
+      "translation": "시계가 멈춘 지점부터 다시 렌더링합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.set_animating#0",
+      "source": "`AmbientWidget`'s verb for the same thing.",
+      "source_sha256": "cc81e15624acfedb2aba8b1767cd7c941242f01584ceab79f1b177725a5e2bff",
+      "context": "`AmbientWidget`'s verb for the same thing.",
+      "translation": "같은 동작에 대한 `AmbientWidget`의 동사입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.set_animating#1",
+      "source": "The ambient backdrop this replaces is stopped and started with `set_animating`, and its callers -- the Home screen's teardown among them -- reach for that name. Answering to it makes this a drop-in rather than something every call site has to learn.",
+      "source_sha256": "7e69f7fada310df24060eae5e00bcfb1b30cc1ad83db1d651faba3ef6e349509",
+      "context": "The ambient backdrop this replaces is stopped and started with `set_animating`, and its callers -- the Home application view's teardown among them -- reach for that name. Answering to it makes this a drop-in rather than something every call site has to learn.",
+      "translation": "이것이 대체하는 앰비언트 배경은 `set_animating`으로 멈추고 시작하며, 그 호출자들 -- 홈 페이지의 해체 과정을 포함하여 -- 은 그 이름을 씁니다. 그 이름에 응답하면 이것은 모든 호출 지점이 새로 익혀야 하는 것이 아니라 바로 바꿔 끼울 수 있는 대체품이 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.shutdown#0",
+      "source": "Stop for good and join the thread. Safe to call twice.",
+      "source_sha256": "ac89c84015f246d78f7fcbecc05f749d4a36b2489356bd1775abd699f026c085",
+      "context": "Stop for good and join the thread. Safe to call twice.",
+      "translation": "완전히 멈추고 스레드를 조인합니다. 두 번 호출해도 안전합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.stats_text#0",
+      "source": "The render size, rate and state, for the overlay.",
+      "source_sha256": "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca",
+      "context": "The render size, rate and state, for the overlay.",
+      "translation": "오버레이용 렌더 크기, 속도, 상태입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker.__init__#0",
+      "source": "Build the engine this thread will shade with.",
+      "source_sha256": "7b86534c9265ce8d5e2338b47f0f657e236ae0760fc53bfbc3bda0cb1220e3a6",
+      "context": "Build the engine this thread will shade with.",
+      "translation": "이 스레드가 셰이딩에 쓸 엔진을 만듭니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker._say_something#0",
+      "source": "Emit, unless the object that owns the signal has been freed.",
+      "source_sha256": "42bb8046306ffa38214b619b18ee50e969a0f700d93eed698175ed60d753e554",
+      "context": "Emit, unless the object that owns the signal has been freed.",
+      "translation": "시그널을 소유한 객체가 해제되지 않았다면 내보냅니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker._say_something#1",
+      "source": "The last thing this thread does with a widget that is being destroyed, so it must never raise: nothing is listening, and an exception here ends the process rather than the frame.",
+      "source_sha256": "fe2329a805eb981ac4d1e08a243e1d847e106dd54afd5a4283d44d757167c876",
+      "context": "The last thing this independent execution path does with a widget that is being destroyed, so it must never throw: nothing is listening, and an exception here ends the process rather than the frame.",
+      "translation": "파괴되는 중인 위젯에 대해 이 스레드가 하는 마지막 일이므로 절대 예외를 발생시키면 안 됩니다. 아무도 듣고 있지 않으며, 여기서 예외가 나면 프레임이 아니라 프로세스가 끝납니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker.render#0",
+      "source": "Shade one frame and hand it back, if anyone is still there.",
+      "source_sha256": "1a0adc64fb9d0074ae74adfd7d569a7fa42f71367f6148d612b000c1cd1ac42d",
+      "context": "Shade one frame and hand it back, if anyone is still there.",
+      "translation": "아직 누군가 있다면 프레임 하나를 셰이딩하여 돌려줍니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker.render#1",
+      "source": "A FRAME CAN FINISH AFTER ITS WIDGET IS GONE. The shading runs on this thread while the GUI thread may be closing the window or swapping the pattern, and Qt deletes the worker's C++ side with it -- so `emit` raises \"Signal source has been deleted\". The except below then emitted the FAILURE signal, which raised the same way, and an exception escaping a slot on a QThread takes the process down: \"Aborted (core dumped)\".",
+      "source_sha256": "363dfabc30d7881fd95a7602e32aae1e7031c4de170957ccc229d5c033dd1d80",
+      "context": "A frame can finish after its widget is gone. The shading executes on this independent execution path while the main GUI execution path may be closing the window or swapping the pattern, and Qt deletes the worker's C++ side with it -- so `emit` raises \"Signal source has been deleted\". The except below then emitted the FAILURE signal, which raised the same way, and an exception escaping a slot on a QThread takes the process down: \"Aborted (core dumped)\".",
+      "translation": "프레임은 위젯이 사라진 뒤에 끝날 수 있습니다. 셰이딩은 이 스레드에서 실행되는 동안 GUI 스레드가 창을 닫거나 패턴을 바꿀 수 있고, Qt는 그와 함께 작업자의 C++ 쪽을 삭제합니다 -- 그래서 `emit`이 \"Signal source has been deleted\"를 발생시킵니다. 그러면 아래의 except가 실패 시그널을 내보냈고, 그것도 같은 방식으로 예외를 발생시켰으며, QThread의 슬롯에서 빠져나간 예외는 프로세스를 중단시킵니다: \"Aborted (core dumped)\".",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.__init__#0",
+      "source": "Build the GL widget under the heavy-import lock.",
+      "source_sha256": "d5299d733919af34fa996ba9a3ff7db0b479fde172b07dbee6b2f1cbcd2cb386",
+      "context": "Build the GL widget under the heavy-import lock.",
+      "translation": "무거운 가져오기 잠금 아래에서 GL 위젯을 만듭니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.closeEvent#0",
+      "source": "Shut the canvas down before the widget goes.",
+      "source_sha256": "b2a18ea6727ea34e4726a47e6a3244eb6fedcb57c4c1eac975bd5f3cd9b1828b",
+      "context": "Shut the canvas down before the widget goes.",
+      "translation": "위젯이 사라지기 전에 캔버스를 종료합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.is_paused#0",
+      "source": "Whether the canvas is currently held.",
+      "source_sha256": "da88596285a078994ba6749491ba44c6e24c7075ea2d4491e7b304ca1390cf38",
+      "context": "Whether the canvas is currently held.",
+      "translation": "캔버스가 현재 멈춰 있는지 여부입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.pause#0",
+      "source": "Stop drawing while a run is on. The last frame stays up.",
+      "source_sha256": "3c1ea6b4c0f092714131a4bb6607a1266723df7d27080db760ac71401ce9caf7",
+      "context": "Stop drawing while a run is on. The last frame stays up.",
+      "translation": "실행 중에는 그리기를 멈춥니다. 마지막 프레임은 남아 있습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.resume#0",
+      "source": "Restart the animation. Returns whether it was paused.",
+      "source_sha256": "5a6a4b90151f28895ce5a2148b68e06f7c5bf67e9a7ef5ff7573a31e07f53a06",
+      "context": "Restart the animation. Returns whether it was paused.",
+      "translation": "애니메이션을 다시 시작합니다. 일시 정지 상태였는지 반환합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.set_animating#0",
+      "source": "`AmbientWidget`'s verb for the same thing.",
+      "source_sha256": "cc81e15624acfedb2aba8b1767cd7c941242f01584ceab79f1b177725a5e2bff",
+      "context": "`AmbientWidget`'s verb for the same thing.",
+      "translation": "같은 동작에 대한 `AmbientWidget`의 동사입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.set_animating#1",
+      "source": "The ambient backdrop this replaces is stopped and started with `set_animating`, and its callers -- the Home screen's teardown among them -- reach for that name. Answering to it makes this a drop-in rather than something every call site has to learn.",
+      "source_sha256": "7e69f7fada310df24060eae5e00bcfb1b30cc1ad83db1d651faba3ef6e349509",
+      "context": "The ambient backdrop this replaces is stopped and started with `set_animating`, and its callers -- the Home application view's teardown among them -- reach for that name. Answering to it makes this a drop-in rather than something every call site has to learn.",
+      "translation": "이것이 대체하는 앰비언트 배경은 `set_animating`으로 멈추고 시작하며, 그 호출자들 -- 홈 페이지의 해체 과정을 포함하여 -- 은 그 이름을 씁니다. 그 이름에 응답하면 이것은 모든 호출 지점이 새로 익혀야 하는 것이 아니라 바로 바꿔 끼울 수 있는 대체품이 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.shutdown#0",
+      "source": "Stop for good. Safe to call twice and after Qt has freed it.",
+      "source_sha256": "3973f00fc21a16badaea8666f8c970a04eea5f785d0f9688379016fe31bc8602",
+      "context": "Stop for good. Safe to call twice and after Qt has freed it.",
+      "translation": "완전히 멈춥니다. 두 번 호출해도, Qt가 해제한 뒤에 호출해도 안전합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.stats_text#0",
+      "source": "The render size, rate and state, for the overlay.",
+      "source_sha256": "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca",
+      "context": "The render size, rate and state, for the overlay.",
+      "translation": "오버레이용 렌더 크기, 속도, 상태입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.__init__#0",
+      "source": "Build the GL canvas, hidden until it is placed.",
+      "source_sha256": "b37888f6ebf14f0f03a588da567416999372ec172af98c2158c6a7f48b8541fd",
+      "context": "Build the GL canvas, hidden until it is placed.",
+      "translation": "배치될 때까지 숨긴 채 GL 캔버스를 만듭니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._budget_at#0",
+      "source": "The iteration budget at ``depth``, capped by the reference.",
+      "source_sha256": "aba93cdfc273c1361a56580fb7eab153a9c3d2d53641ae5b1c2d9966ce4d7176",
+      "context": "The iteration budget at ``depth``, capped by the reference.",
+      "translation": "``depth``에서의 반복 예산이며, 기준으로 상한이 정해집니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._budget_at#1",
+      "source": "the depth in decades.",
+      "source_sha256": "9fc8c3940452655ff5078d3d2b135939c20a42c616860bf14cfe54061b32bd8a",
+      "context": "the depth in decades.",
+      "translation": "십진 단위의 깊이입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._budget_at#2",
+      "source": "the reference orbit, or None while it is built.",
+      "source_sha256": "1992e9514ef063108739ae0ca7aebed9c151ebc5cee2b40402ff30b853c73717",
+      "context": "the reference orbit, or None while it is built.",
+      "translation": "기준 궤도이며, 만드는 중에는 None입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._dive_uniforms#0",
+      "source": "The zoom's uniforms for a depth and a centre.",
+      "source_sha256": "2179526d85e9030f67d23e69c5a2656eb993307c96123151fa7164836db19ec0",
+      "context": "The zoom's uniforms for a depth and a centre.",
+      "translation": "깊이와 중심에 대한 줌의 uniform입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._dive_uniforms#1",
+      "source": "the depth in decades.",
+      "source_sha256": "9fc8c3940452655ff5078d3d2b135939c20a42c616860bf14cfe54061b32bd8a",
+      "context": "the depth in decades.",
+      "translation": "십진 단위의 깊이입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._dive_uniforms#2",
+      "source": "``(re, im)`` offset from the reference orbit.",
+      "source_sha256": "2bba55073d8afd5ea30f8973487d79c3f5d4b38dbd613a1d0df66ddd5ad134c5",
+      "context": "``(re, im)`` offset from the reference orbit.",
+      "translation": "기준 궤도로부터의 ``(re, im)`` 오프셋입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._dive_uniforms#3",
+      "source": "the reference orbit, or None while it is built.",
+      "source_sha256": "1992e9514ef063108739ae0ca7aebed9c151ebc5cee2b40402ff30b853c73717",
+      "context": "the reference orbit, or None while it is built.",
+      "translation": "기준 궤도이며, 만드는 중에는 None입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._galaxy_uniforms#0",
+      "source": "Where the passing galaxies are, for the space pattern.",
+      "source_sha256": "e2308c8cbb565c8220b033d39680a3e562c1d275376039218eef927980217858",
+      "context": "Where the passing galaxies are, for the space pattern.",
+      "translation": "우주 패턴을 위한, 지나가는 은하의 위치입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._galaxy_uniforms#1",
+      "source": "the flight's clock, the shader's ``u_time``.",
+      "source_sha256": "0cf73e389e7aa895e83875fbb6b67c84f52e9db9dd502bea7c145b6ceab5fb97",
+      "context": "the flight's clock, the shader's ``u_time``.",
+      "translation": "비행의 시계이며, 셰이더의 ``u_time``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._galaxy_uniforms#2",
+      "source": "``{}`` for every other pattern.",
+      "source_sha256": "2c2643635e52fdb82b7b64107e87269b74fe3c4dc2cb1b5d70b8f66376bf4391",
+      "context": "``{}`` for every other pattern.",
+      "translation": "다른 모든 패턴에는 ``{}``입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame#0",
+      "source": "One frame of the glide toward the busiest part of the view.",
+      "source_sha256": "21fb1d7261bd9ef4b590613b245cb98bca8f570609c8b3a49a728e24b5b69409",
+      "context": "One frame of the glide toward the busiest part of the view.",
+      "translation": "뷰에서 가장 복잡한 부분을 향해 미끄러지는 동작의 한 프레임입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame#1",
+      "source": "the reference orbit, or None while it is built.",
+      "source_sha256": "1992e9514ef063108739ae0ca7aebed9c151ebc5cee2b40402ff30b853c73717",
+      "context": "the reference orbit, or None while it is built.",
+      "translation": "기준 궤도이며, 만드는 중에는 None입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame#2",
+      "source": "time since the previous frame.",
+      "source_sha256": "5cc01dd3d8da2880447b1f4d9f5fc28860b9723cd365b055c11b2245dcba61dc",
+      "context": "time since the previous frame.",
+      "translation": "이전 프레임 이후의 시간입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame#3",
+      "source": "``(centre, depth)``.",
+      "source_sha256": "6d6a42eaa746e1c83c7c085a136cf2976c96126262d3853fb943634390271a1f",
+      "context": "``(centre, depth)``.",
+      "translation": "``(centre, depth)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame#4",
+      "source": "THE DECIDING IS IN `_GlideCamera`, which has no Qt in it. This is the part that cannot be: reading the settings, handing it the drag, and surveying the view on a worker thread so an escape map never stalls a frame. A survey that lands after the reference moved describes a different frame and is dropped.",
+      "source_sha256": "6177aafe73229d73a0b9bc38ad4a0c09fb58728ad8004f382affd28bf7071d23",
+      "context": "The deciding is in `_GlideCamera`, which has no Qt in it. This is the part that cannot be: reading the settings, handing it the drag, and surveying the view on a background execution unit so an escape map never stalls a frame. A survey that lands after the reference moved describes a different frame and is dropped.",
+      "translation": "결정은 Qt가 없는 `_GlideCamera`에서 합니다. 이 부분은 그럴 수 없는 부분입니다. 설정을 읽고, 드래그를 넘겨주고, 탈출 맵이 프레임을 절대 멈추지 않도록 작업 스레드에서 뷰를 조사합니다. 기준이 움직인 뒤에 도착한 조사는 다른 프레임을 설명하므로 버립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame._look#0",
+      "source": "Score the current view for structure. Off the GUI thread.",
+      "source_sha256": "aff61ab731037e620c3403d41848cefe455e85311a7349412a7cc6b05e3d85ec",
+      "context": "Score the current view for structure. Off the main GUI execution path.",
+      "translation": "현재 뷰의 구조를 채점합니다. GUI 스레드 밖에서 실행됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._mandelbrot_uniforms#0",
+      "source": "The zoom's own uniforms for this instant.",
+      "source_sha256": "5894df80d378a32316b53cb93aeb98b02afbb922ea792c0b1f4ef7314fdf4449",
+      "context": "The zoom's own uniforms for this instant.",
+      "translation": "이 순간에 대한 줌 자체의 uniform입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._mandelbrot_uniforms#1",
+      "source": "``{}`` for every other pattern, so the shared update can splice it in unconditionally.",
+      "source_sha256": "cec4a6dd54015bcf40392550cb1dae49a895a99928157aada18925c8fce3e669",
+      "context": "``{}`` for every other pattern, so the shared update can splice it in unconditionally.",
+      "translation": "다른 모든 패턴에는 ``{}``이므로, 공유 업데이트가 조건 없이 끼워 넣을 수 있습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._on_native_destroyed#0",
+      "source": "Mark the canvas dead and stop its timer.",
+      "source_sha256": "fede798a507a298805a2f88e69b2c129bd3898bb747cbe3549b4b2af07420033",
+      "context": "Mark the canvas dead and stop its timer.",
+      "translation": "캔버스를 죽은 것으로 표시하고 타이머를 멈춥니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._on_native_destroyed#1",
+      "source": "The native window can go before Python does, and a timer that fires after it draws into an object that is not there.",
+      "source_sha256": "687475fdc6c39b9cbe50c4980a29143d2268685bb97a48d5274332171f5608fe",
+      "context": "The native window can go before Python does, and a timer that fires after it draws into an object that is not there.",
+      "translation": "네이티브 창은 Python보다 먼저 사라질 수 있고, 그 뒤에 작동하는 타이머는 이미 없는 객체에 그리게 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._on_timer#0",
+      "source": "Advance one frame, unless paused or already torn down.",
+      "source_sha256": "56a681877b89a92191771dc844e4c4bcd9b447c2379333099b8dae149ebe6417",
+      "context": "Advance one frame, unless paused or already torn down.",
+      "translation": "일시 정지되었거나 이미 해체되지 않았다면 한 프레임 진행합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._pointer_state#0",
+      "source": "``(x, y, pull, push)`` for the shader, in -1..1 space.",
+      "source_sha256": "fede3e7e0aaf98e0c57ad2e5c70cbb7b5c4f1cbbc634e99dcbfcef744ef4fbfe",
+      "context": "``(x, y, pull, push)`` for the shader, in -1..1 space.",
+      "translation": "셰이더용 ``(x, y, pull, push)``이며, -1..1 공간입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._pointer_state#1",
+      "source": "zeros when the pointer is not being followed, so a shader can multiply by them unconditionally.",
+      "source_sha256": "bf8c5eff1ffa5a96f4533eabf97a864230902d0a7457d1faf61b61d3f991470e",
+      "context": "zeros when the pointer is not being followed, so a shader can multiply by them unconditionally.",
+      "translation": "포인터를 따라가지 않을 때는 0이므로, 셰이더가 조건 없이 곱할 수 있습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._pointer_state#2",
+      "source": "THE MANDELBROT IS DRAGGED, NOT ATTRACTED. Mouse interaction moves it only through drag input; the pointer's stationary position does not pull the view about.",
+      "source_sha256": "905c12a5fdf1707b960bf2bf6d1e8276e39e99cb1892506e132104e1c3e5b59c",
+      "context": "The mandelbrot is dragged, not attracted. Mouse interaction moves it only through drag input; the pointer's stationary position does not pull the view about.",
+      "translation": "만델브로트는 끌리는 것이 아니라 드래그됩니다. 마우스 상호작용은 드래그 입력으로만 그것을 움직이며, 멈춰 있는 포인터 위치는 뷰를 끌어당기지 않습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._pointer_state#3",
+      "source": "The other three patterns are fields that can be warped toward a point and look right doing it. A deep zoom is a camera: pulling its coordinates toward wherever the mouse happens to rest slides the picture continuously, which reads as the image drifting away from you rather than as anything you did.",
+      "source_sha256": "6a3d3b6f45d2c34fea7a9474f4bc2e0d93f77ac5c56f7d04fac3a7020099d99c",
+      "context": "The other three patterns are microscope fields of view that can be warped toward a point and look right doing it. A deep zoom is a camera: pulling its coordinates toward wherever the mouse happens to rest slides the picture continuously, which reads as the image drifting away from you rather than as anything you did.",
+      "translation": "나머지 세 패턴은 한 점을 향해 휘어도 자연스럽게 보이는 필드입니다. 깊은 줌은 카메라입니다. 마우스가 머무는 곳으로 좌표를 끌어당기면 그림이 계속 미끄러지며, 이는 사용자가 한 어떤 동작이 아니라 이미지가 멀어지는 것처럼 읽힙니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._pointer_state#4",
+      "source": "The pointer is still SAMPLED, because that is what accumulates the drag -- `_steer` consumes it. Only `pull` and `push`, which are the position-driven terms, are withheld.",
+      "source_sha256": "edbc0dc6721124e67016facadc1f2bc13e2cb66253653da5561d26db7114eee7",
+      "context": "The pointer is still SAMPLED, because that is what accumulates the drag -- `_steer` consumes it. Only `pull` and `push`, which are the position-driven terms, are withheld.",
+      "translation": "포인터는 여전히 샘플링됩니다. 드래그를 누적하는 것이 그것이기 때문입니다 -- `_steer`가 그것을 소비합니다. 위치에 따라 정해지는 항인 `pull`과 `push`만 보류됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._refine_the_reference#0",
+      "source": "Move the reference back onto the boundary, now and then.",
+      "source_sha256": "6dc62a12d1d2019ec1aa7dd633cd877bd54078ba93f05ab46cad46cd0c235188",
+      "context": "Move the reference back onto the boundary, now and then.",
+      "translation": "가끔 기준을 경계 위로 되돌립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._refine_the_reference#1",
+      "source": "Surveyed and rebuilt on a worker thread: the survey is a 96x54 escape map and the rebuild iterates the orbit at full precision, neither of which belongs in a frame. When the new reference lands, the camera's centre and target move by the opposite of the reference's move, so the picture stays exactly where it was.",
+      "source_sha256": "4e990e940f03bd61eca92e1af3ae58ae6955f0d4303fe0dca222229fddc2bf14",
+      "context": "Surveyed and rebuilt on a background execution unit: the survey is a 96x54 escape map and the rebuild iterates the orbit at full precision, neither of which belongs in a frame. When the new reference lands, the camera's centre and target move by the opposite of the reference's move, so the picture stays exactly where it was.",
+      "translation": "작업 스레드에서 조사하고 다시 만듭니다. 조사는 96x54 탈출 맵이고 재구성은 완전 정밀도로 궤도를 반복하므로, 어느 것도 프레임 안에 있어서는 안 됩니다. 새 기준이 도착하면 카메라의 중심과 목표가 기준의 이동과 반대로 움직이므로, 그림은 정확히 있던 자리에 그대로 있습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._refine_the_reference._work#0",
+      "source": "Find a better reference point for the current view. Off the GUI thread.",
+      "source_sha256": "c3ecf0b7968e4d6279e5976ce5b72dfe9a58e2dacbecb1f9271f2290b4e44ada",
+      "context": "Find a better reference point for the current view. Off the main GUI execution path.",
+      "translation": "현재 뷰에 대한 더 나은 기준점을 찾습니다. GUI 스레드 밖에서 실행됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._start_the_reference_orbit#0",
+      "source": "Iterate Z off the GUI thread and upload it when it is ready.",
+      "source_sha256": "073aee1a8a7a0222defe326eb3f8a0497cd3ef37a69b9e35b445f332f2eaae66",
+      "context": "Iterate Z off the main GUI execution path and upload it when it is ready.",
+      "translation": "GUI 스레드 밖에서 Z를 반복하고 준비되면 업로드합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._start_the_reference_orbit._work#0",
+      "source": "Compute the reference orbit. Off the GUI thread.",
+      "source_sha256": "3f5de52b1ec93737da6282a2d5a246924af2c05b97178196cd9f9b2bdb01dd5f",
+      "context": "Compute the reference orbit. Off the main GUI execution path.",
+      "translation": "기준 궤도를 계산합니다. GUI 스레드 밖에서 실행됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._start_the_reference_orbit._work#1",
+      "source": "It is the expensive part of deep zooming -- high-precision iteration of one point that every pixel is then perturbed from -- so it must not run where it would stall the frame it is for.",
+      "source_sha256": "b5954f52032b160940a051743c35a4b5eb37fe15900ea87dc40def2215611e75",
+      "context": "It is the expensive part of deep zooming -- high-precision iteration of one point that every pixel is then perturbed from -- so it must not run where it would stall the frame it is for.",
+      "translation": "그것은 깊은 줌의 비싼 부분입니다 -- 모든 픽셀이 섭동되는 기준이 되는 한 점의 고정밀 반복 -- 따라서 그것이 쓰일 프레임을 멈추게 할 곳에서 실행되어서는 안 됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer#0",
+      "source": "Where the dive is heading, in the reference orbit's frame.",
+      "source_sha256": "63db6c9340bc2c9a8c8f048348e6eb65e489c057438541bcfe0c2d5506c742e3",
+      "context": "Where the dive is heading, in the reference orbit's frame.",
+      "translation": "기준 궤도의 좌표계에서 다이브가 향하는 곳입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer#1",
+      "source": "the simulation clock; unused by the fixed and guided paths, and kept so every caller passes the same arguments. The tour path is :meth:`_glide_frame`.",
+      "source_sha256": "e29ed5c476e69c9068603968ed77d702de43d043654c63fadbb8cf1c542312c3",
+      "context": "the simulation clock; unused by the fixed and guided paths, and kept so every caller passes the same arguments. The tour path is :meth:`_glide_frame`.",
+      "translation": "시뮬레이션 시계입니다. 고정 경로와 유도 경로에서는 쓰이지 않으며, 모든 호출자가 같은 인수를 전달하도록 남겨 두었습니다. 투어 경로는 :meth:`_glide_frame`입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer#2",
+      "source": "``(offset_re, offset_im)`` for ``u_center_offset``.",
+      "source_sha256": "6ba23c497cf871e902879229f33cf89788efc0e02fcef1aa7a7ae18f74611331",
+      "context": "``(offset_re, offset_im)`` for ``u_center_offset``.",
+      "translation": "``(offset_re, offset_im)``이며 ``u_center_offset``에 씁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer#3",
+      "source": "THE DECIDING IS IN `SteeringCamera`, which has no Qt in it and can be driven frame by frame in a test. This method is the part that cannot be: reading the settings, and running the search on a worker thread so a 96x54 escape map does not stall the frame.",
+      "source_sha256": "c126f058119112771dd8c68314665d6c5548c3583f69ad62c39c6d6371e9dbb8",
+      "context": "The deciding is in `SteeringCamera`, which has no Qt in it and can be driven frame by frame in a test. This method is the part that cannot be: reading the settings, and executing the search on a background execution unit so a 96x54 escape map does not stall the frame.",
+      "translation": "결정은 Qt가 없고 테스트에서 프레임 단위로 구동할 수 있는 `SteeringCamera`에서 합니다. 이 메서드는 그럴 수 없는 부분입니다. 설정을 읽고, 96x54 탈출 맵이 프레임을 멈추지 않도록 작업 스레드에서 검색을 실행합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer#4",
+      "source": "Every claim about how smooth the motion is used to come from a simulation written beside the code rather than from the code, because this logic lived inside a canvas that needs a GL context to exist. That is why three fixes in a row were wrong.",
+      "source_sha256": "d83ab7c0e157fac0afa04f2956822411fc7c4fb000d3acbaa21ab6c4ef0a31a0",
+      "context": "Every claim about how smooth the motion is used to come from a simulation written beside the code rather than from the code, because this logic lived inside a canvas that needs a GL context to exist. That is why three fixes in a row were wrong.",
+      "translation": "움직임이 얼마나 부드러운지에 대한 모든 주장은 예전에는 코드가 아니라 코드 옆에 쓴 시뮬레이션에서 나왔습니다. 이 로직이 존재하려면 GL 컨텍스트가 필요한 캔버스 안에 있었기 때문입니다. 그래서 세 번 연속 수정이 틀렸습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer._look#0",
+      "source": "Plan the next guided step. Off the GUI thread.",
+      "source_sha256": "e047172e81cced7644680e34271e539dd776bf61a79d2f70d2113a9a154838ac",
+      "context": "Plan the next guided step. Off the main GUI execution path.",
+      "translation": "다음 유도 단계를 계획합니다. GUI 스레드 밖에서 실행됩니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._update_uniforms#0",
+      "source": "Push this frame's camera and time into the shader.",
+      "source_sha256": "b8798a8ebaf74af312a5bfc7a8825401f9ffc325548e626d5aa8c57052068f11",
+      "context": "Push this frame's camera and time into the shader.",
+      "translation": "이 프레임의 카메라와 시간을 셰이더에 넣습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._update_uniforms#1",
+      "source": "The size is floored at one pixel: a canvas mid-resize can report zero, and a zero dimension reaches the shader as a division by nothing.",
+      "source_sha256": "8228abfcecac74c18f7e29342666ee0e0b8be87ccdc12aefd8899dacdb724722",
+      "context": "The size is floored at one pixel: a canvas mid-resize can report zero, and a zero dimension reaches the shader as a division by nothing.",
+      "translation": "크기의 하한은 1픽셀입니다. 크기 조정 중인 캔버스는 0을 보고할 수 있고, 0 차원은 셰이더에 0으로 나누기로 도달합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._upload_the_orbit_if_it_arrived#0",
+      "source": "Put the finished orbit into the shader's texture.",
+      "source_sha256": "cd023bdda9c272270be75cbefa3a693fa1d7bed3e8555bfa5dfa2c9f868193d0",
+      "context": "Put the finished orbit into the shader's texture.",
+      "translation": "완성된 궤도를 셰이더의 텍스처에 넣습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._upload_the_orbit_if_it_arrived#1",
+      "source": "ON THE GUI THREAD, from inside the draw, because that is where the GL context lives. Uploaded once: `_orbit_uploaded` is the orbit object itself, so a rebuilt one would be noticed.",
+      "source_sha256": "fb1e35daf03e87631f9d048ca717f1a432e1bff954f0b5bd7f79ac3757ca7be5",
+      "context": "On the main GUI execution path, from inside the draw, because that is where the GL context lives. Uploaded once: `_orbit_uploaded` is the orbit object itself, so a rebuilt one would be noticed.",
+      "translation": "GL 컨텍스트가 있는 곳이므로 그리기 안에서 GUI 스레드에서 실행됩니다. 한 번만 업로드합니다. `_orbit_uploaded`는 궤도 객체 자체이므로 다시 만든 궤도는 알아차립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.on_draw#0",
+      "source": "Draw one frame, unless the canvas is already torn down.",
+      "source_sha256": "81db9ef13e6bb3c5935dd2d6e9065626b12751f0a5146ca97bbd36243829b9d2",
+      "context": "Draw one frame, unless the canvas is already torn down.",
+      "translation": "캔버스가 이미 해체되지 않았다면 프레임 하나를 그립니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.on_resize#0",
+      "source": "Resize the GL viewport, never to zero.",
+      "source_sha256": "d2325daf93604676c39b046cc71438581ea441efd5d061a00c73b1f0afbebd4f",
+      "context": "Resize the GL viewport, never to zero.",
+      "translation": "GL 뷰포트의 크기를 바꾸되, 절대 0으로 만들지 않습니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.on_resize#1",
+      "source": "A canvas mid-resize reports zero, and a zero viewport is a GL error rather than a small picture.",
+      "source_sha256": "23544dd022e4b9bcb5650cacb61c0c1f4fd256d1edbc2b9201c3f076bcee16f4",
+      "context": "A canvas mid-resize reports zero, and a zero viewport is a GL error rather than a small picture.",
+      "translation": "크기 조정 중인 캔버스는 0을 보고하며, 0 뷰포트는 작은 그림이 아니라 GL 오류입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.stats_text#0",
+      "source": "The render size, rate and state, for the overlay.",
+      "source_sha256": "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca",
+      "context": "The render size, rate and state, for the overlay.",
+      "translation": "오버레이용 렌더 크기, 속도, 상태입니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.stop_timer#0",
+      "source": "Stop the vispy timer. Safe to call twice, and after deletion.",
+      "source_sha256": "50666b120384d802e7b04a8ce3ae67007f211c11f2bc212ef170e65bb8aaf877",
+      "context": "Stop the vispy timer. Safe to call twice, and after deletion.",
+      "translation": "vispy 타이머를 멈춥니다. 두 번 호출해도, 삭제된 뒤에 호출해도 안전합니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_travel._make_gpu_widget._mandel_setting#0",
+      "source": "One Mandelbrot setting, falling back to the published default.",
+      "source_sha256": "99a4bf3572223b6380e731d5972540c8c18166ad0974a76745ecaaf7aa9265bf",
+      "context": "One Mandelbrot setting, falling back to the published default.",
+      "translation": "만델브로트 설정 하나이며, 없으면 게시된 기본값을 씁니다.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

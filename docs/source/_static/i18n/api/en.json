@@ -23906,6 +23906,101 @@
       "source_sha256": "043460da512a8e21fded87d8fcc0282b50ab0754388f54f1d2d7df52d00ddec0",
       "text": "One side of the ``png_list`` join carries a timepoint and the other does not.\n\nA timepoint column is written only by a timelapse run — by\n:func:`spacr.utils.filepaths_to_database` onto ``png_list`` and by\n:func:`spacr.utils._merge_and_save_to_database` onto every object table —\nso a database where one of the two has it and the other does not was\nwritten by two runs that disagreed about whether the experiment was a\ntimelapse. Joining them without the timepoint silently multiplies every\nobject by the number of frames, which is precisely the failure this\nexception exists to stop."
     },
+    "spacr.io._check_masks.needs_processing": {
+      "source_blocks_sha256": [
+        "c42909f20ccc0305a395b17b5c94d33f98069f18b4bfe803e795958fb594ac9e",
+        "9bb79c312349411e1d0f4d077bceb888e9861843be3383f5ae0e73a14e45bda4"
+      ],
+      "source_sha256": "b1331cfde7c42168f3eca41bee81135626f907e3088994639326aa3f3b5af8c6",
+      "text": "Report whether a field still has to be generated.\n\nArgs:\n    filename (str): Name relative to the enclosing\n        ``output_folder``, not a full path — it is joined onto that\n        folder here. An existing file is validated by its header and\n        length, so an empty or truncated ``.npy`` left behind by a\n        killed run counts as missing, is named in the log, and is\n        generated again."
+    },
+    "spacr.io._dataset_crop_refs._filter": {
+      "source_blocks_sha256": [
+        "ace0ee5354e4f90637b1006cf3a6ab251163ae8a45118f54b4684b14ca597698",
+        "b5386b459acd0f3840d901eb11f0edcb0d47b6bbc37b70dcfb3f017aa1ce5815",
+        "29f568dba5dc31fd2dd9b087e532f78a64618ba2aeebff414aab94c06ea09f56",
+        "ebefa699b4adb3e69c63c33e9ddcec2959e0899897df2a106d5dd64837a8348f"
+      ],
+      "source_sha256": "165e5ff9c326191ed1793cdf8b478f857fe079e376f1959d591fb5178fd284a0",
+      "text": "Keep the rows whose ``column`` contains any of the wanted terms.\n\nSUBSTRING AND NOT REGEX (`regex=False`): the terms come from a user\nnaming plates or wells, and a stray `(` or `+` in one of them would\notherwise raise out of pandas rather than simply matching nothing.\nAny term matching is enough -- several terms are alternatives, which\nis what a user listing them means.\n\n:param frame: the rows to filter.\n:param column: the column to search; an absent one filters nothing,\n    because a frame that never had it cannot contradict the request."
+    },
+    "spacr.io._describe_processed_folder.count": {
+      "source_blocks_sha256": [
+        "5ce99dc92089d347363fe0215f1f05edcdd6cc472548c17007094f01abc216c8"
+      ],
+      "source_sha256": "5ce99dc92089d347363fe0215f1f05edcdd6cc472548c17007094f01abc216c8",
+      "text": "Count the files in ``folder/name`` ending in ``suffixes``."
+    },
+    "spacr.io._load_and_concatenate_arrays.add_mask_folder": {
+      "source_blocks_sha256": [
+        "a98babd9f4624ea1d2d09f63528542ca1d92b0bb8820cd4132271fab35c9d329",
+        "01f5e1c68fbad680f3ef487d5a810275d66a853645fd6e017ddd8489df18e552",
+        "004d84a5ca9b793c9ac281f5b96f03f2d4a555158291248676ee6cc0bc2c98c4",
+        "83b52a1d371ff86dc765ad2d2cdb6da69cb893cf23a11bf8372a71ecf5d451dc"
+      ],
+      "source_sha256": "f724009e952bf9ce67865c45c0601ca7ce0fd5f25579171856c3a50e54ddd4bb",
+      "text": "Queue one object's mask stack, if this run has that object.\n\nEITHER the caller named a channel dimension for it OR the folder is\non disk: a run that segmented an object always has the folder, and a\nrun being re-read from settings may name the object before the\nfolder is written. Requiring both would drop a mask stack that is\nsitting right there.\n\n:param role: the object, e.g. ``'cell'``.\n:param enabled: that object's channel dimension, or None."
+    },
+    "spacr.io._mask_movie_frame_geometry._points": {
+      "source_blocks_sha256": [
+        "7818f055ff5bdf3d83a9c2533351a59b683ec0b9d5f3d87c8e55dbb8f9dfb5f2",
+        "f1d9be0016e453724469a80246267301da980cd1e3a6f549947616183c2528a1"
+      ],
+      "source_sha256": "d8b38fa50aa75eb02c16c45229a453d77fcfa201cf94d834cc54086c739fcb33",
+      "text": "A font size in POINTS for a fraction of the frame's short side.\n\nMatplotlib sizes text in points and this geometry is in pixels, so\nthe conversion has to use the dpi the writer will actually use --\ncomputing it against a default dpi puts the labels at the wrong size\nin the file while looking right on screen. Floored at 5 pt, below\nwhich a label is ink rather than text."
+    },
+    "spacr.io._read_and_merge_data._merge_grouped": {
+      "source_blocks_sha256": [
+        "5185a956a86401f15af74761baea8bc0841fdb5ac1eb578348a396381ba769b3",
+        "9ea78d5e5fcd580314a032216e910cad2c23524f026da3c21a86042318df5a16",
+        "f17e47e0d5ababc22834a688dff345d814f30c91fb2e6569e435a6a8a88f0b65",
+        "13e102d3a1239ef7b11d63eaee50fffb837e68ce3f555ab4033b243de681b1a4",
+        "2e2260c3c9e6a5ad152c49f2b8fc42724490aa4130e7fcea46e7fc0239c80f9c",
+        "c7066a542cf67d226f800124e43cbffc2aee204e003305b631cf029c1dbf4082",
+        "f8eff66d9827632d2a2629901848412427f852a10613ce8099427cafaf61e528"
+      ],
+      "source_sha256": "89e56563022324a3fc048c913d394776187084d53b60c46cb98c70c91f7ffa60",
+      "text": "Merge grouped tables while keeping only one copy of shared acquisition metadata.\n\nTHE JOIN TYPE NOW COMES FROM THE REGISTRY. It used to be inner\nunconditionally -- pandas' default, since no ``how=`` was passed --\nand this docstring said the choice was \"deliberately left alone\"\nbecause the decision had not been made. It has since: `object_roles.\njoin_how` records it and `_read_and_join_tables` already reads it, so\nthe two readers of the same tables were disagreeing about which\nobjects exist.\n\n    nucleus     INNER   a cell with no nucleus is debris\n    png_list    INNER   a cell with no crop cannot be classified\n    cytoplasm   LEFT    one row per cell; it makes no difference\n    pathogen    LEFT    an UNINFECTED cell is usually the control\n    organelle   LEFT    same reasoning\n\nInner for pathogen was the consequential one: it silently conditioned\nevery result on infection, deleting the control population from the\ndenominator without a word.\n\nA ``right_name`` the registry does not know keeps the historical\ninner join rather than being guessed at -- the metadata and stamp\nmerges go through here too, and they are not object tables.\n\nWhat is NOT defensible is doing it in silence, which is what this\nused to do. The discontinuity is brutal: on a 100-cell plate where\nNO crop carries a usable object id, png_list drops out before the\njoin and all 100 cells survive; where exactly ONE does, the merge\nkeeps that one and deletes the other 99. Nothing printed either way,\nand every shipped caller passes verbose=False.\n\nSo the shortfall is reported, named by table. This is the mirror of\n`_report_fan_out` for the shrinking direction."
+    },
+    "spacr.io._read_and_merge_data._split_object_data": {
+      "source_blocks_sha256": [
+        "c19a8f93d8d3a6a331c6f6e6bd57ad6595fd22604fdf7d940447f0ab6e758a96"
+      ],
+      "source_sha256": "c19a8f93d8d3a6a331c6f6e6bd57ad6595fd22604fdf7d940447f0ab6e758a96",
+      "text": "Group object data while retaining its complete provenance stamp."
+    },
+    "spacr.io._read_db._quote_identifier": {
+      "source_blocks_sha256": [
+        "038fd28dea56e64393c2cdd61079459c255719a17ac6a2c92ccd272009a33c5a"
+      ],
+      "source_sha256": "038fd28dea56e64393c2cdd61079459c255719a17ac6a2c92ccd272009a33c5a",
+      "text": "Safely quote SQLite identifiers (e.g., table names)."
+    },
+    "spacr.io._save_mask_timelapse_as_gif._update": {
+      "source_blocks_sha256": [
+        "ebf1396b09a2bbabc11aad6f847c1089ddbcd3f0d32110aeba09270db475d819",
+        "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+        "bf00b4effac3ed6b75f57bcccc5ecb50c5c39db3dfc4981c4e8b15810d6e29b1",
+        "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974"
+      ],
+      "source_sha256": "a26e0e8c13ac448bcb2f7e4ca14605207fc4b597a96c6b9965cc6e349629df96",
+      "text": "Update the frame of the animation.\n\nParameters:\n- frame (int): The frame number to update.\n\nReturns:\nNone"
+    },
+    "spacr.io._save_object_counts_to_database._count_objects": {
+      "source_blocks_sha256": [
+        "4e35ac9568eb2ced8cd127823060d2adb6f05ce3ecdae846799a167a10e07005"
+      ],
+      "source_sha256": "4e35ac9568eb2ced8cd127823060d2adb6f05ce3ecdae846799a167a10e07005",
+      "text": "Count unique objects in a mask, assuming 0 is the background."
+    },
+    "spacr.io._save_progress._save_df_to_csv": {
+      "source_blocks_sha256": [
+        "8c1176c9f0ae5bd36f5d76da5bb573540029ceacaf916debd3666f1e549913a1",
+        "4247c7dfe162ecdfb6be4fb6dd918791b2b4b80eafdfc555565e992ec6b8bbd2"
+      ],
+      "source_sha256": "34bc498b886eb7ec975665ff461da39b8aa4303cf2e8cb0d0701644f901e48d1",
+      "text": "Save the given DataFrame to the specified CSV file, either creating a new file or appending to an existing one.\n\nParameters:\nfile_path (str): The file path where the CSV will be saved.\ndf (pandas.DataFrame): The DataFrame to save."
+    },
     "spacr.io.apply_augmentation": {
       "source_blocks_sha256": [
         "b1975bbf0e240dad8f2a6b19eb0820dbab9e6b0729253c7bf98fcb92926153be",
@@ -23978,6 +24073,15 @@
       "source_sha256": "e02ba1a27517c25d1952814482a77ff390955ef787f4b5c992705cbfc2dda555",
       "text": "Convert every image in ``folder`` to Yokogawa-style naming with a MIP.\n\nND2, CZI, LIF and plain TIFF/PNG/JPEG inputs are detected by\nextension, max-projected over Z, and written out as\n``plate<N>_<well>_T####F###L01C##.tif``. A ``rename_log.csv``\nrecords the original-to-new mapping.\n\nA file that cannot be read is skipped so the rest of the folder\nstill converts — but the skip is recorded on a\n:class:`spacr.errors.RunLedger`, printed as a loud summary at the\nend, and **stamped into a sibling** ``rename_log.run_status.json``.\nThat sidecar is what lets a later reader (or\n:func:`spacr.errors.run_is_complete`) tell that the converted\nfolder is missing inputs, instead of quietly analysing a subset.\n\n:param folder: Directory of raw images, converted in place.\n:returns: the :class:`spacr.errors.RunLedger` for the conversion.\n:raises ValueError: If the folder already contains Yokogawa-named\n    converted images or a previous ``rename_log.csv``. The check runs\n    before writing any image or log, including after the converted\n    images have been moved into ``orig/``. Read an already\n    converted folder with ``metadata_type='cellvoyager'``, or retry raw\n    conversion in a separate folder containing only the original inputs."
     },
+    "spacr.io.convert_to_yokogawa._get_next_well": {
+      "source_blocks_sha256": [
+        "7fc1972b2c3caf2f6a5317d2b4db160e85beb17ee649af9300a942a5ac84124f",
+        "6e9f0af09ca53d43eeef787339e5d113702685ac0fe026b7fb44ead074d8ba7f",
+        "549d05d249f2d98ee1afdf69fbc6257453f93ee08d7d4b35d55fb24b5be0b0b5"
+      ],
+      "source_sha256": "69ac6ac01a90672a92777ca2fbecee450b1580ee1315ca22af260ec4e1a32e0b",
+      "text": "Return the next free well, filling one plate before the next.\n\nThe well ids come from :func:`spacr.convert.well_sequence`, which\nbuilds them out of :data:`spacr.schema.PLATE_FORMATS` — one\ndefinition instead of the three copies of ``\"ABCDEFGHIJKLMNOP\"`` and\n``range(1, 25)`` this module used to carry.\n\nThe plate format stays 384 here: unlike\n:func:`convert_separate_files_to_yokogawa`, the inputs carry no well\nnames at all, so nothing in them can ask for a bigger plate and the\naddresses are synthetic either way."
+    },
     "spacr.io.crop_object_type": {
       "source_blocks_sha256": [
         "0e9e0fd8be3e8b49fe49ddfdd06c45049154a9742e64e347d8e720de8eee8ab0",
@@ -24013,6 +24117,23 @@
       ],
       "source_sha256": "507205e7eaa720b503e3e159f68c31ab89457044882c33735e5fd8c0f9c89aa9",
       "text": "Return one :class:`LazyCropPNG` per row of ``df``.\n\n:param source: the crop source to cut/read with.\n:param df: rows carrying whatever the source needs (``png_path`` for the\n    PNG source, ``path_name`` + ``object_label`` for the merged one).\n:param object_type: object type stamped onto each row.\n:param name_column: column holding the crop's file name; defaults to\n    the basename of ``png_path``.\n:returns: list of :class:`LazyCropPNG`."
+    },
+    "spacr.io.crop_refs_for_rows._col": {
+      "source_blocks_sha256": [
+        "7028bd76b41ac10f1966045f92f57ee7a8547a185a6e9d7d25f3247a41571631",
+        "3f44bf1bde2b744eae1a3cde98259fcd8fad7dee60cd667cb8ed9fe1302138da",
+        "3e336616d665e3472f9217afa74dffe0d1c134da49da9626a8d0aea23809be79"
+      ],
+      "source_sha256": "c905c852cee69f9011e206c855ab131699e347186649cd70651a9abb429109a8",
+      "text": "One column as a plain list, or a column of None when it is absent.\n\nPLAIN LISTS RATHER THAN `itertuples`, for two measured reasons: the\njoined UMAP frame carries a couple of hundred columns, so building a\nnamedtuple per row of it costs more than reading the crops does, and\nitertuples silently RENAMES any column whose name is not a valid\nidentifier -- which is how a lookup starts missing a column that is\nplainly there.\n\n:param name: the column, or a falsy value for \"this frame has none\"."
+    },
+    "spacr.io.crop_refs_for_rows._missing": {
+      "source_blocks_sha256": [
+        "23cdb918ae613e647efc0713ceda9ea9c3e1d8a4eb3930c1ac4fbd9eb63e1ce1",
+        "c2d8a73a5de873899710789bf40e6aafd3833d3a7113e79ee27bc4bb70839643"
+      ],
+      "source_sha256": "63dbce93657bdc138b2b7b1bfda8af1f59d9373f084cfe5a223223734179ad09",
+      "text": "Whether a cell carries no answer.\n\nNaN AS WELL AS None, because a column read out of pandas holds NaN\nwhere a row had nothing and `None is not float('nan')`. Testing only\nfor None lets a NaN through as if it were a value, and it then\nreaches a path name or an object label."
     },
     "spacr.io.crop_rows_from_object_table": {
       "source_blocks_sha256": [
@@ -24217,6 +24338,70 @@
       "source_sha256": "4904b7b5e01443488f34abaad990b917a0186b2eafffb6992829f16946683b46",
       "text": "Build a balanced training/testing dataset from one of:\n\n  - metadata rules (exact matches or compound 'where' rules)\n  - annotation columns (each <col>_<value> is a standalone class)\n  - measurement rules (numeric ranges/bins; supports multiple conditions per class)\n\nNew behavior (annotation mode):\n\n  - If a column has only one annotated value (e.g., only '1's), we add a\n    '<column>_random' class using unannotated rows for that column (same size as positives).\n  - Optional: persist that random selection into DB as a new INT column named '<column>_random' with 1's.\n\n``crop_source`` chooses where the pixels come from. ``'png'`` (and\n``'auto'`` wherever a crop folder exists) copies the pre-generated PNGs,\nunchanged. ``'merged'`` (and ``'auto'`` with no crop folder) cuts each\nselected crop out of ``merged/*.npy`` through :mod:`spacr.crops` instead:\nthe labels still come from ``png_list``, but the pixels are cut fresh at\nthe current crop settings, so the training set costs no standing disk and\ncannot be built out of a folder that has gone stale. A project with no\n``png_list`` at all falls back to the object measurement table, which\nstill carries everything the metadata rules select on.\n\n:param settings: Settings dict, first completed by\n    :func:`spacr.settings.set_generate_training_dataset_defaults`. Keys\n    read here:\n\n    - ``src``: plate root, or a list of roots merged into one dataset.\n    - ``dataset_mode``: ``'metadata'``, ``'annotation'`` or ``'measurement'``.\n    - ``test_split``: fraction of each class routed to ``test/``.\n    - ``cv_group_by``: acquisition identity kept intact across the\n      train/test boundary. Default ``'well'``.\n    - ``path_string`` (legacy alias ``png_type``): substring a crop path\n      must contain. Default ``'cell_png'``.\n    - ``crop_source``: ``'auto'``, ``'png'`` or ``'merged'``, as above.\n    - ``balance_to_smallest``: downsample every class to the smallest one.\n      Default True.\n    - ``random_seed``: seeds balancing and random-class sampling.\n      Default 42.\n    - ``tables``: object tables the project has. Only clears\n      ``nuclei_limit`` and ``pathogen_limit`` when the matching table is\n      absent; it does not select where the crop list comes from.\n    - metadata mode: ``metadata_rules``, or ``class_metadata`` values\n      matched against the column the Classes editor names.\n    - annotation mode: ``annotation_columns`` (legacy\n      ``annotation_column``), optional ``annotation_values`` filter, and\n      ``write_random_annotation_column``.\n\n    The resulting ``class_folder_names`` and ``nr_classes`` are written\n    back into the dict for downstream training. A pre-split list-shaped\n    ``classes`` entry is retired only after those folders are written;\n    dict-shaped class definitions remain untouched.\n:returns: ``(train_class_dir, test_class_dir)`` — the ``train/`` and\n    ``test/`` roots written under ``<src>/datasets/training``\n    (``training_all`` when several sources are combined), suffixed to stay\n    unique.\n:raises ValueError: if ``dataset_mode`` is unrecognised, a rule names a\n    missing column or unsupported operator, or a requested class selected\n    no crops."
     },
+    "spacr.io.generate_training_dataset._annotation_classes_from_columns": {
+      "source_blocks_sha256": [
+        "98f1bb2b9e1e3124cad7f8ac822cd5c384267639def6f53fcc2cda4166b6605e",
+        "7b4347293c7b4c1635ac1b6f027dcc54a2f65fb4dfe3748b3d8386cf9b148cb1"
+      ],
+      "source_sha256": "5e6772bb4edbc5016158bcb69a723bf663835485d3a724414f2bdad2c0d53f42",
+      "text": "Build classes per (column,value). If a column only has one annotated value in {1,2},\nalso create '<column>_random' from unannotated rows (same count as positives).\nOptionally persist '<column>_random' as a new INT column with 1's for sampled rows.\n\nReturns (names, lists) aligned."
+    },
+    "spacr.io.generate_training_dataset._apply_where": {
+      "source_blocks_sha256": [
+        "59de56d0f467733678d0d03d25f983032763b90eb7fdd5cee3b801f1d5d26082"
+      ],
+      "source_sha256": "59de56d0f467733678d0d03d25f983032763b90eb7fdd5cee3b801f1d5d26082",
+      "text": "where: list of {'column','op','value'} AND-combined."
+    },
+    "spacr.io.generate_training_dataset._balance_lists": {
+      "source_blocks_sha256": [
+        "a5a394ba4b6780b28412618e9d5869dab14a12fad97f735b9758d32466ae79ef",
+        "1b0682835a1aa330b5a67378d582deaf545fb2031c1a4d700cfe5975e42cc8e1",
+        "b7f7b5a8d2dd445689a860663b40ec1804d245bf228a30b1cc1ae06f26ab3c53",
+        "2c0178d05e0c57c8cbd4a4276335ef65b656ede5c1803f80856abf0ba83a01cb",
+        "fe720b025358bb0c1ef1f41debe0c876745c15d14ffabab1411791154c83ad5b"
+      ],
+      "source_sha256": "9f8b3c25b8cbcee3ccc92b4f26e9e98b1939402bca607285af11241fd160ffa9",
+      "text": "Cut every class down to the smallest one, when that was asked for.\n\nA CLASSIFIER TRAINED ON 9,000 negatives and 300 positives learns to\nsay \"negative\", so balancing is the ordinary case rather than an\nexotic one -- but it THROWS AWAY DATA, which is why it is a setting\nand not a default of this function.\n\nSampled rather than truncated: the first N crops of a class share a\nplate, a well and often a field, so taking them in order would trade\na class imbalance for a batch imbalance.\n\nThe no-classes gate immediately before the call rejects an empty\nlist, so only populated collections reach this.\n\n:param list_of_lists: one list of crop paths per class."
+    },
+    "spacr.io.generate_training_dataset._class_items": {
+      "source_blocks_sha256": [
+        "d11ae085621a12e17dba4928c0d59555772dd92aa322ee58acea44a16e2841b9",
+        "8fd953056d3514119a4d97c2422002cf6943bb68a8d377e6455ff7640f12179a"
+      ],
+      "source_sha256": "e73c1be9f460ffa7e631785f2508e384a0af2ae5468dd7fdc0375b134609a7ab",
+      "text": "Return the per-row crop entries a class list is built from.\n\nOn-demand handles when the merged source is in play, PNG paths\notherwise -- generate_dataset_from_lists takes either."
+    },
+    "spacr.io.generate_training_dataset._ensure_unique_dir": {
+      "source_blocks_sha256": [
+        "50c5919a268b314b45ab4f0f5f10d045c1ffb136498fd5de972ce0eff59e914e",
+        "8210f74dec038e5ebf9f7bd606deb115988025311f5c7bdff49c3f95a359e955",
+        "4004277989569867c0d3680308a609c789a1bbe112c92349808d40367ec7e1ee",
+        "a524a1cbabf80edc74f25fd521a89bfbd9f3a7cc251f7f6d664d2b76f0ed0bf1"
+      ],
+      "source_sha256": "d316323c91921bb76e9ef474bd56af1db1439727643e44046745113f84aaf288",
+      "text": "``dst_base``, or the first ``dst_base_N`` that does not exist yet.\n\nA TRAINING SET IS NEVER WRITTEN OVER ONE THAT IS ALREADY THERE. The\nfolder is the record of what a model was trained on, so reusing the\nname would leave a model whose training data cannot be reconstructed.\n\n:param dst_base: the folder that was asked for.\n:returns: a folder path nothing occupies."
+    },
+    "spacr.io.generate_training_dataset._fix_path_under_src": {
+      "source_blocks_sha256": [
+        "888bd2b4b19c146fd1623bfc0b2d5e51983553217efebdec04c8b8cd969d2f49",
+        "77692a64c8e0b2524f78aa8b3e6913d951aea46c1cd2a91b4cf593ee84e34644",
+        "2c52baa7e20ac55c19e540991f68e33adafc7e53c1c1e787fe4c5e56f7b8d206"
+      ],
+      "source_sha256": "1d73b955bc9698680cae699a964d12a067d21ef750b154784b29ef2f5de9b388",
+      "text": "Make sure png_path lives under the current src root (portable absolute fix).\n\nTHE RULE ITSELF LIVES IN `spacr.portable_paths` and is shared with the\nmontage, which needs exactly this and used to get none of it -- the\nrule was a nested local here, reachable only from this generator, so a\nscreen that had moved computer showed the montage 60,816 dead paths\nwhile this function resolved every one.\n\nThe `/data/` rebuild is now only applied when it lands on a file that\nEXISTS. Rewriting to somewhere equally absent is strictly worse than\nleaving the recorded path alone: the copy below then fails naming a\nfolder the user never chose."
+    },
+    "spacr.io.generate_training_dataset._load_png_table": {
+      "source_blocks_sha256": [
+        "79f9a56d5076a4d806cb13995897a1da04bee6e3b7ec71da28dcbdd8f651bff6",
+        "025cb547ac57cdb5648d7013fe63e7e9f79a7774d4084dac8114c392c81f6fa3",
+        "781e764e801d44924f80e04d759da37664730ef334e0ccf8f8e4cd6068d8f657",
+        "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
+        "a97b1bd814cf69f5ad5a6c5bfa0de05bfa06a4aaa1399f13f4a370313ae54b25"
+      ],
+      "source_sha256": "52aa515fb222cee9f6e054d3a11d995c19e9615e78b133f86dd34ec6ae8a7402",
+      "text": "The per-object crop table, or the measurements standing in for it.\n\n`png_list` ALONE, deliberately: joining it against the measurement\ntables would drop every object those tables do not also carry, and a\ntraining set is allowed to be a subset of what was measured.\n\nNO `png_list` MEANS NO PNG FOLDER WAS EVER WRITTEN, which is not the\nsame as no data. The objects are still in the measurement table with\nthe same well metadata the class rules select on, so that is read\ninstead -- otherwise a project holding everything it needs reports\n\"0 classes\".\n\n:param db_path: the measurements database.\n:param object_type: which object's table to fall back to."
+    },
     "spacr.io.load_images_from_paths": {
       "source_blocks_sha256": [
         "d7b55adb19c1c152b566c44a5dd96761ae75dc96edb74485deffa647458fd296",
@@ -24267,6 +24452,15 @@
       ],
       "source_sha256": "a13285c15fae021d99d2f947b5191ec085acd68e4f38c55b48aafedf0473b35e",
       "text": "Choose one stratified group fold closest to a requested holdout size.\n\nThe ordinary Classify validation split used to call ``random_split`` and\ncould put crops from one well on both sides even though grouped CV did not.\nThis helper uses the same group-stratified partitioner as CV and selects\nthe candidate fold closest to the requested size and class distribution.\n\n:param labels: One integer class label per sample, in dataset order; the\n    returned indices point back into that same order.\n:param validation_fraction: Target share of samples to hold out, strictly\n    between 0 and 1; any number outside that range, ``nan`` and ``inf``\n    included, is a ``ValueError``. It is only a target. The holdout is one\n    whole fold of a split into ``max(2, round(1 / fraction))`` folds,\n    itself capped at the number of distinct groups, so the realised share\n    is quantised to whole groups and can miss in either direction, by a\n    lot. Over eight equal groups, 0.05 holds out 0.125 (no finer split is\n    available) and 0.7 holds out 0.5 (the two-fold floor); with one\n    dominant group — 70 of 100 samples across four groups — those same two\n    requests instead hold out 0.10 and 0.70. A miss that big is no longer\n    silent: whenever the realised share is further than\n    ``max(0.01, 0.1 * validation_fraction)`` from the requested one, a\n    ``UserWarning`` names both numbers and why they differ.\n:param groups: Group id per sample — well, field, or whatever\n    ``cv_group_by`` names — and required, not optional, because the point\n    of this function is that a group never straddles the split. Needs the\n    same length as ``labels`` and at least two distinct values.\n:param seed: Seed passed to :func:`make_cv_folds` and used to break ties\n    between equally suitable folds. Different seeds can produce different\n    holdouts when several partitions satisfy the constraints. The seed has\n    no effect when the groups permit only one partition.\n:returns: One ``(train_idx, val_idx)`` pair of numpy integer arrays.\n:raises ValueError: if ``validation_fraction`` is outside ``(0, 1)``, if\n    ``groups`` is missing or the wrong length, or if fewer than two\n    distinct groups are present.\n:warns UserWarning: if whole-group quantisation makes the realised holdout\n    share miss ``validation_fraction`` by more than the tolerance above."
+    },
+    "spacr.io.make_validation_holdout.score": {
+      "source_blocks_sha256": [
+        "57496742ba9cdf83f492547f23ce41a2b52937bcad0541d6e68025e2b8081a86",
+        "990515630faa1e7410f2fcaf0978d332d4a092f6f00b001c8b5167b467c85a85",
+        "0b22e17f8e0bafca70d4ea018e2b1f854ba63c46e50dc530612a8667e987f60b"
+      ],
+      "source_sha256": "5bddbbb057f85fc005674653e309e51c6ceba2b1d672ce745f006e040d08f641",
+      "text": "Rank one candidate fold; lower is a better holdout.\n\n:param candidate: A ``(train_idx, val_idx)`` pair as produced by\n    :func:`make_cv_folds`; only the validation half is looked at.\n:returns: ``(cost, n_validation)`` where cost adds the size error\n    (as a fraction of the dataset) to the mean absolute per-class\n    deviation from the whole dataset's distribution. The trailing\n    count is a tie-break, so equally good folds resolve to the\n    smaller holdout."
     },
     "spacr.io.mark_crop_output_folder": {
       "source_blocks_sha256": [
@@ -24339,6 +24533,29 @@
       "source_sha256": "ae5f0eed4c410436960a7774f40a23cafad6dc2d601adc5f8f9d4d5950c4307f",
       "text": "Aggregate image/mask pairs from sibling dataset folders into a Cellpose training split.\n\nDiscovers ``<input_root>/*/masks`` layouts, balances datasets to a\ncommon size (with augmentations if requested) and copies the\nselected pairs into ``<input_root>/cellpose_dataset/train`` and\n``.../test``.\n\n:param input_root: Directory containing one subfolder per dataset.\n:param augment_data: If True, expand under-sized datasets by\n    applying geometric augmentations. Default ``False``.\n:param train_fraction: Fraction of pairs routed to the train split.\n    Default ``0.8``.\n:param n_jobs: Worker count for parallel copies. Default: CPU count.\n:returns: None\n:raises ValueError: if no valid ``<subdir>/masks`` datasets are found."
     },
+    "spacr.io.prepare_cellpose_dataset.find_image_mask_pairs": {
+      "source_blocks_sha256": [
+        "f00d18396f7ea3bd9625942de02ee7fc6d68d061e76bbc7f068d1db9fea7c5c0",
+        "d00a3043d5304849c1f098947807521d93049df2f16df477741a1b25e57c3f90"
+      ],
+      "source_sha256": "2af842b0f83c0dfdf41a6b61ab28f9158e910694cb0e11ff765a8b2ddd0b7c3a",
+      "text": "Return ``(image_path, mask_path)`` pairs found under ``dataset_path``.\n\n:param dataset_path: One dataset folder holding its images at the top\n    level and a ``masks`` subfolder in which each mask carries exactly\n    the same file name as its image. Only ``.tif``/``.tiff`` images\n    are considered, matching is by name rather than by order, and an\n    image whose mask is absent is dropped without a message — so a\n    short pair count here means missing or renamed masks."
+    },
+    "spacr.io.prepare_cellpose_dataset.get_augmentations": {
+      "source_blocks_sha256": [
+        "16c3fb3cbe805a6b88a8fd7c1a3446d95f7d5823b4e3e0c748422a4d1cea76a3"
+      ],
+      "source_sha256": "16c3fb3cbe805a6b88a8fd7c1a3446d95f7d5823b4e3e0c748422a4d1cea76a3",
+      "text": "Return the list of augmentation names used to expand datasets."
+    },
+    "spacr.io.prepare_cellpose_dataset.prepare_output_folders": {
+      "source_blocks_sha256": [
+        "dc35ea59a740903099ab39ca88815c15fad122613153695863d3eb0daeb5a343",
+        "953aecc7e4b282cef216d6aebd338496c18aca29da6a271f053eae8dde34363a"
+      ],
+      "source_sha256": "eb5c53acb52ae043b400cac8cddeb236e5ede804cfd9bf2a9a5837e02e3d9329",
+      "text": "Create ``train/{images,masks}`` and ``test/{images,masks}`` under ``base``.\n\n:param base: Output root, which the caller sets to\n    ``<input_root>/cellpose_dataset``. Creation is ``exist_ok``, so\n    rerunning does not fail, but nothing is emptied first and the\n    copies are renumbered from ``00000``, so a smaller second run\n    leaves the tail of a larger earlier one mixed into the split."
+    },
     "spacr.io.preprocess_img_data": {
       "source_blocks_sha256": [
         "3b06776bbfb34bb3a589790c3f49acc4eaaee973ee05131b656875888a8366ce",
@@ -24381,6 +24598,50 @@
       "source_sha256": "73db4bd6e5f67b6a8a57f5a8d22e674841ba7860cae7cb4543d3cc368020cd26",
       "text": "Split multi-dimensional or non-TIFF images in ``folder`` into per-channel TIFFs.\n\nGrayscale non-TIFF images are converted to TIFF in place. Multi-\ndimensional images (3D/4D/5D) are split into one grayscale TIFF per\n``(channel, Z, T)`` combination. Bit depth is preserved.\n\nA file that cannot be read is recorded on a\n:class:`spacr.errors.RunLedger` and skipped, so one corrupt image\ndoes not abort the folder — but the ledger prints a loud summary of\neverything that was skipped once the folder is done.\n\n:param folder: Directory containing the input images.\n:returns: the :class:`spacr.errors.RunLedger` for the conversion, so\n    callers can check ``ledger.is_complete`` before trusting the\n    folder's contents."
     },
+    "spacr.io.process_non_tif_non_2D_images.convert_grayscale_to_tiff": {
+      "source_blocks_sha256": [
+        "f68ab03fdf64ab2a72a33e291720d61b2c323ca2221d8e26f912ffb36d29a270",
+        "3f37320328e52eb56cd83838557ae019bafb503924b5e4cdab55597a51080cdd",
+        "03e6ef3d55d91a4c98c5efc8034b0c208bd19bc071433841e1da4848fcb1881d",
+        "d3dc9a2508e635e5affa457dc09ebbad74d94563f8862e14e306c03388504187",
+        "2b5f01d3b05f31b924dd156b3c2e540d0d44e85df8e3d71fd85334b99e23c292"
+      ],
+      "source_sha256": "61a91acee80ad39cf86eaff7b3fd56a35ea88f9088a2eb89218cbc9fe2d347e2",
+      "text": "Convert grayscale images that are not in TIFF format to TIFF, preserving bit depth.\n\n:param image: The decoded 2D plane to write.\n:param filename: Base name of the source file, not a path. Only the\n    extension is stripped, so an absolute path here would be joined\n    with ``folder`` and win, writing the TIFF back next to the\n    original instead of into ``folder``.\n:param folder: Directory the ``.tif`` is written into; the original\n    file is left in place next to it rather than replaced.\n:param dtype: NumPy dtype the plane is cast to, which is what carries\n    the source bit depth into the TIFF."
+    },
+    "spacr.io.process_non_tif_non_2D_images.load_image": {
+      "source_blocks_sha256": [
+        "daa933533a14098369c4890ca61d638c32ebf3de9d07115ebd2666edb4edfd68",
+        "a9eae808170138a5af5fd409c5e11eab63ab6f9f5faa52623723bb7269f118b2"
+      ],
+      "source_sha256": "6bea60f945e13d6bb9dcbc335aa9d06f92b98145a2e4e91eeeabbae259f72fe5",
+      "text": "Loads image from various formats and returns it as a numpy array along with its dtype.\n\n:param file_path: Path to the image. Only the extension selects the\n    reader: ``.tif`` and ``.tiff`` go to tifffile, ``.png``, ``.jpg``\n    and ``.jpeg`` to PIL, ``.czi`` to czifile, ``.nd2`` to ND2Reader.\n    Content is never sniffed, so a mislabelled file is read with the\n    wrong reader, and any other extension raises ``ValueError``."
+    },
+    "spacr.io.process_non_tif_non_2D_images.save_grayscale_images": {
+      "source_blocks_sha256": [
+        "4ef192102f5459c130d786fafce272b8940d7cafbe03605430191dc23e700d96",
+        "f9ce7d4fd6f43b3b070cea45c9370d61cf4d7e63b78f42f72ef5846624891c71",
+        "533ba2890f2b4a0a32ddd4538519f80ee1ab7659ae79dae00d450c5d121fc9b4",
+        "15db3bc783ef8a3d860ed4b28bd8e870c2fcb59a283a235f9453e6838ec7a277",
+        "937a3c4919b5eeafd3e66e3f9b6cfdc5bfba3acf63fdd72371f76fb7bb98d693",
+        "84e24bb7f6cef06877db8714e0a3a8c03984875bcc38a54b7be69a2cbc20b524",
+        "ebd1b420eeffe4ace955db506a3eb9f17b95cb26384053c9273583a816debf0e",
+        "2eddc213573cacd0b3aa8565020ce4a5011da1076d6bad65eea1a43ea1f5bc5f"
+      ],
+      "source_sha256": "5429dd826449330cf13aacec3cba28e2456922b2879ca67a8f14923ed95a7c33",
+      "text": "Save grayscale images with appropriate suffix based on channel, z, and t, preserving bit depth.\n\n:param image: A single 2D plane already sliced out of the stack.\n:param base_name: Stem of the source file. Every plane cut from one\n    source shares it, so the ``_C``/``_Z``/``_T`` suffix built below is\n    the only thing keeping those planes from overwriting each other.\n:param folder: Directory the TIFF is written to. The converter passes\n    the folder it is scanning, so planes land beside the\n    multi-dimensional file they came from.\n:param dtype: NumPy dtype the plane is cast to before writing. This\n    cast is the whole of the \"bit depth is preserved\" promise — pass\n    the dtype ``load_image`` reported for the source rather than a\n    convenient default, or 16-bit data is silently rewritten.\n:param channel: 1-based channel index appended as ``_C``. ``None``\n    leaves that part of the suffix off.\n:param z: 1-based Z index appended as ``_Z``; ``None`` omits it.\n:param t: 1-based time index appended as ``_T``; ``None`` omits it."
+    },
+    "spacr.io.process_non_tif_non_2D_images.split_channels": {
+      "source_blocks_sha256": [
+        "da84537c0adb8be600502b226a8700680b623796ff857955d0dcc02297f769c9",
+        "5322eb4b2b20ffdd720c086f2aa5c51ca9fa90ba68755f3e07ac6cb5c010fa1d",
+        "077d2ada5f3e22f68937436881fae6864e3593f36cf3d7d653c5dc61bb212ad9",
+        "6ccc0d77408551a5a6f1e4043dec422095e4390096f70069c722f87f3b871c2e",
+        "1ebf3c843193ee736b46f466dd1a75978ee4145084cc43bf10d8929149096722"
+      ],
+      "source_sha256": "6592049fd0eb204d5257034fa4a74f3899e1969026dcbd76d1acdeb489ab136f",
+      "text": "Splits the image into channels and handles 3D, 4D, and 5D image cases.\n\n:param image: Array whose axis order is assumed to be\n    ``(height, width, channel[, Z[, T]])``. A 2D array returns without\n    writing anything (the caller handles those), and anything with\n    more than five axes falls through silently, writing nothing. The\n    axis order is never checked, so a channel-first array from some\n    other reader is sliced along width instead of being rejected.\n:param folder: Directory the per-plane TIFFs are written into.\n:param base_name: Stem shared by every plane written from this image;\n    the ``_C``/``_Z``/``_T`` indices are appended to it, all 1-based.\n:param dtype: NumPy dtype passed straight through to each write, so it\n    should be the source image's own dtype to keep its bit depth."
+    },
     "spacr.io.read_plot_model_stats": {
       "source_blocks_sha256": [
         "4b07d3f6c7cd03a4194e3c20d459ae37f4c9d2de19e25ce4912fb8e6583a82b2",
@@ -24391,6 +24652,20 @@
       ],
       "source_sha256": "86758bb4e0e8510ae8b1a70af3de41239f865ef5c84e83b57f5eeb2ec4c283c6",
       "text": "Plot training vs. validation curves from a saved model's per-epoch CSVs.\n\n:param train_file_path: Path to the training stats CSV.\n:param val_file_path: Path to the validation stats CSV.\n:param save: If True, write the figures next to the training CSV instead\n    of showing them. The file format follows the user's figure preference\n    via :func:`spacr.plot.save_figure`, which also corrects the extension.\n    Default ``False``.\n:returns: None"
+    },
+    "spacr.io.read_plot_model_stats._plot_and_save": {
+      "source_blocks_sha256": [
+        "562c4d34f2c18ee88103a1275d96373f015cadfd35d0e9f48d0233f8c3e87cd1",
+        "b4f84b2bb7515e3c78a701072fe64665e69149c400a8e17b7521c6b50a109050",
+        "e773afe2213f2664c65cd5100c9b72be1b3dbc50114f3d34c300026b7444eb3e",
+        "e3ccd34e72c7ad87dbc4736f252048cd7bfd93e7d082fb3bb111d7f47ae8963c",
+        "c919c56c9f1360915b445977d28427e2920c058beda3f20b278b7b13af50edf5",
+        "7d2f36f093e5aba92a573397fc6b3faf94486dece8e1ccc5e921c6c7103c3f32",
+        "439a9ffa8c39ea28522242162f02ffc08b32dd6c61c3f5ec66114d90bf5cb98c",
+        "aa41f065c1efe0c8240fa7f6d5d48754f9604d12b919ea40c304f0d1044568a5"
+      ],
+      "source_sha256": "c11c7dea9bc2a658106cea162a58be1b561c8b5e24d6b49ff14f510d12ef0230",
+      "text": "Draw one training curve -- train against validation -- and write it.\n\nOne function per COLUMN rather than per figure because the caller\nasks for accuracy, loss and the rest by name, and every one of them\nis the same plot of the same two frames.\n\n:param train_df: per-epoch training statistics.\n:param val_df: the same for validation.\n:param column: which statistic to draw.\n:param save: write a PDF beside the model rather than only showing it.\n:param path: the folder to write into.\n:param dpi: resolution for the written file."
     },
     "spacr.io.read_settings_history": {
       "source_blocks_sha256": [
@@ -24455,6 +24730,14 @@
       ],
       "source_sha256": "80e5308231738eb7d79ee44be6dcb1edc3a6a963d02033ee92a2b2b36ec99112",
       "text": "Keep only the ``names`` whose field is in ``fields``.\n\nThis filter allows mask generation to be rerun for selected fields without\nprocessing every field on the plate.\n\n:param names: stack file names, as written by\n    `_rename_and_organize_image_files`.\n:param fields: what to keep. ``None`` or empty keeps everything, which\n    is the default and the behaviour every existing run has. A list, or\n    a comma-separated string, of field ids in any spelling the rest of\n    spaCR accepts -- ``'f3'``, ``3``, ``'F003'`` -- or a glob such as\n    ``'f1*'`` matched against the field id.\n:returns: the kept names, in the order given."
+    },
+    "spacr.io.select_fields.field_of": {
+      "source_blocks_sha256": [
+        "e86b84efdc1d5ef44e69ceeede7783a4019c40d947b6c65a9f5b70f06b3fc7d2",
+        "09eae3e35c64e7415bcb5bbf28fa45e94b946d024b8c7c9d33342eae3ff0ec9c"
+      ],
+      "source_sha256": "6670f48471b0b2371e703ec4941e9e7cfc8786bb33c631ec3f7b980370e8b49d",
+      "text": "One field's canonical token, so 'f3', '3' and 'F003' are one field.\n\nNORMALISED THROUGH `schema`, which is the same rule the file names\nthemselves were written by -- matching the raw text instead would\nmake a selection depend on which of three spellings the user typed.\nAnything schema cannot read is lower-cased and passed through, so a\ntoken from a convention it has not met still selects itself."
     },
     "spacr.io.spacrDataLoader": {
       "source_blocks_sha256": [
@@ -88777,6 +89060,394 @@
       ],
       "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
       "text": "A copy with every field inside the range the renderers accept.\n\nClamped rather than refused: this is a backdrop, and a preferences\nfile with a silly number in it must not stop the application from\ndrawing one."
+    },
+    "spacr.qt.widgets.fractal_travel._join_on_destroy._join": {
+      "source_blocks_sha256": [
+        "1cc238870198d0871ff85d82ba15b352f29398212b6a2f12938cd109854466b6"
+      ],
+      "source_sha256": "1cc238870198d0871ff85d82ba15b352f29398212b6a2f12938cd109854466b6",
+      "text": "Stop and join the render thread. Closes over the thread ONLY."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.__init__": {
+      "source_blocks_sha256": [
+        "e4b007b9aedd129e017c5b26d88e6be19544cabc0aaf36b2d99c9aa573824814"
+      ],
+      "source_sha256": "e4b007b9aedd129e017c5b26d88e6be19544cabc0aaf36b2d99c9aa573824814",
+      "text": "Build the CPU canvas, painting its own background."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._accept_frame": {
+      "source_blocks_sha256": [
+        "f27692162080453df1a90011dc5ec424c7234c69a858091801f81e5f222785b8"
+      ],
+      "source_sha256": "f27692162080453df1a90011dc5ec424c7234c69a858091801f81e5f222785b8",
+      "text": "Take a rendered frame, note how long it took, and repaint."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._adapt_resolution": {
+      "source_blocks_sha256": [
+        "83d42b631314a5d770121ef34a8911df1c74720ca7826b823e92d0f9cd384e28",
+        "52c2295c8d4d5e5e9ee12d320e9071ba8a1b0a6ee5e46012f487025ba62680a2",
+        "e0ada14570fd1d5dc506809c21409270d0783a536c22822bfb6cb877ac9d7ac3"
+      ],
+      "source_sha256": "b0048a3d096c47431212b451283c20ae47a61aa7b5694c726dfb3e4e8c812350",
+      "text": "Trade resolution for frame rate, from the measured render time.\n\nWAITS FOR TWELVE FRAMES and then only reconsiders every twenty-fourth,\nso the scale settles instead of oscillating on a single slow frame. The\nbudget is 78% of the period rather than all of it, because Qt's own\nconversion and the rest of the application have to fit in the remainder.\n\nBoth directions are damped and clamped -- down no further than 0.58, up\nno further than 1.35 -- so a stall cannot drive the picture to nothing\nand a fast machine cannot drive it past what the window can show."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._on_failure": {
+      "source_blocks_sha256": [
+        "61af02245acafee688eb81cc8802f23d8d672bc1a7111c6e4294181a4b60c574"
+      ],
+      "source_sha256": "61af02245acafee688eb81cc8802f23d8d672bc1a7111c6e4294181a4b60c574",
+      "text": "Record the worker's error and stop treating a frame as pending."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._request_frame": {
+      "source_blocks_sha256": [
+        "78cb9f1ce9d227edeae1fccf1f5ff39859195ca89a64ff676f6f6f55b9cf4df5"
+      ],
+      "source_sha256": "78cb9f1ce9d227edeae1fccf1f5ff39859195ca89a64ff676f6f6f55b9cf4df5",
+      "text": "Ask the worker for the next frame, unless stopped or paused."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget._target_size": {
+      "source_blocks_sha256": [
+        "5fecd42ea6398cc9c8a681748bd90d9c2fa5eeef77a03c82839260ed8c7ff73f",
+        "085a39f50139efa0eb5fbb48471b058baf86e5b28bdfdaffe9efe5303ea6d9c2",
+        "dda19db68ee0c9afad9d1b1b35a394dc714ae090e3693df81d074fe0e1733f0a",
+        "35324e44680841d970e8cd6a6260d2b024dd5acbb8c8b5fd8bda3761f29bc720"
+      ],
+      "source_sha256": "ee1fd980974e021ad86def0ffe166d7259510992ee26ec519661ad5a6cde3fea",
+      "text": "The pixel size to shade at, from the render scale and the window.\n\nRENDER SCALE is the fraction of the window's own pixels to shade: 1.0 is\nnative and anything less trades sharpness for speed. It was a setting\nnobody read, and it is the direct answer to \"how do I get the image\nsharper\".\n\nON THIS PATH ONLY, AND THAT IS WORTH SAYING WHERE THE CLAIM IS MADE.\n`_render_scale()` is read here and nowhere else: the GPU canvas shades\nits physical size at every one of its three uses and never calls\n`target_render_size`. So on a machine with a working GPU -- which is\nthe default, `backend='auto'` -- this setting has no effect whatever,\nand a reader who came here from the sentence above would otherwise go\nlooking for the code that applies it.\n\nIT IS NOT A VISIBLE CONTROL, which is why this is a comment rather\nthan a tooltip: `spaceout/fractal_render_scale` is a bare QSettings\nkey with no row in Preferences, so nobody can move a slider and watch\nnothing happen. Making the GPU honour it would mean render-to-texture,\nwhich was measured and rejected: every shader runs 7x to 25x inside\nits frame budget at 4K, so there is no headroom to buy back."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.closeEvent": {
+      "source_blocks_sha256": [
+        "52b8153bfc4a5f60a1088c4d7bf87a86485c6fa28a9962a23de4d03ea3b75061"
+      ],
+      "source_sha256": "52b8153bfc4a5f60a1088c4d7bf87a86485c6fa28a9962a23de4d03ea3b75061",
+      "text": "Shut the render thread down before the widget goes."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.is_paused": {
+      "source_blocks_sha256": [
+        "30d3ac86172e78ff45f8cece013ad0377b4e2331f15802e478f79bc82978dc21"
+      ],
+      "source_sha256": "30d3ac86172e78ff45f8cece013ad0377b4e2331f15802e478f79bc82978dc21",
+      "text": "Whether the animation is currently held."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.paintEvent": {
+      "source_blocks_sha256": [
+        "4faddc371a6433dbb88a2cdd5dece92cb21f17019bcf434d4588bd97e6d1e89e"
+      ],
+      "source_sha256": "4faddc371a6433dbb88a2cdd5dece92cb21f17019bcf434d4588bd97e6d1e89e",
+      "text": "Draw the last frame, or the ground colour before there is one."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.pause": {
+      "source_blocks_sha256": [
+        "faf153e51a34b353af780dfd494e53255f48713ba1b1e5455a4459f5d5f3278c",
+        "d5de068d6e6f64417e990af173b5f638edd1fae4c6e2bdb0d93a1e568c7b280a",
+        "a31f183f932c82abb9a2a33a422747a79230f7c953042a774477074b81ebec09"
+      ],
+      "source_sha256": "75b201965a2483901f5b89bc7f10b3b786714778f5d5c6c6323887524554978c",
+      "text": "Stop rendering and leave the last frame on screen.\n\nCalled when a RUN STARTS. A backdrop taking nineteen cores while\na segmentation is queued is the opposite of what it is for, and\nstopping is better than thinning: a slower fractal still holds\nthe threads.\n\n:returns: True when this call did the stopping, False when it was\n    already paused -- so a caller can tell whether to resume."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.resizeEvent": {
+      "source_blocks_sha256": [
+        "4ed7eb1ba508c4c2b8b0de5bd5ef536ab45af22e2ac99dd29c992e5095979b9b",
+        "1ee52e86fa177a73cdacc60eba3441a1f1788bcaaa2da2433ef16d76235d9db4"
+      ],
+      "source_sha256": "7a3deaff01b7da29814f09809ff5e1587cc4e870ee03aed153d7d0605d3441d1",
+      "text": "Ask for a frame at the new size, unless one is already in flight.\n\nGuarded so a drag-resize does not queue a render per pixel of travel --\nthe worker would then be shading sizes the window has already left."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.resume": {
+      "source_blocks_sha256": [
+        "741fdd77b5aacdc82edaa6047104192dee2cef4e3f02ad015d79abe77fbe7865"
+      ],
+      "source_sha256": "741fdd77b5aacdc82edaa6047104192dee2cef4e3f02ad015d79abe77fbe7865",
+      "text": "Start rendering again from where the clock left off."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.set_animating": {
+      "source_blocks_sha256": [
+        "cc81e15624acfedb2aba8b1767cd7c941242f01584ceab79f1b177725a5e2bff",
+        "7e69f7fada310df24060eae5e00bcfb1b30cc1ad83db1d651faba3ef6e349509"
+      ],
+      "source_sha256": "b6d5c351a188ff15515b3696f90e99c92fe0a18f4d4e625150556d97d7184630",
+      "text": "`AmbientWidget`'s verb for the same thing.\n\nThe ambient backdrop this replaces is stopped and started with\n`set_animating`, and its callers -- the Home screen's teardown\namong them -- reach for that name. Answering to it makes this a\ndrop-in rather than something every call site has to learn."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.shutdown": {
+      "source_blocks_sha256": [
+        "ac89c84015f246d78f7fcbecc05f749d4a36b2489356bd1775abd699f026c085"
+      ],
+      "source_sha256": "ac89c84015f246d78f7fcbecc05f749d4a36b2489356bd1775abd699f026c085",
+      "text": "Stop for good and join the thread. Safe to call twice."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget.CpuFractalWidget.stats_text": {
+      "source_blocks_sha256": [
+        "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca"
+      ],
+      "source_sha256": "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca",
+      "text": "The render size, rate and state, for the overlay."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker.__init__": {
+      "source_blocks_sha256": [
+        "7b86534c9265ce8d5e2338b47f0f657e236ae0760fc53bfbc3bda0cb1220e3a6"
+      ],
+      "source_sha256": "7b86534c9265ce8d5e2338b47f0f657e236ae0760fc53bfbc3bda0cb1220e3a6",
+      "text": "Build the engine this thread will shade with."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker._say_something": {
+      "source_blocks_sha256": [
+        "42bb8046306ffa38214b619b18ee50e969a0f700d93eed698175ed60d753e554",
+        "fe2329a805eb981ac4d1e08a243e1d847e106dd54afd5a4283d44d757167c876"
+      ],
+      "source_sha256": "6ec554ed2d1e77b26c2c69278071c4b8f263c76b2ef0fa04eb59e5aaf966d2f9",
+      "text": "Emit, unless the object that owns the signal has been freed.\n\nThe last thing this thread does with a widget that is being\ndestroyed, so it must never raise: nothing is listening, and an\nexception here ends the process rather than the frame."
+    },
+    "spacr.qt.widgets.fractal_travel._make_cpu_widget._Worker.render": {
+      "source_blocks_sha256": [
+        "1a0adc64fb9d0074ae74adfd7d569a7fa42f71367f6148d612b000c1cd1ac42d",
+        "363dfabc30d7881fd95a7602e32aae1e7031c4de170957ccc229d5c033dd1d80"
+      ],
+      "source_sha256": "fd5d41fdb183d5cfc262d752307c452257c9f2f5d72c56a5b7b8b162fa941554",
+      "text": "Shade one frame and hand it back, if anyone is still there.\n\nA FRAME CAN FINISH AFTER ITS WIDGET IS GONE. The shading runs on\nthis thread while the GUI thread may be closing the window or\nswapping the pattern, and Qt deletes the worker's C++ side with\nit -- so `emit` raises \"Signal source has been deleted\". The\nexcept below then emitted the FAILURE signal, which raised the\nsame way, and an exception escaping a slot on a QThread takes\nthe process down: \"Aborted (core dumped)\"."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.__init__": {
+      "source_blocks_sha256": [
+        "d5299d733919af34fa996ba9a3ff7db0b479fde172b07dbee6b2f1cbcd2cb386"
+      ],
+      "source_sha256": "d5299d733919af34fa996ba9a3ff7db0b479fde172b07dbee6b2f1cbcd2cb386",
+      "text": "Build the GL widget under the heavy-import lock."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.closeEvent": {
+      "source_blocks_sha256": [
+        "b2a18ea6727ea34e4726a47e6a3244eb6fedcb57c4c1eac975bd5f3cd9b1828b"
+      ],
+      "source_sha256": "b2a18ea6727ea34e4726a47e6a3244eb6fedcb57c4c1eac975bd5f3cd9b1828b",
+      "text": "Shut the canvas down before the widget goes."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.is_paused": {
+      "source_blocks_sha256": [
+        "da88596285a078994ba6749491ba44c6e24c7075ea2d4491e7b304ca1390cf38"
+      ],
+      "source_sha256": "da88596285a078994ba6749491ba44c6e24c7075ea2d4491e7b304ca1390cf38",
+      "text": "Whether the canvas is currently held."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.pause": {
+      "source_blocks_sha256": [
+        "3c1ea6b4c0f092714131a4bb6607a1266723df7d27080db760ac71401ce9caf7"
+      ],
+      "source_sha256": "3c1ea6b4c0f092714131a4bb6607a1266723df7d27080db760ac71401ce9caf7",
+      "text": "Stop drawing while a run is on. The last frame stays up."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.resume": {
+      "source_blocks_sha256": [
+        "5a6a4b90151f28895ce5a2148b68e06f7c5bf67e9a7ef5ff7573a31e07f53a06"
+      ],
+      "source_sha256": "5a6a4b90151f28895ce5a2148b68e06f7c5bf67e9a7ef5ff7573a31e07f53a06",
+      "text": "Restart the animation. Returns whether it was paused."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.set_animating": {
+      "source_blocks_sha256": [
+        "cc81e15624acfedb2aba8b1767cd7c941242f01584ceab79f1b177725a5e2bff",
+        "7e69f7fada310df24060eae5e00bcfb1b30cc1ad83db1d651faba3ef6e349509"
+      ],
+      "source_sha256": "b6d5c351a188ff15515b3696f90e99c92fe0a18f4d4e625150556d97d7184630",
+      "text": "`AmbientWidget`'s verb for the same thing.\n\nThe ambient backdrop this replaces is stopped and started with\n`set_animating`, and its callers -- the Home screen's teardown\namong them -- reach for that name. Answering to it makes this a\ndrop-in rather than something every call site has to learn."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.shutdown": {
+      "source_blocks_sha256": [
+        "3973f00fc21a16badaea8666f8c970a04eea5f785d0f9688379016fe31bc8602"
+      ],
+      "source_sha256": "3973f00fc21a16badaea8666f8c970a04eea5f785d0f9688379016fe31bc8602",
+      "text": "Stop for good. Safe to call twice and after Qt has freed it."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget.GpuFractalWidget.stats_text": {
+      "source_blocks_sha256": [
+        "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca"
+      ],
+      "source_sha256": "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca",
+      "text": "The render size, rate and state, for the overlay."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.__init__": {
+      "source_blocks_sha256": [
+        "b37888f6ebf14f0f03a588da567416999372ec172af98c2158c6a7f48b8541fd"
+      ],
+      "source_sha256": "b37888f6ebf14f0f03a588da567416999372ec172af98c2158c6a7f48b8541fd",
+      "text": "Build the GL canvas, hidden until it is placed."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._budget_at": {
+      "source_blocks_sha256": [
+        "aba93cdfc273c1361a56580fb7eab153a9c3d2d53641ae5b1c2d9966ce4d7176",
+        "9fc8c3940452655ff5078d3d2b135939c20a42c616860bf14cfe54061b32bd8a",
+        "1992e9514ef063108739ae0ca7aebed9c151ebc5cee2b40402ff30b853c73717"
+      ],
+      "source_sha256": "be0f47e93b86cde9ac2aa0242a56535071a596970af3d4e80a2e7804965dfa29",
+      "text": "The iteration budget at ``depth``, capped by the reference.\n\n:param depth: the depth in decades.\n:param orbit: the reference orbit, or None while it is built."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._dive_uniforms": {
+      "source_blocks_sha256": [
+        "2179526d85e9030f67d23e69c5a2656eb993307c96123151fa7164836db19ec0",
+        "9fc8c3940452655ff5078d3d2b135939c20a42c616860bf14cfe54061b32bd8a",
+        "2bba55073d8afd5ea30f8973487d79c3f5d4b38dbd613a1d0df66ddd5ad134c5",
+        "1992e9514ef063108739ae0ca7aebed9c151ebc5cee2b40402ff30b853c73717"
+      ],
+      "source_sha256": "dde7082fd0225ed0b42a590b2c5a2d3550c69c0d8f06c0262ae27a2c472b5cd6",
+      "text": "The zoom's uniforms for a depth and a centre.\n\n:param depth: the depth in decades.\n:param centre: ``(re, im)`` offset from the reference orbit.\n:param orbit: the reference orbit, or None while it is built."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._galaxy_uniforms": {
+      "source_blocks_sha256": [
+        "e2308c8cbb565c8220b033d39680a3e562c1d275376039218eef927980217858",
+        "0cf73e389e7aa895e83875fbb6b67c84f52e9db9dd502bea7c145b6ceab5fb97",
+        "2c2643635e52fdb82b7b64107e87269b74fe3c4dc2cb1b5d70b8f66376bf4391"
+      ],
+      "source_sha256": "6b98cda2c13875f9a20ad8216a6e281a0d966d52086b55d4a3d97736bffce564",
+      "text": "Where the passing galaxies are, for the space pattern.\n\n:param phase: the flight's clock, the shader's ``u_time``.\n:returns: ``{}`` for every other pattern."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame": {
+      "source_blocks_sha256": [
+        "21fb1d7261bd9ef4b590613b245cb98bca8f570609c8b3a49a728e24b5b69409",
+        "1992e9514ef063108739ae0ca7aebed9c151ebc5cee2b40402ff30b853c73717",
+        "5cc01dd3d8da2880447b1f4d9f5fc28860b9723cd365b055c11b2245dcba61dc",
+        "6d6a42eaa746e1c83c7c085a136cf2976c96126262d3853fb943634390271a1f",
+        "6177aafe73229d73a0b9bc38ad4a0c09fb58728ad8004f382affd28bf7071d23"
+      ],
+      "source_sha256": "5d5856107a1dde77dd411016b9b80159016fb9d5f05bdb00395d772398b659d4",
+      "text": "One frame of the glide toward the busiest part of the view.\n\n:param orbit: the reference orbit, or None while it is built.\n:param seconds: time since the previous frame.\n:returns: ``(centre, depth)``.\n\nTHE DECIDING IS IN `_GlideCamera`, which has no Qt in it. This\nis the part that cannot be: reading the settings, handing it the\ndrag, and surveying the view on a worker thread so an escape map\nnever stalls a frame. A survey that lands after the reference\nmoved describes a different frame and is dropped."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._glide_frame._look": {
+      "source_blocks_sha256": [
+        "aff61ab731037e620c3403d41848cefe455e85311a7349412a7cc6b05e3d85ec"
+      ],
+      "source_sha256": "aff61ab731037e620c3403d41848cefe455e85311a7349412a7cc6b05e3d85ec",
+      "text": "Score the current view for structure. Off the GUI thread."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._mandelbrot_uniforms": {
+      "source_blocks_sha256": [
+        "5894df80d378a32316b53cb93aeb98b02afbb922ea792c0b1f4ef7314fdf4449",
+        "cec4a6dd54015bcf40392550cb1dae49a895a99928157aada18925c8fce3e669"
+      ],
+      "source_sha256": "96262053bb6e6aee385227a886535462312cd7a31d10459f002469a9d79b52ed",
+      "text": "The zoom's own uniforms for this instant.\n\n:returns: ``{}`` for every other pattern, so the shared update\n    can splice it in unconditionally."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._on_native_destroyed": {
+      "source_blocks_sha256": [
+        "fede798a507a298805a2f88e69b2c129bd3898bb747cbe3549b4b2af07420033",
+        "687475fdc6c39b9cbe50c4980a29143d2268685bb97a48d5274332171f5608fe"
+      ],
+      "source_sha256": "0c83fff3c3236557366705432e5490dcce980842d012d4e97cd8b56cb464e81e",
+      "text": "Mark the canvas dead and stop its timer.\n\nThe native window can go before Python does, and a timer that fires after\nit draws into an object that is not there."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._on_timer": {
+      "source_blocks_sha256": [
+        "56a681877b89a92191771dc844e4c4bcd9b447c2379333099b8dae149ebe6417"
+      ],
+      "source_sha256": "56a681877b89a92191771dc844e4c4bcd9b447c2379333099b8dae149ebe6417",
+      "text": "Advance one frame, unless paused or already torn down."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._pointer_state": {
+      "source_blocks_sha256": [
+        "fede3e7e0aaf98e0c57ad2e5c70cbb7b5c4f1cbbc634e99dcbfcef744ef4fbfe",
+        "bf8c5eff1ffa5a96f4533eabf97a864230902d0a7457d1faf61b61d3f991470e",
+        "905c12a5fdf1707b960bf2bf6d1e8276e39e99cb1892506e132104e1c3e5b59c",
+        "6a3d3b6f45d2c34fea7a9474f4bc2e0d93f77ac5c56f7d04fac3a7020099d99c",
+        "edbc0dc6721124e67016facadc1f2bc13e2cb66253653da5561d26db7114eee7"
+      ],
+      "source_sha256": "3d7df3679737a31a13bebb0cf786830f8a96ba3874ebe44f3871167866dbc874",
+      "text": "``(x, y, pull, push)`` for the shader, in -1..1 space.\n\n:returns: zeros when the pointer is not being followed, so a\n    shader can multiply by them unconditionally.\n\nTHE MANDELBROT IS DRAGGED, NOT ATTRACTED. Mouse interaction moves\nit only through drag input; the pointer's stationary position does\nnot pull the view about.\n\nThe other three patterns are fields that can be warped toward a\npoint and look right doing it. A deep zoom is a camera: pulling\nits coordinates toward wherever the mouse happens to rest slides\nthe picture continuously, which reads as the image drifting away\nfrom you rather than as anything you did.\n\nThe pointer is still SAMPLED, because that is what accumulates\nthe drag -- `_steer` consumes it. Only `pull` and `push`, which\nare the position-driven terms, are withheld."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._refine_the_reference": {
+      "source_blocks_sha256": [
+        "6dc62a12d1d2019ec1aa7dd633cd877bd54078ba93f05ab46cad46cd0c235188",
+        "4e990e940f03bd61eca92e1af3ae58ae6955f0d4303fe0dca222229fddc2bf14"
+      ],
+      "source_sha256": "4d5a9ec4967363b3331ea538e8c1e60a13c8f7e5c44b109654323248152f91f5",
+      "text": "Move the reference back onto the boundary, now and then.\n\nSurveyed and rebuilt on a worker thread: the survey is a 96x54\nescape map and the rebuild iterates the orbit at full precision,\nneither of which belongs in a frame. When the new reference\nlands, the camera's centre and target move by the opposite of\nthe reference's move, so the picture stays exactly where it was."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._refine_the_reference._work": {
+      "source_blocks_sha256": [
+        "c3ecf0b7968e4d6279e5976ce5b72dfe9a58e2dacbecb1f9271f2290b4e44ada"
+      ],
+      "source_sha256": "c3ecf0b7968e4d6279e5976ce5b72dfe9a58e2dacbecb1f9271f2290b4e44ada",
+      "text": "Find a better reference point for the current view. Off the GUI thread."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._start_the_reference_orbit": {
+      "source_blocks_sha256": [
+        "073aee1a8a7a0222defe326eb3f8a0497cd3ef37a69b9e35b445f332f2eaae66"
+      ],
+      "source_sha256": "073aee1a8a7a0222defe326eb3f8a0497cd3ef37a69b9e35b445f332f2eaae66",
+      "text": "Iterate Z off the GUI thread and upload it when it is ready."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._start_the_reference_orbit._work": {
+      "source_blocks_sha256": [
+        "3f5de52b1ec93737da6282a2d5a246924af2c05b97178196cd9f9b2bdb01dd5f",
+        "b5954f52032b160940a051743c35a4b5eb37fe15900ea87dc40def2215611e75"
+      ],
+      "source_sha256": "01aca51760a7ccc10ccad5d8097a4f94c1b18aa2d6ebc23daf04cce6525000c9",
+      "text": "Compute the reference orbit. Off the GUI thread.\n\nIt is the expensive part of deep zooming -- high-precision iteration of\none point that every pixel is then perturbed from -- so it must not run\nwhere it would stall the frame it is for."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer": {
+      "source_blocks_sha256": [
+        "63db6c9340bc2c9a8c8f048348e6eb65e489c057438541bcfe0c2d5506c742e3",
+        "e29ed5c476e69c9068603968ed77d702de43d043654c63fadbb8cf1c542312c3",
+        "6ba23c497cf871e902879229f33cf89788efc0e02fcef1aa7a7ae18f74611331",
+        "c126f058119112771dd8c68314665d6c5548c3583f69ad62c39c6d6371e9dbb8",
+        "d83ab7c0e157fac0afa04f2956822411fc7c4fb000d3acbaa21ab6c4ef0a31a0"
+      ],
+      "source_sha256": "d4763da3d04fbc5080b5a82b37782dbffe85409e9abb86c8d3016729f8992683",
+      "text": "Where the dive is heading, in the reference orbit's frame.\n\n:param seconds: the simulation clock; unused by the fixed and\n    guided paths, and kept so every caller passes the same\n    arguments. The tour path is :meth:`_glide_frame`.\n:returns: ``(offset_re, offset_im)`` for ``u_center_offset``.\n\nTHE DECIDING IS IN `SteeringCamera`, which has no Qt in it and\ncan be driven frame by frame in a test. This method is the part\nthat cannot be: reading the settings, and running the search on\na worker thread so a 96x54 escape map does not stall the frame.\n\nEvery claim about how smooth the motion is used to come from a\nsimulation written beside the code rather than from the code,\nbecause this logic lived inside a canvas that needs a GL\ncontext to exist. That is why three fixes in a row were wrong."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._steer._look": {
+      "source_blocks_sha256": [
+        "e047172e81cced7644680e34271e539dd776bf61a79d2f70d2113a9a154838ac"
+      ],
+      "source_sha256": "e047172e81cced7644680e34271e539dd776bf61a79d2f70d2113a9a154838ac",
+      "text": "Plan the next guided step. Off the GUI thread."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._update_uniforms": {
+      "source_blocks_sha256": [
+        "b8798a8ebaf74af312a5bfc7a8825401f9ffc325548e626d5aa8c57052068f11",
+        "8228abfcecac74c18f7e29342666ee0e0b8be87ccdc12aefd8899dacdb724722"
+      ],
+      "source_sha256": "1bb15ddcc537905642812c7e9c83cd70be384d69f4e3a610dc61ad9412547527",
+      "text": "Push this frame's camera and time into the shader.\n\nThe size is floored at one pixel: a canvas mid-resize can report zero, and\na zero dimension reaches the shader as a division by nothing."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas._upload_the_orbit_if_it_arrived": {
+      "source_blocks_sha256": [
+        "cd023bdda9c272270be75cbefa3a693fa1d7bed3e8555bfa5dfa2c9f868193d0",
+        "fb1e35daf03e87631f9d048ca717f1a432e1bff954f0b5bd7f79ac3757ca7be5"
+      ],
+      "source_sha256": "59535e1aeaa4f67af47fb31ffb92c55fa435b6d37fa793e9148e173747ef04d3",
+      "text": "Put the finished orbit into the shader's texture.\n\nON THE GUI THREAD, from inside the draw, because that is where\nthe GL context lives. Uploaded once: `_orbit_uploaded` is the\norbit object itself, so a rebuilt one would be noticed."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.on_draw": {
+      "source_blocks_sha256": [
+        "81db9ef13e6bb3c5935dd2d6e9065626b12751f0a5146ca97bbd36243829b9d2"
+      ],
+      "source_sha256": "81db9ef13e6bb3c5935dd2d6e9065626b12751f0a5146ca97bbd36243829b9d2",
+      "text": "Draw one frame, unless the canvas is already torn down."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.on_resize": {
+      "source_blocks_sha256": [
+        "d2325daf93604676c39b046cc71438581ea441efd5d061a00c73b1f0afbebd4f",
+        "23544dd022e4b9bcb5650cacb61c0c1f4fd256d1edbc2b9201c3f076bcee16f4"
+      ],
+      "source_sha256": "d3c10e989b4c9841fa72ec1aa14dc63ea968ab056eb6c1cc7b2895425c2172bb",
+      "text": "Resize the GL viewport, never to zero.\n\nA canvas mid-resize reports zero, and a zero viewport is a GL error\nrather than a small picture."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.stats_text": {
+      "source_blocks_sha256": [
+        "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca"
+      ],
+      "source_sha256": "4cecb7467110a724744b51ea4cfcfb72ed0e1d76aea78910048a9e409a00cfca",
+      "text": "The render size, rate and state, for the overlay."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._Canvas.stop_timer": {
+      "source_blocks_sha256": [
+        "50666b120384d802e7b04a8ce3ae67007f211c11f2bc212ef170e65bb8aaf877"
+      ],
+      "source_sha256": "50666b120384d802e7b04a8ce3ae67007f211c11f2bc212ef170e65bb8aaf877",
+      "text": "Stop the vispy timer. Safe to call twice, and after deletion."
+    },
+    "spacr.qt.widgets.fractal_travel._make_gpu_widget._mandel_setting": {
+      "source_blocks_sha256": [
+        "99a4bf3572223b6380e731d5972540c8c18166ad0974a76745ecaaf7aa9265bf"
+      ],
+      "source_sha256": "99a4bf3572223b6380e731d5972540c8c18166ad0974a76745ecaaf7aa9265bf",
+      "text": "One Mandelbrot setting, falling back to the published default."
     },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [

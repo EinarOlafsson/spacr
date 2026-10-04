@@ -3432,7 +3432,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # (tools/nested_helper_docs.ENABLED_MODULES); all 12,728 prior symbols unchanged.
     # 2026-10-03 F411: +103/-0, documented nested helpers of 3 more modules
     # (tools/nested_helper_docs.ENABLED_MODULES); all 12,887 prior symbols unchanged.
-    assert len(docs) == 12990
+    # 2026-10-03 F411: +81/-0, documented nested helpers of 2 more modules
+    # (tools/nested_helper_docs.ENABLED_MODULES); all 12,990 prior symbols unchanged.
+    assert len(docs) == 13071
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
