@@ -247,3 +247,5 @@ treatment they both needed. A single publisher that scrubs, verifies and
 uploads would have made the omission impossible; two scripts made it
 invisible. `tools/` has no such publisher yet, and should.
 
+
+VERIFIED 2026-10-04: session record; its fixes covered by the 300-399 test sweep (9,645 tests green after fixes).

@@ -334,3 +334,5 @@ The 12 existing setup-table checks remain green; earlier verified translation,
 layout, device-colour, neural-engine and package-version criteria are unchanged.
 The hypothetical hand-built unusable-CUDA finding above remains a separate
 resolver hardening observation, not silently changed to close this item.
+
+VERIFIED 2026-10-04: the 5 test files this item names pass on CPU/offscreen.

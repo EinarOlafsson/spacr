@@ -136,3 +136,5 @@ category-level mistake this file warned about is not reachable.
 WORTH KNOWING FOR 306: this item's own note predicted that promoting nested
 functions would move 306's API symbol counts. It did not have to -- the map
 records existing symbols rather than promoting new ones into the public API.
+
+VERIFIED 2026-10-04: test_setting_api_links_point_at_the_consumer passes.

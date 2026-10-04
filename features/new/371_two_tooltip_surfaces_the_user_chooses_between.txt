@@ -250,3 +250,5 @@ does, and 141 settings have an animation.
 
 7 new tests for the hold and the switches; 328 pass across the tooltip
 family.
+
+VERIFIED 2026-10-04: prefs/tooltips_box and prefs/tooltips_bottom present; test_the_two_help_surfaces and test_the_tooltip_footer_says_api_and_animation pass.

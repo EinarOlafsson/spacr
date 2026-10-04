@@ -38,11 +38,11 @@ def _the_heading_preference_is_put_back(qapp):
     from PySide6.QtCore import QSettings
 
     key = mzp._SOURCES_SETTING
-    settings = QSettings()
+    settings = mzp._store()
     had = settings.contains(key)
     before = settings.value(key, "") if had else None
     yield
-    settings = QSettings()
+    settings = mzp._store()
     if had:
         settings.setValue(key, before)
     else:

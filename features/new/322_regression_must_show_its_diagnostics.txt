@@ -160,3 +160,5 @@ TWO THINGS FOUND WHILE DOING IT, both worth keeping:
     tests: `{} or {...}` is a no-op, and `non_identifiable_directions` is not
     what `identifiable` is derived from. Re-run against `identifiable` itself
     and against a genuinely renamed key, both are caught.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

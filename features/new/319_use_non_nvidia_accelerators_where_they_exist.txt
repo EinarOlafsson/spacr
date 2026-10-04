@@ -306,3 +306,5 @@ Everything else here was already done or explicitly refused with a measured
 reason (cuML is CUDA-only; MPS raises on the float64 a mixed model wants;
 torch 2.2.2 is the x86-64 macOS ceiling). A refusal with a number behind it is
 a result, so it does not hold the item open.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

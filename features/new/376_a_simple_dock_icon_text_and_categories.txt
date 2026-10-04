@@ -113,3 +113,5 @@ reached from their host screen's fold strip and from the Help heading. This
 was asked for explicitly and confirmed; it is recorded here because
 `dock_rows`' own docstring argues the opposite case, and a reader finding that
 docstring later should know it was overtaken rather than overlooked.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

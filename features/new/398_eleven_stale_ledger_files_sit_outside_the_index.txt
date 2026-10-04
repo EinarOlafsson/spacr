@@ -298,3 +298,5 @@ seven differed by their Status line only, 31 was a strict subset, and the two
 larger remainders (07, 05) were superseded text. `segmentation_qc_field_browser
 .txt` and `update_tutorials_README.txt` stay. The shadow test's KNOWN_SHADOWED
 is now empty, so a new stale twin fails it.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

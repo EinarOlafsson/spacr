@@ -178,3 +178,5 @@ Every fix mutation-checked: the old clamp fails the overlap test, an
 always-on counter fails two, a literal colour back in the chrome
 stylesheet fails two, and reverting the catalog guard fails both of its
 tests.
+
+VERIFIED 2026-10-04: the 7 test files this item names pass on CPU/offscreen.

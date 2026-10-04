@@ -91,3 +91,5 @@ The README badge block and the i18n README pipeline are covered by
 `tools/build_documentation_i18n.py` and the caption ratchet. Changing
 user-facing prose here MOVES THE RATCHET -- coordinate before re-pinning,
 or the pin lands on a tree that is still changing.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

@@ -260,3 +260,5 @@ WHAT STAYS TRUE AFTER THIS CLOSES: the five files exist on `main` ahead of the
 release rather than through it, so the next promotion carries the `nightly`
 copies over the top of identical content. `promote_to_main.py` does not strip
 them and needs no special step.
+
+VERIFIED 2026-10-04: community files present (CODE_OF_CONDUCT, CONTRIBUTING, SECURITY, PR and issue templates).

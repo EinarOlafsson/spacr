@@ -124,3 +124,5 @@ COMPLETION EVIDENCE (2026-08-30)
     Python 3.9-3.14 do not opt into prereleases.
   * ``tests/test_packaging_metadata.py``: 39 passed.
   * Fatal Ruff selection and ``git diff --check`` passed.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

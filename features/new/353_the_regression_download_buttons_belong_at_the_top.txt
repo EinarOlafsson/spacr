@@ -223,3 +223,5 @@ test_greying_is_not_regression_only (a `get_setting_dependencies` diff), and
 two captions a rename left behind -- `test_the_example_screen_button` wants
 "Load the example screen…" and `test_cov_r4_app_screen` wants "Load the
 example images", where the source says "Load test data…" at HEAD.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

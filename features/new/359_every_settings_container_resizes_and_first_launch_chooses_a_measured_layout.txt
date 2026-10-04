@@ -515,3 +515,5 @@ the artifact. They are NOT a bug count: they are settings columns that
 scroll sideways rather than squeeze their content, which is the behaviour
 the maintainer looked at and accepted. The harness stays because it is how
 anyone would notice the day content stops fitting its own minimum.
+
+VERIFIED 2026-10-04: the 4 test files this item names pass on CPU/offscreen.

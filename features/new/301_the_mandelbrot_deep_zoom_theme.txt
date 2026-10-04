@@ -81,3 +81,5 @@ and the guided path. What it took beyond the port:
     to the surface;
   * the camera follows continuously instead of moving in steps, which is
     what the reported jerking was.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

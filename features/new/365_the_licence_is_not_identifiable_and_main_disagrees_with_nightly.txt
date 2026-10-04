@@ -140,3 +140,5 @@ MIT HISTORY IS KEPT. Released versions through 1.4.9.9 remain under the MIT
 licence that accompanied them, and the README now records that PolyForm
 applied briefly between the two and has been withdrawn -- so a user who took
 the code in that window can tell what applied to them.
+
+VERIFIED 2026-10-04: LICENSE is BSD 3-Clause and pyproject license = "BSD-3-Clause".

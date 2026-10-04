@@ -478,3 +478,5 @@ ImageNet resnet18 on 5/5 folds, roughly half of it preprocessing; BiomedCLIP,
 not trained on cells, beats OpenPhenom by 6.8 points; every encoder loses to
 the measured panel, the best by 13.6 points. So this item's answer stays NO
 for every encoder measured so far. Nothing was re-run for this note.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

@@ -519,3 +519,5 @@ note above: the light-install limits live in `#` comments inside a literal
 block, so a reader of the German README sees those four sentences in
 English; closing that means moving them into prose in README.rst, not
 translating shell comments.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

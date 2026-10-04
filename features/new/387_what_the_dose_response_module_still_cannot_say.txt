@@ -648,3 +648,5 @@ move, and today's fix adds nothing further -- both new functions are
 private, and the one user-facing string it changes is a fit note, which is
 not in the caption layer. The four owed captions and fourteen owed API
 docstrings are unchanged.
+
+VERIFIED 2026-10-04: the 6 test files this item names pass on CPU/offscreen.

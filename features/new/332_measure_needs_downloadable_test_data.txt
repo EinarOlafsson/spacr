@@ -81,3 +81,5 @@ absolute wherever it lands. And every example set now unpacks into ONE folder,
 `~/.cache/spacr/example_data/plate1`, because `merged/`, `data/` and
 `measurements/measurements.db` are parts of one plate that are needed
 together.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

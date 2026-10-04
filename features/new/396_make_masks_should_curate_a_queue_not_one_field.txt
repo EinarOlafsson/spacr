@@ -594,3 +594,5 @@ Guard (tests/qt/test_the_editor_opens_on_the_queue_it_was_handed.py): a
 seed whose label 1 is in two pieces, an edit elsewhere (label 2 trimmed),
 save: the file holds 3 objects and status.csv records 3 (it recorded 2).
 Same-run results: that file plus 528/507/529 files, 77 passed.
+
+VERIFIED 2026-10-04: the 5 test files this item names pass on CPU/offscreen.

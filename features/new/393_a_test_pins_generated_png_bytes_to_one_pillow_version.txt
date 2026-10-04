@@ -206,3 +206,5 @@ The generator now WARNS, loudly, when it is running without Raqm: not a
 refusal, because ink-compared artwork from a BASIC build is still correct,
 but the forty-file diff is what this instruction exists to stop somebody
 committing without noticing.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

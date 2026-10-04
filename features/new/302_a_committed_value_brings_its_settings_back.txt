@@ -76,3 +76,5 @@ MEASURED, driving the real fields:
 
 Each rebuild costs about 0.5 s and happens on a COMMITTED value -- Enter or
 leaving the field -- never per keystroke.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

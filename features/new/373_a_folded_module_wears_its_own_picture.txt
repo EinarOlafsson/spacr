@@ -88,3 +88,5 @@ so it had been asserting the bug; removing the `agreement` override made both
 resolvers agree.
 
 190 tests pass across the icon, fold, dock, home and README suites.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

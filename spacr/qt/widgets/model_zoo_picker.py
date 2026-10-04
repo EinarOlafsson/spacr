@@ -68,6 +68,21 @@ _SOURCES_SETTING = "model_zoo/sources"
 _COLUMNS = ("Model", "Kind", "Trained on", "Status", "Version")
 
 
+def _store():
+    """The one preference store every spaCR install shares.
+
+    The same organisation and application pair the Preferences dialog
+    reads, so the download folder and the source headings live beside
+    every other preference rather than in a second file named after the
+    application's display identity.
+    """
+    from PySide6.QtCore import QSettings
+
+    from ..preferences import _APP, _ORG
+
+    return QSettings(_ORG, _APP)
+
+
 def remembered_model_dir() -> str:
     """The folder the user last downloaded into, or the default.
 
@@ -76,9 +91,7 @@ def remembered_model_dir() -> str:
     true across sessions, not only within one.
     """
     try:
-        from PySide6.QtCore import QSettings
-
-        stored = str(QSettings().value(_DIR_SETTING, "") or "")
+        stored = str(_store().value(_DIR_SETTING, "") or "")
         if stored:
             return stored
     except Exception:                                       # noqa: BLE001
@@ -89,9 +102,7 @@ def remembered_model_dir() -> str:
 def _remember_model_dir(folder: str) -> None:
     """Persist the download folder, quietly."""
     try:
-        from PySide6.QtCore import QSettings
-
-        QSettings().setValue(_DIR_SETTING, str(folder))
+        _store().setValue(_DIR_SETTING, str(folder))
     except Exception:                                       # noqa: BLE001
         pass
 
@@ -111,9 +122,7 @@ def remembered_sources() -> tuple:
 
     stored = None
     try:
-        from PySide6.QtCore import QSettings
-
-        settings = QSettings()
+        settings = _store()
         if settings.contains(_SOURCES_SETTING):
             stored = str(settings.value(_SOURCES_SETTING, "") or "")
     except Exception:                                       # noqa: BLE001
@@ -148,11 +157,9 @@ def _cellpose3_heading_turns_on(chosen) -> bool:
     if "cellpose3" in chosen:
         return False
     try:
-        from PySide6.QtCore import QSettings
-
         from ... import _segmentation_backends as backends
 
-        settings = QSettings()
+        settings = _store()
         if str(settings.value(_CELLPOSE3_SHOWN_SETTING, "") or "") == "1":
             return False
         if not backends._backend_state(backends._CELLPOSE3).ready:
@@ -171,9 +178,7 @@ def _cellpose3_heading_turns_on(chosen) -> bool:
 def _remember_sources(names) -> None:
     """Persist the headings that are on, quietly."""
     try:
-        from PySide6.QtCore import QSettings
-
-        QSettings().setValue(_SOURCES_SETTING, ",".join(str(n) for n in names))
+        _store().setValue(_SOURCES_SETTING, ",".join(str(n) for n in names))
     except Exception:                                       # noqa: BLE001
         pass
 

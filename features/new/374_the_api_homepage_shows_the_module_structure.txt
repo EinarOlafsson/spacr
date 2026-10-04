@@ -337,3 +337,5 @@ does. The files 374 owns in ec4bc55dd are:
 The other six files in that commit (spacr/qt/preferences.py,
 spacr/qt/screens/app_screen.py, the bottom-tooltip test and 371's own
 instruction file) belong to 371 and not to this.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

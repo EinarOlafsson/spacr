@@ -2835,3 +2835,5 @@ is satisfied. The newer N601 14-scene private Home stage and N610 refreshed
 Suggest captures are not claimed as part of this published release.
 Receipt: features/data/358_main_release_acceptance_2026-10-01.json.
 Full mobile evidence: tools/tutorials/evidence/2026-10-01-main-mobile-playback.json.
+
+VERIFIED 2026-10-04: the 9 test files this item names pass on CPU/offscreen.

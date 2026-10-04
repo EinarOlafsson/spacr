@@ -962,3 +962,5 @@ substitute. The September20 approval to remove Make Masks prose and the
 September25 landing-page/loader validation remain valid historical evidence.
 The current README has 21 Home tiles after the intentional four-assay to
 three-organism replacement in 1d5a80f78; measure that actual grid.
+
+VERIFIED 2026-10-04: the 10 test files this item names pass on CPU/offscreen.

@@ -853,3 +853,5 @@ The corpus has grown from the 38,368 blocks in the 2026-09-12 notes to
 
 NOT DONE: nothing in this item's scope is left. CONTRIBUTING.md is not
 translated and not in any catalog, so this note owes no translation.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

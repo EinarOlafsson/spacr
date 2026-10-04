@@ -30,7 +30,7 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QPointF, QSettings, Qt, QThread
+from PySide6.QtCore import QEvent, QPointF, Qt, QThread
 from PySide6.QtGui import QMouseEvent
 from PySide6.QtWidgets import QDialog, QTableWidgetItem
 
@@ -70,7 +70,7 @@ def _first_downloadable_row(picker):
 # ---------------------------------------------------------------------------
 
 def test_the_folder_used_last_time_is_offered_again(qapp, tmp_path):
-    QSettings().setValue(mzp._DIR_SETTING, str(tmp_path / "models"))
+    mzp._store().setValue(mzp._DIR_SETTING, str(tmp_path / "models"))
     assert mzp.remembered_model_dir() == str(tmp_path / "models")
 
 
@@ -90,7 +90,7 @@ def test_cancelling_the_folder_chooser_changes_nothing(picker, tmp_path,
                         staticmethod(lambda *a, **k: ""))
     picker._browse()
     assert picker.folder_edit.text() == str(tmp_path)
-    assert QSettings().value(mzp._DIR_SETTING, "") in ("", None)
+    assert mzp._store().value(mzp._DIR_SETTING, "") in ("", None)
 
 
 def test_a_folder_that_cannot_be_made_is_reported(picker, tmp_path,

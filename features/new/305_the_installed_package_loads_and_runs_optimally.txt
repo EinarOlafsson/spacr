@@ -499,3 +499,5 @@ WHAT REMAINS IN 305: an sdist trace alongside this wheel one, GPU
 evidence, the complete supported frozen-artifact matrix, representative
 pipeline profiles, and a measured disposition for every >=10 percent
 hotspot. The startup half is now evidence rather than a gap.
+
+VERIFIED 2026-10-04: the named tests pass; test_perf_guard had regressed (spacr.qt importing cv2/pyplot via measure_inputs), fixed concurrently in c9d77838a (item 55), green after it.

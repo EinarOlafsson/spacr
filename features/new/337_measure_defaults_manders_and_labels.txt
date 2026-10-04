@@ -402,3 +402,5 @@ that are not Measure settings (`png_dims`, `include_uninfected`, `n_job`,
 `manders_thresholds`, `plot_filtration`, `representative_images`). Two exist
 elsewhere in `settings.py`; four have no mention at all and may be renames.
 Handed to the other session in 325 rather than guessed at.
+
+VERIFIED 2026-10-04: corrected_manders gone from settings; spatial_measurements and object_distances default True.

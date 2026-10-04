@@ -598,3 +598,5 @@ for a setting that has no visible control. A comment costs nothing and reaches
 the only person who can be misled.
 
 NOTHING IS LEFT IN 327.
+
+VERIFIED 2026-10-04: the 4 test files this item names pass on CPU/offscreen.

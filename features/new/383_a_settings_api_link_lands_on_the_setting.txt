@@ -652,3 +652,5 @@ WHAT THIS INSTRUCTION HAS LEFT: nothing. 622 of 800 links land on a
 function anchor, 155 on the settings-flow page, and the 23 that land on a
 module page are the two causes above -- one a recorded decision, the other
 a defect in a different instruction.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

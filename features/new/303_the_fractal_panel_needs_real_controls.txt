@@ -153,3 +153,5 @@ settings with no control of their own.
 
 Run today, serial: 5 tests from test_the_fractal_fields_are_not_capped.py and 3
 from test_the_backdrop_keys_and_groups.py -- 8 passed.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

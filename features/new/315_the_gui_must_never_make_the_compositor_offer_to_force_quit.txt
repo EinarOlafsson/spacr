@@ -419,3 +419,5 @@ THE THIRD TARGET IS CONFIRMED AND BIGGER THAN THE NOTE SAYS.
 rank, Effect distribution, p-values, Q-Q, Controls, Residuals,
 Scale-location, Influence, Annotation check, Summary, Guide support, Gene.
 The `indexOf(self.effect_rank)` call the note warns about is at line 892.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

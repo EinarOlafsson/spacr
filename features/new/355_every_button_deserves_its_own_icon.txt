@@ -237,3 +237,5 @@ settings heading at once. The one-line fixes, in the order to prefer them:
 
 `tests/qt/test_every_button_deserves_its_own_icon.py` fails the day a new
 key or a new `icon("name")` call site misses, and names it.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

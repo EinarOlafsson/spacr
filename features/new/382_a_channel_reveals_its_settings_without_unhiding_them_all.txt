@@ -211,3 +211,5 @@ see the defect it is named for is the shape this ledger keeps meeting.
 Handed to the session that wrote 382 rather than fixed here: the change is
 theirs, four hours old, and which of its three parts should carry the fix is
 a question about what they intended.
+
+VERIFIED 2026-10-04: the 4 test files this item names pass on CPU/offscreen.

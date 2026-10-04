@@ -547,3 +547,5 @@ at publication. Reviewed translations here are AI-reviewed, not a claim of
 native-speaker certification. The real downloads and a full real-data run
 were not repeated; cached shipped packs and focused integration tests were
 used instead.
+
+VERIFIED 2026-10-04: the 5 test files this item names pass on CPU/offscreen.

@@ -656,3 +656,5 @@ file will otherwise repeat.
 following the setting (step 3, 2026-09-02), the carried lettering and the
 raised ceiling (step 2, today), and the vocabulary reconciliation (today).
 The hold on `spacr/schema.py` is released.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

@@ -174,3 +174,5 @@ DONE MEANS
 * No cell claims acceleration the resolver reports as detected-but-not-
   usable. That distinction is 319's, and a table is exactly where it
   would get flattened.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

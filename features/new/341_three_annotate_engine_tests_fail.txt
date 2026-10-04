@@ -145,3 +145,5 @@ number was stale by 35 lines. It now names the code instead of a line number.
 THREE OTHER ANNOTATE FAILURES WERE FOUND WHILE DOING THIS and are NOT part of
 this item. They are filed as 345; all three were verified to fail at HEAD with
 this item's changes stashed, so none is a regression from this work.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

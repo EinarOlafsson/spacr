@@ -181,3 +181,5 @@ commit ``3c1ca30bd``. Publication success, mid-publication rollback, empty
 staging, malformed time names, shorter reruns, stale mask/merged invalidation,
 preprocessing-only preservation, partial reads, and the original V1/V2
 scenarios pass in the final bounded 162-test run.
+
+VERIFIED 2026-10-04: test_io_v1_illumination passes; Mask settings document illumination before segmentation.

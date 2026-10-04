@@ -319,3 +319,5 @@ passed.
 
 Found, outside scope: the plaque RUN's zoo-key branch still calls
 model_zoo.fetch every time, with no local-copy check (submodules.py:1277).
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

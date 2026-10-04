@@ -78,3 +78,5 @@ A SECOND DEFECT WAS FOUND IN THE FIX and is worth remembering: carrying the
 image alone left a picture above an EMPTY set table, and since `_image_path`
 came across too the panel read as already-loaded, so pressing Choose appeared
 to do nothing. The carry now rebuilds the table as well.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

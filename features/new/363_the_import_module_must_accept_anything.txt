@@ -436,3 +436,5 @@ off a setting that still works.
 LAND IS DONE: the corpus answers ten of ten, tiles are stitched back into
 fields by default with the option not to, the screen shows the plan before it
 writes anything, and a destination inside the source is refused.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

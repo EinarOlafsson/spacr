@@ -146,3 +146,5 @@ HOW IT WILL BE CHECKED
 * Part 3: `spacr-download --help` works with no display and no torch;
   `--list` prints every piece with its size without downloading; a bare
   run does not start the screen; tests mock the network entirely.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

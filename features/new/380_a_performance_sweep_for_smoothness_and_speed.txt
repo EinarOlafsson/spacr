@@ -2355,3 +2355,5 @@ macOS runner 2.2x slower in wall clock (89 s vs 40 s per sweep) and
 measured 552-853 ms, so a single slow runner can still cross 500.
 Area 3 is met on hosted offscreen runners at normal speed; a real display/
 compositor and lower-end hardware remain open.
+
+VERIFIED 2026-10-04: the 15 test files this item names pass on CPU/offscreen.

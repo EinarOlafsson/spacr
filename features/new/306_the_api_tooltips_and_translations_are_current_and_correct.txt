@@ -2169,3 +2169,5 @@ The test is tests/qt/test_dose_response_summaries_do_not_fall_back_to_english.py
 the evidence files are reviewed/runtime/<locale>/2026-09-15-dose-response-
 summary-repair.json under docs/i18n/. This does not close 316's broader
 semantic/human-review work or claim a full-repository CI verdict.
+
+VERIFIED 2026-10-04: the 11 test files this item names pass on CPU/offscreen.

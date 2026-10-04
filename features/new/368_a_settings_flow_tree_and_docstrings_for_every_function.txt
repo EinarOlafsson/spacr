@@ -825,3 +825,5 @@ checks which otherwise skip when it is absent. Final current-artifact and
 API-link validation: 11 passed, no skips, in 39.83 seconds under a 4G cap.
 Log: /mnt/wd4tb/scratch/spacr-completion/settings-doc-acceptance-tests.log.
 No test ceiling, runtime setting, API signature or translation source changed.
+
+VERIFIED 2026-10-04: the 10 test files this item names pass on CPU/offscreen.

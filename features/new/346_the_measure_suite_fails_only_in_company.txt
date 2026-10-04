@@ -450,3 +450,5 @@ No order-dependent Measure failure remains in the reproduction, and the
 unrelated baseline failure it uncovered is fixed rather than left as a named
 exception. This satisfies both acceptance paths: the formerly failing tests
 pass alone and together, and each mechanism is recorded above.
+
+VERIFIED 2026-10-04: the 15 test files this item names pass on CPU/offscreen.

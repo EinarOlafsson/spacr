@@ -136,3 +136,5 @@ Acceptance evidence:
 * The migration test proves both legacy namespaces are read, pre-existing
   canonical values are retained, and the legacy key/value maps remain byte-
   for-value unchanged.
+
+VERIFIED 2026-10-04: test_one_settings_store passes; fixed model_zoo_picker writing a second "Olafsson Lab/spaCR" store, now through the shared spacr/qt store, with two new tests.

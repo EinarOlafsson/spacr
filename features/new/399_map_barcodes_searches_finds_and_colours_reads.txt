@@ -115,3 +115,5 @@ The engine does not reverse-complement the reference tables. It was claimed
 early that it must; the reads use the `primers_3` tables and row identity is
 present at 98.28 %, so the claim was wrong and was retracted rather than
 coded around.
+
+VERIFIED 2026-10-04: spacr/barcode_search.py present; test_barcode_search and test_a_barcode_set_is_any_number_of_barcodes pass.

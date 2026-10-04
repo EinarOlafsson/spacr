@@ -6259,3 +6259,5 @@ tests/test_the_ops_engine_runs_a_well_end_to_end.py::
 test_two_wells_with_stored_reads_resume_without_rerunning decodes two
 wells with stored reads, resumes through the real driver and asserts
 neither reruns. Before the fix, A2 reran.
+
+VERIFIED 2026-10-04: the 10 test files this item names pass on CPU/offscreen.

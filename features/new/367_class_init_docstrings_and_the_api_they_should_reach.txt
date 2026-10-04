@@ -455,3 +455,5 @@ count:
     and never read it -- so the line says "ownership only", which tells a
     reader nothing was left out. An incomplete list cannot distinguish a
     boring parameter from a forgotten one.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

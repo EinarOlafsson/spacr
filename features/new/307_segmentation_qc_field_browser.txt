@@ -189,3 +189,5 @@ restore round trip, immutable masks, ``merged/*.npy`` exclusion, audit JSON,
 clicked-field positioning, stale/missing fields, active-run refusal, keyboard
 navigation and the non-blocking invariant. The implementation therefore meets
 all acceptance points in this instruction and the item is closed.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

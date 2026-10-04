@@ -263,3 +263,5 @@ contain it". The premise was right and the conclusion did not follow: the pack
 holds a real path, and the literal the maintainer saw came from a file this
 session never downloaded. The step that actually solved it was reading the
 CALLER, not the data.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

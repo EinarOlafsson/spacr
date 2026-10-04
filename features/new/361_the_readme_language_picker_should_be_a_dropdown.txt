@@ -213,3 +213,5 @@ each confirmed against `git show HEAD:`: the README never mentions
 `python -m pip install` in all ten; the API docstring inventory has moved from
 8,861 to 9,213 symbols; and the module registry the localized-image test
 counts reads 21 where it expects 44.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

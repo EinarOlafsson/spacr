@@ -27,13 +27,13 @@ def _zoo_preferences_are_put_back(qapp):
     from PySide6.QtCore import QSettings
 
     keys = (mzp._SOURCES_SETTING, mzp._CELLPOSE3_SHOWN_SETTING)
-    settings = QSettings()
+    settings = mzp._store()
     before = {key: settings.value(key) for key in keys
               if settings.contains(key)}
     for key in keys:
         settings.remove(key)
     yield
-    settings = QSettings()
+    settings = mzp._store()
     for key in keys:
         settings.remove(key)
         if key in before:

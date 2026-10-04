@@ -1364,3 +1364,5 @@ the awaiting set. English API remains current at 11,865 symbols, with zero
 required-parameter omissions (two source-bound checks passed).
 Receipt: features/data/316_runtime_alpha_delta_2026-09-28.json and .xml.
 This closes this bounded source delta, not human or native-speaker review.
+
+VERIFIED 2026-10-04: the 6 test files this item names pass on CPU/offscreen.

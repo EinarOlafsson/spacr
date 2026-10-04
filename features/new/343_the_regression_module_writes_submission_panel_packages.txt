@@ -112,3 +112,5 @@ HOW IT WILL BE CHECKED
   page is inspected.
 * The focused regression layout and panel-package tests are green, followed
   by the regression test subset under the repository memory guard.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

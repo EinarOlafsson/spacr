@@ -109,3 +109,5 @@ Cheapest first, and each has its next step written into its own file:
        the measured cost of doing this with a per-row event filter -- do not.
   315  Three named optimisations, all needing a real display to re-measure.
   305, 314, 327  All need a real display and a quiet machine.
+
+VERIFIED 2026-10-04: session record; test_run_finished_notifications passes.

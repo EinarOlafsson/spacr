@@ -1774,3 +1774,5 @@ The 480x320 bottom screenshot was visually inspected. Artifacts are under
 /mnt/firecuda2/Claude/implementation-20260922/annotate-settings-*.png.
 This proves the reproduced geometry defect fixed on Linux/offscreen; it is
 not a claim to have run a macOS desktop. Issue 128's local repair is complete.
+
+VERIFIED 2026-10-04: the 34 test files this item names pass on CPU/offscreen.

@@ -101,3 +101,5 @@ NOT DONE, and deliberately not held for: there is no test that presses a child
 row. Nothing in ``tests/qt`` names ``_fold_children`` or ``_open_hosts``. That
 belongs to 288's coverage lane rather than to this item, and it is recorded
 in 310 rather than here so it is not lost.
+
+VERIFIED 2026-10-04: test_the_dock_is_icon_text_and_categories passes.

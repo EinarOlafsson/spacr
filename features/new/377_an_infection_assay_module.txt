@@ -363,3 +363,5 @@ NO NEW SETTING AND NO NEW CAPTION. The report is emitted when it can be,
 which means nothing to translate and nothing for a user to configure
 wrongly. If it should be optional, that is a smaller question than the one
 just answered and can be asked when somebody wants it off.
+
+VERIFIED 2026-10-04: spacr/infection.py present; test_a_measure_run_emits_its_infection_report and test_infection_rate_is_refused_when_uninfected_were_not_measured pass.

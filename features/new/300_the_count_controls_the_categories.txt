@@ -68,3 +68,5 @@ DONE 2026-08-28. Measured on Mask, through the real nav path:
 All of it is decided when the panel is built and never while typing, which
 is the distinction the hang taught: worst keystroke into a channel is under
 200 ms and asserted.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

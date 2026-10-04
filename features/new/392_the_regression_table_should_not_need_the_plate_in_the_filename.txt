@@ -220,3 +220,5 @@ selected, a typed label survives both a move and a delete. The existing
 move/remove/pin tests in test_cov_w3_8_file_list.py,
 test_cov_wf_qt_widgets_file_list.py and test_measurements_database_per_plate.py
 pass unchanged (248 passed across the six files).
+
+VERIFIED 2026-10-04: the 4 test files this item names pass on CPU/offscreen.

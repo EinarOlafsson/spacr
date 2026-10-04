@@ -188,3 +188,5 @@ left one row blue with its name showing. Both are reset together now: two
 things that mean "the pointer is no longer here" cannot disagree.
 
 15 new tests, 144 pass across the dock, fold, theme and icon suites.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

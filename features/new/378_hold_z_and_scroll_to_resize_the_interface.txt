@@ -248,3 +248,5 @@ Fixed in `features/new/433_icons_follow_the_zoom.txt`, in the settle half,
 at 5.5 ms against that step's ~400 ms. NOTHING was added to the per-notch
 live half this file's condition is about: `spacr/qt/live_zoom.py`'s
 executable code is AST-identical before and after -- only its prose changed.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

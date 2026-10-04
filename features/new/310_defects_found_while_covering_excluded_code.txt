@@ -3994,3 +3994,5 @@ WHERE ITS SUCCESSOR LIVES: 288 for the coverage sweep, 352 for the standing
 "highest reasonable coverage" goal. A defect found in passing still gets fixed
 or filed -- that standing rule is in HANDOFF section 6 and does not depend on
 this file existing.
+
+VERIFIED 2026-10-04: the 28 test files this item names pass on CPU/offscreen.

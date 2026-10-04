@@ -275,3 +275,5 @@ Final evidence on commit ``b2dd50ff``:
 
 This completes dependency declaration and bundle completeness. Startup and
 per-screen resource budgets remain separately owned by instruction 305.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

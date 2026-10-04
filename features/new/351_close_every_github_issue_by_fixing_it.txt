@@ -90,3 +90,5 @@ HOW IT WILL BE CHECKED
 * `gh issue list --state open` returns nothing, or every remaining issue has a
   comment saying what it is waiting on and who it is waiting for.
 * Every issue closed by a code change names the commit on the issue.
+
+VERIFIED 2026-10-04: gh issue list shows no open issues.

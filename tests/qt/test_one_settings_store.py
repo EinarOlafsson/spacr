@@ -61,3 +61,30 @@ def test_both_legacy_spellings_migrate_without_being_changed(
     assert {
         key: case_drift.value(key) for key in case_drift.allKeys()
     } == case_before
+
+
+def test_the_model_zoo_folder_lands_in_the_preference_store(
+        tmp_path, monkeypatch):
+    from PySide6 import QtCore
+
+    from spacr.qt.widgets import model_zoo_picker as mzp
+
+    make = _ini_factory(tmp_path)
+    monkeypatch.setattr(QtCore, "QSettings", make)
+    monkeypatch.setattr(preferences, "QSettings", make)
+
+    mzp._remember_model_dir("/models/here")
+
+    assert mzp._store().fileName() == preferences._settings().fileName()
+    assert preferences._settings().value(mzp._DIR_SETTING) == "/models/here"
+    assert mzp.remembered_model_dir() == "/models/here"
+
+
+def test_no_module_opens_a_store_named_after_the_display_identity():
+    import re
+
+    root = Path(preferences.__file__).resolve().parents[1]
+    bare = [str(path.relative_to(root)) for path in root.rglob("*.py")
+            if re.search(r"\bQSettings\(\s*\)", path.read_text(
+                encoding="utf-8", errors="replace"))]
+    assert bare == []

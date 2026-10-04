@@ -88,3 +88,5 @@ THE METHOD, BECAUSE IT COST TWO HOURS AND SHOULD COST LESS NEXT TIME
 
 The repository's standing warning -- the header often says "not started" when
 it is done -- is now measured at five of twenty-three in one sweep.
+
+VERIFIED 2026-10-04: tools/build_instruction_index.py and features/00_INDEX.txt present.

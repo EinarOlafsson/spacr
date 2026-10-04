@@ -3042,3 +3042,5 @@ API/publication work remains tracked separately under 411/358.
 Receipt: features/data/316_runtime_codex_delta_2026-09-27.json.
 Review: docs/i18n/2026-09-27-runtime-codex-delta.md.
 AI technical review (Codex), no native-speaker signoff.
+
+VERIFIED 2026-10-04: the 32 test files this item names pass on CPU/offscreen.

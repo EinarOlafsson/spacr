@@ -151,3 +151,5 @@ after the item is closed: the add/add recovery took 904 conflicting paths
 to 32 by hand, and the rule that git's base is the MERGE BASE's blob --
 often not the newest shared state on long-diverged branches -- is worth
 more than this one merge.
+
+VERIFIED 2026-10-04: tags v1.5.0.7-v1.5.0.9 exist and origin/main is current.

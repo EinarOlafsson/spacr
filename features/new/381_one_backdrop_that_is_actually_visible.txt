@@ -713,3 +713,5 @@ OF THIS ITEM: nothing". Checked against the tree today, not against the notes:
 
 Nothing new was built or run for this note; it corrects the header to what
 the file and the code already said.
+
+VERIFIED 2026-10-04: the 7 test files this item names pass on CPU/offscreen.

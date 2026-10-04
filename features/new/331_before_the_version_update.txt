@@ -500,3 +500,5 @@ update this file was the "before" list for has happened, so the item is done.
 
 NOT CLAIMED: that every step above was followed for each of the four
 releases. This note checks the outcome, not the procedure.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

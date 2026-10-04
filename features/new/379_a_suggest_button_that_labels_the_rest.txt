@@ -350,3 +350,5 @@ made.
 THEREFORE: nothing to implement here without an answer, and implementing
 past the guard without one is how the overwrite this file spent PART 2
 forbidding gets built back in. ASK, DO NOT BUILD.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

@@ -407,3 +407,5 @@ the result be "written into 386 as a NEW TABLE beside the 2026-09-12 figures".
 columns of the RESULTS table above are now at the foot of 386, dated
 2026-09-19, as a separate table with the plate named and a warning not to
 read it as one column with 2026-09-12's.
+
+VERIFIED 2026-10-04: test_embedding_input_and_provenance passes.

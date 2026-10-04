@@ -420,3 +420,5 @@ nothing tells it.
   reading the file rather than by any check, because a header claiming MORE
   work than exists is invisible to every gate: nothing fails when a done thing
   says it is open.
+
+VERIFIED 2026-10-04: the 4 test files this item names pass on CPU/offscreen.

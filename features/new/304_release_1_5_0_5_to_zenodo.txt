@@ -179,3 +179,5 @@ version had advanced but both version-DOI fields still named 1.5.0.8's
 record API, its version/concept and spaCR repository/PyPI links. Receipt:
 features/data/59_conda_publication_2026-09-23.json. Existing packaging checks
 pass after the citation and mirror corrections; no new release was made.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

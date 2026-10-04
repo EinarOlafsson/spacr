@@ -335,3 +335,5 @@ The exact commands, so the next person does not have to reconstruct them:
     # in company -- the working set
     pytest -q -p no:randomly $(ls tests/qt/*annotate*.py) \
       tests/qt/test_every_settings_window_resizes.py -k annotate
+
+VERIFIED 2026-10-04: the 9 test files this item names pass on CPU/offscreen.

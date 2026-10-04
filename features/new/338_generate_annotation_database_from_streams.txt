@@ -164,3 +164,5 @@ THE TABLE SELECTOR THIS FILE ASKED FOR IS ALSO DONE. Every reader in
 generated set is simply what the screen is looking at. The SaveWorker takes it
 too, which is the half that mattered most: a writer pointed at the wrong table
 would put a user's labels on somebody else's rows.
+
+VERIFIED 2026-10-04: test_the_generate_annotation_database_button and test_the_annotation_dataset_generator pass.

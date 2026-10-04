@@ -182,3 +182,5 @@ forgot category help entirely), every setting keeps the popup that carries its
 links, and every setting a module offers has a tooltip. 20 passed.
 
 CLOSING. All four parts hold and are asserted.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

@@ -291,3 +291,5 @@ icon-resource tests resolve their paths from that module's `__file__`. Run
 alone with the same plugin they still fail; run alone without it they pass.
 `test_the_sidebar_re_inks_its_icons_when_the_theme_changes` is the seventh and
 was already recorded in part 1 as failing at HEAD in isolation.
+
+VERIFIED 2026-10-04: SECTION_HELP "Help" in spacr/qt/app.py; test_home_layout passes.

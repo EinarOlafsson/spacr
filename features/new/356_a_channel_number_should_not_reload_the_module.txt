@@ -217,3 +217,5 @@ the run-in-flight fallback). Every other tests/qt file naming
 number_of_organelles (23 files) passes except test_settings_search's two,
 which fail identically on nightly without this change (cellpose3 rows
 unreachable; an order-dependent size check).
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

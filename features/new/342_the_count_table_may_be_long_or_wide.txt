@@ -96,3 +96,5 @@ with a narrative legend, plot-only PNG, point-level CSV, statistics CSV) and
 its tests pass, but `write_panel_package` has NO CALLER anywhere in spaCR --
 there is no way for a user to reach it. It needs its own instruction, with the
 maintainer's ask in it, before it is wired to anything.
+
+VERIFIED 2026-10-04: the 2 test files this item names pass on CPU/offscreen.

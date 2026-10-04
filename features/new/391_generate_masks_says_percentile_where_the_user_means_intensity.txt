@@ -524,3 +524,5 @@ discharged by this. "A green build is not a green audit" was written about
 translated prose, not about key names, and nothing here inspected a single
 translation for meaning. What is checked above is that no artifact names a
 setting that does not exist.
+
+VERIFIED 2026-10-04: the 3 test files this item names pass on CPU/offscreen.

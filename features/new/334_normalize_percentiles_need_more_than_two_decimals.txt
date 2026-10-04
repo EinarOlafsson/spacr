@@ -65,3 +65,5 @@ DONE, 2026-09-01
 `percentile_pair.DECIMALS` raised from 3 to 6, matching what make_masks
 already accepted. The two controls set the same setting and disagreed about
 how precisely it could be written.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.

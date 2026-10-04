@@ -518,3 +518,5 @@ them. 9 passed. Red before AND after this change, not caused by it:
 test_the_settings_panel_nests (Intensity Handling), the stranded
 DINOCell/SAMCell reviewed translations, and seven runtime-catalog/coverage
 tests.
+
+VERIFIED 2026-10-04: the 4 test files this item names pass on CPU/offscreen.

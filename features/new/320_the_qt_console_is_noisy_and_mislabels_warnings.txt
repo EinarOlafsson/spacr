@@ -466,3 +466,5 @@ holding it.
 
 app_screen.py was owned by the concurrent session, which agreed to the
 change and asked for it to be pushed here.
+
+VERIFIED 2026-10-04: the 1 test files this item names pass on CPU/offscreen.
