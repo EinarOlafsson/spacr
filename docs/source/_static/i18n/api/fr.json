@@ -62138,6 +62138,84 @@
         "1922930475b65c9519a3b1c584a959d8b5f3affa561142f34141780baa80f913"
       ]
     },
+    "spacr.plot._panel_thumbnail._zscored": {
+      "source_blocks_sha256": [
+        "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971"
+      ],
+      "source_sha256": "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971",
+      "text": "Standardise une signature, ou renvoie None lorsque sa dispersion est inutilisable.",
+      "translation_source_blocks_sha256": [
+        "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971"
+      ]
+    },
+    "spacr.plot._plot_cropped_arrays.plot_single_array": {
+      "source_blocks_sha256": [
+        "5d941ea462024018febacfa60fd42efe21d71e101d19c1faf66575c067353f0f",
+        "3b3959cd1075cb72b28b36cc645a2c2732d76c81ccff033e161b55948aee0c50"
+      ],
+      "source_sha256": "61ca32d726eb832d03786617fba21cea952f96005bcd83386c370e9cccfd4dfd",
+      "text": "Dessine un canal de ``stack`` sur ``ax``. Aucune barre de couleurs n'est dessinée.\n\nArgs: array (ndarray) : Un plan 2D de ``stack``. C'est son nombre de valeurs distinctes, et non son dtype, qui décide s'il est traité comme une image d'intensité ou comme un masque d'étiquettes -- un plan uint8, qui peut contenir au plus 256 valeurs distinctes, est donc toujours pris pour un masque avec le ``threshold`` par défaut de 500. ax (matplotlib.axes.Axes) : Axes sur lesquels on dessine sur place ; leur cadre et leurs graduations sont désactivés, le titre est fixé à la taille 18, et rien n'est renvoyé. title (str) : Titre du panneau. Lorsque le plan est traité comme un masque, le nombre d'objets est ajouté sous la forme ``\", N (obj.)\"``. Ce nombre est celui des valeurs distinctes non nulles, donc la valeur de fond 0 n'est jamais comptée, mais une valeur négative est comptée comme un objet. chosen_cmap (Colormap) : Carte de couleurs pour le cas d'intensité uniquement. Elle est écartée lorsque le plan n'a pas plus de ``threshold`` valeurs uniques (l'argument de la fonction englobante, par défaut ``500``), car une carte de couleurs aléatoire -- noire à l'indice 0, une couleur opaque aléatoire par étiquette non nulle -- est générée à la place pour que les objets voisins restent distinguables.",
+      "translation_source_blocks_sha256": [
+        "5d941ea462024018febacfa60fd42efe21d71e101d19c1faf66575c067353f0f",
+        "7c5273435629f27c5ffdac2ee0deb6f1397033c8cd178d51ec0fcc0e3fbd48b6"
+      ]
+    },
+    "spacr.plot._save_scimg_plot._visualize_scimgs": {
+      "source_blocks_sha256": [
+        "aa78df36630bf133794070369e008eaba016597e237abecd70e8ec0cda283951",
+        "ec4293da4988ac9eb0d4f25a226cdb6a5b37d869d1f1c0b9e1f01dd5470a25e7",
+        "97a226c3d0f3099bc0ca299eb7f289c5d39efc94c3768fc054801bc46468d04d"
+      ],
+      "source_sha256": "555e78f96b6081a53382f26f15a2d5bf39c0acb3256f054805133d996d18559c",
+      "text": "Visualise des images de cellules individuelles.\n\nArgs: src (str) : Le chemin du répertoire source. channel_indices (list, optional) : Liste des indices de canaux à visualiser. Par défaut None. um_per_pixel (float, optional) : Micromètres par pixel. Par défaut 0.1. scale_bar_length_um (float, optional) : Longueur de la barre d'échelle en micromètres. Par défaut 10. show_filename (bool, optional) : Indique s'il faut afficher le nom du fichier sur l'image. Par défaut True. standardize (bool, optional) : Indique s'il faut standardiser les tailles d'image. Par défaut True. nr_imgs (int, optional) : Le nombre d'images à visualiser. Par défaut None. fontsize (int, optional) : Taille de police du nom de fichier. Par défaut 8. channel_names (list, optional) : Liste des noms de canaux. Par défaut None. plot (bool, optional) : Indique s'il faut tracer les images. Par défaut False.\n\nReturns: matplotlib.figure.Figure : L'objet figure contenant les images tracées.",
+      "translation_source_blocks_sha256": [
+        "aa78df36630bf133794070369e008eaba016597e237abecd70e8ec0cda283951",
+        "8a768a7e0e43a6e458814398c1092215249dc2b2bec6deff5eba87a7c6231f06",
+        "97a226c3d0f3099bc0ca299eb7f289c5d39efc94c3768fc054801bc46468d04d"
+      ]
+    },
+    "spacr.plot._save_scimg_plot._visualize_scimgs._generate_filelist": {
+      "source_blocks_sha256": [
+        "b94765212c26ae62427267878365b919b3ae308f7f774b1e1089502f5a90a9b9",
+        "6d358b5e779c694b49b660fbee3437f6340499c083c9d12790bf0c416597f376",
+        "161d5d3acc0be763b93be70b6856181040427a085ae8a51c2da3450e21a9b1ad"
+      ],
+      "source_sha256": "32fbb1da91cae2fd250882b89fab0684cb6dddbdbd2653661571ae936e5ef438",
+      "text": "Génère une liste des fichiers image du répertoire indiqué.\n\nArgs: src (str) : Le chemin du répertoire source.\n\nReturns: list : Une liste de chemins de fichiers image.",
+      "translation_source_blocks_sha256": [
+        "b94765212c26ae62427267878365b919b3ae308f7f774b1e1089502f5a90a9b9",
+        "6d358b5e779c694b49b660fbee3437f6340499c083c9d12790bf0c416597f376",
+        "161d5d3acc0be763b93be70b6856181040427a085ae8a51c2da3450e21a9b1ad"
+      ]
+    },
+    "spacr.plot._save_scimg_plot._visualize_scimgs._random_sample": {
+      "source_blocks_sha256": [
+        "364de1e28b1ab89bce047bd537bd2b2591b25cdbd625791fc77feb151b66b17f",
+        "944cb6e71716091fa5d401365ba1201b21a66ec5d6b63da60210dc20c7aa9147",
+        "01b202c5a236152bb56ef055fadd2e9e79434e0ffa343f2324b048eb243fcf12"
+      ],
+      "source_sha256": "97b60c8a18e7b7d72b8cdd8fa408cab7d20295ce7458aea4f6f2c6494f2caf50",
+      "text": "Sélectionne au hasard un sous-ensemble de fichiers dans la liste donnée.\n\nArgs: file_list (list) : Une liste de noms de fichiers. nr_imgs (int, optional) : Le nombre de fichiers à sélectionner. Si None, tous les fichiers sont sélectionnés. Par défaut None.\n\nReturns: list : Une liste de noms de fichiers choisis au hasard.",
+      "translation_source_blocks_sha256": [
+        "364de1e28b1ab89bce047bd537bd2b2591b25cdbd625791fc77feb151b66b17f",
+        "944cb6e71716091fa5d401365ba1201b21a66ec5d6b63da60210dc20c7aa9147",
+        "01b202c5a236152bb56ef055fadd2e9e79434e0ffa343f2324b048eb243fcf12"
+      ]
+    },
+    "spacr.plot._visualize_and_save_timelapse_stack_with_tracks._view_frame_with_tracks": {
+      "source_blocks_sha256": [
+        "6afa9183b469784bfa31772f0970f47d9a48a930218e30ca6413b9c5654efab3",
+        "5c749cc63057e5f39a878b42d2d36700ba2b42b8974b830f932a9d6cacdfa959",
+        "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974"
+      ],
+      "source_sha256": "bb5fe0cc03e865f2f1dab6e1875c8174174a9eb035a58498b5b095bf76f9d439",
+      "text": "Affiche l'image avec les trajectoires superposées.\n\nParamètres : frame (int) : Le numéro de l'image à afficher.\n\nRenvoie : None",
+      "translation_source_blocks_sha256": [
+        "6afa9183b469784bfa31772f0970f47d9a48a930218e30ca6413b9c5654efab3",
+        "5c749cc63057e5f39a878b42d2d36700ba2b42b8974b830f932a9d6cacdfa959",
+        "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974"
+      ]
+    },
     "spacr.plot.create_grouped_plot": {
       "source_blocks_sha256": [
         "97266735efb8c6b9a6fcb314654e8daa973f1e41b5206d95666b083ccf4e856d",
@@ -62360,6 +62438,34 @@
         "596368bff72d9450c9be04fc4114dc90cc828dbad7b0c4cf2d302f6aa68dc96c"
       ]
     },
+    "spacr.plot.jitterplot_by_annotation._resolve_well_column": {
+      "source_blocks_sha256": [
+        "8c0031020dfb4d5e47257a27af607916c67d1316951df6b54d9f35fcaa0df1fe"
+      ],
+      "source_sha256": "8c0031020dfb4d5e47257a27af607916c67d1316951df6b54d9f35fcaa0df1fe",
+      "text": "Renvoie la première graphie de la colonne des puits : ``_x``, sans suffixe ou ``_y``.",
+      "translation_source_blocks_sha256": [
+        "af997034775dc7fcdc10a66e58354e20abbe9ab0001e85b3d71d13da1e8498ad"
+      ]
+    },
+    "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation": {
+      "source_blocks_sha256": [
+        "156d98507d9ddf18f4a01f2e6cfe396a63939ce1806fa2c9eb18eb93281bcd57",
+        "eaca8672f15f07712322779b7a7ddbe08dfe36e913a7d7741597bd6a39716a39",
+        "d333988acc4958d45a7af3cda7b3562e81ed7d3fb30145005f4095d3b2753a4c",
+        "4516c51ec228fdb43b2ec44923229b2e816ee82f9562ceff5ac225bc833a2621",
+        "9fe804238b015f7a89227ebb71107c57a55faabf7a7033948f91fec3d690f8ca"
+      ],
+      "source_sha256": "0f22717ff6a6da7d5d0d079bfed3a1c773dd47ae0e091355e07af4e85cc9b8ff",
+      "text": "Joint les tables de mesures par objet à la table d'annotation ``png_list``.\n\n:param src: Répertoire d'expérience spaCR ; la base est lue depuis ``<src>/measurements/measurements.db`` et aucune autre organisation n'est prise en charge — passez le dossier de l'expérience, pas le fichier ``.db``.\n:param tables: Tables d'objets à fusionner, jointes sur ``prcfo``. Chaque nom indiqué doit exister dans la base.\n:returns: Une ligne par objet, avec le chemin du recadrage de ``png_list`` ajouté par une jointure externe gauche.\n:raises pandas.errors.MergeError: si ``png_list`` contient plus d'un recadrage par ``prcfo`` ; la jointure est validée en ``one_to_one`` précisément pour que des recadrages dupliqués ne puissent pas multiplier silencieusement les lignes de mesure et gonfler le graphique de dispersion.",
+      "translation_source_blocks_sha256": [
+        "156d98507d9ddf18f4a01f2e6cfe396a63939ce1806fa2c9eb18eb93281bcd57",
+        "eaca8672f15f07712322779b7a7ddbe08dfe36e913a7d7741597bd6a39716a39",
+        "d333988acc4958d45a7af3cda7b3562e81ed7d3fb30145005f4095d3b2753a4c",
+        "4149a6f4f067d5f99ac71b5ba14e891bf2d129536f3d80df1d446e72e7702864",
+        "0cbacf403232d935dcc33301f559a33e27e719c566b7528f11009ad80bcd6381"
+      ]
+    },
     "spacr.plot.normalize_and_visualize": {
       "source_blocks_sha256": [
         "07e5b622ab988773a4741236ae4990210ffa55f8e3be030c8d5ba92a24ca0338",
@@ -62416,6 +62522,20 @@
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
         "28c36a7cccec3b48b418bf96b5b89a3de3309a80ab9ca99dff7d0a836b92de53"
+      ]
+    },
+    "spacr.plot.overlay_masks_on_images.normalize_image": {
+      "source_blocks_sha256": [
+        "7de34cf9a98a3a5fcbd4a806c4318b07baa59453db7a8529568b7bcbaed3f601",
+        "fa1c1f26b7cb4b0dcc59b8ebb8d5f31aeb7c5f8c57e423014704aed5dffef707",
+        "9e3f8c9def240444e46ad76b4c2f59b74ea691c57d1433bf757adb15feca4e51"
+      ],
+      "source_sha256": "7d5244c9ee82742148f71c32c02fd4266eb9aceb5f37ed8168ce99c3e2a40fbc",
+      "text": "Normalise l'image sur les 1er et 99e centiles.\n\n:param image: Tableau d'image de n'importe quel dtype numérique, typiquement le TIFF brut 16 bits. Les centiles sont pris sur tout le tableau, donc une image multicanal est étirée par une seule fenêtre partagée plutôt que par canal, et les 1% les plus clairs et les plus sombres saturent. Une image plate ou quasi constante place les deux centiles sur la même valeur ; la remise à l'échelle divise alors par zéro et la conversion en ``uint8`` transforme le ``nan`` obtenu en valeur indéfinie, donc protégez les champs vides en amont.\n:returns: Un tableau ``uint8`` sur 0-255, prêt à être mélangé avec la superposition du masque.",
+      "translation_source_blocks_sha256": [
+        "7de34cf9a98a3a5fcbd4a806c4318b07baa59453db7a8529568b7bcbaed3f601",
+        "7b3c0c5770f1cf8fcb809f8ff5ebce3777c9d6b5f11acdb926effeec785c82d7",
+        "9e3f8c9def240444e46ad76b4c2f59b74ea691c57d1433bf757adb15feca4e51"
       ]
     },
     "spacr.plot.plot_arrays": {
@@ -62498,6 +62618,24 @@
         "228ce7fe64a6556744bf2717fc594610e988b040c46fe47e9484b357d965c598",
         "19db8c1b6343cb9df8dfd198a57e37b9664a6447a6d53eb0d2a9aa386eef9615",
         "0d6947653b2466cc1dcf0b0bc11815bb7c1ebe96c00b20c10f5928e24256f820"
+      ]
+    },
+    "spacr.plot.plot_data_from_csv.filter_rows_by_column_values": {
+      "source_blocks_sha256": [
+        "719f1f6a039b9d62f8bffdd1e87c53d04b38e2081bf2a81e9f7b22ea5f7e58b7",
+        "4d0ea92560a6ddf956cda0ed7aaa31f423cdc2c41208d1732f9a3e90dc24198c",
+        "c269b77b3321dbc7854634b9f5344c195bf4bc1e1a68fa22f5c84ad0c0e8403c",
+        "4897b25e160a18b6e4884babd42bd1021142cf24483453b6d130a155db3aec84",
+        "b48f53be0325f6f4e9d14685e798c3a469de28722b17195f7ef4102924d810af"
+      ],
+      "source_sha256": "ab4f3bfcdc42bb695735591b9938276a83c1a6d1097338dbe6c18ab1be280e67",
+      "text": "Renvoie un DataFrame filtré où seules les lignes dont la valeur de colonne figure dans la liste sont conservées.\n\n:param df: Tableau à filtrer ; il n'est pas modifié, et le résultat est une ``.copy()``, de sorte qu'une affectation ultérieure ne lève aucun ``SettingWithCopyWarning``.\n:param column: Colonne à tester. Elle doit exister, sinon ``KeyError`` est levée — ici, c'est la ``grouping_column`` de l'appelant.\n:param values: Valeurs à conserver, comparées avec ``isin``, donc la comparaison est exacte et sensible au type : la chaîne ``'1'`` ne correspondra pas à un entier ``1`` lu depuis le CSV. Une liste vide ne conserve rien et produit un tableau vide au lieu de tout laisser passer.\n:returns: Un nouveau DataFrame filtré.",
+      "translation_source_blocks_sha256": [
+        "719f1f6a039b9d62f8bffdd1e87c53d04b38e2081bf2a81e9f7b22ea5f7e58b7",
+        "4d0ea92560a6ddf956cda0ed7aaa31f423cdc2c41208d1732f9a3e90dc24198c",
+        "c269b77b3321dbc7854634b9f5344c195bf4bc1e1a68fa22f5c84ad0c0e8403c",
+        "4897b25e160a18b6e4884babd42bd1021142cf24483453b6d130a155db3aec84",
+        "b48f53be0325f6f4e9d14685e798c3a469de28722b17195f7ef4102924d810af"
       ]
     },
     "spacr.plot.plot_data_from_db": {
@@ -62618,6 +62756,106 @@
         "12579bb41462cc1623d7a12a0cac8cd597703c7025d34f236ecf2af6e453cf5d"
       ]
     },
+    "spacr.plot.plot_image_mask_overlay._filter_object": {
+      "source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ],
+      "source_sha256": "2a383fe1f451ee662c22cbf59c2572dd0184172232602893d699f6ad5247f556",
+      "text": "Filtre les objets d'un masque selon leur aire (taille) et leur intensité moyenne.\n\nArgs: mask (ndarray) : Le masque d'entrée. intensity_image (ndarray) : L'image d'intensité correspondante. min_max_area (tuple) : Un tuple (min_area, max_area) indiquant les seuils d'aire minimal et maximal. min_max_intensity (tuple) : Un tuple (min_intensity, max_intensity) indiquant les seuils d'intensité minimal et maximal.\n\nReturns: ndarray : Le masque filtré.",
+      "translation_source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot": {
+      "source_blocks_sha256": [
+        "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb"
+      ],
+      "source_sha256": "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb",
+      "text": "Trace le graphique fusionné avec la superposition, les canaux de l'image et les masques.",
+      "translation_source_blocks_sha256": [
+        "31278a54b2ce695b66fd3849597be3839bbf76f9ed14fed8363aa8e51efb63ea"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._apply_contours": {
+      "source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ],
+      "source_sha256": "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2",
+      "text": "Applique des contours à l'image.",
+      "translation_source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._generate_colored_mask": {
+      "source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ],
+      "source_sha256": "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be",
+      "text": "Génère un masque coloré avec la carte de couleurs donnée.",
+      "translation_source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._generate_contours": {
+      "source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ],
+      "source_sha256": "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8",
+      "text": "Génère des contours à partir du masque avec OpenCV.",
+      "translation_source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._normalize_image": {
+      "source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ],
+      "source_sha256": "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e",
+      "text": "Normalise l'image selon les centiles donnés.",
+      "translation_source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._overlay_mask": {
+      "source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ],
+      "source_sha256": "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe",
+      "text": "Superpose le masque coloré à l'image d'origine.",
+      "translation_source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._save_channels_as_tiff": {
+      "source_blocks_sha256": [
+        "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655"
+      ],
+      "source_sha256": "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655",
+      "text": "Enregistre chaque canal de la pile comme un TIFF en niveaux de gris.",
+      "translation_source_blocks_sha256": [
+        "1eb38daa28e5e644433ee0a361608ffa8b98e1de35234bf4a1b899d30ebed045"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay.random_color_cmap": {
+      "source_blocks_sha256": [
+        "29130b04fe1416c0a1ed608d0c0692e2aa8dd8da9b3da43b51d6631573dc53e7",
+        "fea9ced9464159f45dde9e2eb21db4c0e559944cca12425bfb4230398555f591",
+        "b5fea333443048d5502a848fb6a3dca87ca5e0c0a94c2d5e828b488f614c1d7b",
+        "ee960799b8f56fa4eb75ae9a9e019c814a57b85d39e94d3e8a88e1857b20bdc7"
+      ],
+      "source_sha256": "50fcd6aa8c447df3735b54edbd2dad0f849c2d0678eee59dbcf9fec64055ad3d",
+      "text": "Génère une carte de couleurs d'apparence aléatoire mais déterministe, avec une graine unique.\n\n:param n_labels: Combien de couleurs d'objet tirer. L'indice 0 de la carte renvoyée est forcé au noir pour le fond, donc la carte compte ``n_labels + 1`` entrées ; les appelants ici passent ``int(outline.max() + 1)`` par type d'objet, ou ``int(combined_mask.max() + 1)`` pour le panneau fusionné. Une valeur ``<= 0`` aboutit directement à une carte uniquement noire plutôt que de lever une erreur.\n:param seed: Graine d'un ``default_rng`` local ; la même graine produit toujours la même attribution de teintes, c'est pourquoi chaque type d'objet reçoit sa propre graine fixe et garde ainsi ses couleurs d'un panneau à l'autre. ``None`` tire une entropie nouvelle et les couleurs changent à chaque appel.\n:returns: Une ``ListedColormap`` de teintes vives et bien séparées.",
+      "translation_source_blocks_sha256": [
+        "29130b04fe1416c0a1ed608d0c0692e2aa8dd8da9b3da43b51d6631573dc53e7",
+        "8f51bef4748b96524a75a573d3563f61a60366601303dab99992c8c889fff3a3",
+        "b5fea333443048d5502a848fb6a3dca87ca5e0c0a94c2d5e828b488f614c1d7b",
+        "ee960799b8f56fa4eb75ae9a9e019c814a57b85d39e94d3e8a88e1857b20bdc7"
+      ]
+    },
     "spacr.plot.plot_image_mask_overlay_magenta_outlines": {
       "source_blocks_sha256": [
         "ff651eea07d98bd179d942143c37e14fa27155b303be446134aa224ae59a65fe",
@@ -62660,6 +62898,106 @@
         "12579bb41462cc1623d7a12a0cac8cd597703c7025d34f236ecf2af6e453cf5d"
       ]
     },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._filter_object": {
+      "source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ],
+      "source_sha256": "2a383fe1f451ee662c22cbf59c2572dd0184172232602893d699f6ad5247f556",
+      "text": "Filtre les objets d'un masque selon leur aire (taille) et leur intensité moyenne.\n\nArgs: mask (ndarray) : Le masque d'entrée. intensity_image (ndarray) : L'image d'intensité correspondante. min_max_area (tuple) : Un tuple (min_area, max_area) indiquant les seuils d'aire minimal et maximal. min_max_intensity (tuple) : Un tuple (min_intensity, max_intensity) indiquant les seuils d'intensité minimal et maximal.\n\nReturns: ndarray : Le masque filtré.",
+      "translation_source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot": {
+      "source_blocks_sha256": [
+        "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb"
+      ],
+      "source_sha256": "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb",
+      "text": "Trace le graphique fusionné avec la superposition, les canaux de l'image et les masques.",
+      "translation_source_blocks_sha256": [
+        "31278a54b2ce695b66fd3849597be3839bbf76f9ed14fed8363aa8e51efb63ea"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._apply_contours": {
+      "source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ],
+      "source_sha256": "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2",
+      "text": "Applique des contours à l'image.",
+      "translation_source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._generate_colored_mask": {
+      "source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ],
+      "source_sha256": "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be",
+      "text": "Génère un masque coloré avec la carte de couleurs donnée.",
+      "translation_source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._generate_contours": {
+      "source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ],
+      "source_sha256": "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8",
+      "text": "Génère des contours à partir du masque avec OpenCV.",
+      "translation_source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._normalize_image": {
+      "source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ],
+      "source_sha256": "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e",
+      "text": "Normalise l'image selon les centiles donnés.",
+      "translation_source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._overlay_mask": {
+      "source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ],
+      "source_sha256": "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe",
+      "text": "Superpose le masque coloré à l'image d'origine.",
+      "translation_source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._save_channels_as_tiff": {
+      "source_blocks_sha256": [
+        "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655"
+      ],
+      "source_sha256": "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655",
+      "text": "Enregistre chaque canal de la pile comme un TIFF en niveaux de gris.",
+      "translation_source_blocks_sha256": [
+        "1eb38daa28e5e644433ee0a361608ffa8b98e1de35234bf4a1b899d30ebed045"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines.random_color_cmap": {
+      "source_blocks_sha256": [
+        "e09f856dcad0a1447cd8def14d95107829358833481a9914077f75a512bfa9b4",
+        "8c00d035674dbef9b1be6281086cf452300a7b7841ee27a18521608d40c06734",
+        "7fc9850cf67c6c404d33c6b7a81d7616c49c93c2942f98e014289595f4456087",
+        "f9545582cbe488f4e5c4568be38c61ab8ac7db05dcf2de900ae2e204945e5c94"
+      ],
+      "source_sha256": "b00178b31ad57bffdbe4e0d4963d83093fbffe176342512992ea1ba7bc32c6b2",
+      "text": "Génère une carte de couleurs aléatoire pour un nombre donné d'étiquettes.\n\n:param n_labels: Combien de couleurs d'objet tirer. L'indice 0 est ajouté en tête en noir pour le fond, donc la carte compte ``n_labels + 1`` entrées ; les appelants ici passent ``int(outline.max() + 1)`` par type d'objet, ou ``int(combined_mask.max() + 1)`` pour le panneau fusionné. Les couleurs sont tirées uniformément en RGB, donc, contrairement à la variante HSV de :func:`plot_image_mask_overlay`, certaines sortent sombres et peu contrastées par rapport à l'image.\n:param seed: Initialise l'état *global* de ``numpy.random``, pas un générateur local, donc la transmettre décale aussi tout tirage ``np.random`` ultérieur du processus. Les appelants ici passent un ``random.randint(0, 100)`` nouveau par panneau, c'est pourquoi le même objet reçoit une couleur différente dans chaque panneau et à chaque exécution. ``None`` laisse l'état global intact.\n:returns: A ``ListedColormap``.",
+      "translation_source_blocks_sha256": [
+        "e09f856dcad0a1447cd8def14d95107829358833481a9914077f75a512bfa9b4",
+        "8c00d035674dbef9b1be6281086cf452300a7b7841ee27a18521608d40c06734",
+        "13503d0b6a94252f1a4bc1047dab14763785eca6cfdd49b20cfbdfe199ca6113",
+        "f9545582cbe488f4e5c4568be38c61ab8ac7db05dcf2de900ae2e204945e5c94"
+      ]
+    },
     "spacr.plot.plot_images_and_arrays": {
       "source_blocks_sha256": [
         "e6dd46d1293d9145b778c610ad295ec2dd681770ab2dadb521b2263ec5e18873",
@@ -62690,6 +63028,62 @@
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ]
     },
+    "spacr.plot.plot_images_and_arrays.find_files": {
+      "source_blocks_sha256": [
+        "209f27bd17f665504d721fd2e4cb1c806d1d9d75d54fbe7ef4fb06e0a5f9f6ff",
+        "dd807d8f9b730807f40daa2d4815e144cf090792617099dae4614b60ca1bb668",
+        "ed1e3294a301c3e155ce2d76c691dfdd367393034e3195899f6cd7b1a87320c2",
+        "3aeba32e27445891ad4411ac50dc58a9ff02bad1bbd412cd2314e97b3155ed4c"
+      ],
+      "source_sha256": "76492e7756e52a6f843f2e72a956911b21676f2e4f27a3122a10c1fedbe43c6a",
+      "text": "Renvoie un dict indexé par nom de fichier de base qui associe les fichiers ayant les extensions demandées.\n\n:param folders: Chemins de dossiers, chacun parcouru récursivement. Le regroupement se fait par nom de base sans extension, et seuls les noms présents dans *chaque* dossier passent le filtre final — un fichier manquant retire entièrement ce nom du résultat, et de deux fichiers de même nom de base dans un dossier, seul le dernier parcouru est conservé.\n:param extensions: Extensions à accepter, comparées avec ``str.endswith``, elles doivent donc inclure le point et respecter la casse.\n:returns: ``{basename: {folder: path}}`` pour les groupes complets uniquement.",
+      "translation_source_blocks_sha256": [
+        "3d46bd58800f889d7807298f4c84eaf22640241c2b175ed55ba61b0434c80096",
+        "dd807d8f9b730807f40daa2d4815e144cf090792617099dae4614b60ca1bb668",
+        "ed1e3294a301c3e155ce2d76c691dfdd367393034e3195899f6cd7b1a87320c2",
+        "3aeba32e27445891ad4411ac50dc58a9ff02bad1bbd412cd2314e97b3155ed4c"
+      ]
+    },
+    "spacr.plot.plot_images_and_arrays.normalize_image": {
+      "source_blocks_sha256": [
+        "ad6189fe13433d4e19ffeb0648d9c46724390f33404f69647fe622484763a8d7",
+        "e469422dd23cfadd813c721125ff24ab1182863ba2c13648f0c1ae75abc6b25f",
+        "74f0bdb2b52f53a39f32377175401ffbf471b24c9be0e024f8dc132aacf41c52",
+        "3167bb40a6899433bee39380015ce7f63d3a1b7fe2265e061ef1b6440be48de2",
+        "396b2dc8de82216575e58756e2bb6d9d8cdc2ea611ebe3dc989d0266073551f7"
+      ],
+      "source_sha256": "be939367ecf4be9171722e5529f703b86ad02656a24b64949500bc5ad4a925d9",
+      "text": "Écrête ``image`` par centiles et la remet à l'échelle sur ``[0, 1]``.\n\n:param image: N'importe quel tableau numérique ; la normalisation porte sur tout le tableau à la fois, donc une pile multicanal est mise à l'échelle par une seule paire de centiles plutôt que par canal.\n:param lower: Centile inférieur, dans 0-100. Par défaut ``1``.\n:param upper: Centile supérieur, dans 0-100, et il doit être strictement supérieur à ``lower`` : lorsque les deux centiles sont égaux (une image plate), la remise à l'échelle divise par zéro et renvoie ``nan`` plutôt qu'un cadre vide, et les intervertir inverse l'image au lieu de lever une erreur. Par défaut ``99``.\n:returns: Un tableau de flottants écrêté sur ``[0, 1]``.",
+      "translation_source_blocks_sha256": [
+        "ad6189fe13433d4e19ffeb0648d9c46724390f33404f69647fe622484763a8d7",
+        "6e3f7171e2ed23983eef3bd2ef611f3f31a3c9aedecfef93d38a58afbb57875d",
+        "74f0bdb2b52f53a39f32377175401ffbf471b24c9be0e024f8dc132aacf41c52",
+        "c376649467a93cfcb0d013b33a08e5c1aff7485eb36458716bad23c5ae4a59ea",
+        "396b2dc8de82216575e58756e2bb6d9d8cdc2ea611ebe3dc989d0266073551f7"
+      ]
+    },
+    "spacr.plot.plot_images_and_arrays.plot_from_file_dict": {
+      "source_blocks_sha256": [
+        "0d9dd889ec603f93f4d04ddd490e9a644f8ff6194aec36c92c6d7ebf17b468d6",
+        "05b1891335f1e9767a4f3e74744715f4fd2ece80f94f9c4fa2f0d4a2ca5d1733",
+        "4bc87d6600f0b5beb7eabef548d315dd233a660f13879ec345ad8482095d64de",
+        "1704aa87c7280ee3cbefa8f78f43731ca6259f1227b1e94e84326451105b5b3e",
+        "8206227acc8c3508c14bafe67b6d9c62742054fe698cff1ec0362f638ad8db64",
+        "672c8f1d5aef5e2b924e424fdf34c19bfe10e15ad8909875ed81bad47ffdacd3",
+        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ],
+      "source_sha256": "363fdd483ec18e30ba2b64592e91273aed925a2a6b6e280c0464fa8bd4a97e84",
+      "text": "Affiche côte à côte les paires image/masque rassemblées dans ``file_dict``.\n\n:param file_dict: ``{filename: {folder: path}}`` produit par ``find_files``.\n:param threshold: Les valeurs au-dessus de ce nombre de valeurs uniques sont traitées comme des images d'intensité ; sinon comme des masques d'étiquettes. Par défaut ``1000``.\n:param lower_percentile: Écrêtage au centile inférieur. Par défaut ``1``.\n:param upper_percentile: Écrêtage au centile supérieur. Par défaut ``99``.\n:param overlay: Si True, superpose les contours du masque à l'image. Par défaut ``False``.\n:returns: None",
+      "translation_source_blocks_sha256": [
+        "0d9dd889ec603f93f4d04ddd490e9a644f8ff6194aec36c92c6d7ebf17b468d6",
+        "05b1891335f1e9767a4f3e74744715f4fd2ece80f94f9c4fa2f0d4a2ca5d1733",
+        "4bc87d6600f0b5beb7eabef548d315dd233a660f13879ec345ad8482095d64de",
+        "1704aa87c7280ee3cbefa8f78f43731ca6259f1227b1e94e84326451105b5b3e",
+        "8206227acc8c3508c14bafe67b6d9c62742054fe698cff1ec0362f638ad8db64",
+        "672c8f1d5aef5e2b924e424fdf34c19bfe10e15ad8909875ed81bad47ffdacd3",
+        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
     "spacr.plot.plot_lorenz_curves": {
       "source_blocks_sha256": [
         "4517e8cd94dfb7d7b2decc03c933b96ffb64cbc1b9632054a8d6af76b077283b",
@@ -62716,6 +63110,52 @@
         "f64cb22fa4caa606986b08bab47b92574b71b8abd27ebbca5ea22eabb53290ab",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.plot.plot_lorenz_curves.gini_coefficient": {
+      "source_blocks_sha256": [
+        "cee43bb4c3d6e17c83a8936af86b0b104a9b807588c64e303d216e3034692c85",
+        "01a1742264d0354dc5da36d4b0aa7b336dac24a7137ebd01bc0c42be13363c2d",
+        "7118b663b8d02e72f817dfccec1d9c6e247c63bbf7421cd4cf9b0198131dad7d"
+      ],
+      "source_sha256": "46c56a59676608b408c1dc63c74cd4afccd3f586e4210f70a955241d48536455",
+      "text": "Calcule le coefficient de Gini à partir des données.\n\n:param data: Tableau 1D de comptages non négatifs, trié en interne. Il est normalisé par ``np.sum(data)``, donc une entrée entièrement nulle donne ``nan``. Contrairement à ``lorenz_curve``, un tableau vide ne lève pas d'erreur ici — il renvoie silencieusement ``1.0``, la valeur d'inégalité maximale —, donc filtrez les plaques vides en amont.\n:returns: Le coefficient de Gini sous forme de float, de ``0.0`` pour une distribution parfaitement uniforme jusqu'à s'approcher de ``1.0`` à mesure que les comptages se concentrent sur quelques gRNAs. L'aire est calculée par la méthode des trapèzes, donc une distribution uniforme donne exactement ``0.0`` plutôt que ``1/n``.",
+      "translation_source_blocks_sha256": [
+        "cee43bb4c3d6e17c83a8936af86b0b104a9b807588c64e303d216e3034692c85",
+        "e1ae4ff37843072c275e092371f41451378fe4ea06c280b795aeafed2fac1550",
+        "7118b663b8d02e72f817dfccec1d9c6e247c63bbf7421cd4cf9b0198131dad7d"
+      ]
+    },
+    "spacr.plot.plot_lorenz_curves.lorenz_curve": {
+      "source_blocks_sha256": [
+        "b111245c4aec0040fd1cda3d226484a0e592a41dd086eb084fe8811c3727b211",
+        "91b37b64e64e644435897d94e93a8aa82040365952f91e9a3d3567a530832dc5",
+        "18986a85e2394aee87eb30d2f318ea6f7025d262c7acdb202b687914d87cd545"
+      ],
+      "source_sha256": "dfb896a44fa15809042a1b8a6ab7c7f047c6f6c69fb864ad39064f2a53d12757",
+      "text": "Calcule la courbe de Lorenz.\n\n:param data: Tableau 1D de comptages non négatifs ; il est trié ici, donc l'ordre de l'appelant n'a pas d'importance. La courbe est normalisée par le dernier élément du total cumulé, donc une entrée entièrement nulle divise par zéro et une entrée de signes mélangés n'est pas du tout une courbe de Lorenz. Ne doit pas être vide — un tableau vide indexe au-delà de la fin.\n:returns: ``len(data) + 1`` parts cumulées montant de 0 à 1, une de plus que l'entrée car l'origine est ajoutée en tête.",
+      "translation_source_blocks_sha256": [
+        "b111245c4aec0040fd1cda3d226484a0e592a41dd086eb084fe8811c3727b211",
+        "91b37b64e64e644435897d94e93a8aa82040365952f91e9a3d3567a530832dc5",
+        "18986a85e2394aee87eb30d2f318ea6f7025d262c7acdb202b687914d87cd545"
+      ]
+    },
+    "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells": {
+      "source_blocks_sha256": [
+        "f85db6a54b0c2e95757b7065398de26711800d3df91db6cd691d57e2a39a2fc6",
+        "f53f18c864b4d26850b5940921ae149901ebaa7e67573b1eb7d76d9f68203054",
+        "baf53ba618784ef298760a10a3f262c76b3e80059b53503e3ad4bb9d76370dc3",
+        "40b9ec0f9e65563ed0833022350eaa82da84216a489ca356e799fc11b14c0fd5",
+        "00fb70e2df8fa50e6e6a0acd81703c32d01b450a5ff38836659b6ca43b2d5774"
+      ],
+      "source_sha256": "609bed283b334eea9b4f7863afab13005a702788f4952da7abed83fc4e0a65de",
+      "text": "Supprime les valeurs aberrantes d'après un intervalle de confiance à 95% pour les nombres de puits.\n\n:param data: DataFrame avec une ligne par observation de puits et de nom. Les noms entiers sont conservés ou écartés ensemble, jamais des lignes isolées, de sorte que le tableau restant contient encore chaque puits de chaque nom conservé.\n:param name_col: Colonne identifiant le gRNA (ou un autre nom). Les lignes sont regroupées sur elle et c'est la *taille* du groupe — le nombre de puits dans lesquels un nom apparaît — à laquelle la clôture s'applique, donc les valeurs de la colonne de comptage ne jouent aucun rôle dans ce filtre.\n:param wells_col: Acceptée pour que l'appel se lise symétriquement avec la ``value_column`` de la fonction englobante, mais jamais lue : le nombre de puits est dérivé des tailles de groupe ci-dessus. Passer un nom de colonne erroné ou absent ne change rien.\n:returns: ``data`` restreint aux noms à l'intérieur de la clôture. La clôture vaut ``1.5 *`` l'étendue du 5e au 95e centile, pas l'écart interquartile, elle est donc bien plus large qu'une règle IQR de manuel et sa borne inférieure est généralement négative — en pratique, seuls les noms inhabituellement répandus sont supprimés.",
+      "translation_source_blocks_sha256": [
+        "8950077e651cc529661bd8b5c68c8d6287bab25f855eeb2af5a1d6fdd70c18cd",
+        "bb523645078023d0bfee927a307f1d058d3cb9ae2a414e6adc0e7d7a5343779f",
+        "ecd67a4c35a63cd0c67797f266a98d1f94cb619d21b7b3bde974d32fb2d622a5",
+        "630d27c3c2fbed1e94f0a3fbfb05c7104247fb4415a8c093ad7c55aeb5b1735c",
+        "00fb70e2df8fa50e6e6a0acd81703c32d01b450a5ff38836659b6ca43b2d5774"
       ]
     },
     "spacr.plot.plot_masks": {
@@ -62902,6 +63342,32 @@
         "40293d3c4cd6e64ff8dc8125b3310aae040f2cbaa81d076a485b9dfd1cfacf73"
       ]
     },
+    "spacr.plot.plot_region._sort_paths_by_basename": {
+      "source_blocks_sha256": [
+        "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe"
+      ],
+      "source_sha256": "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe",
+      "text": "Renvoie ``paths`` triés par leur nom de base.",
+      "translation_source_blocks_sha256": [
+        "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe"
+      ]
+    },
+    "spacr.plot.plot_region.save_figure_as_pdf": {
+      "source_blocks_sha256": [
+        "bd39b12944ad745f51b078466414e1d73dc891b6fcbbed0b6d3fb7ba4210b26f",
+        "6aaaed4d2e8b2fa450953fe4d210da199e10d0efc4e40c05d8a81247a2386b39",
+        "74817696ac1aaad607acfd3e0f180dfacf61a3cfbc96e1038534181d6b7d6cdb",
+        "6aba2b166dc52f968c4aa956e617127f46790543a9b1ac570df67b1ba69abe28"
+      ],
+      "source_sha256": "08b00757efba5c2cec7c4483225adff000b8160ee8e6b54f0d0ca6fc93a3146b",
+      "text": "Enregistre ``fig`` dans le format de figure choisi par l'utilisateur.\n\nNommée d'après le format qu'elle codait en dur ; elle suit désormais la préférence, comme toute autre figure que l'utilisateur conserve, et `save_figure` crée lui-même le répertoire parent.\n\n:param fig: Figure à écrire. Elle reste ouverte, de sorte que l'appelant peut encore la renvoyer au notebook après l'enregistrement.\n:param path: Chemin de destination. Son extension est réécrite vers le format choisi par la préférence, donc passer un nom ``.pdf`` n'impose pas le PDF ; les répertoires parents manquants sont créés. Le chemin réellement écrit est affiché, pas renvoyé.",
+      "translation_source_blocks_sha256": [
+        "bd39b12944ad745f51b078466414e1d73dc891b6fcbbed0b6d3fb7ba4210b26f",
+        "6aaaed4d2e8b2fa450953fe4d210da199e10d0efc4e40c05d8a81247a2386b39",
+        "74817696ac1aaad607acfd3e0f180dfacf61a3cfbc96e1038534181d6b7d6cdb",
+        "6aba2b166dc52f968c4aa956e617127f46790543a9b1ac570df67b1ba69abe28"
+      ]
+    },
     "spacr.plot.plot_resize": {
       "source_blocks_sha256": [
         "048ff00f8ad1a178c07ad2d731716411d9939db8b4d50241a033dc8399b46661",
@@ -62920,6 +63386,22 @@
         "b97e374b33ee339aba08f29faf7327adf0ec8f59b4b50cf5b15469f28988f104",
         "6fe1857803058b6a830eff9d48de84efba66912723bcb4a660ad6c4796e11fdd",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.plot.plot_resize.prepare_image": {
+      "source_blocks_sha256": [
+        "0304b1d70fc83f3965029abcc7227e993eb7a9eaf61e2a8997d9cce822b17c60",
+        "86d4cec3130cda51744d27b6c3d801c2fc7f61b53ba29a8eba0272834cd8f1b4",
+        "2a0a31e96adb40318e1e5f8533be885d35f370a5a0094a445cea897fcd175a04",
+        "84e967d36fe6a7c8666780b8db7fd3b44bd50fe572e42a0ff52d94d861337af3"
+      ],
+      "source_sha256": "41477978deb744da38ced31de106367602bbfdfe91fd3c2581f5db97ff4febda",
+      "text": "Renvoie ``(display_array, cmap)`` en gérant les formes d'entrée 2D/3D.\n\n:param img: Un tableau 2D, ou un tableau 3D canaux en dernier. Un canal est réduit en 2D et trois ou quatre sont transmis comme RGB/RGBA avec une carte de couleurs ``None`` ; tout autre nombre de canaux (une pile spaCR à 5 canaux, ou un tableau canaux en premier lu directement depuis le disque) se rabat sur la moyenne le long du dernier axe, ce qui donne une image valide mais généralement trompeuse.\n:returns: ``(array, cmap)`` à transmettre directement à ``imshow``, où ``cmap`` vaut ``None`` pour les données en couleurs réelles.\n:raises ValueError: si ``img`` n'est ni 2D ni 3D.",
+      "translation_source_blocks_sha256": [
+        "0304b1d70fc83f3965029abcc7227e993eb7a9eaf61e2a8997d9cce822b17c60",
+        "3f087d787c3b00ba6922e01c7d602865901b0349f0cfe6c317caf5c4a646dde5",
+        "2a0a31e96adb40318e1e5f8533be885d35f370a5a0094a445cea897fcd175a04",
+        "84e967d36fe6a7c8666780b8db7fd3b44bd50fe572e42a0ff52d94d861337af3"
       ]
     },
     "spacr.plot.print_mask_and_flows": {
@@ -62944,6 +63426,70 @@
         "ab4dd81a64bb7f19c0135490ee1be8f0d7be653e1aa6f1535f3416d1ea6ac4a0",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.apply_contours_on_image": {
+      "source_blocks_sha256": [
+        "476f68a5d0c018f8e4df0acb95490e79ae4e2f2cb3256c4a28d4e293087a6fbe",
+        "7c25f9424aa04da44a7f4da3f87cac3093b628324fdf410fb4e3b901a7f326ad",
+        "a3a11d5d6fc3e46746a472ad74b06ed5ae42d57b1e746378fe3bc3d5f2c4b370",
+        "441a93e1fdffb4280e7a518dc3205e236a52ccd83d67c1446fbc03633943d0f0",
+        "5621b5344adeda2d30e9a4861a11764c871c38f3f34e13a720f66734633d1976",
+        "9fef48604f0c89cbcebeffdc0436256baaca7b3fc6a339c0e4e1f8edba029cfb"
+      ],
+      "source_sha256": "fa5a64d9d3c9dafd06a05e8e1b87c5da5500f9a900a805c86c17aaea7e6e1239",
+      "text": "Dessine les contours sur l'image d'origine.\n\n:param image: Image de base. Un tableau 2D est normalisé en ``uint8`` et d'abord promu en RGB, ce qui suppose qu'il est déjà mis à l'échelle sur ``[0, 1]`` ; tout ce qui est déjà 3D est copié et dessiné tel quel, donc l'appelant reste responsable de son dtype et de sa plage de valeurs.\n:param mask: Masque d'étiquettes dont proviennent les contours, tracés avec ``generate_contours``. Il doit coïncider pixel pour pixel avec ``image``, donc redimensionnez les deux avec le même ``max_size``.\n:param color: Couleur du contour sous forme de triplet BGR/RGB dans 0-255, selon l'ordre des canaux de l'image. Par défaut ``(255, 0, 0)``.\n:param thickness: Épaisseur du trait en pixels ; une valeur négative remplit chaque contour au lieu de le tracer. Par défaut ``2``.\n:returns: Un nouveau tableau RGB ; l'``image`` d'entrée n'est pas modifiée.",
+      "translation_source_blocks_sha256": [
+        "476f68a5d0c018f8e4df0acb95490e79ae4e2f2cb3256c4a28d4e293087a6fbe",
+        "7c25f9424aa04da44a7f4da3f87cac3093b628324fdf410fb4e3b901a7f326ad",
+        "a3a11d5d6fc3e46746a472ad74b06ed5ae42d57b1e746378fe3bc3d5f2c4b370",
+        "9c8838adcec633a999de4d58f18df2f3f94ac82b62e7e2c6b6a5d384c5a2610f",
+        "5621b5344adeda2d30e9a4861a11764c871c38f3f34e13a720f66734633d1976",
+        "9fef48604f0c89cbcebeffdc0436256baaca7b3fc6a339c0e4e1f8edba029cfb"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.generate_contours": {
+      "source_blocks_sha256": [
+        "c1d53946117f5c32a0226aa403921983a64751eb37c8244c378d6b1b36bf25a6",
+        "9c9a8c90f7fd26ca560122d4f3bd0d06144f24368af677439eda437b1ceca99c",
+        "e73030b6f11d42067778ebb18578e30f562b42c0c711756a67166e38f97d4476"
+      ],
+      "source_sha256": "b6f43a5511df3dfcce6704ae428b83793f379935aa1af0331c8cad99c7633098",
+      "text": "Génère avec OpenCV les contours de chaque objet du masque.\n\n:param mask: Masque d'étiquettes, converti en ``uint8`` avant le tracé — les étiquettes au-delà de 255 bouclent, et comme seuls les contours externes sont récupérés, des objets qui se touchent sont tracés en un seul contour et les trous à l'intérieur d'un objet ne sont pas tracés.\n:returns: La liste de contours OpenCV, prête pour ``cv2.drawContours``.",
+      "translation_source_blocks_sha256": [
+        "c1d53946117f5c32a0226aa403921983a64751eb37c8244c378d6b1b36bf25a6",
+        "9c9a8c90f7fd26ca560122d4f3bd0d06144f24368af677439eda437b1ceca99c",
+        "e73030b6f11d42067778ebb18578e30f562b42c0c711756a67166e38f97d4476"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.normalize_to_uint8": {
+      "source_blocks_sha256": [
+        "ee1d12a53bbcb96a62a4048652f232ac3b5bbe4cec790c62d423df7ed912b382",
+        "a02c60538743f94b16b417d588b7e4b62f59dbb357374f02ea77668a3caa6ad8",
+        "418c82c5e80fee4201b84f637d0ccb622fc9f92a9575c11c1c8a0c9a17a7b558"
+      ],
+      "source_sha256": "5701ae66bf0a08e7917f6fbd6bee932a215f9144fb6cf93bd32bac386e810a4a",
+      "text": "Normalise l'image et la convertit en uint8.\n\n:param image: Tableau dont les valeurs sont supposées déjà mises à l'échelle sur ``[0, 1]`` — la fonction se contente d'écrêter et de multiplier par 255, elle ne remet pas à l'échelle. Des données brutes de caméra 16 bits saturent donc en blanc uni sauf leurs pixels nuls, et les valeurs négatives sont écrêtées au noir.\n:returns: Un tableau ``uint8`` de même forme.",
+      "translation_source_blocks_sha256": [
+        "ee1d12a53bbcb96a62a4048652f232ac3b5bbe4cec790c62d423df7ed912b382",
+        "a02c60538743f94b16b417d588b7e4b62f59dbb357374f02ea77668a3caa6ad8",
+        "418c82c5e80fee4201b84f637d0ccb622fc9f92a9575c11c1c8a0c9a17a7b558"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.resize_if_needed": {
+      "source_blocks_sha256": [
+        "9584c2e042da9a097f7753c59ccd591faad7adcf2fbc3874725d0093820620c1",
+        "0fef89d63f1e2a1bfa1eb5d9adc91f2f5e74e98c1c3decf9c75ce55465d7c643",
+        "aa711239cdf543f040d2fe20499fb830cc7ebcd7200283d4b23e3227a202c945",
+        "82aac0cc7af7abd08d7ab223cc3cff9e78d2bcf96c3be4ad515e157165fc9367"
+      ],
+      "source_sha256": "fdb23528c9b4f7973f7b395e4dc8ece37585ed70956924e97b24581789aee569",
+      "text": "Redimensionne l'image si une dimension dépasse max_size, en conservant le rapport d'aspect.\n\n:param image: Tableau 2D ou ``(H, W, C)``. L'axe des canaux n'est pas modifié, et le résultat est reconverti dans le dtype d'entrée, donc un masque d'étiquettes garde des étiquettes entières — mais l'interpolation est anticrénelée, ce qui peut inventer, le long des bords des objets, des valeurs d'étiquette n'appartenant à aucun objet.\n:param max_size: Plafond pour la plus grande de la hauteur et de la largeur, en pixels. L'image est renvoyée inchangée lorsqu'elle tient déjà, il n'y a donc jamais d'agrandissement ; une valeur non positive ramène le facteur d'échelle à zéro, donc passez un vrai budget de pixels.\n:returns: Le tableau redimensionné, ou ``image`` elle-même lorsqu'elle tient.",
+      "translation_source_blocks_sha256": [
+        "9584c2e042da9a097f7753c59ccd591faad7adcf2fbc3874725d0093820620c1",
+        "1f418deb949c69f411c5ae89e1d7eea89af435fa5a5d3218a64f936acdc3aa7d",
+        "aa711239cdf543f040d2fe20499fb830cc7ebcd7200283d4b23e3227a202c945",
+        "82aac0cc7af7abd08d7ab223cc3cff9e78d2bcf96c3be4ad515e157165fc9367"
       ]
     },
     "spacr.plot.print_ready": {
@@ -63172,6 +63718,46 @@
         "c5408efc29e89cd714d35495515df85f4e6fb74a7d3c1f377bbf64fe70dd2b94",
         "777d83f4736af7db532a037914a1030e92ea372fe8f2ac2cc126e7d4b65cd1ad",
         "1adef1747fa733867670c566d3655063d53866467e8309fe5364059b795b62aa"
+      ]
+    },
+    "spacr.plot.spacrGraph.create_plot._generate_tabels": {
+      "source_blocks_sha256": [
+        "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f"
+      ],
+      "source_sha256": "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f",
+      "text": "Génère des libellés de ligne et une table de symboles pour un regroupement à plusieurs niveaux.",
+      "translation_source_blocks_sha256": [
+        "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f"
+      ]
+    },
+    "spacr.plot.spacrGraph.create_plot._get_positions": {
+      "source_blocks_sha256": [
+        "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592"
+      ],
+      "source_sha256": "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592",
+      "text": "Renvoie les centres de groupe tracés dans l'ordre de la table, de gauche à droite.",
+      "translation_source_blocks_sha256": [
+        "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592"
+      ]
+    },
+    "spacr.plot.spacrGraph.create_plot._place_symbols": {
+      "source_blocks_sha256": [
+        "0d049429fc7e12a424b311bd3f61a1f00bfded101df867fce47a6a26df7d3427",
+        "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+        "082838aa62b0c807007a751170570d177f508ae98bb0fb326930d6f4ac88df3c",
+        "03cc78ab73286d834be20e7ded19c170306ffebfe9ca2813f248a8b8c8368699",
+        "91ed6087b70396ffe58fbb19e2b5d4ea2481d9670bba0701c0df6479fbe37fde",
+        "d7bac24db9f2b7a59555137ce83359c67d8079cc1b79f8c757e11596bf6d15be"
+      ],
+      "source_sha256": "10b3c79d5fe5b0984cf97fbf90296e2a5dc3286d4497d1d846e2f40ebf9b0807",
+      "text": "Place des symboles et des libellés de ligne alignés sous les barres ou les points de dispersion du graphique.\n\nParamètres :\n- row_labels : Liste des titres de ligne à afficher le long de l'axe y.\n- transposed_table : Données à placer sous chaque barre/point de dispersion sous forme de symboles.\n- x_positions : Positions sur l'axe x de chaque groupe pour aligner les symboles.\n- ax : L'objet Axes de matplotlib sur lequel le graphique est dessiné.",
+      "translation_source_blocks_sha256": [
+        "0d049429fc7e12a424b311bd3f61a1f00bfded101df867fce47a6a26df7d3427",
+        "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+        "082838aa62b0c807007a751170570d177f508ae98bb0fb326930d6f4ac88df3c",
+        "03cc78ab73286d834be20e7ded19c170306ffebfe9ca2813f248a8b8c8368699",
+        "91ed6087b70396ffe58fbb19e2b5d4ea2481d9670bba0701c0df6479fbe37fde",
+        "d7bac24db9f2b7a59555137ce83359c67d8079cc1b79f8c757e11596bf6d15be"
       ]
     },
     "spacr.plot.spacrGraph.get_figure": {
@@ -63406,6 +63992,66 @@
         "e3e8534e08417a30403b326bc21582df18d048d80be30a2a94d920d7950c1d4c",
         "c164ae52a5e5955eedeecfafa529d26a1d28016ff31c2a3cad542b66e16540cb",
         "ff0f56705ef13dc8561fa37877993ade660786c6ec55977e9944cb9653fa8951"
+      ]
+    },
+    "spacr.plot.volcano_plot._as_numeric": {
+      "source_blocks_sha256": [
+        "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d"
+      ],
+      "source_sha256": "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d",
+      "text": "Convertit une colonne en flottants, en refusant un résultat entièrement non numérique.",
+      "translation_source_blocks_sha256": [
+        "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d"
+      ]
+    },
+    "spacr.plot.volcano_plot._read_table_auto": {
+      "source_blocks_sha256": [
+        "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51"
+      ],
+      "source_sha256": "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51",
+      "text": "Lit un fichier Excel ou un texte délimité, en détectant virgule ou tabulation en dernier recours.",
+      "translation_source_blocks_sha256": [
+        "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51"
+      ]
+    },
+    "spacr.plot.volcano_plot._threshold_x_in_plot_units": {
+      "source_blocks_sha256": [
+        "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e"
+      ],
+      "source_sha256": "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e",
+      "text": "Convertit un seuil brut de fold change en unités absolues tracées.",
+      "translation_source_blocks_sha256": [
+        "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e"
+      ]
+    },
+    "spacr.plot.volcano_plot._threshold_y_in_plot_units": {
+      "source_blocks_sha256": [
+        "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0"
+      ],
+      "source_sha256": "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0",
+      "text": "Valide un seuil brut de valeur p et le transforme pour l'axe y.",
+      "translation_source_blocks_sha256": [
+        "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0"
+      ]
+    },
+    "spacr.plot.volcano_plot._transform_x": {
+      "source_blocks_sha256": [
+        "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa"
+      ],
+      "source_sha256": "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa",
+      "text": "Applique la transformation x choisie, en exigeant des entrées positives pour le log.",
+      "translation_source_blocks_sha256": [
+        "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa"
+      ]
+    },
+    "spacr.plot.volcano_plot._transform_y": {
+      "source_blocks_sha256": [
+        "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139"
+      ],
+      "source_sha256": "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139",
+      "text": "Applique la transformation y choisie après écrêtage des entrées du logarithme.",
+      "translation_source_blocks_sha256": [
+        "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139"
       ]
     },
     "spacr.plugins": {
@@ -86808,6 +87454,582 @@
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply_the_scales_live": {
+      "source_blocks_sha256": [
+        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1"
+      ],
+      "source_sha256": "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
+      "text": "Applique maintenant les deux échelles et demande s'il faut les conserver.",
+      "translation_source_blocks_sha256": [
+        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._category": {
+      "source_blocks_sha256": [
+        "254eebc394c45c71502e8003580bb31159f9506e458da05b51e1c73103dc5682",
+        "a49dac1af88ce7e65232271ac0d227850108f952d863004eee334037f869c3f0"
+      ],
+      "source_sha256": "c38843999435ffcf9bd5d22f8bf490aa30bae0dbaee370e0c029d7e3e18078d1",
+      "text": "Ajoute une catégorie repliée à Apparence et renvoie son formulaire.\n\nLa catégorie est le même widget que celui avec lequel les vues des modules regroupent leurs paramètres, donc elle se replie et se présente comme toute autre catégorie de paramètres. Ses lignes se trouvent dans un conteneur nommé ``object_name``, sur lequel la recherche d'Aide ouvre la boîte de dialogue ; la navigation déplie la catégorie en se rendant à une ligne.",
+      "translation_source_blocks_sha256": [
+        "254eebc394c45c71502e8003580bb31159f9506e458da05b51e1c73103dc5682",
+        "e7871d5e68c7007075ea859ad59fa543140cff70733bbb8b237d05cc821b3376"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose": {
+      "source_blocks_sha256": [
+        "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
+        "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806"
+      ],
+      "source_sha256": "00d085a377d22d4b1e60a4f655c0860df7e61a57c721b034b2a52b11528275a0",
+      "text": "Maintient le commutateur de fichier DEBUG activé tant que verbose est activé.\n\nVerbose ajoute DEBUG aux fichiers journaux quoi que dise le commutateur, donc le commutateur l'indique et ne peut pas être modifié. Quand verbose est désactivé, le commutateur retrouve le choix propre de l'utilisateur.",
+      "translation_source_blocks_sha256": [
+        "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
+        "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
+      "source_blocks_sha256": [
+        "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
+      ],
+      "source_sha256": "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c",
+      "text": "Affiche en pourcentage la taille de loupe sur laquelle se trouve le curseur.",
+      "translation_source_blocks_sha256": [
+        "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
+      "source_blocks_sha256": [
+        "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ],
+      "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
+      "text": "Ouvre la boîte de dialogue d'installation/connexion, puis réaffiche la liste des fournisseurs.",
+      "translation_source_blocks_sha256": [
+        "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page": {
+      "source_blocks_sha256": [
+        "ecbb8ee94a66dc6a956b6621f7e0ae830c8881ecda68e8068eeeee6a713e3b8a",
+        "6c95673bcde4a3cb52fc100c54d232b898d3ab438fd2717f6cf3e677412e7133"
+      ],
+      "source_sha256": "7401f00012b3a10e9dbb403ecbc650bfc28e6bbd2a9a9411ccac26879c8c2266",
+      "text": "Ajoute un onglet et renvoie le formulaire avec lequel le remplir.\n\nChaque page défile indépendamment, de sorte qu'un petit moniteur raccourcit l'onglet le plus haut plutôt que toute la boîte de dialogue, et chaque onglet reste accessible quelle que soit la hauteur de la fenêtre.",
+      "translation_source_blocks_sha256": [
+        "ecbb8ee94a66dc6a956b6621f7e0ae830c8881ecda68e8068eeeee6a713e3b8a",
+        "6c95673bcde4a3cb52fc100c54d232b898d3ab438fd2717f6cf3e677412e7133"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row": {
+      "source_blocks_sha256": [
+        "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8"
+      ],
+      "source_sha256": "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8",
+      "text": "Construit un curseur de pourcentage avec libellé et renvoie ses éléments.",
+      "translation_source_blocks_sha256": [
+        "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row._update": {
+      "source_blocks_sha256": [
+        "a291e0a6ed99bd0eaa966406dc9c14db067d3039c50b812205bde5f4422b4467",
+        "180639b9daa34bbb10cc51c9ff883b20cd7e643c967798e98cfe73ca6b14a198"
+      ],
+      "source_sha256": "58e1c46417b66051e9cccb4bf1c2e2d69737e6d2e2a74774ff27e16df734f33f",
+      "text": "Affiche le pourcentage, en indiquant quand c'est la valeur prévue.\n\n\"100%\" seul ne dit pas au lecteur que c'est la valeur à laquelle revenir.",
+      "translation_source_blocks_sha256": [
+        "a291e0a6ed99bd0eaa966406dc9c14db067d3039c50b812205bde5f4422b4467",
+        "180639b9daa34bbb10cc51c9ff883b20cd7e643c967798e98cfe73ca6b14a198"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._put_the_sliders_back": {
+      "source_blocks_sha256": [
+        "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319"
+      ],
+      "source_sha256": "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319",
+      "text": "Après un Rétablir, affiche les valeurs de nouveau en vigueur.",
+      "translation_source_blocks_sha256": [
+        "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._quit_spacr": {
+      "source_blocks_sha256": [
+        "2dc1933c37376d894ae649b0b4d79493264bcb80b28ef456698566eefda7606c",
+        "0f18912e719a1ef4847b1d586f2149e0d5d9afdb77f028edc59f5df93af406a6"
+      ],
+      "source_sha256": "d73324b06b92dd1fa9fae605ba65180c14221a4e3abf0a2464839449b3149c9c",
+      "text": "Demande comment, puis s'arrête de façon coopérative ou quitte immédiatement.\n\nLe chemin ordonné est le même que celui que suit `closeEvent` -- `cancel_all` avec un budget court -- puis ferme la fenêtre, de sorte qu'un arrêt normal exécute toujours chaque hook d'arrêt. Ce qui s'ajoute, c'est la nouvelle demande au bout de cinq minutes, pour le cas que `closeEvent` ne sait pas traiter : un thread de travail bloqué dans une extension C qui ne verra jamais le drapeau d'annulation, ce qui laisse la fenêtre refuser de se fermer sans aucune issue depuis l'application.",
+      "translation_source_blocks_sha256": [
+        "2dc1933c37376d894ae649b0b4d79493264bcb80b28ef456698566eefda7606c",
+        "0f18912e719a1ef4847b1d586f2149e0d5d9afdb77f028edc59f5df93af406a6"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reload_ambient_palettes": {
+      "source_blocks_sha256": [
+        "843500d4e2c29b3ad8b6c15285ed294461b269ee3c7e0ed1e0ec91fec6c82518",
+        "4163f79d971050f25df9d50340de65f48df67dd99b6aa4e4da11abb9e9618b47"
+      ],
+      "source_sha256": "2e32466da583e4fb5048c88811323c8cd04223921c17d3f8eec36bf6cd963e1e",
+      "text": "Remplit de nouveau la liste des palettes pour l'animation choisie.\n\nLes palettes dépendent du thème, donc les deux contrôles ne peuvent pas être remplis indépendamment. Le choix actuel est conservé lorsque le nouveau thème le propose aussi ; sinon, la valeur par défaut de ce thème est sélectionnée, ce qui est exactement ce que font les clés enregistrées.",
+      "translation_source_blocks_sha256": [
+        "843500d4e2c29b3ad8b6c15285ed294461b269ee3c7e0ed1e0ec91fec6c82518",
+        "4163f79d971050f25df9d50340de65f48df67dd99b6aa4e4da11abb9e9618b47"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._remember_the_debug_choice": {
+      "source_blocks_sha256": [
+        "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df"
+      ],
+      "source_sha256": "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df",
+      "text": "Enregistre le commutateur de fichier DEBUG seulement tant que l'utilisateur le maîtrise.",
+      "translation_source_blocks_sha256": [
+        "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reset_to_defaults": {
+      "source_blocks_sha256": [
+        "d165969fd5f49cfc16530f93a3fb210450c57c9439acb867d15142721a7c1baf",
+        "75e3f75602be80bfe9315319e3f0030ba5f1b2985cd250e6bca3180b8c11ab75",
+        "8a8c3b3e8320e00914d945a31ff345f7cb82daae0e1eab177d78cee4df97abe4"
+      ],
+      "source_sha256": "3c3373f33b4f8c58c39b9bd3a7636fad06b2e5b10e7a88faeb6a7af5dffa4d74",
+      "text": "Remet chaque contrôle à ce qu'afficherait une installation neuve.\n\nLit via les vrais getters sur un stockage VIDE plutôt que depuis une seconde copie des valeurs par défaut. Une table écrite à la main ici serait un second endroit à mettre à jour chaque fois qu'une préférence gagne une valeur par défaut, et l'erreur y serait silencieuse : un Réinitialiser qui règle discrètement quelque chose sur une valeur qu'aucun chemin du code n'a jamais choisie.\n\nSeuls les contrôles changent. Rien n'est enregistré avant Enregistrer, donc Annuler permet encore d'abandonner une réinitialisation non voulue -- c'est pourquoi ceci ne réécrit pas le stockage vide.",
+      "translation_source_blocks_sha256": [
+        "d165969fd5f49cfc16530f93a3fb210450c57c9439acb867d15142721a7c1baf",
+        "75e3f75602be80bfe9315319e3f0030ba5f1b2985cd250e6bca3180b8c11ab75",
+        "8a8c3b3e8320e00914d945a31ff345f7cb82daae0e1eab177d78cee4df97abe4"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._resource_button": {
+      "source_blocks_sha256": [
+        "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679"
+      ],
+      "source_sha256": "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679",
+      "text": "Construit un bouton d'action avec libellé pour la ligne des ressources.",
+      "translation_source_blocks_sha256": [
+        "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_lag_says": {
+      "source_blocks_sha256": [
+        "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60"
+      ],
+      "source_sha256": "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60",
+      "text": "Affiche la poursuite du liseré en pourcentage.",
+      "translation_source_blocks_sha256": [
+        "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_length_says": {
+      "source_blocks_sha256": [
+        "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23"
+      ],
+      "source_sha256": "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23",
+      "text": "Affiche la longueur du liseré en pixels.",
+      "translation_source_blocks_sha256": [
+        "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_period_says": {
+      "source_blocks_sha256": [
+        "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d"
+      ],
+      "source_sha256": "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d",
+      "text": "Affiche la période du liseré en secondes.",
+      "translation_source_blocks_sha256": [
+        "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
+      "source_blocks_sha256": [
+        "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+      ],
+      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
+      "text": "Écrit chaque préférence que possède cette boîte de dialogue, le liseré en premier.\n\nLE LISERÉ PASSE EN PREMIER parce que chaque carte ouverte le relit : le faire avant le travail sur le thème signifie un seul rafraîchissement au lieu de deux.",
+      "translation_source_blocks_sha256": [
+        "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
+        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
+      "source_blocks_sha256": [
+        "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144"
+      ],
+      "source_sha256": "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144",
+      "text": "Fait pointer ``combo`` sur l'entrée dont les données valent ``value``.",
+      "translation_source_blocks_sha256": [
+        "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging": {
+      "source_blocks_sha256": [
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+      ],
+      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+      "text": "Un glissement s'applique au relâchement ; un clic ou une touche s'applique immédiatement.",
+      "translation_source_blocks_sha256": [
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
+      "source_blocks_sha256": [
+        "a8143b36b27fcecb393b89af1f701589d4d432269205c460937a61240257789c",
+        "77dac09cc19a0626cc147ee1526ce1c7f9c53b7dd0cfc0b119571daab1109cfb"
+      ],
+      "source_sha256": "9d88d4baaf6026051ca17ca89f7639d371bcfac2ada4a59aab6541908a7968c0",
+      "text": "Grise Direction sur le chemin fixe, où elle ne fait rien.\n\nAffiché plutôt que masqué, pour qu'il soit clair que c'est le choix de l'autre chemin qui l'active -- un contrôle qui disparaît est un contrôle que l'utilisateur doit redécouvrir.",
+      "translation_source_blocks_sha256": [
+        "a8143b36b27fcecb393b89af1f701589d4d432269205c460937a61240257789c",
+        "77dac09cc19a0626cc147ee1526ce1c7f9c53b7dd0cfc0b119571daab1109cfb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._suggestions": {
+      "source_blocks_sha256": [
+        "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888"
+      ],
+      "source_sha256": "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888",
+      "text": "Ce que chaque niveau suggère pour cette ligne, en une phrase.",
+      "translation_source_blocks_sha256": [
+        "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_ambient_enabled": {
+      "source_blocks_sha256": [
+        "2381a41ef77fd577a934f686b2f462bceca0afb636e92de07061334b3427a31a",
+        "42f2dd9086979937e19bd78ef9ebf0e2da02e17c6f98b6b4e52bb8bbfe7f727f"
+      ],
+      "source_sha256": "52721809c355de5356213d3a9dfa9f83ad47e54f29c832cedc8a63be6c2c731f",
+      "text": "Grise les contrôles de forme lorsqu'il n'y a rien à peindre.\n\nPiloté désormais par la ligne Animation elle-même, puisque None y figure. Les contrôles restent *visibles* au lieu de disparaître, afin que le lecteur voie ce que choisir une animation lui rendrait ; ce ne sont simplement pas des paramètres qui signifient quoi que ce soit tant que rien n'est dessiné.",
+      "translation_source_blocks_sha256": [
+        "2381a41ef77fd577a934f686b2f462bceca0afb636e92de07061334b3427a31a",
+        "42f2dd9086979937e19bd78ef9ebf0e2da02e17c6f98b6b4e52bb8bbfe7f727f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_console_enabled": {
+      "source_blocks_sha256": [
+        "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd"
+      ],
+      "source_sha256": "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd",
+      "text": "Un commutateur de console n'est actif que tant que son commutateur de fichier l'est.",
+      "translation_source_blocks_sha256": [
+        "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_direction_row": {
+      "source_blocks_sha256": [
+        "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5"
+      ],
+      "source_sha256": "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5",
+      "text": "Affiche la direction de dérive uniquement pour le thème qui se déplace.",
+      "translation_source_blocks_sha256": [
+        "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_fractal_note": {
+      "source_blocks_sha256": [
+        "95cf8edf17973da8da7c8d96d771a3a429ecbcbb283b13673cab5d43aa016d82",
+        "56ca415cb3a9b05c37c40d9d83592f0ca97126c9a7922e021a4b0dae275b48bb"
+      ],
+      "source_sha256": "7b0eee691481d6733b2ee51a5f8a3bed0b4ec056a867e1c8e36125d65b53841c",
+      "text": "Indique quel moteur de rendu 'auto' choisira réellement ICI.\n\nLe libellé ne peut pas l'indiquer : cela dépend de la possibilité d'importer vispy sur cette machine, et la réponse honnête est celle que l'utilisateur obtiendra.",
+      "translation_source_blocks_sha256": [
+        "95cf8edf17973da8da7c8d96d771a3a429ecbcbb283b13673cab5d43aa016d82",
+        "56ca415cb3a9b05c37c40d9d83592f0ca97126c9a7922e021a4b0dae275b48bb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_mode_note": {
+      "source_blocks_sha256": [
+        "49e2d4099b219ff2fda2f38ade2d57d7fafaaa760bb0398b5f735c7cccaf683d",
+        "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
+      ],
+      "source_sha256": "213723f0a3c6a7d50d6bf8fcc0b6fa8c4f4541f0cd0f9f212d6e01dc45ce4e60",
+      "text": "Indique pour quel matériel le mode choisi est prévu.\n\nUn sélecteur dont les niveaux ne nomment pas leur matériel oblige l'utilisateur à deviner lequel correspond à sa machine.",
+      "translation_source_blocks_sha256": [
+        "49e2d4099b219ff2fda2f38ade2d57d7fafaaa760bb0398b5f735c7cccaf683d",
+        "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths": {
+      "source_blocks_sha256": [
+        "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
+        "bf520183a29561abb11dba7cc3b26b1374eec58ef2d73980f7cccaf967e6f13a",
+        "01de190ba699d09dc36709bd69abb8917e3c8c6ee100bc75419b5d3c914b369c"
+      ],
+      "source_sha256": "2958f31b80ea87324a212092dda482089a3e817ab0a8a8c1e5edcbb7208d574b",
+      "text": "UN CHAMP NUMÉRIQUE, pas un curseur plafonné.\n\nUne zone numérique dont le maximum est 2 transforme un 40 saisi en 2 sans expliquer le changement. Ces paramètres acceptent le nombre saisi et laissent la validation signaler clairement quand il ne peut pas être utilisé.\n\nLa plage est ouverte au maximum qu'offre un QDoubleSpinBox, donc le widget ne refuse rien ; c'est `explain_a_fractal_number` qui décide si une valeur peut être utilisée, et qui dit pourquoi lorsqu'elle ne le peut pas.",
+      "translation_source_blocks_sha256": [
+        "0e1df5494b71793379e2e73709adf23e0e7e5002bc84dc2b28591a13f03054fc",
+        "bf520183a29561abb11dba7cc3b26b1374eec58ef2d73980f7cccaf967e6f13a",
+        "01de190ba699d09dc36709bd69abb8917e3c8c6ee100bc75419b5d3c914b369c"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._the_theme_brings_its_backdrop_and_its_sound": {
+      "source_blocks_sha256": [
+        "843f562bbc2b43d0ea403fb88dfaeeb36cf46398f8f450c92a0b72a2636bfeea",
+        "78be0e870fd4f8c04125f24fa778251b5949568520ce4380cf4d392dc3e8bb37",
+        "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
+        "38b292b9c1c02eb4980ee5d7975907e01707411eb9d0af897c722c9f4795e93d"
+      ],
+      "source_sha256": "40b6ae848b8dda8a17ed45cf97354474f19ad499d17fca2ae17934f5e558fbd0",
+      "text": "Déplace les trois autres contrôles lorsqu'un thème de nuit est choisi.\n\nLA LIAISON DOIT SE FAIRE ICI ET PAS SEULEMENT DANS `set_theme_choice`. Enregistrer écrit le contrôle Thème puis, juste après, les contrôles Animation, palette et Jeu de sons, de sorte qu'un préréglage appliqué dans `set_theme_choice` serait écrasé trois lignes plus loin par ce que contenaient encore les listes non modifiées. Déplacer plutôt les contrôles signifie que les deux chemins concordent et, surtout, que l'utilisateur VOIT ce que le thème a apporté et peut en annuler n'importe quelle partie avant d'appuyer sur Enregistrer.\n\nLes quatre thèmes qui ne sont pas des thèmes de nuit ne changent rien d'autre, c'est pourquoi ceci retourne tôt au lieu de chercher une valeur par défaut : Dark n'a jamais eu d'avis sur l'arrière-plan et n'en reçoit pas un maintenant.\n\nET IL LAISSE L'ANIMATION TRANQUILLE QUAND LE CONTRÔLE INDIQUE NONE, pour la raison qu'énonce :func:`apply_night_theme` : un thème ne doit rien mettre en mouvement pour un utilisateur qui a désactivé le mouvement. Le Jeu de sons change quand même, car ce contrôle décide QUELS sons seraient joués et non SI des sons sont joués.",
+      "translation_source_blocks_sha256": [
+        "843f562bbc2b43d0ea403fb88dfaeeb36cf46398f8f450c92a0b72a2636bfeea",
+        "6579363ef03d04dc27330aa70c6c53f208f58fb0d5d594ecd44522cc6f4f9864",
+        "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
+        "232af6a79ef8aa55da3431d162d04a44f90cb86b46bc70efcd441582893f2feb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl": {
+      "source_blocks_sha256": [
+        "825bfb5a8b5228229756910cf6a9f3260573671a419491b4df4c59b514032b55",
+        "a6aa3ea4c12ec1fc5f278dfec847842db70f9d7c77b6612cbdcd118d90989fe0"
+      ],
+      "source_sha256": "8103d6fe7057f97c08edd0d25a86016e486baaca257d473a3ea8a28a7bc46ab0",
+      "text": "Affiche ce qui a été demandé et ce que le thème autorisera.\n\nLe plancher est toute la raison d'être de ce contrôle : sur Space il est de 78 %, donc \"20 %\" serait sinon un nombre que l'utilisateur a réglé et que l'application a ignoré en silence.",
+      "translation_source_blocks_sha256": [
+        "825bfb5a8b5228229756910cf6a9f3260573671a419491b4df4c59b514032b55",
+        "a6aa3ea4c12ec1fc5f278dfec847842db70f9d7c77b6612cbdcd118d90989fe0"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_scale_lbl": {
+      "source_blocks_sha256": [
+        "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9"
+      ],
+      "source_sha256": "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9",
+      "text": "Affiche l'échelle de police en pourcentage.",
+      "translation_source_blocks_sha256": [
+        "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_spinner_lbl": {
+      "source_blocks_sha256": [
+        "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384"
+      ],
+      "source_sha256": "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384",
+      "text": "Affiche le délai de l'indicateur de chargement en secondes, ou \"show immediately\" à zéro.",
+      "translation_source_blocks_sha256": [
+        "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_tooltip_delay_lbl": {
+      "source_blocks_sha256": [
+        "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94"
+      ],
+      "source_sha256": "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94",
+      "text": "Affiche le délai de l'infobulle en secondes, ou \"show immediately\" à zéro.",
+      "translation_source_blocks_sha256": [
+        "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._warn_when_both_are_off": {
+      "source_blocks_sha256": [
+        "4e7dabc2add2de7e69cbd44643244cb50b29fdc264b6141ec48139809ce0b418",
+        "8239456d10b9b7af6acd9fb2d8db38401b97d85e4cec8d0d1a2ddfd646db732b"
+      ],
+      "source_sha256": "12f55830b9a1bfe3e532e850d7ea027547979f9ed892b9757088470048b654cb",
+      "text": "Indique, sur les lignes elles-mêmes, ce que coûte la désactivation des deux.\n\nCe n'est pas un refus : les deux désactivés est permis et la demande le dit. Mais dans plusieurs formulaires, le lien vers l'API dans l'infobulle d'un paramètre est le seul chemin de ce contrôle vers sa documentation, donc un lecteur qui désactive les deux perd ce chemin sans que rien à l'affichage ne dise pourquoi. L'avertissement est placé sur les commutateurs parce que c'est là que le choix se fait.",
+      "translation_source_blocks_sha256": [
+        "4e7dabc2add2de7e69cbd44643244cb50b29fdc264b6141ec48139809ce0b418",
+        "2a4f8ef2eb27ef915e4beefecb9b505001fe41e76cc8a8351762a5de5e6f20e0"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._whole": {
+      "source_blocks_sha256": [
+        "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50"
+      ],
+      "source_sha256": "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50",
+      "text": "Un champ de nombres entiers, également sans plafond.",
+      "translation_source_blocks_sha256": [
+        "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._workspace_copying": {
+      "source_blocks_sha256": [
+        "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12"
+      ],
+      "source_sha256": "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12",
+      "text": "La limite n'a de sens que lorsque des fichiers sont copiés.",
+      "translation_source_blocks_sha256": [
+        "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12"
+      ]
+    },
+    "spacr.qt.preferences._NotificationsPage.__init__.line": {
+      "source_blocks_sha256": [
+        "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ],
+      "source_sha256": "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2",
+      "text": "Un champ de texte avec son infobulle et son texte indicatif.",
+      "translation_source_blocks_sha256": [
+        "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ]
+    },
+    "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
+      "source_blocks_sha256": [
+        "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
+      ],
+      "source_sha256": "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f",
+      "text": "Écoute les messages sur le thread dans lequel vit cet objet.",
+      "translation_source_blocks_sha256": [
+        "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
+      ]
+    },
+    "spacr.qt.preferences._install_run_notifier._RunFinishedRelay._show": {
+      "source_blocks_sha256": [
+        "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca"
+      ],
+      "source_sha256": "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca",
+      "text": "Affiche un message depuis la zone de notification, ou sans Qt lorsqu'il n'y en a pas.",
+      "translation_source_blocks_sha256": [
+        "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca"
+      ]
+    },
+    "spacr.qt.preferences._install_run_notifier._without_qt": {
+      "source_blocks_sha256": [
+        "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5"
+      ],
+      "source_sha256": "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5",
+      "text": "La notification du système d'exploitation ; tout échec est journalisé.",
+      "translation_source_blocks_sha256": [
+        "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5"
+      ]
+    },
+    "spacr.qt.preferences._page_stand_in_class._PageStandIn.sizeHint": {
+      "source_blocks_sha256": [
+        "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c"
+      ],
+      "source_sha256": "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c",
+      "text": "Plus grand que ce qu'une zone de défilement laisse une page demander.",
+      "translation_source_blocks_sha256": [
+        "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.__init__": {
+      "source_blocks_sha256": [
+        "a4d56573418af5f6794d2f8d4139409c104dff61e93f8d6c0551b78181f70eb5",
+        "73b1475d6ea0f5e22a37edcf170486674a4065acb3cdee9fb06a5393f0356240"
+      ],
+      "source_sha256": "abb2fdfe6942f33e4e87eb0ca35063345c09fd77c8a9b8bc9cfbbbad2d49646b",
+      "text": "Une fenêtre de Préférences vide ; le constructeur la remplit.\n\n:param parent: la fenêtre propriétaire, ou ``None``.",
+      "translation_source_blocks_sha256": [
+        "a4d56573418af5f6794d2f8d4139409c104dff61e93f8d6c0551b78181f70eb5",
+        "73b1475d6ea0f5e22a37edcf170486674a4065acb3cdee9fb06a5393f0356240"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow._bring_the_page_back": {
+      "source_blocks_sha256": [
+        "1d958b9d4e3f42696e797195cb4a916600367a0a83a588a4592303098718f8a6",
+        "6c2dc6ef62df9b695258be12fab81b818fcca769d73bd3bb2738ec7f04143111",
+        "014601987f13c6e87bd5c34d6e580b43042192f13f0750e6617584221bf3b2ad"
+      ],
+      "source_sha256": "5d8338a4064e73293a8d60876b8666a87ba9513434e9b8dafdf56589e1290c47",
+      "text": "Remet une page en attente dans son onglet lorsque l'onglet est choisi.\n\n:param index: l'onglet qui vient d'être choisi.\n:returns: ``True`` lorsque cet appel a remis une page.",
+      "translation_source_blocks_sha256": [
+        "1d958b9d4e3f42696e797195cb4a916600367a0a83a588a4592303098718f8a6",
+        "6c2dc6ef62df9b695258be12fab81b818fcca769d73bd3bb2738ec7f04143111",
+        "014601987f13c6e87bd5c34d6e580b43042192f13f0750e6617584221bf3b2ad"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow._send_the_unseen_pages_away": {
+      "source_blocks_sha256": [
+        "1ad023671de9fe55744e6e54b51968c2cf7766058556c6259ffa75a161edae1a",
+        "4f6d5b96e4108de5cdeef65164fb3f342231bd5b78383928055e9befbbd7896a"
+      ],
+      "source_sha256": "d59e765341f6fb515537bd420bed2392fac7172a42bdb300c05b3855f62fe47c",
+      "text": "Retire de la fenêtre toutes les pages sauf celle de l'onglet courant.\n\n:returns: combien de widgets ont quitté la fenêtre.",
+      "translation_source_blocks_sha256": [
+        "1ad023671de9fe55744e6e54b51968c2cf7766058556c6259ffa75a161edae1a",
+        "4f6d5b96e4108de5cdeef65164fb3f342231bd5b78383928055e9befbbd7896a"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow._show_only_the_open_page_at_first": {
+      "source_blocks_sha256": [
+        "d7514ece907da480a2cfe9453c76e4e019795289a86960d199086ab7f1670762",
+        "7ba36eff88f479107f73ffbf8aa4f32506a35db3c2cd88da3280923feea78a4a",
+        "f1366b89f921557eab07d4ddff7f5b7a90bbdac39521c56fef5e0607acfa3dcd"
+      ],
+      "source_sha256": "7b285252efbb670f7dc61c793b4a98b99370ca408aa2103042eff496f6c4a2f4",
+      "text": "Fait en sorte que le premier affichage ne stylise que la page de l'onglet courant.\n\nAppelé une fois la construction terminée. Les pages restent où elles sont jusqu'à l'affichage, de sorte que la navigation qui choisit l'onglet d'ouverture trouve chaque contrôle sur son onglet.\n\n:param tabs: le ``QTabWidget`` de la boîte de dialogue ; chaque page est une zone de défilement contenant la page.",
+      "translation_source_blocks_sha256": [
+        "d7514ece907da480a2cfe9453c76e4e019795289a86960d199086ab7f1670762",
+        "7ba36eff88f479107f73ffbf8aa4f32506a35db3c2cd88da3280923feea78a4a",
+        "f1366b89f921557eab07d4ddff7f5b7a90bbdac39521c56fef5e0607acfa3dcd"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild": {
+      "source_blocks_sha256": [
+        "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
+        "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+        "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc"
+      ],
+      "source_sha256": "bc3f2d6931ef658bf753a9d0f0f1100789d76192c536b059fda8b1d9f96a1b84",
+      "text": "``QObject.findChild``, qui trouve un contrôle dont la page est en attente.\n\nUn contrôle demandé par son nom appartient à la boîte de dialogue où que soit sa page, donc ce que le constructeur, Enregistrer et un test trouvent par nom ne dépend pas des onglets qui ont été choisis. La page sur laquelle il se trouve revient dans son onglet, masquée sauf si son onglet est l'onglet courant, comme avant que les pages attendent : un appelant qui clique ensuite ou lit la géométrie de ce qu'il a trouvé tient un widget dans la fenêtre.\n\n:returns: la première correspondance, ou ``None``.",
+      "translation_source_blocks_sha256": [
+        "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
+        "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+        "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChildren": {
+      "source_blocks_sha256": [
+        "60adaaf7b62736392bcf0fb02be95aa9f2c9456fa42cc6a3eac86ddef47bed05",
+        "d5a8089f655870023f183954d53431311f0097dc6288ecfa556eac29eaf8ad43",
+        "4fe0029261d9d42ad91507277a3d336f6b28b5e89a3e88d61365dad7ca87b26a"
+      ],
+      "source_sha256": "b8aa6f8fda98f582cef5658fca790a9cf5ffe009196095f02b5a0d50a47f0b8e",
+      "text": "``QObject.findChildren`` sur toutes les pages, en attente ou non.\n\nUn parcours de la boîte de dialogue depuis Python -- celui d'un test, ou d'un code qui examine chaque contrôle -- voit la boîte de dialogue telle qu'il la voyait avant que les pages attendent, donc chaque page en attente revient d'abord. Pas pendant le premier affichage : la feuille de style de la fenêtre, le verre et le filtre de redimensionnement parcourent alors la boîte de dialogue, et leur ramener les pages est précisément le coût que l'attente sert à éviter. Ni pendant qu'une page revient, dont le verre demande sa carte à la boîte de dialogue.\n\n:returns: toutes les correspondances.",
+      "translation_source_blocks_sha256": [
+        "60adaaf7b62736392bcf0fb02be95aa9f2c9456fa42cc6a3eac86ddef47bed05",
+        "d5a8089f655870023f183954d53431311f0097dc6288ecfa556eac29eaf8ad43",
+        "4fe0029261d9d42ad91507277a3d336f6b28b5e89a3e88d61365dad7ca87b26a"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible": {
+      "source_blocks_sha256": [
+        "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
+        "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
+      ],
+      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
+      "text": "Écarte les pages non vues juste avant le premier affichage.\n\nICI, ET PAS AU PREMIER ``Polish``. La feuille de style de la fenêtre, le verre et le filtre de redimensionnement agissent tous sur cet événement depuis l'application, qui le reçoit avant la fenêtre, et le filtre de redimensionnement polit chaque enfant ce faisant. L'affichage propre de Qt commence dans cet appel, donc les pages sont parties avant qu'aucun d'eux ne s'exécute.\n\n:param visible: comme pour ``QWidget.setVisible``.",
+      "translation_source_blocks_sha256": [
+        "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
+        "f2df76b60fda60ff3ca25d33dfa0318c8e7501370e9c8e0dbb90c206a87f0fc6",
+        "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
+      ]
+    },
+    "spacr.qt.preferences._start_disk_report.done": {
+      "source_blocks_sha256": [
+        "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821"
+      ],
+      "source_sha256": "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821",
+      "text": "Sur le thread de la GUI, avec ce que le worker a rapporté.",
+      "translation_source_blocks_sha256": [
+        "60be21efde0adcce99e09f16ebed56783393e817f322facf904084ce9f6ae3b0"
+      ]
+    },
+    "spacr.qt.preferences._start_disk_report.read": {
+      "source_blocks_sha256": [
+        "76d7159567dd8756ce4e96858bf65681b77a2d4e637d672558909a18f95b88ee",
+        "04f7adffbca46abce67fe17287ad15b20b54b13c18274b1ee64582c188afb9f0"
+      ],
+      "source_sha256": "964ad69ff4099c9740fa738a166f8b0d7b519b540c86b0d58e2d4d008fae879b",
+      "text": "Sur le thread de travail. Renvoie le rapport, ou l'exception.\n\nRenvoyé plutôt que levé pour que le callback ci-dessous soit atteint dans tous les cas ; voir le paragraphe sur les échecs ci-dessus. ``disk_report`` est recherché ici, pas capturé, de sorte qu'un appelant qui le remplace obtient quand même le sien.",
+      "translation_source_blocks_sha256": [
+        "38e7e067934c4e52f781ebaa37a3f3b5258ee14023d3b1dfb04f289a40262078",
+        "e2d48793d6ca7a3d6b71ec367ef0053a5bded820c4dd9d4f5eaea8ad4f71f8f2"
+      ]
+    },
+    "spacr.qt.preferences._start_disk_report.restore": {
+      "source_blocks_sha256": [
+        "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c"
+      ],
+      "source_sha256": "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c",
+      "text": "Rend le bouton. La moitié C++ a peut-être disparu ; ce n'est pas grave.",
+      "translation_source_blocks_sha256": [
+        "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c"
+      ]
+    },
     "spacr.qt.preferences.ambient_default_palette": {
       "source_blocks_sha256": [
         "54632f55e0d2638d5fad56361cee7f2f14769a0059947a75a6dfee05812e95dc",
@@ -87596,6 +88818,42 @@
       "translation_source_blocks_sha256": [
         "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
         "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ]
+    },
+    "spacr.qt.preferences.get_fractal_settings._number": {
+      "source_blocks_sha256": [
+        "8ea8614653761512fba73cf618b62e42f38e5f5a03452529492755d49554e959",
+        "a0cd5ab350c84d4b469f202b733e709320095dbfaf1485ebf37510e5638daa98"
+      ],
+      "source_sha256": "29b13839d84f0f6d62a711a80361756374a796e57edd75aa8b2dbaa2ac293f76",
+      "text": "Un nombre enregistré, avec seulement les bornes qui sont réelles.\n\n``None`` pour une borne signifie qu'il n'y en a pas : les paramètres sont des CHAMPS, et une valeur saisie par l'utilisateur n'est pas réduite en silence au retour. Seule une valeur qui ne peut pas fonctionner du tout est refusée, et c'est `explain_a_fractal_number` qui le dit, en toutes lettres, au moment où elle est saisie.",
+      "translation_source_blocks_sha256": [
+        "8ea8614653761512fba73cf618b62e42f38e5f5a03452529492755d49554e959",
+        "a0cd5ab350c84d4b469f202b733e709320095dbfaf1485ebf37510e5638daa98"
+      ]
+    },
+    "spacr.qt.preferences.get_fractal_settings._text": {
+      "source_blocks_sha256": [
+        "5c9a76c1eda8e8e6b4ff6f85d216d946bb3d3f4d331b4157bb7f00c72eafca98",
+        "2fa19d23c986a71ae383a0f0ace83413262d3c28062d244f9120c131014633a4"
+      ],
+      "source_sha256": "1aefe86f248e427fd4357b3e5e67eedc66469b9996e0ac92e89b8bf32d8051eb",
+      "text": "Une chaîne enregistrée, ou la valeur par défaut lorsqu'elle n'est pas une valeur autorisée.\n\nSe rabat sur la valeur par défaut plutôt que de lever une erreur : une préférence périmée nommant un thème qui n'existe plus ne doit pas empêcher le chargement des paramètres.",
+      "translation_source_blocks_sha256": [
+        "5c9a76c1eda8e8e6b4ff6f85d216d946bb3d3f4d331b4157bb7f00c72eafca98",
+        "c4b283d08e4d6973bc6f6bd0920dbae50fa57d272a5649c21a1274b1a75a19cd"
+      ]
+    },
+    "spacr.qt.preferences.get_fractal_settings._truth": {
+      "source_blocks_sha256": [
+        "cd14c93e28e59e3f1dcb680ed08a3e9b640ce4962378dc6534ff98dc214e93de",
+        "036f5e2a920bbe9eb4e4eb2dc1531cc7f07f942f118eccd44dadf80cda8bc68c"
+      ],
+      "source_sha256": "5291bdbd7645372057dd507d94df3efed7fb35af6c3657e833a1f96d6e864603",
+      "text": "Un booléen enregistré, quelle que soit la façon dont QSettings l'a rendu.\n\nUn fichier INI rend chaque valeur sous forme de chaîne, donc `bool(\"false\")` vaut True et un commutateur que l'utilisateur a désactivé revient activé.",
+      "translation_source_blocks_sha256": [
+        "cd14c93e28e59e3f1dcb680ed08a3e9b640ce4962378dc6534ff98dc214e93de",
+        "036f5e2a920bbe9eb4e4eb2dc1531cc7f07f942f118eccd44dadf80cda8bc68c"
       ]
     },
     "spacr.qt.preferences.get_gui_scale": {

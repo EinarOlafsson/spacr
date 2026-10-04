@@ -1,0 +1,1711 @@
+{
+  "schema": 1,
+  "language": "es",
+  "review_kind": "Direct AI translation with AI technical review against the English source; no human/native-speaker signoff.",
+  "records": [
+    {
+      "label": "spacr.plot._panel_thumbnail._zscored#0",
+      "source": "Standardize a signature, or return None when its spread is unusable.",
+      "source_sha256": "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971",
+      "context": "Standardize a signature, or return None when its spread is unusable.",
+      "translation": "Estandariza una firma, o devuelve None cuando su dispersión es inutilizable.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._plot_cropped_arrays.plot_single_array#0",
+      "source": "Render one channel from ``stack`` onto ``ax``. No colorbar is drawn.",
+      "source_sha256": "5d941ea462024018febacfa60fd42efe21d71e101d19c1faf66575c067353f0f",
+      "context": "Render one channel from ``stack`` onto ``ax``. No colorbar is drawn.",
+      "translation": "Dibuja un canal de ``stack`` sobre ``ax``. No se dibuja barra de color.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._plot_cropped_arrays.plot_single_array#1",
+      "source": "Args: array (ndarray): One 2D plane of ``stack``. Its count of distinct values, not its dtype, is what decides whether it is treated as an intensity image or as a label mask -- so a uint8 plane, which can hold at most 256 distinct values, is always taken for a mask under the default ``threshold`` of 500. ax (matplotlib.axes.Axes): Axes drawn on in place; its frame and ticks are switched off, the title is fixed at size 18, and nothing is returned. title (str): Panel title. When the plane is treated as a mask, the object count is appended as ``\", N (obj.)\"``. That count is the number of distinct non-zero values, so the background value 0 is never counted, but a negative value is counted as an object. chosen_cmap (Colormap): Colormap for the intensity case only. It is discarded when the plane has no more than ``threshold`` unique values (the enclosing function's argument, default ``500``), because a random colormap -- black at index 0, one random opaque colour per non-zero label -- is generated instead so neighbouring objects stay distinguishable.",
+      "source_sha256": "3b3959cd1075cb72b28b36cc645a2c2732d76c81ccff033e161b55948aee0c50",
+      "context": "Args: array (ndarray): One 2D image layer of ``stack``. Its count of distinct values, not its dtype, is what decides whether it is treated as an intensity image or as a label mask -- so a uint8 image layer, which can hold at most 256 distinct values, is always taken for a mask under the default ``threshold`` of 500. ax (matplotlib.axes.Axes): Axes drawn on in place; its frame and ticks are switched off, the title is fixed at size 18, and nothing is returned. title (str): Panel title. When the image layer is treated as a mask, the object count is appended as ``\", N (obj.)\"``. That count is the number of distinct non-zero values, so the background value 0 is never counted, but a negative value is counted as an object. chosen_cmap (Colormap): Colormap for the intensity case only. It is discarded when the image layer has no more than ``threshold`` unique values (the enclosing function's argument, default ``500``), because a random colormap -- black at index 0, one random opaque colour per non-zero label -- is generated instead so neighbouring objects stay distinguishable.",
+      "translation": "Args: array (ndarray): Un plano 2D de ``stack``. Lo que decide si se trata como imagen de intensidad o como máscara de etiquetas es su número de valores distintos, no su dtype -- así que un plano uint8, que puede contener como máximo 256 valores distintos, siempre se toma por máscara con el ``threshold`` predeterminado de 500. ax (matplotlib.axes.Axes): Ejes sobre los que se dibuja in situ; se desactivan su marco y sus marcas, el título se fija en tamaño 18 y no se devuelve nada. title (str): Título del panel. Cuando el plano se trata como máscara, el recuento de objetos se añade como ``\", N (obj.)\"``. Ese recuento es el número de valores distintos no nulos, así que el valor de fondo 0 nunca se cuenta, pero un valor negativo sí se cuenta como objeto. chosen_cmap (Colormap): Mapa de colores solo para el caso de intensidad. Se descarta cuando el plano no tiene más de ``threshold`` valores únicos (el argumento de la función que lo contiene, predeterminado ``500``), porque en su lugar se genera un mapa de colores aleatorio -- negro en el índice 0, un color opaco aleatorio por cada etiqueta no nula -- para que los objetos vecinos sigan siendo distinguibles.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs#0",
+      "source": "Visualize single-cell images.",
+      "source_sha256": "aa78df36630bf133794070369e008eaba016597e237abecd70e8ec0cda283951",
+      "context": "Visualize single-cell images.",
+      "translation": "Visualiza imágenes de células individuales.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs#1",
+      "source": "Args: src (str): The source directory path. channel_indices (list, optional): List of channel indices to visualize. Defaults to None. um_per_pixel (float, optional): Micrometers per pixel. Defaults to 0.1. scale_bar_length_um (float, optional): Length of the scale bar in micrometers. Defaults to 10. show_filename (bool, optional): Whether to show the filename on the image. Defaults to True. standardize (bool, optional): Whether to standardize the image sizes. Defaults to True. nr_imgs (int, optional): The number of images to visualize. Defaults to None. fontsize (int, optional): Font size for the filename. Defaults to 8. channel_names (list, optional): List of channel names. Defaults to None. plot (bool, optional): Whether to plot the images. Defaults to False.",
+      "source_sha256": "ec4293da4988ac9eb0d4f25a226cdb6a5b37d869d1f1c0b9e1f01dd5470a25e7",
+      "context": "Args: src (str): The source directory path. channel_indices (list, optional): List of image data channel indices to visualize. Defaults to None. um_per_pixel (float, optional): Micrometers per pixel. Defaults to 0.1. scale_bar_length_um (float, optional): Length of the scale bar in micrometers. Defaults to 10. show_filename (bool, optional): Whether to show the filename on the image. Defaults to True. standardize (bool, optional): Whether to standardize the image sizes. Defaults to True. nr_imgs (int, optional): The number of images to visualize. Defaults to None. fontsize (int, optional): Font size for the filename. Defaults to 8. channel_names (list, optional): List of image data channel names. Defaults to None. plot (bool, optional): Whether to plot the images. Defaults to False.",
+      "translation": "Args: src (str): La ruta del directorio de origen. channel_indices (list, optional): Lista de índices de canal que se visualizan. Predeterminado None. um_per_pixel (float, optional): Micrómetros por píxel. Predeterminado 0.1. scale_bar_length_um (float, optional): Longitud de la barra de escala en micrómetros. Predeterminado 10. show_filename (bool, optional): Si se muestra el nombre del archivo en la imagen. Predeterminado True. standardize (bool, optional): Si se estandarizan los tamaños de imagen. Predeterminado True. nr_imgs (int, optional): El número de imágenes que se visualizan. Predeterminado None. fontsize (int, optional): Tamaño de fuente del nombre de archivo. Predeterminado 8. channel_names (list, optional): Lista de nombres de canal. Predeterminado None. plot (bool, optional): Si se dibujan las imágenes. Predeterminado False.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs#2",
+      "source": "Returns: matplotlib.figure.Figure: The figure object containing the plotted images.",
+      "source_sha256": "97a226c3d0f3099bc0ca299eb7f289c5d39efc94c3768fc054801bc46468d04d",
+      "context": "Returns: matplotlib.figure.Figure: The figure object containing the plotted images.",
+      "translation": "Returns: matplotlib.figure.Figure: El objeto figura que contiene las imágenes dibujadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs._generate_filelist#0",
+      "source": "Generate a list of image files in the specified directory.",
+      "source_sha256": "b94765212c26ae62427267878365b919b3ae308f7f774b1e1089502f5a90a9b9",
+      "context": "Generate a list of image files in the specified directory.",
+      "translation": "Genera una lista de archivos de imagen en el directorio indicado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs._generate_filelist#1",
+      "source": "Args: src (str): The source directory path.",
+      "source_sha256": "6d358b5e779c694b49b660fbee3437f6340499c083c9d12790bf0c416597f376",
+      "context": "Args: src (str): The source directory path.",
+      "translation": "Args: src (str): La ruta del directorio de origen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs._generate_filelist#2",
+      "source": "Returns: list: A list of image file paths.",
+      "source_sha256": "161d5d3acc0be763b93be70b6856181040427a085ae8a51c2da3450e21a9b1ad",
+      "context": "Returns: list: A list of image file paths.",
+      "translation": "Returns: list: Una lista de rutas de archivos de imagen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs._random_sample#0",
+      "source": "Randomly selects a subset of files from the given file list.",
+      "source_sha256": "364de1e28b1ab89bce047bd537bd2b2591b25cdbd625791fc77feb151b66b17f",
+      "context": "Randomly selects a subset of files from the given file list.",
+      "translation": "Selecciona al azar un subconjunto de archivos de la lista de archivos dada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs._random_sample#1",
+      "source": "Args: file_list (list): A list of file names. nr_imgs (int, optional): The number of files to select. If None, all files are selected. Defaults to None.",
+      "source_sha256": "944cb6e71716091fa5d401365ba1201b21a66ec5d6b63da60210dc20c7aa9147",
+      "context": "Args: file_list (list): A list of file names. nr_imgs (int, optional): The number of files to select. If None, all files are selected. Defaults to None.",
+      "translation": "Args: file_list (list): Una lista de nombres de archivo. nr_imgs (int, optional): El número de archivos que se seleccionan. Si es None, se seleccionan todos. Predeterminado None.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._save_scimg_plot._visualize_scimgs._random_sample#2",
+      "source": "Returns: list: A list of randomly selected file names.",
+      "source_sha256": "01b202c5a236152bb56ef055fadd2e9e79434e0ffa343f2324b048eb243fcf12",
+      "context": "Returns: list: A list of randomly selected file names.",
+      "translation": "Returns: list: Una lista de nombres de archivo seleccionados al azar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._visualize_and_save_timelapse_stack_with_tracks._view_frame_with_tracks#0",
+      "source": "Display the frame with tracks overlaid.",
+      "source_sha256": "6afa9183b469784bfa31772f0970f47d9a48a930218e30ca6413b9c5654efab3",
+      "context": "Display the frame with tracks overlaid.",
+      "translation": "Muestra el fotograma con las trayectorias superpuestas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._visualize_and_save_timelapse_stack_with_tracks._view_frame_with_tracks#1",
+      "source": "Parameters: frame (int): The frame number to display.",
+      "source_sha256": "5c749cc63057e5f39a878b42d2d36700ba2b42b8974b830f932a9d6cacdfa959",
+      "context": "Parameters: frame (int): The frame number to display.",
+      "translation": "Parámetros: frame (int): El número del fotograma que se muestra.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot._visualize_and_save_timelapse_stack_with_tracks._view_frame_with_tracks#2",
+      "source": "Returns: None",
+      "source_sha256": "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974",
+      "context": "Returns: None",
+      "translation": "Devuelve: None",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.jitterplot_by_annotation._resolve_well_column#0",
+      "source": "Return the first ``_x``, bare, or ``_y`` well-column spelling.",
+      "source_sha256": "8c0031020dfb4d5e47257a27af607916c67d1316951df6b54d9f35fcaa0df1fe",
+      "context": "Return the first ``_x``, bare, or ``_y`` microplate sample position-column spelling.",
+      "translation": "Devuelve la primera grafía de la columna de pocillos: ``_x``, sin sufijo o ``_y``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation#0",
+      "source": "Join per-object measurement tables with the ``png_list`` annotation table.",
+      "source_sha256": "156d98507d9ddf18f4a01f2e6cfe396a63939ce1806fa2c9eb18eb93281bcd57",
+      "context": "Join per-object measurement tables with the ``png_list`` annotation table.",
+      "translation": "Une las tablas de mediciones por objeto con la tabla de anotación ``png_list``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation#1",
+      "source": "spaCR experiment directory; the database is read from ``<src>/measurements/measurements.db`` and no other layout is supported — pass the experiment folder, not the ``.db`` file.",
+      "source_sha256": "eaca8672f15f07712322779b7a7ddbe08dfe36e913a7d7741597bd6a39716a39",
+      "context": "spaCR experiment directory; the database is read from ``<src>/measurements/measurements.db`` and no other layout is supported — pass the experiment folder, not the ``.db`` file.",
+      "translation": "Directorio del experimento de spaCR; la base de datos se lee de ``<src>/measurements/measurements.db`` y no se admite ninguna otra estructura — pase la carpeta del experimento, no el archivo ``.db``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation#2",
+      "source": "Object tables to merge, joined on ``prcfo``. Every name listed must exist in the database.",
+      "source_sha256": "d333988acc4958d45a7af3cda7b3562e81ed7d3fb30145005f4095d3b2753a4c",
+      "context": "Object tables to merge, joined on ``prcfo``. Every name listed must exist in the database.",
+      "translation": "Tablas de objetos que se combinan, unidas por ``prcfo``. Cada nombre indicado debe existir en la base de datos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation#3",
+      "source": "One row per object, with the ``png_list`` crop path attached by a left join.",
+      "source_sha256": "4516c51ec228fdb43b2ec44923229b2e816ee82f9562ceff5ac225bc833a2621",
+      "context": "One row per object, with the ``png_list`` extracted-image-region path attached by a left join.",
+      "translation": "Una fila por objeto, con la ruta del recorte de ``png_list`` añadida mediante un left join.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation#4",
+      "source": "if ``png_list`` holds more than one crop per ``prcfo``; the join is validated ``one_to_one`` precisely so duplicated crops cannot silently multiply the measurement rows and inflate the jitter plot.",
+      "source_sha256": "9fe804238b015f7a89227ebb71107c57a55faabf7a7033948f91fec3d690f8ca",
+      "context": "if ``png_list`` holds more than one extracted image region per ``prcfo``; the join is validated ``one_to_one`` precisely so duplicated extracted image regions cannot silently multiply the measurement rows and inflate the jitter plot.",
+      "translation": "si ``png_list`` contiene más de un recorte por ``prcfo``; el join se valida como ``one_to_one`` precisamente para que los recortes duplicados no puedan multiplicar en silencio las filas de medición e inflar el gráfico de dispersión.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.overlay_masks_on_images.normalize_image#0",
+      "source": "Normalize the image to the 1st and 99th percentiles.",
+      "source_sha256": "7de34cf9a98a3a5fcbd4a806c4318b07baa59453db7a8529568b7bcbaed3f601",
+      "context": "Normalize the image to the 1st and 99th percentiles.",
+      "translation": "Normaliza la imagen a los percentiles 1 y 99.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.overlay_masks_on_images.normalize_image#1",
+      "source": "Image array of any numeric dtype, typically the raw 16-bit TIFF. The percentiles are taken over the whole array, so a multi-channel image is stretched by one shared window rather than per channel, and the brightest and darkest 1% saturate. A flat or near-constant image puts both percentiles on the same value; the rescale then divides by zero and the ``uint8`` cast turns the resulting ``nan`` into an undefined value, so guard empty fields upstream.",
+      "source_sha256": "fa1c1f26b7cb4b0dcc59b8ebb8d5f31aeb7c5f8c57e423014704aed5dffef707",
+      "context": "Image array of any numeric dtype, typically the raw 16-bit TIFF. The percentiles are taken over the whole array, so a multi-image data channel image is stretched by one shared window rather than per image data channel, and the brightest and darkest 1% saturate. A flat or near-constant image puts both percentiles on the same value; the rescale then divides by zero and the ``uint8`` cast turns the resulting ``nan`` into an undefined value, so guard empty microscope fields of view upstream.",
+      "translation": "Array de imagen de cualquier dtype numérico, normalmente el TIFF de 16 bits en bruto. Los percentiles se toman sobre todo el array, así que una imagen multicanal se estira con una única ventana compartida y no por canal, y el 1% más claro y más oscuro se satura. Una imagen plana o casi constante pone ambos percentiles en el mismo valor; el reescalado divide entonces por cero y la conversión a ``uint8`` convierte el ``nan`` resultante en un valor indefinido, así que proteja antes los campos de visión vacíos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.overlay_masks_on_images.normalize_image#2",
+      "source": "A ``uint8`` array on 0-255, ready to blend with the mask overlay.",
+      "source_sha256": "9e3f8c9def240444e46ad76b4c2f59b74ea691c57d1433bf757adb15feca4e51",
+      "context": "A ``uint8`` array on 0-255, ready to blend with the mask overlay.",
+      "translation": "Un array ``uint8`` en 0-255, listo para fundirse con la superposición de la máscara.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_data_from_csv.filter_rows_by_column_values#0",
+      "source": "Return a filtered DataFrame where only rows with the column value in the list are kept.",
+      "source_sha256": "719f1f6a039b9d62f8bffdd1e87c53d04b38e2081bf2a81e9f7b22ea5f7e58b7",
+      "context": "Return a filtered DataFrame where only rows with the column value in the list are kept.",
+      "translation": "Devuelve un DataFrame filtrado en el que solo se conservan las filas cuyo valor de columna está en la lista.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_data_from_csv.filter_rows_by_column_values#1",
+      "source": "Frame to filter; it is not modified, and the result is a ``.copy()`` so later assignment to it raises no ``SettingWithCopyWarning``.",
+      "source_sha256": "4d0ea92560a6ddf956cda0ed7aaa31f423cdc2c41208d1732f9a3e90dc24198c",
+      "context": "Frame to filter; it is not modified, and the result is a ``.copy()`` so later assignment to it raises no ``SettingWithCopyWarning``.",
+      "translation": "Marco que se filtra; no se modifica, y el resultado es una ``.copy()`` para que una asignación posterior no lance ningún ``SettingWithCopyWarning``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_data_from_csv.filter_rows_by_column_values#2",
+      "source": "Column to test. Must exist, or ``KeyError`` is raised — here it is the caller's ``grouping_column``.",
+      "source_sha256": "c269b77b3321dbc7854634b9f5344c195bf4bc1e1a68fa22f5c84ad0c0e8403c",
+      "context": "Column to test. Must exist, or ``KeyError`` is raised — here it is the caller's ``grouping_column``.",
+      "translation": "Columna que se comprueba. Debe existir, o se lanza ``KeyError`` — aquí es la ``grouping_column`` de quien llama.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_data_from_csv.filter_rows_by_column_values#3",
+      "source": "Values to keep, matched with ``isin`` so comparison is exact and type-sensitive: the string ``'1'`` will not match an integer ``1`` read from the CSV. An empty list keeps nothing and yields an empty frame rather than passing everything through.",
+      "source_sha256": "4897b25e160a18b6e4884babd42bd1021142cf24483453b6d130a155db3aec84",
+      "context": "Values to keep, matched with ``isin`` so comparison is exact and type-sensitive: the string ``'1'`` will not match an integer ``1`` read from the CSV. An empty list keeps nothing and yields an empty frame rather than passing everything through.",
+      "translation": "Valores que se conservan, comparados con ``isin`` para que la comparación sea exacta y sensible al tipo: la cadena ``'1'`` no coincidirá con un entero ``1`` leído del CSV. Una lista vacía no conserva nada y produce un marco vacío en lugar de dejarlo pasar todo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_data_from_csv.filter_rows_by_column_values#4",
+      "source": "A new filtered DataFrame.",
+      "source_sha256": "b48f53be0325f6f4e9d14685e798c3a469de28722b17195f7ef4102924d810af",
+      "context": "A new filtered DataFrame.",
+      "translation": "Un DataFrame filtrado nuevo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._filter_object#0",
+      "source": "Filter objects in a mask based on their area (size) and mean intensity.",
+      "source_sha256": "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+      "context": "Filter objects in a mask based on their area (size) and mean intensity.",
+      "translation": "Filtra los objetos de una máscara según su área (tamaño) y su intensidad media.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._filter_object#1",
+      "source": "Args: mask (ndarray): The input mask. intensity_image (ndarray): The corresponding intensity image. min_max_area (tuple): A tuple (min_area, max_area) specifying the minimum and maximum area thresholds. min_max_intensity (tuple): A tuple (min_intensity, max_intensity) specifying the minimum and maximum intensity thresholds.",
+      "source_sha256": "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+      "context": "Args: mask (ndarray): The input mask. intensity_image (ndarray): The corresponding intensity image. min_max_area (tuple): A tuple (min_area, max_area) specifying the minimum and maximum area thresholds. min_max_intensity (tuple): A tuple (min_intensity, max_intensity) specifying the minimum and maximum intensity thresholds.",
+      "translation": "Args: mask (ndarray): La máscara de entrada. intensity_image (ndarray): La imagen de intensidad correspondiente. min_max_area (tuple): Una tupla (min_area, max_area) que indica los umbrales mínimo y máximo de área. min_max_intensity (tuple): Una tupla (min_intensity, max_intensity) que indica los umbrales mínimo y máximo de intensidad.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._filter_object#2",
+      "source": "Returns: ndarray: The filtered mask.",
+      "source_sha256": "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be",
+      "context": "Returns: ndarray: The filtered mask.",
+      "translation": "Returns: ndarray: La máscara filtrada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._plot_merged_plot#0",
+      "source": "Plot the merged plot with overlay, image channels, and masks.",
+      "source_sha256": "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb",
+      "context": "Plot the merged plot with overlay, image data channels, and masks.",
+      "translation": "Dibuja el gráfico combinado con la superposición, los canales de imagen y las máscaras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._plot_merged_plot._apply_contours#0",
+      "source": "Apply contours to the image.",
+      "source_sha256": "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2",
+      "context": "Apply contours to the image.",
+      "translation": "Aplica contornos a la imagen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._plot_merged_plot._generate_colored_mask#0",
+      "source": "Generate a colored mask using the given colormap.",
+      "source_sha256": "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be",
+      "context": "Generate a colored mask using the given colormap.",
+      "translation": "Genera una máscara coloreada con el mapa de colores dado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._plot_merged_plot._generate_contours#0",
+      "source": "Generate contours from the mask using OpenCV.",
+      "source_sha256": "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8",
+      "context": "Generate contours from the mask using OpenCV.",
+      "translation": "Genera contornos a partir de la máscara con OpenCV.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._plot_merged_plot._normalize_image#0",
+      "source": "Normalize the image based on given percentiles.",
+      "source_sha256": "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e",
+      "context": "Normalize the image based on given percentiles.",
+      "translation": "Normaliza la imagen según los percentiles dados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._plot_merged_plot._overlay_mask#0",
+      "source": "Overlay the colored mask onto the original image.",
+      "source_sha256": "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe",
+      "context": "Overlay the colored mask onto the original image.",
+      "translation": "Superpone la máscara coloreada sobre la imagen original.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay._save_channels_as_tiff#0",
+      "source": "Save each channel in the stack as a grayscale TIFF.",
+      "source_sha256": "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655",
+      "context": "Save each image data channel in the stack as a grayscale TIFF.",
+      "translation": "Guarda cada canal de la pila como un TIFF en escala de grises.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay.random_color_cmap#0",
+      "source": "Generate a random-looking but deterministic colormap with a unique seed.",
+      "source_sha256": "29130b04fe1416c0a1ed608d0c0692e2aa8dd8da9b3da43b51d6631573dc53e7",
+      "context": "Generate a random-looking but deterministic colormap with a unique seed.",
+      "translation": "Genera un mapa de colores de aspecto aleatorio pero determinista con una semilla única.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay.random_color_cmap#1",
+      "source": "How many object colours to draw. Index 0 of the returned colormap is forced to black for background, so the map holds ``n_labels + 1`` entries; callers here pass ``int(outline.max() + 1)`` per object type, or ``int(combined_mask.max() + 1)`` for the merged panel. A value ``<= 0`` short-circuits to a black-only colormap rather than raising.",
+      "source_sha256": "fea9ced9464159f45dde9e2eb21db4c0e559944cca12425bfb4230398555f591",
+      "context": "How many object colours to draw. Index 0 of the returned colormap is forced to black for background, so the map holds ``n_labels + 1`` entries; callers here pass ``int(outline.max() + 1)`` per object type, or ``int(combined_mask.max() + 1)`` for the merged panel. A value ``<= 0`` short-circuits to a black-only colormap rather than throwing.",
+      "translation": "Cuántos colores de objeto se generan. El índice 0 del mapa de colores devuelto se fuerza a negro para el fondo, así que el mapa tiene ``n_labels + 1`` entradas; quienes llaman aquí pasan ``int(outline.max() + 1)`` por tipo de objeto, o ``int(combined_mask.max() + 1)`` para el panel combinado. Un valor ``<= 0`` produce directamente un mapa solo negro en lugar de lanzar un error.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay.random_color_cmap#2",
+      "source": "Seed for a local ``default_rng``; the same seed always produces the same hue assignment, which is why each object type is given its own fixed seed and so keeps its colours across panels. ``None`` draws fresh entropy and colours change per call.",
+      "source_sha256": "b5fea333443048d5502a848fb6a3dca87ca5e0c0a94c2d5e828b488f614c1d7b",
+      "context": "Seed for a local ``default_rng``; the same seed always produces the same hue assignment, which is why each object type is given its own fixed seed and so keeps its colours across panels. ``None`` draws fresh entropy and colours change per call.",
+      "translation": "Semilla para un ``default_rng`` local; la misma semilla produce siempre la misma asignación de tonos, por eso cada tipo de objeto recibe su propia semilla fija y conserva así sus colores entre paneles. ``None`` toma entropía nueva y los colores cambian en cada llamada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay.random_color_cmap#3",
+      "source": "A ``ListedColormap`` of vivid, well-separated hues.",
+      "source_sha256": "ee960799b8f56fa4eb75ae9a9e019c814a57b85d39e94d3e8a88e1857b20bdc7",
+      "context": "A ``ListedColormap`` of vivid, well-separated hues.",
+      "translation": "Un ``ListedColormap`` de tonos vivos y bien separados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._filter_object#0",
+      "source": "Filter objects in a mask based on their area (size) and mean intensity.",
+      "source_sha256": "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+      "context": "Filter objects in a mask based on their area (size) and mean intensity.",
+      "translation": "Filtra los objetos de una máscara según su área (tamaño) y su intensidad media.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._filter_object#1",
+      "source": "Args: mask (ndarray): The input mask. intensity_image (ndarray): The corresponding intensity image. min_max_area (tuple): A tuple (min_area, max_area) specifying the minimum and maximum area thresholds. min_max_intensity (tuple): A tuple (min_intensity, max_intensity) specifying the minimum and maximum intensity thresholds.",
+      "source_sha256": "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+      "context": "Args: mask (ndarray): The input mask. intensity_image (ndarray): The corresponding intensity image. min_max_area (tuple): A tuple (min_area, max_area) specifying the minimum and maximum area thresholds. min_max_intensity (tuple): A tuple (min_intensity, max_intensity) specifying the minimum and maximum intensity thresholds.",
+      "translation": "Args: mask (ndarray): La máscara de entrada. intensity_image (ndarray): La imagen de intensidad correspondiente. min_max_area (tuple): Una tupla (min_area, max_area) que indica los umbrales mínimo y máximo de área. min_max_intensity (tuple): Una tupla (min_intensity, max_intensity) que indica los umbrales mínimo y máximo de intensidad.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._filter_object#2",
+      "source": "Returns: ndarray: The filtered mask.",
+      "source_sha256": "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be",
+      "context": "Returns: ndarray: The filtered mask.",
+      "translation": "Returns: ndarray: La máscara filtrada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot#0",
+      "source": "Plot the merged plot with overlay, image channels, and masks.",
+      "source_sha256": "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb",
+      "context": "Plot the merged plot with overlay, image data channels, and masks.",
+      "translation": "Dibuja el gráfico combinado con la superposición, los canales de imagen y las máscaras.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._apply_contours#0",
+      "source": "Apply contours to the image.",
+      "source_sha256": "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2",
+      "context": "Apply contours to the image.",
+      "translation": "Aplica contornos a la imagen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._generate_colored_mask#0",
+      "source": "Generate a colored mask using the given colormap.",
+      "source_sha256": "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be",
+      "context": "Generate a colored mask using the given colormap.",
+      "translation": "Genera una máscara coloreada con el mapa de colores dado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._generate_contours#0",
+      "source": "Generate contours from the mask using OpenCV.",
+      "source_sha256": "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8",
+      "context": "Generate contours from the mask using OpenCV.",
+      "translation": "Genera contornos a partir de la máscara con OpenCV.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._normalize_image#0",
+      "source": "Normalize the image based on given percentiles.",
+      "source_sha256": "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e",
+      "context": "Normalize the image based on given percentiles.",
+      "translation": "Normaliza la imagen según los percentiles dados.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._overlay_mask#0",
+      "source": "Overlay the colored mask onto the original image.",
+      "source_sha256": "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe",
+      "context": "Overlay the colored mask onto the original image.",
+      "translation": "Superpone la máscara coloreada sobre la imagen original.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines._save_channels_as_tiff#0",
+      "source": "Save each channel in the stack as a grayscale TIFF.",
+      "source_sha256": "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655",
+      "context": "Save each image data channel in the stack as a grayscale TIFF.",
+      "translation": "Guarda cada canal de la pila como un TIFF en escala de grises.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines.random_color_cmap#0",
+      "source": "Generates a random color map for a given number of labels.",
+      "source_sha256": "e09f856dcad0a1447cd8def14d95107829358833481a9914077f75a512bfa9b4",
+      "context": "Generates a random color map for a given number of labels.",
+      "translation": "Genera un mapa de colores aleatorio para un número dado de etiquetas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines.random_color_cmap#1",
+      "source": "How many object colours to draw. Index 0 is prepended as black for background, so the map holds ``n_labels + 1`` entries; callers here pass ``int(outline.max() + 1)`` per object type, or ``int(combined_mask.max() + 1)`` for the merged panel. Colours are drawn as uniform RGB, so unlike the HSV variant in :func:`plot_image_mask_overlay` some come out dark and low-contrast against the image.",
+      "source_sha256": "8c00d035674dbef9b1be6281086cf452300a7b7841ee27a18521608d40c06734",
+      "context": "How many object colours to draw. Index 0 is prepended as black for background, so the map holds ``n_labels + 1`` entries; callers here pass ``int(outline.max() + 1)`` per object type, or ``int(combined_mask.max() + 1)`` for the merged panel. Colours are drawn as uniform RGB, so unlike the HSV variant in :func:`plot_image_mask_overlay` some come out dark and low-contrast against the image.",
+      "translation": "Cuántos colores de objeto se generan. El índice 0 se antepone en negro para el fondo, así que el mapa tiene ``n_labels + 1`` entradas; quienes llaman aquí pasan ``int(outline.max() + 1)`` por tipo de objeto, o ``int(combined_mask.max() + 1)`` para el panel combinado. Los colores se generan como RGB uniforme, así que, a diferencia de la variante HSV de :func:`plot_image_mask_overlay`, algunos salen oscuros y con poco contraste frente a la imagen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines.random_color_cmap#2",
+      "source": "Seeds the *global* ``numpy.random`` state, not a local generator, so passing it also shifts every later ``np.random`` draw in the process. Callers here pass a fresh ``random.randint(0, 100)`` per panel, which is why the same object gets a different colour in each panel and each run. ``None`` leaves the global state alone.",
+      "source_sha256": "7fc9850cf67c6c404d33c6b7a81d7616c49c93c2942f98e014289595f4456087",
+      "context": "Seeds the *global* ``numpy.random`` state, not a local generator, so passing it also shifts every later ``np.random`` draw in the process. Callers here pass a fresh ``random.randint(0, 100)`` per panel, which is why the same object gets a different colour in each panel and each processing session. ``None`` leaves the global state alone.",
+      "translation": "Fija la semilla del estado *global* de ``numpy.random``, no de un generador local, así que pasarla también desplaza toda extracción posterior de ``np.random`` en el proceso. Quienes llaman aquí pasan un ``random.randint(0, 100)`` nuevo por panel, por eso el mismo objeto recibe un color distinto en cada panel y en cada ejecución. ``None`` deja el estado global como está.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_image_mask_overlay_magenta_outlines.random_color_cmap#3",
+      "source": "A ``ListedColormap``.",
+      "source_sha256": "f9545582cbe488f4e5c4568be38c61ab8ac7db05dcf2de900ae2e204945e5c94",
+      "context": "A ``ListedColormap``.",
+      "translation": "A ``ListedColormap``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.find_files#0",
+      "source": "Return a dict keyed by base filename mapping to files with the requested extensions.",
+      "source_sha256": "209f27bd17f665504d721fd2e4cb1c806d1d9d75d54fbe7ef4fb06e0a5f9f6ff",
+      "context": "Return a key-value mapping keyed by base filename mapping to files with the requested extensions.",
+      "translation": "Devuelve un dict indexado por nombre base de archivo que apunta a los archivos con las extensiones solicitadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.find_files#1",
+      "source": "Folder paths, each walked recursively. Grouping is by basename without extension, and only names found in *every* folder survive the final filter — one missing file drops that name from the result entirely, and two files with the same basename under one folder keep only the last one walked.",
+      "source_sha256": "dd807d8f9b730807f40daa2d4815e144cf090792617099dae4614b60ca1bb668",
+      "context": "Folder paths, each walked recursively. Grouping is by basename without extension, and only names found in *every* folder survive the final filter — one missing file drops that name from the result entirely, and two files with the same basename under one folder keep only the last one walked.",
+      "translation": "Rutas de carpetas, cada una recorrida de forma recursiva. La agrupación es por nombre base sin extensión, y solo los nombres presentes en *todas* las carpetas superan el filtro final — un archivo ausente elimina por completo ese nombre del resultado, y de dos archivos con el mismo nombre base en una carpeta solo se conserva el último recorrido.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.find_files#2",
+      "source": "Extensions to accept, matched with ``str.endswith`` so they must include the dot and match case.",
+      "source_sha256": "ed1e3294a301c3e155ce2d76c691dfdd367393034e3195899f6cd7b1a87320c2",
+      "context": "Extensions to accept, matched with ``str.endswith`` so they must include the dot and match case.",
+      "translation": "Extensiones que se aceptan, comparadas con ``str.endswith``, así que deben incluir el punto y coincidir en mayúsculas y minúsculas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.find_files#3",
+      "source": "``{basename: {folder: path}}`` for complete groups only.",
+      "source_sha256": "3aeba32e27445891ad4411ac50dc58a9ff02bad1bbd412cd2314e97b3155ed4c",
+      "context": "``{basename: {folder: path}}`` for complete groups only.",
+      "translation": "``{basename: {folder: path}}`` solo para grupos completos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.normalize_image#0",
+      "source": "Percentile-clip and rescale ``image`` to ``[0, 1]``.",
+      "source_sha256": "ad6189fe13433d4e19ffeb0648d9c46724390f33404f69647fe622484763a8d7",
+      "context": "Percentile-clip and rescale ``image`` to ``[0, 1]``.",
+      "translation": "Recorta ``image`` por percentiles y la reescala a ``[0, 1]``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.normalize_image#1",
+      "source": "Any numeric array; normalisation is over the whole array at once, so a multi-channel stack is scaled by a single pair of percentiles rather than per channel.",
+      "source_sha256": "e469422dd23cfadd813c721125ff24ab1182863ba2c13648f0c1ae75abc6b25f",
+      "context": "Any numeric array; normalisation is over the whole array at once, so a multi-image data channel stack is scaled by a single pair of percentiles rather than per image data channel.",
+      "translation": "Cualquier array numérico; la normalización se hace sobre todo el array a la vez, así que una pila multicanal se escala con un único par de percentiles y no por canal.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.normalize_image#2",
+      "source": "Lower percentile, in 0-100. Default ``1``.",
+      "source_sha256": "74f0bdb2b52f53a39f32377175401ffbf471b24c9be0e024f8dc132aacf41c52",
+      "context": "Lower percentile, in 0-100. Default ``1``.",
+      "translation": "Percentil inferior, en 0-100. Predeterminado ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.normalize_image#3",
+      "source": "Upper percentile, in 0-100, and must be strictly greater than ``lower``: when the two percentiles evaluate equal (a flat image) the rescale divides by zero and returns ``nan`` rather than a blank frame, and swapping the two inverts the image instead of raising. Default ``99``.",
+      "source_sha256": "3167bb40a6899433bee39380015ce7f63d3a1b7fe2265e061ef1b6440be48de2",
+      "context": "Upper percentile, in 0-100, and must be strictly greater than ``lower``: when the two percentiles evaluate equal (a flat image) the rescale divides by zero and returns ``nan`` rather than a blank frame, and swapping the two inverts the image instead of throwing. Default ``99``.",
+      "translation": "Percentil superior, en 0-100, y debe ser estrictamente mayor que ``lower``: cuando ambos percentiles resultan iguales (una imagen plana) el reescalado divide por cero y devuelve ``nan`` en lugar de un marco en blanco, e intercambiarlos invierte la imagen en lugar de lanzar un error. Predeterminado ``99``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.normalize_image#4",
+      "source": "A float array clipped to ``[0, 1]``.",
+      "source_sha256": "396b2dc8de82216575e58756e2bb6d9d8cdc2ea611ebe3dc989d0266073551f7",
+      "context": "A float array clipped to ``[0, 1]``.",
+      "translation": "Un array de coma flotante recortado a ``[0, 1]``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#0",
+      "source": "Show image/mask pairs collected in ``file_dict`` side-by-side.",
+      "source_sha256": "0d9dd889ec603f93f4d04ddd490e9a644f8ff6194aec36c92c6d7ebf17b468d6",
+      "context": "Show image/mask pairs collected in ``file_dict`` side-by-side.",
+      "translation": "Muestra en paralelo los pares imagen/máscara reunidos en ``file_dict``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#1",
+      "source": "``{filename: {folder: path}}`` produced by ``find_files``.",
+      "source_sha256": "05b1891335f1e9767a4f3e74744715f4fd2ece80f94f9c4fa2f0d4a2ca5d1733",
+      "context": "``{filename: {folder: path}}`` produced by ``find_files``.",
+      "translation": "``{filename: {folder: path}}`` producido por ``find_files``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#2",
+      "source": "Values above this unique-count are treated as intensity images; otherwise as label masks. Default ``1000``.",
+      "source_sha256": "4bc87d6600f0b5beb7eabef548d315dd233a660f13879ec345ad8482095d64de",
+      "context": "Values above this unique-count are treated as intensity images; otherwise as label masks. Default ``1000``.",
+      "translation": "Los valores por encima de este recuento de valores únicos se tratan como imágenes de intensidad; si no, como máscaras de etiquetas. Predeterminado ``1000``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#3",
+      "source": "Lower percentile clip. Default ``1``.",
+      "source_sha256": "1704aa87c7280ee3cbefa8f78f43731ca6259f1227b1e94e84326451105b5b3e",
+      "context": "Lower percentile clip. Default ``1``.",
+      "translation": "Recorte por percentil inferior. Predeterminado ``1``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#4",
+      "source": "Upper percentile clip. Default ``99``.",
+      "source_sha256": "8206227acc8c3508c14bafe67b6d9c62742054fe698cff1ec0362f638ad8db64",
+      "context": "Upper percentile clip. Default ``99``.",
+      "translation": "Recorte por percentil superior. Predeterminado ``99``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#5",
+      "source": "If True, overlay mask outlines on the image. Default ``False``.",
+      "source_sha256": "672c8f1d5aef5e2b924e424fdf34c19bfe10e15ad8909875ed81bad47ffdacd3",
+      "context": "If True, overlay mask outlines on the image. Default ``False``.",
+      "translation": "Si es True, superpone los contornos de la máscara sobre la imagen. Predeterminado ``False``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_images_and_arrays.plot_from_file_dict#6",
+      "source": "None",
+      "source_sha256": "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91",
+      "context": "None",
+      "translation": "None",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.gini_coefficient#0",
+      "source": "Calculate Gini coefficient from data.",
+      "source_sha256": "cee43bb4c3d6e17c83a8936af86b0b104a9b807588c64e303d216e3034692c85",
+      "context": "Calculate Gini coefficient from data.",
+      "translation": "Calcula el coeficiente de Gini a partir de los datos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.gini_coefficient#1",
+      "source": "1D array of non-negative counts, sorted internally. It is normalised by ``np.sum(data)``, so an all-zero input yields ``nan``. Unlike ``lorenz_curve``, an empty array does not raise here — it silently returns ``1.0``, the value for maximum inequality — so filter empty plates out upstream.",
+      "source_sha256": "01a1742264d0354dc5da36d4b0aa7b336dac24a7137ebd01bc0c42be13363c2d",
+      "context": "1D array of non-negative counts, sorted internally. It is normalised by ``np.sum(data)``, so an all-zero input yields ``nan``. Unlike ``lorenz_curve``, an empty array does not throw here — it silently returns ``1.0``, the value for maximum inequality — so filter empty plates out upstream.",
+      "translation": "Array 1D de recuentos no negativos, ordenado internamente. Se normaliza por ``np.sum(data)``, así que una entrada toda de ceros produce ``nan``. A diferencia de ``lorenz_curve``, un array vacío no lanza error aquí — devuelve en silencio ``1.0``, el valor de desigualdad máxima —, así que filtre antes las placas vacías.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.gini_coefficient#2",
+      "source": "The Gini coefficient as a float, from ``0.0`` for a perfectly even distribution up towards ``1.0`` as the counts concentrate on a few gRNAs. The area is taken with the trapezoid rule, so an even distribution reports exactly ``0.0`` rather than ``1/n``.",
+      "source_sha256": "7118b663b8d02e72f817dfccec1d9c6e247c63bbf7421cd4cf9b0198131dad7d",
+      "context": "The Gini coefficient as a float, from ``0.0`` for a perfectly even distribution up towards ``1.0`` as the counts concentrate on a few gRNAs. The area is taken with the trapezoid rule, so an even distribution reports exactly ``0.0`` rather than ``1/n``.",
+      "translation": "El coeficiente de Gini como float, desde ``0.0`` para una distribución perfectamente uniforme hasta acercarse a ``1.0`` a medida que los recuentos se concentran en unos pocos gRNAs. El área se calcula con la regla del trapecio, así que una distribución uniforme da exactamente ``0.0`` en lugar de ``1/n``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.lorenz_curve#0",
+      "source": "Calculate Lorenz curve.",
+      "source_sha256": "b111245c4aec0040fd1cda3d226484a0e592a41dd086eb084fe8811c3727b211",
+      "context": "Calculate Lorenz curve.",
+      "translation": "Calcula la curva de Lorenz.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.lorenz_curve#1",
+      "source": "1D array of non-negative counts; it is sorted here, so the caller's order does not matter. The curve is normalised by the running total's last element, so an all-zero input divides by zero and an input mixing signs is not a Lorenz curve at all. Must be non-empty — an empty array indexes past the end.",
+      "source_sha256": "91b37b64e64e644435897d94e93a8aa82040365952f91e9a3d3567a530832dc5",
+      "context": "1D array of non-negative counts; it is sorted here, so the caller's order does not matter. The curve is normalised by the running total's last element, so an all-zero input divides by zero and an input mixing signs is not a Lorenz curve at all. Must be non-empty — an empty array indexes past the end.",
+      "translation": "Array 1D de recuentos no negativos; se ordena aquí, así que el orden de quien llama no importa. La curva se normaliza por el último elemento de la suma acumulada, así que una entrada toda de ceros divide por cero y una entrada con signos mezclados no es en absoluto una curva de Lorenz. No debe estar vacío — un array vacío indexa más allá del final.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.lorenz_curve#2",
+      "source": "``len(data) + 1`` cumulative shares rising from 0 to 1, one longer than the input because the origin is prepended.",
+      "source_sha256": "18986a85e2394aee87eb30d2f318ea6f7025d262c7acdb202b687914d87cd545",
+      "context": "``len(data) + 1`` cumulative shares rising from 0 to 1, one longer than the input because the origin is prepended.",
+      "translation": "``len(data) + 1`` proporciones acumuladas que suben de 0 a 1, una más que la entrada porque se antepone el origen.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells#0",
+      "source": "Remove outliers based on 95% confidence interval for well counts.",
+      "source_sha256": "f85db6a54b0c2e95757b7065398de26711800d3df91db6cd691d57e2a39a2fc6",
+      "context": "Remove outliers based on 95% confidence interval for microplate sample position counts.",
+      "translation": "Elimina valores atípicos según un intervalo de confianza del 95% para los recuentos de pocillos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells#1",
+      "source": "DataFrame with one row per well-and-name observation. Whole names are kept or dropped together, never individual rows, so the surviving frame still has every well of every name it keeps.",
+      "source_sha256": "f53f18c864b4d26850b5940921ae149901ebaa7e67573b1eb7d76d9f68203054",
+      "context": "DataFrame with one row per microplate sample position-and-name observation. Whole names are kept or dropped together, never individual rows, so the surviving frame still has every microplate sample position of every name it keeps.",
+      "translation": "DataFrame con una fila por observación de pocillo y nombre. Los nombres completos se conservan o se descartan juntos, nunca filas sueltas, así que el marco resultante sigue teniendo todos los pocillos de cada nombre que conserva.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells#2",
+      "source": "Column identifying the gRNA (or other name). Rows are grouped on it and the group *size* — the number of wells a name appears in — is what the fence is applied to, so the count column's values play no part in this filter.",
+      "source_sha256": "baf53ba618784ef298760a10a3f262c76b3e80059b53503e3ad4bb9d76370dc3",
+      "context": "Column identifying the gRNA (or other name). Rows are grouped on it and the group *size* — the number of microplate sample positions a name appears in — is what the fence is applied to, so the count column's values play no part in this filter.",
+      "translation": "Columna que identifica el gRNA (u otro nombre). Las filas se agrupan por ella y el *tamaño* del grupo — el número de pocillos en que aparece un nombre — es aquello a lo que se aplica la valla, así que los valores de la columna de recuento no intervienen en este filtro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells#3",
+      "source": "Accepted so the call reads symmetrically with the enclosing function's ``value_column``, but never read: the well count is derived from the group sizes above. Passing a wrong or missing column name changes nothing.",
+      "source_sha256": "40b9ec0f9e65563ed0833022350eaa82da84216a489ca356e799fc11b14c0fd5",
+      "context": "Accepted so the call reads symmetrically with the enclosing function's ``value_column``, but never read: the microplate sample position count is derived from the group sizes above. Passing a wrong or missing column name changes nothing.",
+      "translation": "Se acepta para que la llamada se lea de forma simétrica con la ``value_column`` de la función que la contiene, pero nunca se lee: el recuento de pocillos se deriva de los tamaños de grupo anteriores. Pasar un nombre de columna erróneo o ausente no cambia nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells#4",
+      "source": "``data`` restricted to the names inside the fence. The fence is ``1.5 *`` the 5th-to-95th-percentile spread, not the interquartile range, so it is far wider than a textbook IQR rule and its lower edge is usually negative — in practice only unusually widespread names are removed.",
+      "source_sha256": "00fb70e2df8fa50e6e6a0acd81703c32d01b450a5ff38836659b6ca43b2d5774",
+      "context": "``data`` restricted to the names inside the fence. The fence is ``1.5 *`` the 5th-to-95th-percentile spread, not the interquartile range, so it is far wider than a textbook IQR rule and its lower edge is usually negative — in practice only unusually widespread names are removed.",
+      "translation": "``data`` restringido a los nombres dentro de la valla. La valla es ``1.5 *`` la amplitud entre los percentiles 5 y 95, no el rango intercuartílico, así que es mucho más ancha que una regla IQR de manual y su límite inferior suele ser negativo — en la práctica solo se eliminan nombres de difusión inusualmente amplia.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_region._sort_paths_by_basename#0",
+      "source": "Return ``paths`` sorted by their basename.",
+      "source_sha256": "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe",
+      "context": "Return ``paths`` sorted by their basename.",
+      "translation": "Devuelve ``paths`` ordenadas por su nombre base.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_region.save_figure_as_pdf#0",
+      "source": "Save ``fig`` in the user's chosen figure format.",
+      "source_sha256": "bd39b12944ad745f51b078466414e1d73dc891b6fcbbed0b6d3fb7ba4210b26f",
+      "context": "Save ``fig`` in the user's chosen figure format.",
+      "translation": "Guarda ``fig`` en el formato de figura elegido por el usuario.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_region.save_figure_as_pdf#1",
+      "source": "Named for the format it used to hard-code; it follows the preference now, like every other figure the user keeps, and `save_figure` creates the parent directory itself.",
+      "source_sha256": "6aaaed4d2e8b2fa450953fe4d210da199e10d0efc4e40c05d8a81247a2386b39",
+      "context": "Named for the format it used to hard-code; it follows the preference now, like every other figure the user keeps, and `save_figure` creates the parent directory itself.",
+      "translation": "Lleva el nombre del formato que antes tenía fijado en el código; ahora sigue la preferencia, como cualquier otra figura que el usuario conserve, y `save_figure` crea por sí mismo el directorio padre.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_region.save_figure_as_pdf#2",
+      "source": "Figure to write. It is left open, so the caller can still return it to the notebook after saving.",
+      "source_sha256": "74817696ac1aaad607acfd3e0f180dfacf61a3cfbc96e1038534181d6b7d6cdb",
+      "context": "Figure to write. It is left open, so the caller can still return it to the notebook after saving.",
+      "translation": "Figura que se escribe. Se deja abierta, para que quien llama pueda devolverla al notebook después de guardarla.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_region.save_figure_as_pdf#3",
+      "source": "Destination path. Its extension is rewritten to whichever format the preference selected, so passing a ``.pdf`` name does not force PDF; missing parent directories are created. The path actually written is printed, not returned.",
+      "source_sha256": "6aba2b166dc52f968c4aa956e617127f46790543a9b1ac570df67b1ba69abe28",
+      "context": "Destination path. Its extension is rewritten to whichever format the preference selected, so passing a ``.pdf`` name does not force PDF; missing parent directories are created. The path actually written is printed, not returned.",
+      "translation": "Ruta de destino. Su extensión se reescribe al formato que haya elegido la preferencia, así que pasar un nombre ``.pdf`` no fuerza PDF; se crean los directorios padre que falten. La ruta realmente escrita se imprime, no se devuelve.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_resize.prepare_image#0",
+      "source": "Return ``(display_array, cmap)`` handling 2D/3D input shapes.",
+      "source_sha256": "0304b1d70fc83f3965029abcc7227e993eb7a9eaf61e2a8997d9cce822b17c60",
+      "context": "Return ``(display_array, cmap)`` handling 2D/3D input shapes.",
+      "translation": "Devuelve ``(display_array, cmap)`` tratando formas de entrada 2D/3D.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_resize.prepare_image#1",
+      "source": "A 2D array, or a 3D array in channels-last order. One channel is squeezed to 2D and three or four are passed through as RGB/RGBA with a ``None`` colormap; any other channel count (a 5-channel spaCR stack, or a channels-first array read straight off disk) falls back to the mean across the last axis, which is a legal but usually misleading picture.",
+      "source_sha256": "86d4cec3130cda51744d27b6c3d801c2fc7f61b53ba29a8eba0272834cd8f1b4",
+      "context": "A 2D array, or a 3D array in image-channel-last order. One image data channel is squeezed to 2D and three or four are passed through as RGB/RGBA with a ``None`` colormap; any other image data channel count (a 5-image data channel spaCR stack, or an image-channel-first array read straight off disk) falls back to the mean across the last axis, which is a legal but usually misleading picture.",
+      "translation": "Un array 2D, o un array 3D con los canales al final. Un canal se comprime a 2D y tres o cuatro se pasan como RGB/RGBA con un mapa de colores ``None``; cualquier otro número de canales (una pila de spaCR de 5 canales, o un array con los canales primero leído directamente del disco) recurre a la media sobre el último eje, que es una imagen válida pero normalmente engañosa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_resize.prepare_image#2",
+      "source": "``(array, cmap)`` to hand straight to ``imshow``, where ``cmap`` is ``None`` for true-colour data.",
+      "source_sha256": "2a0a31e96adb40318e1e5f8533be885d35f370a5a0094a445cea897fcd175a04",
+      "context": "``(array, cmap)`` to hand straight to ``imshow``, where ``cmap`` is ``None`` for true-colour data.",
+      "translation": "``(array, cmap)`` para pasar directamente a ``imshow``, donde ``cmap`` es ``None`` para datos en color real.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.plot_resize.prepare_image#3",
+      "source": "if ``img`` is neither 2D nor 3D.",
+      "source_sha256": "84e967d36fe6a7c8666780b8db7fd3b44bd50fe572e42a0ff52d94d861337af3",
+      "context": "if ``img`` is neither 2D nor 3D.",
+      "translation": "si ``img`` no es ni 2D ni 3D.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.apply_contours_on_image#0",
+      "source": "Draw the contours on the original image.",
+      "source_sha256": "476f68a5d0c018f8e4df0acb95490e79ae4e2f2cb3256c4a28d4e293087a6fbe",
+      "context": "Draw the contours on the original image.",
+      "translation": "Dibuja los contornos sobre la imagen original.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.apply_contours_on_image#1",
+      "source": "Base image. A 2D array is normalised to ``uint8`` and promoted to RGB first, which assumes it is already scaled to ``[0, 1]``; anything already 3D is copied and drawn on as-is, so the caller owns its dtype and value range.",
+      "source_sha256": "7c25f9424aa04da44a7f4da3f87cac3093b628324fdf410fb4e3b901a7f326ad",
+      "context": "Base image. A 2D array is normalised to ``uint8`` and promoted to RGB first, which assumes it is already scaled to ``[0, 1]``; anything already 3D is copied and drawn on as-is, so the caller owns its dtype and value range.",
+      "translation": "Imagen base. Un array 2D se normaliza a ``uint8`` y primero se convierte a RGB, lo que supone que ya está escalado a ``[0, 1]``; todo lo que ya es 3D se copia y se dibuja tal cual, así que quien llama se ocupa de su dtype y su rango de valores.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.apply_contours_on_image#2",
+      "source": "Label mask the outlines come from, traced with ``generate_contours``. It must line up pixel-for-pixel with ``image``, so resize both with the same ``max_size``.",
+      "source_sha256": "a3a11d5d6fc3e46746a472ad74b06ed5ae42d57b1e746378fe3bc3d5f2c4b370",
+      "context": "Label mask the outlines come from, traced with ``generate_contours``. It must line up pixel-for-pixel with ``image``, so resize both with the same ``max_size``.",
+      "translation": "Máscara de etiquetas de la que salen los contornos, trazados con ``generate_contours``. Debe coincidir píxel a píxel con ``image``, así que redimensione ambas con el mismo ``max_size``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.apply_contours_on_image#3",
+      "source": "Contour colour as a BGR/RGB triple in 0-255, matching however the image channels are ordered. Default ``(255, 0, 0)``.",
+      "source_sha256": "441a93e1fdffb4280e7a518dc3205e236a52ccd83d67c1446fbc03633943d0f0",
+      "context": "Contour colour as a BGR/RGB triple in 0-255, matching however the image data channels are ordered. Default ``(255, 0, 0)``.",
+      "translation": "Color del contorno como terna BGR/RGB en 0-255, según el orden que tengan los canales de la imagen. Predeterminado ``(255, 0, 0)``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.apply_contours_on_image#4",
+      "source": "Line width in pixels; a negative value fills each contour solid instead of outlining it. Default ``2``.",
+      "source_sha256": "5621b5344adeda2d30e9a4861a11764c871c38f3f34e13a720f66734633d1976",
+      "context": "Line width in pixels; a negative value fills each contour solid instead of outlining it. Default ``2``.",
+      "translation": "Grosor de línea en píxeles; un valor negativo rellena cada contorno en lugar de delinearlo. Predeterminado ``2``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.apply_contours_on_image#5",
+      "source": "A new RGB array; the input ``image`` is not modified.",
+      "source_sha256": "9fef48604f0c89cbcebeffdc0436256baaca7b3fc6a339c0e4e1f8edba029cfb",
+      "context": "A new RGB array; the input ``image`` is not modified.",
+      "translation": "Un array RGB nuevo; la ``image`` de entrada no se modifica.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.generate_contours#0",
+      "source": "Generate contours for each object in the mask using OpenCV.",
+      "source_sha256": "c1d53946117f5c32a0226aa403921983a64751eb37c8244c378d6b1b36bf25a6",
+      "context": "Generate contours for each object in the mask using OpenCV.",
+      "translation": "Genera contornos para cada objeto de la máscara con OpenCV.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.generate_contours#1",
+      "source": "Label mask, cast to ``uint8`` before tracing — labels above 255 wrap around, and because only external contours are retrieved, touching objects trace as one outline and holes inside an object are not outlined.",
+      "source_sha256": "9c9a8c90f7fd26ca560122d4f3bd0d06144f24368af677439eda437b1ceca99c",
+      "context": "Label mask, cast to ``uint8`` before tracing — labels above 255 wrap around, and because only external contours are retrieved, touching objects trace as one outline and holes inside an object are not outlined.",
+      "translation": "Máscara de etiquetas, convertida a ``uint8`` antes del trazado — las etiquetas por encima de 255 dan la vuelta y, como solo se recuperan los contornos externos, los objetos que se tocan se trazan como un único contorno y los huecos dentro de un objeto no se delinean.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.generate_contours#2",
+      "source": "The OpenCV contour list, ready for ``cv2.drawContours``.",
+      "source_sha256": "e73030b6f11d42067778ebb18578e30f562b42c0c711756a67166e38f97d4476",
+      "context": "The OpenCV contour list, ready for ``cv2.drawContours``.",
+      "translation": "La lista de contornos de OpenCV, lista para ``cv2.drawContours``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.normalize_to_uint8#0",
+      "source": "Normalize and convert image to uint8.",
+      "source_sha256": "ee1d12a53bbcb96a62a4048652f232ac3b5bbe4cec790c62d423df7ed912b382",
+      "context": "Normalize and convert image to uint8.",
+      "translation": "Normaliza la imagen y la convierte a uint8.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.normalize_to_uint8#1",
+      "source": "Array whose values are assumed to be scaled to ``[0, 1]`` already — the function only clips and multiplies by 255, it does not rescale. Raw 16-bit camera data therefore saturates to solid white apart from its zero pixels, and negative values clip to black.",
+      "source_sha256": "a02c60538743f94b16b417d588b7e4b62f59dbb357374f02ea77668a3caa6ad8",
+      "context": "Array whose values are assumed to be scaled to ``[0, 1]`` already — the function only clips and multiplies by 255, it does not rescale. Raw 16-bit camera data therefore saturates to solid white apart from its zero pixels, and negative values clip to black.",
+      "translation": "Array cuyos valores se suponen ya escalados a ``[0, 1]`` — la función solo recorta y multiplica por 255, no reescala. Por eso los datos de cámara de 16 bits en bruto se saturan a blanco puro salvo sus píxeles nulos, y los valores negativos se recortan a negro.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.normalize_to_uint8#2",
+      "source": "A ``uint8`` array of the same shape.",
+      "source_sha256": "418c82c5e80fee4201b84f637d0ccb622fc9f92a9575c11c1c8a0c9a17a7b558",
+      "context": "A ``uint8`` array of the same shape.",
+      "translation": "Un array ``uint8`` de la misma forma.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.resize_if_needed#0",
+      "source": "Resize image if any dimension exceeds max_size while maintaining aspect ratio.",
+      "source_sha256": "9584c2e042da9a097f7753c59ccd591faad7adcf2fbc3874725d0093820620c1",
+      "context": "Resize image if any dimension exceeds max_size while maintaining aspect ratio.",
+      "translation": "Redimensiona la imagen si alguna dimensión supera max_size, manteniendo la relación de aspecto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.resize_if_needed#1",
+      "source": "2D or ``(H, W, C)`` array. The channel axis is left untouched, and the result is cast back to the input dtype, so a label mask keeps integer labels — but the interpolation is anti-aliased, which can invent label values that belong to no object along object borders.",
+      "source_sha256": "0fef89d63f1e2a1bfa1eb5d9adc91f2f5e74e98c1c3decf9c75ce55465d7c643",
+      "context": "2D or ``(H, W, C)`` array. The image data channel axis is left untouched, and the result is cast back to the input dtype, so a label mask keeps integer labels — but the interpolation is anti-aliased, which can invent label values that belong to no object along object borders.",
+      "translation": "Array 2D o ``(H, W, C)``. El eje de canales no se toca y el resultado se convierte de nuevo al dtype de entrada, así que una máscara de etiquetas conserva etiquetas enteras — pero la interpolación tiene antialiasing, lo que puede inventar valores de etiqueta que no pertenecen a ningún objeto a lo largo de los bordes.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.resize_if_needed#2",
+      "source": "Cap on the larger of height and width, in pixels. The image is returned unchanged when it already fits, so no upscaling ever happens; a non-positive value drives the scale factor to zero, so pass a real pixel budget.",
+      "source_sha256": "aa711239cdf543f040d2fe20499fb830cc7ebcd7200283d4b23e3227a202c945",
+      "context": "Cap on the larger of height and width, in pixels. The image is returned unchanged when it already fits, so no upscaling ever happens; a non-positive value drives the scale factor to zero, so pass a real pixel budget.",
+      "translation": "Límite para el mayor de alto y ancho, en píxeles. La imagen se devuelve sin cambios cuando ya cabe, así que nunca se amplía; un valor no positivo lleva el factor de escala a cero, así que pase un presupuesto de píxeles real.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.print_mask_and_flows.resize_if_needed#3",
+      "source": "The resized array, or ``image`` itself when it fits.",
+      "source_sha256": "82aac0cc7af7abd08d7ab223cc3cff9e78d2bcf96c3be4ad515e157165fc9367",
+      "context": "The resized array, or ``image`` itself when it fits.",
+      "translation": "El array redimensionado, o la propia ``image`` cuando cabe.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._generate_tabels#0",
+      "source": "Generate row labels and a symbol table for multi-level grouping.",
+      "source_sha256": "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f",
+      "context": "Generate row labels and a symbol table for multi-level grouping.",
+      "translation": "Genera etiquetas de fila y una tabla de símbolos para agrupaciones de varios niveles.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._get_positions#0",
+      "source": "Return plotted group centers in left-to-right table order.",
+      "source_sha256": "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592",
+      "context": "Return plotted group centers in left-to-right table order.",
+      "translation": "Devuelve los centros de grupo dibujados en el orden de la tabla de izquierda a derecha.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._place_symbols#0",
+      "source": "Places symbols and row labels aligned under the bars or jitter points on the graph.",
+      "source_sha256": "0d049429fc7e12a424b311bd3f61a1f00bfded101df867fce47a6a26df7d3427",
+      "context": "Places symbols and row labels aligned under the bars or jitter points on the graph.",
+      "translation": "Coloca símbolos y etiquetas de fila alineados bajo las barras o los puntos de dispersión del gráfico.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._place_symbols#1",
+      "source": "Parameters:",
+      "source_sha256": "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+      "context": "Parameters:",
+      "translation": "Parámetros:",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._place_symbols#2",
+      "source": "row_labels: List of row titles to be displayed along the y-axis.",
+      "source_sha256": "082838aa62b0c807007a751170570d177f508ae98bb0fb326930d6f4ac88df3c",
+      "context": "row_labels: List of row titles to be displayed along the y-axis.",
+      "translation": "row_labels: Lista de títulos de fila que se muestran a lo largo del eje y.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._place_symbols#3",
+      "source": "transposed_table: Data to be placed under each bar/jitter as symbols.",
+      "source_sha256": "03cc78ab73286d834be20e7ded19c170306ffebfe9ca2813f248a8b8c8368699",
+      "context": "transposed_table: Data to be placed under each bar/jitter as symbols.",
+      "translation": "transposed_table: Datos que se colocan como símbolos bajo cada barra/punto de dispersión.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._place_symbols#4",
+      "source": "x_positions: X-axis positions for each group to align the symbols.",
+      "source_sha256": "91ed6087b70396ffe58fbb19e2b5d4ea2481d9670bba0701c0df6479fbe37fde",
+      "context": "x_positions: X-axis positions for each group to align the symbols.",
+      "translation": "x_positions: Posiciones en el eje x de cada grupo para alinear los símbolos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.spacrGraph.create_plot._place_symbols#5",
+      "source": "ax: The matplotlib Axes object where the plot is drawn.",
+      "source_sha256": "d7bac24db9f2b7a59555137ce83359c67d8079cc1b79f8c757e11596bf6d15be",
+      "context": "ax: The matplotlib Axes object where the plot is drawn.",
+      "translation": "ax: El objeto Axes de matplotlib donde se dibuja el gráfico.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.volcano_plot._as_numeric#0",
+      "source": "Coerce a column to floats, refusing an entirely nonnumeric result.",
+      "source_sha256": "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d",
+      "context": "Coerce a column to floats, refusing an entirely nonnumeric result.",
+      "translation": "Convierte una columna a números de coma flotante, rechazando un resultado completamente no numérico.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.volcano_plot._read_table_auto#0",
+      "source": "Read Excel or delimited text, sniffing comma versus tab as fallback.",
+      "source_sha256": "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51",
+      "context": "Read Excel or delimited text, sniffing comma versus tab as fallback.",
+      "translation": "Lee Excel o texto delimitado, detectando coma frente a tabulador como alternativa.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.volcano_plot._threshold_x_in_plot_units#0",
+      "source": "Convert a raw fold-change threshold to absolute plotted units.",
+      "source_sha256": "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e",
+      "context": "Convert a raw fold-change threshold to absolute plotted units.",
+      "translation": "Convierte un umbral de fold change en bruto a unidades absolutas del gráfico.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.volcano_plot._threshold_y_in_plot_units#0",
+      "source": "Validate and transform a raw p-value threshold for the y axis.",
+      "source_sha256": "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0",
+      "context": "Validate and transform a raw p-value threshold for the y axis.",
+      "translation": "Valida y transforma un umbral de valor p en bruto para el eje y.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.volcano_plot._transform_x#0",
+      "source": "Apply the selected x transform, requiring positive log inputs.",
+      "source_sha256": "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa",
+      "context": "Apply the selected x transform, requiring positive log inputs.",
+      "translation": "Aplica la transformación x seleccionada, exigiendo entradas positivas para el logaritmo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.plot.volcano_plot._transform_y#0",
+      "source": "Apply the selected y transform after clipping logarithm inputs.",
+      "source_sha256": "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139",
+      "context": "Apply the selected y transform after clipping logarithm inputs.",
+      "translation": "Aplica la transformación y seleccionada tras recortar las entradas del logaritmo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply_the_scales_live#0",
+      "source": "Apply the two scales now and ask whether to keep them.",
+      "source_sha256": "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
+      "context": "Apply the two scales now and ask whether to keep them.",
+      "translation": "Aplica ahora las dos escalas y pregunta si se conservan.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._category#0",
+      "source": "Add a folded category to Appearance and return its form.",
+      "source_sha256": "254eebc394c45c71502e8003580bb31159f9506e458da05b51e1c73103dc5682",
+      "context": "Add a folded category to Appearance and return its form.",
+      "translation": "Añade una categoría plegada a Apariencia y devuelve su formulario.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._category#1",
+      "source": "The category is the same widget the module screens group their settings with, so it folds and looks the way every other settings category does. Its rows sit in a holder named ``object_name``, which is what the Help search opens the dialog on; the navigation unfolds the category on the way to a row.",
+      "source_sha256": "a49dac1af88ce7e65232271ac0d227850108f952d863004eee334037f869c3f0",
+      "context": "The category is the same widget the module application views group their settings with, so it folds and looks the way every other settings category does. Its rows sit in a holder named ``object_name``, which is what the Help search opens the dialog on; the navigation unfolds the category on the way to a row.",
+      "translation": "La categoría es el mismo widget con el que las vistas de módulo agrupan sus ajustes, así que se pliega y se ve como cualquier otra categoría de ajustes. Sus filas están en un contenedor llamado ``object_name``, que es donde la búsqueda de Ayuda abre el diálogo; la navegación despliega la categoría de camino a una fila.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose#0",
+      "source": "Hold the DEBUG file switch on while verbose is on.",
+      "source_sha256": "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
+      "context": "Hold the DEBUG file switch on while verbose is on.",
+      "translation": "Mantiene activado el interruptor de archivo DEBUG mientras verbose esté activo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose#1",
+      "source": "Verbose adds DEBUG to the log files whatever the switch says, so the switch shows that and cannot be changed. When verbose goes off, the switch is given back with the user's own choice.",
+      "source_sha256": "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806",
+      "context": "Verbose adds DEBUG to the log files whatever the switch says, so the switch shows that and cannot be changed. When verbose goes off, the switch is given back with the user's own choice.",
+      "translation": "Verbose añade DEBUG a los archivos de registro diga lo que diga el interruptor, así que el interruptor lo muestra y no se puede cambiar. Cuando verbose se desactiva, el interruptor recupera la elección propia del usuario.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says#0",
+      "source": "Show the lens size the slider is at, as a percentage.",
+      "source_sha256": "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c",
+      "context": "Show the lens size the slider is at, as a percentage.",
+      "translation": "Muestra el tamaño de la lupa en el que está el deslizador, como porcentaje.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers#0",
+      "source": "Open the install/login dialog, then re-list the providers.",
+      "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
+      "context": "Open the install/login dialog, then re-list the providers.",
+      "translation": "Abre el diálogo de instalación/inicio de sesión y luego vuelve a listar los proveedores.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page#0",
+      "source": "Add a tab and return the form to fill it with.",
+      "source_sha256": "ecbb8ee94a66dc6a956b6621f7e0ae830c8881ecda68e8068eeeee6a713e3b8a",
+      "context": "Add a tab and return the form to fill it with.",
+      "translation": "Añade una pestaña y devuelve el formulario con el que rellenarla.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page#1",
+      "source": "Each page scrolls on its own so that a small screen shortens the tallest tab instead of the whole dialog, and every tab is still reachable at any window height.",
+      "source_sha256": "6c95673bcde4a3cb52fc100c54d232b898d3ab438fd2717f6cf3e677412e7133",
+      "context": "Each page scrolls on its own so that a small screen shortens the tallest tab instead of the whole dialog, and every tab is still reachable at any window height.",
+      "translation": "Cada página se desplaza por su cuenta para que un monitor pequeño acorte la pestaña más alta en lugar de todo el diálogo, y cada pestaña siga siendo accesible con cualquier altura de ventana.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row#0",
+      "source": "Build one labelled percentage slider and return its parts.",
+      "source_sha256": "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8",
+      "context": "Build one labelled percentage slider and return its parts.",
+      "translation": "Construye un deslizador de porcentaje con etiqueta y devuelve sus partes.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row._update#0",
+      "source": "Show the percentage, saying when it is the designed value.",
+      "source_sha256": "a291e0a6ed99bd0eaa966406dc9c14db067d3039c50b812205bde5f4422b4467",
+      "context": "Show the percentage, saying when it is the designed value.",
+      "translation": "Muestra el porcentaje, indicando cuándo es el valor de diseño.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row._update#1",
+      "source": "\"100%\" alone does not tell a reader that it is the one to come back to.",
+      "source_sha256": "180639b9daa34bbb10cc51c9ff883b20cd7e643c967798e98cfe73ca6b14a198",
+      "context": "\"100%\" alone does not tell a reader that it is the one to come back to.",
+      "translation": "\"100%\" por sí solo no le dice al lector que es el valor al que volver.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._put_the_sliders_back#0",
+      "source": "After a Revert, show the values that are in force again.",
+      "source_sha256": "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319",
+      "context": "After a Revert, show the values that are in force again.",
+      "translation": "Tras Revertir, muestra los valores que vuelven a estar en vigor.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._quit_spacr#0",
+      "source": "Ask how, then either stop cooperatively or leave outright.",
+      "source_sha256": "2dc1933c37376d894ae649b0b4d79493264bcb80b28ef456698566eefda7606c",
+      "context": "Ask how, then either stop cooperatively or leave outright.",
+      "translation": "Pregunta cómo y luego se detiene de forma cooperativa o sale directamente.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._quit_spacr#1",
+      "source": "The graceful path is the same one `closeEvent` takes -- `cancel_all` with a short budget -- and then closes the window, so a normal quit still runs every shutdown hook. What this adds is the five-minute re-prompt, for the case `closeEvent` cannot handle: a worker wedged in a C extension that will never see the cancel flag, which leaves the window refusing to close with no way out from inside the application.",
+      "source_sha256": "0f18912e719a1ef4847b1d586f2149e0d5d9afdb77f028edc59f5df93af406a6",
+      "context": "The graceful path is the same one `closeEvent` takes -- `cancel_all` with a short budget -- and then closes the window, so a normal quit still runs every shutdown hook. What this adds is the five-minute re-prompt, for the case `closeEvent` cannot handle: a worker wedged in a C extension that will never see the cancel flag, which leaves the window refusing to close with no way out from inside the application.",
+      "translation": "La vía ordenada es la misma que sigue `closeEvent` -- `cancel_all` con un presupuesto corto -- y luego cierra la ventana, así que una salida normal sigue ejecutando todos los hooks de cierre. Lo que esto añade es la nueva pregunta a los cinco minutos, para el caso que `closeEvent` no puede tratar: un hilo de trabajo atascado en una extensión de C que nunca verá el indicador de cancelación, lo que deja la ventana negándose a cerrarse sin salida posible desde dentro de la aplicación.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reload_ambient_palettes#0",
+      "source": "Refill the palette list for the selected animation.",
+      "source_sha256": "843500d4e2c29b3ad8b6c15285ed294461b269ee3c7e0ed1e0ec91fec6c82518",
+      "context": "Refill the palette list for the selected animation.",
+      "translation": "Vuelve a llenar la lista de paletas para la animación seleccionada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reload_ambient_palettes#1",
+      "source": "Palettes are per theme, so the two controls cannot be filled independently. The current choice is carried across when the new theme also offers it; otherwise that theme's default is selected, which is exactly what the stored keys do.",
+      "source_sha256": "4163f79d971050f25df9d50340de65f48df67dd99b6aa4e4da11abb9e9618b47",
+      "context": "Palettes are per theme, so the two controls cannot be filled independently. The current choice is carried across when the new theme also offers it; otherwise that theme's default is selected, which is exactly what the stored keys do.",
+      "translation": "Las paletas son de cada tema, así que los dos controles no pueden llenarse de forma independiente. La elección actual se mantiene cuando el nuevo tema también la ofrece; si no, se selecciona la predeterminada de ese tema, que es exactamente lo que hacen las claves guardadas.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._remember_the_debug_choice#0",
+      "source": "Record the DEBUG file switch only while the user holds it.",
+      "source_sha256": "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df",
+      "context": "Record the DEBUG file switch only while the user holds it.",
+      "translation": "Registra el interruptor de archivo DEBUG solo mientras el usuario lo controla.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reset_to_defaults#0",
+      "source": "Put every control back to what a fresh install would show.",
+      "source_sha256": "d165969fd5f49cfc16530f93a3fb210450c57c9439acb867d15142721a7c1baf",
+      "context": "Put every control back to what a fresh install would show.",
+      "translation": "Devuelve cada control a lo que mostraría una instalación nueva.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reset_to_defaults#1",
+      "source": "Read through the real getters against an EMPTY store rather than from a second copy of the default values. A hand-written table here would be a second place to update every time a preference gains a default, and the failure mode of getting it wrong is silent: a Reset that quietly sets something to a value no code path ever chose.",
+      "source_sha256": "75e3f75602be80bfe9315319e3f0030ba5f1b2985cd250e6bca3180b8c11ab75",
+      "context": "Read through the real getters against an EMPTY store rather than from a second copy of the default values. A hand-written table here would be a second place to update every time a preference gains a default, and the failure mode of getting it wrong is silent: a Reset that quietly sets something to a value no code path ever chose.",
+      "translation": "Lee mediante los getters reales contra un almacén VACÍO en lugar de una segunda copia de los valores predeterminados. Una tabla escrita a mano aquí sería un segundo lugar que actualizar cada vez que una preferencia gana un valor predeterminado, y equivocarse en ella falla en silencio: un Restablecer que pone discretamente algo a un valor que ningún camino del código eligió nunca.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reset_to_defaults#2",
+      "source": "Only the controls change. Nothing is persisted until Save, so Cancel still walks away from a reset the user did not mean -- which is why this does not write the empty store back.",
+      "source_sha256": "8a8c3b3e8320e00914d945a31ff345f7cb82daae0e1eab177d78cee4df97abe4",
+      "context": "Only the controls change. Nothing is persisted until Save, so Cancel still walks away from a reset the user did not mean -- which is why this does not write the empty store back.",
+      "translation": "Solo cambian los controles. Nada se guarda hasta Guardar, así que Cancelar sigue descartando un restablecimiento que el usuario no quería -- por eso esto no vuelve a escribir el almacén vacío.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._resource_button#0",
+      "source": "Build one labelled action button for the resources row.",
+      "source_sha256": "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679",
+      "context": "Build one labelled action button for the resources row.",
+      "translation": "Construye un botón de acción con etiqueta para la fila de recursos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_lag_says#0",
+      "source": "Show the rim chase as a percentage.",
+      "source_sha256": "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60",
+      "context": "Show the rim chase as a percentage.",
+      "translation": "Muestra el recorrido del borde como porcentaje.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_length_says#0",
+      "source": "Show the rim length in pixels.",
+      "source_sha256": "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23",
+      "context": "Show the rim length in pixels.",
+      "translation": "Muestra la longitud del borde en píxeles.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_period_says#0",
+      "source": "Show the rim period in seconds.",
+      "source_sha256": "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d",
+      "context": "Show the rim period in seconds.",
+      "translation": "Muestra el periodo del borde en segundos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save#0",
+      "source": "Write every preference this dialog owns, rim first.",
+      "source_sha256": "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
+      "context": "Write every preference this dialog owns, rim first.",
+      "translation": "Escribe todas las preferencias de este diálogo, primero el borde.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save#1",
+      "source": "THE RIM GOES FIRST because every open card rereads it: doing it before the theme work means one repaint rather than two.",
+      "source_sha256": "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa",
+      "context": "The rim goes first because every open card rereads it: doing it before the theme work means one repaint rather than two.",
+      "translation": "EL BORDE VA PRIMERO porque cada tarjeta abierta lo vuelve a leer: hacerlo antes del trabajo del tema supone un repintado en lugar de dos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select#0",
+      "source": "Point ``combo`` at the entry whose data is ``value``.",
+      "source_sha256": "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144",
+      "context": "Point ``combo`` at the entry whose data is ``value``.",
+      "translation": "Apunta ``combo`` a la entrada cuyos datos son ``value``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging#0",
+      "source": "A drag applies on release; a click or key applies at once.",
+      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+      "context": "A drag applies on release; a click or key applies at once.",
+      "translation": "Un arrastre se aplica al soltar; un clic o una tecla se aplican de inmediato.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided#0",
+      "source": "Grey Steering on the fixed path, where it does nothing.",
+      "source_sha256": "a8143b36b27fcecb393b89af1f701589d4d432269205c460937a61240257789c",
+      "context": "Grey Steering on the fixed path, where it does nothing.",
+      "translation": "Atenúa Dirección en la ruta fija, donde no hace nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided#1",
+      "source": "Shown rather than hidden, so it is clear that choosing the other path is what makes it live -- a control that vanishes is one the user has to rediscover.",
+      "source_sha256": "77dac09cc19a0626cc147ee1526ce1c7f9c53b7dd0cfc0b119571daab1109cfb",
+      "context": "Shown rather than hidden, so it is clear that choosing the other path is what makes it live -- a control that vanishes is one the user has to rediscover.",
+      "translation": "Se muestra en lugar de ocultarse, para que quede claro que elegir la otra ruta es lo que lo activa -- un control que desaparece es uno que el usuario tiene que redescubrir.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._suggestions#0",
+      "source": "What each level suggests for this row, as one sentence.",
+      "source_sha256": "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888",
+      "context": "What each level suggests for this row, as one sentence.",
+      "translation": "Lo que sugiere cada nivel para esta fila, en una frase.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_ambient_enabled#0",
+      "source": "Grey out the shaping controls when there is nothing to paint.",
+      "source_sha256": "2381a41ef77fd577a934f686b2f462bceca0afb636e92de07061334b3427a31a",
+      "context": "Grey out the shaping controls when there is nothing to paint.",
+      "translation": "Atenúa los controles de forma cuando no hay nada que pintar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_ambient_enabled#1",
+      "source": "Driven by the Animation row itself now that None lives in it. The controls stay *visible* rather than disappearing, so the reader can see what choosing an animation would give them back; they are simply not settings that mean anything while nothing is being drawn.",
+      "source_sha256": "42f2dd9086979937e19bd78ef9ebf0e2da02e17c6f98b6b4e52bb8bbfe7f727f",
+      "context": "Driven by the Animation row itself now that None lives in it. The controls stay *visible* rather than disappearing, so the reader can see what choosing an animation would give them back; they are simply not settings that mean anything while nothing is being drawn.",
+      "translation": "Ahora lo controla la propia fila de Animación, ya que None está en ella. Los controles siguen *visibles* en lugar de desaparecer, para que el lector vea lo que le devolvería elegir una animación; simplemente no son ajustes que signifiquen nada mientras no se dibuja nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_console_enabled#0",
+      "source": "A console switch is only live while its file switch is.",
+      "source_sha256": "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd",
+      "context": "A console switch is only live while its file switch is.",
+      "translation": "Un interruptor de consola solo está activo mientras lo esté su interruptor de archivo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_direction_row#0",
+      "source": "Show the drift direction only for the theme that travels.",
+      "source_sha256": "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5",
+      "context": "Show the drift direction only for the theme that travels.",
+      "translation": "Muestra la dirección de deriva solo para el tema que se desplaza.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_fractal_note#0",
+      "source": "Say which renderer 'auto' will actually pick HERE.",
+      "source_sha256": "95cf8edf17973da8da7c8d96d771a3a429ecbcbb283b13673cab5d43aa016d82",
+      "context": "Say which renderer 'auto' will actually pick HERE.",
+      "translation": "Indica qué renderizador elegirá realmente 'auto' AQUÍ.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_fractal_note#1",
+      "source": "The label cannot state it: it depends on whether vispy is importable on this machine, and the honest answer is the one the user will get.",
+      "source_sha256": "56ca415cb3a9b05c37c40d9d83592f0ca97126c9a7922e021a4b0dae275b48bb",
+      "context": "The label cannot state it: it depends on whether vispy is importable on this machine, and the honest answer is the one the user will get.",
+      "translation": "La etiqueta no puede decirlo: depende de si vispy se puede importar en esta máquina, y la respuesta honesta es la que obtendrá el usuario.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_mode_note#0",
+      "source": "Say which hardware the selected mode is for.",
+      "source_sha256": "49e2d4099b219ff2fda2f38ade2d57d7fafaaa760bb0398b5f735c7cccaf683d",
+      "context": "Say which hardware the selected mode is for.",
+      "translation": "Indica para qué hardware es el modo seleccionado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_mode_note#1",
+      "source": "A selector whose levels do not name their hardware makes the user guess which one their machine is.",
+      "source_sha256": "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf",
+      "context": "A selector whose levels do not name their hardware makes the user guess which one their machine is.",
+      "translation": "Un selector cuyos niveles no nombran su hardware obliga al usuario a adivinar cuál es su máquina.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths#0",
+      "source": "A NUMBER FIELD, not a capped slider.",
+      "source_sha256": "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
+      "context": "A number field, not a capped slider.",
+      "translation": "UN CAMPO NUMÉRICO, no un deslizador con tope.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths#1",
+      "source": "A spin box whose maximum is 2 turns a typed 40 into 2 without explaining the change. These settings accept the typed number and let validation report clearly when it cannot be used.",
+      "source_sha256": "bf520183a29561abb11dba7cc3b26b1374eec58ef2d73980f7cccaf967e6f13a",
+      "context": "A spin box whose maximum is 2 turns a typed 40 into 2 without explaining the change. These settings accept the typed number and let validation report clearly when it cannot be used.",
+      "translation": "Un cuadro numérico cuyo máximo es 2 convierte un 40 escrito en 2 sin explicar el cambio. Estos ajustes aceptan el número escrito y dejan que la validación informe con claridad cuando no se puede usar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths#2",
+      "source": "The range is opened to the widest a QDoubleSpinBox has, so the widget refuses nothing; `explain_a_fractal_number` is what decides whether a value can be used, and says why when it cannot.",
+      "source_sha256": "01de190ba699d09dc36709bd69abb8917e3c8c6ee100bc75419b5d3c914b369c",
+      "context": "The range is opened to the widest a QDoubleSpinBox has, so the widget refuses nothing; `explain_a_fractal_number` is what decides whether a value can be used, and says why when it cannot.",
+      "translation": "El rango se abre al más amplio que tiene un QDoubleSpinBox, así que el widget no rechaza nada; `explain_a_fractal_number` es lo que decide si un valor se puede usar, y dice por qué cuando no.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._the_theme_brings_its_backdrop_and_its_sound#0",
+      "source": "Move the other three controls when a night theme is picked.",
+      "source_sha256": "843f562bbc2b43d0ea403fb88dfaeeb36cf46398f8f450c92a0b72a2636bfeea",
+      "context": "Move the other three controls when a night theme is picked.",
+      "translation": "Mueve los otros tres controles cuando se elige un tema nocturno.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._the_theme_brings_its_backdrop_and_its_sound#1",
+      "source": "THE BINDING HAS TO HAPPEN HERE AND NOT ONLY IN `set_theme_choice`. Save writes the Theme control and then writes the Animation, palette and Sound set controls straight after it, so a preset applied inside `set_theme_choice` would be overwritten three lines later by whatever the untouched combos still held. Moving the controls instead means the two paths agree and, more to the point, that the user SEES what the theme brought with it and can put any of it back before pressing Save.",
+      "source_sha256": "78be0e870fd4f8c04125f24fa778251b5949568520ce4380cf4d392dc3e8bb37",
+      "context": "The binding has to happen here and not only in `set_theme_choice`. Save writes the Theme control and then writes the Animation, palette and Sound set controls straight after it, so a preset applied inside `set_theme_choice` would be overwritten three lines later by whatever the untouched combos still held. Moving the controls instead means the two paths agree and, more to the point, that the user SEES what the theme brought with it and can put any of it back before pressing Save.",
+      "translation": "EL VÍNCULO TIENE QUE HACERSE AQUÍ Y NO SOLO EN `set_theme_choice`. Guardar escribe el control de Tema y justo después los controles de Animación, paleta y Conjunto de sonidos, así que un preajuste aplicado dentro de `set_theme_choice` quedaría sobrescrito tres líneas después por lo que aún contuvieran los combos sin tocar. Mover en cambio los controles significa que las dos vías coinciden y, sobre todo, que el usuario VE lo que trajo el tema y puede deshacer cualquier parte antes de pulsar Guardar.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._the_theme_brings_its_backdrop_and_its_sound#2",
+      "source": "The four themes that are not night themes change nothing else, which is why this returns early rather than reaching for a default: Dark has never carried an opinion about the backdrop and is not being given one now.",
+      "source_sha256": "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
+      "context": "The four themes that are not night themes change nothing else, which is why this returns early rather than reaching for a default: Dark has never carried an opinion about the backdrop and is not being given one now.",
+      "translation": "Los cuatro temas que no son nocturnos no cambian nada más, por eso esto vuelve pronto en lugar de recurrir a un valor predeterminado: Dark nunca ha tenido opinión sobre el fondo y no se le va a dar una ahora.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._the_theme_brings_its_backdrop_and_its_sound#3",
+      "source": "AND IT LEAVES THE ANIMATION ALONE WHEN THE CONTROL SAYS NONE, for the reason :func:`apply_night_theme` gives: a theme must not start something moving for a user who has turned motion off. The Sound set still moves, because that control decides WHICH sounds would play and not WHETHER any do.",
+      "source_sha256": "38b292b9c1c02eb4980ee5d7975907e01707411eb9d0af897c722c9f4795e93d",
+      "context": "And it leaves the animation alone when the control says none, for the reason :func:`apply_night_theme` gives: a theme must not start something moving for a user who has turned motion off. The Sound set still moves, because that control decides WHICH sounds would play and not WHETHER any do.",
+      "translation": "Y DEJA LA ANIMACIÓN COMO ESTÁ CUANDO EL CONTROL DICE NONE, por la razón que da :func:`apply_night_theme`: un tema no debe poner nada en movimiento para un usuario que ha desactivado el movimiento. El Conjunto de sonidos sí cambia, porque ese control decide QUÉ sonidos sonarían y no SI suena alguno.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl#0",
+      "source": "Show what was asked for, and what the theme will allow.",
+      "source_sha256": "825bfb5a8b5228229756910cf6a9f3260573671a419491b4df4c59b514032b55",
+      "context": "Show what was asked for, and what the theme will allow.",
+      "translation": "Muestra lo que se pidió y lo que el tema permitirá.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl#1",
+      "source": "The floor is the whole design of this control: on Space it is 78 %, so \"20 %\" would otherwise be a number the user set and the app quietly ignored.",
+      "source_sha256": "a6aa3ea4c12ec1fc5f278dfec847842db70f9d7c77b6612cbdcd118d90989fe0",
+      "context": "The floor is the whole design of this control: on Space it is 78 %, so \"20 %\" would otherwise be a number the user set and the app quietly ignored.",
+      "translation": "El mínimo es todo el diseño de este control: en Space es 78 %, así que \"20 %\" sería, de lo contrario, un número que el usuario fijó y la aplicación ignoró en silencio.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_scale_lbl#0",
+      "source": "Show the font scale as a percentage.",
+      "source_sha256": "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9",
+      "context": "Show the font scale as a percentage.",
+      "translation": "Muestra la escala de fuente como porcentaje.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_spinner_lbl#0",
+      "source": "Show the spinner delay in seconds, or \"show immediately\" at zero.",
+      "source_sha256": "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384",
+      "context": "Show the spinner delay in seconds, or \"show immediately\" at zero.",
+      "translation": "Muestra el retardo del indicador de carga en segundos, o \"show immediately\" en cero.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_tooltip_delay_lbl#0",
+      "source": "Show the tooltip delay in seconds, or \"show immediately\" at zero.",
+      "source_sha256": "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94",
+      "context": "Show the tooltip delay in seconds, or \"show immediately\" at zero.",
+      "translation": "Muestra el retardo de la descripción emergente en segundos, o \"show immediately\" en cero.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._warn_when_both_are_off#0",
+      "source": "Say what turning both off costs, on the rows themselves.",
+      "source_sha256": "4e7dabc2add2de7e69cbd44643244cb50b29fdc264b6141ec48139809ce0b418",
+      "context": "Say what turning both off costs, on the rows themselves.",
+      "translation": "Indica, en las propias filas, lo que cuesta desactivar ambos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._warn_when_both_are_off#1",
+      "source": "Not a refusal: both off is legal and the request says so. But on several forms the API link inside a setting's tooltip is the only route from that control to its documentation, so a reader who clears both loses that route with nothing on screen to say why. The warning is on the switches because that is where the choice is made.",
+      "source_sha256": "8239456d10b9b7af6acd9fb2d8db38401b97d85e4cec8d0d1a2ddfd646db732b",
+      "context": "Not a refusal: both off is legal and the request says so. But on several forms the API link inside a setting's tooltip is the only route from that control to its documentation, so a reader who clears both loses that route with nothing on application view to say why. The warning is on the switches because that is where the choice is made.",
+      "translation": "No es un rechazo: ambos desactivados es válido y la solicitud lo dice. Pero en varios formularios el enlace a la API dentro de la descripción emergente de un ajuste es la única ruta desde ese control hasta su documentación, así que un lector que desactiva ambos pierde esa ruta sin nada visible que diga por qué. La advertencia está en los interruptores porque ahí es donde se toma la decisión.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._whole#0",
+      "source": "A whole-number field, equally uncapped.",
+      "source_sha256": "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50",
+      "context": "A whole-number field, equally uncapped.",
+      "translation": "Un campo de números enteros, igualmente sin tope.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.PreferencesDialog._build_the_dialog._workspace_copying#0",
+      "source": "The limit only means anything when files are being copied.",
+      "source_sha256": "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12",
+      "context": "The limit only means anything when files are being copied.",
+      "translation": "El límite solo significa algo cuando se están copiando archivos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._NotificationsPage.__init__.line#0",
+      "source": "A text field with its tooltip and placeholder.",
+      "source_sha256": "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2",
+      "context": "A text field with its tooltip and placeholder.",
+      "translation": "Un campo de texto con su descripción emergente y su texto de ejemplo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__#0",
+      "source": "Listen for messages on the thread this object lives in.",
+      "source_sha256": "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f",
+      "context": "Listen for messages on the thread this object lives in.",
+      "translation": "Escucha mensajes en el hilo en el que vive este objeto.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._install_run_notifier._RunFinishedRelay._show#0",
+      "source": "Show one message from the tray, or without Qt when none.",
+      "source_sha256": "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca",
+      "context": "Show one message from the tray, or without Qt when none.",
+      "translation": "Muestra un mensaje desde la bandeja del sistema, o sin Qt cuando no hay ninguna.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._install_run_notifier._without_qt#0",
+      "source": "The operating system's notification, any failure logged.",
+      "source_sha256": "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5",
+      "context": "The operating system's notification, any failure logged.",
+      "translation": "La notificación del sistema operativo; cualquier fallo se registra.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._page_stand_in_class._PageStandIn.sizeHint#0",
+      "source": "Larger than any scroll area lets a page ask to be.",
+      "source_sha256": "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c",
+      "context": "Larger than any scroll area lets a page ask to be.",
+      "translation": "Más grande de lo que cualquier área de desplazamiento deja pedir a una página.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.__init__#0",
+      "source": "An empty Preferences window; the builder fills it.",
+      "source_sha256": "a4d56573418af5f6794d2f8d4139409c104dff61e93f8d6c0551b78181f70eb5",
+      "context": "An empty Preferences window; the builder fills it.",
+      "translation": "Una ventana de Preferencias vacía; el constructor la rellena.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.__init__#1",
+      "source": "the owning window, or ``None``.",
+      "source_sha256": "73b1475d6ea0f5e22a37edcf170486674a4065acb3cdee9fb06a5393f0356240",
+      "context": "the owning window, or ``None``.",
+      "translation": "la ventana propietaria, o ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._bring_the_page_back#0",
+      "source": "Put a waiting page back in its tab as the tab is chosen.",
+      "source_sha256": "1d958b9d4e3f42696e797195cb4a916600367a0a83a588a4592303098718f8a6",
+      "context": "Put a waiting page back in its tab as the tab is chosen.",
+      "translation": "Devuelve una página en espera a su pestaña cuando se elige la pestaña.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._bring_the_page_back#1",
+      "source": "the tab just chosen.",
+      "source_sha256": "6c2dc6ef62df9b695258be12fab81b818fcca769d73bd3bb2738ec7f04143111",
+      "context": "the tab just chosen.",
+      "translation": "la pestaña recién elegida.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._bring_the_page_back#2",
+      "source": "``True`` when this call put a page back.",
+      "source_sha256": "014601987f13c6e87bd5c34d6e580b43042192f13f0750e6617584221bf3b2ad",
+      "context": "``True`` when this call put a page back.",
+      "translation": "``True`` cuando esta llamada devolvió una página.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._send_the_unseen_pages_away#0",
+      "source": "Take every page but the current tab's out of the window.",
+      "source_sha256": "1ad023671de9fe55744e6e54b51968c2cf7766058556c6259ffa75a161edae1a",
+      "context": "Take every page but the current tab's out of the window.",
+      "translation": "Saca de la ventana todas las páginas salvo la de la pestaña actual.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._send_the_unseen_pages_away#1",
+      "source": "how many widgets left the window.",
+      "source_sha256": "4f6d5b96e4108de5cdeef65164fb3f342231bd5b78383928055e9befbbd7896a",
+      "context": "how many widgets left the window.",
+      "translation": "cuántos widgets salieron de la ventana.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._show_only_the_open_page_at_first#0",
+      "source": "Have the first show style only the page of the current tab.",
+      "source_sha256": "d7514ece907da480a2cfe9453c76e4e019795289a86960d199086ab7f1670762",
+      "context": "Have the first show style only the page of the current tab.",
+      "translation": "Hace que la primera visualización dé estilo solo a la página de la pestaña actual.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._show_only_the_open_page_at_first#1",
+      "source": "Called once the build is finished. The pages stay where they are until the show, so the navigation that picks the tab to open on finds each control on its tab.",
+      "source_sha256": "7ba36eff88f479107f73ffbf8aa4f32506a35db3c2cd88da3280923feea78a4a",
+      "context": "Called once the build is finished. The pages stay where they are until the show, so the navigation that picks the tab to open on finds each control on its tab.",
+      "translation": "Se llama una vez terminada la construcción. Las páginas se quedan donde están hasta la visualización, así que la navegación que elige la pestaña con la que abrir encuentra cada control en su pestaña.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow._show_only_the_open_page_at_first#2",
+      "source": "the dialog's ``QTabWidget``; every page is a scroll area holding the page.",
+      "source_sha256": "f1366b89f921557eab07d4ddff7f5b7a90bbdac39521c56fef5e0607acfa3dcd",
+      "context": "the dialog's ``QTabWidget``; every page is a scroll area holding the page.",
+      "translation": "el ``QTabWidget`` del diálogo; cada página es un área de desplazamiento que contiene la página.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild#0",
+      "source": "``QObject.findChild``, finding a control whose page is waiting.",
+      "source_sha256": "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
+      "context": "``QObject.findChild``, finding a control whose page is waiting.",
+      "translation": "``QObject.findChild``, que encuentra un control cuya página está en espera.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild#1",
+      "source": "A control asked for by name is the dialog's wherever its page is, so what the builder, Save and a test find by name does not depend on which tabs have been chosen. The page it is on comes back into its tab, hidden unless its tab is current, as it was before pages waited: a caller that goes on to click or read the geometry of what it found is holding a widget in the window.",
+      "source_sha256": "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+      "context": "A control asked for by name is the dialog's wherever its page is, so what the builder, Save and a test find by name does not depend on which tabs have been chosen. The page it is on comes back into its tab, hidden unless its tab is current, as it was before pages waited: a caller that goes on to click or read the geometry of what it found is holding a widget in the window.",
+      "translation": "Un control pedido por nombre pertenece al diálogo esté donde esté su página, así que lo que el constructor, Guardar y una prueba encuentran por nombre no depende de qué pestañas se hayan elegido. La página en la que está vuelve a su pestaña, oculta salvo que su pestaña sea la actual, como era antes de que las páginas esperaran: quien llama y luego hace clic o lee la geometría de lo que encontró tiene en la mano un widget dentro de la ventana.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild#2",
+      "source": "the first match, or ``None``.",
+      "source_sha256": "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc",
+      "context": "the first match, or ``None``.",
+      "translation": "la primera coincidencia, o ``None``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChildren#0",
+      "source": "``QObject.findChildren`` over every page, waiting or not.",
+      "source_sha256": "60adaaf7b62736392bcf0fb02be95aa9f2c9456fa42cc6a3eac86ddef47bed05",
+      "context": "``QObject.findChildren`` over every page, waiting or not.",
+      "translation": "``QObject.findChildren`` sobre todas las páginas, estén en espera o no.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChildren#1",
+      "source": "A walk of the dialog from Python -- a test's, or code that looks at every control -- sees the dialog it saw before pages waited, so every waiting page comes back first. Not during the first show: the window sheet, the glass and the resize filter walk the dialog then, and bringing the pages back for them is the cost the waiting exists to save. Nor while a page is coming back, whose glass asks the dialog for its card.",
+      "source_sha256": "d5a8089f655870023f183954d53431311f0097dc6288ecfa556eac29eaf8ad43",
+      "context": "A walk of the dialog from Python -- a test's, or code that looks at every control -- sees the dialog it saw before pages waited, so every waiting page comes back first. Not during the first show: the window sheet, the glass and the resize filter walk the dialog then, and bringing the pages back for them is the cost the waiting exists to save. Nor while a page is coming back, whose glass asks the dialog for its card.",
+      "translation": "Un recorrido del diálogo desde Python -- el de una prueba, o código que examina cada control -- ve el diálogo que veía antes de que las páginas esperaran, así que cada página en espera vuelve primero. No durante la primera visualización: la hoja de estilo de la ventana, el cristal y el filtro de redimensionado recorren el diálogo en ese momento, y devolverles las páginas es justo el coste que la espera existe para ahorrar. Tampoco mientras una página está volviendo, cuyo cristal pide al diálogo su tarjeta.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChildren#2",
+      "source": "every match.",
+      "source_sha256": "4fe0029261d9d42ad91507277a3d336f6b28b5e89a3e88d61365dad7ca87b26a",
+      "context": "every match.",
+      "translation": "todas las coincidencias.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#0",
+      "source": "Send the unseen pages away just before the first show.",
+      "source_sha256": "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
+      "context": "Send the unseen pages away just before the first show.",
+      "translation": "Retira las páginas no vistas justo antes de la primera visualización.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#1",
+      "source": "HERE, AND NOT ON THE FIRST ``Polish``. The window sheet, the glass and the resize filter all act on that event from the application, which hears it before the window does, and the resize filter polishes every child as it does. Qt's own show begins in this call, so the pages are gone before any of them runs.",
+      "source_sha256": "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+      "context": "HERE, and not on the first ``Polish``. The window sheet, the glass and the resize filter all act on that event from the application, which hears it before the window does, and the resize filter polishes every child as it does. Qt's own show begins in this call, so the pages are gone before any of them runs.",
+      "translation": "AQUÍ, Y NO EN EL PRIMER ``Polish``. La hoja de estilo de la ventana, el cristal y el filtro de redimensionado actúan todos sobre ese evento desde la aplicación, que lo recibe antes que la ventana, y el filtro de redimensionado pule cada hijo al hacerlo. La visualización propia de Qt empieza en esta llamada, así que las páginas ya no están antes de que se ejecute cualquiera de ellos.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible#2",
+      "source": "as for ``QWidget.setVisible``.",
+      "source_sha256": "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c",
+      "context": "as for ``QWidget.setVisible``.",
+      "translation": "como en ``QWidget.setVisible``.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._start_disk_report.done#0",
+      "source": "On the GUI thread, with whatever the worker came back with.",
+      "source_sha256": "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821",
+      "context": "On the main GUI execution path, with whatever the worker came back with.",
+      "translation": "En el hilo de la GUI, con lo que haya devuelto el trabajador.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._start_disk_report.read#0",
+      "source": "On the worker thread. Returns the report, or the exception.",
+      "source_sha256": "76d7159567dd8756ce4e96858bf65681b77a2d4e637d672558909a18f95b88ee",
+      "context": "On the background execution unit. Returns the report, or the exception.",
+      "translation": "En el hilo de trabajo. Devuelve el informe, o la excepción.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._start_disk_report.read#1",
+      "source": "Returned rather than raised so the callback below is reached either way; see the failure paragraph above. ``disk_report`` is looked up here, not captured, so a caller that replaces it still gets its own.",
+      "source_sha256": "04f7adffbca46abce67fe17287ad15b20b54b13c18274b1ee64582c188afb9f0",
+      "context": "Returned without producing an error so the callback below is reached either way; see the failure paragraph above. ``disk_report`` is looked up here, not captured, so a caller that replaces it still gets its own.",
+      "translation": "Se devuelve en lugar de lanzarse para que el callback de abajo se alcance en cualquier caso; vea el párrafo sobre fallos de arriba. ``disk_report`` se busca aquí, no se captura, para que quien lo sustituya siga obteniendo el suyo.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences._start_disk_report.restore#0",
+      "source": "Give the button back. The C++ half may be gone; that is fine.",
+      "source_sha256": "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c",
+      "context": "Give the button back. The C++ half may be gone; that is fine.",
+      "translation": "Devuelve el botón. Puede que la mitad C++ ya no exista; no pasa nada.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_fractal_settings._number#0",
+      "source": "A stored number, with only the bounds that are real.",
+      "source_sha256": "8ea8614653761512fba73cf618b62e42f38e5f5a03452529492755d49554e959",
+      "context": "A stored number, with only the bounds that are real.",
+      "translation": "Un número guardado, solo con los límites que son reales.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_fractal_settings._number#1",
+      "source": "``None`` for a bound means there is none: the settings are FIELDS, and a value the user typed is not quietly reduced on the way back out. Only a value that cannot work at all is refused, and `explain_a_fractal_number` is what says so, in words, at the point it is entered.",
+      "source_sha256": "a0cd5ab350c84d4b469f202b733e709320095dbfaf1485ebf37510e5638daa98",
+      "context": "``None`` for a bound means there is none: the settings are FIELDS, and a value the user typed is not quietly reduced on the way back out. Only a value that cannot work at all is refused, and `explain_a_fractal_number` is what says so, in words, at the point it is entered.",
+      "translation": "``None`` en un límite significa que no lo hay: los ajustes son CAMPOS, y un valor que el usuario escribió no se reduce en silencio al volver a leerlo. Solo se rechaza un valor que no puede funcionar en absoluto, y `explain_a_fractal_number` es lo que lo dice, con palabras, en el momento en que se introduce.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_fractal_settings._text#0",
+      "source": "One stored string, or the default when it is not an allowed value.",
+      "source_sha256": "5c9a76c1eda8e8e6b4ff6f85d216d946bb3d3f4d331b4157bb7f00c72eafca98",
+      "context": "One stored string, or the default when it is not an allowed value.",
+      "translation": "Una cadena guardada, o el valor predeterminado cuando no es un valor permitido.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_fractal_settings._text#1",
+      "source": "Falls back rather than raising: a stale preference naming a theme that no longer exists must not stop the settings loading.",
+      "source_sha256": "2fa19d23c986a71ae383a0f0ace83413262d3c28062d244f9120c131014633a4",
+      "context": "Falls back rather than throwing: a stale preference naming a theme that no longer exists must not stop the settings loading.",
+      "translation": "Recurre al valor predeterminado en lugar de lanzar un error: una preferencia obsoleta que nombra un tema que ya no existe no debe impedir que se carguen los ajustes.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_fractal_settings._truth#0",
+      "source": "A stored boolean, however QSettings gave it back.",
+      "source_sha256": "cd14c93e28e59e3f1dcb680ed08a3e9b640ce4962378dc6534ff98dc214e93de",
+      "context": "A stored boolean, however QSettings gave it back.",
+      "translation": "Un booleano guardado, lo devuelva QSettings como lo devuelva.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    },
+    {
+      "label": "spacr.qt.preferences.get_fractal_settings._truth#1",
+      "source": "An INI file hands every value back as a string, so `bool(\"false\")` is True and a switch the user turned off comes back on.",
+      "source_sha256": "036f5e2a920bbe9eb4e4eb2dc1531cc7f07f942f118eccd44dadf80cda8bc68c",
+      "context": "An INI file hands every value back as a string, so `bool(\"false\")` is True and a switch the user turned off comes back on.",
+      "translation": "Un archivo INI devuelve todos los valores como cadena, así que `bool(\"false\")` es True y un interruptor que el usuario desactivó vuelve activado.",
+      "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
+    }
+  ]
+}

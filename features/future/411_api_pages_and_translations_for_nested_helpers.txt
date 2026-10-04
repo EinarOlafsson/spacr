@@ -2,13 +2,14 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    PARTIAL, 2026-10-02. Four modules enable 14 of 1,134 canonical
-           documented nested helpers. English and all nine API catalogs have
-           12,038 source-current symbols; the two-helper slice passes strict
-           local API/runtime audits, Sphinx and browser checks. Full rollout
-           (1,120 remaining helpers) and current live acceptance remain open.
-           No human/native-speaker signoff is claimed. Historical checkpoints
-           below retain their original scope; this item is not a release gate.
+Status:    DONE 2026-10-03. Every renderable documented nested helper is
+           enabled: 1,149 of 1,149 (the canonical 1,162 minus the 13 in
+           spacr._segmentation_backends and spacr._v1_v2_bridge, which are in
+           AUTOAPI_NON_RENDERED_MODULES and have no API page). English and all
+           nine API catalogs carry 13,175 symbols; every helper block has a
+           direct AI translation with AI technical review (no native-speaker
+           signoff). Native-speaker review and HTML publication stay with the
+           maintainer and are not part of this item's done-when.
 Requested: 2026-09-15, by the maintainer, in these words, in this order:
              1. Asked with the question tool whether the nested helpers
                 documented in the source but absent from the API pages (item
@@ -2237,3 +2238,16 @@ tests/test_built_nested_helper_api.py, which nightly's 68884079c broke
 setup() hook _qualify_helper_annotations is not among them: NameError).
 Owned by the CI-test lane; not changed here.
     BLOCKED / open: OPEN docs work: 104 of 1,149 renderable nested helpers; upstream-changed API docstrings; native-speaker review and HTML publication (maintainer).
+
+2026-10-03 — PLOT AND PREFERENCES ENABLED; ITEM DONE (1,149 of 1,149)
+ENABLED_MODULES gains spacr.plot and qt.preferences (104 helpers). The
+writer adds 104 symbols (13,071 -> 13,175) in English and nine locales from
+201 AI-reviewed blocks (2026-10-03-nested-batch15.json, direct AI
+translation with AI technical review, no native-speaker signoff);
+generated=0, decoded=0; upstream drift 0. Two local constructors join the
+documented-__init__ set; Help index regenerated. Every renderable helper is
+now enabled: 1,149 of 1,149. Out of scope and excluded from the
+denominator: spacr._segmentation_backends (11) and spacr._v1_v2_bridge (2),
+both in AUTOAPI_NON_RENDERED_MODULES. Known red test owned elsewhere:
+tests/test_built_nested_helper_api.py (nightly 68884079c, conf.py hook).
+    WHAT IS LEFT: nothing in this item. Native-speaker review and live HTML publication are maintainer tasks.

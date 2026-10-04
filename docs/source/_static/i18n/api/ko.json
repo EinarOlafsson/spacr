@@ -62138,6 +62138,84 @@
         "1922930475b65c9519a3b1c584a959d8b5f3affa561142f34141780baa80f913"
       ]
     },
+    "spacr.plot._panel_thumbnail._zscored": {
+      "source_blocks_sha256": [
+        "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971"
+      ],
+      "source_sha256": "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971",
+      "text": "시그니처를 표준화하며, 퍼짐이 쓸 수 없는 수준이면 None을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "20f35ec885a56dafb48dad778af26f762e7491bae1a13c2940e4912739a83971"
+      ]
+    },
+    "spacr.plot._plot_cropped_arrays.plot_single_array": {
+      "source_blocks_sha256": [
+        "5d941ea462024018febacfa60fd42efe21d71e101d19c1faf66575c067353f0f",
+        "3b3959cd1075cb72b28b36cc645a2c2732d76c81ccff033e161b55948aee0c50"
+      ],
+      "source_sha256": "61ca32d726eb832d03786617fba21cea952f96005bcd83386c370e9cccfd4dfd",
+      "text": "``stack``의 채널 하나를 ``ax``에 렌더링합니다. 컬러바는 그리지 않습니다.\n\nArgs: array (ndarray): ``stack``의 2D 평면 하나입니다. 강도 이미지로 취급할지 레이블 마스크로 취급할지는 dtype이 아니라 고유 값의 개수로 정해집니다 -- 따라서 고유 값을 최대 256개까지만 담을 수 있는 uint8 평면은 기본 ``threshold``인 500에서 항상 마스크로 간주됩니다. ax (matplotlib.axes.Axes): 제자리에서 그리는 축입니다. 프레임과 눈금은 꺼지고 제목은 크기 18로 고정되며 아무것도 반환하지 않습니다. title (str): 패널 제목입니다. 평면을 마스크로 취급하면 객체 수가 ``\", N (obj.)\"``로 덧붙습니다. 그 수는 0이 아닌 고유 값의 개수이므로 배경 값 0은 절대 세지 않지만, 음수 값은 객체로 셉니다. chosen_cmap (Colormap): 강도 경우에만 쓰는 컬러맵입니다. 평면의 고유 값이 ``threshold``(감싸는 함수의 인수, 기본값 ``500``) 이하이면 버려지는데, 이웃한 객체를 구별할 수 있도록 대신 무작위 컬러맵 -- 인덱스 0은 검정, 0이 아닌 레이블마다 무작위 불투명 색 하나 -- 을 만들기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "5d941ea462024018febacfa60fd42efe21d71e101d19c1faf66575c067353f0f",
+        "7c5273435629f27c5ffdac2ee0deb6f1397033c8cd178d51ec0fcc0e3fbd48b6"
+      ]
+    },
+    "spacr.plot._save_scimg_plot._visualize_scimgs": {
+      "source_blocks_sha256": [
+        "aa78df36630bf133794070369e008eaba016597e237abecd70e8ec0cda283951",
+        "ec4293da4988ac9eb0d4f25a226cdb6a5b37d869d1f1c0b9e1f01dd5470a25e7",
+        "97a226c3d0f3099bc0ca299eb7f289c5d39efc94c3768fc054801bc46468d04d"
+      ],
+      "source_sha256": "555e78f96b6081a53382f26f15a2d5bf39c0acb3256f054805133d996d18559c",
+      "text": "단일 세포 이미지를 시각화합니다.\n\nArgs: src (str): 원본 디렉터리 경로입니다. channel_indices (list, optional): 시각화할 채널 인덱스 목록입니다. 기본값 None. um_per_pixel (float, optional): 픽셀당 마이크로미터입니다. 기본값 0.1. scale_bar_length_um (float, optional): 스케일 바 길이(마이크로미터)입니다. 기본값 10. show_filename (bool, optional): 이미지에 파일 이름을 표시할지 여부입니다. 기본값 True. standardize (bool, optional): 이미지 크기를 표준화할지 여부입니다. 기본값 True. nr_imgs (int, optional): 시각화할 이미지 수입니다. 기본값 None. fontsize (int, optional): 파일 이름의 글꼴 크기입니다. 기본값 8. channel_names (list, optional): 채널 이름 목록입니다. 기본값 None. plot (bool, optional): 이미지를 플롯할지 여부입니다. 기본값 False.\n\nReturns: matplotlib.figure.Figure: 플롯된 이미지를 담은 그림 객체입니다.",
+      "translation_source_blocks_sha256": [
+        "aa78df36630bf133794070369e008eaba016597e237abecd70e8ec0cda283951",
+        "8a768a7e0e43a6e458814398c1092215249dc2b2bec6deff5eba87a7c6231f06",
+        "97a226c3d0f3099bc0ca299eb7f289c5d39efc94c3768fc054801bc46468d04d"
+      ]
+    },
+    "spacr.plot._save_scimg_plot._visualize_scimgs._generate_filelist": {
+      "source_blocks_sha256": [
+        "b94765212c26ae62427267878365b919b3ae308f7f774b1e1089502f5a90a9b9",
+        "6d358b5e779c694b49b660fbee3437f6340499c083c9d12790bf0c416597f376",
+        "161d5d3acc0be763b93be70b6856181040427a085ae8a51c2da3450e21a9b1ad"
+      ],
+      "source_sha256": "32fbb1da91cae2fd250882b89fab0684cb6dddbdbd2653661571ae936e5ef438",
+      "text": "지정한 디렉터리의 이미지 파일 목록을 만듭니다.\n\nArgs: src (str): 원본 디렉터리 경로입니다.\n\nReturns: list: 이미지 파일 경로 목록입니다.",
+      "translation_source_blocks_sha256": [
+        "b94765212c26ae62427267878365b919b3ae308f7f774b1e1089502f5a90a9b9",
+        "6d358b5e779c694b49b660fbee3437f6340499c083c9d12790bf0c416597f376",
+        "161d5d3acc0be763b93be70b6856181040427a085ae8a51c2da3450e21a9b1ad"
+      ]
+    },
+    "spacr.plot._save_scimg_plot._visualize_scimgs._random_sample": {
+      "source_blocks_sha256": [
+        "364de1e28b1ab89bce047bd537bd2b2591b25cdbd625791fc77feb151b66b17f",
+        "944cb6e71716091fa5d401365ba1201b21a66ec5d6b63da60210dc20c7aa9147",
+        "01b202c5a236152bb56ef055fadd2e9e79434e0ffa343f2324b048eb243fcf12"
+      ],
+      "source_sha256": "97b60c8a18e7b7d72b8cdd8fa408cab7d20295ce7458aea4f6f2c6494f2caf50",
+      "text": "주어진 파일 목록에서 파일 일부를 무작위로 선택합니다.\n\nArgs: file_list (list): 파일 이름 목록입니다. nr_imgs (int, optional): 선택할 파일 수입니다. None이면 모든 파일을 선택합니다. 기본값 None.\n\nReturns: list: 무작위로 선택된 파일 이름 목록입니다.",
+      "translation_source_blocks_sha256": [
+        "364de1e28b1ab89bce047bd537bd2b2591b25cdbd625791fc77feb151b66b17f",
+        "944cb6e71716091fa5d401365ba1201b21a66ec5d6b63da60210dc20c7aa9147",
+        "01b202c5a236152bb56ef055fadd2e9e79434e0ffa343f2324b048eb243fcf12"
+      ]
+    },
+    "spacr.plot._visualize_and_save_timelapse_stack_with_tracks._view_frame_with_tracks": {
+      "source_blocks_sha256": [
+        "6afa9183b469784bfa31772f0970f47d9a48a930218e30ca6413b9c5654efab3",
+        "5c749cc63057e5f39a878b42d2d36700ba2b42b8974b830f932a9d6cacdfa959",
+        "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974"
+      ],
+      "source_sha256": "bb5fe0cc03e865f2f1dab6e1875c8174174a9eb035a58498b5b095bf76f9d439",
+      "text": "트랙을 겹쳐 프레임을 표시합니다.\n\n매개변수: frame (int): 표시할 프레임 번호입니다.\n\n반환: None",
+      "translation_source_blocks_sha256": [
+        "6afa9183b469784bfa31772f0970f47d9a48a930218e30ca6413b9c5654efab3",
+        "5c749cc63057e5f39a878b42d2d36700ba2b42b8974b830f932a9d6cacdfa959",
+        "b7ab29adca9b4bbe319a1ed5eadd9f04c66370543b62965043ffe8e36e61a974"
+      ]
+    },
     "spacr.plot.create_grouped_plot": {
       "source_blocks_sha256": [
         "97266735efb8c6b9a6fcb314654e8daa973f1e41b5206d95666b083ccf4e856d",
@@ -62360,6 +62438,34 @@
         "596368bff72d9450c9be04fc4114dc90cc828dbad7b0c4cf2d302f6aa68dc96c"
       ]
     },
+    "spacr.plot.jitterplot_by_annotation._resolve_well_column": {
+      "source_blocks_sha256": [
+        "8c0031020dfb4d5e47257a27af607916c67d1316951df6b54d9f35fcaa0df1fe"
+      ],
+      "source_sha256": "8c0031020dfb4d5e47257a27af607916c67d1316951df6b54d9f35fcaa0df1fe",
+      "text": "웰 열의 첫 번째 표기를 반환합니다: ``_x``, 접미사 없음, 또는 ``_y``.",
+      "translation_source_blocks_sha256": [
+        "af997034775dc7fcdc10a66e58354e20abbe9ab0001e85b3d71d13da1e8498ad"
+      ]
+    },
+    "spacr.plot.jitterplot_by_annotation.join_measurments_and_annotation": {
+      "source_blocks_sha256": [
+        "156d98507d9ddf18f4a01f2e6cfe396a63939ce1806fa2c9eb18eb93281bcd57",
+        "eaca8672f15f07712322779b7a7ddbe08dfe36e913a7d7741597bd6a39716a39",
+        "d333988acc4958d45a7af3cda7b3562e81ed7d3fb30145005f4095d3b2753a4c",
+        "4516c51ec228fdb43b2ec44923229b2e816ee82f9562ceff5ac225bc833a2621",
+        "9fe804238b015f7a89227ebb71107c57a55faabf7a7033948f91fec3d690f8ca"
+      ],
+      "source_sha256": "0f22717ff6a6da7d5d0d079bfed3a1c773dd47ae0e091355e07af4e85cc9b8ff",
+      "text": "객체별 측정 테이블을 ``png_list`` 어노테이션 테이블과 조인합니다.\n\n:param src: spaCR 실험 디렉터리입니다. 데이터베이스는 ``<src>/measurements/measurements.db``에서 읽으며 다른 구조는 지원하지 않습니다 — ``.db`` 파일이 아니라 실험 폴더를 전달하세요.\n:param tables: 병합할 객체 테이블이며 ``prcfo``로 조인됩니다. 나열한 모든 이름이 데이터베이스에 있어야 합니다.\n:returns: 객체마다 한 행이며, ``png_list`` 크롭 경로가 왼쪽 외부 조인으로 붙습니다.\n:raises pandas.errors.MergeError: ``png_list``에 ``prcfo``마다 크롭이 둘 이상 있을 때입니다. 조인을 ``one_to_one``으로 검증하는 이유는 바로 중복된 크롭이 측정 행을 조용히 불려 지터 플롯을 부풀리지 못하게 하기 위해서입니다.",
+      "translation_source_blocks_sha256": [
+        "156d98507d9ddf18f4a01f2e6cfe396a63939ce1806fa2c9eb18eb93281bcd57",
+        "eaca8672f15f07712322779b7a7ddbe08dfe36e913a7d7741597bd6a39716a39",
+        "d333988acc4958d45a7af3cda7b3562e81ed7d3fb30145005f4095d3b2753a4c",
+        "4149a6f4f067d5f99ac71b5ba14e891bf2d129536f3d80df1d446e72e7702864",
+        "0cbacf403232d935dcc33301f559a33e27e719c566b7528f11009ad80bcd6381"
+      ]
+    },
     "spacr.plot.normalize_and_visualize": {
       "source_blocks_sha256": [
         "07e5b622ab988773a4741236ae4990210ffa55f8e3be030c8d5ba92a24ca0338",
@@ -62416,6 +62522,20 @@
         "0dfa67584889ac1d259382961358aeca213bd5daab8b3d633953831927885a13",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
         "28c36a7cccec3b48b418bf96b5b89a3de3309a80ab9ca99dff7d0a836b92de53"
+      ]
+    },
+    "spacr.plot.overlay_masks_on_images.normalize_image": {
+      "source_blocks_sha256": [
+        "7de34cf9a98a3a5fcbd4a806c4318b07baa59453db7a8529568b7bcbaed3f601",
+        "fa1c1f26b7cb4b0dcc59b8ebb8d5f31aeb7c5f8c57e423014704aed5dffef707",
+        "9e3f8c9def240444e46ad76b4c2f59b74ea691c57d1433bf757adb15feca4e51"
+      ],
+      "source_sha256": "7d5244c9ee82742148f71c32c02fd4266eb9aceb5f37ed8168ce99c3e2a40fbc",
+      "text": "이미지를 1번째와 99번째 백분위수로 정규화합니다.\n\n:param image: 어떤 숫자 dtype이든 되는 이미지 배열이며, 보통 원본 16비트 TIFF입니다. 백분위수는 배열 전체에서 구하므로 다중 채널 이미지는 채널마다가 아니라 하나의 공유 창으로 늘어나고, 가장 밝고 가장 어두운 1%는 포화됩니다. 평평하거나 거의 일정한 이미지는 두 백분위수를 같은 값에 놓으므로, 재조정이 0으로 나누고 ``uint8`` 변환이 그 결과 ``nan``을 정의되지 않은 값으로 바꿉니다. 그러니 빈 필드는 미리 걸러 내세요.\n:returns: 0-255 범위의 ``uint8`` 배열이며, 마스크 오버레이와 섞을 준비가 된 것입니다.",
+      "translation_source_blocks_sha256": [
+        "7de34cf9a98a3a5fcbd4a806c4318b07baa59453db7a8529568b7bcbaed3f601",
+        "7b3c0c5770f1cf8fcb809f8ff5ebce3777c9d6b5f11acdb926effeec785c82d7",
+        "9e3f8c9def240444e46ad76b4c2f59b74ea691c57d1433bf757adb15feca4e51"
       ]
     },
     "spacr.plot.plot_arrays": {
@@ -62498,6 +62618,24 @@
         "228ce7fe64a6556744bf2717fc594610e988b040c46fe47e9484b357d965c598",
         "19db8c1b6343cb9df8dfd198a57e37b9664a6447a6d53eb0d2a9aa386eef9615",
         "0d6947653b2466cc1dcf0b0bc11815bb7c1ebe96c00b20c10f5928e24256f820"
+      ]
+    },
+    "spacr.plot.plot_data_from_csv.filter_rows_by_column_values": {
+      "source_blocks_sha256": [
+        "719f1f6a039b9d62f8bffdd1e87c53d04b38e2081bf2a81e9f7b22ea5f7e58b7",
+        "4d0ea92560a6ddf956cda0ed7aaa31f423cdc2c41208d1732f9a3e90dc24198c",
+        "c269b77b3321dbc7854634b9f5344c195bf4bc1e1a68fa22f5c84ad0c0e8403c",
+        "4897b25e160a18b6e4884babd42bd1021142cf24483453b6d130a155db3aec84",
+        "b48f53be0325f6f4e9d14685e798c3a469de28722b17195f7ef4102924d810af"
+      ],
+      "source_sha256": "ab4f3bfcdc42bb695735591b9938276a83c1a6d1097338dbe6c18ab1be280e67",
+      "text": "열 값이 목록에 있는 행만 남긴 필터링된 DataFrame을 반환합니다.\n\n:param df: 필터링할 프레임입니다. 수정되지 않으며 결과는 ``.copy()``이므로, 나중에 그것에 대입해도 ``SettingWithCopyWarning``이 발생하지 않습니다.\n:param column: 검사할 열입니다. 존재해야 하며, 그렇지 않으면 ``KeyError``가 발생합니다 — 여기서는 호출자의 ``grouping_column``입니다.\n:param values: 유지할 값이며 ``isin``으로 비교하므로 비교는 정확하고 형식을 구분합니다. 문자열 ``'1'``은 CSV에서 읽은 정수 ``1``과 일치하지 않습니다. 빈 리스트는 아무것도 남기지 않고 모두 통과시키는 대신 빈 프레임을 만듭니다.\n:returns: 새로 필터링된 DataFrame입니다.",
+      "translation_source_blocks_sha256": [
+        "719f1f6a039b9d62f8bffdd1e87c53d04b38e2081bf2a81e9f7b22ea5f7e58b7",
+        "4d0ea92560a6ddf956cda0ed7aaa31f423cdc2c41208d1732f9a3e90dc24198c",
+        "c269b77b3321dbc7854634b9f5344c195bf4bc1e1a68fa22f5c84ad0c0e8403c",
+        "4897b25e160a18b6e4884babd42bd1021142cf24483453b6d130a155db3aec84",
+        "b48f53be0325f6f4e9d14685e798c3a469de28722b17195f7ef4102924d810af"
       ]
     },
     "spacr.plot.plot_data_from_db": {
@@ -62618,6 +62756,106 @@
         "12579bb41462cc1623d7a12a0cac8cd597703c7025d34f236ecf2af6e453cf5d"
       ]
     },
+    "spacr.plot.plot_image_mask_overlay._filter_object": {
+      "source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ],
+      "source_sha256": "2a383fe1f451ee662c22cbf59c2572dd0184172232602893d699f6ad5247f556",
+      "text": "면적(크기)과 평균 강도를 기준으로 마스크의 객체를 필터링합니다.\n\nArgs: mask (ndarray): 입력 마스크입니다. intensity_image (ndarray): 해당 강도 이미지입니다. min_max_area (tuple): 최소 및 최대 면적 임계값을 지정하는 튜플 (min_area, max_area)입니다. min_max_intensity (tuple): 최소 및 최대 강도 임계값을 지정하는 튜플 (min_intensity, max_intensity)입니다.\n\nReturns: ndarray: 필터링된 마스크입니다.",
+      "translation_source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot": {
+      "source_blocks_sha256": [
+        "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb"
+      ],
+      "source_sha256": "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb",
+      "text": "오버레이, 이미지 채널, 마스크를 담은 병합 플롯을 그립니다.",
+      "translation_source_blocks_sha256": [
+        "31278a54b2ce695b66fd3849597be3839bbf76f9ed14fed8363aa8e51efb63ea"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._apply_contours": {
+      "source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ],
+      "source_sha256": "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2",
+      "text": "이미지에 윤곽선을 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._generate_colored_mask": {
+      "source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ],
+      "source_sha256": "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be",
+      "text": "주어진 컬러맵으로 색칠한 마스크를 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._generate_contours": {
+      "source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ],
+      "source_sha256": "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8",
+      "text": "OpenCV로 마스크에서 윤곽선을 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._normalize_image": {
+      "source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ],
+      "source_sha256": "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e",
+      "text": "주어진 백분위수를 기준으로 이미지를 정규화합니다.",
+      "translation_source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._plot_merged_plot._overlay_mask": {
+      "source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ],
+      "source_sha256": "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe",
+      "text": "색칠한 마스크를 원본 이미지 위에 겹칩니다.",
+      "translation_source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay._save_channels_as_tiff": {
+      "source_blocks_sha256": [
+        "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655"
+      ],
+      "source_sha256": "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655",
+      "text": "스택의 각 채널을 회색조 TIFF로 저장합니다.",
+      "translation_source_blocks_sha256": [
+        "1eb38daa28e5e644433ee0a361608ffa8b98e1de35234bf4a1b899d30ebed045"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay.random_color_cmap": {
+      "source_blocks_sha256": [
+        "29130b04fe1416c0a1ed608d0c0692e2aa8dd8da9b3da43b51d6631573dc53e7",
+        "fea9ced9464159f45dde9e2eb21db4c0e559944cca12425bfb4230398555f591",
+        "b5fea333443048d5502a848fb6a3dca87ca5e0c0a94c2d5e828b488f614c1d7b",
+        "ee960799b8f56fa4eb75ae9a9e019c814a57b85d39e94d3e8a88e1857b20bdc7"
+      ],
+      "source_sha256": "50fcd6aa8c447df3735b54edbd2dad0f849c2d0678eee59dbcf9fec64055ad3d",
+      "text": "고유한 시드로 무작위처럼 보이지만 결정적인 컬러맵을 만듭니다.\n\n:param n_labels: 만들 객체 색의 수입니다. 반환되는 컬러맵의 인덱스 0은 배경을 위해 검정으로 고정되므로 맵의 항목은 ``n_labels + 1``개입니다. 여기서 호출자는 객체 유형마다 ``int(outline.max() + 1)``을, 병합 패널에는 ``int(combined_mask.max() + 1)``을 전달합니다. 값이 ``<= 0``이면 오류를 발생시키지 않고 바로 검정만 있는 컬러맵이 됩니다.\n:param seed: 로컬 ``default_rng``의 시드입니다. 같은 시드는 항상 같은 색상 배정을 만들기 때문에, 객체 유형마다 고유한 고정 시드를 주어 패널 간에 색을 유지합니다. ``None``은 새 엔트로피를 가져오므로 호출할 때마다 색이 바뀝니다.\n:returns: 선명하고 잘 구별되는 색상의 ``ListedColormap``입니다.",
+      "translation_source_blocks_sha256": [
+        "29130b04fe1416c0a1ed608d0c0692e2aa8dd8da9b3da43b51d6631573dc53e7",
+        "8f51bef4748b96524a75a573d3563f61a60366601303dab99992c8c889fff3a3",
+        "b5fea333443048d5502a848fb6a3dca87ca5e0c0a94c2d5e828b488f614c1d7b",
+        "ee960799b8f56fa4eb75ae9a9e019c814a57b85d39e94d3e8a88e1857b20bdc7"
+      ]
+    },
     "spacr.plot.plot_image_mask_overlay_magenta_outlines": {
       "source_blocks_sha256": [
         "ff651eea07d98bd179d942143c37e14fa27155b303be446134aa224ae59a65fe",
@@ -62660,6 +62898,106 @@
         "12579bb41462cc1623d7a12a0cac8cd597703c7025d34f236ecf2af6e453cf5d"
       ]
     },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._filter_object": {
+      "source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ],
+      "source_sha256": "2a383fe1f451ee662c22cbf59c2572dd0184172232602893d699f6ad5247f556",
+      "text": "면적(크기)과 평균 강도를 기준으로 마스크의 객체를 필터링합니다.\n\nArgs: mask (ndarray): 입력 마스크입니다. intensity_image (ndarray): 해당 강도 이미지입니다. min_max_area (tuple): 최소 및 최대 면적 임계값을 지정하는 튜플 (min_area, max_area)입니다. min_max_intensity (tuple): 최소 및 최대 강도 임계값을 지정하는 튜플 (min_intensity, max_intensity)입니다.\n\nReturns: ndarray: 필터링된 마스크입니다.",
+      "translation_source_blocks_sha256": [
+        "5eabe19128a6f8e110c4de43c64756d361a4e6473e06cfa073a25b01e626d7a1",
+        "5a0cea2bff149a3b3d42916bedab7088b7c03db453b8c0727885ab2077273ace",
+        "d6a0a4cf60f6d5a6aa851a0e5f4d7c11bbd8dae60626acd50ca86078d65332be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot": {
+      "source_blocks_sha256": [
+        "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb"
+      ],
+      "source_sha256": "1bbc1fc54ae875e99e05ff046f3c30742fd53047ff161212523cb35a1713b9fb",
+      "text": "오버레이, 이미지 채널, 마스크를 담은 병합 플롯을 그립니다.",
+      "translation_source_blocks_sha256": [
+        "31278a54b2ce695b66fd3849597be3839bbf76f9ed14fed8363aa8e51efb63ea"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._apply_contours": {
+      "source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ],
+      "source_sha256": "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2",
+      "text": "이미지에 윤곽선을 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "c8546816a32e2602dc5ed4d5fd97508b4ca8659888d56d86c18fda950991aaf2"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._generate_colored_mask": {
+      "source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ],
+      "source_sha256": "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be",
+      "text": "주어진 컬러맵으로 색칠한 마스크를 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "0867375b262ae3b117720414ea0554e63f4e80c8851f25271c17c321cf95a5be"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._generate_contours": {
+      "source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ],
+      "source_sha256": "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8",
+      "text": "OpenCV로 마스크에서 윤곽선을 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "a83dd90919a7e457c3238541213adfd3ddf4f05c212ca78605d7a0a4f79514c8"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._normalize_image": {
+      "source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ],
+      "source_sha256": "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e",
+      "text": "주어진 백분위수를 기준으로 이미지를 정규화합니다.",
+      "translation_source_blocks_sha256": [
+        "4a6ec6bad72a127446d6d942e783c86999a321591f556a2bd0fd2dfe2604b94e"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._plot_merged_plot._overlay_mask": {
+      "source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ],
+      "source_sha256": "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe",
+      "text": "색칠한 마스크를 원본 이미지 위에 겹칩니다.",
+      "translation_source_blocks_sha256": [
+        "252d3e5fd07bdd5d116174ade5911b1bb6a9b38e0255f52162ebbf2747c33ffe"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines._save_channels_as_tiff": {
+      "source_blocks_sha256": [
+        "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655"
+      ],
+      "source_sha256": "fcd58282e6787d706e2d57756cd43ff62883f58ee80e288c9a06ceabbdb4a655",
+      "text": "스택의 각 채널을 회색조 TIFF로 저장합니다.",
+      "translation_source_blocks_sha256": [
+        "1eb38daa28e5e644433ee0a361608ffa8b98e1de35234bf4a1b899d30ebed045"
+      ]
+    },
+    "spacr.plot.plot_image_mask_overlay_magenta_outlines.random_color_cmap": {
+      "source_blocks_sha256": [
+        "e09f856dcad0a1447cd8def14d95107829358833481a9914077f75a512bfa9b4",
+        "8c00d035674dbef9b1be6281086cf452300a7b7841ee27a18521608d40c06734",
+        "7fc9850cf67c6c404d33c6b7a81d7616c49c93c2942f98e014289595f4456087",
+        "f9545582cbe488f4e5c4568be38c61ab8ac7db05dcf2de900ae2e204945e5c94"
+      ],
+      "source_sha256": "b00178b31ad57bffdbe4e0d4963d83093fbffe176342512992ea1ba7bc32c6b2",
+      "text": "주어진 레이블 수에 대한 무작위 컬러맵을 만듭니다.\n\n:param n_labels: 만들 객체 색의 수입니다. 인덱스 0은 배경을 위해 검정으로 앞에 붙으므로 맵의 항목은 ``n_labels + 1``개입니다. 여기서 호출자는 객체 유형마다 ``int(outline.max() + 1)``을, 병합 패널에는 ``int(combined_mask.max() + 1)``을 전달합니다. 색은 균등 RGB로 뽑히므로, :func:`plot_image_mask_overlay`의 HSV 변형과 달리 일부는 어둡고 이미지 대비가 낮게 나옵니다.\n:param seed: 로컬 생성기가 아니라 *전역* ``numpy.random`` 상태에 시드를 주므로, 이를 전달하면 프로세스의 이후 모든 ``np.random`` 추출도 바뀝니다. 여기서 호출자는 패널마다 새 ``random.randint(0, 100)``을 전달하며, 그래서 같은 객체가 패널마다, 실행마다 다른 색을 받습니다. ``None``은 전역 상태를 그대로 둡니다.\n:returns: A ``ListedColormap``.",
+      "translation_source_blocks_sha256": [
+        "e09f856dcad0a1447cd8def14d95107829358833481a9914077f75a512bfa9b4",
+        "8c00d035674dbef9b1be6281086cf452300a7b7841ee27a18521608d40c06734",
+        "13503d0b6a94252f1a4bc1047dab14763785eca6cfdd49b20cfbdfe199ca6113",
+        "f9545582cbe488f4e5c4568be38c61ab8ac7db05dcf2de900ae2e204945e5c94"
+      ]
+    },
     "spacr.plot.plot_images_and_arrays": {
       "source_blocks_sha256": [
         "e6dd46d1293d9145b778c610ad295ec2dd681770ab2dadb521b2263ec5e18873",
@@ -62690,6 +63028,62 @@
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
       ]
     },
+    "spacr.plot.plot_images_and_arrays.find_files": {
+      "source_blocks_sha256": [
+        "209f27bd17f665504d721fd2e4cb1c806d1d9d75d54fbe7ef4fb06e0a5f9f6ff",
+        "dd807d8f9b730807f40daa2d4815e144cf090792617099dae4614b60ca1bb668",
+        "ed1e3294a301c3e155ce2d76c691dfdd367393034e3195899f6cd7b1a87320c2",
+        "3aeba32e27445891ad4411ac50dc58a9ff02bad1bbd412cd2314e97b3155ed4c"
+      ],
+      "source_sha256": "76492e7756e52a6f843f2e72a956911b21676f2e4f27a3122a10c1fedbe43c6a",
+      "text": "기본 파일 이름을 키로 하여 요청한 확장자를 가진 파일에 대응시키는 dict를 반환합니다.\n\n:param folders: 각각 재귀적으로 순회하는 폴더 경로입니다. 확장자를 뺀 기본 이름으로 묶으며, *모든* 폴더에 있는 이름만 최종 필터를 통과합니다 — 파일 하나가 없으면 그 이름은 결과에서 완전히 빠지고, 한 폴더 아래에 같은 기본 이름의 파일이 둘 있으면 마지막으로 순회한 것만 남습니다.\n:param extensions: 허용할 확장자이며 ``str.endswith``로 비교하므로 점을 포함하고 대소문자가 일치해야 합니다.\n:returns: 완전한 그룹에 대해서만 ``{basename: {folder: path}}``입니다.",
+      "translation_source_blocks_sha256": [
+        "3d46bd58800f889d7807298f4c84eaf22640241c2b175ed55ba61b0434c80096",
+        "dd807d8f9b730807f40daa2d4815e144cf090792617099dae4614b60ca1bb668",
+        "ed1e3294a301c3e155ce2d76c691dfdd367393034e3195899f6cd7b1a87320c2",
+        "3aeba32e27445891ad4411ac50dc58a9ff02bad1bbd412cd2314e97b3155ed4c"
+      ]
+    },
+    "spacr.plot.plot_images_and_arrays.normalize_image": {
+      "source_blocks_sha256": [
+        "ad6189fe13433d4e19ffeb0648d9c46724390f33404f69647fe622484763a8d7",
+        "e469422dd23cfadd813c721125ff24ab1182863ba2c13648f0c1ae75abc6b25f",
+        "74f0bdb2b52f53a39f32377175401ffbf471b24c9be0e024f8dc132aacf41c52",
+        "3167bb40a6899433bee39380015ce7f63d3a1b7fe2265e061ef1b6440be48de2",
+        "396b2dc8de82216575e58756e2bb6d9d8cdc2ea611ebe3dc989d0266073551f7"
+      ],
+      "source_sha256": "be939367ecf4be9171722e5529f703b86ad02656a24b64949500bc5ad4a925d9",
+      "text": "``image``를 백분위수로 자르고 ``[0, 1]``로 재조정합니다.\n\n:param image: 어떤 숫자 배열이든 됩니다. 정규화는 배열 전체에 한 번에 이루어지므로, 다중 채널 스택은 채널마다가 아니라 하나의 백분위수 쌍으로 조정됩니다.\n:param lower: 아래쪽 백분위수이며 0-100 범위입니다. 기본값 ``1``.\n:param upper: 위쪽 백분위수이며 0-100 범위이고, ``lower``보다 엄격히 커야 합니다. 두 백분위수가 같게 나오면(평평한 이미지) 재조정이 0으로 나누어 빈 프레임 대신 ``nan``을 반환하고, 둘을 바꾸면 오류 대신 이미지가 반전됩니다. 기본값 ``99``.\n:returns: ``[0, 1]``로 잘린 부동소수점 배열입니다.",
+      "translation_source_blocks_sha256": [
+        "ad6189fe13433d4e19ffeb0648d9c46724390f33404f69647fe622484763a8d7",
+        "6e3f7171e2ed23983eef3bd2ef611f3f31a3c9aedecfef93d38a58afbb57875d",
+        "74f0bdb2b52f53a39f32377175401ffbf471b24c9be0e024f8dc132aacf41c52",
+        "c376649467a93cfcb0d013b33a08e5c1aff7485eb36458716bad23c5ae4a59ea",
+        "396b2dc8de82216575e58756e2bb6d9d8cdc2ea611ebe3dc989d0266073551f7"
+      ]
+    },
+    "spacr.plot.plot_images_and_arrays.plot_from_file_dict": {
+      "source_blocks_sha256": [
+        "0d9dd889ec603f93f4d04ddd490e9a644f8ff6194aec36c92c6d7ebf17b468d6",
+        "05b1891335f1e9767a4f3e74744715f4fd2ece80f94f9c4fa2f0d4a2ca5d1733",
+        "4bc87d6600f0b5beb7eabef548d315dd233a660f13879ec345ad8482095d64de",
+        "1704aa87c7280ee3cbefa8f78f43731ca6259f1227b1e94e84326451105b5b3e",
+        "8206227acc8c3508c14bafe67b6d9c62742054fe698cff1ec0362f638ad8db64",
+        "672c8f1d5aef5e2b924e424fdf34c19bfe10e15ad8909875ed81bad47ffdacd3",
+        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ],
+      "source_sha256": "363fdd483ec18e30ba2b64592e91273aed925a2a6b6e280c0464fa8bd4a97e84",
+      "text": "``file_dict``에 모인 이미지/마스크 쌍을 나란히 보여 줍니다.\n\n:param file_dict: ``{filename: {folder: path}}``이며, ``find_files``가 만든 것입니다.\n:param threshold: 고유 값 수가 이를 넘으면 강도 이미지로, 아니면 레이블 마스크로 취급합니다. 기본값 ``1000``.\n:param lower_percentile: 아래쪽 백분위수 자르기입니다. 기본값 ``1``.\n:param upper_percentile: 위쪽 백분위수 자르기입니다. 기본값 ``99``.\n:param overlay: True이면 이미지 위에 마스크 윤곽선을 겹칩니다. 기본값 ``False``.\n:returns: None",
+      "translation_source_blocks_sha256": [
+        "0d9dd889ec603f93f4d04ddd490e9a644f8ff6194aec36c92c6d7ebf17b468d6",
+        "05b1891335f1e9767a4f3e74744715f4fd2ece80f94f9c4fa2f0d4a2ca5d1733",
+        "4bc87d6600f0b5beb7eabef548d315dd233a660f13879ec345ad8482095d64de",
+        "1704aa87c7280ee3cbefa8f78f43731ca6259f1227b1e94e84326451105b5b3e",
+        "8206227acc8c3508c14bafe67b6d9c62742054fe698cff1ec0362f638ad8db64",
+        "672c8f1d5aef5e2b924e424fdf34c19bfe10e15ad8909875ed81bad47ffdacd3",
+        "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
     "spacr.plot.plot_lorenz_curves": {
       "source_blocks_sha256": [
         "4517e8cd94dfb7d7b2decc03c933b96ffb64cbc1b9632054a8d6af76b077283b",
@@ -62716,6 +63110,52 @@
         "f64cb22fa4caa606986b08bab47b92574b71b8abd27ebbca5ea22eabb53290ab",
         "3875bd0f348fe91ee3dc23df65c2f2205c9a487955728f8c7903020db83113ef",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.plot.plot_lorenz_curves.gini_coefficient": {
+      "source_blocks_sha256": [
+        "cee43bb4c3d6e17c83a8936af86b0b104a9b807588c64e303d216e3034692c85",
+        "01a1742264d0354dc5da36d4b0aa7b336dac24a7137ebd01bc0c42be13363c2d",
+        "7118b663b8d02e72f817dfccec1d9c6e247c63bbf7421cd4cf9b0198131dad7d"
+      ],
+      "source_sha256": "46c56a59676608b408c1dc63c74cd4afccd3f586e4210f70a955241d48536455",
+      "text": "데이터에서 지니 계수를 계산합니다.\n\n:param data: 음수가 아닌 개수의 1D 배열이며 내부에서 정렬됩니다. ``np.sum(data)``로 정규화하므로 모두 0인 입력은 ``nan``을 냅니다. ``lorenz_curve``와 달리 빈 배열은 여기서 오류를 발생시키지 않고 — 최대 불평등을 뜻하는 ``1.0``을 조용히 반환하므로 — 빈 플레이트는 미리 걸러 내세요.\n:returns: float 형식의 지니 계수이며, 완전히 고른 분포의 ``0.0``부터 시작해 개수가 소수의 gRNAs에 몰릴수록 ``1.0``에 가까워집니다. 면적은 사다리꼴 공식으로 구하므로 고른 분포는 정확히 ``0.0``을 보고하며 ``1/n``을 보고하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "cee43bb4c3d6e17c83a8936af86b0b104a9b807588c64e303d216e3034692c85",
+        "e1ae4ff37843072c275e092371f41451378fe4ea06c280b795aeafed2fac1550",
+        "7118b663b8d02e72f817dfccec1d9c6e247c63bbf7421cd4cf9b0198131dad7d"
+      ]
+    },
+    "spacr.plot.plot_lorenz_curves.lorenz_curve": {
+      "source_blocks_sha256": [
+        "b111245c4aec0040fd1cda3d226484a0e592a41dd086eb084fe8811c3727b211",
+        "91b37b64e64e644435897d94e93a8aa82040365952f91e9a3d3567a530832dc5",
+        "18986a85e2394aee87eb30d2f318ea6f7025d262c7acdb202b687914d87cd545"
+      ],
+      "source_sha256": "dfb896a44fa15809042a1b8a6ab7c7f047c6f6c69fb864ad39064f2a53d12757",
+      "text": "로렌츠 곡선을 계산합니다.\n\n:param data: 음수가 아닌 개수의 1D 배열이며 여기서 정렬되므로 호출자의 순서는 상관없습니다. 곡선은 누적 합계의 마지막 원소로 정규화하므로, 모두 0인 입력은 0으로 나누게 되고 부호가 섞인 입력은 아예 로렌츠 곡선이 아닙니다. 비어 있으면 안 됩니다 — 빈 배열은 끝을 넘어 인덱싱합니다.\n:returns: 0에서 1로 올라가는 ``len(data) + 1``개의 누적 비율이며, 원점이 앞에 붙으므로 입력보다 하나 깁니다.",
+      "translation_source_blocks_sha256": [
+        "b111245c4aec0040fd1cda3d226484a0e592a41dd086eb084fe8811c3727b211",
+        "91b37b64e64e644435897d94e93a8aa82040365952f91e9a3d3567a530832dc5",
+        "18986a85e2394aee87eb30d2f318ea6f7025d262c7acdb202b687914d87cd545"
+      ]
+    },
+    "spacr.plot.plot_lorenz_curves.remove_outliers_by_wells": {
+      "source_blocks_sha256": [
+        "f85db6a54b0c2e95757b7065398de26711800d3df91db6cd691d57e2a39a2fc6",
+        "f53f18c864b4d26850b5940921ae149901ebaa7e67573b1eb7d76d9f68203054",
+        "baf53ba618784ef298760a10a3f262c76b3e80059b53503e3ad4bb9d76370dc3",
+        "40b9ec0f9e65563ed0833022350eaa82da84216a489ca356e799fc11b14c0fd5",
+        "00fb70e2df8fa50e6e6a0acd81703c32d01b450a5ff38836659b6ca43b2d5774"
+      ],
+      "source_sha256": "609bed283b334eea9b4f7863afab13005a702788f4952da7abed83fc4e0a65de",
+      "text": "웰 개수에 대한 95% 신뢰 구간을 바탕으로 이상값을 제거합니다.\n\n:param data: 웰과 이름의 관측마다 한 행을 가진 DataFrame입니다. 이름 단위로 통째로 유지하거나 버리며 개별 행은 그러지 않으므로, 남은 프레임에는 유지한 각 이름의 모든 웰이 그대로 있습니다.\n:param name_col: gRNA(또는 다른 이름)를 식별하는 열입니다. 행을 이 열로 묶고, 울타리를 적용하는 대상은 그룹 *크기* — 이름이 나타나는 웰 수 — 이므로 개수 열의 값은 이 필터에서 아무 역할도 하지 않습니다.\n:param wells_col: 호출이 감싸는 함수의 ``value_column``과 대칭으로 읽히도록 받지만 절대 읽지 않습니다. 웰 수는 위의 그룹 크기에서 도출합니다. 틀리거나 없는 열 이름을 전달해도 아무것도 바뀌지 않습니다.\n:returns: 울타리 안의 이름으로 제한한 ``data``입니다. 울타리는 사분위 범위가 아니라 5번째에서 95번째 백분위수 범위의 ``1.5 *``이므로 교과서의 IQR 규칙보다 훨씬 넓고 아래쪽 경계는 보통 음수입니다 — 실제로는 유난히 넓게 퍼진 이름만 제거됩니다.",
+      "translation_source_blocks_sha256": [
+        "8950077e651cc529661bd8b5c68c8d6287bab25f855eeb2af5a1d6fdd70c18cd",
+        "bb523645078023d0bfee927a307f1d058d3cb9ae2a414e6adc0e7d7a5343779f",
+        "ecd67a4c35a63cd0c67797f266a98d1f94cb619d21b7b3bde974d32fb2d622a5",
+        "630d27c3c2fbed1e94f0a3fbfb05c7104247fb4415a8c093ad7c55aeb5b1735c",
+        "00fb70e2df8fa50e6e6a0acd81703c32d01b450a5ff38836659b6ca43b2d5774"
       ]
     },
     "spacr.plot.plot_masks": {
@@ -62902,6 +63342,32 @@
         "40293d3c4cd6e64ff8dc8125b3310aae040f2cbaa81d076a485b9dfd1cfacf73"
       ]
     },
+    "spacr.plot.plot_region._sort_paths_by_basename": {
+      "source_blocks_sha256": [
+        "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe"
+      ],
+      "source_sha256": "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe",
+      "text": "기본 이름으로 정렬한 ``paths``를 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "94bcf693dcaa7a1a125a5435b23cfdae2f1f5dd8f0054dcf26fad764fcaee8fe"
+      ]
+    },
+    "spacr.plot.plot_region.save_figure_as_pdf": {
+      "source_blocks_sha256": [
+        "bd39b12944ad745f51b078466414e1d73dc891b6fcbbed0b6d3fb7ba4210b26f",
+        "6aaaed4d2e8b2fa450953fe4d210da199e10d0efc4e40c05d8a81247a2386b39",
+        "74817696ac1aaad607acfd3e0f180dfacf61a3cfbc96e1038534181d6b7d6cdb",
+        "6aba2b166dc52f968c4aa956e617127f46790543a9b1ac570df67b1ba69abe28"
+      ],
+      "source_sha256": "08b00757efba5c2cec7c4483225adff000b8160ee8e6b54f0d0ca6fc93a3146b",
+      "text": "``fig``를 사용자가 고른 그림 형식으로 저장합니다.\n\n예전에 하드코딩하던 형식의 이름을 따왔지만, 이제는 사용자가 보관하는 다른 모든 그림처럼 환경설정을 따르며, `save_figure`가 상위 디렉터리를 직접 만듭니다.\n\n:param fig: 쓸 그림입니다. 열린 채로 두므로 호출자는 저장한 뒤에도 노트북에 반환할 수 있습니다.\n:param path: 대상 경로입니다. 확장자는 환경설정이 고른 형식으로 다시 쓰이므로 ``.pdf`` 이름을 전달해도 PDF가 강제되지 않으며, 없는 상위 디렉터리는 만들어집니다. 실제로 쓴 경로는 반환되지 않고 출력됩니다.",
+      "translation_source_blocks_sha256": [
+        "bd39b12944ad745f51b078466414e1d73dc891b6fcbbed0b6d3fb7ba4210b26f",
+        "6aaaed4d2e8b2fa450953fe4d210da199e10d0efc4e40c05d8a81247a2386b39",
+        "74817696ac1aaad607acfd3e0f180dfacf61a3cfbc96e1038534181d6b7d6cdb",
+        "6aba2b166dc52f968c4aa956e617127f46790543a9b1ac570df67b1ba69abe28"
+      ]
+    },
     "spacr.plot.plot_resize": {
       "source_blocks_sha256": [
         "048ff00f8ad1a178c07ad2d731716411d9939db8b4d50241a033dc8399b46661",
@@ -62920,6 +63386,22 @@
         "b97e374b33ee339aba08f29faf7327adf0ec8f59b4b50cf5b15469f28988f104",
         "6fe1857803058b6a830eff9d48de84efba66912723bcb4a660ad6c4796e11fdd",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.plot.plot_resize.prepare_image": {
+      "source_blocks_sha256": [
+        "0304b1d70fc83f3965029abcc7227e993eb7a9eaf61e2a8997d9cce822b17c60",
+        "86d4cec3130cda51744d27b6c3d801c2fc7f61b53ba29a8eba0272834cd8f1b4",
+        "2a0a31e96adb40318e1e5f8533be885d35f370a5a0094a445cea897fcd175a04",
+        "84e967d36fe6a7c8666780b8db7fd3b44bd50fe572e42a0ff52d94d861337af3"
+      ],
+      "source_sha256": "41477978deb744da38ced31de106367602bbfdfe91fd3c2581f5db97ff4febda",
+      "text": "2D/3D 입력 형태를 처리하여 ``(display_array, cmap)``을 반환합니다.\n\n:param img: 2D 배열이거나 채널이 마지막인 3D 배열입니다. 채널 하나는 2D로 압축되고 셋이나 넷은 ``None`` 컬러맵과 함께 RGB/RGBA로 전달됩니다. 다른 채널 수(5채널 spaCR 스택, 또는 디스크에서 바로 읽은 채널 우선 배열)는 마지막 축의 평균으로 대체되는데, 이는 허용되지만 대개 오해를 부르는 그림입니다.\n:returns: ``(array, cmap)``이며 ``imshow``에 바로 넘길 수 있고, 트루컬러 데이터이면 ``cmap``은 ``None``입니다.\n:raises ValueError: ``img``가 2D도 3D도 아닐 때입니다.",
+      "translation_source_blocks_sha256": [
+        "0304b1d70fc83f3965029abcc7227e993eb7a9eaf61e2a8997d9cce822b17c60",
+        "3f087d787c3b00ba6922e01c7d602865901b0349f0cfe6c317caf5c4a646dde5",
+        "2a0a31e96adb40318e1e5f8533be885d35f370a5a0094a445cea897fcd175a04",
+        "84e967d36fe6a7c8666780b8db7fd3b44bd50fe572e42a0ff52d94d861337af3"
       ]
     },
     "spacr.plot.print_mask_and_flows": {
@@ -62944,6 +63426,70 @@
         "ab4dd81a64bb7f19c0135490ee1be8f0d7be653e1aa6f1535f3416d1ea6ac4a0",
         "b74cb285540dbac06f6821c511ae45a37012649c31b90b207bf3c62e3f99e766",
         "dc937b59892604f5a86ac96936cd7ff09e25f18ae6b758e8014a24c7fa039e91"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.apply_contours_on_image": {
+      "source_blocks_sha256": [
+        "476f68a5d0c018f8e4df0acb95490e79ae4e2f2cb3256c4a28d4e293087a6fbe",
+        "7c25f9424aa04da44a7f4da3f87cac3093b628324fdf410fb4e3b901a7f326ad",
+        "a3a11d5d6fc3e46746a472ad74b06ed5ae42d57b1e746378fe3bc3d5f2c4b370",
+        "441a93e1fdffb4280e7a518dc3205e236a52ccd83d67c1446fbc03633943d0f0",
+        "5621b5344adeda2d30e9a4861a11764c871c38f3f34e13a720f66734633d1976",
+        "9fef48604f0c89cbcebeffdc0436256baaca7b3fc6a339c0e4e1f8edba029cfb"
+      ],
+      "source_sha256": "fa5a64d9d3c9dafd06a05e8e1b87c5da5500f9a900a805c86c17aaea7e6e1239",
+      "text": "원본 이미지 위에 윤곽선을 그립니다.\n\n:param image: 기본 이미지입니다. 2D 배열은 ``uint8``로 정규화한 뒤 먼저 RGB로 승격하며, 이는 이미 ``[0, 1]``로 조정되어 있다고 가정합니다. 이미 3D인 것은 복사하여 그대로 그리므로 dtype과 값 범위는 호출자가 책임집니다.\n:param mask: 윤곽선을 가져오는 레이블 마스크이며 ``generate_contours``로 추적합니다. ``image``와 픽셀 단위로 맞아야 하므로 둘 다 같은 ``max_size``로 크기를 조정하세요.\n:param color: 윤곽선 색이며 0-255 범위의 BGR/RGB 세 값이고, 이미지 채널 순서에 맞춥니다. 기본값 ``(255, 0, 0)``.\n:param thickness: 픽셀 단위의 선 두께이며, 음수 값이면 윤곽선을 그리는 대신 각 윤곽 안을 채웁니다. 기본값 ``2``.\n:returns: 새 RGB 배열이며, 입력 ``image``는 수정되지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "476f68a5d0c018f8e4df0acb95490e79ae4e2f2cb3256c4a28d4e293087a6fbe",
+        "7c25f9424aa04da44a7f4da3f87cac3093b628324fdf410fb4e3b901a7f326ad",
+        "a3a11d5d6fc3e46746a472ad74b06ed5ae42d57b1e746378fe3bc3d5f2c4b370",
+        "9c8838adcec633a999de4d58f18df2f3f94ac82b62e7e2c6b6a5d384c5a2610f",
+        "5621b5344adeda2d30e9a4861a11764c871c38f3f34e13a720f66734633d1976",
+        "9fef48604f0c89cbcebeffdc0436256baaca7b3fc6a339c0e4e1f8edba029cfb"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.generate_contours": {
+      "source_blocks_sha256": [
+        "c1d53946117f5c32a0226aa403921983a64751eb37c8244c378d6b1b36bf25a6",
+        "9c9a8c90f7fd26ca560122d4f3bd0d06144f24368af677439eda437b1ceca99c",
+        "e73030b6f11d42067778ebb18578e30f562b42c0c711756a67166e38f97d4476"
+      ],
+      "source_sha256": "b6f43a5511df3dfcce6704ae428b83793f379935aa1af0331c8cad99c7633098",
+      "text": "OpenCV로 마스크의 각 객체에 대한 윤곽선을 만듭니다.\n\n:param mask: 추적 전에 ``uint8``로 변환한 레이블 마스크입니다 — 255를 넘는 레이블은 순환하며, 외부 윤곽선만 가져오므로 맞닿은 객체는 하나의 윤곽선으로 추적되고 객체 안의 구멍은 윤곽선이 그려지지 않습니다.\n:returns: ``cv2.drawContours``에 쓸 준비가 된 OpenCV 윤곽선 목록입니다.",
+      "translation_source_blocks_sha256": [
+        "c1d53946117f5c32a0226aa403921983a64751eb37c8244c378d6b1b36bf25a6",
+        "9c9a8c90f7fd26ca560122d4f3bd0d06144f24368af677439eda437b1ceca99c",
+        "e73030b6f11d42067778ebb18578e30f562b42c0c711756a67166e38f97d4476"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.normalize_to_uint8": {
+      "source_blocks_sha256": [
+        "ee1d12a53bbcb96a62a4048652f232ac3b5bbe4cec790c62d423df7ed912b382",
+        "a02c60538743f94b16b417d588b7e4b62f59dbb357374f02ea77668a3caa6ad8",
+        "418c82c5e80fee4201b84f637d0ccb622fc9f92a9575c11c1c8a0c9a17a7b558"
+      ],
+      "source_sha256": "5701ae66bf0a08e7917f6fbd6bee932a215f9144fb6cf93bd32bac386e810a4a",
+      "text": "이미지를 정규화하고 uint8로 변환합니다.\n\n:param image: 값이 이미 ``[0, 1]``로 조정되어 있다고 가정하는 배열입니다 — 함수는 자르고 255를 곱하기만 하며 재조정하지 않습니다. 따라서 원본 16비트 카메라 데이터는 0인 픽셀을 제외하고 순백으로 포화되며, 음수 값은 검정으로 잘립니다.\n:returns: 같은 형태의 ``uint8`` 배열입니다.",
+      "translation_source_blocks_sha256": [
+        "ee1d12a53bbcb96a62a4048652f232ac3b5bbe4cec790c62d423df7ed912b382",
+        "a02c60538743f94b16b417d588b7e4b62f59dbb357374f02ea77668a3caa6ad8",
+        "418c82c5e80fee4201b84f637d0ccb622fc9f92a9575c11c1c8a0c9a17a7b558"
+      ]
+    },
+    "spacr.plot.print_mask_and_flows.resize_if_needed": {
+      "source_blocks_sha256": [
+        "9584c2e042da9a097f7753c59ccd591faad7adcf2fbc3874725d0093820620c1",
+        "0fef89d63f1e2a1bfa1eb5d9adc91f2f5e74e98c1c3decf9c75ce55465d7c643",
+        "aa711239cdf543f040d2fe20499fb830cc7ebcd7200283d4b23e3227a202c945",
+        "82aac0cc7af7abd08d7ab223cc3cff9e78d2bcf96c3be4ad515e157165fc9367"
+      ],
+      "source_sha256": "fdb23528c9b4f7973f7b395e4dc8ece37585ed70956924e97b24581789aee569",
+      "text": "어떤 차원이든 max_size를 넘으면 종횡비를 유지하며 이미지 크기를 줄입니다.\n\n:param image: 2D 또는 ``(H, W, C)`` 배열입니다. 채널 축은 건드리지 않고 결과는 입력 dtype으로 되돌리므로 레이블 마스크는 정수 레이블을 유지합니다 — 하지만 보간에 안티에일리어싱이 적용되어, 객체 경계를 따라 어떤 객체에도 속하지 않는 레이블 값이 생길 수 있습니다.\n:param max_size: 높이와 너비 중 큰 쪽의 상한(픽셀)입니다. 이미 맞으면 이미지를 그대로 반환하므로 확대는 절대 일어나지 않습니다. 양수가 아닌 값은 배율을 0으로 만들므로 실제 픽셀 예산을 전달하세요.\n:returns: 크기를 조정한 배열이며, 맞으면 ``image`` 자체입니다.",
+      "translation_source_blocks_sha256": [
+        "9584c2e042da9a097f7753c59ccd591faad7adcf2fbc3874725d0093820620c1",
+        "1f418deb949c69f411c5ae89e1d7eea89af435fa5a5d3218a64f936acdc3aa7d",
+        "aa711239cdf543f040d2fe20499fb830cc7ebcd7200283d4b23e3227a202c945",
+        "82aac0cc7af7abd08d7ab223cc3cff9e78d2bcf96c3be4ad515e157165fc9367"
       ]
     },
     "spacr.plot.print_ready": {
@@ -63172,6 +63718,46 @@
         "c5408efc29e89cd714d35495515df85f4e6fb74a7d3c1f377bbf64fe70dd2b94",
         "777d83f4736af7db532a037914a1030e92ea372fe8f2ac2cc126e7d4b65cd1ad",
         "1adef1747fa733867670c566d3655063d53866467e8309fe5364059b795b62aa"
+      ]
+    },
+    "spacr.plot.spacrGraph.create_plot._generate_tabels": {
+      "source_blocks_sha256": [
+        "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f"
+      ],
+      "source_sha256": "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f",
+      "text": "다단계 그룹화를 위한 행 레이블과 기호 테이블을 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "aa6d7d98c5cc3b5525e44ad9768993d051f39356e1204025b9bb652fa110a44f"
+      ]
+    },
+    "spacr.plot.spacrGraph.create_plot._get_positions": {
+      "source_blocks_sha256": [
+        "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592"
+      ],
+      "source_sha256": "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592",
+      "text": "플롯된 그룹 중심을 테이블의 왼쪽에서 오른쪽 순서로 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "84844c280ccd82b149b9104e3979eebdacca35c01ad8903631b190c79b454592"
+      ]
+    },
+    "spacr.plot.spacrGraph.create_plot._place_symbols": {
+      "source_blocks_sha256": [
+        "0d049429fc7e12a424b311bd3f61a1f00bfded101df867fce47a6a26df7d3427",
+        "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+        "082838aa62b0c807007a751170570d177f508ae98bb0fb326930d6f4ac88df3c",
+        "03cc78ab73286d834be20e7ded19c170306ffebfe9ca2813f248a8b8c8368699",
+        "91ed6087b70396ffe58fbb19e2b5d4ea2481d9670bba0701c0df6479fbe37fde",
+        "d7bac24db9f2b7a59555137ce83359c67d8079cc1b79f8c757e11596bf6d15be"
+      ],
+      "source_sha256": "10b3c79d5fe5b0984cf97fbf90296e2a5dc3286d4497d1d846e2f40ebf9b0807",
+      "text": "그래프의 막대나 지터 점 아래에 기호와 행 레이블을 맞춰 배치합니다.\n\n매개변수:\n- row_labels: y축을 따라 표시할 행 제목 목록입니다.\n- transposed_table: 각 막대/지터 아래에 기호로 배치할 데이터입니다.\n- x_positions: 기호를 맞추기 위한 각 그룹의 x축 위치입니다.\n- ax: 플롯을 그리는 matplotlib Axes 객체입니다.",
+      "translation_source_blocks_sha256": [
+        "0d049429fc7e12a424b311bd3f61a1f00bfded101df867fce47a6a26df7d3427",
+        "03acaf78dc888c07d68852cf74f170cbac1c271a3c3f613678587ff304f1e482",
+        "082838aa62b0c807007a751170570d177f508ae98bb0fb326930d6f4ac88df3c",
+        "03cc78ab73286d834be20e7ded19c170306ffebfe9ca2813f248a8b8c8368699",
+        "91ed6087b70396ffe58fbb19e2b5d4ea2481d9670bba0701c0df6479fbe37fde",
+        "d7bac24db9f2b7a59555137ce83359c67d8079cc1b79f8c757e11596bf6d15be"
       ]
     },
     "spacr.plot.spacrGraph.get_figure": {
@@ -63406,6 +63992,66 @@
         "e3e8534e08417a30403b326bc21582df18d048d80be30a2a94d920d7950c1d4c",
         "c164ae52a5e5955eedeecfafa529d26a1d28016ff31c2a3cad542b66e16540cb",
         "ff0f56705ef13dc8561fa37877993ade660786c6ec55977e9944cb9653fa8951"
+      ]
+    },
+    "spacr.plot.volcano_plot._as_numeric": {
+      "source_blocks_sha256": [
+        "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d"
+      ],
+      "source_sha256": "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d",
+      "text": "열을 float로 변환하며, 결과가 전부 숫자가 아니면 거부합니다.",
+      "translation_source_blocks_sha256": [
+        "0b5b4ebf525302e478713537b285da1972e3a9fdb726cf582a28137be81a2d7d"
+      ]
+    },
+    "spacr.plot.volcano_plot._read_table_auto": {
+      "source_blocks_sha256": [
+        "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51"
+      ],
+      "source_sha256": "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51",
+      "text": "Excel 또는 구분된 텍스트를 읽으며, 대체 방법으로 쉼표와 탭을 감지합니다.",
+      "translation_source_blocks_sha256": [
+        "93d1ea6c5df152a024b2dfbff2d23901b60a13e67a73af5cb772ab236a2dee51"
+      ]
+    },
+    "spacr.plot.volcano_plot._threshold_x_in_plot_units": {
+      "source_blocks_sha256": [
+        "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e"
+      ],
+      "source_sha256": "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e",
+      "text": "원래의 fold change 임계값을 플롯의 절대 단위로 변환합니다.",
+      "translation_source_blocks_sha256": [
+        "2108ceb8fa09b2a439ce9765a54cab4317415686e07842b0983e815aebde051e"
+      ]
+    },
+    "spacr.plot.volcano_plot._threshold_y_in_plot_units": {
+      "source_blocks_sha256": [
+        "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0"
+      ],
+      "source_sha256": "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0",
+      "text": "y축용 원래 p값 임계값을 검증하고 변환합니다.",
+      "translation_source_blocks_sha256": [
+        "e70bd108552ef27e9350d26a56ab4c328779bd0e5561d09097fc746da23672e0"
+      ]
+    },
+    "spacr.plot.volcano_plot._transform_x": {
+      "source_blocks_sha256": [
+        "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa"
+      ],
+      "source_sha256": "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa",
+      "text": "선택한 x 변환을 적용하며, 로그 입력은 양수여야 합니다.",
+      "translation_source_blocks_sha256": [
+        "68d2ba5fb37760565197712647d063301829f549435ae50677ee67f7f7d0b3fa"
+      ]
+    },
+    "spacr.plot.volcano_plot._transform_y": {
+      "source_blocks_sha256": [
+        "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139"
+      ],
+      "source_sha256": "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139",
+      "text": "로그 입력을 자른 뒤 선택한 y 변환을 적용합니다.",
+      "translation_source_blocks_sha256": [
+        "e783d903de42ad4726e3c4c08ac909672bf9511b505b9ef0347490b942992139"
       ]
     },
     "spacr.plugins": {
@@ -86808,6 +87454,582 @@
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
     },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._apply_the_scales_live": {
+      "source_blocks_sha256": [
+        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1"
+      ],
+      "source_sha256": "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1",
+      "text": "두 배율을 지금 적용하고 유지할지 묻습니다.",
+      "translation_source_blocks_sha256": [
+        "4472c77b3e283df5d3066f4d3d193be112dd963ca4600627fc4f0130cd72cbf1"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._category": {
+      "source_blocks_sha256": [
+        "254eebc394c45c71502e8003580bb31159f9506e458da05b51e1c73103dc5682",
+        "a49dac1af88ce7e65232271ac0d227850108f952d863004eee334037f869c3f0"
+      ],
+      "source_sha256": "c38843999435ffcf9bd5d22f8bf490aa30bae0dbaee370e0c029d7e3e18078d1",
+      "text": "모양에 접힌 범주를 추가하고 그 양식을 반환합니다.\n\n이 범주는 모듈 화면이 설정을 묶을 때 쓰는 것과 같은 위젯이므로, 다른 설정 범주와 똑같이 접히고 보입니다. 그 행들은 ``object_name``이라는 컨테이너 안에 있으며, 도움말 검색은 그것을 기준으로 대화 상자를 엽니다. 탐색은 행으로 가는 길에 범주를 펼칩니다.",
+      "translation_source_blocks_sha256": [
+        "254eebc394c45c71502e8003580bb31159f9506e458da05b51e1c73103dc5682",
+        "e7871d5e68c7007075ea859ad59fa543140cff70733bbb8b237d05cc821b3376"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._debug_follows_verbose": {
+      "source_blocks_sha256": [
+        "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
+        "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806"
+      ],
+      "source_sha256": "00d085a377d22d4b1e60a4f655c0860df7e61a57c721b034b2a52b11528275a0",
+      "text": "verbose가 켜져 있는 동안 DEBUG 파일 스위치를 켜 둡니다.\n\nverbose는 스위치 상태와 관계없이 로그 파일에 DEBUG를 추가하므로, 스위치는 이를 보여 주며 바꿀 수 없습니다. verbose가 꺼지면 스위치는 사용자의 원래 선택으로 돌아갑니다.",
+      "translation_source_blocks_sha256": [
+        "879094797b8b21e60535822a0ab48817a3f8b6ca62541f027419efc337c5ead2",
+        "7d0d72d6da06a84a5ac615433d26d4801b6c6abde417bd3fa1860d8b82f8f806"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._magnifier_says": {
+      "source_blocks_sha256": [
+        "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
+      ],
+      "source_sha256": "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c",
+      "text": "슬라이더가 가리키는 돋보기 크기를 백분율로 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "e680aa503baa552ec483a5ea9b91b3be772fdbb216de5074859944566347c41c"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._open_providers": {
+      "source_blocks_sha256": [
+        "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ],
+      "source_sha256": "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f",
+      "text": "설치/로그인 대화 상자를 열고 공급자 목록을 다시 표시합니다.",
+      "translation_source_blocks_sha256": [
+        "17f4e6602081b14d5bb63dec376f74713e7998558e4f4f649adfa212e29fa00f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._page": {
+      "source_blocks_sha256": [
+        "ecbb8ee94a66dc6a956b6621f7e0ae830c8881ecda68e8068eeeee6a713e3b8a",
+        "6c95673bcde4a3cb52fc100c54d232b898d3ab438fd2717f6cf3e677412e7133"
+      ],
+      "source_sha256": "7401f00012b3a10e9dbb403ecbc650bfc28e6bbd2a9a9411ccac26879c8c2266",
+      "text": "탭을 추가하고 그 탭을 채울 양식을 반환합니다.\n\n각 페이지가 따로 스크롤되므로 작은 디스플레이에서는 대화 상자 전체가 아니라 가장 높은 탭만 짧아지고, 모든 탭은 어떤 창 높이에서도 여전히 접근할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "ecbb8ee94a66dc6a956b6621f7e0ae830c8881ecda68e8068eeeee6a713e3b8a",
+        "6c95673bcde4a3cb52fc100c54d232b898d3ab438fd2717f6cf3e677412e7133"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row": {
+      "source_blocks_sha256": [
+        "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8"
+      ],
+      "source_sha256": "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8",
+      "text": "레이블이 붙은 백분율 슬라이더 하나를 만들고 그 부분들을 반환합니다.",
+      "translation_source_blocks_sha256": [
+        "104194a94afe1745d2610eb4f89bf329c18fbd4491f9c89149f81325e4c57ee8"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._percent_row._update": {
+      "source_blocks_sha256": [
+        "a291e0a6ed99bd0eaa966406dc9c14db067d3039c50b812205bde5f4422b4467",
+        "180639b9daa34bbb10cc51c9ff883b20cd7e643c967798e98cfe73ca6b14a198"
+      ],
+      "source_sha256": "58e1c46417b66051e9cccb4bf1c2e2d69737e6d2e2a74774ff27e16df734f33f",
+      "text": "백분율을 보여 주며, 설계된 값일 때는 그렇다고 알려 줍니다.\n\n\"100%\"만으로는 그것이 돌아가야 할 값이라는 것을 독자에게 알려 주지 못합니다.",
+      "translation_source_blocks_sha256": [
+        "a291e0a6ed99bd0eaa966406dc9c14db067d3039c50b812205bde5f4422b4467",
+        "180639b9daa34bbb10cc51c9ff883b20cd7e643c967798e98cfe73ca6b14a198"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._put_the_sliders_back": {
+      "source_blocks_sha256": [
+        "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319"
+      ],
+      "source_sha256": "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319",
+      "text": "되돌리기 후 다시 적용된 값을 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "f591b86a6990fafc048a7f015bf6f8e0cb8b225a0ce7504f20eac2feabea8319"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._quit_spacr": {
+      "source_blocks_sha256": [
+        "2dc1933c37376d894ae649b0b4d79493264bcb80b28ef456698566eefda7606c",
+        "0f18912e719a1ef4847b1d586f2149e0d5d9afdb77f028edc59f5df93af406a6"
+      ],
+      "source_sha256": "d73324b06b92dd1fa9fae605ba65180c14221a4e3abf0a2464839449b3149c9c",
+      "text": "방법을 물은 뒤 협조적으로 멈추거나 바로 종료합니다.\n\n정상 경로는 `closeEvent`가 택하는 것과 같으며 -- 짧은 예산의 `cancel_all` -- 그다음 창을 닫으므로, 일반 종료는 여전히 모든 종료 훅을 실행합니다. 여기서 추가되는 것은 5분 뒤 다시 묻는 기능으로, `closeEvent`가 처리할 수 없는 경우를 위한 것입니다. 취소 플래그를 절대 보지 못할 C 확장 안에 갇힌 작업 스레드는 창이 닫히기를 거부하게 만들고, 애플리케이션 안에서는 빠져나갈 방법이 없습니다.",
+      "translation_source_blocks_sha256": [
+        "2dc1933c37376d894ae649b0b4d79493264bcb80b28ef456698566eefda7606c",
+        "0f18912e719a1ef4847b1d586f2149e0d5d9afdb77f028edc59f5df93af406a6"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reload_ambient_palettes": {
+      "source_blocks_sha256": [
+        "843500d4e2c29b3ad8b6c15285ed294461b269ee3c7e0ed1e0ec91fec6c82518",
+        "4163f79d971050f25df9d50340de65f48df67dd99b6aa4e4da11abb9e9618b47"
+      ],
+      "source_sha256": "2e32466da583e4fb5048c88811323c8cd04223921c17d3f8eec36bf6cd963e1e",
+      "text": "선택한 애니메이션의 팔레트 목록을 다시 채웁니다.\n\n팔레트는 테마별이므로 두 컨트롤을 독립적으로 채울 수 없습니다. 새 테마도 현재 선택을 제공하면 그대로 이어 가고, 그렇지 않으면 그 테마의 기본값을 선택하는데, 이는 저장된 키가 하는 일과 정확히 같습니다.",
+      "translation_source_blocks_sha256": [
+        "843500d4e2c29b3ad8b6c15285ed294461b269ee3c7e0ed1e0ec91fec6c82518",
+        "4163f79d971050f25df9d50340de65f48df67dd99b6aa4e4da11abb9e9618b47"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._remember_the_debug_choice": {
+      "source_blocks_sha256": [
+        "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df"
+      ],
+      "source_sha256": "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df",
+      "text": "사용자가 DEBUG 파일 스위치를 직접 조작하는 동안에만 기록합니다.",
+      "translation_source_blocks_sha256": [
+        "8e23fae001028653e60331a999369a87242909d8602d6c56bb685c8e671f21df"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._reset_to_defaults": {
+      "source_blocks_sha256": [
+        "d165969fd5f49cfc16530f93a3fb210450c57c9439acb867d15142721a7c1baf",
+        "75e3f75602be80bfe9315319e3f0030ba5f1b2985cd250e6bca3180b8c11ab75",
+        "8a8c3b3e8320e00914d945a31ff345f7cb82daae0e1eab177d78cee4df97abe4"
+      ],
+      "source_sha256": "3c3373f33b4f8c58c39b9bd3a7636fad06b2e5b10e7a88faeb6a7af5dffa4d74",
+      "text": "모든 컨트롤을 새로 설치했을 때 보이는 상태로 되돌립니다.\n\n기본값의 두 번째 사본이 아니라 빈 저장소를 대상으로 실제 getter를 통해 읽습니다. 여기에 손으로 쓴 테이블을 두면 환경설정에 기본값이 생길 때마다 갱신해야 할 곳이 하나 더 생기고, 그것이 틀렸을 때의 실패는 조용합니다. 어떤 코드 경로도 고른 적 없는 값으로 무언가를 슬쩍 설정하는 초기화가 됩니다.\n\n컨트롤만 바뀝니다. 저장을 누르기 전까지는 아무것도 기록되지 않으므로, 취소하면 사용자가 의도하지 않은 초기화를 여전히 버릴 수 있습니다 -- 그래서 이것은 빈 저장소를 다시 쓰지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "d165969fd5f49cfc16530f93a3fb210450c57c9439acb867d15142721a7c1baf",
+        "75e3f75602be80bfe9315319e3f0030ba5f1b2985cd250e6bca3180b8c11ab75",
+        "8a8c3b3e8320e00914d945a31ff345f7cb82daae0e1eab177d78cee4df97abe4"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._resource_button": {
+      "source_blocks_sha256": [
+        "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679"
+      ],
+      "source_sha256": "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679",
+      "text": "리소스 행을 위한 레이블 붙은 작업 버튼 하나를 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "096dc92bc2069db1a4c799ea2a326071acc8b881bd73f1126f19b801bfcc5679"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_lag_says": {
+      "source_blocks_sha256": [
+        "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60"
+      ],
+      "source_sha256": "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60",
+      "text": "테두리 추적을 백분율로 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "28b13a2f44129f3377488dcf84bb266f15cc48dae93a792d1da90caacfb1fe60"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_length_says": {
+      "source_blocks_sha256": [
+        "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23"
+      ],
+      "source_sha256": "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23",
+      "text": "테두리 길이를 픽셀로 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "be36760d1f41222a570aa1e24705998e74a52a3b39686e5f6f16c3410c98fc23"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._rim_period_says": {
+      "source_blocks_sha256": [
+        "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d"
+      ],
+      "source_sha256": "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d",
+      "text": "테두리 주기를 초로 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "c5668a03fb9b5e839d5d5af79c6e8a81292c82ecd7bb4a280081800ac0832d3d"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._save": {
+      "source_blocks_sha256": [
+        "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
+        "f874a4bd3ddc414ddcbe2b343b2bad53493510d567807e1a233d12adc81f64fa"
+      ],
+      "source_sha256": "fb1112d0625fb1f7e2e2a5f37d1aca8a5ebfbb287a27def61a9058b9e5930fd1",
+      "text": "이 대화 상자가 소유한 모든 환경설정을 쓰며, 테두리를 먼저 씁니다.\n\n테두리가 먼저인 이유는 열려 있는 모든 카드가 이를 다시 읽기 때문입니다. 테마 작업 전에 하면 다시 그리기가 두 번이 아니라 한 번입니다.",
+      "translation_source_blocks_sha256": [
+        "b212ea85cbb2e5f856c6a91f5d8d059f8f90bd73854c529075c71df35b7d4c25",
+        "4f8630ddc2e71d83647685895e606fdf4440618407ec537561eb98cac6ad629a"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._select": {
+      "source_blocks_sha256": [
+        "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144"
+      ],
+      "source_sha256": "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144",
+      "text": "``combo``가 데이터가 ``value``인 항목을 가리키게 합니다.",
+      "translation_source_blocks_sha256": [
+        "1e006b4c120aac8e62aa9cdc23db4c472fe8f98770a5b1f3e27f07809a8b9144"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._settle_unless_dragging": {
+      "source_blocks_sha256": [
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+      ],
+      "source_sha256": "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69",
+      "text": "드래그는 놓을 때 적용되고, 클릭이나 키는 즉시 적용됩니다.",
+      "translation_source_blocks_sha256": [
+        "4be19113705f800d72bc5502bea23c5636ab4393176f1ffd6ba1592ec7ce0d69"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._steering_only_matters_when_guided": {
+      "source_blocks_sha256": [
+        "a8143b36b27fcecb393b89af1f701589d4d432269205c460937a61240257789c",
+        "77dac09cc19a0626cc147ee1526ce1c7f9c53b7dd0cfc0b119571daab1109cfb"
+      ],
+      "source_sha256": "9d88d4baaf6026051ca17ca89f7639d371bcfac2ada4a59aab6541908a7968c0",
+      "text": "고정 경로에서는 아무 효과가 없으므로 조향을 회색으로 비활성화합니다.\n\n숨기지 않고 보여 주므로, 다른 경로를 고르면 그것이 활성화된다는 점이 분명합니다 -- 사라지는 컨트롤은 사용자가 다시 찾아야 하는 컨트롤입니다.",
+      "translation_source_blocks_sha256": [
+        "a8143b36b27fcecb393b89af1f701589d4d432269205c460937a61240257789c",
+        "77dac09cc19a0626cc147ee1526ce1c7f9c53b7dd0cfc0b119571daab1109cfb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._suggestions": {
+      "source_blocks_sha256": [
+        "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888"
+      ],
+      "source_sha256": "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888",
+      "text": "이 행에 대해 각 수준이 제안하는 것을 한 문장으로 나타냅니다.",
+      "translation_source_blocks_sha256": [
+        "35b2c3a0083580f3ce626eb4ecf1ec0c88883b59ea595e622da4cf5138aa1888"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_ambient_enabled": {
+      "source_blocks_sha256": [
+        "2381a41ef77fd577a934f686b2f462bceca0afb636e92de07061334b3427a31a",
+        "42f2dd9086979937e19bd78ef9ebf0e2da02e17c6f98b6b4e52bb8bbfe7f727f"
+      ],
+      "source_sha256": "52721809c355de5356213d3a9dfa9f83ad47e54f29c832cedc8a63be6c2c731f",
+      "text": "칠할 것이 없으면 형태 컨트롤을 회색으로 비활성화합니다.\n\n이제 None이 애니메이션 행 안에 있으므로 그 행 자체가 이를 제어합니다. 컨트롤은 사라지지 않고 *보이는* 상태로 남아, 애니메이션을 고르면 무엇이 돌아올지 독자가 볼 수 있습니다. 아무것도 그리지 않는 동안에는 의미가 없는 설정일 뿐입니다.",
+      "translation_source_blocks_sha256": [
+        "2381a41ef77fd577a934f686b2f462bceca0afb636e92de07061334b3427a31a",
+        "42f2dd9086979937e19bd78ef9ebf0e2da02e17c6f98b6b4e52bb8bbfe7f727f"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_console_enabled": {
+      "source_blocks_sha256": [
+        "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd"
+      ],
+      "source_sha256": "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd",
+      "text": "콘솔 스위치는 해당 파일 스위치가 켜져 있을 때만 활성화됩니다.",
+      "translation_source_blocks_sha256": [
+        "7b1b325f0b3420d36f2d9fd7638204d19872d6b3cd388b228330311893205ddd"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_direction_row": {
+      "source_blocks_sha256": [
+        "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5"
+      ],
+      "source_sha256": "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5",
+      "text": "움직이는 테마에 대해서만 이동 방향을 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "f7e2829e73966319d520ebc8806442cd2acd3730c72c15a4f9af332812b20ef5"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_fractal_note": {
+      "source_blocks_sha256": [
+        "95cf8edf17973da8da7c8d96d771a3a429ecbcbb283b13673cab5d43aa016d82",
+        "56ca415cb3a9b05c37c40d9d83592f0ca97126c9a7922e021a4b0dae275b48bb"
+      ],
+      "source_sha256": "7b0eee691481d6733b2ee51a5f8a3bed0b4ec056a867e1c8e36125d65b53841c",
+      "text": "'auto'가 여기서 실제로 어떤 렌더러를 고를지 알려 줍니다.\n\n레이블은 이를 미리 말할 수 없습니다. 이 컴퓨터에서 vispy를 가져올 수 있는지에 달려 있으며, 정직한 답은 사용자가 실제로 받게 될 답입니다.",
+      "translation_source_blocks_sha256": [
+        "95cf8edf17973da8da7c8d96d771a3a429ecbcbb283b13673cab5d43aa016d82",
+        "56ca415cb3a9b05c37c40d9d83592f0ca97126c9a7922e021a4b0dae275b48bb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._sync_mode_note": {
+      "source_blocks_sha256": [
+        "49e2d4099b219ff2fda2f38ade2d57d7fafaaa760bb0398b5f735c7cccaf683d",
+        "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
+      ],
+      "source_sha256": "213723f0a3c6a7d50d6bf8fcc0b6fa8c4f4541f0cd0f9f212d6e01dc45ce4e60",
+      "text": "선택한 모드가 어떤 하드웨어용인지 알려 줍니다.\n\n수준에 하드웨어 이름이 없는 선택기는 사용자가 자기 컴퓨터가 어느 것인지 추측하게 만듭니다.",
+      "translation_source_blocks_sha256": [
+        "49e2d4099b219ff2fda2f38ade2d57d7fafaaa760bb0398b5f735c7cccaf683d",
+        "e540aa3013296c2477595b47e0d602293526754d10ca91a25da4792690a936cf"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._tenths": {
+      "source_blocks_sha256": [
+        "eae2896ec87a742c16bb3dd5c92a6b31354c0653569ff9171e1856e0075b1fc5",
+        "bf520183a29561abb11dba7cc3b26b1374eec58ef2d73980f7cccaf967e6f13a",
+        "01de190ba699d09dc36709bd69abb8917e3c8c6ee100bc75419b5d3c914b369c"
+      ],
+      "source_sha256": "2958f31b80ea87324a212092dda482089a3e817ab0a8a8c1e5edcbb7208d574b",
+      "text": "상한이 있는 슬라이더가 아니라 숫자 필드입니다.\n\n최대값이 2인 스핀 박스는 입력한 40을 설명 없이 2로 바꿉니다. 이 설정들은 입력한 숫자를 받아들이고, 쓸 수 없을 때는 검증이 분명히 알려 주게 합니다.\n\n범위는 QDoubleSpinBox가 허용하는 가장 넓은 범위로 열려 있어 위젯은 아무것도 거부하지 않습니다. 값을 쓸 수 있는지는 `explain_a_fractal_number`가 결정하며, 쓸 수 없으면 그 이유를 말합니다.",
+      "translation_source_blocks_sha256": [
+        "0e1df5494b71793379e2e73709adf23e0e7e5002bc84dc2b28591a13f03054fc",
+        "bf520183a29561abb11dba7cc3b26b1374eec58ef2d73980f7cccaf967e6f13a",
+        "01de190ba699d09dc36709bd69abb8917e3c8c6ee100bc75419b5d3c914b369c"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._the_theme_brings_its_backdrop_and_its_sound": {
+      "source_blocks_sha256": [
+        "843f562bbc2b43d0ea403fb88dfaeeb36cf46398f8f450c92a0b72a2636bfeea",
+        "78be0e870fd4f8c04125f24fa778251b5949568520ce4380cf4d392dc3e8bb37",
+        "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
+        "38b292b9c1c02eb4980ee5d7975907e01707411eb9d0af897c722c9f4795e93d"
+      ],
+      "source_sha256": "40b6ae848b8dda8a17ed45cf97354474f19ad499d17fca2ae17934f5e558fbd0",
+      "text": "야간 테마를 고르면 다른 세 컨트롤을 움직입니다.\n\n이 연결은 `set_theme_choice`에서만이 아니라 여기서 일어나야 합니다. 저장은 테마 컨트롤을 쓰고 바로 이어서 애니메이션, 팔레트, 사운드 세트 컨트롤을 쓰므로, `set_theme_choice` 안에서 적용한 프리셋은 세 줄 뒤에 손대지 않은 콤보가 여전히 담고 있던 값으로 덮어써집니다. 대신 컨트롤을 움직이면 두 경로가 일치하고, 무엇보다 사용자가 테마가 가져온 것을 직접 보고 저장을 누르기 전에 무엇이든 되돌릴 수 있습니다.\n\n야간 테마가 아닌 네 테마는 다른 것을 바꾸지 않으므로, 이 함수는 기본값을 찾지 않고 일찍 반환합니다. Dark는 배경에 대해 의견을 가진 적이 없으며 지금도 갖게 되지 않습니다.\n\n그리고 컨트롤이 NONE이라고 하면 애니메이션은 그대로 둡니다. :func:`apply_night_theme`가 말하는 이유 때문입니다. 테마는 움직임을 끈 사용자에게 무언가를 움직이게 해서는 안 됩니다. 사운드 세트는 그래도 바뀌는데, 그 컨트롤은 소리가 나는지 여부가 아니라 어떤 소리가 날지를 정하기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "843f562bbc2b43d0ea403fb88dfaeeb36cf46398f8f450c92a0b72a2636bfeea",
+        "6579363ef03d04dc27330aa70c6c53f208f58fb0d5d594ecd44522cc6f4f9864",
+        "32f894afe2ac77e56a9fb1b20823cdc61d999a0649d6803d1b983e9c43ef288a",
+        "232af6a79ef8aa55da3431d162d04a44f90cb86b46bc70efcd441582893f2feb"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_opacity_lbl": {
+      "source_blocks_sha256": [
+        "825bfb5a8b5228229756910cf6a9f3260573671a419491b4df4c59b514032b55",
+        "a6aa3ea4c12ec1fc5f278dfec847842db70f9d7c77b6612cbdcd118d90989fe0"
+      ],
+      "source_sha256": "8103d6fe7057f97c08edd0d25a86016e486baaca257d473a3ea8a28a7bc46ab0",
+      "text": "요청한 값과 테마가 허용할 값을 보여 줍니다.\n\n하한이 이 컨트롤 설계의 전부입니다. Space에서는 78 %이므로, 그렇지 않으면 \"20 %\"는 사용자가 설정했는데 앱이 조용히 무시한 숫자가 됩니다.",
+      "translation_source_blocks_sha256": [
+        "825bfb5a8b5228229756910cf6a9f3260573671a419491b4df4c59b514032b55",
+        "a6aa3ea4c12ec1fc5f278dfec847842db70f9d7c77b6612cbdcd118d90989fe0"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_scale_lbl": {
+      "source_blocks_sha256": [
+        "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9"
+      ],
+      "source_sha256": "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9",
+      "text": "글꼴 배율을 백분율로 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "b3987d48b56b4f928fd732fab8d36842bdbdae6c8a64a70c6bcaa34e417c69a9"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_spinner_lbl": {
+      "source_blocks_sha256": [
+        "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384"
+      ],
+      "source_sha256": "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384",
+      "text": "스피너 지연을 초로 보여 주며, 0이면 \"show immediately\"를 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "292ff31825e1facd265f52efdfd3d4cbb609493f8fb8e41fa2a10a1c35aee384"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._update_tooltip_delay_lbl": {
+      "source_blocks_sha256": [
+        "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94"
+      ],
+      "source_sha256": "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94",
+      "text": "도움말 지연을 초로 보여 주며, 0이면 \"show immediately\"를 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "d0cdfc9debafce138685eb47fbba48599c60b2142b960cba3d6ae9eca156bf94"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._warn_when_both_are_off": {
+      "source_blocks_sha256": [
+        "4e7dabc2add2de7e69cbd44643244cb50b29fdc264b6141ec48139809ce0b418",
+        "8239456d10b9b7af6acd9fb2d8db38401b97d85e4cec8d0d1a2ddfd646db732b"
+      ],
+      "source_sha256": "12f55830b9a1bfe3e532e850d7ea027547979f9ed892b9757088470048b654cb",
+      "text": "둘 다 끄면 무엇을 잃는지 해당 행에 직접 알려 줍니다.\n\n거부가 아닙니다. 둘 다 끄는 것은 허용되며 요청도 그렇게 말합니다. 하지만 여러 양식에서 설정 도움말 안의 API 링크는 그 컨트롤에서 문서로 가는 유일한 경로이므로, 둘 다 끈 독자는 이유를 알려 주는 표시 없이 그 경로를 잃습니다. 경고가 스위치에 있는 것은 그곳에서 선택하기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "4e7dabc2add2de7e69cbd44643244cb50b29fdc264b6141ec48139809ce0b418",
+        "2a4f8ef2eb27ef915e4beefecb9b505001fe41e76cc8a8351762a5de5e6f20e0"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._whole": {
+      "source_blocks_sha256": [
+        "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50"
+      ],
+      "source_sha256": "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50",
+      "text": "정수 필드이며, 마찬가지로 상한이 없습니다.",
+      "translation_source_blocks_sha256": [
+        "4af8c7d4c72b4b0d36b71066222f3082dbdb589ae91b85b635cabe8a76dcad50"
+      ]
+    },
+    "spacr.qt.preferences.PreferencesDialog._build_the_dialog._workspace_copying": {
+      "source_blocks_sha256": [
+        "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12"
+      ],
+      "source_sha256": "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12",
+      "text": "이 제한은 파일을 복사할 때만 의미가 있습니다.",
+      "translation_source_blocks_sha256": [
+        "327237c99989ea5d5bb34f01e75c527b5e2fabb3d487196ac34aa4c30458be12"
+      ]
+    },
+    "spacr.qt.preferences._NotificationsPage.__init__.line": {
+      "source_blocks_sha256": [
+        "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ],
+      "source_sha256": "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2",
+      "text": "도움말과 자리 표시자가 있는 텍스트 필드입니다.",
+      "translation_source_blocks_sha256": [
+        "994c0415cecfa5f015c9429137283d208e4476fc5249d437741439a23e9d9ef2"
+      ]
+    },
+    "spacr.qt.preferences._install_run_notifier._RunFinishedRelay.__init__": {
+      "source_blocks_sha256": [
+        "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
+      ],
+      "source_sha256": "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f",
+      "text": "이 객체가 속한 스레드에서 메시지를 수신합니다.",
+      "translation_source_blocks_sha256": [
+        "49a079f48811a7e2d0e53b5790a31d4f31b53bb99812c7541ab870510653c43f"
+      ]
+    },
+    "spacr.qt.preferences._install_run_notifier._RunFinishedRelay._show": {
+      "source_blocks_sha256": [
+        "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca"
+      ],
+      "source_sha256": "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca",
+      "text": "트레이에서 메시지 하나를 보여 주며, 트레이가 없으면 Qt 없이 보여 줍니다.",
+      "translation_source_blocks_sha256": [
+        "51b7aea94e502b3fd86a2b5ef4917807e095889f1eaf198352c64fb8e9cf6aca"
+      ]
+    },
+    "spacr.qt.preferences._install_run_notifier._without_qt": {
+      "source_blocks_sha256": [
+        "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5"
+      ],
+      "source_sha256": "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5",
+      "text": "운영 체제의 알림이며, 실패는 모두 기록됩니다.",
+      "translation_source_blocks_sha256": [
+        "fb0e28b0c4ac3dd8ea369003050adb89643254d5562167b5eb5a8e748a171cb5"
+      ]
+    },
+    "spacr.qt.preferences._page_stand_in_class._PageStandIn.sizeHint": {
+      "source_blocks_sha256": [
+        "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c"
+      ],
+      "source_sha256": "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c",
+      "text": "어떤 스크롤 영역도 페이지가 요청하게 두지 않을 만큼 큽니다.",
+      "translation_source_blocks_sha256": [
+        "f9e272e76012f29a8ebe46cc9c11ab9c7cde5d70a16dbba4c5d7f3eac3ab3d3c"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.__init__": {
+      "source_blocks_sha256": [
+        "a4d56573418af5f6794d2f8d4139409c104dff61e93f8d6c0551b78181f70eb5",
+        "73b1475d6ea0f5e22a37edcf170486674a4065acb3cdee9fb06a5393f0356240"
+      ],
+      "source_sha256": "abb2fdfe6942f33e4e87eb0ca35063345c09fd77c8a9b8bc9cfbbbad2d49646b",
+      "text": "빈 환경설정 창이며, 빌더가 채웁니다.\n\n:param parent: 소유 창이며, 없으면 ``None``입니다.",
+      "translation_source_blocks_sha256": [
+        "a4d56573418af5f6794d2f8d4139409c104dff61e93f8d6c0551b78181f70eb5",
+        "73b1475d6ea0f5e22a37edcf170486674a4065acb3cdee9fb06a5393f0356240"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow._bring_the_page_back": {
+      "source_blocks_sha256": [
+        "1d958b9d4e3f42696e797195cb4a916600367a0a83a588a4592303098718f8a6",
+        "6c2dc6ef62df9b695258be12fab81b818fcca769d73bd3bb2738ec7f04143111",
+        "014601987f13c6e87bd5c34d6e580b43042192f13f0750e6617584221bf3b2ad"
+      ],
+      "source_sha256": "5d8338a4064e73293a8d60876b8666a87ba9513434e9b8dafdf56589e1290c47",
+      "text": "탭이 선택될 때 대기 중인 페이지를 그 탭에 되돌려 놓습니다.\n\n:param index: 방금 선택한 탭입니다.\n:returns: 이 호출이 페이지를 되돌려 놓았으면 ``True``입니다.",
+      "translation_source_blocks_sha256": [
+        "1d958b9d4e3f42696e797195cb4a916600367a0a83a588a4592303098718f8a6",
+        "6c2dc6ef62df9b695258be12fab81b818fcca769d73bd3bb2738ec7f04143111",
+        "014601987f13c6e87bd5c34d6e580b43042192f13f0750e6617584221bf3b2ad"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow._send_the_unseen_pages_away": {
+      "source_blocks_sha256": [
+        "1ad023671de9fe55744e6e54b51968c2cf7766058556c6259ffa75a161edae1a",
+        "4f6d5b96e4108de5cdeef65164fb3f342231bd5b78383928055e9befbbd7896a"
+      ],
+      "source_sha256": "d59e765341f6fb515537bd420bed2392fac7172a42bdb300c05b3855f62fe47c",
+      "text": "현재 탭의 페이지를 제외한 모든 페이지를 창에서 빼냅니다.\n\n:returns: 창을 떠난 위젯 수입니다.",
+      "translation_source_blocks_sha256": [
+        "1ad023671de9fe55744e6e54b51968c2cf7766058556c6259ffa75a161edae1a",
+        "4f6d5b96e4108de5cdeef65164fb3f342231bd5b78383928055e9befbbd7896a"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow._show_only_the_open_page_at_first": {
+      "source_blocks_sha256": [
+        "d7514ece907da480a2cfe9453c76e4e019795289a86960d199086ab7f1670762",
+        "7ba36eff88f479107f73ffbf8aa4f32506a35db3c2cd88da3280923feea78a4a",
+        "f1366b89f921557eab07d4ddff7f5b7a90bbdac39521c56fef5e0607acfa3dcd"
+      ],
+      "source_sha256": "7b285252efbb670f7dc61c793b4a98b99370ca408aa2103042eff496f6c4a2f4",
+      "text": "첫 표시가 현재 탭의 페이지만 스타일을 적용하게 합니다.\n\n빌드가 끝나면 호출됩니다. 페이지는 표시될 때까지 제자리에 있으므로, 처음 열 탭을 고르는 탐색은 각 컨트롤을 해당 탭에서 찾습니다.\n\n:param tabs: 대화 상자의 ``QTabWidget``이며, 각 페이지는 페이지를 담은 스크롤 영역입니다.",
+      "translation_source_blocks_sha256": [
+        "d7514ece907da480a2cfe9453c76e4e019795289a86960d199086ab7f1670762",
+        "7ba36eff88f479107f73ffbf8aa4f32506a35db3c2cd88da3280923feea78a4a",
+        "f1366b89f921557eab07d4ddff7f5b7a90bbdac39521c56fef5e0607acfa3dcd"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChild": {
+      "source_blocks_sha256": [
+        "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
+        "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+        "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc"
+      ],
+      "source_sha256": "bc3f2d6931ef658bf753a9d0f0f1100789d76192c536b059fda8b1d9f96a1b84",
+      "text": "페이지가 대기 중인 컨트롤을 찾는 ``QObject.findChild``입니다.\n\n이름으로 요청한 컨트롤은 그 페이지가 어디에 있든 대화 상자의 것이므로, 빌더, 저장, 테스트가 이름으로 찾는 것은 어떤 탭이 선택되었는지에 좌우되지 않습니다. 그 컨트롤이 있는 페이지는 탭으로 돌아오며, 페이지가 대기하기 전과 마찬가지로 해당 탭이 현재 탭이 아니면 숨겨집니다. 찾은 것을 이어서 클릭하거나 그 기하 정보를 읽는 호출자는 창 안의 위젯을 쥐고 있는 것입니다.\n\n:returns: 첫 번째 일치 항목이며, 없으면 ``None``입니다.",
+      "translation_source_blocks_sha256": [
+        "8dd600280c69c3c730338abc6001e9023221aa93be1c138dc60bc7056047cf64",
+        "20034c93beb6e46fdc9ccde4e8ee84d28dca9091e09349b870dcd7be247fc83b",
+        "af86af4c733fa3184e4dd495390cefec84f5eea1391b2caaf9678678f8543fdc"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.findChildren": {
+      "source_blocks_sha256": [
+        "60adaaf7b62736392bcf0fb02be95aa9f2c9456fa42cc6a3eac86ddef47bed05",
+        "d5a8089f655870023f183954d53431311f0097dc6288ecfa556eac29eaf8ad43",
+        "4fe0029261d9d42ad91507277a3d336f6b28b5e89a3e88d61365dad7ca87b26a"
+      ],
+      "source_sha256": "b8aa6f8fda98f582cef5658fca790a9cf5ffe009196095f02b5a0d50a47f0b8e",
+      "text": "대기 여부와 관계없이 모든 페이지에 대한 ``QObject.findChildren``입니다.\n\nPython에서 대화 상자를 순회하는 것은 -- 테스트든, 모든 컨트롤을 살펴보는 코드든 -- 페이지가 대기하기 전과 같은 대화 상자를 보므로, 대기 중인 모든 페이지가 먼저 돌아옵니다. 첫 표시 중에는 그렇지 않습니다. 그때는 창 스타일시트, 유리, 크기 조정 필터가 대화 상자를 순회하며, 그것들을 위해 페이지를 되돌리는 것이 바로 대기로 절약하려는 비용입니다. 페이지가 돌아오는 중에도 그렇지 않은데, 그 페이지의 유리가 대화 상자에 자신의 카드를 묻기 때문입니다.\n\n:returns: 모든 일치 항목입니다.",
+      "translation_source_blocks_sha256": [
+        "60adaaf7b62736392bcf0fb02be95aa9f2c9456fa42cc6a3eac86ddef47bed05",
+        "d5a8089f655870023f183954d53431311f0097dc6288ecfa556eac29eaf8ad43",
+        "4fe0029261d9d42ad91507277a3d336f6b28b5e89a3e88d61365dad7ca87b26a"
+      ]
+    },
+    "spacr.qt.preferences._preferences_window_class._PreferencesWindow.setVisible": {
+      "source_blocks_sha256": [
+        "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
+        "56c9ac8b7e9786e63b36dece67b6dbbfc74c6a412eca6b53a467887c4317ad96",
+        "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
+      ],
+      "source_sha256": "de1511916cb3ee37057da5b9c3bf44d12cbea358e75226a541815f9f7f6561ad",
+      "text": "첫 표시 직전에 보이지 않은 페이지를 내보냅니다.\n\n여기서 하며, 첫 ``Polish``에서 하지 않습니다. 창 스타일시트, 유리, 크기 조정 필터는 모두 애플리케이션에서 오는 그 이벤트에 반응하는데, 애플리케이션은 창보다 먼저 그 이벤트를 받으며, 크기 조정 필터는 그때 모든 자식을 다듬습니다. Qt 자체의 표시는 이 호출 안에서 시작되므로, 그중 어느 것이 실행되기 전에 페이지가 사라집니다.\n\n:param visible: ``QWidget.setVisible``과 같습니다.",
+      "translation_source_blocks_sha256": [
+        "72cc38f86855c1794f1141cc803e0bbbba95bd952045e1b7f3fe65e46260cc83",
+        "f2df76b60fda60ff3ca25d33dfa0318c8e7501370e9c8e0dbb90c206a87f0fc6",
+        "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
+      ]
+    },
+    "spacr.qt.preferences._start_disk_report.done": {
+      "source_blocks_sha256": [
+        "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821"
+      ],
+      "source_sha256": "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821",
+      "text": "GUI 스레드에서, 작업자가 가져온 결과로 실행됩니다.",
+      "translation_source_blocks_sha256": [
+        "60be21efde0adcce99e09f16ebed56783393e817f322facf904084ce9f6ae3b0"
+      ]
+    },
+    "spacr.qt.preferences._start_disk_report.read": {
+      "source_blocks_sha256": [
+        "76d7159567dd8756ce4e96858bf65681b77a2d4e637d672558909a18f95b88ee",
+        "04f7adffbca46abce67fe17287ad15b20b54b13c18274b1ee64582c188afb9f0"
+      ],
+      "source_sha256": "964ad69ff4099c9740fa738a166f8b0d7b519b540c86b0d58e2d4d008fae879b",
+      "text": "작업 스레드에서 실행됩니다. 보고서 또는 예외를 반환합니다.\n\n아래의 콜백에 어느 경우든 도달하도록 예외를 발생시키지 않고 반환합니다. 위의 실패 단락을 참고하세요. ``disk_report``는 캡처하지 않고 여기서 조회하므로, 이를 대체한 호출자도 자기 것을 받습니다.",
+      "translation_source_blocks_sha256": [
+        "38e7e067934c4e52f781ebaa37a3f3b5258ee14023d3b1dfb04f289a40262078",
+        "e2d48793d6ca7a3d6b71ec367ef0053a5bded820c4dd9d4f5eaea8ad4f71f8f2"
+      ]
+    },
+    "spacr.qt.preferences._start_disk_report.restore": {
+      "source_blocks_sha256": [
+        "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c"
+      ],
+      "source_sha256": "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c",
+      "text": "버튼을 돌려줍니다. C++ 쪽은 이미 없을 수 있지만 괜찮습니다.",
+      "translation_source_blocks_sha256": [
+        "88b88aca3fc5fa989d147a082d1a21ec6012d2d1a5def0004a8899e82b78a51c"
+      ]
+    },
     "spacr.qt.preferences.ambient_default_palette": {
       "source_blocks_sha256": [
         "54632f55e0d2638d5fad56361cee7f2f14769a0059947a75a6dfee05812e95dc",
@@ -87596,6 +88818,42 @@
       "translation_source_blocks_sha256": [
         "bdd87db4757cd7463077934934a5663d1e116b96d63f22090ee07a11fecb06ea",
         "e0bbd9fd45a3dfc7a59414da064e8047fc1f21b525e2a9104dedb1cf8635fb08"
+      ]
+    },
+    "spacr.qt.preferences.get_fractal_settings._number": {
+      "source_blocks_sha256": [
+        "8ea8614653761512fba73cf618b62e42f38e5f5a03452529492755d49554e959",
+        "a0cd5ab350c84d4b469f202b733e709320095dbfaf1485ebf37510e5638daa98"
+      ],
+      "source_sha256": "29b13839d84f0f6d62a711a80361756374a796e57edd75aa8b2dbaa2ac293f76",
+      "text": "저장된 숫자이며, 실제로 있는 경계만 둡니다.\n\n경계에 ``None``은 경계가 없다는 뜻입니다. 설정은 필드이며, 사용자가 입력한 값은 다시 나올 때 조용히 줄어들지 않습니다. 전혀 작동할 수 없는 값만 거부하며, `explain_a_fractal_number`가 입력하는 시점에 말로 그 이유를 알려 줍니다.",
+      "translation_source_blocks_sha256": [
+        "8ea8614653761512fba73cf618b62e42f38e5f5a03452529492755d49554e959",
+        "a0cd5ab350c84d4b469f202b733e709320095dbfaf1485ebf37510e5638daa98"
+      ]
+    },
+    "spacr.qt.preferences.get_fractal_settings._text": {
+      "source_blocks_sha256": [
+        "5c9a76c1eda8e8e6b4ff6f85d216d946bb3d3f4d331b4157bb7f00c72eafca98",
+        "2fa19d23c986a71ae383a0f0ace83413262d3c28062d244f9120c131014633a4"
+      ],
+      "source_sha256": "1aefe86f248e427fd4357b3e5e67eedc66469b9996e0ac92e89b8bf32d8051eb",
+      "text": "저장된 문자열 하나이며, 허용된 값이 아니면 기본값입니다.\n\n오류를 발생시키지 않고 기본값으로 돌아갑니다. 더 이상 없는 테마를 가리키는 오래된 환경설정이 설정 로드를 막아서는 안 됩니다.",
+      "translation_source_blocks_sha256": [
+        "5c9a76c1eda8e8e6b4ff6f85d216d946bb3d3f4d331b4157bb7f00c72eafca98",
+        "c4b283d08e4d6973bc6f6bd0920dbae50fa57d272a5649c21a1274b1a75a19cd"
+      ]
+    },
+    "spacr.qt.preferences.get_fractal_settings._truth": {
+      "source_blocks_sha256": [
+        "cd14c93e28e59e3f1dcb680ed08a3e9b640ce4962378dc6534ff98dc214e93de",
+        "036f5e2a920bbe9eb4e4eb2dc1531cc7f07f942f118eccd44dadf80cda8bc68c"
+      ],
+      "source_sha256": "5291bdbd7645372057dd507d94df3efed7fb35af6c3657e833a1f96d6e864603",
+      "text": "QSettings가 어떤 형태로 돌려주든 저장된 불리언 값입니다.\n\nINI 파일은 모든 값을 문자열로 돌려주므로 `bool(\"false\")`는 True이고, 사용자가 끈 스위치가 켜진 채로 돌아옵니다.",
+      "translation_source_blocks_sha256": [
+        "cd14c93e28e59e3f1dcb680ed08a3e9b640ce4962378dc6534ff98dc214e93de",
+        "036f5e2a920bbe9eb4e4eb2dc1531cc7f07f942f118eccd44dadf80cda8bc68c"
       ]
     },
     "spacr.qt.preferences.get_gui_scale": {
