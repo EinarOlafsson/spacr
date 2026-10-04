@@ -45,6 +45,7 @@ NaN is reserved for "not measured".
 
 from __future__ import annotations
 
+import contextlib
 import logging
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
@@ -78,6 +79,48 @@ def _as_spacing(spacing, ndim: int) -> Optional[Tuple[float, ...]]:
     return values if len(values) == ndim else None
 
 
+_EDT_ON_GPU = {"on": False}
+
+
+@contextlib.contextmanager
+def _gpu_distance_transforms():
+    """Run the unspaced distance transforms inside the block on a CUDA GPU.
+
+    Used by Measure with ``measure_gpu`` on. CuPy's exact Euclidean distance
+    transform gives the same distances as SciPy's; any CuPy failure falls
+    back to SciPy for the rest of the block.
+    """
+    previous = _EDT_ON_GPU["on"]
+    _EDT_ON_GPU["on"] = True
+    try:
+        yield
+    finally:
+        _EDT_ON_GPU["on"] = previous
+
+
+def _edt(binary, cpu_transform, kwargs):
+    """``cpu_transform(binary, **kwargs)`` as float32, on the GPU when enabled.
+
+    The GPU path covers the unspaced transform only; a ``sampling`` keyword,
+    a missing CuPy or a CuPy error keep SciPy.
+    """
+    if _EDT_ON_GPU["on"] and not kwargs:
+        try:
+            from .measure import _preload_matching_nvrtc
+
+            _preload_matching_nvrtc()
+            import cupy
+            from cupyx.scipy.ndimage import distance_transform_edt as gpu_edt
+
+            return cupy.asnumpy(
+                gpu_edt(cupy.asarray(binary)).astype(cupy.float32))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("GPU distance transform failed; using SciPy",
+                      exc_info=True)
+            _EDT_ON_GPU["on"] = False
+    return cpu_transform(binary, **kwargs).astype(np.float32)
+
+
 def surface_distance_transform(mask, spacing=None):
     """Distance from every point to the nearest object surface in ``mask``.
 
@@ -98,7 +141,7 @@ def surface_distance_transform(mask, spacing=None):
     step = _as_spacing(spacing, binary.ndim)
     if step is not None:
         kwargs["sampling"] = step
-    return distance_transform_edt(~binary, **kwargs).astype(np.float32)
+    return _edt(~binary, distance_transform_edt, kwargs)
 
 
 def interior_distance_transform(mask, spacing=None):
@@ -120,7 +163,7 @@ def interior_distance_transform(mask, spacing=None):
     step = _as_spacing(spacing, binary.ndim)
     if step is not None:
         kwargs["sampling"] = step
-    return distance_transform_edt(binary, **kwargs).astype(np.float32)
+    return _edt(binary, distance_transform_edt, kwargs)
 
 
 def _centroids(mask) -> Tuple[np.ndarray, np.ndarray]:
@@ -189,28 +232,44 @@ def _min_over_boundary(field, boundary) -> float:
     return float(np.min(np.asarray(field)[boundary]))
 
 
-def local_maxima(image, mask, label: int) -> np.ndarray:
+def local_maxima(image, mask, label: int, *, window=None,
+                 threshold=None) -> np.ndarray:
     """Coordinates of the intensity peaks inside one object.
 
     :param image: intensity image aligned with ``mask``.
     :param mask: labelled object image that limits the peak search.
     :param label: object label whose interior is searched.
+    :param window: optional tuple of slices (the object's bounding box, as
+        from ``scipy.ndimage.find_objects``). The search then runs on that
+        window only, which gives the same peaks as the whole image in a
+        fraction of the time; coordinates are still in whole-image indices.
+    :param threshold: optional lowest intensity a peak must exceed. Pass the
+        whole image's minimum with ``window`` so the window gives the same
+        peaks as the whole image. ``None`` uses the searched image's minimum.
     :returns: an ``(n, ndim)`` array, possibly empty.
     """
     from skimage.feature import peak_local_max
 
-    inside = np.asarray(mask) == label
+    mask = np.asarray(mask)
+    image = np.asarray(image)
+    if window is not None:
+        mask = mask[window]
+        image = image[window]
+    inside = mask == label
     if not inside.any():
-        return np.empty((0, np.asarray(mask).ndim))
+        return np.empty((0, mask.ndim))
     try:
         peaks = peak_local_max(
             np.asarray(image, dtype=float), labels=inside.astype(np.int32),
             min_distance=PEAK_MIN_DISTANCE, num_peaks=MAX_PEAKS_PER_OBJECT,
-            exclude_border=False)
+            threshold_abs=threshold, exclude_border=False)
     except Exception:                                        # noqa: BLE001
         LOG.debug("no local maxima for label %s", label, exc_info=True)
-        return np.empty((0, np.asarray(mask).ndim))
-    return np.asarray(peaks, dtype=float)
+        return np.empty((0, mask.ndim))
+    peaks = np.asarray(peaks, dtype=float)
+    if window is not None and len(peaks):
+        peaks = peaks + np.array([part.start for part in window], dtype=float)
+    return peaks
 
 
 def _pairwise_spread(points, spacing=None) -> float:
@@ -326,6 +385,11 @@ def maxima_distances(masks: Dict[str, "np.ndarray"], images, *,
         stack = stack[..., None]
     wanted = list(channels) if len(channels) else list(range(stack.shape[-1]))
 
+    from scipy import ndimage
+
+    windows = {index + 1: box for index, box
+               in enumerate(ndimage.find_objects(labelled.astype(np.int64)))
+               if box is not None}
     own_interior = interior_distance_transform(labelled, spacing)
     others = {name: surface_distance_transform(np.asarray(mask), spacing)
               for name, mask in masks.items()
@@ -336,12 +400,15 @@ def maxima_distances(masks: Dict[str, "np.ndarray"], images, *,
         if channel >= stack.shape[-1]:
             continue
         plane = stack[..., channel]
+        floor = float(np.min(plane))
         counts, spreads = [], []
         to_own = {"min": [], "mean": []}
         to_centre = {"min": [], "mean": []}
         to_other = {name: {"min": [], "mean": []} for name in others}
         for label, centre in zip(labels, centroids):
-            peaks = local_maxima(plane, labelled, int(label))
+            peaks = local_maxima(plane, labelled, int(label),
+                                 window=windows.get(int(label)),
+                                 threshold=floor)
             counts.append(len(peaks))
             spreads.append(_pairwise_spread(peaks, spacing))
             if not len(peaks):

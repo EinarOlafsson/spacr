@@ -145,6 +145,7 @@ def test_without_cucim_the_morphology_table_falls_back_to_the_cpu(monkeypatch):
 
     labels, _ = _field(seed=5, size=96, objects=12)
     cpu = _morphology(labels)
+    monkeypatch.setattr(M, "_CUCIM_STATE", {})
     monkeypatch.setitem(sys.modules, "cucim", None)
     monkeypatch.setitem(sys.modules, "cucim.skimage.measure", None)
     assert M._cucim_morphology_table(labels, M.MORPHOLOGICAL_PROPS) is None
@@ -169,8 +170,79 @@ def test_a_cucim_table_with_other_columns_is_not_used(monkeypatch):
     assert calls and "solidity" in calls[0]
 
 
+def test_a_failing_cucim_table_is_reported_once_and_not_retried(monkeypatch, capsys):
+    labels, _ = _field(seed=8, size=48, objects=4)
+    calls = []
+
+    class _Cupy:
+        @staticmethod
+        def asarray(values):
+            return values
+
+    def broken(mask, properties):
+        calls.append(1)
+        raise RuntimeError("NVRTC_ERROR_COMPILATION (6)\nheader noise")
+
+    monkeypatch.setattr(M, "_CUCIM_STATE", {"table": (_Cupy, broken)})
+    assert M._cucim_morphology_table(labels, M.MORPHOLOGICAL_PROPS) is None
+    assert M._cucim_morphology_table(labels, M.MORPHOLOGICAL_PROPS) is None
+    out = capsys.readouterr().out
+    assert len(calls) == 1 and out.count("cuCIM morphology failed") == 1
+    assert "header noise" not in out
+
+
+def test_cucim_sees_sequential_labels_and_the_table_keeps_the_original_ones(monkeypatch):
+    from skimage.measure import regionprops_table
+
+    labels, _ = _field(seed=9, size=96, objects=12)
+    assert len(np.unique(labels)) - 1 < labels.max()
+
+    class _Cupy:
+        @staticmethod
+        def asarray(values):
+            return values
+
+        asnumpy = staticmethod(np.asarray)
+
+    def sequential_only(mask, properties):
+        present = np.unique(mask)[1:]
+        if not np.array_equal(present, np.arange(1, len(present) + 1)):
+            raise RuntimeError("No coordinates to process")
+        table = regionprops_table(mask, properties=properties)
+        return {name: table[name] for name in reversed(list(table))}
+
+    monkeypatch.setattr(M, "_CUCIM_STATE", {"table": (_Cupy, sequential_only)})
+    gpu = M._cucim_morphology_table(labels, M.MORPHOLOGICAL_PROPS)
+    cpu = M._safe_morphology_table(labels, M.MORPHOLOGICAL_PROPS)
+    assert gpu is not None and list(gpu.columns) == list(cpu.columns)
+    np.testing.assert_array_equal(gpu["label"], cpu["label"])
+    np.testing.assert_allclose(gpu.values.astype(float), cpu.values.astype(float))
+
+
+def test_the_nvrtc_matching_the_cupy_wheel_is_loaded_first(monkeypatch, tmp_path):
+    import ctypes
+    import site
+
+    for name in ("libnvrtc.so.12", "libnvrtc.alt.so.12"):
+        target = tmp_path / "nvidia" / "cuda_nvrtc" / "lib" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(b"")
+    (tmp_path / "nvidia" / "cu13" / "lib").mkdir(parents=True)
+    (tmp_path / "nvidia" / "cu13" / "lib" / "libnvrtc.so.13").write_bytes(b"")
+    loaded = []
+    monkeypatch.setattr(site, "getsitepackages", lambda: [str(tmp_path)])
+    monkeypatch.setattr(site, "getusersitepackages", lambda: str(tmp_path / "none"))
+    monkeypatch.setattr(ctypes, "CDLL", lambda path, mode=0: loaded.append(path))
+    monkeypatch.setattr(M, "_cupy_wheel_cuda_major", lambda: 12)
+    path = M._preload_matching_nvrtc()
+    assert loaded == [path] and path.endswith("cuda_nvrtc/lib/libnvrtc.so.12")
+    monkeypatch.setattr(M, "_cupy_wheel_cuda_major", lambda: None)
+    assert M._preload_matching_nvrtc() is None
+
+
 def test_cucim_morphology_matches_scikit_image():
     pytest.importorskip("cucim")
+    M._preload_matching_nvrtc()
     cupy = pytest.importorskip("cupy")
     if not cupy.cuda.is_available():
         pytest.skip("no CUDA device")
@@ -180,6 +252,17 @@ def test_cucim_morphology_matches_scikit_image():
     assert gpu is not None and list(gpu.columns) == list(cpu.columns)
     np.testing.assert_allclose(gpu.values.astype(float),
                                cpu.values.astype(float), rtol=1e-5, atol=1e-6)
+
+
+def test_the_fast_pearson_matches_scipy():
+    from scipy.stats import pearsonr
+
+    rng = np.random.default_rng(11)
+    for size in (2, 3, 50, 4000):
+        a = rng.gamma(2.0, 300.0, size).astype(np.float32)
+        b = (a * 0.3 + rng.normal(0, 50, size)).astype(np.float32)
+        assert M._pearson_r(a, b) == pytest.approx(pearsonr(a, b)[0], abs=1e-6)
+    assert np.isnan(M._pearson_r(np.ones(5), np.arange(5.0)))
 
 
 def test_measure_pool_spawns_workers_when_measure_gpu_is_on(monkeypatch):

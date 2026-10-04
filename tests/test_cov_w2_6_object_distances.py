@@ -415,3 +415,23 @@ def test_no_column_carries_the_object_type_it_will_be_prefixed_with():
     image[12, 12] = 100.0
     frame = od.object_distances({"cell": mask}, image, primary="cell")
     assert not [c for c in frame.columns if c.startswith("cell_")]
+
+
+def test_a_windowed_peak_search_finds_the_whole_image_peaks():
+    from scipy import ndimage
+    from skimage.segmentation import expand_labels
+
+    rng = np.random.default_rng(3)
+    labels = np.zeros((120, 120), np.int32)
+    for i, (r, c) in enumerate(rng.integers(5, 115, (25, 2)), 1):
+        labels[r, c] = i
+    labels = expand_labels(labels, 9)
+    image = rng.gamma(2.0, 300.0, labels.shape).astype(np.float32)
+    floor = float(image.min())
+    boxes = ndimage.find_objects(labels)
+    for label in np.unique(labels)[1:]:
+        whole = od.local_maxima(image, labels, int(label))
+        window = od.local_maxima(image, labels, int(label),
+                                 window=boxes[label - 1], threshold=floor)
+        np.testing.assert_array_equal(window, whole)
+        assert len(whole)

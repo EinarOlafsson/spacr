@@ -778,31 +778,183 @@ def _safe_morphology_table(mask, properties, spacing=None):
     return frame[[prop for prop in requested if prop in frame.columns]]
 
 
+def _cupy_wheel_cuda_major():
+    """The CUDA major version the installed CuPy wheel was built for, or ``None``.
+
+    Read from the distribution name (``cupy-cuda12x``, ``cupy-cuda13x``), so
+    it needs neither CuPy imported nor a GPU.
+    """
+    from importlib import metadata
+
+    for major in (13, 12, 11):
+        try:
+            metadata.version(f"cupy-cuda{major}x")
+        except metadata.PackageNotFoundError:
+            continue
+        return major
+    return None
+
+
+def _pin_cupy_cudart_headers(header_dir):
+    """Make the CUDA path finder hand CuPy ``header_dir`` for the runtime headers.
+
+    The finder searches ``nvidia/cu13/include`` before the CUDA 12 wheels'
+    ``nvidia/cuda_runtime/include``, so CuPy built for CUDA 12 would compile
+    against CUDA 13 headers that NVRTC 12 cannot parse. Only the ``cudart``
+    lookup is redirected, in this process only; nothing on disk changes.
+    The finder is taken from the modules CuPy has already imported, so call
+    this after ``import cupy`` and before the first kernel compiles.
+    """
+    import sys
+
+    finder = sys.modules.get("cuda.pathfinder")
+    if finder is None or not hasattr(finder, "find_nvidia_header_directory"):
+        return False
+    original = finder.find_nvidia_header_directory
+    if getattr(original, "_spacr_cudart_dir", None) == header_dir:
+        return True
+
+    def _pinned(libname, *args, **kwargs):
+        """The pinned runtime header directory for ``cudart``, else the finder's answer."""
+        if libname == "cudart":
+            return header_dir
+        return original(libname, *args, **kwargs)
+
+    _pinned._spacr_cudart_dir = header_dir
+    finder.find_nvidia_header_directory = _pinned
+    return True
+
+
+def _preload_matching_nvrtc():
+    """Point CuPy at the NVRTC and runtime headers of its own CUDA major.
+
+    CuPy compiles cuCIM's kernels with whichever ``libnvrtc`` and CUDA
+    headers the CUDA path finder meets first. PyTorch's CUDA 13 wheels put
+    ``nvidia/cu13`` (NVRTC 13 plus CUDA 13 headers) in site-packages, so a
+    ``cupy-cuda12x`` install beside them compiles with the wrong toolkit and
+    every cuCIM call fails with an NVRTC compile error. Loading the wheel's
+    own ``libnvrtc.so.<major>`` first makes the finder reuse it, and the
+    runtime headers are pinned to the same major
+    (:func:`_pin_cupy_cudart_headers`). Returns the loaded NVRTC path, or
+    ``None`` when nothing needed or could be loaded (other platforms, no
+    matching library, CuPy not installed). Installing the CuPy and cuCIM
+    wheels for PyTorch's CUDA major (``cupy-cuda13x``, ``cucim-cu13``)
+    avoids the mismatch altogether.
+    """
+    import ctypes
+    import glob
+    import site
+    import sys
+
+    if not sys.platform.startswith("linux"):
+        return None
+    major = _cupy_wheel_cuda_major()
+    if major is None:
+        return None
+    layouts = (("cuda_nvrtc/lib", "cuda_runtime/include"),
+               (f"cu{major}/lib", f"cu{major}/include"))
+    roots = list(site.getsitepackages()) + [site.getusersitepackages()]
+    for root in roots:
+        for lib_dir, include_dir in layouts:
+            pattern = os.path.join(root, "nvidia", lib_dir,
+                                   f"libnvrtc.so.{major}*")
+            for path in sorted(glob.glob(pattern)):
+                if ".alt." in os.path.basename(path):
+                    continue
+                try:
+                    ctypes.CDLL(path, mode=ctypes.RTLD_GLOBAL)
+                except OSError:
+                    continue
+                headers = os.path.join(root, "nvidia", include_dir)
+                if os.path.isfile(os.path.join(headers, "cuda_fp16.h")):
+                    try:
+                        import cupy
+                    except ImportError:
+                        return path
+                    _pin_cupy_cudart_headers(headers)
+                return path
+    return None
+
+
+#: Morphology properties cuCIM computes differently from scikit-image, measured
+#: on the plate1 example fields; the GPU table takes them from scikit-image.
+_CUCIM_DIFFERS = ('area_filled', 'feret_diameter_max')
+
+_CUCIM_STATE = {}
+
+
+def _cucim_regionprops_table():
+    """cuCIM's ``regionprops_table`` and CuPy, imported once, or ``None``.
+
+    The matching NVRTC is loaded before the first import
+    (:func:`_preload_matching_nvrtc`). A missing cuCIM is remembered, so a
+    plate does not retry the import for every field.
+    """
+    if "table" not in _CUCIM_STATE:
+        try:
+            _preload_matching_nvrtc()
+            import cupy
+            from cucim.skimage.measure import regionprops_table as gpu_table
+        except ImportError:
+            _CUCIM_STATE["table"] = None
+        else:
+            _CUCIM_STATE["table"] = (cupy, gpu_table)
+    return _CUCIM_STATE["table"]
+
+
 def _cucim_morphology_table(mask, properties):
     """Return the 2-D morphology table computed by cuCIM on the GPU, or ``None``.
 
     ``None`` (and the caller's scikit-image path) when cuCIM is not installed
     (``pip install spacr[gpu]``), when it fails, or when its columns differ
-    from the requested properties, so the table always has the CPU columns in
-    the CPU order.
+    from the requested properties. cuCIM's batch kernels fail on a label
+    image with gaps in its numbering ("No coordinates to process"), which
+    every filtered mask has, so the labels are made sequential for cuCIM and
+    the ``label`` column is mapped back to the original labels. cuCIM
+    defines ``area_filled`` and ``feret_diameter_max`` differently from
+    scikit-image (on a real plate up to 20-fold and 11 % apart), so those two
+    stay on the CPU (:data:`_CUCIM_DIFFERS`). cuCIM returns the columns in its own
+    order (a legacy name such as ``convex_area`` comes last), so they are
+    put back in the requested order, the order the CPU table has. After one
+    failure in a process the GPU table is not tried
+    again, so a broken CUDA toolkit costs one message rather than one per
+    mask.
     """
-    try:
-        import cupy
-        from cucim.skimage.measure import regionprops_table as gpu_table
-    except ImportError:
+    loaded = _cucim_regionprops_table()
+    if loaded is None or _CUCIM_STATE.get("failed"):
         return None
+    cupy, gpu_table = loaded
     requested = list(properties)
     try:
-        table = gpu_table(cupy.asarray(np.asarray(mask)), properties=requested)
+        from skimage.segmentation import relabel_sequential
+
+        on_cpu = [name for name in requested if name in _CUCIM_DIFFERS]
+        on_gpu = ['label'] + [name for name in requested
+                              if name != 'label' and name not in on_cpu]
+        sequential, _forward, inverse = relabel_sequential(np.asarray(mask))
+        table = gpu_table(cupy.asarray(sequential), properties=on_gpu)
         columns = {name: cupy.asnumpy(cupy.asarray(values))
                    for name, values in table.items()}
+        columns['label'] = np.asarray(inverse)[
+            columns['label'].astype(np.int64)]
+        if on_cpu:
+            from skimage.measure import regionprops_table as cpu_table
+
+            cpu = cpu_table(np.asarray(mask), properties=['label'] + on_cpu)
+            if not np.array_equal(np.asarray(cpu['label']), columns['label']):
+                return None
+            columns.update({name: np.asarray(cpu[name]) for name in on_cpu})
+        if 'label' not in requested:
+            columns.pop('label')
     except Exception as error:                               # noqa: BLE001
+        _CUCIM_STATE["failed"] = True
         print(f"[measure] cuCIM morphology failed ({type(error).__name__}: "
-              f"{error}); measuring on the CPU.")
+              f"{str(error).splitlines()[0] if str(error) else ''}); "
+              "measuring morphology on the CPU.")
         return None
-    if list(columns) != requested:
+    if set(columns) != set(requested):
         return None
-    return pd.DataFrame(columns)
+    return pd.DataFrame({name: columns[name] for name in requested})
 
 
 def _join_child_to_parent_cell(child_props, cell_to_child, child_name, remedy):
@@ -1222,14 +1374,19 @@ def _morphological_measurements(
             return frame
         masks = _all_masks()
         try:
-            from .object_distances import object_distances
+            from .object_distances import (object_distances,
+                                           _gpu_distance_transforms)
 
-            block = object_distances(
-                masks, images=channel_arrays if settings.get(
-                    'object_distance_intensity', True) else None,
-                primary=name, channels=tuple(settings.get('channels') or ()),
-                spacing=spacing,
-                maxima=bool(settings.get('object_distance_maxima', True)))
+            on_gpu = device is not None and spacing is None
+            with (_gpu_distance_transforms() if on_gpu
+                  else contextlib.nullcontext()):
+                block = object_distances(
+                    masks, images=channel_arrays if settings.get(
+                        'object_distance_intensity', True) else None,
+                    primary=name,
+                    channels=tuple(settings.get('channels') or ()),
+                    spacing=spacing,
+                    maxima=bool(settings.get('object_distance_maxima', True)))
         except Exception as error:                           # noqa: BLE001
             print(f"[measure] object distances for {name} were not "
                   f"measured: {type(error).__name__}: {error}")
@@ -2579,6 +2736,25 @@ def _calculate_radial_distribution(cell_mask, object_mask, channel_arrays, num_b
 
     return object_radial_distributions
 
+def _pearson_r(x, y):
+    """Pearson correlation of two equal-length vectors, as ``scipy.stats.pearsonr``.
+
+    The same coefficient (to float64 rounding) without SciPy's per-call
+    overhead, which dominated the object-level correlation loop. Plain
+    reductions rather than BLAS dot products, so a busy BLAS thread pool
+    cannot stall it. ``NaN`` when
+    either vector is constant, as SciPy returns.
+    """
+    x = np.asarray(x, dtype=np.float64)
+    y = np.asarray(y, dtype=np.float64)
+    xm = x - x.mean()
+    ym = y - y.mean()
+    den = np.sqrt((xm * xm).sum() * (ym * ym).sum())
+    if not den > 0:
+        return np.nan
+    return float(np.clip((xm * ym).sum() / den, -1.0, 1.0))
+
+
 def _calculate_correlation_object_level(channel_image1, channel_image2, mask, settings):
         """
         Calculate correlation at the object level between two channel images based on a mask.
@@ -2646,7 +2822,7 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
             if len(object_channel_image1) < 2 or len(object_channel_image2) < 2:
                 pearson_corr = np.nan
             else:
-                pearson_corr, _ = pearsonr(object_channel_image1, object_channel_image2)
+                pearson_corr = _pearson_r(object_channel_image1, object_channel_image2)
 
             corr_data[i] = {f'label_correlation': i,
                             f'Pearson_correlation': pearson_corr}

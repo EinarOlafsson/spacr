@@ -2670,7 +2670,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # consistency_weight; no new callable, the required sum does not move.
     # 2026-10-02: 19,845 - 19,844 = 1 optional bleach_correction parameter
     # on analyze_calcium_oscillations; no new callable or required parameter.
-    assert sum(len(item.parameters) for item in callables) == 19845
+    # 2026-10-04 item 566: 19,847 - 19,845 = 2 optional keyword parameters,
+    # window= and threshold= on object_distances.local_maxima; no new
+    # callable or required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19847
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2890,7 +2893,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # restores fdc47f07... exactly; every other inventory row is unchanged.
     # Moved 2026-09-30 for item 426: train_timeflows gained the optional
     # lr_schedule and consistency_weight keywords; no row added or removed.
-) == '36112dcc1c64b95da280ea86b2221e1b5c0a1b1c82f1ea206e4ff860d787d18c'
+    # Moved 2026-10-04 for item 566: object_distances.local_maxima gained
+    # the optional window= and threshold= keywords; no row added or removed.
+) == '7841ec23e8746966f420d764cac602cfae2e9b34d2c827480fe34387201e0e7a'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3436,7 +3441,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # (tools/nested_helper_docs.ENABLED_MODULES); all 12,990 prior symbols unchanged.
     # 2026-10-03 F411: +104/-0, documented nested helpers of 2 more modules
     # (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
-    assert len(docs) == 13175
+    # 2026-10-04 item 566: +1/-0, the documented nested helper of
+    # spacr.measure._pin_cupy_cudart_headers; all 13,175 prior symbols unchanged.
+    assert len(docs) == 13176
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every

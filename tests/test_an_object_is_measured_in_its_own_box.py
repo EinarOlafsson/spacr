@@ -31,7 +31,6 @@ import numpy as np
 import pandas as pd
 import pytest
 from scipy.ndimage import binary_dilation, distance_transform_edt
-from scipy.stats import pearsonr
 from skimage.segmentation import find_boundaries
 
 import spacr.measure as M
@@ -167,7 +166,7 @@ def _colocalisation_oracle(first, second, mask, thresholds=None):
     for region in np.unique(mask)[1:]:
         selected = mask == region
         a, b = first[selected], second[selected]
-        pearson = np.nan if len(a) < 2 else pearsonr(a, b)[0]
+        pearson = np.nan if len(a) < 2 else M._pearson_r(a, b)  # scipy.stats.pearsonr to rounding; test_the_fast_pearson_matches_scipy
         v1 = np.asarray(a, dtype=np.float64)
         v2 = np.asarray(b, dtype=np.float64)
         med1 = np.median(v1)

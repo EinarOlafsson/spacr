@@ -143,3 +143,38 @@ WHAT IS LEFT
     LEFT: fix the cuCIM morphology path on labels with empty regions; move
     the remaining CPU features before "several times faster" can hold on a
     plate. Logs: /mnt/wd4tb/scratch/566/gpu_turn_spawn.log, plate/gpu.log.
+
+2026-10-04 — cuCIM MORPHOLOGY RUNS ON THE GPU; PLATE 2.6x FASTER THAN THE OLD CPU RUN
+    Why cuCIM fell back: (1) cupy-cuda12x/cucim-cu12 sit beside PyTorch's
+    CUDA 13 wheels; the CUDA path finder hands CuPy NVRTC 13 and
+    nvidia/cu13/include headers, so every fresh kernel compile failed
+    (NVRTC_ERROR_COMPILATION in cuda_fp8.hpp). Earlier runs only got past
+    this through ~/.cupy/kernel_cache. (2) cuCIM's batch regionprops raise
+    "No coordinates to process" on label images with gaps (every filtered
+    mask). (3) cuCIM returns convex_area last, so the column-order check
+    rejected every table. (4) cuCIM's area_filled and feret_diameter_max
+    differ from scikit-image (up to 20x and 11 % on plate1).
+    Fixes (spacr/measure.py): _preload_matching_nvrtc loads the NVRTC of
+    CuPy's own CUDA major and pins the cudart header lookup to it, in-process
+    only; labels are made sequential for cuCIM and mapped back; columns are
+    reordered; area_filled and feret_diameter_max come from scikit-image
+    (_CUCIM_DIFFERS); a failure is reported once per process.
+    Proper environment fix for the maintainer (not done; shared env):
+    install cupy-cuda13x + cucim-cu13 to match torch 2.13 (CUDA 13); the
+    `gpu` extra and IMPORT_TO_DIST would then name the cu13 wheels.
+    Profile (one 1994^2 field, CPU): 51 s; object_distances.maxima_distances
+    23 s because local_maxima ran peak_local_max on the whole field per
+    object. Now searched in each object's bounding box with the whole-field
+    threshold (identical peaks): 31 s. scipy pearsonr per object replaced by
+    _pearson_r (same value to 1e-13). With measure_gpu on, the object-distance
+    EDTs run on CuPy (exact, 0.2 s -> 0.01 s per transform).
+    Plate (tools/gpu_turn.sh 566-plate-final, RTX 3090, 4 plate1 fields,
+    n_jobs 2): GPU 67 s wall vs CPU 99 s with this commit and 177 s before
+    it -> 1.5x over the new CPU path, 2.6x over the old. compare_sorted:
+    max relative difference 9.3e-08 (equivalent_diameter_area), 0 columns
+    over 1e-3 in cell/nucleus/pathogen/cytoplasm. New CPU vs old CPU: 1.5e-13.
+    LEFT: cuCIM morphology itself is no faster than scikit-image on these
+    fields (0.1-0.3 s per mask) and first-use NVRTC compiles cost ~20 s per
+    fresh worker without a kernel cache; remaining CPU time is intensity
+    (correlation medians, periphery/radial EDTs, blur). "Several times
+    faster" holds against the pre-566 CPU run only.
