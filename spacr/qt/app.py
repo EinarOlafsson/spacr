@@ -6282,8 +6282,14 @@ def _register_the_glyph_font() -> None:
     of one uninterrupted GUI step: registering an application font there
     re-resolves every live widget's font. Done at launch, before the main
     window is built, it finds almost no widgets and runs before the event
-    loop, so no screen open pays for it.
+    loop, so no screen open pays for it. Safe mode skips it: QtAwesome
+    reaches Qt's OpenGL modules through qtpy, and safe mode loads nothing
+    of OpenGL.
     """
+    from .preferences import in_safe_mode
+
+    if in_safe_mode():
+        return
     try:
         iconset.icon("settings")
     except Exception:                                        # noqa: BLE001
