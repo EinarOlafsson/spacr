@@ -786,11 +786,15 @@ class RunRegistry(QObject):
 
         :param timeout_ms: total wait budget across all active threads.
         :param reason: cancellation reason recorded by each worker.
+        A handle whose ``stop_on_quit`` is false (an install that must not
+        be killed half way) is left running and is not waited for.
+
         :returns: handles that block shutdown and did not stop in the budget.
         """
         handles = self.active()
         for handle in handles:
-            handle.request_cancel(reason)
+            if getattr(handle, "stop_on_quit", True):
+                handle.request_cancel(reason)
         deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
         for handle in handles:
             thread = handle.thread
@@ -825,6 +829,135 @@ def registry() -> RunRegistry:
     if _REGISTRY is None:
         _REGISTRY = RunRegistry()
     return _REGISTRY
+
+
+class _ExternalJobHandle(QObject):
+    """A job spaCR runs outside a :class:`PipelineWorker`, in the run registry.
+
+    A child process (a model install, a queued job that is its own
+    process) has no worker thread, yet the user started it and may want to
+    watch or stop it. This handle carries what the Jobs window, Home and
+    the quit check read from a :class:`RunHandle`: a name, progress, the
+    last output line, elapsed time and a Cancel that calls ``cancel``.
+
+    :param app_key: what the job is called.
+    :param cancel: called with the reason when the user cancels, or ``None``
+        when the job cannot be stopped.
+    :param blocks_shutdown: whether a still-running job is a reason to
+        refuse to close the window.
+    :param user_visible: whether the job is shown to the user at all.
+    :param stop_on_quit: whether closing spaCR cancels the job.
+    :param parent: parent object, or ``None``.
+    """
+
+    changed = Signal()
+
+    def __init__(self, app_key: str, cancel: Optional[Callable[[str], Any]] = None,
+                 *, blocks_shutdown: bool = False, user_visible: bool = True,
+                 stop_on_quit: bool = True, parent=None):
+        """Describe one running external job.
+
+        :param app_key: what the job is called.
+        :param cancel: the stop request, or ``None``.
+        :param blocks_shutdown: whether it vetoes closing the window.
+        :param user_visible: whether it is listed.
+        :param stop_on_quit: whether closing spaCR cancels it.
+        :param parent: parent object, or ``None``.
+        """
+        super().__init__(parent)
+        self.app_key = app_key or "job"
+        self.worker = None
+        self.thread = None
+        self.worker_count = 1
+        self.started_at = time.time()
+        self.progress: Optional[tuple] = None
+        self.last_line = ""
+        self.blocks_shutdown = bool(blocks_shutdown)
+        self.user_visible = bool(user_visible)
+        self.supports_pause = False
+        self.stop_on_quit = bool(stop_on_quit)
+        self.gate = PauseGate()
+        self._cancel = cancel
+        self._live = True
+
+    def elapsed(self) -> float:
+        """Seconds since the job started, never negative."""
+        return max(0.0, time.time() - self.started_at)
+
+    def is_running(self) -> bool:
+        """Whether the job has not yet been retired."""
+        return self._live
+
+    def fraction(self) -> Optional[float]:
+        """Completed fraction in ``0..1``, or ``None`` when unknown."""
+        if not self.progress:
+            return None
+        done, total = self.progress
+        return None if total <= 0 else max(0.0, min(1.0, done / total))
+
+    def request_cancel(self, reason: str = "cancelled by the user") -> None:
+        """Ask the job to stop; nothing happens when it cannot be stopped.
+
+        :param reason: why, passed on to the stop request.
+        """
+        if self._cancel is not None and self._live:
+            self._cancel(reason)
+
+    def report(self, done: Optional[int] = None, total: Optional[int] = None,
+               line: str = "") -> None:
+        """Record progress and the newest output line, and tell the listeners.
+
+        :param done: steps finished, with ``total``; ``None`` leaves it.
+        :param total: steps in all.
+        :param line: what the job is doing now; blank leaves it.
+        """
+        if done is not None and total:
+            self.progress = (int(done), int(total))
+        text = str(line or "").strip()
+        if text:
+            self.last_line = text.splitlines()[-1][:200]
+        self.changed.emit()
+
+    def retire(self) -> None:
+        """The job has ended: drop out of the registry."""
+        if not self._live:
+            return
+        self._live = False
+        registry().unregister(self)
+
+
+def _track_external_job(app_key: str,
+                        cancel: Optional[Callable[[str], Any]] = None,
+                        **options: Any) -> _ExternalJobHandle:
+    """Register a job that runs outside :func:`make_thread` until it retires.
+
+    The caller reports progress through :meth:`_ExternalJobHandle.report`
+    and must call :meth:`_ExternalJobHandle.retire` when the job ends.
+
+    :param app_key: what the job is called in the Jobs window.
+    :param cancel: called with the reason on Cancel, or ``None``.
+    :param options: ``blocks_shutdown``, ``user_visible`` and
+        ``stop_on_quit`` for the handle.
+    :returns: the registered handle.
+    """
+    reg = registry()
+    handle = _ExternalJobHandle(app_key, cancel, parent=reg, **options)
+    reg.register(handle)
+    return handle
+
+
+def _registered_handle(worker: Any) -> Optional["RunHandle"]:
+    """The registry handle of a :func:`make_thread` worker, or ``None``.
+
+    :param worker: the worker :func:`make_thread` returned.
+    :returns: its handle while the job is registered.
+    """
+    if worker is None:
+        return None
+    for handle in registry().active():
+        if getattr(handle, "worker", None) is worker:
+            return handle
+    return None
 
 
 

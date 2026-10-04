@@ -581,7 +581,7 @@ class BatchScreen(QWidget):
             self._on_queue_settled(ok)
             return ok
 
-        thread, worker = make_thread(_job, box)
+        thread, worker = make_thread(_job, box, app_key="batch")
         self._jobs.append((thread, worker))
         self._thread, self._worker = thread, worker
         self._pending.append(box)
@@ -630,6 +630,7 @@ class BatchScreen(QWidget):
                    if job.status in (bt.STATUS_SUCCESS, bt.STATUS_FAILED,
                                      bt.STATUS_SKIPPED))
         self._progress.setValue(done)
+        self._report_to_jobs_window(done, progress)
         if progress.job_id:
             job = self._queue.find(progress.job_id)
             if job is not None:
@@ -644,6 +645,27 @@ class BatchScreen(QWidget):
         if selected is not None:
             self._load_log(selected)
 
+
+    def _report_to_jobs_window(self, done: int, progress: "bt.Progress") -> None:
+        """Show the queue's own progress on its row of the Jobs window.
+
+        The queue prints nothing itself (each job's output goes to that job's
+        log), so the row would otherwise sit on a busy bar with no line.
+
+        :param done: jobs finished, failed or skipped so far.
+        :param progress: the progress event just received.
+        """
+        from ..bridge import _registered_handle
+
+        handle = _registered_handle(self._worker)
+        if handle is None:
+            return
+        total = progress.total or len(self._queue)
+        if total:
+            handle.progress = (int(done), int(total))
+        if progress.message:
+            handle.last_line = str(progress.message).strip()[:200]
+        handle.changed.emit()
 
     def _on_queue_settled(self, ok: bool) -> None:
         """Finish the run. Always on the GUI thread — see the module docstring."""

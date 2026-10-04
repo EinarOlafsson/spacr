@@ -3705,6 +3705,8 @@ class MainWindow(QMainWindow):
         """Open the Jobs dock on the right edge, building it on first use.
 
         Built lazily so a session that never opens it pays nothing for it.
+        It opens at a readable width (:func:`_jobs_dock_width`) rather than
+        as a sliver at the window's edge; a width the user sets later is kept.
 
         :returns: the dock widget.
         """
@@ -3713,6 +3715,7 @@ class MainWindow(QMainWindow):
         from .widgets.activity_spinner import _JobsPanel
 
         dock = getattr(self, "_jobs_dock", None)
+        built = dock is None
         if dock is None:
             dock = QDockWidget(tr("Jobs"), self)
             dock.setObjectName("JobsDock")
@@ -3720,6 +3723,9 @@ class MainWindow(QMainWindow):
             self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
             self._jobs_dock = dock
         dock.show()
+        if built and not dock.isFloating():
+            self.resizeDocks([dock], [_jobs_dock_width(self.width())],
+                             Qt.Orientation.Horizontal)
         dock.raise_()
         return dock
 
@@ -6977,6 +6983,19 @@ def _matplotlib_cache_dir():
         base = os.environ.get("XDG_CACHE_HOME") or str(Path.home() / ".cache")
         return Path(base) / "matplotlib"
     return Path.home() / ".matplotlib"
+
+
+def _jobs_dock_width(window_width: int) -> int:
+    """How wide the Jobs dock opens: a third of the window, 420-640 px.
+
+    Wide enough for the job, its progress, elapsed time and Cancel to be
+    read side by side, yet never more than half the window.
+
+    :param window_width: the main window's width in pixels.
+    :returns: the dock width in pixels.
+    """
+    window_width = int(window_width)
+    return max(1, min(640, max(420, window_width // 3), window_width // 2))
 
 
 def _start_the_font_cache_in_a_child():

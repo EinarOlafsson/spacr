@@ -260,3 +260,121 @@ def test_the_jobs_dock_opens_from_the_window_menu(qtbot, fake_registry):
     assert MainWindow._show_jobs_dock(window) is dock
     source = open(sys.modules["spacr.qt.app"].__file__).read()
     assert 'setObjectName("ShowJobsAction")' in source
+
+
+def test_the_jobs_dock_opens_wide_enough_to_read(qtbot, fake_registry):
+    from PySide6.QtWidgets import QMainWindow, QTextEdit
+
+    from spacr.qt.app import MainWindow, _jobs_dock_width
+
+    window = QMainWindow()
+    window.setCentralWidget(QTextEdit())
+    window.resize(1500, 900)
+    qtbot.addWidget(window)
+    window.show()
+    qtbot.waitExposed(window)
+    dock = MainWindow._show_jobs_dock(window)
+    qtbot.waitUntil(lambda: dock.width() >= 400, timeout=3000)
+    assert dock.widget().minimumWidth() >= 320
+    assert _jobs_dock_width(1500) == 500
+    assert _jobs_dock_width(3000) == 640
+    assert _jobs_dock_width(600) == 300
+
+
+def test_a_batch_runner_queue_is_listed_with_progress_and_cancel(
+        qtbot, qt_theme_applied, tmp_path):
+    """A running queue is a row of the Jobs window; Cancel stops its child."""
+    import threading
+    from pathlib import Path
+
+    from spacr.qt.bridge import registry
+    from spacr.qt.screens.batch import BatchScreen
+    from spacr.qt.widgets.activity_spinner import _JobsPanel
+
+    plate = tmp_path / "plate1"
+    plate.mkdir()
+    (plate / "plate1_A01_T0001F001L01A01Z01C01.tif").write_bytes(b"")
+    csv = tmp_path / "mask.csv"
+    csv.write_text(f"Key,Value\nsrc,{plate}\ncell_channel,0\n", encoding="utf-8")
+
+    screen = BatchScreen(threaded=True)
+    qtbot.addWidget(screen)
+    release = threading.Event()
+    calls = []
+
+    def _runner(job, settings_path, log_path):
+        calls.append(job.id)
+        Path(log_path).write_text("ran\n", encoding="utf-8")
+        if len(calls) == 2:
+            release.wait(10)
+        return 0
+
+    screen.set_runner(_runner)
+    screen.add_job("mask", str(csv), label="first")
+    screen.add_job("mask", str(csv), label="second")
+    panel = _JobsPanel()
+    qtbot.addWidget(panel)
+    try:
+        assert screen.run() is True
+        qtbot.waitUntil(lambda: len(calls) == 2, timeout=10000)
+        qtbot.waitUntil(lambda: any(
+            h.app_key == "batch" and h.progress == (1, 2)
+            for h in registry().active()), timeout=5000)
+
+        def _batch_row():
+            return next((r for r in range(panel.job_count())
+                         if panel._table.item(r, 0).text() == "batch"
+                         and panel._table.cellWidget(r, 1).format() == "1/2"),
+                        None)
+
+        qtbot.waitUntil(lambda: _batch_row() is not None, timeout=3000)
+        row = _batch_row()
+        handle = panel._handles[row]
+        panel._table.cellWidget(row, 4).click()
+        assert handle.worker.cancel_token.cancelled
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: screen.active_jobs() == 0, timeout=15000)
+    assert not [h for h in registry().active() if h.app_key == "batch"]
+
+
+def test_an_external_job_is_listed_cancelled_and_retired(qtbot):
+    from spacr.qt.bridge import _track_external_job, registry
+    from spacr.qt.widgets.activity_spinner import _JobsPanel
+
+    stopped = []
+    job = _track_external_job("install spacr[samcell]", stopped.append,
+                              stop_on_quit=False)
+    panel = _JobsPanel()
+    qtbot.addWidget(panel)
+    try:
+        job.report(5, 10, "Collecting torch\nDownloading torch")
+        qtbot.waitUntil(lambda: job in panel._handles and panel._table.item(
+            panel._handles.index(job), 3).text() == "Downloading torch",
+            timeout=3000)
+        row = panel._handles.index(job)
+        assert panel._table.cellWidget(row, 1).format() == "5/10"
+        assert registry().cancel_all(timeout_ms=0) == []
+        assert stopped == []
+        panel._table.cellWidget(row, 4).click()
+        assert stopped == ["cancelled from the Jobs window"]
+    finally:
+        job.retire()
+    assert job not in registry().active()
+    job.request_cancel()
+    assert len(stopped) == 1
+
+
+def test_a_package_install_is_a_job_until_it_ends(qtbot):
+    import sys as _sys
+
+    from spacr.qt.bridge import registry
+    from spacr.qt.model_install import PackageInstall
+
+    install = PackageInstall(
+        "nothing", command=[_sys.executable, "-c", "print('hello')"])
+    with qtbot.waitSignal(install.finished, timeout=15000):
+        assert install.start() is True
+        assert any(h.app_key == "install nothing" for h in registry().active())
+    assert not any(h.app_key == "install nothing"
+                   for h in registry().active())

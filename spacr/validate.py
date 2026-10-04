@@ -1223,6 +1223,44 @@ def _object_role_in(key):
     return tail if tail in ALL_ROLES else None
 
 
+_MODULE_DEFAULT_KEYS_CACHE: Dict[str, frozenset] = {}
+
+
+def _module_default_keys(app: str) -> frozenset:
+    """Every key the defaults of the headless modules validated as ``app`` produce.
+
+    A module that keeps its own defaults (convert, illumination, ...) owns
+    settings no :mod:`spacr.settings` helper lists, and a settings file built
+    from those very defaults must not be told its keys are unknown. Read
+    through :func:`spacr.cli.module_defaults`, so the answer is the dict the
+    run itself starts from; a module whose defaults will not import adds
+    nothing.
+
+    :param app: canonical app key, as :func:`validate_settings` uses it.
+    :returns: the union of those modules' default keys; empty for no app.
+    """
+    if not app:
+        return frozenset()
+    cached = _MODULE_DEFAULT_KEYS_CACHE.get(app)
+    if cached is not None:
+        return cached
+    keys: set = set()
+    try:
+        from .cli import MODULES, module_defaults
+    except Exception:
+        return frozenset()
+    for module in MODULES.values():
+        if app not in (module.key, module.validate_key):
+            continue
+        try:
+            produced = module_defaults(module)
+        except Exception:
+            continue
+        keys.update(k for k in produced if isinstance(k, str))
+    _MODULE_DEFAULT_KEYS_CACHE[app] = frozenset(keys)
+    return _MODULE_DEFAULT_KEYS_CACHE[app]
+
+
 def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem]:
     """Flag keys spaCR does not know: a likely typo, or simply unknown.
 
@@ -1236,13 +1274,15 @@ def _check_unknown_keys(settings: Dict[str, Any], app: str = "") -> List[Problem
     reported too -- as a WARNING, never an ERROR, so the run goes ahead
     with the value ignored. "Known" is broad: ``expected_types``, the
     tooltips, the category lists and every key a ``set_default_*`` /
-    ``get_*_settings`` helper produces, plus the app's own extra keys. A
+    ``get_*_settings`` helper produces, plus the app's own extra keys and
+    the default keys of the module itself (:func:`_module_default_keys`). A
     plugin app's settings are its own, so for one only the typo check runs.
     A key with no value is not reported: older settings files carry their
     section headings ("General", "Cell", ...) as blank rows, and a blank
     value changes nothing whatever its name.
     """
-    known = _known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
+    known = (_known_setting_keys() | _APP_EXTRA_KEYS.get(app, frozenset())
+             | _module_default_keys(app))
     try:
         from .plugins import get_app as _get_plugin_app
         plugin = bool(app) and _get_plugin_app(app) is not None

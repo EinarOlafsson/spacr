@@ -23,3 +23,22 @@ DONE 2026-10-04
   4x/s; ticks only while jobs run. Tests:
   tests/qt/test_multi_instance_lock_and_jobs_dock.py.
   Left: user-guide page and tr() catalog rebuild (docs lane).
+
+FIX 2026-10-04 (found while recording lessons)
+  A Batch Runner run now shows in the Jobs dock as "batch" with the queue's
+  own progress (jobs done/total) and its status line (BatchScreen.
+  _report_to_jobs_window); Cancel sets the worker's cancel token, and
+  spacr.batch.subprocess_runner then stops the child process. Work run
+  outside make_thread joins the registry through bridge._track_external_job
+  (_ExternalJobHandle: progress, last line, Cancel, retire): Model Zoo pip
+  installs (stop_on_quit=False, so quitting never kills pip half way) and
+  checkpoint downloads. The dock opens at a readable width
+  (app._jobs_dock_width: a third of the window, 420-640 px, at most half)
+  and the panel has a 320 px minimum, so it is no longer a sliver.
+  Also: the queue's Validate step no longer warns "'map_name' /
+  'preview_rows' is not a setting spaCR knows" for convert jobs; the
+  known-settings check now includes each module's own default keys
+  (validate._module_default_keys, via spacr.cli.module_defaults).
+  Tests: tests/qt/test_multi_instance_lock_and_jobs_dock.py (4 new),
+  tests/test_a_default_convert_job_validates_cleanly.py.
+  Left: user-guide page and tr() catalog rebuild (docs lane).

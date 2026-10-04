@@ -135,6 +135,47 @@ def confirm_backend_install(parent: Optional[QWidget], label: str,
     return answer == QMessageBox.Yes
 
 
+def _list_in_jobs_window(name: str, cancel: Callable[[], Any],
+                         stop_on_quit: bool = True):
+    """Put a running install or download in the Jobs window, with Cancel.
+
+    :param name: the row's name.
+    :param cancel: the zero-argument stop request.
+    :param stop_on_quit: whether closing spaCR cancels it; false for ``pip``,
+        which killed half way can leave the environment broken.
+    :returns: the registry handle, or ``None`` when there is no registry.
+    """
+    try:
+        from .bridge import _track_external_job
+
+        return _track_external_job(name, lambda _reason: cancel(),
+                                   stop_on_quit=stop_on_quit)
+    except Exception:                                        # noqa: BLE001
+        return None
+
+
+def _report_job(job, done: Optional[int] = None, total: Optional[int] = None,
+                line: str = "") -> None:
+    """Pass progress on to a Jobs window row, if it is still there.
+
+    :param job: the handle from :func:`_list_in_jobs_window`, or ``None``.
+    :param done: bytes or steps so far.
+    :param total: bytes or steps in all; ``0`` when unknown.
+    :param line: the newest output line.
+    """
+    if job is not None:
+        job.report(done, total, line)
+
+
+def _retire_job(job) -> None:
+    """Take a finished install or download out of the Jobs window.
+
+    :param job: the handle, or ``None``.
+    """
+    if job is not None:
+        job.retire()
+
+
 class PackageInstall(QObject):
     """One ``pip install`` in a child process, watched from the event loop.
 
@@ -171,6 +212,7 @@ class PackageInstall(QObject):
         self._command = list(command or pip_command(self.requirement))
         self._output: List[str] = []
         self._done = False
+        self._job = None
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.MergedChannels)
         self._process.readyReadStandardOutput.connect(self._read)
@@ -190,6 +232,11 @@ class PackageInstall(QObject):
             self._finish(False, self._process.errorString()
                          or "the installer did not start")
             return False
+        if not self._done:
+            self._job = _list_in_jobs_window(
+                f"install {self.requirement}", self.cancel, stop_on_quit=False)
+            self.progressed.connect(
+                lambda line: _report_job(self._job, line=line))
         return True
 
     def is_running(self) -> bool:
@@ -241,6 +288,7 @@ class PackageInstall(QObject):
         if self._done:
             return
         self._done = True
+        _retire_job(self._job)
         if worked:
             invalidate_caches()
         self.finished.emit(bool(worked), str(message))
@@ -314,6 +362,7 @@ class CheckpointDownload(QObject):
         self._thread: Optional[QThread] = None
         self._worker: Optional[_DownloadWorker] = None
         self._done = False
+        self._job = None
 
     def _fetch(self, *, progress, cancel):
         """The zoo call the worker thread makes."""
@@ -337,6 +386,11 @@ class CheckpointDownload(QObject):
         self._worker.failed.connect(self._failed)
         self._thread.finished.connect(self._release)
         _RUNNING.add(self)
+        name = getattr(self.entry, "name", "") or getattr(self.entry, "key", "")
+        self._job = _list_in_jobs_window(f"download {name or 'model'}",
+                                         self.cancel)
+        self.progressed.connect(
+            lambda got, total: _report_job(self._job, got, total))
         self._thread.start()
         return True
 
@@ -381,6 +435,7 @@ class CheckpointDownload(QObject):
         if self._done:
             return
         self._done = True
+        _retire_job(self._job)
         self.finished.emit(bool(worked), str(message))
 
 

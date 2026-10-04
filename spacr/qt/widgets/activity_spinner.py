@@ -521,6 +521,7 @@ class _JobsPanel(QWidget):
         """
         super().__init__(parent)
         self.setObjectName("JobsPanel")
+        self.setMinimumWidth(320)
         from ..i18n import tr
         layout = QVBoxLayout(self)
         layout.setContentsMargins(6, 6, 6, 6)
