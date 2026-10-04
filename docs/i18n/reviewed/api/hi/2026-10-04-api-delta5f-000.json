@@ -1,0 +1,152 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
+  "records": [
+    {
+      "label": "spacr.gpu_reduce#5",
+      "source": "WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered here. Everything else spaCR does -- barcode mapping, format conversion, SQLite, report assembly, grouped statistics -- is decompression, filesystem and small-table work, and moving it to a GPU would cost transfer time and buy nothing. GPU acceleration is reserved for workloads where transfer overhead is outweighed by computation.",
+      "source_sha256": "5662a53c0578fcd9a889eb0dcac4305889b6a233d7e3654ca347bed83e89b63c",
+      "context": "WHERE IT ACTUALLY HELPS. cuML implements the algorithms spaCR already runs on big tables: UMAP, t-SNE, PCA, DBSCAN and KMeans. Those are the ones offered here. Everything else spaCR does -- barcode mapping, format conversion, SQLite, report assembly, grouped statistics -- is decompression, filesystem and small-table work, and moving it to a GPU would cost transfer time and buy nothing. GPU acceleration is reserved for workloads where transfer overhead is outweighed by computation.",
+      "translation": "जहाँ यह वास्तव में मदद करता है। cuML उन एल्गोरिदम को लागू करता है जिन्हें spaCR पहले से बड़ी तालिकाओं पर चलाता है: UMAP, t-SNE, PCA, DBSCAN और KMeans। यहाँ वही उपलब्ध कराए गए हैं। spaCR जो कुछ भी और करता है -- बारकोड मैपिंग, फ़ॉर्मेट रूपांतरण, SQLite, रिपोर्ट संयोजन, समूहबद्ध सांख्यिकी -- वह डीकंप्रेशन, फ़ाइल सिस्टम और छोटी तालिकाओं का काम है, और उसे GPU पर ले जाने से केवल स्थानांतरण का समय लगेगा और कुछ हासिल नहीं होगा। GPU त्वरण उन वर्कलोड के लिए आरक्षित है जहाँ गणना स्थानांतरण के ओवरहेड से अधिक भारी पड़ती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.graph_types#2",
+      "source": "IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
+      "source_sha256": "ca5a49948ea2c1590b5accddbbdadc86dafd396440b161f6095900325f14ba26",
+      "context": "IT IS ALSO WHERE EVERY GRAPH IN spaCR GETS ITS STARTING FORM. The DEFAULT GRAPH TYPE setting is stored per data shape (`spacr.qt.preferences`), read back through :func:`chosen_for`, and turned into \"what is drawn before the first right-click\" by :func:`default_for` and :func:`start_for`. A widget asks one of those two and gets an answer that already accounts for the user's choice, whether that choice fits the data, and whether the data is thick enough to support it -- so the setting reaches a new graph by the graph doing the ordinary thing rather than by remembering to.",
+      "translation": "यही वह जगह भी है जहाँ spaCR का हर ग्राफ़ अपना प्रारंभिक रूप पाता है। \"डिफ़ॉल्ट ग्राफ़ प्रकार\" सेटिंग हर डेटा आकार के लिए अलग संग्रहीत होती है (`spacr.qt.preferences`), :func:`chosen_for` के माध्यम से वापस पढ़ी जाती है, और :func:`default_for` तथा :func:`start_for` द्वारा \"पहले राइट-क्लिक से पहले जो बनाया जाता है\" में बदली जाती है। एक विजेट इन दोनों में से किसी एक से पूछता है और ऐसा उत्तर पाता है जो उपयोगकर्ता की पसंद को, वह पसंद डेटा के अनुकूल है या नहीं इसे, और डेटा उसे सहारा देने लायक पर्याप्त सघन है या नहीं इसे, पहले से ध्यान में रखता है -- इसलिए सेटिंग नए ग्राफ़ तक इस तरह पहुँचती है कि ग्राफ़ सामान्य काम करता है, न कि उसे कुछ याद रखना पड़ता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.measure#9",
+      "source": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D field is measured in real units or refused. A 2-D field takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "source_sha256": "3b26b2cc94e9e2ab4b48cf39602d8044ae66e0c2cfd49878df7db59f99e2d624",
+      "context": "THE 2-D PATH IS BIT-IDENTICAL AND DELIBERATELY SO. Mask can emit ``(Z, Y, X)`` label volumes now (see :mod:`spacr.zstack`), and everything about voxel spacing, volume columns and the units stamp exists so that a 3-D microscope field of view is measured in real units or refused. A 2-D microscope field of view takes exactly the code it took before, with ``spacing=None``; a screen measured last year and re-measured today produces the same numbers.",
+      "translation": "2-D पथ बिट-दर-बिट समान है, और जानबूझकर ऐसा है। Mask अब ``(Z, Y, X)`` लेबल वॉल्यूम दे सकता है (देखें :mod:`spacr.zstack`), और वॉक्सेल अंतराल, आयतन कॉलम और इकाई मुहर से जुड़ी हर चीज़ इसलिए मौजूद है कि 3-D दृश्य क्षेत्र को वास्तविक इकाइयों में मापा जाए या अस्वीकार कर दिया जाए। 2-D दृश्य क्षेत्र ठीक वही कोड लेता है जो पहले लेता था, ``spacing=None`` के साथ; पिछले साल मापी गई और आज फिर से मापी गई स्क्रीनिंग वही संख्याएँ देती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.nonparametric_fits.describe#2",
+      "source": "Said WHERE IT IS CHOSEN. The whole point of the three-way split is that a reader knows before picking, not after running.",
+      "source_sha256": "7ed5820ce55d97c5610ed83681686610315b5101f7a25ee95ca9a4bc9595638c",
+      "context": "Said WHERE IT IS CHOSEN. The whole point of the three-way split is that a reader knows before picking, not after running.",
+      "translation": "जहाँ इसे चुना जाता है, वहीं बताया गया। तीन-तरफ़ा विभाजन का पूरा उद्देश्य यही है कि पाठक चलाने के बाद नहीं, बल्कि चुनने से पहले जान ले।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_accel#5",
+      "source": "THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in CI, and on the machine whose card is busy, which between them is most of the time this code will ever run.",
+      "source_sha256": "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d",
+      "context": "THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in CI, and on the machine whose card is busy, which between them is most of the time this code will ever run.",
+      "translation": "CPU पथ कोई त्रुटि पथ नहीं है। यही वह है जो लैपटॉप पर, CI में, और उस मशीन पर चलता है जिसका कार्ड व्यस्त है, और इन सबको मिलाकर यही वह अधिकांश समय है जब यह कोड कभी भी चलेगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_merge#4",
+      "source": "WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:",
+      "source_sha256": "ad60fe656e90088b7a9b92134f33cd46562acb39e4eaf437a7fb83b3d165e98d",
+      "context": "WHERE IT STOPS WORKING, measured on 90 cells over a 500 px field related by a known scale of 2.0, an 11 degree rotation and a (137.5, -92.25) shift:",
+      "translation": "जहाँ यह काम करना बंद कर देता है, 90 कोशिकाओं पर मापा गया जो 500 px के एक दृश्य क्षेत्र में फैली हैं, और दोनों क्षेत्र ज्ञात स्केल 2.0, 11 डिग्री घूर्णन और (137.5, -92.25) विस्थापन से संबंधित हैं:",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_register#9",
+      "source": "THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must agree to within a pixel, which is what `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts. A fallback nobody compares is a second implementation, not a fallback.",
+      "source_sha256": "90c95204836925dff481463ff29947ad90f124864db553914909e6d5c0358402",
+      "context": "THE CPU PATH IS NOT AN ERROR PATH. Both run the same fixture and must agree to within a pixel, which is what `tests/test_the_ops_registration_agrees_on_every_backend.py` asserts. A fallback nobody compares is a second implementation, not a fallback.",
+      "translation": "CPU पथ कोई त्रुटि पथ नहीं है। दोनों एक ही फ़िक्स्चर चलाते हैं और उन्हें एक पिक्सेल के भीतर सहमत होना चाहिए, और `tests/test_the_ops_registration_agrees_on_every_backend.py` ठीक यही जाँचता है। ऐसा फ़ॉलबैक जिसकी कोई तुलना नहीं करता, फ़ॉलबैक नहीं बल्कि दूसरा कार्यान्वयन है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.ops_sample#4",
+      "source": "THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are separate functions rather than one with a flag. A phenotype channel measured in several cycles IS several samples of one quantity and averaging it is the right thing, and what it emits is the schema ``measure`` already emits. Same plate, same objects, opposite correct answer; a shared flag would make that a caller's choice, and it is not one.",
+      "source_sha256": "1a7c609357bde860f3c8f5268e0fd45895ec4cc3731cb9cf1f0dbe2e4e371b0c",
+      "context": "THE PHENOTYPE PATH IS THE OPPOSITE CASE, which is why the two are separate functions rather than one with a flag. A phenotype channel measured in several cycles IS several samples of one quantity and averaging it is the right thing, and what it emits is the schema ``measure`` already emits. Same laboratory microplate, same objects, opposite correct answer; a shared flag would make that a caller's choice, and it is not one.",
+      "translation": "फ़ीनोटाइप पथ उल्टा मामला है, और इसीलिए ये दोनों एक फ़्लैग वाले एक फ़ंक्शन के बजाय अलग-अलग फ़ंक्शन हैं। कई चक्रों में मापा गया फ़ीनोटाइप चैनल एक ही मात्रा के कई नमूने ही है, और उसका औसत निकालना सही है, और यह जो उत्सर्जित करता है वह वही स्कीमा है जो ``measure`` पहले से उत्सर्जित करता है। वही प्लेट, वही ऑब्जेक्ट, उल्टा सही उत्तर; एक साझा फ़्लैग इसे कॉल करने वाले की पसंद बना देगा, जबकि यह पसंद का मामला नहीं है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.strip_report_paths#2",
+      "source": "A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "source_sha256": "534a20d92443850456fafa7bf5cf6c1b879ada5c2377d65701de93abdbe5874e",
+      "context": "A PATH CAN CONTAIN A SPACE, and the rule that stopped one at the first whitespace published the rest of it. ``/Volumes/Lab Drive/Patient 042`` came out as ``<PATH> Drive/Patient 042``, and ``C:\\Users\\anna\\OneDrive",
+      "translation": "पथ में रिक्त स्थान हो सकता है, और जो नियम पथ को पहले रिक्त स्थान पर रोक देता था उसने बाकी हिस्सा प्रकाशित कर दिया। ``/Volumes/Lab Drive/Patient 042`` का परिणाम ``<PATH> Drive/Patient 042`` निकला, और ``C:\\Users\\anna\\OneDrive",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MethodsSourcesDropHandler.apply#1",
+      "source": "SORTED BY WHAT THE PATH IS, not by drop order, so the same four files land in the same four fields however they are dropped.",
+      "source_sha256": "11f5bd9f2031bc4d04663db4a3f24adf44826033b7150d2e1082b97ac25a8e19",
+      "context": "SORTED BY WHAT THE PATH IS, not by drop order, so the same four files land in the same four fields however they are dropped.",
+      "translation": "पथ क्या है उसके अनुसार क्रमबद्ध, ड्रॉप के क्रम के अनुसार नहीं, ताकि वही चार फ़ाइलें चाहे जैसे भी ड्रॉप की जाएँ, उन्हीं चार फ़ील्ड में पहुँचें।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design#7",
+      "source": "ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two plates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a plate map that says what each well holds rather than only whether it is chosen.",
+      "source_sha256": "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb",
+      "context": "ONE Laboratory microplate WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two laboratory microplates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a laboratory microplate map that says what each well holds rather than only whether it is chosen.",
+      "translation": "जहाँ एक प्लेट विजेट हो सकता है, वहाँ एक ही। वर्ग, वह स्थिरांक जिस पर उसका आकार तय है, और पंक्ति/कॉलम शीर्षक यहाँ दूसरी बार घोषित किए जाने के बजाय :mod:`spacr.qt.widgets.plate_map_picker` से आते हैं; दोनों प्लेटें पहले एक बार एक-दूसरे से अलग हो चुकी थीं। जो साझा नहीं किया जा सकता वह स्वयं वेल है, और यह अंतर ऐतिहासिक नहीं बल्कि वास्तविक है: पिकर का वेल एक चेक करने योग्य ``QPushButton`` है जिसकी चेक की गई अवस्था ही चयन है और जो रंगों की एक निश्चित जोड़ी से स्वयं को पेंट करता है, जबकि यह एक ``QLabel`` है जो एक भूमिका, एक किनारे का चिह्न, एक नाम और एक स्थिति रखता है, और जिसे थीम नीचे दिए गुणों के माध्यम से पेंट करती है -- एक प्लेट मैप जो बताता है कि हर वेल में क्या है, न कि केवल यह कि वह चुना गया है या नहीं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.ambient.ResonanceEngine#3",
+      "source": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two threads and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING THREAD, where the failure is a picture that differs from the one the GUI thread would have drawn. So the drive is an INPUT, set on the GUI thread between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "source_sha256": "11b047c8553958c624954d39686045407f12afbf0a4259fc3703ab84b1eca99d",
+      "context": "WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED. Every other engine promises that a frame is a pure function of ``(seed, clock, size)``, and two tests hold it down: one shades the same clock on two independent execution paths and compares the bytes, another steps one engine twelve times and jumps a second straight to the same clock. Reading a real-time signal inside :meth:`shade` would break both, and it would break them on the SHADING Independent execution path, where the failure is a picture that differs from the one the main GUI execution path would have drawn. So the drive is an INPUT, set on the main GUI execution path between frames under the engine lock exactly as :meth:`set_palette` is, and the promise becomes \"a pure function of ``(seed, clock, size, drive)``\" -- which is the same promise while nothing is playing, and that is when the tests run.",
+      "translation": "ड्राइव :meth:`advance` में क्यों पढ़ी जाती है, न कि वहाँ जहाँ उसका उपयोग होता है। हर दूसरा इंजन वादा करता है कि एक फ़्रेम ``(seed, clock, size)`` का शुद्ध फ़ंक्शन है, और दो परीक्षण इसे पक्का करते हैं: एक ही घड़ी को दो थ्रेड पर शेड करके बाइट्स की तुलना करता है, दूसरा एक इंजन को बारह बार आगे बढ़ाता है और दूसरे इंजन को सीधे उसी घड़ी पर कुदाता है। :meth:`shade` के भीतर रियल-टाइम सिग्नल पढ़ना दोनों को तोड़ देगा, और यह उन्हें शेडिंग थ्रेड पर तोड़ेगा, जहाँ विफलता एक ऐसी तस्वीर होती है जो उस तस्वीर से भिन्न है जिसे GUI थ्रेड बनाता। इसलिए ड्राइव एक इनपुट है, जिसे GUI थ्रेड पर फ़्रेमों के बीच इंजन लॉक के अंतर्गत ठीक उसी तरह सेट किया जाता है जैसे :meth:`set_palette` को, और वादा बन जाता है \"``(seed, clock, size, drive)`` का शुद्ध फ़ंक्शन\" -- जो तब तक वही वादा है जब तक कुछ बज नहीं रहा, और परीक्षण ठीक उसी समय चलते हैं।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dock#8",
+      "source": "WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly unwanted — but into the strip along the bottom of the window, which already exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered module for thirty seconds with its API and tutorial links. This dock only says which module is under the pointer, via :attr:`Dock.module_hovered`; the bar decides how to explain it.",
+      "source_sha256": "d77266e2252ddf0b4e5f8550d844cae2ab5a68feb9c9216f48d4c32bb3f98129",
+      "context": "WHERE THE EXPLANATION WENT. Not into a popup tooltip — those are explicitly unwanted — but into the strip along the bottom of the window, which already exists as :mod:`spacr.qt.widgets.module_hint_bar` and already holds the last hovered module for thirty seconds with its API and tutorial links. This dock only says which module is under the pointer, via :attr:`Dock.module_hovered`; the bar decides how to explain it.",
+      "translation": "व्याख्या कहाँ गई। किसी पॉपअप टूलटिप में नहीं — वे स्पष्ट रूप से अवांछित हैं — बल्कि विंडो के निचले हिस्से की पट्टी में, जो पहले से :mod:`spacr.qt.widgets.module_hint_bar` के रूप में मौजूद है और पहले से ही अंतिम होवर किए गए मॉड्यूल को उसके API और ट्यूटोरियल लिंक के साथ तीस सेकंड तक रखती है। यह डॉक केवल :attr:`Dock.module_hovered` के माध्यम से बताता है कि पॉइंटर के नीचे कौन-सा मॉड्यूल है; उसे कैसे समझाया जाए, यह पट्टी तय करती है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.loewe_surface#3",
+      "source": "WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve -- the dose achieving an observed effect -- and that dose does not exist when the observed effect lies outside a single agent's own plateaus. A combination that kills more than either agent can alone has no Loewe answer, and NaN is the honest one.",
+      "source_sha256": "298020726ba8bf6d675d4bf5c1f941299177e4b5374adb6eff6bc7c21be59767",
+      "context": "WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve -- the dose achieving an observed effect -- and that dose does not exist when the observed effect lies outside a single agent's own plateaus. A combination that kills more than either agent can alone has no Loewe answer, and NaN is the honest one.",
+      "translation": "यह NaN क्यों हो सकता है जबकि Bliss नहीं होता: Loewe को व्युत्क्रम वक्र चाहिए -- वह खुराक जो किसी प्रेक्षित प्रभाव को प्राप्त करती है -- और वह खुराक तब मौजूद नहीं होती जब प्रेक्षित प्रभाव किसी एकल एजेंट के अपने पठारों के बाहर हो। जो संयोजन किसी भी एजेंट के अकेले मारने से अधिक मारता है, उसका कोई Loewe उत्तर नहीं होता, और NaN ही ईमानदार उत्तर है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_mandelbrot.boundary_mask#1",
+      "source": "THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat colour as you descend into it; an exterior one escapes and the frame empties. Only the edge keeps producing detail at every magnification.",
+      "source_sha256": "37dd868299e0eba42140f631c1483eb37eef0a46dbd9e482bdc1849b562e90e8",
+      "context": "THE BOUNDARY IS WHERE THE STRUCTURE IS. An interior point fades to flat colour as you descend into it; an exterior one escapes and the frame empties. Only the edge keeps producing detail at every magnification.",
+      "translation": "सीमा ही वह जगह है जहाँ संरचना है। आंतरिक बिंदु में उतरते जाने पर वह सपाट रंग में फीका पड़ जाता है; बाहरी बिंदु पलायन कर जाता है और फ़्रेम खाली हो जाता है। केवल किनारा ही हर आवर्धन पर विवरण उत्पन्न करता रहता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.provider_marks.ProviderMark#4",
+      "source": "whether the vendor CLI is on PATH. This is SHOWN, not enforced: an unavailable provider is drawn in the muted ink and says what would install it, and is still choosable. The setup screen writes a PREFERENCE and launches nothing, so choosing a provider before installing its CLI is an ordinary thing to want, and the console says so at the point it would actually be used.",
+      "source_sha256": "3102216313b75afc57709189b59662e61aff20171518c14938ceee233dfb6844",
+      "context": "whether the vendor CLI is on PATH. This is SHOWN, not enforced: an unavailable provider is drawn in the muted ink and says what would install it, and is still choosable. The setup application view writes a PREFERENCE and launches nothing, so choosing a provider before installing its CLI is an ordinary thing to want, and the console says so at the point it would actually be used.",
+      "translation": "क्या PATH पर वेंडर का CLI मौजूद है। यह दिखाया जाता है, लागू नहीं किया जाता: अनुपलब्ध प्रदाता मंद स्याही में बनाया जाता है और बताता है कि उसे क्या स्थापित करेगा, और फिर भी चुना जा सकता है। सेटअप स्क्रीन एक प्राथमिकता लिखती है और कुछ भी लॉन्च नहीं करती, इसलिए किसी प्रदाता का CLI स्थापित करने से पहले उसे चुनना एक सामान्य इच्छा है, और कंसोल यह बात उसी बिंदु पर बताता है जहाँ उसका वास्तव में उपयोग होगा।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.qt.widgets.regression_results.read_run_tables#2",
+      "source": "THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected them as their own family, wrote them to ``results_gene.csv``, and left ``results.csv`` holding guides alone -- so a reader who asked for genes was shown nothing while the rows sat in a file nothing opened. The writer is fixed, and this reads the older runs too, because a folder on disk does not update itself.",
+      "source_sha256": "44e5b5a94ff82c03a7b8f579d52e6741268ef61ee9db713b13e0cffdea28d58f",
+      "context": "THE PERMUTATION PATH DID NOT ALWAYS DO THAT. It tested genes, corrected them as their own family, wrote them to ``results_gene.csv``, and left ``results.csv`` holding guides alone -- so a reader who asked for genes was shown nothing while the rows sat in a file nothing opened. The writer is fixed, and this reads the older runs too, because a folder on disk does not update itself.",
+      "translation": "क्रमचय पथ हमेशा ऐसा नहीं करता था। उसने जीनों का परीक्षण किया, उन्हें उनके अपने अलग परिवार के रूप में सुधारा, उन्हें ``results_gene.csv`` में लिखा, और ``results.csv`` में केवल गाइड छोड़ दिए -- इसलिए जीन माँगने वाले पाठक को कुछ नहीं दिखाया गया, जबकि पंक्तियाँ एक ऐसी फ़ाइल में पड़ी रहीं जिसे कुछ भी नहीं खोलता था। लिखने वाला कोड ठीक कर दिया गया है, और यह पुराने रन भी पढ़ता है, क्योंकि डिस्क पर कोई फ़ोल्डर अपने आप अपडेट नहीं होता।",
+      "review_basis": "written from the English (no current MT draft)"
+    },
+    {
+      "label": "spacr.regression_summary#12",
+      "source": "WHERE IT GOES. The run folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a run from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
+      "source_sha256": "89044fd753e29774a4026d8d0aad0a36d80d76f5866a53dd4d2a3df32e0be1f8",
+      "context": "WHERE IT GOES. The processing-session folder, under :data:`spacr.ml.SUMMARY_FILENAME` — the file :func:`spacr.qt.widgets.regression_results.find_summary_file` already reads back, so re-opening a processing session from disk shows this summary with no GUI change. The statsmodels text, where there is one, is appended VERBATIM at the end rather than replaced.",
+      "translation": "यह कहाँ जाता है। रन फ़ोल्डर में, :data:`spacr.ml.SUMMARY_FILENAME` नाम से — वही फ़ाइल जिसे :func:`spacr.qt.widgets.regression_results.find_summary_file` पहले से वापस पढ़ता है, इसलिए डिस्क से किसी रन को फिर से खोलने पर बिना किसी GUI परिवर्तन के यह सारांश दिखता है। statsmodels पाठ, जहाँ वह मौजूद हो, बदला नहीं जाता बल्कि अंत में ज्यों-का-त्यों जोड़ दिया जाता है।",
+      "review_basis": "written from the English (no current MT draft)"
+    }
+  ]
+}
