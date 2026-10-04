@@ -8,6 +8,18 @@ import pytest
 from spacr.png_list import _attach_object_crop_paths
 
 
+
+def _paths(result):
+    """The joined paths with every missing value as ``None``.
+
+    pandas 3 returns a missing string as NaN where pandas 2 kept ``None``;
+    an unmatched row is what is checked, not which marker pandas uses.
+    """
+    import pandas as pd
+
+    return [None if pd.isna(value) else value
+            for value in result['png_path'].tolist()]
+
 def _objects():
     """Same object labels reused across distinct fields and plates."""
     return pd.DataFrame({
@@ -69,7 +81,7 @@ def test_duplicates_same_path_collapse_conflicts_do_not_choose(tmp_path, caplog)
     conflict['png_path'] = 'another.png'
     db = _database(tmp_path, pd.concat([crops, identical, conflict], ignore_index=True))
     result = _attach_object_crop_paths(db, frame, 'cell')
-    assert result['png_path'].tolist() == ['first.png', None, 'third.png', 'fourth.png']
+    assert _paths(result) == ['first.png', None, 'third.png', 'fourth.png']
     assert len(result) == len(frame)
     assert 'conflicting paths' in caplog.text
 
@@ -93,7 +105,7 @@ def test_time_aliases_numeric_types_and_missing_values(tmp_path):
     crops = _crops(frame).drop(columns='timeID')
     crops['time_id'] = ['t1', 't2', None, 't4']
     result = _attach_object_crop_paths(_database(tmp_path, crops), frame, 'cell')
-    assert result['png_path'].tolist() == ['first.png', 'second.png', None, 'fourth.png']
+    assert _paths(result) == ['first.png', 'second.png', None, 'fourth.png']
 
 
 @pytest.mark.parametrize('which', ['objects', 'crops'])
@@ -164,7 +176,7 @@ def test_time_normalization_never_strips_a_non_numeric_identifier(tmp_path):
     crops = _crops(frame)
     crops['timeID'] = ['1', 'ime1', '003', None]
     result = _attach_object_crop_paths(_database(tmp_path, crops), frame, 'cell')
-    assert result['png_path'].tolist() == ['first.png', None, 'third.png', None]
+    assert _paths(result) == ['first.png', None, 'third.png', None]
 
 
 def test_multiple_mode_ids_without_explicit_mode_never_guess_crop_role(tmp_path, caplog):
