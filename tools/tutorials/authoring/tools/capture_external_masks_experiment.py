@@ -72,7 +72,7 @@ def main() -> int:
     apply_preferences_to_app(app)
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # tools/tutorials
     from capture_policy import force_fresh_start, verify_fresh_start
-    force_fresh_start()  # `spacr --fresh`, Preferences -> Session off, no crash drafts
+    force_fresh_start()  # `spacr --fresh`, no remembered session, no crash drafts
     window = app_module.MainWindow()
     verify_fresh_start(window)
     window.apply_dock_mode("locked")

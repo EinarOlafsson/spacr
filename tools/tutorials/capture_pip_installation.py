@@ -185,10 +185,6 @@ def record(stage, root, venv, prior, capture, route='pip'):
         'mark_tour_seen(); set_theme("dark"); set_font_scale(1.5)')
     if route != 'conda':
         preferences += '; from spacr.qt.preferences import set_preload_policy; set_preload_policy("on_demand")'
-    # Session restore (647/648) off where the package has it: a recording
-    # never reopens a remembered module or offers crash drafts.
-    preferences += ('; import spacr.qt.preferences as _p; '
-                    'getattr(_p, "_set_restore_session", lambda on: None)(False)')
     subprocess.run([str(venv / 'bin/python'), '-I', '-c', preferences],
         cwd=root, check=True, timeout=90)
     provenance['recording_preferences'] = dict(theme='dark', font_scale=1.5,
@@ -255,6 +251,8 @@ def record(stage, root, venv, prior, capture, route='pip'):
             # The older channel package does not implement --no-setup.
             launcher = root / 'bin/spacr' if route == 'linux_installer' else venv / 'bin/spacr'
             command = [str(launcher)] + ([] if route == 'conda' else ['--no-setup'])
+            # Session restore (647/648) stays at its default; the brand-new
+            # profile holds nothing to reopen and --fresh skips it anyway.
             from capture_policy import fresh_argv, launcher_accepts_fresh, verify_profile_starts_fresh
             verify_profile_starts_fresh(os.environ['XDG_CONFIG_HOME'])
             package = Path(provenance['installed_identity']['package']).parent
