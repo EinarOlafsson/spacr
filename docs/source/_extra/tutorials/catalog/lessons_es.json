@@ -646,13 +646,11 @@
           "speech_text": "Tools reúne los editores y exploradores prácticos. En Make Masks corriges máscaras, y desde ahí también se abre sel póus Workbench. Align and Stitch une mosaicos de imagen superpuestos en una sola imagen. Cuando tienes mediciones, Image ú map, gueit éditor y Graph Builder te permiten explorarlas y representarlas. La barra de herramientas de cada módulo abre sus herramientas relacionadas."
         },
         {
-          "visual": "04_assays  (3)",
-          "narration": "Abre Assays y elige tu organismo: Toxoplasma, Plasmodium o Candida. Después elige un ensayo en el menú de ese organismo. Por ejemplo, abre Toxoplasma para el análisis de placas de lisis o las mediciones de huésped y patógeno. Sigue el tutorial del ensayo elegido para preparar sus imágenes, máscaras y mediciones de entrada.",
+          "visual": "04_assays  (1)",
+          "narration": "Abra Assays para flujos de trabajo específicos de un organismo. Toxoplasma abre su menú de ensayos, por ejemplo el análisis de placas o las mediciones huésped–patógeno. Siga el tutorial del ensayo elegido para preparar sus imágenes, máscaras y datos de medición.",
           "hold_after": 0.7,
           "focus_modules": [
-            "toxoplasma",
-            "plasmodium",
-            "candida"
+            "toxoplasma"
           ],
           "related_lessons": [
             "24_plaque",
@@ -660,7 +658,7 @@
             "26_invasion",
             "27_replication"
           ],
-          "speech_text": "Abre Assays y elige tu organismo: Toxoplasma, Plasmodium o Candida. Después elige un ensayo en el menú de ese organismo. Por ejemplo, abre Toxoplasma para el análisis de placas de lisis o las mediciones de huésped y patógeno. Sigue el tutorial del ensayo elegido para preparar sus imágenes, máscaras y mediciones de entrada."
+          "speech_text": "Abra Assays para flujos de trabajo específicos de un organismo. Toxoplasma abre su menú de ensayos, por ejemplo el análisis de placas o las mediciones huésped–patógeno. Siga el tutorial del ensayo elegido para preparar sus imágenes, máscaras y datos de medición."
         },
         {
           "visual": "05_classify_host",
@@ -1263,6 +1261,18 @@
           ],
           "hold_after": 0.7,
           "speech_text": "Revisa la figura de recortes y luego localiza measurements punto de be en la carpeta measurements y las imágenes de objetos guardadas en la salida de recortes del proyecto. Mantén juntas la base de datos y las rutas de las imágenes. Continúa con Annotate para etiquetar objetos de ejemplo, o con Classify si ya tienes datos de entrenamiento etiquetados."
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "narration": "Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla.",
+          "focus": [
+            1620,
+            860,
+            580,
+            360
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Antes de iniciar cualquier ejecución, espáquer estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y espáquer pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."
         }
       ],
       "narration_voices": {
@@ -2316,32 +2326,38 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Abre pares de imagen y máscara, inspecciona y edita objetos, guarda mediciones y crea recortes emparejados para entrenamiento.",
+      "description": "Abre pares de imagen y máscara, corrige objetos, registra veredictos, organiza imágenes y máscaras para Measure y crea recortes emparejados para entrenamiento.",
       "objectives": [
         "Abrir imágenes con sus máscaras de instancias y revisar los objetos con la lupa.",
-        "Medir campos emparejados y guardar una base de datos de características de objetos.",
-        "Corregir etiquetas con Undo, el dibujo, la división y los filtros de tamaño.",
-        "Guardar máscaras revisadas y crear recortes de imagen y máscara para entrenamiento."
+        "Corregir etiquetas con Undo, el dibujo, la división y los filtros de objetos.",
+        "Guardar máscaras revisadas, registrar veredictos Keep o Discard y crear recortes de imagen y máscara para entrenamiento.",
+        "Organizar imágenes y máscaras para Measure y compartir pares revisados con Upload data."
       ],
       "prerequisite": "Prepara una carpeta de imágenes bidimensionales con TIFF de etiquetas de instancia correspondientes en una subcarpeta masks. Cada máscara usa el nombre base del archivo de imagen. Trabaja sobre una copia cuando practiques ediciones y recortes. El ejemplo usa imágenes de ER y máscaras de células del proyecto de microscopía descargable de Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Desde Home, abre Make Masks en Tools. Elige este editor para inspeccionar y corregir máscaras de imágenes individuales. Abre la carpeta de imágenes y etiquetas emparejadas antes de elegir una herramienta de edición.",
+          "narration": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "Desde Home, abre Make Masks en Tools. Elige este editor para inspeccionar y corregir máscaras de imágenes individuales. Abre la carpeta de imágenes y etiquetas emparejadas antes de elegir una herramienta de edición."
+          "speech_text": "Desde Home, abre Make Masks en Tools. Los botones de la parte inferior izquierda cargan imágenes: Open folder, Organize for Measure y Load test data. A la derecha, Discard, Keep, Skip y Upload data deciden qué pasa con cada campo una vez editado."
+        },
+        {
+          "visual": "01b_test_data_menu",
+          "narration": "Load test data abre diez imágenes de ejemplo de Toxoplasma. Su flecha también ofrece una muestra de cada conjunto de entrenamiento con el que aprendió un modelo publicado, con sus máscaras, para que veas cómo son unos buenos pares de entrenamiento.",
+          "hold_after": 0.7,
+          "speech_text": "Load test data abre diez imágenes de ejemplo de Toxoplasma. Su flecha también ofrece una muestra de cada conjunto de entrenamiento con el que aprendió un modelo publicado, con sus máscaras, para que veas cómo son unos buenos pares de entrenamiento."
         },
         {
           "visual": "02_folder_picker",
-          "narration": "Selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados.",
+          "narration": "Haz clic en Open folder y selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ],
-          "speech_text": "Selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados."
+          "speech_text": "Haz clic en Open folder y selecciona la carpeta de imágenes. Para este ejemplo, usa las imágenes de intensidad de ER y las máscaras de células correspondientes de la muestra de Measure. Mantén iguales las dimensiones de imagen y máscara, y sus nombres de archivo emparejados."
         },
         {
           "visual": "03_real_labels",
@@ -2351,13 +2367,13 @@
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Abre Magnifier settings. Selecciona Otsu y Region under the mouse para previsualizar objetos por umbral alrededor del puntero. Elige un modo basado en un modelo cuando el umbral no separe bien tus objetos.",
+          "narration": "Abre los ajustes de Live magnifier y deja Segment en Region under the mouse. El método viene de la categoría Detection method, aquí Otsu, que se ejecuta en la CPU. Elige un método basado en un modelo cuando el umbral no separe bien tus objetos.",
           "hold_after": 0.7,
-          "speech_text": "Abre Magnifier settings. Selecciona Otsu y Region under the mouse para previsualizar objetos por umbral alrededor del puntero. Elige un modo basado en un modelo cuando el umbral no separe bien tus objetos."
+          "speech_text": "Abre los ajustes de Live magnifier y deja Segment en Region under the mouse. El método viene de la categoría Detection method, aquí Otsu, que se ejecuta en la CPU. Elige un método basado en un modelo cuando el umbral no separe bien tus objetos."
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Activa Magnifier y pasa el cursor sobre un objeto para ampliar su vista previa. Recorre varios objetos para revisar los contornos propuestos. Haz clic para añadir los objetos delimitados cuando se vean correctos, o desactiva Magnifier para seguir editando.",
+          "narration": "Activa Magnifier y pasa el cursor sobre un objeto para previsualizar su contorno. La lectura de la esquina superior izquierda da la posición y la intensidad del píxel, y la etiqueta y el área del objeto bajo el cursor. Haz clic para añadir los objetos delimitados cuando se vean correctos, o desactiva Magnifier para seguir editando.",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -2365,67 +2381,7 @@
             2200,
             1775
           ],
-          "speech_text": "Activa Magnifier y pasa el cursor sobre un objeto para ampliar su vista previa. Recorre varios objetos para revisar los contornos propuestos. Haz clic para añadir los objetos delimitados cuando se vean correctos, o desactiva Magnifier para seguir editando."
-        },
-        {
-          "visual": "readouts_06_features_real_files",
-          "narration": "Haz clic en Features para medir pares de imagen y máscara. Añade una fila por campo y elige las imágenes de intensidad y las máscaras de objetos correspondientes. Revisa las asignaciones manuales si la coincidencia automática de nombres deja archivos sin asignar.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "Haz clic en Features para medir pares de imagen y máscara. Añade una fila por campo y elige las imágenes de intensidad y las máscaras de objetos correspondientes. Revisa las asignaciones manuales si la coincidencia automática de nombres deja archivos sin asignar."
-        },
-        {
-          "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "En cada fila, selecciona la imagen de intensidad de ER en Channel 1 y su imagen de etiquetas correspondiente en Cell mask. Repite para el segundo campo. Usa las imágenes de intensidad originales para medir la fluorescencia.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "En cada fila, selecciona la imagen de intensidad de ER en Channel 1 y su imagen de etiquetas correspondiente en Cell mask. Repite para el segundo campo. Usa las imágenes de intensidad originales para medir la fluorescencia."
-        },
-        {
-          "visual": "readouts_09_features_assigned_table",
-          "narration": "Revisa ambas filas y elige los ajustes de medición. Este ejemplo usa un proceso de trabajo, un tamaño mínimo de célula de un píxel y ningún recorte PNG guardado. Aumenta el límite de tamaño para excluir objetos pequeños cuando convenga a tu experimento. Haz clic en Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "Revisa ambas filas y elige los ajustes de medición. Este ejemplo usa un proceso de trabajo, un tamaño mínimo de célula de un píxel y ningún recorte PNG guardado. Aumenta el límite de tamaño para excluir objetos pequeños cuando convenga a tu experimento. Haz clic en Measure."
-        },
-        {
-          "visual": "readouts_12_features_measurements_saved",
-          "narration": "Cuando termine la medición, abre la carpeta de salida. La carpeta measurements contiene measurements.db con las características de los objetos de ambos campos. Guarda la base de datos junto con sus imágenes, máscaras y ajustes de origen, y cierra Features para volver a la edición.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "Cuando termine la medición, abre la carpeta de salida. La carpeta measurements contiene measurements punto de be con las características de los objetos de ambos campos. Guarda la base de datos junto con sus imágenes, máscaras y ajustes de origen, y cierra Features para volver a la edición."
+          "speech_text": "Activa Magnifier y pasa el cursor sobre un objeto para previsualizar su contorno. La lectura de la esquina superior izquierda da la posición y la intensidad del píxel, y la etiqueta y el área del objeto bajo el cursor. Haz clic para añadir los objetos delimitados cuando se vean correctos, o desactiva Magnifier para seguir editando."
         },
         {
           "visual": "03_real_labels",
@@ -2471,30 +2427,36 @@
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Define las áreas mínima y máxima de los objetos y pulsa Filter para eliminar las etiquetas fuera de esos límites. Elige límites adecuados para tus objetos y revisa lo que se eliminó. El filtro modifica la máscara, así que usa Undo si el límite quita objetos útiles.",
+          "narration": "Para eliminar objetos por tamaño o forma, elige una propiedad en la categoría Filter y haz clic en Add a filter. Cualquier regionprop que mida scikit-image puede servir de filtro, como el área, la solidez o la intensidad media. Aquí una fila de área con un mínimo oculta las células más pequeñas; pulsa Filter para volver a aplicar la lista. El registro de abajo nombra cada objeto que ocultaron los filtros.",
           "hold_after": 0.7,
-          "speech_text": "Define las áreas mínima y máxima de los objetos y pulsa Filter para eliminar las etiquetas fuera de esos límites. Elige límites adecuados para tus objetos y revisa lo que se eliminó. El filtro modifica la máscara, así que usa Undo si el límite quita objetos útiles."
+          "speech_text": "Para eliminar objetos por tamaño o forma, elige una propiedad en la categoría Filter y haz clic en Add a filter. Cualquier regionprop que mida scikit-image puede servir de filtro, como el área, la solidez o la intensidad media. Aquí una fila de área con un mínimo oculta las células más pequeñas; pulsa Filter para volver a aplicar la lista. El registro de abajo nombra cada objeto que ocultaron los filtros."
+        },
+        {
+          "visual": "08d_filter_removed",
+          "narration": "Quita una fila para recuperar los objetos que ocultaba. Los filtros se aplican mientras los editas y de nuevo cada vez que se abre un campo, así que quita las filas que ya no quieras antes de continuar. Undo también deshace un paso de filtrado.",
+          "hold_after": 0.7,
+          "speech_text": "Quita una fila para recuperar los objetos que ocultaba. Los filtros se aplican mientras los editas y de nuevo cada vez que se abre un campo, así que quita las filas que ya no quieras antes de continuar. Undo también deshace un paso de filtrado."
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "Después de revisar las ediciones, haz clic en Save mask. Si hace falta, vuelve a poner los límites de tamaño a cero para desactivarlos antes de pasar a otro campo. Conserva las imágenes de origen y guarda el registro de revisión junto con las máscaras editadas.",
+          "narration": "Después de revisar las ediciones, haz clic en Save mask, en la barra de herramientas. Conserva las imágenes de origen junto con las máscaras guardadas y su registro de revisión.",
           "hold_after": 0.7,
-          "speech_text": "Después de revisar las ediciones, haz clic en Save mask. Si hace falta, vuelve a poner los límites de tamaño a cero para desactivarlos antes de pasar a otro campo. Conserva las imágenes de origen y guarda el registro de revisión junto con las máscaras editadas."
+          "speech_text": "Después de revisar las ediciones, haz clic en Save mask, en la barra de herramientas. Conserva las imágenes de origen junto con las máscaras guardadas y su registro de revisión."
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "La cabecera reúne el resto de las herramientas para máscaras. Cuando estás eligiendo pesos, Model Zoo los encuentra y Model Compare pone dos conjuntos de máscaras uno al lado del otro. Cuando hay más ejemplos que corregir, Curate y Open in napari te llevan de vuelta a la edición.",
+          "narration": "Los iconos de la esquina superior derecha abren el resto de las herramientas para máscaras. Cellpose Workbench entrena un modelo con pares revisados y lo aplica a una carpeta, y el siguiente icono ejecuta la detección en todos los campos de la carpeta abierta.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
           ],
-          "speech_text": "La cabecera reúne el resto de las herramientas para máscaras. Cuando estás eligiendo pesos, Model Zoo los encuentra y Model Compare pone dos conjuntos de máscaras uno al lado del otro. Cuando hay más ejemplos que corregir, Curate y Open in napari te llevan de vuelta a la edición."
+          "speech_text": "Los iconos de la esquina superior derecha abren el resto de las herramientas para máscaras. sel póus Workbench entrena un modelo con pares revisados y lo aplica a una carpeta, y el siguiente icono ejecuta la detección en todos los campos de la carpeta abierta."
         },
         {
-          "visual": "09_fold_napari_bridge",
-          "narration": "La cabecera también abre Model Compare, Model Zoo, Curate y Open in napari. Usa Model Compare para revisar máscaras una al lado de la otra, Model Zoo para elegir pesos y las herramientas de revisión para inspeccionar o editar más ejemplos.",
+          "visual": "09_fold_model_zoo",
+          "narration": "Model Compare pone dos conjuntos de máscaras uno al lado del otro y Model Zoo encuentra y prueba pesos. Cuando hay más ejemplos que corregir, Curate y Napari Bridge te llevan de vuelta a la edición.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2503,7 +2465,7 @@
             "42_curate",
             "46_napari_bridge"
           ],
-          "speech_text": "La cabecera también abre Model Compare, Model Zoo, Curate y Open in napari. Usa Model Compare para revisar máscaras una al lado de la otra, Model Zoo para elegir pesos y las herramientas de revisión para inspeccionar o editar más ejemplos."
+          "speech_text": "Model Compare pone dos conjuntos de máscaras uno al lado del otro y Model Zoo encuentra y prueba pesos. Cuando hay más ejemplos que corregir, Curate y Napari Bridge te llevan de vuelta a la edición."
         },
         {
           "visual": "12_recrop_written",
@@ -2513,12 +2475,12 @@
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Haz clic en Next para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento.",
+          "narration": "Haz clic en Next image, en la barra de herramientas, para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
           ],
-          "speech_text": "Haz clic en Next para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento."
+          "speech_text": "Haz clic en Next image, en la barra de herramientas, para abrir el nuevo recorte. La imagen y la máscara originales se conservan en recropped_originals para poder recuperarlas. Revisa el recorte y sus etiquetas antes de añadirlo a tu conjunto de entrenamiento."
         },
         {
           "visual": "restoration_01_restoration_row",
@@ -2552,15 +2514,15 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "Para detectar objetos en el campo actual, selecciona el modelo de Cellpose y revisa sus ajustes. Este ejemplo usa cpsam, la normalización activada, un umbral de probabilidad celular de cero y un umbral de flujo de cero coma cuatro. Comprueba si las detecciones sustituirán las etiquetas existentes o se añadirán a ellas.",
+          "narration": "Para detectar objetos con un modelo, elige Cellpose en la categoría Detection method y revisa sus ajustes. Este ejemplo usa cpsam, la normalización activada, un umbral de probabilidad celular de cero y un umbral de flujo de cero coma cuatro. Comprueba si las detecciones sustituirán las etiquetas existentes o se añadirán a ellas.",
           "hold_after": 0.7,
-          "speech_text": "Para detectar objetos en el campo actual, selecciona el modelo de sel póus y revisa sus ajustes. Este ejemplo usa cpsam, la normalización activada, un umbral de probabilidad celular de cero y un umbral de flujo de cero coma cuatro. Comprueba si las detecciones sustituirán las etiquetas existentes o se añadirán a ellas."
+          "speech_text": "Para detectar objetos con un modelo, elige sel póus en la categoría Detection method y revisa sus ajustes. Este ejemplo usa cpsam, la normalización activada, un umbral de probabilidad celular de cero y un umbral de flujo de cero coma cuatro. Comprueba si las detecciones sustituirán las etiquetas existentes o se añadirán a ellas."
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Haz clic en Object detection y compara los contornos obtenidos con la imagen. Aquí el modelo selecciona el objeto parcial de la esquina superior izquierda en lugar de la célula central. Deshaz esa sustitución y ajusta el modelo antes de volver a intentarlo.",
+          "narration": "Haz clic en Object detection. El modelo se ejecuta en segundo plano y el resultado sustituye las etiquetas cuando llega. Compara los nuevos contornos con la imagen y deshaz un resultado que no siga los bordes de los objetos antes de ajustar la configuración.",
           "hold_after": 0.7,
-          "speech_text": "Haz clic en Object detection y compara los contornos obtenidos con la imagen. Aquí el modelo selecciona el objeto parcial de la esquina superior izquierda en lugar de la célula central. Deshaz esa sustitución y ajusta el modelo antes de volver a intentarlo."
+          "speech_text": "Haz clic en Object detection. El modelo se ejecuta en segundo plano y el resultado sustituye las etiquetas cuando llega. Compara los nuevos contornos con la imagen y deshaz un resultado que no siga los bordes de los objetos antes de ajustar la configuración."
         },
         {
           "visual": "16_cell_probability",
@@ -2576,19 +2538,91 @@
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restaura las etiquetas anteriores a la detección. Quédate con la máscara que mejor sigue la imagen y guárdala. Continúa con los campos restantes y revisa cada resultado antes de incluirlo en el entrenamiento.",
+          "narration": "Undo restaura las etiquetas anteriores a la detección. Quédate con la máscara que mejor sigue la imagen y revisa el resultado de cada campo antes de incluirlo en el entrenamiento.",
           "hold_after": 0.7,
-          "speech_text": "Undo restaura las etiquetas anteriores a la detección. Quédate con la máscara que mejor sigue la imagen y guárdala. Continúa con los campos restantes y revisa cada resultado antes de incluirlo en el entrenamiento."
+          "speech_text": "Undo restaura las etiquetas anteriores a la detección. Quédate con la máscara que mejor sigue la imagen y revisa el resultado de cada campo antes de incluirlo en el entrenamiento."
         },
         {
-          "visual": "19_detection_undone",
-          "narration": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa Train Cellpose para aprender de esos pares, o vuelve a Features o a Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente.",
+          "visual": "20_curate_keep",
+          "narration": "Mientras recorres una carpeta, Keep y Discard registran un veredicto para cada campo y pasan al siguiente. No se borra nada: el veredicto va a keep_discard.csv en la subcarpeta csv de la carpeta, con la imagen, su máscara y su número actual de objetos.",
+          "hold_after": 0.7,
+          "speech_text": "Mientras recorres una carpeta, Keep y Discard registran un veredicto para cada campo y pasan al siguiente. No se borra nada: el veredicto va a keep_discard.csv en la subcarpeta csv de la carpeta, con la imagen, su máscara y su número actual de objetos."
+        },
+        {
+          "visual": "21_curate_discard",
+          "narration": "Discard marca un campo que no quieres en un conjunto de entrenamiento. Skip corresponde a las sesiones de revisión iniciadas desde la terminal con spacr-make-masks: marca un campo que no se puede revisar, para que la siguiente sesión no vuelva a ofrecerlo.",
+          "hold_after": 0.7,
+          "speech_text": "Discard marca un campo que no quieres en un conjunto de entrenamiento. Skip corresponde a las sesiones de revisión iniciadas desde la terminal con espáquer-make-masks: marca un campo que no se puede revisar, para que la siguiente sesión no vuelva a ofrecerlo."
+        },
+        {
+          "visual": "22_upload_data",
+          "narration": "Cuando tus pares revisados puedan ayudar a otros, haz clic en Upload data. Elige el campo en pantalla, todas las imágenes revisadas con su máscara guardada, o una carpeta de imágenes y una de máscaras, y luego ponle nombre al conjunto de datos. El enlace muestra el conjunto de datos de Hugging Face al que se unirá. No se envía nada hasta que pulses Upload y aceptes compartir.",
+          "hold_after": 0.7,
+          "speech_text": "Cuando tus pares revisados puedan ayudar a otros, haz clic en Upload data. Elige el campo en pantalla, todas las imágenes revisadas con su máscara guardada, o una carpeta de imágenes y una de máscaras, y luego ponle nombre al conjunto de datos. El enlace muestra el conjunto de datos de Hugging Face al que se unirá. No se envía nada hasta que pulses Upload y aceptes compartir."
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "narration": "Los microscopios suelen guardar las imágenes en carpetas anidadas. Cuando abres una carpeta cuyas imágenes están en subcarpetas, Make Masks ofrece copiarlas en una sola carpeta nueva, cada una con el nombre de las carpetas en las que estaba. Los originales no se tocan, y No abre la carpeta tal como está.",
+          "hold_after": 0.7,
+          "speech_text": "Los microscopios suelen guardar las imágenes en carpetas anidadas. Cuando abres una carpeta cuyas imágenes están en subcarpetas, Make Masks ofrece copiarlas en una sola carpeta nueva, cada una con el nombre de las carpetas en las que estaba. Los originales no se tocan, y No abre la carpeta tal como está."
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "narration": "Las copias se abren en el editor, y un manifiesto de cambios de nombre registra de dónde viene cada una. Un campo sin máscara empieza con una máscara vacía, lista para dibujar o detectar.",
+          "hold_after": 0.7,
+          "speech_text": "Las copias se abren en el editor, y un manifiesto de cambios de nombre registra de dónde viene cada una. Un campo sin máscara empieza con una máscara vacía, lista para dibujar o detectar."
+        },
+        {
+          "visual": "25_organize_open",
+          "narration": "Para medir tus campos, haz clic en Organize for Measure. Measure lee cada campo como una sola matriz combinada que contiene todos los canales y sus máscaras. Indica aquí una carpeta de origen, o arrastra archivos y carpetas a la tabla de abajo. Si Consolidate subfolders está activado y falla una copia, la ventana indica cuántos archivos fallaron y dónde está el manifiesto, y se detiene sin cambiar el origen ni la tabla.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "Para medir tus campos, haz clic en Organize for Measure. Measure lee cada campo como una sola matriz combinada que contiene todos los canales y sus máscaras. Indica aquí una carpeta de origen, o arrastra archivos y carpetas a la tabla de abajo. Si Consolidate subfolders está activado y falla una copia, la ventana indica cuántos archivos fallaron y dónde está el manifiesto, y se detiene sin cambiar el origen ni la tabla."
+        },
+        {
+          "visual": "26_organize_table",
+          "narration": "Arrastra cada carpeta de canal a la tabla: cada carpeta se convierte en una columna y cada fila es un campo. Añade una columna de máscara, define su función, aquí las máscaras de células del canal dos, y suelta en ella la carpeta de máscaras. Los archivos se emparejan entre columnas por su nombre.",
+          "hold_after": 0.7,
+          "speech_text": "Arrastra cada carpeta de canal a la tabla: cada carpeta se convierte en una columna y cada fila es un campo. Añade una columna de máscara, define su función, aquí las máscaras de células del canal dos, y suelta en ella la carpeta de máscaras. Los archivos se emparejan entre columnas por su nombre."
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "narration": "Detect sets empareja las imágenes por nombre, orden y tamaño, y después muestra tres conjuntos de ejemplo. Confírmalos solo cuando cada conjunto realmente vaya junto; si no, corrige primero la expresión regular o las columnas.",
+          "hold_after": 0.7,
+          "speech_text": "Detect sets empareja las imágenes por nombre, orden y tamaño, y después muestra tres conjuntos de ejemplo. Confírmalos solo cuando cada conjunto realmente vaya junto; si no, corrige primero la expresión regular o las columnas."
+        },
+        {
+          "visual": "28_organize_images",
+          "narration": "Pon Show en Image plus text y Thumbnail quality en High para revisar las filas a simple vista; la calidad solo cambia la visualización, nunca las máscaras ni las mediciones. Una celda sin ninguna coincidencia queda vacía y se marca, y Apply espera hasta que todas las filas estén completas.",
+          "hold_after": 0.7,
+          "speech_text": "Pon Show en Image plus text y Thumbnail quality en High para revisar las filas a simple vista; la calidad solo cambia la visualización, nunca las máscaras ni las mediciones. Una celda sin ninguna coincidencia queda vacía y se marca, y Apply espera hasta que todas las filas estén completas."
+        },
+        {
+          "visual": "29_move_and_merge",
+          "narration": "Haz clic en Apply. El resumen indica lo que va a pasar: las imágenes y las máscaras se mueven a carpetas de canal con nombres al estilo Yokogawa y se combinan en merged. Los archivos se mueven, no se copian, y cada movimiento se anota en un manifiesto.",
+          "hold_after": 0.7,
+          "speech_text": "Haz clic en Apply. El resumen indica lo que va a pasar: las imágenes y las máscaras se mueven a carpetas de canal con nombres al estilo Yokogawa y se combinan en merged. Los archivos se mueven, no se copian, y cada movimiento se anota en un manifiesto."
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "narration": "Cuando termina la ordenación, Make Masks abre la primera carpeta de canal, y la consola indica que el resultado aparece primero entre las fuentes recientes de Measure. Abre Measure y úsalo como origen para extraer características de los objetos.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "Cuando termina la ordenación, Make Masks abre la primera carpeta de canal, y la consola indica que el resultado aparece primero entre las fuentes recientes de Measure. Abre Measure y úsalo como origen para extraer características de los objetos."
+        },
+        {
+          "visual": "03_real_labels",
+          "narration": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa Cellpose Workbench para entrenar con esos pares, u Organize for Measure y luego Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
           ],
-          "speech_text": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa Train sel póus para aprender de esos pares, o vuelve a Features o a Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente."
+          "speech_text": "Mantén juntas las imágenes revisadas y las máscaras con el mismo nombre base. Usa sel póus Workbench para entrenar con esos pares, u Organize for Measure y luego Measure para extraer mediciones. Los tutoriales relacionados muestran cada paso siguiente."
         }
       ],
       "narration_voices": {
@@ -10753,11 +10787,13 @@
       "app_key": "graph_builder",
       "section": "Explore",
       "title": "Graph Builder: representar mediciones y filtrar objetos",
-      "description": "Carga una tabla de mediciones, asigna los ejes del gráfico, compara grupos y filtra los objetos mostrados.",
+      "description": "Cargue una tabla de mediciones, compare grupos, filtre objetos y construya columnas ilustrativas de genotipo, réplica y condición combinada.",
       "objectives": [
         "Cargar una tabla de mediciones de ejemplo.",
         "Crear un histograma, un gráfico de dispersión y paneles por grupos.",
-        "Filtrar objetos y elegir una vista para el siguiente paso."
+        "Filtrar objetos y elegir una vista para el siguiente paso.",
+        "Asignar etiquetas por valores exactos en columnas de salida separadas y combinarlas sin cambiar las mediciones de origen.",
+        "Extraer texto en columnas, guardar y cargar un esquema de anotación y combinar tablas."
       ],
       "prerequisite": "Descarga y extrae Graph_Builder_real_measurements.zip. Contiene measurements.db. Para revisar recortes de imagen más adelante, mantén también disponibles el proyecto de Annotate correspondiente y sus imágenes.",
       "example_files": [
@@ -10772,13 +10808,13 @@
         },
         {
           "visual": "03_choose_database",
-          "narration": "Haz clic en Load table y abre measurements punto db del archivo extraído. Elige la tabla cell. Este ejemplo contiene dos mil trescientas cuarenta y una células medidas.",
+          "narration": "Haz clic en Load table y abre measurements punto db del archivo extraído. Elige la tabla cell. Este ejemplo contiene dos mil trescientas cuarenta y una células medidas. Merge tables, junto al selector de tablas, combina varias tablas en una; la usaremos al final.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
-          "speech_text": "Haz clic en Load table y abre measurements punto db del archivo extraído. Elige la tabla cell. Este ejemplo contiene dos mil trescientas cuarenta y una células medidas."
+          "speech_text": "Haz clic en Load table y abre measurements punto db del archivo extraído. Elige la tabla cell. Este ejemplo contiene dos mil trescientas cuarenta y una células medidas. Merge tables, junto al selector de tablas, combina varias tablas en una; la usaremos al final."
         },
         {
           "visual": "05_area_histogram",
@@ -10817,6 +10853,12 @@
           "speech_text": "Haz clic en Clear all en el panel de filtros para recuperar la tabla completa. Usa Clear all channels a la izquierda cuando quieras quitar las asignaciones del gráfico y empezar otro distinto."
         },
         {
+          "visual": "10b_channels_cleared",
+          "narration": "Clear all channels conserva el tipo de gráfico pero quita todas las columnas del gráfico, y el lienzo indica entonces lo que falta: arrastre una columna a X o Y para volver a dibujar un gráfico. Suelte de nuevo las mismas columnas para continuar.",
+          "hold_after": 0.7,
+          "speech_text": "Clear all channels conserva el tipo de gráfico pero quita todas las columnas del gráfico, y el lienzo indica entonces lo que falta: arrastre una columna a X o Y para volver a dibujar un gráfico. Suelte de nuevo las mismas columnas para continuar."
+        },
+        {
           "visual": "11_actual_brush_state",
           "narration": "Quita una faceta con su pequeña cruz para volver a un solo gráfico de dispersión. Dibuja un rectángulo alrededor de objetos para seleccionar una región. Si Open selection in Annotate no está disponible, abre Annotate por separado con el proyecto correspondiente y revisa allí los objetos.",
           "hold_after": 0.7,
@@ -10829,6 +10871,72 @@
           "speech_text": "Haz clic en una parte vacía del gráfico para borrar la selección. Comprueba los filtros activos y el número mostrado antes de explorar otro grupo de objetos."
         },
         {
+          "visual": "13_genotype_exact_values",
+          "narration": "Haga clic en Annotate conditions. Llame genotype a la primera salida y use Assign values. Elija Exact values y etiquete los valores de columnID c1, c2 y c3 como WildType. Añada una segunda caja llamada mutant para c7, c4, c5 y c6. Son etiquetas ilustrativas, no genotipos validados. La tabla descargada solo contiene c1 y c2, así que todas las células coinciden con WildType y ninguna con mutant. Exact values compara valores completos: c1 no coincide con c10.",
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en Annotate conditions. Llame genotype a la primera salida y use Assign values. Elija Exact values y etiquete los valores de columnID c1, c2 y c3 como WildType. Añada una segunda caja llamada mutant para c7, c4, c5 y c6. Son etiquetas ilustrativas, no genotipos validados. La tabla descargada solo contiene c1 y c2, así que todas las células coinciden con WildType y ninguna con mutant. Exact values compara valores completos: c1 no coincide con c10."
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "narration": "Añada una columna de salida llamada replicate. Haga coincidir los valores de rowID r1, r4, r5 y r6 en una caja llamada replicate 1. Añada otra caja con el mismo nombre para r7, r9 y r10. Las cajas con la misma etiqueta forman una unión; las etiquetas distintas que entren en conflicto en una salida deben resolverse antes de Apply conditions. El ejemplo contiene r5 y r12, así que r5 coincide y r12 queda vacía. Estas etiquetas de práctica no establecen una replicación biológica.",
+          "hold_after": 0.7,
+          "speech_text": "Añada una columna de salida llamada replicate. Haga coincidir los valores de rowID r1, r4, r5 y r6 en una caja llamada replicate 1. Añada otra caja con el mismo nombre para r7, r9 y r10. Las cajas con la misma etiqueta forman una unión; las etiquetas distintas que entren en conflicto en una salida deben resolverse antes de Apply conditions. El ejemplo contiene r5 y r12, así que r5 coincide y r12 queda vacía. Estas etiquetas de práctica no establecen una replicación biológica."
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "narration": "Añada una tercera salida llamada condition y elija Compose column. Seleccione genotype en Available columns y haga clic en Add column token. Escriba un guion bajo y haga clic en Add text token. Seleccione replicate y haga clic en Add column token. Los tokens ordenados son ahora genotype, guion bajo, replicate. Puede arrastrar los tokens o usar Move token up y Move token down para cambiar su orden. Previsualice las tres salidas. Las células r5 que coinciden pasan a ser WildType guion bajo replicate 1. Si falta un componente, la combinación queda vacía, de modo que r12 no produce una etiqueta con None o nan.",
+          "hold_after": 0.7,
+          "speech_text": "Añada una tercera salida llamada condition y elija Compose column. Seleccione genotype en Available columns y haga clic en Add column token. Escriba un guion bajo y haga clic en Add text token. Seleccione replicate y haga clic en Add column token. Los tokens ordenados son ahora genotype, guion bajo, replicate. Puede arrastrar los tokens o usar Move token up y Move token down para cambiar su orden. Previsualice las tres salidas. Las células r5 que coinciden pasan a ser WildType guion bajo replicate 1. Si falta un componente, la combinación queda vacía, de modo que r12 no produce una etiqueta con None o nan."
+        },
+        {
+          "visual": "15b_extract_text",
+          "narration": "Una salida también puede extraerse de un texto. Añada una cuarta salida llamada row_number y elija Extract text. Seleccione rowID como columna de origen e introduzca una expresión regular con un grupo con nombre, aquí r seguida de un grupo llamado row_number que captura los dígitos. Haga clic en Create columns from named groups y luego en Preview. Las filas sin coincidencia quedan vacías. La tabla de ejemplo no tiene nombres de archivo originales, así que extraemos de una columna de identificador existente.",
+          "hold_after": 0.7,
+          "speech_text": "Una salida también puede extraerse de un texto. Añada una cuarta salida llamada row_number y elija Extract text. Seleccione rowID como columna de origen e introduzca una expresión regular con un grupo con nombre, aquí r seguida de un grupo llamado row_number que captura los dígitos. Haga clic en Create columns from named groups y luego en Preview. Las filas sin coincidencia quedan vacías. La tabla de ejemplo no tiene nombres de archivo originales, así que extraemos de una columna de identificador existente."
+        },
+        {
+          "visual": "15c_save_schema",
+          "narration": "Haga clic en Save schema y elija un archivo JSON. Un esquema guarda las reglas, no los valores: las salidas, sus cajas, composiciones y patrones de extracción. Las asignaciones manuales de filas pertenecen a esta tabla y se omiten, y la línea de estado indica cuántas se omitieron.",
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en Save schema y elija un archivo JSON. Un esquema guarda las reglas, no los valores: las salidas, sus cajas, composiciones y patrones de extracción. Las asignaciones manuales de filas pertenecen a esta tabla y se omiten, y la línea de estado indica cuántas se omitieron."
+        },
+        {
+          "visual": "15d_load_schema",
+          "narration": "Load schema aplica un archivo así a la misma tabla o a otra. Se comprueba frente a las columnas de la tabla y se abre como vista previa de todas las salidas; no se aplica nada hasta que haga clic en Apply conditions.",
+          "hold_after": 0.7,
+          "speech_text": "Load schema aplica un archivo así a la misma tabla o a otra. Se comprueba frente a las columnas de la tabla y se abre como vista previa de todas las salidas; no se aplica nada hasta que haga clic en Apply conditions."
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "narration": "Seleccione genotype en Generated columns para comprobar lo que restauró el esquema: las cajas WildType y mutant vuelven con sus valores exactos, y cada caja indica cuántas filas coinciden. Revise así cada salida antes de hacer clic en Apply conditions.",
+          "hold_after": 0.7,
+          "speech_text": "Seleccione genotype en Generated columns para comprobar lo que restauró el esquema: las cajas WildType y mutant vuelven con sus valores exactos, y cada caja indica cuántas filas coinciden. Revise así cada salida antes de hacer clic en Apply conditions."
+        },
+        {
+          "visual": "16_annotations_applied",
+          "narration": "Haga clic en Apply conditions para añadir genotype, replicate, condition y row_number a la tabla de trabajo. Las columnas de medición originales y la base de datos de origen no cambian. El mismo editor de anotaciones funciona también con una tabla de trabajo combinada. Use su diseño experimental para elegir etiquetas con sentido antes de graficar con estas nuevas columnas.",
+          "hold_after": 0.7,
+          "speech_text": "Haga clic en Apply conditions para añadir genotype, replicate, condition y row_number a la tabla de trabajo. Las columnas de medición originales y la base de datos de origen no cambian. El mismo editor de anotaciones funciona también con una tabla de trabajo combinada. Use su diseño experimental para elegir etiquetas con sentido antes de graficar con estas nuevas columnas."
+        },
+        {
+          "visual": "16b_save_annotated",
+          "narration": "Save chart conserva la vista y la receta de anotación para volver a cargarlas. Export table incluye las columnas generadas. Con un origen SQLite, Save annotated table pide un nombre de tabla nuevo, sugiere cell_annotated y nunca sobrescribe una tabla existente. Son acciones de guardado distintas; Apply conditions por sí solo no escribe en la base de datos de origen.",
+          "hold_after": 0.7,
+          "speech_text": "Save chart conserva la vista y la receta de anotación para volver a cargarlas. Export table incluye las columnas generadas. Con un origen SQLite, Save annotated table pide un nombre de tabla nuevo, sugiere cell_annotated y nunca sobrescribe una tabla existente. Son acciones de guardado distintas; Apply conditions por sí solo no escribe en la base de datos de origen."
+        },
+        {
+          "visual": "17_merge_tables",
+          "narration": "Para combinar tablas, haga clic en Merge tables junto al selector de tablas. Marque cell, nucleus y pathogen, mantenga cell como tabla de salida para tener una fila por célula y ponga nombre al resultado. Haga clic en Validate and preview, lea los recuentos de filas y las claves de unión de cada tabla y luego haga clic en Create merged table.",
+          "hold_after": 0.7,
+          "speech_text": "Para combinar tablas, haga clic en Merge tables junto al selector de tablas. Marque cell, nucleus y pathogen, mantenga cell como tabla de salida para tener una fila por célula y ponga nombre al resultado. Haga clic en Validate and preview, lea los recuentos de filas y las claves de unión de cada tabla y luego haga clic en Create merged table."
+        },
+        {
+          "visual": "18_merged_table",
+          "narration": "La tabla combinada queda seleccionada en el selector y sus columnas se pueden graficar como cualquier otra. Las tablas de origen de la base de datos no cambian; la combinación se guarda como una definición reproducible junto a la base de datos.",
+          "hold_after": 0.7,
+          "speech_text": "La tabla combinada queda seleccionada en el selector y sus columnas se pueden graficar como cualquier otra. Las tablas de origen de la base de datos no cambian; la combinación se guarda como una definición reproducible junto a la base de datos."
+        },
+        {
           "visual": "02_fold_trellis",
           "narration": "Usa los accesos directos del encabezado para abrir Plate Viewer, con mapas de calor por pozo, o Small Multiples, con gráficos repetidos. Guarda la base de datos de origen, las columnas elegidas y los filtros para poder reproducir la vista.",
           "hold_after": 0.7,
@@ -10837,15 +10945,6 @@
             "63_small_multiples"
           ],
           "speech_text": "Usa los accesos directos del encabezado para abrir Plate Viewer, con mapas de calor por pozo, o Small Multiples, con gráficos repetidos. Guarda la base de datos de origen, las columnas elegidas y los filtros para poder reproducir la vista."
-        },
-        {
-          "visual": "12_selection_cleared",
-          "narration": "La pantalla actual muestra gráficos sin botón para exportarlos. Usa la API de Graph Builder para gráficos programados, o Database Browser para exportar una tabla a otra herramienta de gráficos.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
-          ],
-          "speech_text": "La pantalla actual muestra gráficos sin botón para exportarlos. Usa la API de Graph Builder para gráficos programados, o Database Browser para exportar una tabla a otra herramienta de gráficos."
         }
       ],
       "narration_voices": {
@@ -11915,9 +12014,9 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Haz clic en Load table, abre tu copia de trabajo de measurements.db y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos.",
+          "narration": "Haz clic en Load table, abre tu copia de trabajo de measurements.db y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos. Merge tables, junto al selector, combina la tabla de células con sus tablas de núcleos o de patógenos en una tabla nueva, como en Graph Builder; las tablas de origen no cambian.",
           "hold_after": 0.7,
-          "speech_text": "Haz clic en Load table, abre tu copia de trabajo de measurements punto de be y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos."
+          "speech_text": "Haz clic en Load table, abre tu copia de trabajo de measurements punto de be y elige cell. El ejemplo contiene dos mil trescientos cuarenta y un objetos. Guarda una copia, porque Export gates escribe la pertenencia en esta base de datos. Merge tables, junto al selector, combina la tabla de células con sus tablas de núcleos o de patógenos en una tabla nueva, como en Graph Builder; las tablas de origen no cambian."
         },
         {
           "visual": "04_real_scatter",
@@ -12002,6 +12101,24 @@
           "narration": "Usa From view para crear una caja con nombre delimitada por las tres mediciones mostradas. Comprueba el recuento de su población y guarda la nueva estrategia por separado.",
           "hold_after": 0.7,
           "speech_text": "Usa From view para crear una caja con nombre delimitada por las tres mediciones mostradas. Comprueba el recuento de su población y guarda la nueva estrategia por separado."
+        },
+        {
+          "visual": "17e_free_orbit",
+          "narration": "Elige Free en spin para orbitar el volumen: arrastra a la vez hacia los lados y hacia arriba y abajo, y la vista se queda exactamente donde la sueltas. Gírala hasta que la población que quieres se separe del resto.",
+          "hold_after": 0.7,
+          "speech_text": "Elige Free en spin para orbitar el volumen: arrastra a la vez hacia los lados y hacia arriba y abajo, y la vista se queda exactamente donde la sueltas. Gírala hasta que la población que quieres se separe del resto."
+        },
+        {
+          "visual": "17f_live_highlight",
+          "narration": "Elige Polygon through view y cambia drag a Draw. Haz clic en las esquinas alrededor de la población en pantalla; la línea de estado cuenta los vértices, y el contorno se extiende por todo el volumen con el ángulo que ves.",
+          "hold_after": 0.7,
+          "speech_text": "Elige Polygon through view y cambia drag a Draw. Haz clic en las esquinas alrededor de la población en pantalla; la línea de estado cuenta los vértices, y el contorno se extiende por todo el volumen con el ángulo que ves."
+        },
+        {
+          "visual": "17h_rename_gate",
+          "narration": "Vuelve a hacer clic en la primera esquina para cerrar el polígono y poner nombre a la compuerta; aquí contiene mil cuatrocientos setenta y nueve objetos. Haz doble clic en cualquier compuerta de la tabla de compuertas para cambiarle el nombre; sus compuertas hijas siguen el nuevo nombre.",
+          "hold_after": 0.7,
+          "speech_text": "Vuelve a hacer clic en la primera esquina para cerrar el polígono y poner nombre a la compuerta; aquí contiene mil cuatrocientos setenta y nueve objetos. Haz doble clic en cualquier compuerta de la tabla de compuertas para cambiarle el nombre; sus compuertas hijas siguen el nuevo nombre."
         },
         {
           "visual": "18_actual_projection_2d",
@@ -14803,7 +14920,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Abra Measure desde Home. Measure lee conjuntamente las imágenes y los planos de etiquetas. Active el guardado de recortes si necesita archivos PNG; mantenga juntos la base de datos y el proyecto de origen para obtener recortes bajo demanda. Measure lee las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. A partir de ello, Measure produce los objetos medidos y los recortes de objetos. Encontrará los objetos medidos aquí: measurements/measurements.db; las tablas de objetos dependen de las máscaras activadas de cell, nucleus, pathogen y organelle. Según la ruta, las tablas que importan son cell, nucleus, pathogen, cytoplasm. Las columnas que conviene vigilar son plateID, rowID, columnID, fieldID. Encontrará los recortes de objetos aquí: data/**/*_png cuando save_png está activado; png_list indexa los recortes guardados. Los flujos compatibles pueden obtener recortes bajo demanda a partir de matrices combinadas y máscaras. Según la ruta, las tablas que importan son png_list. Las columnas que conviene vigilar son png_path, prcfo. Mask puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el mismo proyecto y los índices correctos de canales de imagen y máscara. Después, Annotate recoge los objetos medidos y los recortes de objetos. Guarde u obtenga bajo demanda recortes con identidades de objetos estables. También se usan en Classify. Elija la familia de imágenes o la tabular según la entrada. Si empieza en Make Masks, este proporciona las máscaras de etiquetas. Utilice FEATURES para emparejar imágenes y máscaras y escribir un proyecto medido; las máscaras independientes no son matrices combinadas. Las imágenes y las máscaras de etiquetas de External Masks también sirven aquí. Repita la medición solo cuando sea necesario; External Masks ya puede realizarla. También puede llevar los objetos medidos y los recortes de objetos a Image UMAP. Elija columnas de características e inspeccione recortes representativos. También sirven de entrada a Embeddings. Conserve la procedencia del codificador y de la política de canales. Gate Editor también lee los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También pueden ir a Graph Builder. Elija explícitamente variables, grupos y filtros. También se usan en QC. Revise las comprobaciones disponibles y la evidencia que falta. También sirven de entrada a Recruitment. Exija las intensidades y las identidades de los compartimentos previstos. También pueden ir a Invasion Assay. Exija mediciones de tinción en dos colores y controles de referencia adecuados. También se usan en Replication Assay. Exija identidades explícitas de parásitos y sus vacuolas. Timelapse puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el proyecto de series temporales con identidades estables de fotogramas y objetos. Después, Motility Assay recoge los objetos medidos. Combine los objetos medidos con las trayectorias correspondientes. También sirven de entrada a Feature Explorer. Defina la comparación de clases e inspeccione el filtrado. También pueden ir a Database Browser. Inspeccione las tablas reales antes de exportar. También se usan en AnnData Export. Exporte columnas compatibles de características y metadatos. También sirven de entrada a Dose–Response. Una la respuesta medida a dosis y controles explícitos. También pueden ir a Endodyogeny size proxy. Proporcione las raíces de los proyectos medidos y las tablas de objetos y png_list necesarias. Verifique la agregación por célula huésped y las unidades de área antes de interpretar intervalos de tamaño; la base de datos de recuentos de Mask por sí sola no basta. Si empieza en Import, este proporciona las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. Importe las imágenes correspondientes y las máscaras externas de enteros para construir las matrices combinadas del proyecto y abra Measure en ese proyecto. Omita este paso si ya se han importado o calculado mediciones compatibles. No añada mediciones duplicadas a una tabla importada existente. También puede llevar los objetos medidos a Host–Pathogen Analysis. Conserva las células no infectadas en Measure. Proporciona máscaras de vacuolas completas, intensidades de referencia del hospedador y, opcionalmente, asociaciones explícitas entre parásitos y vacuolas; la identidad del hospedador por sí sola no define una vacuola.",
+          "narration": "Abra Measure desde Home. Measure lee conjuntamente las imágenes y los planos de etiquetas. Active el guardado de recortes si necesita archivos PNG; mantenga juntos la base de datos y el proyecto de origen para obtener recortes bajo demanda. Measure lee las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. A partir de ello, Measure produce los objetos medidos y los recortes de objetos. Encontrará los objetos medidos aquí: measurements/measurements.db; las tablas de objetos dependen de las máscaras activadas de cell, nucleus, pathogen y organelle. Según la ruta, las tablas que importan son cell, nucleus, pathogen, cytoplasm. Las columnas que conviene vigilar son plateID, rowID, columnID, fieldID. Encontrará los recortes de objetos aquí: data/**/*_png cuando save_png está activado; png_list indexa los recortes guardados. Los flujos compatibles pueden obtener recortes bajo demanda a partir de matrices combinadas y máscaras. Según la ruta, las tablas que importan son png_list. Las columnas que conviene vigilar son png_path, prcfo. Mask puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el mismo proyecto y los índices correctos de canales de imagen y máscara. Después, Annotate recoge los objetos medidos y los recortes de objetos. Guarde u obtenga bajo demanda recortes con identidades de objetos estables. También se usan en Classify. Elija la familia de imágenes o la tabular según la entrada. Si empieza en Make Masks, este proporciona las máscaras de etiquetas. Utilice Organize for Measure para combinar imágenes y sus máscaras en las matrices que Measure lee; las máscaras independientes no son matrices combinadas. Las imágenes y las máscaras de etiquetas de External Masks también sirven aquí. Repita la medición solo cuando sea necesario; External Masks ya puede realizarla. También puede llevar los objetos medidos y los recortes de objetos a Image UMAP. Elija columnas de características e inspeccione recortes representativos. También sirven de entrada a Embeddings. Conserve la procedencia del codificador y de la política de canales. Gate Editor también lee los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También pueden ir a Graph Builder. Elija explícitamente variables, grupos y filtros. También se usan en QC. Revise las comprobaciones disponibles y la evidencia que falta. También sirven de entrada a Recruitment. Exija las intensidades y las identidades de los compartimentos previstos. También pueden ir a Invasion Assay. Exija mediciones de tinción en dos colores y controles de referencia adecuados. También se usan en Replication Assay. Exija identidades explícitas de parásitos y sus vacuolas. Timelapse puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el proyecto de series temporales con identidades estables de fotogramas y objetos. Después, Motility Assay recoge los objetos medidos. Combine los objetos medidos con las trayectorias correspondientes. También sirven de entrada a Feature Explorer. Defina la comparación de clases e inspeccione el filtrado. También pueden ir a Database Browser. Inspeccione las tablas reales antes de exportar. También se usan en AnnData Export. Exporte columnas compatibles de características y metadatos. También sirven de entrada a Dose–Response. Una la respuesta medida a dosis y controles explícitos. También pueden ir a Endodyogeny size proxy. Proporcione las raíces de los proyectos medidos y las tablas de objetos y png_list necesarias. Verifique la agregación por célula huésped y las unidades de área antes de interpretar intervalos de tamaño; la base de datos de recuentos de Mask por sí sola no basta. Si empieza en Import, este proporciona las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. Importe las imágenes correspondientes y las máscaras externas de enteros para construir las matrices combinadas del proyecto y abra Measure en ese proyecto. Omita este paso si ya se han importado o calculado mediciones compatibles. No añada mediciones duplicadas a una tabla importada existente. También puede llevar los objetos medidos a Host–Pathogen Analysis. Conserva las células no infectadas en Measure. Proporciona máscaras de vacuolas completas, intensidades de referencia del hospedador y, opcionalmente, asociaciones explícitas entre parásitos y vacuolas; la identidad del hospedador por sí sola no define una vacuola.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -14829,7 +14946,7 @@
             "77_embeddings",
             "85_host_pathogen"
           ],
-          "speech_text": "Abra Measure desde Home. Measure lee conjuntamente las imágenes y los planos de etiquetas. Active el guardado de recortes si necesita archivos PNG; mantenga juntos la base de datos y el proyecto de origen para obtener recortes bajo demanda. Measure lee las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. A partir de ello, Measure produce los objetos medidos y los recortes de objetos. Encontrará los objetos medidos aquí: measurements/measurements punto de be; las tablas de objetos dependen de las máscaras activadas de cell, nucleus, pathogen y organelle. Según la ruta, las tablas que importan son cell, nucleus, pathogen, cytoplasm. Las columnas que conviene vigilar son plateID, rowID, columnID, fieldID. Encontrará los recortes de objetos aquí: data/**/*_png cuando save_png está activado; png_list indexa los recortes guardados. Los flujos compatibles pueden obtener recortes bajo demanda a partir de matrices combinadas y máscaras. Según la ruta, las tablas que importan son png_list. Las columnas que conviene vigilar son png_path, prcfo. Mask puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el mismo proyecto y los índices correctos de canales de imagen y máscara. Después, Annotate recoge los objetos medidos y los recortes de objetos. Guarde u obtenga bajo demanda recortes con identidades de objetos estables. También se usan en Classify. Elija la familia de imágenes o la tabular según la entrada. Si empieza en Make Masks, este proporciona las máscaras de etiquetas. Utilice FEATURES para emparejar imágenes y máscaras y escribir un proyecto medido; las máscaras independientes no son matrices combinadas. Las imágenes y las máscaras de etiquetas de External Masks también sirven aquí. Repita la medición solo cuando sea necesario; External Masks ya puede realizarla. También puede llevar los objetos medidos y los recortes de objetos a Image ú map. Elija columnas de características e inspeccione recortes representativos. También sirven de entrada a Embeddings. Conserve la procedencia del codificador y de la política de canales. gueit éditor también lee los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También pueden ir a Graph Builder. Elija explícitamente variables, grupos y filtros. También se usan en QC. Revise las comprobaciones disponibles y la evidencia que falta. También sirven de entrada a Recruitment. Exija las intensidades y las identidades de los compartimentos previstos. También pueden ir a Invasion Assay. Exija mediciones de tinción en dos colores y controles de referencia adecuados. También se usan en Replication Assay. Exija identidades explícitas de parásitos y sus vacuolas. Timelapse puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el proyecto de series temporales con identidades estables de fotogramas y objetos. Después, Motility Assay recoge los objetos medidos. Combine los objetos medidos con las trayectorias correspondientes. También sirven de entrada a Feature Explorer. Defina la comparación de clases e inspeccione el filtrado. También pueden ir a Database Browser. Inspeccione las tablas reales antes de exportar. También se usan en AnnData Export. Exporte columnas compatibles de características y metadatos. También sirven de entrada a Dose–Response. Una la respuesta medida a dosis y controles explícitos. También pueden ir a Endodyogeny size proxy. Proporcione las raíces de los proyectos medidos y las tablas de objetos y png_list necesarias. Verifique la agregación por célula huésped y las unidades de área antes de interpretar intervalos de tamaño; la base de datos de recuentos de Mask por sí sola no basta. Si empieza en Import, este proporciona las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. Importe las imágenes correspondientes y las máscaras externas de enteros para construir las matrices combinadas del proyecto y abra Measure en ese proyecto. Omita este paso si ya se han importado o calculado mediciones compatibles. No añada mediciones duplicadas a una tabla importada existente. También puede llevar los objetos medidos a Host–Pathogen Analysis. Conserva las células no infectadas en Measure. Proporciona máscaras de vacuolas completas, intensidades de referencia del hospedador y, opcionalmente, asociaciones explícitas entre parásitos y vacuolas; la identidad del hospedador por sí sola no define una vacuola."
+          "speech_text": "Abra Measure desde Home. Measure lee conjuntamente las imágenes y los planos de etiquetas. Active el guardado de recortes si necesita archivos PNG; mantenga juntos la base de datos y el proyecto de origen para obtener recortes bajo demanda. Measure lee las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. A partir de ello, Measure produce los objetos medidos y los recortes de objetos. Encontrará los objetos medidos aquí: measurements/measurements punto de be; las tablas de objetos dependen de las máscaras activadas de cell, nucleus, pathogen y organelle. Según la ruta, las tablas que importan son cell, nucleus, pathogen, cytoplasm. Las columnas que conviene vigilar son plateID, rowID, columnID, fieldID. Encontrará los recortes de objetos aquí: data/**/*_png cuando save_png está activado; png_list indexa los recortes guardados. Los flujos compatibles pueden obtener recortes bajo demanda a partir de matrices combinadas y máscaras. Según la ruta, las tablas que importan son png_list. Las columnas que conviene vigilar son png_path, prcfo. Mask puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el mismo proyecto y los índices correctos de canales de imagen y máscara. Después, Annotate recoge los objetos medidos y los recortes de objetos. Guarde u obtenga bajo demanda recortes con identidades de objetos estables. También se usan en Classify. Elija la familia de imágenes o la tabular según la entrada. Si empieza en Make Masks, este proporciona las máscaras de etiquetas. Utilice Organize for Measure para combinar imágenes y sus máscaras en las matrices que Measure lee; las máscaras independientes no son matrices combinadas. Las imágenes y las máscaras de etiquetas de External Masks también sirven aquí. Repita la medición solo cuando sea necesario; External Masks ya puede realizarla. También puede llevar los objetos medidos y los recortes de objetos a Image ú map. Elija columnas de características e inspeccione recortes representativos. También sirven de entrada a Embeddings. Conserve la procedencia del codificador y de la política de canales. gueit éditor también lee los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También pueden ir a Graph Builder. Elija explícitamente variables, grupos y filtros. También se usan en QC. Revise las comprobaciones disponibles y la evidencia que falta. También sirven de entrada a Recruitment. Exija las intensidades y las identidades de los compartimentos previstos. También pueden ir a Invasion Assay. Exija mediciones de tinción en dos colores y controles de referencia adecuados. También se usan en Replication Assay. Exija identidades explícitas de parásitos y sus vacuolas. Timelapse puede proporcionar las imágenes y las máscaras de etiquetas. Utilice el proyecto de series temporales con identidades estables de fotogramas y objetos. Después, Motility Assay recoge los objetos medidos. Combine los objetos medidos con las trayectorias correspondientes. También sirven de entrada a Feature Explorer. Defina la comparación de clases e inspeccione el filtrado. También pueden ir a Database Browser. Inspeccione las tablas reales antes de exportar. También se usan en AnnData Export. Exporte columnas compatibles de características y metadatos. También sirven de entrada a Dose–Response. Una la respuesta medida a dosis y controles explícitos. También pueden ir a Endodyogeny size proxy. Proporcione las raíces de los proyectos medidos y las tablas de objetos y png_list necesarias. Verifique la agregación por célula huésped y las unidades de área antes de interpretar intervalos de tamaño; la base de datos de recuentos de Mask por sí sola no basta. Si empieza en Import, este proporciona las imágenes y las máscaras de etiquetas y las máscaras de etiquetas. Importe las imágenes correspondientes y las máscaras externas de enteros para construir las matrices combinadas del proyecto y abra Measure en ese proyecto. Omita este paso si ya se han importado o calculado mediciones compatibles. No añada mediciones duplicadas a una tabla importada existente. También puede llevar los objetos medidos a Host–Pathogen Analysis. Conserva las células no infectadas en Measure. Proporciona máscaras de vacuolas completas, intensidades de referencia del hospedador y, opcionalmente, asociaciones explícitas entre parásitos y vacuolas; la identidad del hospedador por sí sola no define una vacuola."
         },
         {
           "visual": "module_annotate",
@@ -15145,7 +15262,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Abra Make Masks desde Home. Prepare pares de imágenes y máscaras para entrenar la segmentación, o utilice FEATURES para asignar imágenes y máscaras e iniciar la medición. Guardar una máscara no entrena un clasificador. Make Masks lee las imágenes de microscopio y las máscaras de etiquetas. A partir de ello, Make Masks produce los campos de entrenamiento revisados y las máscaras de etiquetas. Encontrará los campos de entrenamiento revisados aquí: Archivos separados de imágenes y máscaras enteras con identidades de campos coincidentes; conserve las imágenes y etiquetas originales. Después, Cellpose Workbench recoge los campos de entrenamiento revisados. Utilice pares de imágenes y máscaras comprobados de forma independiente. También puede llevar las máscaras de etiquetas a Measure. Utilice FEATURES para emparejar imágenes y máscaras y escribir un proyecto medido; las máscaras independientes no son matrices combinadas. También se usan en Plaque Assay. Utilice máscaras de placas de lisis con sus imágenes de origen correspondientes; las máscaras de células no son automáticamente etiquetas de placas de lisis.",
+          "narration": "Abra Make Masks desde Home. Prepare pares de imágenes y máscaras para entrenar la segmentación, o utilice Organize for Measure para combinar imágenes y sus máscaras en matrices que Measure lee. Guardar una máscara no entrena un clasificador. Make Masks lee las imágenes de microscopio y las máscaras de etiquetas. A partir de ello, Make Masks produce los campos de entrenamiento revisados y las máscaras de etiquetas. Encontrará los campos de entrenamiento revisados aquí: Archivos separados de imágenes y máscaras enteras con identidades de campos coincidentes; conserve las imágenes y etiquetas originales. Después, Cellpose Workbench recoge los campos de entrenamiento revisados. Utilice pares de imágenes y máscaras comprobados de forma independiente. También puede llevar las máscaras de etiquetas a Measure. Utilice Organize for Measure para combinar imágenes y sus máscaras en las matrices que Measure lee; las máscaras independientes no son matrices combinadas. También se usan en Plaque Assay. Utilice máscaras de placas de lisis con sus imágenes de origen correspondientes; las máscaras de células no son automáticamente etiquetas de placas de lisis.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -15153,7 +15270,7 @@
             "19_train_cellpose",
             "24_plaque"
           ],
-          "speech_text": "Abra Make Masks desde Home. Prepare pares de imágenes y máscaras para entrenar la segmentación, o utilice FEATURES para asignar imágenes y máscaras e iniciar la medición. Guardar una máscara no entrena un clasificador. Make Masks lee las imágenes de microscopio y las máscaras de etiquetas. A partir de ello, Make Masks produce los campos de entrenamiento revisados y las máscaras de etiquetas. Encontrará los campos de entrenamiento revisados aquí: Archivos separados de imágenes y máscaras enteras con identidades de campos coincidentes; conserve las imágenes y etiquetas originales. Después, sel póus Workbench recoge los campos de entrenamiento revisados. Utilice pares de imágenes y máscaras comprobados de forma independiente. También puede llevar las máscaras de etiquetas a Measure. Utilice FEATURES para emparejar imágenes y máscaras y escribir un proyecto medido; las máscaras independientes no son matrices combinadas. También se usan en Plaque Assay. Utilice máscaras de placas de lisis con sus imágenes de origen correspondientes; las máscaras de células no son automáticamente etiquetas de placas de lisis."
+          "speech_text": "Abra Make Masks desde Home. Prepare pares de imágenes y máscaras para entrenar la segmentación, o utilice Organize for Measure para combinar imágenes y sus máscaras en matrices que Measure lee. Guardar una máscara no entrena un clasificador. Make Masks lee las imágenes de microscopio y las máscaras de etiquetas. A partir de ello, Make Masks produce los campos de entrenamiento revisados y las máscaras de etiquetas. Encontrará los campos de entrenamiento revisados aquí: Archivos separados de imágenes y máscaras enteras con identidades de campos coincidentes; conserve las imágenes y etiquetas originales. Después, sel póus Workbench recoge los campos de entrenamiento revisados. Utilice pares de imágenes y máscaras comprobados de forma independiente. También puede llevar las máscaras de etiquetas a Measure. Utilice Organize for Measure para combinar imágenes y sus máscaras en las matrices que Measure lee; las máscaras independientes no son matrices combinadas. También se usan en Plaque Assay. Utilice máscaras de placas de lisis con sus imágenes de origen correspondientes; las máscaras de células no son automáticamente etiquetas de placas de lisis."
         },
         {
           "visual": "module_plate_view",
@@ -15186,13 +15303,13 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "Abra Graph Builder desde Home. Elija variables, grupos y ajustes gráficos a partir de la tabla cargada; después exporte la figura con su contexto de análisis. Graph Builder lee los objetos medidos. A partir de ello, Graph Builder produce las figuras y las tablas exportadas. Measure puede proporcionar los objetos medidos. Elija explícitamente variables, grupos y filtros.",
+          "narration": "Abra Graph Builder desde Home. Cargue una tabla o use Merge tables para combinar mediciones compatibles. Para imágenes convertidas, use Merge original filenames para recuperar los nombres a partir de un mapa de conversión. Use Annotate conditions para asignar una columna con nombre mediante reglas regex de metadatos o filas arrastradas; guarde una tabla SQLite anotada o exporte un CSV con sus reglas. Elija variables, grupos y ajustes gráficos; después exporte la figura con su contexto de análisis. Graph Builder lee los objetos medidos. A partir de ello, Graph Builder produce las figuras y las tablas exportadas. Measure puede proporcionar los objetos medidos. Elija explícitamente variables, grupos y filtros.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "58_graph_builder"
           ],
-          "speech_text": "Abra Graph Builder desde Home. Elija variables, grupos y ajustes gráficos a partir de la tabla cargada; después exporte la figura con su contexto de análisis. Graph Builder lee los objetos medidos. A partir de ello, Graph Builder produce las figuras y las tablas exportadas. Measure puede proporcionar los objetos medidos. Elija explícitamente variables, grupos y filtros."
+          "speech_text": "Abra Graph Builder desde Home. Cargue una tabla o use Merge tables para combinar mediciones compatibles. Para imágenes convertidas, use Merge original filenames para recuperar los nombres a partir de un mapa de conversión. Use Annotate conditions para asignar una columna con nombre mediante reglas regex de metadatos o filas arrastradas; guarde una tabla SQLite anotada o exporte un CSV con sus reglas. Elija variables, grupos y ajustes gráficos; después exporte la figura con su contexto de análisis. Graph Builder lee los objetos medidos. A partir de ello, Graph Builder produce las figuras y las tablas exportadas. Measure puede proporcionar los objetos medidos. Elija explícitamente variables, grupos y filtros."
         },
         {
           "visual": "module_investigate_hit",
@@ -15205,7 +15322,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Abra Gate Editor desde Home. Defina compuertas por umbral o polígonos en columnas reales de características o coordenadas; después aplique la compuerta guardada a objetos compatibles. Use Annotate para escribir las gates mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase. Gate Editor lee los objetos medidos y la proyección y los grupos. A partir de ello, Gate Editor produce las compuertas reutilizables y las anotaciones de entrenamiento. Image UMAP puede proporcionar la proyección y los grupos. Proporcione las columnas de coordenadas o características correspondientes al definir una selección. Después, Annotate recoge las compuertas reutilizables. Aplique compuertas compatibles y revise después las etiquetas candidatas. Si empieza en Measure, este proporciona los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También puede llevar las anotaciones de entrenamiento a Classify. Escriba las selecciones de gates revisadas en una columna de anotación y seleccione esa misma columna y población de objetos en Classify. Mantenga los objetos de validación separados de las etiquetas de entrenamiento.",
+          "narration": "Abra Gate Editor desde Home. Cargue una tabla o use Merge tables para crear un conjunto de trabajo con claves validadas y agregación. Defina compuertas por umbral o polígonos en columnas reales de características o coordenadas; después aplique la compuerta guardada a objetos compatibles. Use Annotate para escribir las gates mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase. Gate Editor lee los objetos medidos y la proyección y los grupos. A partir de ello, Gate Editor produce las compuertas reutilizables y las anotaciones de entrenamiento. Image UMAP puede proporcionar la proyección y los grupos. Proporcione las columnas de coordenadas o características correspondientes al definir una selección. Después, Annotate recoge las compuertas reutilizables. Aplique compuertas compatibles y revise después las etiquetas candidatas. Si empieza en Measure, este proporciona los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También puede llevar las anotaciones de entrenamiento a Classify. Escriba las selecciones de gates revisadas en una columna de anotación y seleccione esa misma columna y población de objetos en Classify. Mantenga los objetos de validación separados de las etiquetas de entrenamiento.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -15214,7 +15331,7 @@
             "41_classify",
             "64_gate_editor"
           ],
-          "speech_text": "Abra gueit éditor desde Home. Defina compuertas por umbral o polígonos en columnas reales de características o coordenadas; después aplique la compuerta guardada a objetos compatibles. Use Annotate para escribir las gates mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase. gueit éditor lee los objetos medidos y la proyección y los grupos. A partir de ello, gueit éditor produce las compuertas reutilizables y las anotaciones de entrenamiento. Image ú map puede proporcionar la proyección y los grupos. Proporcione las columnas de coordenadas o características correspondientes al definir una selección. Después, Annotate recoge las compuertas reutilizables. Aplique compuertas compatibles y revise después las etiquetas candidatas. Si empieza en Measure, este proporciona los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También puede llevar las anotaciones de entrenamiento a Classify. Escriba las selecciones de gates revisadas en una columna de anotación y seleccione esa misma columna y población de objetos en Classify. Mantenga los objetos de validación separados de las etiquetas de entrenamiento."
+          "speech_text": "Abra gueit éditor desde Home. Cargue una tabla o use Merge tables para crear un conjunto de trabajo con claves validadas y agregación. Defina compuertas por umbral o polígonos en columnas reales de características o coordenadas; después aplique la compuerta guardada a objetos compatibles. Use Annotate para escribir las gates mostradas en una columna de anotación; revise los objetos seleccionados y elija etiquetas binarias o multiclase. gueit éditor lee los objetos medidos y la proyección y los grupos. A partir de ello, gueit éditor produce las compuertas reutilizables y las anotaciones de entrenamiento. Image ú map puede proporcionar la proyección y los grupos. Proporcione las columnas de coordenadas o características correspondientes al definir una selección. Después, Annotate recoge las compuertas reutilizables. Aplique compuertas compatibles y revise después las etiquetas candidatas. Si empieza en Measure, este proporciona los objetos medidos. Utilice las definiciones y unidades reales de las características medidas. También puede llevar las anotaciones de entrenamiento a Classify. Escriba las selecciones de gates revisadas en una columna de anotación y seleccione esa misma columna y población de objetos en Classify. Mantenga los objetos de validación separados de las etiquetas de entrenamiento."
         },
         {
           "visual": "module_feature_dict",
@@ -15546,24 +15663,6 @@
             "82_toxoplasma"
           ],
           "speech_text": "Abra Toxoplasma desde Home. Abra la guía de organismos desde Home, inspeccione el diagrama de compartimentos y seleccione Plaque Assay, Recruitment, Invasion Assay o Replication Assay. Los cuatro mosaicos Coming soon describen propuestas y no pueden ejecutarse. La guía en sí no analiza un proyecto ni produce una tabla de mediciones. Toxoplasma lee la referencia del organismo incluida. Busque la referencia del organismo incluida aquí: Descripciones de organismos instaladas y diagramas celulares de SwissBioPics; no se requiere un proyecto de entrada. A partir de ello, Toxoplasma produce la guía del organismo y la selección de ensayos. Encontrará la guía del organismo y la selección de ensayos aquí: Resaltado de compartimentos y navegación a ensayos disponibles solo en la GUI; no se producen mediciones ni archivos."
-        },
-        {
-          "visual": "module_plasmodium",
-          "narration": "Abra Plasmodium spp. desde Home. Abra la guía de organismos desde Home para leer los flujos de trabajo previstos de imágenes de malaria e inspeccionar el diagrama compartido de apicomplejos. Los ocho mosaicos de ensayos indican Coming soon; ninguno inicia un análisis ni produce resultados. Plasmodium spp. lee la referencia del organismo incluida. A partir de ello, Plasmodium spp. produce la guía del organismo y la selección de ensayos.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "83_plasmodium"
-          ],
-          "speech_text": "Abra Plasmodium spp. desde Home. Abra la guía de organismos desde Home para leer los flujos de trabajo previstos de imágenes de malaria e inspeccionar el diagrama compartido de apicomplejos. Los ocho mosaicos de ensayos indican Coming soon; ninguno inicia un análisis ni produce resultados. Plasmodium spp. lee la referencia del organismo incluida. A partir de ello, Plasmodium spp. produce la guía del organismo y la selección de ensayos."
-        },
-        {
-          "visual": "module_candida",
-          "narration": "Abra Candida spp. desde Home. Abra la guía de organismos desde Home para leer los flujos de trabajo previstos de imágenes de hongos e inspeccionar el diagrama genérico de levadura en gemación. Los ocho mosaicos de ensayos indican Coming soon; ninguno inicia un análisis ni produce resultados. Candida spp. lee la referencia del organismo incluida. A partir de ello, Candida spp. produce la guía del organismo y la selección de ensayos.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "84_candida"
-          ],
-          "speech_text": "Abra Candida spp. desde Home. Abra la guía de organismos desde Home para leer los flujos de trabajo previstos de imágenes de hongos e inspeccionar el diagrama genérico de levadura en gemación. Los ocho mosaicos de ensayos indican Coming soon; ninguno inicia un análisis ni produce resultados. Candida spp. lee la referencia del organismo incluida. A partir de ello, Candida spp. produce la guía del organismo y la selección de ensayos."
         },
         {
           "visual": "module_endodyogeny",
@@ -16139,192 +16238,6 @@
           "narration": "La guía no escribe archivos de análisis, así que el trabajo real se hace en otro lugar. Si tus imágenes aún necesitan segmentarse o medirse, vuelve antes a Home; cuando las imágenes o las tablas estén listas, las páginas de los ensayos toman el relevo.",
           "hold_after": 0.7,
           "speech_text": "La guía no escribe archivos de análisis, así que el trabajo real se hace en otro lugar. Si tus imágenes aún necesitan segmentarse o medirse, vuelve antes a Home; cuando las imágenes o las tablas estén listas, las páginas de los ensayos toman el relevo."
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "83_plasmodium",
-      "number": 83,
-      "slug": "plasmodium",
-      "title": "Plasmodium: explorar la guía del organismo",
-      "series": 3,
-      "app_key": "plasmodium",
-      "section": "Organisms and assays",
-      "description": "Recorre la guía de Plasmodium, explora el diagrama celular y encuentra los flujos generales de análisis de imágenes disponibles.",
-      "objectives": [
-        "Abrir la página desde Home y encontrar sus controles principales.",
-        "Identificar las entradas, acciones y salidas disponibles.",
-        "Elegir el siguiente análisis o la siguiente referencia disponible."
-      ],
-      "prerequisite": "Abre Home en spaCR. La guía no necesita archivos de entrada. Los mosaicos de ensayos específicos de Plasmodium muestran por ahora Coming soon.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Plasmodium tiene su propia guía. Desde Home, elige Plasmodium para recorrer el organismo, sus compartimentos celulares y los ensayos previstos para él.",
-          "hold_after": 0.7,
-          "speech_text": "Plasmodium tiene su propia guía. Desde Home, elige Plasmodium para recorrer el organismo, sus compartimentos celulares y los ensayos previstos para él."
-        },
-        {
-          "visual": "01_organism",
-          "narration": "El panel de información cuenta la historia del parásito por secciones, desde la fase sanguínea y la fase hepática hasta la motilidad. Arrastra el divisor para tener más espacio junto a los mosaicos de los módulos.",
-          "hold_after": 0.7,
-          "speech_text": "El panel de información cuenta la historia del parásito por secciones, desde la fase sanguínea y la fase hepática hasta la motilidad. Arrastra el divisor para tener más espacio junto a los mosaicos de los módulos."
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "En el diagrama de apicomplejo, pasa el cursor sobre un compartimento para leer qué es. Selecciona varios para resaltarlos juntos, y Clear components restablece la vista.",
-          "hold_after": 0.7,
-          "speech_text": "En el diagrama de apicomplejo, pasa el cursor sobre un compartimento para leer qué es. Selecciona varios para resaltarlos juntos, y Clear components restablece la vista."
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Los mosaicos de ensayos siguen marcados como Coming soon y todavía no se pueden abrir, pero sus descripciones muestran qué medirá cada uno. Para analizar hoy imágenes de Plasmodium, vuelve a Home y abre Mask o Measure con tus propias imágenes y unos ajustes de canal adecuados.",
-          "hold_after": 0.7,
-          "speech_text": "Los mosaicos de ensayos siguen marcados como Coming soon y todavía no se pueden abrir, pero sus descripciones muestran qué medirá cada uno. Para analizar hoy imágenes de Plasmodium, vuelve a Home y abre Mask o Measure con tus propias imágenes y unos ajustes de canal adecuados."
-        },
-        {
-          "visual": "04_references",
-          "narration": "Para profundizar, los enlaces a PlasmoDB y UniProt abren recursos sobre el organismo en tu navegador. Aquí nada necesita un conjunto de datos ni Run, y la guía no escribe archivos.",
-          "hold_after": 0.7,
-          "speech_text": "Para profundizar, los enlaces a PlasmoDB y UniProt abren recursos sobre el organismo en tu navegador. Aquí nada necesita un conjunto de datos ni Run, y la guía no escribe archivos."
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "84_candida",
-      "number": 84,
-      "slug": "candida",
-      "title": "Candida: explorar la guía del organismo",
-      "series": 3,
-      "app_key": "candida",
-      "section": "Organisms and assays",
-      "description": "Recorre la guía de Candida, explora el diagrama de la levadura y encuentra los flujos generales de análisis de imágenes disponibles.",
-      "objectives": [
-        "Abrir la página desde Home y encontrar sus controles principales.",
-        "Identificar las entradas, acciones y salidas disponibles.",
-        "Elegir el siguiente análisis o la siguiente referencia disponible."
-      ],
-      "prerequisite": "Abre Home en spaCR. La guía no necesita archivos de entrada. Los mosaicos de ensayos específicos de Candida muestran por ahora Coming soon.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Desde Home, elige Candida. Su guía trata la morfología, la filamentación, las biopelículas y cómo interactúa la levadura con las células huésped.",
-          "hold_after": 0.7,
-          "speech_text": "Desde Home, elige Candida. Su guía trata la morfología, la filamentación, las biopelículas y cómo interactúa la levadura con las células huésped."
-        },
-        {
-          "visual": "01_organism",
-          "narration": "Lee el panel de información con las descripciones de los módulos al lado, y arrastra el divisor para ensanchar el lado que estés leyendo.",
-          "hold_after": 0.7,
-          "speech_text": "Lee el panel de información con las descripciones de los módulos al lado, y arrastra el divisor para ensanchar el lado que estés leyendo."
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "El diagrama de la levadura en gemación funciona como en las demás guías. Pasa el cursor sobre un componente para leer su descripción, selecciona varios para mantenerlos resaltados, y Clear components restablece la selección.",
-          "hold_after": 0.7,
-          "speech_text": "El diagrama de la levadura en gemación funciona como en las demás guías. Pasa el cursor sobre un componente para leer su descripción, selecciona varios para mantenerlos resaltados, y Clear components restablece la selección."
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Los mosaicos de ensayos específicos de Candida están marcados por ahora como Coming soon, pero puedes analizar tus imágenes con las herramientas generales. Vuelve a Home, segméntalas en Mask y mídelas en Measure, eligiendo canales y máscaras adecuados para tu especie y tu experimento.",
-          "hold_after": 0.7,
-          "speech_text": "Los mosaicos de ensayos específicos de Candida están marcados por ahora como Coming soon, pero puedes analizar tus imágenes con las herramientas generales. Vuelve a Home, segméntalas en Mask y mídelas en Measure, eligiendo canales y máscaras adecuados para tu especie y tu experimento."
-        },
-        {
-          "visual": "04_references",
-          "narration": "Para detalles de genes y proteínas, los enlaces a Candida Genome Database y UniProt se abren en tu navegador. La guía no necesita archivos de entrada ni escribe salidas; cuando estés listo para procesar imágenes, sigue el tutorial de un módulo ejecutable.",
-          "hold_after": 0.7,
-          "speech_text": "Para detalles de genes y proteínas, los enlaces a Candida Genome Database y UniProt se abren en tu navegador. La guía no necesita archivos de entrada ni escribe salidas; cuando estés listo para procesar imágenes, sigue el tutorial de un módulo ejecutable."
         }
       ],
       "narration_voices": {

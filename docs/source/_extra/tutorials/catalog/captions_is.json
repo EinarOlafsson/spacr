@@ -582,13 +582,11 @@
           ]
         },
         {
-          "visual": "04_assays  (3)",
-          "narration": "Opnaðu Assays og veldu lífveruna þína: Toxoplasma, Plasmodium eða Candida. Veldu svo greiningu í valmynd þeirrar lífveru. Opnaðu til dæmis Toxoplasma fyrir greiningu á skellum eða mælingar á hýsli og sýkli. Fylgdu kennslu valinnar greiningar til að undirbúa myndir hennar, grímur og mæliinntak.",
+          "visual": "04_assays  (1)",
+          "narration": "Opnaðu Assays fyrir verkferla sem eru bundnir lífveru. Toxoplasma opnar prófavalmynd sína, til dæmis skelluagreiningu eða mælingar á hýsli og sýkli. Fylgdu kennsluefni valda prófsins til að undirbúa myndir þess, grímur og mæligögn.",
           "hold_after": 0.7,
           "focus_modules": [
-            "toxoplasma",
-            "plasmodium",
-            "candida"
+            "toxoplasma"
           ],
           "related_lessons": [
             "24_plaque",
@@ -1152,6 +1150,17 @@
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "narration": "Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni.",
+          "focus": [
+            1620,
+            860,
+            580,
+            360
           ],
           "hold_after": 0.7
         }
@@ -2137,26 +2146,31 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Opnaðu pör af myndum og grímum, skoðaðu og breyttu hlutum, vistaðu mælingar og búðu til pöruð þjálfunarúrklipp.",
+      "description": "Opnaðu pör af myndum og grímum, leiðréttu hluti, skráðu úrskurði, skipulegðu myndir og grímur fyrir Measure og búðu til pöruð þjálfunarúrklipp.",
       "objectives": [
         "Opna myndir með samsvarandi tilvikagrímum og skoða hluti í stækkunarglerinu.",
-        "Mæla pöruð sjónsvið og vista gagnagrunn með eiginleikum hluta.",
-        "Leiðrétta merkingar með Undo, teikningu, skiptingu og stærðarsíum.",
-        "Vista yfirfarnar grímur og búa til úrklipp af myndum og grímum til þjálfunar."
+        "Leiðrétta merkingar með Undo, teikningu, skiptingu og hlutasíum.",
+        "Vista yfirfarnar grímur, skrá Keep- eða Discard-úrskurði og búa til úrklipp af myndum og grímum til þjálfunar.",
+        "Skipuleggja myndir og grímur fyrir Measure og deila yfirförnum pörum með Upload data."
       ],
       "prerequisite": "Útbúðu möppu með tvívíðum myndum og samsvarandi TIFF-skrám með tilvikamerkingum í undirmöppu sem heitir masks. Hver gríma notar sama nafnstofn og myndskráin. Vinndu í afriti þegar þú æfir breytingar og nýja skurði. Dæmið notar ER-myndir og frumugrímur úr niðurhalanlegu smásjárverkefni Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Frá Home opnarðu Make Masks undir Tools. Veldu þennan ritil til að skoða og leiðrétta grímur einstakra mynda. Opnaðu möppuna með pöruðum myndum og merkingum áður en þú velur breytingartól.",
+          "narration": "Frá Home opnarðu Make Masks undir Tools. Hnapparnir neðst til vinstri sækja myndir: Open folder, Organize for Measure og Load test data. Hægra megin ráða Discard, Keep, Skip og Upload data því hvað verður um hvert sjónsvið þegar búið er að breyta því.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ]
         },
         {
+          "visual": "01b_test_data_menu",
+          "narration": "Load test data opnar tíu sýnimyndir af Toxoplasma. Örin á hnappnum býður líka upp á sýnishorn úr hverju þjálfunargagnasafni sem útgefið líkan lærði af, ásamt grímum, svo þú sjáir hvernig góð þjálfunarpör líta út.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_folder_picker",
-          "narration": "Veldu myndamöppuna. Í þessu dæmi notarðu ER-styrkleikamyndirnar og samsvarandi frumugrímur úr Measure-sýninu. Hafðu stærð myndar og grímu þá sömu og skráarheitin pöruð.",
+          "narration": "Smelltu á Open folder og veldu myndamöppuna. Í þessu dæmi notarðu ER-styrkleikamyndirnar og samsvarandi frumugrímur úr Measure-sýninu. Hafðu stærð myndar og grímu þá sömu og skráarheitin pöruð.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -2169,74 +2183,18 @@
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Opnaðu Magnifier settings. Veldu Otsu og Region under the mouse til að forskoða hluti sem fást með þröskuldi í kringum bendilinn. Veldu líkanatengdan hátt þegar þröskuldurinn aðgreinir hlutina ekki vel.",
+          "narration": "Opnaðu stillingar Live magnifier og hafðu Segment áfram á Region under the mouse. Aðferðin kemur úr flokknum Detection method, hér Otsu, sem keyrir á örgjörvanum. Veldu líkanatengda aðferð þegar þröskuldurinn aðgreinir hlutina ekki vel.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Kveiktu á Magnifier og haltu bendlinum yfir hlut til að stækka forskoðunina. Farðu yfir nokkra hluti til að skoða tillögur að útlínum. Smelltu til að bæta afmörkuðu hlutunum við þegar þeir líta rétt út, eða slökktu á Magnifier til að halda áfram að breyta.",
+          "narration": "Kveiktu á Magnifier og haltu bendlinum yfir hlut til að forskoða útlínur hans. Álesturinn efst til vinstri sýnir staðsetningu og styrk pixilsins, og merkingu og flatarmál hlutarins undir bendlinum. Smelltu til að bæta afmörkuðu hlutunum við þegar þeir líta rétt út, eða slökktu á Magnifier til að halda áfram að breyta.",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
-        },
-        {
-          "visual": "readouts_06_features_real_files",
-          "narration": "Smelltu á Features til að mæla pör af myndum og grímum. Bættu við röð fyrir hvert sjónsvið og veldu styrkleikamyndirnar og samsvarandi hlutagrímur. Athugaðu handvirka úthlutun ef sjálfvirk pörun skráarheita skilur skrár eftir án úthlutunar.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "Í hverri röð velurðu ER-styrkleikamyndina í Channel 1 og samsvarandi merkingamynd í Cell mask. Endurtaktu fyrir annað sjónsviðið. Notaðu upprunalegu styrkleikamyndirnar til að mæla flúrljómun.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_09_features_assigned_table",
-          "narration": "Farðu yfir báðar raðirnar og veldu svo mælistillingarnar. Þetta dæmi notar eitt vinnsluferli, minnstu frumustærð upp á einn díl og engin vistuð PNG-úrklipp. Hækkaðu stærðarmörkin til að útiloka litla hluti þegar það hentar tilrauninni. Smelltu á Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_12_features_measurements_saved",
-          "narration": "Þegar mælingu lýkur opnarðu úttaksmöppuna. Mappan measurements inniheldur measurements.db með eiginleikum hlutanna úr báðum sjónsviðum. Geymdu gagnagrunninn með upprunamyndum hans, grímum og stillingum og lokaðu svo Features til að fara aftur í breytingar.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
           ]
         },
         {
@@ -2277,17 +2235,22 @@
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Stilltu minnsta og stærsta flatarmál hluta og ýttu svo á Filter til að fjarlægja merkingar utan þeirra marka. Veldu mörk sem henta hlutunum þínum og skoðaðu hvað var fjarlægt. Sían breytir grímunni, svo notaðu Undo ef mörkin fjarlægja gagnlega hluti.",
+          "narration": "Til að fjarlægja hluti eftir stærð eða lögun velurðu eiginleika í flokknum Filter og smellir á Add a filter. Hvaða regionprop sem scikit-image mælir getur orðið sía, til dæmis flatarmál, þéttleiki eða meðalstyrkur. Hér felur flatarmálslína með lágmarki minni frumurnar; ýttu á Filter til að beita listanum aftur. Skráin fyrir neðan nefnir hvern hlut sem síurnar földu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08d_filter_removed",
+          "narration": "Fjarlægðu línu til að fá aftur hlutina sem hún faldi. Síurnar virka á meðan þú breytir þeim og aftur í hvert sinn sem sjónsvið opnast, svo fjarlægðu línurnar sem þú vilt ekki lengur áður en þú heldur áfram. Undo afturkallar líka síuskref.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "Þegar þú hefur farið yfir breytingarnar smellirðu á Save mask. Ef þörf krefur seturðu stærðarmörkin aftur á núll til að gera þau óvirk áður en þú ferð í annað sjónsvið. Varðveittu upprunamyndirnar og geymdu vistuðu yfirferðarskrána með breyttu grímunum.",
+          "narration": "Þegar þú hefur farið yfir breytingarnar smellirðu á Save mask á tækjastikunni. Geymdu upprunamyndirnar með vistuðu grímunum og yfirferðarskrá þeirra.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "Hausinn geymir restina af grímutólunum. Þegar þú velur vigtir finnur Model Zoo þær og Model Compare setur tvö grímusett hlið við hlið. Þegar fleiri dæmi þarf að laga fara Curate og Open in napari með þig aftur í breytingar.",
+          "narration": "Táknin efst til hægri opna restina af grímutólunum. Cellpose Workbench þjálfar líkan á yfirförnum pörum og beitir því á möppu, og næsta tákn keyrir greiningu á hverju sjónsviði í opnu möppunni.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2296,8 +2259,8 @@
           ]
         },
         {
-          "visual": "09_fold_napari_bridge",
-          "narration": "Hausinn opnar líka Model Compare, Model Zoo, Curate og Open in napari. Notaðu Model Compare til að skoða grímur hlið við hlið, Model Zoo til að velja vigtir og yfirferðartólin til að fara yfir eða breyta fleiri dæmum.",
+          "visual": "09_fold_model_zoo",
+          "narration": "Model Compare setur tvö grímusett hlið við hlið og Model Zoo finnur og prófar vigtir. Þegar fleiri dæmi þarf að laga fara Curate og Napari Bridge með þig aftur í breytingar.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2314,7 +2277,7 @@
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Smelltu á Next til að opna nýja úrklippið. Upprunalega myndin og gríman eru geymdar í recropped_originals svo hægt sé að endurheimta þær. Farðu yfir úrklippið og merkingar þess áður en þú bætir því við þjálfunargagnasafnið.",
+          "narration": "Smelltu á Next image á tækjastikunni til að opna nýja úrklippið. Upprunalega myndin og gríman eru geymdar í recropped_originals svo hægt sé að endurheimta þær. Farðu yfir úrklippið og merkingar þess áður en þú bætir því við þjálfunargagnasafnið.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -2347,12 +2310,12 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "Til að greina hluti í núverandi sjónsviði velurðu Cellpose-líkanið og ferð yfir stillingar þess. Þetta dæmi notar cpsam, kveikt á stöðlun, þröskuld frumulíkinda 0 og flæðisþröskuld 0,4. Athugaðu hvort greiningarnar komi í stað merkinga sem fyrir eru eða bætist við þær.",
+          "narration": "Til að greina hluti með líkani velurðu Cellpose í flokknum Detection method og ferð yfir stillingar þess. Þetta dæmi notar cpsam, kveikt á stöðlun, þröskuld frumulíkinda 0 og flæðisþröskuld 0,4. Athugaðu hvort greiningarnar komi í stað merkinga sem fyrir eru eða bætist við þær.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Smelltu á Object detection og berðu útlínurnar sem fást saman við myndina. Hér velur líkanið hálfa hlutinn efst til vinstri í stað frumunnar í miðjunni. Afturkallaðu þau skipti og stilltu líkanið áður en þú reynir aftur.",
+          "narration": "Smelltu á Object detection. Líkanið keyrir í bakgrunni og niðurstaðan kemur í stað merkinganna þegar hún berst. Berðu nýju útlínurnar saman við myndina og afturkallaðu niðurstöðu sem fylgir ekki mörkum hlutanna áður en þú lagar stillingarnar.",
           "hold_after": 0.7
         },
         {
@@ -2367,12 +2330,73 @@
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo endurheimtir merkingarnar frá því fyrir greininguna. Haltu grímunni sem fylgir myndinni best og vistaðu hana. Haltu áfram í gegnum sjónsviðin sem eftir eru og skoðaðu hverja niðurstöðu áður en þú tekur hana með í þjálfun.",
+          "narration": "Undo endurheimtir merkingarnar frá því fyrir greininguna. Haltu grímunni sem fylgir myndinni best og skoðaðu niðurstöðu hvers sjónsviðs áður en þú tekur hana með í þjálfun.",
           "hold_after": 0.7
         },
         {
-          "visual": "19_detection_undone",
-          "narration": "Hafðu yfirfarnar myndir og grímur með sama nafnstofni saman. Notaðu Train Cellpose til að læra af þessum pörum, eða farðu aftur í Features eða Measure til að draga út mælingar. Tengdu kennslurnar sýna hvert næsta skref.",
+          "visual": "20_curate_keep",
+          "narration": "Á meðan þú vinnur þig í gegnum möppu skrá Keep og Discard úrskurð fyrir hvert sjónsvið og fara í það næsta. Engu er eytt: úrskurðurinn fer í keep_discard.csv í undirmöppunni csv, ásamt myndinni, grímu hennar og núverandi fjölda hluta.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_curate_discard",
+          "narration": "Discard merkir sjónsvið sem þú vilt ekki hafa í þjálfunarsetti. Skip tilheyrir yfirferðarlotum sem eru ræstar úr skipanalínunni með spacr-make-masks: það merkir sjónsvið sem ekki er hægt að fara yfir, svo næsta lota bjóði það ekki aftur.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "22_upload_data",
+          "narration": "Þegar yfirfarin pör þín gætu hjálpað öðrum smellirðu á Upload data. Veldu sjónsviðið á skjánum, allar yfirfarnar myndir með vistuðu grímunni sinni, eða myndamöppu og grímumöppu, og gefðu svo gagnasafninu nafn. Tengillinn sýnir Hugging Face-gagnasafnið sem það bætist í. Ekkert er sent fyrr en þú ýtir á Upload og samþykkir að deila.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "narration": "Smásjár vista myndir oft í hreiðruðum möppum. Þegar þú opnar möppu þar sem myndirnar liggja í undirmöppum býðst Make Masks til að afrita þær í eina nýja möppu, hverja nefnda eftir möppunum sem hún var í. Ekki er hreyft við frumritunum og No opnar möppuna eins og hún er.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "narration": "Afritin opnast í ritlinum og nafnabreytingaskrá heldur utan um hvaðan hvert þeirra kom. Sjónsvið án grímu byrjar með tóma grímu, tilbúna fyrir teikningu eða greiningu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "25_organize_open",
+          "narration": "Til að mæla sjónsviðin smellirðu á Organize for Measure. Measure les hvert sjónsvið sem eitt sameinað fylki sem geymir allar rásir og grímur þeirra. Tilgreindu upprunamöppu hér eða dragðu skrár og möppur í töfluna fyrir neðan. Ef kveikt er á Consolidate subfolders og afritun mistekst segir glugginn hve margar skrár mistókust og hvar færsluskráin er, og stöðvast án þess að breyta upprunanum eða töflunni.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "26_organize_table",
+          "narration": "Dragðu hverja rásarmöppu í töfluna: hver mappa verður dálkur og hver lína er eitt sjónsvið. Bættu við grímudálki, stilltu hlutverk hans, hér frumugrímur rásar 2, og dragðu grímumöppuna á hann. Skrár eru paraðar milli dálka eftir nafni.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "narration": "Detect sets parar myndirnar eftir nafni, röð og stærð og sýnir svo þrjú dæmasett. Staðfestu þau aðeins þegar hvert sett á raunverulega saman; annars skaltu fyrst laga regex-segðina eða dálkana.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "28_organize_images",
+          "narration": "Stilltu Show á Image + text og Thumbnail quality á High til að skoða línurnar með eigin augum; gæðin breyta aðeins birtingunni, aldrei grímunum eða mælingunum. Reitur sem ekkert paraðist við helst tómur og er merktur, og Apply bíður þar til hver lína er fullgerð.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "29_move_and_merge",
+          "narration": "Smelltu á Apply. Samantektin segir hvað gerist: myndir og grímur eru færðar í rásarmöppur sem nefndar eru að hætti Yokogawa og sameinaðar í merged. Skrár eru færðar, ekki afritaðar, og hver tilfærsla er skráð í færsluskrá.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "narration": "Þegar flokkuninni lýkur opnar Make Masks fyrstu rásarmöppuna og skipanaglugginn greinir frá því að niðurstaðan sé efst í nýlegum upprunum Measure. Opnaðu Measure og notaðu hana sem uppruna til að draga út eiginleika hluta.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "03_real_labels",
+          "narration": "Hafðu yfirfarnar myndir og grímur með sama nafnstofni saman. Notaðu Cellpose Workbench til að þjálfa á þessum pörum, eða Organize for Measure og svo Measure til að draga út mælingar. Tengdu kennslurnar sýna hvert næsta skref.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10021,11 +10045,13 @@
       "app_key": "graph_builder",
       "section": "Explore",
       "title": "Graph Builder: teiknaðu mælingar og síaðu hluti",
-      "description": "Hlaðu inn mælingatöflu, úthlutaðu ásum grafsins, berðu saman hópa og síaðu birtu hlutina.",
+      "description": "Hladdu inn mælitöflu, berðu saman hópa, síaðu hluti og búðu til dæmadálka fyrir arfgerð, endurtekningu og sameinað skilyrði.",
       "objectives": [
         "Hlaða inn dæmatöflu með mælingum.",
         "Búa til stuðlarit, dreifirit og hópaspjöld.",
-        "Sía hluti og velja næstu sýn."
+        "Sía hluti og velja næstu sýn.",
+        "Úthluta merkjum eftir nákvæmum gildum í aðskildum úttaksdálkum og sameina þau án þess að breyta upprunamælingum.",
+        "Draga texta út í dálka, vista og hlaða merkingarskema og sameina töflur."
       ],
       "prerequisite": "Sæktu og dragðu út Graph_Builder_real_measurements.zip. Það inniheldur measurements.db. Til að skoða myndúrklipp síðar skaltu líka hafa samsvarandi Annotate-verkefni og myndir þess tiltækar.",
       "example_files": [
@@ -10039,7 +10065,7 @@
         },
         {
           "visual": "03_choose_database",
-          "narration": "Smelltu á Load table og opnaðu measurements.db úr útdregna safninu. Veldu töfluna cell. Dæmið inniheldur 2.341 mælda frumu.",
+          "narration": "Smelltu á Load table og opnaðu measurements.db úr útdregna safninu. Veldu töfluna cell. Dæmið inniheldur 2.341 mælda frumu. Merge tables, við hlið töfluvalsins, sameinar nokkrar töflur í eina; við notum það í lokin.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10077,6 +10103,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "10b_channels_cleared",
+          "narration": "Clear all channels heldur gerð grafsins en fjarlægir alla dálka úr því, og strigi segir þá hvað vantar: dragðu dálk á X eða Y til að teikna graf aftur. Slepptu sömu dálkunum aftur til að halda áfram.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "11_actual_brush_state",
           "narration": "Fjarlægðu hlið með litla krossinum hennar til að fara aftur í eitt dreifirit. Dragðu rétthyrning utan um hluti til að velja svæði. Ef Open selection in Annotate er ekki tiltækt opnarðu Annotate sérstaklega með samsvarandi verkefni og skoðar hlutina þar.",
           "hold_after": 0.7
@@ -10087,20 +10118,67 @@
           "hold_after": 0.7
         },
         {
+          "visual": "13_genotype_exact_values",
+          "narration": "Smelltu á Annotate conditions. Nefndu fyrsta úttakið genotype og notaðu Assign values. Veldu Exact values og merktu columnID-gildin c1, c2 og c3 sem WildType. Bættu við öðrum kassa sem heitir mutant fyrir c7, c4, c5 og c6. Þetta eru dæmamerki, ekki staðfestar arfgerðir. Niðurhalaða taflan inniheldur aðeins c1 og c2, svo allar frumur passa við WildType og engin við mutant. Exact values ber saman heil gildi: c1 passar ekki við c10.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "narration": "Bættu við úttaksdálki sem heitir replicate. Paraðu rowID-gildin r1, r4, r5 og r6 í kassa sem heitir replicate 1. Bættu við öðrum kassa með sama nafni fyrir r7, r9 og r10. Kassar með sama merki mynda sammengi; ólík merki sem stangast á í einu úttaki þarf að leysa fyrir Apply conditions. Dæmið inniheldur r5 og r12, svo r5 passar og r12 helst tómt. Þessi æfingamerki staðfesta ekki líffræðilega endurtekningu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "narration": "Bættu við þriðja úttaki sem heitir condition og veldu Compose column. Veldu genotype undir Available columns og smelltu á Add column token. Sláðu inn undirstrik og smelltu á Add text token. Veldu replicate og smelltu á Add column token. Röðuðu táknin eru nú genotype, undirstrik, replicate. Þú getur dregið táknin eða notað Move token up og Move token down til að breyta röðinni. Forskoðaðu öll þrjú úttökin. Frumur sem passa í r5 verða WildType undirstrik replicate 1. Vanti hluta helst samsetningin tóm, svo r12 gefur ekki merki með None eða nan.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15b_extract_text",
+          "narration": "Einnig má draga úttak út úr texta. Bættu við fjórða úttaki sem heitir row_number og veldu Extract text. Veldu rowID sem upprunadálk og sláðu inn reglulega segð með nefndum hópi, hér r á undan hópi sem heitir row_number og grípur tölustafina. Smelltu á Create columns from named groups og svo á Preview. Línur sem passa ekki haldast tómar. Dæmataflan hefur engin upprunaleg skráarheiti, svo við drögum út úr fyrirliggjandi auðkennisdálki.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15c_save_schema",
+          "narration": "Smelltu á Save schema og veldu JSON-skrá. Skema geymir reglurnar, ekki gildin: úttökin, kassa þeirra, samsetningar og útdráttarmynstur. Handvirkar línuúthlutanir tilheyra þessari töflu og eru skildar eftir, og stöðulínan segir hve margar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15d_load_schema",
+          "narration": "Load schema les slíka skrá inn á sömu töflu eða aðra. Hún er borin saman við dálka töflunnar og opnast sem forskoðun allra úttaka; ekkert er notað fyrr en þú smellir á Apply conditions.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "narration": "Veldu genotype undir Generated columns til að athuga hvað skemað endurheimti: kassarnir WildType og mutant koma aftur með nákvæmum gildum sínum og hver kassi sýnir hve margar línur passa. Athugaðu hvert úttak á þennan hátt áður en þú smellir á Apply conditions.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_annotations_applied",
+          "narration": "Smelltu á Apply conditions til að bæta genotype, replicate, condition og row_number við vinnutöfluna. Upprunalegu mæligildadálkarnir og upprunagagnagrunnurinn breytast ekki. Sami merkingarritill virkar líka með sameinaðri vinnutöflu. Notaðu tilraunaskipulagið til að velja merkingarbær merki áður en þú teiknar eftir nýju dálkunum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16b_save_annotated",
+          "narration": "Save chart geymir sýnina og merkingaruppskriftina til að hlaða aftur. Export table inniheldur dálkana sem voru búnir til. Fyrir SQLite-uppruna biður Save annotated table um nýtt töfluheiti, stingur upp á cell_annotated og skrifar aldrei yfir fyrirliggjandi töflu. Þetta eru aðskildar vistunaraðgerðir; Apply conditions eitt sér skrifar ekki í upprunagagnagrunninn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_merge_tables",
+          "narration": "Til að sameina töflur skaltu smella á Merge tables við hlið töfluvalsins. Hakaðu við cell, nucleus og pathogen, haltu cell sem úttakstöflu svo ein lína sé á hverja frumu, og gefðu niðurstöðunni nafn. Smelltu á Validate and preview, lestu línufjölda og tengilykla hverrar töflu og smelltu svo á Create merged table.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_merged_table",
+          "narration": "Sameinaða taflan er valin í töfluvalinu og dálka hennar má teikna eins og hverja aðra. Upprunatöflurnar í gagnagrunninum breytast ekki; sameiningin er vistuð sem endurtakanleg skilgreining við hlið gagnagrunnsins.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_fold_trellis",
           "narration": "Notaðu flýtileiðirnar í hausnum til að opna Plate Viewer fyrir hitakort brunna eða Small Multiples fyrir endurtekin gröf. Haltu upprunagagnagrunninum, völdum dálkum og síum svo þú getir endurgert sýnina.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
-        },
-        {
-          "visual": "12_selection_cleared",
-          "narration": "Núverandi skjár sýnir gröf án útflutningshnapps. Notaðu Graph Builder-forritaskilin fyrir skriftuð gröf, eða Database Browser til að flytja út töflu fyrir annað graftól.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
           ]
         }
       ],
@@ -11098,7 +11176,7 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Smelltu á Load table, opnaðu vinnuafritið þitt af measurements.db og veldu cell. Dæmið inniheldur 2.341 hlut. Geymdu afrit því að Export gates skrifar aðild í þennan gagnagrunn.",
+          "narration": "Smelltu á Load table, opnaðu vinnuafritið þitt af measurements.db og veldu cell. Dæmið inniheldur 2.341 hlut. Geymdu afrit því að Export gates skrifar aðild í þennan gagnagrunn. Merge tables við hlið valsins sameinar frumutöfluna og kjarna- eða sýklatöflur hennar í eina nýja töflu, eins og í Graph Builder; upprunatöflurnar haldast óbreyttar.",
           "hold_after": 0.7
         },
         {
@@ -11172,6 +11250,21 @@
         {
           "visual": "17c_actual_volume_gate",
           "narration": "Notaðu From view til að búa til nefndan kassa sem afmarkast af mælingunum þremur sem birtar eru. Athugaðu fjölda í þýði hans og vistaðu nýju áætlunina sérstaklega.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17e_free_orbit",
+          "narration": "Veldu Free undir spin til að snúa rúmmálinu frjálst: dragðu til hliðar og upp og niður í einu og sýnin helst nákvæmlega þar sem þú sleppir. Snúðu henni þar til þýðið sem þú vilt sker sig frá hinum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17f_live_highlight",
+          "narration": "Veldu Polygon through view og skiptu drag yfir í Draw. Smelltu á hornin í kringum þýðið á skjánum; stöðulínan telur hornpunktana og útlínan er dregin í gegnum allt rúmmálið í horninu sem þú sérð.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17h_rename_gate",
+          "narration": "Smelltu aftur á fyrsta hornið til að loka marghyrningnum og nefna hliðið; hér inniheldur það 1.479 hluti. Tvísmelltu á hlið í hliðatöflunni til að endurnefna það; undirhlið þess fylgja nýja nafninu.",
           "hold_after": 0.7
         },
         {
@@ -13789,7 +13882,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Opnaðu Measure frá Home. Measure les myndir og merkingalög saman. Kveiktu á vistun úrklippa ef þú þarft PNG-skrár; haltu gagnagrunni og upprunaverkefni saman fyrir streymd úrklipp. Measure les myndirnar og merkingagrímurnar ásamt merkingagrímurnar. Út frá þeim býr Measure til mældu hlutina og úrklipp hlutanna. mældu hlutina er að finna hér: measurements/measurements.db; hlutatöflur ráðast af virkum grímum fyrir frumur, kjarna, sýkla og frumulíffæri. Eftir leiðinni eru töflurnar sem skipta máli cell, nucleus, pathogen, cytoplasm. Dálkarnir sem þarf að fylgjast með eru plateID, rowID, columnID, fieldID. úrklipp hlutanna er að finna hér: data/**/*_png þegar save_png er virkt; png_list skráir vistuð úrklipp. Studd verkferli geta í staðinn streymt úrklippum úr sameinuðum fylkjum og grímum. Eftir leiðinni eru töflurnar sem skipta máli png_list. Dálkarnir sem þarf að fylgjast með eru png_path, prcfo. Mask getur útvegað myndirnar og merkingagrímurnar. Notaðu sama verkefni og rétta rásavísa myndar/grímu. Næst tekur Annotate við mældu hlutina og úrklipp hlutanna. Vistaðu eða streymdu úrklippum með stöðugum auðkennum hluta. Classify notar þau líka. Veldu mynda- eða töflufjölskylduna eftir inntakinu þínu. Ef þú byrjar í Make Masks útvegar það merkingagrímurnar. Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki. Myndirnar og merkingagrímurnar frá External Masks virka líka hér. Mældu aftur aðeins þegar þörf krefur; External Masks getur þegar framkvæmt mælingu. Þú getur líka farið með mældu hlutina og úrklipp hlutanna áfram til Image UMAP. Veldu eiginleikadálka og skoðaðu dæmigerð úrklipp. Þau fara líka til Embeddings. Haltu upplýsingum um uppruna kóðara og rásastefnu. Gate Editor les líka mældu hlutina. Notaðu raunverulegar skilgreiningar og einingar mældra eiginleika. Þau geta líka farið til Graph Builder. Veldu breytur, hópa og síur með skýrum hætti. QC notar þau líka. Farðu yfir tiltækar athuganir og gögn sem vantar. Þau fara líka til Recruitment. Krefjast ætlaðs styrks hólfa og auðkenna. Þau geta líka farið til Invasion Assay. Krefjast tvílitra litunarmælinga og viðeigandi grunnlínuviðmiða. Replication Assay notar þau líka. Krefjast skýrra auðkenna frá sníkjudýri til bólu. Timelapse getur útvegað myndirnar og merkingagrímurnar. Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta. Næst tekur Motility Assay við mældu hlutina. Tengdu mælda hluti við samsvarandi ferla. Þau fara líka til Feature Explorer. Skilgreindu flokkasamanburðinn og skoðaðu síunina. Þau geta líka farið til Database Browser. Skoðaðu raunverulegu töflurnar áður en þú flytur út. AnnData Export notar þau líka. Fluttu út samhæfa eiginleika- og lýsigagnadálka. Þau fara líka til Dose–Response. Tengdu mælda svarið við skýra skammta og viðmið. Þau geta líka farið til Endodyogeny size proxy. Gefðu upp rætur mældu verkefnanna og tilskildar hluta-/png_list-töflur. Staðfestu samantekt eftir hýsilfrumum og flatarmálseiningar áður en stærðarbil eru túlkuð; talningagagnagrunnur Mask einn og sér dugar ekki. Ef þú byrjar í Import útvegar það myndirnar og merkingagrímurnar ásamt merkingagrímurnar. Fluttu inn samsvarandi myndir og ytri heiltölugrímur til að búa til sameinuð verkefnisfylki og opnaðu svo Measure á því verkefni. Slepptu þessu skrefi ef samhæfar mælingar hafa þegar verið fluttar inn eða reiknaðar. Bættu ekki tvíteknum mælingum við fyrirliggjandi innflutta töflu. Þú getur líka farið með mældu hlutina áfram til Host–Pathogen Analysis. Haltu ósýktum frumum í Measure. Útvegaðu grímur heilla bóla, viðmiðunarstyrk hýsils og valfrjáls skýr tengsl sníkjudýrs og bólu; auðkenni hýsils eitt og sér skilgreinir ekki bólu.",
+          "narration": "Opnaðu Measure frá Home. Measure les myndir og merkingalög saman. Kveiktu á vistun úrklippa ef þú þarft PNG-skrár; haltu gagnagrunni og upprunaverkefni saman fyrir streymd úrklipp. Measure les myndirnar og merkingagrímurnar ásamt merkingagrímurnar. Út frá þeim býr Measure til mældu hlutina og úrklipp hlutanna. mældu hlutina er að finna hér: measurements/measurements.db; hlutatöflur ráðast af virkum grímum fyrir frumur, kjarna, sýkla og frumulíffæri. Eftir leiðinni eru töflurnar sem skipta máli cell, nucleus, pathogen, cytoplasm. Dálkarnir sem þarf að fylgjast með eru plateID, rowID, columnID, fieldID. úrklipp hlutanna er að finna hér: data/**/*_png þegar save_png er virkt; png_list skráir vistuð úrklipp. Studd verkferli geta í staðinn streymt úrklippum úr sameinuðum fylkjum og grímum. Eftir leiðinni eru töflurnar sem skipta máli png_list. Dálkarnir sem þarf að fylgjast með eru png_path, prcfo. Mask getur útvegað myndirnar og merkingagrímurnar. Notaðu sama verkefni og rétta rásavísa myndar/grímu. Næst tekur Annotate við mældu hlutina og úrklipp hlutanna. Vistaðu eða streymdu úrklippum með stöðugum auðkennum hluta. Classify notar þau líka. Veldu mynda- eða töflufjölskylduna eftir inntakinu þínu. Ef þú byrjar í Make Masks útvegar það merkingagrímurnar. Notaðu Organize for Measure til að sameina myndir og grímur þeirra í fylkin sem Measure les; stakar grímur eru ekki sameinuð fylki. Myndirnar og merkingagrímurnar frá External Masks virka líka hér. Mældu aftur aðeins þegar þörf krefur; External Masks getur þegar framkvæmt mælingu. Þú getur líka farið með mældu hlutina og úrklipp hlutanna áfram til Image UMAP. Veldu eiginleikadálka og skoðaðu dæmigerð úrklipp. Þau fara líka til Embeddings. Haltu upplýsingum um uppruna kóðara og rásastefnu. Gate Editor les líka mældu hlutina. Notaðu raunverulegar skilgreiningar og einingar mældra eiginleika. Þau geta líka farið til Graph Builder. Veldu breytur, hópa og síur með skýrum hætti. QC notar þau líka. Farðu yfir tiltækar athuganir og gögn sem vantar. Þau fara líka til Recruitment. Krefjast ætlaðs styrks hólfa og auðkenna. Þau geta líka farið til Invasion Assay. Krefjast tvílitra litunarmælinga og viðeigandi grunnlínuviðmiða. Replication Assay notar þau líka. Krefjast skýrra auðkenna frá sníkjudýri til bólu. Timelapse getur útvegað myndirnar og merkingagrímurnar. Notaðu tímaraðarverkefnið með stöðugum auðkennum ramma/hluta. Næst tekur Motility Assay við mældu hlutina. Tengdu mælda hluti við samsvarandi ferla. Þau fara líka til Feature Explorer. Skilgreindu flokkasamanburðinn og skoðaðu síunina. Þau geta líka farið til Database Browser. Skoðaðu raunverulegu töflurnar áður en þú flytur út. AnnData Export notar þau líka. Fluttu út samhæfa eiginleika- og lýsigagnadálka. Þau fara líka til Dose–Response. Tengdu mælda svarið við skýra skammta og viðmið. Þau geta líka farið til Endodyogeny size proxy. Gefðu upp rætur mældu verkefnanna og tilskildar hluta-/png_list-töflur. Staðfestu samantekt eftir hýsilfrumum og flatarmálseiningar áður en stærðarbil eru túlkuð; talningagagnagrunnur Mask einn og sér dugar ekki. Ef þú byrjar í Import útvegar það myndirnar og merkingagrímurnar ásamt merkingagrímurnar. Fluttu inn samsvarandi myndir og ytri heiltölugrímur til að búa til sameinuð verkefnisfylki og opnaðu svo Measure á því verkefni. Slepptu þessu skrefi ef samhæfar mælingar hafa þegar verið fluttar inn eða reiknaðar. Bættu ekki tvíteknum mælingum við fyrirliggjandi innflutta töflu. Þú getur líka farið með mældu hlutina áfram til Host–Pathogen Analysis. Haltu ósýktum frumum í Measure. Útvegaðu grímur heilla bóla, viðmiðunarstyrk hýsils og valfrjáls skýr tengsl sníkjudýrs og bólu; auðkenni hýsils eitt og sér skilgreinir ekki bólu.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -14100,7 +14193,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Opnaðu Make Masks frá Home. Farðu yfir pör mynda og grímna fyrir þjálfun aðgreiningar, eða notaðu FEATURES til að úthluta myndum og grímum og kalla á mælingu. Að vista grímu þjálfar engan flokkara. Make Masks les smásjármyndirnar og merkingagrímurnar. Út frá þeim býr Make Masks til yfirfarin þjálfunarsvið og merkingagrímurnar. yfirfarin þjálfunarsvið er að finna hér: Aðskildar skrár fyrir myndir og heiltölugrímur með samsvarandi auðkennum sjónsviða; varðveittu upprunalegar myndir og merkingar. Næst tekur Cellpose Workbench við yfirfarin þjálfunarsvið. Notaðu pör af myndum og grímum sem hafa verið athuguð sjálfstætt. Þú getur líka farið með merkingagrímurnar áfram til Measure. Notaðu FEATURES til að para myndir og grímur og skrifa mælt verkefni; stakar grímur eru ekki sameinuð fylki. Plaque Assay notar þau líka. Notaðu skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki sjálfkrafa skellumerkingar.",
+          "narration": "Opnaðu Make Masks frá Home. Farðu yfir pör mynda og grímna fyrir þjálfun aðgreiningar, eða notaðu Organize for Measure til að sameina myndir og grímur þeirra í fylki sem Measure les. Að vista grímu þjálfar engan flokkara. Make Masks les smásjármyndirnar og merkingagrímurnar. Út frá þeim býr Make Masks til yfirfarin þjálfunarsvið og merkingagrímurnar. yfirfarin þjálfunarsvið er að finna hér: Aðskildar skrár fyrir myndir og heiltölugrímur með samsvarandi auðkennum sjónsviða; varðveittu upprunalegar myndir og merkingar. Næst tekur Cellpose Workbench við yfirfarin þjálfunarsvið. Notaðu pör af myndum og grímum sem hafa verið athuguð sjálfstætt. Þú getur líka farið með merkingagrímurnar áfram til Measure. Notaðu Organize for Measure til að sameina myndir og grímur þeirra í fylkin sem Measure les; stakar grímur eru ekki sameinuð fylki. Plaque Assay notar þau líka. Notaðu skellugrímur með samsvarandi upprunamyndum; frumugrímur eru ekki sjálfkrafa skellumerkingar.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14137,7 +14230,7 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "Opnaðu Graph Builder frá Home. Veldu breytur, hópa og teiknistillingar úr hlaðinni töflu og fluttu svo út myndina með greiningarsamhengi sínu. Graph Builder les mældu hlutina. Út frá þeim býr Graph Builder til myndritin og útfluttu töflurnar. Measure getur útvegað mældu hlutina. Veldu breytur, hópa og síur með skýrum hætti.",
+          "narration": "Opnaðu Graph Builder frá Home. Hladdu inn töflu eða notaðu Merge tables til að sameina samhæfar mælingar. Fyrir umbreyttar myndir notarðu Merge original filenames til að endurheimta heiti úr umbreytingarvörpun. Notaðu Annotate conditions til að úthluta nefndum dálki með regex-reglum um lýsigögn eða dregnum línum; vistaðu merkta SQLite-töflu eða fluttu út CSV með reglunum. Veldu breytur, hópa og teiknistillingar og fluttu svo út myndina með greiningarsamhengi sínu. Graph Builder les mældu hlutina. Út frá þeim býr Graph Builder til myndritin og útfluttu töflurnar. Measure getur útvegað mældu hlutina. Veldu breytur, hópa og síur með skýrum hætti.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14154,7 +14247,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Opnaðu Gate Editor frá Home. Skilgreindu þröskulds- eða marghyrningshlið á raunverulega eiginleika-/hnitadálka og beittu svo vistaða hliðinu á samhæfa hluti. Notaðu Annotate til að skrifa sýndu hliðin í merkingadálk; farðu yfir valda hluti og veldu tvíundar- eða fjölflokkamerkingar. Gate Editor les mældu hlutina ásamt vörpunina og klasana. Út frá þeim býr Gate Editor til endurnýtanleg hlið og þjálfunarmerkingarnar. Image UMAP getur útvegað vörpunina og klasana. Gefðu upp samsvarandi hnita-/eiginleikadálka þegar val er skilgreint. Næst tekur Annotate við endurnýtanleg hlið. Beittu samhæfum hliðum og farðu svo yfir tillögur að merkingum. Ef þú byrjar í Measure útvegar það mældu hlutina. Notaðu raunverulegar skilgreiningar og einingar mældra eiginleika. Þú getur líka farið með þjálfunarmerkingarnar áfram til Classify. Skrifaðu yfirfarið val hliða í merkingadálk og veldu svo sama dálk og hlutasafn í Classify. Haltu staðfestingarhlutum aðskildum frá þjálfunarmerkingum.",
+          "narration": "Opnaðu Gate Editor frá Home. Hladdu inn töflu eða notaðu Merge tables til að búa til vinnusafn með staðfestum lyklum og samantekt. Skilgreindu þröskulds- eða marghyrningshlið á raunverulega eiginleika-/hnitadálka og beittu svo vistaða hliðinu á samhæfa hluti. Notaðu Annotate til að skrifa sýndu hliðin í merkingadálk; farðu yfir valda hluti og veldu tvíundar- eða fjölflokkamerkingar. Gate Editor les mældu hlutina ásamt vörpunina og klasana. Út frá þeim býr Gate Editor til endurnýtanleg hlið og þjálfunarmerkingarnar. Image UMAP getur útvegað vörpunina og klasana. Gefðu upp samsvarandi hnita-/eiginleikadálka þegar val er skilgreint. Næst tekur Annotate við endurnýtanleg hlið. Beittu samhæfum hliðum og farðu svo yfir tillögur að merkingum. Ef þú byrjar í Measure útvegar það mældu hlutina. Notaðu raunverulegar skilgreiningar og einingar mældra eiginleika. Þú getur líka farið með þjálfunarmerkingarnar áfram til Classify. Skrifaðu yfirfarið val hliða í merkingadálk og veldu svo sama dálk og hlutasafn í Classify. Haltu staðfestingarhlutum aðskildum frá þjálfunarmerkingum.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14459,22 +14552,6 @@
           "hold_after": 0.7,
           "related_lessons": [
             "82_toxoplasma"
-          ]
-        },
-        {
-          "visual": "module_plasmodium",
-          "narration": "Opnaðu Plasmodium spp. frá Home. Opnaðu leiðarvísi lífverunnar frá Home til að lesa um fyrirhuguð myndgreiningarferli fyrir malaríu og skoða sameiginlegu skýringarmynd gródýra. Allir átta greiningarreitirnir eru Coming soon; enginn þeirra ræsir greiningu eða skilar niðurstöðu. Plasmodium spp. les meðfylgjandi lífverutilvísun. Út frá þeim býr Plasmodium spp. til leiðarvísi lífverunnar og val á greiningu.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "83_plasmodium"
-          ]
-        },
-        {
-          "visual": "module_candida",
-          "narration": "Opnaðu Candida spp. frá Home. Opnaðu leiðarvísi lífverunnar frá Home til að lesa um fyrirhuguð myndgreiningarferli fyrir sveppi og skoða almennu skýringarmyndina af brumandi gersvepp. Allir átta greiningarreitirnir eru Coming soon; enginn þeirra ræsir greiningu eða skilar niðurstöðu. Candida spp. les meðfylgjandi lífverutilvísun. Út frá þeim býr Candida spp. til leiðarvísi lífverunnar og val á greiningu.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "84_candida"
           ]
         },
         {
@@ -15009,182 +15086,6 @@
         {
           "visual": "06_home_return",
           "narration": "Leiðarvísirinn skrifar engar greiningarskrár, svo raunverulega vinnan fer fram annars staðar. Ef enn á eftir að aðgreina eða mæla myndirnar þínar skaltu fyrst fara aftur í Home; þegar myndirnar eða töflurnar eru tilbúnar taka greiningarsíðurnar við.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "83_plasmodium",
-      "number": 83,
-      "slug": "plasmodium",
-      "title": "Plasmodium: skoðaðu leiðarvísi lífverunnar",
-      "series": 3,
-      "app_key": "plasmodium",
-      "section": "Organisms and assays",
-      "description": "Flettu í leiðarvísi Plasmodium, skoðaðu frumuskýringarmyndina og finndu almenn myndgreiningarferli sem eru í boði.",
-      "objectives": [
-        "Opna síðuna frá Home og finna helstu stýringar hennar.",
-        "Greina tiltæk inntök, aðgerðir og úttök.",
-        "Velja næstu tiltæku greiningu eða heimild."
-      ],
-      "prerequisite": "Opnaðu Home í spaCR. Leiðarvísirinn þarf engar inntaksskrár. Greiningarreitir sem eru sérstakir fyrir Plasmodium sýna Coming soon eins og er.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Plasmodium hefur eigin leiðarvísi. Frá Home velurðu Plasmodium til að skoða lífveruna, frumuhólf hennar og þær greiningar sem fyrirhugaðar eru.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "Upplýsingaspjaldið segir sögu sníkjudýrsins í köflum, frá blóðstigi og lifrarstigi til hreyfanleika. Dragðu skilrúmið til að fá meira pláss við hlið einingareitanna.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "Á skýringarmynd gródýrsins heldurðu bendlinum yfir hólfi til að lesa hvað það er. Veldu nokkur til að auðkenna þau saman, og Clear components færir sýnina aftur í upphaflegt horf.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Greiningarreitirnir eru enn merktir Coming soon og ekki hægt að opna þá, en lýsingar þeirra sýna hvað hver þeirra mun mæla. Til að greina Plasmodium-myndir strax í dag ferðu aftur í Home og opnar Mask eða Measure með eigin myndum og viðeigandi rásastillingum.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "Til dýpri lestrar opna tenglarnir á PlasmoDB og UniProt efni um lífveruna í vafranum þínum. Ekkert hér þarf gagnasafn eða Run, og leiðarvísirinn skrifar engar skrár.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "84_candida",
-      "number": 84,
-      "slug": "candida",
-      "title": "Candida: skoðaðu leiðarvísi lífverunnar",
-      "series": 3,
-      "app_key": "candida",
-      "section": "Organisms and assays",
-      "description": "Flettu í leiðarvísi Candida, skoðaðu skýringarmynd gersveppsins og finndu almenn myndgreiningarferli sem eru í boði.",
-      "objectives": [
-        "Opna síðuna frá Home og finna helstu stýringar hennar.",
-        "Greina tiltæk inntök, aðgerðir og úttök.",
-        "Velja næstu tiltæku greiningu eða heimild."
-      ],
-      "prerequisite": "Opnaðu Home í spaCR. Leiðarvísirinn þarf engar inntaksskrár. Greiningarreitir sem eru sérstakir fyrir Candida sýna Coming soon eins og er.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Frá Home velurðu Candida. Leiðarvísir hennar fjallar um lögun, þráðamyndun, líffilmur og hvernig gersveppurinn hefur samskipti við hýsilfrumur.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "Lestu upplýsingaspjaldið með lýsingar eininganna við hliðina og dragðu skilrúmið til að breikka þá hlið sem þú ert að lesa.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "Skýringarmyndin af brumandi gersveppnum virkar eins og í hinum leiðarvísunum. Haltu bendlinum yfir hluta til að lesa lýsingu hans, veldu nokkra til að halda þeim auðkenndum, og Clear components hreinsar valið.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Greiningarreitirnir sem eru sérstakir fyrir Candida eru merktir Coming soon í bili, en þú getur samt greint myndirnar þínar með almennu verkfærunum. Farðu aftur í Home, aðgreindu þær í Mask og mældu í Measure, og veldu rásir og grímur sem henta tegundinni þinni og tilrauninni.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "Fyrir upplýsingar um gen og prótein opnast tenglarnir á Candida Genome Database og UniProt í vafranum þínum. Leiðarvísirinn þarf engar inntaksskrár og skrifar ekkert úttak, svo þegar þú ert tilbúin til að vinna úr myndum fylgirðu kennslu keyranlegrar einingar.",
           "hold_after": 0.7
         }
       ],

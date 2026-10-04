@@ -40,7 +40,7 @@ patterns = {
     'negative_framing_to_review': r'\b(?:not (?:a|an|the|proof)|does not (?:prove|establish|certify)|do not (?:assume|treat|imply))\b',
     'retired_menu': r'\b(?:Help.{0,12}Demos|Demos menu)\b',
 }
-new_lessons = {'82_toxoplasma', '83_plasmodium', '84_candida', '85_host_pathogen'}
+new_lessons = {'82_toxoplasma', '85_host_pathogen'}  # 83/84 withdrawn 2026-10-04
 rows = []
 live_bytes = fetch(args.live_catalog)
 live_lessons = {x['id']: x for x in json.loads(live_bytes)['lessons']}

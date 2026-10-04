@@ -1645,34 +1645,6 @@
       ],
       "guidance": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
     },
-    "plasmodium": {
-      "name": "Plasmodium spp.",
-      "home": "plasmodium",
-      "parent": null,
-      "api_module": "spacr.qt.screens.organism_screen",
-      "lesson": "83_plasmodium",
-      "inputs": [
-        "organism_reference"
-      ],
-      "outputs": [
-        "organism_navigation"
-      ],
-      "guidance": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-    },
-    "candida": {
-      "name": "Candida spp.",
-      "home": "candida",
-      "parent": null,
-      "api_module": "spacr.qt.screens.organism_screen",
-      "lesson": "84_candida",
-      "inputs": [
-        "organism_reference"
-      ],
-      "outputs": [
-        "organism_navigation"
-      ],
-      "guidance": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
-    },
     "endodyogeny": {
       "name": "Endodyogeny size proxy",
       "home": null,

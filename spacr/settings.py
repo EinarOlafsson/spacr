@@ -7638,12 +7638,13 @@ ALPHA_SPECIES = {
 }
 
 
-_SPECIES_WITH_PUBLISHED_LESSONS = frozenset({'plasmodium', 'candida'})
-"""Alpha species whose pages had published lessons before the switch existed.
+_SPECIES_WITH_PUBLISHED_LESSONS = frozenset()
+"""Alpha species whose pages still have published lessons.
 
 Tutorial navigation and the module workflow map keep these pages in place
 until their lessons are retired; the app itself hides them like the rest of
-``ALPHA_SPECIES``.
+``ALPHA_SPECIES``. Empty since tutorial wave 3 (2026-10-04) withdrew
+83_plasmodium and 84_candida.
 """
 
 

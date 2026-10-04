@@ -20,8 +20,8 @@ CHECKPOINT = Path(__file__).resolve().parents[1] / 'release_candidate'
 PROMOTED = {'12_map_barcodes', '21_model_compare', '22_model_zoo', OPS, EMBEDDINGS}
 REMAINING = [identity for identity in PLACEHOLDERS if identity not in PROMOTED]
 HOST = 'https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/'
-# Changed with the catalogs it versions, 2026-10-03 (candidate me1282u_).
-CATALOG_KEY = 'wave2b-20261003-me1282u_'
+# Changed with the catalogs it versions, 2026-10-04 (candidate nmw7tksc).
+CATALOG_KEY = 'wave3-20261004-nmw7tksc'
 
 
 @pytest.mark.parametrize('filename', CATALOGS)
@@ -31,7 +31,7 @@ def test_public_catalog_has_playable_lessons_and_translated_unavailable_screens(
     held = [lesson for lesson in catalog['lessons'] if lesson.get('status') == 'coming_soon']
     ready = [lesson for lesson in catalog['lessons'] if lesson.get('status') != 'coming_soon']
     assert [lesson['id'] for lesson in held] == REMAINING == []
-    assert len(ready) == 85 and all(lesson['scenes'] for lesson in ready)
+    assert len(ready) == 83 and all(lesson['scenes'] for lesson in ready)
     for lesson in held:
         assert (lesson['availability_title'], lesson['description']) == COPY[language]
         assert lesson['scenes'] == []

@@ -603,13 +603,11 @@
           ]
         },
         {
-          "visual": "04_assays  (3)",
-          "narration": "Open Assays and choose your organism: Toxoplasma, Plasmodium or Candida. Then choose an assay from that organism’s menu. For example, open Toxoplasma for plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
+          "visual": "04_assays  (1)",
+          "narration": "Open Assays for organism-specific workflows. Toxoplasma opens its assay menu: for example, plaque analysis or host–pathogen measurements. Follow the selected assay’s tutorial to prepare its images, masks and measurement inputs.",
           "hold_after": 0.7,
           "focus_modules": [
-            "toxoplasma",
-            "plasmodium",
-            "candida"
+            "toxoplasma"
           ],
           "related_lessons": [
             "24_plaque",
@@ -1173,6 +1171,17 @@
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "narration": "Before any run starts, spaCR estimates the memory each worker needs from one field of your project. With very large fields, such as stitched mosaics, the workers you asked for may not fit in the free RAM, and spaCR asks first. Choose the recommended worker count, keep yours and let Measure pause new fields while memory is short, or close other programs to free memory.",
+          "focus": [
+            1620,
+            860,
+            580,
+            360
           ],
           "hold_after": 0.7
         }
@@ -2158,26 +2167,31 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Open image-mask pairs, inspect and edit objects, save measurements and create paired training crops.",
+      "description": "Open image-mask pairs, correct objects, record verdicts, organize images and masks for Measure and create paired training crops.",
       "objectives": [
         "Open images with matching instance masks and inspect objects in the magnifier.",
-        "Measure paired fields and save an object-feature database.",
-        "Correct labels with Undo, drawing, division and size filters.",
-        "Save curated masks and create image-mask crops for training."
+        "Correct labels with Undo, drawing, division and object filters.",
+        "Save curated masks, record Keep or Discard verdicts and create image-mask crops for training.",
+        "Organize images and masks for Measure, and share curated pairs with Upload data."
       ],
       "prerequisite": "Prepare a folder of two-dimensional images with matching instance-label TIFFs in a masks subfolder. Each mask uses the image filename stem. Work on a copy when practising edits and recropping. The example uses ER images and cell masks from Measure’s downloadable microscopy project.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "From Home, open Make Masks in Tools. Choose this editor to inspect and correct individual image masks. Open the folder of paired images and labels before choosing an editing tool.",
+          "narration": "From Home, open Make Masks in Tools. The buttons along the bottom left bring images in: Open folder, Organize for Measure and Load test data. On the right, Discard, Keep, Skip and Upload data decide what happens to each field once it is edited.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ]
         },
         {
+          "visual": "01b_test_data_menu",
+          "narration": "Load test data opens ten example Toxoplasma images. Its arrow also offers a sample of each training dataset a published model learned from, with its masks, so you can see what good training pairs look like.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_folder_picker",
-          "narration": "Select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
+          "narration": "Click Open folder and select the image folder. For this example, use the ER intensity images and corresponding cell masks from the Measure sample. Keep the image and mask dimensions equal and their filenames paired.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -2190,74 +2204,18 @@
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Open Magnifier settings. Select Otsu and Region under the mouse to preview threshold-based objects around the pointer. Choose a model-based mode when thresholding does not separate your objects well.",
+          "narration": "Open the Live magnifier settings and keep Segment on Region under the mouse. The method comes from the Detection method category, here Otsu, which runs on the CPU. Choose a model-based method when thresholding does not separate your objects well.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Turn on Magnifier and hover over an object to enlarge its preview. Move across several objects to inspect the proposed outlines. Click to add the outlined objects when they look correct, or switch Magnifier off to continue editing.",
+          "narration": "Turn on Magnifier and hover over an object to preview its outline. The readout at the top left gives the pixel position and intensity, and the label and area of the object under the cursor. Click to add outlined objects when they look correct, or switch Magnifier off to continue editing.",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
-        },
-        {
-          "visual": "readouts_06_features_real_files",
-          "narration": "Click Features to measure image-mask pairs. Add a row for each field and choose the intensity images and corresponding object masks. Check manual assignments if automatic filename matching leaves files unassigned.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For each row, select the ER intensity image in Channel 1 and its matching label image in Cell mask. Repeat for the second field. Use the original intensity images to measure fluorescence.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_09_features_assigned_table",
-          "narration": "Review both rows, then choose the measurement settings. This example uses one worker, a minimum cell size of one pixel and no saved PNG crops. Increase the size cutoff to exclude small objects when appropriate for your experiment. Click Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_12_features_measurements_saved",
-          "narration": "When measurement finishes, open the output folder. The measurements folder contains measurements.db with the object features for both fields. Keep the database with its source images, masks and settings, then close Features to return to editing.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
           ]
         },
         {
@@ -2298,17 +2256,22 @@
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Set the minimum and maximum object areas, then press Filter to remove labels outside those bounds. Choose bounds that fit your objects and inspect what was removed. The filter edits the mask, so use Undo if the cutoff removes useful objects.",
+          "narration": "To remove objects by size or shape, choose a property in the Filter category and click Add a filter. Any regionprop that scikit-image measures can be a filter, such as area, solidity or mean intensity. Here an area row with a minimum hides the smaller cells; press Filter to apply the list again. The ledger below names every object the filters hid.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08d_filter_removed",
+          "narration": "Remove a row to bring back the objects it hid. The filters apply as you edit them and again whenever a field opens, so remove the rows you no longer want before moving on. Undo also reverses a filter step.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "After reviewing the edits, click Save mask. Reset size bounds to zero to disable them before moving to another field if needed. Preserve the source images and keep the saved curation record with the edited masks.",
+          "narration": "After reviewing the edits, click Save mask in the toolbar. Keep the source images together with the saved masks and their curation record.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "The header holds the rest of the mask toolkit. When you are choosing weights, Model Zoo finds them and Model Compare puts two sets of masks side by side. When more examples need fixing, Curate and Open in napari take you back into editing.",
+          "narration": "The icons at the top right open the rest of the mask toolkit. Cellpose Workbench trains a model on curated pairs and applies it to a folder, and the next icon runs detection on every field of the open folder.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2317,8 +2280,8 @@
           ]
         },
         {
-          "visual": "09_fold_napari_bridge",
-          "narration": "The header also opens Model Compare, Model Zoo, Curate and Open in napari. Use Model Compare to inspect masks side by side, Model Zoo to choose weights, and the curation tools to review or edit more examples.",
+          "visual": "09_fold_model_zoo",
+          "narration": "Model Compare puts two sets of masks side by side and Model Zoo finds and tests weights. When more examples need fixing, Curate and Napari Bridge take you back into editing.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2335,7 +2298,7 @@
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Click Next to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
+          "narration": "Click Next image in the toolbar to open the new crop. The parent image and mask are retained in recropped_originals for recovery. Review the crop and its labels before adding it to your training dataset.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -2368,12 +2331,12 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "To detect objects in the current field, select the Cellpose model and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
+          "narration": "To detect objects with a model, choose Cellpose in the Detection method category and review its settings. This example uses cpsam, normalization on, cell-probability threshold zero and flow threshold zero point four. Check whether detections will replace existing labels or be added to them.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Click Object detection and compare the resulting outlines with the image. Here the model selects the partial object at the upper left instead of the central cell. Undo that replacement and adjust the model settings before trying again.",
+          "narration": "Click Object detection. The model runs in the background, and the result replaces the labels when it arrives. Compare the new outlines with the image, and undo a result that does not follow the object boundaries before adjusting the settings.",
           "hold_after": 0.7
         },
         {
@@ -2388,12 +2351,73 @@
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, then save it. Continue through the remaining fields and inspect each result before including it in training.",
+          "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, and inspect each field's result before including it in training.",
           "hold_after": 0.7
         },
         {
-          "visual": "19_detection_undone",
-          "narration": "Keep curated images and same-stem masks together. Use Train Cellpose to learn from those pairs, or return to Features or Measure to extract measurements. The related tutorials show each next step.",
+          "visual": "20_curate_keep",
+          "narration": "While you work through a folder, Keep and Discard record a verdict for each field and move on to the next. Nothing is deleted: the verdict goes to keep_discard.csv in the folder's csv subfolder, with the image, its mask and its current object count.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_curate_discard",
+          "narration": "Discard marks a field you do not want in a training set. Skip belongs to curation sessions started from the terminal with spacr-make-masks: it marks a field that cannot be curated, so the next session does not offer it again.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "22_upload_data",
+          "narration": "When your curated pairs could help others, click Upload data. Choose the field on screen, every curated image with its saved mask, or an images folder and a masks folder, then name the dataset. The link shows the Hugging Face dataset it will join. Nothing is sent until you press Upload and agree to share.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "narration": "Microscopes often save images in nested folders. When you open a folder whose images sit in subfolders, Make Masks offers to copy them into one new folder, each named after the folders it was in. The originals are not touched, and No opens the folder as it is.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "narration": "The copies open in the editor, and a rename manifest records where each one came from. A field without a mask starts with an empty mask, ready for drawing or detection.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "25_organize_open",
+          "narration": "To measure your fields, click Organize for Measure. Measure reads each field as one merged array that holds every channel and its masks. Give a source folder here, or drop files and folders into the table below. If Consolidate subfolders is on and a copy fails, the popup says how many files failed and where the manifest is, and stops without changing the source or the table.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "26_organize_table",
+          "narration": "Drop each channel folder into the table: every folder becomes a column, and every row is one field. Add a mask column, set its role, here the cell masks of channel two, and drop the masks folder onto it. Files are matched across the columns by name.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "narration": "Detect sets matches the images by name, order and size, then shows three example sets. Confirm them only when every set really belongs together; otherwise fix the regex or the columns first.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "28_organize_images",
+          "narration": "Set Show to Image plus text and Thumbnail quality to High to check the rows by eye; the quality changes only the display, never the masks or measurements. A cell that nothing matched stays empty and is flagged, and Apply waits until every row is complete.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "29_move_and_merge",
+          "narration": "Click Apply. The summary says what will happen: images and masks move into Yokogawa-named channel folders and are merged into merged. Files are moved, not copied, and every move is written to a manifest.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "narration": "When sorting finishes, Make Masks opens the first channel folder, and the console notes that the result is first in Measure's recent sources. Open Measure and use it as the source to extract object features.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "03_real_labels",
+          "narration": "Keep curated images and their same-stem masks together. Use Cellpose Workbench to train on those pairs, or Organize for Measure and then Measure to extract measurements. The related tutorials show each next step.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10042,11 +10066,13 @@
       "app_key": "graph_builder",
       "section": "Explore",
       "title": "Graph Builder: plot measurements and filter objects",
-      "description": "Load a measurement table, assign plot axes, compare groups and filter the displayed objects.",
+      "description": "Load a measurement table, compare groups, filter objects and build illustrative genotype, replicate and combined condition columns.",
       "objectives": [
         "Load an example measurement table.",
         "Build a histogram, scatter plot and grouped panels.",
-        "Filter objects and choose a follow-up view."
+        "Filter objects and choose a follow-up view.",
+        "Assign exact-value labels in separate output columns and combine them without changing source measurements.",
+        "Extract text into columns, save and load an annotation schema, and merge tables."
       ],
       "prerequisite": "Download and extract Graph_Builder_real_measurements.zip. It contains measurements.db. To inspect image crops later, also keep the matching Annotate project and its images available.",
       "example_files": [
@@ -10060,7 +10086,7 @@
         },
         {
           "visual": "03_choose_database",
-          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells.",
+          "narration": "Click Load table and open measurements dot db from the extracted archive. Choose the cell table. This example contains two thousand three hundred forty-one measured cells. Merge tables, beside the table picker, combines several tables into one; we use it at the end.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10098,6 +10124,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "10b_channels_cleared",
+          "narration": "Clear all channels keeps the plot kind but removes every column from the chart, and the canvas then says what is missing: drag a column onto X or Y to draw a chart again. Drop the same columns back to continue.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "11_actual_brush_state",
           "narration": "Remove a facet with its small cross to return to one scatter plot. Drag a rectangle around objects to select a region. If Open selection in Annotate is unavailable, open Annotate separately with the matching project and inspect objects there.",
           "hold_after": 0.7
@@ -10108,20 +10139,67 @@
           "hold_after": 0.7
         },
         {
+          "visual": "13_genotype_exact_values",
+          "narration": "Click Annotate conditions. Name the first output genotype and use Assign values. Choose Exact values, then label columnID values c1, c2 and c3 as WildType. Add a second box named mutant for c7, c4, c5 and c6. These are illustrative labels, not validated genotypes. The downloaded table contains only c1 and c2, so every cell matches WildType and none matches mutant. Exact values match whole values: c1 does not match c10.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "narration": "Add an output column named replicate. Match rowID values r1, r4, r5 and r6 in a box named replicate 1. Add another box with the same name for r7, r9 and r10. Boxes with the same label form a union; conflicting different labels in one output must be resolved before Apply conditions. The example contains r5 and r12, so r5 matches and r12 remains blank. These practice labels do not establish biological replication.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "narration": "Add a third output named condition and choose Compose column. Select genotype under Available columns and click Add column token. Enter an underscore and click Add text token. Select replicate and click Add column token. The ordered tokens now read genotype, underscore, replicate. You can drag tokens or use Move token up and Move token down to change their order. Preview all three outputs. Matched r5 cells become WildType underscore replicate 1. A missing component leaves the combination blank, so r12 does not produce a label containing None or nan.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15b_extract_text",
+          "narration": "An output can also be extracted from text. Add a fourth output named row_number and choose Extract text. Pick rowID as the source column and enter a regular expression with a named group, here r followed by a group called row_number that captures the digits. Click Create columns from named groups, then Preview. Rows that do not match stay blank. The example table has no original filenames, so we extract from an existing ID column.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15c_save_schema",
+          "narration": "Click Save schema and choose a JSON file. A schema keeps the rules, not the values: the outputs, their boxes, compositions and extraction patterns. Manual row assignments are tied to this table and are left out, and the status line says how many were omitted.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15d_load_schema",
+          "narration": "Load schema reads such a file onto the same or another table. It is checked against the table's columns and opens as a preview of every output; nothing is applied until you click Apply conditions.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "narration": "Select genotype under Generated columns to check what the schema restored: the WildType and mutant boxes return with their exact values, and each box shows how many rows it matches. Check every output this way before you click Apply conditions.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_annotations_applied",
+          "narration": "Click Apply conditions to add genotype, replicate, condition and row_number to the working table. The original measurement columns and source database remain unchanged. The same annotation editor also works with a merged working table. Use your experimental design to choose meaningful labels before plotting by these new columns.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16b_save_annotated",
+          "narration": "Save chart preserves the view and annotation recipe for reloading. Export table includes the generated columns. For a SQLite source, Save annotated table asks for a new table name, suggesting cell_annotated, and never overwrites an existing table. These are separate persistence actions; Apply conditions alone does not write the source database.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_merge_tables",
+          "narration": "To combine tables, click Merge tables beside the table picker. Tick cell, nucleus and pathogen, keep cell as the output observation table so there is one row per cell, and name the result. Click Validate and preview and read the row counts and join keys for each table, then click Create merged table.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_merged_table",
+          "narration": "The merged table is selected in the picker and its columns can be plotted like any other. The source tables in the database are unchanged; the merge is saved as a reproducible definition beside the database.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_fold_trellis",
           "narration": "Use the header shortcuts to open Plate Viewer for well heatmaps or Small Multiples for repeated charts. Keep the source database and your chosen columns and filters so you can reproduce the view.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
-        },
-        {
-          "visual": "12_selection_cleared",
-          "narration": "The current screen displays plots without a chart-export button. Use the Graph Builder API for scripted plots, or Database Browser to export a table for another plotting tool.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
           ]
         }
       ],
@@ -11119,7 +11197,7 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database.",
+          "narration": "Click Load table, open your working copy of measurements.db and choose cell. The example contains two thousand three hundred forty-one objects. Keep a copy because Export gates writes membership to this database. Merge tables, beside the picker, combines the cell table with its nucleus or pathogen tables into one new table, as in Graph Builder; the source tables stay unchanged.",
           "hold_after": 0.7
         },
         {
@@ -11193,6 +11271,21 @@
         {
           "visual": "17c_actual_volume_gate",
           "narration": "Use From view to create a named box bounded by the three displayed measurements. Check its population count and save the new strategy separately.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17e_free_orbit",
+          "narration": "Choose Free under spin to orbit the volume: drag sideways and up and down at once, and the view stays exactly where you let go. Turn it until the population you want stands apart from the rest.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17f_live_highlight",
+          "narration": "Choose Polygon through view and switch drag to Draw. Click the corners around the population on screen; the status line counts the vertices, and the outline is swept through the whole volume at the angle you see.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17h_rename_gate",
+          "narration": "Click the first corner again to close the polygon and name the gate; here it holds one thousand four hundred seventy-nine objects. Double-click any gate in the gate table to rename it; its child gates follow the new name.",
           "hold_after": 0.7
         },
         {
@@ -13810,7 +13903,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Measure reads the images and label masks, and the label masks. From those, Measure produces the measured objects and the object crops. You'll find the measured objects here: measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Depending on the route, the tables that matter are cell, nucleus, pathogen, cytoplasm. The columns to keep an eye on are plateID, rowID, columnID, fieldID. You'll find the object crops here: data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are png_path, prcfo. Mask can supply the images and label masks. Use the same project and the correct image/mask channel indices. Annotate picks up the measured objects and the object crops next. Save or stream crops with stable object identities. Classify uses them too. Choose the image or tabular family to match your input. If you start in Make Masks, it provides the label masks. Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. The images and label masks from External Masks work here too. Re-measure only when needed; External Masks can already perform measurement. You can also take the measured objects and the object crops on to Image UMAP. Choose feature columns and inspect representative crops. They also feed Embeddings. Retain encoder and channel-policy provenance. Gate Editor reads the measured objects as well. Use the actual measured feature definitions and units. Graph Builder is another place they go. Choose explicit variables, groups and filters. QC uses them too. Review available checks and missing evidence. They also feed Recruitment. Require the intended compartment intensities and identities. Invasion Assay is another place they go. Require two-colour stain measurements and appropriate baseline controls. Replication Assay uses them too. Require explicit parasite-to-vacuole identities. Timelapse can supply the images and label masks. Use the time-series project with stable frame/object identities. Motility Assay picks up the measured objects next. Combine measured objects with matching tracks. They also feed Feature Explorer. Define the class comparison and inspect filtering. Database Browser is another place they go. Inspect actual tables before exporting. AnnData Export uses them too. Export compatible feature and metadata columns. They also feed Dose–Response. Join the measured response to explicit doses and controls. Endodyogeny size proxy is another place they go. Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient. If you start in Import, it provides the images and label masks, and the label masks. Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. You can also take the measured objects on to Host–Pathogen Analysis. Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
+          "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Measure reads the images and label masks, and the label masks. From those, Measure produces the measured objects and the object crops. You'll find the measured objects here: measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks. Depending on the route, the tables that matter are cell, nucleus, pathogen, cytoplasm. The columns to keep an eye on are plateID, rowID, columnID, fieldID. You'll find the object crops here: data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks. Depending on the route, the tables that matter are png_list. The columns to keep an eye on are png_path, prcfo. Mask can supply the images and label masks. Use the same project and the correct image/mask channel indices. Annotate picks up the measured objects and the object crops next. Save or stream crops with stable object identities. Classify uses them too. Choose the image or tabular family to match your input. If you start in Make Masks, it provides the label masks. Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays. The images and label masks from External Masks work here too. Re-measure only when needed; External Masks can already perform measurement. You can also take the measured objects and the object crops on to Image UMAP. Choose feature columns and inspect representative crops. They also feed Embeddings. Retain encoder and channel-policy provenance. Gate Editor reads the measured objects as well. Use the actual measured feature definitions and units. Graph Builder is another place they go. Choose explicit variables, groups and filters. QC uses them too. Review available checks and missing evidence. They also feed Recruitment. Require the intended compartment intensities and identities. Invasion Assay is another place they go. Require two-colour stain measurements and appropriate baseline controls. Replication Assay uses them too. Require explicit parasite-to-vacuole identities. Timelapse can supply the images and label masks. Use the time-series project with stable frame/object identities. Motility Assay picks up the measured objects next. Combine measured objects with matching tracks. They also feed Feature Explorer. Define the class comparison and inspect filtering. Database Browser is another place they go. Inspect actual tables before exporting. AnnData Export uses them too. Export compatible feature and metadata columns. They also feed Dose–Response. Join the measured response to explicit doses and controls. Endodyogeny size proxy is another place they go. Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient. If you start in Import, it provides the images and label masks, and the label masks. Import matching images and external integer masks to build merged project arrays, then open Measure on that project. Skip this step when compatible measurements have already been imported or computed. Do not append duplicate measurements to an existing imported table. You can also take the measured objects on to Host–Pathogen Analysis. Keep uninfected cells in Measure. Supply whole-vacuole masks, host reference intensities and optional explicit parasite-to-vacuole links; host identity alone does not define a vacuole.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -14121,7 +14214,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Open Make Masks from Home. Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier. Make Masks reads the microscope images and the label masks. From those, Make Masks produces the curated training fields and the label masks. You'll find the curated training fields here: Separate image and integer-mask files with matching field identities; preserve original images and labels. Cellpose Workbench picks up the curated training fields next. Use independently checked image/mask pairs. You can also take the label masks on to Measure. Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Plaque Assay uses them too. Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+          "narration": "Open Make Masks from Home. Curate image/mask pairs for segmentation training, or use Organize for Measure to merge images and their masks into arrays Measure reads. Saving a mask does not train a classifier. Make Masks reads the microscope images and the label masks. From those, Make Masks produces the curated training fields and the label masks. You'll find the curated training fields here: Separate image and integer-mask files with matching field identities; preserve original images and labels. Cellpose Workbench picks up the curated training fields next. Use independently checked image/mask pairs. You can also take the label masks on to Measure. Use Organize for Measure to merge images and their masks into the arrays Measure reads; standalone masks are not merged arrays. Plaque Assay uses them too. Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14158,7 +14251,7 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "Open Graph Builder from Home. Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context. Graph Builder reads the measured objects. From those, Graph Builder produces the figures and table exports. Measure can supply the measured objects. Choose explicit variables, groups and filters.",
+          "narration": "Open Graph Builder from Home. Load a table or use Merge tables to combine compatible measurements. For converted images, use Merge original filenames to recover names from a conversion map. Use Annotate conditions to assign a named column with metadata regex rules or dragged rows; save an annotated SQLite table or export CSV with its rules. Choose variables, groups and plotting settings, then export the figure with its analysis context. Graph Builder reads the measured objects. From those, Graph Builder produces the figures and table exports. Measure can supply the measured objects. Choose explicit variables, groups and filters.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14175,7 +14268,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Open Gate Editor from Home. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Gate Editor reads the measured objects, and the projection and clusters. From those, Gate Editor produces the reusable gates and the training annotations. Image UMAP can supply the projection and clusters. Supply the matching coordinate/feature columns when defining a selection. Annotate picks up the reusable gates next. Apply compatible gates, then review candidate labels. If you start in Measure, it provides the measured objects. Use the actual measured feature definitions and units. You can also take the training annotations on to Classify. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
+          "narration": "Open Gate Editor from Home. Load a table or use Merge tables to create a working set with validated keys and aggregation. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Use Annotate to write the displayed gates to an annotation column; review the selected objects and choose binary or multiclass labels. Gate Editor reads the measured objects, and the projection and clusters. From those, Gate Editor produces the reusable gates and the training annotations. Image UMAP can supply the projection and clusters. Supply the matching coordinate/feature columns when defining a selection. Annotate picks up the reusable gates next. Apply compatible gates, then review candidate labels. If you start in Measure, it provides the measured objects. Use the actual measured feature definitions and units. You can also take the training annotations on to Classify. Write reviewed gate selections to an annotation column, then select that same column and object population in Classify. Keep validation objects separate from training labels.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14480,22 +14573,6 @@
           "hold_after": 0.7,
           "related_lessons": [
             "82_toxoplasma"
-          ]
-        },
-        {
-          "visual": "module_plasmodium",
-          "narration": "Open Plasmodium spp. from Home. Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Plasmodium spp. reads the bundled organism reference. From those, Plasmodium spp. produces the organism guide and assay selection.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "83_plasmodium"
-          ]
-        },
-        {
-          "visual": "module_candida",
-          "narration": "Open Candida spp. from Home. Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result. Candida spp. reads the bundled organism reference. From those, Candida spp. produces the organism guide and assay selection.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "84_candida"
           ]
         },
         {
@@ -15030,182 +15107,6 @@
         {
           "visual": "06_home_return",
           "narration": "The guide writes no analysis files, so the real work happens elsewhere. If your images still need segmenting or measuring, return Home first; once the images or tables are ready, the assay pages take over.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "83_plasmodium",
-      "number": 83,
-      "slug": "plasmodium",
-      "title": "Plasmodium: explore the organism guide",
-      "series": 3,
-      "app_key": "plasmodium",
-      "section": "Organisms and assays",
-      "description": "Browse the Plasmodium guide, explore the cell diagram and find available general image-analysis workflows.",
-      "objectives": [
-        "Open the page from Home and find its main controls.",
-        "Identify the available inputs, actions and outputs.",
-        "Choose the next available analysis or reference."
-      ],
-      "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Plasmodium-specific assay tiles currently show Coming soon.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Plasmodium has a guide of its own. From Home, choose Plasmodium to browse the organism, its cell compartments and the assays planned for it.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "The information pane tells the parasite's story in sections, from the blood stage and the liver stage to motility. Drag the divider for more room beside the module tiles.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "On the apicomplexan diagram, hover over a compartment to read what it is. Select several to highlight them together, and Clear components brings the view back.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "The assay tiles are still marked Coming soon and can't be opened yet, but their descriptions show what each will measure. To analyse Plasmodium images today, go back Home and open Mask or Measure with your own images and suitable channel settings.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "For deeper reading, the PlasmoDB and UniProt links open organism resources in your browser. Nothing here needs a dataset or a Run, and the guide writes no files.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "84_candida",
-      "number": 84,
-      "slug": "candida",
-      "title": "Candida: explore the organism guide",
-      "series": 3,
-      "app_key": "candida",
-      "section": "Organisms and assays",
-      "description": "Browse the Candida guide, explore the yeast diagram and find available general image-analysis workflows.",
-      "objectives": [
-        "Open the page from Home and find its main controls.",
-        "Identify the available inputs, actions and outputs.",
-        "Choose the next available analysis or reference."
-      ],
-      "prerequisite": "Open spaCR Home. No input files are needed for the guide. The Candida-specific assay tiles currently show Coming soon.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "From Home, choose Candida. Its guide covers morphology, filamentation, biofilms and how the yeast interacts with host cells.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "Read the information pane with the module descriptions beside it, and drag the divider to widen whichever side you're reading.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "The budding-yeast diagram works like the other guides. Hover over a component to read its description, select several to keep them highlighted, and Clear components resets the selection.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "The Candida-specific assay tiles are marked Coming soon for now, but you can still analyse your images with the general tools. Go back Home, segment them in Mask and measure them in Measure, choosing channels and masks that suit your species and experiment.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "For gene and protein details, the Candida Genome Database and UniProt links open in your browser. The guide needs no input files and writes no outputs, so when you're ready to process images, follow a runnable module's tutorial.",
           "hold_after": 0.7
         }
       ],

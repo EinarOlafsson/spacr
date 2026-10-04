@@ -32,10 +32,6 @@
       "lesson": "37_batch",
       "title": "Batch Runner: configure and run a queue"
     },
-    "candida": {
-      "lesson": "84_candida",
-      "title": "Candida: explore the organism guide"
-    },
     "cellpose_masks": {
       "lesson": "20_cellpose_masks",
       "title": "Apply Cellpose: segment a folder and inspect masks"
@@ -211,10 +207,6 @@
     "pipeline_graph": {
       "lesson": "52_pipeline_graph",
       "title": "Pipeline Graph: inspect outputs and dependencies"
-    },
-    "plasmodium": {
-      "lesson": "83_plasmodium",
-      "title": "Plasmodium: explore the organism guide"
     },
     "plate_view": {
       "lesson": "33_plate_viewer",

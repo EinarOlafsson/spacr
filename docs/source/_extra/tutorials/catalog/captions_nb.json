@@ -582,13 +582,11 @@
           ]
         },
         {
-          "visual": "04_assays  (3)",
-          "narration": "Åpne Assays og velg organismen din: Toxoplasma, Plasmodium eller Candida. Velg deretter en analyse i menyen for den organismen. Åpne for eksempel Toxoplasma for plakkanalyse eller målinger av vert og patogen. Følg veiledningen for den valgte analysen for å forberede bildene, maskene og måleinndataene.",
+          "visual": "04_assays  (1)",
+          "narration": "Åpne Assays for arbeidsflyter knyttet til en organisme. Toxoplasma åpner sin analysemeny, for eksempel plakkanalyse eller vert–patogen-målinger. Følg veiledningen for den valgte analysen for å klargjøre bildene, maskene og måleinndataene.",
           "hold_after": 0.7,
           "focus_modules": [
-            "toxoplasma",
-            "plasmodium",
-            "candida"
+            "toxoplasma"
           ],
           "related_lessons": [
             "24_plaque",
@@ -1152,6 +1150,17 @@
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "narration": "Før en kjøring starter, anslår spaCR hvor mye minne hver arbeidsprosess trenger ut fra ett synsfelt i prosjektet ditt. Med svært store synsfelt, som sammensatte mosaikker, får kanskje ikke arbeidsprosessene du ba om plass i ledig RAM, og da spør spaCR først. Velg anbefalt antall arbeidsprosesser, behold ditt eget og la Measure vente med nye synsfelt mens minnet er knapt, eller lukk andre programmer for å frigjøre minne.",
+          "focus": [
+            1620,
+            860,
+            580,
+            360
           ],
           "hold_after": 0.7
         }
@@ -2137,26 +2146,31 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "Åpne bilde- og maskepar, undersøk og rediger objekter, lagre målinger og lag parede treningsutsnitt.",
+      "description": "Åpne bilde- og maskepar, rett objekter, registrer vurderinger, organiser bilder og masker for Measure og lag parede treningsutsnitt.",
       "objectives": [
         "Åpne bilder med tilhørende instansmasker og undersøke objekter i forstørrelsesglasset.",
-        "Måle parede synsfelt og lagre en database med objektegenskaper.",
-        "Rette merkelapper med Undo, tegning, deling og størrelsesfiltre.",
-        "Lagre kuraterte masker og lage bilde- og maskeutsnitt for trening."
+        "Rette merkelapper med Undo, tegning, deling og objektfiltre.",
+        "Lagre kuraterte masker, registrere Keep- eller Discard-vurderinger og lage bilde- og maskeutsnitt for trening.",
+        "Organisere bilder og masker for Measure og dele kuraterte par med Upload data."
       ],
       "prerequisite": "Klargjør en mappe med todimensjonale bilder og tilhørende TIFF-filer med instansmerkelapper i en undermappe kalt masks. Hver maske bruker filnavnstammen til bildet. Arbeid på en kopi når du øver på redigering og ny beskjæring. Eksemplet bruker ER-bilder og cellemasker fra det nedlastbare mikroskopiprosjektet i Measure.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Fra Home åpner du Make Masks under Tools. Velg denne redigereren for å undersøke og rette masker for enkeltbilder. Åpne mappen med parede bilder og merkelapper før du velger et redigeringsverktøy.",
+          "narration": "Fra Home åpner du Make Masks under Tools. Knappene nederst til venstre henter inn bilder: Open folder, Organize for Measure og Load test data. Til høyre bestemmer Discard, Keep, Skip og Upload data hva som skjer med hvert synsfelt når det er redigert.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ]
         },
         {
+          "visual": "01b_test_data_menu",
+          "narration": "Load test data åpner ti eksempelbilder av Toxoplasma. Pilen på knappen tilbyr også et utvalg fra hvert treningsdatasett en publisert modell har lært av, med tilhørende masker, slik at du ser hvordan gode treningspar ser ut.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_folder_picker",
-          "narration": "Velg bildemappen. I dette eksemplet bruker du ER-intensitetsbildene og de tilhørende cellemaskene fra Measure-eksemplet. Hold bilde- og maskedimensjonene like og filnavnene paret.",
+          "narration": "Klikk på Open folder og velg bildemappen. I dette eksemplet bruker du ER-intensitetsbildene og de tilhørende cellemaskene fra Measure-eksemplet. Hold bilde- og maskedimensjonene like og filnavnene paret.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -2169,74 +2183,18 @@
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Åpne Magnifier settings. Velg Otsu og Region under the mouse for å forhåndsvise terskelbaserte objekter rundt pekeren. Velg en modellbasert modus når terskling ikke skiller objektene dine godt.",
+          "narration": "Åpne innstillingene for Live magnifier og behold Segment på Region under the mouse. Metoden hentes fra kategorien Detection method, her Otsu, som kjører på CPU-en. Velg en modellbasert metode når terskling ikke skiller objektene dine godt.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Slå på Magnifier og hold pekeren over et objekt for å forstørre forhåndsvisningen. Beveg deg over flere objekter for å undersøke de foreslåtte omrissene. Klikk for å legge til de avgrensede objektene når de ser riktige ut, eller slå av Magnifier for å fortsette redigeringen.",
+          "narration": "Slå på Magnifier og hold pekeren over et objekt for å forhåndsvise omrisset. Visningen øverst til venstre viser pikselposisjon og intensitet, og merkelapp og areal for objektet under pekeren. Klikk for å legge til de avgrensede objektene når de ser riktige ut, eller slå av Magnifier for å fortsette redigeringen.",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
-        },
-        {
-          "visual": "readouts_06_features_real_files",
-          "narration": "Klikk på Features for å måle bilde- og maskepar. Legg til en rad for hvert synsfelt, og velg intensitetsbildene og de tilhørende objektmaskene. Kontroller de manuelle tilordningene hvis den automatiske filnavnmatchingen lar filer stå uten tilordning.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "For hver rad velger du ER-intensitetsbildet i Channel 1 og det tilhørende merkelappbildet i Cell mask. Gjenta for det andre synsfeltet. Bruk de opprinnelige intensitetsbildene til å måle fluorescens.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_09_features_assigned_table",
-          "narration": "Gå gjennom begge radene, og velg deretter måleinnstillingene. Dette eksemplet bruker én arbeidsprosess, en minste cellestørrelse på én piksel og ingen lagrede PNG-utsnitt. Øk størrelsesgrensen for å utelate små objekter når det passer eksperimentet ditt. Klikk på Measure.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_12_features_measurements_saved",
-          "narration": "Når målingen er ferdig, åpner du utdatamappen. Mappen measurements inneholder measurements.db med objektegenskapene for begge synsfeltene. Behold databasen sammen med kildebildene, maskene og innstillingene, og lukk deretter Features for å gå tilbake til redigeringen.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
           ]
         },
         {
@@ -2277,17 +2235,22 @@
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "Angi minste og største objektareal, og trykk deretter på Filter for å fjerne merkelapper utenfor grensene. Velg grenser som passer objektene dine, og undersøk hva som ble fjernet. Filteret endrer masken, så bruk Undo hvis grensen fjerner nyttige objekter.",
+          "narration": "For å fjerne objekter etter størrelse eller form velger du en egenskap i kategorien Filter og klikker på Add a filter. Alle regionprops som scikit-image måler, kan brukes som filter, for eksempel areal, soliditet eller gjennomsnittsintensitet. Her skjuler en arealrad med et minimum de mindre cellene; trykk på Filter for å bruke listen på nytt. Oversikten nedenfor navngir hvert objekt filtrene skjulte.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08d_filter_removed",
+          "narration": "Fjern en rad for å få tilbake objektene den skjulte. Filtrene brukes mens du redigerer dem, og på nytt hver gang et synsfelt åpnes, så fjern radene du ikke lenger vil ha, før du går videre. Undo angrer også et filtertrinn.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "Når du har gått gjennom endringene, klikker du på Save mask. Tilbakestill størrelsesgrensene til null for å slå dem av før du går videre til et annet synsfelt, om nødvendig. Ta vare på kildebildene, og behold den lagrede kurasjonsposten sammen med de redigerte maskene.",
+          "narration": "Når du har gått gjennom endringene, klikker du på Save mask i verktøylinjen. Behold kildebildene sammen med de lagrede maskene og kurasjonsposten deres.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "Toppfeltet rommer resten av maskeverktøyene. Når du velger vekter, finner Model Zoo dem, og Model Compare setter to maskesett side om side. Når flere eksempler må rettes, tar Curate og Open in napari deg tilbake til redigeringen.",
+          "narration": "Ikonene øverst til høyre åpner resten av maskeverktøyene. Cellpose Workbench trener en modell på kuraterte par og bruker den på en mappe, og neste ikon kjører deteksjon på alle synsfelt i den åpne mappen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2296,8 +2259,8 @@
           ]
         },
         {
-          "visual": "09_fold_napari_bridge",
-          "narration": "Toppfeltet åpner også Model Compare, Model Zoo, Curate og Open in napari. Bruk Model Compare til å undersøke masker side om side, Model Zoo til å velge vekter og kurasjonsverktøyene til å gå gjennom eller redigere flere eksempler.",
+          "visual": "09_fold_model_zoo",
+          "narration": "Model Compare setter to maskesett side om side, og Model Zoo finner og tester vekter. Når flere eksempler må rettes, tar Curate og Napari Bridge deg tilbake til redigeringen.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2314,7 +2277,7 @@
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Klikk på Next for å åpne det nye utsnittet. Det opprinnelige bildet og masken beholdes i recropped_originals for gjenoppretting. Gå gjennom utsnittet og merkelappene før du legger det til i treningsdatasettet ditt.",
+          "narration": "Klikk på Next image i verktøylinjen for å åpne det nye utsnittet. Det opprinnelige bildet og masken beholdes i recropped_originals for gjenoppretting. Gå gjennom utsnittet og merkelappene før du legger det til i treningsdatasettet ditt.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -2347,12 +2310,12 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "For å finne objekter i det gjeldende synsfeltet velger du Cellpose-modellen og går gjennom innstillingene. Dette eksemplet bruker cpsam, normalisering slått på, en terskel for cellesannsynlighet på 0 og en flytterskel på 0,4. Kontroller om deteksjonene skal erstatte eksisterende merkelapper eller legges til dem.",
+          "narration": "For å finne objekter med en modell velger du Cellpose i kategorien Detection method og går gjennom innstillingene. Dette eksemplet bruker cpsam, normalisering slått på, en terskel for cellesannsynlighet på 0 og en flytterskel på 0,4. Kontroller om deteksjonene skal erstatte eksisterende merkelapper eller legges til dem.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Klikk på Object detection og sammenlign de resulterende omrissene med bildet. Her velger modellen det delvise objektet øverst til venstre i stedet for cellen i midten. Angre erstatningen og juster modellinnstillingene før du prøver igjen.",
+          "narration": "Klikk på Object detection. Modellen kjører i bakgrunnen, og resultatet erstatter merkelappene når det kommer. Sammenlign de nye omrissene med bildet, og angre et resultat som ikke følger objektgrensene, før du justerer innstillingene.",
           "hold_after": 0.7
         },
         {
@@ -2367,12 +2330,73 @@
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo gjenoppretter merkelappene fra før deteksjonen. Behold masken som følger bildet best, og lagre den. Fortsett gjennom de gjenværende synsfeltene, og undersøk hvert resultat før du tar det med i treningen.",
+          "narration": "Undo gjenoppretter merkelappene fra før deteksjonen. Behold masken som følger bildet best, og undersøk resultatet for hvert synsfelt før du tar det med i treningen.",
           "hold_after": 0.7
         },
         {
-          "visual": "19_detection_undone",
-          "narration": "Hold kuraterte bilder og masker med samme navnestamme samlet. Bruk Train Cellpose for å lære av parene, eller gå tilbake til Features eller Measure for å hente ut målinger. De tilhørende veiledningene viser hvert neste trinn.",
+          "visual": "20_curate_keep",
+          "narration": "Mens du jobber deg gjennom en mappe, registrerer Keep og Discard en vurdering for hvert synsfelt og går videre til det neste. Ingenting slettes: Vurderingen skrives til keep_discard.csv i mappens undermappe csv, sammen med bildet, masken og det gjeldende antallet objekter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_curate_discard",
+          "narration": "Discard markerer et synsfelt du ikke vil ha med i et treningssett. Skip hører til kurasjonsøkter startet fra terminalen med spacr-make-masks: Den markerer et synsfelt som ikke kan kurateres, slik at neste økt ikke tilbyr det igjen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "22_upload_data",
+          "narration": "Når de kuraterte parene dine kan hjelpe andre, klikker du på Upload data. Velg synsfeltet på skjermen, alle kuraterte bilder med sin lagrede maske, eller en bildemappe og en maskemappe, og gi deretter datasettet et navn. Lenken viser hvilket Hugging Face-datasett det blir en del av. Ingenting sendes før du trykker på Upload og godtar å dele.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "narration": "Mikroskoper lagrer ofte bilder i nestede mapper. Når du åpner en mappe der bildene ligger i undermapper, tilbyr Make Masks å kopiere dem til én ny mappe, der hver kopi får navn etter mappene den lå i. Originalene røres ikke, og No åpner mappen som den er.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "narration": "Kopiene åpnes i redigereren, og et manifest for omdøping registrerer hvor hver av dem kom fra. Et synsfelt uten maske starter med en tom maske, klar for tegning eller deteksjon.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "25_organize_open",
+          "narration": "Klikk på Organize for Measure for å måle synsfeltene dine. Measure leser hvert synsfelt som én sammenslått matrise som rommer alle kanaler og maskene deres. Angi en kildemappe her, eller slipp filer og mapper i tabellen nedenfor. Hvis Consolidate subfolders er slått på og en kopiering mislykkes, oppgir vinduet hvor mange filer som mislyktes og hvor manifestet ligger, og stopper uten å endre kilden eller tabellen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "26_organize_table",
+          "narration": "Slipp hver kanalmappe i tabellen: Hver mappe blir en kolonne, og hver rad er ett synsfelt. Legg til en maskekolonne, angi rollen, her cellemaskene for kanal 2, og slipp maskemappen på den. Filene matches på tvers av kolonnene etter navn.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "narration": "Detect sets matcher bildene etter navn, rekkefølge og størrelse og viser deretter tre eksempelsett. Bekreft dem bare når hvert sett virkelig hører sammen; ellers må du rette regex-en eller kolonnene først.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "28_organize_images",
+          "narration": "Sett Show til Image + text og Thumbnail quality til High for å kontrollere radene visuelt; kvaliteten endrer bare visningen, aldri maskene eller målingene. En tabellcelle som ingenting ble matchet med, forblir tom og blir flagget, og Apply venter til alle rader er komplette.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "29_move_and_merge",
+          "narration": "Klikk på Apply. Sammendraget forteller hva som vil skje: Bilder og masker flyttes til kanalmapper navngitt etter Yokogawa-mønsteret og slås sammen i merged. Filene flyttes, ikke kopieres, og hver flytting skrives til et manifest.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "narration": "Når sorteringen er ferdig, åpner Make Masks den første kanalmappen, og konsollen melder at resultatet står først blant de siste kildene i Measure. Åpne Measure og bruk det som kilde for å hente ut objektegenskaper.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "03_real_labels",
+          "narration": "Hold kuraterte bilder og masker med samme navnestamme samlet. Bruk Cellpose Workbench for å trene på parene, eller Organize for Measure og deretter Measure for å hente ut målinger. De tilhørende veiledningene viser hvert neste trinn.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10021,11 +10045,13 @@
       "app_key": "graph_builder",
       "section": "Explore",
       "title": "Graph Builder: plott målinger og filtrer objekter",
-      "description": "Last inn en måletabell, tilordne plottakser, sammenlign grupper og filtrer de viste objektene.",
+      "description": "Last inn en måletabell, sammenlign grupper, filtrer objekter og bygg illustrative kolonner for genotype, replikat og kombinert betingelse.",
       "objectives": [
         "Laste inn en eksempeltabell med målinger.",
         "Lage et histogram, et spredningsplott og grupperte paneler.",
-        "Filtrere objekter og velge en oppfølgingsvisning."
+        "Filtrere objekter og velge en oppfølgingsvisning.",
+        "Tildele etiketter etter eksakte verdier i separate utdatakolonner og kombinere dem uten å endre kildemålingene.",
+        "Hente ut tekst til kolonner, lagre og laste inn et annoteringsskjema og slå sammen tabeller."
       ],
       "prerequisite": "Last ned og pakk ut Graph_Builder_real_measurements.zip. Den inneholder measurements.db. For å undersøke bildeutsnitt senere holder du også det tilhørende Annotate-prosjektet og bildene tilgjengelige.",
       "example_files": [
@@ -10039,7 +10065,7 @@
         },
         {
           "visual": "03_choose_database",
-          "narration": "Klikk på Load table og åpne measurements.db fra det utpakkede arkivet. Velg tabellen cell. Eksemplet inneholder 2 341 målte celler.",
+          "narration": "Klikk på Load table og åpne measurements.db fra det utpakkede arkivet. Velg tabellen cell. Eksemplet inneholder 2 341 målte celler. Merge tables, ved siden av tabellvelgeren, slår sammen flere tabeller til én; vi bruker den til slutt.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10077,6 +10103,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "10b_channels_cleared",
+          "narration": "Clear all channels beholder diagramtypen, men fjerner alle kolonner fra diagrammet, og lerretet forteller da hva som mangler: dra en kolonne til X eller Y for å tegne et diagram igjen. Slipp de samme kolonnene tilbake for å fortsette.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "11_actual_brush_state",
           "narration": "Fjern en fasett med det lille krysset for å gå tilbake til ett spredningsplott. Dra et rektangel rundt objekter for å velge et område. Hvis Open selection in Annotate ikke er tilgjengelig, åpner du Annotate separat med det tilhørende prosjektet og undersøker objektene der.",
           "hold_after": 0.7
@@ -10087,20 +10118,67 @@
           "hold_after": 0.7
         },
         {
+          "visual": "13_genotype_exact_values",
+          "narration": "Klikk Annotate conditions. Gi det første utdataet navnet genotype og bruk Assign values. Velg Exact values, og gi columnID-verdiene c1, c2 og c3 etiketten WildType. Legg til en andre boks kalt mutant for c7, c4, c5 og c6. Dette er illustrative etiketter, ikke validerte genotyper. Den nedlastede tabellen inneholder bare c1 og c2, så alle celler treffer WildType og ingen treffer mutant. Exact values sammenligner hele verdier: c1 treffer ikke c10.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "narration": "Legg til en utdatakolonne kalt replicate. Koble rowID-verdiene r1, r4, r5 og r6 i en boks kalt replicate 1. Legg til en boks til med samme navn for r7, r9 og r10. Bokser med samme etikett danner en union; motstridende ulike etiketter i ett utdata må løses før Apply conditions. Eksempelet inneholder r5 og r12, så r5 treffer og r12 forblir tom. Disse øvingsetikettene påviser ikke biologisk replikasjon.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "narration": "Legg til et tredje utdata kalt condition og velg Compose column. Velg genotype under Available columns og klikk Add column token. Skriv et understrekingstegn og klikk Add text token. Velg replicate og klikk Add column token. De ordnede symbolene lyder nå genotype, understrekingstegn, replicate. Du kan dra symbolene eller bruke Move token up og Move token down for å endre rekkefølgen. Forhåndsvis alle tre utdataene. Treffende r5-celler blir WildType understrekingstegn replicate 1. Mangler en del, forblir kombinasjonen tom, så r12 gir ikke en etikett med None eller nan.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15b_extract_text",
+          "narration": "Et utdata kan også hentes ut fra tekst. Legg til et fjerde utdata kalt row_number og velg Extract text. Velg rowID som kildekolonne og skriv inn et regulært uttrykk med en navngitt gruppe, her r etterfulgt av en gruppe kalt row_number som fanger sifrene. Klikk Create columns from named groups og deretter Preview. Rader uten treff forblir tomme. Eksempeltabellen har ingen opprinnelige filnavn, så vi henter ut fra en eksisterende ID-kolonne.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15c_save_schema",
+          "narration": "Klikk Save schema og velg en JSON-fil. Et skjema lagrer reglene, ikke verdiene: utdataene, boksene deres, sammensetninger og uttrekksmønstre. Manuelle radtildelinger hører til denne tabellen og utelates, og statuslinjen sier hvor mange.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15d_load_schema",
+          "narration": "Load schema leser en slik fil inn på samme eller en annen tabell. Den kontrolleres mot tabellens kolonner og åpnes som en forhåndsvisning av alle utdata; ingenting brukes før du klikker Apply conditions.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "narration": "Velg genotype under Generated columns for å sjekke hva skjemaet gjenopprettet: boksene WildType og mutant kommer tilbake med sine eksakte verdier, og hver boks viser hvor mange rader den treffer. Sjekk hvert utdata på denne måten før du klikker Apply conditions.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_annotations_applied",
+          "narration": "Klikk Apply conditions for å legge til genotype, replicate, condition og row_number i arbeidstabellen. De opprinnelige målekolonnene og kildedatabasen er uendret. Den samme annoteringseditoren virker også med en sammenslått arbeidstabell. Bruk forsøksplanen din til å velge meningsfulle etiketter før du plotter etter de nye kolonnene.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16b_save_annotated",
+          "narration": "Save chart tar vare på visningen og annoteringsoppskriften for ny innlasting. Export table inneholder de genererte kolonnene. For en SQLite-kilde ber Save annotated table om et nytt tabellnavn, foreslår cell_annotated og overskriver aldri en eksisterende tabell. Dette er separate lagringshandlinger; Apply conditions alene skriver ikke til kildedatabasen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_merge_tables",
+          "narration": "For å slå sammen tabeller klikker du Merge tables ved siden av tabellvelgeren. Kryss av for cell, nucleus og pathogen, behold cell som utdatatabell slik at det blir én rad per celle, og gi resultatet et navn. Klikk Validate and preview, les radtall og koblingsnøkler for hver tabell, og klikk deretter Create merged table.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_merged_table",
+          "narration": "Den sammenslåtte tabellen velges i tabellvelgeren, og kolonnene kan plottes som i alle andre tabeller. Kildetabellene i databasen er uendret; sammenslåingen lagres som en reproduserbar definisjon ved siden av databasen.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_fold_trellis",
           "narration": "Bruk snarveiene i toppfeltet for å åpne Plate Viewer for brønnvarmekart eller Small Multiples for gjentatte diagrammer. Behold kildedatabasen, de valgte kolonnene og filtrene slik at du kan gjenskape visningen.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
-        },
-        {
-          "visual": "12_selection_cleared",
-          "narration": "Den nåværende skjermen viser plott uten eksportknapp. Bruk Graph Builder-API-et for skriptede plott, eller Database Browser for å eksportere en tabell til et annet plotteverktøy.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
           ]
         }
       ],
@@ -11098,7 +11176,7 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Klikk på Load table, åpne arbeidskopien av measurements.db og velg cell. Eksemplet inneholder 2 341 objekter. Behold en kopi, fordi Export gates skriver tilhørighet til denne databasen.",
+          "narration": "Klikk på Load table, åpne arbeidskopien av measurements.db og velg cell. Eksemplet inneholder 2 341 objekter. Behold en kopi, fordi Export gates skriver tilhørighet til denne databasen. Merge tables ved siden av velgeren slår sammen celletabellen med kjerne- eller patogentabellene til én ny tabell, som i Graph Builder; kildetabellene forblir uendret.",
           "hold_after": 0.7
         },
         {
@@ -11172,6 +11250,21 @@
         {
           "visual": "17c_actual_volume_gate",
           "narration": "Bruk From view til å lage en navngitt boks avgrenset av de tre viste målingene. Kontroller populasjonsantallet og lagre den nye strategien separat.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17e_free_orbit",
+          "narration": "Velg Free under spin for å rotere rundt volumet: dra sidelengs og opp og ned samtidig, og visningen blir stående nøyaktig der du slipper. Drei den til populasjonen du vil ha, skiller seg ut fra resten.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17f_live_highlight",
+          "narration": "Velg Polygon through view og bytt drag til Draw. Klikk på hjørnene rundt populasjonen på skjermen; statuslinjen teller hjørnepunktene, og omrisset føres gjennom hele volumet i vinkelen du ser.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17h_rename_gate",
+          "narration": "Klikk på det første hjørnet igjen for å lukke polygonet og gi gaten et navn; her inneholder den 1 479 objekter. Dobbeltklikk på en gate i gatetabellen for å gi den nytt navn; undergatene følger det nye navnet.",
           "hold_after": 0.7
         },
         {
@@ -13789,7 +13882,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Åpne Measure fra Home. Measure leser bilder og etikettplan sammen. Aktiver lagring av bildeutsnitt hvis du trenger PNG-filer; hold databasen og kildeprosjektet sammen for strømmede utsnitt. Measure leser bildene og merkelappmaskene samt merkelappmaskene. Ut fra dette lager Measure de målte objektene og objektutsnittene. de målte objektene finner du her: measurements/measurements.db; objekttabellene avhenger av hvilke masker for cell, nucleus, pathogen og organelle som er aktivert. Avhengig av vei er tabellene som betyr noe, cell, nucleus, pathogen, cytoplasm. Kolonnene du bør følge med på, er plateID, rowID, columnID, fieldID. objektutsnittene finner du her: data/**/*_png når save_png er aktivert; png_list indekserer lagrede bildeutsnitt. Støttede arbeidsflyter kan i stedet strømme utsnitt fra sammenslåtte arrayer og masker. Avhengig av vei er tabellene som betyr noe, png_list. Kolonnene du bør følge med på, er png_path, prcfo. Mask kan levere bildene og merkelappmaskene. Bruk samme prosjekt og riktige kanalindekser for bilder og masker. Deretter tar Annotate over de målte objektene og objektutsnittene. Lagre eller strøm bildeutsnitt med stabile objektidentiteter. Classify bruker dem også. Velg bilde- eller tabellfamilien som passer til inndataene. Hvis du begynner i Make Masks, leverer den merkelappmaskene. Bruk FEATURES til å koble bilder og masker og skrive et målt prosjekt; enkeltstående masker er ikke sammenslåtte arrayer. Bildene og merkelappmaskene fra External Masks fungerer også her. Mål på nytt bare ved behov; External Masks kan allerede utføre måling. Du kan også ta de målte objektene og objektutsnittene videre til Image UMAP. Velg egenskapskolonner og undersøk representative bildeutsnitt. De går også videre til Embeddings. Behold opphavet til koderen og kanalpolicyen. Gate Editor leser også de målte objektene. Bruk de faktiske definisjonene og enhetene for de målte egenskapene. De kan også gå til Graph Builder. Velg variabler, grupper og filtre eksplisitt. QC bruker dem også. Vurder tilgjengelige kontroller og manglende dokumentasjon. De går også videre til Recruitment. Krev intensiteter og identiteter for de tiltenkte komponentene. De kan også gå til Invasion Assay. Krev tofargemålinger av farging og egnede grunnlinjekontroller. Replication Assay bruker dem også. Krev eksplisitte koblinger mellom parasitt- og vakuoleidentiteter. Timelapse kan levere bildene og merkelappmaskene. Bruk tidsserieprosjektet med stabile ramme- og objektidentiteter. Deretter tar Motility Assay over de målte objektene. Kombiner målte objekter med tilhørende spor. De går også videre til Feature Explorer. Definer klassesammenligningen og undersøk filtreringen. De kan også gå til Database Browser. Undersøk de faktiske tabellene før eksport. AnnData Export bruker dem også. Eksporter kompatible egenskaps- og metadatakolonner. De går også videre til Dose–Response. Koble den målte responsen til eksplisitte doser og kontroller. De kan også gå til Endodyogeny size proxy. Oppgi røttene til de målte prosjektene og nødvendige objekt-/png_list-tabeller. Kontroller aggregering per vertscelle og arealenheter før du tolker størrelsesintervaller; Mask-telledatabasen alene er ikke tilstrekkelig. Hvis du begynner i Import, leverer den bildene og merkelappmaskene samt merkelappmaskene. Importer tilhørende bilder og eksterne heltallsmasker for å bygge sammenslåtte prosjektarrayer, og åpne deretter Measure for prosjektet. Hopp over dette trinnet hvis kompatible målinger allerede er importert eller beregnet. Ikke legg til dupliserte målinger i en eksisterende importert tabell. Du kan også ta de målte objektene videre til Host–Pathogen Analysis. Behold uinfiserte celler i Measure. Oppgi masker for hele vakuoler, vertens referanseintensiteter og eventuelt eksplisitte koblinger fra parasitter til vakuoler; vertsidentiteten alene definerer ikke en vakuole.",
+          "narration": "Åpne Measure fra Home. Measure leser bilder og etikettplan sammen. Aktiver lagring av bildeutsnitt hvis du trenger PNG-filer; hold databasen og kildeprosjektet sammen for strømmede utsnitt. Measure leser bildene og merkelappmaskene samt merkelappmaskene. Ut fra dette lager Measure de målte objektene og objektutsnittene. de målte objektene finner du her: measurements/measurements.db; objekttabellene avhenger av hvilke masker for cell, nucleus, pathogen og organelle som er aktivert. Avhengig av vei er tabellene som betyr noe, cell, nucleus, pathogen, cytoplasm. Kolonnene du bør følge med på, er plateID, rowID, columnID, fieldID. objektutsnittene finner du her: data/**/*_png når save_png er aktivert; png_list indekserer lagrede bildeutsnitt. Støttede arbeidsflyter kan i stedet strømme utsnitt fra sammenslåtte arrayer og masker. Avhengig av vei er tabellene som betyr noe, png_list. Kolonnene du bør følge med på, er png_path, prcfo. Mask kan levere bildene og merkelappmaskene. Bruk samme prosjekt og riktige kanalindekser for bilder og masker. Deretter tar Annotate over de målte objektene og objektutsnittene. Lagre eller strøm bildeutsnitt med stabile objektidentiteter. Classify bruker dem også. Velg bilde- eller tabellfamilien som passer til inndataene. Hvis du begynner i Make Masks, leverer den merkelappmaskene. Bruk Organize for Measure til å slå sammen bilder og maskene deres til arrayene som Measure leser; enkeltstående masker er ikke sammenslåtte arrayer. Bildene og merkelappmaskene fra External Masks fungerer også her. Mål på nytt bare ved behov; External Masks kan allerede utføre måling. Du kan også ta de målte objektene og objektutsnittene videre til Image UMAP. Velg egenskapskolonner og undersøk representative bildeutsnitt. De går også videre til Embeddings. Behold opphavet til koderen og kanalpolicyen. Gate Editor leser også de målte objektene. Bruk de faktiske definisjonene og enhetene for de målte egenskapene. De kan også gå til Graph Builder. Velg variabler, grupper og filtre eksplisitt. QC bruker dem også. Vurder tilgjengelige kontroller og manglende dokumentasjon. De går også videre til Recruitment. Krev intensiteter og identiteter for de tiltenkte komponentene. De kan også gå til Invasion Assay. Krev tofargemålinger av farging og egnede grunnlinjekontroller. Replication Assay bruker dem også. Krev eksplisitte koblinger mellom parasitt- og vakuoleidentiteter. Timelapse kan levere bildene og merkelappmaskene. Bruk tidsserieprosjektet med stabile ramme- og objektidentiteter. Deretter tar Motility Assay over de målte objektene. Kombiner målte objekter med tilhørende spor. De går også videre til Feature Explorer. Definer klassesammenligningen og undersøk filtreringen. De kan også gå til Database Browser. Undersøk de faktiske tabellene før eksport. AnnData Export bruker dem også. Eksporter kompatible egenskaps- og metadatakolonner. De går også videre til Dose–Response. Koble den målte responsen til eksplisitte doser og kontroller. De kan også gå til Endodyogeny size proxy. Oppgi røttene til de målte prosjektene og nødvendige objekt-/png_list-tabeller. Kontroller aggregering per vertscelle og arealenheter før du tolker størrelsesintervaller; Mask-telledatabasen alene er ikke tilstrekkelig. Hvis du begynner i Import, leverer den bildene og merkelappmaskene samt merkelappmaskene. Importer tilhørende bilder og eksterne heltallsmasker for å bygge sammenslåtte prosjektarrayer, og åpne deretter Measure for prosjektet. Hopp over dette trinnet hvis kompatible målinger allerede er importert eller beregnet. Ikke legg til dupliserte målinger i en eksisterende importert tabell. Du kan også ta de målte objektene videre til Host–Pathogen Analysis. Behold uinfiserte celler i Measure. Oppgi masker for hele vakuoler, vertens referanseintensiteter og eventuelt eksplisitte koblinger fra parasitter til vakuoler; vertsidentiteten alene definerer ikke en vakuole.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -14100,7 +14193,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Åpne Make Masks fra Home. Gjennomgå bilde-/maskepar for segmenteringstrening, eller bruk FEATURES til å tilordne bilder og masker og starte måling. Å lagre en maske trener ikke en klassifikator. Make Masks leser mikroskopbildene og merkelappmaskene. Ut fra dette lager Make Masks de kuraterte treningsfeltene og merkelappmaskene. de kuraterte treningsfeltene finner du her: Separate bilde- og heltallsmaske-filer med samsvarende feltidentiteter; bevar originalbilder og etiketter. Deretter tar Cellpose Workbench over de kuraterte treningsfeltene. Bruk uavhengig kontrollerte bilde-/maskepar. Du kan også ta merkelappmaskene videre til Measure. Bruk FEATURES til å koble bilder og masker og skrive et målt prosjekt; enkeltstående masker er ikke sammenslåtte arrayer. Plaque Assay bruker dem også. Bruk plakkmasker med tilhørende kildebilder; cellemasker er ikke automatisk plakketiketter.",
+          "narration": "Åpne Make Masks fra Home. Gjennomgå bilde-/maskepar for segmenteringstrening, eller bruk Organize for Measure til å slå sammen bilder og maskene deres til arrayer som Measure leser. Å lagre en maske trener ikke en klassifikator. Make Masks leser mikroskopbildene og merkelappmaskene. Ut fra dette lager Make Masks de kuraterte treningsfeltene og merkelappmaskene. de kuraterte treningsfeltene finner du her: Separate bilde- og heltallsmaske-filer med samsvarende feltidentiteter; bevar originalbilder og etiketter. Deretter tar Cellpose Workbench over de kuraterte treningsfeltene. Bruk uavhengig kontrollerte bilde-/maskepar. Du kan også ta merkelappmaskene videre til Measure. Bruk Organize for Measure til å slå sammen bilder og maskene deres til arrayene som Measure leser; enkeltstående masker er ikke sammenslåtte arrayer. Plaque Assay bruker dem også. Bruk plakkmasker med tilhørende kildebilder; cellemasker er ikke automatisk plakketiketter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14137,7 +14230,7 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "Åpne Graph Builder fra Home. Velg variabler, grupper og figurinnstillinger fra den innlastede tabellen, og eksporter deretter figuren med analysekonteksten. Graph Builder leser de målte objektene. Ut fra dette lager Graph Builder figurene og de eksporterte tabellene. Measure kan levere de målte objektene. Velg variabler, grupper og filtre eksplisitt.",
+          "narration": "Åpne Graph Builder fra Home. Last inn en tabell, eller bruk Merge tables til å kombinere kompatible målinger. For konverterte bilder bruker du Merge original filenames til å gjenopprette navn fra et konverteringskart. Bruk Annotate conditions til å tildele en navngitt kolonne med regex-regler for metadata eller dratte rader; lagre en annotert SQLite-tabell, eller eksporter CSV med reglene. Velg variabler, grupper og figurinnstillinger, og eksporter deretter figuren med analysekonteksten. Graph Builder leser de målte objektene. Ut fra dette lager Graph Builder figurene og de eksporterte tabellene. Measure kan levere de målte objektene. Velg variabler, grupper og filtre eksplisitt.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14154,7 +14247,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Åpne Gate Editor fra Home. Definer terskel- eller polygonporter på faktiske egenskaps- eller koordinatkolonner, og bruk deretter den lagrede porten på kompatible objekter. Bruk Annotate til å skrive de viste gatene til en annoteringskolonne; gjennomgå de valgte objektene og velg binære etiketter eller etiketter for flere klasser. Gate Editor leser de målte objektene samt projeksjonen og klyngene. Ut fra dette lager Gate Editor de gjenbrukbare portene og treningsannotasjonene. Image UMAP kan levere projeksjonen og klyngene. Oppgi tilhørende koordinat- eller egenskapskolonner når du definerer et utvalg. Deretter tar Annotate over de gjenbrukbare portene. Bruk kompatible porter, og vurder deretter kandidatetikettene. Hvis du begynner i Measure, leverer den de målte objektene. Bruk de faktiske definisjonene og enhetene for de målte egenskapene. Du kan også ta treningsannotasjonene videre til Classify. Skriv gjennomgåtte gateutvalg til en annoteringskolonne, og velg deretter samme kolonne og objektpopulasjon i Classify. Hold valideringsobjekter atskilt fra treningsetiketter.",
+          "narration": "Åpne Gate Editor fra Home. Last inn en tabell, eller bruk Merge tables til å lage et arbeidssett med validerte nøkler og aggregering. Definer terskel- eller polygonporter på faktiske egenskaps- eller koordinatkolonner, og bruk deretter den lagrede porten på kompatible objekter. Bruk Annotate til å skrive de viste gatene til en annoteringskolonne; gjennomgå de valgte objektene og velg binære etiketter eller etiketter for flere klasser. Gate Editor leser de målte objektene samt projeksjonen og klyngene. Ut fra dette lager Gate Editor de gjenbrukbare portene og treningsannotasjonene. Image UMAP kan levere projeksjonen og klyngene. Oppgi tilhørende koordinat- eller egenskapskolonner når du definerer et utvalg. Deretter tar Annotate over de gjenbrukbare portene. Bruk kompatible porter, og vurder deretter kandidatetikettene. Hvis du begynner i Measure, leverer den de målte objektene. Bruk de faktiske definisjonene og enhetene for de målte egenskapene. Du kan også ta treningsannotasjonene videre til Classify. Skriv gjennomgåtte gateutvalg til en annoteringskolonne, og velg deretter samme kolonne og objektpopulasjon i Classify. Hold valideringsobjekter atskilt fra treningsetiketter.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14459,22 +14552,6 @@
           "hold_after": 0.7,
           "related_lessons": [
             "82_toxoplasma"
-          ]
-        },
-        {
-          "visual": "module_plasmodium",
-          "narration": "Åpne Plasmodium spp. fra Home. Åpne organismeveiledningen fra Home for å lese om planlagte arbeidsflyter for malariaavbildning og undersøke det felles apicomplexa-diagrammet. Alle åtte analyseflisene er merket Coming soon; ingen starter en analyse eller produserer et resultat. Plasmodium spp. leser den medfølgende organismereferansen. Ut fra dette lager Plasmodium spp. organismeveiledningen og valget av analyse.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "83_plasmodium"
-          ]
-        },
-        {
-          "visual": "module_candida",
-          "narration": "Åpne Candida spp. fra Home. Åpne organismeveiledningen fra Home for å lese om planlagte arbeidsflyter for soppavbildning og undersøke det generiske diagrammet av knoppskytende gjær. Alle åtte analyseflisene er merket Coming soon; ingen starter en analyse eller produserer et resultat. Candida spp. leser den medfølgende organismereferansen. Ut fra dette lager Candida spp. organismeveiledningen og valget av analyse.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "84_candida"
           ]
         },
         {
@@ -15009,182 +15086,6 @@
         {
           "visual": "06_home_return",
           "narration": "Veiledningen skriver ingen analysefiler, så det egentlige arbeidet skjer andre steder. Hvis bildene dine fortsatt må segmenteres eller måles, går du først tilbake til Home; når bildene eller tabellene er klare, tar analysesidene over.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "83_plasmodium",
-      "number": 83,
-      "slug": "plasmodium",
-      "title": "Plasmodium: utforsk organismeveiledningen",
-      "series": 3,
-      "app_key": "plasmodium",
-      "section": "Organisms and assays",
-      "description": "Bla gjennom Plasmodium-veiledningen, utforsk cellediagrammet og finn tilgjengelige generelle arbeidsflyter for bildeanalyse.",
-      "objectives": [
-        "Åpne siden fra Home og finne de viktigste kontrollene.",
-        "Identifisere tilgjengelige inndata, handlinger og utdata.",
-        "Velge neste tilgjengelige analyse eller referanse."
-      ],
-      "prerequisite": "Åpne Home i spaCR. Veiledningen trenger ingen inndatafiler. Plasmodium-spesifikke analysefliser viser foreløpig Coming soon.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Plasmodium har sin egen veiledning. Fra Home velger du Plasmodium for å bla gjennom organismen, cellekompartmentene og analysene som er planlagt for den.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "Informasjonsruten forteller parasittens historie i avsnitt, fra blodstadiet og leverstadiet til motilitet. Dra skillelinjen for å få mer plass ved siden av modulflisene.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "På diagrammet over apikomplekse parasitter holder du pekeren over et kompartment for å lese hva det er. Velg flere for å utheve dem sammen, og Clear components tilbakestiller visningen.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Analyseflisene er fortsatt merket Coming soon og kan ikke åpnes ennå, men beskrivelsene viser hva hver av dem skal måle. For å analysere Plasmodium-bilder i dag går du tilbake til Home og åpner Mask eller Measure med dine egne bilder og passende kanalinnstillinger.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "For videre lesing åpner lenkene til PlasmoDB og UniProt ressurser om organismen i nettleseren. Ingenting her krever et datasett eller Run, og veiledningen skriver ingen filer.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "84_candida",
-      "number": 84,
-      "slug": "candida",
-      "title": "Candida: utforsk organismeveiledningen",
-      "series": 3,
-      "app_key": "candida",
-      "section": "Organisms and assays",
-      "description": "Bla gjennom Candida-veiledningen, utforsk gjærdiagrammet og finn tilgjengelige generelle arbeidsflyter for bildeanalyse.",
-      "objectives": [
-        "Åpne siden fra Home og finne de viktigste kontrollene.",
-        "Identifisere tilgjengelige inndata, handlinger og utdata.",
-        "Velge neste tilgjengelige analyse eller referanse."
-      ],
-      "prerequisite": "Åpne Home i spaCR. Veiledningen trenger ingen inndatafiler. Candida-spesifikke analysefliser viser foreløpig Coming soon.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Fra Home velger du Candida. Veiledningen dekker morfologi, filamentdannelse, biofilm og hvordan gjæren samhandler med vertsceller.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "Les informasjonsruten med modulbeskrivelsene ved siden av, og dra skillelinjen for å gjøre den siden du leser, bredere.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "Diagrammet over knoppskytende gjær fungerer som i de andre veiledningene. Hold pekeren over en komponent for å lese beskrivelsen, velg flere for å holde dem uthevet, og Clear components tilbakestiller utvalget.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "De Candida-spesifikke analyseflisene er merket Coming soon inntil videre, men du kan likevel analysere bildene dine med de generelle verktøyene. Gå tilbake til Home, segmenter dem i Mask og mål dem i Measure, med kanaler og masker som passer arten og eksperimentet ditt.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "For detaljer om gener og proteiner åpnes lenkene til Candida Genome Database og UniProt i nettleseren. Veiledningen trenger ingen inndatafiler og skriver ingen utdata, så når du er klar til å behandle bilder, følger du veiledningen for en kjørbar modul.",
           "hold_after": 0.7
         }
       ],

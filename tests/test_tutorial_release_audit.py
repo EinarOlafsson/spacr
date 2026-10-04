@@ -56,7 +56,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     languages, voices = live._voice_inventory(
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
-    assert len(catalog["lessons"]) == 85
+    # Wave 3 (candidate nmw7tksc) withdrew 83_plasmodium and 84_candida.
+    assert len(catalog["lessons"]) == 83
     # Native Embeddings replaces eleven historical scenes with nine; current Plate Viewer adds two;
     # native Timelapse has 12 scenes (was 16), native OPS 12 (was 9), Conda 9 (was 8);
     # Investigate Hit, no longer held, adds its 18; the final Train Cellpose has 13 (was 11);
@@ -64,7 +65,9 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # Make Masks gains the five item-489 restoration scenes (1101 -> 1106).
     # Re-record wave 1 (candidate kq8y8lq2): 22 13 (was 7), 32 10 (was 9), 41 12 (was 11), 43 14 (was 13).
     # Re-record wave 2 (candidate me1282u_): 05 19 (was 11), 08 12 (was 11), 09 22 (was 20), 24 19 (was 15).
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1130
+    # Wave 3 (candidate nmw7tksc): 08 13 (was 12), 14 41 (was 32), 58 23 (was 12), 64 25 (was 22),
+    # 79 78 (was 80); 83 and 84 (5 each) withdrawn.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1142
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
@@ -203,7 +206,9 @@ def test_every_module_and_fold_has_a_route_or_an_explicit_tutorial_gap(catalog_l
     gaps = navigation['missing_tutorials']
     missing = {row['app_key'] for row in gaps}
     assert missing == set()
-    assert {'candida', 'host_pathogen', 'plasmodium', 'toxoplasma'} <= set(lesson_keys)
+    assert {'host_pathogen', 'toxoplasma'} <= set(lesson_keys)
+    # Withdrawn in tutorial wave 3: their pages are behind Show alpha species.
+    assert not {'candida', 'plasmodium'} & set(lesson_keys)
     assert len(missing) == len(gaps)
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
     assert not missing & set(lesson_keys)

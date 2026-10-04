@@ -378,8 +378,11 @@ def checked_web_input(stage, identity):
 
 
 def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_ids=(),
-          host_web=False, migrate_web=(), retain_narration=()):
+          host_web=False, migrate_web=(), retain_narration=(), withdraw=()):
     """Create a new private candidate; never upload or modify the published tree.
+
+    ``withdraw`` unlists published lessons: they leave every catalog, the
+    player and the candidate's media; earlier revisions keep their files.
 
     ``host_web`` puts the selected lessons' web copies on the media host;
     ``migrate_web`` moves preserved lessons' verified web copies there too.
@@ -405,12 +408,23 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     if len(roots) != 2 or set(roots) != {receipt['media_root']}:
         raise ValueError('Baseline media revision is not the currently published revision')
     catalogs = {name: read(published / 'catalog' / name) for name in CATALOGS}
-    previous_navigation = navigation(catalogs['lessons_en.json'])
-    current_hosts = {identity: route.get('host_app_key')
-                     for identity, route in previous_navigation['routes'].items()}
     for name in CATALOGS:
         if catalogs[name] != read(baseline / 'web/catalog' / name):
             raise ValueError('Published lesson sources differ from the verified media baseline')
+    withdraw = list(withdraw)
+    listed = {lesson['id'] for lesson in catalogs['lessons_en.json']['lessons']}
+    if (len(withdraw) != len(set(withdraw)) or set(withdraw) - listed
+            or set(withdraw) & set(identities)):
+        raise ValueError('Withdraw only unique, published lessons that are not being refreshed')
+    withdrawn_keys = {lesson.get('app_key') for lesson in catalogs['lessons_en.json']['lessons']
+                      if lesson['id'] in withdraw} - {None}
+    catalogs = {name: {**catalog, 'lessons': [lesson for lesson in catalog['lessons']
+                                              if lesson['id'] not in withdraw]}
+                for name, catalog in catalogs.items()}
+    # Routes of the remaining published lessons, after any withdrawal.
+    previous_navigation = navigation(catalogs['lessons_en.json'])
+    current_hosts = {identity: route.get('host_app_key')
+                     for identity, route in previous_navigation['routes'].items()}
     if (len(identities) != len(set(identities))
             or any(not re.fullmatch(r'[0-9]+_[a-z0-9_]+', identity) for identity in identities)):
         raise ValueError('Duplicate or invalid appended lesson identity')
@@ -455,13 +469,13 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     web_inputs = {lesson['id']: checked_web_input(stage, lesson['id']) for lesson in lessons}
     root = Path(tempfile.mkdtemp(prefix='release-candidate-append-', dir=stage))
     records = copy_preserved_web(published, baseline, root, previous,
-                                 replacements=refresh_ids, hosted=migrate_web)
+                                 replacements=[*refresh_ids, *withdraw], hosted=migrate_web)
     for identity in migrate_web:
         migrate_web_copy(baseline, root, previous, identity, records)
     web_checks = []
     for record in previous['files']:
         if record['path'].startswith('media_host/'):
-            if Path(record['path']).parts[1] in refresh_ids:
+            if Path(record['path']).parts[1] in (*refresh_ids, *withdraw):
                 continue
             copy_checked(baseline / record['path'], root / record['path'], records, root, record['sha256'])
     for lesson in lessons:
@@ -484,6 +498,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
     for name, catalog in catalogs.items():
         write(root / 'web/catalog' / name, catalog)
     js_catalog = parse_javascript((published / 'lesson_catalog.js').read_text())
+    js_catalog = {**js_catalog, 'lessons': [lesson for lesson in js_catalog['lessons']
+                                            if lesson['id'] not in withdraw]}
     appended = [identity for identity in identities if identity not in refresh_ids]
     if appended:
         js_catalog = append_javascript_catalog(js_catalog, catalogs['lessons_en.json'], len(appended))
@@ -499,6 +515,8 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
         if host and nav['routes'].get(lesson['id'], {}).get('host_app_key') != host:
             raise ValueError(f'Lesson host differs from current GUI: {lesson["id"]}')
     require_no_new_route_gaps(previous_navigation, nav)
+    if withdrawn_keys & {item['app_key'] for item in nav['missing_tutorials']}:
+        raise ValueError('Withdrawing a lesson may not leave a visible module without a tutorial')
     for name, variable, data in [('lesson_catalog.js', 'SPACR_LESSON_CATALOG', js_catalog),
                                  ('module_navigation.js', 'SPACR_TUTORIAL_NAVIGATION', nav)]:
         (root / 'web' / name).write_text('"use strict";\nwindow.' + variable + ' = Object.freeze('
@@ -531,6 +549,7 @@ def build(stage, baseline, identities, *, replace=False, refresh_ids=(), link_id
                   preserved_lessons=len(english)-len(lessons),
                   appended_lessons=appended,
                   refreshed_lessons=refresh_ids,
+                  withdrawn_lessons=withdraw,
                   retained_narration={identity: dict(track_count=len(checks[identity]),
                       resynthesized=False, current_runtime_freshness_claimed=False,
                       baseline_manifest_sha256=digest(baseline / 'release-manifest.json'))
@@ -564,7 +583,10 @@ if __name__ == '__main__':
                         help='Move a preserved lesson\'s verified web copy onto the media host')
     parser.add_argument('--refresh-links', action='append', default=[],
                         help='Update only chapter destinations; require unchanged prose and preserve media')
+    parser.add_argument('--withdraw', action='append', default=[],
+                        help='Unlist a published lesson from the catalogs, player and candidate media')
     args = parser.parse_args()
     build(args.stage, args.baseline, args.lesson, replace=args.replace_existing,
           refresh_ids=args.refresh_lesson, link_ids=args.refresh_links,
-          host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration)
+          host_web=args.host_web, migrate_web=args.migrate_web, retain_narration=args.retain_narration,
+          withdraw=args.withdraw)

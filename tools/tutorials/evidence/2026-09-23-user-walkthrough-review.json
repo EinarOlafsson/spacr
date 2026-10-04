@@ -11,7 +11,7 @@
     "run",
     "outputs and next step"
   ],
-  "source_lessons": 85,
+  "source_lessons": 83,
   "manually_rewritten": [
     "01_pypi_github",
     "02_conda_install",
@@ -215,7 +215,7 @@
     },
     {
       "lesson": "05_home",
-      "english_sha256": "5ca4e58f6a1eeaf99a7e53d3af24863939aa21c1780d969bd80082bedb0481aa",
+      "english_sha256": "ab2380b01d816c3a2cf7ab7f4117011b6f9b22db7937d3dab9e8801e162f02d1",
       "scene_count": 19,
       "source_revised": true,
       "newly_authored": false,
@@ -251,8 +251,8 @@
     },
     {
       "lesson": "08_measure",
-      "english_sha256": "271dc2fd88dbdf92ebeed7cf8eb8a69be54479da8e113d12d7522d54b8853f3c",
-      "scene_count": 12,
+      "english_sha256": "7405b937b25f30648fd18b6857e283f3e6a6e1fbdc9809807411ef119f281d67",
+      "scene_count": 13,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
@@ -330,7 +330,7 @@
       "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -873,7 +873,7 @@
         }
       ],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -946,7 +946,7 @@
       "manual_review": "source rewrite; media publication pending",
       "automated_review_flags": [],
       "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1128,8 +1128,8 @@
     },
     {
       "lesson": "79_module_inputs_outputs",
-      "english_sha256": "841aa1c4f0d9024d551b8c5b4693a3d894e0f2ad90a3d6f8abfa71acc62db0ce",
-      "scene_count": 80,
+      "english_sha256": "74ffb2780312b1dbb6be41c4d4f8489af7431d43e7013377af9aa04070613aed",
+      "scene_count": 78,
       "source_revised": true,
       "newly_authored": false,
       "manual_review": "source rewrite; media publication pending",
@@ -1171,22 +1171,8 @@
           "reason": "negative_framing_to_review"
         }
       ],
-      "incompatible_translation_reviews": [
-        "da",
-        "de",
-        "es",
-        "fr",
-        "hi",
-        "is",
-        "it",
-        "ja",
-        "ko",
-        "nb",
-        "pt-BR",
-        "sv",
-        "zh-CN"
-      ],
-      "prepared_rewrite": false,
+      "incompatible_translation_reviews": [],
+      "prepared_rewrite": true,
       "published_rewrite": false
     },
     {
@@ -1255,30 +1241,6 @@
       "lesson": "82_toxoplasma",
       "english_sha256": "da3e7732686bb5853cfdec150dc325ffdc316c79d13881975c0be023f34f38b4",
       "scene_count": 7,
-      "source_revised": false,
-      "newly_authored": true,
-      "manual_review": "pending",
-      "automated_review_flags": [],
-      "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
-    },
-    {
-      "lesson": "83_plasmodium",
-      "english_sha256": "1d8330c981fc355155d2c5c607b6d822714d2051d616d64111ffa9648c2b56f3",
-      "scene_count": 5,
-      "source_revised": false,
-      "newly_authored": true,
-      "manual_review": "pending",
-      "automated_review_flags": [],
-      "incompatible_translation_reviews": [],
-      "prepared_rewrite": false,
-      "published_rewrite": false
-    },
-    {
-      "lesson": "84_candida",
-      "english_sha256": "a66cc4038560ff519d72efde7f80a708ada8801988a58c4f54f61f07ae1406ce",
-      "scene_count": 5,
       "source_revised": false,
       "newly_authored": true,
       "manual_review": "pending",

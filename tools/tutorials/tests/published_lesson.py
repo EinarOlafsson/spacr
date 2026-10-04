@@ -16,7 +16,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 CANDIDATE = ROOT / 'release_candidate'
 #: The newest publication evidence; it names the voices every lesson ships.
-PUBLICATION = ROOT / 'evidence/2026-10-03-rerecord-wave2-publication.json'
+PUBLICATION = ROOT / 'evidence/2026-10-04-rerecord-wave3-publication.json'
 sys.path.insert(0, str(ROOT / 'authoring/tools'))
 import render_all_voices as renderer  # noqa: E402
 

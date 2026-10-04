@@ -646,13 +646,11 @@
           "speech_text": "Tools汇集了可动手操作的编辑器和浏览器。在Make Masks中可以修正掩膜，也可以从这里打开塞尔波斯 Workbench。Align and Stitch把相互重叠的图像块拼接成一张图。有了测量数据后，可以用Image 优麦普、门控编辑器和Graph Builder来探索和绘图。每个模块的工具栏都会打开与之相关的工具。"
         },
         {
-          "visual": "04_assays  (3)",
-          "narration": "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。",
+          "visual": "04_assays  (1)",
+          "narration": "打开 Assays 查找特定生物的工作流程。Toxoplasma 会打开它的检测菜单，例如噬斑分析或宿主–病原体测量。按照所选检测的教程准备其图像、掩膜和测量输入。",
           "hold_after": 0.7,
           "focus_modules": [
-            "toxoplasma",
-            "plasmodium",
-            "candida"
+            "toxoplasma"
           ],
           "related_lessons": [
             "24_plaque",
@@ -660,7 +658,7 @@
             "26_invasion",
             "27_replication"
           ],
-          "speech_text": "打开Assays并选择您的生物：Toxoplasma、Plasmodium或Candida。然后从该生物的菜单中选择一种检测。例如，打开Toxoplasma进行噬斑分析或宿主与病原体测量。按照所选检测的教程准备图像、掩膜和测量输入。"
+          "speech_text": "打开 Assays 查找特定生物的工作流程。Toxoplasma 会打开它的检测菜单，例如噬斑分析或宿主–病原体测量。按照所选检测的教程准备其图像、掩膜和测量输入。"
         },
         {
           "visual": "05_classify_host",
@@ -1263,6 +1261,18 @@
           ],
           "hold_after": 0.7,
           "speech_text": "检查裁剪图，然后在measurements文件夹中找到测量数据库文件，并在项目的裁剪输出中找到保存的对象图像。把数据库和图像路径放在一起。接下来可以用Annotate为示例对象加标签；如果已有带标签的训练数据，也可以直接使用Classify。"
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "narration": "在任何运行开始之前，spaCR会根据项目中的一个视野估算每个工作进程所需的内存。对于非常大的视野，例如拼接后的马赛克，您请求的工作进程可能装不下空闲内存，此时spaCR会先询问您。您可以选择推荐的工作进程数，或保留自己的数量并让Measure在内存不足时暂停新视野，或关闭其他程序以释放内存。",
+          "focus": [
+            1620,
+            860,
+            580,
+            360
+          ],
+          "hold_after": 0.7,
+          "speech_text": "在任何运行开始之前，斯佩克尔会根据项目中的一个视野估算每个工作进程所需的内存。对于非常大的视野，例如拼接后的马赛克，您请求的工作进程可能装不下空闲内存，此时斯佩克尔会先询问您。您可以选择推荐的工作进程数，或保留自己的数量并让Measure在内存不足时暂停新视野，或关闭其他程序以释放内存。"
         }
       ],
       "narration_voices": {
@@ -2316,32 +2326,38 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "打开图像与掩膜对，检查并编辑对象，保存测量数据，并创建成对的训练裁剪图。",
+      "description": "打开图像与掩膜对，修正对象，记录判定，为Measure组织图像和掩膜，并创建成对的训练裁剪图。",
       "objectives": [
         "打开带有对应实例掩膜的图像，并在放大镜中检查对象。",
-        "测量成对的视野，并保存对象特征数据库。",
-        "用Undo、绘制、分割和大小过滤修正标签。",
-        "保存整理好的掩膜，并创建用于训练的图像与掩膜裁剪图。"
+        "用Undo、绘制、分割和对象过滤修正标签。",
+        "保存整理好的掩膜，记录Keep或Discard判定，并创建用于训练的图像与掩膜裁剪图。",
+        "为Measure组织图像和掩膜，并用Upload data共享整理好的图像对。"
       ],
       "prerequisite": "准备一个二维图像文件夹，并在masks子文件夹中放入对应的实例标签TIFF。每个掩膜使用图像文件的基本名。练习编辑和重新裁剪时请使用副本。示例使用Measure可下载显微项目中的ER图像和细胞掩膜。",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "从Home打开Tools中的Make Masks。选择这个编辑器来检查和修正单张图像的掩膜。在选择编辑工具之前，先打开包含成对图像和标签的文件夹。",
+          "narration": "从Home打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ],
-          "speech_text": "从主页打开Tools中的Make Masks。选择这个编辑器来检查和修正单张图像的掩膜。在选择编辑工具之前，先打开包含成对图像和标签的文件夹。"
+          "speech_text": "从主页打开Tools中的Make Masks。左下角的按钮用于载入图像：Open folder、Organize for Measure和Load test data。右侧的Discard、Keep、Skip和Upload data决定每个视野编辑完成后如何处理。"
+        },
+        {
+          "visual": "01b_test_data_menu",
+          "narration": "Load test data会打开十张弓形虫示例图像。它的箭头还提供已发表模型所用的每个训练数据集的样本及其掩膜，让您了解好的训练图像对是什么样子。",
+          "hold_after": 0.7,
+          "speech_text": "Load test data会打开十张弓形虫示例图像。它的箭头还提供已发表模型所用的每个训练数据集的样本及其掩膜，让您了解好的训练图像对是什么样子。"
         },
         {
           "visual": "02_folder_picker",
-          "narration": "选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。",
+          "narration": "点击Open folder并选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
           ],
-          "speech_text": "选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。"
+          "speech_text": "点击Open folder并选择图像文件夹。本例使用Measure示例中的ER强度图像及对应的细胞掩膜。保持图像与掩膜尺寸一致，文件名一一对应。"
         },
         {
           "visual": "03_real_labels",
@@ -2351,13 +2367,13 @@
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "打开Magnifier settings。选择Otsu和Region under the mouse，即可预览指针周围基于阈值得到的对象。如果阈值无法很好地分开您的对象，请选择基于模型的模式。",
+          "narration": "打开Live magnifier的设置，并将Segment保持为Region under the mouse。方法来自Detection method类别，这里是在CPU上运行的Otsu。如果阈值无法很好地分开您的对象，请选择基于模型的方法。",
           "hold_after": 0.7,
-          "speech_text": "打开Magnifier settings。选择Otsu和Region under the mouse，即可预览指针周围基于阈值得到的对象。如果阈值无法很好地分开您的对象，请选择基于模型的模式。"
+          "speech_text": "打开Live magnifier的设置，并将Segment保持为Region under the mouse。方法来自Detection method类别，这里是在CPU上运行的Otsu。如果阈值无法很好地分开您的对象，请选择基于模型的方法。"
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "打开Magnifier，把指针悬停在对象上即可放大预览。在多个对象上移动，检查建议的轮廓。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。",
+          "narration": "打开Magnifier，把指针悬停在对象上即可预览其轮廓。左上角的读数显示像素位置和强度，以及指针下对象的标签和面积。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。",
           "hold_after": 0.7,
           "focus": [
             1370,
@@ -2365,67 +2381,7 @@
             2200,
             1775
           ],
-          "speech_text": "打开Magnifier，把指针悬停在对象上即可放大预览。在多个对象上移动，检查建议的轮廓。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。"
-        },
-        {
-          "visual": "readouts_06_features_real_files",
-          "narration": "点击Features测量图像与掩膜对。为每个视野添加一行，并选择强度图像和对应的对象掩膜。如果按文件名自动匹配后仍有文件未分配，请检查手动分配。",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "点击Features测量图像与掩膜对。为每个视野添加一行，并选择强度图像和对应的对象掩膜。如果按文件名自动匹配后仍有文件未分配，请检查手动分配。"
-        },
-        {
-          "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "在每一行中，于Channel 1选择ER强度图像，于Cell mask选择对应的标签图像。对第二个视野重复同样操作。测量荧光时请使用原始强度图像。",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "在每一行中，于Channel 1选择ER强度图像，于Cell mask选择对应的标签图像。对第二个视野重复同样操作。测量荧光时请使用原始强度图像。"
-        },
-        {
-          "visual": "readouts_09_features_assigned_table",
-          "narration": "检查两行后，选择测量设置。本例使用一个工作进程、一像素的最小细胞大小，并且不保存PNG裁剪图。如果适合您的实验，可以提高大小下限以排除小对象。点击Measure。",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "检查两行后，选择测量设置。本例使用一个工作进程、一像素的最小细胞大小，并且不保存PNG裁剪图。如果适合您的实验，可以提高大小下限以排除小对象。点击Measure。"
-        },
-        {
-          "visual": "readouts_12_features_measurements_saved",
-          "narration": "测量完成后，打开输出文件夹。measurements文件夹中有measurements.db，其中包含两个视野的对象特征。把数据库与其源图像、掩膜和设置放在一起，然后关闭Features返回编辑。",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ],
-          "speech_text": "测量完成后，打开输出文件夹。measurements文件夹中有测量数据库文件，其中包含两个视野的对象特征。把数据库与其源图像、掩膜和设置放在一起，然后关闭Features返回编辑。"
+          "speech_text": "打开Magnifier，把指针悬停在对象上即可预览其轮廓。左上角的读数显示像素位置和强度，以及指针下对象的标签和面积。轮廓看起来正确时，点击即可添加这些对象；要继续编辑，请关闭Magnifier。"
         },
         {
           "visual": "03_real_labels",
@@ -2471,30 +2427,36 @@
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "设置对象的最小和最大面积，然后按Filter删除超出范围的标签。选择适合您对象的范围，并检查删除了哪些对象。过滤会修改掩膜，如果阈值删掉了有用的对象，请使用Undo。",
+          "narration": "要按大小或形状删除对象，请在Filter类别中选择一个属性，然后点击Add a filter。scikit-image测量的任何regionprop都可以作为过滤条件，例如面积、实心度或平均强度。这里一行设有最小值的面积条件隐藏了较小的细胞；按Filter可重新应用整个列表。下方的记录列出了被过滤隐藏的每个对象。",
           "hold_after": 0.7,
-          "speech_text": "设置对象的最小和最大面积，然后按Filter删除超出范围的标签。选择适合您对象的范围，并检查删除了哪些对象。过滤会修改掩膜，如果阈值删掉了有用的对象，请使用Undo。"
+          "speech_text": "要按大小或形状删除对象，请在Filter类别中选择一个属性，然后点击Add a filter。scikit-image测量的任何regionprop都可以作为过滤条件，例如面积、实心度或平均强度。这里一行设有最小值的面积条件隐藏了较小的细胞；按Filter可重新应用整个列表。下方的记录列出了被过滤隐藏的每个对象。"
+        },
+        {
+          "visual": "08d_filter_removed",
+          "narration": "删除一行即可恢复它所隐藏的对象。过滤条件在编辑时即时生效，每次打开视野时也会再次应用，因此在继续之前，请删除不再需要的行。Undo也可以撤销一次过滤操作。",
+          "hold_after": 0.7,
+          "speech_text": "删除一行即可恢复它所隐藏的对象。过滤条件在编辑时即时生效，每次打开视野时也会再次应用，因此在继续之前，请删除不再需要的行。Undo也可以撤销一次过滤操作。"
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "检查完编辑后，点击Save mask。如有需要，在切换到其他视野之前，把大小范围重设为零以禁用它们。保留源图像，并把保存的整理记录与编辑后的掩膜放在一起。",
+          "narration": "检查完编辑后，点击工具栏中的Save mask。将源图像与保存的掩膜及其整理记录放在一起。",
           "hold_after": 0.7,
-          "speech_text": "检查完编辑后，点击Save mask。如有需要，在切换到其他视野之前，把大小范围重设为零以禁用它们。保留源图像，并把保存的整理记录与编辑后的掩膜放在一起。"
+          "speech_text": "检查完编辑后，点击工具栏中的Save mask。将源图像与保存的掩膜及其整理记录放在一起。"
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "标题栏中还有其余的掩膜工具。选择权重时，Model Zoo帮您找到权重，Model Compare把两组掩膜并排比较。还有更多示例需要修正时，Curate和Open in napari会带您回到编辑。",
+          "narration": "右上角的图标可打开其余的掩膜工具。Cellpose Workbench用整理好的图像对训练模型并将其应用到文件夹，旁边的图标则对已打开文件夹中的每个视野运行检测。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
             "19_train_cellpose",
             "20_cellpose_masks"
           ],
-          "speech_text": "标题栏中还有其余的掩膜工具。选择权重时，Model Zoo帮您找到权重，Model Compare把两组掩膜并排比较。还有更多示例需要修正时，Curate和Open in napari会带您回到编辑。"
+          "speech_text": "右上角的图标可打开其余的掩膜工具。塞尔波斯 Workbench用整理好的图像对训练模型并将其应用到文件夹，旁边的图标则对已打开文件夹中的每个视野运行检测。"
         },
         {
-          "visual": "09_fold_napari_bridge",
-          "narration": "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。",
+          "visual": "09_fold_model_zoo",
+          "narration": "Model Compare把两组掩膜并排比较，Model Zoo用于查找和测试权重。还有更多示例需要修正时，Curate和Napari Bridge会带您回到编辑。",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2503,7 +2465,7 @@
             "42_curate",
             "46_napari_bridge"
           ],
-          "speech_text": "标题栏还可以打开Model Compare、Model Zoo、Curate和Open in napari。用Model Compare并排检查掩膜，用Model Zoo选择权重，用整理工具审阅或编辑更多示例。"
+          "speech_text": "Model Compare把两组掩膜并排比较，Model Zoo用于查找和测试权重。还有更多示例需要修正时，Curate和Napari Bridge会带您回到编辑。"
         },
         {
           "visual": "12_recrop_written",
@@ -2513,12 +2475,12 @@
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。",
+          "narration": "点击工具栏中的Next image打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
           ],
-          "speech_text": "点击Next打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。"
+          "speech_text": "点击工具栏中的Next image打开新的裁剪图。原始图像和掩膜保存在recropped_originals中，以便恢复。在加入训练数据集之前，请检查裁剪图及其标签。"
         },
         {
           "visual": "restoration_01_restoration_row",
@@ -2552,15 +2514,15 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "要在当前视野中检测对象，请选择Cellpose模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。",
+          "narration": "要用模型检测对象，请在Detection method类别中选择Cellpose并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。",
           "hold_after": 0.7,
-          "speech_text": "要在当前视野中检测对象，请选择塞尔波斯模型并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。"
+          "speech_text": "要用模型检测对象，请在Detection method类别中选择塞尔波斯并检查其设置。本例使用cpsam，开启归一化，细胞概率阈值为零，流阈值为零点四。确认检测结果会替换现有标签，还是添加到现有标签中。"
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。",
+          "narration": "点击Object detection。模型在后台运行，结果返回后会替换标签。把新轮廓与图像进行比较，如果结果没有贴合对象边界，请先撤销，再调整设置。",
           "hold_after": 0.7,
-          "speech_text": "点击Object detection，把得到的轮廓与图像进行比较。这里模型选中了左上角的不完整对象，而不是中央的细胞。撤销这次替换，调整模型设置后再试一次。"
+          "speech_text": "点击Object detection。模型在后台运行，结果返回后会替换标签。把新轮廓与图像进行比较，如果结果没有贴合对象边界，请先撤销，再调整设置。"
         },
         {
           "visual": "16_cell_probability",
@@ -2576,19 +2538,91 @@
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，然后保存。继续处理其余视野，在纳入训练之前检查每个结果。",
+          "narration": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，并在纳入训练之前检查每个视野的结果。",
           "hold_after": 0.7,
-          "speech_text": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，然后保存。继续处理其余视野，在纳入训练之前检查每个结果。"
+          "speech_text": "Undo会恢复检测之前的标签。保留最贴合图像的掩膜，并在纳入训练之前检查每个视野的结果。"
         },
         {
-          "visual": "19_detection_undone",
-          "narration": "把整理好的图像和同名掩膜放在一起。使用Train Cellpose从这些图像对中学习，或者回到Features或Measure提取测量数据。相关教程会介绍每个后续步骤。",
+          "visual": "20_curate_keep",
+          "narration": "逐个处理文件夹中的视野时，Keep和Discard会为每个视野记录判定并转到下一个。不会删除任何文件：判定会写入该文件夹csv子文件夹中的keep_discard.csv，并附上图像、其掩膜和当前对象数。",
+          "hold_after": 0.7,
+          "speech_text": "逐个处理文件夹中的视野时，Keep和Discard会为每个视野记录判定并转到下一个。不会删除任何文件：判定会写入该文件夹csv子文件夹中的keep_discard.csv，并附上图像、其掩膜和当前对象数。"
+        },
+        {
+          "visual": "21_curate_discard",
+          "narration": "Discard用于标记不想放入训练集的视野。Skip用于从终端通过spacr-make-masks启动的整理会话：它标记无法整理的视野，使下一次会话不再提供它。",
+          "hold_after": 0.7,
+          "speech_text": "Discard用于标记不想放入训练集的视野。Skip用于从终端通过斯佩克尔-make-masks启动的整理会话：它标记无法整理的视野，使下一次会话不再提供它。"
+        },
+        {
+          "visual": "22_upload_data",
+          "narration": "如果您整理好的图像对能帮助他人，请点击Upload data。选择屏幕上的视野、所有带已保存掩膜的整理图像，或一个图像文件夹和一个掩膜文件夹，然后为数据集命名。链接显示它将加入的Hugging Face数据集。在您按下Upload并同意共享之前，不会发送任何内容。",
+          "hold_after": 0.7,
+          "speech_text": "如果您整理好的图像对能帮助他人，请点击Upload data。选择屏幕上的视野、所有带已保存掩膜的整理图像，或一个图像文件夹和一个掩膜文件夹，然后为数据集命名。链接显示它将加入的Hugging Face数据集。在您按下Upload并同意共享之前，不会发送任何内容。"
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "narration": "显微镜常把图像保存在多层嵌套的文件夹中。当您打开的文件夹中图像位于子文件夹里时，Make Masks会提议把它们复制到一个新文件夹中，每个副本都以其原来所在的文件夹命名。原始文件不会被改动，选择No则按原样打开该文件夹。",
+          "hold_after": 0.7,
+          "speech_text": "显微镜常把图像保存在多层嵌套的文件夹中。当您打开的文件夹中图像位于子文件夹里时，Make Masks会提议把它们复制到一个新文件夹中，每个副本都以其原来所在的文件夹命名。原始文件不会被改动，选择No则按原样打开该文件夹。"
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "narration": "副本会在编辑器中打开，重命名清单记录了每个副本的来源。没有掩膜的视野会从空白掩膜开始，可直接绘制或检测。",
+          "hold_after": 0.7,
+          "speech_text": "副本会在编辑器中打开，重命名清单记录了每个副本的来源。没有掩膜的视野会从空白掩膜开始，可直接绘制或检测。"
+        },
+        {
+          "visual": "25_organize_open",
+          "narration": "要测量您的视野，请点击Organize for Measure。Measure把每个视野读取为一个合并数组，其中包含所有通道及其掩膜。在这里指定源文件夹，或把文件和文件夹拖入下方的表格。如果开启了Consolidate subfolders且复制失败，弹窗会说明有多少文件失败以及清单的位置，并在不改动源文件夹和表格的情况下停止。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "要测量您的视野，请点击Organize for Measure。Measure把每个视野读取为一个合并数组，其中包含所有通道及其掩膜。在这里指定源文件夹，或把文件和文件夹拖入下方的表格。如果开启了Consolidate subfolders且复制失败，弹窗会说明有多少文件失败以及清单的位置，并在不改动源文件夹和表格的情况下停止。"
+        },
+        {
+          "visual": "26_organize_table",
+          "narration": "把每个通道文件夹拖入表格：每个文件夹成为一列，每一行是一个视野。添加一个掩膜列，设置其角色，这里是通道二的细胞掩膜，然后把掩膜文件夹拖到该列上。文件按名称在各列之间匹配。",
+          "hold_after": 0.7,
+          "speech_text": "把每个通道文件夹拖入表格：每个文件夹成为一列，每一行是一个视野。添加一个掩膜列，设置其角色，这里是通道二的细胞掩膜，然后把掩膜文件夹拖到该列上。文件按名称在各列之间匹配。"
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "narration": "Detect sets按名称、顺序和大小匹配图像，然后显示三组示例。只有当每一组确实彼此对应时才确认；否则请先修正正则表达式或列。",
+          "hold_after": 0.7,
+          "speech_text": "Detect sets按名称、顺序和大小匹配图像，然后显示三组示例。只有当每一组确实彼此对应时才确认；否则请先修正正则表达式或列。"
+        },
+        {
+          "visual": "28_organize_images",
+          "narration": "将Show设为Image plus text，并将Thumbnail quality设为High，用肉眼检查各行；画质只影响显示，绝不会改变掩膜或测量结果。没有匹配到任何内容的单元格保持为空并被标记，在每一行都完整之前，Apply会一直等待。",
+          "hold_after": 0.7,
+          "speech_text": "将Show设为Image plus text，并将Thumbnail quality设为High，用肉眼检查各行；画质只影响显示，绝不会改变掩膜或测量结果。没有匹配到任何内容的单元格保持为空并被标记，在每一行都完整之前，Apply会一直等待。"
+        },
+        {
+          "visual": "29_move_and_merge",
+          "narration": "点击Apply。摘要会说明将发生什么：图像和掩膜被移动到按Yokogawa方式命名的通道文件夹中，并合并到merged。文件是移动而不是复制，每次移动都会写入清单。",
+          "hold_after": 0.7,
+          "speech_text": "点击Apply。摘要会说明将发生什么：图像和掩膜被移动到按Yokogawa方式命名的通道文件夹中，并合并到merged。文件是移动而不是复制，每次移动都会写入清单。"
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "narration": "排序完成后，Make Masks会打开第一个通道文件夹，控制台会提示该结果已排在Measure最近来源的首位。打开Measure，用它作为来源来提取对象特征。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ],
+          "speech_text": "排序完成后，Make Masks会打开第一个通道文件夹，控制台会提示该结果已排在Measure最近来源的首位。打开Measure，用它作为来源来提取对象特征。"
+        },
+        {
+          "visual": "03_real_labels",
+          "narration": "把整理好的图像和同名掩膜放在一起。使用Cellpose Workbench在这些图像对上训练，或先用Organize for Measure再用Measure提取测量数据。相关教程会介绍每个后续步骤。",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "19_train_cellpose"
           ],
-          "speech_text": "把整理好的图像和同名掩膜放在一起。使用Train 塞尔波斯从这些图像对中学习，或者回到Features或Measure提取测量数据。相关教程会介绍每个后续步骤。"
+          "speech_text": "把整理好的图像和同名掩膜放在一起。使用塞尔波斯 Workbench在这些图像对上训练，或先用Organize for Measure再用Measure提取测量数据。相关教程会介绍每个后续步骤。"
         }
       ],
       "narration_voices": {
@@ -10753,11 +10787,13 @@
       "app_key": "graph_builder",
       "section": "Explore",
       "title": "Graph Builder：绘制测量数据并过滤对象",
-      "description": "加载测量表，指定绘图坐标轴，比较分组，并过滤显示的对象。",
+      "description": "加载测量表，比较分组，筛选对象，并构建示例性的基因型、重复和组合条件列。",
       "objectives": [
         "加载示例测量表。",
         "绘制直方图、散点图和分组面板。",
-        "过滤对象并选择后续视图。"
+        "过滤对象并选择后续视图。",
+        "在单独的输出列中按精确值分配标签，并在不改变源测量值的情况下组合它们。",
+        "把文本提取到列中，保存并加载注释模式，以及合并表。"
       ],
       "prerequisite": "下载并解压Graph_Builder_real_measurements.zip。其中包含measurements.db。如需稍后查看图像裁剪，请同时保留对应的Annotate项目及其图像。",
       "example_files": [
@@ -10772,13 +10808,13 @@
         },
         {
           "visual": "03_choose_database",
-          "narration": "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。",
+          "narration": "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。表格选择器旁的 Merge tables 可将多个表合并为一个；我们在最后会用到它。",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
             "34_database"
           ],
-          "speech_text": "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。"
+          "speech_text": "点击Load table，从解压的归档中打开measurements点db。选择cell表。本例包含两千三百四十一个已测量的细胞。表格选择器旁的 Merge tables 可将多个表合并为一个；我们在最后会用到它。"
         },
         {
           "visual": "05_area_histogram",
@@ -10817,6 +10853,12 @@
           "speech_text": "在过滤面板中点击Clear all恢复完整的表。如果想移除绘图映射并开始另一张图，请使用左侧的Clear all channels。"
         },
         {
+          "visual": "10b_channels_cleared",
+          "narration": "Clear all channels 会保留图表类型，但从图表中移除所有列，画布随即说明缺少什么：把一列拖到 X 或 Y 上即可重新绘图。把相同的列放回去就能继续。",
+          "hold_after": 0.7,
+          "speech_text": "Clear all channels 会保留图表类型，但从图表中移除所有列，画布随即说明缺少什么：把一列拖到 X 或 Y 上即可重新绘图。把相同的列放回去就能继续。"
+        },
+        {
           "visual": "11_actual_brush_state",
           "narration": "点击分面的小叉号将其移除，回到单个散点图。围绕对象拖出一个矩形以选择一个区域。如果Open selection in Annotate不可用，请用对应项目单独打开Annotate，并在那里检查对象。",
           "hold_after": 0.7,
@@ -10829,6 +10871,72 @@
           "speech_text": "点击图中的空白处清除选择。在探索另一组对象之前，请检查当前的过滤条件和显示的数量。"
         },
         {
+          "visual": "13_genotype_exact_values",
+          "narration": "点击 Annotate conditions。将第一个输出命名为 genotype，并使用 Assign values。选择 Exact values，然后将 columnID 值 c1、c2 和 c3 标记为 WildType。再添加一个名为 mutant 的规则框，用于 c7、c4、c5 和 c6。这些只是示例标签，并非经过验证的基因型。下载的表只包含 c1 和 c2，因此所有细胞都匹配 WildType，没有细胞匹配 mutant。Exact values 按完整值匹配：c1 不会匹配 c10。",
+          "hold_after": 0.7,
+          "speech_text": "点击 Annotate conditions。将第一个输出命名为 genotype，并使用 Assign values。选择 Exact values，然后将 columnID 值 c1、c2 和 c3 标记为 WildType。再添加一个名为 mutant 的规则框，用于 c7、c4、c5 和 c6。这些只是示例标签，并非经过验证的基因型。下载的表只包含 c1 和 c2，因此所有细胞都匹配 WildType，没有细胞匹配 mutant。Exact values 按完整值匹配：c1 不会匹配 c10。"
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "narration": "添加名为 replicate 的输出列。在名为 replicate 1 的规则框中匹配 rowID 值 r1、r4、r5 和 r6。再添加一个同名规则框，用于 r7、r9 和 r10。标签相同的规则框取并集；同一输出中相互冲突的不同标签必须在 Apply conditions 之前解决。示例包含 r5 和 r12，因此 r5 匹配，r12 保持为空。这些练习标签并不能证明生物学重复。",
+          "hold_after": 0.7,
+          "speech_text": "添加名为 replicate 的输出列。在名为 replicate 1 的规则框中匹配 rowID 值 r1、r4、r5 和 r6。再添加一个同名规则框，用于 r7、r9 和 r10。标签相同的规则框取并集；同一输出中相互冲突的不同标签必须在 Apply conditions 之前解决。示例包含 r5 和 r12，因此 r5 匹配，r12 保持为空。这些练习标签并不能证明生物学重复。"
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "narration": "添加名为 condition 的第三个输出并选择 Compose column。在 Available columns 中选择 genotype，然后点击 Add column token。输入一个下划线并点击 Add text token。选择 replicate 并点击 Add column token。按顺序排列的标记现在是 genotype、下划线、replicate。您可以拖动标记，或使用 Move token up 和 Move token down 调整顺序。预览全部三个输出。匹配的 r5 细胞变为 WildType 下划线 replicate 1。缺少任一组成部分时组合保持为空，因此 r12 不会生成包含 None 或 nan 的标签。",
+          "hold_after": 0.7,
+          "speech_text": "添加名为 condition 的第三个输出并选择 Compose column。在 Available columns 中选择 genotype，然后点击 Add column token。输入一个下划线并点击 Add text token。选择 replicate 并点击 Add column token。按顺序排列的标记现在是 genotype、下划线、replicate。您可以拖动标记，或使用 Move token up 和 Move token down 调整顺序。预览全部三个输出。匹配的 r5 细胞变为 WildType 下划线 replicate 1。缺少任一组成部分时组合保持为空，因此 r12 不会生成包含 None 或 nan 的标签。"
+        },
+        {
+          "visual": "15b_extract_text",
+          "narration": "输出也可以从文本中提取。添加名为 row_number 的第四个输出并选择 Extract text。选择 rowID 作为源列，并输入带命名组的正则表达式，这里是 r 后接一个名为 row_number、用来捕获数字的组。点击 Create columns from named groups，然后点击 Preview。不匹配的行保持为空。示例表中没有原始文件名，因此我们从现有的 ID 列中提取。",
+          "hold_after": 0.7,
+          "speech_text": "输出也可以从文本中提取。添加名为 row_number 的第四个输出并选择 Extract text。选择 rowID 作为源列，并输入带命名组的正则表达式，这里是 r 后接一个名为 row_number、用来捕获数字的组。点击 Create columns from named groups，然后点击 Preview。不匹配的行保持为空。示例表中没有原始文件名，因此我们从现有的 ID 列中提取。"
+        },
+        {
+          "visual": "15c_save_schema",
+          "narration": "点击 Save schema 并选择一个 JSON 文件。模式保存的是规则而不是值：输出、它们的规则框、组合和提取模式。手动的行分配与此表绑定，因此会被省略，状态行会显示省略了多少。",
+          "hold_after": 0.7,
+          "speech_text": "点击 Save schema 并选择一个 JSON 文件。模式保存的是规则而不是值：输出、它们的规则框、组合和提取模式。手动的行分配与此表绑定，因此会被省略，状态行会显示省略了多少。"
+        },
+        {
+          "visual": "15d_load_schema",
+          "narration": "Load schema 会把这样的文件读入同一张表或另一张表。它会根据表的列进行检查，并以所有输出的预览形式打开；在点击 Apply conditions 之前不会应用任何内容。",
+          "hold_after": 0.7,
+          "speech_text": "Load schema 会把这样的文件读入同一张表或另一张表。它会根据表的列进行检查，并以所有输出的预览形式打开；在点击 Apply conditions 之前不会应用任何内容。"
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "narration": "在 Generated columns 中选择 genotype，检查模式恢复了什么：WildType 和 mutant 规则框连同其精确值一起恢复，每个规则框都会显示匹配的行数。点击 Apply conditions 之前，请这样检查每个输出。",
+          "hold_after": 0.7,
+          "speech_text": "在 Generated columns 中选择 genotype，检查模式恢复了什么：WildType 和 mutant 规则框连同其精确值一起恢复，每个规则框都会显示匹配的行数。点击 Apply conditions 之前，请这样检查每个输出。"
+        },
+        {
+          "visual": "16_annotations_applied",
+          "narration": "点击 Apply conditions，将 genotype、replicate、condition 和 row_number 添加到工作表。原始测量列和源数据库保持不变。同一个注释编辑器也适用于合并后的工作表。在按这些新列绘图之前，请根据实验设计选择有意义的标签。",
+          "hold_after": 0.7,
+          "speech_text": "点击 Apply conditions，将 genotype、replicate、condition 和 row_number 添加到工作表。原始测量列和源数据库保持不变。同一个注释编辑器也适用于合并后的工作表。在按这些新列绘图之前，请根据实验设计选择有意义的标签。"
+        },
+        {
+          "visual": "16b_save_annotated",
+          "narration": "Save chart 会保存视图和注释方案以便重新加载。Export table 包含生成的列。对于 SQLite 数据源，Save annotated table 会询问新的表名，建议 cell_annotated，并且绝不覆盖已有的表。这些是彼此独立的保存操作；仅点击 Apply conditions 不会写入源数据库。",
+          "hold_after": 0.7,
+          "speech_text": "Save chart 会保存视图和注释方案以便重新加载。Export table 包含生成的列。对于 SQLite 数据源，Save annotated table 会询问新的表名，建议 cell_annotated，并且绝不覆盖已有的表。这些是彼此独立的保存操作；仅点击 Apply conditions 不会写入源数据库。"
+        },
+        {
+          "visual": "17_merge_tables",
+          "narration": "要合并表，请点击表格选择器旁的 Merge tables。勾选 cell、nucleus 和 pathogen，保持 cell 作为输出观测表，使每个细胞一行，并为结果命名。点击 Validate and preview，查看每张表的行数和连接键，然后点击 Create merged table。",
+          "hold_after": 0.7,
+          "speech_text": "要合并表，请点击表格选择器旁的 Merge tables。勾选 cell、nucleus 和 pathogen，保持 cell 作为输出观测表，使每个细胞一行，并为结果命名。点击 Validate and preview，查看每张表的行数和连接键，然后点击 Create merged table。"
+        },
+        {
+          "visual": "18_merged_table",
+          "narration": "合并后的表会在选择器中被选中，它的列可以像其他表一样绘图。数据库中的源表保持不变；合并以可重现的定义保存在数据库旁边。",
+          "hold_after": 0.7,
+          "speech_text": "合并后的表会在选择器中被选中，它的列可以像其他表一样绘图。数据库中的源表保持不变；合并以可重现的定义保存在数据库旁边。"
+        },
+        {
           "visual": "02_fold_trellis",
           "narration": "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。",
           "hold_after": 0.7,
@@ -10837,15 +10945,6 @@
             "63_small_multiples"
           ],
           "speech_text": "使用标题栏中的快捷方式打开Plate Viewer查看孔热图，或打开Small Multiples查看重复的小图。保留源数据库以及所选的列和过滤条件，以便重现该视图。"
-        },
-        {
-          "visual": "12_selection_cleared",
-          "narration": "当前界面显示的图没有导出按钮。需要用脚本绘图时请使用Graph Builder API，或使用Database Browser导出表格，供其他绘图工具使用。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
-          ],
-          "speech_text": "当前界面显示的图没有导出按钮。需要用脚本绘图时请使用Graph Builder API，或使用Database Browser导出表格，供其他绘图工具使用。"
         }
       ],
       "narration_voices": {
@@ -11915,9 +12014,9 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "点击Load table，打开measurements.db的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。",
+          "narration": "点击Load table，打开measurements.db的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。选择器旁边的Merge tables会像在Graph Builder中一样，把细胞表与其细胞核表或病原体表合并成一张新表；源表保持不变。",
           "hold_after": 0.7,
-          "speech_text": "点击Load table，打开测量数据库文件的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。"
+          "speech_text": "点击Load table，打开测量数据库文件的工作副本并选择cell。该示例包含两千三百四十一个对象。请保留一份副本，因为Export gates会把归属写入这个数据库。选择器旁边的Merge tables会像在Graph Builder中一样，把细胞表与其细胞核表或病原体表合并成一张新表；源表保持不变。"
         },
         {
           "visual": "04_real_scatter",
@@ -12002,6 +12101,24 @@
           "narration": "使用From view创建一个由三个显示测量值界定的命名方框。检查其群体计数，并单独保存新策略。",
           "hold_after": 0.7,
           "speech_text": "使用From view创建一个由三个显示测量值界定的命名方框。检查其群体计数，并单独保存新策略。"
+        },
+        {
+          "visual": "17e_free_orbit",
+          "narration": "在spin下选择Free即可环绕体积旋转：同时左右和上下拖动，视图会准确停在您松开的位置。旋转到想要的群体与其余部分分开为止。",
+          "hold_after": 0.7,
+          "speech_text": "在spin下选择Free即可环绕体积旋转：同时左右和上下拖动，视图会准确停在您松开的位置。旋转到想要的群体与其余部分分开为止。"
+        },
+        {
+          "visual": "17f_live_highlight",
+          "narration": "选择Polygon through view，并将drag切换为Draw。在屏幕上点击群体周围的各个角；状态行会统计顶点数，轮廓会按您看到的角度贯穿整个体积。",
+          "hold_after": 0.7,
+          "speech_text": "选择Polygon through view，并将drag切换为Draw。在屏幕上点击群体周围的各个角；状态行会统计顶点数，轮廓会按您看到的角度贯穿整个体积。"
+        },
+        {
+          "visual": "17h_rename_gate",
+          "narration": "再次点击第一个角即可闭合多边形并为门命名；这里它包含一千四百七十九个对象。在门表中双击任意门即可重命名；其子门会随新名称更新。",
+          "hold_after": 0.7,
+          "speech_text": "再次点击第一个角即可闭合多边形并为门命名；这里它包含一千四百七十九个对象。在门表中双击任意门即可重命名；其子门会随新名称更新。"
         },
         {
           "visual": "18_actual_projection_2d",
@@ -14803,7 +14920,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "从 Home 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 Measure 读取 图像和标签掩膜 以及 标签掩膜。 Measure 据此生成 已测量的对象 和 对象裁剪图像。 您可以在这里找到 已测量的对象： measurements/measurements.db；对象表取决于启用的细胞、细胞核、病原体和细胞器掩膜。 根据所走的路径，重要的表是 cell, nucleus, pathogen, cytoplasm。 需要留意的列是 plateID, rowID, columnID, fieldID。 您可以在这里找到 对象裁剪图像： 启用 save_png 时为 data/**/*_png；png_list 索引已保存的裁剪图像。受支持的工作流程也可从合并数组和掩膜流式读取裁剪图像。 根据所走的路径，重要的表是 png_list。 需要留意的列是 png_path, prcfo。 Mask 可以提供 图像和标签掩膜。 使用同一项目及正确的图像和掩膜通道索引。 接下来由 Annotate 接收 已测量的对象 和 对象裁剪图像。 保存或流式读取裁剪图像，并保持对象标识稳定。 Classify 也会用到它们。 根据输入选择图像方法或表格方法。 如果您从 Make Masks 开始，它会提供 标签掩膜。 使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 来自 External Masks 的 图像和标签掩膜 在这里同样适用。 仅在需要时重新测量；External Masks 本身已可执行测量。 您也可以把 已测量的对象 和 对象裁剪图像 交给 Image UMAP。 选择特征列并检查有代表性的裁剪图像。 它们也会提供给 Embeddings。 保留编码器和通道策略的来源信息。 Gate Editor 也会读取 已测量的对象。 使用实际实测特征的定义和单位。 它们也可以送往 Graph Builder。 明确选择变量、分组和过滤条件。 QC 也会用到它们。 检查可用的检查结果和缺失证据。 它们也会提供给 Recruitment。 需要目标区室的强度测量值和标识。 它们也可以送往 Invasion Assay。 需要双色染色测量值和适当的基线对照。 Replication Assay 也会用到它们。 需要明确的寄生虫到液泡的标识对应关系。 Timelapse 可以提供 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 接下来由 Motility Assay 接收 已测量的对象。 将已测量对象与匹配的轨迹关联。 它们也会提供给 Feature Explorer。 定义类别比较并检查过滤设置。 它们也可以送往 Database Browser。 导出前检查实际表格。 AnnData Export 也会用到它们。 导出兼容的特征列和元数据列。 它们也会提供给 Dose–Response。 将实测响应与明确的剂量及对照关联。 它们也可以送往 Endodyogeny size proxy。 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 如果您从 Import 开始，它会提供 图像和标签掩膜 以及 标签掩膜。 导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 您也可以把 已测量的对象 交给 Host–Pathogen Analysis。 在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。",
+          "narration": "从 Home 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 Measure 读取 图像和标签掩膜 以及 标签掩膜。 Measure 据此生成 已测量的对象 和 对象裁剪图像。 您可以在这里找到 已测量的对象： measurements/measurements.db；对象表取决于启用的细胞、细胞核、病原体和细胞器掩膜。 根据所走的路径，重要的表是 cell, nucleus, pathogen, cytoplasm。 需要留意的列是 plateID, rowID, columnID, fieldID。 您可以在这里找到 对象裁剪图像： 启用 save_png 时为 data/**/*_png；png_list 索引已保存的裁剪图像。受支持的工作流程也可从合并数组和掩膜流式读取裁剪图像。 根据所走的路径，重要的表是 png_list。 需要留意的列是 png_path, prcfo。 Mask 可以提供 图像和标签掩膜。 使用同一项目及正确的图像和掩膜通道索引。 接下来由 Annotate 接收 已测量的对象 和 对象裁剪图像。 保存或流式读取裁剪图像，并保持对象标识稳定。 Classify 也会用到它们。 根据输入选择图像方法或表格方法。 如果您从 Make Masks 开始，它会提供 标签掩膜。 使用 Organize for Measure 把图像及其掩膜合并为 Measure 读取的数组；独立掩膜不是合并数组。 来自 External Masks 的 图像和标签掩膜 在这里同样适用。 仅在需要时重新测量；External Masks 本身已可执行测量。 您也可以把 已测量的对象 和 对象裁剪图像 交给 Image UMAP。 选择特征列并检查有代表性的裁剪图像。 它们也会提供给 Embeddings。 保留编码器和通道策略的来源信息。 Gate Editor 也会读取 已测量的对象。 使用实际实测特征的定义和单位。 它们也可以送往 Graph Builder。 明确选择变量、分组和过滤条件。 QC 也会用到它们。 检查可用的检查结果和缺失证据。 它们也会提供给 Recruitment。 需要目标区室的强度测量值和标识。 它们也可以送往 Invasion Assay。 需要双色染色测量值和适当的基线对照。 Replication Assay 也会用到它们。 需要明确的寄生虫到液泡的标识对应关系。 Timelapse 可以提供 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 接下来由 Motility Assay 接收 已测量的对象。 将已测量对象与匹配的轨迹关联。 它们也会提供给 Feature Explorer。 定义类别比较并检查过滤设置。 它们也可以送往 Database Browser。 导出前检查实际表格。 AnnData Export 也会用到它们。 导出兼容的特征列和元数据列。 它们也会提供给 Dose–Response。 将实测响应与明确的剂量及对照关联。 它们也可以送往 Endodyogeny size proxy。 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 如果您从 Import 开始，它会提供 图像和标签掩膜 以及 标签掩膜。 导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 您也可以把 已测量的对象 交给 Host–Pathogen Analysis。 在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -14829,7 +14946,7 @@
             "77_embeddings",
             "85_host_pathogen"
           ],
-          "speech_text": "从 主页 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 Measure 读取 图像和标签掩膜 以及 标签掩膜。 Measure 据此生成 已测量的对象 和 对象裁剪图像。 您可以在这里找到 已测量的对象： measurements/测量数据库文件；对象表取决于启用的细胞、细胞核、病原体和细胞器掩膜。 根据所走的路径，重要的表是 cell, nucleus, pathogen, cytoplasm。 需要留意的列是 plateID, rowID, columnID, fieldID。 您可以在这里找到 对象裁剪图像： 启用 save_png 时为 data/**/*_png；png_list 索引已保存的裁剪图像。受支持的工作流程也可从合并数组和掩膜流式读取裁剪图像。 根据所走的路径，重要的表是 png_list。 需要留意的列是 png_path, prcfo。 Mask 可以提供 图像和标签掩膜。 使用同一项目及正确的图像和掩膜通道索引。 接下来由 Annotate 接收 已测量的对象 和 对象裁剪图像。 保存或流式读取裁剪图像，并保持对象标识稳定。 Classify 也会用到它们。 根据输入选择图像方法或表格方法。 如果您从 Make Masks 开始，它会提供 标签掩膜。 使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 来自 External Masks 的 图像和标签掩膜 在这里同样适用。 仅在需要时重新测量；External Masks 本身已可执行测量。 您也可以把 已测量的对象 和 对象裁剪图像 交给 Image 优麦普。 选择特征列并检查有代表性的裁剪图像。 它们也会提供给 Embeddings。 保留编码器和通道策略的来源信息。 门控编辑器 也会读取 已测量的对象。 使用实际实测特征的定义和单位。 它们也可以送往 Graph Builder。 明确选择变量、分组和过滤条件。 QC 也会用到它们。 检查可用的检查结果和缺失证据。 它们也会提供给 Recruitment。 需要目标区室的强度测量值和标识。 它们也可以送往 Invasion Assay。 需要双色染色测量值和适当的基线对照。 Replication Assay 也会用到它们。 需要明确的寄生虫到液泡的标识对应关系。 Timelapse 可以提供 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 接下来由 Motility Assay 接收 已测量的对象。 将已测量对象与匹配的轨迹关联。 它们也会提供给 Feature Explorer。 定义类别比较并检查过滤设置。 它们也可以送往 Database Browser。 导出前检查实际表格。 AnnData Export 也会用到它们。 导出兼容的特征列和元数据列。 它们也会提供给 Dose–Response。 将实测响应与明确的剂量及对照关联。 它们也可以送往 Endodyogeny size proxy。 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 如果您从 Import 开始，它会提供 图像和标签掩膜 以及 标签掩膜。 导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 您也可以把 已测量的对象 交给 Host–Pathogen Analysis。 在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。"
+          "speech_text": "从 主页 打开 Measure。 Measure 同时读取图像和标签平面。如需 PNG 文件，请启用裁剪图像保存；对于流式裁剪图像，应将数据库和源项目保存在一起。 Measure 读取 图像和标签掩膜 以及 标签掩膜。 Measure 据此生成 已测量的对象 和 对象裁剪图像。 您可以在这里找到 已测量的对象： measurements/测量数据库文件；对象表取决于启用的细胞、细胞核、病原体和细胞器掩膜。 根据所走的路径，重要的表是 cell, nucleus, pathogen, cytoplasm。 需要留意的列是 plateID, rowID, columnID, fieldID。 您可以在这里找到 对象裁剪图像： 启用 save_png 时为 data/**/*_png；png_list 索引已保存的裁剪图像。受支持的工作流程也可从合并数组和掩膜流式读取裁剪图像。 根据所走的路径，重要的表是 png_list。 需要留意的列是 png_path, prcfo。 Mask 可以提供 图像和标签掩膜。 使用同一项目及正确的图像和掩膜通道索引。 接下来由 Annotate 接收 已测量的对象 和 对象裁剪图像。 保存或流式读取裁剪图像，并保持对象标识稳定。 Classify 也会用到它们。 根据输入选择图像方法或表格方法。 如果您从 Make Masks 开始，它会提供 标签掩膜。 使用 Organize for Measure 把图像及其掩膜合并为 Measure 读取的数组；独立掩膜不是合并数组。 来自 External Masks 的 图像和标签掩膜 在这里同样适用。 仅在需要时重新测量；External Masks 本身已可执行测量。 您也可以把 已测量的对象 和 对象裁剪图像 交给 Image 优麦普。 选择特征列并检查有代表性的裁剪图像。 它们也会提供给 Embeddings。 保留编码器和通道策略的来源信息。 门控编辑器 也会读取 已测量的对象。 使用实际实测特征的定义和单位。 它们也可以送往 Graph Builder。 明确选择变量、分组和过滤条件。 QC 也会用到它们。 检查可用的检查结果和缺失证据。 它们也会提供给 Recruitment。 需要目标区室的强度测量值和标识。 它们也可以送往 Invasion Assay。 需要双色染色测量值和适当的基线对照。 Replication Assay 也会用到它们。 需要明确的寄生虫到液泡的标识对应关系。 Timelapse 可以提供 图像和标签掩膜。 使用具有稳定帧和对象标识的时间序列项目。 接下来由 Motility Assay 接收 已测量的对象。 将已测量对象与匹配的轨迹关联。 它们也会提供给 Feature Explorer。 定义类别比较并检查过滤设置。 它们也可以送往 Database Browser。 导出前检查实际表格。 AnnData Export 也会用到它们。 导出兼容的特征列和元数据列。 它们也会提供给 Dose–Response。 将实测响应与明确的剂量及对照关联。 它们也可以送往 Endodyogeny size proxy。 提供已测量的项目根目录及所需的对象表和 png_list 表。解释大小分箱前，核实宿主细胞汇总方式和面积单位；仅有 Mask 计数数据库并不足够。 如果您从 Import 开始，它会提供 图像和标签掩膜 以及 标签掩膜。 导入匹配的图像和外部整数掩膜以构建合并项目数组，然后在该项目中打开 Measure。若已导入或计算兼容的测量值，则跳过此步骤。不要向已有的导入表追加重复测量。 您也可以把 已测量的对象 交给 Host–Pathogen Analysis。 在 Measure 中保留未感染细胞。提供完整液泡的掩膜、宿主参考强度，并可选择提供明确的寄生虫到液泡的关联；仅凭宿主身份无法确定液泡。"
         },
         {
           "visual": "module_annotate",
@@ -15145,7 +15262,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "从 Home 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 Make Masks 读取 显微图像 和 标签掩膜。 Make Masks 据此生成 整理好的训练视野 和 标签掩膜。 您可以在这里找到 整理好的训练视野： 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。 接下来由 Cellpose Workbench 接收 整理好的训练视野。 使用经过独立核查的图像与掩膜对。 您也可以把 标签掩膜 交给 Measure。 使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Plaque Assay 也会用到它们。 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
+          "narration": "从 Home 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 Organize for Measure 把图像及其掩膜合并为 Measure 读取的数组。保存掩膜不会训练分类器。 Make Masks 读取 显微图像 和 标签掩膜。 Make Masks 据此生成 整理好的训练视野 和 标签掩膜。 您可以在这里找到 整理好的训练视野： 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。 接下来由 Cellpose Workbench 接收 整理好的训练视野。 使用经过独立核查的图像与掩膜对。 您也可以把 标签掩膜 交给 Measure。 使用 Organize for Measure 把图像及其掩膜合并为 Measure 读取的数组；独立掩膜不是合并数组。 Plaque Assay 也会用到它们。 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -15153,7 +15270,7 @@
             "19_train_cellpose",
             "24_plaque"
           ],
-          "speech_text": "从 主页 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 FEATURES 指定图像和掩膜并调用测量。保存掩膜不会训练分类器。 Make Masks 读取 显微图像 和 标签掩膜。 Make Masks 据此生成 整理好的训练视野 和 标签掩膜。 您可以在这里找到 整理好的训练视野： 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。 接下来由 塞尔波斯 Workbench 接收 整理好的训练视野。 使用经过独立核查的图像与掩膜对。 您也可以把 标签掩膜 交给 Measure。 使用 FEATURES 配对图像和掩膜，并写出已测量项目；独立掩膜不是合并数组。 Plaque Assay 也会用到它们。 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
+          "speech_text": "从 主页 打开 Make Masks。 整理用于分割训练的图像与掩膜对，或使用 Organize for Measure 把图像及其掩膜合并为 Measure 读取的数组。保存掩膜不会训练分类器。 Make Masks 读取 显微图像 和 标签掩膜。 Make Masks 据此生成 整理好的训练视野 和 标签掩膜。 您可以在这里找到 整理好的训练视野： 相互独立且视野标识匹配的图像文件和整数掩膜文件；保留原始图像和标签。 接下来由 塞尔波斯 Workbench 接收 整理好的训练视野。 使用经过独立核查的图像与掩膜对。 您也可以把 标签掩膜 交给 Measure。 使用 Organize for Measure 把图像及其掩膜合并为 Measure 读取的数组；独立掩膜不是合并数组。 Plaque Assay 也会用到它们。 使用与源图像匹配的噬斑掩膜；细胞掩膜不会自动成为噬斑标签。"
         },
         {
           "visual": "module_plate_view",
@@ -15186,13 +15303,13 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "从 Home 打开 Graph Builder。 从已加载的表中选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 Graph Builder 读取 已测量的对象。 Graph Builder 据此生成 图和导出的表格。 Measure 可以提供 已测量的对象。 明确选择变量、分组和过滤条件。",
+          "narration": "从 Home 打开 Graph Builder。 加载一个表，或使用 Merge tables 合并兼容的测量值。对于转换过的图像，使用 Merge original filenames 从转换映射中恢复名称。使用 Annotate conditions 通过元数据正则规则或拖动的行指定一个命名列；保存带注释的 SQLite 表，或连同规则导出 CSV。选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 Graph Builder 读取 已测量的对象。 Graph Builder 据此生成 图和导出的表格。 Measure 可以提供 已测量的对象。 明确选择变量、分组和过滤条件。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
             "58_graph_builder"
           ],
-          "speech_text": "从 主页 打开 Graph Builder。 从已加载的表中选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 Graph Builder 读取 已测量的对象。 Graph Builder 据此生成 图和导出的表格。 Measure 可以提供 已测量的对象。 明确选择变量、分组和过滤条件。"
+          "speech_text": "从 主页 打开 Graph Builder。 加载一个表，或使用 Merge tables 合并兼容的测量值。对于转换过的图像，使用 Merge original filenames 从转换映射中恢复名称。使用 Annotate conditions 通过元数据正则规则或拖动的行指定一个命名列；保存带注释的 SQLite 表，或连同规则导出 CSV。选择变量、分组和绘图设置，然后连同分析背景信息一起导出图形。 Graph Builder 读取 已测量的对象。 Graph Builder 据此生成 图和导出的表格。 Measure 可以提供 已测量的对象。 明确选择变量、分组和过滤条件。"
         },
         {
           "visual": "module_investigate_hit",
@@ -15205,7 +15322,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "从 Home 打开 Gate Editor。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 Gate Editor 读取 已测量的对象 以及 投影和聚类。 Gate Editor 据此生成 可重复使用的门控 和 训练注释。 Image UMAP 可以提供 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 接下来由 Annotate 接收 可重复使用的门控。 应用兼容的门控规则，然后检查候选标签。 如果您从 Measure 开始，它会提供 已测量的对象。 使用实际实测特征的定义和单位。 您也可以把 训练注释 交给 Classify。 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
+          "narration": "从 Home 打开 Gate Editor。 加载一个表，或使用 Merge tables 创建带有已验证键和聚合的工作集。在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 Gate Editor 读取 已测量的对象 以及 投影和聚类。 Gate Editor 据此生成 可重复使用的门控 和 训练注释。 Image UMAP 可以提供 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 接下来由 Annotate 接收 可重复使用的门控。 应用兼容的门控规则，然后检查候选标签。 如果您从 Measure 开始，它会提供 已测量的对象。 使用实际实测特征的定义和单位。 您也可以把 训练注释 交给 Classify。 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -15214,7 +15331,7 @@
             "41_classify",
             "64_gate_editor"
           ],
-          "speech_text": "从 主页 打开 门控编辑器。 在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 门控编辑器 读取 已测量的对象 以及 投影和聚类。 门控编辑器 据此生成 可重复使用的门控 和 训练注释。 Image 优麦普 可以提供 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 接下来由 Annotate 接收 可重复使用的门控。 应用兼容的门控规则，然后检查候选标签。 如果您从 Measure 开始，它会提供 已测量的对象。 使用实际实测特征的定义和单位。 您也可以把 训练注释 交给 Classify。 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。"
+          "speech_text": "从 主页 打开 门控编辑器。 加载一个表，或使用 Merge tables 创建带有已验证键和聚合的工作集。在实际特征列或坐标列上定义阈值门控或多边形门控，然后将保存的门控规则应用于兼容对象。使用 Annotate 将显示的门控结果写入注释列；检查所选对象，并选择二分类或多分类标签。 门控编辑器 读取 已测量的对象 以及 投影和聚类。 门控编辑器 据此生成 可重复使用的门控 和 训练注释。 Image 优麦普 可以提供 投影和聚类。 定义选择范围时，提供匹配的坐标列或特征列。 接下来由 Annotate 接收 可重复使用的门控。 应用兼容的门控规则，然后检查候选标签。 如果您从 Measure 开始，它会提供 已测量的对象。 使用实际实测特征的定义和单位。 您也可以把 训练注释 交给 Classify。 将审查后的门控选择写入注释列，然后在 Classify 中选择同一列和同一对象群体。验证对象必须与训练标签分开。"
         },
         {
           "visual": "module_feature_dict",
@@ -15546,24 +15663,6 @@
             "82_toxoplasma"
           ],
           "speech_text": "从 主页 打开 Toxoplasma。 从 主页 打开生物体指南，查看区室示意图，然后选择 Plaque Assay、Recruitment、Invasion Assay 或 Replication Assay。四个标记为即将推出的入口描述的是提议功能，无法运行。指南本身不会分析项目或生成测量表。 Toxoplasma 读取 内置的生物参考资料。 内置的生物参考资料 在这里： 已安装的生物体描述和 SwissBioPics 细胞示意图；无需项目输入。 Toxoplasma 据此生成 生物指南和检测选择。 您可以在这里找到 生物指南和检测选择： 仅在 GUI 中显示的区室高亮及可用实验分析的导航；不会生成测量值或文件。"
-        },
-        {
-          "visual": "module_plasmodium",
-          "narration": "从 Home 打开 Plasmodium spp.。 从 Home 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 Plasmodium spp. 读取 内置的生物参考资料。 Plasmodium spp. 据此生成 生物指南和检测选择。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "83_plasmodium"
-          ],
-          "speech_text": "从 主页 打开 Plasmodium spp.。 从 主页 打开生物体指南，阅读计划中的疟疾成像工作流程，并查看共用的顶复门生物示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 Plasmodium spp. 读取 内置的生物参考资料。 Plasmodium spp. 据此生成 生物指南和检测选择。"
-        },
-        {
-          "visual": "module_candida",
-          "narration": "从 Home 打开 Candida spp.。 从 Home 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 Candida spp. 读取 内置的生物参考资料。 Candida spp. 据此生成 生物指南和检测选择。",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "84_candida"
-          ],
-          "speech_text": "从 主页 打开 Candida spp.。 从 主页 打开生物体指南，阅读计划中的真菌成像工作流程，并查看通用的出芽酵母示意图。八个实验分析入口均标记为即将推出；它们都不会启动分析或生成结果。 Candida spp. 读取 内置的生物参考资料。 Candida spp. 据此生成 生物指南和检测选择。"
         },
         {
           "visual": "module_endodyogeny",
@@ -16139,192 +16238,6 @@
           "narration": "指南不会写出分析文件，所以真正的工作在别处进行。如果您的图像还需要分割或测量，请先回到Home；当图像或表格准备好后，就交给各检测页面处理。",
           "hold_after": 0.7,
           "speech_text": "指南不会写出分析文件，所以真正的工作在别处进行。如果您的图像还需要分割或测量，请先回到主页；当图像或表格准备好后，就交给各检测页面处理。"
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "83_plasmodium",
-      "number": 83,
-      "slug": "plasmodium",
-      "title": "Plasmodium：浏览该生物的指南",
-      "series": 3,
-      "app_key": "plasmodium",
-      "section": "Organisms and assays",
-      "description": "浏览Plasmodium指南，探索细胞示意图，并找到可用的通用图像分析流程。",
-      "objectives": [
-        "从Home打开页面并找到主要控件。",
-        "识别可用的输入、操作和输出。",
-        "选择下一个可用的分析或参考资料。"
-      ],
-      "prerequisite": "打开spaCR的Home。指南不需要任何输入文件。Plasmodium专用的检测磁贴目前显示Coming soon。",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Plasmodium有自己的指南。在Home中选择Plasmodium，即可浏览该生物、它的细胞区室以及为它规划的检测。",
-          "hold_after": 0.7,
-          "speech_text": "Plasmodium有自己的指南。在主页中选择Plasmodium，即可浏览该生物、它的细胞区室以及为它规划的检测。"
-        },
-        {
-          "visual": "01_organism",
-          "narration": "信息面板分节讲述这种寄生虫的故事，从血液期、肝脏期一直到运动性。拖动分隔条，可以在模块磁贴旁边留出更多空间。",
-          "hold_after": 0.7,
-          "speech_text": "信息面板分节讲述这种寄生虫的故事，从血液期、肝脏期一直到运动性。拖动分隔条，可以在模块磁贴旁边留出更多空间。"
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "在顶复门示意图上，把指针悬停在某个区室上即可了解它是什么。选择多个区室可以同时高亮，点击Clear components即可恢复视图。",
-          "hold_after": 0.7,
-          "speech_text": "在顶复门示意图上，把指针悬停在某个区室上即可了解它是什么。选择多个区室可以同时高亮，点击Clear components即可恢复视图。"
-        },
-        {
-          "visual": "03_modules",
-          "narration": "这些检测磁贴仍标记为Coming soon，暂时无法打开，但它们的说明介绍了各自将要测量的内容。如果现在就要分析Plasmodium图像，请回到Home，用您自己的图像和合适的通道设置打开Mask或Measure。",
-          "hold_after": 0.7,
-          "speech_text": "这些检测磁贴仍标记为Coming soon，暂时无法打开，但它们的说明介绍了各自将要测量的内容。如果现在就要分析Plasmodium图像，请回到主页，用您自己的图像和合适的通道设置打开Mask或Measure。"
-        },
-        {
-          "visual": "04_references",
-          "narration": "如需深入阅读，PlasmoDB和UniProt链接会在浏览器中打开关于该生物的资源。这里不需要数据集，也不需要Run，指南也不会写出任何文件。",
-          "hold_after": 0.7,
-          "speech_text": "如需深入阅读，PlasmoDB和UniProt链接会在浏览器中打开关于该生物的资源。这里不需要数据集，也不需要Run，指南也不会写出任何文件。"
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "84_candida",
-      "number": 84,
-      "slug": "candida",
-      "title": "Candida：浏览该生物的指南",
-      "series": 3,
-      "app_key": "candida",
-      "section": "Organisms and assays",
-      "description": "浏览Candida指南，探索酵母示意图，并找到可用的通用图像分析流程。",
-      "objectives": [
-        "从Home打开页面并找到主要控件。",
-        "识别可用的输入、操作和输出。",
-        "选择下一个可用的分析或参考资料。"
-      ],
-      "prerequisite": "打开spaCR的Home。指南不需要任何输入文件。Candida专用的检测磁贴目前显示Coming soon。",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "在Home中选择Candida。它的指南介绍形态、丝状化、生物膜，以及这种酵母如何与宿主细胞相互作用。",
-          "hold_after": 0.7,
-          "speech_text": "在主页中选择Candida。它的指南介绍形态、丝状化、生物膜，以及这种酵母如何与宿主细胞相互作用。"
-        },
-        {
-          "visual": "01_organism",
-          "narration": "阅读信息面板时，旁边会显示模块说明；拖动分隔条可以加宽您正在阅读的一侧。",
-          "hold_after": 0.7,
-          "speech_text": "阅读信息面板时，旁边会显示模块说明；拖动分隔条可以加宽您正在阅读的一侧。"
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "出芽酵母示意图的用法与其他指南相同。把指针悬停在某个组分上即可阅读说明，选择多个组分可以保持高亮，点击Clear components即可清除选择。",
-          "hold_after": 0.7,
-          "speech_text": "出芽酵母示意图的用法与其他指南相同。把指针悬停在某个组分上即可阅读说明，选择多个组分可以保持高亮，点击Clear components即可清除选择。"
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Candida专用的检测磁贴目前标记为Coming soon，但您仍然可以使用通用工具分析图像。回到Home，在Mask中分割图像，在Measure中测量，并选择适合您的物种和实验的通道与掩膜。",
-          "hold_after": 0.7,
-          "speech_text": "Candida专用的检测磁贴目前标记为Coming soon，但您仍然可以使用通用工具分析图像。回到主页，在Mask中分割图像，在Measure中测量，并选择适合您的物种和实验的通道与掩膜。"
-        },
-        {
-          "visual": "04_references",
-          "narration": "如需了解基因和蛋白质的详细信息，Candida Genome Database和UniProt的链接会在浏览器中打开。指南不需要输入文件，也不会写出结果；准备好处理图像时，请按照某个可运行模块的教程操作。",
-          "hold_after": 0.7,
-          "speech_text": "如需了解基因和蛋白质的详细信息，Candida Genome Database和UniProt的链接会在浏览器中打开。指南不需要输入文件，也不会写出结果；准备好处理图像时，请按照某个可运行模块的教程操作。"
         }
       ],
       "narration_voices": {

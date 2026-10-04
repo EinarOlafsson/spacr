@@ -582,13 +582,11 @@
           ]
         },
         {
-          "visual": "04_assays  (3)",
-          "narration": "Assays를 열고 생물을 고르세요: Toxoplasma, Plasmodium, Candida. 그런 다음 그 생물의 메뉴에서 분석을 선택하세요. 예를 들어 플라크 분석이나 숙주-병원체 측정에는 Toxoplasma를 여세요. 선택한 분석의 튜토리얼을 따라 이미지, 마스크, 측정 입력을 준비하세요.",
+          "visual": "04_assays  (1)",
+          "narration": "생물별 워크플로를 찾으려면 Assays를 여세요. Toxoplasma를 열면 플라크 분석이나 숙주–병원체 측정 같은 분석 메뉴가 나옵니다. 선택한 분석의 튜토리얼을 따라 이미지, 마스크, 측정 입력을 준비하세요.",
           "hold_after": 0.7,
           "focus_modules": [
-            "toxoplasma",
-            "plasmodium",
-            "candida"
+            "toxoplasma"
           ],
           "related_lessons": [
             "24_plaque",
@@ -1152,6 +1150,17 @@
           "related_lessons": [
             "09_annotate",
             "11_classify_ml"
+          ],
+          "hold_after": 0.7
+        },
+        {
+          "visual": "batch_21_ram_guard",
+          "narration": "실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요.",
+          "focus": [
+            1620,
+            860,
+            580,
+            360
           ],
           "hold_after": 0.7
         }
@@ -2137,26 +2146,31 @@
       "series": 1,
       "app_key": "make_masks",
       "section": "Tools",
-      "description": "이미지와 마스크 쌍을 열어 객체를 검토·편집하고, 측정값을 저장하고, 학습용 짝 크롭을 만듭니다.",
+      "description": "이미지와 마스크 쌍을 열어 객체를 수정하고, 판정을 기록하고, Measure용으로 이미지와 마스크를 구성하고, 학습용 짝 크롭을 만듭니다.",
       "objectives": [
         "일치하는 인스턴스 마스크와 함께 이미지를 열고 돋보기로 객체를 검토합니다.",
-        "짝지은 시야를 측정하고 객체 특징 데이터베이스를 저장합니다.",
-        "Undo, 그리기, 분할, 크기 필터로 라벨을 수정합니다.",
-        "정리한 마스크를 저장하고 학습용 이미지-마스크 크롭을 만듭니다."
+        "Undo, 그리기, 분할, 객체 필터로 라벨을 수정합니다.",
+        "정리한 마스크를 저장하고, Keep 또는 Discard 판정을 기록하고, 학습용 이미지-마스크 크롭을 만듭니다.",
+        "Measure용으로 이미지와 마스크를 구성하고, Upload data로 정리한 쌍을 공유합니다."
       ],
       "prerequisite": "2차원 이미지 폴더를 준비하고, masks 하위 폴더에 일치하는 인스턴스 라벨 TIFF를 두세요. 각 마스크는 이미지 파일의 기본 이름을 사용합니다. 편집과 다시 자르기를 연습할 때는 사본으로 작업하세요. 예제에서는 Measure에서 내려받을 수 있는 현미경 프로젝트의 ER 이미지와 세포 마스크를 사용합니다.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Home에서 Tools의 Make Masks를 여세요. 개별 이미지 마스크를 검토하고 수정하려면 이 편집기를 선택합니다. 편집 도구를 고르기 전에 짝지은 이미지와 라벨이 있는 폴더를 여세요.",
+          "narration": "Home에서 Tools의 Make Masks를 여세요. 왼쪽 아래 버튼으로 이미지를 불러옵니다: Open folder, Organize for Measure, Load test data. 오른쪽의 Discard, Keep, Skip, Upload data는 편집을 마친 각 시야를 어떻게 처리할지 정합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask"
           ]
         },
         {
+          "visual": "01b_test_data_menu",
+          "narration": "Load test data는 톡소플라스마 예제 이미지 10장을 엽니다. 화살표를 누르면 공개된 모델이 학습한 각 학습 데이터셋의 샘플도 마스크와 함께 제공되므로, 좋은 학습 쌍이 어떤 모습인지 볼 수 있습니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_folder_picker",
-          "narration": "이미지 폴더를 선택하세요. 이 예제에서는 Measure 샘플의 ER 강도 이미지와 이에 대응하는 세포 마스크를 사용합니다. 이미지와 마스크의 크기를 같게 하고 파일 이름을 짝지어 두세요.",
+          "narration": "Open folder를 클릭하고 이미지 폴더를 선택하세요. 이 예제에서는 Measure 샘플의 ER 강도 이미지와 이에 대응하는 세포 마스크를 사용합니다. 이미지와 마스크의 크기를 같게 하고 파일 이름을 짝지어 두세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure"
@@ -2169,74 +2183,18 @@
         },
         {
           "visual": "readouts_04_otsu_magnifier_settings",
-          "narration": "Magnifier settings를 여세요. Otsu와 Region under the mouse를 선택하면 포인터 주변에서 임곗값 기반 객체를 미리 볼 수 있습니다. 임곗값으로 객체가 잘 분리되지 않으면 모델 기반 모드를 고르세요.",
+          "narration": "Live magnifier 설정을 열고 Segment를 Region under the mouse로 유지하세요. 방법은 Detection method 범주에서 가져오며, 여기서는 CPU에서 실행되는 Otsu입니다. 임곗값으로 객체가 잘 분리되지 않으면 모델 기반 방법을 고르세요.",
           "hold_after": 0.7
         },
         {
           "visual": "readouts_05_live_otsu_magnifier",
-          "narration": "Magnifier를 켜고 객체 위에 포인터를 올리면 미리 보기가 확대됩니다. 여러 객체 위로 옮겨 가며 제안된 윤곽을 검토하세요. 윤곽이 맞아 보이면 클릭해 객체를 추가하고, 계속 편집하려면 Magnifier를 끄세요.",
+          "narration": "Magnifier를 켜고 객체 위에 포인터를 올리면 윤곽을 미리 볼 수 있습니다. 왼쪽 위 표시에는 픽셀 위치와 강도, 그리고 포인터 아래 객체의 라벨과 면적이 나옵니다. 윤곽이 맞아 보이면 클릭해 객체를 추가하고, 계속 편집하려면 Magnifier를 끄세요.",
           "hold_after": 0.7,
           "focus": [
             1370,
             280,
             2200,
             1775
-          ]
-        },
-        {
-          "visual": "readouts_06_features_real_files",
-          "narration": "Features를 클릭해 이미지-마스크 쌍을 측정하세요. 시야마다 행을 하나씩 추가하고 강도 이미지와 대응하는 객체 마스크를 고르세요. 파일 이름 자동 매칭 후에도 배정되지 않은 파일이 있으면 수동 배정을 확인하세요.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_08_features_choose_cell_mask",
-          "narration": "각 행에서 Channel 1에는 ER 강도 이미지를, Cell mask에는 일치하는 라벨 이미지를 선택하세요. 두 번째 시야에도 같은 작업을 반복하세요. 형광을 측정할 때는 원본 강도 이미지를 사용하세요.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_09_features_assigned_table",
-          "narration": "두 행을 검토한 뒤 측정 설정을 고르세요. 이 예제는 작업자 하나, 최소 세포 크기 1픽셀, PNG 크롭 저장 안 함을 사용합니다. 실험에 맞다면 크기 하한을 높여 작은 객체를 제외하세요. Measure를 클릭하세요.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
-          ]
-        },
-        {
-          "visual": "readouts_12_features_measurements_saved",
-          "narration": "측정이 끝나면 출력 폴더를 여세요. measurements 폴더에는 두 시야의 객체 특징이 담긴 measurements.db가 있습니다. 데이터베이스를 원본 이미지, 마스크, 설정과 함께 보관한 뒤 Features를 닫고 편집으로 돌아가세요.",
-          "hold_after": 0.7,
-          "focus": [
-            650,
-            355,
-            2400,
-            1490
-          ],
-          "related_lessons": [
-            "08_measure"
           ]
         },
         {
@@ -2277,17 +2235,22 @@
         },
         {
           "visual": "08c_filter_edits_labels",
-          "narration": "객체의 최소·최대 면적을 설정한 뒤 Filter를 눌러 범위를 벗어난 라벨을 제거하세요. 객체에 맞는 범위를 고르고 무엇이 제거되었는지 확인하세요. 필터는 마스크를 바꾸므로, 유용한 객체까지 지워졌다면 Undo를 사용하세요.",
+          "narration": "크기나 모양으로 객체를 제거하려면 Filter 범주에서 속성을 고르고 Add a filter를 클릭하세요. scikit-image가 측정하는 regionprop이라면 무엇이든 필터가 될 수 있으며, 면적, 솔리디티, 평균 강도 등이 있습니다. 여기서는 최솟값을 둔 면적 행이 작은 세포를 숨깁니다. 목록을 다시 적용하려면 Filter를 누르세요. 아래 기록에는 필터가 숨긴 모든 객체가 나열됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "08d_filter_removed",
+          "narration": "행을 제거하면 그 행이 숨긴 객체가 다시 나타납니다. 필터는 편집하는 동안 적용되고 시야가 열릴 때마다 다시 적용되므로, 다음으로 넘어가기 전에 더 이상 필요 없는 행을 제거하세요. Undo로도 필터 단계를 되돌릴 수 있습니다.",
           "hold_after": 0.7
         },
         {
           "visual": "11_saved_restored_mask",
-          "narration": "편집을 검토한 뒤 Save mask를 클릭하세요. 필요하면 다른 시야로 넘어가기 전에 크기 범위를 0으로 되돌려 끄세요. 원본 이미지를 보존하고, 저장된 정리 기록을 편집한 마스크와 함께 보관하세요.",
+          "narration": "편집을 검토한 뒤 도구 모음의 Save mask를 클릭하세요. 원본 이미지를 저장된 마스크 및 정리 기록과 함께 보관하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "09_fold_train_cellpose",
-          "narration": "헤더에는 나머지 마스크 도구가 모여 있습니다. 가중치를 고를 때는 Model Zoo가 찾아 주고, Model Compare가 두 마스크 세트를 나란히 보여 줍니다. 더 고칠 예제가 있으면 Curate와 Open in napari로 다시 편집할 수 있습니다.",
+          "narration": "오른쪽 위 아이콘으로 나머지 마스크 도구를 엽니다. Cellpose Workbench는 정리한 쌍으로 모델을 학습시켜 폴더에 적용하고, 그다음 아이콘은 열린 폴더의 모든 시야에서 검출을 실행합니다.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2296,8 +2259,8 @@
           ]
         },
         {
-          "visual": "09_fold_napari_bridge",
-          "narration": "헤더에서 Model Compare, Model Zoo, Curate, Open in napari도 열 수 있습니다. 마스크를 나란히 검토하려면 Model Compare를, 가중치를 고르려면 Model Zoo를, 더 많은 예제를 검토하거나 편집하려면 정리 도구를 사용하세요.",
+          "visual": "09_fold_model_zoo",
+          "narration": "Model Compare는 두 마스크 세트를 나란히 보여 주고, Model Zoo는 가중치를 찾아 테스트합니다. 더 고칠 예제가 있으면 Curate와 Napari Bridge로 다시 편집할 수 있습니다.",
           "hold_after": 0.7,
           "focus_buttons": "FoldButton",
           "related_lessons": [
@@ -2314,7 +2277,7 @@
         },
         {
           "visual": "13_child_and_recovery_archive",
-          "narration": "Next를 클릭해 새 크롭을 여세요. 원래 이미지와 마스크는 복구할 수 있도록 recropped_originals에 보관됩니다. 학습 데이터셋에 추가하기 전에 크롭과 라벨을 검토하세요.",
+          "narration": "도구 모음의 Next image를 클릭해 새 크롭을 여세요. 원래 이미지와 마스크는 복구할 수 있도록 recropped_originals에 보관됩니다. 학습 데이터셋에 추가하기 전에 크롭과 라벨을 검토하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate"
@@ -2347,12 +2310,12 @@
         },
         {
           "visual": "14_cellpose_settings",
-          "narration": "현재 시야에서 객체를 검출하려면 Cellpose 모델을 선택하고 설정을 검토하세요. 이 예제는 cpsam, 정규화 켜짐, 세포 확률 임곗값 0, 흐름 임곗값 0.4를 사용합니다. 검출 결과가 기존 라벨을 대체하는지 추가되는지 확인하세요.",
+          "narration": "모델로 객체를 검출하려면 Detection method 범주에서 Cellpose를 고르고 설정을 검토하세요. 이 예제는 cpsam, 정규화 켜짐, 세포 확률 임곗값 0, 흐름 임곗값 0.4를 사용합니다. 검출 결과가 기존 라벨을 대체하는지 추가되는지 확인하세요.",
           "hold_after": 0.7
         },
         {
           "visual": "15_cellpose_detected",
-          "narration": "Object detection을 클릭하고 결과 윤곽을 이미지와 비교하세요. 여기서는 모델이 가운데 세포 대신 왼쪽 위의 일부만 보이는 객체를 선택합니다. 그 대체를 취소하고 모델 설정을 조정한 뒤 다시 시도하세요.",
+          "narration": "Object detection을 클릭하세요. 모델은 백그라운드에서 실행되고, 결과가 도착하면 라벨을 대체합니다. 새 윤곽을 이미지와 비교하고, 객체 경계를 따르지 않는 결과는 되돌린 뒤 설정을 조정하세요.",
           "hold_after": 0.7
         },
         {
@@ -2367,12 +2330,73 @@
         },
         {
           "visual": "19_detection_undone",
-          "narration": "Undo를 누르면 검출 전의 라벨로 돌아갑니다. 이미지와 가장 잘 맞는 마스크를 남기고 저장하세요. 나머지 시야도 이어서 진행하며, 학습에 포함하기 전에 각 결과를 확인하세요.",
+          "narration": "Undo를 누르면 검출 전의 라벨로 돌아갑니다. 이미지와 가장 잘 맞는 마스크를 남기고, 학습에 포함하기 전에 각 시야의 결과를 확인하세요.",
           "hold_after": 0.7
         },
         {
-          "visual": "19_detection_undone",
-          "narration": "정리한 이미지와 같은 기본 이름의 마스크를 함께 보관하세요. 그 쌍으로 학습하려면 Train Cellpose를 사용하고, 측정값을 추출하려면 Features나 Measure로 돌아가세요. 관련 튜토리얼에서 각 다음 단계를 보여 줍니다.",
+          "visual": "20_curate_keep",
+          "narration": "폴더를 차례로 작업하는 동안 Keep과 Discard는 각 시야의 판정을 기록하고 다음 시야로 넘어갑니다. 아무것도 삭제되지 않습니다. 판정은 폴더의 csv 하위 폴더에 있는 keep_discard.csv에 이미지, 마스크, 현재 객체 수와 함께 기록됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "21_curate_discard",
+          "narration": "Discard는 학습 세트에 넣고 싶지 않은 시야를 표시합니다. Skip은 터미널에서 spacr-make-masks로 시작한 정리 세션용입니다. 정리할 수 없는 시야를 표시해 다음 세션에서 다시 제시되지 않게 합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "22_upload_data",
+          "narration": "정리한 쌍이 다른 사람에게 도움이 될 수 있다면 Upload data를 클릭하세요. 화면의 시야, 저장된 마스크가 있는 모든 정리 이미지, 또는 이미지 폴더와 마스크 폴더를 고른 뒤 데이터셋 이름을 정하세요. 링크에는 추가될 Hugging Face 데이터셋이 표시됩니다. Upload를 누르고 공유에 동의하기 전에는 아무것도 전송되지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "23_consolidate_offer",
+          "narration": "현미경은 이미지를 중첩된 폴더에 저장하는 경우가 많습니다. 이미지가 하위 폴더에 들어 있는 폴더를 열면 Make Masks가 이를 새 폴더 하나로 복사하도록 제안하며, 각 복사본에는 원래 있던 폴더 이름이 붙습니다. 원본은 건드리지 않으며, No를 누르면 폴더를 그대로 엽니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "24_consolidated_opened",
+          "narration": "복사본은 편집기에서 열리고, 이름 변경 매니페스트에 각 파일의 출처가 기록됩니다. 마스크가 없는 시야는 빈 마스크로 시작하므로 바로 그리거나 검출할 수 있습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "25_organize_open",
+          "narration": "시야를 측정하려면 Organize for Measure를 클릭하세요. Measure는 각 시야를 모든 채널과 그 마스크를 담은 하나의 병합 배열로 읽습니다. 여기서 소스 폴더를 지정하거나, 아래 표에 파일과 폴더를 끌어다 놓으세요. Consolidate subfolders가 켜져 있는데 복사가 실패하면, 팝업이 실패한 파일 수와 매니페스트 위치를 알려 주고 소스나 표를 바꾸지 않은 채 멈춥니다.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "26_organize_table",
+          "narration": "각 채널 폴더를 표에 끌어다 놓으세요. 폴더마다 열이 되고, 각 행은 하나의 시야입니다. 마스크 열을 추가해 역할을 여기서는 채널 2의 세포 마스크로 설정하고, 마스크 폴더를 그 열에 놓으세요. 파일은 이름을 기준으로 열 사이에서 짝지어집니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "27_detect_sets_check",
+          "narration": "Detect sets는 이름, 순서, 크기로 이미지를 짝짓고 예시 세트 세 개를 보여 줍니다. 모든 세트가 실제로 한 묶음일 때만 확인하고, 그렇지 않으면 먼저 정규식이나 열을 고치세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "28_organize_images",
+          "narration": "Show를 Image + text로, Thumbnail quality를 High로 설정하면 행을 눈으로 확인할 수 있습니다. 품질은 표시만 바꿀 뿐 마스크나 측정값은 바꾸지 않습니다. 아무것도 짝지어지지 않은 칸은 빈 채로 표시되며, 모든 행이 채워질 때까지 Apply는 기다립니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "29_move_and_merge",
+          "narration": "Apply를 클릭하세요. 요약에 진행될 작업이 나옵니다. 이미지와 마스크는 Yokogawa 방식 이름의 채널 폴더로 이동한 뒤 merged로 병합됩니다. 파일은 복사가 아니라 이동되며, 모든 이동은 매니페스트에 기록됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "30_organized_for_measure",
+          "narration": "정렬이 끝나면 Make Masks가 첫 번째 채널 폴더를 열고, 콘솔에는 결과가 Measure의 최근 소스 맨 위에 있다고 표시됩니다. Measure를 열고 이를 소스로 사용해 객체 특징을 추출하세요.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "08_measure"
+          ]
+        },
+        {
+          "visual": "03_real_labels",
+          "narration": "정리한 이미지와 같은 기본 이름의 마스크를 함께 보관하세요. 그 쌍으로 학습하려면 Cellpose Workbench를 사용하고, 측정값을 추출하려면 Organize for Measure를 거쳐 Measure를 사용하세요. 관련 튜토리얼에서 각 다음 단계를 보여 줍니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -10021,11 +10045,13 @@
       "app_key": "graph_builder",
       "section": "Explore",
       "title": "Graph Builder: 측정값 그래프와 객체 필터링",
-      "description": "측정 표를 불러오고, 그래프 축을 지정하고, 그룹을 비교한 뒤 표시된 객체를 필터링합니다.",
+      "description": "측정 테이블을 불러와 그룹을 비교하고, 객체를 필터링하고, 예시용 유전형, 반복, 조합 조건 열을 만듭니다.",
       "objectives": [
         "예제 측정 표를 불러옵니다.",
         "히스토그램, 산점도, 그룹별 패널을 만듭니다.",
-        "객체를 필터링하고 다음에 쓸 보기를 고릅니다."
+        "객체를 필터링하고 다음에 쓸 보기를 고릅니다.",
+        "별도의 출력 열에 정확한 값 기준 레이블을 지정하고, 원본 측정값을 바꾸지 않고 조합하기.",
+        "텍스트를 열로 추출하고, 주석 스키마를 저장하고 불러오며, 테이블을 합치기."
       ],
       "prerequisite": "Graph_Builder_real_measurements.zip을 내려받아 압축을 푸세요. measurements.db가 들어 있습니다. 나중에 이미지 크롭을 확인하려면 대응하는 Annotate 프로젝트와 이미지도 준비해 두세요.",
       "example_files": [
@@ -10039,7 +10065,7 @@
         },
         {
           "visual": "03_choose_database",
-          "narration": "Load table을 클릭하고 압축을 푼 아카이브의 measurements.db를 여세요. cell 표를 고르세요. 이 예제에는 측정된 세포 2,341개가 있습니다.",
+          "narration": "Load table을 클릭하고 압축을 푼 아카이브의 measurements.db를 여세요. cell 표를 고르세요. 이 예제에는 측정된 세포 2,341개가 있습니다. 테이블 선택기 옆의 Merge tables는 여러 테이블을 하나로 합칩니다. 이 기능은 마지막에 사용합니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "09_annotate",
@@ -10077,6 +10103,11 @@
           "hold_after": 0.7
         },
         {
+          "visual": "10b_channels_cleared",
+          "narration": "Clear all channels는 그래프 종류는 그대로 두고 그래프에서 모든 열을 뺍니다. 그러면 캔버스에 무엇이 빠졌는지 표시됩니다. 그래프를 다시 그리려면 열을 X나 Y로 끌어다 놓으세요. 같은 열을 다시 놓으면 이어서 진행할 수 있습니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "11_actual_brush_state",
           "narration": "패싯의 작은 x 표시를 눌러 제거하면 산점도 하나로 돌아갑니다. 객체 주위로 사각형을 드래그해 영역을 선택하세요. Open selection in Annotate를 쓸 수 없다면, 대응하는 프로젝트로 Annotate를 따로 열어 그곳에서 객체를 확인하세요.",
           "hold_after": 0.7
@@ -10087,20 +10118,67 @@
           "hold_after": 0.7
         },
         {
+          "visual": "13_genotype_exact_values",
+          "narration": "Annotate conditions를 클릭하세요. 첫 번째 출력의 이름을 genotype으로 하고 Assign values를 사용합니다. Exact values를 고른 뒤 columnID 값 c1, c2, c3에 WildType 레이블을 붙이세요. c7, c4, c5, c6을 위한 mutant라는 두 번째 상자를 추가하세요. 이것은 예시용 레이블이며 검증된 유전형이 아닙니다. 내려받은 테이블에는 c1과 c2만 있으므로 모든 세포가 WildType에 해당하고 mutant에 해당하는 세포는 없습니다. Exact values는 값 전체로 비교하므로 c1은 c10과 일치하지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "14_replicate_rule_boxes",
+          "narration": "replicate라는 출력 열을 추가하세요. rowID 값 r1, r4, r5, r6을 replicate 1이라는 상자에 지정하세요. 같은 이름의 상자를 하나 더 추가해 r7, r9, r10을 지정하세요. 같은 레이블의 상자는 합집합이 되며, 한 출력 안에서 서로 다른 레이블이 충돌하면 Apply conditions 전에 해결해야 합니다. 예제에는 r5와 r12가 있으므로 r5는 일치하고 r12는 비어 있습니다. 이 연습용 레이블은 생물학적 반복을 입증하지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15_composed_condition_preview",
+          "narration": "condition이라는 세 번째 출력을 추가하고 Compose column을 고르세요. Available columns에서 genotype을 선택하고 Add column token을 클릭하세요. 밑줄을 입력하고 Add text token을 클릭하세요. replicate를 선택하고 Add column token을 클릭하세요. 정렬된 토큰은 이제 genotype, 밑줄, replicate입니다. 토큰을 끌거나 Move token up과 Move token down으로 순서를 바꿀 수 있습니다. 세 출력을 모두 미리 보세요. 일치하는 r5 세포는 WildType 밑줄 replicate 1이 됩니다. 구성 요소가 빠지면 조합은 비어 있으므로, r12에서는 None이나 nan이 들어간 레이블이 생기지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15b_extract_text",
+          "narration": "출력은 텍스트에서 추출할 수도 있습니다. row_number라는 네 번째 출력을 추가하고 Extract text를 고르세요. 원본 열로 rowID를 고르고 이름 있는 그룹이 들어간 정규식을 입력합니다. 여기서는 r 뒤에 숫자를 잡아내는 row_number 그룹을 둡니다. Create columns from named groups를 클릭한 다음 Preview를 클릭하세요. 일치하지 않는 행은 비어 있습니다. 예제 테이블에는 원래 파일 이름이 없으므로 기존 ID 열에서 추출합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15c_save_schema",
+          "narration": "Save schema를 클릭하고 JSON 파일을 고르세요. 스키마에는 값이 아니라 규칙이 저장됩니다. 출력, 그 상자, 조합, 추출 패턴입니다. 수동 행 지정은 이 테이블에 묶여 있어 빠지며, 몇 개가 빠졌는지는 상태 줄에 표시됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15d_load_schema",
+          "narration": "Load schema는 그런 파일을 같은 테이블이나 다른 테이블에 읽어 들입니다. 테이블의 열과 대조해 확인한 뒤 모든 출력의 미리보기로 열리며, Apply conditions를 클릭하기 전에는 아무것도 적용되지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "15e_loaded_rules",
+          "narration": "Generated columns에서 genotype을 선택해 스키마가 무엇을 복원했는지 확인하세요. WildType과 mutant 상자가 정확한 값과 함께 돌아오고, 각 상자에는 일치하는 행 수가 표시됩니다. Apply conditions를 클릭하기 전에 모든 출력을 이렇게 확인하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16_annotations_applied",
+          "narration": "Apply conditions를 클릭하면 작업 테이블에 genotype, replicate, condition, row_number가 추가됩니다. 원래 측정 열과 원본 데이터베이스는 바뀌지 않습니다. 같은 주석 편집기는 합친 작업 테이블에서도 동작합니다. 새 열로 그래프를 그리기 전에 실험 설계에 맞게 의미 있는 레이블을 고르세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "16b_save_annotated",
+          "narration": "Save chart는 다시 불러올 수 있도록 보기와 주석 레시피를 저장합니다. Export table에는 생성된 열이 포함됩니다. SQLite 원본에서는 Save annotated table이 새 테이블 이름을 묻고 cell_annotated를 제안하며, 기존 테이블을 절대 덮어쓰지 않습니다. 이것들은 서로 다른 저장 작업이며, Apply conditions만으로는 원본 데이터베이스에 쓰지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17_merge_tables",
+          "narration": "테이블을 합치려면 테이블 선택기 옆의 Merge tables를 클릭하세요. cell, nucleus, pathogen에 체크하고, 세포마다 한 행이 되도록 출력 테이블은 cell로 두고 결과에 이름을 붙이세요. Validate and preview를 클릭해 각 테이블의 행 수와 결합 키를 확인한 뒤 Create merged table을 클릭하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "18_merged_table",
+          "narration": "합친 테이블이 선택기에서 선택되고, 그 열은 다른 테이블처럼 그래프로 그릴 수 있습니다. 데이터베이스의 원본 테이블은 바뀌지 않으며, 합치기는 재현 가능한 정의로 데이터베이스 옆에 저장됩니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "02_fold_trellis",
           "narration": "머리글의 바로 가기로 웰 히트맵은 Plate Viewer에서, 반복 차트는 Small Multiples에서 여세요. 보기를 재현할 수 있도록 원본 데이터베이스와 고른 열, 필터를 보관하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "33_plate_viewer",
             "63_small_multiples"
-          ]
-        },
-        {
-          "visual": "12_selection_cleared",
-          "narration": "현재 화면에는 차트 내보내기 버튼이 없습니다. 스크립트로 그래프를 만들려면 Graph Builder API를, 다른 그래프 도구에서 쓸 표를 내보내려면 Database Browser를 쓰세요.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "06_api"
           ]
         }
       ],
@@ -11098,7 +11176,7 @@
         },
         {
           "visual": "02_real_database_picker",
-          "narration": "Load table을 클릭하고 measurements.db 작업 사본을 연 뒤 cell을 고르세요. 이 예제에는 객체 2,341개가 있습니다. Export gates가 이 데이터베이스에 소속을 기록하므로 사본을 보관하세요.",
+          "narration": "Load table을 클릭하고 measurements.db 작업 사본을 연 뒤 cell을 고르세요. 이 예제에는 객체 2,341개가 있습니다. Export gates가 이 데이터베이스에 소속을 기록하므로 사본을 보관하세요. 선택기 옆의 Merge tables는 Graph Builder에서처럼 세포 테이블을 핵 또는 병원체 테이블과 합쳐 새 테이블 하나를 만듭니다. 원본 테이블은 바뀌지 않습니다.",
           "hold_after": 0.7
         },
         {
@@ -11172,6 +11250,21 @@
         {
           "visual": "17c_actual_volume_gate",
           "narration": "From view로 표시된 세 측정값이 경계를 이루는 이름 붙은 상자를 만드세요. 그 집단 개수를 확인하고 새 전략을 따로 저장하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17e_free_orbit",
+          "narration": "spin에서 Free를 고르면 볼륨 주위를 자유롭게 돌릴 수 있습니다. 옆으로와 위아래로 동시에 끌면, 손을 뗀 위치에 보기가 그대로 멈춥니다. 원하는 집단이 나머지와 떨어져 보일 때까지 돌리세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17f_live_highlight",
+          "narration": "Polygon through view를 고르고 drag를 Draw로 바꾸세요. 화면에서 집단 주위의 꼭짓점을 클릭하세요. 상태 줄에 꼭짓점 수가 표시되고, 윤곽은 보이는 각도 그대로 볼륨 전체를 관통합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "17h_rename_gate",
+          "narration": "첫 꼭짓점을 다시 클릭하면 다각형이 닫히고 게이트 이름을 정할 수 있습니다. 여기서는 객체 1,479개가 들어 있습니다. 게이트 표에서 게이트를 더블클릭하면 이름을 바꿀 수 있으며, 하위 게이트도 새 이름을 따릅니다.",
           "hold_after": 0.7
         },
         {
@@ -13789,7 +13882,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Home에서 Measure을(를) 여세요. Measure는 이미지와 라벨 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 크롭을 스트리밍할 때는 데이터베이스와 원본 프로젝트를 함께 보관하세요. Measure 모듈은 이미지와 라벨 마스크 및 라벨 마스크을(를) 읽습니다. 이를 바탕으로 Measure 모듈은 측정된 객체 및 객체 크롭을(를) 만듭니다. 측정된 객체은(는) 여기에 있습니다: measurements/measurements.db. 객체 테이블은 활성화한 세포, 핵, 병원체, 소기관 마스크에 따라 달라집니다. 경로에 따라 중요한 테이블: cell, nucleus, pathogen, cytoplasm. 눈여겨볼 열: plateID, rowID, columnID, fieldID. 객체 크롭은(는) 여기에 있습니다: save_png를 켜면 data/**/*_png. png_list가 저장된 크롭을 색인합니다. 지원되는 워크플로는 대신 병합 배열과 마스크에서 크롭을 스트리밍할 수 있습니다. 경로에 따라 중요한 테이블: png_list. 눈여겨볼 열: png_path, prcfo. Mask에서 이미지와 라벨 마스크을(를) 제공할 수 있습니다. 같은 프로젝트와 올바른 이미지/마스크 채널 인덱스를 사용하세요. 다음으로 Annotate에서 측정된 객체 및 객체 크롭을(를) 이어받습니다. 안정적인 객체 식별 정보와 함께 크롭을 저장하거나 스트리밍하세요. Classify에서도 이것을 사용합니다. 입력에 맞게 이미지 계열 또는 표 계열을 고르세요. Make Masks에서 시작하면 그곳에서 라벨 마스크을(를) 제공합니다. FEATURES로 이미지와 마스크를 짝지어 측정 프로젝트를 저장하세요. 따로 떨어진 마스크는 병합 배열이 아닙니다. External Masks에서 나온 이미지와 라벨 마스크도 여기서 쓸 수 있습니다. 필요할 때만 다시 측정하세요. External Masks에서 이미 측정할 수 있습니다. 측정된 객체 및 객체 크롭을(를) Image UMAP에 넘길 수도 있습니다. 특징 열을 고르고 대표적인 크롭을 확인하세요. 이것은 Embeddings에도 전달됩니다. 인코더와 채널 정책의 출처 정보를 보관하세요. Gate Editor도 측정된 객체을(를) 읽습니다. 실제 측정 특징의 정의와 단위를 사용하세요. Graph Builder에도 보낼 수 있습니다. 변수, 그룹, 필터를 명시적으로 고르세요. QC에서도 이것을 사용합니다. 사용 가능한 검사와 빠진 근거를 검토하세요. 이것은 Recruitment에도 전달됩니다. 의도한 구획 강도와 식별 정보가 필요합니다. Invasion Assay에도 보낼 수 있습니다. 2색 염색 측정값과 적절한 기준 대조군이 필요합니다. Replication Assay에서도 이것을 사용합니다. 기생충과 액포의 명시적인 식별 대응이 필요합니다. Timelapse에서 이미지와 라벨 마스크을(를) 제공할 수 있습니다. 프레임/객체 식별 정보가 안정적인 시계열 프로젝트를 사용하세요. 다음으로 Motility Assay에서 측정된 객체을(를) 이어받습니다. 측정된 객체를 일치하는 궤적과 결합하세요. 이것은 Feature Explorer에도 전달됩니다. 클래스 비교를 정의하고 필터링을 확인하세요. Database Browser에도 보낼 수 있습니다. 내보내기 전에 실제 테이블을 확인하세요. AnnData Export에서도 이것을 사용합니다. 호환되는 특징 열과 메타데이터 열을 내보내세요. 이것은 Dose–Response에도 전달됩니다. 측정한 반응을 명시적인 용량과 대조군에 결합하세요. Endodyogeny size proxy에도 보낼 수 있습니다. 측정된 프로젝트 루트와 필요한 객체/png_list 테이블을 제공하세요. 크기 구간을 해석하기 전에 숙주 세포 집계와 면적 단위를 확인하세요. Mask 개수 데이터베이스만으로는 부족합니다. Import에서 시작하면 그곳에서 이미지와 라벨 마스크 및 라벨 마스크을(를) 제공합니다. 일치하는 이미지와 외부 정수 마스크를 가져와 병합 프로젝트 배열을 만든 뒤, 그 프로젝트에서 Measure를 여세요. 호환되는 측정값을 이미 가져왔거나 계산했다면 이 단계는 건너뛰세요. 기존에 가져온 테이블에 중복 측정값을 덧붙이지 마세요. 측정된 객체을(를) Host–Pathogen Analysis에 넘길 수도 있습니다. Measure에서 비감염 세포를 유지하세요. 액포 전체 마스크, 숙주 기준 강도, 선택적인 명시적 기생충-액포 연결을 제공하세요. 숙주 식별 정보만으로는 액포가 정해지지 않습니다.",
+          "narration": "Home에서 Measure을(를) 여세요. Measure는 이미지와 라벨 평면을 함께 읽습니다. PNG 파일이 필요하면 크롭 저장을 켜고, 크롭을 스트리밍할 때는 데이터베이스와 원본 프로젝트를 함께 보관하세요. Measure 모듈은 이미지와 라벨 마스크 및 라벨 마스크을(를) 읽습니다. 이를 바탕으로 Measure 모듈은 측정된 객체 및 객체 크롭을(를) 만듭니다. 측정된 객체은(는) 여기에 있습니다: measurements/measurements.db. 객체 테이블은 활성화한 세포, 핵, 병원체, 소기관 마스크에 따라 달라집니다. 경로에 따라 중요한 테이블: cell, nucleus, pathogen, cytoplasm. 눈여겨볼 열: plateID, rowID, columnID, fieldID. 객체 크롭은(는) 여기에 있습니다: save_png를 켜면 data/**/*_png. png_list가 저장된 크롭을 색인합니다. 지원되는 워크플로는 대신 병합 배열과 마스크에서 크롭을 스트리밍할 수 있습니다. 경로에 따라 중요한 테이블: png_list. 눈여겨볼 열: png_path, prcfo. Mask에서 이미지와 라벨 마스크을(를) 제공할 수 있습니다. 같은 프로젝트와 올바른 이미지/마스크 채널 인덱스를 사용하세요. 다음으로 Annotate에서 측정된 객체 및 객체 크롭을(를) 이어받습니다. 안정적인 객체 식별 정보와 함께 크롭을 저장하거나 스트리밍하세요. Classify에서도 이것을 사용합니다. 입력에 맞게 이미지 계열 또는 표 계열을 고르세요. Make Masks에서 시작하면 그곳에서 라벨 마스크을(를) 제공합니다. Organize for Measure로 이미지와 그 마스크를 Measure가 읽는 배열로 병합하세요. 따로 떨어진 마스크는 병합 배열이 아닙니다. External Masks에서 나온 이미지와 라벨 마스크도 여기서 쓸 수 있습니다. 필요할 때만 다시 측정하세요. External Masks에서 이미 측정할 수 있습니다. 측정된 객체 및 객체 크롭을(를) Image UMAP에 넘길 수도 있습니다. 특징 열을 고르고 대표적인 크롭을 확인하세요. 이것은 Embeddings에도 전달됩니다. 인코더와 채널 정책의 출처 정보를 보관하세요. Gate Editor도 측정된 객체을(를) 읽습니다. 실제 측정 특징의 정의와 단위를 사용하세요. Graph Builder에도 보낼 수 있습니다. 변수, 그룹, 필터를 명시적으로 고르세요. QC에서도 이것을 사용합니다. 사용 가능한 검사와 빠진 근거를 검토하세요. 이것은 Recruitment에도 전달됩니다. 의도한 구획 강도와 식별 정보가 필요합니다. Invasion Assay에도 보낼 수 있습니다. 2색 염색 측정값과 적절한 기준 대조군이 필요합니다. Replication Assay에서도 이것을 사용합니다. 기생충과 액포의 명시적인 식별 대응이 필요합니다. Timelapse에서 이미지와 라벨 마스크을(를) 제공할 수 있습니다. 프레임/객체 식별 정보가 안정적인 시계열 프로젝트를 사용하세요. 다음으로 Motility Assay에서 측정된 객체을(를) 이어받습니다. 측정된 객체를 일치하는 궤적과 결합하세요. 이것은 Feature Explorer에도 전달됩니다. 클래스 비교를 정의하고 필터링을 확인하세요. Database Browser에도 보낼 수 있습니다. 내보내기 전에 실제 테이블을 확인하세요. AnnData Export에서도 이것을 사용합니다. 호환되는 특징 열과 메타데이터 열을 내보내세요. 이것은 Dose–Response에도 전달됩니다. 측정한 반응을 명시적인 용량과 대조군에 결합하세요. Endodyogeny size proxy에도 보낼 수 있습니다. 측정된 프로젝트 루트와 필요한 객체/png_list 테이블을 제공하세요. 크기 구간을 해석하기 전에 숙주 세포 집계와 면적 단위를 확인하세요. Mask 개수 데이터베이스만으로는 부족합니다. Import에서 시작하면 그곳에서 이미지와 라벨 마스크 및 라벨 마스크을(를) 제공합니다. 일치하는 이미지와 외부 정수 마스크를 가져와 병합 프로젝트 배열을 만든 뒤, 그 프로젝트에서 Measure를 여세요. 호환되는 측정값을 이미 가져왔거나 계산했다면 이 단계는 건너뛰세요. 기존에 가져온 테이블에 중복 측정값을 덧붙이지 마세요. 측정된 객체을(를) Host–Pathogen Analysis에 넘길 수도 있습니다. Measure에서 비감염 세포를 유지하세요. 액포 전체 마스크, 숙주 기준 강도, 선택적인 명시적 기생충-액포 연결을 제공하세요. 숙주 식별 정보만으로는 액포가 정해지지 않습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -14100,7 +14193,7 @@
         },
         {
           "visual": "module_make_masks",
-          "narration": "Home에서 Make Masks을(를) 여세요. 분할 학습을 위해 이미지/마스크 쌍을 정리하거나, FEATURES로 이미지와 마스크를 배정해 측정을 실행하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다. Make Masks 모듈은 현미경 이미지 및 라벨 마스크을(를) 읽습니다. 이를 바탕으로 Make Masks 모듈은 정리된 학습 시야 및 라벨 마스크을(를) 만듭니다. 정리된 학습 시야은(는) 여기에 있습니다: 시야 식별 정보가 일치하는 별도의 이미지 파일과 정수 마스크 파일. 원본 이미지와 라벨을 보존하세요. 다음으로 Cellpose Workbench에서 정리된 학습 시야을(를) 이어받습니다. 독립적으로 확인한 이미지/마스크 쌍을 사용하세요. 라벨 마스크을(를) Measure에 넘길 수도 있습니다. FEATURES로 이미지와 마스크를 짝지어 측정 프로젝트를 저장하세요. 따로 떨어진 마스크는 병합 배열이 아닙니다. Plaque Assay에서도 이것을 사용합니다. 원본 이미지가 일치하는 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 라벨이 되지는 않습니다.",
+          "narration": "Home에서 Make Masks을(를) 여세요. 분할 학습을 위해 이미지/마스크 쌍을 정리하거나, Organize for Measure로 이미지와 그 마스크를 Measure가 읽는 배열로 병합하세요. 마스크를 저장한다고 분류기가 학습되지는 않습니다. Make Masks 모듈은 현미경 이미지 및 라벨 마스크을(를) 읽습니다. 이를 바탕으로 Make Masks 모듈은 정리된 학습 시야 및 라벨 마스크을(를) 만듭니다. 정리된 학습 시야은(는) 여기에 있습니다: 시야 식별 정보가 일치하는 별도의 이미지 파일과 정수 마스크 파일. 원본 이미지와 라벨을 보존하세요. 다음으로 Cellpose Workbench에서 정리된 학습 시야을(를) 이어받습니다. 독립적으로 확인한 이미지/마스크 쌍을 사용하세요. 라벨 마스크을(를) Measure에 넘길 수도 있습니다. Organize for Measure로 이미지와 그 마스크를 Measure가 읽는 배열로 병합하세요. 따로 떨어진 마스크는 병합 배열이 아닙니다. Plaque Assay에서도 이것을 사용합니다. 원본 이미지가 일치하는 플라크 마스크를 사용하세요. 세포 마스크가 자동으로 플라크 라벨이 되지는 않습니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14137,7 +14230,7 @@
         },
         {
           "visual": "module_graph_builder",
-          "narration": "Home에서 Graph Builder을(를) 여세요. 불러온 표에서 변수, 그룹, 그래프 설정을 고른 뒤, 분석 맥락과 함께 그림을 내보내세요. Graph Builder 모듈은 측정된 객체을(를) 읽습니다. 이를 바탕으로 Graph Builder 모듈은 그림과 내보낸 표을(를) 만듭니다. Measure에서 측정된 객체을(를) 제공할 수 있습니다. 변수, 그룹, 필터를 명시적으로 고르세요.",
+          "narration": "Home에서 Graph Builder을(를) 여세요. 표를 불러오거나 Merge tables로 호환되는 측정값을 합치세요. 변환된 이미지는 Merge original filenames로 변환 맵에서 이름을 복원하세요. Annotate conditions로 메타데이터 정규식 규칙이나 끌어 놓은 행을 사용해 이름 있는 열을 지정하고, 주석이 달린 SQLite 표를 저장하거나 규칙과 함께 CSV를 내보내세요. 변수, 그룹, 그래프 설정을 고른 뒤, 분석 맥락과 함께 그림을 내보내세요. Graph Builder 모듈은 측정된 객체을(를) 읽습니다. 이를 바탕으로 Graph Builder 모듈은 그림과 내보낸 표을(를) 만듭니다. Measure에서 측정된 객체을(를) 제공할 수 있습니다. 변수, 그룹, 필터를 명시적으로 고르세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14154,7 +14247,7 @@
         },
         {
           "visual": "module_gate_editor",
-          "narration": "Home에서 Gate Editor을(를) 여세요. 실제 특징/좌표 열에 임곗값 게이트나 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate로 표시된 게이트를 주석 열에 쓰고, 선택한 객체를 검토한 뒤 이진 또는 다중 클래스 라벨을 고르세요. Gate Editor 모듈은 측정된 객체 및 투영과 클러스터을(를) 읽습니다. 이를 바탕으로 Gate Editor 모듈은 재사용 가능한 게이트 및 학습용 주석을(를) 만듭니다. Image UMAP에서 투영과 클러스터을(를) 제공할 수 있습니다. 선택을 정의할 때는 일치하는 좌표/특징 열을 제공하세요. 다음으로 Annotate에서 재사용 가능한 게이트을(를) 이어받습니다. 호환되는 게이트를 적용한 뒤 라벨 후보를 검토하세요. Measure에서 시작하면 그곳에서 측정된 객체을(를) 제공합니다. 실제 측정 특징의 정의와 단위를 사용하세요. 학습용 주석을(를) Classify에 넘길 수도 있습니다. 검토한 게이트 선택을 주석 열에 쓴 뒤, Classify에서 같은 열과 객체 집단을 선택하세요. 검증 객체는 학습 라벨과 분리하세요.",
+          "narration": "Home에서 Gate Editor을(를) 여세요. 표를 불러오거나 Merge tables로 검증된 키와 집계를 갖춘 작업 세트를 만드세요. 실제 특징/좌표 열에 임곗값 게이트나 다각형 게이트를 정의한 뒤, 저장한 게이트를 호환되는 객체에 적용하세요. Annotate로 표시된 게이트를 주석 열에 쓰고, 선택한 객체를 검토한 뒤 이진 또는 다중 클래스 라벨을 고르세요. Gate Editor 모듈은 측정된 객체 및 투영과 클러스터을(를) 읽습니다. 이를 바탕으로 Gate Editor 모듈은 재사용 가능한 게이트 및 학습용 주석을(를) 만듭니다. Image UMAP에서 투영과 클러스터을(를) 제공할 수 있습니다. 선택을 정의할 때는 일치하는 좌표/특징 열을 제공하세요. 다음으로 Annotate에서 재사용 가능한 게이트을(를) 이어받습니다. 호환되는 게이트를 적용한 뒤 라벨 후보를 검토하세요. Measure에서 시작하면 그곳에서 측정된 객체을(를) 제공합니다. 실제 측정 특징의 정의와 단위를 사용하세요. 학습용 주석을(를) Classify에 넘길 수도 있습니다. 검토한 게이트 선택을 주석 열에 쓴 뒤, Classify에서 같은 열과 객체 집단을 선택하세요. 검증 객체는 학습 라벨과 분리하세요.",
           "hold_after": 0.7,
           "related_lessons": [
             "08_measure",
@@ -14459,22 +14552,6 @@
           "hold_after": 0.7,
           "related_lessons": [
             "82_toxoplasma"
-          ]
-        },
-        {
-          "visual": "module_plasmodium",
-          "narration": "Home에서 Plasmodium spp.을(를) 여세요. Home에서 생물 가이드를 열어 계획된 말라리아 영상 워크플로를 읽고 공통 정단복합체문 도식을 확인하세요. 여덟 개의 분석 타일은 모두 Coming soon이며, 어느 것도 분석을 시작하거나 결과를 만들지 않습니다. Plasmodium spp. 모듈은 기본 제공 생물 참고 자료을(를) 읽습니다. 이를 바탕으로 Plasmodium spp. 모듈은 생물 가이드와 분석 선택을(를) 만듭니다.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "83_plasmodium"
-          ]
-        },
-        {
-          "visual": "module_candida",
-          "narration": "Home에서 Candida spp.을(를) 여세요. Home에서 생물 가이드를 열어 계획된 진균 영상 워크플로를 읽고 일반적인 출아 효모 도식을 확인하세요. 여덟 개의 분석 타일은 모두 Coming soon이며, 어느 것도 분석을 시작하거나 결과를 만들지 않습니다. Candida spp. 모듈은 기본 제공 생물 참고 자료을(를) 읽습니다. 이를 바탕으로 Candida spp. 모듈은 생물 가이드와 분석 선택을(를) 만듭니다.",
-          "hold_after": 0.7,
-          "related_lessons": [
-            "84_candida"
           ]
         },
         {
@@ -15009,182 +15086,6 @@
         {
           "visual": "06_home_return",
           "narration": "가이드는 분석 파일을 쓰지 않으므로 실제 작업은 다른 곳에서 이루어집니다. 이미지를 아직 분할하거나 측정해야 한다면 먼저 Home으로 돌아가세요. 이미지나 표가 준비되면 분석 페이지가 이어받습니다.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "83_plasmodium",
-      "number": 83,
-      "slug": "plasmodium",
-      "title": "Plasmodium: 생물 가이드 둘러보기",
-      "series": 3,
-      "app_key": "plasmodium",
-      "section": "Organisms and assays",
-      "description": "Plasmodium 가이드를 둘러보고, 세포 도식을 살펴보고, 사용할 수 있는 일반 이미지 분석 워크플로를 찾습니다.",
-      "objectives": [
-        "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
-        "사용 가능한 입력, 작업, 출력을 확인합니다.",
-        "다음으로 사용할 분석이나 참고 자료를 고릅니다."
-      ],
-      "prerequisite": "spaCR의 Home을 여세요. 가이드에는 입력 파일이 필요 없습니다. Plasmodium 전용 분석 타일에는 현재 Coming soon이 표시됩니다.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Plasmodium에는 전용 가이드가 있습니다. Home에서 Plasmodium을 고르면 이 생물과 세포 구획, 그리고 예정된 분석을 둘러볼 수 있습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "정보 창은 혈액기와 간기부터 운동성까지 기생충의 이야기를 여러 부분으로 나누어 들려줍니다. 구분선을 드래그하면 모듈 타일 옆 공간을 넓힐 수 있습니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "정단복합체문 도식에서 구획에 포인터를 올리면 그것이 무엇인지 읽을 수 있습니다. 여러 개를 선택하면 함께 강조 표시되고, Clear components를 누르면 보기가 원래대로 돌아옵니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "분석 타일은 아직 Coming soon으로 표시되어 열 수 없지만, 설명을 보면 각각 무엇을 측정할지 알 수 있습니다. 지금 Plasmodium 이미지를 분석하려면 Home으로 돌아가 자신의 이미지와 알맞은 채널 설정으로 Mask나 Measure를 여세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "더 자세히 알아보려면 PlasmoDB와 UniProt 링크가 브라우저에서 생물 관련 자료를 엽니다. 여기서는 데이터셋이나 Run이 필요 없고, 가이드는 파일을 쓰지 않습니다.",
-          "hold_after": 0.7
-        }
-      ],
-      "narration_voices": {
-        "en": [
-          "af_heart"
-        ],
-        "es": [
-          "ef_dora",
-          "em_alex",
-          "em_santa"
-        ],
-        "fr": [
-          "ff_siwis"
-        ],
-        "hi": [
-          "hf_alpha",
-          "hf_beta",
-          "hm_omega",
-          "hm_psi"
-        ],
-        "it": [
-          "if_sara",
-          "im_nicola"
-        ],
-        "ja": [
-          "jf_alpha",
-          "jf_gongitsune",
-          "jf_nezumi",
-          "jf_tebukuro",
-          "jm_kumo"
-        ],
-        "pt-BR": [
-          "pf_dora",
-          "pm_alex",
-          "pm_santa"
-        ],
-        "zh-CN": [
-          "zf_xiaobei",
-          "zf_xiaoni",
-          "zf_xiaoxiao",
-          "zf_xiaoyi",
-          "zm_yunjian",
-          "zm_yunxi",
-          "zm_yunxia",
-          "zm_yunyang"
-        ]
-      }
-    },
-    {
-      "id": "84_candida",
-      "number": 84,
-      "slug": "candida",
-      "title": "Candida: 생물 가이드 둘러보기",
-      "series": 3,
-      "app_key": "candida",
-      "section": "Organisms and assays",
-      "description": "Candida 가이드를 둘러보고, 효모 도식을 살펴보고, 사용할 수 있는 일반 이미지 분석 워크플로를 찾습니다.",
-      "objectives": [
-        "Home에서 페이지를 열고 주요 조작 요소를 찾습니다.",
-        "사용 가능한 입력, 작업, 출력을 확인합니다.",
-        "다음으로 사용할 분석이나 참고 자료를 고릅니다."
-      ],
-      "prerequisite": "spaCR의 Home을 여세요. 가이드에는 입력 파일이 필요 없습니다. Candida 전용 분석 타일에는 현재 Coming soon이 표시됩니다.",
-      "scenes": [
-        {
-          "visual": "00_home",
-          "narration": "Home에서 Candida를 고르세요. 이 가이드는 형태, 균사 형성, 바이오필름, 그리고 효모가 숙주 세포와 상호작용하는 방식을 다룹니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "01_organism",
-          "narration": "옆에 모듈 설명을 둔 채로 정보 창을 읽고, 읽고 있는 쪽을 넓히려면 구분선을 드래그하세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "02_diagram",
-          "narration": "출아 효모 도식은 다른 가이드와 같은 방식으로 작동합니다. 구성 요소에 포인터를 올리면 설명을 읽을 수 있고, 여러 개를 선택하면 강조 표시가 유지되며, Clear components를 누르면 선택이 초기화됩니다.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "03_modules",
-          "narration": "Candida 전용 분석 타일은 당분간 Coming soon으로 표시되지만, 일반 도구로도 이미지를 분석할 수 있습니다. Home으로 돌아가 Mask에서 분할하고 Measure에서 측정하되, 종과 실험에 맞는 채널과 마스크를 고르세요.",
-          "hold_after": 0.7
-        },
-        {
-          "visual": "04_references",
-          "narration": "유전자와 단백질의 자세한 정보는 Candida Genome Database와 UniProt 링크를 통해 브라우저에서 열립니다. 가이드는 입력 파일이 필요 없고 출력도 쓰지 않으므로, 이미지를 처리할 준비가 되면 실행 가능한 모듈의 튜토리얼을 따라가세요.",
           "hold_after": 0.7
         }
       ],

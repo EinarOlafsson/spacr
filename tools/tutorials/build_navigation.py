@@ -70,9 +70,8 @@ def build(catalog: dict) -> dict:
             by_key[key] = lesson
     from spacr.settings import _SPECIES_WITH_PUBLISHED_LESSONS
     tiles = app.tiled_apps()
-    # Plasmodium and Candida moved behind Preferences > Show alpha species
-    # after their lessons were published; they keep their Home place here
-    # until those lessons are retired.
+    # Alpha species whose lessons are still published keep their Home place
+    # here until those lessons are retired (none since 2026-10-04).
     shown = {row[0] for row in tiles}
     tiles = sorted(tiles + [row for row in app.APPS
                             if row[0] in _SPECIES_WITH_PUBLISHED_LESSONS

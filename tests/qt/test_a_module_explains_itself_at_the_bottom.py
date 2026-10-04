@@ -239,8 +239,9 @@ def test_every_registry_module_has_a_lesson_or_a_registered_gap():
     gaps = navigation['missing_tutorials']
     registered = {row['app_key'] for row in gaps}
     assert registered == set()
-    assert all(has_tutorial(key) for key in
-               ('candida', 'host_pathogen', 'plasmodium', 'toxoplasma'))
+    assert all(has_tutorial(key) for key in ('host_pathogen', 'toxoplasma'))
+    # 83_plasmodium and 84_candida were withdrawn in tutorial wave 3 (alpha species).
+    assert not any(has_tutorial(key) for key in ('candida', 'plasmodium'))
     assert len(registered) == len(gaps)
     assert all(row['status'] == 'needs_tutorial' for row in gaps)
     from spacr.settings import _alpha_names

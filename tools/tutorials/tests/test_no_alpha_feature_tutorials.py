@@ -170,7 +170,8 @@ TOGGLE_TERMS = ("Show alpha features", "alpha features", "show_alpha_features",
 #: were published before the move; their retirement is routed to the
 #: tutorial lane, so they are not counted until it lands.
 PUBLISHED_SPECIES_LESSONS = spacr_settings._SPECIES_WITH_PUBLISHED_LESSONS
-_PUBLISHED_SPECIES_PAGES = frozenset({"PlasmodiumOrganismPage", "CandidaOrganismPage"})
+#: 83_plasmodium and 84_candida were withdrawn in tutorial wave 3 (2026-10-04).
+_PUBLISHED_SPECIES_PAGES = frozenset()
 
 
 def _registry_terms():

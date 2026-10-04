@@ -33,8 +33,11 @@ def test_alpha_species_stay_out_of_the_user_guides():
 
     data = workflow.load()
     generated = workflow.outputs(data)
-    hidden = _alpha_species_names('apps') & set(data['modules'])
-    assert hidden, "the map still carries alpha species with published lessons"
+    hidden = _alpha_species_names('apps')
+    assert hidden, "the alpha species registry is empty, so this guard is vacuous"
+    # Plasmodium and Candida left the map when their lessons were withdrawn
+    # (tutorial wave 3, 2026-10-04); no alpha species is mapped now.
+    assert not hidden & set(data['modules'])
     for path, text in generated.items():
         if path.suffix != '.rst':
             continue
