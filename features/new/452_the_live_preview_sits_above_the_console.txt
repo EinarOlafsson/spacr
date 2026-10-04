@@ -106,3 +106,5 @@ preview opens it also loads whatever src already holds. The registry entry is
 marked owned_by_screen so it is not mounted twice, and its setting-name
 translation (cell_diameter -> diameter, model -> plaque_model, ...) is still
 the one applied when the panel pushes values back.
+
+VERIFIED 2026-10-04: test_the_live_preview_sits_above_the_console and test_preview_registry pass; the shared CollapsibleSplitter (471) keeps the order.

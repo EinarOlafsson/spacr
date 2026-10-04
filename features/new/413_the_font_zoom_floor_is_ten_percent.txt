@@ -264,3 +264,5 @@ in this follow-up, so it requires no translation regeneration.
 The documentation_i18n file also passes 141/141, including live API symbol
 inventory and source/block hash equality for English and all nine locales.
 Fatal-error lint, git diff --check and the generated feature index check pass.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

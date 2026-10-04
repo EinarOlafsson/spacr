@@ -199,3 +199,5 @@ NOT DONE ON PURPOSE: the picker's own strings do not go through `tr()` today
 either. Wrapping this file's strings alone would leave a dialog half
 translated and half not, which is worse than a dialog that is consistently
 English until 316 reaches it.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

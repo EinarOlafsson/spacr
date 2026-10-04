@@ -208,3 +208,5 @@ wells, precision 0.93 vs 0.81), v2 for mixed or phone-camera sources. v2 needs
 an explicit "uri": its weight sits under weights/ while the older repos keep
 theirs at the repo root, so the URL hf_uri() would build 404s. Verified: HEAD
 200, 1.22 GB, and the published sha256 matches the local file byte for byte.
+
+VERIFIED 2026-10-04: toxoplasma_plaque_v1/v2 rows present; test_model_zoo passes; 1 referenced test files pass.

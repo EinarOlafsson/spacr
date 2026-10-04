@@ -450,3 +450,5 @@ PowerShell reads them as ANSI otherwise, as online-installers.yml already
 knows), and check the result in Python rather than a PowerShell one-liner.
 The only thing this item still asks for is a run on the maintainer's own
 1.5.0.1 machine.
+
+VERIFIED 2026-10-04: named tests pass; on macOS item 627 later supersedes the removal path (later wins); 3 referenced test files pass.

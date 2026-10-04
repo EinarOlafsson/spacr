@@ -245,3 +245,5 @@ rc 0). The log shows:
 Counts and agreement (69.3 % / 79.6 %) are identical to the CPU run, so
 the GPU changes only speed: SpotNet's spot step is 2.2x faster, still ~3x
 slower than native. Conclusion unchanged: native stays default.
+
+VERIFIED 2026-10-04: ALPHA_FEATURES[475] registers spotnet choice and spotnet_v1 model; test_spotnet_token_and_ops_spot_detector passes; 1 referenced test files pass.

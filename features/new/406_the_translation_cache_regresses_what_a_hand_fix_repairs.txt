@@ -614,3 +614,5 @@ source-bound reviews remain authoritative. This closes both remaining API
 gaps recorded above, not a claim that every unrelated translation is good.
 418 still owns its new English/docstring/catalog changes and their separate
 freshness verification.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

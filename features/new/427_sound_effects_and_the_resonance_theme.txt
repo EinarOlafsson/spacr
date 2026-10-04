@@ -977,3 +977,5 @@ TRANSLATIONS: the five reworded sound descriptions replace five strings
 that were already owed and not yet in any catalog, so nothing new is
 owed for them. preferences.theme_description is a new public docstring
 and is added to what the consolidated pass carries.
+
+VERIFIED 2026-10-04: named tests pass; three Qt-Multimedia thread tests now skip where PySide6.QtMultimedia cannot load (this box: libbrotlidec symbol mismatch) instead of failing; 14 referenced test files pass.

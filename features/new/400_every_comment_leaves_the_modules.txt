@@ -2,7 +2,8 @@
 EVERY COMMENT LEAVES THE MODULES AND THE REASONS MOVE TO docs/notes
 ================================================================================
 
-Status:    DONE 2026-09-28 — Final pass applied: 16 comments removed (channel_sorting.py 15, make_masks.py 1); tools/strip_comments.py --check exits 0; 18,863 protected comments (#: Sphinx docs, directives, shebangs) kept by design.
+Status:    OPEN 2026-10-04 — regressed: `python tools/strip_comments.py --check spacr` reports 216 removable `#` comments in 46 files (e.g. sp_stats.py 19, foreign.py). Fix: run tools/extract_source_notes.py spacr --execute --discard-log <log>, then add a guard test that the check finds zero.
+Previous status (superseded 2026-10-04): DONE 2026-09-28 — Final pass applied: 16 comments removed (channel_sorting.py 15, make_masks.py 1); tools/strip_comments.py --check exits 0; 18,863 protected comments (#: Sphinx docs, directives, shebangs) kept by design.
            66 modules moved to notes or the recoverable discard log. The
            full package plus setup.py now has zero ordinary comment blocks;
            published attribute documentation and tool directives remain.
@@ -313,3 +314,5 @@ FINAL PASS, to run last, once no other session is editing spacr/:
 
     python tools/strip_comments.py spacr --apply
     python tools/strip_comments.py spacr --check     # must exit 0
+
+2026-10-04 AUDIT: the strip tool's own tests pass, but new comments have landed since 2026-09-28 and no test guards the package-wide count. The extraction run was not applied in the audit (permission denied for the bulk rewrite); left OPEN for the maintainer.

@@ -171,3 +171,5 @@ and tests/test_convert.py: 188 passed (16 s, offscreen) on nightly a93f937d2.
 The runtime catalogs are complete (Codex, above). docs/source/_static/i18n/
 api/en.json carries import_examples (9 hits); of the reviewed API packs only
 de names it. The other eight packs are the docs lane's API translation pass.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

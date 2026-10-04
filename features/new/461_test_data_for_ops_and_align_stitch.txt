@@ -117,3 +117,5 @@ implementation or acceptance decision was changed by this translation pass.
 
 2026-09-25, after merging nightly: the hi/is runtime catalogs now carry
 this item's strings (checked by grep of spacr/qt/i18n_catalogs/hi.py, is.py).
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

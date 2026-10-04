@@ -124,3 +124,5 @@ is not cataloged and all 11,865 English API entries remain unchanged. The
 earlier catalog claim above was incorrect; no translated API delta is needed.
 The package callable documentation guard passed. Receipt:
 features/data/450_451_private_docstring_2026-09-27.json.
+
+VERIFIED 2026-10-04: datasets_for("analyze_plaques") returns the two plaque sets; test_make_masks_offers_a_sample_of_every_training_dataset and test_one_press_of_load_test_data_fills_src_and_live pass.

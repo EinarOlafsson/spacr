@@ -389,3 +389,5 @@ clean pip check, pretrained synthetic inference and three phase-contrast
 frames through Mask generation and tracking are recorded.118final isolated-
 backend tests pass. This closes the old never-installed-SAMCell statement;
 Windows/macOS and comparative scorecard acceptance are not claimed.
+
+VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

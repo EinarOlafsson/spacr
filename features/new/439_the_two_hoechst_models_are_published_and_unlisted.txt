@@ -109,3 +109,5 @@ explicit uri. The catalogue's own invariant test then rejected a row whose local
 name was not the URL's last segment -- which is right, and is now an EXACT
 match rather than the substring test it was, with "remote_name" for the one
 repository (the YOLO26 detector) that publishes its weight as weights/best.pt.
+
+VERIFIED 2026-10-04: cell_from_hoechst_v1 and toxoplasma_from_hoechst_v1 rows present; test_model_zoo passes; 1 referenced test files pass.

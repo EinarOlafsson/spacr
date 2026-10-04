@@ -47,3 +47,5 @@ Note: tests/test_docstring_correctness.py's callable-inventory pin reads
 11,725 against a pinned 11,710; the one new public method is one of those
 fifteen, the other fourteen were already on nightly a93f937d2. The pin is
 left to the docs lane that owns it.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

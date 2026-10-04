@@ -60,3 +60,5 @@ worker results are dropped. The Apply and Compare help have source-bound
 rows in all nine catalogs (see _awaiting_translation's docstring in
 tests/qt/test_make_masks_settings_explain_themselves.py). The Mask
 generation side is 508's and is on nightly. Nothing remains here.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

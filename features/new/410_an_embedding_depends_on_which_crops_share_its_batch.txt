@@ -209,3 +209,5 @@ So the translations the old Status waited for landed too. What is left is
 the optional change under NOT DONE above: tools/tutorials/embeddings_example.py
 still records `asdict(spec)` (line 129). Changing it reopens the pinned
 evidence files named there, which is why it was left.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

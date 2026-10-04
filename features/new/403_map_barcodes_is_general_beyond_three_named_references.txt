@@ -477,3 +477,5 @@ features/future/ to features/new/, because the list it belongs on is "what
 spaCR has gained". Name and number unchanged. `git grep` for "future/403"
 and for this file's name found no reference in features/, tests/, tools/ or
 docs/ to update.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

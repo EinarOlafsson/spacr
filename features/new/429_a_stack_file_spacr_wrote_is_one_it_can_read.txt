@@ -406,3 +406,5 @@ documentable signature. All 93 tests in the six-file current-source cohort
 pass, including simulated AppleDouble sidecars and failed-read rollback.
 Receipt: features/data/429_current_source_stack_acceptance_2026-10-02.json.
 A real macOS external-volume run remains outside this Linux host's validation.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

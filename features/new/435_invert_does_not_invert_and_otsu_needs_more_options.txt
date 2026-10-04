@@ -589,3 +589,5 @@ languages and the existing inversion/filter pixel-behavior checks. Independent
 source/hash/gate/live-tr/setting-label checks pass and prove unrelated catalog
 rows unchanged. Receipt:features/data/435_inversion_translations_2026-09-22.json.
 No native-speaker signoff or complete-catalog audit acceptance is claimed.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

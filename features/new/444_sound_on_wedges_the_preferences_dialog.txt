@@ -364,3 +364,5 @@ EXACT STEPS FOR THE MAINTAINER (the one thing still open)
 The automated equivalent, for any machine, is:
     CUDA_VISIBLE_DEVICES='' QT_QPA_PLATFORM=offscreen python -m pytest -q \
         tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py
+
+VERIFIED 2026-10-04: test_sound_on_does_not_wedge_the_preferences_dialog passes; the QtMultimedia thread pins skip on this box (libbrotlidec mismatch, environmental); 2 referenced test files pass.

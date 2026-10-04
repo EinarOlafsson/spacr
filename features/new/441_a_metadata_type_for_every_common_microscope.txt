@@ -374,3 +374,5 @@ WHAT IS LEFT
     ratchet in tests/qt/test_i18n_caption_ratchet.py was ALREADY RED on
     origin/nightly before this work (3,659 UI candidates against 3,547 in the
     catalog), so this adds to a known backlog rather than breaking a green.
+
+VERIFIED 2026-10-04: 5 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

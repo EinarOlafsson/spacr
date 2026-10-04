@@ -392,3 +392,5 @@ output folder writes no record) and test_cov_utils_mask_filtering.py (raw
 images beside orig/ are sampled; the orig/ copy wins a duplicate). 424 passed
 across the sixteen mask/utils test files touching either function, after the
 two pin updates (3 pin failures before them, 89 passed in those three files after).
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

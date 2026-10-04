@@ -236,3 +236,5 @@ segmentation by a different network, and the pack's own diameters and
 thresholds rather than the plate's recorded ones. It is enough to say 0.4
 does not lose the objects that were really there on this crop and removes
 the fragments 100 lets through; it is not a benchmark.
+
+VERIFIED 2026-10-04: settings.setdefault("flow_threshold", 0.4) on all three mask paths; named tests pass; 4 referenced test files pass.

@@ -1190,3 +1190,5 @@ the_hit_mark -- before 179 passed / 1 skipped; after 183 passed / 1 skipped
 
 WHAT IS LEFT: the maintainer's own look on a real display. Translations stay
 with future/411; no new user-visible string was added.
+
+VERIFIED 2026-10-04: 18 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

@@ -147,3 +147,5 @@ after each mutation (sha256 f73052af…e405 before and after):
                                                       reached
 
 The whole file passes: 14 passed in 12.8 s, slow tests included.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

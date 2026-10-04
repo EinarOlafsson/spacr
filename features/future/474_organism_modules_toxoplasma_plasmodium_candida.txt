@@ -419,3 +419,5 @@ For the docs/translation lane:
   rebuilt without model inference (+8 rows per language);
   tests/test_runtime_i18n_syntax.py subtracts the new slice. Nothing left
   for the docs lane on this item.
+
+VERIFIED 2026-10-04: test_organism_pages + test_634_organism_alpha_pages pass. Later item 634 owns the alpha gate (ALPHA_SPECIES 634 lists the organism apps and page widgets); Starplast tile is alpha by stage; 2 referenced test files pass.

@@ -199,3 +199,16 @@ def test_where_in_shouted_prose_is_translatable_but_a_query_keeps_it():
     query = "Rows come from ``SELECT`` FROM cells WHERE well = ?"
     assert catalogs._shouted_prose_count(query, "WHERE") == 0
     assert not catalogs._syntax_preserved(query, "Zeilen kommen aus ``SELECT`` FROM cells, wo well = ?")
+
+
+@pytest.mark.parametrize("term", ["CUDA", "Metal", "MPS", "ROCm", "DirectML", "Apple Silicon"])
+def test_every_gpu_backend_name_is_protected_like_cuda(term):
+    """No accelerator backend is translated while CUDA survives: ``Metal`` once became ``metall``."""
+    sys.path.insert(0, TOOLS)
+    try:
+        import build_i18n_catalogs
+        terms = build_i18n_catalogs._PROTECTED_TERMS
+    finally:
+        sys.path.remove(TOOLS)
+    assert term in terms
+    assert _protect_re().search(f"Metal och {term} på Apple") is not None

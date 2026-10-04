@@ -89,3 +89,5 @@ worker report. Capped offscreen execution, CUDA hidden; repository fatal Ruff
 checks pass. Broader startup performance (284) and full CI (43) remain open.
 A further100 live-preview/source-selector/sampling checks pass in13.69s:
 244 distinct focused checks pass for the final change.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

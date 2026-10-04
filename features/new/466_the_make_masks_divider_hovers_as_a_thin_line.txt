@@ -32,3 +32,5 @@ tests/qt/test_make_masks_detects_on_the_normalized_image.py::
 Receipt: features/data/466_hovered_divider_pixels_2026-09-28.json.
 Named-test proof: queued-cpu-checks-20260928/divider.xml and divider.log under
 /mnt/wd4tb/scratch/spacr-completion; their hashes match the receipt.
+
+VERIFIED 2026-10-04: named test passes; the shared CollapsibleSplitter (471) supersedes the screen-specific divider (later wins); 1 referenced test files pass.

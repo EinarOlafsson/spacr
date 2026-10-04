@@ -369,3 +369,5 @@ or caption changed.
 
 LEFT, and unchanged: a look on a real macOS machine, and the reporter's
 confirmation on #119 and #120.
+
+VERIFIED 2026-10-04: 7 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

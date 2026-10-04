@@ -102,3 +102,5 @@ and the row leads with "NEWEST IS NOT BEST HERE" -- round 6 does not beat round 
 on the anchor (0.8602 vs 0.8648) and the PV project still promotes round 5. The
 nested weights/ path this item warned about was handled. Status line was still
 "not started" until now; the code was already correct.
+
+VERIFIED 2026-10-04: toxoplasma_pv rows in BUNDLED_REMOTE_MODELS; test_model_zoo passes; 1 referenced test files pass.

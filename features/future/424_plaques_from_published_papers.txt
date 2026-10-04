@@ -1190,3 +1190,5 @@ preprint/published duplicates, crop/panel reuse, rotation and text overlays
 still need a separately reviewed corpus. Human lawn-strip/region-count
 review, crop-specific detector corpus and the other acceptance items remain
 open; these controls do not close all of 424.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

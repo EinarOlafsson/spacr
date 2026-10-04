@@ -346,3 +346,5 @@ not live Mask controls or the retired split/intensity-merge algorithms.
 
 This closes 418, not whole-repository coverage or hosted CI. The manual CI
 run 35041259075 was still queued when checked; no green CI claim is made.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

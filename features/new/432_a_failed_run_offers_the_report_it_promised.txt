@@ -795,3 +795,5 @@ files.
 
 Owed: the new "[issue] Waiting up to {seconds} s…" notice in the nine
 catalogs.
+
+VERIFIED 2026-10-04: named tests pass; fixed test_cov_app_screen hostile widget-map stand-in (lacked .get, broken by the later mask GPU refresh); 5 referenced test files pass.

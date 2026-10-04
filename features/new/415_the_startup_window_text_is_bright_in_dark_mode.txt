@@ -220,3 +220,5 @@ older STILL OWED paragraphs above remain as dated history; their missing
 native-platform evidence is now supplied without inventing a human signoff.
 Workers used one actual CPU and a4GiB Windows Job Object committed-memory cap;
 Windows-managed pagefile behavior is explicitly not called zero-swap.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

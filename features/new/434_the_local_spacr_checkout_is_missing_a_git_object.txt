@@ -218,3 +218,5 @@ STILL OWNED BY THE MAINTAINER: running those three lines on the work box.
 Nothing here can reach that machine.
 
 2026-09-29 (work, Claude), the maintainer's decision: DONE. The repair ran on the work box: git hash-object -t commit -w printed 984b725b5a11346ebf011808812d562a43869fc7, the name in the file; git cat-file says commit; git fsck --connectivity-only reports nothing missing.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

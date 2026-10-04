@@ -215,3 +215,5 @@ flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
 remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
 future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
+
+VERIFIED 2026-10-04: Keep and Discard buttons on the offscreen Make Masks screen; test_keep_and_discard_mark_the_field passes; 1 referenced test files pass.

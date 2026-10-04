@@ -690,3 +690,5 @@ Both halves are on nightly: the per-object table swept on mount (4bd07819d)
 and the chat input no longer stripped by a sweep run inside Qt's polish
 (make_transparent skips a tag already in force). The maintainer checked on
 his own display and wrote: "the black box is gone, so mark that as done".
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

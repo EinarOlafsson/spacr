@@ -538,3 +538,5 @@ Measured after rebasing onto nightly 92d41477f: the four help-search files,
 the background test, the caption ratchet, the helper ratchet, the five
 docstring files and the documentation inventory test ran 353 passed /
 10 xfailed / 0 failed.
+
+VERIFIED 2026-10-04: 6 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

@@ -155,3 +155,5 @@ canonical public_docstrings and _english_manifest generation prove that all
 No API catalog or translation mutation is required. The package callable
 documentation guard passed. Receipt:
 features/data/450_451_private_docstring_2026-09-27.json.
+
+VERIFIED 2026-10-04: test_make_masks_offers_a_sample_of_every_training_dataset + test_training_dataset_download_outcomes pass; offscreen Make Masks shows "Load test data…".

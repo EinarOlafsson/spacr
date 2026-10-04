@@ -110,3 +110,5 @@ rewritten into something new.
 THE LESSON, which is item 406's and HANDOFF's in a different form: a count of
 affected REVIEWED records is not the blast radius of a protection change. The
 generated catalogs are the larger population and the one no reviewer ever saw.
+
+VERIFIED 2026-10-04: _PROTECTED_TERMS holds CUDA, Metal, MPS, ROCm, DirectML and Apple Silicon; new guard test_every_gpu_backend_name_is_protected_like_cuda added and passing.

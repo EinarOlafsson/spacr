@@ -157,3 +157,5 @@ Receipts:
   features/data/467_public_v1_install_and_picker_2026-09-28.json
   features/data/467_public_sample_open_2026-09-28.json
   features/data/467_versioned_name_acceptance_2026-09-28.json
+
+VERIFIED 2026-10-04: live_cell_v1 row in BUNDLED_REMOTE_MODELS and live_cell dataset in make_masks_datasets; test_model_zoo and the sample-dataset tests pass.

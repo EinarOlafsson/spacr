@@ -375,3 +375,5 @@ review records are preserved. No new segmentation, biological efficacy
 measurement or GPU execution is claimed by this closure.
 
 AI technical review (Codex), no native-speaker signoff.
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

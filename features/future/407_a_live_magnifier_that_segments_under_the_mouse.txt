@@ -947,3 +947,5 @@ CP3 checkpoint advice now requests a compatible CP4 checkpoint rather than
 sending non-plaque previews to a plaque model. Public signature unchanged;
 new tr text and API behavior handed off. Receipt288_preview_constructor_
 recovery_2026-09-23.json records exact evidence and limitations.
+
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

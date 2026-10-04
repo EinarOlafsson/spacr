@@ -747,3 +747,5 @@ old/older/new/nested/previous/earlier/used to/replaces/legacy/no longer finds
 no match, so lesson 02 meets the instruction. The standing rule (tutorials
 never show or mention an old layout) continues under the 2026-09-30 layout
 audit.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

@@ -127,3 +127,5 @@ to pin the three-row layout and now pins the one row and the non-square case.
 STILL OPEN: whether the ACTUAL run's crops were ever wrong. They were not --
 crops.py:2612 reads png_size and measure.py resizes to it -- so this was a
 preview that disagreed with its pipeline, not a pipeline defect.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

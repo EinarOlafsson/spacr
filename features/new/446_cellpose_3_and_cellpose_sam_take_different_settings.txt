@@ -219,3 +219,5 @@ changes to _Cellpose3Adapter (162 passed together with the 419 Make Masks
 files). test_every_converted_double_declares_the_installed_signature in
 tests/test_cellpose_api_contract.py, which the 2026-09-20 note recorded as
 failing on a clean nightly, now PASSES.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

@@ -19,3 +19,5 @@ console when the path is empty or does not exist, and otherwise reloads the
 preview from it through that preview's own loader. It deliberately bypasses
 the "load each src once" guard the automatic load keeps, because a folder
 whose contents changed under the same path is exactly what a refresh is for.
+
+VERIFIED 2026-10-04: test_every_live_preview_can_be_refreshed and test_preview_refresh_endings pass.

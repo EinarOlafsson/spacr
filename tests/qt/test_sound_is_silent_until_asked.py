@@ -660,7 +660,7 @@ class TestTheAudioThread:
         listing or an effect moves back to the audio thread -- which is
         what wedged the application. Nothing here touches a real device.
         """
-        import PySide6.QtMultimedia as mm
+        mm = pytest.importorskip("PySide6.QtMultimedia", exc_type=ImportError)
 
         threads = []
 
@@ -749,7 +749,7 @@ class TestTheAudioThread:
         and not again. Stand-ins record the order; nothing here reaches a
         real device.
         """
-        import PySide6.QtMultimedia as mm
+        mm = pytest.importorskip("PySide6.QtMultimedia", exc_type=ImportError)
 
         calls = []
 
@@ -786,7 +786,7 @@ class TestTheAudioThread:
         other work. That is the whole of the item's third point -- the
         cost is real, so it is paid where it is not felt, and logged.
         """
-        import PySide6.QtMultimedia as mm
+        mm = pytest.importorskip("PySide6.QtMultimedia", exc_type=ImportError)
 
         calls = []
 

@@ -139,3 +139,5 @@ LEFT FOR THE MAINTAINER OR A LATER PASS
 * The ten docstrings are in docs/source/_static/i18n/api/en.json and in
   docs/i18n/reviewed/api/de/; the other eight reviewed API packs do not name
   design_from_record yet. That is the docs lane's API translation pass.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

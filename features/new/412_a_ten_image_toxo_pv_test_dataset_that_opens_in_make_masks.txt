@@ -127,3 +127,5 @@ an empty cache, the hand-off to `_open_folder` and the decode) was real. The
 driver is kept outside the repository (scratch), since it is a one-off
 receipt rather than a test: a test that downloads 38 MB is not one the suite
 should run.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

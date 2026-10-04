@@ -236,3 +236,5 @@ they are rebuilt once before a version is cut. Nothing here adds a
 user-facing string; the public API symbol inventory was set-differenced
 before and after and is UNCHANGED (10,707 both ways), because every new name
 is private.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

@@ -245,3 +245,5 @@ those checks all nine catalogs, so the translation handoff is done;
 docs/source/make_masks.rst describes secondary objects. Nothing remains.
 The exact CI Hindi font state noted on 2026-09-24 was not reproduced
 locally; the width regressions cover both sources found.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

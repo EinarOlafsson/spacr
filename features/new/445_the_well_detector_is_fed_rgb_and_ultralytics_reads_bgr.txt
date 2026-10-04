@@ -280,3 +280,5 @@ transfer question about the DETECTOR, not about this bug, and it is worth its
 own item: what these weights do on the images spaCR is actually pointed at is
 unknown, in either channel order. What is settled is that whatever they do,
 they now do it in the order they were trained in.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

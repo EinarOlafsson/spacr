@@ -2251,3 +2251,5 @@ denominator: spacr._segmentation_backends (11) and spacr._v1_v2_bridge (2),
 both in AUTOAPI_NON_RENDERED_MODULES. Known red test owned elsewhere:
 tests/test_built_nested_helper_api.py (nightly 68884079c, conf.py hook).
     WHAT IS LEFT: nothing in this item. Native-speaker review and live HTML publication are maintainer tasks.
+
+VERIFIED 2026-10-04: 12 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

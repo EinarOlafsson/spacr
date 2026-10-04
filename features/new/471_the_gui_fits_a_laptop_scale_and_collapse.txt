@@ -916,3 +916,5 @@ each with its blocker: (1) the Live/3D/Time/OPS/AI switch placement is the
 maintainer's decision (slice B's open question); (2) native desktop,
 Windows/macOS and performance acceptance need other operating systems and a
 real display, and are tracked in 284 and 380.
+
+VERIFIED 2026-10-04: 16 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

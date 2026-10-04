@@ -628,3 +628,4 @@ republish touched none of lessons 78-81, and its release-manifest.json lists
 no english_fallback row for any lesson. Nothing reopens this item; it stays
 in features/new, where built items live.
 
+VERIFIED 2026-10-04: 4 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

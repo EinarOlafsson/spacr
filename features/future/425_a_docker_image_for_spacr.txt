@@ -565,3 +565,5 @@ previous note is the workaround.
 Nothing was built, pushed or published by this work. Receipt:
 features/data/425_cuda_image_gpu_execution_2026-09-26.json.
 Every point of the original WHAT IS LEFT list is now closed.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

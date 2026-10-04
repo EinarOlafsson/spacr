@@ -162,3 +162,5 @@ did not change it: `spacr/flowview/__init__.py` does `from .export import
 export`, so the package attribute is the FUNCTION of that name. The detector
 now compares module attributes only (ce40fa74c), and a staged real split
 still fails it.
+
+VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

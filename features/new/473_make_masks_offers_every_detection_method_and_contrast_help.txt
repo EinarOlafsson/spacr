@@ -810,3 +810,5 @@ What stays, each with its blocker:
   * U-Net is offered but not measured -- there is no U-Net checkpoint in
     the example data or on this machine's spaCR paths; it needs one from
     the maintainer or a trained model.
+
+VERIFIED 2026-10-04: 2 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

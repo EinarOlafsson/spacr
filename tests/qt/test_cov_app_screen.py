@@ -1403,6 +1403,9 @@ class TestErrorRouting:
             def items(self):
                 raise RuntimeError("widget map corrupted")
 
+            def get(self, key, default=None):
+                return default
+
         scr._settings_model._widgets = _HostileWidgets()
         scr._on_file_issue()
         _settle(qtbot, scr)

@@ -199,3 +199,5 @@ Receipt: features/data/414_native_claude_acceptance_2026-10-01.json.
 This closes N414's command installation and fresh-shell discovery acceptance.
 The same run's basic app smoke does not close N53's interruption/rollback,
 N415's startup-theme matrix or N627's online uv-update transaction.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).

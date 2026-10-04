@@ -40,3 +40,5 @@ All ten source/syntax/reporter tests pass (204.52 s). Record file in each
 language: docs/i18n/reviewed/runtime/<language>/
 2026-09-21-normalized-detection.json. This changes only translations; Claude
 retains ownership of the detector and screen behavior.
+
+VERIFIED 2026-10-04: switch off by default; on, detection_source() is the normalized field (offscreen check); test_make_masks_detects_on_the_normalized_image passes; float input maps to 0..1.

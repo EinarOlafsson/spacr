@@ -32,3 +32,5 @@ Levels…, Reset levels and Detect on the normalized image, including which
 of them reach the detector. The dialog's captions ('Levels', 'Levels…',
 'Reset levels', 'Detect on the normalized image', 'Could not calculate
 levels: {error}') have exact rows in all nine catalogs. Nothing remains.
+
+VERIFIED 2026-10-04: 1 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
