@@ -16,10 +16,13 @@ def _event(kind, point, *, button=Qt.LeftButton, buttons=Qt.LeftButton,
     return QMouseEvent(kind, pos, pos, button, buttons, modifiers)
 
 
-def _press(canvas, point, *, modifiers=Qt.NoModifier, button=Qt.LeftButton):
+def _press(canvas, point, *, modifiers=Qt.NoModifier, button=Qt.LeftButton,
+           buttons=None):
     """Start an actual canvas gesture."""
+    if buttons is None:
+        buttons = button
     canvas.mousePressEvent(_event(QEvent.Type.MouseButtonPress, point,
-                                  button=button, buttons=button,
+                                  button=button, buttons=buttons,
                                   modifiers=modifiers))
 
 
@@ -111,6 +114,60 @@ def test_drag_from_image_into_letterbox_has_no_annotation(canvas):
     assert edits == []
     assert canvas._box_drag is None
     assert np.array_equal(canvas.mask, before_mask)
+
+
+def test_competing_right_press_cannot_delete_before_left_release(canvas):
+    """A chorded right press leaves the selected box's index intact."""
+    first = (0, 5, 5, 15, 15)
+    second = (0, 25, 25, 35, 35)
+    canvas.boxes = [first, second]
+    edits = []
+    canvas.boxes_changed.connect(lambda: edits.append(list(canvas.boxes)))
+
+    _press(canvas, _pixel(canvas, 30, 30))
+    _move(canvas, _pixel(canvas, 32, 31))
+    _press(canvas, _pixel(canvas, 10, 10), button=Qt.RightButton,
+           buttons=Qt.LeftButton | Qt.RightButton)
+    _release(canvas, _pixel(canvas, 32, 31))
+
+    moved = (0, 27, 26, 37, 36)
+    assert canvas.boxes == [first, moved]
+    assert edits == [[first, moved]]
+    assert canvas._box_drag is None
+
+
+def test_standalone_right_press_clears_a_lost_left_drag(canvas):
+    """A new right gesture cancels a stale preview before deleting its hit."""
+    canvas.boxes = [(0, 5, 5, 15, 15)]
+    edits = []
+    canvas.boxes_changed.connect(lambda: edits.append(list(canvas.boxes)))
+
+    _press(canvas, _pixel(canvas, 40, 40))
+    _move(canvas, _pixel(canvas, 50, 50))
+    assert canvas._box_preview is not None
+    _press(canvas, _pixel(canvas, 10, 10), button=Qt.RightButton)
+    _release(canvas, _pixel(canvas, 50, 50))
+
+    assert canvas.boxes == []
+    assert edits == [[]]
+    assert canvas._box_drag is None
+    assert canvas._box_preview is None
+
+
+def test_valid_preview_released_in_letterbox_is_discarded(canvas):
+    """The last valid hover point cannot be mistaken for the release point."""
+    edits = []
+    canvas.boxes_changed.connect(lambda: edits.append(True))
+
+    _press(canvas, _pixel(canvas, 12, 44))
+    _move(canvas, _pixel(canvas, 24, 56))
+    assert canvas._box_preview == (0, 12, 44, 25, 57)
+    _release(canvas, (50, 300))
+
+    assert canvas.boxes == []
+    assert edits == []
+    assert canvas._box_drag is None
+    assert canvas._box_preview is None
 
 
 @pytest.mark.parametrize(
