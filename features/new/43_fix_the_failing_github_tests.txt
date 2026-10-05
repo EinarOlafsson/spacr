@@ -2621,3 +2621,19 @@ after the run started; unconfirmed on CI.
   successful and running jobs and no completed failure at that check.
   Later integrated changes require their own final-source verdict; items
   43/288 remain OPEN. No coverage ceiling or failure assertion was relaxed.
+
+2026-10-05 — CPU SOURCE CHECKPOINT PUSHED; PROTECTED VERDICT QUEUED
+  Checkpoint 1c99dd3e85dd3fb86972b13482d13b52adc176a6 is on nightly.
+  Protected dispatch 37327585557 confirms that exact SHA and was created
+  2026-10-05 14:47:38 UTC. It is pending without jobs at this receipt.
+  GitHub's concurrency group replaced the earlier pending 37321218288
+  before it started jobs; older running 37311146886 is preserved.
+  Four of its coverage shards (3,6,7,9) have passed, with no failing batch
+  summaries in their completed logs. This is not the final-source verdict.
+  The integrated F548 track/checkpoint/Cellpose cohort passes 65 cases,
+  annotation/model cases pass 56, and the synthetic-button file passes 19.
+  After workstation rebase, Cancel/runtime-caption/index/syntax checks pass
+  36. Final F548 source docstring/prose guards pass 139. Production/test
+  changes are frozen for CI; the three reused agents own coverage, Qt and
+  other job triage separately. Items 43/288 remain OPEN until the protected
+  aggregate and all blocking jobs actually pass.

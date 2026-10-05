@@ -92,6 +92,15 @@ checks pass 65 under 4 GiB. Nested lineage/events and animations remain
 field-local. The changed private core prose still belongs in the
 workstation's next source-bound API/docs regeneration; no GPU work started.
 
+CPU source freeze: nightly checkpoint 1c99dd3e85dd3fb86972b13482d13b52adc176a6,
+protected dispatch 37327585557 (2026-10-05 14:47:38 UTC), pending at this
+receipt. GitHub replaced the older pending 37321218288 before jobs; the
+running 37311146886 remains available for evidence. Three reused agents now
+divide verification into coverage/combine, Qt, and other jobs. Final F548
+source docstring/prose guards pass 139; integrated track/checkpoint/Cellpose
+65, annotation/model 56 and synthetic-button 19 pass. Do not mark items
+43/288 or whole-suite item 47 complete based on focused or older-SHA runs.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.
