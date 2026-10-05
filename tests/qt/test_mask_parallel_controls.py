@@ -240,6 +240,23 @@ def test_pending_gpu_discovery_refreshes_the_controls(qtbot, monkeypatch):
     assert indices.isEnabled()
 
 
+def test_repeated_refresh_during_discovery_keeps_one_poll_timer(qtbot, monkeypatch):
+    from PySide6.QtCore import QTimer
+
+    panel, parallel, indices = _panel(qtbot, monkeypatch, None)
+    initial_timers = parallel.findChildren(QTimer)
+    assert panel._mask_gpu_poll_pending and len(initial_timers) == 1
+
+    panel._refresh_mask_gpu_enablement()
+    assert parallel.findChildren(QTimer) == initial_timers
+    assert panel._mask_gpu_poll_pending
+    assert not parallel.isEnabled() and not indices.isEnabled()
+
+    monkeypatch.setattr(mw, "_mask_gpu_count_for_controls", lambda: 2)
+    qtbot.waitUntil(parallel.isEnabled)
+    assert not panel._mask_gpu_poll_pending
+
+
 def test_real_discovery_finishes_outside_the_gui_process():
     import os
     import subprocess
