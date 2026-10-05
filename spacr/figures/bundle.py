@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any, Callable, Dict, Mapping, Optional, Sequence
+from typing import Any, Callable, Mapping, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -688,6 +688,13 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
     groups = getattr(figure, "_spacr_groups", None)
     if not (sx or sy) and isinstance(groups, Mapping) and groups:
         tested, sx, sy = _as_frame(groups, "group", "value"), "group", "value"
+        if sx not in tested.columns:
+            tested = tested.melt(var_name=sx, value_name=sy)
+        if not isinstance(frame, pd.DataFrame) or frame.empty:
+            frame = tested
+            spec.update(x=sx, y=sy)
+            if not spec.get("kind"):
+                spec["kind"] = "box"
     with tempfile.TemporaryDirectory(prefix="spacr_fig_") as folder:
         for fmt in (formats or _default_formats()):
             try:
