@@ -65,6 +65,31 @@ def test_previous_stays_on_second_field_when_dirty_boxes_cannot_be_saved(
     assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
 
 
+@pytest.mark.parametrize("keep", [True, False], ids=["keep", "discard"])
+def test_verdict_does_not_record_or_advance_after_failed_box_save(
+        opened, monkeypatch, keep):
+    """Neither curation verdict can outrun an unsaved annotation edit."""
+    widget, folder = opened
+    _edited_box(widget)
+    before_image = widget._canvas.image.copy()
+    before_source = (folder / "field_0.tif").read_bytes()
+    _unwritable_boxes(monkeypatch)
+    recorded = []
+    monkeypatch.setattr(engine, "record_curation",
+                        lambda *args, **kwargs: recorded.append((args, kwargs)))
+
+    assert widget._on_curate(keep) is None
+
+    assert recorded == []
+    assert widget._current_index == 0
+    assert widget._box_field == (str(folder), "field_0.tif")
+    assert widget._canvas.boxes == [(0, 12, 12, 32, 32)]
+    assert np.array_equal(widget._canvas.image, before_image)
+    assert widget._boxes_dirty
+    assert (folder / "field_0.tif").read_bytes() == before_source
+    assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
+
+
 def test_direct_load_rolls_back_index_to_unsaved_box_owner(opened, monkeypatch):
     """A caller changing the index cannot strand boxes on another image."""
     widget, folder = opened
