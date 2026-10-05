@@ -2150,7 +2150,7 @@ def _concatenate_and_normalize_impl(
             if illumination_session is not None or psf_session is not None:
                 raise
     else:
-        for file in _listdir_visible(src):
+        for file in sorted(_listdir_visible(src)):
             if file.endswith('.npy'):
                 if (only_fields is not None and
                         os.path.splitext(file)[0] not in only_fields):
