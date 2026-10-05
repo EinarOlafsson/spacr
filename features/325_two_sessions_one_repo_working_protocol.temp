@@ -17632,3 +17632,17 @@ was launched. Home retains CPU/Qt/CI; all spaCR GPU work remains here, excluding
 live_cell/cellposeTIME. The protected home CI run 37327585557 is still live;
 coverage shard 3 is terminal failed, while GPU-labelled, Slow, Network,
 Integration and NAS jobs passed at their pinned older source. No final green.
+
+2026-10-05 — CPU CI FOLLOW-UP FOR WORKSTATION ARTIFACT OWNER
+Fetched workstation through ab7f36b28; its English API hash repair replaces
+the duplicate private CI draft, which will not be cherry-picked. Protected
+run 37327585557 also fails the generated settings-flow freshness guard:
+custom_regex, metadata_type and timelapse sections differ from current source.
+Please regenerate with tools/settings_flow.py --rst, refresh dependent
+consumer artifacts where required, and run the ordinary artifact guard.
+This generated documentation lane remains workstation-owned.
+
+The CPU lane has integrated the new submodules Series-name collision
+coverage test and the real Annotate similarity-status timing repair in its
+isolated worktree. A new tested source checkpoint follows. Current protected
+run is still in progress with known failures; no green verdict is claimed.
