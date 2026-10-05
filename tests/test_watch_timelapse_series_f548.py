@@ -3,6 +3,7 @@ import csv
 import json
 import shutil
 import sqlite3
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -10,11 +11,13 @@ import pytest
 import tifffile
 
 from spacr import convert, core
+from spacr.utils import _get_regex
 from tests.test_watch_folder_and_analyse import (
     MASK, MEASURE, Recorder, _channels, _rows, real_pipeline,
 )
 from tests.test_watch_nested_f548 import _fast
 from tests.test_cov_object_masks_sam import fake_model
+from tests.test_watch_collection_checkpoint_f548 import Analysis
 
 
 def _converted_series(tmp_path, wells=('A01',)):
@@ -143,9 +146,16 @@ def test_mapped_series_runs_the_batch_iou_tracking_path(tmp_path, fake_model,
                                       np.load(field / 'merged' / name))
     batch_tracks = sorted((batch / 'tracks').glob('trackpy_tracks_cell_*.csv'))
     watch_tracks = sorted((field / 'tracks').glob('trackpy_tracks_cell_*.csv'))
+    combined_tracks = sorted((watched / 'spacr_watch/tracks').glob(
+        'trackpy_tracks_cell_*.csv'))
     assert len(batch_tracks) == len(watch_tracks) == 1
+    assert len(combined_tracks) == 1
     batch_table = pd.read_csv(batch_tracks[0])
     pd.testing.assert_frame_equal(batch_table, pd.read_csv(watch_tracks[0]))
+    pd.testing.assert_frame_equal(batch_table, pd.read_csv(combined_tracks[0]))
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    tracked = ledger['fields'][result['done'][0]]['collection_checkpoint']['artifacts']
+    assert f'tracks/{combined_tracks[0].name}' in tracked
     assert sorted(batch_table['frame'].unique().tolist()) == [0, 1]
     assert (batch_table.groupby('track_id')['frame'].nunique() == 2).all()
     watch_model = fake_model['model']
@@ -267,3 +277,118 @@ def test_series_does_not_enable_other_live_volume_or_feedback_paths(
     with pytest.raises(ValueError, match=message):
         core._watch_folder_and_analyse(settings, Recorder())
     assert not (output / 'spacr_watch').exists()
+
+
+def test_series_map_refuses_a_pattern_that_misreads_frame_identity(tmp_path):
+    output, _rows_ = _converted_series(tmp_path)
+    wrong_time = (r'(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>0)\d{3}'
+                  r'F(?P<fieldID>\d+)L\d{2}A\d{2}Z\d{2}C(?P<chanID>\d+)\.tif')
+    settings = {**MASK, **_fast(output), 'timelapse': True,
+                'custom_regex': wrong_time}
+    with pytest.raises(ValueError, match='mapped time'):
+        core._watch_folder_and_analyse(settings, Recorder())
+    assert not (output / 'spacr_watch').exists()
+
+
+def test_series_refuses_a_custom_convention_even_when_it_matches_convert(tmp_path):
+    output, _rows_ = _converted_series(tmp_path)
+    settings = {**MASK, **_fast(output), 'timelapse': True,
+                'custom_regex': _get_regex('cellvoyager', 'tif', None)}
+    with pytest.raises(ValueError, match='CellVoyager filename convention'):
+        core._watch_folder_and_analyse(settings, Recorder())
+    assert not (output / 'spacr_watch').exists()
+
+
+@pytest.mark.parametrize('damage', [
+    'none', 'staged', 'combined', 'old_checkpoint', 'linked_destination'])
+def test_series_track_csv_checkpoint_resumes_or_refuses_tampering(
+        tmp_path, monkeypatch, damage):
+    output, _rows_ = _converted_series(tmp_path)
+    settings = dict(MASK, **_fast(output), timelapse=True,
+                    watch_pipeline='mask_measure')
+    analysis = Analysis()
+    track_name = 'trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv'
+
+    def analyse(folder, recipe):
+        """Produce one track table beside the real checkpoint fixture outputs."""
+        analysis(folder, recipe)
+        tracks = Path(folder) / 'tracks'
+        tracks.mkdir()
+        (tracks / track_name).write_text('frame,track_id\n0,1\n1,1\n')
+
+    def fail_merge(*_args):
+        """Interrupt collection after the track link but before the DB append."""
+        raise OSError('injected database collection failure')
+
+    with monkeypatch.context() as patch:
+        patch.setattr(core, '_watch_merge_database', fail_merge)
+        first = core._watch_folder_and_analyse(settings, analyse)
+    assert len(first['failed']) == analysis.calls == 1
+    work = output / 'spacr_watch'
+    field = work / 'fields' / first['failed'][0]
+    staged = field / 'tracks' / track_name
+    combined = work / 'tracks' / track_name
+    original = b'frame,track_id\n0,1\n1,1\n'
+    assert staged.read_bytes() == combined.read_bytes() == original
+    if damage == 'staged':
+        staged.unlink()
+        staged.write_bytes(b'changed staged tracks')
+    elif damage == 'combined':
+        combined.unlink()
+        combined.write_bytes(b'conflicting combined tracks')
+    elif damage == 'old_checkpoint':
+        path = work / 'watch_ledger.json'
+        ledger = json.loads(path.read_text())
+        del ledger['fields'][first['failed'][0]]['collection_checkpoint'][
+            'artifacts'][f'tracks/{track_name}']
+        path.write_text(json.dumps(ledger))
+    elif damage == 'linked_destination':
+        (work / 'tracks').rename(work / 'tracks-kept')
+        (work / 'tracks').symlink_to(work / 'tracks-kept', target_is_directory=True)
+    resumed = core._watch_folder_and_analyse(settings, analyse)
+    assert analysis.calls == 1
+    if damage == 'none':
+        assert resumed['done'] == first['failed']
+        assert combined.read_bytes() == original
+        with sqlite3.connect(work / 'measurements/measurements.db') as connection:
+            assert connection.execute('SELECT COUNT(*) FROM spacr_watch_fields').fetchone() == (1,)
+    else:
+        assert resumed['failed'] == first['failed']
+        assert 'Collection' in json.loads(Path(resumed['ledger']).read_text())[
+            'fields'][first['failed'][0]]['error']
+
+
+def test_track_collection_publishes_only_flat_csv_from_a_field(tmp_path):
+    field, work = tmp_path / 'field', tmp_path / 'combined'
+    tracks = field / 'tracks'
+    tracks.mkdir(parents=True)
+    (tracks / 'trackpy_tracks_cell_field.csv').write_text('frame,track_id\n0,1\n')
+    (tracks / 'notes.txt').write_text('private tracking note')
+    (tracks / 'events').mkdir()
+    (tracks / 'events' / 'event.csv').write_text('event\ndivision\n')
+    artifacts = core._watch_collection_artifacts(str(field))
+    assert set(artifacts) == {'tracks/trackpy_tracks_cell_field.csv'}
+    core._watch_validate_collection(str(field), str(work), artifacts,
+                                    verify_staged=True)
+    core._watch_collect(str(field), str(work), 'field')
+    assert sorted(path.name for path in (work / 'tracks').iterdir()) == [
+        'trackpy_tracks_cell_field.csv']
+    assert (work / 'tracks/trackpy_tracks_cell_field.csv').read_bytes() == (
+        tracks / 'trackpy_tracks_cell_field.csv').read_bytes()
+
+
+@pytest.mark.parametrize('kind', ['directory_link', 'csv_link'])
+def test_track_collection_refuses_linked_source_artifacts(tmp_path, kind):
+    field = tmp_path / 'field'
+    field.mkdir()
+    outside = tmp_path / 'outside'
+    outside.mkdir()
+    (outside / 'table.csv').write_text('frame,track_id\n0,1\n')
+    if kind == 'directory_link':
+        (field / 'tracks').symlink_to(outside, target_is_directory=True)
+    else:
+        (field / 'tracks').mkdir()
+        (field / 'tracks/table.csv').symlink_to(outside / 'table.csv')
+    with pytest.raises(ValueError, match='tracks output|unsafe'):
+        core._watch_collection_artifacts(str(field))
+    assert not (tmp_path / 'combined').exists()

@@ -1525,9 +1525,9 @@ def _watch_merge_database(field_db, combined_db, key):
 def _watch_collect(field_dir, work, key, database_snapshot=None):
     """Gather one analysed field into the watch folder's combined outputs.
 
-    The field's ``merged`` files are linked into ``<work>/merged`` and its
-    measurement tables appended to ``<work>/measurements/measurements.db``,
-    so the combined folder is laid out like a plate a batch run analysed.
+    The field's merged files and flat track CSVs are linked into their
+    combined folders, and its measurement tables are appended to the
+    combined database. The result has the layout of an analysed batch plate.
 
     :param field_dir: the analysed field's folder.
     :param work: the ``spacr_watch`` folder.
@@ -1540,6 +1540,17 @@ def _watch_collect(field_dir, work, key, database_snapshot=None):
         os.makedirs(target, exist_ok=True)
         for name in sorted(os.listdir(merged)):
             source = os.path.join(merged, name)
+            destination = os.path.join(target, name)
+            if os.path.isfile(source) and not os.path.exists(destination):
+                _watch_link(source, destination)
+    tracks = os.path.join(field_dir, 'tracks')
+    if os.path.isdir(tracks):
+        target = os.path.join(work, 'tracks')
+        os.makedirs(target, exist_ok=True)
+        for name in sorted(os.listdir(tracks)):
+            if not name.endswith('.csv'):
+                continue
+            source = os.path.join(tracks, name)
             destination = os.path.join(target, name)
             if os.path.isfile(source) and not os.path.exists(destination):
                 _watch_link(source, destination)
@@ -1590,7 +1601,7 @@ def _watch_artifact_sha256(path):
 
 
 def _watch_collection_artifacts(field_dir):
-    """Fingerprint the precise merged files and SQLite output to be collected.
+    """Fingerprint merged, flat track CSV and SQLite outputs to be collected.
 
     :param field_dir: completed field staging directory.
     :returns: relative artifact paths mapped to SHA256 values.
@@ -1602,6 +1613,14 @@ def _watch_collection_artifacts(field_dir):
         for name in sorted(os.listdir(merged)):
             relative = os.path.join('merged', name)
             artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+    tracks = os.path.join(field_dir, 'tracks')
+    if os.path.lexists(tracks) and (os.path.islink(tracks) or not os.path.isdir(tracks)):
+        raise ValueError('Collection tracks output must be a regular directory.')
+    if os.path.isdir(tracks):
+        for name in sorted(os.listdir(tracks)):
+            if name.endswith('.csv'):
+                relative = os.path.join('tracks', name)
+                artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
     relative = os.path.join('.watch_collection', 'measurements.db')
     if os.path.lexists(os.path.join(field_dir, relative)):
         for suffix in ('-wal', '-journal', '-shm'):
@@ -1660,7 +1679,7 @@ def _watch_snapshot_database(field_dir):
 
 
 def _watch_validate_collection(field_dir, work, saved, *, verify_staged):
-    """Refuse altered checkpoints or conflicting combined pixels before writes.
+    """Refuse altered checkpoints or conflicting combined files before writes.
 
     :param field_dir: completed field staging directory.
     :param work: shared watch output directory.
@@ -1672,8 +1691,13 @@ def _watch_validate_collection(field_dir, work, saved, *, verify_staged):
     if verify_staged and _watch_collection_artifacts(field_dir) != saved:
         raise ValueError('Collection checkpoint artifacts changed; preserved outputs '
                          'must be recovered before resuming this workspace.')
+    tracks_target = os.path.join(work, 'tracks')
+    if (any(os.path.dirname(relative) == 'tracks' for relative in saved)
+            and os.path.lexists(tracks_target)
+            and (os.path.islink(tracks_target) or not os.path.isdir(tracks_target))):
+        raise ValueError('Collection tracks destination is not a regular directory.')
     for relative, digest in saved.items():
-        if os.path.dirname(relative) != 'merged':
+        if os.path.dirname(relative) not in ('merged', 'tracks'):
             continue
         destination = os.path.join(work, relative)
         if os.path.lexists(destination) and _watch_artifact_sha256(destination) != digest:
@@ -2538,7 +2562,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
     ``src/spacr_watch/merged`` and its measurements appended to
     ``src/spacr_watch/measurements/measurements.db``. The
     ``'mask_measure_classify'`` pipeline also applies a saved CV model and
-    collects its per-object predictions in that database. Every field is
+    collects its per-object predictions in that database. A mapped timelapse
+    also collects its flat track CSVs under ``src/spacr_watch/tracks``. Every field is
     preprocessed alone, so the result equals a batch run of the same plate
     with ``batch_size=1``.
 
