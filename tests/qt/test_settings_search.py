@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from PySide6.QtWidgets import QFormLayout
+from PySide6.QtWidgets import QFormLayout, QWidget
 
 import spacr.settings as S
 from spacr.qt.screens.settings_model import (
@@ -49,6 +49,12 @@ def mask_screen(qtbot):
     return screen
 
 
+def _owned_model(qtbot, app_key):
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return SettingsWidgets(app_key, parent=owner)
+
+
 # ---------------------------------------------------------------------------
 # 1. Search — the point is the description, not the key
 # ---------------------------------------------------------------------------
@@ -62,7 +68,7 @@ def test_search_finds_a_key_by_its_tooltip_text(qtbot):
     in the description — so a search that indexed either of those alone
     would return nothing and the setting would stay unreachable.
     """
-    model = SettingsWidgets("measure")
+    model = _owned_model(qtbot, "measure")
     model.build_sections()
 
     key = "merge_edge_pathogen_cells"
@@ -76,7 +82,7 @@ def test_search_finds_a_key_by_its_tooltip_text(qtbot):
 
 def test_search_terms_narrow_rather_than_widen(qtbot):
     """A second word means "and also this", not "or anything like it"."""
-    model = SettingsWidgets("mask")
+    model = _owned_model(qtbot, "mask")
     model.build_sections()
     one = set(model.keys_matching("cell"))
     two = set(model.keys_matching("cell diameter"))
@@ -86,7 +92,7 @@ def test_search_terms_narrow_rather_than_widen(qtbot):
 
 def test_an_empty_query_matches_everything(qtbot):
     """Clearing the box restores the form without a special case."""
-    model = SettingsWidgets("measure")
+    model = _owned_model(qtbot, "measure")
     model.build_sections()
     assert set(model.keys_matching("")) == set(model._widgets)
     assert set(model.keys_matching("   ")) == set(model._widgets)
@@ -338,7 +344,7 @@ def _applicable(bar):
 # ---------------------------------------------------------------------------
 
 def test_modified_reports_nothing_on_a_freshly_built_panel(qtbot):
-    model = SettingsWidgets("measure")
+    model = _owned_model(qtbot, "measure")
     model.build_sections()
     assert model.modified_keys() == []
 
@@ -367,7 +373,7 @@ def test_modified_uses_the_same_equality_as_the_diff_dialog(qtbot):
     from spacr.qt.settings_diff import _values_equal
     assert _values_equal("[0, 1, 2]", [0, 1, 2])
 
-    model = SettingsWidgets("mask")
+    model = _owned_model(qtbot, "mask")
     model.build_sections()
     model.set_value_for_key("channels", "[0, 1, 2, 3]")
     assert "channels" not in model.modified_keys()
@@ -754,10 +760,9 @@ def test_train_channels_offers_exactly_r_g_b(qtbot):
     drops anything else in silence, so the control must not be able to
     express anything else."""
     from spacr.qt.screens.settings_model import _AlphabetSelect
-    model = SettingsWidgets("classify")
+    model = _owned_model(qtbot, "classify")
     model.build_sections()
     widget = model._widgets["train_channels"]
-    qtbot.addWidget(widget)
     assert isinstance(widget, _AlphabetSelect)
     assert widget.choices() == ("r", "g", "b")
     assert widget.get_value() == ["r", "g", "b"]
@@ -799,7 +804,7 @@ def test_the_alphabet_control_reads_a_csv_string(qtbot):
 
 
 def test_train_channels_round_trips_through_set_value_for_key(qtbot):
-    model = SettingsWidgets("classify")
+    model = _owned_model(qtbot, "classify")
     model.build_sections()
     assert model.set_value_for_key("train_channels", ["g"])
     assert model.collect()["train_channels"] == ["g"]

@@ -126,8 +126,11 @@ def test_no_freaction_typo_in_tooltips():
 
 def test_every_shown_setting_has_a_typed_tooltip(qtbot, qt_theme_applied):
     """Every widget on the mask screen gets a tooltip, and most carry a type."""
+    from PySide6.QtWidgets import QWidget
     from spacr.qt.screens.settings_model import SettingsWidgets
-    m = SettingsWidgets("mask")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    m = SettingsWidgets("mask", parent=owner)
     m.build_sections()
     typed = 0
     for key, w in m._widgets.items():

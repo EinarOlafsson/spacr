@@ -363,7 +363,10 @@ def test_timelapse_settings_group_is_none_safe_and_unshared():
 
 def test_timelapse_objects_uses_the_standard_list_editor(qtbot):
     from spacr.qt.screens.settings_model import SettingsWidgets, _ListEditor
-    model = SettingsWidgets("timelapse")
+    from PySide6.QtWidgets import QWidget
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("timelapse", parent=owner)
     model.build_sections()
     widget = model._widgets["timelapse_objects"]
     assert isinstance(widget, _ListEditor)
@@ -390,8 +393,7 @@ def test_settings_screen_builds_offscreen(qtbot, qt_theme_applied, key):
 
 
 def test_timelapse_screen_groups_axes_and_tracking(qtbot, qt_theme_applied):
-    from spacr.qt.screens.settings_model import SettingsWidgets
-    sections = dict(_section_map(SettingsWidgets("timelapse")))
+    sections = dict(_owned_section_map(qtbot, "timelapse"))
     assert "Acquisition & Axes" in sections
     assert "Tracking Setup" in sections
     assert len(sections["Acquisition & Axes"]) >= 5
@@ -400,8 +402,7 @@ def test_timelapse_screen_groups_axes_and_tracking(qtbot, qt_theme_applied):
 def test_motility_screen_shows_the_reorganized_categories(
     qtbot, qt_theme_applied,
 ):
-    from spacr.qt.screens.settings_model import SettingsWidgets
-    sections = dict(_section_map(SettingsWidgets("motility")))
+    sections = dict(_owned_section_map(qtbot, "motility"))
     assert "Objects & Channels" in sections
     assert "Motion Filtering" in sections
     assert "Infection Classification" in sections
@@ -415,13 +416,21 @@ def _section_map(model):
             for name, rows in model.build_sections()]
 
 
+def _owned_section_map(qtbot, app_key):
+    from PySide6.QtWidgets import QWidget
+    from spacr.qt.screens.settings_model import SettingsWidgets
+
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return _section_map(SettingsWidgets(app_key, parent=owner))
+
+
 # ---------------------------------------------------------------------------
 # removed from Mask
 # ---------------------------------------------------------------------------
 
 def test_mask_screen_has_no_timelapse_or_motility_categories(qtbot, qt_theme_applied):
-    from spacr.qt.screens.settings_model import SettingsWidgets
-    sections = dict(_section_map(SettingsWidgets("mask")))
+    sections = dict(_owned_section_map(qtbot, "mask"))
     for gone in ("Timelapse", "Motility (beta)", "Motility Advanced (beta)"):
         assert gone not in sections, f"Mask still shows the {gone!r} tab"
 

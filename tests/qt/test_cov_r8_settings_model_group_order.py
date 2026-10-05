@@ -22,7 +22,7 @@ pytestmark = pytest.mark.qt
 
 class TestTheMergedClassifyGroupOrder:
 
-    def _panel_groups(self):
+    def _panel_groups(self, qtbot):
         """The section TITLES the merged panel builds.
 
         ``SettingsWidgets`` is not a QWidget -- it owns them -- and the
@@ -30,7 +30,9 @@ class TestTheMergedClassifyGroupOrder:
         is read back from. A family group's title carries its family
         prefix, which is stripped here to compare against the tuples.
         """
-        widgets = SM.SettingsWidgets("classify_merged")
+        owner = QWidget()
+        qtbot.addWidget(owner)
+        widgets = SM.SettingsWidgets("classify_merged", parent=owner)
         sections = widgets.build_sections()
         titles = [str(getattr(section, "title", "")) for section in sections]
         bare = set()
@@ -42,8 +44,10 @@ class TestTheMergedClassifyGroupOrder:
             bare.add(title)
         return widgets, bare
 
-    def test_the_family_choice_comes_first(self):
-        widgets = SM.SettingsWidgets("classify_merged")
+    def test_the_family_choice_comes_first(self, qtbot):
+        owner = QWidget()
+        qtbot.addWidget(owner)
+        widgets = SM.SettingsWidgets("classify_merged", parent=owner)
         sections = widgets.build_sections()
 
         assert str(getattr(sections[0], "title", "")) == "Classifier", (
@@ -55,7 +59,7 @@ class TestTheMergedClassifyGroupOrder:
             "the family choice is no longer the first group, so the panel "
             "asks which model to train after asking how to train it")
 
-    def test_every_named_group_exists_in_the_panel(self):
+    def test_every_named_group_exists_in_the_panel(self, qtbot):
         """THE PIN, for four ``if name in ordered`` tests.
 
         The five tuples name the groups by hand, and every name in them
@@ -88,7 +92,7 @@ class TestTheMergedClassifyGroupOrder:
                 if part.strip().strip('",\''))
 
         assert named, "the group tuples are gone"
-        _widgets, groups = self._panel_groups()
+        _widgets, groups = self._panel_groups(qtbot)
         assert groups, "the merged panel built no sections at all"
 
         missing = sorted(name for name in named if name not in groups)
@@ -114,10 +118,12 @@ class TestWalkingUpToARowToHideIt:
     name on an empty row.
     """
 
-    def _widgets(self):
+    def _widgets(self, qtbot):
         """A built panel: the fields exist only after build_sections."""
         widgets = SM.SettingsWidgets("mask")
         widgets.build_sections()
+        for widget in widgets._widgets.values():
+            qtbot.addWidget(widget)
         assert widgets._widgets, "the panel built no fields"
         return widgets
 
@@ -149,7 +155,7 @@ class TestWalkingUpToARowToHideIt:
         asserts is that the form was asked at all -- the holder is the
         widget the form knows, and it is the one the walk has to find.
         """
-        widgets = self._widgets()
+        widgets = self._widgets(qtbot)
         key = next(iter(widgets._widgets))
         field = widgets._widgets[key]
         _root, form, holder = self._nest(qtbot, field, depth=0)
@@ -177,7 +183,7 @@ class TestWalkingUpToARowToHideIt:
         own, which is a frame late rather than wrong: the scheduled pass
         catches up.
         """
-        widgets = self._widgets()
+        widgets = self._widgets(qtbot)
         key = next(iter(widgets._widgets))
         field = widgets._widgets[key]
         # The root is held, not discarded: it owns every widget below it,
@@ -198,7 +204,7 @@ class TestWalkingUpToARowToHideIt:
         event loop -- mid-construction, long after the panel that made
         it was finished.
         """
-        widgets = self._widgets()
+        widgets = self._widgets(qtbot)
         key = next(iter(widgets._widgets))
         field = widgets._widgets[key]
         assert field.parentWidget() is None, (
@@ -216,7 +222,7 @@ class TestWalkingUpToARowToHideIt:
             "a parentless field was told to change visibility, which opens "
             "a window of its own on the next turn of the event loop")
 
-    def test_a_key_the_panel_does_not_have_is_ignored(self):
-        widgets = self._widgets()
+    def test_a_key_the_panel_does_not_have_is_ignored(self, qtbot):
+        widgets = self._widgets(qtbot)
 
         widgets._set_row_visible("not_a_setting", False)   # must not raise
