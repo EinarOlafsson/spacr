@@ -24,10 +24,12 @@ def app():
 
 
 @pytest.fixture
-def slides(app):
+def slides(app, qtbot):
     """A setup screen. ``_isolated_qsettings_store`` in the root conftest is
     autouse, so the preferences it reads are this test's own."""
-    return SetupSlides()
+    widget = SetupSlides()
+    qtbot.addWidget(widget)
+    return widget
 
 
 def test_the_terms_page_is_whole_with_or_without_a_scroll_bar(slides,
