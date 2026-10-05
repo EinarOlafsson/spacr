@@ -1,5 +1,5 @@
 MAKE MASKS BOUNDING-BOX ANNOTATIONS FOR YOLO MODELS
-Status: in progress — 2026-10-05, implementation and focused interaction checks.
+Status: DONE 2026-10-05 — Box tool, editable annotations and YOLO labels.
 Requested: 2026-10-05 by the maintainer: "there should be a button like the
 draw button that the user can click to draw bounding boxes. this would allow
 make masks to be used to annotate images for yolo models."
@@ -31,9 +31,40 @@ original images must be paired with the label files by the training dataset;
 this annotation feature does not select train/validation splits or train a
 YOLO model.
 
-2026-10-05 — VALIDATION IN PROGRESS
-Existing Draw/toolbar/mode and source-hygiene cohort: 166 passed under 4 GiB
-with CUDA hidden. Backend geometry, persistence, source drift and export
-checks pass. Real Qt box interactions and final integrated source checks
-are still running. The final hosted GitHub verdict remains item 43, and
-source-derived API/runtime-caption refresh belongs to the workstation lane.
+2026-10-05 — IMPLEMENTED AND VERIFIED ON CPU
+The integrated functional/index cohort passes 270 cases under 4 GiB with
+CUDA hidden, including genuine TIFFs, mouse gestures, positive/negative
+YOLO exports, Draw, toolbar, shortcuts, Recrop, queue layouts, blinding and
+uncertainty. The subsequent two Keep/Discard save-failure cases pass as
+part of their six-case boundary file. Source/callable/field-list/coverage
+ratchet checks pass 130; the Sphinx-backed RST guard passes two without a
+skip. Fatal Ruff and git diff --check pass. A rendered offscreen screen
+confirms Box beside Draw and class/save/export controls beside Box.
+
+Project and export writers use exclusive locks and atomic replacement;
+another writer, abandoned lock, metadata symlink/FIFO and source drift fail
+closed. Forty-seven backend cases cover every new backend statement and
+branch. Changed-source saves preserve the current field and refuse queue
+Skip, Keep/Discard, blinding and uncertainty reorder before those decisions
+are committed. A corrupt next TIFF clears old annotation state and disables
+the Box controls. Competing mouse buttons cannot delete a moving box or
+shift its index; releases in the letterbox discard unfinished previews.
+
+Final bounded branch evidence combines 234 broad Qt cases with three
+positive Box-autosave, two canvas-edge and five host-boundary cases.
+All 393 added Make Masks executable statements and every branch arc
+touching added code are exercised, with no new missing line or arc.
+Production source blobs: mask_engine 1db1095c018b9ae95c305d836efb981635325bd0,
+Make Masks 76b129c3cf3ec20776d8aa76c9f3b9734c1edba6. No coverage allowance
+or memory guard was changed. This new-code proof does not replace the
+complete final-source per-module GitHub aggregate.
+
+Segmentation bundles rewrite their source when a mask is saved, so Box is
+explicitly unavailable for *_seg.npy fields: export/open a standalone image
+first. Images with positive boxes cannot be recropped; add boxes on a child
+after finishing Recrop. Blinded sessions retain editable boxes but refuse
+named YOLO export until unblinding, and save status hides source identifiers.
+
+The final hosted GitHub verdict remains item 43. Source-derived API and
+runtime-caption refresh is handed to the workstation owner in item 325;
+that separate work is not claimed by this functional implementation receipt.

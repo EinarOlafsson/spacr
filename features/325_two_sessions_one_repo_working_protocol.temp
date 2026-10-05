@@ -18017,3 +18017,37 @@ installation passes; CAREamics is already installed privately. This is an
 additional real nuclear dataset, not established calibrated low-light data.
 Receipt: 557_gowt1_preparation_2026-10-05.json. Home retains CPU/Qt/CI and
 feature source; the workstation retains all GPU and generated documentation.
+
+2026-10-05 — HOME MAKE MASKS BOX ANNOTATIONS FOR YOLO (ITEM 662)
+The maintainer requested this regular feature in chat; it is in
+features/new/662_make_masks_yolo_bounding_box_annotations.txt, not alpha.
+Box is beside Draw (X), with class, Add class, Save boxes and Export YOLO
+labels controls. Full-image boxes support draw/move/corner resize/delete,
+Ctrl-drag overlap and separate undo/redo. Source-bound project storage and
+YOLO .txt plus shared .classes.json export preserve image/mask bytes;
+negative images export empty labels. Unsafe metadata and concurrent writers
+are refused. Navigation and queue/blind/rank decisions save first; Recrop,
+seg bundles and blinding have explicit source-identity safeguards.
+
+Production changes are only in existing mask_engine.py and Make Masks.
+The workstation should run its normal source-bound API/runtime-caption
+refresh after this checkpoint, including public yolo_box_lines,
+save_yolo_boxes, load_yolo_boxes and export_yolo_boxes, private canvas/screen
+methods and the new Box/class/save/export/dialog/shortcut strings. All
+generated API, docs, translations, tutorials and GPU processes stay with
+that owner. Normal training images remain the source images; this feature
+does not convert scientific arrays, select dataset splits or train YOLO.
+
+Integrated functional/index checks pass 270 under 4 GiB, with two subsequent
+Keep/Discard save-refusal cases green. Static source/callable/field-list/
+coverage-gate checks pass 130; Sphinx-backed RST passes two without skips.
+Backend coverage reaches every new statement and branch in 47 real-path
+cases; all 393 added Make Masks executable lines are covered in bounded Qt
+checks. Final absolute-count hosted coverage still belongs to items 43/288,
+and uninterrupted serial Qt acceptance remains item 47. No memory guard,
+coverage ceiling or source freshness condition was relaxed. Protected old
+GitHub runs remain uncancelled. All touching new UI branch arcs are also
+covered after bounded positive-autosave/canvas/host-boundary deltas. The
+official Actions incident API reports operating normally at 21:54 UTC;
+use the source-current workstation artifact checkpoint for the next final
+verdict rather than claiming green from earlier cancelled/failed sources.
