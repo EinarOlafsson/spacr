@@ -781,7 +781,7 @@ def preprocess_generate_masks_timelapse(settings):
 
 _WATCH_DIR = 'spacr_watch'
 _WATCH_LEDGER = 'watch_ledger.json'
-_WATCH_PIPELINES = ('mask', 'mask_measure')
+_WATCH_PIPELINES = ('mask', 'mask_measure', 'mask_measure_classify')
 _WATCH_SUFFIXES = ('.tif', '.tiff', '.png', '.jpg', '.jpeg', '.bmp', '.nd2',
                    '.czi', '.lif')
 _WATCH_KEY_GROUPS = ('plateID', 'wellID', 'timeID', 'fieldID')
@@ -1182,8 +1182,8 @@ def _watch_analyse_field(field_dir, settings):
     """Run the chosen pipeline on one field's folder.
 
     Make Masks runs on ``field_dir`` exactly as a batch run would on a plate
-    folder holding only this field; with ``watch_pipeline='mask_measure'``
-    Measure then runs on its ``merged`` folder.
+    folder holding only this field. The later pipeline choices run Measure,
+    then optionally apply a pretrained CV model to its measured objects.
 
     :param field_dir: a folder holding the field's image files.
     :param settings: the watch run settings.
@@ -1197,7 +1197,8 @@ def _watch_analyse_field(field_dir, settings):
     if not os.path.isdir(merged) or not _overlay_candidates(merged):
         raise RuntimeError('Make Masks wrote no merged stack for this field; '
                            'the log above says why.')
-    if str(settings.get('watch_pipeline') or 'mask') != 'mask_measure':
+    pipeline = str(settings.get('watch_pipeline') or 'mask')
+    if pipeline == 'mask':
         return
     from .measure import measure_crop
 
@@ -1212,6 +1213,19 @@ def _watch_analyse_field(field_dir, settings):
                                        'measurements.db')):
         raise RuntimeError('Measure wrote no measurements.db for this field; '
                            'the log above says why.')
+    if pipeline == 'mask_measure_classify':
+        from .classify import classify
+        import sqlite3
+
+        classify_settings = deepcopy(settings['watch_classify_snapshot'])
+        classify_settings['src'] = field_dir
+        classify(classify_settings)
+        database = os.path.join(field_dir, 'measurements', 'measurements.db')
+        with sqlite3.connect(database) as connection:
+            columns = {row[1] for row in connection.execute('PRAGMA table_info(png_list)')}
+            if not {'pred', 'cv_predictions'} <= columns:
+                raise RuntimeError('Classify wrote no CV predictions to this field; '
+                                   'check the model and measured objects.')
 
 
 def _watch_measure_recipe(settings):
@@ -1262,6 +1276,84 @@ def _watch_mask_recipe(settings):
         raise ValueError('watch_folder: Mask settings must contain finite '
                          'JSON-compatible values for a reproducible recipe.') from exc
     return recipe, hashlib.sha256(encoded).hexdigest()
+
+
+def _watch_classify_recipe(settings):
+    """Freeze a saved CV inference recipe and bind its model file by content.
+
+    Watch fields are independent, so fitting an ML or CV model separately on
+    each incoming field would not reproduce one fitted plate model. This path
+    accepts inference from a previously trained CV checkpoint only.
+    """
+    import hashlib
+    import json
+    from copy import deepcopy
+
+    from .cli import load_settings_file
+
+    path = str(settings.get('watch_classify_settings') or '').strip()
+    if not path:
+        raise ValueError('watch_folder: watch_classify_settings must name a '
+                         'saved Classify settings file for CV inference.')
+    recipe = deepcopy(dict(load_settings_file(os.path.expanduser(path))))
+    if str(recipe.get('classifier_family') or 'cv').strip().lower() != 'cv':
+        raise ValueError('watch_folder: live Classify requires the CV family '
+                         'with a previously trained model.')
+    if (any(_watch_truthy(recipe.get(key, False)) for key in
+            ('train', 'test', 'generate_training_dataset')) or
+            not _watch_truthy(recipe.get('apply_model_to_dataset', False)) or
+            str(recipe.get('crop_source') or '').strip().lower() != 'merged'):
+        raise ValueError('watch_folder: live Classify requires train, test and '
+                         'generate_training_dataset off, apply_model_to_dataset '
+                         'on and crop_source merged.')
+    source = os.path.abspath(os.path.expanduser(str(recipe.get('model_path') or '')))
+    if _watch_file_identity(source) is None:
+        raise ValueError('watch_folder: Classify model_path must name a regular '
+                         'pretrained checkpoint file.')
+    model_sha256 = _watch_artifact_sha256(source)
+    recipe.pop('src', None)
+    recipe['classifier_family'] = 'cv'
+    recipe['train'] = False
+    recipe['test'] = False
+    recipe['generate_training_dataset'] = False
+    recipe['apply_model_to_dataset'] = True
+    recipe['crop_source'] = 'merged'
+    recipe['tar_path'] = ''
+    recipe['model_path'] = source
+    fingerprint = {**recipe, 'model_path': model_sha256}
+    try:
+        encoded = json.dumps(fingerprint, sort_keys=True, separators=(',', ':'),
+                             ensure_ascii=False, allow_nan=False).encode('utf-8')
+    except (TypeError, ValueError) as exc:
+        raise ValueError('watch_folder: Classify settings must contain finite '
+                         'JSON-compatible values for a reproducible recipe.') from exc
+    return recipe, hashlib.sha256(encoded).hexdigest(), model_sha256
+
+
+def _watch_classify_model_snapshot(work, source, digest):
+    """Keep the verified checkpoint immutable for every field in this watch."""
+    folder = os.path.join(work, '.watch_classify')
+    target = os.path.join(folder, f'{digest}.pt')
+    if os.path.lexists(target):
+        if _watch_artifact_sha256(target) != digest:
+            raise ValueError('watch_folder: the saved Classify model snapshot '
+                             'changed; existing results are preserved.')
+        return target
+    os.makedirs(folder, exist_ok=True)
+    partial = target + '.partial'
+    if os.path.lexists(partial):
+        os.unlink(partial)
+    expected = _watch_file_identity(source)
+    try:
+        copied = _watch_copy_snapshot(source, partial, expected)
+        if copied != digest:
+            raise ValueError('watch_folder: the Classify model changed while '
+                             'being copied; existing results are preserved.')
+        os.replace(partial, target)
+    finally:
+        if os.path.lexists(partial):
+            os.unlink(partial)
+    return target
 
 
 def _watch_quote(name):
@@ -1540,7 +1632,7 @@ def _watch_check_settings(settings):
     poll = _watch_number(settings, 'watch_poll_seconds', 5.0, minimum=0.01)
     idle = _watch_number(settings, 'watch_idle_minutes', 0.0) * 60.0
     if _watch_truthy(settings.get('microscope_feedback', False)):
-        if pipeline != 'mask_measure':
+        if pipeline not in ('mask_measure', 'mask_measure_classify'):
             raise ValueError("microscope_feedback picks events from the "
                              "measurements; set watch_pipeline to "
                              "'mask_measure'.")
@@ -2336,7 +2428,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
     Masks, ``'mask_measure'`` then runs Measure with the settings file named
     by ``watch_measure_settings``. Its merged stacks are linked into
     ``src/spacr_watch/merged`` and its measurements appended to
-    ``src/spacr_watch/measurements/measurements.db``. Every field is
+    ``src/spacr_watch/measurements/measurements.db``. The
+    ``'mask_measure_classify'`` pipeline also applies a saved CV model and
+    collects its per-object predictions in that database. Every field is
     preprocessed alone, so the result equals a batch run of the same plate
     with ``batch_size=1``.
 
@@ -2382,9 +2476,14 @@ def _watch_folder_and_analyse(settings, analyse=None):
     _, mask_sha256 = _watch_mask_recipe(settings)
     manifest, map_sha256 = _watch_map_manifest(src, settings)
     measure_sha256 = None
-    if pipeline == 'mask_measure':
+    if pipeline in ('mask_measure', 'mask_measure_classify'):
         measure_recipe, measure_sha256 = _watch_measure_recipe(settings)
         settings = {**settings, 'watch_measure_snapshot': measure_recipe}
+    classify_sha256 = None
+    classify_model_sha256 = None
+    if pipeline == 'mask_measure_classify':
+        classify_recipe, classify_sha256, classify_model_sha256 = (
+            _watch_classify_recipe(settings))
     work = os.path.join(src, _WATCH_DIR)
     os.makedirs(work, exist_ok=True)
     ledger_path = os.path.join(work, _WATCH_LEDGER)
@@ -2398,13 +2497,24 @@ def _watch_folder_and_analyse(settings, analyse=None):
             (ledger['fields'] or 'conversion_map_sha256' in ledger)):
         raise ValueError('watch_folder: conversion_map.csv differs from the saved watch '
                          'record; use a separate watch workspace. Existing results are preserved.')
-    if pipeline == 'mask_measure':
+    if pipeline in ('mask_measure', 'mask_measure_classify'):
         if ledger['fields'] and ledger.get('measure_settings_sha256') != measure_sha256:
             raise ValueError(
                 'watch_folder: Measure settings differ from the saved recipe or '
                 'its provenance is unknown; use a separate watch workspace. '
                 'Existing results and the saved record are preserved.')
         ledger['measure_settings_sha256'] = measure_sha256
+    if pipeline == 'mask_measure_classify':
+        if ledger['fields'] and ledger.get('classify_settings_sha256') != classify_sha256:
+            raise ValueError(
+                'watch_folder: Classify settings or model differ from the saved '
+                'recipe or their provenance is unknown; use a separate watch '
+                'workspace. Existing results and the saved record are preserved.')
+        classify_recipe['model_path'] = _watch_classify_model_snapshot(
+            work, classify_recipe['model_path'], classify_model_sha256)
+        settings = {**settings, 'watch_classify_snapshot': classify_recipe}
+        ledger['classify_settings_sha256'] = classify_sha256
+        ledger['classify_model_sha256'] = classify_model_sha256
     if ledger['fields'] and ledger.get('mask_settings_sha256') != mask_sha256:
         raise ValueError(
             'watch_folder: Mask settings differ from the saved recipe or '

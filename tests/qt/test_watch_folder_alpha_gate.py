@@ -19,6 +19,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 from PySide6.QtCore import QSettings                              # noqa: E402
 
 WATCH_SETTINGS = ("watch_folder", "watch_pipeline", "watch_measure_settings",
+                  "watch_classify_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
                   "watch_idle_minutes")
 

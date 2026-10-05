@@ -892,6 +892,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # pipeline, Measure settings file, settle time, poll interval and idle
     # stop beside it in Mask's Workflow & Test Run group.
     "watch_folder", "watch_pipeline", "watch_measure_settings",
+    "watch_classify_settings",
     "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes",
     # A NEW SETTING GROUP, not a regrouping: a folder watch can send the
     # objects it finds back to the microscope (`microscope_feedback`), with

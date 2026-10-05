@@ -776,8 +776,9 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # settings, each ending in a parseable default and resolved by Mask only
     # (Timelapse hides them and is not in APPS).
     item_548 = {("mask", key) for key in (
-        "watch_folder", "watch_pipeline", "watch_measure_settings",
-        "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes")}
+            "watch_folder", "watch_pipeline", "watch_measure_settings",
+            "watch_classify_settings", "watch_settle_seconds",
+            "watch_poll_seconds", "watch_idle_minutes")}
     assert item_548 <= compared_pairs
     # 750 -> 768 on 2026-09-26, +18/-0 (item 550): the eight cloud-source
     # settings resolved by Mask, and the five of them Measure declares
@@ -995,13 +996,14 @@ def test_real_default_claims_have_no_unrecorded_drift():
     item_537_min_division = {(app, "timelapse_lineage_min_division_h")
                              for app in ("measure", "external_masks")}
     assert item_537_min_division <= compared_pairs
-    assert comparisons == 918
+    assert ("mask", "watch_classify_settings") in compared_pairs
+    assert comparisons == 919
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text())
     assert census_508['comparisons_before'] == 716
     # + 2: item 493's mask_parallel and mask_gpu_indices, pinned above;
     # + 8: item 541's four confluency claims in two apps, pinned above;
-    # + 6: item 548's folder-watch settings, pinned above;
+    # + 7: item 548's folder-watch settings, pinned above;
     # + 18: item 550's cloud-source settings, pinned above.
     # + 16: item 535's eight cell-cycle claims in two apps, pinned above.
     # + 12: item 547's six profiling claims in two apps, pinned above.

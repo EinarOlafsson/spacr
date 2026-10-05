@@ -279,6 +279,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "mask": {"pathogen_model"},
     "timelapse": {"timelapse", "mask_parallel", "mask_gpu_indices",
                   "watch_folder", "watch_pipeline", "watch_measure_settings",
+                  "watch_classify_settings",
                   "watch_settle_seconds", "watch_poll_seconds",
                   "watch_idle_minutes", "microscope_feedback", "microscope_driver",
                   "microscope_simulated_folder", "microscope_positions",
@@ -1195,7 +1196,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Workflow & Test Run", (
             "preprocess", "masks", "test_mode", "test_images", "resume",
             "dry_run", "watch_folder", "watch_pipeline",
-            "watch_measure_settings", "watch_settle_seconds",
+            "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds",
             "watch_poll_seconds", "watch_idle_minutes",
             "microscope_feedback", "microscope_driver",
             "microscope_simulated_folder", "microscope_positions",

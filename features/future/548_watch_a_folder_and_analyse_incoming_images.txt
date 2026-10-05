@@ -1,8 +1,9 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-02 — vendor acquisition completion, unsupported series,
-        pooled normalisation and the classify/live plate view remain. First
-        version built as alpha 2026-09-26; mask recipe snapshot 2026-10-02.
+Status: OPEN 2026-10-04 — vendor acquisition completion, unsupported series,
+        pooled normalisation and the live plate view remain. Pretrained CV
+        inference is available as an alpha watch step; per-field fitting is
+        unsupported. First version built as alpha 2026-09-26.
 
 Previous status (superseded 2026-10-04): ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
 Preferences -> Show alpha features is on (ALPHA_FEATURES[548]).
@@ -433,3 +434,31 @@ MASK RECIPE SNAPSHOT AND RESUME GUARD (2026-10-02, partial)
     of external model files or defaults added later by the Mask engine.
     Vendor acquisition completion, unsupported series, pooled normalization,
     classify/live plate view and other listed requirements remain open.
+
+PRETRAINED CV CLASSIFY WATCH STEP (2026-10-04, partial)
+    The alpha watch adds watch_pipeline 'mask_measure_classify'. Each ready
+    field runs Make Masks, Measure and then Classify (CV) with a previously
+    trained model. watch_classify_settings names a saved Classify file with
+    training and testing disabled, apply_model_to_dataset enabled and merged
+    crops selected. Per-field ML or CV fitting is refused before output is
+    created: a model fitted independently on each arriving field would not
+    represent one plate-wide classifier.
+
+    The settings file is loaded once and deep-copied per field. Its canonical
+    values and the checkpoint's SHA256 bind the populated watch ledger to one
+    recipe; changed or missing provenance refuses resume. The checkpoint is
+    copied with source identity checks into private watch storage and every
+    field uses that immutable copy, even when the original model file or
+    settings file changes during the scan. Each field must write CV score and
+    class columns into png_list before the existing closed SQLite collection
+    checkpoint is captured. The same exactly-once collector appends those
+    predictions to spacr_watch/measurements/measurements.db, which is the
+    stable table a later live plate view can read.
+
+    Ten focused tests passed, including a real preprocessing and Measure
+    comparison against a batch_size=1 plate run. Only Cellpose's forward pass
+    and the CV model forward pass are deterministic stand-ins in that test;
+    the Classify dispatch, SQLite prediction columns and watch collection are
+    exercised. This is not a GPU or real checkpoint acceptance result. The
+    existing vendor completion, unsupported series, pooled normalisation
+    and live plate view work remains open.

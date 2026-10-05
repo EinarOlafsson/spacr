@@ -1294,6 +1294,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'viability_thresholds',
     'voxel_size_xy_um',
     'voxel_size_z_um',
+    'watch_classify_settings',
+    'watch_classify_snapshot',
     'watch_folder',
     'watch_measure_settings',
     'watch_measure_snapshot',
