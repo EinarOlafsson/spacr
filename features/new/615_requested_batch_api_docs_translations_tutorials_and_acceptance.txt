@@ -1132,3 +1132,25 @@ baseline passes before and after. Immutable upload/full readback is live;
 hosted playback and deployed readback are not yet complete. The initial build
 correctly refused the absent default model-cache path; the second uses the
 same supported cache setting as the accepted renderer, without guard changes.
+
+2026-10-05 — FOUR-LESSON IMMUTABLE PUBLICATION AND HOSTED ACCEPTANCE COMPLETE
+Normal upload and full readback accept all 4,760 declared media files at
+d8d275cc932a01d78185ba5cb6e41d586876aa75: 5,219,603,196 actual downloaded
+bytes with every SHA256 matching, zero metadata or download failures.
+The verified tag is tutorials-final-wave-20261005-co2wgfyt-verified. All
+85 pinned-host player routes pass; normal checkpoint publication lifts
+the hold. Fourteen catalogs retain 81 other complete lesson objects and
+4,617 media records exactly. No old hosted files are removed. The player
+and packaging helper both name the new immutable revision.
+
+The full strict Sphinx build passes with all API languages and the new pin.
+Publication/Help checks pass 169, with one conditional English-mode build
+case skipped because this is an all-language build. The Node route case
+actually executes. All three old report-only translation diagnostics now
+pass: two were repaired previously, and the last now checks actual visible
+navigation labels and the September-25 source-bound dictionary titles.
+The scene inventory pin is 1,201 (four new Measure, four puncta and one
+additional Batch scene). No semantic or byte-budget guard is weakened.
+Receipt: features/data/615_final_wave_publication_2026-10-05.json.
+Current selected media publication is complete; deployed nightly readback,
+other open scientific GPU tasks and final Home-owned CI remain open.

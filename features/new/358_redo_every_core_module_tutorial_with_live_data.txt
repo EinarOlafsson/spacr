@@ -2853,3 +2853,16 @@ all 13 translation reviews staged and 59 capture guard checks passing.
 No remote execution is claimed. Its narration/video/publication, Measure,
 Batch and new Make Masks puncta scenes remain open. Evidence is in the
 615_home_alpha_publication and 615_distributed_current_stage dated receipts.
+
+2026-10-05 — FOUR CURRENT WALKTHROUGHS HOSTED AND ACCEPTED
+Measure (17 scenes), Make Masks (45), Batch (14) and Distributed (9)
+finish current narration/video/visual/browser acceptance and immutable
+publication. All 108 tracks and 56 language/caption cases pass, including
+native puncta, actual full Measure results and genuine Batch conversions.
+All 85 player routes work against immutable revision
+d8d275cc932a01d78185ba5cb6e41d586876aa75, whose 4,760 declared files are
+completely downloaded and hash-verified. All 81 other complete lesson
+objects remain unchanged in fourteen catalogs. This is current selected-
+lesson acceptance and whole-route playback, not a new source-freshness or
+listening review of every untouched lesson. Deployed nightly readback
+remains open. Receipt: 615_final_wave_publication_2026-10-05.json.

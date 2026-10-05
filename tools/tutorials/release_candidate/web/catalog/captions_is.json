@@ -1178,6 +1178,26 @@
           "hold_after": 0.7
         },
         {
+          "visual": "tpl_31_template_save_name",
+          "narration": "Þegar stillingarnar eru réttar skaltu geyma þær. Opnaðu Templates á stillingastikunni, eða ýttu á Ctrl+Shift+R, og veldu Save current settings. Gefðu sniðmátinu nafn sem þú myndir segja upphátt; næst notarðu það í stað þess að slá allt inn aftur.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "narration": "Import les líka stillinga-CSV-skrána sem hver keyrsla skrifar við hlið niðurstaðnanna. Uppsetning fyrri keyrslu, eða samstarfsmanns, verður að sniðmáti sem ber nafn skrárinnar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "narration": "Rename gefur innfluttu sniðmáti skýrara nafn. Share skrifar valið sniðmát í skrá fyrir aðra og Apply hleður því inn í Measure.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "narration": "Lyklum eins og Ctrl+Shift+R má breyta. Opnaðu Help, svo Keyboard shortcuts, og veldu Change shortcuts. Sláðu inn nýjan lykil fyrir hvaða aðgerð sem er; ef hann rekst á annan nefnir spaCR árekstrinum og heldur Save óvirku þar til þú leysir hann.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "batch_20_batch_settings",
           "narration": "Kveiktu á vistun mælinga og búta af hlutum, hafðu Plot á og veldu stærð búta og úttaksrásir. Í fyrstu keyrslu mælir Test mode eitt svið; slökktu á því til að vinna öll sextán sviðin sem fylgja. Smelltu á Run, fylgstu með stjórnborðinu þar til keyrslunni lýkur og athugaðu svo hvaða svið tókust áður en þú heldur áfram.",
           "hold_after": 0.7
@@ -1193,7 +1213,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni.",
+          "narration": "Í þessari sýnikennslu um minnisnotkun er sami myndreitur úr dæminu endurtekinn í flísum til að mynda stærra fylki; engin mæling er ræst. Áður en keyrsla hefst metur spaCR hve mikið minni hvert vinnuferli þarf út frá einu sjónsviði í verkefninu þínu. Með mjög stórum sjónsviðum, eins og samsettum mósaíkmyndum, rúmast vinnuferlin sem þú baðst um ef til vill ekki í lausu vinnsluminni, og þá spyr spaCR fyrst. Veldu ráðlagðan fjölda vinnuferla, haltu þínum fjölda og leyfðu Measure að gera hlé á nýjum sjónsviðum meðan minni er af skornum skammti, eða lokaðu öðrum forritum til að losa minni.",
           "focus": [
             1620,
             860,
@@ -2369,6 +2389,26 @@
         {
           "visual": "19_detection_undone",
           "narration": "Undo endurheimtir merkingarnar frá því fyrir greininguna. Haltu grímunni sem fylgir myndinni best og skoðaðu niðurstöðu hvers sjónsviðs áður en þú tekur hana með í þjálfun.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "narration": "Til að greina daufa punkta innan blaðra skaltu opna upprunalegu eins rásar myndina og geyma eintakagrímur blaðranna í sérstakri möppu með samsvarandi skráarnöfnum. Þessar punktagrímur tákna miðjupixla, ekki heildarmörk hlutanna.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "narration": "Veldu Centre-pixel puncta within parent masks. Stilltu aðalflokkinn á cyst og aukaflokkinn á punctum, veldu möppuna með aðalgrímunum og ýttu á Reload. Skoðaðu punktakvarða, hávaðaþröskuld, miðjupixla, leiðréttan styrk, bil milli toppa og jaðarfjarlægð.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "narration": "Veldu replace í Object operations og smelltu svo á Object detection til að vinna alla myndina. Þessi myndreitur gefur 150 mögulega punkta og 46 samþykkta punkta. Greiningin notar upprunalegan styrk; stöðlun og endurbætur á birtingu breyta ekki þessum ham.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "narration": "Save mask skrifar merkja-TIFF og punktasniðs-CSV við hlið hennar. center20 er meðaltal tuttugu miðjupixla; local_bg skráir staðbundinn bakgrunn og center_corrected dregur hann frá stilltu miðjumeðaltali. Skoðaðu included og mask_pixels: sameiginlegir pixlar tilheyra aðeins einu merki, þannig að gríma getur innihaldið færri pixla. Upprunalegar myndir og aðalgrímur haldast óbreyttar.",
           "hold_after": 0.7
         },
         {
@@ -6376,7 +6416,7 @@
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Opnaðu Help og svo Batch runner. Notaðu hann til að setja verk eininga í biðröð með stillingaskrám þeirra, keyrsluröð og aðskildum annálum.",
+          "narration": "Opnaðu Help og svo Batch Runner. Notaðu hann til að setja verk eininga í biðröð með stillingaskrám þeirra, keyrsluröð og aðskildum annálum.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -6459,6 +6499,17 @@
         {
           "visual": "10_save_queue_picker",
           "narration": "Smelltu á Save queue til að vista áætlunina sem JSON. Notaðu Load queue til að opna hana síðar og hafðu stillingaskrárnar og inntökin sem vísað er til tiltæk.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "narration": "Áður en þú byrjar skaltu opna Help, svo Window og síðan Jobs. Þegar biðröðin keyrir sýnir Jobs-spjaldið til hægri hana með framvindu, liðnum tíma og Cancel-hnappi. Það sýnir verk í gangi frá öllum skjám, svo þú getur fylgst með langri keyrslu meðan þú vinnur annars staðar.",
+          "focus": [
+            3200,
+            30,
+            640,
+            200
+          ],
           "hold_after": 0.7
         },
         {
@@ -6569,7 +6620,7 @@
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Opnaðu Help og svo Distributed jobs. Byrjaðu á því að búa til keyrslusnið fyrir vinnustöðina eða klasann sem þú vilt nota.",
+          "narration": "Opnaðu Help og svo Distributed Jobs. Byrjaðu á því að búa til keyrslusnið fyrir vinnustöðina eða klasann sem þú vilt nota.",
           "focus": [
             80,
             0,

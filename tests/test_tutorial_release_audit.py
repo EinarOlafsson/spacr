@@ -70,7 +70,9 @@ def test_release_audit_parsers_pin_the_current_inventory():
     # 79 78 (was 80); 83 and 84 (5 each) withdrawn.
     # Wave 4 (candidate ake_bqpd): 07 13 (was 12), 36 17 (was 16), 74 11 (was 10); 86 adds 16, 87 adds 26.
     # Current Home/Alpha refresh: 05 has 22 (was 19), 87 has 28 (was 26).
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1192
+    # Current four-lesson refresh: 08 has 17 (was 13), 14 has 45 (was 41),
+    # 37 has 14 (was 13), and 38 retains all nine scenes: 1192 + 4 + 4 + 1.
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 1201
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))

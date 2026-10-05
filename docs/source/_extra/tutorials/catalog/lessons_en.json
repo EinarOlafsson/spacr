@@ -1199,6 +1199,26 @@
           "hold_after": 0.7
         },
         {
+          "visual": "tpl_31_template_save_name",
+          "narration": "Once the settings look right, keep them. Open Templates on the settings strip, or press Ctrl+Shift+R, and choose Save current settings. Give the template a name you would say out loud; next time you apply it instead of retyping.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "narration": "Import also reads the settings CSV that every run writes next to its results. An earlier run's configuration, or a colleague's, becomes a template named after the file.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "narration": "Rename gives an imported template a clearer name. Share writes the selected one to a file for others, and Apply loads it into Measure.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "narration": "Keys such as Ctrl+Shift+R can be changed. Open Help, then Keyboard shortcuts, and choose Change shortcuts. Type a new key for any action; if it clashes with another, spaCR names the conflict and keeps Save off until you resolve it.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "batch_20_batch_settings",
           "narration": "Enable saving measurements and object crops, keep Plot on, and choose the crop size and output channels. For a first run, Test mode measures one field; turn it off to process all sixteen supplied fields. Click Run and follow the console until the run completes, then check which fields succeeded before proceeding.",
           "hold_after": 0.7
@@ -1214,7 +1234,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Before any run starts, spaCR estimates the memory each worker needs from one field of your project. With very large fields, such as stitched mosaics, the workers you asked for may not fit in the free RAM, and spaCR asks first. Choose the recommended worker count, keep yours and let Measure pause new fields while memory is short, or close other programs to free memory.",
+          "narration": "For this memory demonstration, the same example field is tiled into a larger array; no measurement is started. Before any run starts, spaCR estimates the memory each worker needs from one field of your project. With very large fields, such as stitched mosaics, the workers you asked for may not fit in the free RAM, and spaCR asks first. Choose the recommended worker count, keep yours and let Measure pause new fields while memory is short, or close other programs to free memory.",
           "focus": [
             1620,
             860,
@@ -2390,6 +2410,26 @@
         {
           "visual": "19_detection_undone",
           "narration": "Undo restores the labels from before the detection. Keep the mask that best follows the image, and inspect each field's result before including it in training.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "narration": "To detect faint puncta inside cysts, open the original single-channel image and keep the cyst instance masks in a separate folder with matching filenames. These punctum masks represent centre pixels, not complete object boundaries.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "narration": "Choose Centre-pixel puncta within parent masks. Set the primary class to cyst and the secondary class to punctum, choose the parent-mask folder and press Reload. Review spot scales, the noise threshold, centre pixels, corrected intensity, peak spacing and edge margin.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "narration": "Choose replace in Object operations, then click Object detection to process the whole image. This field yields 150 candidates and 46 included puncta. Detection uses original intensities; display normalization and enhancement do not alter this mode.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "narration": "Save mask writes the label TIFF and a puncta CSV beside it. center20 is the mean of twenty centre pixels; local_bg records local background and center_corrected subtracts it from the configured centre mean. Inspect included and mask_pixels: shared pixels have one label owner, so a mask can contain fewer pixels. Original images and parent masks remain unchanged.",
           "hold_after": 0.7
         },
         {
@@ -6397,7 +6437,7 @@
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Open Help, then Batch runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
+          "narration": "Open Help, then Batch Runner. Use it to queue module jobs with their settings files, execution order and separate logs.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -6480,6 +6520,17 @@
         {
           "visual": "10_save_queue_picker",
           "narration": "Click Save queue to store the plan as JSON. Use Load queue to reopen it later, keeping the referenced settings files and inputs available.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "narration": "Before starting, open Help, then Window, then Jobs. Once the queue runs, the Jobs dock on the right shows it with its progress, elapsed time and a Cancel button. It lists running jobs from every screen, so you can follow a long run while you work elsewhere.",
+          "focus": [
+            3200,
+            30,
+            640,
+            200
+          ],
           "hold_after": 0.7
         },
         {
@@ -6590,7 +6641,7 @@
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Open Help, then Distributed jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
+          "narration": "Open Help, then Distributed Jobs. Start by creating an execution profile for the workstation or cluster you want to use.",
           "focus": [
             80,
             0,

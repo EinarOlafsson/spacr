@@ -1178,6 +1178,26 @@
           "hold_after": 0.7
         },
         {
+          "visual": "tpl_31_template_save_name",
+          "narration": "Wenn die Einstellungen stimmen, bewahren Sie sie auf. Öffnen Sie Templates in der Einstellungsleiste oder drücken Sie Strg+Umschalt+R, und wählen Sie Save current settings. Geben Sie der Vorlage einen Namen, den Sie laut sagen würden; beim nächsten Mal wenden Sie sie an, statt alles neu einzugeben.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "narration": "Import liest auch die Einstellungs-CSV, die jeder Lauf neben seine Ergebnisse schreibt. Die Konfiguration eines früheren Laufs oder eines Kollegen wird so zu einer Vorlage, die nach der Datei benannt ist.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "narration": "Rename gibt einer importierten Vorlage einen klareren Namen. Share schreibt die ausgewählte Vorlage für andere in eine Datei, und Apply lädt sie in Measure.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "narration": "Tasten wie Strg+Umschalt+R lassen sich ändern. Öffnen Sie Help, dann Keyboard shortcuts, und wählen Sie Change shortcuts. Geben Sie für eine Aktion eine neue Taste ein; kollidiert sie mit einer anderen, nennt spaCR den Konflikt und lässt Save deaktiviert, bis Sie ihn auflösen.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "batch_20_batch_settings",
           "narration": "Aktivieren Sie das Speichern von Messungen und Objektausschnitten, lassen Sie Plot an und wählen Sie Ausschnittgröße und Ausgabekanäle. Für einen ersten Lauf misst Test mode ein Feld; schalten Sie es aus, um alle sechzehn mitgelieferten Felder zu verarbeiten. Klicken Sie auf Run, verfolgen Sie die Konsole bis zum Ende des Laufs und prüfen Sie dann, welche Felder erfolgreich waren, bevor Sie weitermachen.",
           "hold_after": 0.7
@@ -1193,7 +1213,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben.",
+          "narration": "Für diese Speicherdemonstration wird dasselbe Beispielbildfeld kachelartig zu einem größeren Array zusammengesetzt; es wird keine Messung gestartet. Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben.",
           "focus": [
             1620,
             860,
@@ -2369,6 +2389,26 @@
         {
           "visual": "19_detection_undone",
           "narration": "Undo stellt die Labels von vor der Erkennung wieder her. Behalten Sie die Maske, die dem Bild am besten folgt, und prüfen Sie das Ergebnis jedes Bildfelds, bevor Sie es ins Training aufnehmen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "narration": "Um schwache Puncta innerhalb von Zysten zu erkennen, öffnen Sie das ursprüngliche Einkanalbild und speichern die Instanzmasken der Zysten in einem separaten Ordner mit passenden Dateinamen. Diese Punctum-Masken stellen zentrale Pixel dar, nicht die vollständigen Objektgrenzen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "narration": "Wählen Sie Centre-pixel puncta within parent masks. Setzen Sie die primäre Klasse auf cyst und die sekundäre auf punctum, wählen Sie den Ordner der übergeordneten Masken und drücken Sie Reload. Prüfen Sie Punktskalen, Rauschschwelle, zentrale Pixel, korrigierte Intensität, Spitzenabstand und Randabstand.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "narration": "Wählen Sie replace unter Object operations und klicken Sie auf Object detection, um das gesamte Bild zu verarbeiten. Dieses Bildfeld ergibt 150 Kandidaten und 46 eingeschlossene Puncta. Die Erkennung verwendet ursprüngliche Intensitäten; Normalisierung und Verbesserung der Anzeige ändern diesen Modus nicht.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "narration": "Save mask schreibt die Label-TIFF und daneben eine Puncta-CSV. center20 ist der Mittelwert von zwanzig zentralen Pixeln; local_bg erfasst den lokalen Hintergrund und center_corrected zieht ihn vom konfigurierten zentralen Mittelwert ab. Prüfen Sie included und mask_pixels: geteilte Pixel gehören nur einem Label, daher kann eine Maske weniger Pixel enthalten. Ursprüngliche Bilder und übergeordnete Masken bleiben unverändert.",
           "hold_after": 0.7
         },
         {
@@ -6376,7 +6416,7 @@
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Öffnen Sie Help und dann Batch runner. Damit stellen Sie Modul-Jobs mit ihren Einstellungsdateien, der Ausführungsreihenfolge und getrennten Logs in eine Warteschlange.",
+          "narration": "Öffnen Sie Help und dann Batch Runner. Damit stellen Sie Modul-Jobs mit ihren Einstellungsdateien, der Ausführungsreihenfolge und getrennten Logs in eine Warteschlange.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -6459,6 +6499,17 @@
         {
           "visual": "10_save_queue_picker",
           "narration": "Klicken Sie auf Save queue, um den Plan als JSON zu speichern. Öffnen Sie ihn später mit Load queue erneut und halten Sie die referenzierten Einstellungsdateien und Eingaben verfügbar.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "narration": "Öffnen Sie vor dem Start Help, dann Window und dann Jobs. Sobald die Warteschlange läuft, zeigt das Jobs-Panel rechts sie mit Fortschritt, verstrichener Zeit und einer Cancel-Schaltfläche. Es listet laufende Jobs aus allen Ansichten auf, sodass Sie einen langen Lauf verfolgen können, während Sie anderswo arbeiten.",
+          "focus": [
+            3200,
+            30,
+            640,
+            200
+          ],
           "hold_after": 0.7
         },
         {
@@ -6569,7 +6620,7 @@
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Öffnen Sie Help und dann Distributed jobs. Erstellen Sie zuerst ein Ausführungsprofil für die Workstation oder den Cluster, den Sie verwenden möchten.",
+          "narration": "Öffnen Sie Help und dann Distributed Jobs. Erstellen Sie zuerst ein Ausführungsprofil für die Workstation oder den Cluster, den Sie verwenden möchten.",
           "focus": [
             80,
             0,

@@ -1289,6 +1289,30 @@
           "speech_text": "Disattiva Live e rimetti Normalize su disattivato per questo esempio. Scegli con cura la normalizzazione quando salvi i ritagli: il ridimensionamento per singolo ritaglio cambia le differenze di intensità che vedrà poi un classificatore di immagini. Conserva gli array uniti originali per le misure quantitative."
         },
         {
+          "visual": "tpl_31_template_save_name",
+          "narration": "Quando le impostazioni sono giuste, le conservi. Apra Templates nella barra delle impostazioni, oppure prema Ctrl+Maiusc+R, e scelga Save current settings. Dia al modello un nome che direbbe ad alta voce; la volta successiva lo applica invece di riscrivere tutto.",
+          "hold_after": 0.7,
+          "speech_text": "Quando le impostazioni sono giuste, le conservi. Apra Templates nella barra delle impostazioni, oppure prema Ctrl+Maiusc+R, e scelga Save current settings. Dia al modello un nome che direbbe ad alta voce; la volta successiva lo applica invece di riscrivere tutto."
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "narration": "Import legge anche il CSV delle impostazioni che ogni esecuzione scrive accanto ai risultati. La configurazione di un’esecuzione precedente, o di un collega, diventa un modello con il nome del file.",
+          "hold_after": 0.7,
+          "speech_text": "Import legge anche il CSV delle impostazioni che ogni esecuzione scrive accanto ai risultati. La configurazione di un’esecuzione precedente, o di un collega, diventa un modello con il nome del file."
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "narration": "Rename dà a un modello importato un nome più chiaro. Share scrive quello selezionato in un file per altre persone, e Apply lo carica in Measure.",
+          "hold_after": 0.7,
+          "speech_text": "Rename dà a un modello importato un nome più chiaro. Share scrive quello selezionato in un file per altre persone, e Apply lo carica in Measure."
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "narration": "Tasti come Ctrl+Maiusc+R si possono cambiare. Apra Help, poi Keyboard shortcuts, e scelga Change shortcuts. Digiti un nuovo tasto per qualsiasi azione; se entra in conflitto con un’altra, spaCR indica il conflitto e lascia Save disattivato finché non lo risolve.",
+          "hold_after": 0.7,
+          "speech_text": "Tasti come Ctrl+Maiusc+R si possono cambiare. Apra Help, poi Keyboard shortcuts, e scelga Change shortcuts. Digiti un nuovo tasto per qualsiasi azione; se entra in conflitto con un’altra, spàker indica il conflitto e lascia Save disattivato finché non lo risolve."
+        },
+        {
           "visual": "batch_20_batch_settings",
           "narration": "Attiva il salvataggio delle misurazioni e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di uscita. Per una prima esecuzione, Test mode misura un solo campo; disattivalo per elaborare tutti e sedici i campi forniti. Fai clic su Run, segui la console fino al termine dell’esecuzione, poi controlla quali campi sono riusciti prima di proseguire.",
           "hold_after": 0.7,
@@ -1306,7 +1330,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria.",
+          "narration": "Per questa dimostrazione della memoria, lo stesso campo di esempio viene ripetuto a mosaico in un array più grande; non viene avviata alcuna misurazione. Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria.",
           "focus": [
             1620,
             860,
@@ -1314,7 +1338,7 @@
             360
           ],
           "hold_after": 0.7,
-          "speech_text": "Prima che parta un’esecuzione, spàker stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spàker chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
+          "speech_text": "Per questa dimostrazione della memoria, lo stesso campo di esempio viene ripetuto a mosaico in un array più grande; non viene avviata alcuna misurazione. Prima che parta un’esecuzione, spàker stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spàker chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
         }
       ],
       "narration_voices": {
@@ -2583,6 +2607,30 @@
           "narration": "Undo ripristina le etichette precedenti al rilevamento. Tieni la maschera che segue meglio l’immagine ed esamina il risultato di ogni campo prima di includerlo nell’addestramento.",
           "hold_after": 0.7,
           "speech_text": "Undo ripristina le etichette precedenti al rilevamento. Tieni la maschera che segue meglio l’immagine ed esamina il risultato di ogni campo prima di includerlo nell’addestramento."
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "narration": "Per rilevare puncta deboli nelle cisti, apri l’immagine originale a un solo canale e conserva le maschere delle istanze delle cisti in una cartella separata, con nomi di file corrispondenti. Queste maschere dei puncta rappresentano i pixel centrali, non i contorni completi degli oggetti.",
+          "hold_after": 0.7,
+          "speech_text": "Per rilevare puncta deboli nelle cisti, apri l’immagine originale a un solo canale e conserva le maschere delle istanze delle cisti in una cartella separata, con nomi di file corrispondenti. Queste maschere dei puncta rappresentano i pixel centrali, non i contorni completi degli oggetti."
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "narration": "Scegli Centre-pixel puncta within parent masks. Imposta la classe primaria su cyst e quella secondaria su punctum, scegli la cartella delle maschere parentali e premi Reload. Controlla le scale dei punti, la soglia del rumore, i pixel centrali, l’intensità corretta, la distanza tra i picchi e il margine dal bordo.",
+          "hold_after": 0.7,
+          "speech_text": "Scegli Centre-pixel puncta within parent masks. Imposta la classe primaria su cyst e quella secondaria su punctum, scegli la cartella delle maschere parentali e premi Reload. Controlla le scale dei punti, la soglia del rumore, i pixel centrali, l’intensità corretta, la distanza tra i picchi e il margine dal bordo."
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "narration": "Scegli replace in Object operations, poi fai clic su Object detection per elaborare l’intera immagine. Questo campo produce 150 candidati e 46 puncta inclusi. Il rilevamento usa le intensità originali; la normalizzazione e il miglioramento della visualizzazione non modificano questa modalità.",
+          "hold_after": 0.7,
+          "speech_text": "Scegli replace in Object operations, poi fai clic su Object detection per elaborare l’intera immagine. Questo campo produce 150 candidati e 46 puncta inclusi. Il rilevamento usa le intensità originali; la normalizzazione e il miglioramento della visualizzazione non modificano questa modalità."
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "narration": "Save mask scrive il TIFF delle etichette e un CSV dei puncta accanto ad esso. center20 è la media di venti pixel centrali; local_bg registra il fondo locale e center_corrected lo sottrae alla media centrale configurata. Esamina included e mask_pixels: i pixel condivisi appartengono a una sola etichetta, quindi una maschera può contenere meno pixel. Le immagini originali e le maschere parentali restano invariate.",
+          "hold_after": 0.7,
+          "speech_text": "Save mask scrive il TIFF delle etichette e un CSV dei puncta accanto ad esso. center20 è la media di venti pixel centrali; local_bg registra il fondo locale e center_corrected lo sottrae alla media centrale configurata. Esamina included e mask_pixels: i pixel condivisi appartengono a una sola etichetta, quindi una maschera può contenere meno pixel. Le immagini originali e le maschere parentali restano invariate."
         },
         {
           "visual": "20_curate_keep",
@@ -6875,12 +6923,12 @@
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Apri Help e poi Batch runner. Usalo per mettere in coda lavori dei moduli con i loro file di impostazioni, l’ordine di esecuzione e log separati.",
+          "narration": "Apri Help e poi Batch Runner. Usalo per mettere in coda lavori dei moduli con i loro file di impostazioni, l’ordine di esecuzione e log separati.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
           ],
-          "speech_text": "Apri Help e poi Batch runner. Usalo per mettere in coda lavori dei moduli con i loro file di impostazioni, l’ordine di esecuzione e log separati."
+          "speech_text": "Apri Help e poi Batch Runner. Usalo per mettere in coda lavori dei moduli con i loro file di impostazioni, l’ordine di esecuzione e log separati."
         },
         {
           "visual": "03_choose_settings_1",
@@ -6968,6 +7016,18 @@
           "narration": "Fai clic su Save queue per salvare il piano come JSON. Usa Load queue per riaprirlo in seguito, tenendo disponibili i file di impostazioni e gli input a cui fa riferimento.",
           "hold_after": 0.7,
           "speech_text": "Fai clic su Save queue per salvare il piano come JSON. Usa Load queue per riaprirlo in seguito, tenendo disponibili i file di impostazioni e gli input a cui fa riferimento."
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "narration": "Prima di iniziare, apra Help, poi Window e poi Jobs. Quando la coda è in esecuzione, il pannello Jobs a destra la mostra con l’avanzamento, il tempo trascorso e un pulsante Cancel. Elenca i job in corso da ogni schermata, così può seguire un’esecuzione lunga mentre lavora altrove.",
+          "focus": [
+            3200,
+            30,
+            640,
+            200
+          ],
+          "hold_after": 0.7,
+          "speech_text": "Prima di iniziare, apra Help, poi Window e poi Jobs. Quando la coda è in esecuzione, il pannello Jobs a destra la mostra con l’avanzamento, il tempo trascorso e un pulsante Cancel. Elenca i job in corso da ogni schermata, così può seguire un’esecuzione lunga mentre lavora altrove."
         },
         {
           "visual": "14_stopped_between_jobs",
@@ -7081,7 +7141,7 @@
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Apri Help e poi Distributed jobs. Inizia creando un profilo di esecuzione per la workstation o il cluster che vuoi usare.",
+          "narration": "Apri Help e poi Distributed Jobs. Inizia creando un profilo di esecuzione per la workstation o il cluster che vuoi usare.",
           "focus": [
             80,
             0,
@@ -7092,7 +7152,7 @@
             "05_home"
           ],
           "hold_after": 0.7,
-          "speech_text": "Apri Help e poi Distributed jobs. Inizia creando un profilo di esecuzione per la workstation o il cluster che vuoi usare."
+          "speech_text": "Apri Help e poi Distributed Jobs. Inizia creando un profilo di esecuzione per la workstation o il cluster che vuoi usare."
         },
         {
           "visual": "02_empty_actual_workbench",

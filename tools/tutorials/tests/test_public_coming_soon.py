@@ -20,8 +20,8 @@ CHECKPOINT = Path(__file__).resolve().parents[1] / 'release_candidate'
 PROMOTED = {'12_map_barcodes', '21_model_compare', '22_model_zoo', OPS, EMBEDDINGS}
 REMAINING = [identity for identity in PLACEHOLDERS if identity not in PROMOTED]
 HOST = 'https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/'
-# Changed with the Home/Alpha catalogs, 2026-10-05 (candidate y1yawu76).
-CATALOG_KEY = 'home-alpha-20261005-y1yawu76'
+# Changed with the four current lesson catalogs, 2026-10-05 (candidate co2wgfyt).
+CATALOG_KEY = 'final-wave-20261005-co2wgfyt'
 
 
 @pytest.mark.parametrize('filename', CATALOGS)

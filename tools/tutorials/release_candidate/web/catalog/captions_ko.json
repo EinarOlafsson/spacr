@@ -1178,6 +1178,26 @@
           "hold_after": 0.7
         },
         {
+          "visual": "tpl_31_template_save_name",
+          "narration": "설정이 알맞으면 저장해 두세요. 설정 막대의 Templates를 열거나 Ctrl+Shift+R을 누르고 Save current settings를 선택합니다. 소리 내어 말할 만한 이름을 붙여 두면 다음에는 다시 입력하는 대신 그 템플릿을 적용하면 됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "narration": "Import는 각 실행이 결과 옆에 기록하는 설정 CSV도 읽습니다. 이전 실행이나 동료의 구성이 파일 이름을 딴 템플릿이 됩니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "narration": "Rename은 가져온 템플릿에 더 분명한 이름을 붙입니다. Share는 선택한 템플릿을 다른 사람을 위해 파일로 쓰고, Apply는 이를 Measure에 불러옵니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "narration": "Ctrl+Shift+R 같은 키는 바꿀 수 있습니다. Help를 열고 Keyboard shortcuts에서 Change shortcuts를 선택합니다. 원하는 동작에 새 키를 입력하세요. 다른 동작과 겹치면 spaCR이 충돌을 알려 주고, 해결할 때까지 Save를 비활성화합니다.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "batch_20_batch_settings",
           "narration": "측정값과 객체 잘라낸 이미지 저장을 켜고, Plot은 켜 둔 채 잘라낼 크기와 출력 채널을 고르세요. 첫 실행에서는 Test mode가 필드 하나만 측정합니다. 제공된 열여섯 개 필드를 모두 처리하려면 끄세요. Run을 클릭하고 실행이 끝날 때까지 콘솔을 지켜본 뒤, 계속하기 전에 어떤 필드가 성공했는지 확인하세요.",
           "hold_after": 0.7
@@ -1193,7 +1213,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요.",
+          "narration": "이 메모리 사용량 시연에서는 같은 예제 시야를 타일 형태로 반복해 더 큰 배열을 만듭니다. 측정은 시작하지 않습니다. 실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요.",
           "focus": [
             1620,
             860,
@@ -2369,6 +2389,26 @@
         {
           "visual": "19_detection_undone",
           "narration": "Undo를 누르면 검출 전의 라벨로 돌아갑니다. 이미지와 가장 잘 맞는 마스크를 남기고, 학습에 포함하기 전에 각 시야의 결과를 확인하세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "narration": "낭포 안의 약한 점상 신호를 검출하려면 원래 단일 채널 이미지를 열고, 낭포의 인스턴스 마스크를 파일 이름이 일치하는 별도 폴더에 보관합니다. 이 점상 신호 마스크는 물체 전체 경계가 아니라 중심 픽셀을 나타냅니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "narration": "Centre-pixel puncta within parent masks를 선택합니다. 주 객체 클래스를 cyst, 보조 객체 클래스를 punctum으로 설정하고 부모 마스크 폴더를 선택한 다음 Reload를 누릅니다. 점의 스케일, 잡음 임계값, 중심 픽셀 수, 보정 강도, 피크 간격 및 가장자리 여백을 확인합니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "narration": "Object operations에서 replace를 선택한 다음 Object detection을 클릭하여 전체 이미지를 처리합니다. 이 시야에서는 후보 150개 중 점상 신호 46개가 포함됩니다. 검출에는 원래 강도를 사용하며 표시 정규화와 이미지 개선은 이 모드에 영향을 주지 않습니다.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "narration": "Save mask는 라벨 TIFF와 그 옆의 점상 신호 CSV를 저장합니다. center20은 중심 픽셀 20개의 평균이며, local_bg는 국소 배경을 기록하고 center_corrected는 설정된 중심 평균에서 그 배경을 뺍니다. included와 mask_pixels를 확인합니다. 공유 픽셀은 하나의 라벨에만 속하므로 마스크의 픽셀 수가 더 적을 수 있습니다. 원래 이미지와 부모 마스크는 변경되지 않습니다.",
           "hold_after": 0.7
         },
         {
@@ -6376,7 +6416,7 @@
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Help를 연 뒤 Batch runner를 여세요. 설정 파일, 실행 순서, 별도 로그와 함께 모듈 작업을 큐에 넣을 때 씁니다.",
+          "narration": "Help를 연 뒤 Batch Runner를 여세요. 설정 파일, 실행 순서, 별도 로그와 함께 모듈 작업을 큐에 넣을 때 씁니다.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -6459,6 +6499,17 @@
         {
           "visual": "10_save_queue_picker",
           "narration": "Save queue를 클릭해 계획을 JSON으로 저장하세요. 나중에 Load queue로 다시 열 수 있으며, 참조하는 설정 파일과 입력은 계속 쓸 수 있게 두세요.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "narration": "시작하기 전에 Help, Window, Jobs 순으로 엽니다. 큐가 실행되면 오른쪽 Jobs 패널에 진행률, 경과 시간, Cancel 버튼과 함께 표시됩니다. 모든 화면에서 실행 중인 작업을 보여 주므로 다른 작업을 하면서 긴 실행을 지켜볼 수 있습니다.",
+          "focus": [
+            3200,
+            30,
+            640,
+            200
+          ],
           "hold_after": 0.7
         },
         {
@@ -6569,7 +6620,7 @@
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Help를 연 뒤 Distributed jobs를 여세요. 먼저 사용할 워크스테이션이나 클러스터에 맞는 실행 프로필을 만드세요.",
+          "narration": "Help를 연 뒤 Distributed Jobs를 여세요. 먼저 사용할 워크스테이션이나 클러스터에 맞는 실행 프로필을 만드세요.",
           "focus": [
             80,
             0,

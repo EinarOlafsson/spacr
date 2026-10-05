@@ -1178,6 +1178,26 @@
           "hold_after": 0.7
         },
         {
+          "visual": "tpl_31_template_save_name",
+          "narration": "Når indstillingerne ser rigtige ud, så gem dem. Åbn Templates på indstillingslinjen, eller tryk Ctrl+Shift+R, og vælg Save current settings. Giv skabelonen et navn, du ville sige højt; næste gang anvender du den i stedet for at taste alt igen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_33_templates_imported",
+          "narration": "Import læser også den settings-CSV, som hver kørsel skriver ved siden af resultaterne. En tidligere kørsels konfiguration, eller en kollegas, bliver til en skabelon opkaldt efter filen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_35_templates_renamed",
+          "narration": "Rename giver en importeret skabelon et tydeligere navn. Share skriver den valgte til en fil, som andre kan bruge, og Apply indlæser den i Measure.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "tpl_37_change_shortcuts",
+          "narration": "Taster som Ctrl+Shift+R kan ændres. Åbn Help, derefter Keyboard shortcuts, og vælg Change shortcuts. Indtast en ny tast for en handling; hvis den kolliderer med en anden, navngiver spaCR konflikten og holder Save slået fra, indtil du har løst den.",
+          "hold_after": 0.7
+        },
+        {
           "visual": "batch_20_batch_settings",
           "narration": "Slå lagring af målinger og objektudsnit til, lad Plot være slået til, og vælg udsnitsstørrelse og outputkanaler. Til en første kørsel måler Test mode ét felt; slå den fra for at behandle alle seksten medfølgende felter. Klik på Run, følg konsollen, til kørslen er færdig, og kontroller derefter, hvilke felter der lykkedes, før du fortsætter.",
           "hold_after": 0.7
@@ -1193,7 +1213,7 @@
         },
         {
           "visual": "batch_21_ram_guard",
-          "narration": "Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse.",
+          "narration": "I denne demonstration af hukommelsesforbrug gentages det samme eksempelfelt som fliser i et større array; ingen måling startes. Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse.",
           "focus": [
             1620,
             860,
@@ -2369,6 +2389,26 @@
         {
           "visual": "19_detection_undone",
           "narration": "Undo gendanner labels fra før detektionen. Behold den maske, der bedst følger billedet, og undersøg hvert synsfelts resultat, før du tager det med i træningen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_01_raw_input",
+          "narration": "For at finde svage puncta inde i cyster åbner du det oprindelige enkeltkanalbillede og opbevarer cysternes instansmasker i en separat mappe med matchende filnavne. Disse punctummasker repræsenterer centrale pixel, ikke objekternes fulde grænser.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_02_parent_and_settings",
+          "narration": "Vælg Centre-pixel puncta within parent masks. Sæt den primære klasse til cyst og den sekundære til punctum, vælg mappen med primære masker, og tryk Reload. Gennemgå punktskalaer, støjtærskel, centrale pixel, korrigeret intensitet, topafstand og kantmargin.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_03_detected_centres",
+          "narration": "Vælg replace i Object operations, og klik derefter på Object detection for at behandle hele billedet. Dette felt giver 150 kandidater og 46 inkluderede puncta. Detektionen bruger de oprindelige intensiteter; normalisering og forbedring af visningen ændrer ikke denne tilstand.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "puncta_04_saved_mask_and_measurements",
+          "narration": "Save mask skriver label-TIFF og en puncta-CSV ved siden af. center20 er gennemsnittet af tyve centrale pixel; local_bg registrerer den lokale baggrund, og center_corrected trækker den fra det konfigurerede centrale gennemsnit. Undersøg included og mask_pixels: delte pixel tilhører kun én label, så en maske kan indeholde færre pixel. De oprindelige billeder og primære masker forbliver uændrede.",
           "hold_after": 0.7
         },
         {
@@ -6376,7 +6416,7 @@
       "scenes": [
         {
           "visual": "01_help_batch",
-          "narration": "Åbn Help og derefter Batch runner. Brug den til at sætte modulopgaver i kø med deres indstillingsfiler, kørselsrækkefølge og separate logfiler.",
+          "narration": "Åbn Help og derefter Batch Runner. Brug den til at sætte modulopgaver i kø med deres indstillingsfiler, kørselsrækkefølge og separate logfiler.",
           "hold_after": 0.7,
           "related_lessons": [
             "30_plate_queue"
@@ -6459,6 +6499,17 @@
         {
           "visual": "10_save_queue_picker",
           "narration": "Klik på Save queue for at gemme planen som JSON. Brug Load queue til at åbne den igen senere, og hold de refererede indstillingsfiler og input tilgængelige.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "13b_jobs_dock",
+          "narration": "Før du starter, så åbn Help, derefter Window og så Jobs. Når køen kører, viser Jobs-panelet til højre den med fremskridt, forløbet tid og en Cancel-knap. Det viser kørende job fra alle skærme, så du kan følge en lang kørsel, mens du arbejder et andet sted.",
+          "focus": [
+            3200,
+            30,
+            640,
+            200
+          ],
           "hold_after": 0.7
         },
         {
@@ -6569,7 +6620,7 @@
       "scenes": [
         {
           "visual": "01_help_route",
-          "narration": "Åbn Help og derefter Distributed jobs. Begynd med at oprette en kørselsprofil til den arbejdsstation eller klynge, du vil bruge.",
+          "narration": "Åbn Help og derefter Distributed Jobs. Begynd med at oprette en kørselsprofil til den arbejdsstation eller klynge, du vil bruge.",
           "focus": [
             80,
             0,

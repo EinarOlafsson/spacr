@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -12,19 +13,19 @@ FULL_LOCALES = ("en", "es", "fr", "hi", "it", "ja", "pt-BR", "zh-CN")
 CAPTION_LOCALES = ("da", "de", "is", "ko", "nb", "sv")
 
 # The refreshed lesson's reviewed titles (tools/tutorials/lessons/reviews/
-# 62_feature_dictionary.<locale>.json, 2026-09-09). The screen name stays the
+# 62_feature_dictionary.<locale>.json, 2026-09-25). The screen name stays the
 # literal "Feature Dictionary" the recording shows, followed by a translated
 # subtitle, and the older "Diccionario de características"-style titles are
-# retired. They reached this tree when candidate 8738b_pd was published on
-# 2026-09-15.
+# retired. Commit bd33b41ad bound the current practical walkthrough titles
+# and all thirteen translations to the unchanged English lesson.
 FEATURE_DICTIONARY_TITLES = {
-    "es": "Feature Dictionary: consultar significados, unidades y funciones de cálculo",
-    "fr": "Feature Dictionary : consulter les définitions, les unités et les fonctions de calcul",
-    "hi": "Feature Dictionary: अर्थ, इकाइयाँ और गणना करने वाले फ़ंक्शन समझें",
-    "it": "Feature Dictionary: consultare significati, unità e funzioni di calcolo",
-    "ja": "Feature Dictionary：意味・単位・計算関数を調べる",
-    "pt-BR": "Feature Dictionary: consultar significados, unidades e funções de cálculo",
-    "zh-CN": "Feature Dictionary：查询含义、单位和计算函数",
+    "es": "Feature Dictionary: buscar definiciones y unidades",
+    "fr": "Feature Dictionary : trouver des définitions et des unités",
+    "hi": "Feature Dictionary: परिभाषाएँ और इकाइयाँ खोजें",
+    "it": "Feature Dictionary: trovare definizioni e unità",
+    "ja": "Feature Dictionary：定義と単位を調べる",
+    "pt-BR": "Feature Dictionary: encontrar definições e unidades",
+    "zh-CN": "Feature Dictionary：查找定义和单位",
 }
 
 
@@ -210,6 +211,14 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
 
 def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
     """Reject the specific untranslated and literal mistranslations repaired."""
+    navigation_path = CATALOG_DIR.parent / 'module_navigation.js'
+    navigation = json.loads(re.search(
+        r'window\.SPACR_TUTORIAL_NAVIGATION\s*=\s*Object\.freeze\((\{.*\})\);',
+        navigation_path.read_text(), re.DOTALL).group(1))
+    review = json.loads((ROOT / 'tools/tutorials/lessons/navigation_categories.review.json').read_text())
+    main = next(section for section in navigation['sections'] if section['id'] == 'main')
+    assert [group['title'] for group in main['groups']] == review['source']
+    assert set(navigation['labels']) == set(FULL_LOCALES + CAPTION_LOCALES)
     english_sections = {
         "Core", "Segmentation models", "Results and quality control",
         "Toxoplasma assays", "Data and batch runs", "Data", "Explore",
@@ -224,7 +233,18 @@ def test_localized_navigation_chrome_and_reviewed_copy_do_not_regress():
     for locale in FULL_LOCALES[1:]:
         catalog = _catalog("lessons", locale)
         lessons = catalog["lessons"]
-        assert not ({lesson["section"] for lesson in lessons} & english_sections), locale
+        # Lesson section identifiers remain stable through publication. The
+        # player displays the generated navigation labels, whose category
+        # values must match their complete source-bound review.
+        assert not (set(navigation['labels'][locale]) & english_sections), locale
+        assert [navigation['labels'][locale][group['label_index']]
+                for group in main['groups']] == review['labels'][locale], locale
+        dictionary_review = json.loads((ROOT / 'tools/tutorials/lessons/reviews'
+                                        / f'62_feature_dictionary.{locale}.json').read_text())
+        assert dictionary_review['english_sha256'] == hashlib.sha256(
+            json.dumps(json.loads((ROOT / 'tools/tutorials/lessons/62_feature_dictionary.json').read_text()),
+                       sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        assert dictionary_review['title'] == FEATURE_DICTIONARY_TITLES[locale], locale
         by_id = {lesson["id"]: lesson for lesson in lessons}
         assert (
             by_id["62_feature_dictionary"]["title"]

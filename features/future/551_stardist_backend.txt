@@ -339,3 +339,22 @@ API source-bound refresh is tracked in the integration follow-up.
     Receipts: /mnt/wd4tb/scratch/551/{gpu.json,gpu_3d.json,cpu_3d.json,
     gpu_turn2.log}. Left: the GPU run used the scratch venv, not a fresh
     spaCR-installed backend env; a fresh install will pick up the new spec.
+
+2026-10-05 — FRESH NORMAL INSTALLATION AND CPU BASELINE; GPU TURN PREPARED
+    The normal installer creates a private StarDist 0.9.2 / CSBDeep 0.8.2 /
+    TensorFlow 2.21.0 backend with NumPy 2.5.3 on Python 3.13.14. Installer
+    self-test and the normal isolated adapter run with CUDA hidden. Real
+    inputs: official annotated 512 px 2D nuclei, four unchanged 1994 px
+    acquired DNA fields and the genuine biological plant 66x116x116 volume.
+    CPU produces 118; 98/93/111/118; and 13 objects respectively. Plant
+    objects occupy 60 Z planes. Official 2D truth has 125 distinct objects,
+    not its maximum label 183: F1@0.5 0.971193, F1@0.75 0.888889.
+    No independent plant annotation or 3D accuracy advantage is claimed.
+
+    The next coordinated turn uses benchmark_stardist_fresh.py, private
+    cpu-r1 baseline and gpu-r1 output. It requires actual Conv2D and Conv3D
+    GPU placement, a live worker PID on the card, foreground IoU >=0.99
+    for all paired cases and identical frozen input/model/package/source
+    hashes. The audit wrapper only enables TensorFlow placement logging
+    before executing the actual normal worker. No GPU completion is claimed
+    by this CPU preparation. The fresh-environment GPU point remains open.
