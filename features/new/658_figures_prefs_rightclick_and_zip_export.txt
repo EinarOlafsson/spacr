@@ -2,7 +2,7 @@
 FIGURE PREFERENCES THAT CONTROL EVERY FIGURE; RIGHT-CLICK CHANGE-GRAPH; ONE ZIP
 ================================================================================
 
-Status:    DONE 2026-10-04 — part A and part B both landed.
+Status:    DONE 2026-10-05 — parts A, B and C landed.
 Requested: 2026-10-04 — "make sure the figure settings in preferences actually
            control figures in spacr and are comprehensive enough. The user
            should always be able to right click and change parameters for
@@ -14,7 +14,7 @@ Requested: 2026-10-04 — "make sure the figure settings in preferences actually
            determined automatically, or overridden by the user, with graph
            printers saved as well. All saved together as 1 zip"
 Owner:     part A: figure-preferences agent (fig658a). Part B: context-menu and
-           export agent.
+           export agent. Part C: registration agent (fig658c).
 Related:   108 (right-click restyle), 117 (grid), 118 (general and per-graph
            preferences), 119 and 124 (regression figures).
 
@@ -187,3 +187,72 @@ PART B — WHAT IS LEFT
   until the builder renders again.
 * The "Graph type" (house types) and "Change graph type" submenus could be
   merged into one.
+
+--------------------------------------------------------------------------------
+PART C — EVERY FIGURE REGISTERS ITS DATA (2026-10-05)
+--------------------------------------------------------------------------------
+
+ONE HELPER. `figures.bundle._register_figure_data(figure, data, x=, y=,
+hue=, kind=, **spec)` is the only way a figure gets its data. It takes a
+figure or an axes; a frame, a series, a mapping of group to values, a
+vector, or a callable returning one (so building the frame can never break
+the figure: an error is logged and the figure is left unregistered). Kinds
+"image", "mask", "montage" and "overlay" (or arrays of 2+ dimensions that
+are not a heatmap) mark a PICTURE: its arrays and metadata are kept instead
+(`_spacr_image`), and `_is_image_figure` says which.
+
+REGISTERED AT CREATION in every figure-producing function (about 170 call
+sites in 55 modules): regression and diagnostics (regression_diagnostics,
+regression_panels, regression_qc, utils.model_metrics, plot._show_residules,
+_reg_v_plot), plate maps and heatmaps (figures.plates, measure wound plate,
+gene sweep grids, correlation/confusion matrices, toxo heatmaps), UMAP and
+embeddings (utils.plot_embedding, umap_explorer, pca_view, hyperparam
+panels), classify training curves (deep_spacr._plot_training_curves,
+io.read_plot_model_stats, train_compare.plot_curves and its screen) and
+confusion/calibration figures, Measure and QC (DNA histogram, wound curves
+and half-closure, viability thresholds/controls, seg_qc robustness,
+sequencing QC, illumination QC, permutation QC), plaque (colony sizes and
+overlays) and motility (timelapse track plots, new `_track_frame`), survival
+(Kaplan-Meier and hazard ratios), dose-response (measure viability dose,
+dose_response screen), control charts (canvas, anomaly review, hit
+structures as a picture), and the figure-queue producers (figures.sheet
+`attach`/build_panel/build_sheet, distributions, create_grouped_plot,
+spacrGraph, the legacy plot.py functions, sim, toxo, submodules).
+Micrographs, masks, overlays, montages, Grad-CAM/saliency/IG maps register
+as pictures.
+
+MENU SHOWS ONLY WHAT APPLIES. A picture's menu has Edit figure, Legend,
+Appearance, the plain saves and "Save figure (zip)…"; no Graph type, Change graph type, Statistics, the folder
+"Save", Grid or Axis scale. Its zip (`bundle._save_image_zip`) holds the
+figure in the default formats, each array as image_<n>.tif (.npy without
+tifffile) and metadata.json (spec, titles, size, every array's shape and
+dtype). A plot's zip now also tests a figure's `_spacr_groups` when it has
+no x/y (figure-sheet panels).
+
+GUARD. tests/test_every_figure_registers_its_data.py walks spacr/ with ast:
+every plt.subplots / plt.figure / plt.subplot_mosaic / Matplotlib Figure
+(aliases followed, other modules' Figure records ignored) / seaborn
+figure-level call / _figure_axes / setup_plot / create_results_figure must
+sit in a function (or, for a method, a class) that calls the helper. Seven
+named exemptions with reasons: the two empty-figure factories,
+create_results_figure, the panels.available scratch probe, the motility
+preview rasteriser, the homogeneity scratch figure, and report.write_pdf's
+image pages. A self-test proves the scan flags a bare figure.
+
+TESTS. tests/qt/test_every_module_figure_registers.py (14): one real
+producer each for regression, plate map, UMAP, training curves, confusion
+matrix, Measure, plaque, motility, survival, dose-response and control
+chart — data registered, all four plot entries in the menu, a graph-type
+change redraws, the zip has image, data.csv (same rows), statistics.csv
+(the full column set), spec.json and the script; a figure-queue figure keeps
+its entries; a mask figure gets Edit plus an image zip (arrays + metadata)
+and none of the plot entries; a raising data builder never breaks a figure.
+
+Also: sim.run_and_save/vis_dists no longer create a stray empty figure
+(`plt.figure().clear()`).
+
+PART C — WHAT IS LEFT
+* Most legacy multi-panel figures register their main frame and first
+  measurement only; a retype draws that one panel.
+* Picture figures whose arrays are not at hand (montages read from files,
+  Grad-CAM grids) keep only the rendered image and metadata.

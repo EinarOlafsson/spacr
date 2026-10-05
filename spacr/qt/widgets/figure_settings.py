@@ -2158,7 +2158,6 @@ def _add_figure_tools(menu, figure, parent, on_change=None) -> None:
     owner = parent if parent is not None else menu
     if _is_image_figure(figure):
         archive = QAction(tr("Save figure (zip)…"), owner)
-        archive.setObjectName("FigureSaveZip")
         archive.setToolTip(tr(
             "One zip: the picture in the default formats, the arrays it "
             "shows as TIFF and its metadata as JSON."))
@@ -2189,7 +2188,6 @@ def _add_figure_tools(menu, figure, parent, on_change=None) -> None:
     menu.addAction(statistics)
 
     archive = QAction(tr("Save figure (zip)…"), owner)
-    archive.setObjectName("FigureSaveZip")
     archive.setToolTip(tr(
         "One zip: the image in the default formats, the data as CSV, every "
         "statistical test in one CSV with a text summary, the plotting "
