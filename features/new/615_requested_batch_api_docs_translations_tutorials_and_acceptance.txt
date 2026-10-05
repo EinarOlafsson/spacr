@@ -997,3 +997,24 @@ build passes after regeneration. Current English API audit still covers
 13,177 symbols without translation/catalog changes. No ratchet or acceptance
 guard changed. Receipt: features/data/615_current_settings_artifacts_2026-10-05.json.
 The remaining tutorial/GPU and deployed-page scopes remain open.
+
+2026-10-05 — BATCH CURRENT SCIENTIFIC RECORDING AND TRANSLATION STAGING
+Native Batch Runner recording now passes on three acquired fields, four
+channels each. Independent checks verify all twelve output images pixel for
+pixel, conversion-map identities and completed ledgers, with original TIFFs
+unchanged. Native queue save/load, invalid dependency order, Stop between
+jobs and continuation without repeating the first successful job pass.
+No worker remains. A01 is explicitly a demonstration coordinate, not the
+original acquisition well. Normal input-root support replaces the recorder's
+exclusive dependency on an unavailable historical mount. The actual file
+picker starts in the neutral prepared folder; an unchanged interpreter is
+read-only aliased there, and supported SPACR_HOME keeps actual run paths
+neutral. No source application or path-capture guard changed.
+
+Both Batch and Distributed are staged using normal lesson/review tools in
+all 14 catalogs. Each retains the other 83 complete lesson objects exactly.
+Twenty-one channel/CLI guards pass. Receipt:
+features/data/615_batch_current_stage_2026-10-05.json. Current narration,
+video, frame/browser acceptance and publication remain open for these lessons.
+The prior API/Home/Alpha/artifact checkpoint is pushed at d160c130b; its docs
+publisher 37357501591 is pending, so final deployed acceptance remains open.

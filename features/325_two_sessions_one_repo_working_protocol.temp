@@ -17706,3 +17706,23 @@ The combined nightly push carries API/media/Help and the requested artifact
 repair; deployed readback follows. Protected CI green remains Home-owned
 and unconfirmed. Batch tutorial capture is in progress in a private neutral
 namespace with the original acquired input directory read-only. No GPU job.
+
+2026-10-05 — WORKSTATION BATCH REAL-CAPTURE CHECKPOINT
+The normal Batch recorder now accepts an explicit acquired-input root
+instead of relying only on an unmounted historical directory. Genuine
+file pickers start in the private neutral stage. The actual interpreter is
+read-only bind-mounted at a neutral alias; supported SPACR_HOME also points
+inside the recording. Personal-path capture guards are unchanged.
+Three genuine conversion subprocesses pass; twelve channel outputs preserve
+all acquired pixels and conversion-map identities. Native dependency errors,
+Stop between jobs, continuation without repeating the first success, queue
+save/load and actual logs are captured. Original inputs are unchanged;
+no worker remains. Twenty-one channel/CLI guards pass. Both Batch and
+Distributed now stage in one current 14-catalog workspace, preserving all
+83 other complete lesson objects. Receipt: 615_batch_current_stage.
+
+Published nightly source is d160c130b. Exact-source docs run 37357501591 is
+pending behind the active channel publisher; do not dispatch a duplicate.
+API/catalog, hosted Home/Alpha media and the settings-artifact repair are
+pushed, but deployed-page readback is not yet claimed. Home retains CPU/Qt/CI;
+all spaCR GPU work stays here excluding live_cell/cellposeTIME. No GPU job.

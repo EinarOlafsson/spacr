@@ -19,10 +19,13 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def prepare(stage):
+def prepare(stage, input_root=None):
     import numpy as np
     import tifffile
-    original = Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig')
+    original = (Path(input_root).resolve() if input_root is not None else
+                Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig'))
+    if not original.is_dir():
+        raise ValueError('The original Batch tutorial TIFF directory is unavailable')
     prefixes = ('W0127F0004T0001Z000', 'W0315F0003T0001Z000', 'W0025F0001T0001Z000')
     parent = Path(stage) / 'batch_runs'
     parent.mkdir(exist_ok=True)

@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
+    parser.add_argument('--batch-input-root', type=Path, help='Directory containing the twelve original acquired Batch tutorial channel TIFFs; exact copies and every output pixel are verified')
     parser.add_argument('--methods-review-export', action='store_true', help='Record unchanged Methods export plus explicit review findings; never approve its draft')
     parser.add_argument('--methods-export-picker-only', action='store_true', help='Capture only the native Methods export picker while verifying the unchanged draft export')
     parser.add_argument('--hit-list-companion', action='store_true', help='Explicit external Hit List window after showing the hidden native panel; not a shortcut fix')
@@ -116,6 +117,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.manager_source is not None and args.module != 'data_manager':
         parser.error('--manager-source requires --module data_manager')
+    if args.batch_input_root is not None and args.module != 'batch':
+        parser.error('--batch-input-root requires --module batch')
     if args.external_input_root is not None and args.module != 'external_masks':
         parser.error('--external-input-root requires --module external_masks')
     if args.external_preview_only and (args.module != 'external_masks' or args.run or args.download or args.preview):
@@ -603,7 +606,7 @@ def main() -> int:
     elif args.module == 'batch':
         from capture_batch_runner import record_batch
         record_batch(app, window, stage, captures, capture,
-                     settle, write_json, args.timeout)
+                     settle, write_json, args.timeout, input_root=args.batch_input_root)
     elif args.module == 'run_history':
         from capture_run_history import record_history
         record_history(app, window, stage, captures, capture,

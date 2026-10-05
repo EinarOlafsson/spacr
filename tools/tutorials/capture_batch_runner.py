@@ -2,20 +2,21 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import time
 
 from batch_data import digest, prepare, verify_outputs
 
 
-def record_batch(app, window, stage, captures, capture, settle, write_json, timeout):
+def record_batch(app, window, stage, captures, capture, settle, write_json, timeout, *, input_root=None):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit
     from spacr import batch as bt
 
     deadline = time.monotonic() + timeout
-    inputs = prepare(stage)
+    inputs = prepare(stage, input_root=input_root)
     evidence = Path(captures) / 'scientific_acceptance.json'
     proof = dict(lesson='37_batch', accepted=False, published=False, inputs=inputs,
                  app_source_modified=False, injected_runner=False,
@@ -78,9 +79,12 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         watchdog.timeout.connect(stalled)
         timer.start(300)
         watchdog.start(15000)
+        previous_directory = Path.cwd()
         try:
+            os.chdir(stage)
             click(button)
         finally:
+            os.chdir(previous_directory)
             timer.stop()
             watchdog.stop()
             timer.deleteLater()
