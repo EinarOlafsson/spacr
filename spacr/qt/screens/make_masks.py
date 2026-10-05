@@ -11488,11 +11488,11 @@ class MakeMasksScreen(QWidget):
         if save_row is not None:
             save_row[1].setText(tr('Save boxes') if mode == MODE_BOX else tr('Save the mask'))
         for keys, normal, boxes in (
-                ('Ctrl + left click', 'Split the object at its waist', 'Draw an overlapping box'),
-                ('Ctrl + right click', 'Remove the object under the cursor', 'Delete the box under the cursor')):
+                ('Ctrl + left click', tr('Split the object at its waist'), tr('Draw an overlapping box')),
+                ('Ctrl + right click', tr('Remove the object under the cursor'), tr('Delete the box under the cursor'))):
             shortcut = getattr(self, '_shortcut_rows', {}).get(keys)
             if shortcut is not None:
-                shortcut[1].setText(tr(boxes if mode == MODE_BOX else normal))
+                shortcut[1].setText(boxes if mode == MODE_BOX else normal)
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 
