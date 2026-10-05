@@ -303,3 +303,31 @@ training). Other denoisers, same held-out sets and scoring as ROUND 3.
     dataset requirement. F557 remains open at that scientific boundary.
     Receipt: features/data/557_gowt1_preparation_2026-10-05.json, including
     input, annotation and exact-pixel export hashes and preparation script.
+
+2026-10-05 — FROZEN GOWT1 CPU COMPARISON; NEXT GPU TRAINING ANNOUNCED
+    Normal Cellpose3 nuclei learned-size estimates from twenty training-only
+    sequence-02 raw frames give fixed median diameter 14.862803134641222px.
+    Every arm uses this diameter, normalize=True, flow_threshold=0.4,
+    cellprob_threshold=0, min_size=15, resample=True, batch_size=8 and
+    augment=False. The four complete sequence-01 gold evaluation frames
+    never participate in training or parameter selection. Official 50px
+    field-of-interest handling retains intersecting whole objects.
+
+    CPU execution passes, but pooled segmentation scores are poor:
+    raw F1@0.5=0.035503 (TP3/FP70/FN93), NLM=0 (TP0/FP44/FN96),
+    Cellpose3 denoise_nuclei=0.331361 (TP28/FP45/FN68). Scores at 0.75
+    are 0.011834, 0 and 0.213018. These are spaCR Hungarian object-IoU
+    scores, not official CTC SEG/DET/TRA. No held-out tuning follows these
+    results. Source/input/model hashes are unchanged. Receipt:
+    features/data/557_gowt1_cpu_baseline_2026-10-05.json.
+
+    Next single GPU turn: 557-gowt1-normal-n2v-20epochs-r1, script
+    /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/
+    benchmark_gowt1_denoising.py --mode gpu-n2v, normal private CAREamics
+    backend and unchanged cpu-baseline-r1. Twenty epochs, seed zero,
+    training-only patches/validation and the final checkpoint are frozen.
+    GPU denoising is followed by the same CPU segmentation on all four
+    gold frames. Queue after this handoff is pushed, through gpu_turn.sh
+    with real HOME, six-minute idle, ten-minute gap and an 8GiB cap.
+    No training has run at this announcement. This additional real nuclear
+    dataset does not itself meet the calibrated low-light requirement.

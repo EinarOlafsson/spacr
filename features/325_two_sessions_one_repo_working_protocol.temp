@@ -18081,3 +18081,37 @@ live readback are now running. F557's training-only raw-image size estimate
 finishes: fixed median 14.862803 px across 20 learned estimates. The normal
 raw/NLM/nuclear-restoration CPU comparison is live, not claimed scored.
 Home retains CPU/Qt/CI and source; all generated artifacts and GPU stay here.
+
+2026-10-05 — FRESH STARDIST GPU ACCEPTED; GOWT1 TRAINING NEXT
+StarDist normal r3 finishes 22:17:12 UTC and the offline actual-execution
+gate now passes. Reference-valued TensorFlow trace stats resolve through
+stat_metadata. Exact module/program/instruction/name joins accept 724
+Conv2D and 38 Conv3D positive-duration compute kernels from normal inference,
+excluding autotuning and helper kernels. Both missing-convolution controls
+refuse. All six masks have object agreement F1=1 at IoU 0.5/0.75; the
+official independently annotated 2D case has F1=0.971193/0.888889 on both
+devices. Acquired fields and the real plant volume have no independent
+labels. r1/r2 remain failed. Full trace/HLO/source/output archives and receipt:
+551_stardist_fresh_gpu_2026-10-05.json. No production inference change.
+
+F557's accepted CPU comparison uses a training-only learned diameter fixed
+at 14.862803134641222px for every arm. Raw/NLM/denoise_nuclei pooled F1@0.5
+is 0.035503/0/0.331361; the poor baseline is retained without held-out tuning.
+Receipt: 557_gowt1_cpu_baseline_2026-10-05.json. This does not establish
+calibrated low-light generalization.
+
+Next exact single GPU turn: 557-gowt1-normal-n2v-20epochs-r1 using
+/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/
+benchmark_gowt1_denoising.py --mode gpu-n2v. Private normally installed
+CAREamics trains twenty epochs, seed zero, on twenty sequence-02 raw frames;
+training-only validation, final checkpoint and identical CPU segmentation
+on four complete sequence-01 gold frames. Queue only after this announcement
+reaches nightly, normal real-HOME six-minute idle/ten-minute gap and 8GiB cap.
+
+Home item 662 is integrated. Workstation runtime generation accepts 26 new
+YOLO captions and seven previously omitted tool-row labels, retaining four
+other tool labels' catalog ownership. English API has four real new helpers
+(13,181 total); reviewed API repair and guide builds are being finalized.
+Tutorial/deck refresh and final current-source acceptance remain open. Home
+retains CPU/Qt/CI and feature code; every GPU and generated artifact stays
+with the workstation. No duplicate GPU turn.

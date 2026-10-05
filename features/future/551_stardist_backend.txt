@@ -1,6 +1,6 @@
 STARDIST AS A SEGMENTATION BACKEND IN ITS OWN ENVIRONMENT
 
-Status: DONE (alpha) 2026-10-02 (evidence 86fcc7a14) — (CPU acceptance); GPU 2D+3D acceptance passed 2026-10-04; remains alpha-gated.
+Status: DONE (alpha) 2026-10-05 — fresh normal installation and actual 2D+3D GPU execution verified; remains alpha-gated.
 Installed in its own environment; 2-D and native 3-D nucleus segmentation
 accepted through Mask, raw-volume ingestion and Measure/SQLite. Make Masks
 uses the real 2-D backend; comparison against Cellpose is recorded below. No GPU.
@@ -392,3 +392,29 @@ API source-bound refresh is tracked in the integration follow-up.
     GPU events bind to both compiled convolution types. Paired IoU>=0.99,
     genuine GPU worker and all frozen source/input/model hashes also remain
     required. Preparation receipt: 551_stardist_profile_preparation_2026-10-05.json.
+
+2026-10-05 — FRESH-INSTALL GPU EXECUTION AND PAIRED SCORING ACCEPTED
+    Normal scheduled r3 finishes 22:17:12 UTC with exit zero. Offline
+    verification resolves reference-valued XPlane stats through stat_metadata
+    and joins the exact module, program ID, instruction and operation name
+    to optimized HLO. It accepts 724 Conv2D and 38 Conv3D positive-duration
+    GPU compute kernels from normal inference. Autotuning, layout conversion,
+    offset helpers, copies and delay kernels are excluded. Removing either
+    convolution type makes the acceptance control fail. The earlier r1/r2
+    literal-placement failures remain failures; none is relabelled accepted.
+
+    All six CPU/GPU masks have foreground IoU >=0.999867 and object F1=1
+    at IoU 0.5 and 0.75. Official 2D annotation scores match on both devices:
+    125 distinct truth objects, 118 predictions, F1=0.971193 at 0.5 and
+    0.888889 at 0.75. Four acquired 1994px DNA fields and the real biological
+    plant 3D volume have no independent annotations; their agreement is
+    execution/parity evidence, not a held-out accuracy advantage. Plant
+    predictions contain 13 objects on 60 planes.
+
+    Frozen source, input, annotation, installed package and model hashes
+    agree before/after and across devices. The normal private installer,
+    adapter, model, prediction and compilation settings are unchanged.
+    Raw GPU trace, optimized HLO, source snapshot, paired masks, complete
+    worker logs and verifier/scorer are preserved in the compressed receipt
+    artifacts. No universal speed or independent 3D accuracy claim.
+    Receipt: features/data/551_stardist_fresh_gpu_2026-10-05.json.
