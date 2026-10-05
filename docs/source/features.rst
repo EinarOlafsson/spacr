@@ -329,6 +329,39 @@ which axis is z. ``timelapse`` declares a time axis and reveals tracking; a
 single-timepoint plate ignores it. The 4D settings apply only when the data is
 both a z-stack and a time series, and appear only then.
 
+Figure settings
+---------------
+
+**Preferences → Figures** sets how every spaCR figure looks and how it is
+saved. The settings apply to figures drawn on screen and to the files the
+pipelines and the save buttons write; only the settings you change are
+applied, so a figure keeps its own look for everything else.
+
+- **Text and lines**: font, the sizes of titles, axis labels, tick labels and
+  legend entries (**Legend size**), line width and marker size.
+- **Colour**: the palette for categories and the **Colormap** for heat maps,
+  images and density plots. ``viridis`` (the default) and ``cividis`` stay
+  readable with colour-blindness and in greyscale.
+- **Layout**: background, grid, axis lines and **Despine offset**, which
+  moves the axis lines away from the data. **Figure width** and **Figure
+  height**, in inches, set the size of new figures; the height applies when
+  the page shape is custom.
+- **Saving**: **Format** is PDF, PNG, SVG or TIFF, with its resolution.
+  **Also save** writes a second copy in another format beside each saved
+  figure, for example a PNG next to a PDF. **Vector text** keeps text
+  editable in PDF and SVG files instead of turning it into outlines.
+- **Bar and point graphs**: **Error bars** shows the standard error
+  (``sem``, the default), the standard deviation (``sd``), a confidence
+  interval at the **CI level** (``ci``), a 95% interval (``ci95``) or nothing.
+  **Error-bar cap size** sets the cap width. **Point overlay** draws the
+  individual points over bar and box graphs, spread by **Jitter width** and
+  drawn with the opacity in **Point alpha**.
+
+Settings can also differ per graph type. A figure is styled once, so a change
+you make with its right-click menu is kept when it is saved. Figures that
+are already drawn with several panels keep their size and resolution; the
+size and resolution settings apply to new figures and to saved files.
+
 Workers and free memory
 -----------------------
 
