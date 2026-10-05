@@ -138,6 +138,22 @@ def test_a_group_column_draws_one_line_per_group_not_one_per_column():
     assert len(solo) == 1
 
 
+def test_a_named_y_vector_does_not_overwrite_an_existing_source_column():
+    """A supplied vector wins a name collision without changing source data."""
+    plot_line = _nested(sm.compare_reads_to_scores, "plot_line")
+    frame = pd.DataFrame({"x": [1, 2, 3], "y": [0.1, 0.2, 0.3]})
+    vector = pd.Series([0.9, 0.8, 0.7], name="y")
+
+    figure = plot_line(frame, "x", vector, None, None, None, None,
+                       (6, 4), None, "deep")
+
+    assert figure._spacr_spec["y"] == "_spacr_y_vector"
+    np.testing.assert_allclose(figure._spacr_data["_spacr_y_vector"], vector)
+    np.testing.assert_allclose(figure.axes[0].lines[0].get_ydata(), vector)
+    np.testing.assert_allclose(frame["y"], [0.1, 0.2, 0.3])
+    assert "_spacr_y_vector" not in frame
+
+
 # ---------------------------------------------------------------------------
 # _assign_vacuole_ids: a parasite with no centroid
 # ---------------------------------------------------------------------------
