@@ -50,6 +50,7 @@ def main() -> int:
     parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu Live magnifier on real data')
     parser.add_argument('--mask-curation-organize', action='store_true', help='With --mask-editor-tour, also record Keep/Discard, Upload data (never sent), folder consolidation and Organize for Measure on private copies')
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
+    parser.add_argument('--mask-yolo-tour', action='store_true', help='Record actual Box gestures, class selection, save/reload and YOLO exports on unchanged acquired images')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--batch-input-root', type=Path, help='Directory containing the twelve original acquired Batch tutorial channel TIFFs; exact copies and every output pixel are verified')
@@ -118,6 +119,10 @@ def main() -> int:
                         help='Opt-in for a Preferences lesson scene that shows the Show alpha features toggle itself; '
                              'every other recording is refused while alpha features are on')
     args = parser.parse_args()
+    if args.mask_yolo_tour and (args.module != 'make_masks' or args.run or args.download
+                              or args.mask_editor_tour or args.mask_readouts_tour
+                              or args.puncta_tour or args.restoration_tour or args.editor_detect):
+        parser.error('--mask-yolo-tour requires make_masks alone, without analysis or another editor tour')
     if args.manager_source is not None and args.module != 'data_manager':
         parser.error('--manager-source requires --module data_manager')
     if args.batch_input_root is not None and args.module != 'batch':
@@ -815,6 +820,10 @@ def main() -> int:
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
                                    capture, settle, write_json, args.timeout)
+        if args.mask_yolo_tour:
+            from capture_make_masks import record_yolo_boxes
+            record_yolo_boxes(app, window, screen, stage, captures, capture,
+                              settle, write_json, args.timeout)
         if args.module == 'regression_diagnostics':
             from capture_diagnostics import record_diagnostics
             record_diagnostics(window, screen, stage, args.diagnostics_from,

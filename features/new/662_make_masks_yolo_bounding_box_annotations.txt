@@ -68,3 +68,23 @@ named YOLO export until unblinding, and save status hides source identifiers.
 The final hosted GitHub verdict remains item 43. Source-derived API and
 runtime-caption refresh is handed to the workstation owner in item 325;
 that separate work is not claimed by this functional implementation receipt.
+
+2026-10-05 — WORKSTATION FRESH NATIVE YOLO CAPTURE ACCEPTED
+    The actual current Make Masks application records nineteen fresh 4K
+    frames with alpha off, dark theme and the normal blobs backdrop. Real
+    folder/class/export dialogs and mouse gestures demonstrate drawing,
+    moving, corner resizing, Ctrl-overlap, right-click deletion, separate
+    undo/redo, Save boxes, YOLO export, negative labels and exact reload.
+    An independent readback checks full-image normalized XYWH, stable class
+    names, empty negative labels and unchanged acquired image/mask bytes.
+    Boxes are interaction demonstrations, not biological training truth.
+    Full native frames, metadata, exports and source snapshot are preserved:
+    features/data/662_yolo_native_capture_2026-10-05.json.
+
+    The current English guide and all nine translated guide HTML builds
+    pass with warnings as errors. All seven reviewed YOLO passages, four
+    exact file literals and runtime control names are verified in every
+    rendered language. The first Korean build remains a recorded failure;
+    six new passages were rephrased through normal import before acceptance.
+    Final API generation/audit and the complete lesson authoring, narration,
+    video/publication/deck follow-up remain workstation-owned and OPEN.

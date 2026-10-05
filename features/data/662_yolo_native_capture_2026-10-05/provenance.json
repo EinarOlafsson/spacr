@@ -1,0 +1,10 @@
+{
+  "commit": "017fe98ba8a87b2ce8cea8817e65c32ddc0d60b7",
+  "version": "1.5.1.3",
+  "module": "make_masks",
+  "download_requested": false,
+  "dataset_cache": "/tmp/spacr-tutorials/example_data",
+  "app_source_modified": false,
+  "cache_isolated_with_bind_mount": true,
+  "completed_capture": true
+}

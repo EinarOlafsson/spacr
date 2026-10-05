@@ -51,6 +51,249 @@ def prepare_fields(stage):
     return folder, evidence
 
 
+def record_yolo_boxes(app, window, screen, stage, captures, capture, settle,
+                      write_json, timeout):
+    """Record real annotation gestures and independently verify their exports.
+
+    The boxes illustrate interaction only. They are not biological training
+    truth, and all acquired image and companion mask bytes must stay intact.
+    """
+    import json
+    import numpy as np
+    import tifffile
+    from PySide6.QtCore import Qt, QTimer, QUrl
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import (QDialogButtonBox, QFileDialog, QInputDialog,
+                                   QLineEdit, QScrollArea)
+    from spacr.qt import mask_engine as engine
+
+    folder, inputs = prepare_fields(stage)
+    write_json(captures / 'yolo_inputs.json', inputs)
+    errors = []
+
+    def expose(widget):
+        for area in window.findChildren(QScrollArea):
+            if area.widget() is not None and area.widget().isAncestorOf(widget):
+                area.ensureWidgetVisible(widget, 30, 30)
+        settle(.2)
+        if not widget.isVisible() or not widget.isEnabled():
+            raise RuntimeError('The requested YOLO control is not usable')
+
+    def picker(button, destination, name, *, save=False):
+        answered = []
+
+        def choose():
+            dialog = app.activeModalWidget()
+            try:
+                if not isinstance(dialog, QFileDialog):
+                    raise RuntimeError('The control did not open a real file picker')
+                dialog.accepted.connect(lambda: answered.append(True))
+                dialog.resize(1300, 950)
+                dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
+                edit = dialog.findChild(QLineEdit, 'fileNameEdit')
+                if edit is None:
+                    raise RuntimeError('The actual file picker has no filename field')
+                QTest.mouseClick(edit, Qt.LeftButton)
+                QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
+                QTest.keyClicks(edit, str(destination))
+                if edit.text() != str(destination):
+                    raise RuntimeError('The picker did not take the exact destination')
+                settle(.2)
+                capture(name)
+                box = dialog.findChild(QDialogButtonBox)
+                action = QDialogButtonBox.Save if save else QDialogButtonBox.Open
+                QTest.mouseClick(box.button(action), Qt.LeftButton)
+            except Exception as exc:
+                errors.append(str(exc))
+                if dialog is not None:
+                    dialog.reject()
+
+        def reject_stalled():
+            if answered or errors:
+                return
+            errors.append('The actual file picker was not answered')
+            dialog = app.activeModalWidget()
+            if dialog is not None:
+                dialog.reject()
+
+        expose(button)
+        QTimer.singleShot(500, choose)
+        QTimer.singleShot(12000, reject_stalled)
+        previous = Path.cwd()
+        try:
+            os.chdir(stage)
+            QTest.mouseClick(button, Qt.LeftButton)
+        finally:
+            os.chdir(previous)
+        if errors or not answered:
+            raise RuntimeError('; '.join(errors) or 'The picker was cancelled')
+        settle()
+
+    def ready():
+        deadline = time.monotonic() + timeout
+        while screen._loading or screen._canvas.image is None:
+            if time.monotonic() >= deadline:
+                raise TimeoutError('The actual YOLO source image did not load')
+            settle(.1)
+        settle()
+
+    picker(screen._btn_open, folder, 'yolo_02_folder_picker')
+    ready()
+    canvas = screen._canvas
+    pixels, mask = canvas.image.copy(), canvas.mask.copy()
+    filename = screen._image_files[screen._current_index]
+    assert np.array_equal(pixels, tifffile.imread(folder / filename))
+    assert np.array_equal(mask, tifffile.imread(folder / 'masks' / filename))
+    capture('yolo_03_source_and_mask')
+    expose(screen._mode_buttons['box'])
+    QTest.mouseClick(screen._mode_buttons['box'], Qt.LeftButton)
+    settle()
+    if canvas.mode != 'box' or not screen._box_controls.isVisible():
+        raise RuntimeError('The Box button did not reveal the real class controls')
+    capture('yolo_04_box_controls')
+
+    def name_class():
+        dialog = app.activeModalWidget()
+        try:
+            if not isinstance(dialog, QInputDialog):
+                raise RuntimeError('Add class did not show its actual name dialog')
+            edit = dialog.findChild(QLineEdit)
+            QTest.mouseClick(edit, Qt.LeftButton)
+            QTest.keyClicks(edit, 'demonstration')
+            capture('yolo_05_add_class')
+            box = dialog.findChild(QDialogButtonBox)
+            QTest.mouseClick(box.button(QDialogButtonBox.Ok), Qt.LeftButton)
+        except Exception as exc:
+            errors.append(str(exc))
+            if dialog is not None:
+                dialog.reject()
+
+    expose(screen._btn_add_box_class)
+    QTimer.singleShot(500, name_class)
+    QTest.mouseClick(screen._btn_add_box_class, Qt.LeftButton)
+    settle()
+    if errors or screen._box_classes != ['object', 'demonstration']:
+        raise RuntimeError('; '.join(errors) or 'The real class map was not appended')
+
+    def position(x, y):
+        shown = canvas._image_to_canvas(x, y)
+        if shown is None or not canvas.rect().contains(shown):
+            raise RuntimeError('The intended box gesture is outside the visible image')
+        return shown
+
+    def drag(start, end, modifiers=Qt.NoModifier):
+        begin, finish = position(*start), position(*end)
+        QTest.mouseMove(canvas, begin)
+        QTest.mousePress(canvas, Qt.LeftButton, modifiers, begin)
+        settle(.08)
+        QTest.mouseMove(canvas, finish, delay=40)
+        settle(.08)
+        QTest.mouseRelease(canvas, Qt.LeftButton, modifiers, finish)
+        settle()
+
+    height, width = pixels.shape[:2]
+    drag((int(width * .35), int(height * .35)),
+         (int(width * .55), int(height * .55)))
+    if len(canvas.boxes) != 1 or canvas.boxes[0][0] != 1:
+        raise RuntimeError('The visible gesture did not draw one class-1 box')
+    drawn = list(canvas.boxes[0])
+    capture('yolo_06_drawn_box')
+    cx, cy = (drawn[1] + drawn[3]) / 2, (drawn[2] + drawn[4]) / 2
+    drag((cx, cy), (cx + int(width * .05), cy + int(height * .05)))
+    moved = list(canvas.boxes[0])
+    if moved == drawn or moved[3] - moved[1] != drawn[3] - drawn[1]:
+        raise RuntimeError('Dragging the box did not translate it at fixed width')
+    capture('yolo_07_moved_box')
+    drag((moved[3] - .75, moved[4] - .75),
+         (moved[3] + int(width * .04), moved[4] + int(height * .04)))
+    resized = list(canvas.boxes[0])
+    if resized[1:3] != moved[1:3] or resized[3] <= moved[3] or resized[4] <= moved[4]:
+        raise RuntimeError('The visible corner gesture did not enlarge the box')
+    capture('yolo_08_resized_box')
+    dx, dy = resized[3] - resized[1], resized[4] - resized[2]
+    drag((resized[1] + .25 * dx, resized[2] + .25 * dy),
+         (resized[1] + .55 * dx, resized[2] + .55 * dy), Qt.ControlModifier)
+    if len(canvas.boxes) != 2 or list(canvas.boxes[0]) != resized:
+        raise RuntimeError('Ctrl-drag did not add the contained demonstration box')
+    saved_boxes = [list(box) for box in canvas.boxes]
+    capture('yolo_09_contained_box')
+    second = saved_boxes[1]
+    QTest.mouseClick(canvas, Qt.RightButton,
+                     pos=position((second[1] + second[3]) / 2,
+                                  (second[2] + second[4]) / 2))
+    settle()
+    if len(canvas.boxes) != 1:
+        raise RuntimeError('Right-click did not delete the box under the cursor')
+    capture('yolo_10_deleted_box')
+    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    settle()
+    if [list(box) for box in canvas.boxes] != saved_boxes:
+        raise RuntimeError('Box Undo did not restore both exact annotations')
+    capture('yolo_11_undo_boxes')
+    QTest.mouseClick(screen._btn_redo, Qt.LeftButton)
+    settle()
+    if len(canvas.boxes) != 1:
+        raise RuntimeError('Box Redo did not restore the demonstrated deletion')
+    capture('yolo_12_redo_boxes')
+    QTest.mouseClick(screen._btn_undo, Qt.LeftButton)
+    settle()
+    expose(screen._btn_save_boxes)
+    QTest.mouseClick(screen._btn_save_boxes, Qt.LeftButton)
+    settle()
+    project = folder / engine.YOLO_ANNOTATIONS_NAME
+    stored = engine.load_yolo_boxes(folder, filename, pixels.shape)
+    if screen._boxes_dirty or [list(box) for box in stored['boxes']] != saved_boxes:
+        raise RuntimeError('Save boxes did not persist the exact annotations')
+    capture('yolo_13_saved_boxes')
+    labels = folder / (Path(filename).stem + '.txt')
+    picker(screen._btn_export_yolo, labels, 'yolo_14_export_picker', save=True)
+    exported = [line.split() for line in labels.read_text().splitlines()]
+    if len(exported) != len(saved_boxes):
+        raise RuntimeError('The exported YOLO row count differs from the visible boxes')
+    for fields, (class_id, x0, y0, x1, y1) in zip(exported, saved_boxes):
+        expected = [(x0 + x1) / (2 * width), (y0 + y1) / (2 * height),
+                    (x1 - x0) / width, (y1 - y0) / height]
+        if len(fields) != 5 or int(fields[0]) != class_id or not np.allclose(
+                list(map(float, fields[1:])), expected, rtol=0, atol=1e-6):
+            raise RuntimeError('The YOLO export does not contain normalized full-image XYWH')
+    classes = folder / '.classes.json'
+    if 'demonstration' not in json.dumps(json.loads(classes.read_text())):
+        raise RuntimeError('YOLO export omitted the stable class-name companion')
+    capture('yolo_15_exported')
+    QTest.mouseClick(screen._btn_next, Qt.LeftButton)
+    ready()
+    if canvas.boxes:
+        raise RuntimeError('The untouched second field is not a negative example')
+    negative_name = screen._image_files[screen._current_index]
+    negative = folder / (Path(negative_name).stem + '.txt')
+    picker(screen._btn_export_yolo, negative, 'yolo_16_negative_export_picker', save=True)
+    if negative.read_bytes() != b'':
+        raise RuntimeError('The negative image did not export an empty label file')
+    capture('yolo_17_negative_exported')
+    QTest.mouseClick(screen._btn_prev, Qt.LeftButton)
+    ready()
+    if screen._image_files[screen._current_index] != filename or [list(box) for box in canvas.boxes] != saved_boxes:
+        raise RuntimeError('Navigation did not reload the exact saved annotations')
+    capture('yolo_18_reloaded_boxes')
+    if not np.array_equal(canvas.image, pixels) or not np.array_equal(canvas.mask, mask):
+        raise RuntimeError('Box annotation changed source image or segmentation pixels')
+    for row in inputs:
+        for key in ('source', 'image', 'mask'):
+            if digest(Path(row[key])) != row[key + '_sha256']:
+                raise RuntimeError('Box annotation changed original acquired input bytes')
+    write_json(captures / 'yolo_acceptance.json', {
+        'accepted': True, 'demonstration_boxes_are_not_biological_ground_truth': True,
+        'source_images_and_masks_unchanged': True, 'inputs': inputs,
+        'classes': list(screen._box_classes), 'boxes': saved_boxes,
+        'drawn': drawn, 'moved': moved, 'resized': resized,
+        'independent_xywh_export_check': True, 'undo_redo_and_reload_exact': True,
+        'project': str(project), 'project_sha256': digest(project),
+        'labels': str(labels), 'labels_sha256': digest(labels),
+        'class_names': str(classes), 'class_names_sha256': digest(classes),
+        'negative_labels': str(negative), 'negative_labels_sha256': digest(negative),
+    })
+
+
 def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout,
                   *, detect=False, readouts_only=False, include_readouts=False,
                   curation_organize=False):

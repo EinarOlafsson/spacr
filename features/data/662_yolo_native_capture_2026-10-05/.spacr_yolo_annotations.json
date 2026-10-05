@@ -1,0 +1,40 @@
+{
+  "classes": [
+    "object",
+    "demonstration"
+  ],
+  "images": {
+    "plate1_E01_10_1_ER.tif": {
+      "boxes": [
+        [
+          1,
+          795.0,
+          795.0,
+          1275.0,
+          1275.0
+        ],
+        [
+          1,
+          914.0,
+          914.0,
+          1059.0,
+          1059.0
+        ]
+      ],
+      "shape": [
+        1994,
+        1994
+      ],
+      "source_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67"
+    },
+    "plate1_E01_11_1_ER.tif": {
+      "boxes": [],
+      "shape": [
+        1994,
+        1994
+      ],
+      "source_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead"
+    }
+  },
+  "version": 1
+}
