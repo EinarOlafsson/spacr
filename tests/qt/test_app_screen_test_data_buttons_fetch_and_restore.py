@@ -83,7 +83,7 @@ class TestTheScreenData:
 
     def test_a_failed_fetch_restores_the_button_and_says_why(
             self, screen, plate):
-        button = QPushButton("Measurements (.db)")
+        button = QPushButton("Measurements (.db)", screen)
         screen._screen_feature_button = button
         chosen = [types.SimpleNamespace(archive="plate1.tar")]
         seen = {}
@@ -105,7 +105,7 @@ class TestTheScreenData:
         assert "no route to huggingface.co" in _console_text(screen._console)
 
     def test_a_cancelled_fetch_says_cancelled(self, screen, plate):
-        button = QPushButton("Image crops")
+        button = QPushButton("Image crops", screen)
         screen._screen_crops_button = button
         screen.load_the_screen_data(
             kind="crops",
@@ -150,7 +150,7 @@ class TestTheMeasurePlate:
 
     def test_a_failed_download_leaves_src_and_restores_the_button(
             self, screen, plate):
-        button = QPushButton("Load test data…")
+        button = QPushButton("Load test data…", screen)
         screen._measure_example_button = button
         before = _src(screen)
         seen = []
@@ -291,7 +291,7 @@ class TestTheAnnotationPlate:
 
     def test_a_failed_download_restores_the_button_and_says_why(
             self, screen, plate):
-        button = QPushButton("Load test data…")
+        button = QPushButton("Load test data…", screen)
         screen._annotate_example_button = button
         seen = []
 
