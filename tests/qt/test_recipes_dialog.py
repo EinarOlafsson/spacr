@@ -359,8 +359,90 @@ def test_a_cancelled_import_stores_nothing(dialog, monkeypatch):
     assert _stored_names() == []
 
 
+def test_importing_a_settings_csv_accepts_the_pipeline_header(
+        dialog, tmp_path, monkeypatch):
+    """A run's settings file becomes a named template through the screen reader."""
+    incoming = tmp_path / "plate_settings.csv"
+    incoming.write_text("setting_key,setting_value\nn_jobs,6\n")
+    monkeypatch.setattr(QFileDialog, "getOpenFileName",
+                        staticmethod(lambda *a, **k: (str(incoming), "")))
+
+    dialog._on_import()
+
+    stored, = R.list_recipes("mask")
+    assert stored.name == "plate_settings"
+    assert stored.settings["n_jobs"] == 6
+    assert [recipe.name for recipe in dialog.recipes()] == ["plate_settings"]
+
+
+def test_a_settings_csv_imports_without_a_screen_reader(tmp_path):
+    """The reusable parser still accepts a run CSV outside a module screen."""
+    incoming = tmp_path / "standalone.csv"
+    incoming.write_text("Key,Value\nn_jobs,4\n")
+
+    recipe = R._recipe_from_settings_csv(str(incoming), "mask")
+
+    assert recipe.name == "standalone"
+    assert recipe.app_key == "mask"
+    assert recipe.settings == {"n_jobs": 4}
+
+
 # ---------------------------------------------------------------------------
-# 5. Delete, and selection
+# 5. Rename
+# ---------------------------------------------------------------------------
+
+def test_rename_moves_the_file_and_preserves_its_settings(
+        dialog, mask_screen, monkeypatch):
+    mask_screen._settings_model.set_value_for_key("n_jobs", 9)
+    old = R.save_recipe(R.capture_recipe(mask_screen, "Plate A"))
+    dialog.reload()
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *a, **k: ("Plate B", True)))
+
+    dialog._on_rename()
+
+    stored, = R.list_recipes("mask")
+    assert stored.name == "Plate B"
+    assert stored.path != old and not os.path.exists(old)
+    assert stored.settings["n_jobs"] == 9
+    assert [recipe.name for recipe in dialog.recipes()] == ["Plate B"]
+
+
+def test_rename_with_the_same_slug_updates_the_existing_file(
+        dialog, mask_screen, monkeypatch):
+    old = R.save_recipe(R.capture_recipe(mask_screen, "Plate A"))
+    dialog.reload()
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *a, **k: ("plate a!", True)))
+
+    dialog._on_rename()
+
+    stored, = R.list_recipes("mask")
+    assert stored.name == "plate a!"
+    assert stored.path == old
+    assert [recipe.name for recipe in dialog.recipes()] == ["plate a!"]
+
+
+def test_rename_refuses_to_replace_another_template(
+        dialog, mask_screen, monkeypatch, warnings):
+    R.save_recipe(R.capture_recipe(mask_screen, "Plate A"))
+    R.save_recipe(R.capture_recipe(mask_screen, "Plate B"))
+    dialog.reload()
+    dialog._list.setCurrentRow(next(i for i, recipe in enumerate(dialog.recipes())
+                                    if recipe.name == "Plate A"))
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *a, **k: ("Plate B", True)))
+
+    dialog._on_rename()
+
+    assert _stored_names() == ["Plate A", "Plate B"]
+    (title, text), = warnings
+    assert title == "Could not rename template"
+    assert "Plate B" in text
+
+
+# ---------------------------------------------------------------------------
+# 6. Delete, and selection
 # ---------------------------------------------------------------------------
 
 def test_delete_removes_the_file_and_the_row(dialog, mask_screen):
@@ -419,7 +501,7 @@ def test_the_detail_line_carries_the_authors_note(dialog, mask_screen):
 
 
 # ---------------------------------------------------------------------------
-# 6. Getting to the dialog: the strip button
+# 7. Getting to the dialog: the strip button
 # ---------------------------------------------------------------------------
 
 def test_the_strip_button_opens_the_dialog_for_its_own_screen(
@@ -450,7 +532,7 @@ def test_open_recipes_returns_a_visible_dialog_for_the_screen(mask_screen,
 
 
 # ---------------------------------------------------------------------------
-# 7. Getting to the dialog: the Help menu
+# 8. Getting to the dialog: the Help menu
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
