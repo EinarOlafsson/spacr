@@ -323,7 +323,8 @@ From a spaCR checkout, on the networked machine:
 
 This writes the folder ``spaCR-VERSION-Linux-x86_64-Offline-cpu`` under
 ``dist/offline`` and, with ``--archive``, the same folder as one ``.tar``.
-``--extras`` chooses the spaCR extras (default ``qt``), ``--cellpose-model``
+``--extras`` chooses optional spaCR extras (none by default); the standard
+package includes the Qt desktop interface. ``--cellpose-model``
 adds Cellpose weights and can be repeated, ``--test-fields`` limits the
 number of test fields, and ``--from-source .`` packs spaCR built from the
 checkout instead of the PyPI release.

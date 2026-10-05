@@ -92,9 +92,8 @@ Every tile links to the API page used by that application's in-product help.
 Installation
 ------------
 
-Install spaCR and launch the desktop application. The ``qt`` extra remains
-supported for desktop installations; current packages also include PySide6
-among their base dependencies.
+Install spaCR and launch the desktop application. The standard package
+includes the Qt interface and command-line pipelines.
 
 .. code-block:: bash
 

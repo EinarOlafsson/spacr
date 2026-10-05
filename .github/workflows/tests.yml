@@ -149,7 +149,7 @@ jobs:
           # `numpy<2.0.0`). The suite still has to exercise them:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
-          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi]"
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi]"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
           # passing `--timeout` without this makes pytest exit on
@@ -380,7 +380,7 @@ jobs:
           # the timm encoders) is
           # measured by the tests that exercise it with the real library,
           # rather than read as untested because this job lacked it (288).
-          python -m pip install -e ".[qt,dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings]"
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,databases,anndata,chem,embeddings]"
           python -m pip install "pyreadr>=0.5,<1"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
@@ -661,7 +661,7 @@ jobs:
             "torch==2.1.0" "torchvision==0.16.0"
           python -m pip install \
             -c .github/constraints/minimum-py39.txt \
-            -e ".[qt,dev,zernike,attribution,btrack,czi]"
+            -e ".[dev,zernike,attribution,btrack,czi]"
           # See the note in `fast`: `--per-test-timeout` needs this and the
           # `dev` extra does not provide it. Constrained like everything else
           # here, so the minimum profile stays the thing this job proves.
