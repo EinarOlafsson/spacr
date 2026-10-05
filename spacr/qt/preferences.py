@@ -7260,7 +7260,6 @@ PREFERENCE_TIPS = {
     "Line width": "Plotted-line width in points.",
     "Jitter width": "Horizontal displacement applied to overlapping points.",
     "Point alpha": "Point opacity. Values below 1 make overlapping points appear darker.",
-    "Bar alpha": "Bar opacity.",
     "Fill colour": "Interior colour of bars and histogram bins.",
     "Edge colour": "Outline colour of bars and histogram bins.",
     "Edge width": "Outline width in points.",
