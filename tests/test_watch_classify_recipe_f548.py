@@ -1,6 +1,7 @@
 """A watched CV inference run uses one model and collects each field once."""
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sqlite3
@@ -243,3 +244,60 @@ def test_real_mask_and_measure_predictions_match_batch_size_one(
     watched_db = watched / 'spacr_watch/measurements/measurements.db'
     batch_db = batch / 'measurements/measurements.db'
     assert _rows(watched_db, 'png_list') == _rows(batch_db, 'png_list')
+
+
+def test_classify_recipe_refuses_missing_model_and_nonfinite_settings(tmp_path):
+    with pytest.raises(ValueError, match='watch_classify_settings must name'):
+        core._watch_classify_recipe({'watch_classify_settings': ''})
+    missing = tmp_path / 'missing.pt'
+    settings = _recipe(tmp_path, missing)
+    with pytest.raises(ValueError, match='regular pretrained checkpoint'):
+        core._watch_classify_recipe(settings)
+    model = tmp_path / 'model.pt'
+    model.write_bytes(b'checkpoint')
+    settings = _recipe(tmp_path, model, n_top_examples=float('nan'))
+    with pytest.raises(ValueError, match='finite JSON-compatible'):
+        core._watch_classify_recipe(settings)
+    assert not (tmp_path / 'spacr_watch').exists()
+
+
+def test_classify_model_snapshot_refuses_a_changed_saved_copy(tmp_path):
+    source = tmp_path / 'model.pt'
+    source.write_bytes(b'fixed checkpoint')
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    work = tmp_path / 'watch'
+    copied = Path(core._watch_classify_model_snapshot(str(work), str(source), digest))
+    assert copied.read_bytes() == source.read_bytes()
+    assert core._watch_classify_model_snapshot(str(work), str(source), digest) == str(copied)
+    copied.write_bytes(b'changed checkpoint')
+    with pytest.raises(ValueError, match='saved Classify model snapshot changed'):
+        core._watch_classify_model_snapshot(str(work), str(source), digest)
+    assert copied.read_bytes() == b'changed checkpoint'
+
+
+def test_classify_snapshot_clears_stale_partial_and_a_failed_copy(tmp_path,
+                                                                  monkeypatch):
+    source = tmp_path / 'model.pt'
+    source.write_bytes(b'fixed checkpoint')
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    work = tmp_path / 'watch'
+    folder = work / '.watch_classify'
+    folder.mkdir(parents=True)
+    partial = folder / f'{digest}.pt.partial'
+    partial.write_bytes(b'stale')
+    copied = Path(core._watch_classify_model_snapshot(str(work), str(source), digest))
+    assert copied.read_bytes() == source.read_bytes() and not partial.exists()
+
+    another = tmp_path / 'second-watch'
+    unexpected_partial = another / '.watch_classify' / f'{digest}.pt.partial'
+
+    def changing_copy(_source, target, _expected):
+        Path(target).write_bytes(b'changed during copy')
+        return hashlib.sha256(b'changed during copy').hexdigest()
+
+    monkeypatch.setattr(core, '_watch_copy_snapshot', changing_copy)
+    with pytest.raises(ValueError, match='model changed while being copied'):
+        core._watch_classify_model_snapshot(str(another), str(source), digest)
+    assert not unexpected_partial.exists()
+    assert not unexpected_partial.with_suffix('').exists()
+    assert source.read_bytes() == b'fixed checkpoint'
