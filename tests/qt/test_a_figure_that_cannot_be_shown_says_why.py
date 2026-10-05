@@ -41,11 +41,17 @@ def queue(qtbot):
 
     widget = FigureQueue()
     qtbot.addWidget(widget)
+    figures = []
     for i in range(3):
         figure = plt.figure()
+        figures.append(figure)
         figure.add_subplot(111).plot([0, 1], [i, 1])
         widget.add_figure(figure)
-    return widget
+    try:
+        yield widget
+    finally:
+        for figure in figures:
+            plt.close(figure)
 
 
 def _strand(queue, index):
