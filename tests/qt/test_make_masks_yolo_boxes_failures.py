@@ -141,3 +141,61 @@ def test_export_refuses_failed_project_save_before_writing_label(
     assert widget._canvas.boxes == [(0, 12, 12, 32, 32)]
     assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
     assert not target.exists()
+
+
+def test_save_and_export_without_an_open_field_never_show_a_picker(
+        qtbot, qt_theme_applied, monkeypatch, tmp_path):
+    """Detached controls cannot create a label that claims an unknown image."""
+    widget = MakeMasksScreen()
+    qtbot.addWidget(widget)
+    calls = []
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        staticmethod(lambda *_args: calls.append("picker")))
+    try:
+        assert widget._on_save_boxes() is None
+        assert widget._on_export_yolo_boxes(str(tmp_path / "orphan.txt")) is None
+        assert widget._on_export_yolo_boxes() is None
+        assert calls == []
+        assert not (tmp_path / "orphan.txt").exists()
+    finally:
+        widget._magnifier.close()
+        widget.close_folded()
+
+
+def test_failed_box_save_refuses_opening_another_folder(opened, monkeypatch,
+                                                        tmp_path):
+    """A source switch cannot strand an unsaved annotation on the old field."""
+    widget, folder = opened
+    _edit_box(widget)
+    other = tmp_path / "other"
+    other.mkdir()
+    imageio.imwrite(other / "replacement.tif", np.zeros((64, 64), dtype=np.uint16))
+
+    def fail_save(*_args, **_kwargs):
+        raise OSError("project disk is read-only")
+
+    monkeypatch.setattr(engine, "save_yolo_boxes", fail_save)
+    assert not widget._open_folder(str(other))
+    assert widget._folder == str(folder)
+    assert widget._box_field == (str(folder), "field_0.tif")
+    assert widget._canvas.boxes == [(0, 12, 12, 32, 32)]
+    assert widget._boxes_dirty
+    assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
+
+
+def test_unreadable_next_image_clears_the_previous_fields_boxes(opened):
+    """A failed TIFF decode cannot leave the prior field's boxes on screen."""
+    widget, folder = opened
+    _edit_box(widget)
+    second = folder / "field_1.tif"
+    second.write_bytes(b"not a TIFF")
+
+    widget._on_next()
+
+    assert (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
+    assert widget._canvas.image is None
+    assert widget._canvas.boxes == []
+    assert widget._box_field is None
+    assert not widget._boxes_dirty
+    assert not widget._box_history.can_undo()
+    assert widget._on_save_boxes() is None
