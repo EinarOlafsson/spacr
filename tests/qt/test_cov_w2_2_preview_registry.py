@@ -14,6 +14,7 @@ really not there.
 """
 
 import pytest
+import shiboken6
 from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 from spacr.qt.preview_registry import (PREVIEWS, PreviewSpec, _PreviewHost,
@@ -21,6 +22,18 @@ from spacr.qt.preview_registry import (PREVIEWS, PreviewSpec, _PreviewHost,
                                        install_window_hooks,
                                        preview_app_keys, register_preview,
                                        unregister_preview)
+
+_OWNED_BY_TEST = []
+
+
+@pytest.fixture(autouse=True)
+def _retire_probe_widgets():
+    yield
+    for widget in reversed(_OWNED_BY_TEST):
+        if shiboken6.isValid(widget):
+            shiboken6.delete(widget)
+    _OWNED_BY_TEST.clear()
+    _LAST_BUILT.clear()
 
 
 # ---------------------------------------------------------------------------
@@ -50,6 +63,7 @@ class _Panel(QWidget):
 
     def __init__(self, blow_up=False):
         super().__init__()
+        _OWNED_BY_TEST.append(self)
         self.applied = []
         self.callback = None
         self.blow_up = blow_up
@@ -68,6 +82,7 @@ class _Screen(QWidget):
 
     def __init__(self, app_key, *, anchored=True, model=None, bar=None):
         super().__init__()
+        _OWNED_BY_TEST.append(self)
         self.app_key = app_key
         self._settings_model = model
         self._settings_search = bar
@@ -86,6 +101,7 @@ def _build_test_card(screen):
     """A builder with the shape every `build_*_preview_card` already has."""
     panel = _Panel()
     card = QWidget()
+    _OWNED_BY_TEST.append(card)
     _LAST_BUILT["panel"] = panel
     _LAST_BUILT["card"] = card
     return panel, card
