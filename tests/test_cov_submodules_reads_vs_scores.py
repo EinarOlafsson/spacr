@@ -423,6 +423,8 @@ def test_non_list_y_columns_plot_one_unlabelled_line(tmp_path):
     assert np.allclose(y, [0.4, 0.3, 0.2, 0.1])
     assert ax.get_legend() is None          # group_column is None -> no legend
     assert ax.get_ylabel() == "Fraction"
+    assert figs[0]._spacr_spec["y"] == "my_vector"
+    assert np.allclose(figs[0]._spacr_data["my_vector"], y)
 
 
 # ---------------------------------------------------------------------------

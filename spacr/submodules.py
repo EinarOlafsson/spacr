@@ -2099,12 +2099,22 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
 
         sns_palette = _set_theme(theme)
 
+        if isinstance(y_columns, pd.Series):
+            vector_name = str(y_columns.name or "value")
+            if vector_name in df.columns:
+                vector_name = "_spacr_y_vector"
+            df = df.copy()
+            df[vector_name] = y_columns
+            y_columns = vector_name
         df = df.loc[natsorted(df.index, key=lambda x: df.loc[x, x_column])]
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=figsize)
             from .figures.bundle import _register_figure_data
-            _register_figure_data(fig, df, x=x_column, y=y_columns[0] if isinstance(y_columns, list) and y_columns else (y_columns or ""), hue=group_column or "", kind="line")
+            registered_y = (y_columns[0] if isinstance(y_columns, list) and y_columns
+                            else y_columns if isinstance(y_columns, str) else "")
+            _register_figure_data(fig, df, x=x_column, y=registered_y,
+                                  hue=group_column or "", kind="line")
 
             if isinstance(y_columns, list):
                 for idx, y_col in enumerate(y_columns):
