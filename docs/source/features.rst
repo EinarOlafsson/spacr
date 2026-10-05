@@ -362,6 +362,67 @@ you make with its right-click menu is kept when it is saved. Figures that
 are already drawn with several panels keep their size and resolution; the
 size and resolution settings apply to new figures and to saved files.
 
+Working with figures
+--------------------
+
+Right-click any figure in spaCR, in a module's figure list or in an embedded
+plot such as Graph Builder, the UMAP explorer or a training comparison, to
+open its figure menu. The Volcano explorer and the Gate Editor keep their own
+right-click menus and add these entries to them.
+
+- **Edit figure…** changes the title, axis labels, limits, scales, fonts,
+  colours, legend, size and resolution of this figure. Changes appear as you
+  make them.
+- **Change graph type** redraws the figure as another graph that fits its
+  data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen
+  plots, a box or bar plot with points, or as histogram, KDE or ECDF; two
+  measurements as scatter, line, hexbin, KDE or regression plots; one
+  distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as
+  a count plot or heat map; and a matrix as a heat map or clustered heat map.
+  The figure is redrawn from its data and keeps your **Figure settings**.
+- **Statistics…** shows the test spaCR chose for the data and lets you
+  override the **Test**, the **Subject column**, **Paired / repeated
+  measures** and the **Multiple-comparison correction**. **Show on the plot**
+  draws the test and significance brackets on the figure.
+- **Save figure (zip)…** writes one zip file with the figure in your saved
+  format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv``
+  and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and
+  ``recreate_figure.py``, a script that draws the same figure from the CSV and
+  JSON files without spaCR.
+
+How the statistics are chosen
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The automatic choice follows the data:
+
+- **Groups**: each group is tested for normality (Shapiro–Wilk) and the
+  groups for equal variance (Bartlett, or Levene when a group is not normal).
+  Two groups are compared with Student's t, Welch's t or Mann–Whitney, and
+  paired data with a paired t test or Wilcoxon. Three or more groups get a
+  one-way ANOVA followed by Tukey HSD, Welch's ANOVA followed by
+  Games–Howell, Kruskal–Wallis followed by Dunn, or Friedman followed by
+  pairwise Wilcoxon tests, with pairwise p-values corrected for multiple
+  comparisons.
+- **Two measurements**: Pearson or Spearman correlation, chosen by
+  normality.
+- **Counts**: chi-square, or Fisher's exact test when an expected count is
+  below 5; tables larger than 2×2 use the Fisher–Freeman–Halton test with a
+  fixed-seed Monte Carlo p-value.
+- **Proportions** (a 0/1 outcome): a two-proportion z test or Fisher's exact
+  test; three or more groups get chi-square followed by corrected pairwise z
+  tests.
+
+``statistics.csv`` has one row per test, with the test name, groups,
+statistic, degrees of freedom, p-value, adjusted p-value and correction,
+effect size, number of observations, whether the test was chosen
+automatically or by you, and the reason for the choice.
+
+Figures in Graph Builder and the Volcano explorer carry their data rows. For
+other figures, spaCR reads the plotted values back from the figure; box and
+violin plots drawn this way keep only their summary, not the individual
+rows. A new graph type replaces a faceted Graph Builder grid with a single
+plot until Graph Builder draws the chart again.
+
 Workers and free memory
 -----------------------
 
