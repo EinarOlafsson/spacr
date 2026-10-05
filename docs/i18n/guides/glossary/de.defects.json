@@ -2,6 +2,13 @@
  "schema": 1,
  "language": "de",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
- "snapshot": {}
+ "defects": {
+  "Format": "'Sprachen DE/EN/FR' is an unrelated row; the field is the file format ('Format')"
+ },
+ "snapshot": {
+  "Format": {
+   "runtime": "Sprachen DE/EN/FR",
+   "guide": "Format"
+  }
+ }
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 21:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -230,7 +230,7 @@ msgid "Accessibility"
 msgstr "无障碍"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
-msgstr "每个控件都有屏幕阅读器会朗读的名称，取自其标签、工具提示或占位文本，并且名称跟随界面语言。**Tab** 会从文本框和表格移到下一个控件，而不是输入制表符。**偏好 → 外观 → 主题** 提供 **High contrast**，其中所有文字与背景的对比度至少为 7:1。"
+msgstr "每个控件都有屏幕阅读器会朗读的名称，取自其标签、工具提示或占位文本，并且名称跟随界面语言。**Tab** 会从文本框和表格移到下一个控件，而不是输入制表符。**偏好 → 外观 → 主题** 提供 **高对比度**，其中所有文字与背景的对比度至少为 7:1。"
 
 msgid "Arranging the window"
 msgstr "排列窗口"
@@ -282,6 +282,31 @@ msgstr "属于某种形态的设置不会出现在其他形态的槽位中：点
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D 和时间开关声明孔板具有哪些维度。``z_stack`` 声明存在 z 轴并启用体数据设置——分割模式、各向异性和体素大小——并且会以错误停止，而不是猜测哪个轴是 z。``timelapse`` 声明存在时间轴并显示跟踪设置；单时间点的孔板会忽略它。4D 设置仅在数据既是 z 栈又是时间序列时适用，也只在那时出现。"
+
+msgid "Figure settings"
+msgstr "图设置"
+
+msgid "**Preferences → Figures** sets how every spaCR figure looks and how it is saved. The settings apply to figures drawn on screen and to the files the pipelines and the save buttons write; only the settings you change are applied, so a figure keeps its own look for everything else."
+msgstr "**偏好 → 图表** 设置每个 spaCR 图表的外观和保存方式。这些设置适用于屏幕上绘制的图表，以及流程和保存按钮写出的文件；只有你更改的设置才会被应用，因此图表在其他方面保留自身的外观。"
+
+msgid "**Text and lines**: font, the sizes of titles, axis labels, tick labels and legend entries (**Legend size**), line width and marker size."
+msgstr "**Text and lines** ：字体，标题、轴标签、刻度标签和图例条目的大小（ **Legend size** ），线宽和标记大小。"
+
+msgid "**Colour**: the palette for categories and the **Colormap** for heat maps, images and density plots. ``viridis`` (the default) and ``cividis`` stay readable with colour-blindness and in greyscale."
+msgstr "**颜色** ：类别的调色板，以及用于热图、图像和密度图的 **颜色映射** 。 ``viridis`` （默认）和 ``cividis`` 在色盲和灰度下都保持可读。"
+
+msgid "**Layout**: background, grid, axis lines and **Despine offset**, which moves the axis lines away from the data. **Figure width** and **Figure height**, in inches, set the size of new figures; the height applies when the page shape is custom."
+msgstr "**布局** ：背景、网格、坐标轴线以及 **Despine offset** （使坐标轴线与数据分开）。 **Figure width** 和 **Figure height** 以英寸为单位设置新图表的大小；当页面形状为自定义时，高度生效。"
+
+msgid "**Saving**: **Format** is PDF, PNG, SVG or TIFF, with its resolution. **Also save** writes a second copy in another format beside each saved figure, for example a PNG next to a PDF. **Vector text** keeps text editable in PDF and SVG files instead of turning it into outlines."
+msgstr "**Saving** ： **格式** 为 PDF、PNG、SVG 或 TIFF，并包括其分辨率。 **Also save** 会在每个已保存的图表旁以另一种格式写出第二份副本，例如在 PDF 旁写出 PNG。 **Vector text** 使 PDF 和 SVG 文件中的文字保持可编辑，而不是转换为轮廓。"
+
+#, python-format
+msgid "**Bar and point graphs**: **Error bars** shows the standard error (``sem``, the default), the standard deviation (``sd``), a confidence interval at the **CI level** (``ci``), a 95% interval (``ci95``) or nothing. **Error-bar cap size** sets the cap width. **Point overlay** draws the individual points over bar and box graphs, spread by **Jitter width** and drawn with the opacity in **Point alpha**."
+msgstr "**Bar and point graphs** ： **误差棒** 显示标准误（ ``sem`` ，默认）、标准差（ ``sd`` ）、按 **CI level** 计算的置信区间（ ``ci`` ）、95% 区间（ ``ci95`` ）或不显示。 **Error-bar cap size** 设置端帽宽度。 **Point overlay** 在柱状图和箱线图上绘制各个数据点，按 **Jitter 宽度** 散开，并以 **点透明度** 中的不透明度绘制。"
+
+msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
+msgstr "这些设置也可以按图表类型分别设置。图表只设置一次样式，因此通过其右键菜单所做的更改在保存时会被保留。已绘制的多面板图表保持其大小和分辨率；大小和分辨率设置适用于新图表和保存的文件。"
 
 msgid "Workers and free memory"
 msgstr "工作进程与可用内存"

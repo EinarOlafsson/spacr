@@ -62,6 +62,8 @@
   "Clear all": "Alle löschen",
   "Clear manual rows": "Manuelle Zeilen löschen",
   "Clear…": "Leeren…",
+  "Colormap": "Farbkarte",
+  "Colour": "Farbe",
   "Compare": "Vergleichen",
   "Compare masks…": "Masken vergleichen…",
   "Compatible phenotype responses": "Kompatible Phänotypantworten",
@@ -105,6 +107,7 @@
   "Download": "Herunterladen",
   "Effect sizes, variability and optional pilot data": "Effektgrößen, Variabilität und optionale Pilotdaten",
   "Ellipsoid with handles": "Ellipsoid mit Griffen",
+  "Error bars": "Fehlerbalken",
   "Exact values": "Genaue Werte",
   "Examples for column": "Beispiele für Spalte",
   "Exclude": "Ausschließen",
@@ -120,6 +123,7 @@
   "Feature definitions": "Merkmalsdefinitionen",
   "Features": "Merkmale",
   "Figure": "Abbildung",
+  "Figures": "Abbildungen",
   "Figures and table exports": "Abbildungen und Tabellenexporte",
   "File…": "Datei...",
   "Filter": "Filtern",
@@ -138,6 +142,7 @@
   "Guide counts per well": "Guide-Zählungen pro Well",
   "Help": "Hilfe",
   "High": "Hoch",
+  "High contrast": "Hoher Kontrast",
   "Hit List": "Trefferliste",
   "Home": "Startseite",
   "Host-cell-aggregated compartment areas": "Pro Wirtszelle aggregierte Kompartimentflächen",
@@ -165,11 +170,13 @@
   "Install Cellpose 3…": "Cellpose 3 installieren…",
   "Intensity watershed": "Intensitäts-Wasserscheide",
   "Invert image": "Bild invertieren",
+  "Jitter width": "Breite des Jitters",
   "Jobs": "Aufträge",
   "Keep": "Behalten",
   "Label masks": "Labelmasken",
   "Language": "Sprache",
   "Lasso through view": "Lasso durch die Ansicht",
+  "Layout": "Anordnung",
   "Levels…": "Tonwerte…",
   "Line weight": "Linienstärke",
   "Linked time-series objects": "Verknüpfte Zeitreihenobjekte",
@@ -179,6 +186,7 @@
   "Load schema": "Schema laden",
   "Load settings in module": "Einstellungen im Modul laden",
   "Load test data…": "Testdaten laden...",
+  "Logging": "Protokollierung",
   "Low": "Niedrig",
   "Lower %": "Unterer %",
   "Magnifier": "Lupe",
@@ -247,6 +255,7 @@
   "Plaque detection": "Plaque-Erkennung",
   "Plaque images or existing plaque masks": "Plaquebilder oder vorhandene Plaquemasken",
   "Plaque preview": "Plaque-Vorschau",
+  "Point alpha": "Punkt-Alpha",
   "Point spread function": "Punktspreizfunktion",
   "Polygon through view": "Polygon durch die Ansicht",
   "Pooled-screen simulation assumptions": "Annahmen für die Simulation gepoolter Screens",
@@ -380,5 +389,7 @@
   "left": "links",
   "no cap": "keine Obergrenze"
  },
- "runtime_suspect": {}
+ "runtime_suspect": {
+  "Format": "Sprachen DE/EN/FR"
+ }
 }

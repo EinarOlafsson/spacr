@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 21:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: pt\n"
@@ -230,7 +230,7 @@ msgid "Accessibility"
 msgstr "Acessibilidade"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
-msgstr "Todo controle tem um nome anunciado pelos leitores de tela, obtido de seu rótulo, sua dica de ferramenta ou seu texto de espaço reservado, e os nomes seguem o idioma da interface. **Tab** sai das caixas de texto e das tabelas para o próximo controle, em vez de inserir uma tabulação. **Preferências → Aparência → Tema** oferece **High contrast**, em que todo texto tem uma razão de contraste de pelo menos 7:1 em relação ao fundo."
+msgstr "Todo controle tem um nome anunciado pelos leitores de tela, obtido de seu rótulo, sua dica de ferramenta ou seu texto de espaço reservado, e os nomes seguem o idioma da interface. **Tab** sai das caixas de texto e das tabelas para o próximo controle, em vez de inserir uma tabulação. **Preferências → Aparência → Tema** oferece **Alto contraste**, em que todo texto tem uma razão de contraste de pelo menos 7:1 em relação ao fundo."
 
 msgid "Arranging the window"
 msgstr "Organizar a janela"
@@ -282,6 +282,31 @@ msgstr "uma configuração que pertence a uma morfologia é omitida para um espa
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "As chaves 3D e Tempo declaram quais dimensões a placa tem. ``z_stack`` declara um eixo z e ativa as configurações volumétricas -- modo de segmentação, anisotropia e tamanho do voxel -- e para com um erro em vez de adivinhar qual eixo é o z. ``timelapse`` declara um eixo de tempo e exibe o rastreamento; uma placa com um único ponto temporal o ignora. As configurações 4D só se aplicam quando os dados são ao mesmo tempo uma pilha z e uma série temporal, e só então aparecem."
+
+msgid "Figure settings"
+msgstr "Configurações da figura"
+
+msgid "**Preferences → Figures** sets how every spaCR figure looks and how it is saved. The settings apply to figures drawn on screen and to the files the pipelines and the save buttons write; only the settings you change are applied, so a figure keeps its own look for everything else."
+msgstr "**Preferências → Figuras** define a aparência de cada figura do spaCR e como ela é salva. As configurações se aplicam às figuras desenhadas na tela e aos arquivos gravados pelos pipelines e pelos botões de salvar; apenas as configurações que você altera são aplicadas, de modo que uma figura mantém sua própria aparência em todo o resto."
+
+msgid "**Text and lines**: font, the sizes of titles, axis labels, tick labels and legend entries (**Legend size**), line width and marker size."
+msgstr "**Text and lines**: fonte, tamanhos de títulos, rótulos dos eixos, rótulos das marcas e entradas da legenda (**Legend size**), largura de linha e tamanho do marcador."
+
+msgid "**Colour**: the palette for categories and the **Colormap** for heat maps, images and density plots. ``viridis`` (the default) and ``cividis`` stay readable with colour-blindness and in greyscale."
+msgstr "**Cor**: a paleta de categorias e o **Mapa de cores** para mapas de calor, imagens e gráficos de densidade. ``viridis`` (o padrão) e ``cividis`` continuam legíveis com daltonismo e em escala de cinza."
+
+msgid "**Layout**: background, grid, axis lines and **Despine offset**, which moves the axis lines away from the data. **Figure width** and **Figure height**, in inches, set the size of new figures; the height applies when the page shape is custom."
+msgstr "**Layout**: fundo, grade, linhas dos eixos e **Despine offset**, que afasta as linhas dos eixos dos dados. **Figure width** e **Figure height**, em polegadas, definem o tamanho de novas figuras; a altura se aplica quando o formato da página é personalizado."
+
+msgid "**Saving**: **Format** is PDF, PNG, SVG or TIFF, with its resolution. **Also save** writes a second copy in another format beside each saved figure, for example a PNG next to a PDF. **Vector text** keeps text editable in PDF and SVG files instead of turning it into outlines."
+msgstr "**Saving**: **Formato** é PDF, PNG, SVG ou TIFF, com sua resolução. **Also save** grava uma segunda cópia em outro formato ao lado de cada figura salva, por exemplo um PNG ao lado de um PDF. **Vector text** mantém o texto editável em arquivos PDF e SVG em vez de convertê-lo em contornos."
+
+#, python-format
+msgid "**Bar and point graphs**: **Error bars** shows the standard error (``sem``, the default), the standard deviation (``sd``), a confidence interval at the **CI level** (``ci``), a 95% interval (``ci95``) or nothing. **Error-bar cap size** sets the cap width. **Point overlay** draws the individual points over bar and box graphs, spread by **Jitter width** and drawn with the opacity in **Point alpha**."
+msgstr "**Bar and point graphs**: **Barras de erro** mostra o erro padrão (``sem``, o padrão), o desvio padrão (``sd``), um intervalo de confiança no **CI level** (``ci``), um intervalo de 95% (``ci95``) ou nada. **Error-bar cap size** define a largura dos traços finais. **Point overlay** desenha os pontos individuais sobre gráficos de barras e de caixa, espalhados por **Largura do jitter** e desenhados com a opacidade de **Alfa dos pontos**."
+
+msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
+msgstr "As configurações também podem variar por tipo de gráfico. Uma figura é estilizada uma vez, então uma alteração feita pelo menu de contexto é mantida quando ela é salva. Figuras já desenhadas com vários painéis mantêm seu tamanho e resolução; as configurações de tamanho e resolução se aplicam a novas figuras e a arquivos salvos."
 
 msgid "Workers and free memory"
 msgstr "Processos de trabalho e memória livre"

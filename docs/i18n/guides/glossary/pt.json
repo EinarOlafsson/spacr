@@ -63,6 +63,8 @@
   "Clear all": "Limpar tudo",
   "Clear manual rows": "Limpar linhas manuais",
   "Clear…": "Esvaziar…",
+  "Colormap": "Mapa de cores",
+  "Colour": "Cor",
   "Compare": "Comparar",
   "Compare masks…": "Comparar máscaras…",
   "Compatible phenotype responses": "Respostas fenotípicas compatíveis",
@@ -106,6 +108,7 @@
   "Download": "Baixar",
   "Effect sizes, variability and optional pilot data": "Tamanhos de efeito, variabilidade e dados piloto opcionais",
   "Ellipsoid with handles": "Elipsoide com alças",
+  "Error bars": "Barras de erro",
   "Exact values": "Valores exactos",
   "Examples for column": "Exemplos para coluna",
   "Exclude": "Excluir",
@@ -121,6 +124,7 @@
   "Feature definitions": "Definições de características",
   "Features": "Características",
   "Figure": "Figura",
+  "Figures": "Figuras",
   "Figures and table exports": "Figuras e exportações de tabelas",
   "File…": "Ficheiro...",
   "Filter": "Filtro",
@@ -131,6 +135,7 @@
   "Flows": "Fluxos",
   "Fluorophore": "Fluoróforo",
   "Folder…": "Pasta…",
+  "Format": "Formato",
   "Fraction of the primary object's peak": "Fração do pico do objeto primário",
   "Free RAM by closing applications…": "Liberar RAM fechando aplicativos…",
   "From a paper…": "De um artigo científico…",
@@ -139,6 +144,7 @@
   "Guide counts per well": "Contagens de guias por poço",
   "Help": "Ajuda",
   "High": "Alta",
+  "High contrast": "Alto contraste",
   "Hit List": "Lista de candidatos",
   "Home": "Início",
   "Host-cell-aggregated compartment areas": "Áreas de compartimentos agregadas por célula hospedeira",
@@ -166,6 +172,7 @@
   "Install Cellpose 3…": "Instalar Cellpose 3…",
   "Intensity watershed": "Watershed de intensidade",
   "Invert image": "Inverter imagem",
+  "Jitter width": "Largura do jitter",
   "Jobs": "Tarefas",
   "Keep": "Manter",
   "Label masks": "Máscaras de rótulos",
@@ -250,6 +257,7 @@
   "Plaque detection": "Detecção de placas de lise",
   "Plaque images or existing plaque masks": "Imagens de placas ou máscaras de placas existentes",
   "Plaque preview": "Prévia das placas de lise",
+  "Point alpha": "Alfa dos pontos",
   "Point spread function": "Função de espalhamento pontual",
   "Polygon through view": "Polígono pela vista",
   "Pooled-screen simulation assumptions": "Pressupostos da simulação de triagem agrupada",
@@ -384,6 +392,8 @@
   "no cap": "sem limite"
  },
  "runtime_suspect": {
+  "Layout": "Esquema de nomenclatura",
+  "Logging": "Registando",
   "Secondary objects from primary masks": "Objetos secundários (máscara primária)"
  }
 }

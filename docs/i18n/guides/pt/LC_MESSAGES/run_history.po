@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 21:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: pt\n"
@@ -63,6 +63,9 @@ msgstr "**Preferências → Armazenamento** impede que a pasta pessoal do spaCR 
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "A tabela de caches lista os caches de modelos do spaCR, do Cellpose, do Hugging Face, do Torch, dos ambientes de backends e de novidades. **Medição** lê seus tamanhos, **Esvaziar…** esvazia o cache selecionado após perguntar, e **Mover…** o transfere para ``<folder>/spacr-<cache>`` em outra unidade. O novo local é registrado em ``~/.spacr/cache_locations.json`` e usado a cada inicialização; um cache cuja variável (por exemplo ``HF_HOME``) está definida fora do spaCR não é movido. Esvaziar e mover aguardam até que nenhuma execução esteja em andamento."
+
+msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
+msgstr "**Preferências → Registro → Log files** tem **Clear all logs…**. Ele lista os logs diários, de execução, de falhas e detalhados, com o número de arquivos e o tamanho de cada grupo, e os exclui somente depois que você confirma. Um log que a sessão do spaCR em andamento mantém aberto é esvaziado em vez de excluído, para que a execução em andamento mantenha seu log. O resultado informa quantos arquivos foram excluídos e esvaziados e quanto espaço foi liberado."
 
 msgid "Headless search"
 msgstr "Pesquisa sem interface gráfica"

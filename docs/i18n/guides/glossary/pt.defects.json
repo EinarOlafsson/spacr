@@ -2,6 +2,18 @@
  "schema": 1,
  "language": "pt",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
- "snapshot": {}
+ "defects": {
+  "Layout": "'Esquema de nomenclatura' is the file-naming row; the figure group is 'Layout'",
+  "Logging": "'Registando' is European progressive ('logging in progress'); the tab is 'Registro'"
+ },
+ "snapshot": {
+  "Layout": {
+   "runtime": "Esquema de nomenclatura",
+   "guide": "Layout"
+  },
+  "Logging": {
+   "runtime": "Registando",
+   "guide": "Registro"
+  }
+ }
 }

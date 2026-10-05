@@ -62,6 +62,7 @@
   "Clear all": "모두 지우기",
   "Clear manual rows": "수동 행 지우기",
   "Clear…": "비우기…",
+  "Colour": "색상",
   "Compare": "비교하기",
   "Compare masks…": "마스크 비교…",
   "Compatible phenotype responses": "호환되는 표현형 반응",
@@ -120,6 +121,7 @@
   "Feature definitions": "특징 정의",
   "Features": "특징",
   "Figure": "그림",
+  "Figures": "그림",
   "Figures and table exports": "그림 및 표 내보내기",
   "File…": "파일...",
   "Filter": "필터",
@@ -130,6 +132,7 @@
   "Flows": "흐름",
   "Fluorophore": "형광체",
   "Folder…": "폴더…",
+  "Format": "형식",
   "Fraction of the primary object's peak": "1차 객체 최댓값의 비율",
   "Free RAM by closing applications…": "애플리케이션을 닫아 RAM 확보…",
   "From a paper…": "학술 논문에서…",
@@ -138,6 +141,7 @@
   "Guide counts per well": "웰당 가이드 개수",
   "Help": "도움말",
   "High": "높음",
+  "High contrast": "고대비",
   "Hit List": "히트 목록",
   "Home": "홈",
   "Host-cell-aggregated compartment areas": "숙주 세포별 집계 구획 면적",
@@ -170,6 +174,7 @@
   "Label masks": "레이블 마스크",
   "Language": "언어",
   "Lasso through view": "뷰를 관통하는 올가미",
+  "Layout": "레이아웃",
   "Levels…": "레벨…",
   "Line weight": "선 두께",
   "Linked time-series objects": "연결된 시계열 객체",
@@ -249,6 +254,7 @@
   "Plaque detection": "플라크 검출",
   "Plaque images or existing plaque masks": "플라크 이미지 또는 기존 플라크 마스크",
   "Plaque preview": "플라크 미리보기",
+  "Point alpha": "점 알파",
   "Point spread function": "점 확산 함수",
   "Polygon through view": "뷰를 관통하는 다각형",
   "Pooled-screen simulation assumptions": "풀드 스크린 시뮬레이션 가정",
@@ -385,5 +391,10 @@
   "left": "왼쪽",
   "no cap": "상한 없음"
  },
- "runtime_suspect": {}
+ "runtime_suspect": {
+  "Colormap": "컬러",
+  "Error bars": "오류 바",
+  "Jitter width": "Jitter 광범위",
+  "Logging": "로그인"
+ }
 }

@@ -61,6 +61,8 @@
   "Clear all": "Tout effacer",
   "Clear manual rows": "Effacer les lignes manuelles",
   "Clear…": "Vider…",
+  "Colormap": "Carte des couleurs",
+  "Colour": "Couleur",
   "Compare": "Comparer",
   "Compare masks…": "Comparer les masques…",
   "Compatible phenotype responses": "Réponses phénotypiques compatibles",
@@ -104,6 +106,7 @@
   "Download": "Télécharger",
   "Effect sizes, variability and optional pilot data": "Tailles d'effet, variabilité et données pilotes facultatives",
   "Ellipsoid with handles": "Ellipsoïde à poignées",
+  "Error bars": "Barres d'erreur",
   "Exact values": "Valeurs exactes",
   "Examples for column": "Exemples pour la colonne",
   "Exclude": "Exclure",
@@ -136,6 +139,7 @@
   "Guide counts per well": "Comptages de guides par puits",
   "Help": "Aide",
   "High": "Élevée",
+  "High contrast": "Contraste élevé",
   "Hit List": "Liste des résultats",
   "Home": "Accueil",
   "Host-cell-aggregated compartment areas": "Surfaces des compartiments agrégées par cellule hôte",
@@ -246,6 +250,7 @@
   "Plaque detection": "Détection des plages de lyse",
   "Plaque images or existing plaque masks": "Images de plaques ou masques de plaques existants",
   "Plaque preview": "Aperçu des plages de lyse",
+  "Point alpha": "Alpha des points",
   "Point spread function": "Fonction d’étalement du point",
   "Polygon through view": "Polygone à travers la vue",
   "Pooled-screen simulation assumptions": "Hypothèses de simulation de criblage en pool",
@@ -379,6 +384,10 @@
   "no cap": "sans plafond"
  },
  "runtime_suspect": {
+  "Format": "Présentation",
+  "Jitter width": "Largeur des jumelles",
+  "Layout": "Disposition des noms de fichiers",
+  "Logging": "Exploitation forestière",
   "Secondary objects from primary masks": "Objets secondaires (masque primaire)"
  }
 }

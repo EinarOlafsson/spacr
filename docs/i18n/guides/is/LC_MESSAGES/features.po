@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 21:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: is\n"
@@ -230,7 +230,7 @@ msgid "Accessibility"
 msgstr "Aðgengi"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
-msgstr "Hver stýring hefur heiti sem skjálesarar lesa upp, tekið úr merki hennar, skjábendingu eða staðgengilstexta, og heitin fylgja tungumáli viðmótsins. **Tab** færir úr textareitum og töflum í næstu stýringu í stað þess að skrifa dálkstopp. **Kjörstillingar → Útlit → Þema** býður upp á **High contrast**, þar sem allur texti hefur birtuskilahlutfall að minnsta kosti 7:1 gagnvart bakgrunni sínum."
+msgstr "Hver stýring hefur heiti sem skjálesarar lesa upp, tekið úr merki hennar, skjábendingu eða staðgengilstexta, og heitin fylgja tungumáli viðmótsins. **Tab** færir úr textareitum og töflum í næstu stýringu í stað þess að skrifa dálkstopp. **Kjörstillingar → Útlit → Þema** býður upp á **Mikil birtuskil**, þar sem allur texti hefur birtuskilahlutfall að minnsta kosti 7:1 gagnvart bakgrunni sínum."
 
 msgid "Arranging the window"
 msgstr "Uppröðun gluggans"
@@ -282,6 +282,31 @@ msgstr "stillingu sem tilheyrir einni formgerð er sleppt fyrir reit með aðra:
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "Rofarnir 3D og Tími gefa til kynna hvaða víddir platan hefur. ``z_stack`` lýsir yfir z-ás og virkjar rúmmálsstillingarnar -- hlutunarham, misáttun og rúmpixlastærð -- og stöðvast með villu frekar en að giska á hvaða ás er z. ``timelapse`` lýsir yfir tímaás og sýnir rakningu; plata með einum tímapunkti hunsar hann. 4D-stillingarnar eiga aðeins við þegar gögnin eru bæði z-stafli og tímaröð, og birtast aðeins þá."
+
+msgid "Figure settings"
+msgstr "Myndastillingar"
+
+msgid "**Preferences → Figures** sets how every spaCR figure looks and how it is saved. The settings apply to figures drawn on screen and to the files the pipelines and the save buttons write; only the settings you change are applied, so a figure keeps its own look for everything else."
+msgstr "**Kjörstillingar → Myndir** stillir hvernig hver spaCR-mynd lítur út og hvernig hún er vistuð. Stillingarnar gilda um myndir sem teiknaðar eru á skjáinn og um skrárnar sem vinnslukeðjurnar og vistunarhnapparnir skrifa; aðeins stillingarnar sem þú breytir eru notaðar, svo mynd heldur eigin útliti að öðru leyti."
+
+msgid "**Text and lines**: font, the sizes of titles, axis labels, tick labels and legend entries (**Legend size**), line width and marker size."
+msgstr "**Text and lines**: letur, stærðir titla, ásamerkinga, kvarðamerkinga og skýringarliða (**Legend size**), línubreidd og stærð merkja."
+
+msgid "**Colour**: the palette for categories and the **Colormap** for heat maps, images and density plots. ``viridis`` (the default) and ``cividis`` stay readable with colour-blindness and in greyscale."
+msgstr "**Litur**: litaspjaldið fyrir flokka og **Litakort** fyrir hitakort, myndir og þéttleikarit. ``viridis`` (sjálfgefið) og ``cividis`` haldast læsileg fyrir litblinda og í grátónum."
+
+msgid "**Layout**: background, grid, axis lines and **Despine offset**, which moves the axis lines away from the data. **Figure width** and **Figure height**, in inches, set the size of new figures; the height applies when the page shape is custom."
+msgstr "**Útlit**: bakgrunnur, hnitanet, áslínur og **Despine offset**, sem færir áslínurnar frá gögnunum. **Figure width** og **Figure height**, í tommum, stilla stærð nýrra mynda; hæðin gildir þegar síðulögun er sérsniðin."
+
+msgid "**Saving**: **Format** is PDF, PNG, SVG or TIFF, with its resolution. **Also save** writes a second copy in another format beside each saved figure, for example a PNG next to a PDF. **Vector text** keeps text editable in PDF and SVG files instead of turning it into outlines."
+msgstr "**Saving**: **Formátur** er PDF, PNG, SVG eða TIFF, með upplausn. **Also save** skrifar annað afrit á öðru sniði við hlið hverrar vistaðrar myndar, til dæmis PNG við hlið PDF. **Vector text** heldur texta breytanlegum í PDF- og SVG-skrám í stað þess að breyta honum í útlínur."
+
+#, python-format
+msgid "**Bar and point graphs**: **Error bars** shows the standard error (``sem``, the default), the standard deviation (``sd``), a confidence interval at the **CI level** (``ci``), a 95% interval (``ci95``) or nothing. **Error-bar cap size** sets the cap width. **Point overlay** draws the individual points over bar and box graphs, spread by **Jitter width** and drawn with the opacity in **Point alpha**."
+msgstr "**Bar and point graphs**: **Skekkjustikur** sýnir staðalskekkju (``sem``, sjálfgefið), staðalfrávik (``sd``), öryggisbil á **CI level** (``ci``), 95% bil (``ci95``) eða ekkert. **Error-bar cap size** stillir breidd endastrika. **Point overlay** teiknar einstaka punkta yfir súlu- og kassarit, dreifða eftir **Breidd dreifingar (jitter)** og teiknaða með ógegnsæinu í **Gegnsæi punkta**."
+
+msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
+msgstr "Stillingarnar geta einnig verið mismunandi eftir gerð línurits. Mynd er stíluð einu sinni, svo breyting sem þú gerir með hægrismellivalmynd hennar helst þegar hún er vistuð. Myndir sem þegar eru teiknaðar með mörgum reitum halda stærð sinni og upplausn; stærðar- og upplausnarstillingarnar gilda um nýjar myndir og vistaðar skrár."
 
 msgid "Workers and free memory"
 msgstr "Vinnsluferli og laust minni"

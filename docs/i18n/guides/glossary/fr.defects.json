@@ -2,6 +2,28 @@
  "schema": 1,
  "language": "fr",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
- "snapshot": {}
+ "defects": {
+  "Layout": "'Disposition des noms de fichiers' is the file-naming row; the figure group is 'Mise en page'",
+  "Format": "'Présentation' means presentation; the field is the file format ('Format')",
+  "Jitter width": "'Largeur des jumelles' means binocular width; the setting is 'Largeur de dispersion (jitter)'",
+  "Logging": "'Exploitation forestière' means logging trees; the tab is 'Journalisation'"
+ },
+ "snapshot": {
+  "Layout": {
+   "runtime": "Disposition des noms de fichiers",
+   "guide": "Mise en page"
+  },
+  "Format": {
+   "runtime": "Présentation",
+   "guide": "Format"
+  },
+  "Jitter width": {
+   "runtime": "Largeur des jumelles",
+   "guide": "Largeur de dispersion (jitter)"
+  },
+  "Logging": {
+   "runtime": "Exploitation forestière",
+   "guide": "Journalisation"
+  }
+ }
 }

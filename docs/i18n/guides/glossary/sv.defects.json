@@ -2,6 +2,23 @@
  "schema": 1,
  "language": "sv",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
- "snapshot": {}
+ "defects": {
+  "Layout": "'Namnlayout' is the file-naming layout row; the Figures tab group is plot layout ('Layout')",
+  "Format": "'För format' is a sentence fragment; the field is the file format ('Format')",
+  "Error bars": "'Felrader' means error rows; the setting is 'Felstaplar'"
+ },
+ "snapshot": {
+  "Layout": {
+   "runtime": "Namnlayout",
+   "guide": "Layout"
+  },
+  "Format": {
+   "runtime": "För format",
+   "guide": "Format"
+  },
+  "Error bars": {
+   "runtime": "Felrader",
+   "guide": "Felstaplar"
+  }
+ }
 }

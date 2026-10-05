@@ -62,6 +62,8 @@
   "Clear all": "Rensa alla",
   "Clear manual rows": "Rensa manuella rader",
   "Clear…": "Töm…",
+  "Colormap": "Färgkarta",
+  "Colour": "Färg",
   "Compare": "Jämför",
   "Compare masks…": "Jämför masker…",
   "Compatible phenotype responses": "Kompatibla fenotypsvar",
@@ -119,6 +121,7 @@
   "Feature definitions": "Egenskapsdefinitioner",
   "Features": "Egenskaper",
   "Figure": "Figur",
+  "Figures": "Figurer",
   "Figures and table exports": "Figurer och tabellexporter",
   "File…": "Arkiv...",
   "Filter": "Filtrera",
@@ -137,6 +140,7 @@
   "Guide counts per well": "Guideantal per brunn",
   "Help": "Hjälp",
   "High": "Hög",
+  "High contrast": "Hög kontrast",
   "Hit List": "Träfflista",
   "Home": "Hem",
   "Host-cell-aggregated compartment areas": "Kompartmentareor aggregerade per värdcell",
@@ -164,6 +168,7 @@
   "Install Cellpose 3…": "Installera Cellpose 3…",
   "Intensity watershed": "Intensitetsbaserad vattendelning",
   "Invert image": "Invertera bilden",
+  "Jitter width": "Jitterbredd",
   "Jobs": "Jobb",
   "Keep": "Behåll",
   "Label masks": "Etikettmasker",
@@ -178,6 +183,7 @@
   "Load schema": "Ladda schema",
   "Load settings in module": "Läs in inställningar i modulen",
   "Load test data…": "Ladda testdata...",
+  "Logging": "Loggning",
   "Low": "Låg",
   "Lower %": "Nedre %",
   "Magnifier": "Förstoringsglas",
@@ -247,6 +253,7 @@
   "Plaque detection": "Plackdetektion",
   "Plaque images or existing plaque masks": "Plackbilder eller befintliga plackmasker",
   "Plaque preview": "Förhandsvisning av plack",
+  "Point alpha": "Punkt-alfa",
   "Point spread function": "Punktspridningsfunktion",
   "Polygon through view": "Polygon genom vyn",
   "Pooled-screen simulation assumptions": "Antaganden för simulering av poolad screening",
@@ -381,5 +388,9 @@
   "left": "vänster",
   "no cap": "inget tak"
  },
- "runtime_suspect": {}
+ "runtime_suspect": {
+  "Error bars": "Felrader",
+  "Format": "För format",
+  "Layout": "Namnlayout"
+ }
 }

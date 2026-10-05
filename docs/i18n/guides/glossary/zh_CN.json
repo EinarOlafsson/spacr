@@ -63,6 +63,7 @@
   "Clear all": "全部清除",
   "Clear manual rows": "清除手动分配的行",
   "Clear…": "清空…",
+  "Colour": "颜色",
   "Compare": "比较",
   "Compare masks…": "比较掩膜…",
   "Compatible phenotype responses": "兼容的表型响应",
@@ -121,6 +122,7 @@
   "Feature definitions": "特征定义",
   "Features": "特征",
   "Figure": "图",
+  "Figures": "图表",
   "Figures and table exports": "图形和表格导出",
   "File…": "文件...",
   "Filter": "过滤器",
@@ -131,6 +133,7 @@
   "Flows": "流场",
   "Fluorophore": "荧光团",
   "Folder…": "文件夹…",
+  "Format": "格式",
   "Fraction of the primary object's peak": "初级对象峰值的比例",
   "Free RAM by closing applications…": "关闭应用程序以释放 RAM…",
   "From a paper…": "从科研论文获取…",
@@ -139,6 +142,7 @@
   "Guide counts per well": "各孔的向导计数",
   "Help": "帮助",
   "High": "高",
+  "High contrast": "高对比度",
   "Hit List": "命中列表",
   "Home": "主页",
   "Host-cell-aggregated compartment areas": "按宿主细胞汇总的区室面积",
@@ -166,6 +170,7 @@
   "Install Cellpose 3…": "安装 Cellpose 3…",
   "Intensity watershed": "强度分水岭",
   "Invert image": "反相图像",
+  "Jitter width": "Jitter 宽度",
   "Jobs": "任务",
   "Keep": "保留",
   "Label masks": "标签掩膜",
@@ -250,6 +255,7 @@
   "Plaque detection": "蚀斑检测",
   "Plaque images or existing plaque masks": "空斑图像或现有空斑掩膜",
   "Plaque preview": "空斑预览",
+  "Point alpha": "点透明度",
   "Point spread function": "点扩散函数",
   "Polygon through view": "穿过视图的多边形",
   "Pooled-screen simulation assumptions": "混合筛选模拟假设",
@@ -386,5 +392,10 @@
   "left": "左侧",
   "no cap": "无上限"
  },
- "runtime_suspect": {}
+ "runtime_suspect": {
+  "Colormap": "彩色",
+  "Error bars": "错误栏",
+  "Layout": "命名布局",
+  "Logging": "登录"
+ }
 }

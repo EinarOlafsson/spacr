@@ -63,6 +63,7 @@
   "Clear all": "सब साफ़ करें",
   "Clear manual rows": "मैनुअल पंक्ति आवंटन साफ़ करें",
   "Clear…": "साफ़ करें…",
+  "Colour": "रंग",
   "Compare": "तुलना करें",
   "Compare masks…": "मास्क की तुलना करें…",
   "Compatible phenotype responses": "संगत फ़ेनोटाइप प्रतिक्रियाएँ",
@@ -121,6 +122,7 @@
   "Feature definitions": "फ़ीचर की परिभाषाएँ",
   "Features": "विशेषताएँ",
   "Figure": "चित्र",
+  "Figures": "आकृतियाँ",
   "Figures and table exports": "चित्र और तालिका निर्यात",
   "File…": "फ़ाइल...",
   "Filter": "फ़िल्टर",
@@ -131,6 +133,7 @@
   "Flows": "प्रवाह",
   "Fluorophore": "फ़्लोरोफ़ोर",
   "Folder…": "फ़ोल्डर…",
+  "Format": "फॉर्मेट",
   "Fraction of the primary object's peak": "प्राथमिक ऑब्जेक्ट के शिखर मान का अंश",
   "Free RAM by closing applications…": "एप्लिकेशन बंद करके RAM खाली करें…",
   "From a paper…": "शोधपत्र से…",
@@ -139,6 +142,7 @@
   "Guide counts per well": "प्रति वेल गाइड गिनतियाँ",
   "Help": "सहायता",
   "High": "उच्च",
+  "High contrast": "उच्च कंट्रास्ट",
   "Hit List": "हिट सूची",
   "Home": "मुखपृष्ठ",
   "Host-cell-aggregated compartment areas": "मेज़बान कोशिका के अनुसार समेकित कंपार्टमेंट क्षेत्रफल",
@@ -166,11 +170,13 @@
   "Install Cellpose 3…": "Cellpose 3 इंस्टॉल करें…",
   "Intensity watershed": "तीव्रता-आधारित वॉटरशेड",
   "Invert image": "छवि उलटें",
+  "Jitter width": "Jitter चौड़ाई",
   "Jobs": "कार्य",
   "Keep": "रखें",
   "Label masks": "लेबल मास्क",
   "Language": "भाषा",
   "Lasso through view": "दृश्य से होकर लैसो",
+  "Layout": "लेआउट",
   "Levels…": "स्तर…",
   "Line weight": "रेखा की मोटाई",
   "Linked time-series objects": "जुड़ी हुई समय-श्रृंखला वस्तुएँ",
@@ -181,6 +187,7 @@
   "Load schema": "स्कीमा लोड करें",
   "Load settings in module": "मॉड्यूल में सेटिंग लोड करें",
   "Load test data…": "परीक्षण डेटा लोड करें...",
+  "Logging": "लॉगिंग",
   "Low": "कम",
   "Lower %": "निचला %",
   "Magnifier": "आवर्धक",
@@ -250,6 +257,7 @@
   "Plaque detection": "प्लाक पहचान",
   "Plaque images or existing plaque masks": "प्लाक छवियाँ या मौजूदा प्लाक मास्क",
   "Plaque preview": "प्लाक पूर्वावलोकन",
+  "Point alpha": "बिंदु अल्फ़ा",
   "Point spread function": "बिंदु प्रसार फलन",
   "Polygon through view": "दृश्य से होकर बहुभुज",
   "Pooled-screen simulation assumptions": "पूल्ड स्क्रीनिंग सिमुलेशन की धारणाएँ",
@@ -386,5 +394,8 @@
   "left": "बाएँ",
   "no cap": "कोई सीमा नहीं"
  },
- "runtime_suspect": {}
+ "runtime_suspect": {
+  "Colormap": "रंगीन",
+  "Error bars": "गलतियां बार"
+ }
 }

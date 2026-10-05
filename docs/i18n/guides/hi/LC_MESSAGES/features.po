@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 21:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: hi\n"
@@ -230,7 +230,7 @@ msgid "Accessibility"
 msgstr "सुगम्यता"
 
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
-msgstr "हर नियंत्रण का एक नाम होता है जिसे स्क्रीन रीडर पढ़ते हैं, जो उसके लेबल, टूलटिप या प्लेसहोल्डर से लिया जाता है, और नाम इंटरफ़ेस भाषा का अनुसरण करते हैं। **Tab** टैब टाइप करने के बजाय पाठ बॉक्स और तालिकाओं से अगले नियंत्रण पर ले जाता है। **प्राथमिकताएं → रूप-रंग → थीम** में **High contrast** उपलब्ध है, जिसमें सारे पाठ का अपनी पृष्ठभूमि से कंट्रास्ट अनुपात कम से कम 7:1 होता है।"
+msgstr "हर नियंत्रण का एक नाम होता है जिसे स्क्रीन रीडर पढ़ते हैं, जो उसके लेबल, टूलटिप या प्लेसहोल्डर से लिया जाता है, और नाम इंटरफ़ेस भाषा का अनुसरण करते हैं। **Tab** टैब टाइप करने के बजाय पाठ बॉक्स और तालिकाओं से अगले नियंत्रण पर ले जाता है। **प्राथमिकताएं → रूप-रंग → थीम** में **उच्च कंट्रास्ट** उपलब्ध है, जिसमें सारे पाठ का अपनी पृष्ठभूमि से कंट्रास्ट अनुपात कम से कम 7:1 होता है।"
 
 msgid "Arranging the window"
 msgstr "विंडो की व्यवस्था"
@@ -282,6 +282,31 @@ msgstr "किसी एक आकृति की सेटिंग किस�
 
 msgid "The 3D and Time switches declare which dimensions the plate has. ``z_stack`` declares a z axis and enables the volumetric settings -- segmentation mode, anisotropy and voxel size -- and stops with an error rather than guessing which axis is z. ``timelapse`` declares a time axis and reveals tracking; a single-timepoint plate ignores it. The 4D settings apply only when the data is both a z-stack and a time series, and appear only then."
 msgstr "3D और समय स्विच घोषित करते हैं कि प्लेट के कौन-से आयाम हैं। ``z_stack`` z अक्ष घोषित करता है और आयतनात्मक सेटिंग्स -- विभाजन मोड, विषमदिशिकता और वॉक्सेल आकार -- सक्षम करता है, और यह अनुमान लगाने के बजाय कि कौन-सा अक्ष z है, त्रुटि के साथ रुक जाता है। ``timelapse`` समय अक्ष घोषित करता है और ट्रैकिंग दिखाता है; एकल-समय-बिंदु वाली प्लेट इसे अनदेखा करती है। 4D सेटिंग्स केवल तब लागू होती हैं जब डेटा z-स्टैक और समय-श्रृंखला दोनों हो, और केवल तभी दिखाई देती हैं।"
+
+msgid "Figure settings"
+msgstr "चित्र सेटिंग्स"
+
+msgid "**Preferences → Figures** sets how every spaCR figure looks and how it is saved. The settings apply to figures drawn on screen and to the files the pipelines and the save buttons write; only the settings you change are applied, so a figure keeps its own look for everything else."
+msgstr "**प्राथमिकताएं → आकृतियाँ** तय करता है कि हर spaCR आकृति कैसी दिखे और कैसे सहेजी जाए। सेटिंग्स स्क्रीन पर बनी आकृतियों और पाइपलाइनों तथा सहेजें बटनों द्वारा लिखी फ़ाइलों पर लागू होती हैं; केवल वही सेटिंग्स लागू होती हैं जिन्हें आप बदलते हैं, इसलिए बाकी हर चीज़ में आकृति अपना रूप रखती है।"
+
+msgid "**Text and lines**: font, the sizes of titles, axis labels, tick labels and legend entries (**Legend size**), line width and marker size."
+msgstr "**Text and lines**: फ़ॉन्ट, शीर्षकों, अक्ष लेबलों, टिक लेबलों और लेजेंड प्रविष्टियों के आकार (**Legend size**), रेखा की चौड़ाई और मार्कर का आकार।"
+
+msgid "**Colour**: the palette for categories and the **Colormap** for heat maps, images and density plots. ``viridis`` (the default) and ``cividis`` stay readable with colour-blindness and in greyscale."
+msgstr "**रंग**: श्रेणियों के लिए पैलेट और हीट मैप, छवियों तथा घनत्व प्लॉट के लिए **कलरमैप**। ``viridis`` (डिफ़ॉल्ट) और ``cividis`` रंग-अंधता और ग्रेस्केल में भी पठनीय रहते हैं।"
+
+msgid "**Layout**: background, grid, axis lines and **Despine offset**, which moves the axis lines away from the data. **Figure width** and **Figure height**, in inches, set the size of new figures; the height applies when the page shape is custom."
+msgstr "**लेआउट**: पृष्ठभूमि, ग्रिड, अक्ष रेखाएँ और **Despine offset**, जो अक्ष रेखाओं को डेटा से दूर करता है। **Figure width** और **Figure height** इंच में नई आकृतियों का आकार तय करते हैं; पृष्ठ आकार कस्टम होने पर ऊँचाई लागू होती है।"
+
+msgid "**Saving**: **Format** is PDF, PNG, SVG or TIFF, with its resolution. **Also save** writes a second copy in another format beside each saved figure, for example a PNG next to a PDF. **Vector text** keeps text editable in PDF and SVG files instead of turning it into outlines."
+msgstr "**Saving**: **फॉर्मेट** अपने रिज़ॉल्यूशन के साथ PDF, PNG, SVG या TIFF है। **Also save** हर सहेजी गई आकृति के पास दूसरे फ़ॉर्मेट में दूसरी प्रति लिखता है, उदाहरण के लिए PDF के पास PNG। **Vector text** PDF और SVG फ़ाइलों में पाठ को रूपरेखाओं में बदलने के बजाय संपादन योग्य रखता है।"
+
+#, python-format
+msgid "**Bar and point graphs**: **Error bars** shows the standard error (``sem``, the default), the standard deviation (``sd``), a confidence interval at the **CI level** (``ci``), a 95% interval (``ci95``) or nothing. **Error-bar cap size** sets the cap width. **Point overlay** draws the individual points over bar and box graphs, spread by **Jitter width** and drawn with the opacity in **Point alpha**."
+msgstr "**Bar and point graphs**: **त्रुटि बार** मानक त्रुटि (``sem``, डिफ़ॉल्ट), मानक विचलन (``sd``), **CI level** पर विश्वास अंतराल (``ci``), 95% अंतराल (``ci95``) दिखाता है या कुछ नहीं। **Error-bar cap size** कैप की चौड़ाई तय करता है। **Point overlay** बार और बॉक्स ग्राफ़ पर अलग-अलग बिंदु बनाता है, जो **Jitter चौड़ाई** से फैले और **बिंदु अल्फ़ा** की अपारदर्शिता से बने होते हैं।"
+
+msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
+msgstr "सेटिंग्स हर ग्राफ़ प्रकार के लिए अलग भी हो सकती हैं। आकृति को एक बार शैलीबद्ध किया जाता है, इसलिए उसके राइट-क्लिक मेनू से किया गया बदलाव सहेजने पर बना रहता है। कई पैनलों के साथ पहले से बनी आकृतियाँ अपना आकार और रिज़ॉल्यूशन रखती हैं; आकार और रिज़ॉल्यूशन सेटिंग्स नई आकृतियों और सहेजी गई फ़ाइलों पर लागू होती हैं।"
 
 msgid "Workers and free memory"
 msgstr "वर्कर और खाली मेमोरी"

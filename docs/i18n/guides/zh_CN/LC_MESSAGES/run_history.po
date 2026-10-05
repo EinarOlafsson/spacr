@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 21:59-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -63,6 +63,9 @@ msgstr "**偏好 → 存储** 可防止 spaCR 主文件夹无限增长。对于�
 
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "缓存表列出 spaCR 模型、Cellpose、Hugging Face、Torch、后端环境和新闻缓存。**测量** 读取它们的大小，**清空…** 在询问后清空所选缓存，**移动…** 将其移动到另一个驱动器上的 ``<folder>/spacr-<cache>``。新位置记录在 ``~/.spacr/cache_locations.json`` 中，并在每次启动时使用；其变量（例如 ``HF_HOME``）已在 spaCR 外部设置的缓存不会被移动。清除和移动会等到没有运行在进行时才执行。"
+
+msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
+msgstr "**偏好 → 日志 → Log files** 中有 **Clear all logs…** 。它列出每日日志、运行日志、崩溃日志和详细日志，以及每组的文件数和大小，并且只在你确认后才删除。当前 spaCR 会话正在打开的日志会被清空而不是删除，因此正在进行的运行仍保留其日志。结果会说明删除和清空了多少个文件以及释放了多少空间。"
 
 msgid "Headless search"
 msgstr "无界面搜索"

@@ -2,6 +2,33 @@
  "schema": 1,
  "language": "is",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
- "snapshot": {}
+ "defects": {
+  "Layout": "'Nafnaskipan' is the file-naming row; the figure group is 'Útlit'",
+  "Colormap": "'Fólkur' is not a word; the setting is 'Litakort'",
+  "Error bars": "'Erfiðleika bars' means 'difficulty bars'; the setting is 'Skekkjustikur'",
+  "Jitter width": "'Jitter breiður' is ungrammatical; the setting is 'Breidd dreifingar (jitter)'",
+  "Logging": "'Leyfing' means permission; the tab is 'Annálaskráning'"
+ },
+ "snapshot": {
+  "Layout": {
+   "runtime": "Nafnaskipan",
+   "guide": "Útlit"
+  },
+  "Colormap": {
+   "runtime": "Fólkur",
+   "guide": "Litakort"
+  },
+  "Error bars": {
+   "runtime": "Erfiðleika bars",
+   "guide": "Skekkjustikur"
+  },
+  "Jitter width": {
+   "runtime": "Jitter breiður",
+   "guide": "Breidd dreifingar (jitter)"
+  },
+  "Logging": {
+   "runtime": "Leyfing",
+   "guide": "Annálaskráning"
+  }
+ }
 }

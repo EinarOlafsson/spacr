@@ -2,6 +2,28 @@
  "schema": 1,
  "language": "zh_CN",
  "note": "Runtime UI rows whose translation is wrong in sense. The guides use a correct term; these rows need a runtime-catalog fix.",
- "defects": {},
- "snapshot": {}
+ "defects": {
+  "Layout": "'命名布局' is the file-naming row; the figure group is '布局'",
+  "Colormap": "'彩色' means 'colourful'; the setting is '颜色映射'",
+  "Error bars": "'错误栏' means 'mistake bar'; the setting is '误差棒'",
+  "Logging": "'登录' means log in; the tab is '日志'"
+ },
+ "snapshot": {
+  "Layout": {
+   "runtime": "命名布局",
+   "guide": "布局"
+  },
+  "Colormap": {
+   "runtime": "彩色",
+   "guide": "颜色映射"
+  },
+  "Error bars": {
+   "runtime": "错误栏",
+   "guide": "误差棒"
+  },
+  "Logging": {
+   "runtime": "登录",
+   "guide": "日志"
+  }
+ }
 }
