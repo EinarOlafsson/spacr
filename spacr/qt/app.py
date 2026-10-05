@@ -3640,10 +3640,10 @@ class MainWindow(QMainWindow):
         :param bar: the menu bar to parent the submenu to.
         :returns: the ``Window`` submenu, not yet added to anything.
         """
-        menu = QMenu("Window", bar)
+        menu = QMenu(tr("Window"), bar)
         self._window_menu = menu
 
-        act_min = QAction("Minimise", self)
+        act_min = QAction(tr("Minimise"), self)
         act_min.setStatusTip(
             "Send spaCR to the dock or taskbar. Also the first mark in the "
             "menu bar's top-right corner.")
@@ -3651,7 +3651,7 @@ class MainWindow(QMainWindow):
         menu.addAction(act_min)
         self._act_minimise = act_min
 
-        act_max = QAction("Maximise", self)
+        act_max = QAction(tr("Maximise"), self)
         act_max.setStatusTip(
             "Fill the screen, or restore the previous size if the window is "
             "already maximised.")
@@ -3659,7 +3659,7 @@ class MainWindow(QMainWindow):
         menu.addAction(act_max)
         self._act_maximise = act_max
 
-        act_full = QAction("Full screen", self)
+        act_full = QAction(tr("Full screen"), self)
         act_full.setShortcut(QKeySequence("F11"))
         act_full.setStatusTip(
             "True fullscreen. This window has no title bar; drag the menu "
@@ -3676,14 +3676,14 @@ class MainWindow(QMainWindow):
         menu.addAction(act_jobs)
         self._act_jobs = act_jobs
 
-        act_close = QAction("Close window", self)
-        act_close.setStatusTip("Close the main window. spaCR quits with it.")
+        act_close = QAction(tr("Close window"), self)
+        act_close.setStatusTip(tr("Close the main window. spaCR quits with it."))
         act_close.triggered.connect(self.close)
         menu.addAction(act_close)
 
         menu.addSeparator()
 
-        act_prefs_here = QAction("Preferences…", self)
+        act_prefs_here = QAction(tr("Preferences…"), self)
         act_prefs_here.setStatusTip(
             "The same Preferences the spaCR menu offers. macOS moves that "
             "one into the application menu; this one stays here.")
@@ -3691,7 +3691,7 @@ class MainWindow(QMainWindow):
         menu.addAction(act_prefs_here)
         self._act_preferences_here = act_prefs_here
 
-        act_quit_here = QAction("Quit", self)
+        act_quit_here = QAction(tr("Quit"), self)
         act_quit_here.setStatusTip(
             "The same Quit the spaCR menu offers. macOS moves that one into "
             "the application menu; this one stays here.")
