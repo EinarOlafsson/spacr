@@ -50,7 +50,7 @@ msgid "**Apply** fills the form from the selected template. A template saved wit
 msgstr "**Beita** fyllir eyðublaðið út frá völdu sniðmáti. Sniðmát sem vistað var með annarri spaCR-útgáfu telur upp stillingarnar sem eru ekki lengur til og þær sem hefur verið bætt við síðan. Sniðmáti fyrir aðra einingu er hafnað."
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
-msgstr "**Að deila...** skrifar sniðmátið í JSON-skrá sem þú getur sent öðrum."
+msgstr "**Deila…** skrifar sniðmátið í JSON-skrá sem þú getur sent öðrum."
 
 msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
 msgstr "**Flytja inn…** les deilda sniðmátsskrá, eða stillinga-CSV eins og þá sem hver keyrsla skrifar við hlið niðurstaðna sinna. CSV-skrá verður að sniðmáti sem nefnt er eftir skránni. Skrá fyrir aðra einingu, eða skrá án stillinga, er hafnað."
@@ -59,7 +59,7 @@ msgid "**Rename…** gives the selected template a new name. A name that another
 msgstr "**Endurnefna…** gefur völdu sniðmáti nýtt heiti. Heiti sem annað sniðmát einingarinnar notar þegar er hafnað."
 
 msgid "**Delete** removes the selected template."
-msgstr "**Að eyða** fjarlægir valið sniðmát."
+msgstr "**Eyða** fjarlægir valið sniðmát."
 
 msgid "Templates are stored in ``~/.spacr/recipes/<module>/``, one JSON file per template. Set the ``SPACR_RECIPE_DIR`` environment variable to keep them in another folder, for example a shared lab folder."
 msgstr "Sniðmát eru geymd í ``~/.spacr/recipes/<module>/``, ein JSON-skrá fyrir hvert sniðmát. Stilltu umhverfisbreytuna ``SPACR_RECIPE_DIR`` til að geyma þau í annarri möppu, til dæmis sameiginlegri möppu rannsóknastofunnar."

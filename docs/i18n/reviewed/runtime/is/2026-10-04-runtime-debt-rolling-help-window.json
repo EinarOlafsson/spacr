@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: Help > Window, now routed through tr(): the submenu title and the machine-translated actions and status tip that were wrong in sense, written and technically reviewed by AI. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Window",
+      "source": "Window",
+      "source_sha256": "19734a1b58cabc22cae1f88493289ee94f40ff2b350f7f1b9f7011ea84096916",
+      "translation": "Gluggi"
+    },
+    {
+      "table": "ui",
+      "key": "Minimise",
+      "source": "Minimise",
+      "source_sha256": "20f082e96e6f93f01c53dab7fe7c633f9a8b792444910c222536c33fb457eaab",
+      "translation": "Lágmarka"
+    },
+    {
+      "table": "ui",
+      "key": "Maximise",
+      "source": "Maximise",
+      "source_sha256": "1c9fcada241616b5de8d32cbc20d241cc79037f4adc777ca74d2e7f67254cc41",
+      "translation": "Hámarka"
+    },
+    {
+      "table": "ui",
+      "key": "Close window",
+      "source": "Close window",
+      "source_sha256": "8b9de9c0c0a0b3b3abcbb9c5234065c37fde84dfd8b24479de43376197eb1de1",
+      "translation": "Loka glugga"
+    },
+    {
+      "table": "ui",
+      "key": "Close the main window. spaCR quits with it.",
+      "source": "Close the main window. spaCR quits with it.",
+      "source_sha256": "1a92595feb1d4f5d1b95c6f615ed4872235fb60ecbb6799cc921dcc764cc6f18",
+      "translation": "Lokar aðalglugganum. spaCR hættir um leið."
+    }
+  ]
+}

@@ -50,7 +50,7 @@ msgid "**Apply** fills the form from the selected template. A template saved wit
 msgstr "**Aplicar** preenche o formulário com o modelo selecionado. Um modelo salvo com outra versão do spaCR lista as configurações que não existem mais e as adicionadas desde então. Um modelo de outro módulo é recusado."
 
 msgid "**Share…** writes the template to a JSON file you can send to someone else."
-msgstr "**Partilhar...** grava o modelo em um arquivo JSON que você pode enviar a outra pessoa."
+msgstr "**Compartilhar…** grava o modelo em um arquivo JSON que você pode enviar a outra pessoa."
 
 msgid "**Import…** reads a shared template file, or a settings CSV such as the one every run writes beside its results. A CSV becomes a template named after the file. A file for another module, or one without settings, is refused."
 msgstr "**Importar...** lê um arquivo de modelo compartilhado, ou um CSV de configurações como o que cada execução grava ao lado de seus resultados. Um CSV se torna um modelo com o nome do arquivo. Um arquivo de outro módulo, ou sem configurações, é recusado."
