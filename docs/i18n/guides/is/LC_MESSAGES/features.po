@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "Verk í gangi"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**Hjálp → Window → Verk** opnar spjaldið **Verk** við hægri jaðar gluggans. Það sýnir hvert verk sem er í gangi, með einingu þess, framvindustiku, liðnum tíma og síðustu úttakslínu. **Hætta við** biður það verk að stöðvast. Þegar ekkert er í gangi segir spjaldið **Engin verk eru í gangi.**"
+msgstr "**Hjálp → Gluggi → Verk** opnar spjaldið **Verk** við hægri jaðar gluggans. Það sýnir hvert verk sem er í gangi, með einingu þess, framvindustiku, liðnum tíma og síðustu úttakslínu. **Hætta við** biður það verk að stöðvast. Þegar ekkert er í gangi segir spjaldið **Engin verk eru í gangi.**"
 
 msgid "Two spaCR windows"
 msgstr "Tveir spaCR-gluggar"

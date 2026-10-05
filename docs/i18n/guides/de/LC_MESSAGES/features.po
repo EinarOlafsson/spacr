@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "Laufende Aufträge"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**Hilfe → Window → Aufträge** öffnet den Bereich **Aufträge** am rechten Fensterrand. Er listet jeden laufenden Auftrag mit seinem Modul, einem Fortschrittsbalken, der verstrichenen Zeit und seiner letzten Ausgabezeile auf. **Abbrechen** fordert diesen Auftrag zum Anhalten auf. Läuft nichts, zeigt der Bereich **Es laufen keine Jobs.**"
+msgstr "**Hilfe → Fenster → Aufträge** öffnet den Bereich **Aufträge** am rechten Fensterrand. Er listet jeden laufenden Auftrag mit seinem Modul, einem Fortschrittsbalken, der verstrichenen Zeit und seiner letzten Ausgabezeile auf. **Abbrechen** fordert diesen Auftrag zum Anhalten auf. Läuft nichts, zeigt der Bereich **Es laufen keine Jobs.**"
 
 msgid "Two spaCR windows"
 msgstr "Zwei spaCR-Fenster"

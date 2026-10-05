@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "正在运行的任务"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**帮助 → Window → 任务** 会在窗口右侧打开 **任务** 面板。它列出每个正在运行的任务，以及其模块、进度条、已用时间和最后一行输出。**取消** 会请求该任务停止。没有任何任务运行时，面板显示 **没有正在运行的作业。**"
+msgstr "**帮助 → 窗口 → 任务** 会在窗口右侧打开 **任务** 面板。它列出每个正在运行的任务，以及其模块、进度条、已用时间和最后一行输出。**取消** 会请求该任务停止。没有任何任务运行时，面板显示 **没有正在运行的作业。**"
 
 msgid "Two spaCR windows"
 msgstr "两个 spaCR 窗口"

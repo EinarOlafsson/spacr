@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "실행 중인 작업"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**도움말 → Window → 작업** 은 창 오른쪽 가장자리에 **작업** 패널을 엽니다. 실행 중인 모든 작업이 모듈, 진행률 표시줄, 경과 시간, 마지막 출력 줄과 함께 나열됩니다. **취소** 는 해당 작업에 중지를 요청합니다. 실행 중인 작업이 없으면 패널에 **실행 중인 작업이 없습니다.** 이 표시됩니다."
+msgstr "**도움말 → 창 → 작업** 은 창 오른쪽 가장자리에 **작업** 패널을 엽니다. 실행 중인 모든 작업이 모듈, 진행률 표시줄, 경과 시간, 마지막 출력 줄과 함께 나열됩니다. **취소** 는 해당 작업에 중지를 요청합니다. 실행 중인 작업이 없으면 패널에 **실행 중인 작업이 없습니다.** 이 표시됩니다."
 
 msgid "Two spaCR windows"
 msgstr "spaCR 창 두 개"

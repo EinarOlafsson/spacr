@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "चल रहे कार्य"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**सहायता → Window → कार्य** विंडो के दाएँ किनारे पर **कार्य** पैनल खोलता है। यह चल रहे हर कार्य को उसके मॉड्यूल, प्रगति पट्टी, बीते समय और अंतिम आउटपुट पंक्ति के साथ सूचीबद्ध करता है। **रद्द करें** उस कार्य से रुकने का अनुरोध करता है। कुछ भी न चलने पर पैनल **कोई जॉब नहीं चल रहा है।** दिखाता है।"
+msgstr "**सहायता → विंडो → कार्य** विंडो के दाएँ किनारे पर **कार्य** पैनल खोलता है। यह चल रहे हर कार्य को उसके मॉड्यूल, प्रगति पट्टी, बीते समय और अंतिम आउटपुट पंक्ति के साथ सूचीबद्ध करता है। **रद्द करें** उस कार्य से रुकने का अनुरोध करता है। कुछ भी न चलने पर पैनल **कोई जॉब नहीं चल रहा है।** दिखाता है।"
 
 msgid "Two spaCR windows"
 msgstr "दो spaCR विंडो"

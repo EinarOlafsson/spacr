@@ -44,6 +44,7 @@
   "Bundled organism reference": "Référence intégrée sur les organismes",
   "Camera": "Caméra",
   "Cancel": "Annuler",
+  "Cap": "Plafond",
   "Cell probability": "Probabilité cellulaire",
   "Cellpose Workbench": "Atelier Cellpose",
   "Cells (cyto2)": "Cellules (cyto2)",
@@ -368,6 +369,7 @@
   "Well boxes": "Cadres des puits",
   "What's new in spaCR": "Nouveautés de spaCR",
   "What's new…": "Nouveautés…",
+  "Window": "Fenêtre",
   "Workflow & Test Run": "Flux de travail et essai",
   "Write for": "Écrire pour",
   "all rules match": "toutes les règles sont satisfaites",
@@ -377,7 +379,6 @@
   "no cap": "sans plafond"
  },
  "runtime_suspect": {
-  "Cap": "Plafond d’objets",
   "Secondary objects from primary masks": "Objets secondaires (masque primaire)"
  }
 }

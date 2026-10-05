@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "Pågående jobb"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**Hjälp → Window → Jobb** öppnar panelen **Jobb** vid fönstrets högra kant. Den listar varje jobb som körs, med modul, förloppsindikator, förfluten tid och dess senaste utdatarad. **Avbryt** ber jobbet att stoppa. När inget körs visar panelen **Inga jobb körs.**"
+msgstr "**Hjälp → Fönster → Jobb** öppnar panelen **Jobb** vid fönstrets högra kant. Den listar varje jobb som körs, med modul, förloppsindikator, förfluten tid och dess senaste utdatarad. **Avbryt** ber jobbet att stoppa. När inget körs visar panelen **Inga jobb körs.**"
 
 msgid "Two spaCR windows"
 msgstr "Två spaCR-fönster"

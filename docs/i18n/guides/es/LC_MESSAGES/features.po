@@ -206,7 +206,7 @@ msgid "Running jobs"
 msgstr "Trabajos en ejecución"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**Ayuda → Window → Tareas** abre el panel **Tareas** en el borde derecho de la ventana. Muestra cada trabajo en ejecución con su módulo, una barra de progreso, el tiempo transcurrido y su última línea de salida. **Cancelar** pide a ese trabajo que se detenga. Si no hay nada en ejecución, el panel indica **No hay trabajos en ejecución.**"
+msgstr "**Ayuda → Ventana → Tareas** abre el panel **Tareas** en el borde derecho de la ventana. Muestra cada trabajo en ejecución con su módulo, una barra de progreso, el tiempo transcurrido y su última línea de salida. **Cancelar** pide a ese trabajo que se detenga. Si no hay nada en ejecución, el panel indica **No hay trabajos en ejecución.**"
 
 msgid "Two spaCR windows"
 msgstr "Dos ventanas de spaCR"
