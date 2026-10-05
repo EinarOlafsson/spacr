@@ -432,6 +432,7 @@ class TestAFieldFindsItsSettingWithoutScanning:
         scr = _make_screen(qtbot, "mask")
         first = scr._widget_key_index()
         extra = QLineEdit()
+        qtbot.addWidget(extra)
         scr._settings_model._widgets["a_setting_added_later"] = extra
         second = scr._widget_key_index()
         assert second is not first
@@ -443,6 +444,7 @@ class TestAFieldFindsItsSettingWithoutScanning:
 
         scr = _make_screen(qtbot, "mask")
         shared = QLineEdit()
+        qtbot.addWidget(shared)
         scr._settings_model._widgets["aaa_first_name"] = shared
         scr._settings_model._widgets["zzz_second_name"] = shared
         assert scr._widget_key_index()[id(shared)] == "aaa_first_name"
