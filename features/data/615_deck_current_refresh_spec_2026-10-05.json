@@ -1,0 +1,69 @@
+{
+  "source_sha256": "05106f73ee6565fdaf7242f0b7b482781f2e40d3a52c3eed205d0070933619ac",
+  "slide_count": 57,
+  "slides": [
+    {
+      "number": 6,
+      "text": {
+        "21 modules in one desktop app": "19 modules in one desktop app",
+        "3": "1",
+        "Toxoplasma \u00b7 Plasmodium spp. \u00b7 Candida spp.: one module per organism, its assays inside": "Toxoplasma compartments and assays; other organisms appear when alpha species are enabled."
+      },
+      "pictures": [
+        {
+          "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-r3/captures/home",
+          "frame": "00_home",
+          "description_suffix": "app_1513/home_tiles.png",
+          "label": "Current native Home screen with 19 standard modules"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "text": {
+        "Crop preview, grouped by nucleated / infected state": "Object crops from a completed sixteen-field Measure run"
+      },
+      "pictures": [
+        {
+          "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-run-r4-current/captures/measure_run_20261005_r4",
+          "frame": "25_measure_figure_02",
+          "description_suffix": "keyframes/measure_crops.png",
+          "label": "Actual Measure crop figure from the accepted sixteen-field run"
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "text": {
+        "Object detection on the whole field (Cellpose or a simple threshold)": "Detect Cellpose masks, threshold objects or puncta inside parent masks"
+      },
+      "pictures": [
+        {
+          "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-editor-current/captures/make_masks_editor_20261005_r1",
+          "frame": "03_real_labels",
+          "description_suffix": "app_1513/make_masks.png",
+          "label": "Current native Make Masks editor on an acquired field"
+        }
+      ]
+    },
+    {
+      "number": 34,
+      "text": {
+        "Make Masks: Features": "Make Masks: organize for Measure",
+        "Measure the masks you drew, without leaving Make Masks.": "Prepare images and corrected masks for the Measure module.",
+        "Fill it by dropping files, clicking a cell to pick a file, or one filename pattern": "Drop files, select files in the table, or detect sets from their names",
+        "Press Measure: the run goes through the Measure module itself": "Apply the layout, then open Measure using the prepared merged arrays",
+        "The same measurements database and crops a Measure run makes, from your hand-corrected masks": "Channel-sorted images, merged arrays and an auditable move manifest",
+        "Features: four fields with their cell masks, ready to measure": "Two acquired fields with three image channels and their cell masks"
+      },
+      "pictures": [
+        {
+          "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-editor-current/captures/make_masks_editor_20261005_r1",
+          "frame": "26_organize_table",
+          "description_suffix": "makemasks_current/features.png",
+          "label": "Current native Organize for Measure table on two acquired fields"
+        }
+      ]
+    }
+  ]
+}

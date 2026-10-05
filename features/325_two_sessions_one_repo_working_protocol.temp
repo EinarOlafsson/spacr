@@ -17818,3 +17818,32 @@ Do not duplicate this turn or start another owned GPU validation. Every
 other lesson object and current pronunciation/cadence source stays frozen
 for this rendering. Home retains CPU/Qt/CI and production feature ownership;
 live_cell/cellposeTIME remain excluded.
+
+2026-10-05 — CURRENT DECK REFRESH AND FOUR-LESSON AUDIO ACCEPTANCE
+The 57-page deck now uses four hash-checked native captures: current standard
+Home, the accepted full Measure crop view, Make Masks editing and its real
+Organize for Measure table. The obsolete Features/Measure-button claim is
+replaced with the actual organize-then-open-Measure workflow; detection prose
+includes parent-filtered puncta. Normal source refresh and deck generators
+preserve original capture pixels, 423 unrelated PPTX members and all 53
+unselected slide/thumbnail bytes and vector page contents/text. All 57 page
+links and dimensions pass; both magnifier animations remain byte-identical.
+Five incompatible source specifications are refused before writes. Focused
+deck/registry/README checks pass 60 with one optional python-pptx import skip;
+actual GIF preservation is checked separately. Receipt: 615_deck_current_refresh.
+
+The single GPU narration turn finishes with exit zero: four English tracks
+and 104 other-language tracks, no peak failures. Every one of the 108 current
+tracks passes full decoding, source/runtime fingerprints, timings, scene
+activity and dead-air gates; all audio/timing hashes are rechecked. Receipt:
+615_final_wave_audio. Measure's 4K/1440p copies decode with matching frame
+times; browser checks are live. The other videos, final path/browser checks,
+immutable publication and deployed readback remain open. Original failed
+recordings and old publication media remain preserved. No final CI green.
+
+GPU narration PID 2481565 is terminal with rc=0; no own GPU process or queue
+remains at this checkpoint. Scientific GPU follow-ups are next. A fresh private
+Spotiflow backend installation has started with CUDA hidden, separate from
+all shared backend state. Home retains CPU/Qt/CI and production source;
+live_cell/cellposeTIME remain excluded. Docs run 37366913455 is still queued
+on 7c3194e71; older pending publishers were cancelled by concurrency.

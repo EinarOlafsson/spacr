@@ -223,3 +223,16 @@ integrated into nightly. All nine docs/i18n/readme/README.<locale>.rst files
 No deck assets or translated prose were regenerated for this reconciliation.
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts); all 57 slides are 3200x1800 and the thumbnails 320x180; deck tests pass.
+
+2026-10-05 — CURRENT NATIVE UI REFRESH
+Refreshed pages 6/12/32/34 from actual current Home, completed Measure,
+Make Masks editor and Organize recordings. The real organize-then-open-Measure
+workflow replaces the obsolete Features popup claim; puncta detection is
+listed. All 57 slides remain 3200x1800, thumbnails 320x180 and navigation
+wraps at page 57 in English and all nine translated READMEs. The normal bounded
+deck generator preserves all 53 unrelated slide assets and vector page
+contents/text, and both original animation files/placements. Focused checks
+pass 60, one optional python-pptx import skip. Native capture pixels and
+original external PPTX remain unchanged. Actual GIF preservation is verified
+independently of that optional test. Receipt: 615_deck_current_refresh_2026-10-05.
+Local artifact refresh is complete; deployed readback remains item 615 work.

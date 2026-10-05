@@ -54,11 +54,24 @@ longer has are removed::
 
     python tools/build_readme_deck.py path/to/deck.pptx
 
+For a bounded UI refresh, render the complete updated source privately, then
+retain the accepted deck's unrelated pages and animations::
+
+    python tools/build_readme_deck.py updated.pptx --out /private/rendered
+    python tools/build_readme_deck.py --refresh-pages 6,12,32,34 \
+        --rendered /private/rendered --out /private/checked-deck
+
+The second command also regenerates the viewer and all GitHub navigation
+pages. Its output folder must be fresh. Source-native captures can be inserted
+with refresh_deck_captures.py before rendering; that tool verifies capture
+hashes and changes a separate presentation without editing captured pixels.
+
 Needs LibreOffice (``soffice``) and poppler (``pdftoppm``, ``pdftotext``).
 """
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import shutil
 import subprocess
@@ -509,6 +522,58 @@ def _aspect(picture: Path) -> float:
         return round(opened.width / opened.height, 5)
 
 
+def refresh_pages(baseline: Path, rendered: Path, output: Path, numbers: Sequence[int]) -> None:
+    """Refresh selected pages from a normal build, preserving unrelated assets."""
+    from pypdf import PdfReader, PdfWriter
+
+    if output.exists():
+        raise ValueError("A fresh private output folder is required")
+    old = json.loads((baseline / "slides.json").read_text(encoding="utf-8"))
+    new = json.loads((rendered / "slides.json").read_text(encoding="utf-8"))
+    selected = set(numbers)
+    if (not selected or len(selected) != len(numbers)
+            or not selected <= set(range(1, old["count"] + 1))
+            or old["count"] != new["count"]
+            or len(old["slides"]) != old["count"]
+            or len(new["slides"]) != new["count"]
+            or old["aspect"] != new["aspect"]):
+        raise ValueError("Selected pages and complete deck geometry must agree")
+    for number, (before, after) in enumerate(zip(old["slides"], new["slides"]), 1):
+        if (before["animations"] != after["animations"]
+                or any(before[key] != after[key] for key in ("image", "thumb"))
+                or (number not in selected and before["title"] != after["title"])):
+            raise ValueError("Unselected titles, numbering or animation placement changed")
+        for key in ("image", "thumb"):
+            relative = Path(after[key])
+            if relative.is_absolute() or ".." in relative.parts:
+                raise ValueError("Slide assets must stay inside the deck")
+            if not (rendered / relative).is_file():
+                raise ValueError("Complete rendered slide assets are required")
+    original = PdfReader(io.BytesIO((baseline / "spacr_deck.pdf").read_bytes()))
+    replacement = PdfReader(io.BytesIO((rendered / "spacr_deck.pdf").read_bytes()))
+    if len(original.pages) != old["count"] or len(replacement.pages) != old["count"]:
+        raise ValueError("Both vector PDFs must contain the complete deck")
+    writer = PdfWriter()
+    for number, (before, after) in enumerate(zip(original.pages, replacement.pages), 1):
+        if tuple(before.mediabox) != tuple(after.mediabox):
+            raise ValueError("Rendered PDF page geometry changed")
+        writer.add_page(after if number in selected else before)
+    if original.metadata:
+        writer.add_metadata({str(key): str(value) for key, value in original.metadata.items()})
+    shutil.copytree(baseline, output)
+    writer.write(output / "spacr_deck.pdf")
+    for number in selected:
+        item = new["slides"][number - 1]
+        for key in ("image", "thumb"):
+            shutil.copyfile(rendered / item[key], output / item[key])
+        old["slides"][number - 1] = item
+    (output / "slides.json").write_text(json.dumps(old, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    github_pages(output, [item["title"] for item in old["slides"]])
+    (output / "index.html").write_text(
+        VIEWER.read_text(encoding="utf-8").replace("__SLIDES__", json.dumps(old, ensure_ascii=False)),
+        encoding="utf-8")
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("pptx", type=Path, nargs="?")
@@ -517,7 +582,17 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--out", type=Path, default=OUT)
     parser.add_argument("--width", type=int, default=3200)
     parser.add_argument("--quality", type=int, default=86)
+    parser.add_argument("--refresh-pages", help="comma-separated pages from an already rendered complete deck")
+    parser.add_argument("--rendered", type=Path, help="complete private output of the normal deck builder")
+    parser.add_argument("--baseline", type=Path, default=OUT, help="accepted deck preserved by --refresh-pages")
     args = parser.parse_args(argv)
+    if args.refresh_pages:
+        if args.rendered is None or args.stamp or args.pptx is not None:
+            parser.error("--refresh-pages requires --rendered, without a PPTX or --stamp")
+        refresh_pages(args.baseline, args.rendered, args.out,
+                      [int(number) for number in args.refresh_pages.split(",")])
+        print(f"Refreshed pages {args.refresh_pages} -> {args.out}")
+        return 0
     if args.stamp:
         drawn = stamp_title(args.out)
         print(f"title slide: {drawn}" if drawn else "no title line to stamp")
