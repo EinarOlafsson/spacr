@@ -455,6 +455,11 @@ PRETRAINED CV CLASSIFY WATCH STEP (2026-10-04, partial)
     predictions to spacr_watch/measurements/measurements.db, which is the
     stable table a later live plate view can read.
 
+    The Make Masks watch-pipeline picker exposes the Classify choice. A field
+    whose prediction columns exist but contain no scored objects is rejected
+    before collection, rather than being reported as classified. Focused GUI
+    and recipe regressions cover both conditions.
+
     Ten focused tests passed, including a real preprocessing and Measure
     comparison against a batch_size=1 plate run. Only Cellpose's forward pass
     and the CV model forward pass are deterministic stand-ins in that test;
