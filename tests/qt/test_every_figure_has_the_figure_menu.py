@@ -309,6 +309,8 @@ class TestStatisticsAreChosenFromTheData:
 
     def test_the_dialog_annotates_the_plot(self, qapp, registered):
         from spacr.qt.widgets.figure_settings import _StatisticsDialog
+        from spacr.figures.style import ROLES
+        from matplotlib.colors import to_hex
 
         dialog = _StatisticsDialog(registered)
         assert "one-way ANOVA" in dialog.report.toPlainText()
@@ -319,6 +321,11 @@ class TestStatisticsAreChosenFromTheData:
         assert spec["annotations"]
         assert any(t.get_gid() == "spacr-stats"
                    for t in registered.axes[0].texts)
+        brackets = [line for line in registered.axes[0].lines
+                    if line.get_gid() == "spacr-stats"]
+        assert brackets
+        assert all(to_hex(line.get_color()) == ROLES["reference"].lower()
+                   for line in brackets)
         dialog.test.setCurrentIndex(dialog.test.findData("Kruskal-Wallis"))
         dialog._apply()
         assert registered._spacr_spec["stats"]["test"] == "Kruskal-Wallis"

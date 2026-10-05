@@ -15,6 +15,8 @@ from typing import Any, Callable, Dict, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
+from .style import ROLES
+
 LOG = logging.getLogger("spacr.figures.bundle")
 
 #: The files a bundle always has. ALWAYS, including the ones with nothing to
@@ -467,7 +469,7 @@ def _annotate(ax, spec) -> None:
             continue
         a, b = positions[left], positions[right]
         ax.plot([a, a, b, b], [level, level + step / 2, level + step / 2,
-                               level], color="black", lw=0.8,
+                               level], color=ROLES["reference"], lw=0.8,
                 gid="spacr-stats", clip_on=False)
         ax.text((a + b) / 2, level + step / 2, str(mark.get("label", "")),
                 ha="center", va="bottom", fontsize=8, gid="spacr-stats")
@@ -506,7 +508,7 @@ def _draw(figure, frame, spec):
     common = {"data": data, "x": x, "y": y, "ax": ax}
     if hue and hue in data.columns:
         common["hue"] = hue
-    points = {"color": "black", "size": 3, "alpha": 0.7}
+    points = {"color": ROLES["reference"], "size": 3, "alpha": 0.7}
     if kind == "box":
         sns.boxplot(order=order, **common)
     elif kind == "violin":
@@ -595,6 +597,8 @@ import sys
 import pandas as pd
 from matplotlib.figure import Figure
 
+ROLES = {{"reference": {reference}}}
+
 
 {annotate}
 
@@ -624,6 +628,7 @@ def _recreate_script() -> str:
     import textwrap
 
     return _SCRIPT.format(
+        reference=repr(ROLES["reference"]),
         annotate=textwrap.dedent(inspect.getsource(_annotate)),
         draw=textwrap.dedent(inspect.getsource(_draw)))
 

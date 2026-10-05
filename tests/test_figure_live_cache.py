@@ -247,7 +247,7 @@ def test_the_context_menu_offers_the_frequent_toggles(qtbot, queue):
     qtbot.addWidget(menu)
     texts = [a.text() for a in menu.actions() if a.text()]
     assert "Legend" in texts and "Grid" in texts
-    assert any("settings" in t.lower() for t in texts)
+    assert "Edit figure…" in texts
     assert "Axis scale" in [m.title() for m in menu.findChildren(type(menu))]
 
 
