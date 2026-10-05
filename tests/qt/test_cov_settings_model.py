@@ -41,6 +41,13 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox,  # noqa: E4
 from spacr.qt.screens import settings_model as SM               # noqa: E402
 
 
+@pytest.fixture
+def owned_settings_widgets(qtbot):
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    return lambda app_key: SM.SettingsWidgets(app_key, parent=owner)
+
+
 # ---------------------------------------------------------------------------
 # a plugin-contributed app
 # ---------------------------------------------------------------------------
@@ -596,10 +603,11 @@ def test_a_list_of_flags_is_not_a_list_of_numbers():
 # SettingsWidgets
 # ---------------------------------------------------------------------------
 
-def test_building_a_panel_survives_a_plugin_registry_that_raises(monkeypatch):
+def test_building_a_panel_survives_a_plugin_registry_that_raises(
+        monkeypatch, owned_settings_widgets):
     _break_plugin(monkeypatch)
 
-    widgets = SM.SettingsWidgets("measure")
+    widgets = owned_settings_widgets("measure")
 
     assert widgets.build_sections()
 
@@ -645,9 +653,9 @@ def test_a_widget_that_cannot_be_read_is_skipped_rather_than_fatal():
     assert isinstance(widgets.modified_keys(), list)
 
 
-def test_a_hidden_category_is_not_rendered():
+def test_a_hidden_category_is_not_rendered(owned_settings_widgets):
     """A module that trains Torch gets no Cellpose tab."""
-    widgets = SM.SettingsWidgets("measure")
+    widgets = owned_settings_widgets("measure")
     titles_before = [title for title, _rows in widgets.build_sections()]
     assert titles_before
 
@@ -781,8 +789,8 @@ def test_a_panel_with_no_widgets_has_no_dependency_rules():
 
 
 def test_dependency_rules_are_empty_rather_than_fatal_when_settings_refuses(
-        monkeypatch):
-    widgets = SM.SettingsWidgets("measure")
+        monkeypatch, owned_settings_widgets):
+    widgets = owned_settings_widgets("measure")
     widgets.build_sections()
     import spacr.settings as settings
 
@@ -793,9 +801,10 @@ def test_dependency_rules_are_empty_rather_than_fatal_when_settings_refuses(
     assert widgets._rules_for_this_panel() == {}
 
 
-def test_a_predicate_that_raises_leaves_its_control_enabled(monkeypatch):
+def test_a_predicate_that_raises_leaves_its_control_enabled(
+        monkeypatch, owned_settings_widgets):
     """Greying on a guess hides the control the user needs to fix the run."""
-    widgets = SM.SettingsWidgets("measure")
+    widgets = owned_settings_widgets("measure")
     widgets.build_sections()
     key = next(iter(widgets._widgets))
     control = widgets._widgets[key]
@@ -832,8 +841,9 @@ def test_the_umap_reducer_greying_stops_when_there_is_no_selector():
     assert widgets._refresh_umap_reducer_enablement() is None
 
 
-def test_the_umap_reducer_greying_stops_on_a_method_it_does_not_know():
-    widgets = SM.SettingsWidgets("umap")
+def test_the_umap_reducer_greying_stops_on_a_method_it_does_not_know(
+        owned_settings_widgets):
+    widgets = owned_settings_widgets("umap")
     widgets.build_sections()
     selector = widgets._widgets.get("reduction_method")
     if selector is None:
@@ -846,8 +856,8 @@ def test_the_umap_reducer_greying_stops_on_a_method_it_does_not_know():
 
 
 def test_the_classifier_greying_stops_when_the_family_cannot_be_resolved(
-        monkeypatch):
-    widgets = SM.SettingsWidgets("classify_merged")
+        monkeypatch, owned_settings_widgets):
+    widgets = owned_settings_widgets("classify_merged")
     widgets.build_sections()
     import spacr.classify as families
 
@@ -858,8 +868,9 @@ def test_the_classifier_greying_stops_when_the_family_cannot_be_resolved(
     assert widgets._refresh_classifier_family_enablement() is None
 
 
-def test_changing_the_classifier_family_re_greys_the_panel(monkeypatch):
-    widgets = SM.SettingsWidgets("classify_merged")
+def test_changing_the_classifier_family_re_greys_the_panel(
+        monkeypatch, owned_settings_widgets):
+    widgets = owned_settings_widgets("classify_merged")
     widgets.build_sections()
     calls = []
     monkeypatch.setattr(widgets, "_refresh_classifier_family_enablement",
@@ -870,8 +881,9 @@ def test_changing_the_classifier_family_re_greys_the_panel(monkeypatch):
     assert calls == [True]
 
 
-def test_the_training_basis_greying_stops_when_the_basis_is_unknown(monkeypatch):
-    widgets = SM.SettingsWidgets("classify_merged")
+def test_the_training_basis_greying_stops_when_the_basis_is_unknown(
+        monkeypatch, owned_settings_widgets):
+    widgets = owned_settings_widgets("classify_merged")
     widgets.build_sections()
     import spacr.training_basis as basis
 
@@ -973,7 +985,8 @@ def test_a_label_already_holding_a_different_setting_keeps_its_own_help(qtbot):
 # the last defensive arms: states a real screen reaches and no test had
 # ---------------------------------------------------------------------------
 
-def test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild():
+def test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild(
+        owned_settings_widgets):
     """The invariant the deleted catch-all was a net for, asserted directly.
 
     ``classify_merged`` rebuilds its tabs from a literal group table so the
@@ -984,7 +997,7 @@ def test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild():
     could never run because the tuples enumerate the literal exactly. This
     fails the moment that stops being true.
     """
-    widgets = SM.SettingsWidgets("classify_merged")
+    widgets = owned_settings_widgets("classify_merged")
     sections = widgets.build_sections()
     rendered = {id(widget) for _title, rows in sections
                 for _label, widget in rows}
@@ -996,10 +1009,11 @@ def test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild():
         f"{dropped[:8]}")
 
 
-def test_no_merged_classifier_heading_names_its_family_twice():
+def test_no_merged_classifier_heading_names_its_family_twice(
+        owned_settings_widgets):
     """"Machine Learning - ML Classifier ..." would read as a stutter."""
     titles = [title for title, _rows
-              in SM.SettingsWidgets("classify_merged").build_sections()]
+              in owned_settings_widgets("classify_merged").build_sections()]
 
     assert not [t for t in titles if t.startswith("Machine Learning")
                 and "ML Classifier" in t]
@@ -1134,9 +1148,10 @@ def test_a_list_setting_holding_a_scalar_literal_is_kept_as_written():
     assert coerce("channels", "5") == "5"
 
 
-def test_the_umap_reducer_greying_skips_a_setting_the_panel_never_rendered():
+def test_the_umap_reducer_greying_skips_a_setting_the_panel_never_rendered(
+        owned_settings_widgets):
     """A key the layout hides is not a control to enable or disable."""
-    widgets = SM.SettingsWidgets("umap")
+    widgets = owned_settings_widgets("umap")
     widgets.build_sections()
     if "reduction_method" not in widgets._widgets:
         pytest.skip("umap panel has no reduction_method control in this build")
@@ -1148,9 +1163,9 @@ def test_the_umap_reducer_greying_skips_a_setting_the_panel_never_rendered():
 
 
 def test_the_classifier_greying_greys_nothing_when_the_family_is_unknown(
-        monkeypatch):
+        monkeypatch, owned_settings_widgets):
     """An unknown family is the pipeline's error to raise, loudly, at run time."""
-    widgets = SM.SettingsWidgets("classify_merged")
+    widgets = owned_settings_widgets("classify_merged")
     widgets.build_sections()
     assert "classifier_family" in widgets._widgets
     control = next(c for k, c in widgets._widgets.items()
