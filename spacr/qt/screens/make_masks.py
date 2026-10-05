@@ -1172,6 +1172,7 @@ class _MaskCanvas(QLabel):
         self.box_class_id = 0
         self.selected_box = None
         self.box_classes = ['object']
+        self.boxes_editable = True
         self._box_drag = None
         self._box_preview = None
         self.brush_radius: int = 10
@@ -1913,6 +1914,8 @@ class _MaskCanvas(QLabel):
 
     def _box_press(self, event):
         """Select, start drawing or remove an annotation without mask edits."""
+        if not self.boxes_editable:
+            return
         point = self._canvas_to_image(event.position().x(), event.position().y())
         if point is not None:
             point = QPoint(*point)
@@ -1930,6 +1933,8 @@ class _MaskCanvas(QLabel):
             return
         if event.button() != Qt.LeftButton or point is None:
             return
+        if event.modifiers() & Qt.ControlModifier:
+            hit = None
         self.selected_box = hit
         original = self.boxes[hit] if hit is not None else None
         corner = None
@@ -10558,7 +10563,8 @@ class MakeMasksScreen(QWidget):
             if mode == MODE_BOX:
                 btn.setObjectName("MakeMasksBoxTool")
                 btn.setToolTip(tr("Draw YOLO bounding boxes (X). Drag inside to move, "
-                                  "drag a corner to resize, or right-click to delete."))
+                                  "drag a corner to resize, or right-click to delete. "
+                                  "Ctrl-drag draws an overlapping box."))
             btn.setCheckable(True)
             btn.setMinimumHeight(32)
             btn.setCursor(Qt.PointingHandCursor)
@@ -11808,7 +11814,9 @@ class MakeMasksScreen(QWidget):
             if not accepted:
                 return None
         name = str(name).strip()
-        if not name or name in self._box_classes or any(c in name for c in '\r\n\x00'):
+        try:
+            engine._yolo_classes(self._box_classes + [name])
+        except ValueError:
             self._warn(tr("Invalid class"), tr("Enter a unique, nonempty class name."))
             return None
         self._canvas.selected_box = None
@@ -11846,6 +11854,7 @@ class MakeMasksScreen(QWidget):
         self._box_class_combo.setCurrentIndex(0)
         self._box_class_combo.blockSignals(blocked)
         self._canvas.box_class_id = 0
+        self._canvas.boxes_editable = self._box_load_error is None
         self._box_history.clear()
         self._box_history.push(np.asarray(self._canvas.boxes, dtype=float).reshape(-1, 5))
         self._mode_buttons[MODE_BOX].setEnabled(self._box_load_error is None)
