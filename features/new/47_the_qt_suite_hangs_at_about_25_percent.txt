@@ -1630,3 +1630,19 @@ serial Qt acceptance remains open as recorded above.
   comparison passed before and after: retained managers fell from 2 to zero
   and final RSS from 434 to 404 MiB. These separate cohorts do not establish
   a combined 61 MiB reduction or full-suite memory behavior.
+
+2026-10-05 — ORIGINAL-ORDER 100-FILE CPU PROBE; SERIAL ACCEPTANCE OPEN
+  Source 3b266f66c passed 1,148 tests with one skip across the first 100
+  files of the frozen original-order manifest under a 4 GiB cap, CUDA
+  hidden and offscreen Qt (605 seconds). Its first 78 files yielded the
+  same 883 node samples as the earlier comparisons. RSS at that matching
+  boundary was 1730.8 MiB versus 1841.4 MiB originally, about 110.6 MiB
+  lower. The sampled prefix peak was 1881.2 versus 1875.6 MiB originally,
+  so this is a boundary improvement, not a demonstrated lower peak.
+  The dynamic-Section-only replay used an 8 GiB cap; original and current
+  probes used 4 GiB. No ceiling, forced collection or skip was added.
+  Journal and summary: /mnt/wd4tb/scratch/item47-memory-codex-20261005/
+  qt-prefix100-current-3b266f.{jsonl,log}. The probe exposed retained pyplot
+  managers after figure-dialog cancellation; that ownership/render repair
+  is being checked separately. This 100-file prefix is not uninterrupted
+  acceptance of the full Qt suite, which remains open.
