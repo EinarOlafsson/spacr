@@ -91,6 +91,8 @@ def _one_panel():
     except Exception:                                        # noqa: BLE001
         pass
     widget.close()
+    from shiboken6 import delete
+    delete(widget)
 
 
 @pytest.fixture()
