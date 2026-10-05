@@ -11449,6 +11449,14 @@ class MakeMasksScreen(QWidget):
         if mode == MODE_BOX and self._box_load_error is not None:
             self._warn(tr("Cannot edit box annotations"), str(self._box_load_error))
             return
+        if mode == MODE_BOX and self._recrop_children:
+            self._warn(tr("Finish recropping first"),
+                       tr("Move to a cropped field before adding box annotations."))
+            return
+        if mode == MODE_RECROP and self._canvas.boxes:
+            self._warn(tr("Image has box annotations"),
+                       tr("Remove this image's box annotations before recropping it."))
+            return
         self._canvas.cancel_gesture()
         self._canvas.mode = mode
         self._box_controls.setVisible(mode == MODE_BOX)
@@ -16578,6 +16586,11 @@ class MakeMasksScreen(QWidget):
         :returns: Filename of the recropped field, or ``None`` if the
             selection was rejected or could not be written.
         """
+        if self._canvas.boxes:
+            from ..i18n import tr
+
+            self._status_label.setText(tr("Remove this image's box annotations before recropping it."))
+            return None
         if self._blind is not None:
             from ..i18n import tr
             self._status_label.setText(tr(
@@ -16641,6 +16654,8 @@ class MakeMasksScreen(QWidget):
         """
         if not self._recrop_children or not self._image_files:
             return False
+        if not self._save_boxes_if_needed():
+            return False
         filename = self._image_files[self._current_index]
         children = list(self._recrop_children)
         boxes = [tuple(int(v) for v in box[:4])
@@ -16686,6 +16701,8 @@ class MakeMasksScreen(QWidget):
 
     def _on_prev(self):
         """Go to the previous field, retiring this one if it was cut up."""
+        if not self._save_boxes_if_needed():
+            return
         self.finish_recrop()
         if not self._image_files or self._current_index <= 0:
             return
@@ -16694,6 +16711,8 @@ class MakeMasksScreen(QWidget):
 
     def _on_next(self):
         """Go to the next field, retiring this one if it was cut up."""
+        if not self._save_boxes_if_needed():
+            return
         if self.finish_recrop():
             return
         if not self._image_files or self._current_index >= len(self._image_files) - 1:
@@ -16735,6 +16754,8 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         if self._queue is None or not self._image_files:
+            return
+        if not self._save_boxes_if_needed():
             return
         from ...curation_queue import mark_state
 
