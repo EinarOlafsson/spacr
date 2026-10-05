@@ -3325,6 +3325,7 @@ class AnnotateScreen(QWidget):
         self._retrain_worker: Optional[_RetrainWorker] = None
         self._similar_worker: Optional[_SimilarityWorker] = None
         self._similar_cache: Optional[Tuple[str, Any, Any]] = None
+        self._similar_notice_until = 0.0
         #: The Suggest run, kept separate from the retrain above so
         #: one can be running while the other is retired. They fit
         #: the same kind of model and must not be the same slot.
@@ -4677,6 +4678,7 @@ class AnnotateScreen(QWidget):
         self._object_request = None
         self._object_rows = None
         self._similar_cache = None
+        self._similar_notice_until = 0.0
         self._last_round = None
         self._refresh_round_state()
         self._refresh_total(then=self._rebuild_and_load)
@@ -4830,6 +4832,7 @@ class AnnotateScreen(QWidget):
             self._status_label.setText(tr("No crop is selected to match."))
             return
         cache = self._similar_cache
+        self._similar_notice_until = 0.0
         index = None
         if cache is not None and cache[:2] == (self._settings.db_path,
                                                self._settings.image_type):
@@ -4882,6 +4885,7 @@ class AnnotateScreen(QWidget):
         if result.get("unlabelled_only"):
             self._status_label.setText(self._status_label.text() + " " +
                 tr("{n} unlabelled matches; selected reference kept separately.", n=len(hits)))
+        self._similar_notice_until = time.monotonic() + 3.0
 
     @Slot(str)
     def _on_similar_failed(self, message: str) -> None:
@@ -4889,6 +4893,7 @@ class AnnotateScreen(QWidget):
         self._status_label.setText(
             tr("Could not search for similar crops: {msg}").format(
                 msg=message))
+        self._similar_notice_until = time.monotonic() + 3.0
 
     @Slot()
     def _on_similar_finished(self) -> None:
@@ -7359,6 +7364,9 @@ class AnnotateScreen(QWidget):
         """
         w = self._worker
         if w is None:
+            if (self._similar_worker is not None or
+                    time.monotonic() < self._similar_notice_until):
+                return
             self._status_label.setText(tr("Ready."))
             return
         parts = []
@@ -7371,6 +7379,9 @@ class AnnotateScreen(QWidget):
             parts.append("saving…")
         elif w.pending_batches > 0:
             parts.append(f"{w.pending_batches} batch queued")
+        if (not parts and (self._similar_worker is not None or
+                           time.monotonic() < self._similar_notice_until)):
+            return
         if w.last_save_ts is not None and not parts:
             parts.append("saved")
         self._status_label.setText(

@@ -60,6 +60,7 @@ def test_real_screen_count_unlabelled_filter_and_reference(qtbot, annotate):  # 
     assert not set(excluded) & set(keys)
     assert annotate._object_request.context['requested_k'] == 3
     assert annotate._object_request.context['unlabelled_only']
+    qtbot.wait(650)
     assert '3 unlabelled matches' in annotate._status_label.text()
 
 
