@@ -1218,6 +1218,12 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 action.setToolTip(why)
             if callback is not None and enabled:
                 action.triggered.connect(lambda _c=False, cb=callback: cb())
+        figure = getattr(canvas, "figure", None)
+        if figure is not None:
+            from ..widgets.figure_settings import _add_figure_tools
+            menu.addSeparator()
+            _add_figure_tools(menu, figure, self,
+                              lambda **_k: canvas.draw_idle())
         menu.exec(canvas.mapToGlobal(point))
 
     def _copy_graph_to_clipboard(self) -> None:

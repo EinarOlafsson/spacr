@@ -11,6 +11,7 @@ from __future__ import annotations
 import logging
 import math
 import os
+from functools import partial
 from json import JSONDecodeError
 from typing import Callable, Optional
 
@@ -18,7 +19,7 @@ import numpy
 
 LOG = logging.getLogger(__name__)
 
-from PySide6.QtCore import QEvent, Qt, QTimer
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QAction, QColor
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -1756,6 +1757,7 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 
         _add_group_colours(menu, figure, recipe, on_change, parent)
 
+    _add_figure_tools(menu, figure, parent, on_change)
     _add_bundle_save(menu, figure, parent)
 
     def _notify() -> None:
@@ -1883,11 +1885,385 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
 
     add_graph_style_file_entries(menu, parent, on_change=on_change)
 
-    settings = QAction(tr("Figure settings…"), owner)
-    if open_settings is not None:
-        settings.triggered.connect(lambda: open_settings())
+    settings = QAction(tr("Edit figure…"), owner)
+    settings.setToolTip(tr(
+        "Titles, axis labels, limits and scales, fonts, colours, legend, "
+        "size and DPI, applied live."))
+    if open_settings is None:
+        open_settings = partial(_open_editor, figure, parent, on_change)
+    settings.triggered.connect(lambda: open_settings())
     menu.addAction(settings)
     return menu
+
+
+def _redraw_after(figure, on_change) -> None:
+    """Tell the owner of ``figure`` that it changed, however it listens."""
+    if not callable(on_change):
+        try:
+            figure.canvas.draw_idle()
+        except Exception:                                    # noqa: BLE001
+            pass
+        return
+    try:
+        on_change(preview=False)
+    except TypeError:
+        try:
+            on_change()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("redraw notification failed", exc_info=True)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("redraw notification failed", exc_info=True)
+
+
+def _retype(figure, kind: str, on_change=None) -> bool:
+    """Redraw ``figure`` in place as ``kind`` from the data it carries.
+
+    Never raises: a kind the data cannot be drawn as leaves the figure as it
+    was drawn last and logs why.
+
+    :returns: whether the figure was redrawn.
+    """
+    from ...figures.bundle import _draw, _figure_record, _register_figure_data
+
+    frame, spec = _figure_record(figure)
+    if frame is None:
+        return False
+    spec = dict(spec, kind=str(kind))
+    for key in ("xlim", "ylim", "xscale", "yscale"):
+        spec.pop(key, None)
+    try:
+        _draw(figure, frame, spec)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not redraw the figure as %r", kind, exc_info=True)
+        return False
+    try:
+        from ...figures.style import _apply_user_style
+
+        _apply_user_style(figure, kind, force=True)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the figure preferences", exc_info=True)
+    extra = {k: v for k, v in spec.items()
+             if k not in ("x", "y", "hue", "kind")}
+    _register_figure_data(figure, frame, x=spec.get("x", ""),
+                          y=spec.get("y", ""), hue=spec.get("hue", ""),
+                          kind=kind, **extra)
+    _redraw_after(figure, on_change)
+    return True
+
+
+def _annotations_from(table) -> tuple:
+    """``(note, brackets)`` to draw from a statistics table."""
+    from ...figures.stats import stars
+
+    note, brackets = "", []
+    for _index, row in table.iterrows():
+        stage = str(row["test_stage"])
+        p_value = row["p_adjusted"]
+        if not (isinstance(p_value, float) and math.isfinite(p_value)):
+            p_value = row["p_value"]
+        if not (isinstance(p_value, float) and math.isfinite(p_value)):
+            continue
+        if stage in ("omnibus", "correlation", "contingency") and not note:
+            note = f"{row['test_name']}: p = {p_value:.3g}"
+        if stage == "pairwise":
+            if not note and " vs " in str(row["groups"]) and \
+                    not str(row["correction"]):
+                note = f"{row['test_name']}: p = {p_value:.3g}"
+            label = stars(p_value)
+            if label and " vs " in str(row["groups"]):
+                left, right = str(row["groups"]).split(" vs ", 1)
+                brackets.append({"pair": [left, right], "label": label})
+    return note, brackets
+
+
+class _StatisticsDialog(QDialog):
+    """Choose, run and show the statistics for a figure's data.
+
+    The test is chosen from the data by default; every choice can be
+    overridden, and Apply stores it on the figure so the saved zip reports
+    the same tests and the plot shows them.
+    """
+
+    def __init__(self, figure, parent=None, *, on_change=None):
+        """Build the controls and run the automatic choice once.
+
+        :param figure: the figure whose registered data is tested.
+        :param parent: parent widget.
+        :param on_change: called after the annotations are drawn.
+        """
+        super().__init__(parent)
+        from PySide6.QtWidgets import QPlainTextEdit
+
+        from ...figures.bundle import _figure_record
+        from ...figures.stats import _OVERRIDES, _data_kind
+
+        self.setObjectName("FigureStatisticsDialog")
+        self.setWindowTitle(tr("Statistics"))
+        self.resize(640, 480)
+        self._figure = figure
+        self._on_change = on_change
+        self._frame, self._spec = _figure_record(figure)
+        frame = self._frame
+        x, y = str(self._spec.get("x") or ""), str(self._spec.get("y") or "")
+        kind = _data_kind(frame, x, y) if frame is not None else "none"
+        saved = dict(self._spec.get("stats") or {})
+
+        layout = QVBoxLayout(self)
+        form = QFormLayout()
+        layout.addLayout(form)
+        self.test = QComboBox()
+        self.test.setObjectName("FigureStatisticsTest")
+        self.test.addItem(tr("Automatic (chosen from the data)"), None)
+        for name in _OVERRIDES.get(kind, ()):
+            self.test.addItem(name, name)
+        index = self.test.findData(saved.get("test"))
+        self.test.setCurrentIndex(max(index, 0))
+        form.addRow(tr("Test"), self.test)
+
+        self.pair = QComboBox()
+        self.pair.setObjectName("FigureStatisticsPair")
+        self.pair.addItem(tr("(none)"), "")
+        for column in (list(frame.columns) if frame is not None else []):
+            if column not in (x, y):
+                self.pair.addItem(str(column), str(column))
+        self.pair.setCurrentIndex(max(self.pair.findData(
+            saved.get("pair") or self._spec.get("pair") or ""), 0))
+        form.addRow(tr("Subject column"), self.pair)
+
+        self.paired = QCheckBox(tr("Paired / repeated measures"))
+        self.paired.setObjectName("FigureStatisticsPaired")
+        self.paired.setChecked(bool(saved.get("paired")
+                                    if saved.get("paired") is not None
+                                    else self.pair.currentData()))
+        form.addRow("", self.paired)
+
+        self.correction = QComboBox()
+        self.correction.setObjectName("FigureStatisticsCorrection")
+        try:
+            from ...multiple_testing import METHODS
+
+            for key in METHODS:
+                self.correction.addItem(key, key)
+        except Exception:                                    # noqa: BLE001
+            self.correction.addItem("fdr_bh", "fdr_bh")
+        self.correction.setCurrentIndex(max(self.correction.findData(
+            saved.get("correction") or "fdr_bh"), 0))
+        form.addRow(tr("Multiple-comparison correction"), self.correction)
+
+        self.show_on_plot = QCheckBox(tr("Show on the plot"))
+        self.show_on_plot.setObjectName("FigureStatisticsShow")
+        self.show_on_plot.setChecked(bool(saved.get("show", True)))
+        form.addRow("", self.show_on_plot)
+
+        self.report = QPlainTextEdit()
+        self.report.setObjectName("FigureStatisticsReport")
+        self.report.setReadOnly(True)
+        layout.addWidget(self.report)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.Apply | QDialogButtonBox.Close, self)
+        buttons.button(QDialogButtonBox.Apply).clicked.connect(self._apply)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+        for combo in (self.test, self.pair, self.correction):
+            combo.currentIndexChanged.connect(lambda *_: self._recompute())
+        self.paired.toggled.connect(lambda *_: self._recompute())
+        self.table = None
+        self._recompute()
+
+    def _choices(self) -> dict:
+        """The statistics choices as stored on the figure's spec."""
+        return {"test": self.test.currentData(),
+                "paired": bool(self.paired.isChecked()),
+                "pair": str(self.pair.currentData() or ""),
+                "correction": str(self.correction.currentData() or "fdr_bh"),
+                "show": bool(self.show_on_plot.isChecked())}
+
+    def _recompute(self):
+        """Run the tests with the current choices and show the table."""
+        from ...figures.stats import _auto_statistics, _statistics_text
+
+        chosen = self._choices()
+        self.table = _auto_statistics(
+            self._frame, str(self._spec.get("x") or ""),
+            str(self._spec.get("y") or ""), test=chosen["test"],
+            paired=chosen["paired"], pair=chosen["pair"],
+            correction=chosen["correction"], order=self._spec.get("order"),
+            count=str(self._spec.get("count") or ""))
+        self.report.setPlainText(_statistics_text(self.table))
+        return self.table
+
+    def _apply(self) -> None:
+        """Store the choices on the figure and draw the result on it."""
+        from ...figures.bundle import _annotate
+
+        chosen = self._choices()
+        spec = dict(self._spec)
+        spec["stats"] = chosen
+        note, brackets = _annotations_from(self.table)
+        spec["stats_note"] = note if chosen["show"] else ""
+        spec["annotations"] = brackets if chosen["show"] else []
+        self._spec = spec
+        try:
+            self._figure._spacr_spec = spec
+            if getattr(self._figure, "_spacr_data", None) is None:
+                self._figure._spacr_data = self._frame
+            axes = [a for a in self._figure.axes
+                    if a.get_label() != "<colorbar>"]
+            if axes:
+                _annotate(axes[0], spec)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not annotate the figure", exc_info=True)
+        _redraw_after(self._figure, self._on_change)
+
+
+def _save_zip_dialog(parent, figure) -> str:
+    """Ask where, then write the figure's zip. Returns the path or ``""``."""
+    from PySide6.QtWidgets import QFileDialog
+
+    from ...figures.bundle import _save_zip
+
+    title = _figure_title(figure) or "figure"
+    path, _filter = QFileDialog.getSaveFileName(
+        parent, tr("Save figure (zip)"), f"{title}.zip",
+        tr("Zip archive (*.zip)"))
+    if not path:
+        return ""
+    try:
+        return _save_zip(figure, path, name=title)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not write the figure zip", exc_info=True)
+        return ""
+
+
+def _add_figure_tools(menu, figure, parent, on_change=None) -> None:
+    """Add Change graph type, Statistics and Save figure (zip) to ``menu``.
+
+    The graph types offered are the ones the figure's data fits: categories
+    against a measurement, two measurements, one distribution, a count
+    table or a matrix. A figure with no data attached offers the two
+    entries that need none of it.
+    """
+    from ...figures.bundle import _figure_record, _kinds_for
+
+    owner = parent if parent is not None else menu
+    frame, spec = _figure_record(figure)
+    kinds = _kinds_for(frame, spec) if frame is not None else ()
+    retype = QMenu(tr("Change graph type"), menu)
+    retype.setObjectName("FigureChangeGraphType")
+    menu.addMenu(retype)
+    current = str(spec.get("kind") or "")
+    for kind, caption in kinds:
+        action = retype.addAction(tr(caption))
+        action.setCheckable(True)
+        action.setChecked(kind == current)
+        action.triggered.connect(
+            lambda _checked=False, k=kind: _retype(figure, k, on_change))
+    if not kinds:
+        empty = retype.addAction(tr("No data is attached to this figure"))
+        empty.setEnabled(False)
+
+    statistics = QAction(tr("Statistics…"), owner)
+    statistics.setEnabled(frame is not None)
+    statistics.triggered.connect(
+        lambda: _StatisticsDialog(figure, parent,
+                                  on_change=on_change).exec())
+    menu.addAction(statistics)
+
+    archive = QAction(tr("Save figure (zip)…"), owner)
+    archive.setToolTip(tr(
+        "One zip: the image in the default formats, the data as CSV, every "
+        "statistical test in one CSV with a text summary, the plotting "
+        "recipe as JSON and a Python script that re-creates the figure."))
+    archive.triggered.connect(lambda: _save_zip_dialog(parent, figure))
+    menu.addAction(archive)
+
+
+class _FigureMenuFilter(QObject):
+    """Opens the shared figure menu on a right-click on any figure canvas.
+
+    Installed on each canvas rather than on the application, so the cost is
+    paid only by canvases. A canvas whose owner set a custom context-menu
+    policy keeps its own menu, which adds the shared entries itself.
+    """
+
+    def eventFilter(self, obj, event):  # noqa: N802 - Qt name
+        """Show the menu for a context-menu event on a figure canvas."""
+        if event.type() != QEvent.ContextMenu:
+            return False
+        try:
+            if obj.contextMenuPolicy() != Qt.DefaultContextMenu:
+                return False
+            _show_canvas_menu(obj, event.globalPos())
+        except RuntimeError:
+            return False
+        return True
+
+
+_MENU_FILTER = None
+
+
+def _open_editor(figure, parent, on_change=None) -> None:
+    """Open the figure editor on ``figure``, redrawing through ``on_change``."""
+    FigureSettingsDialog(
+        figure, parent,
+        on_change=lambda **_k: _redraw_after(figure, on_change)).exec()
+
+
+def _canvas_changed(canvas, preview=False) -> None:
+    """Redraw ``canvas``; a replacement figure is redrawn in place instead.
+
+    The house "Graph type" entries hand back a NEW figure, which a canvas
+    owned by a screen cannot swap in, so its recipe is drawn onto the
+    figure the canvas already shows.
+    """
+    figure = getattr(canvas, "figure", None)
+    if preview is not None and not isinstance(preview, bool):
+        recipe = getattr(preview, "_spacr_replot", None) or {}
+        if figure is not None:
+            figure._spacr_replot = recipe
+            figure._spacr_data = None
+            _retype(figure, _house_kind(recipe.get("graph_type")), None)
+    try:
+        canvas.draw_idle()
+    except RuntimeError:
+        pass
+
+
+def _house_kind(graph_type) -> str:
+    """The drawing kind for a spaCR house graph type."""
+    from ...figures.bundle import _HOUSE_KINDS
+
+    return _HOUSE_KINDS.get(str(graph_type or ""), "box_strip")
+
+
+def _show_canvas_menu(canvas, position):
+    """Build and open the shared figure menu for ``canvas`` at ``position``."""
+    figure = getattr(canvas, "figure", None)
+    menu = build_figure_context_menu(
+        canvas, figure, on_change=partial(_canvas_changed, canvas),
+        open_settings=partial(
+            _open_editor, figure, canvas,
+            lambda **_k: canvas.draw_idle()))
+    _exec_menu(menu, position)
+    return menu
+
+
+def _exec_menu(menu, position) -> None:
+    """Show ``menu`` modally at ``position``."""
+    menu.exec(position)
+
+
+def _attach_figure_menu(canvas) -> None:
+    """Give ``canvas`` the shared right-click figure menu. Idempotent."""
+    global _MENU_FILTER
+    if getattr(canvas, "_spacr_figure_menu", False):
+        return
+    if _MENU_FILTER is None:
+        _MENU_FILTER = _FigureMenuFilter()
+    canvas.installEventFilter(_MENU_FILTER)
+    canvas._spacr_figure_menu = True
 
 
 def _every_text(figure):

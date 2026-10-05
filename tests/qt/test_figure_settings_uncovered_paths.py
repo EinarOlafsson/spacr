@@ -759,7 +759,7 @@ def test_a_menu_built_without_a_parent_keeps_all_of_its_entries(qapp, figure):
         texts = [action.text() for action in menu.actions()]
 
         for expected in ("Legend", "Grid", "Save figure as…",
-                         "Save figure with a preview…", "Figure settings…"):
+                         "Save figure with a preview…", "Edit figure…"):
             assert expected in texts, f"{expected!r} was collected away"
         appearance = next(action.menu() for action in menu.actions()
                           if action.menu() is not None
@@ -782,12 +782,12 @@ def test_a_menu_for_a_figure_that_has_gone_still_says_so(qapp):
 
 
 def test_the_settings_entry_opens_the_settings_it_was_given(qapp, figure):
-    """``Figure settings…`` is wired only when a caller supplies an opener."""
+    """``Edit figure…`` opens the editor the caller supplies."""
     opened = []
     menu = fs.build_figure_context_menu(
         None, figure, open_settings=lambda: opened.append(True))
     try:
-        _action_named(menu, "Figure settings…").trigger()
+        _action_named(menu, "Edit figure…").trigger()
         assert opened == [True]
     finally:
         menu.deleteLater()

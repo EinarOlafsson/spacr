@@ -170,6 +170,8 @@ def panel_canvas_class():
             self.setAttribute(Qt.WA_TranslucentBackground, True)
             make_transparent(self)
             figure.patch.set_alpha(0.0)
+            from ..widgets.figure_settings import _attach_figure_menu
+            _attach_figure_menu(self)
 
         def paintEvent(self, event):  # noqa: N802 (Qt naming)
             """Draw the panel, then let matplotlib draw over it."""

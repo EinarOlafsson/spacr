@@ -201,3 +201,423 @@ def _plain(value):
     if isinstance(value, Mapping):
         return {str(k): _plain(v) for k, v in value.items()}
     return str(value)
+
+
+#: Every plot kind a figure can be redrawn as: ``(kind, caption)``.
+_PLOT_KINDS = (
+    ("box", "Box"), ("violin", "Violin"), ("strip", "Strip"),
+    ("swarm", "Swarm"), ("bar", "Bar"), ("point", "Point"),
+    ("boxen", "Boxen"), ("box_strip", "Box with points"),
+    ("bar_strip", "Bar with points"), ("scatter", "Scatter"),
+    ("line", "Line"), ("hex", "Hexbin"), ("kde", "Density (KDE)"),
+    ("reg", "Regression"), ("hist", "Histogram"), ("ecdf", "ECDF"),
+    ("count", "Count"), ("heatmap", "Heatmap"),
+    ("clustermap", "Clustered heatmap"),
+)
+
+#: Which kinds fit which data structure.
+_FAMILY_KINDS = {
+    "groups": ("box", "violin", "strip", "swarm", "bar", "point", "boxen",
+               "box_strip", "bar_strip", "hist", "kde", "ecdf"),
+    "numeric": ("scatter", "line", "hex", "kde", "reg"),
+    "distribution": ("hist", "kde", "ecdf", "box", "violin", "strip",
+                     "boxen"),
+    "counts": ("count", "heatmap"),
+    "matrix": ("heatmap", "clustermap"),
+}
+
+#: The spaCR house graph types, in the vocabulary :func:`_draw` speaks.
+_HOUSE_KINDS = {
+    "jitter_bar": "bar_strip", "bar_jitter": "bar_strip",
+    "jitter_box": "box_strip", "box_jitter": "box_strip",
+    "jitter": "strip", "line": "point", "bar": "bar", "box": "box",
+    "violin": "violin", "histogram": "hist", "scatter": "scatter",
+    "heatmap": "heatmap",
+}
+
+
+def _plot_family(frame, spec) -> str:
+    """The data structure a figure's frame and spec describe.
+
+    :returns: a key of :data:`_FAMILY_KINDS`, or ``""`` without data.
+    """
+    if frame is None or not len(getattr(frame, "columns", ())):
+        return ""
+    if spec.get("matrix"):
+        return "matrix"
+    x, y = str(spec.get("x") or ""), str(spec.get("y") or "")
+    columns = frame.columns
+
+    def numeric(name):
+        """Whether a present column is numeric."""
+        return (name in columns and pd.api.types.is_numeric_dtype(frame[name])
+                and not pd.api.types.is_bool_dtype(frame[name]))
+
+    if x in columns and y in columns:
+        if numeric(x) and numeric(y):
+            return "numeric"
+        if numeric(y):
+            return "groups"
+        if not numeric(x):
+            return "counts"
+        return "groups"
+    if numeric(y) or numeric(x):
+        return "distribution"
+    return ""
+
+
+def _kinds_for(frame, spec) -> tuple:
+    """``(kind, caption)`` pairs the figure's data can be drawn as."""
+    allowed = _FAMILY_KINDS.get(_plot_family(frame, spec), ())
+    return tuple((kind, caption) for kind, caption in _PLOT_KINDS
+                 if kind in allowed)
+
+
+def _register_figure_data(figure, data, *, x: str = "", y: str = "",
+                          hue: str = "", kind: str = "", **spec) -> None:
+    """Attach the tidy data and plot spec a figure was drawn from.
+
+    Every figure carrying them can be redrawn as another kind, tested, and
+    saved with its data, statistics and a script that re-creates it.
+
+    :param figure: the Matplotlib figure.
+    :param data: the tidy frame, one row per observation.
+    :param x: the column on the horizontal axis, or the grouping column.
+    :param y: the column on the vertical axis, or the measurement.
+    :param hue: an optional colour-grouping column.
+    :param kind: the kind drawn, from :data:`_PLOT_KINDS` or a spaCR graph
+        type.
+    :param spec: further keys, such as ``order``, ``pair`` (the subject
+        column of repeated measures), ``matrix`` or ``title``.
+    """
+    record = {k: v for k, v in dict(spec).items() if v is not None}
+    record.update(x=str(x or ""), y=str(y or ""), hue=str(hue or ""),
+                  kind=_HOUSE_KINDS.get(str(kind), str(kind or "")))
+    try:
+        figure._spacr_data = data
+        figure._spacr_spec = record
+    except Exception:
+        LOG.debug("could not attach data to the figure", exc_info=True)
+
+
+def _figure_record(figure):
+    """``(frame, spec)`` for a figure, or ``(None, {})`` when it has none.
+
+    Registered data comes first; a figure drawn by
+    :func:`spacr.plot.create_grouped_plot` carries a redraw recipe that is
+    read as the same thing.
+    """
+    frame = getattr(figure, "_spacr_data", None)
+    spec = getattr(figure, "_spacr_spec", None)
+    if isinstance(frame, pd.DataFrame) and isinstance(spec, dict):
+        return frame, spec
+    recipe = getattr(figure, "_spacr_replot", None)
+    if isinstance(recipe, dict) and isinstance(recipe.get("df"),
+                                               pd.DataFrame):
+        spec = {"x": str(recipe.get("grouping_column") or ""),
+                "y": str(recipe.get("data_column") or ""), "hue": "",
+                "kind": _HOUSE_KINDS.get(str(recipe.get("graph_type") or ""),
+                                         "box_strip")}
+        order = recipe.get("order")
+        if order:
+            spec["order"] = [str(v) for v in order]
+        return recipe["df"], spec
+    return None, {}
+
+
+def _capture_view(figure, spec) -> dict:
+    """The spec with the figure's current titles, labels, scales and size.
+
+    So an edit made on screen is part of the recipe a saved figure is
+    re-created from.
+    """
+    out = dict(spec)
+    axes = [a for a in getattr(figure, "axes", ()) if a.get_label()
+            != "<colorbar>"]
+    if axes:
+        ax = axes[0]
+        out.update(title=ax.get_title(), xlabel=ax.get_xlabel(),
+                   ylabel=ax.get_ylabel(), xscale=ax.get_xscale(),
+                   yscale=ax.get_yscale())
+        if out.get("keep_limits"):
+            out.update(xlim=list(ax.get_xlim()), ylim=list(ax.get_ylim()))
+    try:
+        out["size"] = [float(v) for v in figure.get_size_inches()]
+        out["dpi"] = float(figure.get_dpi())
+    except Exception:
+        pass
+    return out
+
+
+def _annotate(ax, spec) -> None:
+    """Draw the statistics a spec carries onto ``ax``.
+
+    Brackets with stars join each significant pair of categories, and the
+    test line sits in the top-left corner. Earlier annotations are removed
+    first, so applying twice draws once.
+    """
+    for artist in list(ax.texts) + list(ax.lines):
+        if artist.get_gid() == "spacr-stats":
+            artist.remove()
+    note = str(spec.get("stats_note") or "")
+    if note:
+        ax.text(0.01, 0.99, note, transform=ax.transAxes, va="top",
+                ha="left", fontsize=7, gid="spacr-stats")
+    marks = list(spec.get("annotations") or [])
+    if not marks:
+        return
+    positions = {}
+    for location, label in zip(ax.get_xticks(), ax.get_xticklabels()):
+        text = label.get_text().strip()
+        if text:
+            positions[text] = float(location)
+    low, high = ax.get_ylim()
+    step = (high - low) * 0.06
+    level = high
+    for mark in marks:
+        left, right = (str(v) for v in mark.get("pair", ("", "")))
+        if left not in positions or right not in positions:
+            continue
+        a, b = positions[left], positions[right]
+        ax.plot([a, a, b, b], [level, level + step / 2, level + step / 2,
+                               level], color="black", lw=0.8,
+                gid="spacr-stats", clip_on=False)
+        ax.text((a + b) / 2, level + step / 2, str(mark.get("label", "")),
+                ha="center", va="bottom", fontsize=8, gid="spacr-stats")
+        level += step * 1.4
+    if level != high:
+        ax.set_ylim(low, level + step)
+
+
+def _draw(figure, frame, spec):
+    """Draw ``frame`` onto ``figure`` as ``spec`` describes, and return the axes.
+
+    The figure is cleared and redrawn with seaborn and Matplotlib only, so
+    the same function, copied into a saved figure's script, re-creates it
+    without spaCR installed.
+    """
+    import numpy as np
+    import pandas as pd
+    import seaborn as sns
+
+    np.random.seed(int(spec.get("seed", 0)))
+    kind = str(spec.get("kind") or "box")
+    x = spec.get("x") or None
+    y = spec.get("y") or None
+    hue = spec.get("hue") or None
+    figure.clear()
+    if spec.get("size"):
+        figure.set_size_inches(*spec["size"])
+    ax = figure.add_subplot(111)
+    data = frame.copy()
+    groups_kinds = ("box", "violin", "strip", "swarm", "bar", "point",
+                    "boxen", "box_strip", "bar_strip", "count")
+    order = None
+    if kind in groups_kinds and x and x in data.columns:
+        data[x] = data[x].astype(str)
+        order = [str(v) for v in (spec.get("order") or pd.unique(data[x]))]
+    common = {"data": data, "x": x, "y": y, "ax": ax}
+    if hue and hue in data.columns:
+        common["hue"] = hue
+    points = {"color": "black", "size": 3, "alpha": 0.7}
+    if kind == "box":
+        sns.boxplot(order=order, **common)
+    elif kind == "violin":
+        sns.violinplot(order=order, **common)
+    elif kind == "strip":
+        sns.stripplot(order=order, **common)
+    elif kind == "swarm":
+        sns.swarmplot(order=order, size=3, **common)
+    elif kind == "bar":
+        sns.barplot(order=order, errorbar="sd", **common)
+    elif kind == "point":
+        sns.pointplot(order=order, errorbar="sd", **common)
+    elif kind == "boxen":
+        sns.boxenplot(order=order, **common)
+    elif kind == "box_strip":
+        sns.boxplot(order=order, showfliers=False, **common)
+        sns.stripplot(order=order, **dict(common, hue=None), **points)
+    elif kind == "bar_strip":
+        sns.barplot(order=order, errorbar="sd", alpha=0.6, **common)
+        sns.stripplot(order=order, **dict(common, hue=None), **points)
+    elif kind == "count":
+        sns.countplot(data=data, x=x, hue=y, order=order, ax=ax)
+    elif kind == "scatter":
+        sns.scatterplot(**common)
+    elif kind == "line":
+        sns.lineplot(**common)
+    elif kind == "hex":
+        ax.hexbin(data[x], data[y], gridsize=int(spec.get("gridsize", 30)),
+                  cmap=spec.get("cmap") or "viridis", mincnt=1)
+    elif kind == "reg":
+        sns.regplot(data=data, x=x, y=y, ax=ax)
+    elif kind in ("heatmap", "clustermap"):
+        if spec.get("matrix"):
+            matrix = data.set_index(spec["index"]) if spec.get("index") \
+                in data.columns else data
+            matrix = matrix.select_dtypes("number")
+        else:
+            matrix = pd.crosstab(data[x].astype(str), data[y].astype(str))
+        if kind == "clustermap" and min(matrix.shape) > 1:
+            from scipy.cluster.hierarchy import leaves_list, linkage
+
+            filled = matrix.fillna(0).to_numpy(dtype=float)
+            rows = leaves_list(linkage(filled, "average"))
+            cols = leaves_list(linkage(filled.T, "average"))
+            matrix = matrix.iloc[rows, cols]
+        sns.heatmap(matrix, ax=ax, cmap=spec.get("cmap") or "viridis")
+    else:
+        value, group = y, x
+        if x and y and pd.api.types.is_numeric_dtype(data[x]) and \
+                pd.api.types.is_numeric_dtype(data[y]) and kind == "kde":
+            sns.kdeplot(data=data, x=x, y=y, ax=ax, fill=True)
+        else:
+            if not value or value not in data.columns:
+                value, group = x, None
+            if group and group in data.columns:
+                data[group] = data[group].astype(str)
+            options = {"data": data, "x": value, "ax": ax}
+            if group and group in data.columns:
+                options["hue"] = group
+            {"hist": sns.histplot, "kde": sns.kdeplot,
+             "ecdf": sns.ecdfplot}.get(kind, sns.histplot)(**options)
+    for key, setter in (("title", ax.set_title), ("xlabel", ax.set_xlabel),
+                        ("ylabel", ax.set_ylabel),
+                        ("xscale", ax.set_xscale),
+                        ("yscale", ax.set_yscale)):
+        if spec.get(key):
+            setter(spec[key])
+    if spec.get("xlim"):
+        ax.set_xlim(*spec["xlim"])
+    if spec.get("ylim"):
+        ax.set_ylim(*spec["ylim"])
+    _annotate(ax, spec)
+    return ax
+
+
+_SCRIPT = '''"""Re-create the figure in this folder from data.csv and spec.json.
+
+Needs pandas, numpy, scipy, matplotlib and seaborn. Run it beside the two
+files; it writes recreated.png (and any format named on the command line,
+for example ``python recreate_figure.py pdf svg``).
+"""
+import json
+import os
+import sys
+
+import pandas as pd
+from matplotlib.figure import Figure
+
+
+{annotate}
+
+{draw}
+
+def main():
+    """Read the data and the recipe, draw, and save."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    frame = pd.read_csv(os.path.join(here, "data.csv"))
+    with open(os.path.join(here, "spec.json"), encoding="utf-8") as handle:
+        spec = json.load(handle)
+    figure = Figure()
+    _draw(figure, frame, spec)
+    for fmt in (sys.argv[1:] or ["png"]):
+        figure.savefig(os.path.join(here, "recreated." + fmt),
+                       dpi=spec.get("dpi", 100))
+
+
+if __name__ == "__main__":
+    main()
+'''
+
+
+def _recreate_script() -> str:
+    """The Python script saved beside a figure that re-creates it."""
+    import inspect
+    import textwrap
+
+    return _SCRIPT.format(
+        annotate=textwrap.dedent(inspect.getsource(_annotate)),
+        draw=textwrap.dedent(inspect.getsource(_draw)))
+
+
+def _default_formats() -> list:
+    """The image formats a saved figure is written in.
+
+    The Preferences figure format, and always a PNG beside it.
+    """
+    formats = []
+    try:
+        from ..plot import figure_output_preferences
+
+        formats.append(str(figure_output_preferences()[0] or "pdf").lower())
+    except Exception:
+        formats.append("pdf")
+    if "png" not in formats:
+        formats.append("png")
+    return formats
+
+
+def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
+    """Write ONE zip holding a figure, its data, statistics and recipe.
+
+    Inside: the image in every default format, ``data.csv`` (the tidy rows),
+    ``statistics.csv`` (one table: normality, equal variance, omnibus and
+    pairwise tests, each with whether it was chosen automatically or by the
+    user) and ``statistics.txt``, ``spec.json`` (the full plotting recipe)
+    and ``recreate_figure.py``, which draws the figure again from the CSV
+    and the JSON.
+
+    :param figure: the Matplotlib figure.
+    :param path: the zip to write; ``.zip`` is added when missing.
+    :param formats: image formats, or ``None`` for :func:`_default_formats`.
+    :param name: base name of the image files.
+    :returns: the path written.
+    """
+    import tempfile
+    import zipfile
+
+    from ..plot import save_figure
+    from ..tabular import write_table
+    from .stats import _auto_statistics, _statistics_text
+
+    path = str(path)
+    if not path.lower().endswith(".zip"):
+        path += ".zip"
+    frame, spec = _figure_record(figure)
+    spec = _capture_view(figure, spec)
+    base = "".join(c if c.isalnum() or c in "-_." else "_"
+                   for c in str(name or spec.get("title") or "figure"))
+    base = base.strip("._") or "figure"
+    stats_spec = dict(spec.get("stats") or {})
+    with tempfile.TemporaryDirectory(prefix="spacr_fig_") as folder:
+        for fmt in (formats or _default_formats()):
+            try:
+                save_figure(figure, os.path.join(folder, f"{base}.{fmt}"),
+                            fmt=fmt, bbox_inches="tight", close=False)
+            except Exception:
+                LOG.debug("could not write %s", fmt, exc_info=True)
+        data = frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
+        write_table(data, os.path.join(folder, "data.csv"))
+        table = _auto_statistics(
+            frame, str(spec.get("x") or ""), str(spec.get("y") or ""),
+            test=stats_spec.get("test") or None,
+            paired=stats_spec.get("paired"),
+            pair=str(stats_spec.get("pair") or spec.get("pair") or ""),
+            correction=str(stats_spec.get("correction") or "fdr_bh"),
+            order=spec.get("order"), count=str(spec.get("count") or ""))
+        write_table(table, os.path.join(folder, "statistics.csv"))
+        with open(os.path.join(folder, "statistics.txt"), "w",
+                  encoding="utf-8") as handle:
+            handle.write(_statistics_text(table))
+        with open(os.path.join(folder, "spec.json"), "w",
+                  encoding="utf-8") as handle:
+            json.dump(_plain(spec), handle, indent=2)
+        with open(os.path.join(folder, "recreate_figure.py"), "w",
+                  encoding="utf-8") as handle:
+            handle.write(_recreate_script())
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
+            for entry in sorted(os.listdir(folder)):
+                archive.write(os.path.join(folder, entry), entry)
+    return path

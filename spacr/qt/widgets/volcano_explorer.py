@@ -483,6 +483,16 @@ class VolcanoExplorer(QWidget):
                           labels=self._style_labels())
         menu.addSeparator()
         add_style_file_entries(menu, self._style, changed, parent=self)
+        menu.addSeparator()
+        from ...figures.bundle import _register_figure_data
+        from .figure_settings import _add_figure_tools
+        _register_figure_data(
+            self._figure, self._results, x=self._style.x_column,
+            y=self._style.y_column, kind="scatter",
+            title=self._figure.axes[0].get_title() if self._figure.axes
+            else "")
+        _add_figure_tools(menu, self._figure, self,
+                          lambda **_k: self.set_style(self._style))
         return menu
 
     def _style_choices(self) -> dict:

@@ -1280,6 +1280,23 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Measure sizes",
+    "Automatic (chosen from the data)",
+    "Change graph type",
+    "Edit figure…",
+    "Multiple-comparison correction",
+    "No data is attached to this figure",
+    "One zip: the image in the default formats, the data as CSV, every "
+    "statistical test in one CSV with a text summary, the plotting recipe "
+    "as JSON and a Python script that re-creates the figure.",
+    "Paired / repeated measures",
+    "Save figure (zip)",
+    "Save figure (zip)…",
+    "Show on the plot",
+    "Statistics…",
+    "Subject column",
+    "Titles, axis labels, limits and scales, fonts, colours, legend, size "
+    "and DPI, applied live.",
+    "Zip archive (*.zip)",
     'Text size of legend entries and legend titles, in points. Default 9.',
     'Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.',
     'Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.',

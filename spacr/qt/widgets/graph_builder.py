@@ -563,6 +563,8 @@ def _canvas_class():
             figure.patch.set_alpha(0.0)
             from ..gui_scale import follow_canvas
             follow_canvas(self)
+            from .figure_settings import _attach_figure_menu
+            _attach_figure_menu(self)
 
         def paintEvent(self, event):  # noqa: N802 - Qt name
             """Draw the page panel, then let matplotlib draw over it."""
@@ -906,6 +908,10 @@ class GraphCanvas(LinkedView, QWidget):
         from ...figures.style import _apply_user_style
         _apply_user_style(self._figure, force=True)
         self._figure.tight_layout(pad=0.8)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(self._figure, self._visible, x=spec.x or "",
+                              y=spec.y or "", hue=spec.colour or "",
+                              kind=kind)
         self._canvas.draw_idle()
         self._notice.setText(self._notice_text(data, grid))
         self.rendered.emit(data)

@@ -2,8 +2,7 @@
 FIGURE PREFERENCES THAT CONTROL EVERY FIGURE; RIGHT-CLICK CHANGE-GRAPH; ONE ZIP
 ================================================================================
 
-Status:    in progress — part A DONE 2026-10-04; part B in progress (658 part B
-           agent)
+Status:    DONE 2026-10-04 — part A and part B both landed.
 Requested: 2026-10-04 — "make sure the figure settings in preferences actually
            control figures in spacr and are comprehensive enough. The user
            should always be able to right click and change parameters for
@@ -117,3 +116,74 @@ PART A — WHAT IS LEFT
   settings reach post-hoc figures is open.
 * The "Figure format"/"Resolution" pair and the style format/dpi pair could be
   merged into one row each.
+
+--------------------------------------------------------------------------------
+PART B — WHAT WAS BUILT (2026-10-04)
+--------------------------------------------------------------------------------
+
+ONE MENU ON EVERY CANVAS. `figure_settings._attach_figure_menu(canvas)`
+installs a per-canvas event filter that opens `build_figure_context_menu` on
+a right-click. It is attached in graph_builder._canvas_class (shared by graph
+builder, sweep panel, feature explorer, volcano, measurement compare, PCA,
+save-figure preview, control chart, dose response, map barcodes),
+train_compare.panel_canvas_class and the UMAP explorer canvas. The figure
+queue already built that menu. Volcano and Gate Editor keep their own menus
+and append the shared entries (`_add_figure_tools`).
+  * "Edit figure…" (was "Figure settings…"): FigureSettingsDialog, which has
+    titles, labels, limits, scales, fonts, colours, legend, size and DPI, all
+    applied live. It now opens on every canvas, not only the queue.
+  * "Change graph type": the kinds that fit the data (groups: box, violin,
+    strip, swarm, bar, point, boxen, box/bar with points, hist, kde, ecdf;
+    two measurements: scatter, line, hexbin, kde, regression; one
+    distribution: hist, kde, ecdf, box, violin, strip, boxen; counts: count,
+    heatmap; matrix: heatmap, clustered heatmap). It redraws in place from
+    the stored data with `figures.bundle._draw`, then applies A's
+    `figures.style._apply_user_style`. The older "Graph type" submenu (the
+    spaCR house types via create_grouped_plot) is still there.
+  * "Statistics…": `_StatisticsDialog`. The test is chosen automatically, and
+    the user can override the test, the subject column, paired and the
+    correction. Apply stores the choice on the figure spec and draws the
+    test line and significance brackets (`bundle._annotate`).
+  * "Save figure (zip)…": `bundle._save_zip` writes ONE zip with the image in
+    the preference format plus PNG (through save_figure), data.csv,
+    statistics.csv, statistics.txt, spec.json (the full recipe) and
+    recreate_figure.py (the same `_draw`/`_annotate` source, so it re-creates
+    the figure from the CSV and JSON without spaCR).
+
+DATA AND SPEC ON EVERY FIGURE. `bundle._register_figure_data(fig, frame, x=,
+y=, hue=, kind=, **spec)`. Graph Builder registers at every render and the
+volcano when its menu opens. create_grouped_plot figures are read through
+their `_spacr_replot` recipe. Any other single-axes figure falls back to
+`derive_replot_recipe` (its points read back from the artists).
+
+STATISTICS, ONE CSV (`figures.stats._auto_statistics`). The columns are
+test_stage, test_name, groups, statistic, df, p_value, p_adjusted,
+correction, effect_size, effect, n, chosen_by (auto/user) and reason.
+  * Groups: Shapiro-Wilk per group, then Bartlett (all normal) or Levene. Two
+    groups get Student's t, Welch's t or Mann-Whitney; paired data gets
+    paired t or Wilcoxon. Three or more get one-way ANOVA then Tukey HSD,
+    Welch's ANOVA then Games-Howell, Kruskal-Wallis then Dunn (corrected), or
+    Friedman then pairwise Wilcoxon (corrected).
+  * Two measurements: Pearson or Spearman, chosen by normality.
+  * Counts: chi-square, or Fisher's exact when an expected count is under 5.
+    Fisher on a table larger than 2×2 is Fisher-Freeman-Halton with a seeded
+    Monte Carlo p. Pairwise tables are corrected.
+  * Proportions (0/1 outcome): two-proportion z or Fisher's exact; with
+    three or more groups, chi-square then corrected pairwise z.
+
+TEST: tests/qt/test_every_figure_has_the_figure_menu.py (27). It covers the
+source check that every canvas attaches the menu, a right-click on two
+canvas classes, a custom-menu canvas keeping its own menu, kinds offered by
+data family, a retype redrawing from the data, every offered kind drawing,
+every statistics branch on synthetic data, the user override, the dialog's
+annotations, and the zip contents with the script reproducing the figure.
+
+PART B — WHAT IS LEFT
+* Only Graph Builder and the volcano register their tidy data explicitly.
+  Other embedded screens (control chart, dose response, PCA, ...) use the
+  artist fallback, which loses the source rows of box/violin summaries.
+  Register them at their render calls.
+* A retype draws a single axes, so it drops a faceted Graph Builder grid
+  until the builder renders again.
+* The "Graph type" (house types) and "Change graph type" submenus could be
+  merged into one.
