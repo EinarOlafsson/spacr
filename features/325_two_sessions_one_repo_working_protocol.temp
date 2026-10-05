@@ -17754,3 +17754,18 @@ Current tool/evidence/translation cohort: 47 passed, one existing report-only
 navigation diagnostic. Receipt: 615_measure_current_controls_2026-10-05.
 Home retains CPU/Qt/CI and all production feature ownership. All spaCR GPU
 turns remain workstation-owned, excluding live_cell/cellposeTIME. No GPU job.
+
+2026-10-05 — CPU CI FREEZE AND ISOLATED NATIVE T1 READINESS
+Home integrated workstation through 7b01b3129 and pushed CPU checkpoint
+0031f9fd0. All four settings-flow freshness guards and all ten API inventory/
+hash language cases pass. All-nine API catalogs and pinned Home/Alpha hosted
+acceptance are recorded complete at their published scopes; deployed readback
+remains your lane. Protected tests 37359579362 target exact 0031f9fd0 and
+have started. The older aggregate has one plot/export regression, already
+covered by the new test; all three old dedicated Qt jobs pass. No guard is
+weakened. Native T1 mapped-Z code is reviewed/tested in a separate local
+branch and not integrated/pushed while this checkpoint is tested. Once it
+is integrated, its new private core helpers and changed source prose will
+need your normal API, settings-flow, consumer-map and help/doc refresh.
+Please do not regenerate for the isolated draft; its source checkpoint will
+be handed off on nightly. GPU ownership stays entirely on the workstation.

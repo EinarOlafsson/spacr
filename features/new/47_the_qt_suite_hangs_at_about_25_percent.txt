@@ -1731,3 +1731,19 @@ serial Qt acceptance remains open as recorded above.
   Agent source 3387359b8 is integrated. This confirms ownership improvement,
   not that the full coverage worker is now below 6 GB; CI acceptance remains
   required, and its limit is unchanged.
+
+2026-10-05 — EXACT COVERAGE BATCH REPLAY; MEMORY PASS, TIMING OUTLIER
+  A local replay of the 32-file coverage shard-4 batch on 0031f9fd0 uses
+  two loadfile workers, coverage tracing, the unchanged 6 GB worker guard
+  and an 8 GiB cgroup. It completes 872 passed and one failed in 8m45s,
+  without a memory-guard failure; the previously failing preferences case
+  passes. Highest sampled worker RSS is about 1.52 GiB, not a continuous
+  peak measurement. The outlier is the Home pause handshake's 10-second
+  startup wait; one isolated 4 GiB replay passes in 3.8s. No assertion or
+  timer is changed based on that context-sensitive result.
+  Worker scheduling differs, and local Python 3.12.4/PySide6 6.10.0 differs
+  from GitHub 3.12.14/6.11.2, so this supports the ownership repair rather
+  than replacing its CI verdict. Old protected source 1c99dd3e8 now passes
+  all three dedicated Qt jobs. Protected rerun 37359579362 tests 0031f9fd0;
+  memory and full serial acceptance remain open. Log:
+  /mnt/wd4tb/scratch/item47-memory-codex-20261005/coverage-shard4-batch3-0031.log.

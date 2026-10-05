@@ -634,3 +634,25 @@ COMBINED TRACK CSV CHECKPOINTS (2026-10-05, partial)
     65 cases under 4 GiB. Source 2d24231a3. This is focused CPU evidence; final
     GitHub aggregate and the remaining vendor/native-volume/pooled/GPU
     acceptance scopes are still open.
+
+NATIVE T1 VOLUME ADAPTER READY IN ISOLATED REVIEW (2026-10-05)
+    The CPU lane prepared, reviewed and tested a fixed-map T1 C-by-Z adapter
+    in codex-f548-review-20261005, commits 16cc52197 and 903714f33 atop
+    11b6a7720. It is not integrated or pushed; nightly remains frozen for
+    protected CI checkpoint 0031f9fd0. This is readiness evidence, not a
+    completion claim for the whole native-volume or F548 acceptance scope.
+    Original mapped YX planes are preserved under .watch_planar; derived
+    explicit ZYX TIFFs feed the existing raw-volume ingest and output layout.
+    Exact source/derived inventories and pre-analysis hashes bind collection
+    and resume; valid inputs alone cannot count as an analysis output. Stop
+    immediately after the final write prevents analysis and safely retries.
+    Numeric C10+ channels retain numeric identity; named custom raw-volume
+    channels retain lexical order. Unsupported native T>1, t_stack, absent
+    maps, incompatible recipes/spacing, Classify and feedback remain refused.
+    Genuine raw ZYX batch versus watch merged arrays and cell/nucleus Measure
+    rows match with only model inference doubled. Agent source/coverage cohort
+    passes 106 and source guards 30; root integration passes 64 after review
+    fixes, all CUDA hidden under 4 GiB. New private core source requires the
+    workstation's normal API/settings-flow/consumer-map/help refresh after
+    integration. Raw vendor completion, pooled parity and real GPU acceptance
+    remain open; the workstation owns every GPU process.
