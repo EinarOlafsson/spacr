@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "ko",
   "title": "Measure: 객체 특징과 크롭 추출",
@@ -35,6 +45,6 @@
     "Ctrl+Shift+R 같은 키는 바꿀 수 있습니다. Help를 열고 Keyboard shortcuts에서 Change shortcuts를 선택합니다. 원하는 동작에 새 키를 입력하세요. 다른 동작과 겹치면 spaCR이 충돌을 알려 주고, 해결할 때까지 Save를 비활성화합니다.",
     "측정값과 객체 잘라낸 이미지 저장을 켜고, Plot은 켜 둔 채 잘라낼 크기와 출력 채널을 고르세요. 첫 실행에서는 Test mode가 필드 하나만 측정합니다. 제공된 열여섯 개 필드를 모두 처리하려면 끄세요. Run을 클릭하고 실행이 끝날 때까지 콘솔을 지켜본 뒤, 계속하기 전에 어떤 필드가 성공했는지 확인하세요.",
     "크롭 그림을 확인한 뒤, measurements 폴더의 measurements.db와 프로젝트의 크롭 출력에 저장된 객체 이미지를 찾으세요. 데이터베이스와 이미지 경로를 함께 보관하세요. 예시 객체에 라벨을 붙이려면 Annotate로, 이미 라벨이 붙은 학습 데이터가 있다면 Classify로 넘어가세요.",
-    "실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요."
+    "이 메모리 사용량 시연에서는 같은 예제 시야를 타일 형태로 반복해 더 큰 배열을 만듭니다. 측정은 시작하지 않습니다. 실행이 시작되기 전에 spaCR은 프로젝트의 필드 하나로 워커 하나에 필요한 메모리를 추정합니다. 이어 붙인 모자이크처럼 매우 큰 필드에서는 요청한 워커가 사용 가능한 RAM에 들어가지 않을 수 있으며, 이때 spaCR이 먼저 묻습니다. 권장 워커 수를 고르거나, 지정한 수를 유지하고 메모리가 부족한 동안 Measure가 새 필드를 잠시 멈추게 하거나, 다른 프로그램을 닫아 메모리를 확보하세요."
   ]
 }

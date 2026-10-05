@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "da",
   "title": "Measure: udtræk objektegenskaber og udsnit",
@@ -35,6 +45,6 @@
     "Taster som Ctrl+Shift+R kan ændres. Åbn Help, derefter Keyboard shortcuts, og vælg Change shortcuts. Indtast en ny tast for en handling; hvis den kolliderer med en anden, navngiver spaCR konflikten og holder Save slået fra, indtil du har løst den.",
     "Slå lagring af målinger og objektudsnit til, lad Plot være slået til, og vælg udsnitsstørrelse og outputkanaler. Til en første kørsel måler Test mode ét felt; slå den fra for at behandle alle seksten medfølgende felter. Klik på Run, følg konsollen, til kørslen er færdig, og kontroller derefter, hvilke felter der lykkedes, før du fortsætter.",
     "Undersøg udsnitsfiguren, og find derefter measurements.db i mappen measurements og de gemte objektbilleder i projektets udsnitsoutput. Hold databasen og billedstierne samlet. Fortsæt til Annotate for at mærke eksempelobjekter, eller til Classify, hvis du allerede har mærkede træningsdata.",
-    "Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse."
+    "I denne demonstration af hukommelsesforbrug gentages det samme eksempelfelt som fliser i et større array; ingen måling startes. Før en kørsel starter, anslår spaCR den hukommelse, hver arbejdsproces skal bruge, ud fra ét synsfelt i dit projekt. Med meget store synsfelter, som sammensatte mosaikker, er der måske ikke plads til de arbejdsprocesser, du bad om, i den ledige RAM, og så spørger spaCR først. Vælg det anbefalede antal arbejdsprocesser, behold dit eget og lad Measure holde pause med nye synsfelter, mens hukommelsen er knap, eller luk andre programmer for at frigøre hukommelse."
   ]
 }

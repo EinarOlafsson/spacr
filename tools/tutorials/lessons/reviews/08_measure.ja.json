@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "ja",
   "title": "Measure：物体の特徴量と切り出し画像を抽出する",
@@ -35,6 +45,6 @@
     "Ctrl+Shift+R のようなキーは変更できます。Help から Keyboard shortcuts を開き、Change shortcuts を選びます。任意の操作に新しいキーを入力します。ほかの操作と重なると spaCR が競合を示し、解消するまで Save は押せません。",
     "測定値とオブジェクトの切り出し画像の保存をオンにし、Plotはオンのままにして、切り出しのサイズと出力チャネルを選びます。最初の実行では、Test modeが一つのフィールドだけを測定します。付属の十六フィールドすべてを処理するにはオフにします。Runをクリックし、実行が終わるまでコンソールを確認してから、先に進む前にどのフィールドが成功したかを確認します。",
     "切り出し画像の図を確認したら、measurementsフォルダーのmeasurements.dbと、プロジェクトの切り出し出力に保存された物体画像を探します。データベースと画像のパスは一緒に保管します。例の物体にラベルを付けるにはAnnotateへ、ラベル付きの学習データがすでにあればClassifyへ進みます。",
-    "実行を始める前に、spaCRはプロジェクトの1つの視野から、各ワーカーが必要とするメモリを見積もります。つなぎ合わせたモザイクのような非常に大きな視野では、指定したワーカーが空きRAMに収まらないことがあり、その場合spaCRは先に確認します。推奨されたワーカー数を選ぶか、指定した数のままにしてメモリが不足する間はMeasureに新しい視野を待たせるか、ほかのプログラムを閉じてメモリを空けます。"
+    "このメモリ使用量のデモでは、同じサンプル視野をタイル状に並べて大きな配列を作っています。測定は開始しません。 実行を始める前に、spaCRはプロジェクトの1つの視野から、各ワーカーが必要とするメモリを見積もります。つなぎ合わせたモザイクのような非常に大きな視野では、指定したワーカーが空きRAMに収まらないことがあり、その場合spaCRは先に確認します。推奨されたワーカー数を選ぶか、指定した数のままにしてメモリが不足する間はMeasureに新しい視野を待たせるか、ほかのプログラムを閉じてメモリを空けます。"
   ]
 }

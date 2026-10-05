@@ -6,7 +6,20 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from measure_evidence import verify_field
+from measure_evidence import _check_recorded_source, verify_field
+
+
+@pytest.mark.parametrize('source', ['/data/plate1', '/data/plate1/merged', ['/data/plate1/merged']])
+def test_actual_project_or_direct_merged_source_binds_the_same_crop_root(source):
+    _check_recorded_source(source, Path('/data/plate1'))
+
+
+@pytest.mark.parametrize('source', ['/data/other/merged', '/data/plate1/merged/nested',
+    '/data/plate1/pngs', '/data/other/../plate1/merged', ['not/a/project'],
+    ['/data/plate1', '/data/other'], []])
+def test_other_or_ambiguous_sources_cannot_borrow_the_recorded_crop_root(source):
+    with pytest.raises(ValueError):
+        _check_recorded_source(source, Path('/data/plate1'))
 
 
 def example():

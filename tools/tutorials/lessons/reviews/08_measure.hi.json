@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "hi",
   "title": "Measure: वस्तुओं की विशेषताएँ और क्रॉप निकालें",
@@ -35,6 +45,6 @@
     "Ctrl+Shift+R जैसी कुंजियाँ बदली जा सकती हैं। Help खोलें, फिर Keyboard shortcuts, और Change shortcuts चुनें। किसी भी क्रिया के लिए नई कुंजी टाइप करें; अगर वह किसी दूसरी से टकराती है, तो spaCR टकराव का नाम बताता है और उसे सुलझाने तक Save बंद रखता है।",
     "माप और वस्तुओं के क्रॉप सहेजना चालू करें, Plot चालू रखें, और क्रॉप का आकार तथा आउटपुट चैनल चुनें। पहले रन में Test mode एक फ़ील्ड मापता है; दिए गए सभी सोलह फ़ील्ड प्रोसेस करने के लिए इसे बंद करें। Run पर क्लिक करें, रन पूरा होने तक कंसोल देखें, और आगे बढ़ने से पहले जाँचें कि कौन-से फ़ील्ड सफल रहे।",
     "क्रॉप वाला चित्र देखें, फिर measurements फ़ोल्डर में measurements.db और प्रोजेक्ट के क्रॉप आउटपुट में सहेजी गई वस्तु इमेज खोजें। डेटाबेस और इमेज पथ साथ रखें। उदाहरण वस्तुओं पर लेबल लगाने के लिए Annotate पर जाएँ, या अगर आपके पास पहले से लेबल वाला प्रशिक्षण डेटा है तो Classify पर।",
-    "कोई भी रन शुरू होने से पहले spaCR आपके प्रोजेक्ट के एक फ़ील्ड से अनुमान लगाता है कि हर वर्कर को कितनी मेमोरी चाहिए। बहुत बड़े फ़ील्ड, जैसे जोड़े गए मोज़ेक, के साथ आपके माँगे वर्कर शायद खाली RAM में न समाएँ, और तब spaCR पहले पूछता है। सुझाई गई वर्कर संख्या चुनें, अपनी संख्या रखें और मेमोरी कम रहने तक Measure को नए फ़ील्ड रोकने दें, या मेमोरी खाली करने के लिए दूसरे प्रोग्राम बंद करें।"
+    "मेमोरी के इस प्रदर्शन में उसी उदाहरण वाले इमेज फ़ील्ड को टाइलों के रूप में दोहराकर एक बड़ा ऐरे बनाया गया है; कोई मापन शुरू नहीं किया जाता। कोई भी रन शुरू होने से पहले spaCR आपके प्रोजेक्ट के एक फ़ील्ड से अनुमान लगाता है कि हर वर्कर को कितनी मेमोरी चाहिए। बहुत बड़े फ़ील्ड, जैसे जोड़े गए मोज़ेक, के साथ आपके माँगे वर्कर शायद खाली RAM में न समाएँ, और तब spaCR पहले पूछता है। सुझाई गई वर्कर संख्या चुनें, अपनी संख्या रखें और मेमोरी कम रहने तक Measure को नए फ़ील्ड रोकने दें, या मेमोरी खाली करने के लिए दूसरे प्रोग्राम बंद करें।"
   ]
 }

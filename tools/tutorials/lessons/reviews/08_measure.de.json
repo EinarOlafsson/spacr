@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "de",
   "title": "Measure: Objektmerkmale und Ausschnitte extrahieren",
@@ -35,6 +45,6 @@
     "Tasten wie Strg+Umschalt+R lassen sich ändern. Öffnen Sie Help, dann Keyboard shortcuts, und wählen Sie Change shortcuts. Geben Sie für eine Aktion eine neue Taste ein; kollidiert sie mit einer anderen, nennt spaCR den Konflikt und lässt Save deaktiviert, bis Sie ihn auflösen.",
     "Aktivieren Sie das Speichern von Messungen und Objektausschnitten, lassen Sie Plot an und wählen Sie Ausschnittgröße und Ausgabekanäle. Für einen ersten Lauf misst Test mode ein Feld; schalten Sie es aus, um alle sechzehn mitgelieferten Felder zu verarbeiten. Klicken Sie auf Run, verfolgen Sie die Konsole bis zum Ende des Laufs und prüfen Sie dann, welche Felder erfolgreich waren, bevor Sie weitermachen.",
     "Prüfen Sie die Ausschnittabbildung und finden Sie dann measurements.db im Ordner measurements sowie die gespeicherten Objektbilder in der Ausschnittausgabe des Projekts. Halten Sie Datenbank und Bildpfade zusammen. Fahren Sie mit Annotate fort, um Beispielobjekte zu beschriften, oder mit Classify, wenn Sie bereits beschriftete Trainingsdaten haben.",
-    "Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben."
+    "Für diese Speicherdemonstration wird dasselbe Beispielbildfeld kachelartig zu einem größeren Array zusammengesetzt; es wird keine Messung gestartet. Bevor ein Lauf beginnt, schätzt spaCR anhand eines Bildfelds Ihres Projekts, wie viel Speicher jeder Worker braucht. Bei sehr großen Bildfeldern, etwa zusammengesetzten Mosaiken, passen die gewünschten Worker womöglich nicht in den freien Arbeitsspeicher, und spaCR fragt zuerst nach. Wählen Sie die empfohlene Worker-Anzahl, behalten Sie Ihre eigene und lassen Sie Measure neue Bildfelder zurückhalten, solange der Speicher knapp ist, oder schließen Sie andere Programme, um Speicher freizugeben."
   ]
 }

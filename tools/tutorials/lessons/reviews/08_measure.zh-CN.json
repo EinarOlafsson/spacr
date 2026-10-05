@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "zh-CN",
   "title": "Measure：提取对象特征和裁剪图像",
@@ -35,6 +45,6 @@
     "像 Ctrl+Shift+R 这样的按键可以更改。打开 Help，再打开 Keyboard shortcuts，选择 Change shortcuts。为任意操作输入新按键；如果与其他操作冲突，spaCR 会指出冲突，并在解决之前保持 Save 不可用。",
     "开启测量值和对象裁剪图像的保存，保持 Plot 开启，并选择裁剪尺寸和输出通道。第一次运行时，Test mode 只测量一个视野；关闭它即可处理全部十六个附带视野。点击 Run，关注控制台直到运行完成，然后在继续之前检查哪些视野成功。",
     "检查裁剪图，然后在measurements文件夹中找到measurements.db，并在项目的裁剪输出中找到保存的对象图像。把数据库和图像路径放在一起。接下来可以用Annotate为示例对象加标签；如果已有带标签的训练数据，也可以直接使用Classify。",
-    "在任何运行开始之前，spaCR会根据项目中的一个视野估算每个工作进程所需的内存。对于非常大的视野，例如拼接后的马赛克，您请求的工作进程可能装不下空闲内存，此时spaCR会先询问您。您可以选择推荐的工作进程数，或保留自己的数量并让Measure在内存不足时暂停新视野，或关闭其他程序以释放内存。"
+    "在这个内存演示中，同一个示例视野被重复平铺成更大的数组；不会启动任何测量。 在任何运行开始之前，spaCR会根据项目中的一个视野估算每个工作进程所需的内存。对于非常大的视野，例如拼接后的马赛克，您请求的工作进程可能装不下空闲内存，此时spaCR会先询问您。您可以选择推荐的工作进程数，或保留自己的数量并让Measure在内存不足时暂停新视野，或关闭其他程序以释放内存。"
   ]
 }

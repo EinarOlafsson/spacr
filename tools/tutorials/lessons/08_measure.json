@@ -112,7 +112,7 @@
     },
     {
       "visual": "batch_21_ram_guard",
-      "narration": "Before any run starts, spaCR estimates the memory each worker needs from one field of your project. With very large fields, such as stitched mosaics, the workers you asked for may not fit in the free RAM, and spaCR asks first. Choose the recommended worker count, keep yours and let Measure pause new fields while memory is short, or close other programs to free memory.",
+      "narration": "For this memory demonstration, the same example field is tiled into a larger array; no measurement is started. Before any run starts, spaCR estimates the memory each worker needs from one field of your project. With very large fields, such as stitched mosaics, the workers you asked for may not fit in the free RAM, and spaCR asks first. Choose the recommended worker count, keep yours and let Measure pause new fields while memory is short, or close other programs to free memory.",
       "focus": [
         1620,
         860,

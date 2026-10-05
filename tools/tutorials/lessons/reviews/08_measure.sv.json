@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "sv",
   "title": "Measure: ta fram objektegenskaper och utsnitt",
@@ -35,6 +45,6 @@
     "Tangenter som Ctrl+Shift+R kan ändras. Öppna Help, sedan Keyboard shortcuts, och välj Change shortcuts. Skriv en ny tangent för valfri åtgärd; krockar den med en annan namnger spaCR konflikten och håller Save avstängt tills du har löst den.",
     "Slå på sparande av mätningar och objektutsnitt, låt Plot vara på och välj utsnittsstorlek och utdatakanaler. Vid en första körning mäter Test mode ett fält; stäng av det för att bearbeta alla sexton medföljande fält. Klicka på Run, följ konsolen tills körningen är klar och kontrollera sedan vilka fält som lyckades innan du fortsätter.",
     "Granska utsnittsfiguren och leta sedan upp measurements.db i mappen measurements och de sparade objektbilderna i projektets utsnittsutdata. Håll ihop databasen och bildsökvägarna. Fortsätt till Annotate för att märka exempelobjekt, eller till Classify om du redan har märkta träningsdata.",
-    "Innan en körning startar uppskattar spaCR hur mycket minne varje arbetsprocess behöver utifrån ett synfält i ditt projekt. Med mycket stora synfält, som sammanfogade mosaiker, får de arbetsprocesser du bad om kanske inte plats i ledigt RAM, och då frågar spaCR först. Välj det rekommenderade antalet arbetsprocesser, behåll ditt eget och låt Measure pausa nya synfält medan minnet är knappt, eller stäng andra program för att frigöra minne."
+    "I den här demonstrationen av minnesanvändning upprepas samma exempelbildfält som plattor i en större array; ingen mätning startas. Innan en körning startar uppskattar spaCR hur mycket minne varje arbetsprocess behöver utifrån ett synfält i ditt projekt. Med mycket stora synfält, som sammanfogade mosaiker, får de arbetsprocesser du bad om kanske inte plats i ledigt RAM, och då frågar spaCR först. Välj det rekommenderade antalet arbetsprocesser, behåll ditt eget och låt Measure pausa nya synfält medan minnet är knappt, eller stäng andra program för att frigöra minne."
   ]
 }

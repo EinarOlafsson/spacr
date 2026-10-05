@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "fr",
   "title": "Measure : extraire les caractéristiques et les vignettes des objets",
@@ -35,6 +45,6 @@
     "Les touches comme Ctrl+Maj+R peuvent être modifiées. Ouvrez Help, puis Keyboard shortcuts, et choisissez Change shortcuts. Tapez une nouvelle touche pour n’importe quelle action ; si elle entre en conflit avec une autre, spaCR nomme le conflit et laisse Save désactivé tant que vous ne l’avez pas résolu.",
     "Activez l’enregistrement des mesures et des découpes d’objets, laissez Plot activé et choisissez la taille des découpes et les canaux de sortie. Pour un premier essai, Test mode mesure un seul champ ; désactivez-le pour traiter les seize champs fournis. Cliquez sur Run, suivez la console jusqu’à la fin de l’exécution, puis vérifiez quels champs ont réussi avant de continuer.",
     "Inspectez la figure des vignettes, puis repérez measurements.db dans le dossier measurements et les images d’objets enregistrées dans la sortie de vignettes du projet. Gardez ensemble la base de données et les chemins des images. Poursuivez avec Annotate pour étiqueter des objets d’exemple, ou avec Classify si vous disposez déjà de données d’entraînement étiquetées.",
-    "Avant de lancer une exécution, spaCR estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spaCR vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire."
+    "Pour cette démonstration de mémoire, le même champ exemple est répété en mosaïque pour former un tableau plus grand ; aucune mesure n’est lancée. Avant de lancer une exécution, spaCR estime la mémoire dont chaque processus de travail a besoin à partir d’un champ de votre projet. Avec des champs très grands, comme des mosaïques assemblées, les processus demandés peuvent ne pas tenir dans la RAM libre, et spaCR vous demande d’abord. Choisissez le nombre de processus recommandé, gardez le vôtre et laissez Measure suspendre les nouveaux champs tant que la mémoire manque, ou fermez d’autres programmes pour libérer de la mémoire."
   ]
 }

@@ -194,6 +194,26 @@
       "hold_after": 0.7
     },
     {
+      "visual": "puncta_01_raw_input",
+      "narration": "To detect faint puncta inside cysts, open the original single-channel image and keep the cyst instance masks in a separate folder with matching filenames. These punctum masks represent centre pixels, not complete object boundaries.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_02_parent_and_settings",
+      "narration": "Choose Centre-pixel puncta within parent masks. Set the primary class to cyst and the secondary class to punctum, choose the parent-mask folder and press Reload. Review spot scales, the noise threshold, centre pixels, corrected intensity, peak spacing and edge margin.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_03_detected_centres",
+      "narration": "Choose replace in Object operations, then click Object detection to process the whole image. This field yields 150 candidates and 46 included puncta. Detection uses original intensities; display normalization and enhancement do not alter this mode.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "puncta_04_saved_mask_and_measurements",
+      "narration": "Save mask writes the label TIFF and a puncta CSV beside it. center20 is the mean of twenty centre pixels; local_bg records local background and center_corrected subtracts it from the configured centre mean. Inspect included and mask_pixels: shared pixels have one label owner, so a mask can contain fewer pixels. Original images and parent masks remain unchanged.",
+      "hold_after": 0.7
+    },
+    {
       "visual": "20_curate_keep",
       "narration": "While you work through a folder, Keep and Discard record a verdict for each field and move on to the next. Nothing is deleted: the verdict goes to keep_discard.csv in the folder's csv subfolder, with the image, its mask and its current object count.",
       "hold_after": 0.7

@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "it",
   "title": "Measure: estrarre caratteristiche e ritagli degli oggetti",
@@ -35,6 +45,6 @@
     "Tasti come Ctrl+Maiusc+R si possono cambiare. Apra Help, poi Keyboard shortcuts, e scelga Change shortcuts. Digiti un nuovo tasto per qualsiasi azione; se entra in conflitto con un’altra, spaCR indica il conflitto e lascia Save disattivato finché non lo risolve.",
     "Attiva il salvataggio delle misurazioni e dei ritagli degli oggetti, lascia attivo Plot e scegli la dimensione dei ritagli e i canali di uscita. Per una prima esecuzione, Test mode misura un solo campo; disattivalo per elaborare tutti e sedici i campi forniti. Fai clic su Run, segui la console fino al termine dell’esecuzione, poi controlla quali campi sono riusciti prima di proseguire.",
     "Esamina la figura dei ritagli, poi individua measurements.db nella cartella measurements e le immagini degli oggetti salvate nell’output dei ritagli del progetto. Tieni insieme il database e i percorsi delle immagini. Prosegui con Annotate per etichettare oggetti di esempio, oppure con Classify se hai già dati di addestramento etichettati.",
-    "Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
+    "Per questa dimostrazione della memoria, lo stesso campo di esempio viene ripetuto a mosaico in un array più grande; non viene avviata alcuna misurazione. Prima che parta un’esecuzione, spaCR stima la memoria necessaria a ciascun processo di lavoro partendo da un campo del tuo progetto. Con campi molto grandi, come mosaici uniti, i processi richiesti potrebbero non entrare nella RAM libera, e spaCR chiede prima di partire. Scegli il numero di processi consigliato, mantieni il tuo e lascia che Measure sospenda i nuovi campi finché la memoria scarseggia, oppure chiudi altri programmi per liberare memoria."
   ]
 }

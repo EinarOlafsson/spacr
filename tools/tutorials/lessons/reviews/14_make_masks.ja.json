@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "ja",
   "title": "Make Masks：ラベルを編集し、学習用画像を準備する",
@@ -49,6 +59,10 @@
     "Cell probabilityを開くと、前景スコアのマップを確認できます。モデルがどの領域を支持しているかがわかります。必要に応じて前景のしきい値を変え、検出をもう一度実行して新しい結果を得ます。",
     "Flowsを開くと、方向の表示を確認できます。フローの一貫性のしきい値は、検出された物体のうちどれを残すかを決めます。値が低いほど厳しくなり、ゼロではこのチェックが無効になります。設定を変えるたびに、最終的なマスクを比べます。",
     "Undoで検出前のラベルに戻せます。画像に最もよく合うマスクを残し、学習に含める前に各フィールドの結果を確認します。",
+    "シスト内の弱い輝点を検出するには、元の単一チャネル画像を開き、シストのインスタンスマスクを対応するファイル名で別のフォルダに置きます。この輝点マスクが表すのは中心画素であり、物体全体の境界ではありません。",
+    "Centre-pixel puncta within parent masksを選びます。一次クラスをcyst、二次クラスをpunctumに設定し、親マスクのフォルダを選んでReloadを押します。輝点のスケール、ノイズのしきい値、中心画素数、補正強度、ピーク間隔、境界からの余白を確認します。",
+    "Object operationsでreplaceを選び、Object detectionをクリックして画像全体を処理します。この視野では150個の候補から46個の輝点が採用されます。検出には元の強度値を使い、表示の正規化や画像強調はこのモードに影響しません。",
+    "Save maskはラベルTIFFと、その隣に輝点のCSVを保存します。center20は中心の20画素の平均、local_bgは局所背景を記録し、center_correctedは設定した中心画素の平均から局所背景を引いた値です。includedとmask_pixelsを確認してください。共有画素のラベル所有者は一つなので、マスクの画素数が少なくなる場合があります。元の画像と親マスクは変更されません。",
     "フォルダーを順に処理するあいだ、KeepとDiscardは各フィールドの判定を記録して次へ進みます。何も削除されません。判定は、フォルダー内のcsvサブフォルダーにあるkeep_discard.csvに、画像、そのマスク、現在の物体数とともに書き込まれます。",
     "Discardは、学習セットに含めたくないフィールドに印を付けます。Skipは、ターミナルからspacr-make-masksで開始した修正セッション用です。修正できないフィールドに印を付け、次のセッションで再び提示されないようにします。",
     "修正したペアが他の人の役に立ちそうなら、Upload dataをクリックします。画面上のフィールド、保存したマスクを持つすべての修正済み画像、または画像フォルダーとマスクフォルダーを選び、データセットに名前を付けます。リンクには、追加先となるHugging Faceのデータセットが表示されます。Uploadを押して共有に同意するまで、何も送信されません。",

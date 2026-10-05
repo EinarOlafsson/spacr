@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "hi",
   "title": "Make Masks: लेबल संपादित करें और प्रशिक्षण इमेज तैयार करें",
@@ -49,6 +59,10 @@
     "फ़ोरग्राउंड स्कोर मैप देखने के लिए Cell probability खोलें। इससे पता चलता है कि मॉडल किन क्षेत्रों का समर्थन करता है। उपयोगी हो तो फ़ोरग्राउंड थ्रेशोल्ड बदलें, फिर नया परिणाम पाने के लिए पहचान दोबारा चलाएँ।",
     "दिशा वाला दृश्य देखने के लिए Flows खोलें। फ़्लो-संगति थ्रेशोल्ड तय करता है कि कौन-सी पहचानी गई वस्तुएँ रखी जाएँ: कम मान ज़्यादा सख़्त हैं, और शून्य यह जाँच बंद कर देता है। हर सेटिंग बदलने के बाद अंतिम मास्क की तुलना करें।",
     "Undo पहचान से पहले के लेबल वापस लाता है। जो मास्क इमेज के साथ सबसे अच्छा मेल खाता है उसे रखें, और प्रशिक्षण में शामिल करने से पहले हर फ़ील्ड का परिणाम देखें।",
+    "सिस्ट के भीतर हल्के पुंक्टा का पता लगाने के लिए मूल एकल-चैनल छवि खोलें और सिस्ट के इंस्टेंस मास्क समान फ़ाइल नामों वाले एक अलग फ़ोल्डर में रखें। ये पुंक्टम मास्क केंद्रीय पिक्सेल दर्शाते हैं, वस्तुओं की पूरी सीमाएँ नहीं।",
+    "Centre-pixel puncta within parent masks चुनें। प्राथमिक वर्ग cyst और द्वितीयक वर्ग punctum रखें, पैरेंट मास्क का फ़ोल्डर चुनें और Reload दबाएँ। स्पॉट के स्केल, शोर की सीमा, केंद्रीय पिक्सेल, संशोधित तीव्रता, पीक के बीच की दूरी और किनारे के मार्जिन की जाँच करें।",
+    "Object operations में replace चुनें, फिर पूरी छवि को संसाधित करने के लिए Object detection पर क्लिक करें। इस फ़ील्ड में 150 उम्मीदवार और 46 शामिल पुंक्टा मिलते हैं। पहचान मूल तीव्रताओं का उपयोग करती है; डिस्प्ले का सामान्यीकरण और एन्हांसमेंट इस मोड को नहीं बदलते।",
+    "Save mask लेबल TIFF और उसके साथ पुंक्टा CSV लिखता है। center20 बीस केंद्रीय पिक्सेल का औसत है; local_bg स्थानीय पृष्ठभूमि दर्ज करता है और center_corrected इसे निर्धारित केंद्रीय औसत से घटाता है। included और mask_pixels जाँचें: साझा पिक्सेल का केवल एक लेबल मालिक होता है, इसलिए किसी मास्क में कम पिक्सेल हो सकते हैं। मूल छवियाँ और पैरेंट मास्क अपरिवर्तित रहते हैं।",
     "जब आप किसी फ़ोल्डर पर काम करते हैं, तो Keep और Discard हर फ़ील्ड के लिए एक फ़ैसला दर्ज करते हैं और अगले पर चले जाते हैं। कुछ भी हटाया नहीं जाता: फ़ैसला फ़ोल्डर के csv सबफ़ोल्डर में keep_discard.csv में जाता है, इमेज, उसके मास्क और उसकी मौजूदा वस्तु संख्या के साथ।",
     "Discard उस फ़ील्ड को चिह्नित करता है जिसे आप प्रशिक्षण सेट में नहीं चाहते। Skip उन सुधार सत्रों के लिए है जो टर्मिनल से spacr-make-masks के साथ शुरू किए जाते हैं: यह ऐसे फ़ील्ड को चिह्नित करता है जिसे सुधारा नहीं जा सकता, ताकि अगला सत्र उसे फिर न दिखाए।",
     "जब आपके सुधारे गए जोड़े दूसरों के काम आ सकें, तो Upload data पर क्लिक करें। स्क्रीन पर दिख रहा फ़ील्ड, सहेजे गए मास्क वाली हर सुधारी गई इमेज, या एक इमेज फ़ोल्डर और एक मास्क फ़ोल्डर चुनें, फिर डेटासेट को नाम दें। लिंक वह Hugging Face डेटासेट दिखाता है जिसमें यह जुड़ेगा। जब तक आप Upload नहीं दबाते और साझा करने के लिए सहमत नहीं होते, कुछ भी नहीं भेजा जाता।",

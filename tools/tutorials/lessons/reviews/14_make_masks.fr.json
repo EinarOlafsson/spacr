@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "fr",
   "title": "Make Masks : modifier les étiquettes et préparer des images d’entraînement",
@@ -49,6 +59,10 @@
     "Ouvrez Cell probability pour inspecter la carte des scores de premier plan. Elle montre les régions que le modèle retient. Modifiez le seuil de premier plan si c’est utile, puis relancez la détection pour obtenir un nouveau résultat.",
     "Ouvrez Flows pour inspecter la vue directionnelle. Le seuil de cohérence des flux détermine quels objets détectés sont conservés : des valeurs plus basses sont plus strictes, et zéro désactive cette vérification. Comparez les masques finaux après chaque changement de réglage.",
     "Undo rétablit les étiquettes d’avant la détection. Gardez le masque qui suit le mieux l’image, et inspectez le résultat de chaque champ avant de l’inclure dans l’entraînement.",
+    "Pour détecter des ponctuations faibles dans les kystes, ouvrez l’image originale à un seul canal et conservez les masques d’instances des kystes dans un dossier séparé, avec des noms de fichiers correspondants. Ces masques de ponctuations représentent les pixels centraux, pas les limites complètes des objets.",
+    "Choisissez Centre-pixel puncta within parent masks. Définissez la classe primaire sur cyst et la secondaire sur punctum, choisissez le dossier des masques parents et appuyez sur Reload. Vérifiez les échelles des points, le seuil de bruit, les pixels centraux, l’intensité corrigée, l’espacement des pics et la marge au bord.",
+    "Choisissez replace dans Object operations, puis cliquez sur Object detection pour traiter toute l’image. Ce champ produit 150 candidats et 46 ponctuations incluses. La détection utilise les intensités originales ; la normalisation et l’amélioration de l’affichage ne modifient pas ce mode.",
+    "Save mask écrit le TIFF d’étiquettes et un CSV de ponctuations à côté. center20 est la moyenne de vingt pixels centraux ; local_bg consigne le fond local et center_corrected le soustrait à la moyenne centrale configurée. Inspectez included et mask_pixels : les pixels partagés appartiennent à une seule étiquette, donc un masque peut contenir moins de pixels. Les images originales et les masques parents restent inchangés.",
     "Pendant que vous parcourez un dossier, Keep et Discard enregistrent un verdict pour chaque champ et passent au suivant. Rien n’est supprimé : le verdict va dans keep_discard.csv, dans le sous-dossier csv du dossier, avec l’image, son masque et son nombre actuel d’objets.",
     "Discard marque un champ que vous ne voulez pas dans un jeu d’entraînement. Skip concerne les sessions de révision lancées depuis le terminal avec spacr-make-masks : il marque un champ qui ne peut pas être revu, pour que la session suivante ne le propose plus.",
     "Lorsque vos paires revues peuvent aider d’autres personnes, cliquez sur Upload data. Choisissez le champ affiché, toutes les images revues avec leur masque enregistré, ou un dossier d’images et un dossier de masques, puis nommez le jeu de données. Le lien montre le jeu de données Hugging Face qu’il rejoindra. Rien n’est envoyé tant que vous n’avez pas appuyé sur Upload et accepté de partager.",

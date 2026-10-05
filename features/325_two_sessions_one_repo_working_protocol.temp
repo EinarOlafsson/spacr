@@ -17769,3 +17769,40 @@ is integrated, its new private core helpers and changed source prose will
 need your normal API, settings-flow, consumer-map and help/doc refresh.
 Please do not regenerate for the isolated draft; its source checkpoint will
 be handed off on nightly. GPU ownership stays entirely on the workstation.
+
+2026-10-05 — WORKSTATION COMPLETE MEASURE AND MAKE MASKS CAPTURE CHECKPOINT
+The full current Measure run r4 succeeds at 16/16 fields with zero failures,
+n_jobs=1 and Plot enabled under a 32 GiB cap. Independent raw-pixel checks
+verify 5,409 area/intensity values, 601 RGB crops and 48 saved PDFs; all
+sixteen original arrays are byte-identical. The 8 GiB and 16 GiB attempts
+are preserved as failures with one kernel OOM kill each. The latter wrote
+14 fields before dying. This is evidence about the recording's allocation,
+not a change to CI's memory guard or a claim that plot memory is bounded.
+
+All seventeen Measure scenes now compose accepted current controls, full-run
+results, genuine Templates/shortcut controls and an explicitly disclosed
+tiled RAM warning. The actual completed-run CSV is unchanged after import;
+no template is applied and Cancel preserves shortcut/Measure settings.
+The import recorder selects Settings CSV and its actual visible file row,
+avoiding an uncommitted path-completion popup. Failed recorder profiles and
+frames remain preserved. The real memory warning is cancelled without a run.
+
+Make Masks' current native editor, real CPU Cellpose inference, recrop,
+curation and organization pass independent source-plane/output checks.
+Five fresh CPU restoration scenes load the actual isolated Cellpose 3 model,
+compare and apply without changing original pixels or rewriting Source.
+Four new native puncta scenes reproduce the acquired A01 reference exactly:
+150 candidates, 46 included, byte-identical saved mask and complete CSV.
+All previous 41 lesson scenes remain, with 13 source-bound reviews for the
+four insertions. No biological ground truth or native-speaker signoff.
+
+Measure, Make Masks, Batch and Distributed now stage together in fourteen
+catalogs, preserving all eighty-one unrelated complete lesson objects.
+Navigation's generated headings pass sixteen actual desktop/mobile browser
+cases. Focused current evidence/translation tests pass 61 with one existing
+report-only published-navigation diagnostic. Receipts are 615_measure_current_
+run/stage and 615_make_masks_current_editor/puncta/restoration/stage.
+Current media still needs 108 narration tracks, videos and publication.
+A single workstation GPU narration turn is prepared; no duplicate GPU
+validation should start. Home retains CPU/Qt/CI and feature source ownership;
+live_cell/cellposeTIME remain excluded. No final CI green is claimed.

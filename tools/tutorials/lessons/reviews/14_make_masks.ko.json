@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "ko",
   "title": "Make Masks: 라벨 편집과 학습 이미지 준비",
@@ -49,6 +59,10 @@
     "Cell probability를 열어 전경 점수 지도를 확인하세요. 모델이 어떤 영역을 뒷받침하는지 볼 수 있습니다. 필요하면 전경 임곗값을 바꾸고 검출을 다시 실행해 새 결과를 얻으세요.",
     "Flows를 열어 방향 보기를 확인하세요. 흐름 일관성 임곗값은 검출된 객체 가운데 어떤 것을 남길지 결정합니다. 값이 낮을수록 더 엄격하며, 0이면 이 검사가 꺼집니다. 설정을 바꿀 때마다 최종 마스크를 비교하세요.",
     "Undo를 누르면 검출 전의 라벨로 돌아갑니다. 이미지와 가장 잘 맞는 마스크를 남기고, 학습에 포함하기 전에 각 시야의 결과를 확인하세요.",
+    "낭포 안의 약한 점상 신호를 검출하려면 원래 단일 채널 이미지를 열고, 낭포의 인스턴스 마스크를 파일 이름이 일치하는 별도 폴더에 보관합니다. 이 점상 신호 마스크는 물체 전체 경계가 아니라 중심 픽셀을 나타냅니다.",
+    "Centre-pixel puncta within parent masks를 선택합니다. 주 객체 클래스를 cyst, 보조 객체 클래스를 punctum으로 설정하고 부모 마스크 폴더를 선택한 다음 Reload를 누릅니다. 점의 스케일, 잡음 임계값, 중심 픽셀 수, 보정 강도, 피크 간격 및 가장자리 여백을 확인합니다.",
+    "Object operations에서 replace를 선택한 다음 Object detection을 클릭하여 전체 이미지를 처리합니다. 이 시야에서는 후보 150개 중 점상 신호 46개가 포함됩니다. 검출에는 원래 강도를 사용하며 표시 정규화와 이미지 개선은 이 모드에 영향을 주지 않습니다.",
+    "Save mask는 라벨 TIFF와 그 옆의 점상 신호 CSV를 저장합니다. center20은 중심 픽셀 20개의 평균이며, local_bg는 국소 배경을 기록하고 center_corrected는 설정된 중심 평균에서 그 배경을 뺍니다. included와 mask_pixels를 확인합니다. 공유 픽셀은 하나의 라벨에만 속하므로 마스크의 픽셀 수가 더 적을 수 있습니다. 원래 이미지와 부모 마스크는 변경되지 않습니다.",
     "폴더를 차례로 작업하는 동안 Keep과 Discard는 각 시야의 판정을 기록하고 다음 시야로 넘어갑니다. 아무것도 삭제되지 않습니다. 판정은 폴더의 csv 하위 폴더에 있는 keep_discard.csv에 이미지, 마스크, 현재 객체 수와 함께 기록됩니다.",
     "Discard는 학습 세트에 넣고 싶지 않은 시야를 표시합니다. Skip은 터미널에서 spacr-make-masks로 시작한 정리 세션용입니다. 정리할 수 없는 시야를 표시해 다음 세션에서 다시 제시되지 않게 합니다.",
     "정리한 쌍이 다른 사람에게 도움이 될 수 있다면 Upload data를 클릭하세요. 화면의 시야, 저장된 마스크가 있는 모든 정리 이미지, 또는 이미지 폴더와 마스크 폴더를 고른 뒤 데이터셋 이름을 정하세요. 링크에는 추가될 Hugging Face 데이터셋이 표시됩니다. Upload를 누르고 공유에 동의하기 전에는 아무것도 전송되지 않습니다.",

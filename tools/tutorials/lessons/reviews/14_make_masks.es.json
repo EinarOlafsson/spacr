@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "es",
   "title": "Make Masks: editar etiquetas y preparar imágenes de entrenamiento",
@@ -49,6 +59,10 @@
     "Abre Cell probability para revisar el mapa de puntuaciones del primer plano. Te sirve para ver qué regiones respalda el modelo. Cambia el umbral del primer plano si es útil y vuelve a ejecutar la detección para obtener un resultado nuevo.",
     "Abre Flows para revisar la vista direccional. El umbral de coherencia del flujo controla qué objetos detectados se conservan: los valores más bajos son más estrictos, y cero desactiva esta comprobación. Compara las máscaras finales después de cada cambio de ajuste.",
     "Undo restaura las etiquetas anteriores a la detección. Quédate con la máscara que mejor sigue la imagen y revisa el resultado de cada campo antes de incluirlo en el entrenamiento.",
+    "Para detectar puntos débiles dentro de quistes, abra la imagen original de un solo canal y guarde las máscaras de instancias de los quistes en otra carpeta, con nombres de archivo coincidentes. Estas máscaras de puntos representan píxeles centrales, no los límites completos de los objetos.",
+    "Elija Centre-pixel puncta within parent masks. Establezca la clase primaria en cyst y la secundaria en punctum, elija la carpeta de máscaras principales y pulse Reload. Revise las escalas de los puntos, el umbral de ruido, los píxeles centrales, la intensidad corregida, la separación entre picos y el margen del borde.",
+    "Elija replace en Object operations y pulse Object detection para procesar toda la imagen. Este campo produce 150 candidatos y 46 puntos incluidos. La detección utiliza las intensidades originales; la normalización y la mejora de la visualización no modifican este modo.",
+    "Save mask escribe el TIFF de etiquetas y un CSV de puntos junto a él. center20 es la media de veinte píxeles centrales; local_bg registra el fondo local y center_corrected lo resta de la media central configurada. Examine included y mask_pixels: los píxeles compartidos pertenecen a una sola etiqueta, por lo que una máscara puede contener menos píxeles. Las imágenes originales y las máscaras principales permanecen intactas.",
     "Mientras recorres una carpeta, Keep y Discard registran un veredicto para cada campo y pasan al siguiente. No se borra nada: el veredicto va a keep_discard.csv en la subcarpeta csv de la carpeta, con la imagen, su máscara y su número actual de objetos.",
     "Discard marca un campo que no quieres en un conjunto de entrenamiento. Skip corresponde a las sesiones de revisión iniciadas desde la terminal con spacr-make-masks: marca un campo que no se puede revisar, para que la siguiente sesión no vuelva a ofrecerlo.",
     "Cuando tus pares revisados puedan ayudar a otros, haz clic en Upload data. Elige el campo en pantalla, todas las imágenes revisadas con su máscara guardada, o una carpeta de imágenes y una de máscaras, y luego ponle nombre al conjunto de datos. El enlace muestra el conjunto de datos de Hugging Face al que se unirá. No se envía nada hasta que pulses Upload y aceptes compartir.",

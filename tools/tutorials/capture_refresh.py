@@ -86,6 +86,8 @@ def main() -> int:
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
     parser.add_argument('--neutral-measure-source', action='store_true', help='After loading the genuine example, type the private neutral merged directory into the real source field before recording it')
+    parser.add_argument('--puncta-tour', action='store_true', help='Record the native parent-constrained puncta controls on one privately prepared acquired image-mask pair')
+    parser.add_argument('--restoration-tour', action='store_true', help='Record real CPU restoration controls on one privately prepared intensity field')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
     parser.add_argument('--plate-current-example', action='store_true', help='Record Plate Viewer with its current Load test data control')
     parser.add_argument('--investigate-hit-example', action='store_true', help='Record Regression Hits -> Investigate Hit on the real screen example ZIP in the stage')
@@ -181,6 +183,10 @@ def main() -> int:
         parser.error('--measure-preview-controls requires --module measure --download without --preview/--run')
     if args.neutral_measure_source and (args.module != 'measure' or not args.download):
         parser.error('--neutral-measure-source requires --module measure --download')
+    if args.puncta_tour and (args.module != 'make_masks' or args.run or args.download or args.mask_editor_tour or args.mask_readouts_tour):
+        parser.error('--puncta-tour requires make_masks alone, without run/download/editor/readouts')
+    if args.restoration_tour and (args.module != 'make_masks' or args.run or args.download or args.mask_editor_tour or args.mask_readouts_tour or args.puncta_tour):
+        parser.error('--restoration-tour requires make_masks alone, without run/download/editor/readouts/puncta')
     if args.classifier_existing_split and (args.module != 'classify_merged' or args.classifier_family != 'cv' or not args.run):
         parser.error('--classifier-existing-split requires --module classify_merged --classifier-family cv --run')
     if args.classify_overview and (args.module != 'classify_merged' or args.run or args.download or args.classifier_existing_split):
@@ -799,6 +805,12 @@ def main() -> int:
                           readouts_only=args.mask_readouts_tour and not args.mask_editor_tour,
                           include_readouts=args.mask_readouts_tour and args.mask_editor_tour,
                           curation_organize=args.mask_curation_organize)
+        if args.puncta_tour:
+            from capture_puncta import record_puncta
+            record_puncta(app, window, screen, stage, captures, capture, settle, write_json, args.timeout)
+        if args.restoration_tour:
+            from capture_restoration import record_restoration
+            record_restoration(app, window, screen, stage, captures, capture, settle, write_json, args.timeout)
         if args.module == 'import_images' and not args.organize_popup:
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,

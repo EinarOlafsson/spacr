@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "it",
   "title": "Make Masks: modificare le etichette e preparare immagini di addestramento",
@@ -49,6 +59,10 @@
     "Apri Cell probability per esaminare la mappa dei punteggi di primo piano. Ti mostra quali regioni sono sostenute dal modello. Cambia la soglia del primo piano quando è utile, poi esegui di nuovo il rilevamento per ottenere un nuovo risultato.",
     "Apri Flows per esaminare la vista direzionale. La soglia di coerenza del flusso decide quali oggetti rilevati vengono mantenuti: valori più bassi sono più severi, e zero disattiva questo controllo. Confronta le maschere finali dopo ogni modifica delle impostazioni.",
     "Undo ripristina le etichette precedenti al rilevamento. Tieni la maschera che segue meglio l’immagine ed esamina il risultato di ogni campo prima di includerlo nell’addestramento.",
+    "Per rilevare puncta deboli nelle cisti, apri l’immagine originale a un solo canale e conserva le maschere delle istanze delle cisti in una cartella separata, con nomi di file corrispondenti. Queste maschere dei puncta rappresentano i pixel centrali, non i contorni completi degli oggetti.",
+    "Scegli Centre-pixel puncta within parent masks. Imposta la classe primaria su cyst e quella secondaria su punctum, scegli la cartella delle maschere parentali e premi Reload. Controlla le scale dei punti, la soglia del rumore, i pixel centrali, l’intensità corretta, la distanza tra i picchi e il margine dal bordo.",
+    "Scegli replace in Object operations, poi fai clic su Object detection per elaborare l’intera immagine. Questo campo produce 150 candidati e 46 puncta inclusi. Il rilevamento usa le intensità originali; la normalizzazione e il miglioramento della visualizzazione non modificano questa modalità.",
+    "Save mask scrive il TIFF delle etichette e un CSV dei puncta accanto ad esso. center20 è la media di venti pixel centrali; local_bg registra il fondo locale e center_corrected lo sottrae alla media centrale configurata. Esamina included e mask_pixels: i pixel condivisi appartengono a una sola etichetta, quindi una maschera può contenere meno pixel. Le immagini originali e le maschere parentali restano invariate.",
     "Mentre lavori su una cartella, Keep e Discard registrano un verdetto per ogni campo e passano al successivo. Non viene eliminato nulla: il verdetto finisce in keep_discard.csv nella sottocartella csv della cartella, con l’immagine, la sua maschera e il numero attuale di oggetti.",
     "Discard contrassegna un campo che non vuoi in un set di addestramento. Skip riguarda le sessioni di revisione avviate dal terminale con spacr-make-masks: contrassegna un campo che non si può revisionare, così la sessione successiva non lo propone di nuovo.",
     "Quando le tue coppie revisionate possono aiutare altri, fai clic su Upload data. Scegli il campo sullo schermo, tutte le immagini revisionate con la loro maschera salvata, oppure una cartella di immagini e una di maschere, poi dai un nome al dataset. Il link mostra il dataset di Hugging Face a cui si aggiungerà. Non viene inviato nulla finché non premi Upload e accetti di condividere.",

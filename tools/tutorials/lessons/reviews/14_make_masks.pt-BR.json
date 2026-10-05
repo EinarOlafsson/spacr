@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "pt-BR",
   "title": "Make Masks: editar rótulos e preparar imagens de treinamento",
@@ -49,6 +59,10 @@
     "Abra Cell probability para inspecionar o mapa de pontuação do primeiro plano. Use-o para ver quais regiões o modelo sustenta. Mude o limiar do primeiro plano quando for útil e execute a detecção de novo para obter um novo resultado.",
     "Abra Flows para inspecionar a visão direcional. O limiar de consistência do fluxo controla quais objetos detectados são mantidos: valores mais baixos são mais rigorosos, e zero desativa essa verificação. Compare as máscaras finais depois de cada mudança de configuração.",
     "Undo restaura os rótulos de antes da detecção. Fique com a máscara que melhor acompanha a imagem e inspecione o resultado de cada campo antes de incluí-lo no treinamento.",
+    "Para detectar pontos fracos dentro de cistos, abra a imagem original de um único canal e mantenha as máscaras de instâncias dos cistos em uma pasta separada, com nomes de arquivos correspondentes. Essas máscaras dos pontos representam pixels centrais, não os contornos completos dos objetos.",
+    "Escolha Centre-pixel puncta within parent masks. Defina a classe primária como cyst e a secundária como punctum, escolha a pasta das máscaras principais e pressione Reload. Confira as escalas dos pontos, o limiar de ruído, os pixels centrais, a intensidade corrigida, a distância entre picos e a margem da borda.",
+    "Escolha replace em Object operations e clique em Object detection para processar a imagem inteira. Este campo produz 150 candidatos e 46 pontos incluídos. A detecção usa as intensidades originais; a normalização e a melhoria da exibição não alteram este modo.",
+    "Save mask grava o TIFF de rótulos e um CSV de pontos ao lado dele. center20 é a média de vinte pixels centrais; local_bg registra o fundo local e center_corrected o subtrai da média central configurada. Confira included e mask_pixels: os pixels compartilhados pertencem a um único rótulo, portanto uma máscara pode conter menos pixels. As imagens originais e as máscaras principais permanecem intactas.",
     "Enquanto você percorre uma pasta, Keep e Discard registram um veredito para cada campo e passam para o próximo. Nada é apagado: o veredito vai para keep_discard.csv na subpasta csv da pasta, com a imagem, a máscara e a contagem atual de objetos.",
     "Discard marca um campo que você não quer em um conjunto de treinamento. Skip pertence às sessões de revisão iniciadas pelo terminal com spacr-make-masks: ele marca um campo que não pode ser revisado, para que a próxima sessão não o ofereça de novo.",
     "Quando seus pares revisados puderem ajudar outras pessoas, clique em Upload data. Escolha o campo na tela, todas as imagens revisadas com a máscara salva, ou uma pasta de imagens e uma pasta de máscaras, e depois dê um nome ao conjunto de dados. O link mostra o conjunto de dados do Hugging Face do qual ele vai fazer parte. Nada é enviado até você apertar Upload e concordar em compartilhar.",

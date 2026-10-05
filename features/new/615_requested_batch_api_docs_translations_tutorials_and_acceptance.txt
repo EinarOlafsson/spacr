@@ -1038,3 +1038,40 @@ incomplete review. The next normal release candidate will generate those label
 indexes; current accepted publication is not edited in place. Focused tests:
 47 passed, one existing report-only published-navigation diagnostic. Receipt:
 features/data/615_measure_current_controls_2026-10-05.json.
+
+2026-10-05 — COMPLETE CURRENT MEASURE AND MAKE MASKS RECORDINGS STAGED
+Measure's full current recording r4 and read-only independent inspection
+accept all sixteen fields, zero failures, 5,409 raw area/intensity values,
+601 decoded RGB crops and 48 saved PDFs. All sixteen source-array hashes
+match the acquired originals. Plot is enabled and one worker runs under a
+32 GiB cap. Earlier 8/16 GiB attempts remain explicit failed evidence; the
+16 GiB attempt wrote fourteen fields before its worker OOM kill. No CI
+memory limit or production source changed to obtain this run.
+
+The full seventeen-scene lesson composes accepted controls, full run,
+Templates/shortcuts and RAM-warning recordings. The genuine run CSV remains
+unchanged after importing and renaming its template; no template is applied,
+Cancel leaves the keyboard mapping and measurement settings unchanged.
+The native RAM warning uses an explicitly disclosed tiled example and is
+cancelled without analysis. Its disclosure has thirteen reviewed translations.
+Every composition input and source frame is hash-checked, without pixel edits.
+
+Make Masks' editor recording uses actual CPU Cellpose inference and passes
+independent plane, crop and organized-array equality checks. Five native CPU
+restoration scenes load denoise_cyto3 (Cellpose 3.1.1.3), compare and Apply
+on the exact 1994-pixel acquired ER field while preserving original pixels.
+Its checkpoint hash is checked independently. Four new puncta scenes show
+the actual parent controls and saved centre masks: 150 candidates and 46
+included puncta, with byte-identical mask and complete CSV against the prior
+scientific replay. These are centre-pixel masks, not a biological ground-truth
+accuracy claim. Thirteen source-bound reviews retain all prior 41 scene texts.
+
+Both complete lessons now join Batch and Distributed in the same fourteen-
+catalog stage. All eighty-one unselected complete lesson objects are unchanged.
+The reviewed category headings pass sixteen actual desktop/mobile browser
+cases; published navigation is still unchanged until verified publication.
+Current focused tests pass 61 with one existing report-only navigation
+diagnostic. Receipts: 615_measure_current_run/stage and
+615_make_masks_current_editor/puncta/restoration/stage_2026-10-05.json.
+All four lessons still need 108 narration tracks, video/media acceptance,
+publication and deployed readback. Other GPU validations remain open.

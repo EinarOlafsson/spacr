@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "de",
   "title": "Make Masks: Labels bearbeiten und Trainingsbilder vorbereiten",
@@ -49,6 +59,10 @@
     "Öffnen Sie Cell probability, um die Vordergrund-Score-Karte zu prüfen. So sehen Sie, welche Regionen das Modell stützt. Ändern Sie bei Bedarf den Vordergrund-Schwellenwert und führen Sie die Erkennung erneut aus, um ein neues Ergebnis zu erhalten.",
     "Öffnen Sie Flows, um die Richtungsansicht zu prüfen. Der Flow-Konsistenz-Schwellenwert bestimmt, welche erkannten Objekte erhalten bleiben: Niedrigere Werte sind strenger, und 0 schaltet diese Prüfung ab. Vergleichen Sie nach jeder Einstellungsänderung die endgültigen Masken.",
     "Undo stellt die Labels von vor der Erkennung wieder her. Behalten Sie die Maske, die dem Bild am besten folgt, und prüfen Sie das Ergebnis jedes Bildfelds, bevor Sie es ins Training aufnehmen.",
+    "Um schwache Puncta innerhalb von Zysten zu erkennen, öffnen Sie das ursprüngliche Einkanalbild und speichern die Instanzmasken der Zysten in einem separaten Ordner mit passenden Dateinamen. Diese Punctum-Masken stellen zentrale Pixel dar, nicht die vollständigen Objektgrenzen.",
+    "Wählen Sie Centre-pixel puncta within parent masks. Setzen Sie die primäre Klasse auf cyst und die sekundäre auf punctum, wählen Sie den Ordner der übergeordneten Masken und drücken Sie Reload. Prüfen Sie Punktskalen, Rauschschwelle, zentrale Pixel, korrigierte Intensität, Spitzenabstand und Randabstand.",
+    "Wählen Sie replace unter Object operations und klicken Sie auf Object detection, um das gesamte Bild zu verarbeiten. Dieses Bildfeld ergibt 150 Kandidaten und 46 eingeschlossene Puncta. Die Erkennung verwendet ursprüngliche Intensitäten; Normalisierung und Verbesserung der Anzeige ändern diesen Modus nicht.",
+    "Save mask schreibt die Label-TIFF und daneben eine Puncta-CSV. center20 ist der Mittelwert von zwanzig zentralen Pixeln; local_bg erfasst den lokalen Hintergrund und center_corrected zieht ihn vom konfigurierten zentralen Mittelwert ab. Prüfen Sie included und mask_pixels: geteilte Pixel gehören nur einem Label, daher kann eine Maske weniger Pixel enthalten. Ursprüngliche Bilder und übergeordnete Masken bleiben unverändert.",
     "Während Sie einen Ordner durcharbeiten, halten Keep und Discard für jedes Bildfeld ein Urteil fest und wechseln zum nächsten. Nichts wird gelöscht: Das Urteil wird in keep_discard.csv im Unterordner csv des Ordners geschrieben, zusammen mit dem Bild, seiner Maske und der aktuellen Objektanzahl.",
     "Discard markiert ein Bildfeld, das Sie nicht in einem Trainingssatz haben möchten. Skip gehört zu Kurationssitzungen, die im Terminal mit spacr-make-masks gestartet werden: Es markiert ein Bildfeld, das sich nicht kuratieren lässt, damit die nächste Sitzung es nicht erneut anbietet.",
     "Wenn Ihre kuratierten Paare anderen helfen können, klicken Sie auf Upload data. Wählen Sie das angezeigte Bildfeld, jedes kuratierte Bild mit seiner gespeicherten Maske oder einen Bild- und einen Maskenordner, und benennen Sie dann den Datensatz. Der Link zeigt den Hugging Face-Datensatz, zu dem er hinzukommt. Nichts wird gesendet, bevor Sie Upload drücken und dem Teilen zustimmen.",

@@ -535,6 +535,29 @@ Preserve failed attempts, including kernel memory events when a worker exceeds
 the recording's own memory allocation. A completed preview capture does not
 prove complete batch results, narrated media or publication.
 
+The current complete Measure composition accepts separate `--templates` and
+`--ram` recordings. Templates must import the unchanged CSV from the accepted
+full run without applying it or changing shortcuts. Choose Settings CSV in
+the real import picker and select its visible file row. The RAM demonstration
+uses a disclosed tiled example, shows the genuine available-memory warning
+and cancels without starting measurements. `measure_evidence.py` binds saved
+crops to the exact project root or its directly selected `merged` folder;
+other sources cannot borrow that root.
+
+For Make Masks, `capture_refresh.py --module make_masks --puncta-tour` records
+one exact acquired image/parent-mask pair under the private stage's
+`puncta/images` and `puncta/parents` directories. Reload is pressed through its
+actual button after entering the parent source. `--restoration-tour` records
+one exact intensity field under `restoration/images`, real CPU model loading,
+Compare and Apply. Keep the interpreter/backend environments read-only at
+neutral aliases and use a private model cache. Neither recorder rewrites the
+visible Source label or replaces application methods.
+`compose_make_masks_capture.py` rechecks native and independent source/frame
+receipts before composing every current lesson visual. Its comparison focus
+comes from the actual recorded dialog rectangle; source pixels are unchanged.
+The resulting lesson still needs all reviewed translations, narration,
+decoded-media acceptance and publication.
+
 Tutorial navigation category headings now require the fourteen-language
 source-bound review in `lessons/navigation_categories.review.json`. The normal
 navigation generator refuses a new or reordered GUI category, stale source

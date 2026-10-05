@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "nb",
   "title": "Make Masks: rediger merkelapper og forbered treningsbilder",
@@ -49,6 +59,10 @@
     "Åpne Cell probability for å undersøke poengkartet for forgrunnen. Bruk det til å se hvilke områder modellen støtter. Endre forgrunnsterskelen når det er nyttig, og kjør deteksjonen på nytt for å få et nytt resultat.",
     "Åpne Flows for å undersøke retningsvisningen. Terskelen for flytkonsistens styrer hvilke oppdagede objekter som beholdes: lavere verdier er strengere, og 0 slår av kontrollen. Sammenlign de endelige maskene etter hver endring av innstillingene.",
     "Undo gjenoppretter merkelappene fra før deteksjonen. Behold masken som følger bildet best, og undersøk resultatet for hvert synsfelt før du tar det med i treningen.",
+    "For å finne svake puncta inne i cyster åpner du det opprinnelige enkeltkanalbildet og oppbevarer cystenes instansmasker i en separat mappe med samsvarende filnavn. Disse punctum-maskene representerer sentrale piksler, ikke objektenes fullstendige grenser.",
+    "Velg Centre-pixel puncta within parent masks. Sett primærklassen til cyst og sekundærklassen til punctum, velg mappen med primærmasker og trykk Reload. Kontroller punktskalaer, støyterskel, sentrale piksler, korrigert intensitet, toppavstand og kantmargin.",
+    "Velg replace i Object operations og klikk deretter Object detection for å behandle hele bildet. Dette bildefeltet gir 150 kandidater og 46 inkluderte puncta. Deteksjonen bruker opprinnelige intensiteter; normalisering og forbedring av visningen endrer ikke denne modusen.",
+    "Save mask skriver label-TIFF og en puncta-CSV ved siden av. center20 er gjennomsnittet av tjue sentrale piksler; local_bg registrerer lokal bakgrunn, og center_corrected trekker den fra det konfigurerte sentrale gjennomsnittet. Undersøk included og mask_pixels: delte piksler tilhører bare én label, så en maske kan inneholde færre piksler. Opprinnelige bilder og primærmasker forblir uendret.",
     "Mens du jobber deg gjennom en mappe, registrerer Keep og Discard en vurdering for hvert synsfelt og går videre til det neste. Ingenting slettes: Vurderingen skrives til keep_discard.csv i mappens undermappe csv, sammen med bildet, masken og det gjeldende antallet objekter.",
     "Discard markerer et synsfelt du ikke vil ha med i et treningssett. Skip hører til kurasjonsøkter startet fra terminalen med spacr-make-masks: Den markerer et synsfelt som ikke kan kurateres, slik at neste økt ikke tilbyr det igjen.",
     "Når de kuraterte parene dine kan hjelpe andre, klikker du på Upload data. Velg synsfeltet på skjermen, alle kuraterte bilder med sin lagrede maske, eller en bildemappe og en maskemappe, og gi deretter datasettet et navn. Lenken viser hvilket Hugging Face-datasett det blir en del av. Ingenting sendes før du trykker på Upload og godtar å dele.",

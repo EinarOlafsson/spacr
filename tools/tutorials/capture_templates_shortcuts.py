@@ -8,22 +8,29 @@ Change shortcuts… editor, closed with Cancel so no key is changed.
 """
 from __future__ import annotations
 
+from copy import deepcopy
+import hashlib
+import os
 from pathlib import Path
+import time
 
 
 def record_templates_shortcuts(app, window, screen, stage, captures, capture, settle,
                                write_json, timeout):
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QFileDialog, QInputDialog,
-                                   QLineEdit, QListWidget, QPushButton, QToolButton)
+    from PySide6.QtWidgets import (QComboBox, QDialog, QDialogButtonBox, QFileDialog, QInputDialog,
+                                   QLineEdit, QListWidget, QPushButton, QToolButton, QTreeView)
 
     from spacr.qt import recipes
     from spacr.qt.recipes import RecipeDialog
+    from capture_settings import require_unchanged_settings
 
     csv_path = Path(stage) / 'settings_examples' / 'measure_crop_settings.csv'
     if not csv_path.is_file():
         raise RuntimeError('Copy a real Measure settings CSV into settings_examples/ first')
+    csv_hash = hashlib.sha256(csv_path.read_bytes()).hexdigest()
+    settings_before = deepcopy(screen._settings_model.collect())
     proof = {'accepted': False, 'csv': str(csv_path), 'keys_changed': False}
 
     def click(widget):
@@ -40,6 +47,9 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
                 action()
             except Exception as exc:          # recorded, then raised below
                 errors.append(exc)
+                modal = app.activeModalWidget()
+                if modal is not None:
+                    modal.reject()
         QTimer.singleShot(delay, run)
         return errors
 
@@ -76,14 +86,53 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
 
     def pick_csv():
         picker = next(d for d in app.topLevelWidgets() if isinstance(d, QFileDialog) and d.isVisible())
-        edit = picker.findChild(QLineEdit, 'fileNameEdit')
-        edit.selectAll()
-        QTest.keyClicks(edit, str(csv_path))
+        picker.setDirectory(str(csv_path.parent))
+        picker.setSidebarUrls([QUrl.fromLocalFile(str(csv_path.parent))])
+        file_type = picker.findChild(QComboBox, 'fileTypeCombo')
+        choices = [file_type.itemText(i) for i in range(file_type.count())]
+        wanted = next(i for i, text in enumerate(choices) if text == 'Settings CSV (*.csv)')
+        file_type.setFocus()
+        QTest.keyClick(file_type, Qt.Key_Home)
+        for _ in range(wanted):
+            QTest.keyClick(file_type, Qt.Key_Down)
+        if file_type.currentText() != 'Settings CSV (*.csv)':
+            raise RuntimeError('The actual import filter did not select Settings CSV')
+        settle(.4)
+        view = picker.findChild(QTreeView, 'treeView')
+        deadline = time.monotonic() + timeout
+        selected = None
+        while selected is None:
+            root = view.rootIndex()
+            for row in range(view.model().rowCount(root)):
+                index = view.model().index(row, 0, root)
+                if index.data() == csv_path.name:
+                    selected = index
+                    break
+            if selected is None:
+                if time.monotonic() >= deadline:
+                    raise RuntimeError('The actual CSV view did not list the completed run settings file')
+                settle(.1)
+        view.scrollTo(selected)
         settle(.3)
+        rect = view.visualRect(selected)
+        if rect.isEmpty() or not view.viewport().rect().contains(rect.center()):
+            raise RuntimeError('The actual completed-run CSV row is not visible')
+        QTest.mouseClick(view.viewport(), Qt.LeftButton, pos=rect.center())
+        settle(.3)
+        if picker.selectedFiles() != [str(csv_path)]:
+            raise RuntimeError('The native CSV row did not select the exact completed-run settings file')
         capture('32_template_import_csv')
-        picker.findChild(QDialogButtonBox).button(QDialogButtonBox.Open).click()
+        open_button = picker.findChild(QDialogButtonBox).button(QDialogButtonBox.Open)
+        if not open_button.isEnabled():
+            raise RuntimeError('The actual picker refuses the complete run settings CSV')
+        QTest.mouseDClick(view.viewport(), Qt.LeftButton, pos=rect.center())
     errors = later(pick_csv, 900)
-    click(dialog._btn_import)
+    previous_directory = Path.cwd()
+    try:
+        os.chdir(csv_path.parent)
+        click(dialog._btn_import)
+    finally:
+        os.chdir(previous_directory)
     settle(1.2)
     if errors:
         raise errors[0]
@@ -137,5 +186,10 @@ def record_templates_shortcuts(app, window, screen, stage, captures, capture, se
     capture('37_change_shortcuts')
     keymap[0].reject()
     settle(.5)
+    require_unchanged_settings(settings_before, screen._settings_model.collect())
+    if hashlib.sha256(csv_path.read_bytes()).hexdigest() != csv_hash:
+        raise RuntimeError('The genuine run settings CSV changed during template import')
+    proof.update(csv_sha256=csv_hash, measure_settings_unchanged=True,
+                 template_applied=False, imported_csv_unchanged=True)
     proof['accepted'] = True
     write_json(captures / 'templates_shortcuts.json', proof)

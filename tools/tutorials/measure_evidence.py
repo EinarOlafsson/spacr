@@ -98,6 +98,19 @@ def _check_preview_sources(proof, source_hashes):
             'preview_source_arrays_preserved_after_batch': True}
 
 
+def _check_recorded_source(configured, crop_root):
+    """Bind crops to the exact project or its directly selected merged folder."""
+    configured = [configured] if isinstance(configured, str) else configured
+    crop_root = Path(crop_root)
+    if not crop_root.is_absolute() or '..' in crop_root.parts:
+        raise ValueError('Recorded crop root must be an absolute project path')
+    if not isinstance(configured, list) or len(configured) != 1:
+        raise ValueError('Expected exactly one actual batch source')
+    source = Path(configured[0])
+    if '..' in source.parts or source not in (crop_root, crop_root / 'merged'):
+        raise ValueError('Recorded crop root must match the actual batch source setting')
+
+
 def inspect_project(project: Path, capture: Path, *, preview_capture=None,
                     recorded_project=None):
     """Audit a finished private native run without updating its database."""
@@ -139,10 +152,7 @@ def inspect_project(project: Path, capture: Path, *, preview_capture=None,
         expected_prefix = Path(recorded_project or '/home/olafsson/.cache/spacr/example_data/plate1')
         if recorded_project is not None:
             settings = json.loads((capture / 'batch_settings.json').read_text())
-            configured = settings['src']
-            configured = [configured] if isinstance(configured, str) else configured
-            if configured != [str(expected_prefix)]:
-                raise ValueError('Recorded crop root must match the actual batch source setting')
+            _check_recorded_source(settings['src'], expected_prefix)
         from PIL import Image
         for recorded in paths:
             relative = Path(recorded).relative_to(expected_prefix)

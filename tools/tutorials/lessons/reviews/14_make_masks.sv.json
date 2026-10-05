@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "sv",
   "title": "Make Masks: redigera etiketter och förbered träningsbilder",
@@ -49,6 +59,10 @@
     "Öppna Cell probability för att granska förgrundspoängkartan. Använd den för att se vilka områden modellen stöder. Ändra förgrundströskeln när det är användbart och kör sedan detektionen igen för att få ett nytt resultat.",
     "Öppna Flows för att granska riktningsvyn. Tröskeln för flödeskonsistens styr vilka detekterade objekt som behålls: lägre värden är strängare, och 0 stänger av kontrollen. Jämför de slutliga maskerna efter varje inställningsändring.",
     "Undo återställer etiketterna från före detektionen. Behåll den mask som bäst följer bilden och granska varje synfälts resultat innan du tar med det i träningen.",
+    "För att hitta svaga puncta inuti cystor öppnar du den ursprungliga enkanalsbilden och sparar cystornas instansmasker i en separat mapp med matchande filnamn. Dessa punctum-masker representerar centrala pixlar, inte objektens fullständiga gränser.",
+    "Välj Centre-pixel puncta within parent masks. Sätt primärklassen till cyst och sekundärklassen till punctum, välj mappen med föräldramasker och tryck Reload. Granska punktskalor, bruströskel, centrala pixlar, korrigerad intensitet, toppavstånd och kantmarginal.",
+    "Välj replace i Object operations och klicka sedan på Object detection för att bearbeta hela bilden. Detta bildfält ger 150 kandidater och 46 inkluderade puncta. Detektionen använder ursprungliga intensiteter; normalisering och förbättring av visningen ändrar inte detta läge.",
+    "Save mask skriver label-TIFF och en puncta-CSV bredvid den. center20 är medelvärdet av tjugo centrala pixlar; local_bg registrerar lokal bakgrund och center_corrected drar bort den från det inställda centrala medelvärdet. Granska included och mask_pixels: delade pixlar tillhör bara en label, så en mask kan innehålla färre pixlar. Ursprungliga bilder och föräldramasker förblir oförändrade.",
     "Medan du arbetar dig igenom en mapp registrerar Keep och Discard ett omdöme för varje synfält och går vidare till nästa. Inget raderas: omdömet skrivs till keep_discard.csv i mappens undermapp csv, tillsammans med bilden, dess mask och det aktuella antalet objekt.",
     "Discard markerar ett synfält som du inte vill ha i en träningsuppsättning. Skip hör till granskningssessioner som startas från terminalen med spacr-make-masks: den markerar ett synfält som inte kan granskas, så att nästa session inte erbjuder det igen.",
     "När dina granskade par kan hjälpa andra klickar du på Upload data. Välj synfältet på skärmen, alla granskade bilder med sin sparade mask, eller en bildmapp och en maskmapp, och namnge sedan datamängden. Länken visar vilken Hugging Face-datamängd den kommer att ingå i. Inget skickas förrän du trycker på Upload och godkänner att dela.",

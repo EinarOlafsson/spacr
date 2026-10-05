@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "is",
   "title": "Make Masks: breyttu merkingum og undirbúðu þjálfunarmyndir",
@@ -49,6 +59,10 @@
     "Opnaðu Cell probability til að skoða forgrunnsstigakortið. Notaðu það til að sjá hvaða svæði líkanið styður. Breyttu forgrunnsþröskuldinum þegar það hjálpar og keyrðu greininguna aftur til að fá nýja niðurstöðu.",
     "Opnaðu Flows til að skoða stefnuyfirlitið. Þröskuldur flæðissamræmis ræður því hvaða greindu hlutum er haldið: lægri gildi eru strangari og 0 slekkur á þessari athugun. Berðu saman lokagrímurnar eftir hverja stillingabreytingu.",
     "Undo endurheimtir merkingarnar frá því fyrir greininguna. Haltu grímunni sem fylgir myndinni best og skoðaðu niðurstöðu hvers sjónsviðs áður en þú tekur hana með í þjálfun.",
+    "Til að greina daufa punkta innan blaðra skaltu opna upprunalegu eins rásar myndina og geyma eintakagrímur blaðranna í sérstakri möppu með samsvarandi skráarnöfnum. Þessar punktagrímur tákna miðjupixla, ekki heildarmörk hlutanna.",
+    "Veldu Centre-pixel puncta within parent masks. Stilltu aðalflokkinn á cyst og aukaflokkinn á punctum, veldu möppuna með aðalgrímunum og ýttu á Reload. Skoðaðu punktakvarða, hávaðaþröskuld, miðjupixla, leiðréttan styrk, bil milli toppa og jaðarfjarlægð.",
+    "Veldu replace í Object operations og smelltu svo á Object detection til að vinna alla myndina. Þessi myndreitur gefur 150 mögulega punkta og 46 samþykkta punkta. Greiningin notar upprunalegan styrk; stöðlun og endurbætur á birtingu breyta ekki þessum ham.",
+    "Save mask skrifar merkja-TIFF og punktasniðs-CSV við hlið hennar. center20 er meðaltal tuttugu miðjupixla; local_bg skráir staðbundinn bakgrunn og center_corrected dregur hann frá stilltu miðjumeðaltali. Skoðaðu included og mask_pixels: sameiginlegir pixlar tilheyra aðeins einu merki, þannig að gríma getur innihaldið færri pixla. Upprunalegar myndir og aðalgrímur haldast óbreyttar.",
     "Á meðan þú vinnur þig í gegnum möppu skrá Keep og Discard úrskurð fyrir hvert sjónsvið og fara í það næsta. Engu er eytt: úrskurðurinn fer í keep_discard.csv í undirmöppunni csv, ásamt myndinni, grímu hennar og núverandi fjölda hluta.",
     "Discard merkir sjónsvið sem þú vilt ekki hafa í þjálfunarsetti. Skip tilheyrir yfirferðarlotum sem eru ræstar úr skipanalínunni með spacr-make-masks: það merkir sjónsvið sem ekki er hægt að fara yfir, svo næsta lota bjóði það ekki aftur.",
     "Þegar yfirfarin pör þín gætu hjálpað öðrum smellirðu á Upload data. Veldu sjónsviðið á skjánum, allar yfirfarnar myndir með vistuðu grímunni sinni, eða myndamöppu og grímumöppu, og gefðu svo gagnasafninu nafn. Tengillinn sýnir Hugging Face-gagnasafnið sem það bætist í. Ekkert er sent fyrr en þú ýtir á Upload og samþykkir að deila.",

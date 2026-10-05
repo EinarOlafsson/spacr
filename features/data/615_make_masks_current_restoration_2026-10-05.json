@@ -1,0 +1,80 @@
+{
+  "accepted": true,
+  "scope": "Actual CPU model loading, raw/enhanced comparison and Apply; exact acquired input plane and checkpoint hashes checked independently",
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1",
+  "provenance": {
+    "commit": "522d9a59c7e390a3f2545bac2bf9a0a3db909b30",
+    "version": "1.5.1.3",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorial-restoration-20261005/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "scope": "Actual CPU restoration loading, comparison and Apply; no accuracy claim",
+    "native_controls": true,
+    "application_monkeypatches": false,
+    "source_label_rewritten": false,
+    "source": "/tmp/spacr-tutorial-restoration-20261005/restoration/images/plate1_E01_10_1_ER.tif",
+    "source_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "shape": [
+      1994,
+      1994
+    ],
+    "plan": {
+      "env": "/tmp/spacr-tutorial-restoration-20261005/backends/cellpose3",
+      "model": "denoise_cyto3",
+      "diameter": 30.0,
+      "device": "cpu",
+      "weights_sha256": "2d78729118f7ab0a4463c948c0ef305c1e5a5e7dade9cba5b3ef828348ee676e",
+      "cellpose_version": "3.1.1.3"
+    },
+    "load_seconds": 2.0397338469629176,
+    "compare_seconds": 33.89994060801109,
+    "apply_seconds": 33.60648813500302,
+    "comparison_caption": "deep image restoration",
+    "enhanced_array_sha256": "cec26c5dbffaf942573d2f0dc680b01d8e1ac48c0f06481496232f491d7a4abd",
+    "original_image_and_labels_unchanged": true,
+    "measurements_generated": false,
+    "biological_ground_truth_claimed": false
+  },
+  "input_provenance": {
+    "source": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy",
+    "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "image_plane": 1,
+    "image": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/restoration/images/plate1_E01_10_1_ER.tif",
+    "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "shape": [
+      1994,
+      1994
+    ],
+    "exact_intensity_plane": true,
+    "original_unchanged": true
+  },
+  "source_file_sha256": {
+    "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E01_10_1.npy": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/restoration/images/plate1_E01_10_1_ER.tif": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/backend-models/denoise_cyto3": "2d78729118f7ab0a4463c948c0ef305c1e5a5e7dade9cba5b3ef828348ee676e",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/00_home.png": "3efbbe290c350414b793cfe64a1c554aa1219ab9b0a9fb39e9941ec07c8ad2ba",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/01_module.png": "86ed933ff9b4caba0d1a1273a12c844693d881e0f27145c8d3a2a027ed32acfd",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/restoration_01_restoration_row.png": "62368fef6bce20854da891f5927789b0aa94ba2be5df7c0fddcec7a7d15f21ed",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/restoration_02_denoise_settings.png": "55b0816079c70be116c680742ac497e9bd84b045563b79f9aac08be35fbeccd0",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/restoration_03_model_ready.png": "2ce8ca0fab0ec10262bc05aec091837d6141cbabceb2fbd0675f314016b3b096",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/restoration_04_compare.png": "f8cdce4724a5f2e328f1cfec2b63b122c982b37b2bf7e681843253b7512d0236",
+    "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-make-masks-restoration-current/captures/make_masks_restoration_20261005_r1/restoration_05_apply.png": "3c73343352396246e69beae4433151cfd28f492a158f11f24d355962fb7e6183"
+  },
+  "frame_sha256": {
+    "00_home": "3efbbe290c350414b793cfe64a1c554aa1219ab9b0a9fb39e9941ec07c8ad2ba",
+    "01_module": "86ed933ff9b4caba0d1a1273a12c844693d881e0f27145c8d3a2a027ed32acfd",
+    "restoration_01_restoration_row": "62368fef6bce20854da891f5927789b0aa94ba2be5df7c0fddcec7a7d15f21ed",
+    "restoration_02_denoise_settings": "55b0816079c70be116c680742ac497e9bd84b045563b79f9aac08be35fbeccd0",
+    "restoration_03_model_ready": "2ce8ca0fab0ec10262bc05aec091837d6141cbabceb2fbd0675f314016b3b096",
+    "restoration_04_compare": "f8cdce4724a5f2e328f1cfec2b63b122c982b37b2bf7e681843253b7512d0236",
+    "restoration_05_apply": "3c73343352396246e69beae4433151cfd28f492a158f11f24d355962fb7e6183"
+  },
+  "measurement_or_biological_accuracy_claimed": false,
+  "narration_video_publication_complete": false
+}

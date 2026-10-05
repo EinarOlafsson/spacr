@@ -1,13 +1,23 @@
 {
   "lesson": "08_measure",
-  "english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8",
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed the explicit constructed-memory-example disclosure",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "One disclosed RAM demonstration prefix added to scene 17; the prior sixteen scene translations and remaining RAM explanation are preserved exactly. No acquired mosaic or completed measurement is implied.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "550d6369c76612d4c228083048a2a65434aa46e47352082e9d38b64bd3d977f8"
   },
   "language": "es",
   "title": "Measure: extraer características y recortes de objetos",
@@ -35,6 +45,6 @@
     "Las teclas como Ctrl+Mayús+R se pueden cambiar. Abra Help, luego Keyboard shortcuts, y elija Change shortcuts. Escriba una tecla nueva para cualquier acción; si choca con otra, spaCR nombra el conflicto y mantiene Save desactivado hasta que lo resuelva.",
     "Active el guardado de mediciones y recortes de objetos, deje Plot activado y elija el tamaño del recorte y los canales de salida. En una primera ejecución, Test mode mide un campo; desactívelo para procesar los dieciséis campos incluidos. Haga clic en Run, siga la consola hasta que termine la ejecución y compruebe qué campos se completaron antes de continuar.",
     "Revisa la figura de recortes y luego localiza measurements.db en la carpeta measurements y las imágenes de objetos guardadas en la salida de recortes del proyecto. Mantén juntas la base de datos y las rutas de las imágenes. Continúa con Annotate para etiquetar objetos de ejemplo, o con Classify si ya tienes datos de entrenamiento etiquetados.",
-    "Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."
+    "En esta demostración de memoria, el mismo campo de ejemplo se repite en mosaico para formar un array más grande; no se inicia ninguna medición. Antes de iniciar cualquier ejecución, spaCR estima la memoria que necesita cada proceso de trabajo a partir de un campo de tu proyecto. Con campos muy grandes, como mosaicos unidos, puede que los procesos que pediste no quepan en la RAM libre, y spaCR pregunta primero. Elige el número recomendado de procesos, conserva el tuyo y deja que Measure pause los campos nuevos mientras falte memoria, o cierra otros programas para liberarla."
   ]
 }

@@ -265,45 +265,79 @@ def record_ram_guard(app, window, stage, captures, capture, settle, write_json, 
     a worker per core. The dialog is recorded and closed, which cancels the
     run; nothing is measured and no setting outside the form is changed.
     """
-    from PySide6.QtCore import QTimer
-    from PySide6.QtWidgets import QMessageBox
+    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QLineEdit, QMessageBox
+
+    from capture_geometry import capture_rect
 
     from spacr.measure import resolve_n_jobs
     from spacr.resource_log import _app_ram_plan
 
-    plate = Path.home() / '.cache/spacr/example_data/stitched_mosaic'
+    plate = Path(stage) / 'example_data/stitched_mosaic'
+    if not plate.is_dir():
+        plate = Path.home() / '.cache/spacr/example_data/stitched_mosaic'
     if not any((plate / 'merged').glob('*.npy')):
         raise RuntimeError('The stitched mosaic project has no merged field')
     screen = _open(window, settle, 'measure')
-    if not screen._settings_model.set_value_for_key('src', str(plate)):
-        raise RuntimeError('No Measure Source setting')
-    settle(1.0)
+    bar = screen._settings_search
+    if not bar._disclosure.isChecked():
+        QTest.mouseClick(bar._disclosure, Qt.LeftButton)
+        settle()
+
+    def type_setting(key, value):
+        bar._input.setFocus()
+        QTest.keyClick(bar._input, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClicks(bar._input, key)
+        settle()
+        control = screen._settings_model._widgets[key]
+        screen._settings_scroll.ensureWidgetVisible(control)
+        settle()
+        edit = control if isinstance(control, QLineEdit) else control.findChild(QLineEdit)
+        if edit is None or capture_rect(edit, window) is None or not edit.isEnabled():
+            raise RuntimeError(f'No reachable native Measure {key} editor')
+        QTest.mouseClick(edit, Qt.LeftButton)
+        QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
+        QTest.keyClicks(edit, str(value))
+        QTest.keyClick(edit, Qt.Key_Tab)
+        settle()
+        if screen._settings_model.collect().get(key) != value:
+            raise RuntimeError(f'The actual Measure {key} editor did not retain its value')
+
+    type_setting('src', str(plate))
     workers = resolve_n_jobs(10 ** 6)  # one worker per core, Measure's cap
-    if not screen._settings_model.set_value_for_key('n_jobs', workers):
-        raise RuntimeError('No Measure n_jobs setting')
+    type_setting('n_jobs', workers)
     settle(0.5)
     probe = _app_ram_plan('measure', screen._settings_model.collect(), workers)
     if probe is None or not probe.get('exceeds'):
         raise RuntimeError(f'The guard would not refuse {workers} workers: {probe}')
-    seen = {'other': [], 'guard': None}
+    seen = {'other': [], 'guard': None, 'rect': None}
 
     def watch():
         dialog = app.activeModalWidget()
         if dialog is not None and dialog.objectName() == 'RamGuardDialog':
             settle(1.0)
+            seen['rect'] = capture_rect(dialog, window)
+            if seen['rect'] is None:
+                seen['other'].append('RAM guard outside recording window')
+                dialog.reject()
+                return
             capture('batch_21_ram_guard')
             seen['guard'] = dialog.windowTitle()
             dialog.reject()
             return
         if isinstance(dialog, QMessageBox):
             seen['other'].append(dialog.windowTitle())
-            dialog.done(QMessageBox.Yes)
+            dialog.reject()
+            return
         QTimer.singleShot(300, watch)
 
     QTimer.singleShot(300, watch)
-    screen._btn_run.click()
+    QTest.mouseClick(screen._btn_run, Qt.LeftButton)
     deadline = time.monotonic() + timeout
     while seen['guard'] is None and time.monotonic() < deadline:
+        if seen['other']:
+            raise RuntimeError(f'Unexpected prompt before RAM guard: {seen["other"]}')
         settle(0.2)
     if seen['guard'] is None:
         raise RuntimeError(f'The RAM guard did not appear (other dialogs: {seen["other"]})')
@@ -311,7 +345,10 @@ def record_ram_guard(app, window, stage, captures, capture, settle, write_json, 
     if getattr(screen, '_worker_thread_is_running', lambda: False)():
         raise RuntimeError('A run started; the guard should have cancelled it')
     write_json(captures / 'ram_guard.json', {
+        'accepted': True, 'scope': 'Native memory warning and cancellation only',
         'requested_workers': workers, 'probe': {k: probe[k] for k in (
             'per_worker', 'nbytes', 'available', 'total', 'reserve', 'max_safe')},
-        'other_dialogs_accepted': seen['other'], 'dialog_title': seen['guard'],
+        'other_dialogs_accepted': [], 'unexpected_dialogs': seen['other'],
+        'dialog_title': seen['guard'], 'dialog_rect': seen['rect'],
+        'source': str(plate), 'native_source_and_worker_edits': True,
         'run_started': False})

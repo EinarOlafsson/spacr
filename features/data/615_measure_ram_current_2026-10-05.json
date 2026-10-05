@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "scope": "Current native RAM warning plus explicit constructed-example disclosure in thirteen source-bound translations; next tutorial publication remains open",
+  "capture": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-ram-current/captures/measure_ram_20261005_r1",
+  "source_commit": "522d9a59c7e390a3f2545bac2bf9a0a3db909b30",
+  "ram_guard": {
+    "accepted": true,
+    "scope": "Native memory warning and cancellation only",
+    "requested_workers": 32,
+    "probe": {
+      "per_worker": 7125056512,
+      "nbytes": 890632064,
+      "available": 96113475584,
+      "total": 134162145280,
+      "reserve": 16770268160,
+      "max_safe": 11
+    },
+    "other_dialogs_accepted": [],
+    "unexpected_dialogs": [],
+    "dialog_title": "Not enough RAM for these workers",
+    "dialog_rect": [
+      1680,
+      895,
+      460,
+      290
+    ],
+    "source": "/tmp/spacr-tutorial-ram-20261005/example_data/stitched_mosaic",
+    "native_source_and_worker_edits": true,
+    "run_started": false
+  },
+  "input_provenance": {
+    "scope": "Constructed memory-estimate demonstration only; not a new acquired field or scientific measurement",
+    "source": "/home/carruthers/.cache/spacr/example_data/plate1/merged/plate1_E02_1_1.npy",
+    "source_sha256": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+    "target": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-measure-ram-current/example_data/stitched_mosaic/merged/plate1_E02_1_1.npy",
+    "target_sha256": "9ec93c9ec523172f6f99d5cb1552d74e97d8ef44f5c0ea915c4532e64dc6abd6",
+    "tile_grid": [
+      4,
+      4
+    ],
+    "shape": [
+      7976,
+      7976,
+      7
+    ],
+    "dtype": "uint16",
+    "nbytes": 890632064,
+    "all_sixteen_tiles_equal_original": true,
+    "original_modified": false,
+    "constructed_geometry": true,
+    "biological_segmentation_validation": false
+  },
+  "frame_sha256": "45053304fe16ebe706a5b2a8989d38ac9d52a93074622edb0d6b5390e0b50362",
+  "translation_checks": [
+    {
+      "language": "es",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "fr",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "hi",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "it",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "pt-BR",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "ja",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "zh-CN",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "da",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "de",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "is",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "ko",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "nb",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    },
+    {
+      "language": "sv",
+      "source_bound_review_accepted": true,
+      "scene_count": 17
+    }
+  ],
+  "english_sha256": "bc2d7c698baaae01a07bfc91b9e6a25fec0031b8b01dbfe9bea1c3740db5e819",
+  "biological_validation": false,
+  "measurement_started": false,
+  "media_published": false
+}

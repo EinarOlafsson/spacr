@@ -1,13 +1,23 @@
 {
   "lesson": "14_make_masks",
-  "english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25",
+  "english_sha256": "dd0e42d2c55c6570b3c6f83c56a8cbfdd049175abc3c020fa5268569c265fd7a",
   "review": {
-    "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
-    "translator": "Claude Opus 5.5 (AI), translated from the current English source",
-    "date": "2026-09-30",
+    "kind": "AI technical review (Codex), no native-speaker signoff",
+    "translator": "Prior reviewed translation retained; Codex translated and reviewed four current puncta scenes",
+    "date": "2026-10-05",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "scope": "Four inserted native puncta scenes; all previous 41 scene texts and lesson metadata are preserved exactly. Counts match the acquired A01 field, saved mask and complete CSV replay.",
+    "previous_review": {
+      "kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+      "translator": "Claude Opus 5.5 (AI), translated from the current English source",
+      "date": "2026-09-30",
+      "independent_peer_review": false,
+      "native_speaker_signoff": false,
+      "listening_review": false
+    },
+    "previous_english_sha256": "67cf9012a413524ac5bb180c16b8fe8f35122ef8b4ccb0bbefa78ebe8d609d25"
   },
   "language": "da",
   "title": "Make Masks: rediger labels og forbered træningsbilleder",
@@ -49,6 +59,10 @@
     "Åbn Cell probability for at undersøge forgrundens scorekort. Brug det til at se, hvilke områder modellen understøtter. Skift forgrundstærsklen, når det er nyttigt, og kør derefter detektionen igen for at få et nyt resultat.",
     "Åbn Flows for at undersøge retningsvisningen. Tærsklen for flowkonsistens styrer, hvilke detekterede objekter der bevares: lavere værdier er strengere, og 0 slår kontrollen fra. Sammenlign de endelige masker efter hver ændring af indstillingerne.",
     "Undo gendanner labels fra før detektionen. Behold den maske, der bedst følger billedet, og undersøg hvert synsfelts resultat, før du tager det med i træningen.",
+    "For at finde svage puncta inde i cyster åbner du det oprindelige enkeltkanalbillede og opbevarer cysternes instansmasker i en separat mappe med matchende filnavne. Disse punctummasker repræsenterer centrale pixel, ikke objekternes fulde grænser.",
+    "Vælg Centre-pixel puncta within parent masks. Sæt den primære klasse til cyst og den sekundære til punctum, vælg mappen med primære masker, og tryk Reload. Gennemgå punktskalaer, støjtærskel, centrale pixel, korrigeret intensitet, topafstand og kantmargin.",
+    "Vælg replace i Object operations, og klik derefter på Object detection for at behandle hele billedet. Dette felt giver 150 kandidater og 46 inkluderede puncta. Detektionen bruger de oprindelige intensiteter; normalisering og forbedring af visningen ændrer ikke denne tilstand.",
+    "Save mask skriver label-TIFF og en puncta-CSV ved siden af. center20 er gennemsnittet af tyve centrale pixel; local_bg registrerer den lokale baggrund, og center_corrected trækker den fra det konfigurerede centrale gennemsnit. Undersøg included og mask_pixels: delte pixel tilhører kun én label, så en maske kan indeholde færre pixel. De oprindelige billeder og primære masker forbliver uændrede.",
     "Mens du arbejder dig gennem en mappe, registrerer Keep og Discard en vurdering for hvert synsfelt og går videre til det næste. Intet slettes: Vurderingen skrives til keep_discard.csv i mappens undermappe csv sammen med billedet, dets maske og det aktuelle antal objekter.",
     "Discard markerer et synsfelt, du ikke vil have med i et træningssæt. Skip hører til kurateringssessioner, der startes fra terminalen med spacr-make-masks: Den markerer et synsfelt, der ikke kan kurateres, så næste session ikke tilbyder det igen.",
     "Når dine kuraterede par kan hjælpe andre, klikker du på Upload data. Vælg synsfeltet på skærmen, alle kuraterede billeder med deres gemte maske eller en billedmappe og en maskemappe, og giv derefter datasættet et navn. Linket viser det Hugging Face-datasæt, det bliver en del af. Intet sendes, før du trykker på Upload og accepterer at dele.",
