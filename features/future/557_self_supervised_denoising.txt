@@ -331,3 +331,24 @@ training). Other denoisers, same held-out sets and scoring as ROUND 3.
     with real HOME, six-minute idle, ten-minute gap and an 8GiB cap.
     No training has run at this announcement. This additional real nuclear
     dataset does not itself meet the calibrated low-light requirement.
+
+2026-10-05 — NORMAL GOWT1 GPU TRAINING AND HELD-OUT COMPARISON ACCEPTED
+    The announced normal GPU turn finishes at 23:05:24 UTC with rc=0.
+    Private CAREamics 0.3.4 trains N2V2 for all twenty predeclared epochs,
+    seed zero, on the twenty sequence-02 raw frames. The actual CUDA worker
+    PID is observed; all four held-out frames use the final epoch-20
+    checkpoint, with the same frozen CPU Cellpose3 segmentation parameters
+    and training-only diameter as the accepted CPU comparison.
+
+    Pooled object F1 is 0.450704 at IoU 0.5 (TP32/FP14/FN64), and 0.394366
+    at 0.75 (TP28/FP18/FN68), versus denoise_nuclei 0.331361/0.213018,
+    raw 0.035503/0.011834 and NLM 0/0. Saved predictions are independently
+    rescored; every frozen source, input, label, package and model hash
+    matches the CPU baseline and current files. Full checkpoint, paired
+    outputs, worker/training logs and source snapshot are preserved.
+
+    This is a measured improvement under this frozen GOWT1 setup, not four
+    independent biological replicates, calibrated low-light validation or
+    official CTC SEG/DET/TRA scoring. No production default is changed.
+    The second calibrated low-light dataset requirement remains OPEN.
+    Receipt: features/data/557_gowt1_gpu_acceptance_2026-10-05.json.

@@ -18115,3 +18115,22 @@ other tool labels' catalog ownership. English API has four real new helpers
 Tutorial/deck refresh and final current-source acceptance remain open. Home
 retains CPU/Qt/CI and feature code; every GPU and generated artifact stays
 with the workstation. No duplicate GPU turn.
+
+2026-10-05 — WORKSTATION GOWT1 GPU ACCEPTED; CURRENT YOLO SUPPORT CONTINUES
+The announced 557-gowt1-normal-n2v-20epochs-r1 finishes 23:05:24 UTC,
+rc=0. Actual private CUDA training completes all twenty epochs; the final
+checkpoint gives pooled held-out F1 0.450704/0.394366 at IoU 0.5/0.75,
+versus frozen nuclear restoration 0.331361/0.213018. Independent rescoring
+and complete CPU/GPU/current-file fingerprint comparison pass. Full proof,
+checkpoint, paired outputs and logs: 557_gowt1_gpu_acceptance_2026-10-05.
+Calibrated low-light generalization remains open; no default change.
+No duplicate GPU job is needed for this completed turn.
+
+Home retains feature code and CPU/Qt/final CI. Workstation keeps every GPU
+and all generated API/docs/translations/tutorials. YOLO runtime/guide audits
+pass; four source/API guards now pass after explicitly naming the four
+new helpers and preserving previous inventory counts. Strict current docs,
+all-nine API finalization and fresh tutorial captures remain underway.
+The first native editor recording reached real controls but segfaulted at
+CPU detection; its partial frames are preserved and are not accepted.
+No source freshness, scientific acceptance or coverage gate is weakened.
