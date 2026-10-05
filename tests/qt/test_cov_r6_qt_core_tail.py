@@ -321,18 +321,13 @@ class _HostScreen(QWidget):
         layout.addWidget(self._actions_row)
 
 
-_BUILT = {}
-
-
 def _build_plain_card(screen):
     panel, card = _PlainPanel(), QWidget()
-    _BUILT["panel"] = panel
     return panel, card
 
 
 def _build_talkative_card(screen):
     panel, card = _TalkativePanel(), QWidget()
-    _BUILT["panel"] = panel
     return panel, card
 
 
@@ -342,7 +337,7 @@ _HERE = "tests.qt.test_cov_r6_qt_core_tail"
 class TestAPreviewPanelWithNoPropagateSeam:
     """``if callable(register_cb):`` in ``_attach``."""
 
-    def test_a_panel_that_offers_no_callback_is_still_attached(self, qapp):
+    def test_a_panel_that_offers_no_callback_is_still_attached(self, qtbot):
         """Propagating tuned values back is optional.
 
         A preview that only shows is a preview; refusing to attach one
@@ -352,31 +347,35 @@ class TestAPreviewPanelWithNoPropagateSeam:
                                                unregister_preview)
 
         screen = _HostScreen()
+        qtbot.addWidget(screen)
         try:
             spec = PreviewSpec(builder=f"{_HERE}:_build_plain_card",
                                title="Plain preview")
             host = _attach(screen, "r6_plain_probe", spec)
 
             assert host is not None, "the card must still be built"
+            qtbot.addWidget(host.panel)
             assert host.toggle.text() == "Plain preview"
-            assert not hasattr(_BUILT["panel"], "callback")
+            assert not hasattr(host.panel, "callback")
         finally:
             unregister_preview("r6_plain_probe")
             screen.deleteLater()
 
-    def test_a_panel_that_offers_one_is_given_the_hosts_own(self, qapp):
+    def test_a_panel_that_offers_one_is_given_the_hosts_own(self, qtbot):
         """The contrast: the seam is used when the panel has it."""
         from spacr.qt.preview_registry import (PreviewSpec, _attach,
                                                unregister_preview)
 
         screen = _HostScreen()
+        qtbot.addWidget(screen)
         try:
             spec = PreviewSpec(builder=f"{_HERE}:_build_talkative_card",
                                title="Live preview")
             host = _attach(screen, "r6_talkative_probe", spec)
 
             assert host is not None
-            assert _BUILT["panel"].callback == host.on_propagate, (
+            qtbot.addWidget(host.panel)
+            assert host.panel.callback == host.on_propagate, (
                 "a panel that can propagate is wired to the host that owns "
                 "the settings model")
         finally:
