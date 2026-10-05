@@ -61,6 +61,60 @@ def test_the_restored_axes_belong_to_the_figure_the_queue_holds(qapp, figure):
         "everything else refers to the original figure by identity")
 
 
+def test_cancel_repaints_the_original_artists_on_its_qt_canvas(qtbot):
+    import numpy as np
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+    from matplotlib.figure import Figure
+
+    def coloured_pixels(buffer, channel):
+        pixels = np.frombuffer(buffer, dtype=np.uint8).reshape(-1, 4).astype(np.int16)
+        others = [index for index in range(3) if index != channel]
+        return int(np.count_nonzero(
+            (pixels[:, channel] - pixels[:, others[0]] > 80)
+            & (pixels[:, channel] - pixels[:, others[1]] > 80)))
+
+    figure = Figure(figsize=(3.0, 2.0), dpi=100)
+    axis = figure.subplots()
+    line, = axis.plot([0, 1, 2], [0, 1, 0], color="blue", linewidth=4)
+    canvas = FigureCanvasQTAgg(figure)
+    qtbot.addWidget(canvas)
+    canvas.draw()
+    original = bytes(canvas.buffer_rgba())
+    original_blue = coloured_pixels(original, 2)
+    assert original_blue > 100
+
+    dialog = fs.FigureSettingsDialog(figure)
+    qtbot.addWidget(dialog)
+    line.set_color("red")
+    canvas.draw()
+    assert coloured_pixels(bytes(canvas.buffer_rgba()), 0) > 100
+
+    dialog.reject()
+    canvas.draw()
+    current = bytes(canvas.buffer_rgba())
+    assert coloured_pixels(current, 2) >= original_blue * 0.9
+    assert coloured_pixels(current, 0) < 10
+    assert figure.canvas is canvas
+
+
+def test_a_failed_restore_still_releases_its_snapshot_manager(
+        qapp, figure, monkeypatch):
+    dialog = fs.FigureSettingsDialog(figure)
+    before = set(plt.get_fignums())
+
+    def fail_to_clear():
+        raise RuntimeError("the figure could not be cleared")
+
+    monkeypatch.setattr(figure, "clear", fail_to_clear)
+    try:
+        dialog.reject()
+    finally:
+        dialog.deleteLater()
+
+    assert set(plt.get_fignums()) == before
+    assert figure.axes[0].get_title() == "only"
+
+
 def test_propagation_is_offered_only_when_there_is_somewhere_to_write(qapp,
                                                                       figure):
     without = fs.FigureSettingsDialog(figure)

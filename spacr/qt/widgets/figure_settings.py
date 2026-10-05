@@ -295,8 +295,8 @@ class FigureSettingsDialog(QDialog):
                     self._figure.clear()
                     for axis in list(restored.axes):
                         axis.remove()
-                        self._figure._axstack.add(axis)
                         axis.set_figure(self._figure)
+                        self._figure.add_axes(axis)
                     self._figure.patch.set_facecolor(restored.patch.get_facecolor())
                     self._figure.set_size_inches(*restored.get_size_inches())
                     self._changed()
