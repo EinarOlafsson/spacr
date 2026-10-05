@@ -309,3 +309,7 @@ msgstr "Töm upptäcktscachen och gör en ny upptäckt (främst för tester och 
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "Returnera rapportbidrag som ``(plugin_name, section)``."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "Basklasser: :py:class:`object`"
+

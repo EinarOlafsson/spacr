@@ -1,0 +1,63 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "method": "Direct Codex AI technical translation and review against English source; no human or native-speaker signoff. Python class names and Sphinx role targets preserved.",
+  "records": [
+    {
+      "domain": "database_concurrency_audit",
+      "source": "Bases: :py:class:`object`",
+      "source_sha256": "75eb6fe1a5a576c818a80c9d387406f68993a8c383dbf6cbd392d972e02238ea",
+      "target": "基类：:py:class:`object`",
+      "ui": {}
+    },
+    {
+      "domain": "database_concurrency_audit",
+      "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+      "source_sha256": "0d07b10daadec3484239f654771307001368655f02105073b8c60898ba447f01",
+      "target": "基类：:py:class:`~sqlite3.OperationalError`",
+      "ui": {}
+    },
+    {
+      "domain": "database_concurrency_audit",
+      "source": "Bases: :py:class:`RuntimeError`",
+      "source_sha256": "957f0ddbe544f459ef276422e767e292a0ef97995332196236080a6834bee3f2",
+      "target": "基类：:py:class:`RuntimeError`",
+      "ui": {}
+    },
+    {
+      "domain": "distributed_execution",
+      "source": "Bases: :py:class:`object`",
+      "source_sha256": "75eb6fe1a5a576c818a80c9d387406f68993a8c383dbf6cbd392d972e02238ea",
+      "target": "基类：:py:class:`object`",
+      "ui": {}
+    },
+    {
+      "domain": "distributed_execution",
+      "source": "Bases: :py:class:`RuntimeError`",
+      "source_sha256": "957f0ddbe544f459ef276422e767e292a0ef97995332196236080a6834bee3f2",
+      "target": "基类：:py:class:`RuntimeError`",
+      "ui": {}
+    },
+    {
+      "domain": "plugin_sdk",
+      "source": "Bases: :py:class:`object`",
+      "source_sha256": "75eb6fe1a5a576c818a80c9d387406f68993a8c383dbf6cbd392d972e02238ea",
+      "target": "基类：:py:class:`object`",
+      "ui": {}
+    },
+    {
+      "domain": "threading_cancellation_audit",
+      "source": "Bases: :py:class:`object`",
+      "source_sha256": "75eb6fe1a5a576c818a80c9d387406f68993a8c383dbf6cbd392d972e02238ea",
+      "target": "基类：:py:class:`object`",
+      "ui": {}
+    },
+    {
+      "domain": "threading_cancellation_audit",
+      "source": "Bases: :py:class:`Exception`",
+      "source_sha256": "b609074d681856dd48c4d7ecf824a5e3c041c5fe9c1a46f4dd3187d8b7b77bbc",
+      "target": "基类：:py:class:`Exception`",
+      "ui": {}
+    }
+  ]
+}

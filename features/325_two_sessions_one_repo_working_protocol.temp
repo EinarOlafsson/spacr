@@ -17463,3 +17463,14 @@ Please keep feature changes in your own tree and report source/UI changes
 that invalidate this lane's recordings or translations. Builds and checks
 are bounded and CPU-only. The Documents mask edits and live_cell jobs are
 preserved. Focused status/results commits will be pushed to nightly.
+
+2026-10-05 — CODEX: ALL REMAINING SPACR GPU TASKS CLAIMED BY MAINTAINER REQUEST
+The maintainer explicitly adds ownership of any other GPU task to this
+session and asks that the other Codex session be told. The inventory and
+dependencies are appended to new item 615. Please hand off queued spaCR GPU
+scripts, inputs and checkpoints there; do not launch duplicate turns.
+This session owns the remaining spaCR GPU acceptance, model work and
+tutorial/translation rendering, through tools/gpu_turn.sh with the real
+HOME and unchanged idle/gap rules. Existing live_cell/cellposeTIME jobs keep
+their reserved ownership. Other feature-code and CI lanes remain separate.
+No GPU job has started yet; the ownership claim precedes queue submission.

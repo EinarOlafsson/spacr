@@ -309,3 +309,7 @@ msgstr "Borra la caché de descubrimiento y vuelve a descubrir (principalmente p
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "Devuelve las contribuciones de informe como ``(plugin_name, section)``."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "Clases base: :py:class:`object`"
+

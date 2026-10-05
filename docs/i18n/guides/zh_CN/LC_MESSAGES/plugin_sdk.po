@@ -309,3 +309,7 @@ msgstr "清除发现缓存并重新发现（主要用于测试/开发）。"
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "返回 ``(plugin_name, section)`` 形式的报告贡献。"
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "基类：:py:class:`object`"
+

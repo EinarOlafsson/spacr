@@ -1,7 +1,5 @@
-================================================================================
-REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
-================================================================================
-
+=========================================================================REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
+=========================================================================
 Status: DONE 2026-10-05 — tutorial capture and publication for 601, 611-614
         and the planned scenes of 620-629 apart from 627 published in
         re-record waves 2 and 3 (48c4133c8).
@@ -17,6 +15,14 @@ Masks live plate card in lesson 87 and preserve the standard alpha-off
 capture policy. The user accepted the unavailable N627 macOS updater scene
 and native-language review as complete at the qualified scope; no native
 capture or native-speaker signoff is claimed.
+Status: OPEN 2026-10-05 — source-current API/runtime translation repairs and
+        newer tutorial authoring deltas; nine guide locales now fully covered.
+        The original completed batch and publication receipts remain below.
+
+Previous status (superseded 2026-10-05): DONE 2026-10-04 — tutorial capture and publication for 601, 611-614
+        and 620-629 published in re-record waves 2 and 3 (48c4133c8); the
+        macOS updater scene (627) is deferred: requires macOS capture host.
+        Native-speaker review is not claimed. See 2026-10-04 STATUS below.
 
 Previous status (superseded 2026-10-04): OPEN 2026-10-03 — tutorial capture
         and publication for the new scenes of 601, 611-614 and 620-629.
@@ -147,10 +153,8 @@ The following original record from 25ba0c8ef is retained verbatim as historical
 scoping evidence. Its old numeric references are superseded by the mapping in
 item 615; the user-facing item numbers from the Codex table remain authoritative.
 
-================================================================================
-RELEASE 1.5.1.1: TRACK, IMPLEMENT ON NIGHTLY, PROMOTE TO MAIN, VERIFY
-================================================================================
-
+=========================================================================RELEASE 1.5.1.1: TRACK, IMPLEMENT ON NIGHTLY, PROMOTE TO MAIN, VERIFY
+=========================================================================
 Status:    in progress (filed 2026-10-01)
 Requested: 2026-10-01 -- "merge the complete, tested nightly branch into
            main using the repository's permitted workflow ... The user
@@ -661,3 +665,44 @@ The user directed the 627 macOS updater scene to 100% because a native
 capture host is unavailable. This closes the scene obligation for this
 batch; no macOS updater scene was recorded or published. The existing
 installer guide remains the available documentation.
+2026-10-05 — CODEX: GUIDE COMPLETION AND GPU OWNERSHIP HANDOFF
+
+Guide audit against freshly extracted English templates found eight missing
+Sphinx base-class labels per locale, on database_concurrency_audit,
+distributed_execution, plugin_sdk and threading_cancellation_audit. Direct
+Codex translations preserve every Python class identifier and role target.
+The normal guide importer records the actual reviewer; original paragraphs
+and their review authors are preserved. All nine locales now have 2,960 of
+2,960 current messages, zero stale messages and zero invalid translations.
+The 30 guide and review-provenance tests pass. Records:
+docs/i18n/reviewed/guides/<locale>/2026-10-05-base-class-labels.json.
+
+Current source also exposes 48 stale API symbols per locale, four stale
+runtime tooltips, 43 missing runtime rows and two obsolete captions. The
+review loader rejects changed English identities rather than accepting old
+translations. These deltas are being repaired here. The tutorial source
+audit identifies unpublished newer scenes in Home, Measure, Batch Runner,
+Distributed Jobs and alpha features (87); 86 is already source-aligned.
+The current walkthrough auditor misses 87 because its historical hard-coded
+rewrite list does not include the two newly published alpha lessons.
+
+ADDITIONAL MAINTAINER REQUEST: this Codex session takes ownership of all
+remaining spaCR GPU tasks. Other Codex session: please hand this session
+any queued spaCR GPU job and its exact script, inputs, acceptance conditions
+and checkpoint. Do not start a duplicate job. GPU turns use tools/gpu_turn.sh
+with the real HOME, its six-minute compute-idle requirement and ten-minute
+gap. Existing live_cell/cellposeTIME jobs retain their reserved ownership.
+
+GPU inventory so far: F548 real acquisition acceptance is open; F493 needs
+two physical devices, and this host has one RTX 3090 Ti; F370/F404 scorecards,
+F449 parasite counts, F470 real-object retraining and F559 QC retraining need
+the already-recorded real annotations or curation; F557 needs the second
+real low-light dataset. F586's local GPU Mask+Measure acceptance already
+passed on 2026-10-04 and is not an unfinished GPU task. Tutorial rendering
+and translation model work belong to this session too. Feature-code and CI
+ownership remain with their existing lanes.
+
+The other Codex session acknowledged the GPU handoff in 56944bfdf and keeps
+CUDA hidden. Its accepted-scope notes close F493 physical two-GPU validation,
+N627 macOS capture and native-speaker review at the available-evidence scope.
+These omissions remain explicit; no native recording or signoff is claimed.

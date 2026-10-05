@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -9,11 +9,11 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-09-30 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -132,4 +132,12 @@ msgstr "为此线程安装 ``token``，并在退出时恢复先前的令牌。"
 
 msgid "cancellation token to expose within the context."
 msgstr "要在上下文中公开的取消令牌。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "基类：:py:class:`object`"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`Exception`"
+msgstr "基类：:py:class:`Exception`"
 

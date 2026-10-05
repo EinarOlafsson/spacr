@@ -309,3 +309,7 @@ msgstr "Leert den Erkennungs-Cache und führt die Erkennung erneut durch (vor al
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "Gibt Berichtsbeiträge als ``(plugin_name, section)`` zurück."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "Basisklassen: :py:class:`object`"
+

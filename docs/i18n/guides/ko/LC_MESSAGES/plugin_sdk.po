@@ -309,3 +309,7 @@ msgstr "탐색 캐시를 지우고 다시 탐색합니다(주로 테스트/개�
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "``(plugin_name, section)`` 형태의 보고서 기여를 반환합니다."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "기반 클래스: :py:class:`object`"
+

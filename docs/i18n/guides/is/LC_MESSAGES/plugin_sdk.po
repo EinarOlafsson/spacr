@@ -309,3 +309,7 @@ msgstr "Hreinsa skyndiminni leitarinnar og leita aftur (aðallega fyrir prófani
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "Skila ``(plugin_name, section)``-framlögum til skýrslna."
 
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "Grunnklasar: :py:class:`object`"
+

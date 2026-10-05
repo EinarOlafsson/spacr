@@ -1,5 +1,5 @@
 # spaCR user guide translation (pt).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -9,11 +9,11 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-09-30 14:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: pt\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -408,4 +408,12 @@ msgstr "Retorna a pasta persistente de perfis, trabalhos, configurações e logs
 
 msgid "``SPACR_REMOTE_STATE_DIR`` is intentionally supported for tests, portable deployments, and managed lab installations.  Otherwise XDG state storage is used on Linux and a conventional per-user directory elsewhere."
 msgstr "``SPACR_REMOTE_STATE_DIR`` é intencionalmente suportado para testes, implantações portáteis e instalações gerenciadas de laboratório. Caso contrário, é usado o armazenamento de estado XDG no Linux e uma pasta convencional por usuário nos demais sistemas."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`object`"
+msgstr "Classes base: :py:class:`object`"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Bases: :py:class:`RuntimeError`"
+msgstr "Classes base: :py:class:`RuntimeError`"
 
