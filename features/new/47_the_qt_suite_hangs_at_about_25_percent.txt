@@ -1691,3 +1691,12 @@ serial Qt acceptance remains open as recorded above.
   Two other suspected files pass 25- and 27-test bounded probes with zero
   retained widgets. Ownership edits are frozen for the next CI verdict;
   full serial acceptance remains open.
+
+2026-10-05 — ANNOTATION COVERAGE FIXTURE RELEASES ITS SHARED PANEL
+  A second module-scoped AnnotationStrategyPanel fixture retained its
+  110-widget tree after shutdown/close. Explicit deletion at module teardown
+  reduces the following sentinel from 110 widgets to zero. Identical 4 GiB
+  file-plus-sentinel cohorts pass 12 tests before and after; sampled RSS was
+  361.9 versus 351.5 MiB, a 10.4 MiB observation in this cohort only. The
+  integrated fixture file passes 11 tests. Source 7db738792. Full serial
+  acceptance remains open; no forced collection or memory ceiling change.

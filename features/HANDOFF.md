@@ -101,6 +101,26 @@ source docstring/prose guards pass 139; integrated track/checkpoint/Cellpose
 65, annotation/model 56 and synthetic-button 19 pass. Do not mark items
 43/288 or whole-suite item 47 complete based on focused or older-SHA runs.
 
+Post-verdict CPU follow-up: protected source 1c99dd3e8 has real failures in
+Annotate similarity-status timing, the English augment_images API hash and
+generated settings-flow freshness. Newer workstation commits through
+ab7f36b28 repair the English hash; four focused guards on rebased a30592180
+pass (SQLite timeout, callable documentation, English API inventory, ordinary
+comments). Its settings-flow inventory has exactly three changed sections,
+custom_regex/metadata_type/timelapse, with 1,322 sections unchanged in count.
+The workstation should regenerate settings_flow.rst/settings_flow_index.py
+with tools/settings_flow.py --rst; the CPU lane does not duplicate its files.
+
+The CPU lane pushed the tested Annotate similarity notice repair and the
+new submodules Series-name collision coverage case in a30592180 (eight
+focused integration cases pass). The user's additional parallel-work request
+reuses the same three agents for Annotate branch coverage, bounded Qt memory
+ownership and non-Qt guard verification alongside CI monitoring. Another
+shared annotation coverage fixture now deletes its 110-widget tree at
+teardown (7db738792); its file passes 11 cases. Shared suite hygiene/prose
+checks pass 42. The final GitHub aggregate and whole serial Qt acceptance
+remain open, and all five workstation lanes retain their ownership.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.
