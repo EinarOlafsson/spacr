@@ -1682,3 +1682,12 @@ serial Qt acceptance remains open as recorded above.
   dropdown/console owners in files 101-125 release cleanly in two five-test
   probes; the 22-test AI-toggle file also retains zero widgets. These checks
   do not establish uninterrupted whole-suite acceptance.
+
+2026-10-05 — SYNTHETIC DATA BUTTONS BELONG TO THEIR SCREEN
+  Four synthetic download buttons now use their screen as Qt parent.
+  A matched 4 GiB file-plus-sentinel probe passes 20 tests and reduces the
+  retained QPushButton count from one to zero. RSS was 399.0 versus
+  398.5 MiB, so no general RSS saving is claimed. Source e2b4d25b6.
+  Two other suspected files pass 25- and 27-test bounded probes with zero
+  retained widgets. Ownership edits are frozen for the next CI verdict;
+  full serial acceptance remains open.
