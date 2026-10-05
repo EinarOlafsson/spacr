@@ -80,6 +80,27 @@ def test_cancelled_class_dialog_keeps_classes_and_history(opened, monkeypatch):
     assert not widget._box_history.can_undo()
 
 
+def test_accepted_class_dialog_and_reselecting_same_class_are_stable(
+        opened, monkeypatch):
+    """A chosen class is persistent, and choosing it again makes no new edit."""
+    widget, _folder = opened
+    widget._set_mode(MODE_BOX)
+    monkeypatch.setattr(QInputDialog, "getText",
+                        staticmethod(lambda *_args: ("infected", True)))
+
+    assert widget._on_add_box_class() == 1
+    assert widget._box_classes == ["object", "infected"]
+    widget._canvas.boxes = [(1, 12, 12, 32, 32)]
+    widget._canvas.boxes_changed.emit()
+    assert widget._on_save_boxes() is not None
+    assert not widget._boxes_dirty
+
+    widget._canvas.selected_box = 0
+    widget._on_box_class_changed(widget._box_class_combo.findData(1))
+    assert widget._canvas.boxes == [(1, 12, 12, 32, 32)]
+    assert not widget._boxes_dirty
+
+
 def test_cancelled_export_dialog_preserves_unsaved_box(opened, monkeypatch,
                                                        tmp_path):
     """Cancel leaves the edit in memory without writing project or labels."""
@@ -100,6 +121,22 @@ def test_cancelled_export_dialog_preserves_unsaved_box(opened, monkeypatch,
     assert widget._canvas.boxes == [(0, 12, 12, 32, 32)]
     assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
     assert not list(tmp_path.glob("*.txt"))
+
+
+def test_export_picker_choice_writes_labels_and_commits_project(
+        opened, monkeypatch, tmp_path):
+    """The actual picker path writes labels only after saving the project."""
+    widget, folder = opened
+    _edit_box(widget)
+    target = tmp_path / "field_0.txt"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        staticmethod(lambda *_args: (str(target), "YOLO labels (*.txt)")))
+
+    assert widget._on_export_yolo_boxes() == str(target)
+
+    assert (folder / engine.YOLO_ANNOTATIONS_NAME).is_file()
+    assert target.read_text(encoding="utf-8").startswith("0 ")
+    assert not widget._boxes_dirty
 
 
 def test_visible_save_button_commits_boxes_and_failed_export_keeps_them(
