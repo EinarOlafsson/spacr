@@ -128,6 +128,28 @@ def test_clear_waits_for_a_running_run(page, home, monkeypatch):
     assert page.told and not page.asked
 
 
+def test_failed_cache_clear_reports_the_failure_and_keeps_the_cache(
+        page, home, qtbot, monkeypatch):
+    from spacr import run_journal
+
+    torch_dir = home / ".cache" / "torch"
+    torch_dir.mkdir(parents=True)
+    cached = torch_dir / "w.pt"
+    cached.write_bytes(b"1")
+
+    def unavailable(_key):
+        raise OSError("cache is unavailable")
+
+    monkeypatch.setattr(run_journal, "_clear_cache", unavailable)
+    page.table.selectRow([r["key"] for r in page._rows].index("torch"))
+    page.answer = True
+    page.clear()
+    qtbot.waitUntil(lambda: bool(page.told), timeout=10000)
+    assert cached.exists()
+    assert "Removed 0 item(s)." in page.told[0]
+    assert "failed" in page.told[0]
+
+
 def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
     news = home / ".spacr" / "news"
     news.mkdir(parents=True)
@@ -141,6 +163,27 @@ def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
     assert (tmp_path / "bigdisk" / "spacr-news" / "releases.json").exists()
     page.table.selectRow([r["key"] for r in page._rows].index("models"))
     assert not page.move_button.isEnabled()
+
+
+def test_failed_cache_move_reports_the_reason_and_keeps_the_source(
+        page, home, tmp_path, qtbot, monkeypatch):
+    from spacr import run_journal
+
+    news = home / ".spacr" / "news"
+    news.mkdir(parents=True)
+    cached = news / "releases.json"
+    cached.write_text("[]")
+
+    def unavailable(_key, _folder):
+        raise OSError("destination unavailable")
+
+    monkeypatch.setattr(run_journal, "_relocate_cache", unavailable)
+    page.table.selectRow([r["key"] for r in page._rows].index("news"))
+    page.answer = True
+    page.relocate(str(tmp_path / "bigdisk"))
+    qtbot.waitUntil(lambda: bool(page.told), timeout=10000)
+    assert cached.exists()
+    assert "Not moved: destination unavailable" in page.told[0]
 
 
 @pytest.fixture

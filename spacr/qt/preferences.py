@@ -6176,22 +6176,23 @@ class _StoragePage:
 
     @staticmethod
     def _move(key: str, folder: str):
-        """On the worker: the new folder, or why it was not moved."""
+        """On the worker: whether it moved and the new folder or failure."""
         from spacr.run_journal import _relocate_cache
 
         try:
-            return str(_relocate_cache(key, folder))
+            return True, str(_relocate_cache(key, folder))
         except (ValueError, OSError) as error:
-            return ValueError(str(error))
+            return False, str(error)
 
     def _moved(self, title: str, result) -> None:
         """Report the move and measure again."""
         from .i18n import tr
 
-        if isinstance(result, str):
-            message = tr("Moved to {target}.").format(target=result)
+        moved, detail = result if result else (False, tr("failed"))
+        if moved:
+            message = tr("Moved to {target}.").format(target=detail)
         else:
-            message = tr("Not moved: {reason}").format(reason=result)
+            message = tr("Not moved: {reason}").format(reason=detail)
         _show_storage_result(title, message, self._dialog)
         self.refresh()
 
