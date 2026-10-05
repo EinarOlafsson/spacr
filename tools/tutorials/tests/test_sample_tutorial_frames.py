@@ -19,6 +19,9 @@ spec.loader.exec_module(sweep)
     ('/tmp/x/refresh 2026-09-09/', 'refresh_stage'),
     ('Look in: /home/someone/data', 'unix_home'),
     ('/mnt/disk/data', 'mounted_volume'),
+    ('/media/alice/disk/plate.tif', 'mounted_volume'),
+    ('/run/media/alice/disk/plate.tif', 'mounted_volume'),
+    ('/media/ alice / disk / plate.tif', 'mounted_volume'),
     ('/Users/me/Desktop', 'macos_users'),
     ('C:\\Users\\me', 'windows_drive'),
 ])

@@ -23,6 +23,9 @@ STAGE_ROOT = '/mnt/disk9/Someone/toxoplasma_projects/tutorials/refresh_2026-09-0
     ('/home/olafsson/.spacr/runs/2026-09-10_run', '/home/user/.spacr/runs/2026-09-10_run',
      'account_home->/home/user'),
     ('/mnt/fi', '/data/example', 'local_root->/data/example'),
+    ('/media/alice/disk/plate.tif', '/data/example/plate.tif', 'local_root->/data/example'),
+    ('/run/media/alice/disk/plate.tif', '/data/example/plate.tif', 'local_root->/data/example'),
+    ('/media/disk/plate.tif', '/data/example/plate.tif', 'local_root->/data/example'),
     ('olafsson', 'user', 'account_name->user'),
 ])
 def test_neutral_path_keeps_trailing_names(token, expected, kind):

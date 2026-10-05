@@ -33,7 +33,7 @@ PUBLISHED = REPO / 'docs/source/_extra/tutorials'
 # group also drops underscores, which OCR often loses.
 PATH_PATTERNS = {
     'unix_home': re.compile(r'/home/'),
-    'mounted_volume': re.compile(r'/mnt/|/nas_mnt'),
+    'mounted_volume': re.compile(r'/mnt/|/nas_mnt|/media/'),
     'macos_users': re.compile(r'/users/'),
     'windows_drive': re.compile(r'(?<![a-z])[a-z]:\\'),
 }

@@ -17612,3 +17612,23 @@ features/data/615_french_api_completion_2026-10-05.json and 661_guide_translatio
 CPU/Qt/CI ownership stays with home; all further spaCR GPU turns stay here,
 with live_cell and cellposeTIME excluded. No GPU process was launched for this
 checkpoint, and no final-source CI or media-publication completion is claimed.
+
+2026-10-05 — WORKSTATION TUTORIAL PATH GUARD AND MEDIA CHECKPOINT
+Home/Alpha's 54 tracks, both 4K/1440p videos and 28 language/caption browser
+cases pass their technical checks. Visual review then found the alpha Live
+plate's local /media path, a family omitted by the old capture/OCR guards.
+The existing capture, sweep and redaction tools now recognize /media and
+/run/media; 72 relevant checks pass. Future captures must use neutral roots,
+including when a /media volume holds their actual private staging directory.
+Original captured pixels and initial media receipts remain preserved while
+full-frame detection/redaction and replacement media acceptance run. Neither
+lesson is published or considered publishable at this checkpoint.
+
+API translations: 49 current paragraphs are admitted in each of eight locales;
+German/Swedish full 13,177-symbol audits and full-record preservation pass.
+The remaining six-locale repair is live and must not be duplicated. The normal
+generator retains all source/context, literal and semantic gates. No GPU job
+was launched. Home retains CPU/Qt/CI; all spaCR GPU work remains here, excluding
+live_cell/cellposeTIME. The protected home CI run 37327585557 is still live;
+coverage shard 3 is terminal failed, while GPU-labelled, Slow, Network,
+Integration and NAS jobs passed at their pinned older source. No final green.

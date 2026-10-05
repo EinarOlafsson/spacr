@@ -110,6 +110,8 @@ PREFIXES = [
     re.compile(r'^.*?toxoplasma[_\-]?projects/?', re.I),
     re.compile(r'^.*?/claude/?', re.I),
     re.compile(r'^.*?/codex/(repo/)?', re.I),
+    re.compile(r'^.*?/(?:run/)?media/[^/]+/[^/]+/', re.I),
+    re.compile(r'^.*?/(?:run/)?media/[^/]*/?', re.I),
     re.compile(r'^.*?/mnt/[^/]*/?', re.I),
     re.compile(r'^.*?/nas_mnt/[^/]*/?', re.I),
 ]

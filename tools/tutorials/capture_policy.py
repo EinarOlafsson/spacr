@@ -7,7 +7,7 @@ from pathlib import Path
 
 CAPTURE_THEME = "dark"
 CAPTURE_BACKDROP = "blobs"
-_PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
+_PRIVATE_PATH = re.compile(r"(?:/home/[^/\s]+|/Users/[^/\s]+|[A-Za-z]:[\\/]Users[\\/][^\\/\s]+|/mnt/[^\s<>\"']+|/(?:run/)?media/[^\s<>\"']+|/nas_mnt(?:/[^\s<>\"']*)?)")
 
 
 #: Preferences -> Show alpha features, as QSettings stores it

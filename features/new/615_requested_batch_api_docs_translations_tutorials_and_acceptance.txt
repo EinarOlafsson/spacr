@@ -894,3 +894,31 @@ locale still has 51 catalog symbols to repair using the twelve already
 reviewed puncta blocks plus these remaining paragraphs. The exact source-bound
 worklist is features/data/615_remaining_api_translation_blocks_2026-10-05.json.
 No GPU or other owned process remains running at this checkpoint.
+
+2026-10-05 — HOME/ALPHA MEDIA CHECKS AND MOUNTED-PATH GUARD REPAIR
+All 54 current Home/Alpha tracks pass full decoding, source/render identity,
+timing, scene activity and dead-air checks. Both shared 4K masters and their
+1440p copies pass decoding, frame-count and timestamp checks. Each lesson
+passes fourteen actual-browser cases: eight narration languages and six
+independent caption languages, desktop/mobile layout, chapter links, seeking
+and English sentence cues. All fourteen staged catalogs preserve the other
+83 lessons exactly. These are private prepublication checks, not deployment.
+
+Visual inspection exposed a path-checking gap: /media account/volume paths
+were absent from the historical /home and /mnt patterns. The genuine alpha
+Live plate frame still displays a local mounted path, so its earlier sampled
+no-path result is insufficient. Capture refusal, sampled OCR detection and
+the existing text-only redactor now recognize /media and /run/media. All 48
+static/OCR and 24 Qt capture-policy checks pass, with the original guards
+preserved. Full unique-frame detection/redaction and replacement video/browser
+acceptance are still required before these lessons can be published.
+Original captures, audio and initial media evidence remain preserved.
+Receipt: features/data/615_home_alpha_media_prepublication_2026-10-05.json.
+
+The 49 remaining API paragraphs have admitted source/context-bound review
+in all eight outstanding languages. German and Swedish normal repair and
+full audits pass at 13,177 symbols, preserving 13,126 complete records per
+locale, refreshing 50 and adding one. The six other catalogs are still in
+the normal repair/audit process; no all-nine API completion is claimed here.
+Publication-baseline restoration preserves the pinned wave-4 revision and
+hashes; a host rate-limit interruption is recovering from cached downloads.

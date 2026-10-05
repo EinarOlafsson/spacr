@@ -81,12 +81,13 @@ def test_the_capture_does_not_silently_accept_another_named_appearance():
         configure_appearance("light", "blobs")
 
 
-def test_a_personal_capture_root_is_not_an_exception_to_the_path_rule():
+@pytest.mark.parametrize("root", ["/mnt/firecuda2/alice/tutorials", "/media/alice/disk/tutorials", "/run/media/alice/disk/tutorials"])
+def test_a_personal_capture_root_is_not_an_exception_to_the_path_rule(root):
     with pytest.raises(ValueError, match="neutral prepared capture directory"):
-        verify_visible_paths([], "/mnt/firecuda2/alice/tutorials")
+        verify_visible_paths([], root)
 
 
-@pytest.mark.parametrize("path", ["/home/alice/data/plate.tif", "/Users/alice/data", r"C:\Users\Alice\data", "/mnt/firecuda2/private/plate.tif", "/nas_mnt/plate"])
+@pytest.mark.parametrize("path", ["/home/alice/data/plate.tif", "/Users/alice/data", r"C:\Users\Alice\data", "/mnt/firecuda2/private/plate.tif", "/media/alice/disk/plate.tif", "/run/media/alice/disk/plate.tif", "/nas_mnt/plate"])
 def test_visible_personal_paths_are_refused_but_hidden_text_is_not(qtbot, path):
     window = QWidget()
     qtbot.addWidget(window)
