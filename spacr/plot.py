@@ -4332,7 +4332,9 @@ def plot_resize(images, resized_images, labels, resized_labels):
     with figure_style(theme_target()):
         fig, ax = plt.subplots(2, 2, figsize=(20, 20))
         from .figures.bundle import _register_figure_data
-        _register_figure_data(fig, None, kind="image")
+        _register_figure_data(
+            fig, [images[0], resized_images[0], labels[0], resized_labels[0]],
+            kind="image")
 
         img, cmap = prepare_image(images[0])
         ax[0, 0].imshow(img, cmap=cmap)

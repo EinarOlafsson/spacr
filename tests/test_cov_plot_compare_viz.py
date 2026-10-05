@@ -13,6 +13,9 @@ through ``plt.get_fignums()``.
 from __future__ import annotations
 
 import os
+import io
+import json
+import zipfile
 
 import numpy as np
 import pandas as pd
@@ -80,6 +83,33 @@ def test_plot_resize_grayscale_and_single_channel(rng):
     assert [a.get_title() for a in fig.axes] == [
         "Original Image", "Resized Image", "Original Label", "Resized Label",
     ]
+
+
+def test_plot_resize_zip_contains_all_four_source_arrays(tmp_path):
+    """The image zip retains the source and resized image and label pixels."""
+    import tifffile
+
+    from spacr.figures.bundle import _save_zip
+    from spacr.plot import plot_resize
+
+    image = np.arange(16 * 16, dtype=np.uint16).reshape(16, 16)
+    resized = image[::2, ::2].copy()
+    labels = (image % 3).astype(np.uint16)
+    resized_labels = labels[::2, ::2].copy()
+    source = [image, resized, labels, resized_labels]
+    fig, _ = _capture(plot_resize, [image], [resized], [labels],
+                      [resized_labels])
+
+    output = _save_zip(fig, str(tmp_path / "resize.zip"), formats=["png"])
+    with zipfile.ZipFile(output) as archive:
+        metadata = json.loads(archive.read("metadata.json"))
+        assert any(name.endswith(".png") for name in archive.namelist())
+        assert len(metadata["arrays"]) == 4
+        for index, expected in enumerate(source):
+            record = metadata["arrays"][index]
+            assert record["shape"] == list(expected.shape)
+            actual = tifffile.imread(io.BytesIO(archive.read(record["file"])))
+            np.testing.assert_array_equal(actual, expected)
 
 
 def test_plot_resize_rgb_and_rgba_passed_through(rng):
