@@ -922,6 +922,29 @@ def _watch_field_of(name, settings, cache):
     return key or 'field', channel
 
 
+def _watch_series_field_of(name, settings, cache):
+    """Identify a mapped field series while retaining time in each image name.
+
+    :param name: one acquired image basename or relative path.
+    :param settings: the watch filename convention.
+    :param cache: reusable compiled filename patterns.
+    :returns: the series key, channel ID and time ID from the filename.
+    :raises ValueError: when the configured convention cannot identify a series.
+    """
+    import re
+
+    name = os.path.basename(name)
+    extension = os.path.splitext(name)[1].lstrip('.').lower()
+    pattern = _watch_pattern(settings, extension, cache)
+    match = pattern.match(name) if pattern is not None else None
+    groups = match.groupdict() if match else {}
+    parts = [groups.get(key) for key in ('plateID', 'wellID', 'fieldID')]
+    if any(part in (None, '') for part in parts) or not groups.get('timeID'):
+        raise ValueError(f'watch filename settings do not identify the mapped series: {name}')
+    key = re.sub(r'[^A-Za-z0-9._-]+', '_', '_'.join(map(str, parts))).strip('._')
+    return key, groups.get('chanID'), groups.get('timeID')
+
+
 def _watch_map_bytes(src):
     """Read at most 16 MiB of the local Convert map without following links.
 
@@ -995,8 +1018,8 @@ def _watch_validate_map_channels(settings, channels):
 def _watch_map_manifest(src, settings):
     """Validate a fixed Convert map and bind exact target names to each field.
 
-    Projected Z fields need a dense channel-by-plane grid. Time series still
-    need a whole-series analysis key and are refused.
+    Projected Z fields need a dense channel-by-plane grid. Mapped timelapses
+    additionally need every frame in a dense channel-by-plane-by-time grid.
 
     :param src: acquisition directory containing converted images.
     :param settings: the watch filename convention and optional custom regex.
@@ -1019,6 +1042,7 @@ def _watch_map_manifest(src, settings):
         if len(reader.fieldnames) != len(set(reader.fieldnames)):
             raise ValueError('duplicate column headers')
         groups, channels, planes, patterns, targets = {}, {}, {}, {}, set()
+        series = _watch_truthy(settings.get('timelapse', False))
         for row in reader:
             name = row['target']
             if not name or name != os.path.basename(name) or '/' in name or '\\' in name:
@@ -1029,12 +1053,17 @@ def _watch_map_manifest(src, settings):
             expected = target_name(row['plate'], row['well'], **numbers)
             if name != expected or not row['source']:
                 raise ValueError(f'target disagrees with its Convert metadata: {name}')
-            if numbers['t'] != 1:
-                raise ValueError('mapped time series are not supported by watch mode')
-            key, channel = _watch_field_of(name, settings, patterns)
+            if series:
+                key, channel, time_id = _watch_series_field_of(name, settings, patterns)
+                if not str(time_id).isdecimal() or int(time_id) != numbers['t']:
+                    raise ValueError(f'watch filename settings do not identify the mapped time: {name}')
+            else:
+                if numbers['t'] != 1:
+                    raise ValueError('mapped time series require timelapse=True')
+                key, channel = _watch_field_of(name, settings, patterns)
             if channel is None or not str(channel).isdecimal() or int(channel) != numbers['channel']:
                 raise ValueError(f'watch filename settings do not identify the mapped channel: {name}')
-            plane = (numbers['channel'], numbers['z'])
+            plane = (numbers['channel'], numbers['z'], numbers['t'])
             if name in targets or plane in planes.setdefault(key, set()):
                 raise ValueError(f'duplicate target or field channel/Z plane: {name}')
             targets.add(name)
@@ -1045,13 +1074,15 @@ def _watch_map_manifest(src, settings):
             raise ValueError('the conversion map has no output rows')
         _watch_validate_map_channels(settings, channels)
         for key, field_planes in planes.items():
-            z_ids = {z for _channel, z in field_planes}
-            expected_planes = {(channel, z) for channel in channels[key]
-                               for z in range(1, len(z_ids) + 1)}
+            z_ids = {z for _channel, z, _time in field_planes}
+            t_ids = {t for _channel, _z, t in field_planes}
+            expected_planes = {(channel, z, t) for channel in channels[key]
+                               for z in range(1, len(z_ids) + 1)
+                               for t in range(1, len(t_ids) + 1)}
             if field_planes != expected_planes:
                 raise ValueError(f'{key} must have a complete C01..CN by Z01..ZM '
-                                 'plane grid; missing or sparse planes would change '
-                                 'the projected field.')
+                                 'by T0001..T grid; missing or sparse planes or '
+                                 'frames would change the field series.')
     except (ValueError, TypeError, KeyError, UnicodeError, csv.Error) as exc:
         raise ValueError(f'watch_folder: invalid conversion_map.csv: {exc}') from exc
     return groups, hashlib.sha256(data).hexdigest()
@@ -1210,6 +1241,11 @@ def _watch_measure_settings(settings):
         measure = dict(load_settings_file(os.path.expanduser(path)))
     else:
         measure['channels'] = settings.get('channels')
+    if _watch_truthy(settings.get('timelapse', False)):
+        if 'timelapse' in measure and not _watch_truthy(measure['timelapse']):
+            raise ValueError('watch_folder: Measure settings must enable timelapse '
+                             'for a mapped field series.')
+        measure['timelapse'] = True
     measure.pop('src', None)
     return measure
 
@@ -1644,8 +1680,8 @@ def _watch_check_settings(settings):
     :param settings: the watch run settings.
     :returns: ``(src, pipeline, settle seconds, poll seconds, idle seconds)``.
     :raises ValueError: for a list of folders, a missing folder, an unknown
-        ``watch_pipeline``, a bad number or a timelapse, z-stack or t-stack
-        run.
+        ``watch_pipeline``, a bad number or a z-stack or t-stack run.
+        Timelapse requires a complete fixed Convert map, checked later.
     """
     from .utils import normalize_src_path
 
@@ -1658,7 +1694,7 @@ def _watch_check_settings(settings):
     src = os.path.abspath(os.path.expanduser(str(src)))
     if not os.path.isdir(src):
         raise ValueError(f'watch_folder: the folder {src} does not exist.')
-    for key in ('timelapse', 'z_stack', 't_stack'):
+    for key in ('z_stack', 't_stack'):
         if _watch_truthy(settings.get(key, False)):
             raise ValueError(
                 f'watch_folder does not support {key} runs: a field is '
@@ -1895,8 +1931,12 @@ def _watch_ready_fields(context, now):
     seen, fields = context['seen'], context['ledger']['fields']
     groups = {}
     for name in seen:
-        key, channel = _watch_field_of(name, context['settings'],
-                                       context['patterns'])
+        if context.get('series'):
+            key, channel, _time = _watch_series_field_of(
+                name, context['settings'], context['patterns'])
+        else:
+            key, channel = _watch_field_of(name, context['settings'],
+                                           context['patterns'])
         groups.setdefault(key, []).append((name, channel))
     manifest = context.get('manifest')
     if manifest is not None:
@@ -2469,7 +2509,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
     The folder ``src`` is scanned every ``watch_poll_seconds``. A file is
     ready once its size and modification time have not changed for
     ``watch_settle_seconds`` and it reads whole. With a fixed Convert map,
-    every mapped channel and Z plane must be present. Without a map, a known
+    every mapped channel, Z plane and timepoint must be present. Without a map, a known
     numeric convention must supply the documented channel origin through the
     highest selected position; an unknown origin is refused before output.
     Fields are told apart by the ``metadata_type`` or ``custom_regex`` filename
@@ -2529,6 +2569,19 @@ def _watch_folder_and_analyse(settings, analyse=None):
     settings = deepcopy(dict(settings))
     _, mask_sha256 = _watch_mask_recipe(settings)
     manifest, map_sha256 = _watch_map_manifest(src, settings)
+    series = _watch_truthy(settings.get('timelapse', False))
+    if series:
+        if manifest is None:
+            raise ValueError('watch_folder: timelapse requires a fixed Convert '
+                             'conversion_map.csv declaring the complete field series.')
+        if (str(settings.get('metadata_type', 'cellvoyager')).lower() != 'cellvoyager'
+                or settings.get('custom_regex') not in (None, '', 'None')):
+            raise ValueError('watch_folder: mapped timelapse requires the '
+                             'CellVoyager filename convention used by Convert.')
+        if pipeline == 'mask_measure_classify' or _watch_truthy(
+                settings.get('microscope_feedback', False)):
+            raise ValueError('watch_folder: mapped timelapse supports mask or '
+                             'mask_measure without microscope feedback.')
     source_channels = (_watch_source_channels(settings)
                        if manifest is None else None)
     measure_sha256 = None
@@ -2591,6 +2644,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'seen': {},
                'patterns': {}, 'tried': set(), 'warned': set(),
                'manifest': manifest, 'map_sha256': map_sha256,
+               'series': series,
                'microscope': None}
     if _watch_truthy(settings.get('microscope_feedback', False)):
         context.update(positions=_microscope_positions(settings),
@@ -2644,9 +2698,14 @@ def _watch_folder_and_analyse(settings, analyse=None):
                   if entry.get('status') == 'done')
     failed = sorted(key for key, entry in fields.items()
                     if entry.get('status') == 'failed')
-    incomplete = sorted(
+    observed_keys = (
+        {_watch_series_field_of(name, settings, context['patterns'])[0]
+         for name in context['seen']}
+        if series else
         {_watch_field_of(name, settings, context['patterns'])[0]
-         for name in context['seen']} | set(manifest or {}) |
+         for name in context['seen']})
+    incomplete = sorted(
+        observed_keys | set(manifest or {}) |
         {key for key, entry in fields.items() if entry.get('status') == 'waiting'})
     incomplete = sorted(set(incomplete) - set(done) - set(failed))
     print(_watch_status_line(ledger, len(incomplete)))
