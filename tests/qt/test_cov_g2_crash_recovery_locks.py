@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import socket
 
 import pytest
 
@@ -39,7 +40,10 @@ def fake_lock(monkeypatch):
 @pytest.mark.parametrize("info, expected", [
     (RuntimeError("no info"), (False, {})),
     ((True, "not-a-pid", "host", "app"), (False, {})),
-    ((True, os.getpid(), "host", "app"), (True, None)),
+    ((True, os.getpid(), socket.gethostname(), "app"), (True, None)),
+    ((True, os.getpid(), "different-host.invalid", "app"),
+     (False, {"pid": os.getpid(), "host": "different-host.invalid",
+              "app": "app"})),
 ])
 def test_lock_holders_are_read_defensively(fake_lock, tmp_path, info, expected):
     fake_lock["info"] = info

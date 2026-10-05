@@ -222,7 +222,11 @@ def _try_lock(lock_path: str):
                       "app": str(info[offset + 2])}
         except (TypeError, ValueError, IndexError):
             holder = {}
-    if holder.get("pid") == os.getpid():
+    import socket
+
+    if (holder.get("pid") == os.getpid()
+            and str(holder.get("host", "")).casefold()
+            == socket.gethostname().casefold()):
         return True, None
     return False, holder
 
