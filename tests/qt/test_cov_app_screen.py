@@ -1878,10 +1878,10 @@ class TestLivePreviewAutoload:
 class TestFigures:
 
     def _fig(self):
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
-        fig, ax = plt.subplots(figsize=(2, 2))
+        from matplotlib.figure import Figure
+
+        fig = Figure(figsize=(2, 2))
+        ax = fig.subplots()
         ax.plot([0, 1, 2], [0, 1, 4])
         return fig
 
@@ -2072,12 +2072,11 @@ class TestCloseEvent:
         assert scr._worker is None
 
     def test_close_without_a_run_still_clears_the_figure_queue(self, qtbot):
-        import matplotlib
-        matplotlib.use("Agg")
-        import matplotlib.pyplot as plt
+        from matplotlib.figure import Figure
+
         scr = AppScreen("mask")
         qtbot.addWidget(scr)
-        fig, _ = plt.subplots(figsize=(1, 1))
+        fig = Figure(figsize=(1, 1))
         scr._on_figure_ready(fig, "")
         assert scr._figure_queue.count() == 1
         scr.close()
