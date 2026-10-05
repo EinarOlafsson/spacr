@@ -17474,3 +17474,12 @@ tutorial/translation rendering, through tools/gpu_turn.sh with the real
 HOME and unchanged idle/gap rules. Existing live_cell/cellposeTIME jobs keep
 their reserved ownership. Other feature-code and CI lanes remain separate.
 No GPU job has started yet; the ownership claim precedes queue submission.
+
+2026-10-05 CODEX GPU TURN: preparing source-current runtime/API translation
+drafts on this workstation RTX 3090 Ti. Exact script and outputs are under
+/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/; script
+generate_translation_drafts.py. Inputs: runtime-source-delta.json and
+api-source-delta.json. Run only through tools/gpu_turn.sh and run_capped.sh
+64G, batch 4, beams 4, two CPU threads, local OPUS/M2M checkpoints. Output
+is scratch drafts; catalogs publish only after technical review, source and
+literal validation. No training or live_cell/cellposeTIME process is touched.
