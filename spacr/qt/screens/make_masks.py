@@ -9894,6 +9894,8 @@ class MakeMasksScreen(QWidget):
             return
         ordered = sorted(pairs, key=lambda pair: -scores[tuple(pair)]['field']
                          if tuple(pair) in scores else 1.0)
+        if not self._save_boxes_if_needed():
+            return
         self._set_field_pairs(ordered)
         self._current_index = 0
         self._load_current()
@@ -9987,6 +9989,8 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(tr(
                 "Open a folder of images before curating it blind."))
             return False
+        if not self._save_boxes_if_needed():
+            return False
         self.finish_recrop()
         pairs = self._field_pairs()
         paths = [os.path.abspath(os.path.join(folder, name))
@@ -10038,6 +10042,8 @@ class MakeMasksScreen(QWidget):
                        "when. An analysis lock on this folder treats any "
                        "later change as post-hoc. Unblind now?"))
         if not ask():
+            return False
+        if not self._save_boxes_if_needed():
             return False
         from ...run_journal import unblind
 
@@ -10588,6 +10594,8 @@ class MakeMasksScreen(QWidget):
         box_row = QHBoxLayout(self._box_controls)
         box_row.setContentsMargins(0, 0, 0, 0)
         self._box_class_combo = QComboBox()
+        self._box_class_combo.setMinimumWidth(100)
+        self._box_class_combo.setMaximumWidth(180)
         self._box_class_combo.setToolTip(tr("Class for a selected box or the next box"))
         self._box_class_combo.addItem('object', 0)
         self._box_class_combo.currentIndexChanged.connect(self._on_box_class_changed)
@@ -10601,7 +10609,7 @@ class MakeMasksScreen(QWidget):
         self._btn_export_yolo.clicked.connect(lambda: self._on_export_yolo_boxes())
         box_row.addWidget(self._btn_export_yolo)
         self._box_controls.hide()
-        row.addWidget(self._box_controls)
+        row.insertWidget(tuple(self._mode_buttons).index(MODE_BOX) + 1, self._box_controls)
 
         row.addWidget(Divider(Qt.Vertical))
         self._btn_reset_zoom = QPushButton("Reset zoom")
@@ -11853,7 +11861,13 @@ class MakeMasksScreen(QWidget):
         self._boxes_dirty = False
         self._box_load_error = None
         try:
-            record = engine.load_yolo_boxes(self._folder, filename, image.shape)
+            if engine.is_seg_bundle(filename):
+                self._box_load_error = ValueError(tr(
+                    "Box annotations need a standalone image. Export the image from "
+                    "this segmentation bundle first, then open it in Make Masks."))
+                record = {'classes': ['object'], 'boxes': [], 'source_sha256': None}
+            else:
+                record = engine.load_yolo_boxes(self._folder, filename, image.shape)
         except Exception as exc:
             self._box_load_error = exc
             self._warn(tr("Cannot load box annotations"), str(exc))
@@ -11895,7 +11909,8 @@ class MakeMasksScreen(QWidget):
             self._warn(tr("Cannot save box annotations"), str(exc))
             return None
         self._boxes_dirty = False
-        self._status_label.setText(tr("Box annotations saved → {path}").format(path=path))
+        self._status_label.setText(self._blind_text(
+            tr("Box annotations saved → {path}").format(path=path)))
         return path
 
     def _save_boxes_if_needed(self):
@@ -11911,6 +11926,10 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         if self._box_field is None or self._canvas.image is None:
+            return None
+        if self._blind is not None:
+            self._warn(tr("YOLO export is off while blinded"),
+                       tr("Unblind this session before exporting labels named after source images."))
             return None
         if path is None:
             default = os.path.splitext(os.path.join(*self._box_field))[0] + '.txt'
@@ -17071,6 +17090,8 @@ class MakeMasksScreen(QWidget):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
         self._btn_prompt.setEnabled(editable)
+        self._btn_export_yolo.setEnabled(editable and self._blind is None
+                                        and self._box_load_error is None)
         self._mode_buttons[MODE_BOX].setEnabled(editable and self._box_load_error is None)
 
 
