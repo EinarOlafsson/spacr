@@ -1,8 +1,9 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-05 — vendor acquisition completion, unsupported series
-        and pooled normalisation remain. Pretrained CV inference and the live
-        plate view are available as alpha; per-field fitting is unsupported.
+Status: OPEN 2026-10-05 — vendor acquisition completion, timelapse/volumetric
+        series and pooled normalisation remain. Projected Z fields from a
+        fixed Convert map, pretrained CV inference and the live plate view
+        are available as alpha; per-field fitting is unsupported.
         First version built as alpha 2026-09-26.
 
 Previous status (superseded 2026-10-04): ALPHA, built 2026-09-26. First version on Make Masks, hidden unless

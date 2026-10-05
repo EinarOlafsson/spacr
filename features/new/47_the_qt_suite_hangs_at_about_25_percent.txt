@@ -1584,3 +1584,15 @@ serial Qt acceptance remains open as recorded above.
   checks passed (36, 12 and 146 respectively). These bounded probes do not
   prove an uninterrupted whole Qt run, so the 10.8 GiB serial memory guard
   remains an open acceptance gate.
+
+2026-10-05 — MORE BOUNDED OWNERSHIP REPAIRS; SERIAL ACCEPTANCE OPEN
+  A 105-test settings-model coverage file left 1,848 widgets alive at the
+  next file boundary. Giving its large SettingsWidgets panels a qtbot-owned
+  parent reduced that boundary count to 2; 107 adjacent tests passed. A
+  separate Measure-panel test left 445 widgets alive; owning its parent
+  reduced that test boundary to zero, with 55 adjacent tests passing.
+  The UMAP greying test also left its RowExclusionEditor schema JobRunner
+  busy; calling the editor's shutdown after the assertion removed the
+  warning, and its full 105-test file passes. These are bounded ownership
+  findings. The original-order serial Qt run still needs an uninterrupted
+  guarded summary before this item can be marked done.

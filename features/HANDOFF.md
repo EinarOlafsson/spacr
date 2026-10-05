@@ -135,8 +135,8 @@ On a merge conflict keep every item's entries and regenerate.
 | Item | State | Owner / waits on |
 |---|---|---|
 | new 43 / future 288 | OPEN: coverage ratchet and final-source GitHub run still need a green verdict | Codex CI lane |
-| new 47 | OPEN: serial whole Qt run stops at the 10.8 GiB guard (~71%); bounded fixture ownership repairs landed | Codex CI lane |
-| future 548 | OPEN: vendor acquisition completion, z/t series and pooled normalisation; alpha pretrained CV Classify and live plate view landed | needs vendor completion evidence |
+| new 47 | OPEN: serial whole Qt run stops at the 10.8 GiB guard (~71%); more bounded widget and runner ownership repairs landed | Codex CI lane |
+| future 548 | OPEN: vendor acquisition completion, timelapse/volumetric series and pooled normalisation; fixed-map projected Z, alpha pretrained CV Classify and live plate view landed | needs vendor completion evidence |
 | new 658 | DONE: figure preferences, context menu, data/stats ZIP and registration landed | no owner needed |
 | future 411 | DONE: nested-helper API pages and nine catalogs landed | no owner needed |
 | new 615 | DONE except macOS updater scene capture (627) | needs a macOS capture host |
