@@ -123,6 +123,20 @@ def panel(make_panel, grid):
     return make_panel(grid)
 
 
+def test_a_refused_gate_snapshot_can_be_retried_without_changing_gates(
+        panel, monkeypatch):
+    before = panel._gates_snapshot()
+    real = panel._gates.to_dict
+
+    def unavailable():
+        raise ValueError("strategy is not serializable yet")
+
+    monkeypatch.setattr(panel._gates, "to_dict", unavailable)
+    assert panel._gates_snapshot() == {}
+    monkeypatch.setattr(panel._gates, "to_dict", real)
+    assert panel._gates_snapshot() == before
+
+
 @pytest.fixture
 def boxes(monkeypatch):
     """Capture the modal messages. Left real they would hang a headless run."""

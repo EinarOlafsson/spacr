@@ -772,6 +772,34 @@ def test_a_greyed_row_carries_its_reason_into_the_menu(screen, monkeypatch):
         "a disabled item was still wired to fire")
 
 
+@pytest.mark.parametrize("raises", [False, True])
+def test_graph_menu_remains_usable_without_a_figure(screen, monkeypatch, raises):
+    from PySide6.QtCore import QPoint
+    import PySide6.QtWidgets as qtw
+    from spacr.qt.widgets import figure_settings
+
+    def figure():
+        if raises:
+            raise RuntimeError("canvas is closing")
+        return None
+
+    _Menu.built = []
+    monkeypatch.setattr(qtw, "QMenu", _Menu)
+    monkeypatch.setattr(screen, "axis_under", lambda _point: None)
+    monkeypatch.setattr(screen.gates.canvas, "figure", figure)
+    figure_tools = []
+    monkeypatch.setattr(figure_settings, "_add_figure_tools",
+                        lambda *_args: figure_tools.append(True))
+    screen._show_graph_menu(QPoint(2, 3))
+
+    menu = _Menu.built[0]
+    rows = {row.label: row for row in menu.rows if row is not None}
+    assert menu.at == screen.gates.canvas.mapToGlobal(QPoint(2, 3))
+    assert rows["Reset view"].calls
+    assert rows["Graph settings…"].calls
+    assert figure_tools == []
+
+
 def test_the_graph_goes_to_the_clipboard_as_a_picture(loaded):
     from PySide6.QtWidgets import QApplication
 

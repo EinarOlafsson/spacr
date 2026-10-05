@@ -67,6 +67,26 @@ def test_a_deleted_holder_is_skipped_when_applying(monkeypatch):
     assert sc._apply_keymap(object(), {}) == 0
 
 
+def test_reinstalling_a_deleted_shortcut_creates_one_live_binding(qtbot):
+    from PySide6.QtGui import QKeySequence, QShortcut
+    from PySide6.QtWidgets import QMainWindow
+    import shiboken6
+
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    activated = []
+    old = sc._bind(window, "Ctrl+K", lambda: activated.append("old"))
+    window._spacr_keymap_holders = {"Ctrl+K": old}
+    shiboken6.delete(old)
+
+    replacement = sc._bind(window, "Ctrl+K", lambda: activated.append("new"))
+    assert replacement is not old
+    assert replacement.key() == QKeySequence("Ctrl+K")
+    assert window.findChildren(QShortcut) == [replacement]
+    replacement.activated.emit()
+    assert activated == ["new"]
+
+
 def test_the_jobs_panel_without_a_registry_and_its_edge_paths(qtbot, monkeypatch):
     import spacr.qt.bridge as bridge
     from spacr.qt.widgets.activity_spinner import _JobsPanel

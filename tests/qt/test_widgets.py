@@ -225,3 +225,26 @@ def test_usage_bar_thresholds(qtbot, pct, expected):
     bar.set_value(pct)
     assert bar._bar.objectName() == expected
     assert bar._pct.text().endswith("%")
+
+
+def test_usage_bar_survives_a_font_event_before_its_labels_exist(
+        qtbot, monkeypatch):
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    set_name = UsageBar.setObjectName
+    early_events = []
+
+    def style_on_name(widget, name):
+        set_name(widget, name)
+        early_events.append(QCoreApplication.sendEvent(
+            widget, QEvent(QEvent.FontChange)))
+
+    monkeypatch.setattr(UsageBar, "setObjectName", style_on_name)
+    bar = UsageBar("Memory in use")
+    qtbot.addWidget(bar)
+    bar.set_value(100)
+    assert early_events == [True]
+    assert bar._label.width() >= bar._label.fontMetrics().horizontalAdvance(
+        "Memory in use")
+    assert bar._pct.width() >= bar._pct.fontMetrics().horizontalAdvance("100%")
+    assert bar._bar.value() == 100

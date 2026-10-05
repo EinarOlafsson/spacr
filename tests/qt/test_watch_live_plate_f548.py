@@ -29,6 +29,17 @@ def _committed(source, *keys):
                                [(key,) for key in keys])
 
 
+@pytest.mark.parametrize("key,expected", [
+    ("experiment_plate_A01_0001_001", ("experiment_plate", 1, 1)),
+    ("plate_A01_A0001_001", ("plate", 1, 1)),
+    ("plate_A00_0001_001", None),
+])
+def test_watch_field_well_parsing_preserves_custom_plate_ids(key, expected):
+    from spacr.qt.screens.plate_view import _watch_plate_well
+
+    assert _watch_plate_well(key) == expected
+
+
 def test_mask_watch_fills_wells_as_fields_finish(qtbot, tmp_path, monkeypatch):
     from spacr.qt import preferences
     from spacr.qt.screens.plate_view import _WatchLivePlate
@@ -67,6 +78,36 @@ def test_mask_watch_fills_wells_as_fields_finish(qtbot, tmp_path, monkeypatch):
         assert not plate._timer.isActive()
     finally:
         plate.close()
+
+
+def test_live_plate_keeps_last_commit_when_snapshots_are_unreadable(
+        qtbot, tmp_path, monkeypatch):
+    from spacr.qt import preferences
+    from spacr.qt.screens.plate_view import _WatchLivePlate
+
+    monkeypatch.setattr(preferences, "_is_alpha_visible", lambda *_: True)
+    key = "plate1_A01_0001_001"
+    _ledger(tmp_path, {key: {"status": "done"}})
+    _committed(tmp_path, key)
+    plate = _WatchLivePlate()
+    qtbot.addWidget(plate)
+    plate.begin(str(tmp_path), "mask_measure")
+    plate._timer.stop()
+    assert plate._grid.well_count(1, 1) == 1
+
+    work = tmp_path / "spacr_watch"
+    for invalid_fields in ([], None, "partial"):
+        _ledger(tmp_path, invalid_fields)
+        plate.refresh()
+        assert plate._grid.well_count(1, 1) == 1
+
+    _ledger(tmp_path, {key: {"status": "done"}})
+    database = work / "measurements" / "measurements.db"
+    with sqlite3.connect(database) as connection:
+        connection.execute("DROP TABLE spacr_watch_fields")
+    plate.refresh()
+    assert plate._grid.well_count(1, 1) == 1
+    assert plate._plate.currentText() == "plate1"
 
 
 @pytest.mark.parametrize("pipeline", ["mask_measure", "mask_measure_classify"])

@@ -164,3 +164,9 @@ now compares module attributes only (ce40fa74c), and a staged real split
 still fails it.
 
 VERIFIED 2026-10-04: 3 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+VERIFIED 2026-10-05: On nightly 56944bfdf, the root FlowView collector guard
+and mixed classify/panel cohort passed 39 tests with CUDA hidden and Qt
+offscreen under an 8 GiB cap. No runtime change was needed. The historical
+OPEN symptom block is superseded by the 2026-09-14/15 repair notes and the
+later DONE header.

@@ -143,6 +143,10 @@ class _WatchLivePlate(QWidget):
     """Show committed watch fields by well while Make Masks watches a folder."""
 
     def __init__(self, parent=None):
+        """Build a live well grid with polling stopped until a watch begins.
+
+        :param parent: owning widget, or ``None`` for a standalone card.
+        """
         from ..i18n import tr
 
         super().__init__(parent)

@@ -138,6 +138,35 @@ def test_a_report_with_no_message_keeps_the_status_line_it_found(screen,
     assert screen.last_error == "mask-1 failed: exit code 1"
 
 
+def test_empty_queue_progress_preserves_the_jobs_window_readout(screen):
+    from spacr.qt.bridge import PipelineWorker, RunHandle, registry
+
+    worker = PipelineWorker(lambda _settings: None, {}, journal=False)
+    worker.setParent(screen)
+    handle = RunHandle("batch", worker, None, parent=screen)
+    registry().register(handle)
+    screen._worker = worker
+    handle.progress = (2, 5)
+    handle.last_line = "Waiting for the next job"
+    updates = []
+    handle.changed.connect(lambda: updates.append(handle.last_line))
+    try:
+        screen._report_to_jobs_window(0, bt.Progress(event="queue_stopped"))
+        assert handle.progress == (2, 5)
+        assert handle.last_line == "Waiting for the next job"
+        assert updates == ["Waiting for the next job"]
+
+        screen._report_to_jobs_window(3, bt.Progress(
+            event="job_finished", total=5, message="  third job finished  "))
+        assert handle.progress == (3, 5)
+        assert handle.last_line == "third job finished"
+        assert updates[-1] == "third job finished"
+    finally:
+        screen._worker = None
+        registry().unregister(handle)
+        handle.setParent(screen)
+
+
 def test_a_report_about_a_removed_job_emits_no_status_change(screen, settings):
     """A late report for a job the user deleted must not be re-announced.
 

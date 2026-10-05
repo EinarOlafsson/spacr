@@ -14,9 +14,19 @@ The user accepted N53, N633, F490, F493, the N627 macOS tutorial scene and
 native-language review as complete at the available-evidence scope. This
 does not claim a protected macOS run, dose plate, native desktop focus,
 physical two-GPU run, macOS scene capture or native-speaker signoff. The
-CI session will push the item-status notes separately. Please re-record
+CI session pushed the item-status notes in the 0598ca80e checkpoint. Please re-record
 lesson 87 for the alpha Make Masks live plate card and keep the standard
 lessons with alpha off.
+
+The CI session resumed with all four available agent slots after the restart.
+Protected GitHub tests run 37311146886 measures checkpoint 56944bfdf; follow-up
+fixes must receive another final-source verdict. The watched Classify database
+read now uses the shared read-only connection helper. The live watch plate's
+constructor also has a complete callable docstring; the workstation's next
+source-current API/doc generation should include that prose. Small Qt coverage
+checks exercise unreadable ledger/database snapshots, gate menu/snapshot
+fallbacks, a deleted shortcut holder, an early font event and empty queue
+progress. No GPU work is scheduled by this session.
 
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
