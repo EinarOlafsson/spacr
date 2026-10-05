@@ -34,6 +34,8 @@ def test_restyle_updates_existing_text_lines_marks_and_axes(monkeypatch):
                     color="#1f77b4")
     marks = ax.scatter([0, 1], [2, 3], s=[12, 12], c=[0, 1],
                        cmap="viridis")
+    varied = ax.scatter([0, 1], [1, 2], s=[12, 36], c=[0, 1],
+                        cmap="magma")
     image = ax.imshow(np.arange(4).reshape(2, 2), cmap="viridis")
     legend = ax.legend()
 
@@ -52,8 +54,10 @@ def test_restyle_updates_existing_text_lines_marks_and_axes(monkeypatch):
     assert line.get_markersize() == pytest.approx(7)
     assert to_hex(line.get_color()) == palette_colours("bright")[0]
     assert marks.get_sizes().tolist() == [49]
+    assert varied.get_sizes().tolist() == [12, 36]
     assert image.get_cmap().name == "cividis"
     assert marks.get_cmap().name == "cividis"
+    assert varied.get_cmap().name == "magma"
     assert any(grid.get_visible() for grid in ax.xaxis.get_gridlines())
 
 
@@ -97,3 +101,39 @@ def test_one_malformed_artist_colour_does_not_block_the_others(monkeypatch):
 
     assert style._apply_user_style(figure) == {"palette": "bright"}
     assert to_hex(good.get_color()) == palette_colours("bright")[0]
+
+
+def test_an_unavailable_selected_palette_keeps_existing_data_colours(
+        monkeypatch):
+    from spacr import figure_style
+
+    monkeypatch.setattr(figure_style, "palette_colours", lambda name: [])
+    monkeypatch.setattr(style, "_preference_deltas",
+                        lambda kind: {"palette": "unavailable"})
+    figure = Figure()
+    line, = figure.subplots().plot([0, 1], [1, 2], color="#1f77b4")
+
+    assert style._apply_user_style(figure) == {"palette": "unavailable"}
+    assert to_hex(line.get_color()) == "#1f77b4"
+
+
+def test_one_unavailable_source_palette_does_not_block_the_target(
+        monkeypatch):
+    from spacr import figure_style
+
+    resolve_palette = figure_style.palette_colours
+
+    def with_one_missing_source(name):
+        if name == "deep":
+            raise LookupError("palette library could not resolve deep")
+        return resolve_palette(name)
+
+    monkeypatch.setattr(figure_style, "palette_colours",
+                        with_one_missing_source)
+    monkeypatch.setattr(style, "_preference_deltas",
+                        lambda kind: {"palette": "bright"})
+    figure = Figure()
+    line, = figure.subplots().plot([0, 1], [1, 2], color="#1f77b4")
+
+    assert style._apply_user_style(figure) == {"palette": "bright"}
+    assert to_hex(line.get_color()) == resolve_palette("bright")[0]
