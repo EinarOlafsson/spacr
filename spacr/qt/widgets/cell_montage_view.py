@@ -912,6 +912,8 @@ def montage_figure(plans: Sequence[Any], images: Sequence[Sequence[Any]],
     width = 1.1 * columns + 0.6
     height = 1.1 * total_rows + 0.16 * caption_lines + 0.6
     figure = Figure(figsize=(width, max(height, 2.0)))
+    from ...figures.bundle import _register_figure_data
+    _register_figure_data(figure, None, kind="montage", captions=captions)
 
     grid = figure.add_gridspec(
         max(total_rows, 1) + 1, columns,

@@ -1812,6 +1812,8 @@ def plot_image_mask_overlay(
         with figure_style(theme_target()):
             num_channels = image.shape[-1]
             fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, image, kind="overlay")
             ax = np.atleast_1d(ax).ravel()
 
             channels_with_outlines = set(channel_to_outline.keys()) if channel_to_outline is not None else set()
@@ -2213,6 +2215,8 @@ def plot_image_mask_overlay_magenta_outlines(
         with figure_style(theme_target()):
             num_channels = image.shape[-1]
             fig, ax = plt.subplots(1, num_channels + 1, figsize=(4 * figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, image, kind="overlay")
 
             outlines_by_channel = {}
             if pathogen_channel is not None:
@@ -2463,6 +2467,8 @@ def plot_cellpose4_output(batch, masks, flows, cmap='inferno', figuresize=10, nr
             chans = image.shape[-1]
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, [image, mask], kind="mask")
                 for v in range(0, image.shape[-1]):
                     ax[v].imshow(image[..., v], cmap=cmap, interpolation='nearest')
                     ax[v].set_title('Image - Channel'+str(v))
@@ -2510,6 +2516,8 @@ def plot_organelle_output(img_batch, masks, settings, cmap='inferno', figuresize
         with figure_style(theme_target()):
             n_panels = 3
             fig, ax = plt.subplots(1, n_panels, figsize=(n_panels * figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, [img, mask], kind="mask")
 
             ax[0].imshow(img, cmap=cmap, interpolation='nearest')
             ax[0].set_title(f'Organelle channel ({morphology}/{method})')
@@ -2578,6 +2586,8 @@ def plot_masks(batch, masks, flows, cmap='inferno', figuresize=10, nr=1, file_ty
             chans = image.shape[-1]
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(1, image.shape[-1] + 2, figsize=(4 * figuresize, figuresize))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, [image, mask], kind="mask")
                 for v in range(0, image.shape[-1]):
                     ax[v].imshow(image[..., v], cmap=cmap)
                     ax[v].set_title('Image - Channel'+str(v))
@@ -2620,9 +2630,13 @@ def _plot_4D_arrays(src, figuresize=10, cmap='inferno', nr_npz=1, nr=1):
             with figure_style(theme_target()):
                 if num_channels == 1:
                     fig, axs = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+                    from .figures.bundle import _register_figure_data
+                    _register_figure_data(fig, img, kind="image")
                     axs = [axs]
                 else:
                     fig, axs = plt.subplots(1, num_channels, figsize=(num_channels * figuresize, figuresize))
+                    from .figures.bundle import _register_figure_data
+                    _register_figure_data(fig, img, kind="image")
 
                 for c in range(num_channels):
                     axs[c].imshow(img[:, :, c], cmap=cmap)
@@ -2808,6 +2822,8 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
             if image_data is not None and mask_data is not None:
                 with figure_style(theme_target()):
                     fig, axes = plt.subplots(1, 2, figsize=(15, 7))
+                    from .figures.bundle import _register_figure_data
+                    _register_figure_data(fig, [image_data, mask_data], kind="mask", title=str(filename))
                 
                     cmap = random_cmap(num_objects=len(np.unique(mask_data)))
                     axes[0].imshow(mask_data, cmap=cmap)
@@ -2968,6 +2984,8 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
             if img.ndim == 3:
                 array_nr = img.shape[2]
                 fig, axs = plt.subplots(1, array_nr, figsize=(figuresize, figuresize))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, img, kind="image")
                 if array_nr == 1:
                     axs = [axs]
                 for channel in range(array_nr):
@@ -2978,6 +2996,8 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
                     axs[channel].axis('off')
             else:
                 fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, img, kind="image")
                 ax.imshow(img, cmap=plt.get_cmap(cmap))
                 ax.set_title('Channel 0', size=_montage_type_size(figuresize))
                 ax.axis('off')
@@ -3061,11 +3081,15 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
     with figure_style(theme_target()):
         if overlay:
             fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims) + 1, figsize=(4 * figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, image, kind="overlay")
             ax[0].imshow(overlayed_image)
             ax[0].set_title('Overlayed Image')
             ax_index = 1
         else:
             fig, ax = plt.subplots(1, image.shape[-1] + len(mask_dims), figsize=(4 * figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, image, kind="overlay")
             ax_index = 0
 
         for v in range(0, image.shape[-1]):
@@ -3210,6 +3234,8 @@ def _plot_images_on_grid(image_files, channel_indices, um_per_pixel, scale_bar_l
     rows = np.ceil(nr_of_images / cols)
     with figure_style(theme_target()):
         fig, axes = plt.subplots(int(rows), int(cols), figsize=(20, 20), squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="montage", files=[str(v) for v in image_files])
         axes = axes.flatten()
         scale_bar_length_px = int(scale_bar_length_um / um_per_pixel)
 
@@ -3422,12 +3448,16 @@ def _plot_cropped_arrays(stack, filename, figuresize=10, cmap='inferno', thresho
     with figure_style(theme_target()):
         if len(dim) == 2:
             fig, ax = plt.subplots(1, 1, figsize=(figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, stack, kind="image")
             plot_single_array(stack, ax, 'Channel one', plt.get_cmap(cmap))
             fig.tight_layout()
             plt.show()
         elif len(dim) > 2:
             num_channels = dim[2]
             fig, axs = plt.subplots(1, num_channels, figsize=(figuresize, figuresize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, stack, kind="image")
             axs = np.atleast_1d(axs)
             for channel in range(num_channels):
                 plot_single_array(stack[:, :, channel], axs[channel], f'C. {channel}', plt.get_cmap(cmap))
@@ -3473,6 +3503,8 @@ def _visualize_and_save_timelapse_stack_with_tracks(masks, tracks_df, save, src,
         """
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=geometry['figsize'], dpi=geometry['dpi'])
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, masks[frame], kind="mask", frame=int(frame))
             current_mask = masks[frame]
             ax.imshow(current_mask, cmap=cmap, norm=norm)
             ax.set_title(f'Frame: {frame}', fontsize=geometry['title_pt'])
@@ -3546,6 +3578,8 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         height=figuresize/4
 
         fig, axes = plt.subplots(nrows=1, ncols=4, figsize=(width, height))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, x="condition", y=f"cell_channel_{channel_of_interest}_mean_intensity", hue="pathogen", kind="bar")
         sns.barplot(ax=axes[0], data=df, x='condition', y=f'cell_channel_{channel_of_interest}_mean_intensity', hue='pathogen', capsize=.1, errorbar='sd', dodge=False)
         axes[0].set_xlabel(f'pathogen {df_type}', fontsize=font)
         axes[0].set_ylabel(f'cell_channel_{channel_of_interest}_mean_intensity', fontsize=font)
@@ -3580,6 +3614,8 @@ def _plot_recruitment(df, df_type, channel_of_interest, columns=None, figuresize
         height = (figuresize*2)/columns_per_row
 
         fig, axes = plt.subplots(nrows=2, ncols=columns_per_row, figsize=(width, height * 2))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, x="condition", y=str(columns[0]) if len(columns) else "", hue="pathogen", kind="bar")
         axes = axes.flatten()
 
         print(f'{columns}')
@@ -3643,6 +3679,8 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
 
     with figure_style(theme_target()):
         fig, axes = plt.subplots(len(unique_conditions), len(mask_chans)+1, figsize=(figuresize*len(mask_chans), figuresize*len(unique_conditions)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, x="condition", y=controls_cols[0][0], kind="bar")
 
         for idx_condition, condition in enumerate(unique_conditions):
             df_temp = df[df['condition'] == condition]
@@ -3696,6 +3734,8 @@ def _imshow(img, labels, nrow=20, color='white', fontsize=12):
                 canvas[i * img_height:(i + 1) * img_height, j * img_width:(j + 1) * img_width] = np.transpose(img[idx], (1, 2, 0))        
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(50, 50))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, canvas, kind="montage", labels=[str(v) for v in labels])
         plt.imshow(canvas)
         plt.axis("off")
         for i, label in enumerate(labels):
@@ -3739,6 +3779,8 @@ def _imshow_gpu(img, labels, nrow=20, color='white', fontsize=12):
 
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(50, 50))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, canvas, kind="montage", labels=[str(v) for v in labels])
         plt.imshow(canvas)
         plt.axis("off")
 
@@ -3773,6 +3815,8 @@ def _plot_histograms_and_stats(df):
         
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=(10, 10))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, subset, y="pred", kind="hist", title=f"Condition: {condition}")
             ax.hist(subset['pred'], bins=30, color=ROLES['fill'],
                     edgecolor='none')
             mean_line = reference_line(ax, x=mean_pred)
@@ -3796,6 +3840,8 @@ def _show_residules(model):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots()
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"residual": np.asarray(residuals)}), y="residual", kind="hist")
         ax.hist(residuals, bins=30, color=ROLES['fill'], edgecolor='none')
         descriptor(ax, 'Histogram of Residuals')
         ax.set_xlabel('Residual Value')
@@ -3803,6 +3849,8 @@ def _show_residules(model):
         plt.show()
 
         qq_fig, qq_ax = plt.subplots()
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(qq_fig, lambda: pd.DataFrame({"residual": np.asarray(residuals)}), y="residual", kind="hist")
         sm.qqplot(residuals, fit=True, line='45', ax=qq_ax)
         for line in qq_ax.lines:
             if line.get_linestyle() == 'None':
@@ -3817,6 +3865,8 @@ def _show_residules(model):
         plt.show()
 
         resid_fig, resid_ax = plt.subplots()
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(resid_fig, lambda: pd.DataFrame({"fitted": np.asarray(model.fittedvalues), "residual": np.asarray(residuals)}), x="fitted", y="residual", kind="scatter")
         resid_ax.scatter(model.fittedvalues, residuals, s=8,
                          color=ROLES['data'], edgecolors='none')
         resid_ax.set_xlabel('Fitted values')
@@ -3843,6 +3893,8 @@ def _reg_v_plot(df, grouping=None, variable=None, plate_number=None):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(5.6, 4.4))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: df.assign(effect=np.asarray(effect)), x="effect", y="-log10(p)", kind="scatter")
         ax.scatter(effect, df['-log10(p)'], c=colours, s=12,
                    edgecolors='none')
         descriptor(ax, 'Volcano Plot')
@@ -4195,8 +4247,12 @@ def print_mask_and_flows(stack, mask, flows, overlay=True, max_size=1000, thickn
             flows = [resize_if_needed(flow, max_size) for flow in flows]
 
             fig, axs = plt.subplots(1, 3, figsize=(12, 4))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, stack, kind="mask")
         else:
             fig, axs = plt.subplots(1, 2, figsize=(12, 4))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, stack, kind="mask")
 
         if stack.shape[-1] == 1:
             stack = np.squeeze(stack)
@@ -4275,6 +4331,8 @@ def plot_resize(images, resized_images, labels, resized_labels):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(2, 2, figsize=(20, 20))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="image")
 
         img, cmap = prepare_image(images[0])
         ax[0, 0].imshow(img, cmap=cmap)
@@ -4307,6 +4365,8 @@ def normalize_and_visualize(image, normalized_image, title=""):
     """
     with figure_style(theme_target()):
         fig, ax = plt.subplots(1, 2, figsize=(12, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, [image, normalized_image], kind="image", title=str(title))
         if image.ndim == 3:
             ax[0].imshow(np.mean(image, axis=-1), cmap='gray')
         else:
@@ -4334,6 +4394,8 @@ def visualize_masks(mask1, mask2, mask3, title="Masks Comparison"):
     """
     with figure_style(theme_target()):
         fig, axs = plt.subplots(1, 3, figsize=(30, 10))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, [mask1, mask2, mask3], kind="mask", title=str(title))
         for ax, mask, panel_title in zip(axs, [mask1, mask2, mask3], ['Mask 1', 'Mask 2', 'Mask 3']):
             cmap = generate_mask_random_cmap(mask)
             if np.isin(mask, [0, 1]).all():
@@ -4393,6 +4455,8 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
     with figure_style(theme_target()):
         num_masks = len(masks)
         fig, axs = plt.subplots(1, num_masks, figsize=(10 * num_masks, 10))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, list(masks), kind="mask", title=str(comparison_title))
         axs = np.atleast_1d(axs)
 
         for ax, mask, title in zip(axs, masks, titles):
@@ -4439,6 +4503,8 @@ def plot_comparison_results(comparison_results):
     )
     with figure_style(theme_target()):
         fig, axs = plt.subplots(1, 4, figsize=(40, 10))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df_melted, x="metric", y="value", kind="box_strip")
         for index, (frame, title, ylabel) in enumerate(panels):
             ax = axs[index]
             sns.boxplot(data=frame, x='metric', y='value', ax=ax,
@@ -4498,6 +4564,8 @@ def plot_histogram(df, column, dst=None):
     """
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(10, 10))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, y=column, kind="hist")
         sns.histplot(df[column], kde=False, color=ROLES['fill'],
                      edgecolor=None, ax=ax)
         descriptor(ax, f'Histogram of {column}')
@@ -4643,6 +4711,8 @@ def plot_lorenz_curves(csv_files, name_column='grna_name', value_column='count',
                 label=combined_label, linestyle='--',
                 color=ROLES['highlight'])
         entries.append((combined_label, ROLES['highlight']))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"values": np.asarray(combined_data, dtype=float)}), y="values", kind="ecdf", gini=dict(gini_values))
 
         ax.set_xlim(x_lim)
         ax.set_ylim(y_lim)
@@ -4679,6 +4749,8 @@ def plot_permutation(permutation_df):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, permutation_df, x="feature", y="importance_mean", kind="bar")
         ax.barh(permutation_df['feature'], permutation_df['importance_mean'],
                 xerr=permutation_df['importance_std'], color=ROLES['data'],
                 align="center", ecolor=resolve_ink(theme_target()),
@@ -4711,6 +4783,8 @@ def plot_feature_importance(feature_importance_df, title=""):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, feature_importance_df, x="feature", y="importance", kind="bar")
         ax.barh(feature_importance_df['feature'],
                 feature_importance_df['importance'], color=ROLES['data'],
                 align="center")
@@ -4771,6 +4845,8 @@ def read_and_plot__vision_results(base_dir, y_axis='accuracy', name_split='_time
             colours[-1] = ROLES['highlight']
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=(10, 6))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, result_df, x="model", y=y_axis, kind="bar")
             ax.bar(avg_metric['model'], avg_metric[y_axis], color=colours)
             ax.set_xlabel('Model')
             ax.set_ylabel(f'{y_axis}')
@@ -4870,6 +4946,8 @@ def jitterplot_by_annotation(src, x_column, y_column, plot_title='Jitter Plot', 
     groups = list(pd.unique(balanced_df[x_column]))
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(10, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, balanced_df, x=x_column, y=y_column, kind="strip")
         sns.stripplot(data=balanced_df, x=x_column, y=y_column, hue=x_column,
                       jitter=True, dodge=False, legend=False, size=3.0,
                       linewidth=0,
@@ -5040,6 +5118,8 @@ def create_grouped_plot(df, grouping_column, data_column, graph_type='jitter_box
 
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(10, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, x=grouping_column, y=data_column, kind=graph_type)
 
         if colors:
             color_palette = colors
@@ -5861,6 +5941,8 @@ class spacrGraph:
         with figure_style(theme_target()):
             if ax is None:
                 self.fig, ax = plt.subplots(figsize=(self.fig_height, self.fig_width))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(self.fig, self.df, x=self.grouping_column, y=self.data_column[0] if self.data_column else "", kind=str(getattr(self, "graph_type", "") or ""))
             else:
                 self.fig = ax.figure
 
@@ -6871,6 +6953,8 @@ def plot_image_grid(image_paths, percentiles):
             facecolor='black',
             squeeze=False
         )
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="montage", files=[str(v) for v in image_paths])
 
         axs = axs.flatten()
 
@@ -6992,6 +7076,8 @@ def overlay_masks_on_images(img_folder, normalize=True, resize=True, save=False,
         if plot:
             with figure_style(theme_target()):
                 plt.figure(figsize=(10, 10))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(plt.gcf(), blended, kind="overlay", title=str(filename))
                 plt.imshow(blended)
                 plt.title(f"Overlay: {filename}")
                 plt.axis('off')
@@ -7388,6 +7474,8 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(8, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"gene": sorted(set(genes1) | set(genes2))}).assign(in_file_1=lambda d: d["gene"].isin(set(genes1)), in_file_2=lambda d: d["gene"].isin(set(genes2))), kind="venn")
         diagram = venn2([genes1, genes2], ('File 1 Genes', 'File 2 Genes'),
                         ax=ax)
         for region, colour in (('10', ROLES['data']),
@@ -7617,6 +7705,8 @@ def volcano_plot(
     with figure_style(theme_target()):
         if ax is None:
             fig, ax = plt.subplots(figsize=figsize)
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, lambda: pd.DataFrame({"effect": np.asarray(x, dtype=float), "significance": np.asarray(y, dtype=float)}), x="effect", y="significance", kind="scatter")
         else:
             fig = ax.figure
 

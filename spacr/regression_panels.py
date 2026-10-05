@@ -554,6 +554,8 @@ def write_panel_package(
             figsize=(style.figure_width, style.plot_height),
             facecolor=LABEL_GROUND_PRINT,
         )
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(png_figure, data, x="plot_x", y="plot_y", hue=lopit_column, kind="scatter")
         png_axis = png_figure.add_axes(
             [style.axes_left, 0.16, style.axes_width, 0.82]
         )
@@ -581,6 +583,8 @@ def write_panel_package(
             figsize=(style.figure_width, style.pdf_height),
             facecolor=LABEL_GROUND_PRINT,
         )
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(pdf_figure, data, x="plot_x", y="plot_y", hue=lopit_column, kind="scatter")
         pdf_axis = pdf_figure.add_axes(
             [
                 style.axes_left,
@@ -965,6 +969,8 @@ def write_box_jitter_package(
             figsize=(style.figure_width, style.plot_height),
             facecolor=LABEL_GROUND_PRINT,
         )
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(png_figure, data, x=category_column, y=value_column, kind="box_strip")
         png_axis = png_figure.add_axes([style.axes_left, 0.16, 0.78, 0.82])
         _draw_box_jitter(
             png_axis, data, categories=categories, x_label=x_label,
@@ -980,6 +986,8 @@ def write_box_jitter_package(
             figsize=(style.figure_width, style.pdf_height),
             facecolor=LABEL_GROUND_PRINT,
         )
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(pdf_figure, data, x=category_column, y=value_column, kind="box_strip")
         pdf_axis = pdf_figure.add_axes(
             [style.axes_left, style.pdf_axes_bottom, style.axes_width,
              style.pdf_axes_height]

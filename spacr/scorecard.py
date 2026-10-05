@@ -1134,6 +1134,8 @@ def scorecard_figure(metrics: Mapping[str, object], path, *,
         positions = np.arange(len(names), dtype=float)
         width = 0.38
         figure, axes = plt.subplots(figsize=(1.6 * len(names) + 2.0, 4.2))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: {"metric": names * 2, "model": ["stock"] * len(names) + ["finetuned"] * len(names), "value": stock + fine}, x="metric", y="value", hue="model", kind="bar", title=str(title))
         axes.bar(positions - width / 2, stock, width, label="stock",
                  color="#b0b7c3")
         axes.bar(positions + width / 2, fine, width, label="finetuned",

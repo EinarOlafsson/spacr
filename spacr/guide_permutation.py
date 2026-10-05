@@ -695,6 +695,8 @@ def plot_guide_permutation_volcano(
     adjusted_label = adjusted_value_label(data["multiple_testing_method"].iloc[0])
     with figure_style(theme_target()):
         fig, axis = plt.subplots(figsize=(6.2, 4.8))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, data, x="standardized_marginal_effect", y="minus_log10_adjusted_p", kind="scatter")
         axis.scatter(
             data.loc[~significant, "standardized_marginal_effect"],
             data.loc[~significant, "minus_log10_adjusted_p"],

@@ -491,6 +491,8 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
             plates=plates)
         if not matrices:
             figure = plt.figure(figsize=(width, width / TARGET_ASPECT))
+            from .bundle import _register_figure_data
+            _register_figure_data(figure, frame, y=str(variable), kind="heatmap")
             return figure, Panel(
                 "plates", "plate heatmaps", drawn=False,
                 reason=(f"no plate in this table carries a well grid for "
@@ -517,6 +519,8 @@ def build_plates(frame, variable: str, *, grouping: str = "mean",
                   + (rows - 1) * MARGIN["hspace"])
 
         figure = plt.figure(figsize=(width, height))
+        from .bundle import _register_figure_data
+        _register_figure_data(figure, frame, y=str(variable), kind="heatmap", plates=[str(n) for n in names])
         ramp = plate_ramp(target) if cmap is None else _named(cmap)
 
         image = None

@@ -2626,6 +2626,8 @@ def _robustness_figure(summary, tolerance: float, object_type: str):
     labels = [f"{'! ' if f else ''}{p} {v}" for p, v, f in
               zip(summary["parameter"], summary["value"], summary["fragile"])]
     with _figure_axes(figsize=(6, 0.4 * len(labels) + 1.6)) as (figure, axis):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, summary, x="parameter", y="value", kind="heatmap")
         image = axis.imshow(shown, cmap="magma_r", vmin=0, vmax=max(2.0 * tolerance, 1e-6),
                             aspect="auto")
         axis.set_xticks(range(4))

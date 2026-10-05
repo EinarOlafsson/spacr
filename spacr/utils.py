@@ -5347,6 +5347,8 @@ def model_metrics(model):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(2, 2, figsize=(15, 12))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"fitted": np.asarray(model.fittedvalues), "residual": np.asarray(model.resid)}), x="fitted", y="residual", kind="scatter")
 
         ax[0, 0].scatter(model.fittedvalues, model.resid, edgecolors = 'k', facecolors = 'none')
         ax[0, 0].set_title('Residuals vs Fitted')
@@ -6674,6 +6676,8 @@ class SaliencyMapGenerator:
         rows = (N + 7) // 8
         with figure_style(theme_target()):
             fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, None, kind="image", title="Saliency")
 
             for ax in axs.flat:
                 ax.axis('off')
@@ -6839,6 +6843,8 @@ class GradCAMGenerator:
         rows = (N + 7) // 8
         with figure_style(theme_target()):
             fig, axs = plt.subplots(rows, 8, figsize=(16, rows * 2), squeeze=False)
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, None, kind="image", title="Grad-CAM")
 
             for ax in axs.flat:
                 ax.axis('off')
@@ -7517,6 +7523,8 @@ def plot_embedding(embedding, image_paths, labels, image_nr, img_zoom, colors,
         cluster_centers = [np.mean(embedding[labels == cluster_label], axis=0) for cluster_label in unique_labels]
         fig, ax = setup_plot(
             figuresize, black_background, theme_colors=theme_colors)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"embedding_1": np.asarray(embedding)[:, 0], "embedding_2": np.asarray(embedding)[:, 1], "cluster": np.asarray(labels).astype(str)}), x="embedding_1", y="embedding_2", hue="cluster", kind="scatter")
         plot_clusters(
             ax, embedding, labels, colors, cluster_centers, plot_outlines,
             plot_points, smooth_lines, figuresize, dot_size, verbose,
@@ -7931,6 +7939,8 @@ def plot_grid(cluster_images, colors, figuresize, black_background, verbose, the
     plot_colors = _plot_theme_colors(black_background, theme_colors)
     with figure_style(theme_target()):
         grid_fig, grid_axes = plt.subplots(1, num_clusters, figsize=(figuresize * num_clusters, figuresize), gridspec_kw={'wspace': 0.2, 'hspace': 0})
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(grid_fig, None, kind="montage", title="Cluster images")
         grid_fig.patch.set_facecolor(plot_colors['background'])
         if num_clusters == 1:
             grid_axes = [grid_axes]

@@ -1267,6 +1267,20 @@ def _run_colours(run_ids: Sequence[str]) -> Dict[str, str]:
     return {rid: cycle[i % len(cycle)] for i, rid in enumerate(run_ids)}
 
 
+def _curve_frame(comparison, metric: str) -> pd.DataFrame:
+    """One tidy row per series and epoch: ``epoch``, ``metric``, ``series``.
+
+    :param comparison: from :func:`compare_runs`.
+    :param metric: the metric column drawn.
+    :returns: the rows every drawn curve was made from.
+    """
+    rows = [pd.DataFrame({"epoch": s.epochs, metric: s.values(metric),
+                          "series": s.label, "split": s.split})
+            for s in comparison.series if s.has(metric)]
+    return (pd.concat(rows, ignore_index=True) if rows
+            else pd.DataFrame(columns=["epoch", metric, "series", "split"]))
+
+
 def plot_curves(comparison: Comparison, metric: str = "accuracy",
                 ax: Any = None, labels: Optional[Sequence[str]] = None,
                 figsize: Tuple[float, float] = (9.0, 5.0),
@@ -1305,6 +1319,9 @@ def plot_curves(comparison: Comparison, metric: str = "accuracy",
             fig, ax = plt.subplots(figsize=figsize)
     else:
         fig = ax.figure
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, lambda: _curve_frame(comparison, metric),
+                          x="epoch", y=metric, hue="series", kind="line")
 
     wanted = comparison.series
     if labels is not None:

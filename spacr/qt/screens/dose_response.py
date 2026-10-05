@@ -1106,6 +1106,15 @@ class DoseResponseScreen(QWidget):
             legend = axes.legend(fontsize=7, frameon=False, loc="best")
             for text in legend.get_texts():
                 text.set_color(palette["fg_muted"])
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(
+            self._figure, lambda: pd.concat([pd.DataFrame({
+                "dose": np.asarray(fit.result.dose, dtype=float),
+                "response": np.asarray(fit.result.response, dtype=float),
+                "group": str(fit.group or "all rows")})
+                for fit in self._set.fits if fit.result is not None],
+                ignore_index=True),
+            x="dose", y="response", hue="group", kind="scatter")
         self._figure.tight_layout()
         self.canvas.draw_idle()
 

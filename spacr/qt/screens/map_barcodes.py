@@ -3081,6 +3081,9 @@ class _SpatialTranscriptomicsPanel(QWidget):
             ops_engine._st_gene_values(self._bundle, gene),
             radius=self._registered["radius"],
             title=f"{self._bundle['platform']} {gene}".strip())
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(self.figure, self._registered["image"],
+                              kind="overlay", gene=gene)
         self.canvas.draw_idle()
 
     def run(self, _checked: bool = False):

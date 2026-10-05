@@ -351,6 +351,8 @@ def build_panel_figure(
         with figure_style(theme_target()):
             fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.2 * rows),
                                      squeeze=False)
+            from ...figures.bundle import _register_figure_data
+            _register_figure_data(fig, [getattr(t.extra_metrics["attribution"], "map", t.extra_metrics["attribution"]) for t in shown], kind="image", title="Attribution maps")
             for ax in axes.ravel():
                 ax.set_axis_off()
             for i, trial in enumerate(shown):
@@ -386,6 +388,8 @@ def build_panel_figure(
         with figure_style(theme_target()):
             fig, axes = plt.subplots(rows, cols, figsize=(3.0 * cols, 3.0 * rows),
                                      squeeze=False)
+            from ...figures.bundle import _register_figure_data
+            _register_figure_data(fig, lambda: {"trial": [format_params(t.params) for t in shown for _p in t.extra_metrics["embedding"]], "embedding_1": [float(p[0]) for t in shown for p in t.extra_metrics["embedding"]], "embedding_2": [float(p[1]) for t in shown for p in t.extra_metrics["embedding"]]}, x="embedding_1", y="embedding_2", hue="trial", kind="scatter")
             for ax in axes.ravel():
                 ax.set_axis_off()
             for i, trial in enumerate(shown):
@@ -411,6 +415,8 @@ def build_panel_figure(
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(6.0, 3.2))
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"rank": list(range(1, len(ranked) + 1)), "score": [float(t.score) for t in ranked]}, x="rank", y="score", kind="line")
         xs = list(range(1, len(ranked) + 1))
         ys = [float(t.score) for t in ranked]
         ax.plot(xs, ys, "o-", markersize=4, color=palette["accent"])
@@ -494,6 +500,8 @@ def render_trial_figure(trial: Trial, metric: str, png_path: str) -> bool:
     from matplotlib.figure import Figure
 
     figure = Figure(figsize=(3.2, 2.6))
+    from ...figures.bundle import _register_figure_data
+    _register_figure_data(figure, lambda: {"embedding_1": [float(p[0]) for p in embedding], "embedding_2": [float(p[1]) for p in embedding]}, x="embedding_1", y="embedding_2", kind="scatter")
     axis = figure.add_subplot(111)
     count = len(embedding)
     axis.scatter([point[0] for point in embedding],

@@ -1297,6 +1297,8 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Titles, axis labels, limits and scales, fonts, colours, legend, size "
     "and DPI, applied live.",
     "Zip archive (*.zip)",
+    "One zip: the picture in the default formats, the arrays it shows as "
+    "TIFF and its metadata as JSON.",
     'Text size of legend entries and legend titles, in points. Default 9.',
     'Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.',
     'Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.',

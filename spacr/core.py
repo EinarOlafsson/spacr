@@ -3108,6 +3108,8 @@ def reducer_hyperparameter_search(settings=None, reduction_params=None, dbscan_p
 
     with figure_style(theme_target()):
         fig, axs = plt.subplots(grid_rows, grid_cols, figsize=(fig_width, fig_height))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="image", title="Reducer hyperparameter search")
 
         axs = np.atleast_1d(axs)
     

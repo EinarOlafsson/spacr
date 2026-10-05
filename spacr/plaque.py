@@ -1305,6 +1305,8 @@ def _colony_overlay_figure(result: Dict[str, Any], title: str = ""):
     edges = find_boundaries(result["labels"], mode="outer")
     shown[edges] = (0.1, 1.0, 0.2)
     with _figure_axes(figsize=(6, 6)) as (figure, axis):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, shown, kind="overlay", title=str(title))
         axis.imshow(shown)
         cx, cy = result["centre"]
         axis.add_patch(plt.Circle((cx, cy), result["radius"], fill=False,
@@ -1330,6 +1332,8 @@ def _colony_size_figure(colonies: Sequence[Dict[str, Any]]):
     key = "diameter_mm" if physical else "diameter_px"
     values = np.array([row[key] for row in colonies], float)
     with _figure_axes(figsize=(5, 3.5)) as (figure, axis):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, {key: values}, y=key, kind="hist")
         if values.size:
             axis.hist(values, bins=min(50, max(5, int(np.sqrt(values.size)))),
                       color="#4c78a8")

@@ -400,6 +400,8 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
                                 dpi=style.dpi)
     else:
         figure.clear()
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(figure, results, x=style.x_column, y=style.y_column, kind="scatter")
 
     with mpl.rc_context(font_rc(style)):
         if style.split_axis and style.split_y_lims:

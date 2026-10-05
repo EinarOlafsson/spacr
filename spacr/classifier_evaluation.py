@@ -1771,6 +1771,8 @@ def _write_confusion_figure(frame: pd.DataFrame, path: Path) -> None:
 
     with figure_style(theme_target()):
         fig, axis = plt.subplots(figsize=(6, 5))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, frame, kind="heatmap", matrix=True, title="Out-of-fold confusion matrix")
         image = axis.imshow(frame.to_numpy(dtype=float), vmin=0, vmax=1,
                             cmap="Blues")
         axis.set_xticks(np.arange(len(frame.columns)), labels=frame.columns,
@@ -1797,6 +1799,8 @@ def _write_calibration_figure(frame: pd.DataFrame, path: Path) -> None:
 
     with figure_style(theme_target()):
         fig, axis = plt.subplots(figsize=(6, 5))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, frame, x="mean_confidence", y="observed_frequency", hue="class_name", kind="line")
         axis.plot([0, 1], [0, 1], linestyle="--", color="#777777",
                   label="Perfect calibration")
         for class_name, group in frame.groupby("class_name"):

@@ -394,6 +394,12 @@ class ScreePlot(QWidget):
         for side in ("top", "left"):
             twin.spines[side].set_visible(False)
         twin.spines["right"].set_color(palette["border"])
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(
+            self._figure, lambda: {
+                "component": [component_name(i) for i in range(k)],
+                "variance_percent": ratio * 100.0},
+            x="component", y="variance_percent", kind="bar")
 
         self._figure.tight_layout(pad=0.5)
         self._canvas.draw_idle()

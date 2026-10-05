@@ -485,6 +485,8 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
         figure = plt.figure(figsize=figsize)
         ax = figure.add_subplot(111)
         panel = REGISTRY[key](ax, frame, **kwargs)
+        from .bundle import _register_figure_data
+        _register_figure_data(figure, lambda: panel.data if getattr(panel, "data", None) is not None else frame, kind=str(key), title=str(getattr(panel, "title", "") or key))
         figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
         return figure, panel
 

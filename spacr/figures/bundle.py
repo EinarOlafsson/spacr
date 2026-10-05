@@ -273,31 +273,118 @@ def _kinds_for(frame, spec) -> tuple:
                  if kind in allowed)
 
 
+#: Kinds that mark a figure as a picture rather than a plot of a table.
+_IMAGE_KINDS = ("image", "mask", "montage", "overlay")
+
+
+def _as_figure(target):
+    """The Matplotlib figure behind ``target``: a figure, an axes or a grid."""
+    if target is None or hasattr(target, "savefig"):
+        return target
+    for name in ("get_figure", "figure", "fig"):
+        found = getattr(target, name, None)
+        found = found() if callable(found) and name == "get_figure" else found
+        if found is not None and hasattr(found, "savefig"):
+            return found
+    flat = getattr(target, "flat", None)
+    if flat is not None:
+        for axis in flat:
+            return _as_figure(axis)
+    return target
+
+
+def _as_frame(data, x: str, y: str):
+    """A tidy frame from a frame, a series, a mapping of groups or a vector."""
+    if isinstance(data, pd.DataFrame):
+        return data
+    if isinstance(data, pd.Series):
+        return data.to_frame(name=str(data.name or y or "value"))
+    if isinstance(data, Mapping):
+        columns = {str(k): np.asarray(v).ravel() for k, v in data.items()}
+        sizes = {len(v) for v in columns.values()}
+        if len(sizes) <= 1:
+            return pd.DataFrame(columns)
+        return pd.DataFrame({
+            x or "group": np.concatenate(
+                [[k] * len(v) for k, v in columns.items()]),
+            y or "value": np.concatenate(list(columns.values()))})
+    values = np.asarray(data)
+    if values.ndim == 2:
+        return pd.DataFrame(values)
+    return pd.DataFrame({y or "value": values.ravel()})
+
+
 def _register_figure_data(figure, data, *, x: str = "", y: str = "",
                           hue: str = "", kind: str = "", **spec) -> None:
-    """Attach the tidy data and plot spec a figure was drawn from.
+    """Attach what a figure was drawn from: its tidy data and plot spec.
 
-    Every figure carrying them can be redrawn as another kind, tested, and
-    saved with its data, statistics and a script that re-creates it.
+    The one call every figure-producing function makes. A plot of a table
+    can then be redrawn as another kind, tested, and saved with its data,
+    statistics and a script that re-creates it. A picture (``kind`` of
+    ``"image"``, ``"mask"``, ``"montage"`` or ``"overlay"``, or arrays of
+    two or more dimensions) keeps its arrays and metadata instead; its menu
+    offers editing and a zip of the image with its metadata, never a graph
+    type or a test. Errors never reach the caller.
 
-    :param figure: the Matplotlib figure.
-    :param data: the tidy frame, one row per observation.
+    :param figure: the Matplotlib figure, or one of its axes.
+    :param data: the tidy frame (one row per observation), a series, a
+        mapping of group to values, or for a picture the array or arrays
+        shown (``None`` when only the rendered image is kept). A callable
+        returning any of these is called here, so building the frame can
+        never break the figure.
     :param x: the column on the horizontal axis, or the grouping column.
     :param y: the column on the vertical axis, or the measurement.
     :param hue: an optional colour-grouping column.
-    :param kind: the kind drawn, from :data:`_PLOT_KINDS` or a spaCR graph
-        type.
+    :param kind: the kind drawn, from :data:`_PLOT_KINDS`, a spaCR graph
+        type, or a picture kind.
     :param spec: further keys, such as ``order``, ``pair`` (the subject
         column of repeated measures), ``matrix`` or ``title``.
     """
-    record = {k: v for k, v in dict(spec).items() if v is not None}
-    record.update(x=str(x or ""), y=str(y or ""), hue=str(hue or ""),
-                  kind=_HOUSE_KINDS.get(str(kind), str(kind or "")))
     try:
-        figure._spacr_data = data
+        figure = _as_figure(figure)
+        if callable(data):
+            data = data()
+        record = {k: v for k, v in dict(spec).items() if v is not None}
+        kind = str(kind or "")
+        arrays = None
+        if kind in _IMAGE_KINDS:
+            arrays = data
+        elif (not isinstance(data, (pd.DataFrame, pd.Series, Mapping))
+              and data is not None and not record.get("matrix")):
+            if isinstance(data, (list, tuple)) and data and all(
+                    np.ndim(item) >= 2 for item in data):
+                arrays = data
+            elif np.ndim(data) >= 3 or (np.ndim(data) == 2
+                                        and kind not in ("heatmap",
+                                                         "clustermap")):
+                arrays = data
+        if arrays is not None or (data is None and kind in _IMAGE_KINDS):
+            if arrays is None:
+                arrays = []
+            elif not isinstance(arrays, (list, tuple)):
+                arrays = [arrays]
+            record.update(kind=kind or "image")
+            figure._spacr_image = [np.asarray(a) for a in arrays]
+            figure._spacr_data = None
+            figure._spacr_spec = record
+            return
+        if data is None:
+            return
+        frame = _as_frame(data, str(x or ""), str(y or ""))
+        if kind in ("heatmap", "clustermap") and not (x or y):
+            record.setdefault("matrix", True)
+        record.update(x=str(x or ""), y=str(y or ""), hue=str(hue or ""),
+                      kind=_HOUSE_KINDS.get(kind, kind))
+        figure._spacr_image = None
+        figure._spacr_data = frame
         figure._spacr_spec = record
     except Exception:
         LOG.debug("could not attach data to the figure", exc_info=True)
+
+
+def _is_image_figure(figure) -> bool:
+    """Whether ``figure`` shows a picture rather than a plot of a table."""
+    return getattr(figure, "_spacr_image", None) is not None
 
 
 def _figure_record(figure):
@@ -584,12 +671,18 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
     path = str(path)
     if not path.lower().endswith(".zip"):
         path += ".zip"
+    if _is_image_figure(figure):
+        return _save_image_zip(figure, path, formats=formats, name=name)
     frame, spec = _figure_record(figure)
     spec = _capture_view(figure, spec)
     base = "".join(c if c.isalnum() or c in "-_." else "_"
                    for c in str(name or spec.get("title") or "figure"))
     base = base.strip("._") or "figure"
     stats_spec = dict(spec.get("stats") or {})
+    tested, sx, sy = frame, str(spec.get("x") or ""), str(spec.get("y") or "")
+    groups = getattr(figure, "_spacr_groups", None)
+    if not (sx or sy) and isinstance(groups, Mapping) and groups:
+        tested, sx, sy = _as_frame(groups, "group", "value"), "group", "value"
     with tempfile.TemporaryDirectory(prefix="spacr_fig_") as folder:
         for fmt in (formats or _default_formats()):
             try:
@@ -600,7 +693,7 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
         data = frame if isinstance(frame, pd.DataFrame) else pd.DataFrame()
         write_table(data, os.path.join(folder, "data.csv"))
         table = _auto_statistics(
-            frame, str(spec.get("x") or ""), str(spec.get("y") or ""),
+            tested, sx, sy,
             test=stats_spec.get("test") or None,
             paired=stats_spec.get("paired"),
             pair=str(stats_spec.get("pair") or spec.get("pair") or ""),
@@ -616,6 +709,58 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
         with open(os.path.join(folder, "recreate_figure.py"), "w",
                   encoding="utf-8") as handle:
             handle.write(_recreate_script())
+        os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+        with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
+            for entry in sorted(os.listdir(folder)):
+                archive.write(os.path.join(folder, entry), entry)
+    return path
+
+
+def _save_image_zip(figure, path: str, *, formats=None, name: str = "") -> str:
+    """Write ONE zip holding a picture figure, its arrays and metadata.
+
+    Inside: the figure in every default format, each array it shows as
+    ``image_<n>.tif`` (``.npy`` when tifffile is missing) and
+    ``metadata.json`` with the spec, titles, and every array's shape and
+    type. A picture has no tidy data and no statistics, so neither file is
+    written.
+    """
+    import tempfile
+    import zipfile
+
+    from ..plot import save_figure
+
+    spec = _capture_view(figure, dict(getattr(figure, "_spacr_spec", None)
+                                      or {}))
+    base = "".join(c if c.isalnum() or c in "-_." else "_"
+                   for c in str(name or spec.get("title") or "figure"))
+    base = base.strip("._") or "figure"
+    arrays = list(getattr(figure, "_spacr_image", None) or [])
+    shapes = []
+    with tempfile.TemporaryDirectory(prefix="spacr_img_") as folder:
+        for fmt in (formats or _default_formats()):
+            try:
+                save_figure(figure, os.path.join(folder, f"{base}.{fmt}"),
+                            fmt=fmt, bbox_inches="tight", close=False)
+            except Exception:
+                LOG.debug("could not write %s", fmt, exc_info=True)
+        for index, array in enumerate(arrays):
+            array = np.asarray(array)
+            stem = os.path.join(folder, f"image_{index}")
+            try:
+                import tifffile
+                tifffile.imwrite(stem + ".tif", array)
+                written = f"image_{index}.tif"
+            except Exception:
+                np.save(stem + ".npy", array)
+                written = f"image_{index}.npy"
+            shapes.append({"file": written, "shape": list(array.shape),
+                           "dtype": str(array.dtype)})
+        metadata = dict(spec)
+        metadata["arrays"] = shapes
+        with open(os.path.join(folder, "metadata.json"), "w",
+                  encoding="utf-8") as handle:
+            json.dump(_plain(metadata), handle, indent=2)
         os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
         with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as archive:
             for entry in sorted(os.listdir(folder)):

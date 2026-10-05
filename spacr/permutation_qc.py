@@ -336,6 +336,8 @@ def plot_residual_by_position(residuals: Sequence[float],
     limit = limit * 1.08 if limit > 0 else 1.0
 
     fig = Figure(figsize=(4.2 * len(names) + 0.6, 2.3 * len(order) + 1.9))
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, lambda: {"block": np.asarray(labels).astype(str), "residual": np.asarray(values, dtype=float)}, x="block", y="residual", kind="strip")
     axes = fig.subplots(len(order), len(names), squeeze=False)
     for i, block in enumerate(order):
         here = labels == block

@@ -3882,6 +3882,8 @@ def regression_qc_report(model, X, y, dst, *, weights=None, metadata=None,
     for name in selected:
         title, group, fn = _PANEL_BY_NAME[name]
         fig = Figure(figsize=(5.6, 4.4), dpi=140)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"fitted": np.asarray(ctx.fitted, dtype=float), "residual": np.asarray(ctx.resid, dtype=float)}, x="fitted", y="residual", kind="scatter", title=str(title))
         ax = fig.subplots()
         try:
             stats = fn(ctx, ax)
@@ -4081,6 +4083,8 @@ def _write_combined_page(ctx, results, out_dir, selected, fmt=None,
     n_cols = max(1, min(int(n_cols), max(len(order), 1)))
     n_rows = int(np.ceil(len(order) / n_cols))
     fig = Figure(figsize=(4.6 * n_cols, 3.7 * n_rows), dpi=110)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, lambda: {"fitted": np.asarray(ctx.fitted, dtype=float), "residual": np.asarray(ctx.resid, dtype=float)}, x="fitted", y="residual", kind="scatter")
     axes = fig.subplots(n_rows, n_cols, squeeze=False)
     for slot, name in enumerate(order):
         ax = axes[slot // n_cols][slot % n_cols]

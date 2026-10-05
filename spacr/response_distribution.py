@@ -274,6 +274,8 @@ def panel(values: Sequence[float], transform: str, ax=None,
 
         figure = Figure(figsize=(7.0, 4.0))
         ax = figure.add_subplot(111)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: {"stage": ["before"] * len(result["values_before"]) + ["after"] * len(result["values_after"]), "value": list(result["values_before"]) + list(result["values_after"])}, x="stage", y="value", kind="box_strip")
     before = result["values_before"]
     after = result["values_after"]
 

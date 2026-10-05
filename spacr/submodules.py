@@ -525,6 +525,8 @@ def test_cellpose_model(settings):
         from . plot import generate_mask_random_cmap
         with figure_style(theme_target()):
             fig, axs = plt.subplots(1, 5, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, [img, lbl, pred], kind="mask")
             cmap_lbl = generate_mask_random_cmap(lbl)
             cmap_pred = generate_mask_random_cmap(pred)
 
@@ -727,6 +729,8 @@ def apply_cellpose_model(settings):
         
         with figure_style(theme_target()):
             fig, axs = plt.subplots(1, 4, figsize=(16, 4), gridspec_kw={'wspace': 0.1, 'hspace': 0.1})
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, [img, pred], kind="mask")
             cmap_pred = generate_mask_random_cmap(pred)
 
             axs[0].imshow(img, cmap='gray')
@@ -850,6 +854,8 @@ def plot_cellpose_batch(images, labels):
     batch_size = len(images)
     with figure_style(theme_target()):
         fig, axs = plt.subplots(2, batch_size, figsize=(4 * batch_size, 8), squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, list(images) + list(labels), kind="mask")
         for i in range(batch_size):
             axs[0, i].imshow(images[i], cmap='gray')
             axs[0, i].set_title(f'Image {i+1}')
@@ -2097,6 +2103,8 @@ def compare_reads_to_scores(reads_csv, scores_csv, empirical_dict=None,
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=figsize)
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, df, x=x_column, y=y_columns[0] if isinstance(y_columns, list) and y_columns else (y_columns or ""), hue=group_column or "", kind="line")
 
             if isinstance(y_columns, list):
                 for idx, y_col in enumerate(y_columns):
@@ -2404,6 +2412,8 @@ def interpret_vision_model(settings=None):
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(polar=True))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, lambda: pd.DataFrame({"feature": [str(v) for v in labels], "value": np.asarray(values, dtype=float)[:len(labels)]}), x="feature", y="value", kind="bar", title=str(title))
             ax.plot(angles, values, linewidth=1.2, linestyle='solid',
                     color=ROLES['highlight'])
             ax.fill(angles, values, alpha=0.25, color=ROLES['highlight'])
@@ -2540,6 +2550,8 @@ def interpret_vision_model(settings=None):
 
             with figure_style(theme_target()):
                 plt.figure(figsize=(10, 6))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(plt.gcf(), top_feature_importance_df, x="feature", y="importance", kind="bar")
                 plt.barh(top_feature_importance_df['feature'],
                          top_feature_importance_df['importance'],
                          color=Palette.GREY_DARK)
@@ -2565,6 +2577,8 @@ def interpret_vision_model(settings=None):
 
         with figure_style(theme_target()):
             plt.figure(figsize=(10, 6))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(plt.gcf(), top_perm_importance_df, x="feature", y="importance", kind="bar")
             plt.barh(top_perm_importance_df['feature'],
                      top_perm_importance_df['importance'],
                      color=Palette.GREY_DARK)
@@ -4905,6 +4919,8 @@ def _invasion_stacked_bars(settings, parasites, group_column, prc_column,
     if counts.size == 0:
         with figure_style(theme_target()):
             fig, axes = plt.subplots(figsize=(12, 8))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, pd.DataFrame({"group": [], "proportion": []}), x="group", y="proportion", kind="bar", title=str(title))
             axes.text(0.5, 0.5, 'No parasite could be classified:\nno usable '
                                 'outside-stain threshold', ha='center',
                       va='center', transform=axes.transAxes,
@@ -4990,6 +5006,8 @@ def _invasion_threshold_panels(parasites, wells, max_panels=12, cmap='viridis'):
         fig, axes = plt.subplots(n_rows, n_columns,
                                  figsize=(4.0 * n_columns, 3.0 * n_rows),
                                  squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, parasites, x="prc", y="outside_intensity", kind="hist")
         flat = axes.ravel()
 
         lookup = wells.set_index(wells['prc'].astype(str))
@@ -5678,6 +5696,8 @@ def generate_score_heatmap(settings):
 
         with figure_style(theme_target(), frame='box'):
             fig = plt.figure(figsize=(12, 8))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, heatmap_data, kind="heatmap", matrix=True)
             axis = sns.heatmap(
                 heatmap_data,
                 cmap=cmap,
@@ -5818,6 +5838,8 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
         
         with figure_style(theme_target(), frame='box'):
             fig = plt.figure(figsize=(10, 8))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, correlation_matrix, kind="heatmap", matrix=True)
             axis = sns.heatmap(correlation_matrix, annot=False, cmap='coolwarm',
                                cbar=True, vmin=-1.0, vmax=1.0, center=0.0)
             plt.title('gRNA Correlation Matrix')
@@ -5855,6 +5877,8 @@ def post_regression_analysis(csv_file, grna_dict, grna_list, save=False):
 
         with figure_style(theme_target()):
             fig = plt.figure(figsize=(10, 6))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, lambda: pd.DataFrame({"grna": [str(v) for v in effect_sizes.index], "effect_size": np.asarray(effect_sizes.values, dtype=float)}), x="grna", y="effect_size", kind="bar")
             anchors = set(grna_dict)
             axis = sns.barplot(
                 x=effect_sizes.index,

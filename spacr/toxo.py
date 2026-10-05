@@ -245,6 +245,8 @@ def custom_volcano_plot(
     with _house(figsize) as (ink, scale):
         if is_broken:
             fig = plt.figure(figsize=(figsize, figsize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, merged_data, x="coefficient", y="neg_log_p", kind="scatter")
             gs = GridSpec(2, 1, height_ratios=[1, 3], hspace=0.05)
             ax_upper = fig.add_subplot(gs[0])
             ax_lower = fig.add_subplot(gs[1], sharex=ax_upper)
@@ -252,6 +254,8 @@ def custom_volcano_plot(
             all_axes = [ax_lower, ax_upper]
         else:
             fig, ax_lower = plt.subplots(figsize=(figsize, figsize))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, merged_data, x="coefficient", y="neg_log_p", kind="scatter")
             ax_upper = None
             all_axes = [ax_lower]
 
@@ -520,6 +524,8 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 
         with _house(10) as (ink, scale):
             fig = plt.figure(figsize=(10, 6))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, results_df, x="Enrichment Score", y="P-value", kind="scatter")
             ax = fig.gca()
             enrichment = results_df['Enrichment Score'].to_numpy(dtype=float)
             significance = -np.log10(results_df['P-value'].to_numpy(dtype=float))
@@ -556,6 +562,8 @@ def go_term_enrichment_by_column(significant_df, metadata_path, go_term_columns=
 
     with _house(12) as (ink, scale):
         fig = plt.figure(figsize=(12, 8))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, combined_df, x="Enrichment Score", y="P-value", kind="scatter")
         ax = fig.gca()
         enrichment = combined_df['Enrichment Score'].to_numpy(dtype=float)
         significance = -np.log10(combined_df['P-value'].to_numpy(dtype=float))
@@ -636,6 +644,8 @@ def plot_gene_phenotypes(data, gene_list, x_column='Gene ID', data_column='T.gon
 
     with _house(10) as (ink, scale):
         fig = plt.figure(figsize=(10, 10))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, data, x="rank", y=data_column, kind="line")
 
         plt.plot(x, y, label='Mean Phenotype', color=Palette.GREY_DARK,
                  linewidth=1.2)
@@ -725,6 +735,8 @@ def plot_gene_heatmaps(data, gene_list, columns, x_column='Gene ID', normalize=F
 
     with _house(width, frame='box') as (ink, scale):
         fig = plt.figure(figsize=(width, height))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, filtered_data, kind="heatmap", matrix=True)
         cmap = sns.color_palette(Palette.SEQUENTIAL, as_cmap=True)
 
         ax = sns.heatmap(

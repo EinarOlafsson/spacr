@@ -333,6 +333,14 @@ class ControlChartCanvas(QWidget):
         if marks or not result.degenerate:
             ax.legend(loc="best", fontsize=7, frameon=False,
                       labelcolor=palette["fg_dim"])
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(
+            self.figure, lambda: pd.DataFrame({
+                "run_order": x, "plate": [str(p) for p in result.plates],
+                str(result.value_column): np.asarray(result.values,
+                                                     dtype=float)}),
+            x="run_order", y=str(result.value_column), kind="line",
+            centre=float(result.centre))
         self.figure.tight_layout(pad=0.6)
         self.canvas.draw_idle()
         self.rendered.emit(result)
@@ -1322,6 +1330,9 @@ class ControlChartScreen(QWidget):
         self.anomaly_table.setSortingEnabled(True)
         self.anomaly_table.resizeColumnsToContents()
         _draw_anomaly_review(self.anomaly_figure, result)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(self.anomaly_figure,
+                              lambda: result.ranked_wells(), kind="bar")
         self.anomaly_canvas.draw_idle()
 
     def _choose_anomaly_export(self) -> None:
@@ -1444,6 +1455,9 @@ class ControlChartScreen(QWidget):
             self.sar_table.setRowCount(0)
         else:
             _draw_hit_structures(self.chem_figure, chemistry)
+            from ...figures.bundle import _register_figure_data
+            _register_figure_data(self.chem_figure, None, kind="image",
+                                  title="Hit structures")
             self._fill_sar(chemistry.sar)
         self.chem_canvas.draw_idle()
 

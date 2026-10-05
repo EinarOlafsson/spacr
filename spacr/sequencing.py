@@ -1399,6 +1399,8 @@ def graph_sequencing_stats(settings):
             """
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(figsize=(10, 10))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, df, x=x, y=y, kind="line")
                 ax.plot(df[x], df[y], linestyle='-', color=(0 / 255, 155 / 255, 155 / 255), label=f"{y}")
                 ax.set_xlabel(x)
                 ax.set_ylabel(y)

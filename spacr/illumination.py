@@ -2356,6 +2356,8 @@ def _write_qc_figure(plate, item, channels, panels, metrics, save_dir,
     os.makedirs(save_dir, exist_ok=True)
     rows = max(len(channels), 1)
     figure = Figure(figsize=(13, 3.4 * rows), dpi=120)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(figure, lambda: [np.asarray(panels[int(c)][0]) for c in channels], kind="image", title=str(stage or "Illumination correction"))
     if stage:
         figure.suptitle(f'Illumination correction — {stage.replace("_", " ")}')
     for index, channel in enumerate(channels):

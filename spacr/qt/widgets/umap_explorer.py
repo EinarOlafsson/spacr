@@ -853,6 +853,13 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
         self._draw_linked_points()
         from ...figures.style import _apply_user_style
         _apply_user_style(self._figure, "scatter", force=True)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(
+            self._figure, lambda: {
+                "umap_1": self._embedding[:, 0],
+                "umap_2": self._embedding[:, 1],
+                "cluster": np.asarray(self._labels).astype(str)},
+            x="umap_1", y="umap_2", hue="cluster", kind="scatter")
         self._canvas.draw_idle()
 
     def _payload_status(self) -> str:

@@ -1725,9 +1725,12 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         return menu
 
     axes = list(figure.axes)
+    from ...figures.bundle import _is_image_figure
+    picture = _is_image_figure(figure)
 
-    recipe = getattr(figure, "_spacr_replot", None)
-    if not (isinstance(recipe, dict) and recipe.get("df") is not None):
+    recipe = None if picture else getattr(figure, "_spacr_replot", None)
+    if not picture and not (isinstance(recipe, dict)
+                            and recipe.get("df") is not None):
         derived = derive_replot_recipe(figure)
         if derived is not None:
             recipe = derived
@@ -1758,7 +1761,8 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
         _add_group_colours(menu, figure, recipe, on_change, parent)
 
     _add_figure_tools(menu, figure, parent, on_change)
-    _add_bundle_save(menu, figure, parent)
+    if not picture:
+        _add_bundle_save(menu, figure, parent)
 
     def _notify() -> None:
         """Redraw after a menu toggle, CHEAPLY.
@@ -1813,9 +1817,11 @@ def build_figure_context_menu(parent, figure, *, on_change=None,
     grid_action.toggled.connect(
         lambda checked: _apply(lambda a: a.grid(checked)))
     menu.addAction(grid_action)
+    grid_action.setVisible(not picture)
 
     scales = QMenu(tr("Axis scale"), menu)
     menu.addMenu(scales)
+    scales.menuAction().setVisible(not picture)
     for name, setter in (("X", "set_xscale"), ("Y", "set_yscale")):
         submenu = QMenu(name, scales)
         scales.addMenu(submenu)
@@ -2143,11 +2149,22 @@ def _add_figure_tools(menu, figure, parent, on_change=None) -> None:
     The graph types offered are the ones the figure's data fits: categories
     against a measurement, two measurements, one distribution, a count
     table or a matrix. A figure with no data attached offers the two
-    entries that need none of it.
+    entries that need none of it. A picture (a micrograph or masks) gets
+    only the zip of its image and metadata: it has no graph type to change
+    and nothing to test.
     """
-    from ...figures.bundle import _figure_record, _kinds_for
+    from ...figures.bundle import _figure_record, _is_image_figure, _kinds_for
 
     owner = parent if parent is not None else menu
+    if _is_image_figure(figure):
+        archive = QAction(tr("Save figure (zip)…"), owner)
+        archive.setObjectName("FigureSaveZip")
+        archive.setToolTip(tr(
+            "One zip: the picture in the default formats, the arrays it "
+            "shows as TIFF and its metadata as JSON."))
+        archive.triggered.connect(lambda: _save_zip_dialog(parent, figure))
+        menu.addAction(archive)
+        return
     frame, spec = _figure_record(figure)
     kinds = _kinds_for(frame, spec) if frame is not None else ()
     retype = QMenu(tr("Change graph type"), menu)
@@ -2172,6 +2189,7 @@ def _add_figure_tools(menu, figure, parent, on_change=None) -> None:
     menu.addAction(statistics)
 
     archive = QAction(tr("Save figure (zip)…"), owner)
+    archive.setObjectName("FigureSaveZip")
     archive.setToolTip(tr(
         "One zip: the image in the default formats, the data as CSV, every "
         "statistical test in one CSV with a text summary, the plotting "

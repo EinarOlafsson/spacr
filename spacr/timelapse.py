@@ -3022,6 +3022,8 @@ def _bleach_decay_figure(df, corrected, fits, object_type, time_key,
     """
     channels = sorted(fits['channel'].unique()) if not fits.empty else []
     fig = Figure(figsize=(3.2 * max(len(channels), 1), 2.8), dpi=100)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, df, x=time_key, y=f"{object_type}_channel_{channels[0]}_mean_intensity" if channels else "", kind="line")
     axes = fig.subplots(1, max(len(channels), 1), squeeze=False)[0]
     fields = [k for k in _OBJECT_WELL_KEYS if k in df.columns]
     for ax, channel in zip(axes, channels):
@@ -3175,6 +3177,8 @@ def infected_vs_noninfected(result_df, measurement):
 
     with figure_style(theme_target()):
         fig, axs = plt.subplots(2, 1, figsize=(12, 10), sharex=True)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.concat([infected_cells_df.assign(group="Infected"), uninfected_cells_df.assign(group="Uninfected")], ignore_index=True), x="time", y="delta_" + measurement, hue="group", kind="line")
 
     for group_id in infected_cells_df['plate_row_column_field_object'].unique():
         group = infected_cells_df[infected_cells_df['plate_row_column_field_object'] == group_id]
@@ -3688,6 +3692,8 @@ def analyze_calcium_oscillations(db_loc, measurement='cell_channel_1_mean_intens
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(10, 8))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, result_df, x="time", y="delta_" + measurement, hue="plate_row_column_field_object", kind="line")
     sampled_groups = result_df['plate_row_column_field_object'].unique()
     if num_lines is not None and 0 < num_lines < len(sampled_groups):
         sampled_groups = np.random.choice(sampled_groups, size=num_lines, replace=False)
@@ -4229,6 +4235,8 @@ def _make_intensity_motility_panel(
 
         with figure_style(theme_target()):
             fig, axes = plt.subplots(1, n_cols, figsize=(4 * n_cols, 4))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, df_well, x=infection_col, y=f"cell_mean_intensity_ch{available_channels[0]}" if len(available_channels) else "", kind="bar")
         axes = np.array(axes).ravel()
 
         axis_idx = 0
@@ -5773,6 +5781,8 @@ def _debug_plot_merged_planes(src, sample_filename, n_channels, nucleus_chan, pa
             dpi=150,
             squeeze=False,
         )
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="mask", title="Merged planes")
     axes = axes[0]
 
     col_idx = 0
@@ -6528,6 +6538,8 @@ def _infection_qc_pca_clustering(
             os.makedirs(motility_dir, exist_ok=True)
             with figure_style(theme_target()):
                 fig, ax = plt.subplots(figsize=(4, 4))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, lambda: pd.DataFrame({"pc_1": np.asarray(coords)[:, 0], "pc_2": np.asarray(coords)[:, 1], "cluster": np.asarray(cluster_labels).astype(str)}), x="pc_1", y="pc_2", hue="cluster", kind="scatter")
 
             mask_uninf_cluster_plot = cluster_labels == uninfected_cluster
             mask_inf_cluster_plot = cluster_labels == infected_cluster
@@ -7313,6 +7325,8 @@ def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir
 
         with figure_style(theme_target()):
             fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig_ch, {"infected": vals_inf, "uninfected": vals_uninf}, x="group", y="intensity", kind="bar_strip")
         ax_ch.bar(
             x_pos,
             heights,
@@ -7336,6 +7350,31 @@ def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir
             f"[summarise_tracks_from_merged] Saved intensity sanity plot "
             f"for channel {ch} to {out_ch}"
         )
+
+
+def _track_frame(groups, origin=False):
+    """One tidy row per track point: ``x``, ``y``, ``track`` and ``infected``.
+
+    :param groups: iterables of track dicts with ``x_px``, ``y_px`` and
+        ``infected``.
+    :param origin: shift every track to start at the origin.
+    :returns: the frame, empty when there are no tracks.
+    """
+    import pandas as pd
+
+    rows = []
+    number = 0
+    for tracks in groups:
+        for track in tracks:
+            x = np.asarray(track["x_px"], dtype=float)
+            y = np.asarray(track["y_px"], dtype=float)
+            if origin and len(x):
+                x, y = x - x[0], y - y[0]
+            rows.append(pd.DataFrame({"x": x, "y": y, "track": number,
+                                      "infected": bool(track["infected"])}))
+            number += 1
+    return (pd.concat(rows, ignore_index=True) if rows
+            else pd.DataFrame(columns=["x", "y", "track", "infected"]))
 
 
 def _make_motility_plots(
@@ -7413,6 +7452,8 @@ def _make_motility_plots(
 
     with figure_style(theme_target()):
         fig_all, ax_all = plt.subplots(figsize=(6, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig_all, lambda: _track_frame(per_well_tracks.values()), x="x", y="y", hue="infected", kind="scatter")
 
     for tracks in per_well_tracks.values():
         for tr in tracks:
@@ -7510,6 +7551,8 @@ def _make_motility_plots(
     for (plateID, wellID), tracks in per_well_tracks.items():
         with figure_style(theme_target()):
             fig_w, ax_w = plt.subplots(figsize=(6, 6))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig_w, lambda: _track_frame([tracks]), x="x", y="y", hue="infected", kind="scatter", well=f"{plateID}_{wellID}")
         has_infected = False
         has_uninfected = False
 
@@ -7600,6 +7643,8 @@ def _make_motility_plots(
         if has_infected:
             with figure_style(theme_target()):
                 fig_inf, ax_inf = plt.subplots(figsize=(6, 6))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig_inf, lambda: _track_frame([[tr for tr in tracks if tr["infected"]]], origin=True), x="x", y="y", kind="scatter")
             for tr in tracks:
                 if not tr["infected"]:
                     continue
@@ -7625,6 +7670,8 @@ def _make_motility_plots(
         if has_uninfected:
             with figure_style(theme_target()):
                 fig_uninf, ax_uninf = plt.subplots(figsize=(6, 6))
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig_uninf, lambda: _track_frame([[tr for tr in tracks if not tr["infected"]]], origin=True), x="x", y="y", kind="scatter")
             for tr in tracks:
                 if tr["infected"]:
                     continue
@@ -7826,6 +7873,8 @@ def _make_adjusted_qc_panel(
     meta_tag = _infer_plate_well_meta_tag(all_df)
 
     fig, ax_pca, ax_xgb, ax_hist = create_results_figure()
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, lambda: {"infected": (settings.get("infection_hist_data") or {}).get("intensities_inf", []), "uninfected": (settings.get("infection_hist_data") or {}).get("intensities_uninf", [])}, x="group", y="intensity", kind="hist")
 
     hist_data = settings.get("infection_hist_data") or {}
     vals_inf = np.asarray(hist_data.get("intensities_inf", []), dtype=float)
@@ -8206,6 +8255,8 @@ def _infection_qc_histogram(
 
         with figure_style(theme_target()):
             fig_h, ax_h = plt.subplots(figsize=(6, 4))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig_h, {"infected": vals_inf, "uninfected": vals_uninf}, x="group", y="intensity", kind="hist")
         ax_h.hist(
             vals_uninf,
             bins=bin_edges,

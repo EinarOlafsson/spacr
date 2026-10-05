@@ -403,6 +403,9 @@ class FeatureExplorerPanel(QWidget):
             ax.set_yticks([])
         if len(counts) > 1:
             self._figure.legend(loc="upper right", frameon=False, fontsize=7)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(self._figure, self._frame, x=result.label,
+                              y=drawn[0].feature, kind="hist")
         self._figure.tight_layout(pad=0.6)
         self._canvas.draw_idle()
 

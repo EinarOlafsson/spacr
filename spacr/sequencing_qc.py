@@ -1182,6 +1182,8 @@ def plot_threshold_sweep(sweep: pd.DataFrame, choice: ThresholdChoice,
         fig, (top, bottom) = plt.subplots(
             2, 1, figsize=(9, 7), sharex=True,
             gridspec_kw={"height_ratios": [3, 2], "hspace": 0.12})
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, sweep, x="threshold", y="grnas_per_well", kind="line")
 
         top.plot(sweep["threshold"], sweep["grnas_per_well"], color=teal, lw=2,
                  label=f"gRNAs per well ({choice.statistic}, all wells)")
@@ -1247,6 +1249,8 @@ def plot_barcode_qc(counts: pd.DataFrame, *, per_well: pd.DataFrame,
 
     with figure_style(theme_target()):
         fig, axes = plt.subplots(2, 2, figsize=(13, 9))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, per_well, y="reads", kind="hist")
 
         ax = axes[0][0]
         reads = per_well["reads"].to_numpy(float)

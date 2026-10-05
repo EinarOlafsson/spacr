@@ -591,6 +591,8 @@ def plot_design_identifiability(fractions: pd.DataFrame, *,
     with figure_style():
         fig, axes = plt.subplots(1, 2, figsize=(9.2, 4.1),
                                  gridspec_kw={"width_ratios": [1.25, 1.0]})
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"guide": [str(c) for c in getattr(fractions, "columns", range(len(support)))], "wells_with_guide": np.asarray(support, dtype=float)}, y="wells_with_guide", kind="hist")
         axis = axes[0]
         bins = min(40, max(int(support.max()), 1)) if support.size else 1
         axis.hist(support, bins=bins, color=_DATA, edgecolor=_separator())
@@ -658,6 +660,8 @@ def plot_design_diagnostics(fractions: pd.DataFrame, *,
 
     with figure_style():
         fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"guide": [str(c) for c in getattr(fractions, "columns", range(len(support)))], "wells_with_guide": np.asarray(support, dtype=float)}, y="wells_with_guide", kind="hist")
 
         axis = axes[0, 0]
         axis.hist(support, bins=min(40, max(int(support.max()), 1)),
@@ -776,6 +780,8 @@ def plot_residual_diagnostics(observed, fitted, *,
     columns = 3 if panels == 6 else 2
     with figure_style():
         fig, axes = plt.subplots(rows, columns, figsize=(4.6 * columns, 8))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"fitted": yhat, "residual": residual, "standardized_residual": standardized}, x="fitted", y="residual", kind="scatter")
         flat = axes.ravel()
 
         axis = flat[0]
@@ -884,6 +890,8 @@ def plot_inference_diagnostics(p_values, *, adjusted=None, alpha: float = 0.05,
 
     with figure_style():
         fig, axes = plt.subplots(1, 3, figsize=(14, 4.2))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: {"p_value": values}, y="p_value", kind="hist")
 
         axis = axes[0]
         axis.hist(values, bins=20, range=(0, 1), color=_DATA,

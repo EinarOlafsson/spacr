@@ -956,6 +956,8 @@ def _importance_bar_figure(importance: pd.DataFrame, measures: Sequence[str],
         fig, axes = plt.subplots(
             1, len(measures), figsize=(5.2 * len(measures), 5.0),
             squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, importance, x="feature", y=str(measures[0]), kind="bar")
         for axis, measure in zip(axes[0], measures):
             ranked = importance.nlargest(top, measure).sort_values(measure)
             axis.barh(ranked["feature"].astype(str), ranked[measure],
@@ -1193,6 +1195,8 @@ def write_surrogate_result(result: SurrogateResult,
                 fig, axes = plt.subplots(
                     rows, columns, figsize=(4.6 * columns, 3.7 * rows),
                     squeeze=False)
+                from .figures.bundle import _register_figure_data
+                _register_figure_data(fig, lambda: {"feature_value": np.asarray(result.shap_feature_values[ranked[0]], dtype=float), "shap_value": np.asarray(result.shap_values[ranked[0]], dtype=float)}, x="feature_value", y="shap_value", kind="scatter")
                 for axis, feature in zip(axes.ravel(), ranked):
                     axis.scatter(
                         result.shap_feature_values[feature],

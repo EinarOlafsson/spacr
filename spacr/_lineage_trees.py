@@ -494,6 +494,8 @@ def _lineage_tree_figure(segments, values, color_by, title='', max_lineages=40):
 
     leaves = int(sum((seg['lineage_id'].isin(lineages)) & (seg['n_daughters'] == 0)))
     fig = Figure(figsize=(7.0, max(2.5, 0.22 * leaves + 1.2)), dpi=100)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, seg, x="lineage_id", y="n_daughters", kind="strip")
     ax = fig.subplots()
     cursor = [0.0]
 

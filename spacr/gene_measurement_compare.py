@@ -594,6 +594,8 @@ def plot(comparison: Comparison, path: Optional[str] = None, *,
 
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(1.5 + 1.15 * len(order), 3.6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, comparison.frame, x="group", y="value", kind=str(kind), order=[str(g) for g in order])
         positions = np.arange(len(order))
         rng = np.random.default_rng(0)
 
@@ -1174,6 +1176,8 @@ def render_comparison(comparison: Comparison, style: "ComparisonStyle" = None,
         else:
             figure.clear()
             axes = figure.add_subplot(111)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, showing.frame, x="group", y="value", kind=str(style.kind or "jitter_box"), order=[str(g) for g in order])
         positions = np.arange(len(order))
         rng = np.random.default_rng(0)
         kind = str(style.kind or "jitter_box")

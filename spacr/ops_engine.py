@@ -3090,6 +3090,8 @@ def _st_run(request: Mapping[str, Any], *, bundle=None,
     from matplotlib.figure import Figure
 
     figure = Figure(figsize=(7.0, 6.0))
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(figure, registered["image"], kind="overlay", gene=str(request.get("gene") or ""))
     gene = str(request.get("gene") or "")
     _st_draw_overlay(figure, registered["image"], registered["xy"],
                      _st_gene_values(bundle, gene),

@@ -128,6 +128,8 @@ def build_sheet(frame, *, width: str = "double", target: Optional[str] = None,
         figure = plt.figure(figsize=(WIDTHS[width],
                                      max(rows, 1) * CELL_HEIGHT))
         axes = figure.subplots(rows, columns, squeeze=False).ravel()
+        from .bundle import _register_figure_data
+        _register_figure_data(figure, frame, kind="sheet")
 
         drawn: List[Panel] = []
         skipped: List[Panel] = []
@@ -170,6 +172,8 @@ def build_panel(key: str, frame, *, target: Optional[str] = None,
         figure = plt.figure(figsize=figsize)
         ax = figure.add_subplot(111)
         panel = REGISTRY[key](ax, frame, **kwargs)
+        from .bundle import _register_figure_data
+        _register_figure_data(figure, lambda: panel.data if getattr(panel, "data", None) is not None else frame, kind=str(key), title=str(getattr(panel, "title", "") or key))
         figure.subplots_adjust(left=.16, right=.97, top=.92, bottom=.16)
         attach(figure, panel)
         return figure, panel
@@ -197,7 +201,9 @@ def attach(figure, panel) -> None:
     figure._spacr_title = panel.title or panel.key
     figure._spacr_caption = panel.caption
     if getattr(panel, "data", None) is not None:
-        figure._spacr_data = panel.data
+        from .bundle import _register_figure_data
+        _register_figure_data(figure, panel.data, kind=panel.key,
+                              title=panel.title or panel.key)
     if getattr(panel, "groups", None):
         figure._spacr_groups = panel.groups
 

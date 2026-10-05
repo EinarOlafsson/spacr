@@ -4488,6 +4488,8 @@ def _save_mask_timelapse_as_gif(masks, tracks_df, path, cmap, norm, filenames):
 
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=geometry['figsize'], facecolor='black')
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="mask", title="Mask timelapse")
         ax.set_facecolor('black')
         ax.axis('off')
         plt.subplots_adjust(left=0, right=1, top=1 - band, bottom=band,
@@ -5002,6 +5004,8 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
 
         with figure_style(theme_target()):
             fig, axes = plt.subplots(1, 2, figsize=(20, 10), sharey=True)
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, lambda: pd.concat([train_df.assign(split="train"), val_df.assign(split="val")], ignore_index=True), x="epoch", y=column, hue="split", kind="line")
 
             sns.lineplot(ax=axes[0], x='epoch', y=column, data=train_df, marker='o', color='red')
             sns.lineplot(ax=axes[1], x='epoch', y=column, data=val_df, marker='o', color='blue')

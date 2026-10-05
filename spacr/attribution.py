@@ -3447,6 +3447,8 @@ def _write_counterfactual_outputs(out_dir: str, summary: Dict[str, Any],
     with figure_style(theme_target()):
         fig, axes = plt.subplots(n_rows, n_steps, squeeze=False,
                                  figsize=(1.4 * n_steps, 1.5 * n_rows))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="montage", title="Counterfactual paths")
         for r in range(n_rows):
             seq = frames[r]
             lo, hi = float(seq[0].min()), float(seq[0].max())

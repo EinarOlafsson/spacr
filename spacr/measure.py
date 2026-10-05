@@ -3143,6 +3143,8 @@ def img_list_to_grid(grid, titles=None):
         fig, axs = plt.subplots(
             grid_size, grid_size, figsize=(15, 15), facecolor='black',
             squeeze=False)
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, None, kind="montage")
     
         from matplotlib.patches import FancyBboxPatch
         for i, ax in enumerate(axs.flat):
@@ -4076,6 +4078,8 @@ def _confluency_figure(image, result, title):
     """
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(6, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, image, kind="overlay", title=str(title))
         ax.imshow(_confluency_overlay(image, result.covered))
         ax.set_title(f"{title}: {result.confluency:.1%} covered "
                      f"({result.source})")
@@ -5501,6 +5505,8 @@ def _dna_histogram_figure(dna_c, fit, title, phases=None):
     grid = np.linspace(0, upper, 600)
     dens = fit.densities(grid * fit.g1 / 2.0) * fit.g1 / 2.0
     with _figure_axes(figsize=(7, 4)) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"dna_content": np.asarray(values, dtype=float)}), y="dna_content", kind="hist", title=str(title))
         ax.hist(values, bins=120, range=(0, upper), density=True,
                 color='0.7', label='nuclei')
         for column, name in enumerate(('G1', 'S', 'G2')):
@@ -6799,6 +6805,8 @@ def _wound_edge_figure(title, panels):
     """
     with _figure_axes(1, len(panels), figsize=(4 * len(panels), 4),
                       squeeze=False) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, [plane for _label, plane, _wound in panels], kind="overlay", title=str(title))
         for ax, (label, plane, wound) in zip(axes[0], panels):
             ax.imshow(_wound_overlay(plane, wound))
             ax.set_title(label)
@@ -6815,6 +6823,8 @@ def _wound_curve_figure(condition_curves, well_curves):
     :returns: the figure.
     """
     with _figure_axes(figsize=(7, 5)) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, condition_curves, x="time", y="relative_open_area", hue="condition", kind="line")
         colours = plt.rcParams['axes.prop_cycle'].by_key().get(
             'color', ['C0'])
         for number, (condition, block) in enumerate(
@@ -6850,6 +6860,8 @@ def _wound_half_closure_figure(summary):
     use = summary[summary['wound_ok'] == 1]
     with _figure_axes(
             figsize=(max(4, 1.2 * use['condition'].nunique() + 2), 5)) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, use, x="condition", y="half_closure_time", kind="strip")
         names = sorted(use['condition'].unique())
         for position, condition in enumerate(names):
             values = use.loc[use['condition'] == condition,
@@ -6887,6 +6899,8 @@ def _wound_plate_figure(summary, plate):
     grid = layout_matrix(layout)
     with _figure_axes(figsize=(max(5, 0.45 * grid.shape[1] + 2),
                               max(3.5, 0.45 * grid.shape[0] + 1.5))) as (fig, ax):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, grid, kind="heatmap", matrix=True, title=str(plate))
         image = ax.imshow(np.ma.masked_invalid(grid.to_numpy(dtype=float)),
                           cmap='viridis')
         ax.set_xticks(range(grid.shape[1]))
@@ -7882,6 +7896,8 @@ def _viability_threshold_figure(table, cuts, name, label):
     panels = len(stains) + (1 if len(stains) == 2 else 0)
     with _figure_axes(1, max(panels, 1),
                       figsize=(4.2 * max(panels, 1), 3.6)) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: table[[c for c in table.columns if c.endswith("_signal")]], y=f"{stains[0]}_signal" if stains else "", kind="hist")
         axes = np.atleast_1d(axes)
         plate = table
         key = name if isinstance(name, tuple) else (name,)
@@ -7943,6 +7959,8 @@ def _viability_controls_figure(wells, qc):
     plates = list(dict.fromkeys(wells['plate_key']))
     with _figure_axes(len(plates), 2, figsize=(8, 3.2 * len(plates)),
                       squeeze=False) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, wells, x="plate_key", y="viability", kind="strip")
         rng = np.random.default_rng(0)
         for row, plate in enumerate(plates):
             block = wells[wells['plate_key'] == plate]
@@ -7977,6 +7995,8 @@ def _viability_dose_figure(fits):
     with _figure_axes(len(compounds), len(readouts),
                       figsize=(3.6 * len(readouts), 3.0 * len(compounds)),
                       squeeze=False) as (fig, axes):
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.concat([pd.DataFrame({"dose": np.asarray(g.result.dose, dtype=float), "response": np.asarray(g.result.response, dtype=float), "compound": str(g.group), "readout": str(r)}) for r in readouts for g in fits[r].fits if getattr(g, "result", None) is not None], ignore_index=True), x="dose", y="response", hue="compound", kind="scatter")
         for i, compound in enumerate(compounds):
             for j, readout in enumerate(readouts):
                 ax = axes[i, j]
@@ -10687,6 +10707,8 @@ def _time_to_event_figure(curves, summary, tests, title):
     unit = str(curves['time_unit'].iloc[0])
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(7, 4.5))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, curves, x="time", y="survival", hue="condition", kind="line", time_unit=unit)
         for name in shown:
             curve = curves[curves['condition'] == name]
             row = counts.loc[name]
@@ -10728,6 +10750,8 @@ def _hazard_ratio_figure(cox, title):
     y = np.arange(len(ordered))
     with figure_style(theme_target()):
         fig, ax = plt.subplots(figsize=(6, 1.6 + 0.45 * len(ordered)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, ordered, y="hazard_ratio", kind="point")
         ratio = ordered['hazard_ratio'].to_numpy()
         ax.errorbar(ratio, y, xerr=[ratio - ordered['hr_lower'].to_numpy(),
                                     ordered['hr_upper'].to_numpy() - ratio],

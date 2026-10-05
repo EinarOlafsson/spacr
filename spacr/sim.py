@@ -685,6 +685,8 @@ def vis_dists(dists, src, v, i):
     with figure_style(theme_target()):
         fig2, ax =plt.subplots(1,n_graphs, figsize = (width_graphs,height_graphs))
     names = ['genes/well', 'wells/gene', 'genes/well gini', 'wells/gene gini', 'gene_weights', 'well_weights']
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig2, dict(zip(names, dists)), x="distribution", y="value", kind="hist")
     for index, dist in enumerate(dists):
         temp = pd.DataFrame(dist, columns = [f'{names[index]}'])
         sns.histplot(data=temp, x=f'{names[index]}', kde=False, binwidth=None, stat='count', element="step", ax=ax[n], color=ROLES['fill'], log_scale=False)
@@ -692,7 +694,6 @@ def vis_dists(dists, src, v, i):
     save_plot(fig2, src, 'dists', i)
     plt.close(fig2)
     with figure_style(theme_target()):
-        plt.figure().clear() 
         plt.cla() 
         plt.clf()
         del dists
@@ -727,6 +728,8 @@ def visualize_all(output):
 
     with figure_style(theme_target()):
         fig, ax =plt.subplots(1,n_graphs, figsize = (width_graphs,height_graphs))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, genes_per_well_df, y="genes_per_well", kind="hist")
 
         gini_genes_per_well = gini(genes_per_well_df['genes_per_well'].tolist())
         plot_histogram(genes_per_well_df, "genes_per_well", ax[n], SIM_INACTIVE, f'gene/well (gini = {gini_genes_per_well:.2f})', binwidth=None, log=False)
@@ -969,7 +972,6 @@ def run_and_save(i, settings, time_ls, total_sims):
         save_plot(fig, src, v, i)
         plt.close(fig)
         with figure_style(theme_target()):
-            plt.figure().clear() 
             plt.cla() 
             plt.clf()
             del fig
@@ -1220,6 +1222,8 @@ def plot_simulations(df, variable, x_rotation=None, legend=False, grid=False, cl
 
     with figure_style(theme_target()):
         fig, axes = plt.subplots(num_rows, num_cols, figsize=(5 * num_cols, 5 * num_rows))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, x=variable, y="prauc" if "prauc" in df.columns else "", kind="line")
     if num_rows * num_cols > 1:
         axes = axes.flatten()
     else:
@@ -1316,6 +1320,8 @@ def plot_correlation_matrix(df, annot=False, cmap=None, clean=True, dst=None):
     
     with figure_style(theme_target(), frame='box'):
         fig = plt.figure(figsize=(12, 8))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, corr_matrix, kind="heatmap", matrix=True)
         axis = sns.heatmap(corr_matrix, mask=mask, annot=annot, cmap=cmap,
                            fmt=".2f", linewidths=0, robust=True,
                            vmin=-1.0, vmax=1.0, center=0.0)
@@ -1357,6 +1363,8 @@ def plot_feature_importance(df, target='prauc', exclude=None, clean=True, dst=No
     
     with figure_style(theme_target()):
         fig = plt.figure(figsize=(12, 6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"feature": [str(f) for f in features], "importance": np.asarray(importances, dtype=float)}), x="feature", y="importance", kind="bar")
         plt.barh(range(len(indices)), importances[indices],
                  color=Palette.GREY_DARK, align="center")
         plt.yticks(range(len(indices)), [features[i] for i in indices])
@@ -1404,6 +1412,8 @@ def calculate_permutation_importance(df, target='prauc', exclude=None, n_repeats
     
     with figure_style(theme_target()):
         fig, ax = plt.subplots()
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, lambda: pd.DataFrame({"feature": [str(f) for f in features], "importance": np.asarray(perm_importance.importances_mean, dtype=float)}), x="feature", y="importance", kind="bar")
     ax.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx],
             color=Palette.GREY_DARK, align="center")
     ax.set_yticks(range(len(sorted_idx)))
@@ -1442,6 +1452,8 @@ def plot_partial_dependences(df, target='prauc', clean=True, dst=None):
     
     with figure_style(theme_target()):
         fig, axs = plt.subplots(nrows=n_rows, ncols=n_cols, figsize=(5 * n_cols, 5 * n_rows))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(fig, df, y=target, kind="line")
     fig.suptitle('Partial Dependence Plots',
                  fontsize=TYPE_SCALE['panel_letter'],
                  color=resolve_ink(theme_target()), y=1.03)

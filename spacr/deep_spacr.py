@@ -1975,6 +1975,8 @@ def _plot_training_curves(train_hist, val_hist, total_epochs=None, figure=None,
         fig.clear()
         ax1, ax2, ax3 = fig.subplots(1, 3)
         fig.patch.set_alpha(0.0)
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, lambda: pd.DataFrame([{"split": split, "epoch": d.get("epoch", i + 1), "loss": d.get("loss", float("nan")), "accuracy": d.get("accuracy", float("nan"))} for split, hist in (("train", train_hist), ("val", val_hist or [])) for i, d in enumerate(hist)]), x="epoch", y="loss", hue="split", kind="line")
     ax1.plot(tr_ep, tr_loss, marker='o', ms=3, color=_TRAIN_CURVE_COLOR,
              label='train')
     ax2.plot(tr_ep, tr_acc, marker='o', ms=3, color=_TRAIN_CURVE_COLOR,
@@ -3444,6 +3446,8 @@ def visualize_integrated_gradients(src, model_path, target_label_idx=0, image_si
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, [np.asarray(image), np.asarray(integrated_grads)], kind="overlay", title="Integrated gradients")
             ax[0].imshow(image)
             ax[0].axis('off')
             ax[0].set_title("Original Image")
@@ -3548,6 +3552,8 @@ def visualize_smooth_grad(src, model_path, target_label_idx, image_size=224, cha
 
         with figure_style(theme_target()):
             fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+            from .figures.bundle import _register_figure_data
+            _register_figure_data(fig, [np.asarray(image), np.asarray(smooth_grad_map)], kind="overlay", title="SmoothGrad")
             ax[0].imshow(image)
             ax[0].axis('off')
             ax[0].set_title("Original Image")

@@ -1963,6 +1963,8 @@ def _write_sar_report(chemistry: _ChemistryResult, out_dir, *,
         ncols = max(1, min(6, count))
         nrows = max(1, int(np.ceil(min(count, _STRUCTURE_LIMIT) / ncols)))
         figure = Figure(figsize=(2.0 * ncols, 2.3 * nrows))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, None, kind="image", title="Hit structures")
         if _draw_hit_structures(figure, chemistry,
                                 target=target or theme_target()):
             written["hit_structures"] = save_figure(
@@ -3232,6 +3234,8 @@ def _map_figure(mapped: pd.DataFrame, label: str, threshold: float):
 
     with figure_style(theme_target()):
         figure, axis = plt.subplots(figsize=(4.2, 3.6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, mapped, x="mean_average_precision", y="corrected_p_value", kind="scatter")
         p = mapped["corrected_p_value"].astype(float).clip(lower=1e-300)
         y = -np.log10(p)
         called = mapped["below_corrected_p"].astype(bool).to_numpy()
@@ -3279,6 +3283,8 @@ def _similarity_figure(consensus: pd.DataFrame, features: Sequence[str],
     with figure_style(theme_target()):
         side = min(9.0, 3.0 + 0.09 * len(sims))
         figure, axis = plt.subplots(figsize=(side + 1.0, side))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: pd.DataFrame(sims, index=[str(v) for v in labels], columns=[str(v) for v in labels]), kind="heatmap", matrix=True)
         image = axis.imshow(sims, cmap="RdBu_r", vmin=-1, vmax=1,
                             interpolation="nearest")
         if len(sims) <= 60:
@@ -5175,6 +5181,8 @@ def _write_anomaly_report(result: _AnomalyResult, out_dir, *,
         write_table(table, path, canonicalise=False)
         written[name] = path
     figure = Figure(figsize=(9.0, 6.0))
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(figure, lambda: result.ranked_wells(), kind="bar")
     if _draw_anomaly_review(figure, result,
                             target=target or theme_target()):
         written["anomaly_review"] = save_figure(

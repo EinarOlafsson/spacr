@@ -740,6 +740,8 @@ def plot_sweep(result: "SweepResult", path: Optional[str] = None, *,
     width = max(5.0, 0.34 * len(grid.columns) + 3.2)
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(width, height))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, grid, kind="heatmap", matrix=True)
         limit = float(np.nanmax(np.abs(grid.to_numpy()))) or 1.0
         image = axes.imshow(grid.to_numpy(), cmap="RdBu_r", vmin=-limit,
                             vmax=limit, aspect="auto")
@@ -883,6 +885,8 @@ def plot_effect_against_representation(
 
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(7.2, 5.0))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, per_gene, x="weight", y="hits", hue="control", kind="scatter")
         controls = per_gene[per_gene["control"].astype(bool)]
         rest = per_gene[~per_gene["control"].astype(bool)]
         axes.scatter(rest["weight"], rest["hits"], s=9, color=HOUSE.GREY,
@@ -965,6 +969,8 @@ def plot_measurement_families(result: "SweepResult",
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(7.6, max(3.0, 0.34 * len(counts.index) + 1.4)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, counts, kind="heatmap", matrix=True)
         left = np.zeros(len(counts.index))
         for family in families:
             values = counts[family].to_numpy(dtype=float)
@@ -1047,6 +1053,8 @@ def plot_guide_concordance(result: "SweepResult", path: Optional[str] = None,
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(6.4, max(2.8, 0.30 * len(summary.index) + 1.3)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, frame, x="gene", y="agree", kind="strip")
         positions = np.arange(len(summary.index))
         rng = np.random.default_rng(0)
         for row, gene in enumerate(summary.index):
@@ -1128,6 +1136,8 @@ def plot_grid_volcano(result: "SweepResult", path: Optional[str] = None, *,
 
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(6.2, 4.6))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: pd.DataFrame({"effect": np.asarray(effect, dtype=float), "evidence": np.asarray(evidence, dtype=float)}), x="effect", y="evidence", kind="scatter")
         passed = (keep["q"] < float(alpha)).to_numpy()
         up = passed & (effect > 0)
         down = passed & (effect < 0)
@@ -1219,6 +1229,8 @@ def plot_gene_profile(result: "SweepResult", gene: Any,
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(7.0, max(3.0, 0.30 * len(shown) + 1.4)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, shown, y="effect", kind="bar")
         positions = range(len(shown))
         axes.barh(list(positions), shown["effect"].to_numpy(dtype=float),
                   color=palette, height=0.68, linewidth=0)
@@ -1288,6 +1300,8 @@ def plot_gene_similarity(result: "SweepResult", path: Optional[str] = None, *,
     size = max(3.6, 0.26 * len(frame.index) + 2.0)
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(size, size))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, frame, kind="heatmap", matrix=True)
         image = axes.imshow(frame.to_numpy(), cmap="RdBu_r", vmin=-1.0, vmax=1.0)
         axes.set_xticks(range(len(frame.columns)))
         axes.set_xticklabels(frame.columns, rotation=90, fontsize=7)
@@ -1339,6 +1353,8 @@ def plot_measurement_hits(result: "SweepResult", path: Optional[str] = None,
     with figure_style(theme_target()):
         figure, axes = plt.subplots(
             figsize=(6.6, max(2.8, 0.28 * len(counts) + 1.4)))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: pd.DataFrame({"measurement": [str(v) for v in counts.index], "hits": np.asarray(counts, dtype=float), "strength": np.asarray(strength, dtype=float)}), x="strength", y="hits", kind="scatter")
         rows = np.arange(len(counts))
         sizes = 12.0 + 78.0 * (counts.to_numpy(dtype=float) / max(counts.max(), 1))
         dots = axes.scatter(strength.to_numpy(dtype=float), rows, s=sizes,
@@ -1399,6 +1415,8 @@ def plot_circularity(result: "SweepResult", path: Optional[str] = None, *,
 
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(7.0, 5.0))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: keep.assign(abs_effect=np.abs(keep["effect"].to_numpy(dtype=float))), x="abs_effect", y="circularity", kind="scatter")
         circular = keep["circularity"].to_numpy(dtype=float)
         above = circular >= 0.15
         magnitude = np.abs(keep["effect"].to_numpy(dtype=float))
@@ -1453,6 +1471,8 @@ def plot_calibration(result: "SweepResult", path: Optional[str] = None, *,
 
     with figure_style(theme_target()):
         figure, axes = plt.subplots(figsize=(5.6, 5.4))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, lambda: pd.DataFrame({"expected_-log10_p": -np.log10(np.asarray(expected, dtype=float)), "observed_-log10_p": -np.log10(np.asarray(observed, dtype=float))}), x="expected_-log10_p", y="observed_-log10_p", kind="scatter")
         axes.plot(-np.log10(expected), -np.log10(observed), ".", markersize=2.6,
                   color=HOUSE.GREY, zorder=2)
         edge = float(max(-np.log10(expected).max(), -np.log10(observed).max()))

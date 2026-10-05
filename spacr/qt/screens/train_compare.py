@@ -758,6 +758,10 @@ class TrainCompareScreen(QWidget):
             self._comparison.metrics[0]
             if self._comparison.metrics else "accuracy")
         tc.plot_curves(self._comparison, metric, ax=ax)
+        from ...figures.bundle import _register_figure_data
+        _register_figure_data(
+            self._figure, lambda: tc._curve_frame(self._comparison, metric),
+            x="epoch", y=metric, hue="series", kind="line")
         self._style_axes(ax, pal)
         from ...figures.style import _apply_user_style
         _apply_user_style(self._figure, force=True)
