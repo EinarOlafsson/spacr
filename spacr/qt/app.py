@@ -2695,6 +2695,11 @@ class _ScreenPrewarm(QObject):
     """
 
     def __init__(self, window, order) -> None:
+        """Queue ``order``'s prewarmable screens for ``window``.
+
+        :param window: the main window whose screens are built.
+        :param order: module keys, most used first.
+        """
         super().__init__(window)
         from PySide6.QtCore import QTimer
 
