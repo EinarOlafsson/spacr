@@ -53,6 +53,39 @@ def test_axes_grids_vectors_and_image_stacks_keep_their_original_shape():
     assert [array.shape for array in figure._spacr_image] == [(3, 2), (3, 2)]
 
 
+def test_a_bare_figure_has_no_replot_choices_and_an_empty_grid_has_no_figure():
+    figure = Figure()
+    assert bundle._kinds_for(*bundle._figure_record(figure)) == ()
+    empty_grid = np.empty((0,), dtype=object)
+    assert bundle._as_figure(empty_grid) is empty_grid
+    unknown = object()
+    assert bundle._as_figure(unknown) is unknown
+
+
+def test_missing_follow_up_data_does_not_erase_registered_source():
+    figure = Figure()
+    bundle._register_figure_data(
+        figure, pd.Series([2, 5, 8], name="signal"),
+        y="signal", kind="histogram",
+    )
+    bundle._register_figure_data(figure, None, kind="histogram")
+
+    frame, spec = bundle._figure_record(figure)
+    assert frame["signal"].tolist() == [2, 5, 8]
+    assert spec["kind"] == "hist"
+
+
+def test_a_two_dimensional_heatmap_is_a_table_that_can_be_redrawn():
+    figure = Figure()
+    matrix = np.arange(6).reshape(3, 2)
+    bundle._register_figure_data(figure, matrix, kind="heatmap")
+
+    frame, spec = bundle._figure_record(figure)
+    assert figure._spacr_image is None
+    np.testing.assert_array_equal(frame.to_numpy(), matrix)
+    assert spec["matrix"] is True
+
+
 def test_a_headless_figure_still_gets_a_pdf_and_a_png(monkeypatch):
     from spacr import plot
 
@@ -185,6 +218,40 @@ def test_stale_group_annotation_is_omitted_when_recreating_filtered_data():
 
     assert not any(line.get_gid() == "spacr-stats" for line in axes.lines)
     assert axes.get_ylim()[1] < 5
+
+
+def test_a_blank_category_label_is_not_a_valid_annotation_endpoint():
+    figure = Figure()
+    axes = figure.subplots()
+    axes.set_xticks([0, 1, 2], labels=["", "control", "treated"])
+    axes.set_ylim(0, 5)
+
+    bundle._annotate(axes, {
+        "annotations": [
+            {"pair": ["", "treated"], "label": "invalid"},
+            {"pair": ["control", "treated"], "label": "valid"},
+        ],
+    })
+
+    assert [text.get_text() for text in axes.texts] == ["valid"]
+    assert len([line for line in axes.lines
+                if line.get_gid() == "spacr-stats"]) == 1
+
+
+def test_unavailable_figure_dimensions_do_not_discard_visible_labels(
+        monkeypatch):
+    figure = Figure()
+    figure.subplots().set_title("edited title")
+
+    def unavailable():
+        raise OSError("canvas has no size")
+
+    monkeypatch.setattr(figure, "get_size_inches", unavailable)
+    captured = bundle._capture_view(figure, {"kind": "line"})
+
+    assert captured["title"] == "edited title"
+    assert "size" not in captured
+    assert "dpi" not in captured
 
 
 def test_graph_zip_keeps_data_and_recipe_when_one_renderer_fails(
