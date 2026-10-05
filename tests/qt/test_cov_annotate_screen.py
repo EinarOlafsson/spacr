@@ -1601,6 +1601,70 @@ def test_unsaved_labels_are_counted_beside_what_the_worker_is_doing(screen):
     scr._pending_updates = {}
 
 
+def test_a_failed_similarity_notice_survives_refresh_until_it_expires(bare_screen):
+    scr = bare_screen
+    scr._on_similar_failed("measurements unavailable")
+    notice = scr._status_label.text()
+    assert "measurements unavailable" in notice
+    scr._refresh_status_label()
+    assert scr._status_label.text() == notice
+
+    scr._similar_notice_until = 0.0
+    scr._status_label.setText("Finding similar crops…")
+    scr._similar_worker = object()
+    scr._refresh_status_label()
+    assert scr._status_label.text() == "Finding similar crops…"
+    scr._similar_worker = None
+    scr._refresh_status_label()
+    assert scr._status_label.text() == "Ready."
+
+
+def test_a_similarity_result_yields_to_save_errors_and_queued_work(
+        screen, monkeypatch):
+    import pandas as pd
+
+    scr = screen
+    requests = []
+    monkeypatch.setattr(scr, "open_object_request", requests.append)
+    key = str(scr._page_paths[0][0])
+    scr._on_similar_done({
+        "db_path": scr._settings.db_path,
+        "image_type": scr._settings.image_type,
+        "index": [key, "match.png"],
+        "key": key,
+        "hits": pd.DataFrame({"key": ["match.png"], "similarity": [0.9]}),
+        "seconds": 0.01,
+    })
+    assert list(requests[0].keys) == [key, "match.png"]
+    notice = scr._status_label.text()
+    assert "Searched 2 crops" in notice
+    original_worker = scr._worker
+    try:
+        scr._worker = _FakeSaveWorker(last_save_ts=123.0)
+        scr._refresh_status_label()
+        assert scr._status_label.text() == notice
+
+        scr._worker = _FakeSaveWorker(last_error="database is locked")
+        scr._refresh_status_label()
+        assert scr._status_label.text() == "Save failed — database is locked"
+
+        scr._worker = _FakeSaveWorker(busy=True)
+        scr._refresh_status_label()
+        assert scr._status_label.text() == "saving…"
+
+        scr._worker = _FakeSaveWorker(pending_batches=2)
+        scr._refresh_status_label()
+        assert scr._status_label.text() == "2 batch queued"
+
+        scr._worker = _FakeSaveWorker(last_save_ts=123.0)
+        scr._status_label.setText(notice)
+        scr._similar_notice_until = 0.0
+        scr._refresh_status_label()
+        assert scr._status_label.text() == "saved"
+    finally:
+        scr._worker = original_worker
+
+
 # ---------------------------------------------------------------------------
 # Round provenance
 # ---------------------------------------------------------------------------
