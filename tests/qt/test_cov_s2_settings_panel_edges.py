@@ -28,8 +28,16 @@ from PySide6.QtWidgets import (                                  # noqa: E402
 
 from spacr.qt.screens import settings_model as sm                # noqa: E402
 from spacr.qt.widgets.section import Section                     # noqa: E402
+from spacr import _mask_workers                                    # noqa: E402
 
 pytestmark = pytest.mark.qt
+
+
+@pytest.fixture(autouse=True)
+def _skip_unrelated_gpu_discovery(monkeypatch):
+    """Mask panel layout tests must not leave hardware discovery running."""
+    monkeypatch.setattr(_mask_workers, "_mask_gpu_count_for_controls",
+                        lambda: 0)
 
 
 # -- a control that cannot announce an edit ----------------------------------
