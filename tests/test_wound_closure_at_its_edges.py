@@ -33,6 +33,40 @@ def test_the_texture_map_without_a_percentile_cut_is_the_raw_variance(
         m._wound_open(plane, source="phase")
 
 
+@pytest.mark.parametrize("uncertain_floor", ["small_region", "few_open",
+                                            "weak_gap"])
+def test_an_uncertain_first_wound_floor_cannot_move_the_later_cut(
+        monkeypatch, uncertain_floor):
+    """A tiny or poorly separated floor cannot recalibrate a closing wound."""
+    shape = (64, 64)
+    axis = m._WoundAxis((31.5, 31.5), (0.0, 1.0), 10.0, 0,
+                        np.ones(shape[1], dtype=bool))
+    near = np.abs(m._wound_across(axis, shape)) <= axis.half_band
+    values = np.zeros(shape, dtype=float)
+    region = near.copy()
+    if uncertain_floor == "small_region":
+        values[near] = -3.0
+        region[:] = False
+        region[28:33, 28:33] = True
+    elif uncertain_floor == "few_open":
+        values[near] = -1.0
+        values[28:32, 28:33] = -3.0
+    else:
+        rows, columns = np.indices(shape)
+        values[near] = np.where((rows + columns)[near] % 2, -1.0, -0.6)
+
+    monkeypatch.setattr(m, "_wound_signal",
+                        lambda _plane, _source, _window: np.exp(values))
+    monkeypatch.setattr(m, "_wound_unsaturated",
+                        lambda _plane, _window: np.ones(shape, dtype=bool))
+    plane = np.zeros(shape)
+    ordinary = m._wound_relevel(plane, axis, np.exp(-0.3), 1000, 2)
+    guarded = m._wound_relevel(
+        plane, axis, np.exp(-0.3), 1000, 2,
+        floor=(region, -3.0, 0.0))
+    assert guarded == pytest.approx(ordinary)
+
+
 def test_a_wound_of_two_pixels_is_read_along_the_image_rows():
     wound = np.zeros((20, 20), bool)
     wound[10, 10:12] = True
