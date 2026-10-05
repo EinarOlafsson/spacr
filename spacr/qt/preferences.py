@@ -1687,13 +1687,14 @@ def theme_choices() -> tuple:
     """
     from .imagery import CELL_VARIANTS, title_for
     from .night_themes import NIGHT_THEMES
+    from .i18n import tr
 
     choices = [
-        ("Dark", "dark"),
-        ("Light", "light"),
-        ("Glass", "glass"),
-        ("High contrast", "high_contrast"),
-        ("Follow system", "system"),
+        (tr("Dark"), "dark"),
+        (tr("Light"), "light"),
+        (tr("Glass"), "glass"),
+        (tr("High contrast"), "high_contrast"),
+        (tr("Follow system"), "system"),
     ]
     choices.extend(
         (title_for(key), f"cell:{key}")
@@ -5977,7 +5978,7 @@ class _StoragePage:
             "first."))
         button_row = QHBoxLayout(buttons)
         button_row.setContentsMargins(0, 0, 0, 0)
-        self.measure_button = QPushButton(tr("Measure"))
+        self.measure_button = QPushButton(tr("Measure sizes"))
         self.measure_button.setObjectName("StorageCacheMeasure")
         self.measure_button.setToolTip(tr(
             "Read the size of every cache. Default not measured."))
