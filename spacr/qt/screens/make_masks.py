@@ -1882,7 +1882,10 @@ class _MaskCanvas(QLabel):
         if self.image is None or not self.pixmap():
             return
         painter = QPainter(self)
-        painter.setClipRect(self.contentsRect())
+        shown = logical_size(self.pixmap())
+        painter.setClipRect(QRectF((self.width() - shown.width()) // 2,
+                                  (self.height() - shown.height()) // 2,
+                                  shown.width(), shown.height()))
         palette = active_palette()
         for index, box in enumerate(self.boxes + ([self._box_preview]
                                                  if self._box_preview else [])):
@@ -1893,10 +1896,10 @@ class _MaskCanvas(QLabel):
                 continue
             painter.setPen(QPen(QColor(palette['accent']),
                                 3 if index == self.selected_box else 2))
-            painter.drawRect(QRectF(start, end).normalized())
+            painter.drawRect(QRectF(QPointF(start), QPointF(end)).normalized())
             name = (self.box_classes[int(class_id)]
                     if 0 <= int(class_id) < len(self.box_classes) else str(class_id))
-            painter.drawText(start + QPointF(3, 14), name)
+            painter.drawText(QPointF(start) + QPointF(3, 14), name)
         painter.end()
 
     def _box_hit(self, point):
@@ -1937,7 +1940,7 @@ class _MaskCanvas(QLabel):
                            (original[1], original[4] - 1),
                            (original[3] - 1, original[4] - 1)):
                 shown = self._image_to_canvas(cx + 0.25, cy + 0.25)
-                if (shown - event.position()).manhattanLength() <= 10:
+                if (QPointF(shown) - event.position()).manhattanLength() <= 10:
                     corner = (cx == original[1], cy == original[2])
                     break
         self._box_drag = (point, hit, original, corner)
@@ -1949,8 +1952,9 @@ class _MaskCanvas(QLabel):
         if self._pan_from is not None:
             current = event.position().toPoint()
             delta = current - self._pan_from
-            self._pan_from = current
-            self.pan_by(delta.x(), delta.y())
+            dx, dy = self._image_delta(delta.x(), delta.y())
+            if (dx or dy) and self.pan_by(dx, dy):
+                self._pan_from = current
             return
         if self._box_drag is None:
             return
@@ -11435,6 +11439,9 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if mode == MODE_BOX and self._box_load_error is not None:
+            self._warn(tr("Cannot edit box annotations"), str(self._box_load_error))
+            return
         self._canvas.cancel_gesture()
         self._canvas.mode = mode
         self._box_controls.setVisible(mode == MODE_BOX)
@@ -11841,6 +11848,7 @@ class MakeMasksScreen(QWidget):
         self._canvas.box_class_id = 0
         self._box_history.clear()
         self._box_history.push(np.asarray(self._canvas.boxes, dtype=float).reshape(-1, 5))
+        self._mode_buttons[MODE_BOX].setEnabled(self._box_load_error is None)
         self._canvas.update()
 
     def _on_save_boxes(self):
@@ -16443,6 +16451,10 @@ class MakeMasksScreen(QWidget):
         self._paired_source = None
         self._canvas.image = None
         self._canvas.mask = None
+        self._canvas.boxes = []
+        self._box_field = None
+        self._boxes_dirty = False
+        self._box_history.clear()
         self._canvas.reset_zoom(silent=True)
         self._canvas.clear()
         self._history.clear()
@@ -17021,6 +17033,7 @@ class MakeMasksScreen(QWidget):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
         self._btn_prompt.setEnabled(editable)
+        self._mode_buttons[MODE_BOX].setEnabled(editable and self._box_load_error is None)
 
 
 class _Sam2ClickLabel(QLabel):
