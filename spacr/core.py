@@ -1715,6 +1715,7 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
         if source_hashes != expected_snapshots or volume_hashes != derived:
             raise ValueError('Collection native Z inputs changed after the '
                              'field snapshot or volume assembly.')
+    input_count = len(artifacts)
     merged = os.path.join(field_dir, 'merged')
     if os.path.isdir(merged):
         for name in sorted(os.listdir(merged)):
@@ -1735,7 +1736,7 @@ def _watch_collection_artifacts(field_dir, *, volume_plan=None,
                 raise ValueError('Collection requires a closed, checkpointed SQLite '
                                  f'database without sidecars: {relative + suffix}')
         artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
-    if not artifacts:
+    if len(artifacts) == input_count:
         raise ValueError('Collection has no completed analysis artifacts to preserve.')
     return artifacts
 

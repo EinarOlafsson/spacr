@@ -277,6 +277,27 @@ def test_native_z_checkpoint_refuses_missing_or_changed_analysis_inputs(
     assert len(recovered['done']) == 1 and not recovered['failed']
 
 
+@pytest.mark.parametrize('output', ['none', 'removed_merged'])
+def test_native_z_inputs_alone_cannot_complete_an_analysis(tmp_path, output):
+    """Input fingerprints cannot substitute for a merged or measured result."""
+    watched, _batch, _rows = _inputs(tmp_path)
+    settings = dict(_mask(watched), **_fast(watched))
+
+    def analyse(folder, recipe):
+        """Leave either no result or remove the one result after writing it."""
+        if output == 'removed_merged':
+            Recorder()(folder, recipe)
+            shutil.rmtree(Path(folder) / 'merged')
+
+    result = core._watch_folder_and_analyse(settings, analyse)
+    assert len(result['failed']) == 1 and not result['done']
+    ledger = json.loads((watched / 'spacr_watch/watch_ledger.json').read_text())
+    entry = ledger['fields'][result['failed'][0]]
+    assert 'no completed analysis artifacts' in entry['error']
+    assert 'collection_checkpoint' not in entry
+    assert not (watched / 'spacr_watch/merged').exists()
+
+
 def test_native_z_nested_map_snapshots_keep_relative_source_identity(tmp_path):
     """Nested acquired files keep ledger paths while staged volume names stay flat."""
     watched, _batch, rows = _inputs(tmp_path)
