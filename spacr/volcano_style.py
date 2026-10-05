@@ -432,9 +432,11 @@ def render_volcano(results: pd.DataFrame, style: VolcanoStyle, *,
         suffix = os.path.splitext(path)[1].lstrip(".").lower() or None
         raster = path.lower().endswith((".png", ".jpg", ".jpeg", ".tif",
                                         ".tiff"))
-        save_figure(figure, path, fmt=suffix,
-                    dpi=style.dpi if raster else None,
-                    transparent=style.transparent, bbox_inches="tight")
+        written = save_figure(figure, path, fmt=suffix,
+                              dpi=style.dpi if raster else None,
+                              transparent=style.transparent, bbox_inches="tight")
+        if not written:
+            raise RuntimeError(f"Nothing could be written to {path}.")
     return figure, panels
 
 

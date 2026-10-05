@@ -7460,8 +7460,9 @@ def create_venn_diagram(file1, file2, gene_column="gene", filter_coeff=0.1, save
     :returns: ``{'overlap', 'unique_to_file1', 'unique_to_file2'}`` lists.
     :raises ValueError: if ``save`` is True but ``save_path`` is missing.
     """
-    df1 = pd.read_csv(file1)
-    df2 = pd.read_csv(file2)
+    from .tabular import read_table
+    df1 = read_table(file1)
+    df2 = read_table(file2)
 
     if filter_coeff is not None:
         df1 = df1[df1['coefficient'] > filter_coeff] if filter_coeff >= 0 else df1[df1['coefficient'] < filter_coeff]

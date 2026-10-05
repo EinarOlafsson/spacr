@@ -80,11 +80,11 @@ class TestTheShapeOfThePage:
         tall = _diff(base, {**base, "page_shape": "portrait"})["figure.figsize"]
         assert wide[0] / wide[1] > tall[0] / tall[1]
 
-    def test_custom_keeps_the_callers_inches(self, base):
-        """`custom` means the caller's own size -- overwriting it silently
-        would be the worse failure."""
-        assert "figure.figsize" not in _diff(base, {**base,
-                                                   "page_shape": "custom"})
+    def test_custom_uses_the_chosen_inches(self, base):
+        """The custom shape uses the explicit width and height controls."""
+        assert _diff(base, {**base, "page_shape": "custom",
+                            "figure_width": 8.25,
+                            "figure_height": 5.5})["figure.figsize"] == [8.25, 5.5]
 
 
 def test_every_emitted_key_is_a_real_rcparam(base):
@@ -196,6 +196,7 @@ class TestTheGroupedRenderersReadIt:
         from spacr.plot import spacrGraph
 
         graph = SimpleNamespace(colors=None, data_column=["value"],
+                                _user_style=lambda: {},
                                 sns_palette=["#000001", "#000002",
                                              "#000003"])
         chosen_colouring("group")

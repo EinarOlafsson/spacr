@@ -320,19 +320,19 @@ def test_an_export_that_wrote_nothing_says_so_and_names_no_file(
     """SVG goes through the vector writer, which reports the path it actually
     wrote. An empty answer means no file exists, and handing that path back
     would name a file that was never created."""
-    from spacr.qt.widgets import figure_settings
+    import spacr.plot as plot
 
     said = []
     monkeypatch.setattr(QMessageBox, "warning",
                         staticmethod(lambda *args: said.append(args[2])))
 
     target = tmp_path / "volcano.svg"
-    monkeypatch.setattr(figure_settings, "save_figure_as",
+    monkeypatch.setattr(plot, "save_figure",
                         lambda *args, **kwargs: str(target))
     assert explorer.export("svg", str(target)) == str(target)
     assert said == []
 
-    monkeypatch.setattr(figure_settings, "save_figure_as",
+    monkeypatch.setattr(plot, "save_figure",
                         lambda *args, **kwargs: "")
     assert explorer.export("svg", str(target)) is None
     assert said and str(target) in said[0]
