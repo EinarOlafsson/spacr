@@ -5,6 +5,7 @@ import imageio.v2 as imageio
 import numpy as np
 import pytest
 from PySide6.QtWidgets import QFileDialog, QInputDialog
+from types import SimpleNamespace
 
 from spacr.qt import mask_engine as engine
 from spacr.qt.screens.make_masks import MODE_BOX, MODE_DRAW, MakeMasksScreen
@@ -178,6 +179,49 @@ def test_export_refuses_failed_project_save_before_writing_label(
     assert widget._canvas.boxes == [(0, 12, 12, 32, 32)]
     assert not (folder / engine.YOLO_ANNOTATIONS_NAME).exists()
     assert not target.exists()
+
+
+@pytest.mark.parametrize("keep", [True, False], ids=["keep", "discard"])
+def test_verdict_saves_box_project_before_recording_and_advancing(
+        opened, monkeypatch, keep):
+    """A successful verdict records only after the current Box edit is durable."""
+    widget, folder = opened
+    _edit_box(widget)
+    project = folder / engine.YOLO_ANNOTATIONS_NAME
+    recorded = []
+
+    def record(*args):
+        assert project.is_file()
+        recorded.append(args)
+        return folder / "curation.csv"
+
+    monkeypatch.setattr(engine, "record_curation", record)
+    assert widget._on_curate(keep) == folder / "curation.csv"
+    assert len(recorded) == 1
+    assert recorded[0][-1] is keep
+    assert widget._current_index == 1
+
+
+def test_queue_skip_saves_box_project_before_marking_field(opened, monkeypatch):
+    """Skip can advance only after the Box annotation for that field exists."""
+    from spacr import curation_queue
+
+    widget, folder = opened
+    _edit_box(widget)
+    project = folder / engine.YOLO_ANNOTATIONS_NAME
+    marked = []
+
+    def mark(*args):
+        assert project.is_file()
+        marked.append(args)
+
+    monkeypatch.setattr(curation_queue, "mark_state", mark)
+    widget._queue = SimpleNamespace(folder=str(folder))
+    widget._on_skip()
+
+    assert marked == [(str(folder), "field_0", "skip")]
+    assert widget._current_index == 1
+    assert widget._canvas.boxes == []
 
 
 def test_save_and_export_without_an_open_field_never_show_a_picker(
