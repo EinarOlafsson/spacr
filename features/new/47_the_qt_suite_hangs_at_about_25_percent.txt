@@ -1644,5 +1644,21 @@ serial Qt acceptance remains open as recorded above.
   Journal and summary: /mnt/wd4tb/scratch/item47-memory-codex-20261005/
   qt-prefix100-current-3b266f.{jsonl,log}. The probe exposed retained pyplot
   managers after figure-dialog cancellation; that ownership/render repair
-  is being checked separately. This 100-file prefix is not uninterrupted
+  is recorded separately below. This 100-file prefix is not uninterrupted
   acceptance of the full Qt suite, which remains open.
+
+2026-10-05 — CANCEL RESTORES A VISIBLE PLOT AND RELEASES ITS SNAPSHOT
+  Unpickling the Cancel snapshot registered a second pyplot figure, which
+  the dialog now closes in finally after transferring its axes. A matched
+  4 GiB seven-test comparison reduced the next-file manager count from two
+  to zero; RSS was 361 versus 360 MiB, which is not a demonstrated RSS
+  reduction. Rendering review also found that the prior private axes-stack
+  insertion restored properties but left the canvas blank. The dialog now
+  uses Figure.add_axes after rebinding each axis to the original figure.
+  A qtbot-owned canvas test observes the original blue line, applies a red
+  edit, then proves Cancel redraws the blue line and removes the red edit.
+  It fails on the old insertion path. A forced restoration error also
+  proves the snapshot manager closes while the original figure remains.
+  The agent's focused neighbors and hygiene passed 49 tests; integrated
+  Cancel/menu checks passed 19. Source commits 673d2da89 and 806674f55.
+  Full serial acceptance remains open.

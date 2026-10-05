@@ -2605,3 +2605,19 @@ after the run started; unconfirmed on CI.
   run 37311146886 targets older source 56944bfdf; push run 37318617346 targets
   checkpoint 3f37242ee and was pending at this checkpoint. The final integrated
   source still needs its own completed GitHub verdict; items 43/288 stay OPEN.
+
+2026-10-05 — FIGURE CONTROL/VOLCANO LOCAL COVERAGE FOLLOW-UP COMPLETE
+  Focused branch receipts now hit all 61 old missing figure-settings
+  statements and 15 arcs, and all nine old missing volcano statements and
+  three arcs. Existing baseline allowances remain unchanged. Cancel now
+  releases its temporary restored figure and registers transferred axes
+  for rendering; actual canvas pixels and restoration-error ownership are
+  asserted, with 19 integrated Cancel/menu checks passing. The 24-module
+  focused closure ledger is saved in
+  /mnt/wd4tb/scratch/codex-final-cov-audit/closure-ledger-20261005.md.
+  A focused receipt does not establish the final merged coverage ratchet.
+  Protected dispatch 37321218288 targets checkpoint 1099a3ea2 and remained
+  pending without jobs at 2026-10-05 14:23 UTC. The older 37311146886 had
+  successful and running jobs and no completed failure at that check.
+  Later integrated changes require their own final-source verdict; items
+  43/288 remain OPEN. No coverage ceiling or failure assertion was relaxed.

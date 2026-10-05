@@ -42,12 +42,24 @@ covered in local branch measurements, including new export/redraw paths and
 literal group/value label collisions. Preferences closes its required old
 statement/branch regression; measure, settings_model, Make Masks, journal,
 restart, validate, plot, shared figure_style and app/bridge regressions have
-focused evidence. Figure-control/volcano coverage and the final-source GitHub
-aggregate remain open. Avoid duplicating existing post-report tests. Narrow
+focused evidence. Figure-control/volcano focused coverage now hits all old
+missing statements and arcs; the final-source GitHub aggregate remains open.
+Avoid duplicating existing post-report tests. Narrow
 pytest-cov targeting of a Qt leaf module caused a pre-collection QtCore import
 segfault locally; `python -m coverage run --branch -m pytest` with the existing
 root-package configuration works, with reports filtered afterwards. No test
 or coverage guard was weakened. The workstation retains its five lanes.
+
+The original-order 100-file Qt probe on 3b266f66c passed 1,148 tests with one
+skip under 4 GiB. RSS at the matching 78-file boundary was about 110.6 MiB
+lower than the original; sampled peak was slightly higher, so no lower peak
+or full serial acceptance is claimed. Cancel snapshot restoration now closes
+its temporary pyplot manager even on error, and uses Figure.add_axes to
+restore a visible canvas rather than only its axes properties. Actual canvas
+pixel assertions fail on the old implementation and pass with the repair;
+19 integrated Cancel/menu checks pass. Protected dispatch 37321218288 targets
+1099a3ea2 and was pending without jobs; later commits require another
+final-source verdict. Items 43/288 and uninterrupted item 47 remain open.
 
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
