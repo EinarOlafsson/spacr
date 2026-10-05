@@ -121,6 +121,35 @@ teardown (7db738792); its file passes 11 cases. Shared suite hygiene/prose
 checks pass 42. The final GitHub aggregate and whole serial Qt acceptance
 remain open, and all five workstation lanes retain their ownership.
 
+CPU/workstation integration through 7b01b3129 includes all-nine current API
+catalog completion, pinned Home/Alpha hosted acceptance and the normal
+settings-flow/consumer-map regeneration. The CPU lane independently verifies
+all four settings-flow freshness checks and 31 preview-core cases. Deployed
+nightly readback and remaining tutorial/GPU scopes still belong to the
+workstation. Please do not regenerate its catalogs or re-record its lessons.
+
+Additional CPU test-only ownership fixes cover SetupSlides, synthetic
+settings-model screens and preview mocks (agent commits 02dceed9f,
+852724211, ad7301805). Integrated files pass 2/53/31; bounded sentinels
+retain zero widgets. Notice lifetime/save priority and repeated pending GPU
+discovery refresh have focused branch evidence without GPU work. Protected
+coverage shard 4 repeats its 6 GB worker guard failure in the preferences
+batch, despite successful 30-file serial recovery. The Qt owner investigates
+that exact recurrence; coverage aggregate and final integrated-source green
+remain open. No guard, ceiling or memory cap is weakened. The third agent
+investigates a T1 mapped native-Z watch adapter in an isolated branch; it is
+not integrated or accepted. The user requests the entire progress table with
+a green tick whenever a listed item reaches 100%, preserving all open rows.
+
+The exact failing coverage worker runs settings-list editor tests before
+space-legibility/preferences. Agent 3387359b8 gives their synthetic models
+and direct editors/screens explicit qtbot ownership: identical bounded
+84-case cohorts pass with 7,454 retained widgets reduced to zero; sampled
+sentinel RSS drops about 77.8 MiB in that cohort. Root integrates the fix;
+the Qt owner continues exact-path diagnosis. This does not establish that
+the full 6 GB CI worker now passes. No cap change or forced collection.
+The root also verifies all ten current API inventory/hash language cases.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.

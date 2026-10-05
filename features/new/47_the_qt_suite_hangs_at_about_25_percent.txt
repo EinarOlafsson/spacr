@@ -1700,3 +1700,34 @@ serial Qt acceptance remains open as recorded above.
   361.9 versus 351.5 MiB, a 10.4 MiB observation in this cohort only. The
   integrated fixture file passes 11 tests. Source 7db738792. Full serial
   acceptance remains open; no forced collection or memory ceiling change.
+
+2026-10-05 — MORE BOUNDED FIXTURE OWNERSHIP; COVERAGE RSS FAILURE REPEATS
+  Two SetupSlides fixtures now belong to qtbot: their sentinel drops from
+  272 widgets to zero; the integrated file passes two cases. Synthetic
+  settings-model screens likewise belong to qtbot: the full file plus
+  sentinel passes 54 with seven retained widgets reduced to zero. The
+  integrated file passes 53. Preview-probe panels no longer survive in a
+  module dictionary; both host and mock panel have explicit test ownership.
+  Its full file plus sentinel passes 32 with zero retained widgets, and the
+  integrated file passes 31. These are bounded observations, not a summed
+  memory saving or whole-suite acceptance claim. Agent source commits:
+  02dceed9f, 852724211 and ad7301805.
+  Protected coverage shard 4 again exceeds its 6 GB worker guard at a
+  preferences case despite passing serial recovery of all 30 affected
+  files. The Qt owner is investigating the exact batch/source recurrence.
+  Dedicated Qt shards 0 and 2 pass; shard 1 remains in progress at this
+  receipt. No forced collection, memory-cap increase or full serial
+  acceptance is claimed. Item 47 remains OPEN.
+
+2026-10-05 — SETTINGS-LIST EDITOR LEAK ON THE FAILING WORKER PATH
+  Exact coverage-shard-4 logs place the settings-list editor file before
+  space-legibility and preferences on the failed worker. Its SettingsWidgets
+  models lacked a Qt parent or teardown. A bounded file-plus-sentinel run
+  passes 84 cases while retaining 7,454 widgets. Giving each model a
+  qtbot-owned QWidget parent, and owning directly constructed editors and
+  the screen, passes the same 84 with zero retained widgets at the observed
+  boundaries. Sampled sentinel RSS is 829.9 versus 752.1 MiB, about 77.8 MiB
+  lower in this cohort only. The busy JobRunner warning also disappears.
+  Agent source 3387359b8 is integrated. This confirms ownership improvement,
+  not that the full coverage worker is now below 6 GB; CI acceptance remains
+  required, and its limit is unchanged.

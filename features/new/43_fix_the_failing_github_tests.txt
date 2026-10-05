@@ -2637,3 +2637,20 @@ after the run started; unconfirmed on CI.
   changes are frozen for CI; the three reused agents own coverage, Qt and
   other job triage separately. Items 43/288 remain OPEN until the protected
   aggregate and all blocking jobs actually pass.
+
+2026-10-05 — SOURCE-CURRENT ARTIFACT REPAIR VERIFIED; MEMORY GATE OPEN
+  Workstation commits through 7b01b3129 are integrated. Normal regeneration
+  in d160c130b repairs the three stale settings-flow sections; all four
+  freshness checks pass on rebased source, alongside 31 preview-core cases.
+  Source-current API catalogs and pinned Home/Alpha publication are complete
+  at the workstation's recorded scopes; deployed nightly readback remains
+  separate. The CPU lane leaves its documentation and GPU ownership intact.
+  Protected run 37327585557 still targets older source 1c99dd3e8. Eight
+  coverage shards passed; shard 4 again exceeded the 6 GB worker RSS guard
+  in its preferences batch, then recovered all 30 affected files serially.
+  Three other coverage failures match the repaired similarity notice,
+  English API hash and settings-flow drift. The aggregate is still pending.
+  New tests cover notice expiry/save-error priority and repeated pending
+  GPU discovery refresh without running a GPU. No coverage ceiling,
+  timeout, memory limit or failure assertion was relaxed. Items 43/288
+  remain OPEN until the integrated source receives its own green verdict.
