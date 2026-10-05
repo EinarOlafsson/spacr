@@ -68,6 +68,18 @@ def test_builder_pins_the_same_uv_and_guards_as_the_online_installer(builder):
     assert builder.resolver_guards() == ["numba>=0.60,<1.0", "llvmlite>=0.43,<1.0"]
 
 
+def test_builder_defaults_to_core_package_and_accepts_explicit_extras(builder):
+    """An offline bundle uses core spaCR unless extras are requested."""
+    parser = builder.build_parser()
+    default = parser.parse_args([])
+    assert default.extras == ""
+    assert builder.package_requirement("9.9.9", default.extras) == "spacr==9.9.9"
+    chosen = parser.parse_args(["--extras", "qt"])
+    assert builder.package_requirement("9.9.9", chosen.extras) == "spacr[qt]==9.9.9"
+    assert parser.parse_args(["--package-spec", "spacr[qt]==9.9.9"]).package_spec == (
+        "spacr[qt]==9.9.9")
+
+
 def test_python_download_matches_the_target_and_its_mirror_path(builder):
     entries = [
         {"implementation": "cpython", "variant": "freethreaded", "os": "linux",

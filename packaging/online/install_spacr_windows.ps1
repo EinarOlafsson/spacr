@@ -27,7 +27,6 @@ if (-not [string]::IsNullOrWhiteSpace($Language)) {
 . (Join-Path $PSScriptRoot "generated\installer_messages.ps1")
 $UvVersion = "0.11.32"
 $PythonVersion = "3.12"
-$DefaultExtras = "qt"
 $UvInstallUrl = "https://astral.sh/uv/$UvVersion/install.ps1"
 # SHAP 0.52 leaves these dependencies unbounded. Without explicit floors uv
 # may choose numba 0.53.1 and llvmlite 0.36.0, whose metadata admits Python
@@ -58,9 +57,9 @@ if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
 }
 if ([string]::IsNullOrWhiteSpace($PackageSpec)) {
     if ([string]::IsNullOrWhiteSpace($Version)) {
-        $PackageSpec = "spacr[$DefaultExtras]"
+        $PackageSpec = "spacr"
     } else {
-        $PackageSpec = "spacr[$DefaultExtras]==$Version"
+        $PackageSpec = "spacr==$Version"
     }
 }
 

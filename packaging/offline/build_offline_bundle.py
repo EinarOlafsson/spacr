@@ -77,7 +77,7 @@ PYTHON_VERSION = "3.12"
 UV_RELEASES = "https://github.com/astral-sh/uv/releases/download"
 TORCH_INDEX = "https://download.pytorch.org/whl/{backend}"
 DEFAULT_CELLPOSE_MODELS = ("cpsam",)
-DEFAULT_EXTRAS = "qt"
+DEFAULT_EXTRAS = ""
 FIELD_PATTERN = re.compile(r"^(?P<field>.+?_[A-Z]+\d+_T\d+F\d+)")
 
 
@@ -407,6 +407,17 @@ def render_installer(target: Target, version: str, bundle: Path) -> Path:
     return out
 
 
+def package_requirement(version: str, extras: str) -> str:
+    """Pin spaCR, adding optional extras only when explicitly requested.
+
+    :param version: package version built into the bundle.
+    :param extras: comma-separated extras, or empty for the core package.
+    :returns: the version-pinned package requirement.
+    """
+    suffix = f"[{extras}]" if extras else ""
+    return f"spacr{suffix}=={version}"
+
+
 def build(args: argparse.Namespace) -> Path:
     """Assemble the bundle folder and, with ``--archive``, its ``.tar``."""
     target = TARGETS[args.platform]
@@ -427,10 +438,10 @@ def build(args: argparse.Namespace) -> Path:
     target_uv = fetch_uv(target, uv_pin, bundle / "uv")
     python = fetch_python(host_uv, target, bundle / "python")
 
-    spec = args.package_spec or f"spacr[{args.extras}]=={version}"
+    spec = args.package_spec or package_requirement(version, args.extras)
     if args.from_source:
         build_spacr_wheel(Path(args.from_source), wheels, host_uv)
-        spec = f"spacr[{args.extras}]=={version}"
+        spec = package_requirement(version, args.extras)
     requirements_in = bundle / "requirements.in"
     requirements_in.write_text("\n".join([spec, *resolver_guards()]) + "\n",
                                encoding="utf-8")
@@ -479,7 +490,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--torch-backend", default="cpu",
                         help="PyTorch wheel line: cpu, or a CUDA line such as cu126.")
     parser.add_argument("--extras", default=DEFAULT_EXTRAS,
-                        help="spaCR extras to install, comma separated. Default qt.")
+                        help="Optional spaCR extras, comma separated; default none.")
     parser.add_argument("--package-spec", default="",
                         help="Requirement for spaCR itself; default the setup.py version.")
     parser.add_argument("--from-source", default="",

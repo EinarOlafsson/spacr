@@ -412,8 +412,8 @@ def test_the_page_is_in_the_toctree_and_the_readme_points_at_it():
 
 
 @pytest.mark.parametrize("script,pattern", [
-    ("install_spacr_unix.sh", r'PACKAGE_SPEC="spacr\[\$DEFAULT_EXTRAS\]==\$DEFAULT_SPACR_VERSION"'),
-    ("install_spacr_windows.ps1", r'\$PackageSpec = "spacr\[\$DefaultExtras\]==\$Version"'),
+    ("install_spacr_unix.sh", r'PACKAGE_SPEC="spacr==\$DEFAULT_SPACR_VERSION"'),
+    ("install_spacr_windows.ps1", r'\$PackageSpec = "spacr==\$Version"'),
 ])
 def test_an_archived_installer_installs_its_own_version(script, pattern):
     """The claim the page makes, checked in the templates that make it.

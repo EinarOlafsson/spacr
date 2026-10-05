@@ -30,7 +30,6 @@ spacr_write_cleanup_module() {
 UV_VERSION="0.11.32"
 PYTHON_VERSION="3.12"
 DEFAULT_SPACR_VERSION="@SPACR_VERSION@"
-DEFAULT_EXTRAS="qt"
 TORCH_BACKEND="${SPACR_TORCH_BACKEND:-}"
 DETECTED_ACCELERATOR="unknown"
 LAUNCHER_DIR="${SPACR_LAUNCHER_DIR:-}"
@@ -272,9 +271,9 @@ esac
 
 if [[ -z "$PACKAGE_SPEC" ]]; then
     if [[ "$DEFAULT_SPACR_VERSION" == @*@ ]]; then
-        PACKAGE_SPEC="spacr[$DEFAULT_EXTRAS]"
+        PACKAGE_SPEC="spacr"
     else
-        PACKAGE_SPEC="spacr[$DEFAULT_EXTRAS]==$DEFAULT_SPACR_VERSION"
+        PACKAGE_SPEC="spacr==$DEFAULT_SPACR_VERSION"
     fi
 fi
 

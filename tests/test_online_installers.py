@@ -75,7 +75,6 @@ def test_bootstraps_pin_uv_and_private_python():
         assert re.search(r"3\.12", source)
         assert "UV_PYTHON_INSTALL_DIR" in source
         assert "UV_CACHE_DIR" in source
-        assert "spacr[" in source
 
 
 def test_bootstraps_allow_an_explicit_ci_package_source():
@@ -121,10 +120,22 @@ def test_bootstraps_use_tls_and_select_acceleration_by_default():
     assert '$TorchBackend = "auto"' in windows
     assert 'Users can still request "cpu" explicitly' in windows
     assert "--torch-backend $TorchBackend" in windows
-    assert 'DEFAULT_EXTRAS="qt"' in unix
-    assert '$DefaultExtras = "qt"' in windows
     assert "qt,zernike,btrack,czi" not in unix
     assert "qt,zernike,btrack,czi" not in windows
+
+
+def test_online_installers_default_to_the_core_package_and_keep_overrides():
+    """Qt ships in core; package-spec inputs still allow explicit extras."""
+    unix = _text(UNIX)
+    windows = _text(WINDOWS)
+    assert 'PACKAGE_SPEC="spacr"' in unix
+    assert 'PACKAGE_SPEC="spacr==$DEFAULT_SPACR_VERSION"' in unix
+    assert '$PackageSpec = "spacr"' in windows
+    assert '$PackageSpec = "spacr==$Version"' in windows
+    assert 'PACKAGE_SPEC="${SPACR_PACKAGE_SPEC:-}"' in unix
+    assert '$PackageSpec = $env:SPACR_PACKAGE_SPEC' in windows
+    assert '--package-spec)' in unix
+    assert '[string]$PackageSpec = ""' in windows
 
 
 def test_bootstraps_do_not_register_their_private_python_globally():
@@ -557,6 +568,23 @@ def test_unix_bootstrap_parses_and_dry_run_never_downloads(tmp_path):
     assert "spacr[qt]==9.9.9" in result.stdout
     assert "PyTorch backend: cpu" in result.stdout
     assert "DRY RUN" in result.stdout
+    assert not (tmp_path / "spacr").exists()
+
+
+def test_unix_dry_run_uses_plain_core_package_without_an_override(tmp_path):
+    """The rendered release installer pins core spaCR without a Qt extra."""
+    installer = _standalone_unix_installer(tmp_path)
+    env = os.environ.copy()
+    env.pop("SPACR_PACKAGE_SPEC", None)
+    env["SPACR_INSTALL_LANGUAGE"] = "en"
+    result = subprocess.run(
+        ["bash", str(installer), "--platform", "linux", "--dry-run",
+         "--skip-system-deps", "--no-launch", "--install-root",
+         str(tmp_path / "spacr")],
+        check=True, capture_output=True, text=True, env=env,
+    )
+    assert "spacr==9.9.9" in result.stdout
+    assert "spacr[qt]" not in result.stdout
     assert not (tmp_path / "spacr").exists()
 
 
