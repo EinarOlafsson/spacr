@@ -563,11 +563,11 @@ def _draw(figure, frame, spec):
                 value, group = x, None
             if group and group in data.columns:
                 data[group] = data[group].astype(str)
-            options = {"data": data, "x": value, "ax": ax}
+            render_args = {"data": data, "x": value, "ax": ax}
             if group and group in data.columns:
-                options["hue"] = group
+                render_args["hue"] = group
             {"hist": sns.histplot, "kde": sns.kdeplot,
-             "ecdf": sns.ecdfplot}.get(kind, sns.histplot)(**options)
+             "ecdf": sns.ecdfplot}.get(kind, sns.histplot)(**render_args)
     for key, setter in (("title", ax.set_title), ("xlabel", ax.set_xlabel),
                         ("ylabel", ax.set_ylabel),
                         ("xscale", ax.set_xscale),
