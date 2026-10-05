@@ -886,3 +886,11 @@ catalog completion receipts, not a claim of deployment or completion of the
 remaining API locales, tutorial media, publication or GPU lanes. Technical
 translations retain honest Codex/Claude provenance; no independent peer or
 native-speaker signoff is invented.
+
+After publication at debb00e80, fresh extraction confirms 49 unique source
+blocks (1,580 English words) remain across eight locales, with no reviewed
+source/context admission errors. French has zero changed symbols; each other
+locale still has 51 catalog symbols to repair using the twelve already
+reviewed puncta blocks plus these remaining paragraphs. The exact source-bound
+worklist is features/data/615_remaining_api_translation_blocks_2026-10-05.json.
+No GPU or other owned process remains running at this checkpoint.
