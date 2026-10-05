@@ -115,7 +115,23 @@ import time
 from dataclasses import dataclass, field
 
 import numpy as np
-from .logging_util import _spacr_home
+
+try:
+    from .logging_util import _spacr_home
+except ImportError:
+    def _spacr_home():
+        """spaCR's home folder when this file runs as a backend worker script.
+
+        The worker is started as a plain script, outside the package, so the
+        package helper cannot be imported. spaCR passes ``SPACR_HOME`` to its
+        workers (portable mode sets it), so that wins; otherwise ``~/.spacr``.
+        """
+        from pathlib import Path
+
+        configured = os.environ.get("SPACR_HOME", "").strip()
+        if configured:
+            return Path(configured).expanduser()
+        return Path.home() / ".spacr"
 
 LOG = logging.getLogger(__name__)
 

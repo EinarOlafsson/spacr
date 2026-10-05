@@ -4166,7 +4166,8 @@ def _a11y_source(widget, labels_by_key):
     )
 
     if (isinstance(widget.parentWidget(), QTableView)
-            and not widget.objectName() and not widget.toolTip()):
+            and widget.objectName() in ("", "qt_tableview_cornerbutton")
+            and not widget.toolTip()):
         return tr("Select all"), ""
     label = _a11y_setting_label(widget, labels_by_key)
     if label is None:
