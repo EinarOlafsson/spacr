@@ -152,9 +152,13 @@ def test_prewarm_waits_if_the_application_has_gone_away(monkeypatch):
 
 
 def test_a_deleted_screen_does_not_abort_idle_layout():
+    requested = []
+
     class DeadScreen:
-        def resize(self, _size):
+        def resize(self, size):
+            requested.append(size)
             raise RuntimeError("C++ widget is gone")
 
     owner = types.SimpleNamespace(_stack=types.SimpleNamespace(size=lambda: (1, 1)))
     app.MainWindow._lay_out_unshown(owner, DeadScreen())
+    assert requested == [(1, 1)]
