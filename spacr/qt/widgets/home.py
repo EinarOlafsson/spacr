@@ -1990,6 +1990,7 @@ class HomePage(QWidget):
         outer.addWidget(self._hint_bar)
 
         from .. import bridge
+        self._closing = False
         self._registry = bridge.registry()
         self._registry.changed.connect(self._on_runs_changed)
 
@@ -2779,6 +2780,8 @@ class HomePage(QWidget):
 
     def _on_runs_changed(self) -> None:
         """Show every active job across the top, oldest first."""
+        if self._closing:
+            return
         active = [h for h in self._registry.active()
                   if h.app_key and getattr(h, "user_visible", True)]
         while len(self._banners) < len(active):
@@ -2938,6 +2941,7 @@ class HomePage(QWidget):
         :param event: the close event; it is passed on to the base class after
             background activity stops.
         """
+        self._closing = True
         self._journal_jobs.shutdown()
         try:
             self._registry.changed.disconnect(self._on_runs_changed)

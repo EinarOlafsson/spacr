@@ -596,9 +596,11 @@ def test_closing_home_stops_its_ticker_even_when_the_registry_is_gone(page):
     class _DeadRegistry:
         changed = _DeadSignal()
 
+    original = page._registry
     page._registry = _DeadRegistry()
 
     page.closeEvent(QCloseEvent())
+    original.changed.emit()
 
     assert not page._ticker.isActive()
 
