@@ -5,8 +5,7 @@ import pytest
 
 import spacr.qt.app as app_module
 from spacr.qt.widgets.section import Section, _sections_below
-from tests.qt.per_object_table import (grid_section, table_value,
-                                       the_table_answers)
+from tests.qt.per_object_table import grid_section, the_table_answers
 
 
 # Every nucleus row Mask builds at "All settings", nucleus_channel included.
@@ -192,8 +191,12 @@ def test_cell_is_never_gated(mask):
         "cell settings were hidden; the form a user just opened is empty")
 
 
-def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp):
-    """Re-running it per keystroke is what made the module hang."""
+def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp, monkeypatch):
+    """Typing stays quick and cannot launch the full visibility pass.
+
+    Process queued events between edits, but measure only the edit itself:
+    unrelated queued jobs do not belong to this keystroke's response time.
+    """
     import time
 
     model = mask._settings_model
@@ -201,6 +204,15 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp):
     if widget is None:
         pytest.skip("nucleus_channel is not on this panel")
 
+    qapp.processEvents()
+    visibility_checks = []
+    original = model._object_visibility_settings
+
+    def record_visibility_check():
+        visibility_checks.append(True)
+        return original()
+
+    monkeypatch.setattr(model, "_object_visibility_settings", record_visibility_check)
     worst = 0.0
     for index in range(6):
         started = time.perf_counter()
@@ -208,8 +220,9 @@ def test_the_rule_is_decided_once_and_not_while_typing(mask, qapp):
             widget.setText(str(index % 3))
         else:
             widget.setValue(index % 3)
-        qapp.processEvents()
         worst = max(worst, time.perf_counter() - started)
+        qapp.processEvents()
+        assert not visibility_checks, "typing recomputed all object rows"
     assert worst < 0.20, f"{worst * 1000:.0f} ms a keystroke"
 
 
