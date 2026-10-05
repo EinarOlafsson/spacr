@@ -371,6 +371,25 @@ def test_ragged_groups_keep_a_registered_graph_kind_in_the_zip(tmp_path):
         ("group", "value", "violin")
 
 
+@pytest.mark.parametrize("groups", [
+    {"group": [1.0, 2.0], "value": [3.0, 4.0]},
+    {"group": [1.0], "value": [3.0, 4.0]},
+])
+def test_group_labels_matching_export_column_names_stay_distinct(
+        tmp_path, groups):
+    figure = Figure()
+    figure._spacr_groups = groups
+
+    path = bundle._save_zip(figure, str(tmp_path / "named.zip"),
+                            formats=["png"])
+
+    with zipfile.ZipFile(path) as archive:
+        frame = pd.read_csv(io.BytesIO(archive.read("data.csv")))
+        spec = json.loads(archive.read("spec.json"))
+    assert frame.groupby("group")["value"].apply(list).to_dict() == groups
+    assert (spec["x"], spec["y"]) == ("group", "value")
+
+
 def test_groups_do_not_replace_an_existing_registered_source_table(tmp_path):
     source = pd.DataFrame({"sample": ["A", "B"], "intensity": [1.0, 2.0]})
     figure = Figure()

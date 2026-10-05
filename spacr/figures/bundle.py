@@ -694,9 +694,10 @@ def _save_zip(figure, path: str, *, formats=None, name: str = "") -> str:
     tested, sx, sy = frame, str(spec.get("x") or ""), str(spec.get("y") or "")
     groups = getattr(figure, "_spacr_groups", None)
     if not (sx or sy) and isinstance(groups, Mapping) and groups:
-        tested, sx, sy = _as_frame(groups, "group", "value"), "group", "value"
-        if sx not in tested.columns:
-            tested = tested.melt(var_name=sx, value_name=sy)
+        sx, sy = "group", "value"
+        tested = pd.DataFrame(
+            [(str(label), value) for label, values in groups.items()
+             for value in np.asarray(values).ravel()], columns=(sx, sy))
         if not isinstance(frame, pd.DataFrame) or frame.empty:
             frame = tested
             spec.update(x=sx, y=sy)
