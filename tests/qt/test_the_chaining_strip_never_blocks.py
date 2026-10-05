@@ -23,6 +23,7 @@ path seeded into QSettings.
 from __future__ import annotations
 
 import time
+from threading import Event
 
 import pytest
 
@@ -36,16 +37,30 @@ SLOW_S = 8.0
 
 @pytest.fixture
 def slow_registry(monkeypatch):
-    """Make every registry probe take :data:`SLOW_S`, as a sleeping mount does."""
+    """Hold registry work until a test releases its own worker."""
     import spacr.chaining as chaining
 
-    def crawl(*_args, **_kwargs):
-        time.sleep(SLOW_S)
-        raise AssertionError("the GUI thread waited for the registry")
+    release = Event()
+
+    def crawl(module, settings, **_kwargs):
+        if not release.wait(SLOW_S):
+            raise AssertionError("the registry worker was never released")
+        return chaining.Resolution(module=module, settings=dict(settings))
 
     monkeypatch.setattr(chaining, "resolve_settings", crawl)
-    monkeypatch.setattr(chaining, "staleness_notes", crawl)
-    return crawl
+    monkeypatch.setattr(chaining, "staleness_notes", lambda *_a, **_k: ())
+    yield release
+    release.set()
+
+
+def _finish_registry_test(qtbot, release, bar):
+    """Release a simulated sleeping mount and retire its Qt worker."""
+    release.set()
+    qtbot.waitUntil(
+        lambda: not bar._resolving and bar._resolve_again is None
+        and not bar._resolver.is_busy() and bar._resolver.active_jobs() == 0,
+        timeout=5000,
+    )
 
 
 def _bar(qtbot, screen):
@@ -87,13 +102,16 @@ def test_refresh_returns_before_the_registry_answers(qtbot, slow_registry,
     bar._screen = screen
     bar.app_key = "map_barcodes"
 
-    started = time.monotonic()
-    bar.refresh()
-    elapsed = time.monotonic() - started
+    try:
+        started = time.monotonic()
+        bar.refresh()
+        elapsed = time.monotonic() - started
 
-    assert elapsed < 1.0, (
-        f"refresh() took {elapsed:.1f}s -- it is resolving the registry on "
-        "the GUI thread again, which is the freeze")
+        assert elapsed < 1.0, (
+            f"refresh() took {elapsed:.1f}s -- it is resolving the registry on "
+            "the GUI thread again, which is the freeze")
+    finally:
+        _finish_registry_test(qtbot, slow_registry, bar)
 
 
 def test_a_second_refresh_does_not_queue_another_resolution(
@@ -111,12 +129,15 @@ def test_a_second_refresh_does_not_queue_another_resolution(
     bar._screen = _Screen()
     bar.app_key = "map_barcodes"
 
-    bar.refresh()
-    assert bar._resolving is True
-    for _ in range(20):
+    try:
         bar.refresh()
-    assert bar._resolve_again is not None, (
-        "a refresh during an in-flight one should be remembered, not queued")
+        assert bar._resolving is True
+        for _ in range(20):
+            bar.refresh()
+        assert bar._resolve_again is not None, (
+            "a refresh during an in-flight one should be remembered, not queued")
+    finally:
+        _finish_registry_test(qtbot, slow_registry, bar)
 
 
 def test_an_unreachable_root_is_skipped_rather_than_stat_ed(
