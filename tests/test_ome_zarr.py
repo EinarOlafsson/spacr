@@ -1510,6 +1510,33 @@ def test_a_zarr_v3_transpose_and_crc32c_chain_decodes(tmp_path):
     assert ome_zarr._strip_crc32c(b"abcdefgh") == b"abcd"
 
 
+def test_a_zarr_v3_byte_image_ignores_irrelevant_endian(tmp_path):
+    """A one-byte pixel has the same value with either declared byte order."""
+    root = tmp_path / "v3bytes.zarr"
+    array = np.array([[1, 2], [250, 255]], dtype=np.uint8)
+    (root / "0").mkdir(parents=True)
+    (root / "zarr.json").write_text(json.dumps({
+        "zarr_format": 3, "node_type": "group",
+        "attributes": {"ome": {"version": "0.5", "multiscales": [{
+            "axes": [{"name": "y", "type": "space"},
+                     {"name": "x", "type": "space"}],
+            "datasets": [_dataset("0", [1.0, 1.0])]}]}},
+    }), encoding="utf-8")
+    (root / "0" / "zarr.json").write_text(json.dumps({
+        "zarr_format": 3, "node_type": "array", "shape": [2, 2],
+        "data_type": "uint8", "chunk_grid": {"name": "regular",
+        "configuration": {"chunk_shape": [2, 2]}},
+        "chunk_key_encoding": {"name": "v2", "configuration": {"separator": "."}},
+        "fill_value": 0, "codecs": [{"name": "bytes",
+                                      "configuration": {"endian": "big"}}],
+    }), encoding="utf-8")
+    (root / "0" / "0.0").write_bytes(array.tobytes())
+
+    image = read_ome_zarr(root)
+    assert image.dtype == np.dtype("uint8")
+    assert np.array_equal(image.read(0), array)
+
+
 @pytest.mark.parametrize("meta,message", [
     ({"zarr_format": 2}, "declares zarr_format 2"),
     ({"zarr_format": 3, "node_type": "group"}, "not an array"),

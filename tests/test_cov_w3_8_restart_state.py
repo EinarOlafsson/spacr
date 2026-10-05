@@ -84,6 +84,42 @@ def test_a_last_session_with_invalid_settings_restores_an_empty_form(
     assert restart_state._last_session() == {"module": "measure", "settings": {}}
 
 
+def test_a_list_valued_source_restores_its_first_folder():
+    """A restored module opens the same first folder named by its settings."""
+    from spacr import restart_state
+
+    assert restart_state._folder_of({"src": ["/first", "/second"]}) == "/first"
+    assert restart_state._folder_of({"src": [], "source_folder": "/fallback"}) == "/fallback"
+
+
+def test_saving_no_drafts_clears_an_earlier_unsaved_form(monkeypatch):
+    """Closing the last draft must not offer its old settings on next start."""
+    from spacr import restart_state
+
+    class Store:
+        def __init__(self):
+            self.values = {}
+
+        def setValue(self, key, value):
+            self.values[key] = value
+
+        def value(self, key, default):
+            return self.values.get(key, default)
+
+        def remove(self, key):
+            self.values.pop(key, None)
+
+        def sync(self):
+            pass
+
+    store = Store()
+    monkeypatch.setattr(restart_state, "_store", lambda: store)
+    assert restart_state._save_drafts({"mask": {"src": "/old"}})
+    assert restart_state._save_drafts({})
+    assert restart_state._take_drafts() == {}
+    assert restart_state._DRAFTS_KEY not in store.values
+
+
 def test_a_non_mapping_entry_is_skipped_not_crashed_on():
     """``describe_running`` walks past anything that is not a mapping."""
     from spacr.restart_state import describe_running
