@@ -1,0 +1,39 @@
+MAKE MASKS BOUNDING-BOX ANNOTATIONS FOR YOLO MODELS
+Status: in progress — 2026-10-05, implementation and focused interaction checks.
+Requested: 2026-10-05 by the maintainer: "there should be a button like the
+draw button that the user can click to draw bounding boxes. this would allow
+make masks to be used to annotate images for yolo models."
+Owner: CPU feature/CI session; API, translations, docs and tutorials remain
+owned by the workstation session.
+
+Make Masks had rectangle-based Recrop and SAM prompts, and a plaque-specific
+community box editor, but lacked general class-labelled box annotations.
+This regular feature belongs in features/new and is visible beside Draw.
+
+The Box tool (X) draws full-image pixel rectangles independently of the
+segmentation mask. Drag inside a box to move it, drag a corner to resize,
+right-click the topmost box to delete, and Ctrl-drag to draw an overlapping
+or contained box. Zoom/pan preserve coordinates. Class selection and box
+undo/redo do not change segmentation labels or their history. Class names
+have stable integer IDs; Add class selects the next annotation's class.
+
+Save boxes stores editable annotations in .spacr_yolo_annotations.json next
+to source images. Image shape and source-file SHA256 bind boxes to the image
+they describe. Navigation and close save changes; failed saves retain the
+current field. Changed images, corrupt annotation ledgers, unsafe metadata
+paths, class-ID reassignment and another active writer are refused.
+
+Export YOLO labels writes the selected .txt file with normalized
+class/centre-X/centre-Y/width/height lines and the folder's .classes.json
+stable class-name mapping. A reviewed negative field exports an empty text
+file. Image pixels and existing segmentation masks remain unchanged. The
+original images must be paired with the label files by the training dataset;
+this annotation feature does not select train/validation splits or train a
+YOLO model.
+
+2026-10-05 — VALIDATION IN PROGRESS
+Existing Draw/toolbar/mode and source-hygiene cohort: 166 passed under 4 GiB
+with CUDA hidden. Backend geometry, persistence, source drift and export
+checks pass. Real Qt box interactions and final integrated source checks
+are still running. The final hosted GitHub verdict remains item 43, and
+source-derived API/runtime-caption refresh belongs to the workstation lane.

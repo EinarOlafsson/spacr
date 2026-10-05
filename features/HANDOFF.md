@@ -1,5 +1,22 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
 
+## 2026-10-05 CPU session — Make Masks YOLO boxes (item 662)
+The maintainer requested a regular Box tool beside Draw for general YOLO
+annotation. Implementation is in the existing Make Masks canvas and
+mask_engine modules: independent class-labelled boxes, edit/history,
+source-bound project persistence and normalized YOLO text export. It neither
+converts source images nor changes segmentation masks. Item 662 holds the
+interaction/validation receipts and final state. Workstation ownership of
+API, docs, translations, tutorials and every GPU process is unchanged.
+
+The next normal source-current workstation refresh must include the new
+mask_engine public YOLO helpers and private canvas/screen methods, the
+runtime Box/class/save/export captions and X shortcut. Existing generated
+catalogs are deliberately left to that owner. Earlier CPU helpers from
+23f24b598 also require the recorded normal API/settings-flow/consumer-map
+refresh. Protected old GitHub runs remain uncancelled; final exact-source
+GitHub green and full serial Qt acceptance are still open.
+
 ## 2026-10-05 workstation Codex handoff
 The user assigned API, documentation, translations and tutorials to a
 separate Codex session on the workstation. That session owns those four
