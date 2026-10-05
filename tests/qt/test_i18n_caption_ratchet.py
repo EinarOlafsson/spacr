@@ -1278,6 +1278,19 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    'Text size of legend entries and legend titles, in points. Default 9.',
+    'Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.',
+    'Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.',
+    'Height of a new figure in inches, used when the page shape is custom. Default 4.8.',
+    "Moves the axis lines this many points away from the data, as seaborn's despine does. 0 leaves them touching. Default 0.",
+    'Writes a second copy of every saved figure in this format beside the first, for example a PNG next to a PDF. Default none.',
+    'Keeps text editable in PDF and SVG files instead of turning it into outlines. Default on.',
+    'What error bars show on bar graphs: standard error (sem), standard deviation (sd), a confidence interval at the CI level (ci), a 95% interval (ci95) or nothing. Default sem.',
+    'Confidence level, in percent, of the ci error bars. Default 95.',
+    'Width of the caps at the ends of error bars, in points. Default 5.',
+    "How far overlaid points spread sideways, as a fraction of one category's width. Default 0.4.",
+    'Opacity of overlaid points, from 0 (invisible) to 1 (solid). Default 0.6.',
+    'Draws the individual points over bar and box graphs. Default on.',
     "Giardia duodenalis",
     "High contrast",
     "White text and outlines on black with a yellow accent, for low vision "

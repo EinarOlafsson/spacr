@@ -40,11 +40,11 @@ def _close_figures():
 
 def test_a_format_spacr_cannot_write_falls_back_to_the_default(monkeypatch):
     """A stale or hand-edited preference must not make every save raise.
-    spaCR writes PNG and PDF; anything else becomes the default rather than
-    an extension no writer accepts."""
+    spaCR writes PNG, PDF, SVG and TIFF; anything else becomes the default
+    rather than an extension no writer accepts."""
     from spacr.qt import preferences
 
-    monkeypatch.setattr(preferences, "get_figure_format", lambda: "tiff")
+    monkeypatch.setattr(preferences, "get_figure_format", lambda: "bmp")
     monkeypatch.setattr(preferences, "get_figure_png_dpi", lambda: 200)
     fmt, dpi = P.figure_output_preferences()
     assert fmt == P.DEFAULT_FIGURE_FORMAT

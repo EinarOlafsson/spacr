@@ -1,0 +1,119 @@
+================================================================================
+FIGURE PREFERENCES THAT CONTROL EVERY FIGURE; RIGHT-CLICK CHANGE-GRAPH; ONE ZIP
+================================================================================
+
+Status:    in progress — part A DONE 2026-10-04; part B in progress (658 part B
+           agent)
+Requested: 2026-10-04 — "make sure the figure settings in preferences actually
+           control figures in spacr and are comprehensive enough. The user
+           should always be able to right click and change parameters for
+           matplotlib figures in spacr. For graphs they should always be able
+           to right click and change the graph to any graph in
+           matplotlib/seaborn that is supported by the type of data, or at
+           least those supported by spacr. When right clicking and saving the
+           graph should always be saved with its data and the correct stats,
+           determined automatically, or overridden by the user, with graph
+           printers saved as well. All saved together as 1 zip"
+Owner:     part A: figure-preferences agent (fig658a). Part B: context-menu and
+           export agent.
+Related:   108 (right-click restyle), 117 (grid), 118 (general and per-graph
+           preferences), 119 and 124 (regression figures).
+
+--------------------------------------------------------------------------------
+SPLIT
+--------------------------------------------------------------------------------
+
+PART A — Preferences figure settings and their application (this agent).
+  1. Audit every figure-creation site; one central style application.
+  2. Comprehensive settings: fonts and sizes, line width, marker size,
+     palette, colormap (colour-blind safe), figure size, DPI, background,
+     grid, spines/despine, save format(s), vector text, error-bar style, CI
+     level, jitter/point overlay.
+  3. A test that changed preferences show up in produced figures.
+
+PART B — right-click change-graph and save-as-zip (other agent).
+  * Right-click on any spaCR matplotlib figure edits its parameters.
+  * Right-click "change graph" offers every matplotlib/seaborn graph type the
+    data supports (at least spacrGraph's types).
+  * Right-click save writes ONE zip: the figure, its data, its statistics
+    (chosen automatically or overridden), and the graph printers.
+  * B consumes A's style API below; it does not define its own.
+
+--------------------------------------------------------------------------------
+PART A — WHAT WAS FOUND (AUDIT, 2026-10-04)
+--------------------------------------------------------------------------------
+
+* 178 figure-creation calls (plt.figure / plt.subplots / Figure(...)) in 54
+  modules. About half draw inside `figures.style.figure_style`, which already
+  merged the user's preference DELTAS into rcParams (item 118). The rest
+  (plot.py legacy functions, timelapse, toxo, measure, sp_stats, the
+  embedded explorers) never saw the preferences.
+* The per-graph "jitter_bar" settings (error bars, jitter width, point alpha,
+  bar alpha) and the general "format" setting were stored and shown in
+  Preferences but read by NO renderer.
+* Two DPI and two format preferences existed (Preferences "Figure format" /
+  "Resolution" and the style table's format/dpi); only the first pair reached
+  files.
+
+--------------------------------------------------------------------------------
+PART A — WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+THE STYLE API (part B consumes this; all private, no API-pin moves):
+  spacr/figure_style.py
+    GENERAL_DEFAULTS     + legend_size, colormap, figure_width, figure_height,
+                           despine_offset, also_save, vector_text, error_bars,
+                           ci_level, error_capsize, jitter_width, point_alpha,
+                           point_overlay (36 keys).
+    STYLE_CHOICES        format + tiff; also_save; colormap leads with the
+                           colour-blind-safe viridis/cividis; error_bars + ci.
+    rc_params            legend.fontsize, image.cmap, errorbar.capsize,
+                           pdf/ps/svg fonttype, custom figure size.
+    _user_deltas(kind, general, overrides)  the settings the user changed.
+  spacr/figures/style.py
+    _preference_deltas(kind=None)   the same, read from the preference store.
+    _apply_user_style(fig, kind=None, *, force=False)
+        THE one post-hoc application: font family, title/label/tick/legend
+        sizes, line width, marker size, palette (default-palette colours are
+        remapped by position), colormap, background, grid, spines, despine
+        offset. Applied once per figure (flag `_spacr_user_style_applied`),
+        so a right-click restyle is never undone by a later save. A figure
+        may carry `_spacr_graph_kind` to pick its per-graph layer.
+  spacr/plot.py
+    save_figure          applies _apply_user_style, honours the style format,
+                           DPI, vector text and "Also save" (second copy).
+    figure_output_preferences  a style format/DPI the user changed wins.
+    FIGURE_FORMATS       png, pdf, svg, tiff.
+    spacrGraph           palette, error bars (sem/sd/ci at CI level/ci95/
+                           none), cap size, jitter width, point alpha, marker
+                           size and point overlay follow the preferences.
+
+WHERE IT IS APPLIED: save_figure (every kept/headless figure), the figure
+queue's render_figure_to_png and its live canvas, umap_explorer
+_draw_embedding, graph_builder render_now, train_compare _draw. Figures drawn
+inside figure_style already carry the settings through rcParams.
+
+PREFERENCES UI: the rows are generated from GENERAL_DEFAULTS
+(FigureStylePreferences), so every new key has a row; the new rows have tr()
+tooltips (captions in _AWAITING_CATALOG_REBUILD).
+
+TEST: tests/test_figure_preferences_reach_every_figure.py — five producers
+(figures.build_panel volcano, spacrGraph, plot_histogram,
+regression_diagnostics.plot_residual_diagnostics, an unstyled module figure)
+drawn with tick size, DPI and palette changed and saved through save_figure;
+plus title/label/legend/line/grid/spines, the rc keys, error bars and
+overlay, "Also save", and a source check that every canvas hook is present.
+
+--------------------------------------------------------------------------------
+PART A — WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+* The figure size and DPI are not forced onto already drawn multi-panel
+  figures (that would break their layouts); they reach new figures through
+  rcParams and the writer.
+* Grey house-style panels (volcano etc.) keep their grey: the palette only
+  remaps default-palette colours, by design (item 118's colour vocabulary).
+* Tagging figures with `_spacr_graph_kind` at their producers so per-graph
+  settings reach post-hoc figures is open.
+* The "Figure format"/"Resolution" pair and the style format/dpi pair could be
+  merged into one row each.

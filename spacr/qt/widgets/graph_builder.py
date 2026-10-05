@@ -903,6 +903,8 @@ class GraphCanvas(LinkedView, QWidget):
             self._label_panel(ax, panel, grid, nrows, ncols, palette)
 
         self._draw_legend(kind, palette)
+        from ...figures.style import _apply_user_style
+        _apply_user_style(self._figure, force=True)
         self._figure.tight_layout(pad=0.8)
         self._canvas.draw_idle()
         self._notice.setText(self._notice_text(data, grid))

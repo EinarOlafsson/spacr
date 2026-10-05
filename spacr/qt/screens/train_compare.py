@@ -757,6 +757,8 @@ class TrainCompareScreen(QWidget):
             if self._comparison.metrics else "accuracy")
         tc.plot_curves(self._comparison, metric, ax=ax)
         self._style_axes(ax, pal)
+        from ...figures.style import _apply_user_style
+        _apply_user_style(self._figure, force=True)
         self._canvas.draw_idle()
         self._picked.setText("")
 

@@ -232,6 +232,224 @@ def user_overrides(kind: Optional[str] = None) -> dict:
         return {}
 
 
+def _preference_deltas(kind: Optional[str] = None) -> dict:
+    """The figure settings the user changed in Preferences, by style name.
+
+    :param kind: graph kind whose per-graph changes are laid on top.
+    :returns: changed settings only; empty when nothing changed or the
+        preference store cannot be read, so a headless run draws as before.
+    """
+    try:
+        from ..qt.preferences import (get_figure_style,
+                                      get_figure_style_per_graph)
+
+        general = get_figure_style()
+        per_graph = get_figure_style_per_graph()
+    except Exception:                                          # noqa: BLE001
+        return {}
+    try:
+        from ..figure_style import _user_deltas
+
+        return _user_deltas(kind, general, per_graph)
+    except Exception:                                          # noqa: BLE001
+        return {}
+
+
+#: Palettes whose colours a figure may have been drawn in without asking the
+#: preference: matplotlib's default cycle and seaborn's named palettes.
+_SOURCE_PALETTES = ("tab10", "deep", "colorblind", "muted", "pastel",
+                    "bright", "dark")
+
+#: Attribute set on a figure once the user's settings have been applied.
+_STYLED_FLAG = "_spacr_user_style_applied"
+
+
+def _palette_map(name: str) -> dict:
+    """Map every known default palette colour to the chosen palette's colour.
+
+    A colour at position ``i`` of a source palette becomes position ``i`` of
+    the chosen palette, so groups keep their order and their distinctness.
+    """
+    from matplotlib.colors import to_hex
+
+    from ..figure_style import palette_colours
+
+    target = palette_colours(name)
+    if not target:
+        return {}
+    mapping = {}
+    for source in _SOURCE_PALETTES:
+        try:
+            if source == "tab10":
+                from matplotlib import colormaps
+                colours = [to_hex(c) for c in colormaps["tab10"].colors]
+            else:
+                colours = palette_colours(source)
+        except Exception:                                      # noqa: BLE001
+            continue
+        for index, colour in enumerate(colours):
+            mapping.setdefault(str(colour).lower(),
+                               target[index % len(target)])
+    return mapping
+
+
+def _recolour(artist, mapping: dict) -> None:
+    """Swap an artist's default-palette colours for the chosen palette."""
+    from matplotlib.colors import to_hex, to_rgba
+
+    def swap(colour):
+        try:
+            rgba = to_rgba(colour)
+        except (TypeError, ValueError):
+            return None
+        new = mapping.get(to_hex(rgba, keep_alpha=False).lower())
+        if new is None:
+            return None
+        return to_rgba(new, alpha=rgba[3])
+
+    for getter, setter in (("get_color", "set_color"),
+                           ("get_markerfacecolor", "set_markerfacecolor"),
+                           ("get_markeredgecolor", "set_markeredgecolor")):
+        if hasattr(artist, getter) and hasattr(artist, "get_xdata"):
+            new = swap(getattr(artist, getter)())
+            if new is not None:
+                getattr(artist, setter)(new)
+    for getter, setter in (("get_facecolor", "set_facecolor"),
+                           ("get_edgecolor", "set_edgecolor")):
+        if not hasattr(artist, getter) or hasattr(artist, "get_xdata"):
+            continue
+        current = getattr(artist, getter)()
+        try:
+            import numpy as np
+
+            values = np.atleast_2d(np.asarray(current, dtype=float))
+        except (TypeError, ValueError):
+            continue
+        if values.size == 0 or values.shape[-1] != 4:
+            continue
+        swapped = [swap(tuple(row)) for row in values]
+        if any(new is not None for new in swapped):
+            rows = [new if new is not None else tuple(row)
+                    for new, row in zip(swapped, values)]
+            getattr(artist, setter)(rows if len(rows) > 1 else rows[0])
+
+
+def _apply_user_style(figure, kind: Optional[str] = None, *,
+                      force: bool = False) -> dict:
+    """Apply the user's changed figure settings to an already drawn figure.
+
+    This is the one place a finished figure takes the Preferences figure
+    settings, whichever module drew it: :func:`spacr.plot.save_figure` calls
+    it before writing, and the figure panel and the embedded canvases call it
+    before showing. Figures drawn inside :func:`figure_style` already carry
+    the settings through ``rcParams``; applying them again changes nothing.
+
+    Only settings the user changed are applied: font family and the title,
+    axis-label, tick and legend sizes, line width, marker size, palette,
+    colormap, background, grid, spines and despine offset; the resolution
+    and file formats are applied by the writer. A figure is styled once; a later right-click restyle is never undone by a save.
+
+    :param figure: the matplotlib figure, changed in place.
+    :param kind: graph kind whose per-graph settings apply; when ``None`` the
+        figure's ``_spacr_graph_kind`` attribute is used if it has one.
+    :param force: apply again even if the figure was already styled.
+    :returns: the settings that were applied, by style name.
+    """
+    if figure is None or (getattr(figure, _STYLED_FLAG, False) and not force):
+        return {}
+    kind = kind or getattr(figure, "_spacr_graph_kind", None)
+    changed = _preference_deltas(kind)
+    try:
+        setattr(figure, _STYLED_FLAG, True)
+    except Exception:                                          # noqa: BLE001
+        pass
+    if not changed:
+        return {}
+    try:
+        _restyle(figure, changed)
+    except Exception:                                          # noqa: BLE001
+        return {}
+    return changed
+
+
+def _restyle(figure, changed: dict) -> None:
+    """Write each changed setting onto the figure's artists."""
+    from ..figure_style import SPINE_PRESETS
+
+    def texts(ax):
+        """Title, axis-label, tick-label and legend texts of one axes."""
+        titles = [ax.title, getattr(ax, "_left_title", None),
+                  getattr(ax, "_right_title", None)]
+        labels = [ax.xaxis.label, ax.yaxis.label]
+        ticks = list(ax.get_xticklabels()) + list(ax.get_yticklabels())
+        legend = ax.get_legend()
+        entries = []
+        if legend is not None:
+            entries = list(legend.get_texts()) + [legend.get_title()]
+        return [t for t in titles if t is not None], labels, ticks, entries
+
+    sizes = {"title_size": 0, "label_size": 1, "tick_size": 2,
+             "legend_size": 3}
+    family = changed.get("font_family")
+    if "background" in changed:
+        ground = changed["background"]
+        figure.patch.set_facecolor(ground)
+    suptitle = getattr(figure, "_suptitle", None)
+    if suptitle is not None and "title_size" in changed:
+        suptitle.set_fontsize(float(changed["title_size"]))
+    if family:
+        for text in figure.findobj(lambda a: hasattr(a, "set_fontfamily")):
+            text.set_fontfamily(family)
+    if "tick_size" in changed:
+        for ax in figure.get_axes():
+            ax.tick_params(labelsize=float(changed["tick_size"]))
+    mapping = (_palette_map(changed["palette"])
+               if changed.get("palette") else {})
+    preset = SPINE_PRESETS.get(str(changed.get("spines", "")))
+    for ax in figure.get_axes():
+        groups = texts(ax)
+        for key, position in sizes.items():
+            if key in changed:
+                for text in groups[position]:
+                    text.set_fontsize(float(changed[key]))
+        if "background" in changed:
+            ax.set_facecolor(changed["background"])
+        if "grid" in changed:
+            ax.grid(bool(changed["grid"]))
+        if preset is not None:
+            for name, shown in zip(("top", "right", "bottom", "left"),
+                                   preset):
+                ax.spines[name].set_visible(shown)
+        if "spine_width" in changed:
+            for spine in ax.spines.values():
+                spine.set_linewidth(float(changed["spine_width"]))
+        if float(changed.get("despine_offset", 0) or 0) > 0:
+            for spine in ax.spines.values():
+                spine.set_position(("outward",
+                                    float(changed["despine_offset"])))
+        for line in ax.get_lines():
+            if "line_width" in changed:
+                line.set_linewidth(float(changed["line_width"]))
+            if "marker_size" in changed and line.get_marker() not in (
+                    None, "", "None", " "):
+                line.set_markersize(float(changed["marker_size"]) ** 0.5)
+        for collection in ax.collections:
+            if "marker_size" in changed and hasattr(collection, "get_sizes"):
+                current = collection.get_sizes()
+                if len(current) and len(set(current.tolist())) == 1:
+                    collection.set_sizes([float(changed["marker_size"])])
+        if "colormap" in changed:
+            for mappable in list(ax.images) + list(ax.collections):
+                cmap = getattr(mappable, "get_cmap", lambda: None)()
+                if (cmap is not None and mappable.get_array() is not None
+                        and getattr(cmap, "name", "") in ("viridis",)):
+                    mappable.set_cmap(str(changed["colormap"]))
+        if mapping:
+            for artist in (list(ax.lines) + list(ax.collections)
+                           + list(ax.patches)):
+                _recolour(artist, mapping)
+
+
 def _group_colours(count: int, palette: Sequence = (),
                   kind: Optional[str] = "jitter_bar") -> Optional[list]:
     """The colours ``count`` groups take under the user's ``mark_colouring``.

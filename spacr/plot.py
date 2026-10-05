@@ -35,6 +35,7 @@ from .tiff_io import write_tiff
 
 from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
                             figure_style, _group_colours, hide_unused,
+                            _preference_deltas,
                             panel_letter,
                             reference_line, resolve_ink, rotate_ticks,
                             text_legend, theme_target)
@@ -46,8 +47,8 @@ from .figures.style import (ROLES, TYPE_SCALE, WEIGHTS, Palette, descriptor,
 DEFAULT_FIGURE_FORMAT = "pdf"
 DEFAULT_FIGURE_DPI = 300
 
-#: Formats the figure-format preference can hold.
-FIGURE_FORMATS = ("png", "pdf")
+#: Formats a kept figure can be written in.
+FIGURE_FORMATS = ("png", "pdf", "svg", "tiff")
 
 #: matplotlib's Agg backend refuses a canvas above 2**16 px on either axis and
 #: is unusable well before that. `spacrGraph._standerdize_figure_format` forces
@@ -83,8 +84,10 @@ def _montage_type_size(figuresize, tier='label'):
 def figure_output_preferences():
     """Return ``(format, dpi)`` from the user's preferences.
 
-    Degrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI`
-    rather than raising: the preference store is Qt's, and the pipelines that
+    A format or DPI changed in the Preferences figure settings wins over the
+    "Figure format" and "Resolution" preferences. Degrades to
+    :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI` rather than
+    raising: the preference store is Qt's, and the pipelines that
     call this run headless from the CLI and from notebooks, where importing
     PySide6 to decide a file extension would be absurd.
     """
@@ -94,6 +97,14 @@ def figure_output_preferences():
         dpi = int(get_figure_png_dpi())
     except Exception:
         return DEFAULT_FIGURE_FORMAT, DEFAULT_FIGURE_DPI
+    from .figures.style import _preference_deltas
+    chosen = _preference_deltas()
+    if chosen.get("format"):
+        fmt = str(chosen["format"]).strip().lower()
+    try:
+        dpi = int(chosen.get("dpi", dpi))
+    except (TypeError, ValueError):
+        pass
     if fmt not in FIGURE_FORMATS:
         fmt = DEFAULT_FIGURE_FORMAT
     if dpi <= 0:
@@ -406,6 +417,10 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
 
     :param fig: a matplotlib ``Figure``.
     :param path: destination; its extension is corrected to the format.
+    The figure first takes the settings changed in the Preferences figure
+    settings (:func:`spacr.figures.style._apply_user_style`), and a second
+    copy is written when "Also save" names another format.
+
     :param fmt: force a format, bypassing the preference.
     :param dpi: force a DPI, bypassing the preference.
     :param close: close the figure once written.
@@ -463,15 +478,27 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
             print(f"Figure integrity: the check could not run ({exc}); "
                   f"writing {destination} without it.")
             report = None
+    from .figures.style import _apply_user_style, _preference_deltas
+    _apply_user_style(fig)
+    chosen_style = _preference_deltas()
+    vector_text = bool(chosen_style.get("vector_text", True))
+    extra_fmt = str(chosen_style.get("also_save", "none") or "none").lower()
     look = saved_figure_appearance(save_mode)
-    rc = {"pdf.fonttype": 42}
+    rc = {"pdf.fonttype": 42 if vector_text else 3,
+          "svg.fonttype": "none" if vector_text else "path"}
     if look.ground is not None and "facecolor" not in kwargs:
         rc["savefig.facecolor"] = look.ground
         rc["savefig.edgecolor"] = look.ground
     rc["savefig.transparent"] = bool(look.transparent)
     with rc_context(rc), print_ready(fig, mode=look.mode,
                                      announce=announce_colours):
-        fig.savefig(destination, format=chosen_fmt, dpi=write_dpi, **kwargs)
+        targets = [(destination, chosen_fmt)]
+        if (extra_fmt in FIGURE_FORMATS and extra_fmt != chosen_fmt
+                and not fmt and report is None):
+            targets.append((_with_extension(destination, extra_fmt),
+                            extra_fmt))
+        for target, target_fmt in targets:
+            fig.savefig(target, format=target_fmt, dpi=write_dpi, **kwargs)
     if report is not None:
         try:
             _finish_integrity(report, destination)
@@ -5266,6 +5293,50 @@ class spacrGraph:
             plt.show()
         return reordered_palette
 
+    def _user_style(self):
+        """The grouped-graph settings the user changed in Preferences."""
+        return _preference_deltas("jitter_bar")
+
+    def _jitter(self):
+        """Horizontal spread of the overlaid points, in category widths."""
+        return float(self._user_style().get("jitter_width", self.bar_width))
+
+    def _point_look(self, size):
+        """``(alpha, size)`` for overlaid points; ``size`` is the house size."""
+        chosen = self._user_style()
+        alpha = float(chosen.get("point_alpha", 0.6))
+        if "marker_size" in chosen:
+            size = float(chosen["marker_size"]) ** 0.5
+        return alpha, size
+
+    def _points_overlaid(self):
+        """Whether points are drawn over bars and boxes."""
+        return bool(self._user_style().get("point_overlay", True))
+
+    def _error_half_width(self, row):
+        """The error bar's half width for one summary row, or ``None``.
+
+        The Preferences error-bar style decides when the user changed it:
+        ``sem``, ``sd``, ``ci`` at the chosen confidence level, ``ci95`` or
+        ``none``. Otherwise ``error_bar_type`` decides.
+        """
+        chosen = str(self._user_style().get("error_bars", "")).lower()
+        if not chosen:
+            return row[self.error_bar_type]
+        if chosen == "none":
+            return None
+        if chosen == "sd":
+            return row["std"]
+        if chosen in ("ci", "ci95"):
+            level = 95.0 if chosen == "ci95" else float(
+                self._user_style().get("ci_level", 95.0))
+            count = int(row.get("count", 0) or 0)
+            if count < 2:
+                return None
+            from scipy.stats import t as student_t
+            return row["sem"] * student_t.ppf(0.5 + level / 200.0, count - 1)
+        return row["sem"]
+
     def _plot_palette(self, count):
         """The colours for ``count`` drawn series, under the house rule.
 
@@ -5292,6 +5363,12 @@ class spacrGraph:
         if self.colors:
             chosen = list(self.colors)
             return [chosen[index % len(chosen)] for index in range(count)]
+        picked = self._user_style().get("palette")
+        if picked:
+            from .figure_style import palette_colours
+            chosen = palette_colours(picked)
+            if chosen:
+                return [chosen[index % len(chosen)] for index in range(count)]
         ruled = _group_colours(count, list(self.sns_palette or ()))
         if ruled is not None:
             return ruled
@@ -6040,7 +6117,7 @@ class spacrGraph:
         summary_df = self.df_melted.groupby(
             [x_axis_column], observed=False
         ).agg(mean=('Value', 'mean'), std=('Value', 'std'),
-              sem=('Value', 'sem')).reset_index()
+              sem=('Value', 'sem'), count=('Value', 'count')).reset_index()
         self.summary_df = summary_df.copy()
         sns.barplot(
             data=self.df_melted, x=x_axis_column, y='Value',
@@ -6057,8 +6134,11 @@ class spacrGraph:
         bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
         for bar, (_, row) in zip(bars, summary_df.iterrows()):
             x_bar = bar.get_x() + bar.get_width() / 2
-            err = row[self.error_bar_type]
-            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c=resolve_ink(theme_target()), capsize=5, lw=WEIGHTS['data'])
+            err = self._error_half_width(row)
+            if err is None:
+                continue
+            capsize = float(self._user_style().get("error_capsize", 5))
+            ax.errorbar(x=x_bar, y=bar.get_height(), yerr=err, fmt='none', c=resolve_ink(theme_target()), capsize=capsize, lw=WEIGHTS['data'])
     
         ax.set_xlabel(self.grouping_column)
 
@@ -6085,11 +6165,12 @@ class spacrGraph:
         plot_palette = self._plot_palette(len(plot_order))
         show_legend = hue is not None
         self.summary_df = self.df_melted.copy()
+        alpha, size = self._point_look(16)
         sns.stripplot(
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
-            dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
-            alpha=0.6, size=16, order=plot_order)
+            dodge=self.jitter_bar_dodge, jitter=self._jitter(), ax=ax,
+            alpha=alpha, size=size, order=plot_order)
     
         ax.set_xlabel(self.grouping_column)
        
@@ -6305,12 +6386,14 @@ class spacrGraph:
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend, ax=ax,
             dodge=self.jitter_bar_dodge, errorbar=None, order=plot_order)
-        sns.stripplot(
-            data=self.df_melted, x=x_axis_column, y='Value',
-            hue=plot_hue, palette=plot_palette, legend=show_legend,
-            dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
-            alpha=0.6, edgecolor='none', linewidth=0, size=16,
-            order=plot_order)
+        alpha, size = self._point_look(16)
+        if self._points_overlaid():
+            sns.stripplot(
+                data=self.df_melted, x=x_axis_column, y='Value',
+                hue=plot_hue, palette=plot_palette, legend=show_legend,
+                dodge=self.jitter_bar_dodge, jitter=self._jitter(), ax=ax,
+                alpha=alpha, edgecolor='none', linewidth=0, size=size,
+                order=plot_order)
         
         if len(self.data_column) > 1:
             bars = [bar for bar in ax.patches if isinstance(bar, plt.Rectangle)]
@@ -6349,12 +6432,14 @@ class spacrGraph:
             data=self.df_melted, x=x_axis_column, y='Value',
             hue=plot_hue, palette=plot_palette, legend=show_legend,
             ax=ax, order=plot_order)
-        sns.stripplot(
-            data=self.df_melted, x=x_axis_column, y='Value',
-            hue=plot_hue, palette=plot_palette, legend=show_legend,
-            dodge=self.jitter_bar_dodge, jitter=self.bar_width, ax=ax,
-            alpha=0.6, edgecolor='none', linewidth=0, size=12,
-            order=plot_order)
+        alpha, size = self._point_look(12)
+        if self._points_overlaid():
+            sns.stripplot(
+                data=self.df_melted, x=x_axis_column, y='Value',
+                hue=plot_hue, palette=plot_palette, legend=show_legend,
+                dodge=self.jitter_bar_dodge, jitter=self._jitter(), ax=ax,
+                alpha=alpha, edgecolor='none', linewidth=0, size=size,
+                order=plot_order)
     
         ax.set_xlabel(self.grouping_column)
 

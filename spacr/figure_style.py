@@ -37,6 +37,19 @@ GENERAL_DEFAULTS: dict[str, Any] = {
     "mark_colouring": "group",
     "marker_style": "o",
     "page_shape": "landscape",
+    "legend_size": 9.0,
+    "colormap": "viridis",
+    "figure_width": 6.4,
+    "figure_height": 4.8,
+    "despine_offset": 0.0,
+    "also_save": "none",
+    "vector_text": True,
+    "error_bars": "sem",
+    "ci_level": 95.0,
+    "error_capsize": 5.0,
+    "jitter_width": 0.4,
+    "point_alpha": 0.6,
+    "point_overlay": True,
 }
 
 
@@ -103,11 +116,10 @@ GRAPH_DEFAULTS: dict[str, dict[str, Any]] = {
         "reference_colour": "#C44E52",
     },
     "jitter_bar": {
-        "jitter_width": 0.28,
-        "marker_size": 18.0,
-        "point_alpha": 0.7,
+        "jitter_width": 0.4,
+        "marker_size": 256.0,
+        "point_alpha": 0.6,
         "error_bars": "sem",
-        "bar_alpha": 0.35,
     },
 }
 
@@ -120,11 +132,12 @@ GRAPH_KINDS = ("volcano", "plate_heatmap", "histogram", "scatter",
 #: :func:`style_choices`; keys absent from these mappings are free-form.
 STYLE_CHOICES = {
     "palette": ("colorblind", "deep", "muted", "pastel", "bright", "dark"),
-    "format": ("pdf", "png", "svg"),
-    "colormap": ("viridis", "plasma", "inferno", "magma", "cividis",
+    "format": ("pdf", "png", "svg", "tiff"),
+    "also_save": ("none", "pdf", "png", "svg", "tiff"),
+    "colormap": ("viridis", "cividis", "plasma", "inferno", "magma",
                  "coolwarm", "RdBu_r"),
     "bins": ("auto", "sturges", "fd", "scott", "sqrt"),
-    "error_bars": ("sem", "sd", "ci95", "none"),
+    "error_bars": ("sem", "sd", "ci", "ci95", "none"),
     "aspect": ("equal", "auto"),
 
     "mark_colouring": ("group", "uniform", "random"),
@@ -311,8 +324,22 @@ def rc_params(style: Mapping[str, Any]) -> dict:
         params["lines.marker"] = marker
 
     shape = str(style.get("page_shape", "") or "").strip()
-    if shape in PAGE_SHAPES and shape != GENERAL_DEFAULTS["page_shape"]:
-        params["figure.figsize"] = list(page_size(shape, PAGE_WIDTH_IN))
+    width = _positive(style.get("figure_width"), PAGE_WIDTH_IN)
+    height = _positive(style.get("figure_height"),
+                       GENERAL_DEFAULTS["figure_height"])
+    if shape == "custom":
+        params["figure.figsize"] = [width, height]
+    elif shape in PAGE_SHAPES and (shape != GENERAL_DEFAULTS["page_shape"]
+                                   or width != PAGE_WIDTH_IN):
+        params["figure.figsize"] = list(page_size(shape, width))
+    params["legend.fontsize"] = float(style.get("legend_size", 9.0))
+    params["legend.title_fontsize"] = float(style.get("legend_size", 9.0))
+    params["image.cmap"] = str(style.get("colormap") or "viridis")
+    params["errorbar.capsize"] = float(style.get("error_capsize", 5.0))
+    vector_text = bool(style.get("vector_text", True))
+    params["pdf.fonttype"] = 42 if vector_text else 3
+    params["ps.fonttype"] = 42 if vector_text else 3
+    params["svg.fonttype"] = "none" if vector_text else "path"
     colours = _marks_coloured_by(palette_colours(style.get("palette")),
                                 style.get("mark_colouring"))
     if colours:
@@ -320,6 +347,48 @@ def rc_params(style: Mapping[str, Any]) -> dict:
 
         params["axes.prop_cycle"] = cycler(color=colours)
     return params
+
+
+def _positive(value, fallback: float) -> float:
+    """``value`` as a positive float, or ``fallback`` when it is not one."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return float(fallback)
+    return number if number > 0 else float(fallback)
+
+
+def _user_deltas(kind: Optional[str] = None,
+                general: Optional[Mapping[str, Any]] = None,
+                overrides: Optional[Mapping[str, Any]] = None) -> dict:
+    """Return only the style settings the user changed from the defaults.
+
+    General changes are compared with :data:`GENERAL_DEFAULTS`; changes stored
+    for ``kind`` in ``overrides`` are laid on top whatever their value, since
+    the preference store already keeps per-graph differences only. A figure
+    that is styled from this result keeps every look the user did not touch.
+
+    Parameters
+    ----------
+    kind : str, optional
+        Graph type whose stored overrides are included.
+    general : mapping of str to Any, optional
+        User-defined general settings.
+    overrides : mapping of str to mapping, optional
+        User-defined settings keyed by graph type.
+
+    Returns
+    -------
+    dict
+        Changed settings, keyed by style name. Empty when nothing changed.
+    """
+    changed = {key: value for key, value in dict(general or {}).items()
+               if value is not None and GENERAL_DEFAULTS.get(key) != value}
+    if kind and overrides:
+        per_kind = overrides.get(kind) or {}
+        changed.update({key: value for key, value in per_kind.items()
+                        if value is not None})
+    return changed
 
 
 def apply(kind: Optional[str] = None,

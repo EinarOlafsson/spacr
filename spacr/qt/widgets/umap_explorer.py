@@ -849,6 +849,8 @@ QSplitter#UmapBodySplit::handle:horizontal:hover {{
                 self._embedding[self._picked].reshape(1, 2))
         self._apply_point_alpha()
         self._draw_linked_points()
+        from ...figures.style import _apply_user_style
+        _apply_user_style(self._figure, "scatter", force=True)
         self._canvas.draw_idle()
 
     def _payload_status(self) -> str:

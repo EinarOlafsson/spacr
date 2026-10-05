@@ -426,6 +426,8 @@ def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
         figure-format preference; a save dialog passes the user's choice.
     """
     with FIGURE_LOCK:
+        from ...figures.style import _apply_user_style
+        _apply_user_style(fig)
         try:
             from ..preferences import (get_figure_png_dpi, get_figure_format,
                                        get_figure_colors, get_figure_line_colour,
@@ -1675,6 +1677,8 @@ class FigureQueue(QWidget):
                 self._stack.setCurrentIndex(1)
                 return True
             self._teardown_canvas()
+            from ...figures.style import _apply_user_style
+            _apply_user_style(fig)
             canvas = FigureCanvasQTAgg(fig)
             from ..gui_scale import follow_canvas
             follow_canvas(canvas)

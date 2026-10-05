@@ -2205,7 +2205,48 @@ def _is_transparent_ground(value) -> bool:
 #: row whose caption and whose own explanation disagreed.
 _STYLE_LABELS = {
     "aspect": "Lock axis scales",
+    "ci_level": "CI level",
+    "error_capsize": "Error-bar cap size",
 }
+
+
+def _style_tip(name: str) -> str:
+    """The tooltip for one figure-style row, or an empty string."""
+    tips = {
+        "legend_size": tr("Text size of legend entries and legend titles, "
+                          "in points. Default 9."),
+        "colormap": tr("Colour map for heat maps, images and density "
+                       "plots. viridis and cividis stay readable with "
+                       "colour-blindness and in greyscale. Default viridis."),
+        "figure_width": tr("Width of a new figure in inches. The page shape "
+                           "sets the height, or Figure height does when the "
+                           "page shape is custom. Default 6.4."),
+        "figure_height": tr("Height of a new figure in inches, used when the "
+                            "page shape is custom. Default 4.8."),
+        "despine_offset": tr("Moves the axis lines this many points away "
+                             "from the data, as seaborn's despine does. 0 "
+                             "leaves them touching. Default 0."),
+        "also_save": tr("Writes a second copy of every saved figure in this "
+                        "format beside the first, for example a PNG next to "
+                        "a PDF. Default none."),
+        "vector_text": tr("Keeps text editable in PDF and SVG files instead "
+                          "of turning it into outlines. Default on."),
+        "error_bars": tr("What error bars show on bar graphs: standard error "
+                         "(sem), standard deviation (sd), a confidence "
+                         "interval at the CI level (ci), a 95% interval "
+                         "(ci95) or nothing. Default sem."),
+        "ci_level": tr("Confidence level, in percent, of the ci error bars. "
+                       "Default 95."),
+        "error_capsize": tr("Width of the caps at the ends of error bars, in "
+                            "points. Default 5."),
+        "jitter_width": tr("How far overlaid points spread sideways, as a "
+                           "fraction of one category's width. Default 0.4."),
+        "point_alpha": tr("Opacity of overlaid points, from 0 (invisible) "
+                          "to 1 (solid). Default 0.6."),
+        "point_overlay": tr("Draws the individual points over bar and box "
+                            "graphs. Default on."),
+    }
+    return tips.get(str(name), "")
 
 
 def style_setting_label(name: str) -> str:
@@ -2271,6 +2312,8 @@ class FigureStylePreferences(QWidget):
         for name, default in self._general_defaults.items():
             value = self._general.get(name, default)
             widget, getter, setter = self._control(name, value)
+            if _style_tip(name):
+                widget.setToolTip(_style_tip(name))
             self._general_controls[name] = (getter, setter, default)
             general_form.addRow(style_setting_label(name), widget)
 
@@ -2301,6 +2344,8 @@ class FigureStylePreferences(QWidget):
             for name, default in self._graph_defaults.get(kind, {}).items():
                 value = stored.get(name, default)
                 widget, getter, setter = self._control(name, value)
+                if _style_tip(name):
+                    widget.setToolTip(_style_tip(name))
                 controls[name] = (getter, setter, default)
                 form.addRow(style_setting_label(name), widget)
             self._kind_controls[kind] = controls
