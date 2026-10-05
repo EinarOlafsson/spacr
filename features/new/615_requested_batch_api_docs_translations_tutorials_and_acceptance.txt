@@ -7,6 +7,15 @@ Status: DONE 2026-10-04 — tutorial capture and publication for 601, 611-614
         macOS updater scene (627) is deferred: requires macOS capture host.
         Native-speaker review is not claimed. See 2026-10-04 STATUS below.
 
+2026-10-05 — WORKSTATION CODEX LANE
+The user assigned API, documentation, translations and tutorials to the
+separate workstation Codex session. This CI/feature session will not edit
+those surfaces further. The workstation lane should include the alpha Make
+Masks live plate card in lesson 87 and preserve the standard alpha-off
+capture policy. The user accepted the unavailable N627 macOS updater scene
+and native-language review as complete at the qualified scope; no native
+capture or native-speaker signoff is claimed.
+
 Previous status (superseded 2026-10-04): OPEN 2026-10-03 — tutorial capture
         and publication for the new scenes of 601, 611-614 and 620-629.
 

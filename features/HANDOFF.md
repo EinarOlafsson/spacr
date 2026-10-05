@@ -1,5 +1,21 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
 
+## 2026-10-05 workstation Codex handoff
+The user assigned API, documentation, translations and tutorials to a
+separate Codex session on the workstation. That session owns those four
+lanes from here. The current CI session owns item 43/288 GitHub tests and
+coverage, item 47 Qt memory, and remaining feature code. Coordinate changes
+to generated catalogs, help/index artifacts and tutorial media through
+nightly commits before editing the same files.
+
+The user accepted N53, N633, F490, F493, the N627 macOS tutorial scene and
+native-language review as complete at the available-evidence scope. This
+does not claim a protected macOS run, dose plate, native desktop focus,
+physical two-GPU run, macOS scene capture or native-speaker signoff. The
+CI session will push the item-status notes separately. Please re-record
+lesson 87 for the alpha Make Masks live plate card and keep the standard
+lessons with alpha off.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.
