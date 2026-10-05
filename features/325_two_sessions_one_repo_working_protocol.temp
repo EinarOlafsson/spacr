@@ -17523,3 +17523,13 @@ Kokoro/Misaki 0.9.4, two CPU threads, 16 GiB memory cap, normal gpu_turn.sh
 idle/gap rules and real HOME. No package/model/source generation on the card.
 Audio mastering, timing and cache identity use the canonical renderer.
 The turn is queued only after this announcement is pushed to nightly.
+
+2026-10-05 — MAINTAINER-REQUESTED COMPLETE TASK PLAN
+The workstation's full task table, progress estimates, priorities, external
+dependencies and optional-extension boundaries are appended to item 615.
+Runtime/guide translation checks are complete; API repair and five tutorial
+refreshes remain open. Post-rebase runtime cohort: 241 passed, 14 API checks
+deselected. Chromium installation and the prepared narration environment
+are complete. No narration GPU job is running yet. Other Codex session:
+continue CPU CI/Qt/feature work; all remaining spaCR GPU turns belong here,
+except the separately reserved live_cell/cellposeTIME work.

@@ -758,3 +758,66 @@ empty-folder watch with configured channels. No completed fields are invented.
 The pinned Kokoro model/voice CPU synthesis and all eight language G2P paths
 pass after private UniDic installation. Rendering and publication remain open.
 Receipt: features/data/615_home_alpha_fresh_staging_2026-10-05.json.
+
+2026-10-05 — MAINTAINER-REQUESTED COMPLETE WORKSTATION TASK PLAN
+
+Percentages estimate progress on the named workstation subtask, not the
+entire historical feature. Time estimates are active work ranges, overlap
+between rows and exclude GPU queue waits or unavailable external inputs.
+P1 is current API/docs/tutorial completion; P2 is remaining GPU acceptance;
+P3 is an optional extension, preserving the original completed acceptance.
+Execute P1 repair/capture work first, reuse CPU preparation during queued
+GPU turns, then run ready P2 scorecards. Keep blocked inputs explicit.
+The other Codex session retains CPU CI43/288, Qt47 and feature implementation.
+live_cell/cellposeTIME remain reserved and excluded from this ownership.
+The table is a planning snapshot, not a new DONE verdict or acceptance gate.
+
+| item | percent doen | time left | priority | discription |
+|---|---:|---|---|---|
+| 325 — coordination | 100% | Ongoing | P1 | GPU ownership acknowledged by the other session; keep source changes coordinated through nightly commits. |
+| 65/306 — runtime translations | 100% | Done | P1 | Nine current catalogs pass strict audit and 241 focused checks. |
+| 615 — guide translations | 100% | Done | P1 | All 2,960 current messages translated in each of nine guide locales. |
+| 65/306/411 — API translations | 55% | 4–8 h | P1 | Repair changed paragraphs in nine locales, regenerate English/API catalogs and pass strict source/context/literal audits. |
+| 316 — semantic verification | 70% | 2–4 h | P1 | Check technical meaning of refreshed API prose; retain honest AI review provenance. |
+| 615 — English documentation | 60% | 1–2 h | P1 | Regenerate current API/workflow pages and complete strict English build. |
+| 615 — translated documentation | 50% | 2–4 h | P1 | Build all nine translated documentation variants after API repair. |
+| 615 — Help/README/deck | 40% | 1–2 h | P1 | Refresh generated help and presentation assets against the final UI. |
+| 358/447 — Home tutorial 05 | 65% | 1–2 h | P1 | Fresh 22-scene capture and translated staging complete; finish narrated media. |
+| 358/447 — Alpha tutorial 87 | 65% | 1–2 h | P1 | Fresh 28-scene capture includes the genuine waiting Live plate card; finish narrated media. |
+| 358/447 — Measure tutorial 08 | 25% | 2–4 h | P1 | Record and compose fresh preview, controls and real-run scenes. |
+| 358/447 — Batch tutorial 37 | 25% | 1–3 h | P1 | Record current batch workflow and Jobs dock. |
+| 358/447 — Distributed tutorial 38 | 25% | 1–3 h | P1 | Record current controls with isolated profiles and local state. |
+| 358 — tutorial translations | 60% | 3–6 h | P1 | Reconcile all 13 non-English catalog variants for the five refreshed lessons. |
+| 358/615 — GPU narration | 20% | 2–4 h + queue | P1 | Render the published 27-voice selection per refreshed lesson; Home/Alpha's 54 tracks are prepared. |
+| 358/447 — media acceptance | 0% | 1–3 h | P1 | Check decoded audio, mastering, captions, scene timing, layout and mobile playback. |
+| 358/615 — publication | 0% | 1–2 h | P1 | Publish validated media/catalogs and verify uploaded assets with readback receipts. |
+| 615 — final integration | 25% | 1–2 h | P1 | Reconcile latest nightly source, run focused final checks and update completion receipts. |
+| F548 — real GPU acquisition | 10% | 2–4 h + queue | P2 | Validate real incoming images, fixed channel mapping and resume ledger on GPU. |
+| F548 — broader watch acceptance | 0% | Depends on code/data | P2 | Vendor completion signals, Z/T acquisition and pooled normalization need feature-lane work and representative inputs. |
+| F557 — denoising validation | 30% | 4–12 h + queue | P2 | Verify independent low-light suitability, train isolated N2V and compare held-out segmentation; four gold frames identified. |
+| F554 — Spotiflow | 0% | 1–3 h + queue | P2 | Run GPU timing and strict replay of existing real-data comparisons. |
+| F558 — virtual staining | 10% | 2–6 h + queue | P2 | Finish Cellpose-SAM scoring on paired JUMP data. |
+| F551 — StarDist install acceptance | 0% | 1–2 h + queue | P2 | Repeat acceptance in a fresh production backend environment; prior scratch GPU runs already passed. |
+| F552 — InstanSeg GPU | 0% | 1–2 h + queue | P2 | Extend completed CPU acceptance with genuine GPU execution and comparison. |
+| F553 — Omnipose GPU extension | 0% | 1–2 h + queue | P3 | Optional GPU comparison; original 2D CPU acceptance is complete. |
+| F565 — GPU retrieval | 0% | 2–6 h after dependencies | P3 | GPU FAISS and real embedding retrieval need feature integration and independent labels. |
+| F578 — full-plate robustness | 0% | 3–8 h + queue | P3 | Optional full-plate GPU scale check beyond completed original acceptance. |
+| F370/F404 — held-out scorecards | 0% | Await curation; then 2–6 h | P2 | Score independent model hold-outs after maintainer curation. |
+| F449 — parasite-count model | 0% | Await labels/data; then 1–3 d | P2 | Needs independent counts, parasite-channel images and split/merge labels. |
+| F470 — object classifiers/retraining | 0% | Await annotations; then 1–3 d | P2 | Train classifiers, filter labels and retrain/rescore cross-channel models. |
+| F559 — QC retraining | 0% | Await labels; then 4–12 h | P2 | Needs real debris, bubble, saturation and empty-field labels. |
+| F535 — cell-cycle GPU validation | 0% | Await labels; then 4–12 h | P3 | Optional independent accuracy validation beyond implemented alpha behavior. |
+| F560 — embedding extensions | 0% | Depends on labels/model | P3 | Existing GPU backbone comparisons passed; independent labels and Cell-DINO remain extensions. |
+| F561 — DINO extensions | 0% | 1–3 d after scope/data | P3 | Existing GPU training passed; additional seeds, ViT and classifier comparisons are extensions. |
+| F564 — counterfactual extensions | 0% | Depends on feature work | P3 | Existing diffusion GPU run passed; app-scale and structure-preserving experiments are extensions. |
+| F567 — real event detection | 0% | Await annotated movie; then 4–12 h | P3 | Validate egress/invasion on a real independently labelled Toxoplasma movie. |
+| F475 — SpotNet GPU | 100% | Done | Complete | Existing real-field GPU comparison passed; retain the receipt. |
+| F555 — interactive SAM GPU | 100% | Done | Complete | Existing real-field prompt latency and mask checks passed. |
+| F566 — GPU measurement | 100% | Done | Complete | Existing real-plate agreement and timing checks passed. |
+| F568 — uncertainty GPU | 100% | Done | Complete | Existing whole-field and outside-pool runs passed at their recorded scope. |
+| F586 — container GPU | 100% | Done locally | Complete | Local GPU Mask/Measure passed; cluster adoption, registry visibility and Slurm need external access. |
+| F586 — cluster GPU acceptance | 0% | Await cluster/access; then 2–6 h | P3 | Optional SingularityCE/Slurm execution and registry/workflow verification. |
+| F493 — multi-GPU | 100% | Accepted scope | Complete | User accepted simulated-device/single-GPU evidence; no physical two-GPU claim. |
+| N627 — macOS updater scene | 100% | Accepted omission | Complete | User accepted unavailable native capture; no macOS recording is claimed. |
+| 316 — native-speaker review | 100% | Accepted scope | Complete | Optional native review waived; translations remain labelled AI technical review. |
+| 472 — module pathway tutorial | 100% | Done | Complete | Existing live pathway publication and translations remain complete. |
