@@ -1279,7 +1279,6 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
-    "Measure sizes",
     "Automatic (chosen from the data)",
     "Change graph type",
     "Edit figure…",
@@ -1324,7 +1323,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Deleted {count} file(s) and emptied {emptied}, freeing {size}.",
     "List every daily, run, crash and verbose log with its count and size, then ask before deleting them. Logs this session has open are emptied instead. Default nothing cleared.",
     "Log files",
-    "Measure sizes",
     "There are no logs to clear.",
     "{count} file(s) this session has open are emptied, not deleted.",
     "{label}: {count} file(s), {size}",
