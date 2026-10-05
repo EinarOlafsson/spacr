@@ -179,7 +179,7 @@ msgid "Picking up where you left off"
 msgstr "Retomar donde lo dejó"
 
 msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**Restauración de la sesión**: cada inicio normal vuelve a abrir el módulo que estaba en pantalla cuando spaCR se cerró o se bloqueó por última vez, con sus ajustes y su carpeta de entrada. No se inicia ninguna ejecución. Mientras la barra de estado indica lo que se volvió a abrir, su botón **Open fresh** restablece los ajustes predeterminados de ese módulo y va a Inicio; ``spacr-qt --fresh`` omite la restauración en un inicio. Desactívela en **Preferencias → Módulos → Session** (activada de forma predeterminada). Un módulo indicado en la línea de comandos, o un registro de Force restart, tiene prioridad."
+msgstr "**Restauración de la sesión**: cada inicio normal vuelve a abrir el módulo que estaba en pantalla cuando spaCR se cerró o se bloqueó por última vez, con sus ajustes y su carpeta de entrada. No se inicia ninguna ejecución. Mientras la barra de estado indica lo que se volvió a abrir, su botón **Abrir de cero** restablece los ajustes predeterminados de ese módulo y va a Inicio; ``spacr-qt --fresh`` omite la restauración en un inicio. Desactívela en **Preferencias → Módulos → Sesión** (activada de forma predeterminada). Un módulo indicado en la línea de comandos, o un registro de Force restart, tiene prioridad."
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**Guardado automático de ajustes**: cada 30 segundos, los ajustes no guardados de cada módulo abierto se conservan como borrador en el almacén de preferencias; no se escribe nada si nada ha cambiado. Un cierre normal descarta los borradores. Si spaCR terminó sin cerrarse, el siguiente inicio pregunta una vez si se deben restaurar (no se pregunta por borradores idénticos a la sesión reabierta). El mismo comportamiento se aplica en Linux, macOS y Windows, porque el almacén es el propio almacén de ajustes de Qt."
@@ -206,19 +206,19 @@ msgid "Running jobs"
 msgstr "Trabajos en ejecución"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**Ayuda → Window → Tareas** abre el panel **Tareas** en el borde derecho de la ventana. Muestra cada trabajo en ejecución con su módulo, una barra de progreso, el tiempo transcurrido y su última línea de salida. **Cancelar** pide a ese trabajo que se detenga. Si no hay nada en ejecución, el panel indica **No jobs are running.**"
+msgstr "**Ayuda → Window → Tareas** abre el panel **Tareas** en el borde derecho de la ventana. Muestra cada trabajo en ejecución con su módulo, una barra de progreso, el tiempo transcurrido y su última línea de salida. **Cancelar** pide a ese trabajo que se detenga. Si no hay nada en ejecución, el panel indica **No hay trabajos en ejecución.**"
 
 msgid "Two spaCR windows"
 msgstr "Dos ventanas de spaCR"
 
 msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
-msgstr "Puede abrir más de una ventana de spaCR. Cuando un módulo se ejecuta, spaCR reserva su carpeta de origen, que contiene ``measurements.db`` y los resultados, y la pantalla Queue reserva la cola de placas. Si otra ventana ya usa esa carpeta o esa cola, **Project open in another window** indica el otro proceso y ofrece:"
+msgstr "Puede abrir más de una ventana de spaCR. Cuando un módulo se ejecuta, spaCR reserva su carpeta de origen, que contiene ``measurements.db`` y los resultados, y la pantalla Queue reserva la cola de placas. Si otra ventana ya usa esa carpeta o esa cola, **Proyecto abierto en otra ventana** indica el otro proceso y ofrece:"
 
 msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
-msgstr "**Open read-only**: consultar sin escribir. Esta ventana se niega entonces a ejecutar una canalización que escriba allí, y la pantalla Queue no puede modificar ni ejecutar la cola;"
+msgstr "**Abrir en solo lectura**: consultar sin escribir. Esta ventana se niega entonces a ejecutar una canalización que escriba allí, y la pantalla Queue no puede modificar ni ejecutar la cola;"
 
 msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
-msgstr "**Continue anyway**: escribir también, cuando esté seguro de que la otra ventana está inactiva. Dos ventanas que escriben en la misma cola, base de datos o carpeta de resultados pueden dañarlas;"
+msgstr "**Continuar de todos modos**: escribir también, cuando esté seguro de que la otra ventana está inactiva. Dos ventanas que escriben en la misma cola, base de datos o carpeta de resultados pueden dañarlas;"
 
 msgid "**Cancel**."
 msgstr "**Cancelar**."

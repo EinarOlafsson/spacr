@@ -179,7 +179,7 @@ msgid "Picking up where you left off"
 msgstr "중단한 곳에서 이어 하기"
 
 msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**세션 복원**: 일반적으로 시작할 때마다 spaCR이 마지막으로 닫히거나 충돌했을 때 화면에 있던 모듈을 그 설정과 입력 폴더와 함께 다시 엽니다. 실행은 시작되지 않습니다. 상태 표시줄에 다시 열린 항목이 표시되는 동안 **Open fresh** 버튼을 누르면 그 모듈의 기본 설정으로 되돌리고 홈으로 이동합니다. ``spacr-qt --fresh`` 는 한 번의 시작에서 복원을 건너뜁니다. **환경설정 → 모듈 → Session** 에서 끌 수 있습니다(기본값은 켜짐). 명령줄에서 지정한 모듈이나 Force restart 기록이 우선합니다."
+msgstr "**세션 복원**: 일반적으로 시작할 때마다 spaCR이 마지막으로 닫히거나 충돌했을 때 화면에 있던 모듈을 그 설정과 입력 폴더와 함께 다시 엽니다. 실행은 시작되지 않습니다. 상태 표시줄에 다시 열린 항목이 표시되는 동안 **새로 열기** 버튼을 누르면 그 모듈의 기본 설정으로 되돌리고 홈으로 이동합니다. ``spacr-qt --fresh`` 는 한 번의 시작에서 복원을 건너뜁니다. **환경설정 → 모듈 → 세션** 에서 끌 수 있습니다(기본값은 켜짐). 명령줄에서 지정한 모듈이나 Force restart 기록이 우선합니다."
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**설정 자동 저장**: 30초마다 열려 있는 모든 모듈의 저장되지 않은 설정이 환경설정 저장소에 초안으로 보관되며, 바뀐 것이 없으면 아무것도 쓰지 않습니다. 정상적으로 종료하면 초안이 삭제됩니다. spaCR이 닫히지 않고 종료되었다면 다음 시작 시 복원할지 한 번 묻습니다(다시 열린 세션과 같은 초안은 묻지 않습니다). 저장소가 Qt 자체의 설정 저장소이므로 Linux, macOS, Windows에서 동작이 같습니다."
@@ -206,19 +206,19 @@ msgid "Running jobs"
 msgstr "실행 중인 작업"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**도움말 → Window → 작업** 은 창 오른쪽 가장자리에 **작업** 패널을 엽니다. 실행 중인 모든 작업이 모듈, 진행률 표시줄, 경과 시간, 마지막 출력 줄과 함께 나열됩니다. **취소** 는 해당 작업에 중지를 요청합니다. 실행 중인 작업이 없으면 패널에 **No jobs are running.** 이 표시됩니다."
+msgstr "**도움말 → Window → 작업** 은 창 오른쪽 가장자리에 **작업** 패널을 엽니다. 실행 중인 모든 작업이 모듈, 진행률 표시줄, 경과 시간, 마지막 출력 줄과 함께 나열됩니다. **취소** 는 해당 작업에 중지를 요청합니다. 실행 중인 작업이 없으면 패널에 **실행 중인 작업이 없습니다.** 이 표시됩니다."
 
 msgid "Two spaCR windows"
 msgstr "spaCR 창 두 개"
 
 msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
-msgstr "spaCR 창을 여러 개 열 수 있습니다. 모듈이 실행되면 spaCR은 ``measurements.db`` 와 결과가 있는 소스 폴더를 점유하고, 대기열 화면은 플레이트 대기열을 점유합니다. 다른 창이 이미 그 폴더나 대기열을 사용 중이면 **Project open in another window** 가 다른 프로세스를 알려 주고 다음 선택지를 제공합니다."
+msgstr "spaCR 창을 여러 개 열 수 있습니다. 모듈이 실행되면 spaCR은 ``measurements.db`` 와 결과가 있는 소스 폴더를 점유하고, 대기열 화면은 플레이트 대기열을 점유합니다. 다른 창이 이미 그 폴더나 대기열을 사용 중이면 **다른 창에서 열려 있는 프로젝트** 가 다른 프로세스를 알려 주고 다음 선택지를 제공합니다."
 
 msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
-msgstr "**Open read-only**: 쓰지 않고 보기만 합니다. 그러면 이 창은 그곳에 쓰는 파이프라인 실행을 거부하고, 대기열 화면은 대기열을 변경하거나 실행할 수 없습니다."
+msgstr "**읽기 전용으로 열기**: 쓰지 않고 보기만 합니다. 그러면 이 창은 그곳에 쓰는 파이프라인 실행을 거부하고, 대기열 화면은 대기열을 변경하거나 실행할 수 없습니다."
 
 msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
-msgstr "**Continue anyway**: 다른 창이 유휴 상태라고 확신할 때 함께 씁니다. 두 창이 같은 대기열, 데이터베이스 또는 결과 폴더에 쓰면 손상될 수 있습니다."
+msgstr "**그래도 계속**: 다른 창이 유휴 상태라고 확신할 때 함께 씁니다. 두 창이 같은 대기열, 데이터베이스 또는 결과 폴더에 쓰면 손상될 수 있습니다."
 
 msgid "**Cancel**."
 msgstr "**취소**."

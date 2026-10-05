@@ -29,7 +29,7 @@ msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
 msgstr "Appuyez sur **F1** ou **?** pour ouvrir l’aide-mémoire des raccourcis. Il liste les touches qui fonctionnent partout dans la fenêtre, comme **Ctrl+K** pour la palette de commandes, **Ctrl+P** pour les Préférences, **Ctrl+F** pour rechercher dans les paramètres du module courant et **F11** pour le plein écran, suivies des touches de l’écran affiché."
 
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "Pour modifier une touche, choisissez **Change shortcuts…** dans l’aide-mémoire. La fenêtre **Change shortcuts** comporte une ligne par action à l’échelle de la fenêtre, avec sa touche **Default** et le **Shortcut** utilisé. Cliquez sur un raccourci et appuyez sur la nouvelle touche, ou effacez-le pour laisser l’action sans touche. **Restore defaults** rétablit la touche par défaut de chaque ligne."
+msgstr "Pour modifier une touche, choisissez **Modifier les raccourcis…** dans l’aide-mémoire. La fenêtre **Modifier les raccourcis** comporte une ligne par action à l’échelle de la fenêtre, avec sa touche **Par défaut** et le **Raccourci** utilisé. Cliquez sur un raccourci et appuyez sur la nouvelle touche, ou effacez-le pour laisser l’action sans touche. **Rétablir les valeurs par défaut** rétablit la touche par défaut de chaque ligne."
 
 msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
 msgstr "Si une touche est déjà utilisée par une autre action, ou par une touche de l’un des écrans, la ligne sous le tableau nomme les actions qui la partagent, et **Enregistrer** reste indisponible tant que le conflit n’est pas résolu. Les touches enregistrées s’appliquent immédiatement, y compris aux éléments de menu correspondants, et l’aide-mémoire les affiche. Elles sont conservées avec vos préférences et lues de la même façon sous Linux, macOS et Windows."
@@ -56,7 +56,7 @@ msgid "**Import…** reads a shared template file, or a settings CSV such as the
 msgstr "**Importer...** lit un fichier de modèle partagé, ou un CSV de paramètres tel que celui que chaque exécution écrit à côté de ses résultats. Un CSV devient un modèle nommé d’après le fichier. Un fichier destiné à un autre module, ou sans paramètres, est refusé."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
-msgstr "**Rename…** donne un nouveau nom au modèle sélectionné. Un nom déjà utilisé par un autre modèle du module est refusé."
+msgstr "**Renommer…** donne un nouveau nom au modèle sélectionné. Un nom déjà utilisé par un autre modèle du module est refusé."
 
 msgid "**Delete** removes the selected template."
 msgstr "**Supprimer** supprime le modèle sélectionné."

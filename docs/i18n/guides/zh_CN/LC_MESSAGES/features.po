@@ -179,7 +179,7 @@ msgid "Picking up where you left off"
 msgstr "从上次中断处继续"
 
 msgid "**Session restore**: every ordinary start reopens the module that was on screen when spaCR last closed or crashed, with its settings and input folder. No run is started. While the status bar says what was reopened, its **Open fresh** button puts that module's default settings back and goes to Home; ``spacr-qt --fresh`` skips the restore for one start. Turn it off in **Preferences → Modules → Session** (on by default). A module named on the command line, or a Force restart record, takes precedence."
-msgstr "**会话恢复** ：每次正常启动都会重新打开 spaCR 上次关闭或崩溃时屏幕上的模块，并恢复其设置和输入文件夹。不会启动任何运行。在状态栏显示重新打开了哪些内容时，其 **Open fresh** 按钮会恢复该模块的默认设置并返回主页； ``spacr-qt --fresh`` 可在一次启动中跳过恢复。在 **偏好 → 模块 → Session** 中关闭此功能（默认开启）。命令行中指定的模块或 Force restart 记录优先。"
+msgstr "**会话恢复** ：每次正常启动都会重新打开 spaCR 上次关闭或崩溃时屏幕上的模块，并恢复其设置和输入文件夹。不会启动任何运行。在状态栏显示重新打开了哪些内容时，其 **全新打开** 按钮会恢复该模块的默认设置并返回主页； ``spacr-qt --fresh`` 可在一次启动中跳过恢复。在 **偏好 → 模块 → 会话** 中关闭此功能（默认开启）。命令行中指定的模块或 Force restart 记录优先。"
 
 msgid "**Settings autosave**: every 30 seconds the unsaved settings of every open module are kept as a draft in the preference store; nothing is written when nothing changed. A clean exit drops the drafts. If spaCR ended without closing, the next start asks once whether to restore them (drafts identical to the reopened session are not asked about). The same behaviour applies on Linux, macOS and Windows, because the store is Qt's own settings store."
 msgstr "**设置自动保存** ：每 30 秒，各个已打开模块的未保存设置会作为草稿保存在偏好存储中；没有变化时不写入任何内容。正常退出会丢弃草稿。如果 spaCR 未经关闭就结束，下次启动时会询问一次是否恢复这些草稿（与重新打开的会话相同的草稿不会询问）。Linux、macOS 和 Windows 上的行为相同，因为该存储是 Qt 自身的设置存储。"
@@ -206,19 +206,19 @@ msgid "Running jobs"
 msgstr "正在运行的任务"
 
 msgid "**Help → Window → Jobs** opens the **Jobs** panel at the right edge of the window. It lists every job that is running, with its module, a progress bar, the time elapsed and its last output line. **Cancel** asks that job to stop. With nothing running, the panel says **No jobs are running.**"
-msgstr "**帮助 → Window → 任务** 会在窗口右侧打开 **任务** 面板。它列出每个正在运行的任务，以及其模块、进度条、已用时间和最后一行输出。**取消** 会请求该任务停止。没有任何任务运行时，面板显示 **No jobs are running.**"
+msgstr "**帮助 → Window → 任务** 会在窗口右侧打开 **任务** 面板。它列出每个正在运行的任务，以及其模块、进度条、已用时间和最后一行输出。**取消** 会请求该任务停止。没有任何任务运行时，面板显示 **没有正在运行的作业。**"
 
 msgid "Two spaCR windows"
 msgstr "两个 spaCR 窗口"
 
 msgid "You can open more than one spaCR window. When a module runs, spaCR claims its source folder, which holds ``measurements.db`` and the results, and the Queue screen claims the plate queue. If another window already uses that folder or queue, **Project open in another window** names the other process and offers:"
-msgstr "您可以打开多个 spaCR 窗口。模块运行时，spaCR 会占用其源文件夹（其中包含 ``measurements.db`` 和结果），队列屏幕会占用孔板队列。如果另一个窗口已在使用该文件夹或队列，**Project open in another window** 会指出另一个进程并提供以下选项："
+msgstr "您可以打开多个 spaCR 窗口。模块运行时，spaCR 会占用其源文件夹（其中包含 ``measurements.db`` 和结果），队列屏幕会占用孔板队列。如果另一个窗口已在使用该文件夹或队列，**项目已在另一个窗口中打开** 会指出另一个进程并提供以下选项："
 
 msgid "**Open read-only**: look without writing. This window then refuses to run a pipeline that writes there, and the Queue screen cannot change or run the queue;"
-msgstr "**Open read-only**：只查看不写入。此窗口随后会拒绝运行向该处写入的流程，队列屏幕也无法更改或运行队列；"
+msgstr "**以只读方式打开**：只查看不写入。此窗口随后会拒绝运行向该处写入的流程，队列屏幕也无法更改或运行队列；"
 
 msgid "**Continue anyway**: write as well, when you are sure the other window is idle. Two windows writing the same queue, database or results folder can corrupt them;"
-msgstr "**Continue anyway**：同时写入，仅在确定另一个窗口处于空闲时使用。两个窗口写入同一队列、数据库或结果文件夹可能会将其损坏；"
+msgstr "**仍然继续**：同时写入，仅在确定另一个窗口处于空闲时使用。两个窗口写入同一队列、数据库或结果文件夹可能会将其损坏；"
 
 msgid "**Cancel**."
 msgstr "**取消**。"

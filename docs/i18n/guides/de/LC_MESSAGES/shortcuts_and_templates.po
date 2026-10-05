@@ -29,7 +29,7 @@ msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
 msgstr "Drücken Sie **F1** oder **?**, um die Übersicht der Tastenkürzel zu öffnen. Sie listet die Tasten auf, die überall im Fenster funktionieren, etwa **Ctrl+K** für die Befehlspalette, **Ctrl+P** für die Einstellungen, **Ctrl+F** zum Durchsuchen der Einstellungen des aktuellen Moduls und **F11** für den Vollbildmodus, gefolgt von den Tasten des aktuellen Bildschirms."
 
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "Um eine Taste zu ändern, wählen Sie in der Übersicht **Change shortcuts…**. Das Fenster **Change shortcuts** hat eine Zeile pro fensterweiter Aktion mit ihrer Taste unter **Default** und dem verwendeten **Shortcut**. Klicken Sie auf ein Tastenkürzel und drücken Sie die neue Taste, oder leeren Sie es, um die Aktion ohne Taste zu lassen. **Restore defaults** setzt jede Zeile auf ihre voreingestellte Taste zurück."
+msgstr "Um eine Taste zu ändern, wählen Sie in der Übersicht **Tastenkürzel ändern…**. Das Fenster **Tastenkürzel ändern** hat eine Zeile pro fensterweiter Aktion mit ihrer Taste unter **Standardwert** und dem verwendeten **Tastenkürzel**. Klicken Sie auf ein Tastenkürzel und drücken Sie die neue Taste, oder leeren Sie es, um die Aktion ohne Taste zu lassen. **Standardwerte wiederherstellen** setzt jede Zeile auf ihre voreingestellte Taste zurück."
 
 msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
 msgstr "Wird eine Taste bereits von einer anderen Aktion oder von einer Taste eines Bildschirms verwendet, nennt die Zeile unter der Tabelle die Aktionen, die sie sich teilen, und **Speichern** bleibt nicht verfügbar, bis der Konflikt gelöst ist. Gespeicherte Tasten gelten sofort, auch für die entsprechenden Menüeinträge, und die Übersicht zeigt sie an. Sie werden mit Ihren Einstellungen gespeichert und unter Linux, macOS und Windows gleich gelesen."
@@ -56,7 +56,7 @@ msgid "**Import…** reads a shared template file, or a settings CSV such as the
 msgstr "**Importieren...** liest eine geteilte Vorlagendatei oder eine Einstellungs-CSV, etwa die, die jede Ausführung neben ihre Ergebnisse schreibt. Eine CSV wird zu einer Vorlage, die nach der Datei benannt ist. Eine Datei für ein anderes Modul oder eine ohne Einstellungen wird abgelehnt."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
-msgstr "**Rename…** gibt der ausgewählten Vorlage einen neuen Namen. Ein Name, den bereits eine andere Vorlage des Moduls verwendet, wird abgelehnt."
+msgstr "**Umbenennen…** gibt der ausgewählten Vorlage einen neuen Namen. Ein Name, den bereits eine andere Vorlage des Moduls verwendet, wird abgelehnt."
 
 msgid "**Delete** removes the selected template."
 msgstr "**Löschen** entfernt die ausgewählte Vorlage."

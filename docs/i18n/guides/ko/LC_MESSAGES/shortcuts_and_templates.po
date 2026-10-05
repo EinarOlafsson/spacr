@@ -29,7 +29,7 @@ msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
 msgstr "**F1** 또는 **?** 를 누르면 단축키 요약표가 열립니다. 명령 팔레트를 여는 **Ctrl+K**, 환경설정을 여는 **Ctrl+P**, 현재 모듈의 설정을 검색하는 **Ctrl+F**, 전체 화면을 위한 **F11** 처럼 창 어디서나 동작하는 키를 먼저 나열하고, 이어서 현재 화면의 키를 나열합니다."
 
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "키를 바꾸려면 요약표에서 **Change shortcuts…** 를 선택합니다. **Change shortcuts** 창에는 창 전체에 적용되는 작업마다 한 행이 있으며, **Default** 키와 사용 중인 **Shortcut** 이 표시됩니다. 단축키를 클릭하고 새 키를 누르거나, 지워서 해당 작업에 키를 할당하지 않을 수 있습니다. **Restore defaults** 는 모든 행을 기본 키로 되돌립니다."
+msgstr "키를 바꾸려면 요약표에서 **단축키 변경…** 를 선택합니다. **단축키 변경** 창에는 창 전체에 적용되는 작업마다 한 행이 있으며, **기본값** 키와 사용 중인 **단축키** 이 표시됩니다. 단축키를 클릭하고 새 키를 누르거나, 지워서 해당 작업에 키를 할당하지 않을 수 있습니다. **기본값 복원** 는 모든 행을 기본 키로 되돌립니다."
 
 msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
 msgstr "키가 이미 다른 작업이나 어떤 화면의 키로 사용 중이면, 표 아래 줄에 그 키를 함께 쓰는 작업이 표시되고 충돌이 해결될 때까지 **저장** 을 사용할 수 없습니다. 저장한 키는 해당 메뉴 항목에도 즉시 적용되며, 요약표에도 표시됩니다. 키는 환경설정과 함께 보관되며 Linux, macOS, Windows에서 똑같이 읽힙니다."
@@ -56,7 +56,7 @@ msgid "**Import…** reads a shared template file, or a settings CSV such as the
 msgstr "**가져오기…** 는 공유된 템플릿 파일이나, 모든 실행이 결과 옆에 쓰는 것과 같은 설정 CSV를 읽습니다. CSV는 파일 이름을 딴 템플릿이 됩니다. 다른 모듈용 파일이나 설정이 없는 파일은 거부됩니다."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
-msgstr "**Rename…** 은 선택한 템플릿에 새 이름을 붙입니다. 모듈의 다른 템플릿이 이미 사용하는 이름은 거부됩니다."
+msgstr "**이름 바꾸기…** 은 선택한 템플릿에 새 이름을 붙입니다. 모듈의 다른 템플릿이 이미 사용하는 이름은 거부됩니다."
 
 msgid "**Delete** removes the selected template."
 msgstr "**삭제** 는 선택한 템플릿을 제거합니다."

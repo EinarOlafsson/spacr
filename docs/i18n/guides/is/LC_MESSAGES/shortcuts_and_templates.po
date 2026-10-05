@@ -29,7 +29,7 @@ msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
 msgstr "Ýttu á **F1** eða **?** til að opna yfirlit flýtilykla. Það sýnir lyklana sem virka hvar sem er í glugganum, svo sem **Ctrl+K** fyrir skipanaspjaldið, **Ctrl+P** fyrir kjörstillingar, **Ctrl+F** til að leita í stillingum núverandi einingar og **F11** fyrir allan skjáinn, og síðan lykla skjásins sem þú ert á."
 
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "Til að breyta lykli skaltu velja **Change shortcuts…** í yfirlitinu. Glugginn **Change shortcuts** hefur eina röð fyrir hverja aðgerð sem gildir í öllum glugganum, með **Default**-lyklinum og **Shortcut** sem er í notkun. Smelltu á flýtilykil og ýttu á nýja lykilinn, eða hreinsaðu hann til að láta aðgerðina vera án lykils. **Restore defaults** setur allar raðir aftur á sjálfgefinn lykil."
+msgstr "Til að breyta lykli skaltu velja **Breyta flýtilyklum…** í yfirlitinu. Glugginn **Breyta flýtilyklum** hefur eina röð fyrir hverja aðgerð sem gildir í öllum glugganum, með **Sjálfgefið**-lyklinum og **Flýtilykill** sem er í notkun. Smelltu á flýtilykil og ýttu á nýja lykilinn, eða hreinsaðu hann til að láta aðgerðina vera án lykils. **Endurheimta sjálfgefin gildi** setur allar raðir aftur á sjálfgefinn lykil."
 
 msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
 msgstr "Ef lykill er þegar notaður af annarri aðgerð, eða af lykli eins skjásins, nefnir línan undir töflunni aðgerðirnar sem deila honum og **Vista** er óvirkt þar til ósamræmið er leyst. Vistaðir lyklar gilda strax, einnig fyrir samsvarandi valmyndaratriði, og yfirlitið sýnir þá. Þeir eru geymdir með kjörstillingunum þínum og lesnir eins á Linux, macOS og Windows."
@@ -56,7 +56,7 @@ msgid "**Import…** reads a shared template file, or a settings CSV such as the
 msgstr "**Flytja inn…** les deilda sniðmátsskrá, eða stillinga-CSV eins og þá sem hver keyrsla skrifar við hlið niðurstaðna sinna. CSV-skrá verður að sniðmáti sem nefnt er eftir skránni. Skrá fyrir aðra einingu, eða skrá án stillinga, er hafnað."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
-msgstr "**Rename…** gefur völdu sniðmáti nýtt heiti. Heiti sem annað sniðmát einingarinnar notar þegar er hafnað."
+msgstr "**Endurnefna…** gefur völdu sniðmáti nýtt heiti. Heiti sem annað sniðmát einingarinnar notar þegar er hafnað."
 
 msgid "**Delete** removes the selected template."
 msgstr "**Að eyða** fjarlægir valið sniðmát."

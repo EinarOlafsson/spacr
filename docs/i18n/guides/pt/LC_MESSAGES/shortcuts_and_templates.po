@@ -29,7 +29,7 @@ msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
 msgstr "Pressione **F1** ou **?** para abrir a folha de referência de atalhos. Ela lista as teclas que funcionam em qualquer lugar da janela, como **Ctrl+K** para a paleta de comandos, **Ctrl+P** para as Preferências, **Ctrl+F** para pesquisar nas configurações do módulo atual e **F11** para tela cheia, seguidas das teclas da tela em que você está."
 
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "Para alterar uma tecla, escolha **Change shortcuts…** na folha de referência. A janela **Change shortcuts** tem uma linha por ação da janela inteira, com sua tecla **Default** e o **Shortcut** em uso. Clique em um atalho e pressione a nova tecla, ou limpe-o para deixar a ação sem tecla. **Restore defaults** restaura a tecla padrão de todas as linhas."
+msgstr "Para alterar uma tecla, escolha **Alterar atalhos…** na folha de referência. A janela **Alterar atalhos** tem uma linha por ação da janela inteira, com sua tecla **Padrão** e o **Atalho** em uso. Clique em um atalho e pressione a nova tecla, ou limpe-o para deixar a ação sem tecla. **Restaurar padrões** restaura a tecla padrão de todas as linhas."
 
 msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
 msgstr "Se uma tecla já é usada por outra ação, ou por uma tecla de uma das telas, a linha abaixo da tabela indica as ações que a compartilham, e **Salvar** fica indisponível até que o conflito seja resolvido. As teclas salvas valem imediatamente, também para os itens de menu correspondentes, e a folha de referência as mostra. Elas são guardadas com suas preferências e lidas da mesma forma no Linux, no macOS e no Windows."
@@ -56,7 +56,7 @@ msgid "**Import…** reads a shared template file, or a settings CSV such as the
 msgstr "**Importar...** lê um arquivo de modelo compartilhado, ou um CSV de configurações como o que cada execução grava ao lado de seus resultados. Um CSV se torna um modelo com o nome do arquivo. Um arquivo de outro módulo, ou sem configurações, é recusado."
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
-msgstr "**Rename…** dá um novo nome ao modelo selecionado. Um nome já usado por outro modelo do módulo é recusado."
+msgstr "**Renomear…** dá um novo nome ao modelo selecionado. Um nome já usado por outro modelo do módulo é recusado."
 
 msgid "**Delete** removes the selected template."
 msgstr "**Apagar** remove o modelo selecionado."

@@ -29,7 +29,7 @@ msgid "Press **F1** or **?** to open the shortcut cheat sheet. It lists the keys
 msgstr "शॉर्टकट सूची खोलने के लिए **F1** या **?** दबाएँ। यह उन कुंजियों को सूचीबद्ध करती है जो विंडो में कहीं भी काम करती हैं, जैसे कमांड पैलेट के लिए **Ctrl+K**, प्राथमिकताओं के लिए **Ctrl+P**, वर्तमान मॉड्यूल की सेटिंग्स खोजने के लिए **Ctrl+F** और पूर्ण स्क्रीन के लिए **F11**, और फिर आप जिस स्क्रीन पर हैं उसकी कुंजियाँ।"
 
 msgid "To change a key, choose **Change shortcuts…** in the cheat sheet. The **Change shortcuts** window has one row per window-wide action, with its **Default** key and the **Shortcut** in use. Click a shortcut and press the new key, or clear it to leave the action without a key. **Restore defaults** puts every row back to its default key."
-msgstr "कोई कुंजी बदलने के लिए शॉर्टकट सूची में **Change shortcuts…** चुनें। **Change shortcuts** विंडो में हर विंडो-व्यापी क्रिया की एक पंक्ति होती है, जिसमें उसकी **Default** कुंजी और उपयोग में **Shortcut** होता है। किसी शॉर्टकट पर क्लिक करके नई कुंजी दबाएँ, या क्रिया को बिना कुंजी के छोड़ने के लिए उसे साफ़ करें। **Restore defaults** हर पंक्ति को उसकी डिफ़ॉल्ट कुंजी पर लौटाता है।"
+msgstr "कोई कुंजी बदलने के लिए शॉर्टकट सूची में **शॉर्टकट बदलें…** चुनें। **शॉर्टकट बदलें** विंडो में हर विंडो-व्यापी क्रिया की एक पंक्ति होती है, जिसमें उसकी **डिफ़ॉल्ट** कुंजी और उपयोग में **शॉर्टकट** होता है। किसी शॉर्टकट पर क्लिक करके नई कुंजी दबाएँ, या क्रिया को बिना कुंजी के छोड़ने के लिए उसे साफ़ करें। **डिफ़ॉल्ट पुनर्स्थापित करें** हर पंक्ति को उसकी डिफ़ॉल्ट कुंजी पर लौटाता है।"
 
 msgid "If a key is already used by another action, or by a key of one of the screens, the line under the table names the actions that share it, and **Save** stays unavailable until the conflict is resolved. Saved keys apply straight away, also to the matching menu items, and the cheat sheet shows them. They are kept with your preferences and read the same on Linux, macOS and Windows."
 msgstr "यदि कोई कुंजी पहले से किसी दूसरी क्रिया या किसी स्क्रीन की कुंजी द्वारा उपयोग में है, तो तालिका के नीचे की पंक्ति उसे साझा करने वाली क्रियाओं के नाम बताती है, और टकराव हल होने तक **सहेजें** अनुपलब्ध रहता है। सहेजी गई कुंजियाँ तुरंत लागू होती हैं, संबंधित मेनू आइटम पर भी, और शॉर्टकट सूची उन्हें दिखाती है। ये आपकी प्राथमिकताओं के साथ रखी जाती हैं और Linux, macOS और Windows पर एक जैसी पढ़ी जाती हैं।"
@@ -56,7 +56,7 @@ msgid "**Import…** reads a shared template file, or a settings CSV such as the
 msgstr "**आयात...** एक साझा टेम्पलेट फ़ाइल, या एक सेटिंग CSV पढ़ता है, जैसे वह जो हर रन अपने परिणामों के बगल में लिखता है। CSV फ़ाइल के नाम पर एक टेम्पलेट बन जाती है। किसी दूसरे मॉड्यूल की फ़ाइल, या बिना सेटिंग्स वाली फ़ाइल, अस्वीकार की जाती है।"
 
 msgid "**Rename…** gives the selected template a new name. A name that another template of the module already uses is refused."
-msgstr "**Rename…** चुने गए टेम्पलेट को नया नाम देता है। मॉड्यूल के किसी दूसरे टेम्पलेट द्वारा पहले से उपयोग किया गया नाम अस्वीकार किया जाता है।"
+msgstr "**नाम बदलें…** चुने गए टेम्पलेट को नया नाम देता है। मॉड्यूल के किसी दूसरे टेम्पलेट द्वारा पहले से उपयोग किया गया नाम अस्वीकार किया जाता है।"
 
 msgid "**Delete** removes the selected template."
 msgstr "**हटाए** चुने गए टेम्पलेट को हटाता है।"

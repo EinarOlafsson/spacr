@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-04 19:55-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -76,14 +76,14 @@ msgstr "더 새로운 버전의 설치 프로그램을 다운로드하여 실행
 msgid "Update channel and What's new"
 msgstr "업데이트 채널과 새로운 기능"
 
-msgid "**Preferences → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and the network answers. **Help → What's new…** reopens it at any time."
-msgstr "**환경설정 → Update channel** 은 **도움말 → Check for updates** 가 제공할 버전을 정합니다. *Stable releases* 는 PyPI의 최신 릴리스를 제공합니다. *Nightly builds* 는 더 일찍 나오지만 테스트가 덜 된 사전 릴리스와 개발 빌드도 제공합니다. 업데이트 후 다음 실행 시 **What's new in spaCR** 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전 릴리스 노트를 보여 줍니다. 빌드에 포함된 노트와 함께, **릴리스 소식** 이 켜져 있고 네트워크가 응답하면 게시된 GitHub 릴리스도 표시됩니다. **도움말 → What's new…** 로 언제든 다시 열 수 있습니다."
+msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. *Stable releases* (the default) offers PyPI's latest release. *Nightly builds* also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered. After an update, the next launch opens **What's new in spaCR** with the release notes of every version between the previous and the running one: the notes bundled with the build, plus the published GitHub releases when **Release news** is on and the network answers. **Help → What's new…** reopens it at any time."
+msgstr "**환경설정 → 모듈 → 업데이트 채널** 은 **도움말 → Check for updates** 가 제공하는 항목을 정합니다. *안정 릴리스* (기본값)는 PyPI의 최신 릴리스를 제공합니다. *나이틀리 빌드* 는 사전 릴리스와 개발 빌드도 제공하며, 더 일찍 나오지만 테스트가 덜 되어 있습니다. 철회된(yanked) 버전은 제공되지 않습니다. 업데이트 후 다음 시작 시 **spaCR 새 기능** 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전의 릴리스 노트를 보여 줍니다. 빌드에 포함된 노트와, **릴리스 소식** 이 켜져 있고 네트워크가 응답할 때 게시된 GitHub 릴리스가 표시됩니다. **도움말 → 새 기능…** 으로 언제든 다시 열 수 있습니다."
 
 msgid "Proxies and corporate certificates"
 msgstr "프록시와 기업 인증서"
 
-msgid "Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) honours ``HTTPS_PROXY`` and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR instead, fill in **Preferences → Proxy** (for example ``http://proxy.example.org:3128``) and **Preferences → Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy."
-msgstr "spaCR이 수행하는 모든 다운로드(모델 가중치, 업데이트, 플러그인, pip, uv, conda, 분할 백엔드 설치 프로그램)는 ``HTTPS_PROXY`` 와 ``REQUESTS_CA_BUNDLE`` (또는 ``SSL_CERT_FILE``)을 따릅니다. 대신 spaCR 안에서 설정하려면 **환경설정 → Proxy** (예: ``http://proxy.example.org:3128``)와 **환경설정 → Certificate bundle** (IT 부서에서 받은 PEM 파일)을 입력합니다. 이 값은 환경 변수보다 우선하고, 명령줄 실행에서도 사용되도록 ``~/.spacr/network.json`` 에 저장되며, ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT``, ``GIT_SSL_CAINFO`` 로 전달됩니다. ``spacr-doctor`` 에는 *proxy and certificates* 행이 있습니다. 인증서 번들이 존재하고 읽을 수 있는지, 그리고 구성된 프록시를 통해 PyPI가 응답하는지 확인합니다."
+msgid "Every download spaCR makes (model weights, updates, plug-ins, pip, uv, conda and the segmentation-backend installers) honours ``HTTPS_PROXY`` and ``REQUESTS_CA_BUNDLE`` (or ``SSL_CERT_FILE``). To set them inside spaCR instead, fill in **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file from your IT department). These values override the environment, are kept in ``~/.spacr/network.json`` so command-line runs use them too, and are passed on as ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT`` and ``GIT_SSL_CAINFO``. ``spacr-doctor`` has a *proxy and certificates* row. It checks that the certificate bundle exists and can be read, and that PyPI answers through the configured proxy. A password in the proxy address is masked in its output."
+msgstr "spaCR이 하는 모든 다운로드(모델 가중치, 업데이트, 플러그인, pip, uv, conda, 분할 백엔드 설치 프로그램)는 ``HTTPS_PROXY`` 와 ``REQUESTS_CA_BUNDLE`` (또는 ``SSL_CERT_FILE``)을 따릅니다. 대신 spaCR 안에서 설정하려면 **환경설정 → 모듈 → 프록시** (예: ``http://proxy.example.org:3128``)와 **인증서 번들** (IT 부서에서 받은 PEM 파일)을 입력합니다. 이 값은 환경 변수보다 우선하며, ``~/.spacr/network.json`` 에 저장되어 명령줄 실행에서도 사용되고, ``HTTPS_PROXY``, ``HTTP_PROXY``, ``REQUESTS_CA_BUNDLE``, ``SSL_CERT_FILE``, ``CURL_CA_BUNDLE``, ``PIP_CERT``, ``GIT_SSL_CAINFO`` 로 전달됩니다. ``spacr-doctor`` 에는 *프록시 및 인증서* 행이 있습니다. 이 행은 인증서 번들이 있고 읽을 수 있는지, 그리고 설정한 프록시를 통해 PyPI가 응답하는지 확인합니다. 프록시 주소의 비밀번호는 출력에서 가려집니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "macOS online installation: update and reopen"
@@ -96,21 +96,6 @@ msgstr "**도움말 → Check for updates**\\ 를 선택하고 사용 가능한 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The command is the same as the macOS recovery command below, using the actual installation directory. An unsuccessful upgrade or version check is recorded in ``~/.spacr/logs/update.log`` and does not trigger a successful-update relaunch. The update also stops if spaCR cannot finish closing safely. The separate frozen application bundle uses its bundle replacement workflow."
 msgstr "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``\\ 에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다."
-
-msgid "**Preferences → Modules → Update channel** chooses what **Help → Check for updates** offers. **Stable releases** (the default) offers full releases only. **Nightly builds** also offers pre-releases and development builds, which arrive sooner and are tested less; withdrawn (yanked) versions are never offered."
-msgstr "**환경설정 → 모듈 → Update channel** 은 **도움말 → Check for updates** 가 제공할 버전을 정합니다. **Stable releases** (기본값)는 정식 릴리스만 제공합니다. **Nightly builds** 는 더 일찍 나오지만 테스트가 덜 된 사전 릴리스와 개발 빌드도 제공하며, 철회된(yanked) 버전은 절대 제공하지 않습니다."
-
-msgid "After an update, the next start opens **What's new in spaCR** with the release notes of every version between the previous one and the one now running. **Help → What's new…** opens it at any time."
-msgstr "업데이트 후 다음 시작 시 **What's new in spaCR** 이 열리며, 이전 버전과 현재 실행 중인 버전 사이의 모든 버전 릴리스 노트를 보여 줍니다. **도움말 → What's new…** 로 언제든 열 수 있습니다."
-
-msgid "Proxy and certificate bundle"
-msgstr "프록시와 인증서 번들"
-
-msgid "On a network that needs a proxy, or that inspects HTTPS with its own certificate authority, set **Preferences → Modules → Proxy** (for example ``http://proxy.example.org:3128``) and **Certificate bundle** (a PEM file of the certificates to trust). Every download then uses them: model weights, updates, plug-ins, pip, uv, conda and the backend installers. An empty field uses ``HTTPS_PROXY``, or ``REQUESTS_CA_BUNDLE`` or ``SSL_CERT_FILE``, when they are set. The values are saved in ``~/.spacr/network.json``, so command-line runs use them too."
-msgstr "프록시가 필요하거나 자체 인증 기관으로 HTTPS를 검사하는 네트워크에서는 **환경설정 → 모듈 → Proxy** (예: ``http://proxy.example.org:3128``)와 **Certificate bundle** (신뢰할 인증서가 담긴 PEM 파일)을 설정합니다. 그러면 모델 가중치, 업데이트, 플러그인, pip, uv, conda, 백엔드 설치 프로그램 등 모든 다운로드가 이를 사용합니다. 필드가 비어 있으면 ``HTTPS_PROXY``, ``REQUESTS_CA_BUNDLE`` 또는 ``SSL_CERT_FILE`` 이 설정되어 있을 때 그것을 사용합니다. 값은 ``~/.spacr/network.json`` 에 저장되므로 명령줄 실행에서도 사용됩니다."
-
-msgid "``spacr-doctor`` has a **proxy and certificates** row. It fails when the certificate bundle is missing or unreadable, and warns when PyPI cannot be reached through the configured proxy and certificates. A password in the proxy address is masked in its output."
-msgstr "``spacr-doctor`` 에는 **proxy and certificates** 행이 있습니다. 인증서 번들이 없거나 읽을 수 없으면 실패로 표시하고, 구성된 프록시와 인증서로 PyPI에 연결할 수 없으면 경고합니다. 프록시 주소에 포함된 비밀번호는 출력에서 가려집니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Older installations and full installers"
