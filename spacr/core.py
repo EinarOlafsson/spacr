@@ -1036,8 +1036,8 @@ def _watch_validate_map_channels(settings, channels):
 def _watch_map_manifest(src, settings):
     """Validate a fixed Convert map and bind exact target names to each field.
 
-    Projected Z fields need a dense channel-by-plane grid. Mapped timelapses
-    additionally need every frame in a dense channel-by-plane-by-time grid.
+    Projected and native Z fields need a dense channel-by-plane grid. Mapped
+    timelapses additionally need every frame in a dense C-by-Z-by-T grid.
 
     :param src: acquisition directory containing converted images.
     :param settings: the watch filename convention and optional custom regex.
@@ -1104,6 +1104,81 @@ def _watch_map_manifest(src, settings):
     except (ValueError, TypeError, KeyError, UnicodeError, csv.Error) as exc:
         raise ValueError(f'watch_folder: invalid conversion_map.csv: {exc}') from exc
     return groups, hashlib.sha256(data).hexdigest()
+
+
+def _watch_volume_plan(src, settings, manifest, map_sha256):
+    """Plan exact T1 channel volumes from a previously validated Convert map.
+
+    :param src: watched folder holding the fixed conversion map.
+    :param settings: CellVoyager watch filename settings.
+    :param manifest: validated field-to-target inventory.
+    :param map_sha256: hash of that inventory's map bytes.
+    :returns: field-to-volume output and ordered planar target names.
+    :raises ValueError: for a changed map or a non-volumetric field grid.
+    """
+    import csv
+    import hashlib
+    import io
+
+    data = _watch_map_bytes(src)
+    if data is None or hashlib.sha256(data).hexdigest() != map_sha256:
+        raise ValueError('watch_folder: conversion_map.csv changed during volume preflight.')
+    plans, patterns = {}, {}
+    for row in csv.DictReader(io.StringIO(data.decode('utf-8-sig'))):
+        name = row['target']
+        key, _channel = _watch_field_of(name, settings, patterns)
+        if int(row['t']) != 1:
+            raise ValueError('watch_folder: native Z requires exactly T1 in every mapped field.')
+        channel, z = int(row['channel']), int(row['z'])
+        plans.setdefault(key, {}).setdefault(channel, {})[z] = name
+    if set(plans) != set(manifest):
+        raise ValueError('watch_folder: native Z map fields changed during preflight.')
+    result = {}
+    for key, channels in plans.items():
+        if any(len(planes) < 2 for planes in channels.values()):
+            raise ValueError('watch_folder: native Z requires at least two mapped '
+                             f'planes for every channel of {key}.')
+        result[key] = [(planes[1], [planes[z] for z in sorted(planes)])
+                       for _channel, planes in sorted(channels.items())]
+    return result
+
+
+def _watch_stage_volumes(field_dir, plan):
+    """Assemble checked planar snapshots into explicit ZYX TIFF inputs.
+
+    :param field_dir: private field directory containing ``.watch_planar``.
+    :param plan: channel output names and Z-ordered planar snapshot names.
+    :returns: each derived TIFF basename mapped to its post-write SHA256.
+        Partial writes remain private and are discarded on retry.
+    :raises ValueError: for changed, ambiguous or incompatible image planes.
+    """
+    import tifffile
+
+    from .cancellation import checkpoint
+    from .tiff_io import write_tiff
+
+    shapes, dtypes, digests = set(), set(), {}
+    for output, names in plan:
+        planes = []
+        for name in names:
+            checkpoint()
+            path = os.path.join(field_dir, '.watch_planar', name)
+            with tifffile.TiffFile(path) as image:
+                if len(image.series) != 1 or image.series[0].axes != 'YX':
+                    raise ValueError(f'watch_folder: native Z needs one YX plane: {name}')
+                plane = image.series[0].asarray()
+            if plane.ndim != 2 or plane.dtype.kind not in 'uif' or not np.isfinite(plane).all():
+                raise ValueError(f'watch_folder: native Z needs finite real YX intensities: {name}')
+            shapes.add(plane.shape)
+            dtypes.add(plane.dtype.str)
+            if len(shapes) != 1 or len(dtypes) != 1:
+                raise ValueError('watch_folder: native Z planes differ in shape or dtype.')
+            planes.append(plane)
+        write_tiff(os.path.join(field_dir, output), np.stack(planes),
+                   metadata={'axes': 'ZYX'})
+        checkpoint()
+        digests[output] = _watch_artifact_sha256(os.path.join(field_dir, output))
+    return digests
 
 
 def _watch_check_map(context):
@@ -1600,14 +1675,46 @@ def _watch_artifact_sha256(path):
     return digest.hexdigest()
 
 
-def _watch_collection_artifacts(field_dir):
-    """Fingerprint merged, flat track CSV and SQLite outputs to be collected.
+def _watch_collection_artifacts(field_dir, *, volume_plan=None,
+                                snapshots=None, derived=None):
+    """Fingerprint outputs and native-volume inputs at the collection boundary.
 
     :param field_dir: completed field staging directory.
+    :param volume_plan: expected source and derived names for a native Z field.
+    :param snapshots: source-plane SHA256 values recorded before analysis.
+    :param derived: assembled-volume SHA256 values recorded before analysis.
     :returns: relative artifact paths mapped to SHA256 values.
     :raises ValueError: when no usable outputs exist or an output is unsafe.
     """
     artifacts = {}
+    planar = os.path.join(field_dir, '.watch_planar')
+    if volume_plan is not None and os.path.lexists(planar):
+        if os.path.islink(planar) or not os.path.isdir(planar):
+            raise ValueError('Collection planar snapshots must be a regular directory.')
+        for name in sorted(os.listdir(planar)):
+            relative = os.path.join('.watch_planar', name)
+            artifacts[relative] = _watch_artifact_sha256(os.path.join(field_dir, relative))
+        for name in sorted(os.listdir(field_dir)):
+            if name.lower().endswith(('.tif', '.tiff')):
+                artifacts[name] = _watch_artifact_sha256(os.path.join(field_dir, name))
+    if volume_plan is not None:
+        source_names = {name for _output, names in volume_plan for name in names}
+        volume_names = {output for output, _names in volume_plan}
+        source_hashes = {name: artifacts.get(os.path.join('.watch_planar', name))
+                         for name in source_names}
+        volume_hashes = {name: artifacts.get(name) for name in volume_names}
+        if (set(os.listdir(planar)) if os.path.isdir(planar) and not os.path.islink(planar)
+                else set()) != source_names or {
+                    name for name in os.listdir(field_dir)
+                    if name.lower().endswith(('.tif', '.tiff'))} != volume_names:
+            raise ValueError('Collection native Z input inventory differs from '
+                             'the fixed conversion map.')
+        expected_snapshots = ({os.path.basename(name): digest
+                               for name, digest in snapshots.items()}
+                              if isinstance(snapshots, dict) else snapshots)
+        if source_hashes != expected_snapshots or volume_hashes != derived:
+            raise ValueError('Collection native Z inputs changed after the '
+                             'field snapshot or volume assembly.')
     merged = os.path.join(field_dir, 'merged')
     if os.path.isdir(merged):
         for name in sorted(os.listdir(merged)):
@@ -1678,17 +1785,23 @@ def _watch_snapshot_database(field_dir):
     os.replace(partial, folder / 'measurements.db')
 
 
-def _watch_validate_collection(field_dir, work, saved, *, verify_staged):
+def _watch_validate_collection(field_dir, work, saved, *, verify_staged,
+                               volume_plan=None, snapshots=None, derived=None):
     """Refuse altered checkpoints or conflicting combined files before writes.
 
     :param field_dir: completed field staging directory.
     :param work: shared watch output directory.
     :param saved: checkpoint artifact path/hash mapping.
     :param verify_staged: True on restart; False just after fingerprinting outputs.
+    :param volume_plan: fixed native Z source-to-volume plan, when enabled.
+    :param snapshots: original mapped plane hashes bound before analysis.
+    :param derived: derived volume hashes bound before analysis.
     :returns: None when collection can safely continue.
     :raises ValueError: for missing/changed outputs or conflicting combined files.
     """
-    if verify_staged and _watch_collection_artifacts(field_dir) != saved:
+    if verify_staged and _watch_collection_artifacts(
+            field_dir, volume_plan=volume_plan, snapshots=snapshots,
+            derived=derived) != saved:
         raise ValueError('Collection checkpoint artifacts changed; preserved outputs '
                          'must be recovered before resuming this workspace.')
     tracks_target = os.path.join(work, 'tracks')
@@ -1722,8 +1835,8 @@ def _watch_check_settings(settings):
     :param settings: the watch run settings.
     :returns: ``(src, pipeline, settle seconds, poll seconds, idle seconds)``.
     :raises ValueError: for a list of folders, a missing folder, an unknown
-        ``watch_pipeline``, a bad number or a z-stack or t-stack run.
-        Timelapse requires a complete fixed Convert map, checked later.
+        ``watch_pipeline``, a bad number, t-stack or unsupported Z recipe.
+        Timelapse and native Z require a complete fixed Convert map later.
     """
     from .utils import normalize_src_path
 
@@ -1736,12 +1849,14 @@ def _watch_check_settings(settings):
     src = os.path.abspath(os.path.expanduser(str(src)))
     if not os.path.isdir(src):
         raise ValueError(f'watch_folder: the folder {src} does not exist.')
-    for key in ('z_stack', 't_stack'):
-        if _watch_truthy(settings.get(key, False)):
-            raise ValueError(
-                f'watch_folder does not support {key} runs: a field is '
-                f'analysed as soon as its channels are in, before later '
-                f'planes or frames arrive.')
+    if _watch_truthy(settings.get('t_stack', False)):
+        raise ValueError('watch_folder does not support t_stack runs.')
+    if _watch_truthy(settings.get('z_stack', False)):
+        if (_watch_truthy(settings.get('timelapse', False))
+                or settings.get('z_segmentation_mode') != 'volumetric'
+                or settings.get('z_axis', 0) not in (None, 0)):
+            raise ValueError('watch_folder z_stack requires a T1 volumetric '
+                             'recipe with z_axis=0.')
     pipeline = str(settings.get('watch_pipeline') or 'mask')
     if pipeline not in _WATCH_PIPELINES:
         raise ValueError(f'watch_pipeline must be one of {_WATCH_PIPELINES}, '
@@ -1881,6 +1996,7 @@ def _watch_run_field(key, members, signature, context):
     if saved_collection is None:
         entry.pop('snapshot_sha256', None)
         entry.pop('source_identity', None)
+        entry.pop('derived_sha256', None)
         entry.update(status='running', files=signature,
                      first_seen=min(seen[name]['first'] for name, _c in members),
                      stable_since=arrived, started=time.time(), error=None)
@@ -1889,6 +2005,7 @@ def _watch_run_field(key, members, signature, context):
         entry.update(status='running', error=None)
     _watch_save_ledger(context['ledger_path'], ledger)
     field_dir = os.path.join(context['work'], 'fields', key)
+    volume_plan = context.get('volume_plan')
     try:
         identities = {name: seen[name].get('identity') for name, _channel in members}
         if saved_collection is not None:
@@ -1900,12 +2017,16 @@ def _watch_run_field(key, members, signature, context):
             if os.path.exists(field_dir):
                 shutil.rmtree(field_dir)
             os.makedirs(field_dir)
+            snapshot_dir = field_dir
+            if volume_plan is not None:
+                snapshot_dir = os.path.join(field_dir, '.watch_planar')
+                os.mkdir(snapshot_dir)
             print(f'watch_folder: analysing {key} ({len(members)} file(s)).')
             snapshots = {}
             for name, _channel in members:
                 digest = _watch_copy_snapshot(
                     os.path.join(context['src'], name),
-                    os.path.join(field_dir, os.path.basename(name)), identities[name])
+                    os.path.join(snapshot_dir, os.path.basename(name)), identities[name])
                 if digest is None:
                     _watch_defer_snapshot(key, members, field_dir, context)
                     return
@@ -1915,18 +2036,27 @@ def _watch_run_field(key, members, signature, context):
                 _watch_defer_snapshot(key, members, field_dir, context)
                 return
             _watch_check_map(context)
+            derived = (_watch_stage_volumes(field_dir, volume_plan[key])
+                       if volume_plan is not None else None)
             entry.update(snapshot_sha256=snapshots, source_identity=identities)
+            if derived is not None:
+                entry['derived_sha256'] = derived
             _watch_save_ledger(context['ledger_path'], ledger)
             context['analyse'](field_dir, context['settings'])
             _watch_snapshot_database(field_dir)
             entry['collection_checkpoint'] = {
-                'artifacts': _watch_collection_artifacts(field_dir),
+                'artifacts': _watch_collection_artifacts(
+                    field_dir, volume_plan=volume_plan[key] if volume_plan else None,
+                    snapshots=snapshots, derived=derived),
                 'analysis_seconds': time.time() - entry['started']}
             _watch_save_ledger(context['ledger_path'], ledger)
         collection_started = time.time()
         _watch_validate_collection(
             field_dir, context['work'], entry['collection_checkpoint']['artifacts'],
-            verify_staged=saved_collection is not None)
+            verify_staged=saved_collection is not None,
+            volume_plan=volume_plan[key] if volume_plan else None,
+            snapshots=entry.get('snapshot_sha256'),
+            derived=entry.get('derived_sha256'))
         _watch_check_map(context)
         database_relative = os.path.join('.watch_collection', 'measurements.db')
         database_snapshot = (os.path.join(field_dir, database_relative)
@@ -2609,6 +2739,28 @@ def _watch_folder_and_analyse(settings, analyse=None):
     _, mask_sha256 = _watch_mask_recipe(settings)
     manifest, map_sha256 = _watch_map_manifest(src, settings)
     series = _watch_truthy(settings.get('timelapse', False))
+    native_volume = _watch_truthy(settings.get('z_stack', False))
+    volume_plan = None
+    if native_volume:
+        if manifest is None:
+            raise ValueError('watch_folder: z_stack requires a fixed Convert '
+                             'conversion_map.csv declaring every T1 C x Z plane.')
+        if (str(settings.get('metadata_type', 'cellvoyager')).lower() != 'cellvoyager'
+                or settings.get('custom_regex') not in (None, '', 'None')):
+            raise ValueError('watch_folder: native Z requires the CellVoyager '
+                             'filename convention used by Convert.')
+        if pipeline == 'mask_measure_classify' or _watch_truthy(
+                settings.get('microscope_feedback', False)):
+            raise ValueError('watch_folder: native Z supports mask or '
+                             'mask_measure without microscope feedback.')
+        from .psf_pipeline import processing_requested
+        from .zstack import plan_from_settings
+
+        if _watch_truthy(settings.get('illumination_correction', False)) or processing_requested(settings):
+            raise ValueError('watch_folder: native Z raw-volume ingest does not '
+                             'support illumination or PSF preprocessing.')
+        plan_from_settings({**settings, 'z_axis': 0})
+        volume_plan = _watch_volume_plan(src, settings, manifest, map_sha256)
     if series:
         if manifest is None:
             raise ValueError('watch_folder: timelapse requires a fixed Convert '
@@ -2626,6 +2778,18 @@ def _watch_folder_and_analyse(settings, analyse=None):
     measure_sha256 = None
     if pipeline in ('mask_measure', 'mask_measure_classify'):
         measure_recipe, measure_sha256 = _watch_measure_recipe(settings)
+        if native_volume:
+            from .measure import resolve_measurement_spacing
+            from .settings import get_measure_crop_settings
+
+            if _watch_truthy(measure_recipe.get('timelapse', False)):
+                raise ValueError('watch_folder: native Z Measure recipe must be T1.')
+            effective_measure = get_measure_crop_settings(deepcopy(measure_recipe))
+            if any(_watch_truthy(effective_measure.get(key, False))
+                   for key in ('save_png', 'save_arrays', 'plot')):
+                raise ValueError('watch_folder: native Z Measure cannot save '
+                                 '2-D crops, arrays or plots from 3-D fields.')
+            resolve_measurement_spacing(effective_measure, 3)
         settings = {**settings, 'watch_measure_snapshot': measure_recipe}
     classify_sha256 = None
     classify_model_sha256 = None
@@ -2683,6 +2847,7 @@ def _watch_folder_and_analyse(settings, analyse=None):
                'seen': {},
                'patterns': {}, 'tried': set(), 'warned': set(),
                'manifest': manifest, 'map_sha256': map_sha256,
+               'volume_plan': volume_plan,
                'series': series,
                'microscope': None}
     if _watch_truthy(settings.get('microscope_feedback', False)):

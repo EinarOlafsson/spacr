@@ -3344,7 +3344,10 @@ def _preprocess_volume_tiffs(settings):
                       sha256=digest, shape=list(shape), dtype=dtype, axes='ZYX')
         fields[stem][channel] = record
         inputs.append(record)
-    channels = sorted({channel for field in fields.values() for channel in field})
+    channels = sorted(
+        {channel for field in fields.values() for channel in field},
+        key=lambda channel: (not channel.isdecimal(),
+                             int(channel) if channel.isdecimal() else channel))
     for stem, field in fields.items():
         if set(field) != set(channels):
             raise ValueError(f'Volume {stem} is missing channel companions')
