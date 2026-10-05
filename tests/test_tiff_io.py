@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import ast
+import io
 import warnings
+import zipfile
 from pathlib import Path
 
 import numpy as np
@@ -46,6 +48,23 @@ def test_explicit_rgb_options_override_scientific_defaults(
         "photometric": "rgb",
         "planarconfig": "separate",
     }]
+
+
+def test_image_bundle_preserves_three_plane_scientific_stack(tmp_path):
+    """A three-plane stack in an image zip is data, not inferred RGB."""
+    from matplotlib.figure import Figure
+
+    from spacr.figures.bundle import _register_figure_data, _save_zip
+
+    stack = np.arange(3 * 8 * 8, dtype=np.uint16).reshape(3, 8, 8)
+    figure = Figure()
+    _register_figure_data(figure, stack, kind="image")
+
+    output = _save_zip(figure, str(tmp_path / "stack.zip"), formats=["png"])
+    with zipfile.ZipFile(output) as archive:
+        with tifffile.TiffFile(io.BytesIO(archive.read("image_0.tif"))) as tif:
+            assert tif.pages[0].photometric.name == "MINISBLACK"
+            np.testing.assert_array_equal(tif.asarray(), stack)
 
 
 def test_production_tifffile_writes_use_the_canonical_helper():

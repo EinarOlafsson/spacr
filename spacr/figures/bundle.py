@@ -753,8 +753,9 @@ def _save_image_zip(figure, path: str, *, formats=None, name: str = "") -> str:
             array = np.asarray(array)
             stem = os.path.join(folder, f"image_{index}")
             try:
-                import tifffile
-                tifffile.imwrite(stem + ".tif", array)
+                from ..tiff_io import write_tiff
+
+                write_tiff(stem + ".tif", array)
                 written = f"image_{index}.tif"
             except Exception:
                 np.save(stem + ".npy", array)
