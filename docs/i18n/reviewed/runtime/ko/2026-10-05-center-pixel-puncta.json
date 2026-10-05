@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "date": "2026-10-05",
+  "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
+  "note": "Source-bound centre-pixel puncta controls and notices. Original-pixel use, parent preservation, overlapping samples, units and export failures reviewed explicitly.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Candidate threshold (noise units)",
+      "source": "Candidate threshold (noise units)",
+      "source_sha256": "e1219009245bcd7ba4d86f0240b2262ef32595bcc4eb1d54d8a8b06d5dcbc379",
+      "translation": "후보 임계값(노이즈 단위)"
+    },
+    {
+      "table": "ui",
+      "key": "Centre measurements not saved",
+      "source": "Centre measurements not saved",
+      "source_sha256": "1c2be2fc4d789b0518868dc4679b9dcebf9dfd1d096afe9a46a6195bc321252b",
+      "translation": "중심 측정값이 저장되지 않음"
+    },
+    {
+      "table": "ui",
+      "key": "Centre pixels per punctum",
+      "source": "Centre pixels per punctum",
+      "source_sha256": "ccf76dbcf6073f4bd266059d1fbd3a72925c0a881571319cebbd2732e35b209c",
+      "translation": "점상 객체당 중심 픽셀 수"
+    },
+    {
+      "table": "ui",
+      "key": "Centre-pixel puncta within parent masks",
+      "source": "Centre-pixel puncta within parent masks",
+      "source_sha256": "89e8cb7c5acf8c0ee4f6f40f1a25f25889d1165f4fdfa988232aa85ce4467cb2",
+      "translation": "부모 마스크 내부의 중심 픽셀 점상 객체"
+    },
+    {
+      "table": "ui",
+      "key": "Choose the parent-mask folder above. Use whole-image Replace, then Save mask. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed.",
+      "source": "Choose the parent-mask folder above. Use whole-image Replace, then Save mask. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed.",
+      "source_sha256": "99309729fc57260e56dddd1b8aab3218953b999065e292a1c8559ee86c6e28ff",
+      "translation": "위에서 부모 마스크 폴더를 선택하세요. 전체 이미지에 Replace를 적용한 다음 Save mask를 사용하세요. 중심 측정값은 마스크 옆에 저장되며, 공유 중심 픽셀은 하나의 라벨에만 속합니다. Min area는 적용되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified.",
+      "source": "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified.",
+      "source_sha256": "27837988091533b27453d126e9368aaeef4b1b778d33659e78082b7c1bef64ac",
+      "translation": "별도의 낭종 또는 세포 마스크 내부에서 작고 희미한 점상 객체를 감지합니다. 원래 채널 강도를 사용하며 표시 정규화, 반전 및 이미지 향상을 무시합니다. 먼저 부모 마스크 폴더를 선택하세요. LoG 피크는 픽셀 노이즈 단위로 측정됩니다. 각 객체에는 성장된 watershed 영역 대신 중심에 가장 가까운 픽셀이 포함됩니다. 최종 마스크와 중심 측정에는 전체 이미지에 Replace를 사용하세요. 부모 마스크는 변경되지 않습니다."
+    },
+    {
+      "table": "ui",
+      "key": "For puncta detection, open the original single-channel image rather than a segmentation bundle.",
+      "source": "For puncta detection, open the original single-channel image rather than a segmentation bundle.",
+      "source_sha256": "e91e7a035fd7137f0598f06f35908d23d644dc04c77a8b273af128f6e2b1d783",
+      "translation": "점상 객체 감지에는 분할 묶음 대신 원래 단일 채널 이미지를 여세요."
+    },
+    {
+      "table": "ui",
+      "key": "Image and parent mask must contain finite values.",
+      "source": "Image and parent mask must contain finite values.",
+      "source_sha256": "ca4b313c9a555630ec268cea5b98bcc76c8a07b7e590301815d364c1f5536d6e",
+      "translation": "이미지와 부모 마스크는 유한한 값을 포함해야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Invalid puncta scale, threshold, centre-pixel or spacing settings.",
+      "source": "Invalid puncta scale, threshold, centre-pixel or spacing settings.",
+      "source_sha256": "8515c0bc9bf3df66790e5881d8aacfa40361b8083b6f83effbba944b3114ffba",
+      "translation": "점상 객체 스케일, 임계값, 중심 픽셀 또는 간격 설정이 잘못되었습니다."
+    },
+    {
+      "table": "ui",
+      "key": "LoG sigma values in image pixels, separated by commas. Defaults: 1.5, 2, 3, 4, 6.",
+      "source": "LoG sigma values in image pixels, separated by commas. Defaults: 1.5, 2, 3, 4, 6.",
+      "source_sha256": "9b3cf92f29d50194d5390bb6c4ea10ed20444333b91b33d9d34751490f52f52a",
+      "translation": "이미지 픽셀 단위의 LoG sigma 값이며 쉼표로 구분합니다. 기본값: 1.5, 2, 3, 4, 6."
+    },
+    {
+      "table": "ui",
+      "key": "Load a parent mask before detecting puncta.",
+      "source": "Load a parent mask before detecting puncta.",
+      "source_sha256": "30d26081a7de47c84729d9a2a00c67379797a56ebdc4d8dddfb94fe5d0ad03b3",
+      "translation": "점상 객체를 감지하기 전에 부모 마스크를 불러오세요."
+    },
+    {
+      "table": "ui",
+      "key": "Load a valid parent mask before detecting objects.",
+      "source": "Load a valid parent mask before detecting objects.",
+      "source_sha256": "2218b51e5fa36d0f7aae40f38a8b65dbcc11f48bc461a75476cb37c09a4a2e36",
+      "translation": "객체를 감지하기 전에 유효한 부모 마스크를 불러오세요."
+    },
+    {
+      "table": "ui",
+      "key": "Minimum corrected intensity (AU)",
+      "source": "Minimum corrected intensity (AU)",
+      "source_sha256": "a15c834cbd748ab0bdd4db9ce4b1d57f40d731976783351dcc3f6886790ee6fd",
+      "translation": "최소 보정 강도(AU)"
+    },
+    {
+      "table": "ui",
+      "key": "Minimum peak spacing (px)",
+      "source": "Minimum peak spacing (px)",
+      "source_sha256": "a184b1971e4bd1076f2f7db14617f30313a403574b2e7d714d25f0fb3b3c5e12",
+      "translation": "최소 피크 간격(px)"
+    },
+    {
+      "table": "ui",
+      "key": "Parent edge margin (px)",
+      "source": "Parent edge margin (px)",
+      "source_sha256": "aeec363d1830cd6beced24a34c5ddee9a6e1039bf7e3647c2a03af70317fc6b2",
+      "translation": "부모 경계 여백(px)"
+    },
+    {
+      "table": "ui",
+      "key": "Parent masks must contain nonnegative integer labels.",
+      "source": "Parent masks must contain nonnegative integer labels.",
+      "source_sha256": "334d416df3583f86fa57338d5c5c1ba3b8225a1d716076381f535acde32daa77",
+      "translation": "부모 마스크는 음이 아닌 정수 라벨을 포함해야 합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Puncta detection requires a 2-D image and matching parent mask.",
+      "source": "Puncta detection requires a 2-D image and matching parent mask.",
+      "source_sha256": "28855216b4f0e1683672d481c742e5eda31582b316b3382b1fb123673a9be4a1",
+      "translation": "점상 객체 감지에는 2-D 이미지와 일치하는 부모 마스크가 필요합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Puncta detection requires a single-channel, two-dimensional image.",
+      "source": "Puncta detection requires a single-channel, two-dimensional image.",
+      "source_sha256": "738d5ef97be82beaa617cc0c404456973db4b281aeef062f4171640246db115f",
+      "translation": "점상 객체 감지에는 단일 채널 2차원 이미지가 필요합니다."
+    },
+    {
+      "table": "ui",
+      "key": "Spot scales (px)",
+      "source": "Spot scales (px)",
+      "source_sha256": "9633a43fe32a94728bdf94d7b9957d647f892453687cfef24428c93ca8a71c3a",
+      "translation": "점상 객체 스케일(px)"
+    },
+    {
+      "table": "ui",
+      "key": "The mask was saved, but its centre-measurement export failed: {error}",
+      "source": "The mask was saved, but its centre-measurement export failed: {error}",
+      "source_sha256": "cec6f570b27e0ecd312c66485c2c82ced7086f025d0801bed31af4db70850ff8",
+      "translation": "마스크는 저장되었지만 중심 측정값 내보내기에 실패했습니다: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "The parent mask changed. Reload it before detecting puncta.",
+      "source": "The parent mask changed. Reload it before detecting puncta.",
+      "source_sha256": "bec3955df0c0573f9bf26ff1f82552d485c6d3a511fe2f48bd2afa323c1b8b3a",
+      "translation": "부모 마스크가 변경되었습니다. 점상 객체 감지 전에 다시 불러오세요."
+    },
+    {
+      "table": "ui",
+      "key": "The puncta channel contains non-finite intensities.",
+      "source": "The puncta channel contains non-finite intensities.",
+      "source_sha256": "c587376b09adcc2600bde9d9830ebffa967e5df2bcccb1c614b72de5c845ae47",
+      "translation": "점상 객체 채널에 유한하지 않은 강도가 포함되어 있습니다."
+    },
+    {
+      "table": "ui",
+      "key": "The source image changed during puncta detection. Reload it and repeat detection.",
+      "source": "The source image changed during puncta detection. Reload it and repeat detection.",
+      "source_sha256": "27237091196c8e96d0f42c92b0df159557b8b269adf922937d38f7391704238a",
+      "translation": "점상 객체 감지 중 원본 이미지가 변경되었습니다. 다시 불러오고 감지를 반복하세요."
+    },
+    {
+      "table": "ui",
+      "key": "The source image changed while being read. Reload it and repeat detection.",
+      "source": "The source image changed while being read. Reload it and repeat detection.",
+      "source_sha256": "1319f933b95b081a32a432b74e5df82d5f9c7ca3647ec23b99e9748eca8189f3",
+      "translation": "읽는 동안 원본 이미지가 변경되었습니다. 다시 불러오고 감지를 반복하세요."
+    },
+    {
+      "table": "ui",
+      "key": "The source image or parent mask changed. Reload and repeat detection.",
+      "source": "The source image or parent mask changed. Reload and repeat detection.",
+      "source_sha256": "0ca5db0bf7ece9087353f355c46110d523827ed9a81e680b0b5ab0edc63c5d27",
+      "translation": "원본 이미지 또는 부모 마스크가 변경되었습니다. 다시 불러오고 감지를 반복하세요."
+    },
+    {
+      "table": "ui",
+      "key": "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area.",
+      "source": "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area.",
+      "source_sha256": "0cdd23cc18de5a21e34bc45df076cb164db29283eb810c94535ab88a5c8b4b3e",
+      "translation": "원래 강도 값을 사용합니다. 후보 또는 보정 강도 임계값을 높이면 희미한 점이 제외됩니다. 중심 픽셀 수는 성장된 객체 면적 대신 측정 창을 결정합니다."
+    }
+  ]
+}

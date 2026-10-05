@@ -366,6 +366,24 @@
       "source_sha256": "acd3d426d2c78682585945e75e22bacc1e48a2d8357460e964a8bf5e6924d42f",
       "text": "Record that this run ended properly, clearing the count.\n\nTHE COUNT RESETS RATHER THAN DECREMENTS. The question is \"is spaCR\ncrashing right now\", not \"how many times has it ever crashed\", and a\ntotal that only ever grew would eventually disable the backdrop on a\nmachine where it works."
     },
+    "ad8b29a7c6f328c67c0d82ea9a483e03388efcf5b613fd82042f08de2c51f9c9": {
+      "source_blocks_sha256": [
+        "fbd1b57e408158db1604856372782d60eaebee43838b2bba36b566e82d34d146",
+        "7c4015cf3b18c910d0e8e06482a68da43b6dcc8fb3403f14b0ab89d5b36551b8",
+        "45d560208748d72ea7429bd0f301a277fa3300a89044d2b63c87756cbee1eb85",
+        "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
+        "967a42f4926266b77a09a1b16b5340d7ee81f282da9fc09730d77510862a145c",
+        "d4b9f30070980ea3ce6abb60557f3b0c3c9bac18ed586ec662314f8ab829851f",
+        "f257b5f597bdf4c4b933c5f23b7789a866f2b5a0c94bc0a3e731b9ae34b32e33",
+        "8adb561d6c68f95a6fd11ee8adfeaca27f902dbc7af473aaa0adc80242ec0933",
+        "d286e31d307a43bef4d7b3ee6749f6b264e4f57734b27e9774291a65030dcef1",
+        "0585c2133c1a07f2f6964ff752c0d00cb07438abd78bdd7057134391c5e6323d",
+        "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12",
+        "5b5c5ca8e52733f3975c7f6cc08badd55d59cddf47663ba3148844b4c7035f26"
+      ],
+      "source_sha256": "ad8b29a7c6f328c67c0d82ea9a483e03388efcf5b613fd82042f08de2c51f9c9",
+      "text": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule.\n:param secondary_growth: ``intensity`` or ``distance`` watershed for\n    secondary objects; maxima detection ignores this setting."
+    },
     "b3f5b52129c4cc4a1fd0e29c467c25a78c1f20be19ca4a4df82db43ec2f5d7cd": {
       "source_blocks_sha256": [
         "5b0b335614a237516d384603427cf70317d840b19cdfb21798991377604d621b",
@@ -425,6 +443,16 @@
       ],
       "source_sha256": "bcb8502602dd357fbedb30cd19369e7123923db509183332b409c4565bdc7be0",
       "text": "Stop the job runner when the panel object is destroyed."
+    },
+    "c5b9e836cc379df6a1595485944ccf562ed774199ad8209340eb980fdd862290": {
+      "source_blocks_sha256": [
+        "feeed836e1891613d1a3e3e4630481d9bd6c3dc1ae15504ca488ad7d6f927bf0",
+        "c4b397a0a0223df339c7ff03868915f32436de37f8b652a39751249b56105776",
+        "d983b42c909922fb0fbe1b8db7d505f4f05992e07603f655ccaf69fd9ab5354d",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "c5b9e836cc379df6a1595485944ccf562ed774199ad8209340eb980fdd862290",
+      "text": "Run :func:`augment_single_image` in parallel over ``file_paths``.\n\n:param file_paths: iterable of source image paths.\n:param dst: destination folder (created if missing).\n:returns: None."
     },
     "c8af2cd71b39b96cd45d651cba1964a62f646f52651df608bc42a25d13ad1f16": {
       "source_blocks_sha256": [

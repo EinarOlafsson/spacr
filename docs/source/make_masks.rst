@@ -19,6 +19,56 @@ popup; each control remembers its own reveal state. Image-enhancement help
 links to the detection-chain documentation. A control without a matching
 animation still keeps its written explanation and API link.
 
+Centre-pixel puncta inside cysts or cells
+----------------------------------------
+
+Choose **Centre-pixel puncta within parent masks** in **Detection methods**.
+Open the original single-channel images and select a separate parent-mask
+folder with matching image stems, or a parent-mask file for the current image.
+Parent masks are read-only. Use whole-image **Replace**, then **Save mask**.
+
+The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6
+pixels. It estimates each parent's pixel noise from the MAD of the sigma-1
+high-pass residual divided by 0.87, and propagates that noise through each
+LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo
+scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion.
+Change the scale list, candidate threshold, peak spacing or edge margin when
+the acquisition requires it; these are image-pixel settings, not calibration.
+
+Each punctum is measured using the pixels nearest its intensity-weighted
+subpixel centre in a nine-by-nine window. **Centre pixels per punctum**
+defaults to 20; 10 and 40 are supported. The same-parent local-background
+annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It
+excludes other candidate centres when enough background remains. The default
+inclusion floor is centre mean minus local background >= 3 native intensity
+units. Display normalization, inversion, enhancement and Min area are bypassed.
+
+The saved integer mask gives every retained punctum its own label. Nearby
+centre windows can overlap: each integer peak is reserved for its object,
+other shared pixels go to the nearest centre, and pixels outside the parent
+are omitted. Consequently a mask may contain fewer than the requested N
+pixels. This is a centre sampling mask, not the punctum's physical boundary.
+
+Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv``
+and ``<stem>.puncta.json`` beside the mask. The table contains all candidates,
+their inclusion flags, output object labels, parent IDs, coordinates, noise,
+local background, exact 10/20/40-pixel centre means and the selected N-pixel
+mean. Exact centre means retain overlapping samples independently of label
+ownership. Use ``center_corrected`` for the selected N-pixel mean minus local
+background, or ``corrected20`` for the fixed 20-pixel variant. The legacy
+``corrected`` column retains the reference's three-by-three-window result.
+The receipt binds the image, parent mask, output mask, CSV and detector
+settings to checksums. Edited or combined labels cannot silently receive the
+old centre measurements. Local previews estimate noise within their crop;
+use whole-image detection for scientific results.
+
+Use **Organize for Measure…** to place the puncta in an organelle mask slot
+alongside the parent masks and original channels. Measure can report ordinary
+mask-region intensities and parent relationships, but those means can differ
+from exact centre means when samples overlap. Use the source-bound puncta
+table for the centre/annulus analysis. This detector alone does not implement
+the noise-null model, hierarchical tests or a composed publication figure.
+
 Thumbnail display quality
 -------------------------
 

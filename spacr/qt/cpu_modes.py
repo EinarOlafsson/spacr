@@ -66,12 +66,14 @@ THRESHOLD_LABELS: Dict[str, str] = {
 #: The mode that grows objects out of local maxima.
 PROPAGATE = "propagate"
 SECONDARY = "secondary"
+PUNCTA = "puncta_centers"
 
 #: Every mode this module adds, as ``mode -> caption``.
 MODE_LABELS: Dict[str, str] = {
     **THRESHOLD_LABELS,
     PROPAGATE: "Maxima + propagate",
     SECONDARY: "Secondary objects from primary masks",
+    PUNCTA: "Centre-pixel puncta within parent masks",
 }
 
 #: Multi-Otsu is a global algorithm in the box but is asked for by a CLASS
@@ -83,6 +85,12 @@ MULTIOTSU = "multiotsu"
 #: (:func:`spacr.organelle_types.method_guidance`). English; a caller
 #: showing one passes it through ``tr``.
 GUIDANCE: Dict[str, str] = {
+    PUNCTA: "Detect small, faint puncta inside a separate cyst or cell mask. "
+            "Uses original channel intensities and ignores display normalization, inversion and enhancement. "
+            "Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. "
+            "Each object contains its nearest centre pixels, not a grown watershed region. "
+            "Use whole-image Replace for final masks and centre measurements. "
+            "Parent masks are never modified.",
     SECONDARY: "Grow secondary objects from a separate labelled primary mask, "
                "keeping each primary object's ID. Choose a global threshold "
                "when nuclei are dark in the cell channel. Primary masks are "
@@ -181,6 +189,15 @@ class CpuParams(NamedTuple):
         floor under the ``threshold`` stop rule.
     :param secondary_growth: ``intensity`` or ``distance`` watershed for
         secondary objects; maxima detection ignores this setting.
+    :param puncta_sigmas: scale-normalised LoG widths in image pixels.
+    :param puncta_k: candidate response threshold in propagated pixel-noise units.
+    :param puncta_center_pixels: number of pixels nearest each subpixel centre,
+        from 1 to 81 in the nine-by-nine measurement window.
+    :param puncta_min_corrected: minimum centre mean minus local annulus median,
+        in native intensity units. Equality is retained.
+    :param puncta_min_distance: peak-local-maximum neighbourhood in pixels;
+        scale-dependent nonmaximum suppression follows it.
+    :param puncta_edge_margin: minimum distance from the parent boundary in pixels.
     """
 
     local_k: float = 0.2
@@ -193,6 +210,12 @@ class CpuParams(NamedTuple):
     propagate_stop_value: float = 0.4
     propagate_stop_algorithm: str = "otsu"
     secondary_growth: str = "intensity"
+    puncta_sigmas: tuple = (1.5, 2.0, 3.0, 4.0, 6.0)
+    puncta_k: float = 2.5
+    puncta_center_pixels: int = 20
+    puncta_min_corrected: float = 3.0
+    puncta_min_distance: int = 2
+    puncta_edge_margin: float = 3.0
 
 
 #: The defaults, as a value to compare a request against.
@@ -203,6 +226,8 @@ DEFAULT_PARAMS = CpuParams()
 #: control that is on screen, a value that is recorded and a number the
 #: engine is given are one list.
 PARAMETERS_FOR: Dict[str, Tuple[str, ...]] = {
+    PUNCTA: ("puncta_sigmas", "puncta_k", "puncta_center_pixels",
+             "puncta_min_corrected", "puncta_min_distance", "puncta_edge_margin"),
     SECONDARY: ("propagate_sigma", "propagate_stop", "propagate_stop_value",
                 "propagate_stop_algorithm", "secondary_growth"),
     "sauvola": ("local_k",),
@@ -305,3 +330,18 @@ def secondary(image: np.ndarray, primary: np.ndarray, params: CpuParams, *,
         stop=str(params.propagate_stop), stop_value=float(params.propagate_stop_value),
         stop_algorithm=str(params.propagate_stop_algorithm),
         min_area=int(min_area), fill_holes=bool(fill_holes))
+
+
+def puncta(image, parent_labels, params=DEFAULT_PARAMS, *, measurements=False):
+    """Find noise-standardised centre-pixel puncta within unchanged parents.
+
+    :param image: original finite two-dimensional channel intensities.
+    :param parent_labels: matching nonnegative integer parent labels.
+    :param params: candidate, centre-pixel and native-intensity inclusion settings.
+    :param measurements: return ``(labels, candidates)`` instead of labels alone;
+        candidate rows include rejected centres and exact overlapping centre means.
+    :returns: int32 labels, optionally with the candidate measurement DataFrame.
+    """
+    from .mask_engine import _center_puncta_instances
+    labels, candidates = _center_puncta_instances(image, parent_labels, params)
+    return (labels, candidates) if measurements else labels

@@ -3837,6 +3837,15 @@ def _propagate_segmenter(request: _MagnifierRequest, load_model=None):
     return found.labels
 
 
+def _puncta_segmenter(request: _MagnifierRequest, load_model=None):
+    """Detect spots inside the copied parent mask, without an Otsu fallback."""
+    if request.primary_labels is None:
+        from ..i18n import tr
+        raise ValueError(tr("Load a parent mask before detecting puncta."))
+    return cpu_modes.puncta(request.crop, request.primary_labels,
+                            request.cpu_params)
+
+
 def _secondary_segmenter(request: _MagnifierRequest, load_model=None):
     """Grow the request's copied primary labels without discovering new seeds."""
     if request.primary_labels is None:
@@ -3899,6 +3908,7 @@ _MAGNIFIER_SEGMENTERS = {
     **{mode: _threshold_segmenter for mode in cpu_modes.threshold_modes()},
     cpu_modes.PROPAGATE: _propagate_segmenter,
     cpu_modes.SECONDARY: _secondary_segmenter,
+    cpu_modes.PUNCTA: _puncta_segmenter,
     **{mode: _organelle_segmenter for mode in organelle_modes.modes()},
     "cellpose": _cellpose_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
@@ -3995,6 +4005,11 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     """
     if request.ticket is not None:
         request.ticket.check()
+    if canonical_magnifier_mode(request.mode) == cpu_modes.PUNCTA:
+        labels = _puncta_segmenter(request, load_model)
+        if request.ticket is not None:
+            request.ticket.check()
+        return labels, cpu_modes.PUNCTA, ""
     chain = request.chain or detect_chain.NO_CHAIN
     prepared = detect_chain.prepare(
         request.crop, chain,
@@ -4413,6 +4428,11 @@ def _magnifier_provenance(request: _MagnifierRequest, mode: str,
         detail["otsu_fill_holes"] = bool(request.otsu_fill_holes)
     detail.update(detect_chain.provenance(
         request.chain or detect_chain.NO_CHAIN, percentile_stretch=percentiles is not None))
+    if mode == cpu_modes.PUNCTA:
+        detail['primary_source'] = request.primary_provenance
+        detail['detect_on_normalized'] = False
+        detail['normalization_percentiles'] = None
+        detail['invert'] = False
     if mode == cpu_modes.SECONDARY:
         detail['primary_source'] = request.primary_provenance
         detail['preserve_ids'] = True
@@ -5656,8 +5676,8 @@ class _LiveMagnifier(QObject):
                 (None if context["otsu_foreground_class"] is None else
                  int(context["otsu_foreground_class"])),
                 ((float(self.canvas.norm_lo), float(self.canvas.norm_hi))
-                 if self.canvas.detect_on_normalized else None),
-                context.get('primary_token', ()) if mode == cpu_modes.SECONDARY else ())
+                 if self.canvas.detect_on_normalized and mode != cpu_modes.PUNCTA else None),
+                context.get('primary_token', ()) if mode in (cpu_modes.SECONDARY, cpu_modes.PUNCTA) else ())
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -5808,6 +5828,9 @@ class _LiveMagnifier(QObject):
         :param invert: whether Invert for detection is on.
         """
         x0, y0, x1, y1 = box
+        if self.mode == cpu_modes.PUNCTA:
+            source = self._context()['puncta_image']()
+            return np.array(source[y0:y1, x0:x1], copy=True)
         if self.canvas.detect_on_normalized:
             source = self.canvas.detection_base()
         else:
@@ -5861,7 +5884,7 @@ class _LiveMagnifier(QObject):
 
     def _primary_request_values(self, box, settings):
         """Snapshot this field's primary crop and provenance for secondary mode."""
-        if settings['mode'] != cpu_modes.SECONDARY:
+        if settings['mode'] not in (cpu_modes.SECONDARY, cpu_modes.PUNCTA):
             return {}
         context = self._context() if self._context is not None else {}
         source = context.get('primary_source')
@@ -11556,6 +11579,8 @@ class MakeMasksScreen(QWidget):
 
         source = self._primary_selector.snapshot
         if source is None:
+            if self._mag_mode.currentData() == cpu_modes.PUNCTA:
+                raise ValueError(tr('Load a valid parent mask before detecting objects.'))
             raise ValueError(tr('Load a valid primary mask before growing secondary objects.'))
         filename = self._image_files[self._current_index]
         image_path = os.path.realpath(os.path.join(self._folder, filename))
@@ -11645,6 +11670,7 @@ class MakeMasksScreen(QWidget):
         records = [getattr(self, '_paired_source', None)]
         if self._log is not None:
             records.extend(edit.detail.get('primary_source') for edit in self._log.edits)
+            records.extend(edit.detail.get('parent_source') for edit in self._log.edits)
         source = self._primary_selector.snapshot
         if source is not None:
             source.validate_destination(destination)
@@ -11872,6 +11898,28 @@ class MakeMasksScreen(QWidget):
         :returns: ``(labels, centres)``; ``centres`` is the number of
             maxima for the propagation and None for everything else.
         """
+        if method == cpu_modes.PUNCTA:
+            import hashlib
+            from ..i18n import tr
+            source = self._require_primary_source()
+            with open(source.path, 'rb') as stream:
+                if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+                    raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
+            params = self._cpu_params()
+            image_sha256 = self._puncta_native_cache[2]
+            labels, candidates = cpu_modes.puncta(image, source.labels, params,
+                                                  measurements=True)
+            with open(source.image_path, 'rb') as stream:
+                if hashlib.file_digest(stream, 'sha256').hexdigest() != image_sha256:
+                    raise ValueError(tr('The source image changed during puncta detection. Reload it and repeat detection.'))
+            with open(source.path, 'rb') as stream:
+                if hashlib.file_digest(stream, 'sha256').hexdigest() != source.sha256:
+                    raise ValueError(tr('The parent mask changed. Reload it before detecting puncta.'))
+            self._puncta_measurement_snapshot = dict(
+                image_path=source.image_path, image_sha256=image_sha256,
+                parent=source.provenance(), parameters=cpu_modes.provenance(method, params),
+                labels=labels.copy(), candidates=candidates.copy())
+            return labels, None
         if method in organelle_modes.MODE_LABELS:
             return (organelle_modes.segment(
                 image, method, self._method_params(),
@@ -11931,20 +11979,22 @@ class MakeMasksScreen(QWidget):
         except Exception as exc:
             self._warn("Detect failed", str(exc))
             return
-        if method not in (cpu_modes.PROPAGATE, cpu_modes.SECONDARY):
+        if method not in (cpu_modes.PROPAGATE, cpu_modes.SECONDARY, cpu_modes.PUNCTA):
             detected = detect_chain.finish(detected, self._detect_chain(),
                                            intensity=self._detector_image())
         found = _object_count(detected)
         centres = ("" if seeds is None
                    else tr(" from {n} centre(s)", n=seeds))
-        if not found and method != cpu_modes.SECONDARY:
+        if not found and method not in (cpu_modes.SECONDARY, cpu_modes.PUNCTA):
             self._status_label.setText(tr(
                 "{method}{centres} found no objects — the mask is "
                 "unchanged. Lower the minimum area, or try the other side.",
                 method=_magnifier_mode_label(method), centres=centres))
             return
         try:
-            if method == cpu_modes.SECONDARY:
+            if method == cpu_modes.PUNCTA and mode == 'replace':
+                out = engine.canonical_labels(detected, preserve_ids=True)
+            elif method == cpu_modes.SECONDARY:
                 source = self._require_primary_source()
                 if mode != 'replace':
                     self._require_secondary_merge(source)
@@ -11958,12 +12008,19 @@ class MakeMasksScreen(QWidget):
             return
         changed = self._pixels_changed(out)
         self._canvas.mask = out
+        if method == cpu_modes.PUNCTA and mode == 'replace':
+            self._canvas.preserve_ids = True
+            self._paired_source = None
         self._canvas.refresh()
         if method == cpu_modes.SECONDARY:
             self._retain_secondary_ids(dict(source.provenance(), selection=self._primary_selector.path.text()))
+        puncta_source = ({'parent_source': self._require_primary_source().provenance(),
+                           'detect_on_normalized': False, 'normalization_percentiles': None}
+                          if method == cpu_modes.PUNCTA else {})
         self._record("detect", mode, changed, method=method,
+                      **puncta_source,
                       n_objects=found,
-                      invert=bool(self._cp_invert.isChecked()),
+                      invert=bool(self._cp_invert.isChecked()) and method != cpu_modes.PUNCTA,
                       bright=bool(self._otsu_bright.isChecked()),
                       min_area=int(self._min_area.value()),
                       otsu_correction=correction,
@@ -12895,6 +12952,7 @@ class MakeMasksScreen(QWidget):
             ("organelle", self._build_methods_card),
             ("propagate", self._build_propagate_card),
             ("secondary", partial(self._build_propagate_card, secondary=True)),
+            ("puncta", self._build_puncta_card),
             ("cellpose", self._build_cellpose_card),
         )
         self._method_groups = {}
@@ -12924,6 +12982,8 @@ class MakeMasksScreen(QWidget):
         """Which :attr:`_method_groups` family ``mode`` belongs to."""
         if mode in organelle_modes.MODE_LABELS:
             return "organelle"
+        if mode == cpu_modes.PUNCTA:
+            return "puncta"
         if mode == cpu_modes.PROPAGATE:
             return "propagate"
         if mode == cpu_modes.SECONDARY:
@@ -12931,6 +12991,38 @@ class MakeMasksScreen(QWidget):
         if mode == "cellpose" or mode in _MAGNIFIER_BACKENDS:
             return "cellpose"
         return "threshold"
+
+    def _build_puncta_card(self) -> _MethodGroup:
+        """Controls for noise-standardised, parent-constrained centre puncta."""
+        from ..i18n import tr
+        card = _MethodGroup()
+        form = QFormLayout()
+        form.setRowWrapPolicy(QFormLayout.WrapLongRows)
+        self._puncta_widgets = {}
+        scales = QLineEdit('1.5, 2, 3, 4, 6')
+        scales.setToolTip(tr('LoG sigma values in image pixels, separated by commas. Defaults: 1.5, 2, 3, 4, 6.'))
+        self._puncta_widgets['puncta_sigmas'] = scales
+        form.addRow(tr('Spot scales (px)'), scales)
+        scales.editingFinished.connect(self._on_magnifier_context_changed)
+        for key, label, default, low, high in (
+            ('puncta_k', tr('Candidate threshold (noise units)'), 2.5, .01, 100.),
+            ('puncta_center_pixels', tr('Centre pixels per punctum'), 20, 1, 81),
+            ('puncta_min_corrected', tr('Minimum corrected intensity (AU)'), 3., -1000000., 1000000.),
+            ('puncta_min_distance', tr('Minimum peak spacing (px)'), 2, 1, 1000),
+            ('puncta_edge_margin', tr('Parent edge margin (px)'), 3., 0., 1000.),
+        ):
+            widget = QSpinBox() if key in ('puncta_center_pixels', 'puncta_min_distance') else QDoubleSpinBox()
+            widget.setRange(low, high)
+            widget.setValue(default)
+            widget.setToolTip(tr('Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area.'))
+            self._puncta_widgets[key] = widget
+            form.addRow(label, widget)
+            widget.valueChanged.connect(self._on_magnifier_context_changed)
+        card.body_layout.addLayout(form)
+        note = QLabel(tr('Choose the parent-mask folder above. Use whole-image Replace, then Save mask. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed.'))
+        note.setWordWrap(True)
+        card.body_layout.addWidget(note)
+        return card
 
     def _build_propagate_card(self, *, secondary=False) -> _MethodGroup:
         """The settings of Maxima + propagate, an intensity watershed.
@@ -13099,6 +13191,15 @@ class MakeMasksScreen(QWidget):
 
     def _cpu_params(self) -> "cpu_modes.CpuParams":
         """The CPU modes' settings, as the engine's parameters."""
+        if getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.PUNCTA:
+            values = {key: widget.value() for key, widget in self._puncta_widgets.items()
+                      if key != 'puncta_sigmas'}
+            text = self._puncta_widgets['puncta_sigmas'].text()
+            try:
+                sigmas = tuple(float(piece) for piece in text.replace(',', ' ').split())
+            except ValueError:
+                sigmas = (float('nan'),)
+            return cpu_modes.CpuParams(puncta_sigmas=sigmas, **values)
         secondary = getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.SECONDARY
         widgets = getattr(self, "_secondary_widgets" if secondary else "_propagate_widgets", None)
         if not widgets:
@@ -13149,6 +13250,16 @@ class MakeMasksScreen(QWidget):
 
         mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
         family = self._mode_family(mode)
+        groups = getattr(self, '_method_groups', {})
+        if 'puncta' in groups:
+            target = groups['puncta' if mode == cpu_modes.PUNCTA else 'secondary']
+            if self._primary_selector.parent() is not target:
+                target.body_layout.insertWidget(0, self._primary_selector)
+            entering = mode == cpu_modes.PUNCTA and not getattr(self, '_puncta_active', False)
+            self._puncta_active = mode == cpu_modes.PUNCTA
+            if entering:
+                self._min_area.setValue(1)
+        self._min_area.setEnabled(mode != cpu_modes.PUNCTA)
         for name, group in getattr(self, "_method_groups", {}).items():
             group.setVisible(name == family)
         shown = organelle_modes.PARAMETERS_FOR.get(mode, ())
@@ -13164,7 +13275,7 @@ class MakeMasksScreen(QWidget):
         for name in ('_enh_morphology', '_enh_morphology_radius', '_enh_split'):
             widget = getattr(self, name, None)
             if widget is not None:
-                widget.setEnabled(mode != cpu_modes.SECONDARY)
+                widget.setEnabled(mode not in (cpu_modes.SECONDARY, cpu_modes.PUNCTA))
         self._sync_detect_button(mode)
 
     def _sync_detect_button(self, mode: str) -> None:
@@ -13602,6 +13713,8 @@ class MakeMasksScreen(QWidget):
 
     def _detect_chain(self) -> "detect_chain.Chain":
         """The applied enhancement chain, or no changes while Apply is off."""
+        if getattr(self, '_mag_mode', None) is not None and self._mag_mode.currentData() == cpu_modes.PUNCTA:
+            return detect_chain.NO_CHAIN
         button = getattr(self, "_btn_apply", None)
         if button is None or not button.isChecked():
             return detect_chain.NO_CHAIN
@@ -13702,7 +13815,7 @@ class MakeMasksScreen(QWidget):
         """
         return detect_chain.provenance(
             self._detect_chain(),
-            percentile_stretch=bool(self._canvas.detect_on_normalized))
+            percentile_stretch=bool(self._canvas.detect_on_normalized) and self._mag_mode.currentData() != cpu_modes.PUNCTA)
 
     def _on_chain_changed(self, *_args) -> None:
         """A chain step changed: warn about the slow ones and re-detect."""
@@ -14529,6 +14642,7 @@ class MakeMasksScreen(QWidget):
         source = selector.snapshot if selector is not None else None
         return {
             'primary_source': source,
+            'puncta_image': self._puncta_native_image,
             'primary_token': source.identity if source is not None else (),
             'primary_selection': selector.path.text() if selector is not None else '',
             "model_name": self._cp_model.currentData() or "cpsam",
@@ -14544,7 +14658,7 @@ class MakeMasksScreen(QWidget):
             "otsu_split": bool(self._otsu_split.isChecked()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
-            "invert": bool(self._cp_invert.isChecked()),
+            "invert": bool(self._cp_invert.isChecked()) and self._mag_mode.currentData() != cpu_modes.PUNCTA,
             "chain": self._detect_chain(),
             "method_params": self._method_params(),
             "cpu_params": self._cpu_params(),
@@ -14825,6 +14939,40 @@ class MakeMasksScreen(QWidget):
         """
         self._invert_warning.setVisible(bool(on))
 
+    def _puncta_native_image(self) -> np.ndarray:
+        """Read the single channel without the editor's uint16 display scaling.
+
+        Cache by field and file revision; preview crops share this source.
+        Parent masks and display pixels are never changed.
+        """
+        import hashlib
+        from ..i18n import tr
+
+        filename = self._image_files[self._current_index]
+        path = os.path.join(self._folder, filename)
+        revision = os.stat(path)
+        key = (path, revision.st_mtime_ns, revision.st_size, id(self._canvas.image))
+        cached = getattr(self, '_puncta_native_cache', None)
+        if cached is not None and cached[0] == key:
+            return cached[1]
+        if engine.is_seg_bundle(filename):
+            raise ValueError(tr('For puncta detection, open the original single-channel image rather than a segmentation bundle.'))
+        image = engine.imageio.imread(path)
+        if image.ndim == 3 and image.shape[-1] == 1:
+            image = image[..., 0]
+        if image.ndim != 2 or image.shape != self._canvas.image.shape:
+            raise ValueError(tr('Puncta detection requires a single-channel, two-dimensional image.'))
+        if not np.all(np.isfinite(image)):
+            raise ValueError(tr('The puncta channel contains non-finite intensities.'))
+        with open(path, 'rb') as stream:
+            digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+        after = os.stat(path)
+        if (revision.st_mtime_ns, revision.st_size) != (after.st_mtime_ns, after.st_size):
+            raise ValueError(tr('The source image changed while being read. Reload it and repeat detection.'))
+        image.setflags(write=False)
+        self._puncta_native_cache = (key, image, digest)
+        return image
+
     def _detector_image(self) -> Optional[np.ndarray]:
         """The field as the detectors must read it: inverted when Invert is on.
 
@@ -14855,6 +15003,8 @@ class MakeMasksScreen(QWidget):
         image = self._canvas.image
         if image is None:
             return None
+        if self._mag_mode.currentData() == cpu_modes.PUNCTA:
+            return np.array(self._puncta_native_image(), copy=True)
         return self._canvas.detection_source()
 
     def _on_min_area_changed(self, value) -> None:
@@ -16225,6 +16375,7 @@ class MakeMasksScreen(QWidget):
             self._note_curated(filename, n_objects=objects)
             path = engine.mask_save_path(self._folder, filename,
                                          **self._layout_kwargs())
+            self._save_puncta_measurements(path)
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
             return
@@ -16250,6 +16401,65 @@ class MakeMasksScreen(QWidget):
         self._note_curated(self._image_files[self._current_index],
                            n_objects=objects)
         self._status_label.setText(f"Saved → {path}{note}")
+        self._save_puncta_measurements(path)
+
+    def _save_puncta_measurements(self, mask_path):
+        """Save source-bound centre measurements only for an unchanged full detection.
+
+        Editing or combining labels never reattaches old centre values to
+        new objects. Existing tables retain their original hash receipts.
+        :param mask_path: mask file just saved, or its unchanged existing file.
+        :returns: the CSV path when exported, otherwise None.
+        """
+        import hashlib
+        import json
+        import tempfile
+        from pathlib import Path
+        from ..i18n import tr
+        from ...tabular import write_table
+
+        snapshot = getattr(self, '_puncta_measurement_snapshot', None)
+        if snapshot is None or not os.path.isfile(mask_path):
+            return None
+        image_path = os.path.realpath(os.path.join(self._folder, self._image_files[self._current_index]))
+        if (snapshot['image_path'] != image_path
+                or not np.array_equal(snapshot['labels'], self._canvas.mask)):
+            return None
+        pending = []
+        base = os.path.splitext(mask_path)[0] + '.puncta'
+        try:
+            for path, expected in ((image_path, snapshot['image_sha256']),
+                                   (snapshot['parent']['path'], snapshot['parent']['sha256'])):
+                with open(path, 'rb') as stream:
+                    if hashlib.file_digest(stream, 'sha256').hexdigest() != expected:
+                        self._warn(tr('Centre measurements not saved'), tr('The source image or parent mask changed. Reload and repeat detection.'))
+                        return None
+            with open(mask_path, 'rb') as stream:
+                mask_sha256 = hashlib.file_digest(stream, 'sha256').hexdigest()
+            for suffix in ('.csv', '.json'):
+                descriptor, path = tempfile.mkstemp(prefix='.puncta-', suffix=suffix, dir=os.path.dirname(mask_path))
+                pending.append(path)
+                os.close(descriptor)
+            write_table(snapshot['candidates'], pending[0], canonicalise=False)
+            with open(pending[0], 'rb') as stream:
+                csv_sha256 = hashlib.file_digest(stream, 'sha256').hexdigest()
+            receipt = {key: value for key, value in snapshot.items() if key not in ('labels', 'candidates')}
+            receipt.update(schema=1, mask_path=os.path.realpath(mask_path), mask_sha256=mask_sha256,
+                           csv_path=os.path.realpath(base + '.csv'), csv_sha256=csv_sha256,
+                           intensity_units='native AU', center_overlap_policy='nearest centre; peak reserved; stronger-first ties',
+                           display_normalization_applied=False, post_detection_editing=False)
+            Path(pending[1]).write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+            os.replace(pending[0], base + '.csv')
+            os.replace(pending[1], base + '.json')
+        except (OSError, ValueError) as error:
+            self._warn(tr('Centre measurements not saved'),
+                       tr('The mask was saved, but its centre-measurement export failed: {error}').format(error=error))
+            return None
+        finally:
+            for path in pending:
+                if os.path.exists(path):
+                    os.unlink(path)
+        return base + '.csv'
 
     def _apply_op(self, op, kind: str = "edit", **detail):
         """Run a mask -> mask function, refresh, record it, push to history.

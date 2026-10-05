@@ -821,3 +821,28 @@ The table is a planning snapshot, not a new DONE verdict or acceptance gate.
 | N627 — macOS updater scene | 100% | Accepted omission | Complete | User accepted unavailable native capture; no macOS recording is claimed. |
 | 316 — native-speaker review | 100% | Accepted scope | Complete | Optional native review waived; translations remain labelled AI technical review. |
 | 472 — module pathway tutorial | 100% | Done | Complete | Existing live pathway publication and translations remain complete. |
+
+2026-10-05 — PUNCTA USER REQUEST AND HOME/ALPHA AUDIO CHECKPOINT
+Added item 661 and completed its visible Make Masks centre-pixel detector,
+mask export and exact native centre/annulus tables. Actual reference and GUI
+replays cover all 39 fields and reproduce 24,145 included puncta. Runtime
+captions are current in all nine languages (7,032 UI sources), preserving
+every existing translation. English API has 13,177 symbols; normal source
+history archives retain the previous CpuParams and upstream augment_images
+prose. The current API repair worklist has 61 unique unresolved source blocks
+(1,688 English words) across the nine languages. It is a worklist, not a
+translation-completion claim. After reconciliation with further nightly
+changes it must be extracted again and repaired through the ordinary gates.
+
+Home/Alpha narration completed: 54 tracks, zero mastering failures, normal
+GPU queue rules and a private compatible renderer environment. Audio files
+remain in tutorial-home-r3; visual/media acceptance and publication are open.
+The new puncta guide section requires nine guide translations and a current
+Make Masks tutorial scene. These additions keep the broader goal open.
+
+| item | percent doen | time left | priority | discription |
+| --- | ---: | --- | --- | --- |
+| 661 — centre-pixel puncta detector | 100% | Done | Complete | Visible mode, native centre/annulus CSVs, parent-safe masks, 39-field reference/GUI replays and nine runtime languages. |
+| 615 — puncta guide translations | 0% | 1–2 h | P1 | Translate the new scientific settings, overlap and exact-column explanation into all nine guide languages. |
+| 358/615 — Make Masks tutorial 14 | 0% | 1–3 h + queue | P1 | Add a fresh real parent/puncta scene, translations, narration and validated publication. |
+| 358/615 — GPU narration | 40% | 2–4 h + queue | P1 | Home/Alpha's 54 of the five-lesson plan's 135 tracks are rendered; the new Make Masks scene is additional work. |

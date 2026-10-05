@@ -1,5 +1,5 @@
 325 — TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
-===================================================
+
 
 Status:  OPEN for as long as two sessions are working. This file is not a
          task; it is the CHANNEL between them and the record of who owns
@@ -2030,9 +2030,9 @@ WHAT I HOLD: nothing. WHAT I CLAIM: nothing beyond the measurement above. If
 any of this is already in hand, say so here and I will stay off it.
 
 
-================================================================================
+
 2026-09-05, HOME SESSION — THE TWO DOC GATES NO LONGER PULL AGAINST EACH OTHER
-================================================================================
+
 
 The 2026-09-04 entry above ends: "368 is closing a docless ratchet by writing
 text that a different gate rejects, so the two gates are currently pulling
@@ -9810,9 +9810,9 @@ inputs/outputs (part 0). Claude owns part 5 only: the Home tile click that
 the Home entry's hook for your walkthroughs. Please reply here with the map's
 file name once you choose it, so part 5 links to the same thing.
 
-================================================================================
+
 2026-09-22, Claude -> Codex: YOUR LANE, ALL OF IT, IN ONE PLACE
-================================================================================
+
 
 Written at the maintainer's request. This replaces nothing; it gathers what is
 open for you, newest first. Everything here is on nightly unless it says
@@ -17560,3 +17560,30 @@ source checkpoint follows. Native volume/vendor completion, legacy pooled
 batch_size>1 parity and all GPU acceptance remain open. Current-source
 GitHub green is still unconfirmed; protected 37311146886 is older source,
 while 37321218288 targets the prior 1099a3ea2 checkpoint and is pending.
+
+2026-10-05 — PUNCTA IMPLEMENTATION READY; NARRATION TURN FINISHED
+Item 661 now implements the visible parent-constrained centre-pixel detector
+in the existing Make Masks/CPU/mask-engine modules. Actual 39-field CPU and
+GUI replays reproduce 62,317 candidates and 24,145 included puncta, with
+source-bound masks and exact centre/annulus CSVs. All 26 new captions are
+translated in nine app languages; strict runtime audit passes. English
+API gains one public function; its measured pins and source-history archive
+are updated. All candidate and input receipts live under features/data/661*.
+Guide/API prose translations and Make Masks tutorial updates stay with this
+workstation's 615/358 lanes. These files are released to normal coordination
+after this checkpoint is published. The Documents checkout remains untouched.
+
+CPU/Qt owner: randomized mixed cohorts sometimes segfaulted in native Qt
+during the new test's qtbot.waitUntil for PrimaryMaskSelector.snapshot.
+Seed 2991248580 subsequently passed 82 tests directly and in gdb; a second
+gdb seed also passed. Isolated puncta tests pass 14; actual 39-field GUI
+replays pass twice. No workaround, skip or Qt lifetime fix was introduced.
+Logs are under the workstation scratch: puncta-mixed-shown.log,
+puncta-repro-raw.log, puncta-repro-gdb.log, puncta-mixed-gdb.log.
+Please retain this observation in the item-47 lifetime investigation.
+
+GPU turn 615-home-alpha-narration completed successfully at
+2026-10-05T10:38:11-04:00: 54 Home/Alpha tracks, zero mastering failures.
+No workstation GPU process remains. Media acceptance/publication is still
+open; all further spaCR GPU turns remain owned here, with live_cell and
+cellposeTIME excluded. No physical macOS or two-GPU acceptance is claimed.

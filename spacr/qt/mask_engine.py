@@ -103,6 +103,201 @@ def _ndimage():
 _EIGHT = np.ones((3, 3), dtype=np.uint8)
 
 
+_CENTER_KERNEL_NORMS = {}
+"""Seeded white-noise response standard deviations for centre-puncta LoG scales."""
+
+
+def _center_puncta_kernel_norm(sigma):
+    """Return the seeded LoG response to unit white noise at one scale."""
+    if sigma not in _CENTER_KERNEL_NORMS:
+        white = np.random.default_rng(20261003).standard_normal((512, 512)).astype(np.float32)
+        response = -(sigma ** 2) * _ndimage().gaussian_laplace(white, sigma)
+        _CENTER_KERNEL_NORMS[sigma] = float(np.std(response))
+    return _CENTER_KERNEL_NORMS[sigma]
+
+
+def _center_puncta_pixels(image, y, x, count):
+    """Return the subpixel centroid and stable nearest-pixel coordinates."""
+    if y < 4 or x < 4 or y + 5 > image.shape[0] or x + 5 > image.shape[1]:
+        return None
+    weights = image[y-1:y+2, x-1:x+2].astype(np.float64)
+    weights -= weights.min()
+    total = weights.sum()
+    cy, cx = float(y), float(x)
+    if total > 0:
+        oy, ox = np.mgrid[-1:2, -1:2]
+        cy += float((oy * weights).sum() / total)
+        cx += float((ox * weights).sum() / total)
+    yy, xx = np.mgrid[y-4:y+5, x-4:x+5]
+    order = np.argsort((yy-cy)**2 + (xx-cx)**2, axis=None, kind='stable')[:count]
+    return cy, cx, yy.ravel()[order], xx.ravel()[order]
+
+
+def _center_puncta_candidates(image, parent_labels, params):
+    """Measure every noise-standardised LoG centre before intensity inclusion.
+
+    Filters operate on the original float32 channel, never a display stretch.
+    The same-parent annulus excludes all nonmaximum-suppressed candidates,
+    including centres later rejected by the edge or intensity criteria.
+    The centre mean includes the selected pixels even where neighbouring
+    centre windows overlap. Output labels resolve that overlap separately.
+    """
+    import pandas as pd
+    from skimage.feature import peak_local_max
+    from .i18n import tr
+
+    im = np.asarray(image, dtype=np.float32)
+    parents = np.asarray(parent_labels)
+    if im.ndim != 2 or parents.shape != im.shape:
+        raise ValueError(tr('Puncta detection requires a 2-D image and matching parent mask.'))
+    if not np.isfinite(im).all() or not np.isfinite(parents).all():
+        raise ValueError(tr('Image and parent mask must contain finite values.'))
+    if np.any(parents < 0) or not np.equal(parents, np.floor(parents)).all():
+        raise ValueError(tr('Parent masks must contain nonnegative integer labels.'))
+    sigmas = tuple(float(s) for s in params.puncta_sigmas)
+    scalars = (params.puncta_k, params.puncta_min_corrected, params.puncta_edge_margin,
+               params.puncta_min_distance, params.puncta_center_pixels)
+    if (not sigmas or not all(np.isfinite(s) and s > 0 for s in sigmas)
+            or not all(np.isfinite(s) for s in scalars)
+            or params.puncta_k <= 0 or params.puncta_edge_margin < 0
+            or not 1 <= params.puncta_center_pixels <= 81
+            or int(params.puncta_center_pixels) != params.puncta_center_pixels
+            or params.puncta_min_distance < 1
+            or int(params.puncta_min_distance) != params.puncta_min_distance):
+        raise ValueError(tr('Invalid puncta scale, threshold, centre-pixel or spacing settings.'))
+    columns = ['candidate_id', 'object_label', 'parent_id', 'cyst_id', 'y', 'x',
+               'z', 'sigma', 'peak', 'center3', 'disc13', 'center10', 'center20', 'center40', 'center_mean',
+               'center_pixels', 'center_corrected', 'corr10', 'corrected20', 'corr40', 'cy', 'cx', 'local_bg', 'cyst_bg',
+               'corrected', 'corrected_cyst', 'noise_mad', 'included', 'mask_pixels']
+    rows = []
+    if not np.any(parents > 0):
+        return pd.DataFrame(rows, columns=columns)
+    ndi = _ndimage()
+    high = im - ndi.gaussian_filter(im, 1.0)
+    responses = [-(s ** 2) * ndi.gaussian_laplace(im, s) for s in sigmas]
+    dy, dx = np.ogrid[-2:3, -2:3]
+    disc = dy**2 + dx**2 <= 4
+    for parent_id in np.unique(parents[parents > 0]):
+        region = parents == parent_id
+        distance = ndi.distance_transform_edt(region)
+        hv = high[region]
+        noise = float(1.4826 * np.median(np.abs(hv - np.median(hv))) / 0.87)
+        best = np.full(im.shape, -np.inf, dtype=np.float32)
+        best_sigma = np.zeros(im.shape, dtype=np.float32)
+        for sigma, response in zip(sigmas, responses):
+            z = response / (max(noise, 1e-3) * _center_puncta_kernel_norm(sigma))
+            update = z > best
+            best[update] = z[update]
+            best_sigma[update] = sigma
+        best = np.where(region, best, -np.inf)
+        peaks = peak_local_max(best, min_distance=int(params.puncta_min_distance),
+                               threshold_abs=float(params.puncta_k),
+                               exclude_border=False, labels=region.astype(np.int32))
+        if not len(peaks):
+            continue
+        zs = best[peaks[:, 0], peaks[:, 1]]
+        order = np.argsort(-zs)
+        peaks, zs = peaks[order], zs[order]
+        scales = best_sigma[peaks[:, 0], peaks[:, 1]]
+        keep = np.ones(len(peaks), dtype=bool)
+        for index, (y, x) in enumerate(peaks):
+            if keep[index]:
+                radius = max(2.0, 1.5 * scales[index])
+                gaps = (peaks[index+1:, 0]-y)**2 + (peaks[index+1:, 1]-x)**2
+                keep[index+1:] &= gaps > radius * radius
+        peaks, zs, scales = peaks[keep], zs[keep], scales[keep]
+        excluded = np.zeros(im.shape, dtype=bool)
+        for (y, x), sigma in zip(peaks, scales):
+            radius = int(np.ceil(2.0 * sigma))
+            y0, y1 = max(0, y-radius), min(im.shape[0], y+radius+1)
+            x0, x1 = max(0, x-radius), min(im.shape[1], x+radius+1)
+            yy, xx = np.ogrid[y0:y1, x0:x1]
+            excluded[y0:y1, x0:x1] |= (yy-y)**2 + (xx-x)**2 <= radius * radius
+        cytoplasm = region & ~excluded
+        cyst_bg = (float(np.median(im[cytoplasm])) if cytoplasm.sum() >= 0.2 * region.sum()
+                   else float(np.percentile(im[region], 30)))
+        for (y, x), z, sigma in zip(peaks, zs, scales):
+            if distance[y, x] < params.puncta_edge_margin:
+                continue
+            selected = _center_puncta_pixels(im, int(y), int(x), int(params.puncta_center_pixels))
+            if selected is None:
+                continue
+            cy, cx, py, px = selected
+            center_mean = float(im[py, px].mean())
+            twenty = _center_puncta_pixels(im, int(y), int(x), 20)
+            center20 = float(im[twenty[2], twenty[3]].mean())
+            ten = _center_puncta_pixels(im, int(y), int(x), 10)
+            forty = _center_puncta_pixels(im, int(y), int(x), 40)
+            center10 = float(im[ten[2], ten[3]].mean())
+            center40 = float(im[forty[2], forty[3]].mean())
+            center3 = float(im[y-1:y+2, x-1:x+2].mean())
+            disc13 = float(im[y-2:y+3, x-2:x+3][disc].mean())
+            inner = max(4.0, 2.5 * sigma + 2.0)
+            outer = inner + 4.0
+            radius = int(np.ceil(outer))
+            y0, y1 = max(0, y-radius), min(im.shape[0], y+radius+1)
+            x0, x1 = max(0, x-radius), min(im.shape[1], x+radius+1)
+            yy, xx = np.ogrid[y0:y1, x0:x1]
+            squared = (yy-y)**2 + (xx-x)**2
+            annulus = ((squared >= inner*inner) & (squared <= outer*outer)
+                       & region[y0:y1, x0:x1] & ~excluded[y0:y1, x0:x1])
+            if annulus.sum() < 12:
+                annulus = ((squared >= inner*inner) & (squared <= outer*outer)
+                           & region[y0:y1, x0:x1])
+            local_bg = float(np.median(im[y0:y1, x0:x1][annulus])) if annulus.sum() >= 6 else cyst_bg
+            included = center_mean - local_bg >= params.puncta_min_corrected
+            rows.append(dict(candidate_id=len(rows)+1, object_label=0,
+                             parent_id=int(parent_id), cyst_id=int(parent_id),
+                             y=int(y), x=int(x), z=float(z), sigma=float(sigma),
+                             peak=float(im[y, x]), center3=center3, disc13=disc13,
+                             center10=center10, center20=center20, center40=center40, center_mean=center_mean,
+                             center_pixels=int(params.puncta_center_pixels),
+                             center_corrected=center_mean-local_bg, corr10=center10-local_bg,
+                             corrected20=center20-local_bg, corr40=center40-local_bg, cy=cy, cx=cx,
+                             local_bg=local_bg, cyst_bg=cyst_bg,
+                             corrected=center3-local_bg, corrected_cyst=center3-cyst_bg,
+                             noise_mad=noise, included=bool(included), mask_pixels=0))
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _center_puncta_instances(image, parent_labels, params):
+    """Return centre labels and exact candidate measurements without growing spots.
+
+    Every accepted integer peak is reserved for its object. Other shared
+    centre pixels go to the closest subpixel centre, with stronger-first
+    ordering breaking exact ties. Pixels outside the parent are omitted
+    from masks. Exact full-N intensity means remain in the candidate table;
+    mask areas may therefore be smaller than N and are reported explicitly.
+    """
+    im = np.asarray(image, dtype=np.float32)
+    parents = np.asarray(parent_labels)
+    candidates = _center_puncta_candidates(im, parents, params)
+    labels = np.zeros(im.shape, dtype=np.int32)
+    accepted = candidates.index[candidates['included'].astype(bool)]
+    reserved = np.zeros(im.shape, dtype=bool)
+    owner_distance = np.full(im.shape, np.inf, dtype=np.float64)
+    for label, index in enumerate(accepted, 1):
+        candidates.at[index, 'object_label'] = label
+        y, x = int(candidates.at[index, 'y']), int(candidates.at[index, 'x'])
+        labels[y, x] = label
+        reserved[y, x] = True
+    for index in accepted:
+        row = candidates.loc[index]
+        selected = _center_puncta_pixels(im, int(row.y), int(row.x), int(params.puncta_center_pixels))
+        cy, cx, yy, xx = selected
+        if not np.any((yy == int(row.y)) & (xx == int(row.x))):
+            yy[-1], xx[-1] = int(row.y), int(row.x)
+        squared = (yy-cy)**2 + (xx-cx)**2
+        take = ((parents[yy, xx] == row.parent_id) & ~reserved[yy, xx]
+                & (squared < owner_distance[yy, xx]))
+        labels[yy[take], xx[take]] = int(row.object_label)
+        owner_distance[yy[take], xx[take]] = squared[take]
+    counts = np.bincount(labels.ravel())
+    for index in accepted:
+        candidates.at[index, 'mask_pixels'] = int(counts[int(candidates.at[index, 'object_label'])])
+    return labels, candidates
+
+
 def list_images(folder: str) -> List[str]:
     """Return filenames of image files in `folder`, sorted, or [].
 

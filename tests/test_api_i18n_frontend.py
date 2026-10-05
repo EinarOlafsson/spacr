@@ -171,7 +171,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
 # 2026-10-04 566 (a71b646a7): +1/-0, the documented nested helper
 # spacr.measure._pin_cupy_cudart_headers._pinned; all 13,175 prior unchanged.
-REAL_SYMBOL_COUNT = 13_176
+REAL_SYMBOL_COUNT = 13_177
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

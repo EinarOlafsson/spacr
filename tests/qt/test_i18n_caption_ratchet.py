@@ -532,7 +532,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # "Prepare compatible Python": two arrivals, one retirement, net +1.
     # F538: two reviewed opt-in unmixed Measure display captions, no removals.
     # N615 2026-10-03: +62/-1 alpha-batch captions and +12 for 631, named above.
-    "UI": 7006,
+    "UI": 7032,
     "MODULE_SUMMARIES": 77,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -654,7 +654,9 @@ EXTERNAL_SOURCE_KEY_SHA256 = (
     # N615 2026-10-03: the +78/-1 identities (alpha batch and 631) named over
     # EXTERNAL_SOURCE_COUNTS; removing them and restoring the retired
     # prompt reproduces 70748cfb...181c60.
-    'e56629ade85e736f654227561c3c0422287b6c1ce08e21697c9e167491add4e5'
+    # Item 661: +26/-0 identities; exact subtraction reproduces e56629ad...
+    # Evidence: features/data/661_source_delta_2026-10-05.json.
+    '60ab4e6ca4b8c6da387f13cfa15e6956fe2b7828dde9178fd0eeccf3b4f3cf11'
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the

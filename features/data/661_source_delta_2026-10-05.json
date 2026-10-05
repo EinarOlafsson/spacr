@@ -1,0 +1,295 @@
+{
+  "base_commit": "18af1728145380eb9e3bd58434c59db01e628946",
+  "prior": {
+    "count": 9990,
+    "categories": {
+      "function": 4459,
+      "dataclass_constructor": 518,
+      "constructor": 462,
+      "method": 4315,
+      "exception_constructor": 150,
+      "inherited_or_default_constructor": 62,
+      "namedtuple_constructor": 24
+    },
+    "exposures": {
+      "autoapi": 9985,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9997,
+    "variant_counts": {
+      "1": 9983,
+      "2": 7
+    },
+    "parameters": 19849,
+    "required": 10219,
+    "digest": "bd0f9dbd23835084532df1e5517a558f564107d9470591e4f6f0c8814d62a6c1"
+  },
+  "current": {
+    "count": 9991,
+    "categories": {
+      "function": 4460,
+      "dataclass_constructor": 518,
+      "constructor": 462,
+      "method": 4315,
+      "exception_constructor": 150,
+      "inherited_or_default_constructor": 62,
+      "namedtuple_constructor": 24
+    },
+    "exposures": {
+      "autoapi": 9986,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9998,
+    "variant_counts": {
+      "1": 9984,
+      "2": 7
+    },
+    "parameters": 19859,
+    "required": 10221,
+    "digest": "bfe15fe1e3b29a17b80ebd01d0a016c909264a4eb519a3f379433774adf64abb"
+  },
+  "added_callables": [
+    "spacr.qt.cpu_modes.puncta"
+  ],
+  "removed_callables": [],
+  "changed_contracts": {
+    "spacr.qt.cpu_modes.CpuParams": {
+      "before": {
+        "symbol": "spacr.qt.cpu_modes.CpuParams",
+        "category": "namedtuple_constructor",
+        "parameters": [
+          "local_k",
+          "propagate_exclude_border",
+          "propagate_min_distance",
+          "propagate_seed_level",
+          "propagate_seed_percentile",
+          "propagate_sigma",
+          "propagate_stop",
+          "propagate_stop_algorithm",
+          "propagate_stop_value",
+          "secondary_growth"
+        ],
+        "required_parameters": [],
+        "docstring": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule.\n:param secondary_growth: ``intensity`` or ``distance`` watershed for\n    secondary objects; maxima detection ignores this setting.",
+        "accepted_documented_parameters": [
+          "local_k",
+          "propagate_exclude_border",
+          "propagate_min_distance",
+          "propagate_seed_level",
+          "propagate_seed_percentile",
+          "propagate_sigma",
+          "propagate_stop",
+          "propagate_stop_algorithm",
+          "propagate_stop_value",
+          "secondary_growth"
+        ],
+        "variant_count": 1,
+        "docless_variant_count": 0,
+        "constructor_prose_variant_count": 0,
+        "exposure": "autoapi",
+        "accepts_arbitrary_keywords": false
+      },
+      "after": {
+        "symbol": "spacr.qt.cpu_modes.CpuParams",
+        "category": "namedtuple_constructor",
+        "parameters": [
+          "local_k",
+          "propagate_exclude_border",
+          "propagate_min_distance",
+          "propagate_seed_level",
+          "propagate_seed_percentile",
+          "propagate_sigma",
+          "propagate_stop",
+          "propagate_stop_algorithm",
+          "propagate_stop_value",
+          "puncta_center_pixels",
+          "puncta_edge_margin",
+          "puncta_k",
+          "puncta_min_corrected",
+          "puncta_min_distance",
+          "puncta_sigmas",
+          "secondary_growth"
+        ],
+        "required_parameters": [],
+        "docstring": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule.\n:param secondary_growth: ``intensity`` or ``distance`` watershed for\n    secondary objects; maxima detection ignores this setting.\n:param puncta_sigmas: scale-normalised LoG widths in image pixels.\n:param puncta_k: candidate response threshold in propagated pixel-noise units.\n:param puncta_center_pixels: number of pixels nearest each subpixel centre,\n    from 1 to 81 in the nine-by-nine measurement window.\n:param puncta_min_corrected: minimum centre mean minus local annulus median,\n    in native intensity units. Equality is retained.\n:param puncta_min_distance: peak-local-maximum neighbourhood in pixels;\n    scale-dependent nonmaximum suppression follows it.\n:param puncta_edge_margin: minimum distance from the parent boundary in pixels.",
+        "accepted_documented_parameters": [
+          "local_k",
+          "propagate_exclude_border",
+          "propagate_min_distance",
+          "propagate_seed_level",
+          "propagate_seed_percentile",
+          "propagate_sigma",
+          "propagate_stop",
+          "propagate_stop_algorithm",
+          "propagate_stop_value",
+          "puncta_center_pixels",
+          "puncta_edge_margin",
+          "puncta_k",
+          "puncta_min_corrected",
+          "puncta_min_distance",
+          "puncta_sigmas",
+          "secondary_growth"
+        ],
+        "variant_count": 1,
+        "docless_variant_count": 0,
+        "constructor_prose_variant_count": 0,
+        "exposure": "autoapi",
+        "accepts_arbitrary_keywords": false
+      }
+    }
+  },
+  "prior_rendered": 13176,
+  "current_rendered": 13177,
+  "added_rendered": [
+    "spacr.qt.cpu_modes.puncta"
+  ],
+  "removed_rendered": [],
+  "changed_rendered": [
+    "spacr.qt.cpu_modes.CpuParams",
+    "spacr.utils.augment_images"
+  ],
+  "new_ui_sources": [
+    "Candidate threshold (noise units)",
+    "Centre measurements not saved",
+    "Centre pixels per punctum",
+    "Centre-pixel puncta within parent masks",
+    "Choose the parent-mask folder above. Use whole-image Replace, then Save mask. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed.",
+    "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified.",
+    "For puncta detection, open the original single-channel image rather than a segmentation bundle.",
+    "Image and parent mask must contain finite values.",
+    "Invalid puncta scale, threshold, centre-pixel or spacing settings.",
+    "LoG sigma values in image pixels, separated by commas. Defaults: 1.5, 2, 3, 4, 6.",
+    "Load a parent mask before detecting puncta.",
+    "Load a valid parent mask before detecting objects.",
+    "Minimum corrected intensity (AU)",
+    "Minimum peak spacing (px)",
+    "Parent edge margin (px)",
+    "Parent masks must contain nonnegative integer labels.",
+    "Puncta detection requires a 2-D image and matching parent mask.",
+    "Puncta detection requires a single-channel, two-dimensional image.",
+    "Spot scales (px)",
+    "The mask was saved, but its centre-measurement export failed: {error}",
+    "The parent mask changed. Reload it before detecting puncta.",
+    "The puncta channel contains non-finite intensities.",
+    "The source image changed during puncta detection. Reload it and repeat detection.",
+    "The source image changed while being read. Reload it and repeat detection.",
+    "The source image or parent mask changed. Reload and repeat detection.",
+    "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area."
+  ],
+  "removed_ui_sources": [],
+  "prior_ui": 7006,
+  "current_ui": 7032,
+  "external_caption_identity": {
+    "before_sha256": "e56629ade85e736f654227561c3c0422287b6c1ce08e21697c9e167491add4e5",
+    "after_sha256": "60ab4e6ca4b8c6da387f13cfa15e6956fe2b7828dde9178fd0eeccf3b4f3cf11",
+    "added": [
+      [
+        "UI",
+        "Candidate threshold (noise units)"
+      ],
+      [
+        "UI",
+        "Centre measurements not saved"
+      ],
+      [
+        "UI",
+        "Centre pixels per punctum"
+      ],
+      [
+        "UI",
+        "Centre-pixel puncta within parent masks"
+      ],
+      [
+        "UI",
+        "Choose the parent-mask folder above. Use whole-image Replace, then Save mask. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed."
+      ],
+      [
+        "UI",
+        "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified."
+      ],
+      [
+        "UI",
+        "For puncta detection, open the original single-channel image rather than a segmentation bundle."
+      ],
+      [
+        "UI",
+        "Image and parent mask must contain finite values."
+      ],
+      [
+        "UI",
+        "Invalid puncta scale, threshold, centre-pixel or spacing settings."
+      ],
+      [
+        "UI",
+        "LoG sigma values in image pixels, separated by commas. Defaults: 1.5, 2, 3, 4, 6."
+      ],
+      [
+        "UI",
+        "Load a parent mask before detecting puncta."
+      ],
+      [
+        "UI",
+        "Load a valid parent mask before detecting objects."
+      ],
+      [
+        "UI",
+        "Minimum corrected intensity (AU)"
+      ],
+      [
+        "UI",
+        "Minimum peak spacing (px)"
+      ],
+      [
+        "UI",
+        "Parent edge margin (px)"
+      ],
+      [
+        "UI",
+        "Parent masks must contain nonnegative integer labels."
+      ],
+      [
+        "UI",
+        "Puncta detection requires a 2-D image and matching parent mask."
+      ],
+      [
+        "UI",
+        "Puncta detection requires a single-channel, two-dimensional image."
+      ],
+      [
+        "UI",
+        "Spot scales (px)"
+      ],
+      [
+        "UI",
+        "The mask was saved, but its centre-measurement export failed: {error}"
+      ],
+      [
+        "UI",
+        "The parent mask changed. Reload it before detecting puncta."
+      ],
+      [
+        "UI",
+        "The puncta channel contains non-finite intensities."
+      ],
+      [
+        "UI",
+        "The source image changed during puncta detection. Reload it and repeat detection."
+      ],
+      [
+        "UI",
+        "The source image changed while being read. Reload it and repeat detection."
+      ],
+      [
+        "UI",
+        "The source image or parent mask changed. Reload and repeat detection."
+      ],
+      [
+        "UI",
+        "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area."
+      ]
+    ],
+    "removed": []
+  }
+}

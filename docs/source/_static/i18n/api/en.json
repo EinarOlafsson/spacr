@@ -45569,10 +45569,16 @@
         "d286e31d307a43bef4d7b3ee6749f6b264e4f57734b27e9774291a65030dcef1",
         "0585c2133c1a07f2f6964ff752c0d00cb07438abd78bdd7057134391c5e6323d",
         "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12",
-        "5b5c5ca8e52733f3975c7f6cc08badd55d59cddf47663ba3148844b4c7035f26"
+        "5b5c5ca8e52733f3975c7f6cc08badd55d59cddf47663ba3148844b4c7035f26",
+        "d615493d5b055422f59a603d3e9b5fdeeb89252a57cb22c85641564a1862a739",
+        "3a234b99426b8264573c83cc7aae0909aa4fa30719d07549b298ab7f4d31d1fe",
+        "b452650ecee3145739fb23db1de2e1d744fb2100432e3e9a8299191bfa127aaa",
+        "c5d3a394056b9f5a1abb387aa552d2e9685ee8d0931177113f4807466f66f347",
+        "d2fec8aae10a43932943df6162208696950ce53d2b7bf84d8693a5cfda6645b1",
+        "fb27f594e53e5c1b7a2a9f78d4446dece400717cdb88ac9250fb08996ea594ad"
       ],
-      "source_sha256": "ad8b29a7c6f328c67c0d82ea9a483e03388efcf5b613fd82042f08de2c51f9c9",
-      "text": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule.\n:param secondary_growth: ``intensity`` or ``distance`` watershed for\n    secondary objects; maxima detection ignores this setting."
+      "source_sha256": "8d53e4e9152f8068bb12daa935859003531e8ef1b9d2a2038c92239d2cb58e74",
+      "text": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule.\n:param secondary_growth: ``intensity`` or ``distance`` watershed for\n    secondary objects; maxima detection ignores this setting.\n:param puncta_sigmas: scale-normalised LoG widths in image pixels.\n:param puncta_k: candidate response threshold in propagated pixel-noise units.\n:param puncta_center_pixels: number of pixels nearest each subpixel centre,\n    from 1 to 81 in the nine-by-nine measurement window.\n:param puncta_min_corrected: minimum centre mean minus local annulus median,\n    in native intensity units. Equality is retained.\n:param puncta_min_distance: peak-local-maximum neighbourhood in pixels;\n    scale-dependent nonmaximum suppression follows it.\n:param puncta_edge_margin: minimum distance from the parent boundary in pixels."
     },
     "spacr.qt.cpu_modes.engine_algorithm": {
       "source_blocks_sha256": [
@@ -45620,6 +45626,18 @@
       ],
       "source_sha256": "16e636ab50cdc07d8b866a270069436fa743cbaab345795004d1a7174e681e2c",
       "text": "The parameters this mode actually read, for a mask's ledger entry.\n\n:param mode: the selected detector mode key.\n:param params: the CPU-mode settings carried by the detection request.\n:returns: ``{field: value}``, JSON-safe; empty for a mode that reads\n    none of them -- a global threshold reads only the Otsu category's\n    own settings, which the entry already carries."
+    },
+    "spacr.qt.cpu_modes.puncta": {
+      "source_blocks_sha256": [
+        "da596bc9d7c5d9bdaccdad402e3d55efa5e787a1ef3f6b2f0435654dd93db6a8",
+        "9a1f62b4c519d668da98113ffebb01320b2c477699b773625c95dc16b8a0db9c",
+        "6cc9e0a3db2630cd9988b693b31e67cd5473243fd6378f8f5de74af1bb495f63",
+        "b43dde83903f3be2c3a14edc39971a40b7eaefc98948bd936f82edc40bc98bd5",
+        "b908fdc21d772c3d18c2c85dec1065d788e1e9ba40efe0a8ab6e8f5f78b1f4b1",
+        "2bb67301f59e063a2482b75f8eab9bbe36f7f41504d3b8b65a76e7b538737757"
+      ],
+      "source_sha256": "f9746c0b1a8c615fbf5ebdcc5a65640f8973c1c77d41e688c2d71a9f3b4b3232",
+      "text": "Find noise-standardised centre-pixel puncta within unchanged parents.\n\n:param image: original finite two-dimensional channel intensities.\n:param parent_labels: matching nonnegative integer parent labels.\n:param params: candidate, centre-pixel and native-intensity inclusion settings.\n:param measurements: return ``(labels, candidates)`` instead of labels alone;\n    candidate rows include rejected centres and exact overlapping centre means.\n:returns: int32 labels, optionally with the candidate measurement DataFrame."
     },
     "spacr.qt.cpu_modes.secondary": {
       "source_blocks_sha256": [
@@ -125656,12 +125674,13 @@
     "spacr.utils.augment_images": {
       "source_blocks_sha256": [
         "feeed836e1891613d1a3e3e4630481d9bd6c3dc1ae15504ca488ad7d6f927bf0",
+        "0fdc80766d9f41d3024be17ce19c5c32a856f288256f3ec5711a3dd6f37a2d99",
         "c4b397a0a0223df339c7ff03868915f32436de37f8b652a39751249b56105776",
         "d983b42c909922fb0fbe1b8db7d505f4f05992e07603f655ccaf69fd9ab5354d",
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ],
-      "source_sha256": "c5b9e836cc379df6a1595485944ccf562ed774199ad8209340eb980fdd862290",
-      "text": "Run :func:`augment_single_image` in parallel over ``file_paths``.\n\n:param file_paths: iterable of source image paths.\n:param dst: destination folder (created if missing).\n:returns: None."
+      "source_sha256": "d41f397ec4636f3907667d901f90c2f6cffec0fcefa5093de81b927080a08ac1",
+      "text": "Run :func:`augment_single_image` in parallel over ``file_paths``.\n\nSpawn workers so they inherit no locks held by other threads in this\nprocess. Close and join the pool after mapping; terminating forked workers\ncan hang while their exit handlers wait on inherited locks.\n\n:param file_paths: iterable of source image paths.\n:param dst: destination folder (created if missing).\n:returns: None."
     },
     "spacr.utils.augment_single_image": {
       "source_blocks_sha256": [

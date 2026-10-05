@@ -2202,7 +2202,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # category counts and baseline digest are recorded in
     # features/data/615_public_api_delta_2026-10-01.json. The baseline digest
     # equals the previous pin; docless/required/ghost-parameter gates remain.
-    assert len(callables) == len(by_symbol) == 9990
+    # 2026-10-05: one function and six optional CpuParams fields, proved
+    # against the prior digest in features/data/661_source_delta_2026-10-05.json.
+    assert len(callables) == len(by_symbol) == 9991
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2281,7 +2283,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # (channel_sorting and folder_consolidation result records).
         # Item 592: -2 function (preferences.get/set_object_grid_enabled).
         # Item 600, 2026-09-29: +1 function (drop_classification.classify_drop).
-        "function": 4459,
+        "function": 4460,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -2349,7 +2351,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,828 -> 9,832 with items 544 and 573's four, as the total.
         # 9,832 -> 9,890 with item 593's 58, as the total.
         # Item 600, 2026-09-29: +11.
-        "autoapi": 9985,
+        "autoapi": 9986,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2404,7 +2406,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 9,840 -> 9,844 with items 544 and 573's four, one prose variant each.
     # 9,844 -> 9,902 with item 593's 58, one prose variant each.
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
-    assert sum(item.variant_count for item in callables) == 9997
+    assert sum(item.variant_count for item in callables) == 9998
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2424,7 +2426,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 9,826 -> 9,830 with items 544 and 573, as the sum above.
         # 9,830 -> 9,888 with item 593, as the sum above.
         # Item 600: +11.
-        1: 9983,
+        1: 9984,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2676,7 +2678,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-04 item 641: 19,849 - 19,847 = 2 optional read_now= parameters
     # on home.RecentRunsPanel and home.TotalsPanel; no new callable or
     # required parameter.
-    assert sum(len(item.parameters) for item in callables) == 19849
+    assert sum(len(item.parameters) for item in callables) == 19859
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2722,7 +2724,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 10,056 -> 10,126 on 2026-09-28, +70, all on item 593's 58 callables.
     # 591-592: +1 required, with the +1 parameter above.
     # 600, 2026-09-29: +6 required, with the +26 parameters above.
-    assert sum(len(item.required_parameters) for item in callables) == 10219
+    assert sum(len(item.required_parameters) for item in callables) == 10221
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2901,7 +2903,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-10-04 for item 641: home.RecentRunsPanel and
     # home.TotalsPanel gained the optional read_now= keyword; no row added
     # or removed.
-) == 'bd0f9dbd23835084532df1e5517a558f564107d9470591e4f6f0c8814d62a6c1'
+) == 'bfe15fe1e3b29a17b80ebd01d0a016c909264a4eb519a3f379433774adf64abb'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3449,7 +3451,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # (tools/nested_helper_docs.ENABLED_MODULES); all 13,071 prior symbols unchanged.
     # 2026-10-04 item 566: +1/-0, the documented nested helper of
     # spacr.measure._pin_cupy_cudart_headers; all 13,175 prior symbols unchanged.
-    assert len(docs) == 13176
+    # 2026-10-05: cpu_modes.puncta is the sole rendered arrival (item 661).
+    assert len(docs) == 13177
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3771,8 +3774,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     prior = (rendered_documented_callables.keys() - incoming_callables
              - quality_and_host_callables - classification_callables - example_callables
              - preview_callables - current_additions - session_callables
-             - rebase_callables - merged_callables
-             - final_pass_callables - roi_callables) | {
+                 - rebase_callables - merged_callables
+                 - final_pass_callables - roi_callables
+                 - {'spacr.qt.cpu_modes.puncta'}) | {
                  "spacr.qt.app.demo_label_for_app",
                  "spacr.qt.widgets.plaque_preview.render_cellprob"}
     # 9,442 -> 9,471 on 2026-09-25: item 523 plus nightly b315c0342's rows.
@@ -3797,7 +3801,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 9,828 -> 9,832 with items 544 and 573's four.
     # 9,832 -> 9,890 with item 593's 58.
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
-    assert len(rendered_documented_callables) == 9985
+    assert len(rendered_documented_callables) == 9986
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

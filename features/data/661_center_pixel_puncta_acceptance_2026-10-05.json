@@ -1,0 +1,914 @@
+{
+  "schema": 1,
+  "feature": 661,
+  "fields": 39,
+  "input_parent_rows": 59,
+  "parents_with_included_puncta": 58,
+  "candidates": 62317,
+  "included": 24145,
+  "condition_counts": {
+    "ATG2 KO": 10085,
+    "ATG2' KO": 1303,
+    "ME49": 12757
+  },
+  "first_field_exact_reference": {
+    "well": "A01",
+    "candidates": 150,
+    "all_reference_columns_bit_exact": true
+  },
+  "published_reference_keys_exact": true,
+  "published_numeric_comparison": "rtol=6e-6, atol=6e-6; reference CSV rounded to six significant digits",
+  "maximum_absolute_errors": {
+    "z": 0.0004964599609422748,
+    "sigma": 0.0,
+    "peak": 0.0,
+    "center3": 4.465637207040629e-05,
+    "disc13": 4.674072265942186e-05,
+    "center20": 3.051757815342171e-06,
+    "corrected20": 3.0517578126776357e-06,
+    "cy": 0.0049999999999954525,
+    "cx": 0.005000000000109139,
+    "local_bg": 0.0,
+    "cyst_bg": 0.0,
+    "corrected": 4.465637207040629e-05,
+    "corrected_cyst": 4.465637207040629e-05,
+    "noise_mad": 4.7550964357157e-06,
+    "center10": 3.051757815342171e-06,
+    "center40": 3.051757815342171e-06,
+    "corr10": 3.051757815342171e-06,
+    "corr40": 3.051757815342171e-06
+  },
+  "input_hashes_preserved": true,
+  "reference_module": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_center_reanalysis/center_puncta_detector.py",
+  "reference_module_sha256": "de36aa21b2ca0777237b9cfa1258bf8496b6c4ad7257b8acb002ab5cddbaf673",
+  "reference_candidates_sha256": "8f0b74b3bde77ecd400aee849a439aa4374027e1dfb66b03736c322dab083d72",
+  "reference_included_sha256": "5078d9e24238d7e2f7f44a6033f8150173aa63d4da2f88e8aeef094ebbadb48a",
+  "implementation_sha256": {
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e",
+    "spacr/qt/mask_engine.py": "b9fa76402b6777e08a76e266987b60955b434e4f3e01971b16d79bf1d7a4c8c8",
+    "spacr/qt/screens/make_masks.py": "b5cec7c04ed370fc9dc214443a6b703c5efede220356f0201585259c20baa9ff"
+  },
+  "parameters": {
+    "puncta_sigmas": [
+      1.5,
+      2.0,
+      3.0,
+      4.0,
+      6.0
+    ],
+    "puncta_k": 2.5,
+    "puncta_center_pixels": 20,
+    "puncta_min_corrected": 3.0,
+    "puncta_min_distance": 2,
+    "puncta_edge_margin": 3.0
+  },
+  "elapsed_seconds": 26.056044992990792,
+  "fields_provenance": [
+    {
+      "well": "A01",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A01_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A01_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "ae35f0773854224e8e9925167ba7b0a49c7c4c0afdd80de7083c92db0b92bf1c",
+      "parent_sha256": "4a747ee10cc18ec3352cf883129dcec4c003d30275911ef43363ee517ea834be",
+      "candidates": 150,
+      "included": 46,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A01_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "9fd46dca7ed30712d7d434f49526b7eb5fdce76face3752ea439bc5301cbb867"
+    },
+    {
+      "well": "A02",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A02_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A02_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "e71585fd2c90624a18cf762bcb6faa188ca9a446d69cb58ee8df4b03e94e4e54",
+      "parent_sha256": "958ee17f2ee7e97b0a836b3c163008c398a9665f2479e1bce1f4cfbab9bf11e7",
+      "candidates": 354,
+      "included": 79,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A02_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "76b59949122c2adec782bf6edc9816fc1151c990831d6589a0686c4c73df5b5f"
+    },
+    {
+      "well": "A03",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A03_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A03_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "cca2d0de28bb0549f9315f1846dfe5f163de5d151e98163210f9ec13eb53bc92",
+      "parent_sha256": "1dda60d99563f52e775ef20528858d67d580605d10ce0b24999d75693895eee4",
+      "candidates": 427,
+      "included": 88,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A03_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "97d9a3c5f41b4adb4d1ff7a0c753e391b20f57e0f12ddeb7b6351383cd75dabd"
+    },
+    {
+      "well": "A04",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A04_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A04_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "c1ea618b467c50989804b92cbf7d81cd69b721f2764e5e45c846f3ff56ac4d4d",
+      "parent_sha256": "02700963749010b7326a96193932be0421a07d7595c6a965afbbf188b4978289",
+      "candidates": 283,
+      "included": 54,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A04_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "c26e8f94b55985c6f86232ec2053c201666b57e7cc10c6134392f01497c29236"
+    },
+    {
+      "well": "A05",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A05_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A05_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "5e635b390922fd4dae06913da10ff5f91ae1293e7eccb8e8c7f7204a2e18916a",
+      "parent_sha256": "63ab8ab58684d57395f212b19e72b0626a812452e9578dfc3a9afc682931d699",
+      "candidates": 408,
+      "included": 115,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A05_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "62527fdaf657243d984daafeda51d03b2f9e73e70620c197172e56373786034b"
+    },
+    {
+      "well": "A06",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A06_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A06_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "aa01192a45f6b9482e746a2b73dd85c3f00b11b55f7cb79320bdb5d494069c44",
+      "parent_sha256": "a0aacd9b94ccbf808aa5d9dab8511cc25e2af81c2fb5fe6ff46d8eb927196c05",
+      "candidates": 178,
+      "included": 41,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A06_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "c1dab00277309f755afa0dd1798b29bbdbffd4994c7dff40f24d75b0e9db404f"
+    },
+    {
+      "well": "A07",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A07_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A07_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "6a7f8daf64a435b599e790a25b67043208bb6bcef2eb9cdf886de36e9aee46d2",
+      "parent_sha256": "ef4b2b12c27e8276b68eb57207bb4969a539d127c1ecced88a1d1c6b3574d324",
+      "candidates": 507,
+      "included": 124,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A07_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "65d2330ad13f9a4749613532d3ccbc8f213f75b331276527f1d494741fd3ba1f"
+    },
+    {
+      "well": "A08",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A08_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A08_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "068a7a1bdd70d7f9426e68bc80771b6e455882981ae01e0eb702413cac66605d",
+      "parent_sha256": "53d9eda442ebfa642ff39f023fbd844a9d1e8cbfd1a8cdb3e03d738c4e416701",
+      "candidates": 460,
+      "included": 104,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A08_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "a4504ad982c0ad2371bd277a5b93e5fc1b3a1703d469624cb42d0176acb8eaa6"
+    },
+    {
+      "well": "A09",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A09_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A09_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "b1bddde8fe726d0514862b48a1e62b536fc0b9c10a8344cf3dcbbb11cfdacff7",
+      "parent_sha256": "b9d2020975e5e2472c14f08228a1f26d65127f82b43580265ba9965c34dc2e99",
+      "candidates": 410,
+      "included": 186,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A09_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "c14c7e41c932b69371505ae76ad09d8a1410f8990c94a7c02f9d221dcb57bab3"
+    },
+    {
+      "well": "A10",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A10_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A10_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "6e77deb0f08779006b0a582f2a7d24aae22858f14f921a9bbaf8dfbfd1d368e7",
+      "parent_sha256": "770f33c0498dc26a8e0f3db157e1e7b80f5a4d98bac983984fc4bdf2340815e4",
+      "candidates": 499,
+      "included": 251,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A10_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "f710c5a4374e51a546aea29cb55a37c39f5b5a977f86a6282c210efb139ed2d0"
+    },
+    {
+      "well": "A11",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A11_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A11_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "ac0ed8fa63388e08317480c36d2febac1256b471cee5e4f9254ec54b3e188afa",
+      "parent_sha256": "b5a113364e147c9005f3d7f3d4ca4969c39871d004ed56102e6b8ef2ba6c2ee1",
+      "candidates": 395,
+      "included": 200,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A11_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "50c0de4981a87a45b705801eb70c3501a37ad125eb74f01580f4561f0d330dbc"
+    },
+    {
+      "well": "A12",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A12_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A12_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "e17615b7545ce91f597fce2b40cb7c5838dfe3a42bacd11e01d05f2c7116f356",
+      "parent_sha256": "04ca7d99fcf64ede29d83d0f50c8d3d6117c5e9835c1d5650019f53e554c698f",
+      "candidates": 4663,
+      "included": 1818,
+      "partial_center_masks": 106,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A12_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "02174d1de9549a7108ee0cb003cf7cddf7077600473d453e99a0751577b0a17c"
+    },
+    {
+      "well": "A13",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A13_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A13_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "c364ed4c5e38b5100578436f898f6338d29d418c7fb64cb7d989a13fc9ce0996",
+      "parent_sha256": "d431bde63aac907be067c771f40570a5714f5f930d0d2cb108a6e074f70ca632",
+      "candidates": 5405,
+      "included": 2578,
+      "partial_center_masks": 148,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A13_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "5e55fbae53d8c1da0085868c997689ef176ef6ffc5e812debd4ff36e6049401f"
+    },
+    {
+      "well": "A14",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A14_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A14_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "9d3d32e36ba92579c6806724d2dc71463d2f8b4dfd5383846e28330031f87d02",
+      "parent_sha256": "1eccfc74cbe0bb9f29bfc74613ce85427c06bef199f126be0b7bd1cf3a4b8d04",
+      "candidates": 4293,
+      "included": 420,
+      "partial_center_masks": 2,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A14_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "0a29e7e7d217bedc0891f4f75b8144cdaee752a409ebfb99318a967cb7d821dd"
+    },
+    {
+      "well": "A15",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A15_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A15_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "89e8eeb5ac77cfde2c110c31e52a6b719790ad6311ae10a2bf415c57a7768aa1",
+      "parent_sha256": "5bccb818aadc14e7eb803a534df646f2e9e626a777c5222da7e053b38453330b",
+      "candidates": 5186,
+      "included": 2494,
+      "partial_center_masks": 158,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A15_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "66538bd349267e82a1b5fe635f829390c50b11a6cab6fc4f3c6341fe2f228a42"
+    },
+    {
+      "well": "A16",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A16_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A16_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "66a68a0e6b61217b2e72385bc89ffc9e8280fa68ec4af832ffb3845aa0a76fc9",
+      "parent_sha256": "1d4a1bcc80b8432afeb87030ce43624a0af63721fcfcdc95d4d80a4e1ff4d829",
+      "candidates": 3645,
+      "included": 1634,
+      "partial_center_masks": 134,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A16_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "5ca1db97029172fa25e7a4852688667132c7e55e3581941b2f8fe7242efe0da9"
+    },
+    {
+      "well": "A17",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A17_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A17_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "5f65193ad62fb18da52c2583f09d42d7da3c85047e9cc0ba5738827db38e6944",
+      "parent_sha256": "869eca7760eb7de0728ab06f7ed66f7194d515fb1459c4ddecec6cd64f489b3f",
+      "candidates": 6649,
+      "included": 574,
+      "partial_center_masks": 10,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A17_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "ca34f0b348d024d25012b9a6a464ec394d32951c4b1f0f6b697d241550f1390f"
+    },
+    {
+      "well": "A18",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A18_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A18_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "171cc49e4afbe0a6b9c63cae13ce84dd886bd4d178eb5301197d374a2fc75c42",
+      "parent_sha256": "9682d158ba856f6fd452759a07e7c83df3cc9b9169b7eed76bd25b440cf66500",
+      "candidates": 252,
+      "included": 64,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A18_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "bc6bb5603c4ff180d2eec0caa902e0f92c9b3702a931c2e0f275b2be218dbfd9"
+    },
+    {
+      "well": "A19",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A19_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A19_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "ca94cb7f99992e31cb41204f99ac5b3fdd5ac77348a46344a52785cbb4499c4b",
+      "parent_sha256": "763e9722df573b27f01dccec4009236017f653b08417b6256eb6729bcb5c19bb",
+      "candidates": 391,
+      "included": 92,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A19_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "9e6499f1d51bc5d7baafb76422c3028495be52e3f17f9e359938a48c820751a0"
+    },
+    {
+      "well": "A20",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A20_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A20_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "48897702c5b68d8d864324aaeefd05345fbb2cefb340b04c81927c968d879e8d",
+      "parent_sha256": "8c3a56795e797ef2e2ef3f8d23bf5932d69e9d18258f4cf5bc9de4c00c132c30",
+      "candidates": 520,
+      "included": 119,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A20_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "3a6676f07b6ef579f0af80801916c18109cb2db7ee0f33c98bcd0c5c76aca61a"
+    },
+    {
+      "well": "A21",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A21_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A21_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "fd743f567b1cfa9fcb5a544d0a8a62e0c39911f765ee903fd8c642304412f834",
+      "parent_sha256": "b9670cc992c7d46624f16b957d9c0fe5e5dfca64601c211ec6985f29bda95f74",
+      "candidates": 524,
+      "included": 95,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A21_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "d5b7f2f9ccb5fc203c55817db96ea38cdabf298041c4e2873ff9b2fd14542b7e"
+    },
+    {
+      "well": "A22",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A22_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A22_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "c438b2411d4c5e072cdb0964a601b5bd21c2feb8142eb76d2caa9804b2296c53",
+      "parent_sha256": "50bb2ed1d0bd893695564c1cc57e8efaa6f4e2ace0509a7e1913693ddb7213b7",
+      "candidates": 427,
+      "included": 88,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A22_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "37dba340baaee00325998ee9755e1672ef917b966c19144265a524f003ba1cc1"
+    },
+    {
+      "well": "A23",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A23_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A23_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "bda24bbc19391dd34f3c0285dfd980b1cb0344157adbdeea5dcafa8841e646bb",
+      "parent_sha256": "baf5b61e3e524b3aa1ccf487debc81f0a2348410264aa35c81e8e546dc1e3334",
+      "candidates": 635,
+      "included": 249,
+      "partial_center_masks": 18,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A23_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "77eef78d8138924d2f397608e8dccff1fd97ea2ea046ffe37682735fdd173e9c"
+    },
+    {
+      "well": "A24",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_A24_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_A24_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "746709177216f781e69d6ef4f1ec1a5ea93e8627cde8ab2a1cbc026ee174c877",
+      "parent_sha256": "77633099b8a3b1ebf857cbf2db91fed95d65a84e1a7f54b464b6d9f6d84c48d8",
+      "candidates": 4496,
+      "included": 1969,
+      "partial_center_masks": 129,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_A24_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "4878203f711c56e409087ce1250acd211075e3b61a320d9d442839505c0fb7ab"
+    },
+    {
+      "well": "B01",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B01_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B01_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "0d40168c15a4f83eb6088a255776a16b293ff7cc8d9cf5569bd3067b1997dc73",
+      "parent_sha256": "d56c1637d8de694b5923f153dabd0845c3a10582c1aa1bc20ff9343ce5337f9a",
+      "candidates": 2351,
+      "included": 1526,
+      "partial_center_masks": 162,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B01_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "110e72af7331e5c0ba71fbac52472c79affc6a4a97ff22b197f2dc93193561d9"
+    },
+    {
+      "well": "B02",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B02_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B02_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "852b4c14c2c8316cb841171405430c55e75cad1583e4e724cb75a01cfe625435",
+      "parent_sha256": "73cbee402b48b13dc8056d20543fd3a18ca33b7b536b0ed21b43409ea0a77181",
+      "candidates": 701,
+      "included": 210,
+      "partial_center_masks": 4,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B02_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "30af202017098bcd23c4b7fff8eb4c69383e9e054cf06163d9a33b572c824a3e"
+    },
+    {
+      "well": "B03",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B03_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B03_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "b5d06cc223de216602fc611e0b3debeaa985264f7f78c179c8a217d3416b0b78",
+      "parent_sha256": "2a655a0a9ee41fb4ee3f1ad05b1cc5cfb69e269b7f593ee9322e38b73501b2d7",
+      "candidates": 357,
+      "included": 232,
+      "partial_center_masks": 13,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B03_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "0b925795bdb3801e95ff9be92ed032c1c9fbec5360d58130fd7f57b93c4f246b"
+    },
+    {
+      "well": "B04",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B04_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B04_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "e09dd2006dfbba8212eb9b2422d6d09de2f75e557ea8f70555e997b31237a9d8",
+      "parent_sha256": "4a567c21af7625bef2d94023f6487efe4b9aeca487c35d2a8d38071700dd0b73",
+      "candidates": 495,
+      "included": 288,
+      "partial_center_masks": 12,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B04_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "35a391227abac97ff1c5cb1a629d9b4e30b079cab68476750d507f76b5434893"
+    },
+    {
+      "well": "B05",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B05_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B05_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "f7108c72536984cdd157155ac718c6804bfa164594d60df7a77ee420d7257261",
+      "parent_sha256": "4a69d161b700e1b10f1ad5244f0e5fcc34856c01408de413e4f8a5e4d5104576",
+      "candidates": 3339,
+      "included": 1818,
+      "partial_center_masks": 141,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B05_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "5429ea9fa652ce519b1ae3fcb3180b403656a38ea8922db7ac52f9924e8b621e"
+    },
+    {
+      "well": "B06",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B06_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B06_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "bc3344fb18bd544e0b9cd277f03e1f4158715955f3dfa0c814971ce276268bd3",
+      "parent_sha256": "acc55572d6d6ffb4ca013b3c30b048d2d4c4823096736bbe13069371cecd7bdf",
+      "candidates": 2561,
+      "included": 1278,
+      "partial_center_masks": 121,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B06_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "15038f81b1236c33753b3f055a6cf64d051a3f63eb20500127df8480a9756b9c"
+    },
+    {
+      "well": "B07",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B07_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B07_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "d365c3f857588fb73a2288c11eaa984b0768e3435ae645946a505ba74df9e057",
+      "parent_sha256": "537410cf99a84a30f9a6921cdd57338b6c486f8d58f8702ed98e25e4b4ee037f",
+      "candidates": 8633,
+      "included": 4350,
+      "partial_center_masks": 295,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B07_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "ce30fe7ba2577af06d80855d75ff58b0278159df12bd1de67675b04a6b4e9f1e"
+    },
+    {
+      "well": "B08",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B08_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B08_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "cc31550b29c2cd1f3b93c74e55751fb5629fe2b15e84c19bad49dc7e2097fff2",
+      "parent_sha256": "96c8784f2b2b4284b8637ad18c059bc1a1dcece1844a30f78e148f78e063ef08",
+      "candidates": 306,
+      "included": 62,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B08_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "8eced2519d66824c492f0e3a2cf2d8ddaff4b0d18d12f03c884817a8e62e567e"
+    },
+    {
+      "well": "B09",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B09_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B09_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "0eb11ab8ac651f7884c6656d3de59fba711dbbb0b9931f724ec9aa9425d6ce1e",
+      "parent_sha256": "95bcf9da9f2f9c81b73135516b2826bc2c1aaa25907fb7a724961e2bf8c1033a",
+      "candidates": 654,
+      "included": 139,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B09_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "bb71bb4a84bcfdc43397328050dc895a63c0be07e079837835f409dad4f33d21"
+    },
+    {
+      "well": "B10",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B10_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B10_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "a5b7ffd00dc3025724f98e49dbae1237adadddcce79c19ecbf6690cd4fd79854",
+      "parent_sha256": "7db5220ad3879be96f3ca25a976211c2e57a29462082d03109d650789bdfd95a",
+      "candidates": 399,
+      "included": 81,
+      "partial_center_masks": 1,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B10_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "6a26be7326bd30b2ab34f106050db927b0a4a7982dc7526c3ef8b818c7ae84ab"
+    },
+    {
+      "well": "B11",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B11_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B11_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "5f3d9cd3d41c6fff7e14abf8eb9ab811a5feeb8e5cd17c6dfb1c52061d48e678",
+      "parent_sha256": "0103dad1b7412aac1688eb2958abc016c8b6454240460b0f645d1b93b85f108f",
+      "candidates": 137,
+      "included": 37,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B11_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "a2bf076d07cedf0afb2976ac9be81f9b2b6f167b9780b5ca6347303b5e949444"
+    },
+    {
+      "well": "B12",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B12_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B12_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "fb44bb88efa15cc1f5ef02e5e652163e80257d262cc03550c1b633845f784ed8",
+      "parent_sha256": "2738c0005c0b6e7e5009ea509f341d440b36ae09de3896988639a9c5b0afd97b",
+      "candidates": 296,
+      "included": 166,
+      "partial_center_masks": 1,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B12_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "78a26643f2bb77ae2cd32926bef55b152ee0b7ea28878cdf8ab57f4ffd837f62"
+    },
+    {
+      "well": "B13",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B13_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B13_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "cea78c87b41e36f1825a71c89da5662246bb303459336a8e5fcc4c3ebc8c710c",
+      "parent_sha256": "af4f28d618ab9665536fdaf6b1fba364892e9e39438be486dd2d5d0c6849677a",
+      "candidates": 239,
+      "included": 144,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B13_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "94b34d52cad45efe45f3a6597247b539383db63e08b47bdc0f0049bad9e61d40"
+    },
+    {
+      "well": "B14",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B14_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B14_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "ddcff24912dc44c76c4b4f6d700b0ac18403abbd59e2e756ddc944d07f1e9346",
+      "parent_sha256": "a8059325b12d78027580edafc2d26c6c5b705487bf89f65e6c31f2169834a8e8",
+      "candidates": 547,
+      "included": 246,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B14_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "b09ab37222fd0c45eb435f27d3d53e8040598e5c5efcccfc9fbbd2e8bd797c8f"
+    },
+    {
+      "well": "B15",
+      "image": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/channel1/plate1_B15_T0001F001L01A01Z01C02.tif",
+      "parent": "/home/carruthers/Documents/progress_report_2026-10-01/puncta_publication/source_data/cyst_masks/plate1_B15_T0001F001L01A01Z01C02.tif",
+      "image_sha256": "ce3cabb0efe5da876d704036babc7afdca46d7d170f4f8010242d0a16f39206f",
+      "parent_sha256": "c20e922a5e69b859164596dc5891cf2c81b368692ed80aa67200671459ce5137",
+      "candidates": 145,
+      "included": 86,
+      "partial_center_masks": 0,
+      "mask_path": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-reference-final/masks/plate1_B15_T0001F001L01A01Z01C02.tif",
+      "mask_sha256": "0377f73fce559d73207854a7c21194a81825cb376cbbf1d014dc07057cb7736a"
+    }
+  ],
+  "figure_final_statistics_rerun": false,
+  "whole_measure_pipeline_rerun": false,
+  "gui": {
+    "schema": 1,
+    "feature": 661,
+    "genuine_gui": true,
+    "direct_button_callbacks": true,
+    "private_profile": true,
+    "root_filesystem_readonly": true,
+    "network_isolated": true,
+    "original_inputs_preserved": true,
+    "whole_image_replace_and_save": true,
+    "display_normalization_and_inversion_bypassed": true,
+    "warnings": [],
+    "fields": [
+      {
+        "field": "plate1_A01_T0001F001L01A01Z01C02.tif",
+        "candidates": 150,
+        "included": 46,
+        "csv_sha256": "d62255abf5912fac05d9321d556a21f37940936b5b46fab68ac58b6422b9b306",
+        "mask_sha256": "9fd46dca7ed30712d7d434f49526b7eb5fdce76face3752ea439bc5301cbb867",
+        "receipt_sha256": "28a4c1aefac88cc8c248a18df28714dcd755bbc289299c9d89a832c574003b44"
+      },
+      {
+        "field": "plate1_A02_T0001F001L01A01Z01C02.tif",
+        "candidates": 354,
+        "included": 79,
+        "csv_sha256": "7e33ea93b051654385fbe8af6b7e7774e9b01ec9e13e7d86a691416f267de848",
+        "mask_sha256": "76b59949122c2adec782bf6edc9816fc1151c990831d6589a0686c4c73df5b5f",
+        "receipt_sha256": "7cedc8b29cb6a7bf07b0013874c1e95d073e98269e4e47d13fa0dc20792fae3b"
+      },
+      {
+        "field": "plate1_A03_T0001F001L01A01Z01C02.tif",
+        "candidates": 427,
+        "included": 88,
+        "csv_sha256": "eceef84fd074a19585452fb9f7993dea34feabcccf8139fb94c06267f322e101",
+        "mask_sha256": "97d9a3c5f41b4adb4d1ff7a0c753e391b20f57e0f12ddeb7b6351383cd75dabd",
+        "receipt_sha256": "cfe74de30222ed8864a18b36ef5a4a961c99d6ba23bed67d49b2eeed12b25c2b"
+      },
+      {
+        "field": "plate1_A04_T0001F001L01A01Z01C02.tif",
+        "candidates": 283,
+        "included": 54,
+        "csv_sha256": "04cf5af3fe05a4fac94bbba1c9648ff1f447a132dc2b79a38c9f97666c0e5570",
+        "mask_sha256": "c26e8f94b55985c6f86232ec2053c201666b57e7cc10c6134392f01497c29236",
+        "receipt_sha256": "9c73b8d5dbb84642e70a5ce76efdb834159b370b16b558d4b946202e29b7eb89"
+      },
+      {
+        "field": "plate1_A05_T0001F001L01A01Z01C02.tif",
+        "candidates": 408,
+        "included": 115,
+        "csv_sha256": "5be6467354af117eaf5546cfeb75978047046ec710c32344aa374c5c570c402a",
+        "mask_sha256": "62527fdaf657243d984daafeda51d03b2f9e73e70620c197172e56373786034b",
+        "receipt_sha256": "0fdb909d847aa4dc1ea4b520386fe0c613f4cd6c9529154ca0371f8ab6373761"
+      },
+      {
+        "field": "plate1_A06_T0001F001L01A01Z01C02.tif",
+        "candidates": 178,
+        "included": 41,
+        "csv_sha256": "bda6576eb30ed7c81c953832811e5ca531dd5539e41ed3b22edbefad78b53868",
+        "mask_sha256": "c1dab00277309f755afa0dd1798b29bbdbffd4994c7dff40f24d75b0e9db404f",
+        "receipt_sha256": "7586c33674793e7baedccc69a730546f3b3a265e70b3e63ce8c23f926f1c0be9"
+      },
+      {
+        "field": "plate1_A07_T0001F001L01A01Z01C02.tif",
+        "candidates": 507,
+        "included": 124,
+        "csv_sha256": "b4d7e3485701d345c412abecac5b42496745e624376d26ca12d2059e153ebf74",
+        "mask_sha256": "65d2330ad13f9a4749613532d3ccbc8f213f75b331276527f1d494741fd3ba1f",
+        "receipt_sha256": "7c3b79afd7bde2a4bbdee903baf34638cd4f27ae3af9aef18e53acb4dc703dbd"
+      },
+      {
+        "field": "plate1_A08_T0001F001L01A01Z01C02.tif",
+        "candidates": 460,
+        "included": 104,
+        "csv_sha256": "495a52374c22115dc7a547b175e965af6f12ef914af23c34989095ceba5429ea",
+        "mask_sha256": "a4504ad982c0ad2371bd277a5b93e5fc1b3a1703d469624cb42d0176acb8eaa6",
+        "receipt_sha256": "a8be4e5bf6ea08561eef297c34872f214821acc8d528182030930ff14a74eead"
+      },
+      {
+        "field": "plate1_A09_T0001F001L01A01Z01C02.tif",
+        "candidates": 410,
+        "included": 186,
+        "csv_sha256": "d7c158742d50001a71167c7a3cb6f8f58d9770fe57f6cae28d93886da5d85776",
+        "mask_sha256": "c14c7e41c932b69371505ae76ad09d8a1410f8990c94a7c02f9d221dcb57bab3",
+        "receipt_sha256": "5be7f6e2c66aa4c5529cb7b9d1195690be11cf5f4daa0acfa883a309eb2f91dd"
+      },
+      {
+        "field": "plate1_A10_T0001F001L01A01Z01C02.tif",
+        "candidates": 499,
+        "included": 251,
+        "csv_sha256": "ba9cc06bd42283416256bc73580738f40cc7b77ac4dfe2486cab90530229eebc",
+        "mask_sha256": "f710c5a4374e51a546aea29cb55a37c39f5b5a977f86a6282c210efb139ed2d0",
+        "receipt_sha256": "d1b9987ffd962dd74c2ad7e743389621f515f221f41eff1fd9d6ea3c9c3d4501"
+      },
+      {
+        "field": "plate1_A11_T0001F001L01A01Z01C02.tif",
+        "candidates": 395,
+        "included": 200,
+        "csv_sha256": "139b6f327aaad59a96cf7ed1f63d0b980026a2182a57ff8d0d6e2df857bbc267",
+        "mask_sha256": "50c0de4981a87a45b705801eb70c3501a37ad125eb74f01580f4561f0d330dbc",
+        "receipt_sha256": "ea98d054a4e391ce3bf9193d07d9b428ed659a17d30620dcf4f0a192a754cad0"
+      },
+      {
+        "field": "plate1_A12_T0001F001L01A01Z01C02.tif",
+        "candidates": 4663,
+        "included": 1818,
+        "csv_sha256": "61baa7861d012c18de04020b1d359d3338c9b4c3a8cda3aeddbac469a551b06d",
+        "mask_sha256": "02174d1de9549a7108ee0cb003cf7cddf7077600473d453e99a0751577b0a17c",
+        "receipt_sha256": "15364f7d0f1771364b5d2bbfed660b1477133d627e667717514fe2b5c2cb47d0"
+      },
+      {
+        "field": "plate1_A13_T0001F001L01A01Z01C02.tif",
+        "candidates": 5405,
+        "included": 2578,
+        "csv_sha256": "0c78094dbc779c3ac4f7f1827eb49dbdb37294986d7fe4b09cc0b4de7e29e45c",
+        "mask_sha256": "5e55fbae53d8c1da0085868c997689ef176ef6ffc5e812debd4ff36e6049401f",
+        "receipt_sha256": "b519631222457b1f90fff8f2811946bfe35d2309cc0d46a120764c8cac746794"
+      },
+      {
+        "field": "plate1_A14_T0001F001L01A01Z01C02.tif",
+        "candidates": 4293,
+        "included": 420,
+        "csv_sha256": "7f4d0604c3857e7468ac6353b261475bc9d4b195da45b4f308107c6930b711ad",
+        "mask_sha256": "0a29e7e7d217bedc0891f4f75b8144cdaee752a409ebfb99318a967cb7d821dd",
+        "receipt_sha256": "7814f6956a8d1df09d050a80982a816003bf4a38218de4ddcf31060ae855b328"
+      },
+      {
+        "field": "plate1_A15_T0001F001L01A01Z01C02.tif",
+        "candidates": 5186,
+        "included": 2494,
+        "csv_sha256": "a00f4b71a526e6fe317fc4804fe22f54b3ab69ad8f489b94f91d8747fa803cc7",
+        "mask_sha256": "66538bd349267e82a1b5fe635f829390c50b11a6cab6fc4f3c6341fe2f228a42",
+        "receipt_sha256": "d497a3e57d51bfe060e0be00ace6a40a11ead8d19e4091f04b49274ecd18cf98"
+      },
+      {
+        "field": "plate1_A16_T0001F001L01A01Z01C02.tif",
+        "candidates": 3645,
+        "included": 1634,
+        "csv_sha256": "124a8a38c7bf16d3894cc2c71ae7bccc5c01b63b526b2c48c983ea637eb78fc3",
+        "mask_sha256": "5ca1db97029172fa25e7a4852688667132c7e55e3581941b2f8fe7242efe0da9",
+        "receipt_sha256": "340639c0de6b430cb044ba40e81511eb6ac9ec61097126fdedfb33bcb7a99577"
+      },
+      {
+        "field": "plate1_A17_T0001F001L01A01Z01C02.tif",
+        "candidates": 6649,
+        "included": 574,
+        "csv_sha256": "e2e863373146f2aa94ec840480ed4c179b35b8fd94ed5999c2171052ab3beb79",
+        "mask_sha256": "ca34f0b348d024d25012b9a6a464ec394d32951c4b1f0f6b697d241550f1390f",
+        "receipt_sha256": "2ca687da5b9ce4d78325e0549259c9e95a2c8e11eca01516e5bc2aa4038a4bc6"
+      },
+      {
+        "field": "plate1_A18_T0001F001L01A01Z01C02.tif",
+        "candidates": 252,
+        "included": 64,
+        "csv_sha256": "b5e7dae11ba6282391af886a3febdb7f390b1e47422cf7db96b165950c468d00",
+        "mask_sha256": "bc6bb5603c4ff180d2eec0caa902e0f92c9b3702a931c2e0f275b2be218dbfd9",
+        "receipt_sha256": "572648cb0f3a747d8681dad278bf86cd662a5fdf716e6667c74ba50d611ff2ae"
+      },
+      {
+        "field": "plate1_A19_T0001F001L01A01Z01C02.tif",
+        "candidates": 391,
+        "included": 92,
+        "csv_sha256": "9afb291320554bd22b8e5dc7548bb3ff22195f959671ac0580020d47c2c2b5e2",
+        "mask_sha256": "9e6499f1d51bc5d7baafb76422c3028495be52e3f17f9e359938a48c820751a0",
+        "receipt_sha256": "0ce6f5ed2ee5cca1db75e94312560af6a210fa1f7f1bc044592c440dd6c843a8"
+      },
+      {
+        "field": "plate1_A20_T0001F001L01A01Z01C02.tif",
+        "candidates": 520,
+        "included": 119,
+        "csv_sha256": "e51a1adc8b8192f621c2e0ffb91f3e4a97b53d5a9b0ac44a74f1961f8ba4bb37",
+        "mask_sha256": "3a6676f07b6ef579f0af80801916c18109cb2db7ee0f33c98bcd0c5c76aca61a",
+        "receipt_sha256": "de3156bfa41fb72a3478866cb7530acd4d081fee03dea3360f638a83d0c76fe5"
+      },
+      {
+        "field": "plate1_A21_T0001F001L01A01Z01C02.tif",
+        "candidates": 524,
+        "included": 95,
+        "csv_sha256": "0df7cffd22682432882fbb3398c9f68a032b6a307f1d507d56f2302f734d54f5",
+        "mask_sha256": "d5b7f2f9ccb5fc203c55817db96ea38cdabf298041c4e2873ff9b2fd14542b7e",
+        "receipt_sha256": "0df4195aeeba06ef828eb8257da273b8fde7169c253930f3570dc00766fbfa0b"
+      },
+      {
+        "field": "plate1_A22_T0001F001L01A01Z01C02.tif",
+        "candidates": 427,
+        "included": 88,
+        "csv_sha256": "35c61382312e796d3ec0a20b5c61d79bb1c01ab29042427be5b93c851986f977",
+        "mask_sha256": "37dba340baaee00325998ee9755e1672ef917b966c19144265a524f003ba1cc1",
+        "receipt_sha256": "781b505e8e85400198d85c300fa08ccecec7a7adb9898088b6a7348be22ec696"
+      },
+      {
+        "field": "plate1_A23_T0001F001L01A01Z01C02.tif",
+        "candidates": 635,
+        "included": 249,
+        "csv_sha256": "1eb9e4994493db644b3ad71801df3348d02e7384284bb3f059f485696bef2c26",
+        "mask_sha256": "77eef78d8138924d2f397608e8dccff1fd97ea2ea046ffe37682735fdd173e9c",
+        "receipt_sha256": "0efdb1239f004254b3e42585984b82a8e1c6c77af8edc7c01f89636f408fc4ed"
+      },
+      {
+        "field": "plate1_A24_T0001F001L01A01Z01C02.tif",
+        "candidates": 4496,
+        "included": 1969,
+        "csv_sha256": "a37c23e03eafbb4cea415c55233e8144d9509ed8fc466322ab25c239123bf8b7",
+        "mask_sha256": "4878203f711c56e409087ce1250acd211075e3b61a320d9d442839505c0fb7ab",
+        "receipt_sha256": "af51fdfcdf661fd6ab8b9bdd5ac037c7945b3e4949046482684a0db951728c07"
+      },
+      {
+        "field": "plate1_B01_T0001F001L01A01Z01C02.tif",
+        "candidates": 2351,
+        "included": 1526,
+        "csv_sha256": "564b566ca89b3ec87c306b7d0c5ffd350bd51bd3f644fd3d10783828040a825c",
+        "mask_sha256": "110e72af7331e5c0ba71fbac52472c79affc6a4a97ff22b197f2dc93193561d9",
+        "receipt_sha256": "afd07a7ba58268bb69184e24ffbef4033e4175330217e7fbba8b53fab87733c5"
+      },
+      {
+        "field": "plate1_B02_T0001F001L01A01Z01C02.tif",
+        "candidates": 701,
+        "included": 210,
+        "csv_sha256": "3b3afcf1be09cd07aaaf965329cf93a7c44fa836944c8d2b42fdf6bce8140596",
+        "mask_sha256": "30af202017098bcd23c4b7fff8eb4c69383e9e054cf06163d9a33b572c824a3e",
+        "receipt_sha256": "fc9dba1a17685bf39d3c378790d8028c6325da8aa7f29f1920bf6251eee46fc6"
+      },
+      {
+        "field": "plate1_B03_T0001F001L01A01Z01C02.tif",
+        "candidates": 357,
+        "included": 232,
+        "csv_sha256": "f00beb3cd7ce30e548bc75a6ebf44478803c855eb7ef0cd9db32960a382ec7a2",
+        "mask_sha256": "0b925795bdb3801e95ff9be92ed032c1c9fbec5360d58130fd7f57b93c4f246b",
+        "receipt_sha256": "7ab6deacfd23b1fcf58379d87ce5fb61ecedfbc4f7bcec3af70cba04d76a7359"
+      },
+      {
+        "field": "plate1_B04_T0001F001L01A01Z01C02.tif",
+        "candidates": 495,
+        "included": 288,
+        "csv_sha256": "34f5cc3b42efa34857c6494535ab7f07512fead42596ce9d7a4c9ca7985e6363",
+        "mask_sha256": "35a391227abac97ff1c5cb1a629d9b4e30b079cab68476750d507f76b5434893",
+        "receipt_sha256": "efdda974df1e2d0a7714aa7a6166f45ca8de95ffd1b17a8b36407124a68b9f55"
+      },
+      {
+        "field": "plate1_B05_T0001F001L01A01Z01C02.tif",
+        "candidates": 3339,
+        "included": 1818,
+        "csv_sha256": "6d5c3ae1dd9718fb1a05d679ed9053958e8deb60e902b6fc90bc9f4636c19516",
+        "mask_sha256": "5429ea9fa652ce519b1ae3fcb3180b403656a38ea8922db7ac52f9924e8b621e",
+        "receipt_sha256": "41e0dc224ded51d5448e783d71b0313b146d2ea3dfea2ddd1715adc5d5fcab24"
+      },
+      {
+        "field": "plate1_B06_T0001F001L01A01Z01C02.tif",
+        "candidates": 2561,
+        "included": 1278,
+        "csv_sha256": "378ba6f1bfd3ad7b244aa4e1e546de6d3ab13382ccdbe7c6f470209d6504d286",
+        "mask_sha256": "15038f81b1236c33753b3f055a6cf64d051a3f63eb20500127df8480a9756b9c",
+        "receipt_sha256": "e4dfd044de196a428d0dd6684cd02ce14fac7e256680b96d6a0b1d78d5f6b379"
+      },
+      {
+        "field": "plate1_B07_T0001F001L01A01Z01C02.tif",
+        "candidates": 8633,
+        "included": 4350,
+        "csv_sha256": "a69fef337b3eb1d27e002b4bc231b31c77ba54611605b4f9f457324624078eeb",
+        "mask_sha256": "ce30fe7ba2577af06d80855d75ff58b0278159df12bd1de67675b04a6b4e9f1e",
+        "receipt_sha256": "110296e2c1ebeb835dad00d85614c039b71deffa44a37e60e1cc6ed7f0666fcb"
+      },
+      {
+        "field": "plate1_B08_T0001F001L01A01Z01C02.tif",
+        "candidates": 306,
+        "included": 62,
+        "csv_sha256": "f4d3279ade858635bc3e027db1f5adeecff2797a76231af1fd48f000b9237947",
+        "mask_sha256": "8eced2519d66824c492f0e3a2cf2d8ddaff4b0d18d12f03c884817a8e62e567e",
+        "receipt_sha256": "24584d046ad5b8a68a431889a4d74bbcafbac85b7b76e79024c858aea50a9a8f"
+      },
+      {
+        "field": "plate1_B09_T0001F001L01A01Z01C02.tif",
+        "candidates": 654,
+        "included": 139,
+        "csv_sha256": "9420a6b2becd3f8f38c40972d9e2504da058b9be2cc8767b85a6961b0cada6d4",
+        "mask_sha256": "bb71bb4a84bcfdc43397328050dc895a63c0be07e079837835f409dad4f33d21",
+        "receipt_sha256": "e282ca7b583045aebf09c65c90e547a4ad82c8e2511b11c9f14be527ffeb6900"
+      },
+      {
+        "field": "plate1_B10_T0001F001L01A01Z01C02.tif",
+        "candidates": 399,
+        "included": 81,
+        "csv_sha256": "6329850ffb8d40e9120bf78678394f6c787e1884d5e26a6c66ff568cc87c7415",
+        "mask_sha256": "6a26be7326bd30b2ab34f106050db927b0a4a7982dc7526c3ef8b818c7ae84ab",
+        "receipt_sha256": "6dda8fc069407de0dd3d627b95da8473744547b71e78a07b61a6cbee10a17e0e"
+      },
+      {
+        "field": "plate1_B11_T0001F001L01A01Z01C02.tif",
+        "candidates": 137,
+        "included": 37,
+        "csv_sha256": "d6cd7fd6d993fe853a2e433ef648b0a3a873ed262e3885a6dee146e1ab50c4ab",
+        "mask_sha256": "a2bf076d07cedf0afb2976ac9be81f9b2b6f167b9780b5ca6347303b5e949444",
+        "receipt_sha256": "4cfc2963f56c388ac304c23ea46f08f4be33da9c1ec2e882e4ece59433ddd6fe"
+      },
+      {
+        "field": "plate1_B12_T0001F001L01A01Z01C02.tif",
+        "candidates": 296,
+        "included": 166,
+        "csv_sha256": "43a60c03eae82b32dc9246b38c85e46a3c916628ead85c5fbc600b53316c1f80",
+        "mask_sha256": "78a26643f2bb77ae2cd32926bef55b152ee0b7ea28878cdf8ab57f4ffd837f62",
+        "receipt_sha256": "0a140e3b37460eade8470dd58de319bb53a28d06dd7d78f0b753939e119175d6"
+      },
+      {
+        "field": "plate1_B13_T0001F001L01A01Z01C02.tif",
+        "candidates": 239,
+        "included": 144,
+        "csv_sha256": "f01b79efdc611ff5029ed0317e4602e369a8d2b084d0ffb99dcd63072876e9e4",
+        "mask_sha256": "94b34d52cad45efe45f3a6597247b539383db63e08b47bdc0f0049bad9e61d40",
+        "receipt_sha256": "0693f45612c87c786d793c37abb1418b4319a36dbede4ab601e632ac19634911"
+      },
+      {
+        "field": "plate1_B14_T0001F001L01A01Z01C02.tif",
+        "candidates": 547,
+        "included": 246,
+        "csv_sha256": "493fe8e98de3446f3e2487d106b3bad295edf402dfa983935b7ad1753f20b46a",
+        "mask_sha256": "b09ab37222fd0c45eb435f27d3d53e8040598e5c5efcccfc9fbbd2e8bd797c8f",
+        "receipt_sha256": "96028417e0caa1dd2256e4b152cdf393b09c66e10929e8c2b91880651973962a"
+      },
+      {
+        "field": "plate1_B15_T0001F001L01A01Z01C02.tif",
+        "candidates": 145,
+        "included": 86,
+        "csv_sha256": "1f63a56f652d94177560273a0db3221f8e5049d7ea999338d51d0e58aaa84817",
+        "mask_sha256": "0377f73fce559d73207854a7c21194a81825cb376cbbf1d014dc07057cb7736a",
+        "receipt_sha256": "f1ffddc0595267a00849d3b4524cee5f9155ea54e3223de993560303fd584437"
+      }
+    ],
+    "candidates": 62317,
+    "included": 24145,
+    "elapsed_seconds": 39.104406996048056,
+    "saved_masks_match_core_labels": true,
+    "all_saved_candidate_columns_match_core_measurements": true,
+    "saved_csv_comparison": "all columns; rtol=1e-12, atol=1e-12; bool/keys exact"
+  },
+  "test_evidence": {
+    "native_measurement_save_provenance": {
+      "passed": 14,
+      "log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/puncta-provenance-checks.log"
+    },
+    "source_docstring_contracts": {
+      "passed": 174,
+      "log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-source-guards-final.log"
+    },
+    "related_modes": {
+      "passed": 82,
+      "log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/puncta-repro-raw.log",
+      "randomly_seed": 2991248580
+    },
+    "qt_observation": "Earlier randomized mixed cohorts intermittently segfaulted in native Qt while waiting for the parent selector. Two gdb runs and a direct replay of seed 2991248580 passed all 82 tests. This does not establish a Qt lifetime fix; retained for the CPU/Qt owner to investigate.",
+    "final_feature_and_hygiene": {
+      "passed": 119,
+      "log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-feature-final-tests.log",
+      "randomly_seed": 2991248580
+    },
+    "runtime_and_extractor_cohort": {
+      "passed": 56,
+      "deselected": 1,
+      "expected_failures": 10,
+      "note": "Nine existing API catalog mismatches remain open under 615. The tenth expected failure was the exact caption identity pin, subsequently measured and corrected with before/after source proof; the direct strict contract passes."
+    }
+  },
+  "scope": {
+    "implemented": "Make Masks centre-pixel puncta labels and exact candidate centre/annulus measurements",
+    "guide_translations_current": false,
+    "api_translations_current": false,
+    "make_masks_tutorial_refreshed": false,
+    "full_measure_center_intensities_equivalent": false,
+    "downstream_figure_final_verified": false
+  },
+  "runtime_strict_audit": {
+    "passed": true,
+    "languages": 9,
+    "ui_sources": 7032,
+    "settings": 1238,
+    "categories": 237,
+    "modules": 77
+  }
+}
