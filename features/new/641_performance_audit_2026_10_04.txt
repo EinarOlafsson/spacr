@@ -356,6 +356,43 @@ Guards (tests/qt/test_641_startup_and_browse_budgets.py):
    open finishes; stops on short memory; off by env, preference, Laptop,
    Extra Performance; order configurable).
 
+8. FIFTH PASS: PER-ROW SHEETS INTO THE THEME SHEET (2026-10-04, CPU)
+   The per-instance setStyleSheet calls on a module build moved into
+   theme.stylesheet() as objectName selectors: setting chips
+   (QFrame#SettingChip, QLabel#SettingChipText), the list footer
+   (QToolButton#SettingListFooter), card bodies (QWidget#CardBody),
+   resource-meter rows (QWidget#UsageBarRow and its bar), the category
+   hint strip and the console splitter handle; the help label's duplicate
+   transparent rule went (QLabel#SubtitleSmall already has it). Calls per
+   first open: Mask 70 -> 33, Regression 48 -> 21, Measure 61 -> 22.
+   Left per widget on purpose: AiToggleLabel (state and live zoom, own
+   tests, used outside themed windows), selector-less "background:
+   transparent" sheets that reach descendants (CPU row wrapper, console
+   scroll/holder), the walkthrough overlay, the figure-queue clear label
+   (flash colour), the hover-tooltip link colours.
+
+   Visuals: offscreen grabs of Home, Mask, Measure, Regression and
+   Preferences in light, dark and high contrast, before and after, pixel
+   diffed (harness /mnt/wd4tb/scratch/641/r5/grab.py, diff.py): every
+   difference lies in the live System meters (values) and Home's live
+   counter, the same regions two baseline runs differ in; Preferences
+   0 px. Checked by eye as well (chips, footer, meters, splitter).
+
+   First open after a 30 s idle Home, offscreen, median of 5 processes,
+   base and new interleaved, load 25-33 (prewarm order mask,regression;
+   fresh copy of the profile per run so no restore-drafts modal blocks
+   the prewarm; harness pw.sh/pw.py now main-guarded, the round-4 harness
+   ran a second, spawned copy of itself in parallel):
+                     prewarm off        prewarm on
+                     base    new        base    new
+    mask             2.365   2.362      0.240   0.263
+    regression       2.440   2.008      0.247   0.262
+   No measurable gain: the 200 ms target for Mask and Regression is NOT
+   met. As the round-4 census said, the per-widget sheets were ~10 ms of
+   the open; what is left is Qt's first Show and paint of ~1,000-1,400
+   widgets, which only fewer widgets (or a pre-shown page, rejected in
+   section 7) would remove.
+
 Left:
   - Chatty GUI runs: 1.7x bare headless (1.5x a logged headless run). The
     rest is the logging sinks themselves (master + level + dated file +
@@ -363,7 +400,8 @@ Left:
     product decision.
   - Module first-open: 30 of 54 over 500 ms at load 20-30 (11 at load 15);
     the seven most used now open in 0.08-0.32 s after an idle prewarm
-    (section 7); Mask and Regression still above 200 ms (first Show/paint);
+    (section 7); Mask and Regression still above 200 ms (first Show/paint;
+    moving per-row sheets into the theme sheet did not change it, section 8);
     the rest is Qt polish/layout/stylesheet over 1,000+ widgets per slow
     screen -- needs fewer widgets (section 6).
   - GUI-thread listings left: FilePathListWidget._folder_members,

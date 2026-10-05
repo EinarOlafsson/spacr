@@ -612,7 +612,6 @@ class ObjectSettingsGrid(QWidget):
 
         self._help = QLabel("", self._help_band)
         self._help.setObjectName("SubtitleSmall")
-        self._help.setStyleSheet("background: transparent;")
         self._help.setWordWrap(True)
         self._help.setTextFormat(Qt.TextFormat.RichText)
         self._help.setAlignment(Qt.AlignmentFlag.AlignLeft

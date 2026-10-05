@@ -7870,7 +7870,6 @@ class AppScreen(QWidget):
         self._category_hint_pinned = ""
         self._category_hint = QLabel(self._default_category_hint())
         self._category_hint.setObjectName("CategoryHintStrip")
-        self._category_hint.setStyleSheet("background: transparent;")
         self._category_hint.setWordWrap(True)
         self._category_hint.setTextFormat(Qt.RichText)
         self._category_hint.setAlignment(Qt.AlignLeft | Qt.AlignTop)

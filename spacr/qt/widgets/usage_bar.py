@@ -37,7 +37,8 @@ class UsageBar(QWidget):
 
         The row itself must paint nothing: the application sheet's blanket
         background rule would otherwise put an opaque rectangle behind the bar,
-        whatever is behind the page.
+        whatever is behind the page. The theme sheet's ``UsageBarRow`` rule
+        says so for every row at once, so a row carries no sheet of its own.
 
         :param label: what is being measured.
         :param parent: parent widget, or ``None``.
@@ -45,10 +46,6 @@ class UsageBar(QWidget):
         super().__init__(parent)
         self.setObjectName("UsageBarRow")
         self.setAttribute(Qt.WA_StyledBackground, True)
-        self.setStyleSheet(
-            "QWidget#UsageBarRow { background: transparent; }"
-            "QProgressBar { background: transparent; }"
-        )
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING["sm"])

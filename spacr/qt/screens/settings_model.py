@@ -8004,9 +8004,10 @@ class _Chip(QFrame):
 
     :param text: the value shown, and the payload emitted with
         :attr:`removed` -- so it identifies the chip, not just its label.
-    :param colours: the active palette, PASSED IN rather than read here so a
-        strip of chips is built from one palette lookup instead of one per
-        chip.
+    :param colours: the active palette the strip already holds. The pill's
+        fill, rim and ink come from the theme sheet's ``SettingChip`` rules,
+        so a strip of chips adds no stylesheet of its own and Qt polishes
+        each one against the sheet it already has.
     :param parent: parent widget; ownership only.
     """
 
@@ -8032,19 +8033,6 @@ class _Chip(QFrame):
         close.clicked.connect(lambda: self.removed.emit(self))
         row.addWidget(close)
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.setStyleSheet(
-            f"""
-            QFrame#SettingChip {{
-                background: {colours['accent_soft']};
-                border: 1px solid {colours['border']};
-                border-radius: 9px;
-            }}
-            QLabel#SettingChipText {{
-                color: {colours['fg']};
-                background: transparent;
-            }}
-            """
-        )
 
     def text(self) -> str:
         """The value this chip carries, as typed."""
@@ -8441,8 +8429,6 @@ class _ListEditor(QWidget):
         :param parent: parent widget.
         """
         super().__init__(parent)
-        from ..theme import active_palette
-        self._colours = active_palette()
         self._key = key
         self._nested_capable = bool(nested_capable)
         self._allow_none = bool(allow_none)
@@ -8465,11 +8451,6 @@ class _ListEditor(QWidget):
         self._footer.setCursor(Qt.PointingHandCursor)
         self._footer.setFocusPolicy(Qt.NoFocus)
         self._footer.clicked.connect(self._on_footer)
-        self._footer.setStyleSheet(
-            f"QToolButton#SettingListFooter {{ color: {self._colours['accent']};"
-            " background: transparent; border: none;"
-            f" padding: 0px; text-align: left; }}"
-        )
         self._outer.addWidget(self._footer, 0, Qt.AlignLeft)
 
         self.set_value(default)

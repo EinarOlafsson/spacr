@@ -1112,22 +1112,6 @@ class ConsolePanel(QWidget):
             make_transparent(self._split)
         except Exception:
             pass
-        try:
-            accent = active_palette()["button_accent"]
-        except Exception:
-            accent = "#4A9EFF"
-        self._split.setStyleSheet(
-            self._split.styleSheet()
-            + f"""
-QSplitter#ConsoleSplit::handle:vertical {{
-    background: transparent;
-    border: none;
-}}
-QSplitter#ConsoleSplit::handle:vertical:hover {{
-    background: transparent;
-    border-top: 1px solid {accent};
-}}
-""")
         outer.addWidget(self._split, 1)
 
         self._console_box = QFrame()

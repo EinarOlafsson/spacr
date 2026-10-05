@@ -5794,6 +5794,41 @@ QStatusBar {{
     font-size: {F["small"]}px;
     padding: 0px {S["sm"]}px;
 }}
+
+/* -----------------------------------------------------------------
+ *  Per-row widgets built many times per screen: setting chips, the
+ *  list footer, card bodies and resource-meter rows. Ruled here once
+ *  rather than sheeted per instance, so a screen build polishes them
+ *  against the sheet it already carries.
+ * ----------------------------------------------------------------- */
+QFrame#SettingChip {{
+    background: {base["accent_soft"]};
+    border: 1px solid {base["border"]};
+    border-radius: 9px;
+}}
+QFrame#SettingChip QLabel#SettingChipText {{
+    color: {base["fg"]};
+    background: transparent;
+}}
+QToolButton#SettingListFooter {{
+    color: {base["accent"]};
+    background: transparent;
+    border: none;
+    padding: 0px;
+    text-align: left;
+}}
+QWidget#CardBody, QWidget#UsageBarRow,
+QWidget#UsageBarRow QProgressBar, QLabel#CategoryHintStrip {{
+    background: transparent;
+}}
+QSplitter#ConsoleSplit::handle:vertical {{
+    background: transparent;
+    border: none;
+}}
+QSplitter#ConsoleSplit::handle:vertical:hover {{
+    background: transparent;
+    border-top: 1px solid {base["button_accent"]};
+}}
 {GLASS_LAYER}{WIDGET_QSS}{CLOSE_MARK_RULES}
 """
 

@@ -63,7 +63,6 @@ class Card(QFrame):
 
         self.body = QWidget(self)
         self.body.setObjectName("CardBody")
-        self.body.setStyleSheet("QWidget#CardBody { background: transparent; }")
         self.body_layout = QVBoxLayout(self.body)
         self.body_layout.setContentsMargins(0, 0, 0, 0)
         self.body_layout.setSpacing(SPACING["sm"])
