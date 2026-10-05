@@ -4520,6 +4520,9 @@ class AppScreen(QWidget):
         from ..preferences import _is_alpha_visible
         self._watch_progress.setVisible(
             _is_alpha_visible("widgets", self._watch_progress.objectName()))
+        plate = getattr(self, "_watch_live_plate", None)
+        if plate is not None:
+            plate.refresh()
 
     def _lay_out_setting_row(self, section, label, widget) -> None:
         """Put one setting on ``section``'s form: its label, then its field.
@@ -6390,6 +6393,12 @@ class AppScreen(QWidget):
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self)
+        plate = getattr(self, "_watch_live_plate", None)
+        if plate is not None:
+            from ..preferences import _is_alpha_visible
+
+            plate.setVisible(plate.is_active() and _is_alpha_visible(
+                "widgets", plate.objectName()))
         if not self._part_is_owed(_LIVE_PREVIEW):
             columns = getattr(getattr(self, "_live_preview", None),
                               "_apply_alpha_columns", None)
@@ -7399,6 +7408,12 @@ class AppScreen(QWidget):
                                      persist_key=self.app_key)
         self._console.setMinimumHeight(180)
         console_card.body_layout.addWidget(self._console, 1)
+        self._watch_live_plate = None
+        if self.app_key == "mask":
+            from .plate_view import _WatchLivePlate
+
+            self._watch_live_plate = _WatchLivePlate(console_wrap)
+            console_col.addWidget(self._watch_live_plate)
         _breathe_while_a_window_opens()
         from ..widgets.foldable import make_foldable
 
@@ -8516,6 +8531,16 @@ class AppScreen(QWidget):
         self._gpu_progress.setVisible(False)
         self._watch_progress.clear()
         self._watch_progress.setVisible(False)
+        if self._watch_live_plate is not None:
+            if settings.get("watch_folder"):
+                source = settings.get("src")
+                if isinstance(source, (list, tuple)):
+                    source = source[0] if source else ""
+                if source:
+                    self._watch_live_plate.begin(
+                        source, settings.get("watch_pipeline", "mask"))
+            else:
+                self._watch_live_plate.reset()
 
         import time as _time
         self._run_started_at = _time.time()
@@ -9874,6 +9899,9 @@ class AppScreen(QWidget):
         if builder is not None:
             builder.stop()
         self._stop_the_heartbeat()
+        plate = getattr(self, "_watch_live_plate", None)
+        if plate is not None:
+            plate.finish()
         th = getattr(self, "_thread", None)
         if th is not None:
             try:
@@ -9988,6 +10016,8 @@ class AppScreen(QWidget):
         """
         from ..button_roles import set_button_busy
         self._stop_the_heartbeat()
+        if self._watch_live_plate is not None:
+            self._watch_live_plate.finish()
         _resume_the_fractal(self)
         self._btn_run.setEnabled(True)
         self._btn_stop.setEnabled(False)

@@ -49,6 +49,12 @@ Design notes:
 from __future__ import annotations
 
 import os
+import json
+import re
+import sqlite3
+from collections import Counter
+from contextlib import closing
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -74,7 +80,7 @@ from ...selection import DataFilter
 from ..bridge import make_thread
 from ..linked_selection import LinkedView
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
-from ..widgets import Divider
+from ..widgets import Card, Divider
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import (
     EXAMPLE_MEASUREMENT, install_test_data_button,
@@ -119,6 +125,163 @@ PREFERRED_TABLES: Tuple[str, ...] = ("cell", "object", "nucleus", "pathogen",
 _ROW_LABEL_W = 30
 _COL_LABEL_H = 20
 _GRID_PAD = 6
+
+
+def _watch_plate_well(key: str) -> Optional[Tuple[str, int, int]]:
+    """Find the plate and well in a watch field key, including custom plate IDs."""
+    parts = str(key).split("_")
+    for index in range(len(parts) - 1, 0, -1):
+        if not re.fullmatch(r"[A-Za-z]{1,2}0*[1-9][0-9]?", parts[index]):
+            continue
+        well = pqc._parse_well_label(parts[index])
+        if well is not None:
+            return "_".join(parts[:index]), *well
+    return None
+
+
+class _WatchLivePlate(QWidget):
+    """Show committed watch fields by well while Make Masks watches a folder."""
+
+    def __init__(self, parent=None):
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self.setObjectName("WatchLivePlate")
+        outer = QVBoxLayout(self)
+        outer.setContentsMargins(0, 0, 0, 0)
+        self._card = Card(title=tr("Live plate"), parent=self)
+        outer.addWidget(self._card)
+        self._source = ""
+        self._pipeline = "mask"
+        self._wells = {}
+        self._unplaced = 0
+        self._plate = QComboBox(self)
+        self._plate.currentTextChanged.connect(self._render)
+        self._card.body_layout.addWidget(self._plate)
+        self._grid = PlateGridWidget(self)
+        self._grid.setMinimumSize(240, 155)
+        self._grid.setToolTip(tr("Colour shows completed fields per well."))
+        self._card.body_layout.addWidget(self._grid, 1)
+        self._summary = QLabel(tr("Waiting for completed fields"), self)
+        self._card.body_layout.addWidget(self._summary)
+        self._timer = QTimer(self)
+        self._timer.setInterval(1500)
+        self._timer.timeout.connect(self.refresh)
+        self.setVisible(False)
+
+    def is_active(self) -> bool:
+        """Whether this card belongs to the current watch run."""
+        return bool(self._source)
+
+    def begin(self, source: str, pipeline: str) -> None:
+        """Start polling the ledger and the combined database for a watch run."""
+        from ..preferences import _is_alpha_visible
+
+        self._source = os.path.abspath(os.fspath(source))
+        self._pipeline = str(pipeline or "mask")
+        self._wells = {}
+        self._unplaced = 0
+        self._plate.clear()
+        self._render()
+        self.setVisible(_is_alpha_visible("widgets", self.objectName()))
+        self.refresh()
+        self._timer.start()
+
+    def finish(self) -> None:
+        """Keep the last plate visible after a run, but stop disk polling."""
+        if self.is_active():
+            self.refresh()
+        self._timer.stop()
+
+    def reset(self) -> None:
+        """Hide old watch results when an ordinary Make Masks run starts."""
+        self._timer.stop()
+        self._source = ""
+        self._wells = {}
+        self.setVisible(False)
+
+    def refresh(self) -> None:
+        """Read one atomic ledger snapshot and show only committed field keys."""
+        if not self._source:
+            return
+        work = os.path.join(self._source, "spacr_watch")
+        try:
+            with open(os.path.join(work, "watch_ledger.json"),
+                      encoding="utf-8") as handle:
+                ledger = json.load(handle)
+            fields = ledger.get("fields", {})
+            if not isinstance(fields, dict):
+                return
+        except (OSError, ValueError, AttributeError):
+            return
+        done = {key for key, entry in fields.items()
+                if isinstance(key, str) and isinstance(entry, dict)
+                and entry.get("status") == "done"}
+        if self._pipeline in ("mask_measure", "mask_measure_classify"):
+            database = os.path.join(work, "measurements", "measurements.db")
+            if not os.path.isfile(database):
+                done.clear()
+            else:
+                from ... import tabular
+
+                try:
+                    uri = Path(database).resolve().as_uri() + "?mode=ro"
+                    with closing(sqlite3.connect(uri, uri=True,
+                                                 timeout=0.1)) as connection:
+                        connection.execute("PRAGMA query_only = ON")
+                        committed = tabular._read_query(
+                            connection, "SELECT field FROM spacr_watch_fields",
+                            canonicalise=False, report=None)
+                    done.intersection_update(committed["field"])
+                except (OSError, sqlite3.Error, KeyError):
+                    return
+        wells = Counter()
+        unplaced = 0
+        for key in done:
+            location = _watch_plate_well(key)
+            if location is None:
+                unplaced += 1
+                continue
+            wells[location] += 1
+        if wells == self._wells and unplaced == self._unplaced:
+            return
+        selected = self._plate.currentText()
+        self._wells = wells
+        self._unplaced = unplaced
+        plates = sorted({plate for plate, _row, _col in wells})
+        self._plate.blockSignals(True)
+        self._plate.clear()
+        self._plate.addItems(plates)
+        if selected in plates:
+            self._plate.setCurrentText(selected)
+        self._plate.blockSignals(False)
+        self._render()
+
+    def _render(self, _selected: str = "") -> None:
+        """Paint field counts for the selected plate and leave other wells blank."""
+        from ..i18n import tr
+
+        selected = self._plate.currentText()
+        wells = [(row, column, count)
+                 for (plate, row, column), count in self._wells.items()
+                 if plate == selected]
+        layout = pd.DataFrame(
+            [(row, column, count, count) for row, column, count in wells],
+            columns=("row_index", "column_index", "n", "value"))
+        rows = max(8, max((row for row, _col, _count in wells), default=0))
+        columns = max(12, max((col for _row, col, _count in wells), default=0))
+        self._grid.set_plate(layout, vmin=0, vmax=max(
+            (count for _row, _col, count in wells), default=1),
+            n_rows=rows, n_cols=columns)
+        count = sum(field_count for _row, _col, field_count in wells)
+        if selected:
+            self._summary.setText(tr("{count} completed fields on {plate}").format(
+                count=count, plate=selected))
+        else:
+            self._summary.setText(tr("Waiting for completed fields"))
+        if self._unplaced:
+            self._summary.setText(self._summary.text() + " · " + tr(
+                "{count} fields have no plate well").format(count=self._unplaced))
 
 
 def _cmap_lut(name: str, size: int = 256) -> List[QColor]:

@@ -7393,7 +7393,7 @@ ALPHA_FEATURES = {
         'settings': ('watch_folder', 'watch_pipeline', 'watch_measure_settings',
                      'watch_settle_seconds', 'watch_poll_seconds',
                      'watch_idle_minutes'),
-        'widgets': ('WatchFolderProgress',),
+        'widgets': ('WatchFolderProgress', 'WatchLivePlate'),
     },
     549: {
         'settings': ('microscope_feedback', 'microscope_driver',

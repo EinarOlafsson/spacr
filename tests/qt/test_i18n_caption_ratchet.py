@@ -1279,6 +1279,11 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # and its tooltip sentence.
 # 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Live plate",
+    "Colour shows completed fields per well.",
+    "Waiting for completed fields",
+    "{count} completed fields on {plate}",
+    "{count} fields have no plate well",
     "Automatic (chosen from the data)",
     "Change graph type",
     "Edit figure…",

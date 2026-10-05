@@ -39,12 +39,12 @@ def test_every_part_of_the_watch_is_registered_under_its_item():
 
     entry = ALPHA_FEATURES[548]
     assert set(entry["settings"]) == set(WATCH_SETTINGS)
-    assert entry["widgets"] == ("WatchFolderProgress",)
+    assert entry["widgets"] == ("WatchFolderProgress", "WatchLivePlate")
     for key in WATCH_SETTINGS:
         assert _is_alpha("settings", key)
 
 
-def test_the_watch_settings_and_progress_follow_the_switch(qtbot, prefs):
+def test_the_watch_settings_and_progress_follow_the_switch(qtbot, prefs, tmp_path):
     from spacr.qt.screens.app_screen import AppScreen
     from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
 
@@ -59,6 +59,7 @@ def test_the_watch_settings_and_progress_follow_the_switch(qtbot, prefs):
                        for key in WATCH_SETTINGS)
         screen._show_watch_progress(line)
         assert screen._watch_progress.isHidden()
+        assert screen._watch_live_plate.isHidden()
         assert screen._settings_model.set_value_for_key("watch_folder", True)
         assert screen._settings_model.collect()["watch_folder"] is True
 
@@ -69,12 +70,20 @@ def test_the_watch_settings_and_progress_follow_the_switch(qtbot, prefs):
         screen._show_watch_progress(line)
         assert not screen._watch_progress.isHidden()
         assert "2" in screen._watch_progress.text()
+        assert screen._watch_live_plate.isHidden()
+
+        screen._watch_live_plate.begin(str(tmp_path), "mask")
+        assert not screen._watch_live_plate.isHidden()
 
         prefs._set_show_alpha_features(False)
         screen._refresh_alpha_visibility()
         assert not any(screen.setting_row_is_visible(key)
                        for key in WATCH_SETTINGS)
         assert screen._watch_progress.isHidden()
+        assert screen._watch_live_plate.isHidden()
+        prefs._set_show_alpha_features(True)
+        screen._refresh_alpha_visibility()
+        assert not screen._watch_live_plate.isHidden()
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()
