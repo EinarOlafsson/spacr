@@ -1,4 +1,4 @@
-# CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-04)
+# CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-05)
 
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
@@ -131,15 +131,19 @@ On a merge conflict keep every item's entries and regenerate.
   `Windows-Online-Setup.exe` (docs/source/installers.rst, README icons;
   tests/test_readme_installer_icons.py).
 
-## Open now (2026-10-04)
+## Open now (2026-10-05)
 | Item | State | Owner / waits on |
 |---|---|---|
-| new 43 / future 288 | OPEN: coverage gate red, 11 modules <90%, 57 below baseline | spacr-3f agents |
-| new 47 | OPEN: serial whole Qt run stops at the 10.8 GiB guard (~71%) | spacr-3f agents |
-| new 658 | in progress: part A done, part B (context menu, zip export) | 658 part-B agent |
-| future 548 | OPEN: watch-folder vendor completion, live plate view | unassigned |
-| future 411 | nested-helper API pages in nine locales | Codex root session |
-| new 615 | DONE except the macOS updater scene (627) | needs a macOS capture host |
+| new 43 / future 288 | OPEN: coverage ratchet and final-source GitHub run still need a green verdict | Codex CI lane |
+| new 47 | OPEN: serial whole Qt run stops at the 10.8 GiB guard (~71%); bounded fixture ownership repairs landed | Codex CI lane |
+| future 548 | OPEN: vendor acquisition completion, z/t series and pooled normalisation; alpha pretrained CV Classify and live plate view landed | needs vendor completion evidence |
+| new 658 | DONE: figure preferences, context menu, data/stats ZIP and registration landed | no owner needed |
+| future 411 | DONE: nested-helper API pages and nine catalogs landed | no owner needed |
+| new 615 | DONE except macOS updater scene capture (627) | needs a macOS capture host |
+
+Tutorial handoff for spacr-d7: the alpha Make Masks screen now has a live plate
+card beneath Console during watch runs. Re-record the alpha-features lesson
+(87) when it next covers this screen; keep standard lessons with alpha off.
 
 Blocked on outside input: 370 and 404 (hold-out curation), 449 (hand
 counts), 470 and 559 (annotation), 493 (a second GPU), 534 (public infected

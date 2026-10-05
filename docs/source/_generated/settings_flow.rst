@@ -24574,8 +24574,9 @@ watch_folder
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
+| ``_on_run`` **-- reads it**
 
-Read by ``preprocess_generate_masks``.
+Read by ``preprocess_generate_masks``, ``_on_run``.
 
 .. _setting-flow-watch_measure_settings:
 
@@ -24619,8 +24620,9 @@ watch_pipeline
 |             ``_watch_check_settings`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
+| ``_on_run`` **-- reads it**
 
-Read by ``_watch_analyse_field``, ``_watch_check_settings``.
+Read by ``_watch_analyse_field``, ``_watch_check_settings``, ``_on_run``.
 
 .. _setting-flow-weight_decay:
 

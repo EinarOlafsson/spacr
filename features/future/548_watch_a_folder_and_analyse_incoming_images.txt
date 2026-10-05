@@ -1,9 +1,9 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-04 — vendor acquisition completion, unsupported series,
-        pooled normalisation and the live plate view remain. Pretrained CV
-        inference is available as an alpha watch step; per-field fitting is
-        unsupported. First version built as alpha 2026-09-26.
+Status: OPEN 2026-10-05 — vendor acquisition completion, unsupported series
+        and pooled normalisation remain. Pretrained CV inference and the live
+        plate view are available as alpha; per-field fitting is unsupported.
+        First version built as alpha 2026-09-26.
 
 Previous status (superseded 2026-10-04): ALPHA, built 2026-09-26. First version on Make Masks, hidden unless
 Preferences -> Show alpha features is on (ALPHA_FEATURES[548]).
@@ -460,5 +460,22 @@ PRETRAINED CV CLASSIFY WATCH STEP (2026-10-04, partial)
     and the CV model forward pass are deterministic stand-ins in that test;
     the Classify dispatch, SQLite prediction columns and watch collection are
     exercised. This is not a GPU or real checkpoint acceptance result. The
-    existing vendor completion, unsupported series, pooled normalisation
-    and live plate view work remains open.
+    existing vendor completion, unsupported series and pooled normalisation
+    work remains open.
+
+LIVE PLATE VIEW (2026-10-05, partial)
+    Make Masks now shows a live plate beneath its Console while an alpha
+    watch run is active. It reads atomic ledger snapshots and paints completed
+    field counts by well, with a plate selector and a count for field names
+    that cannot be placed. Mask-only fields appear after the ledger marks
+    them done. For measured and classified pipelines, the field must also
+    have a committed row in the combined database's spacr_watch_fields table;
+    a result is not shown while collection is incomplete. Polling ends with
+    the run, and ordinary Make Masks runs hide the previous watch card.
+
+    The card and watcher controls remain hidden when Show alpha features is
+    off. Focused Qt, alpha-gate, caption and hygiene checks passed (28 cases
+    in the rebased UI worktree; 16 passed and two expected translation-report
+    xfails after integration). This does not establish vendor completion,
+    z/t series support, pooled-normalisation parity or real GPU acquisition
+    acceptance.
