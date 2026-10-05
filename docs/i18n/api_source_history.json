@@ -36,6 +36,29 @@
       "source_sha256": "12ada1e2f56dbeb9ca384d7483a5d10ad835f8c0d49af92d43450d800991b173",
       "text": "Which object a setting belongs to, or None for the great majority.\n\nOrganelle slots are resolved by :mod:`spacr.organelle_types`, which owns\nthe slot naming: the prefixes are lettered -- ``organelle``,\n``organelleb``, ... -- and ``organelle`` is a prefix of every other one,\nso the match has to be longest-first and belongs where the names are\ngenerated rather than being written out a second time here.\n\nBoth spellings of the other three are understood, ``cell_min_size`` and\n``remove_background_cell``, the way\n``spacr.settings.advanced_object_of`` understands them: spaCR is not\nconsistent about which end of a key the object name goes on, and a rule\nthat knew only one end would leave half a family on screen.\n\n:param key: setting key; an organelle-slot prefix, or a\n    ``cell``/``nucleus``/``pathogen`` prefix or suffix, names its object."
     },
+    "18e1e4d37397e4231fb9dc2c433b7626877b1b207ecf7e1ab0ad9559182c1e70": {
+      "source_blocks_sha256": [
+        "a9929b09f770c49ffd3eb6de32c1b4274fe55a7e67d336b686ad267c2b8be8b3",
+        "52acdc3925694f23cba6a907c537a1106037dd1cfbbcaa0e15bf7c43237cd485",
+        "840e2d522a5a06db333567db66bf7c9b9fe89e1a925845733ebafb1939df4444",
+        "0ae5294fe1224dacdbd44f54f2d6e533ce9b0353b8db908fdb04eab8a49d85bb",
+        "0de35813244bfab4d0bfea1ba9c5e2dfb136da1278847099f49481a6327efe61",
+        "f259011c20dc29861f49db3a19c7aa83131df95c97ea5a5bb848dfd293baffd3",
+        "cdc2893c728223d5a340d9093d9a777d7308579773b6289eb4ae54514e863a55",
+        "51514278b5933c93b94a00f5bbf0f7404c6cb847066386d922cd31aaf19039f6",
+        "38aa7873461c2c7d874784c4d387a54eeffed34388c1c305b4f380c038b4189b",
+        "7ac57d4b8f29e6ca1f3d3ac448d13ec3d75674544c67bc3aa2a6b7bb6ceb5a80",
+        "e04cf192063058d1e86b0dce12a94211954f78a4f0621d47dc6a9c0dc32bd89c",
+        "6820d8a6948cbdafc5706f858503cd16f7a86d21aea32f4fc8f4fd7a4e3dc5fc",
+        "e56eed853982e4d9af0d8a4a02192e153e1346aa2dbd16e4d5a00f2fd72ec35a",
+        "3090148e479841ba9434ab4b3bce4990d1276255caa972b11a5a00bf1165154e",
+        "eab2c7e944337e92601d4193eb6a95a8a9a14b44bf63851398481f8bf597237a",
+        "9ccf463980e341d886e3efd1d5038440ae21fd6cb6bd54eeb623aa97b0fee32e",
+        "258b2c3959d0c9026f2c86ce64424e6155ad862dafb9106a3bda1a23e0590d99"
+      ],
+      "source_sha256": "18e1e4d37397e4231fb9dc2c433b7626877b1b207ecf7e1ab0ad9559182c1e70",
+      "text": "Write ``fig`` to ``path``, honouring the figure preferences.\n\nThe single place a spaCR figure the user keeps gets written. Before this\nexisted there were sixty-odd ``savefig`` calls, each with its own\nhard-coded format and DPI, and the \"Figure format\" and \"Resolution\"\npreferences reached exactly two of them -- both writing to a temp\ndirectory. Everything a pipeline saved into its results folder ignored\nboth settings entirely.\n\nThree things are decided here rather than left to the caller or to\nmatplotlib.\n\n**The format follows the preference**, and the file NAME follows the\nformat: a PNG written to ``figure.pdf`` is a file no viewer opens. An\nexplicit ``fmt=`` still wins, for the few callers that genuinely need one\nparticular format.\n\n**Fonts are embedded as TrueType** (``pdf.fonttype = 42``) for the length\nof the save. matplotlib's default is Type 3, which draws every glyph as\nits own content stream: the file is still vector, but Illustrator and\nInkscape open the text as unselectable outlines, and the preference that\nselects this path is labelled \"PDF (vector, editable)\". Scoped with\n``rc_context`` so a caller that has deliberately chosen otherwise is not\nchanged underneath it.\n\n**The DPI is passed**, always. A PDF page is resolution-independent, but\nspaCR figures are full of ``imshow`` panels -- cell montages, mask\noverlays, plate heatmaps -- and those are rasterised at the figure's own\n100 DPI unless told otherwise. Without it, 100, 300 and 600 produced\nbyte-identical files. What is passed is :func:`deliverable_dpi`, which\nsays so out loud when the requested number is not achievable here.\n\n**The chrome is repainted for paper**, and only for the length of the\nwrite. A figure saved from a dark-themed session was white ink on a white\npage -- `spacr.qt.preferences.get_figure_colors` hands both renderers a\nwhite foreground on a dark theme and nothing inverted it at export time, so\nthe file was a blank rectangle with some coloured dots in it, and a\ntransparent PNG even looked right in a dark file manager and disappeared\nwhen it was pasted into a manuscript. :func:`print_ready` moves the\nfurniture and puts it back; the DATA is never touched, because a white\npoint turned black is, on a volcano, the colour of \"not a hit\".\n\n:param fig: a matplotlib ``Figure``.\n:param path: destination; its extension is corrected to the format.\n:param fmt: force a format, bypassing the preference.\n:param dpi: force a DPI, bypassing the preference.\n:param close: close the figure once written.\n:param save_mode: force one of\n    :data:`spacr.figure_style.SAVE_MODES` -- ``'print'`` (light page, dark\n    chrome), ``'screen'`` (exactly what is on screen, the old behaviour)\n    or ``'transparent'``. None asks the preference, which defaults to\n    ``'print'``.\n:param announce_colours: say when a data colour has stopped working on the\n    light page. It is NAMED, never substituted.\n:param integrity: check the figure's image panels before writing --\n    display ranges that differ between panels meant for comparison,\n    saturated or clipped pixels, repeated panels, a lossy format, and\n    panels written with fewer pixels than they hold -- print any\n    warning, stamp the provenance (source files, display settings,\n    processing steps, spaCR version) into the PNG or PDF metadata and\n    write it to a ``<file>.provenance.json`` sidecar beside the figure.\n    None follows ``SPACR_FIGURE_INTEGRITY`` and then the Preferences\n    toggle, which is off by default. A figure without image panels is\n    written unchanged either way.\n:param kwargs: passed through to ``savefig`` (``bbox_inches`` etc.). An\n    explicit ``facecolor`` still wins over the print ground.\n:returns: the path actually written, as a ``str``."
+    },
     "1963842f3245e74ef1b5830f4d5379162b517b2f126a4cb9c8cf83c331cc810d": {
       "source_blocks_sha256": [
         "1d93a187a6c1d9b6f5764a6236c2741e18551f451597a8356d0ffbb65014efe2",
@@ -124,6 +147,14 @@
       ],
       "source_sha256": "4068419a8e94031ca785b7dd2f5b2327546cd00d0131ae419f26ceb8e390e8f8",
       "text": "Add the next organelle column, seeded from the first one.\n\n:returns: False when there is no slot left, with the reason on screen\n    rather than as an exception into a GUI slot."
+    },
+    "41f98f04fa36b35e8dfee6c0d27248dbed0a6bbe491f597c84993c9bd7a8185b": {
+      "source_blocks_sha256": [
+        "faa341520059bdc84c8743d394452d9509024936926d2cdfe0a2040de93cbb5e",
+        "2c2a7c9954be4dbbd73f013a1060fa73a029df81a5e33e468bbab76c0b04f1bb"
+      ],
+      "source_sha256": "41f98f04fa36b35e8dfee6c0d27248dbed0a6bbe491f597c84993c9bd7a8185b",
+      "text": "Return ``(format, dpi)`` from the user's preferences.\n\nDegrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI`\nrather than raising: the preference store is Qt's, and the pipelines that\ncall this run headless from the CLI and from notebooks, where importing\nPySide6 to decide a file extension would be absurd."
     },
     "44847f8c831ec859c6f0771c884e5eed5b8b40ccabb8652989ef52cb06ddda74": {
       "source_blocks_sha256": [

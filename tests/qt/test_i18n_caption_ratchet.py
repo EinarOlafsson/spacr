@@ -1277,7 +1277,9 @@ def test_spanish_compact_rows_use_consistent_formal_register():
 # 653, 2026-10-04: About spaCR's portable-mode line.
 # 655, 2026-10-04: Preferences > Appearance > Theme's High contrast entry
 # and its tooltip sentence.
+# 643/644/646, 2026-10-04: Preferences > Storage's "Measure sizes" button.
 _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
+    "Measure sizes",
     'Text size of legend entries and legend titles, in points. Default 9.',
     'Colour map for heat maps, images and density plots. viridis and cividis stay readable with colour-blindness and in greyscale. Default viridis.',
     'Width of a new figure in inches. The page shape sets the height, or Figure height does when the page shape is custom. Default 6.4.',

@@ -784,11 +784,11 @@ class RunRegistry(QObject):
         with no forward progress. A housekeeping job that outlived the
         screen which started it used to be enough to trigger it.
 
-        :param timeout_ms: total wait budget across all active threads.
-        :param reason: cancellation reason recorded by each worker.
         A handle whose ``stop_on_quit`` is false (an install that must not
         be killed half way) is left running and is not waited for.
 
+        :param timeout_ms: total wait budget across all active threads.
+        :param reason: cancellation reason recorded by each worker.
         :returns: handles that block shutdown and did not stop in the budget.
         """
         handles = self.active()

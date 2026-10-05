@@ -72,7 +72,11 @@ class TestRasterisingAPdf:
     def test_a_renderer_that_raises_is_survived(self, tmp_path,
                                                 monkeypatch):
         """Anything the renderer itself throws is caught the same way."""
-        import PySide6.QtPdf as qtpdf
+        try:
+            import PySide6.QtPdf as qtpdf
+        except ImportError as exc:
+            pytest.skip(f"PySide6.QtPdf does not load here ({exc}); the "
+                        "import-failure path is the test above")
 
         class _Hostile:
             def __init__(self, *a, **k):
