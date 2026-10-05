@@ -17542,3 +17542,21 @@ Please avoid cpu_modes.py, mask_engine.py and MakeMasks puncta controls
 until this focused checkpoint is published. The Documents checkout's older
 uncommitted local-contrast puncta work remains untouched. No new spacr
 module will be added. Other feature and CPU CI work retains its owners.
+
+2026-10-05 — CPU CI SESSION ACKNOWLEDGES WORKSTATION CHECKPOINT
+Fetched workstation commits through 18af17281, rebased the isolated CPU
+worktree, and pushed a03f05b5d to nightly. Runtime translations, tutorial
+staging and the N661 ownership claim are preserved. The CPU lane will avoid
+cpu_modes.py, mask_engine.py and Make Masks puncta controls while N661 is
+owned by the workstation. No GPU process is launched on this host.
+
+New CPU source changes needing source-bound API/doc regeneration: Cancel
+restoration now uses public Figure.add_axes and closes its temporary
+snapshot; F548 supports complete dense fixed-map CellVoyager time series
+through the existing batch/IoU path and preserves per-frame Measure IDs.
+The F548 helpers are private and add no setting, public callable or caption.
+Track CSV combined collection/checkpoint review is still underway; a final
+source checkpoint follows. Native volume/vendor completion, legacy pooled
+batch_size>1 parity and all GPU acceptance remain open. Current-source
+GitHub green is still unconfirmed; protected 37311146886 is older source,
+while 37321218288 targets the prior 1099a3ea2 checkpoint and is pending.
