@@ -30,6 +30,7 @@ def figure():
 
 
 def test_cancel_restores_the_size_and_the_ground_it_opened_with(qapp, figure):
+    managers_before = set(plt.get_fignums())
     dialog = fs.FigureSettingsDialog(figure)
     try:
         figure.set_size_inches(11.0, 9.0)
@@ -44,6 +45,7 @@ def test_cancel_restores_the_size_and_the_ground_it_opened_with(qapp, figure):
     assert matplotlib.colors.to_hex(figure.patch.get_facecolor()) != "#ff00ff"
     assert figure.axes, "the axes come back with it, not just the geometry"
     assert figure.axes[0].get_title() == "only"
+    assert set(plt.get_fignums()) == managers_before
 
 
 def test_the_restored_axes_belong_to_the_figure_the_queue_holds(qapp, figure):
