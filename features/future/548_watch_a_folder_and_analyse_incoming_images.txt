@@ -656,3 +656,27 @@ NATIVE T1 VOLUME ADAPTER READY IN ISOLATED REVIEW (2026-10-05)
     workstation's normal API/settings-flow/consumer-map/help refresh after
     integration. Raw vendor completion, pooled parity and real GPU acceptance
     remain open; the workstation owns every GPU process.
+
+NATIVE T1 SUBSET IN COMBINED CPU CANDIDATE (2026-10-05, partial)
+    The fixed Convert-map, CellVoyager T1 C-by-Z native-volume adapter from
+    isolated review is now included in candidate 1ddcedfb5, based on
+    nightly 48c741bf1. It is not yet pushed to nightly or accepted by a
+    protected final-source run. Original YX planes remain under
+    .watch_planar; derived ZYX TIFFs feed the existing raw-volume batch
+    layout. Exact planar/derived inventories and digests bind analysis and
+    interrupted collection, and input provenance alone cannot satisfy the
+    analysis-output checkpoint. A stop at the final derived write safely
+    retries. Numeric C10+ order remains numeric; named raw-volume channels
+    keep their existing lexical behavior.
+
+    In the combined source, five focused real-TIFF/watch/checkpoint files
+    pass 77 tests under 4 GiB with CUDA hidden. Branch tracing covers all
+    111 new executable core.py statements and 70 touching arcs, plus the
+    added io.py statement and arc. The broader integrated CPU cohort passes
+    225. This proves the candidate's supported T1 path locally, not full
+    protected CI, vendor acquisition completion or GPU operation.
+    General native T>1, raw/vendor completion, pooled batch_size>1 parity,
+    and real GPU acceptance remain open; unsupported modes still refuse
+    before output. The workstation owns normal API, settings-flow,
+    consumer-map and help regeneration for the new private core helpers
+    after integration. Item 548 stays OPEN as an alpha subset.

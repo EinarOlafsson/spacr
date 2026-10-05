@@ -1747,3 +1747,18 @@ serial Qt acceptance remains open as recorded above.
   all three dedicated Qt jobs. Protected rerun 37359579362 tests 0031f9fd0;
   memory and full serial acceptance remain open. Log:
   /mnt/wd4tb/scratch/item47-memory-codex-20261005/coverage-shard4-batch3-0031.log.
+
+2026-10-05 — CANDIDATE TIMING AND FIXTURE OWNERSHIP, SERIAL GATE OPEN
+  Exact protected source 0031f9fd0 fails a Qt category-typing assertion in
+  coverage shard 0 at 215 ms, above its 200 ms bound. Candidate d5629e680
+  keeps the same bound on the synchronous edit, processes queued unrelated
+  work outside the stopwatch and asserts no full visibility recomputation
+  during typing. The independent GUI responsiveness watchdog remains.
+  Candidate 1ddcedfb5 changes the chaining test double to release its held
+  registry worker and wait until the resolver is idle even on assertion
+  failure; the abort-path worker retention observed in the local probe is
+  removed. Twenty-one related chaining/timing checks pass under a cap.
+  Existing Qt fixture ownership repairs remain in the candidate. These
+  bounded results do not prove the uninterrupted serial Qt run, nor a
+  complete protected coverage shard. No timing limit or memory guard is
+  increased. Item 47 remains OPEN.

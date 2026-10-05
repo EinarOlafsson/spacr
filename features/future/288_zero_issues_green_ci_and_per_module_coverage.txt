@@ -5617,3 +5617,20 @@ Protected run 37359579362 targets that exact checkpoint and was created
 receipt. Whole items 43/288 remain OPEN until the repaired source receives
 its completed verdict. Aggregate receipt:
 /mnt/wd4tb/scratch/codex-final-cov-audit/final-1c99-aggregate/module-coverage-ratchet.txt.
+
+2026-10-05 — CANDIDATE NEW-CODE BRANCH RECEIPT; FULL GATE STILL OPEN
+The published submodules collision test executes the sole missing line
+2105 and arc 2104->2105 from the complete 1c99dd3e8 aggregate; its
+focused coverage JSON records both as hit. Later protected source 0031f9fd0
+has six passing coverage shards, one failed Qt timing shard and five
+cancelled shards; combine remains queued, so its 12-shard integrity and
+ratchet cannot be claimed. The isolated final CPU candidate 1ddcedfb5
+adds native T1 watcher code. A 77-case capped real-TIFF/watch/checkpoint
+cohort under branch tracing hits all 111 added executable core.py lines and
+70 touching arcs, plus the added io.py line and arc, with zero measured
+new-code gaps (receipt:
+/mnt/wd4tb/scratch/codex-final-native-coverage-20261005/receipt.json).
+The candidate also passes 225 integrated CPU checks. These focused receipts
+do not replace a complete GitHub aggregate at the pushed final SHA. No
+ratchet ceiling, exemption, branch allowance or integrity rule changes.
+Item 288 remains OPEN.

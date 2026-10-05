@@ -17900,3 +17900,30 @@ installation has completed through the normal installer, CUDA hidden,
 separate from shared environments. CPU preparation of its later real GPU
 acceptance is next. Home retains production source/CPU/Qt/CI; no CI guard
 or production source changes here. live_cell/cellposeTIME remain excluded.
+
+2026-10-05 — CPU CANDIDATE READY FOR ROOT REVIEW; WORKSTATION REFRESH NEXT
+Home's isolated candidate 1ddcedfb5 combines fixed-map native T1 watcher
+support, Qt fixture/timing test repairs and a workflow-derived one-batch CI
+replay tool atop fetched nightly 48c741bf1. The 225-case integrated CPU
+cohort, 21 chaining/timing cases, 12 replay-tool cases and 77-case focused
+native branch cohort pass under caps with CUDA hidden. Native new-code
+coverage hits 111/111 added core.py statements, 70/70 touching arcs and the
+one added io.py statement/arc. A real cgroup probe proves SIGTERM cleans
+the replay wrapper, pytest workers and separate-session sleeper while
+other scopes survive. These are local receipts pending root review/push.
+
+Protected 37359579362 tests older 0031f9fd0: a real 215 ms/200 ms Qt
+typing guard fails, five coverage shards were cancelled during the hosted
+Actions disruption, and combine is queued. That source cannot be green;
+the self-imposed CPU freeze is lifted after the confirmed failure. Preserve
+both old protected runs, and dispatch a new exact-source run only after the
+candidate is reviewed and pushed. No coverage, timing or memory guard was
+weakened. Item 43/288 and whole-Qt item 47 stay open.
+
+The workstation retains API/docs/translations/tutorials and all GPU work.
+When the candidate reaches nightly, it must run the normal source-current
+API, settings-flow, consumer-map and help refresh for the new private core
+helpers; Home will not edit those generated artifacts. General native T>1,
+raw/vendor completion, pooled parity and real GPU acceptance remain F548
+open. Root's separate Make Masks box-draw work is outside this candidate.
+Do not push this candidate until root reviews its concrete diff.

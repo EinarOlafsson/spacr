@@ -2654,3 +2654,28 @@ after the run started; unconfirmed on CI.
   GPU discovery refresh without running a GPU. No coverage ceiling,
   timeout, memory limit or failure assertion was relaxed. Items 43/288
   remain OPEN until the integrated source receives its own green verdict.
+
+2026-10-05 — FAILED EXACT-SOURCE TIMING GUARD; CPU REPAIRS READY LOCALLY
+  Protected run 37359579362 at 0031f9fd0 has a real coverage-shard-0
+  failure: a Qt category-typing probe measured 215 ms against the 200 ms
+  synchronous typing bound. Six coverage shards passed; five were cancelled
+  during the hosted Actions disruption, and the combine job is queued. This
+  run cannot supply a complete coverage gate or green workflow verdict.
+  The earlier complete 1c99dd3e8 aggregate had one regression, the
+  submodules Series-name collision; the published behavior test executes
+  its missing statement and branch in focused coverage.
+
+  Candidate 1ddcedfb5 measures the actual synchronous edit below the same
+  200 ms bound and asserts zero visibility recomputations while typing;
+  queued unrelated event-loop work no longer contaminates the stopwatch.
+  A chaining timing fixture now releases its held registry workers on test
+  exit. The candidate's 225-case integrated CPU cohort and 21 chaining/
+  timing checks pass with CUDA hidden under memory caps. Its workflow-derived
+  single-batch replay command passes 12 tests and a real cgroup SIGTERM probe
+  that stops a separate-session sleeper without touching other caps. It
+  records source SHA, ordered file hashes, package versions, exclusions,
+  live failures and interruption status; one replay is diagnostic, not a
+  suite verdict. No timeout, assertion, coverage bar or memory cap is
+  relaxed. Lift the self-imposed source freeze after the confirmed failure,
+  preserve the old protected runs, and require a fresh exact-source GitHub
+  run after integration. Item 43 remains OPEN.

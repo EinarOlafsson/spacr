@@ -160,6 +160,40 @@ and no baseline allowance changes. The memory guard remains a separate
 failed job. Freeze CPU production/test changes for the protected verdict;
 isolated native-Z development is not part of this checkpoint.
 
+2026-10-05 CPU candidate and protected-run update: the protected 0031f9fd0
+coverage shard 0 failed one Qt category-typing timing assertion (215 ms against
+its 200 ms bound); six coverage shards passed and five were cancelled during
+the hosted Actions disruption. The combine job is queued. That checkpoint
+cannot establish a complete 12/12 coverage or green-workflow verdict. The
+earlier complete 1c99dd3e8 aggregate's sole regression is already exercised
+by the committed submodules Series-name collision test. Keep both protected
+runs and their exact source identities; do not call either a final-source pass.
+
+The isolated CPU candidate 1ddcedfb5, based on fetched nightly 48c741bf1,
+contains the reviewed fixed-map native T1 C-by-Z watcher, the Qt fixture
+ownership and synchronous typing repairs, and a single-batch CI replay tool.
+Its integrated 225-case CPU cohort and 21-case chaining/timing cohort pass
+under memory caps with CUDA hidden. Focused branch coverage passes 77 real
+watch/raw-volume/checkpoint cases and hits all 111 added executable core.py
+statements and 70 touching arcs, plus the one new io.py statement/arc. The
+replay tool passes 12 focused tests; a separate real-cgroup SIGTERM probe
+stopped wrapper, pytest workers and a separate-session sleeper while outer
+and unrelated caps survived. The chaining fixture now releases blocked
+registry workers on abort and waits for the idle state. These are local
+receipts, not protected CI acceptance. The previous self-imposed source
+freeze is lifted because 0031f9fd0 already has a confirmed failure; a new
+protected run is needed after the final source is pushed. Do not cancel the
+older protected run or weaken any timing, coverage or memory guard.
+
+F548's candidate adds only the alpha fixed-map native T1 volumetric subset.
+Native T>1, raw/vendor completion, pooled batch_size>1 parity and real GPU
+acquisition acceptance remain open. The workstation session still owns all
+GPU work plus API, documentation, translations and tutorials; after the new
+private core helpers reach nightly, it must perform the normal source-current
+API, settings-flow, consumer-map and help refresh. The CPU candidate is held
+for root review before any push, and the root's separate Make Masks box-draw
+work must not be edited in this candidate.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.
