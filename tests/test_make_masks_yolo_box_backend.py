@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import threading
 from pathlib import Path
 
 import pytest
@@ -218,3 +220,125 @@ def test_a_broken_project_ledger_symlink_is_refused(tmp_path):
     with pytest.raises(ValueError, match="symbolic link"):
         engine.save_yolo_boxes(tmp_path, "field.tif", (10, 10), [], ["object"])
     assert ledger.is_symlink()
+
+
+@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="FIFO needs POSIX")
+@pytest.mark.parametrize("metadata_name", [engine.YOLO_ANNOTATIONS_NAME,
+                                           engine.YOLO_CLASSES_NAME])
+def test_nonregular_metadata_is_refused_before_open(tmp_path, monkeypatch,
+                                                    metadata_name):
+    _source(tmp_path)
+    metadata = tmp_path / metadata_name
+    os.mkfifo(metadata)
+    actual_open = Path.open
+
+    def refuse_fifo_open(path, *args, **kwargs):
+        if path == metadata:
+            raise AssertionError("FIFO metadata was opened and could block")
+        return actual_open(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "open", refuse_fifo_open)
+    with pytest.raises(ValueError, match="regular file"):
+        if metadata_name == engine.YOLO_ANNOTATIONS_NAME:
+            engine.load_yolo_boxes(tmp_path, "field.tif", (10, 10))
+        else:
+            engine.export_yolo_boxes(tmp_path / "field.txt", [], (10, 10),
+                                     ["object"])
+    assert metadata.exists()
+
+
+def test_busy_project_lock_preserves_both_fields_after_retry(tmp_path,
+                                                             monkeypatch):
+    _source(tmp_path, "first.tif")
+    _source(tmp_path, "second.tif")
+    entered = threading.Event()
+    release = threading.Event()
+    errors = []
+    actual_atomic = engine._yolo_atomic
+
+    def hold_first_write(path, payload):
+        if not entered.is_set():
+            entered.set()
+            assert release.wait(5), "first writer did not get released"
+        return actual_atomic(path, payload)
+
+    monkeypatch.setattr(engine, "_yolo_atomic", hold_first_write)
+
+    def first_writer():
+        try:
+            engine.save_yolo_boxes(tmp_path, "first.tif", (10, 10),
+                                   [(0, 0, 0, 2, 2)], ["object"])
+        except BaseException as exc:
+            errors.append(exc)
+
+    writer = threading.Thread(target=first_writer)
+    writer.start()
+    try:
+        assert entered.wait(5), "first writer did not acquire the lock"
+        with pytest.raises(ValueError, match="busy"):
+            engine.save_yolo_boxes(tmp_path, "second.tif", (10, 10),
+                                   [(0, 3, 3, 5, 5)], ["object"])
+    finally:
+        release.set()
+        writer.join(timeout=5)
+    assert not writer.is_alive() and not errors
+    engine.save_yolo_boxes(tmp_path, "second.tif", (10, 10),
+                           [(0, 3, 3, 5, 5)], ["object"])
+    ledger = json.loads((tmp_path / engine.YOLO_ANNOTATIONS_NAME).read_text())
+    assert set(ledger["images"]) == {"first.tif", "second.tif"}
+    assert not (tmp_path / (engine.YOLO_ANNOTATIONS_NAME + ".lock")).exists()
+
+
+def test_abandoned_or_unsafe_project_lock_is_not_stolen(tmp_path):
+    _source(tmp_path)
+    lock = tmp_path / (engine.YOLO_ANNOTATIONS_NAME + ".lock")
+    lock.write_text("other writer")
+    with pytest.raises(ValueError, match="busy"):
+        engine.save_yolo_boxes(tmp_path, "field.tif", (10, 10), [], ["object"])
+    assert lock.read_text() == "other writer"
+    assert not (tmp_path / engine.YOLO_ANNOTATIONS_NAME).exists()
+
+
+def test_busy_export_folder_cannot_interleave_class_maps(tmp_path,
+                                                        monkeypatch):
+    first = tmp_path / "first.txt"
+    second = tmp_path / "second.txt"
+    entered = threading.Event()
+    release = threading.Event()
+    errors = []
+    actual_atomic = engine._yolo_atomic
+
+    def hold_first_metadata(path, payload):
+        if path.name == engine.YOLO_CLASSES_NAME and not entered.is_set():
+            entered.set()
+            assert release.wait(5), "first export did not get released"
+        return actual_atomic(path, payload)
+
+    monkeypatch.setattr(engine, "_yolo_atomic", hold_first_metadata)
+
+    def first_export():
+        try:
+            engine.export_yolo_boxes(first, [(0, 0, 0, 2, 2)], (10, 10),
+                                     ["cell"])
+        except BaseException as exc:
+            errors.append(exc)
+
+    writer = threading.Thread(target=first_export)
+    writer.start()
+    try:
+        assert entered.wait(5), "first export did not acquire the lock"
+        with pytest.raises(ValueError, match="busy"):
+            engine.export_yolo_boxes(second, [(1, 2, 2, 4, 4)], (10, 10),
+                                     ["cell", "nucleus"])
+    finally:
+        release.set()
+        writer.join(timeout=5)
+    assert not writer.is_alive() and not errors
+    assert first.is_file() and not second.exists()
+    engine.export_yolo_boxes(second, [(1, 2, 2, 4, 4)], (10, 10),
+                             ["cell", "nucleus"])
+    assert first.read_text().startswith("0 ")
+    assert second.read_text().startswith("1 ")
+    assert json.loads((tmp_path / engine.YOLO_CLASSES_NAME).read_text()) == {
+        "classes": ["cell", "nucleus"]}
+    assert not (tmp_path / (engine.YOLO_CLASSES_NAME + ".lock")).exists()

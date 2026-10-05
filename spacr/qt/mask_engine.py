@@ -61,10 +61,12 @@ was the truth.
 from __future__ import annotations
 
 import csv
+import contextlib
 import hashlib
 import json
 import math
 import os
+import stat
 import tempfile
 from collections import deque
 from numbers import Integral
@@ -213,7 +215,15 @@ def _yolo_unique_object(pairs) -> dict:
 def _yolo_read_json(path: Path):
     """Read strict JSON from one project or export metadata file."""
     try:
-        with path.open("r", encoding="utf-8") as handle:
+        if not stat.S_ISREG(path.lstat().st_mode):
+            raise ValueError(f"YOLO metadata is not a regular file: {path}")
+        flags = os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)
+        flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(path, flags)
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            os.close(descriptor)
+            raise ValueError(f"YOLO metadata is not a regular file: {path}")
+        with os.fdopen(descriptor, "r", encoding="utf-8") as handle:
             return json.load(handle, object_pairs_hook=_yolo_unique_object)
     except (OSError, UnicodeError, json.JSONDecodeError) as exc:
         raise ValueError(f"invalid YOLO metadata: {path}") from exc
@@ -273,6 +283,34 @@ def _yolo_json_bytes(value) -> bytes:
             + "\n").encode("utf-8")
 
 
+@contextlib.contextmanager
+def _yolo_project_lock(path: Path):
+    """Own an exclusive lock for metadata reads, changes and replacements.
+
+    A busy or abandoned lock fails closed. Its owner must resolve an abandoned
+    lock explicitly; a second writer never guesses that it may steal one.
+    """
+    lock = path.with_name(path.name + ".lock")
+    try:
+        descriptor = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                             0o600)
+    except FileExistsError as exc:
+        raise ValueError(f"YOLO annotation project is busy: {lock}") from exc
+    identity = os.fstat(descriptor)
+    try:
+        os.write(descriptor, str(os.getpid()).encode("ascii"))
+        yield
+    finally:
+        os.close(descriptor)
+        try:
+            current = lock.lstat()
+        except FileNotFoundError:
+            current = None
+        if current is not None and (current.st_dev, current.st_ino) == (
+                identity.st_dev, identity.st_ino):
+            lock.unlink()
+
+
 def save_yolo_boxes(folder, filename, image_shape, boxes, classes,
                     expected_source_sha256=None) -> Path:
     """Atomically save one source-bound box record in the project's ledger.
@@ -298,24 +336,25 @@ def save_yolo_boxes(folder, filename, image_shape, boxes, classes,
     canonical = _yolo_boxes(boxes, shape[1], shape[0], len(names))
     label, source = _yolo_relative(folder, filename)
     path = Path(folder).resolve() / YOLO_ANNOTATIONS_NAME
-    state = _yolo_state(path)
-    if path.exists() and names[:len(state["classes"])] != state["classes"]:
-        raise ValueError("YOLO class map would reassign an existing class ID")
-    digest = _yolo_source_hash(source)
-    if expected_source_sha256 is not None and digest != expected_source_sha256:
-        raise ValueError("YOLO source image changed since it was loaded")
-    existing = state["images"].get(label)
-    if existing is not None:
-        if existing["source_sha256"] != digest:
-            raise ValueError("YOLO annotation source bytes changed")
-        if existing["shape"] != list(shape):
-            raise ValueError("YOLO annotation image shape changed")
-    state["classes"] = names
-    state["images"][label] = {
-        "shape": list(shape), "source_sha256": digest,
-        "boxes": [list(box) for box in canonical],
-    }
-    _yolo_atomic(path, _yolo_json_bytes(state))
+    with _yolo_project_lock(path):
+        state = _yolo_state(path)
+        if path.exists() and names[:len(state["classes"])] != state["classes"]:
+            raise ValueError("YOLO class map would reassign an existing class ID")
+        digest = _yolo_source_hash(source)
+        if expected_source_sha256 is not None and digest != expected_source_sha256:
+            raise ValueError("YOLO source image changed since it was loaded")
+        existing = state["images"].get(label)
+        if existing is not None:
+            if existing["source_sha256"] != digest:
+                raise ValueError("YOLO annotation source bytes changed")
+            if existing["shape"] != list(shape):
+                raise ValueError("YOLO annotation image shape changed")
+        state["classes"] = names
+        state["images"][label] = {
+            "shape": list(shape), "source_sha256": digest,
+            "boxes": [list(box) for box in canonical],
+        }
+        _yolo_atomic(path, _yolo_json_bytes(state))
     return path
 
 
@@ -363,21 +402,24 @@ def export_yolo_boxes(path, boxes, image_shape, classes) -> str:
     if target.suffix.lower() != ".txt" or not target.parent.is_dir():
         raise ValueError("YOLO export needs a .txt path in an existing folder")
     metadata = target.parent / YOLO_CLASSES_NAME
-    if target.is_symlink() or metadata.is_symlink():
-        raise ValueError("YOLO export cannot replace symbolic links")
     shape = _yolo_shape(image_shape)
     names = _yolo_classes(classes)
     canonical = _yolo_boxes(boxes, shape[1], shape[0], len(names))
-    if metadata.exists():
-        old = _yolo_read_json(metadata)
-        if not isinstance(old, dict) or set(old) != {"classes"}:
-            raise ValueError("invalid YOLO class metadata")
-        existing = _yolo_classes(old["classes"])
-        if names[:len(existing)] != existing:
-            raise ValueError("YOLO class map would reassign an existing class ID")
     lines = yolo_box_lines(canonical, shape[1], shape[0])
-    _yolo_atomic(metadata, _yolo_json_bytes({"classes": names}))
-    _yolo_atomic(target, ("\n".join(lines) + ("\n" if lines else "")).encode("utf-8"))
+    with _yolo_project_lock(metadata):
+        if target.is_symlink() or metadata.is_symlink():
+            raise ValueError("YOLO export cannot replace symbolic links")
+        if target.exists() and not target.is_file():
+            raise ValueError("YOLO label destination is not a regular file")
+        if metadata.exists():
+            old = _yolo_read_json(metadata)
+            if not isinstance(old, dict) or set(old) != {"classes"}:
+                raise ValueError("invalid YOLO class metadata")
+            existing = _yolo_classes(old["classes"])
+            if names[:len(existing)] != existing:
+                raise ValueError("YOLO class map would reassign an existing class ID")
+        _yolo_atomic(metadata, _yolo_json_bytes({"classes": names}))
+        _yolo_atomic(target, ("\n".join(lines) + ("\n" if lines else "")).encode("utf-8"))
     return str(target)
 
 #: What a ledger created by this screen records as having made the edits.
