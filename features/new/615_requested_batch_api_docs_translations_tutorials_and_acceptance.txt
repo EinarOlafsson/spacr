@@ -1,4 +1,5 @@
-=========================================================================REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
+=========================================================================
+REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 =========================================================================
 Status: DONE 2026-10-05 — tutorial capture and publication for 601, 611-614
         and the planned scenes of 620-629 apart from 627 published in
