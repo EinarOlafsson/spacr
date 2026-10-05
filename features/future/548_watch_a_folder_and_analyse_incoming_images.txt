@@ -1,8 +1,9 @@
 WATCH A FOLDER AND ANALYSE IMAGES AS THEY ARRIVE
 
-Status: OPEN 2026-10-05 — vendor acquisition completion, timelapse/volumetric
-        series and pooled normalisation remain. Projected Z fields from a
-        fixed Convert map, source-aware raw channel readiness, pretrained CV
+Status: OPEN 2026-10-05 — vendor acquisition completion, raw timelapse/native
+        volume series and pooled normalisation remain. Projected Z fields
+        and complete timelapse series from a fixed Convert map,
+        source-aware raw channel readiness, pretrained CV
         inference and the live plate view are available as alpha; per-field
         fitting is unsupported.
         First version built as alpha 2026-09-26.
@@ -573,3 +574,41 @@ RAW NUMERIC CHANNEL-POSITION GUARD (2026-10-05, partial)
     channels cannot arrive; such fields still need a fixed map or a vendor
     completion signal for full batch equivalence. Pooled normalisation and
     real GPU acquisition acceptance remain open.
+
+FIXED-MAP WHOLE TIMELAPSE FIELDS (2026-10-05, partial)
+    With timelapse enabled, a fixed Convert map now binds a whole field to
+    every declared C01..CN by Z01..ZM by T0001..TN member. The watcher drops
+    time only from its ledger/workspace field key; each source image keeps
+    its canonical timepoint name. It waits until every member arrives,
+    settles and reads whole, then hands the complete series to the ordinary
+    batch preprocessing, segmentation and tracking path exactly once.
+    Measure recipes must preserve timelapse so combined measurements retain
+    per-frame prcf identifiers. Projected Z remains the supported Z mode.
+
+    Genuine Convert TZYX inputs (two times, two planes, two channels) wait
+    with T2 missing. After arrival, actual preprocessing and Measure match
+    batch_size=1 merged frames and cell/nucleus rows, including distinct
+    t1/t2 prcf values and one committed field checkpoint. A separate test
+    uses the real segmentation generator and IoU tracking, replacing only
+    Cellpose inference with a strict channel_axis-aware deterministic mask
+    double; merged frames and track CSV identities match the batch path.
+
+    Malformed unmapped TIFFs report a separate incomplete field rather than
+    raising after partial work. An unexpected canonical T3 blocks the mapped
+    series; sparse map grids, changed map/mask/Measure recipes and altered
+    committed frames cannot silently change published results. No-map
+    timelapse, native z_stack/t_stack, timelapse classification and microscope
+    feedback remain refused. Timelapse uses Convert's CellVoyager convention.
+    No new setting, public callable or UI caption was introduced.
+
+    Agent watcher/Cellpose cohort: 118 passed under 8 GiB, CUDA hidden;
+    integrated new-series/Cellpose-contract checks: 40 passed under 4 GiB.
+    Source guards passed 153 in the agent worktree. Integrated source/hygiene
+    cohort passed 176. Commits 84a63d333 and d6d2e0328. Private core docstrings
+    changed; the workstation owns regeneration of source-bound API/docs.
+
+    This supersedes the earlier refusal of every mapped T>1 series. It does
+    not prove raw acquisition's last-frame signal, native volume support,
+    legacy pooled batch_size>1 parity, vendor completion or real GPU
+    acquisition acceptance. Item 548 remains OPEN with its available alpha
+    subset; all GPU processes remain owned by the workstation session.

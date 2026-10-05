@@ -61,6 +61,17 @@ pixel assertions fail on the old implementation and pass with the repair;
 1099a3ea2 and was pending without jobs; later commits require another
 final-source verdict. Items 43/288 and uninterrupted item 47 remain open.
 
+F548 CPU follow-up adds complete fixed-map timelapse fields: the watcher
+waits for dense C/Z/T membership, uses the real batch tracking path, and
+preserves per-frame Measure identities. Integrated new-series and strict
+Cellpose contract checks pass 40 cases under 4 GiB; the agent's wider cohort
+passes 118. Commits 84a63d333/d6d2e0328 introduce no setting, public callable
+or caption. Private core docstrings changed; the workstation should refresh
+source-bound API/doc artifacts. Raw last-frame/vendor signals, native
+volumes, pooled batch_size>1 normalisation and GPU acquisition acceptance
+remain open. The two synthetic model editors responsible for the late
+prefix's nine-versus-seven widget boundary now belong to qtbot (dbe918532).
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.

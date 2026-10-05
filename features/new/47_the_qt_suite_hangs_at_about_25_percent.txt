@@ -1662,3 +1662,12 @@ serial Qt acceptance remains open as recorded above.
   The agent's focused neighbors and hygiene passed 49 tests; integrated
   Cancel/menu checks passed 19. Source commits 673d2da89 and 806674f55.
   Full serial acceptance remains open.
+
+2026-10-05 — TWO LATE-PREFIX TEST EDITORS NOW HAVE OWNERS
+  Two synthetic QLineEdit editors added to a settings model were parentless
+  and survived their screen test file. Registering both with qtbot reduced
+  the following sentinel from nine live widgets to seven, exactly the
+  intentional process-wide HoverTooltip singleton. Identical 4 GiB adjacent
+  cohorts passed 47 tests before and after; sampled final RSS was 462.3
+  versus 452.2 MiB. This is a small-cohort observation, not a general memory
+  savings claim. Source dbe918532. No forced collection or ceiling change.
