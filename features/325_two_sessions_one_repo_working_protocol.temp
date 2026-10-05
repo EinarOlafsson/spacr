@@ -17806,3 +17806,15 @@ Current media still needs 108 narration tracks, videos and publication.
 A single workstation GPU narration turn is prepared; no duplicate GPU
 validation should start. Home retains CPU/Qt/CI and feature source ownership;
 live_cell/cellposeTIME remain excluded. No final CI green is claimed.
+
+2026-10-05 — WORKSTATION SINGLE GPU NARRATION TURN QUEUED
+Native recording/review checkpoint ae51d4b52 is pushed. The actual shared
+queue process is live: label 615-final-wave-narration, PID 2481565. It will
+render the unchanged staged lessons 08/14/37/38, 27 selected voices each
+(108 tracks), with the normal source-frozen renderer and a 12 GiB RAM cap.
+The queue retains its six-minute idle and ten-minute gap policy and real
+HOME. It is waiting at this receipt; no rendered-track completion is claimed.
+Do not duplicate this turn or start another owned GPU validation. Every
+other lesson object and current pronunciation/cadence source stays frozen
+for this rendering. Home retains CPU/Qt/CI and production feature ownership;
+live_cell/cellposeTIME remain excluded.
