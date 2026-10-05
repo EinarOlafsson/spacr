@@ -3,7 +3,9 @@
 ## 2026-10-05 workstation Codex handoff
 The user assigned API, documentation, translations and tutorials to a
 separate Codex session on the workstation. That session owns those four
-lanes from here. The current CI session owns item 43/288 GitHub tests and
+lanes from here. Because the GPU on this host is occupied, the workstation
+session also owns every GPU-dependent task and GPU process. The current CI
+session must keep CUDA hidden and owns CPU-safe item 43/288 GitHub tests and
 coverage, item 47 Qt memory, and remaining feature code. Coordinate changes
 to generated catalogs, help/index artifacts and tutorial media through
 nightly commits before editing the same files.
