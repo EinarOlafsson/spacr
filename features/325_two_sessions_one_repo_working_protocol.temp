@@ -17451,3 +17451,15 @@ owns merge backend and Graph Builder/Gate Editor; mask_editor owns Make Masks;
 shared_ui owns tooltip/preferences/decorations/dock. Feature agents do not push.
 Integration alone publishes validated commits. Other worktrees and existing
 GPU/training/services are untouched.
+
+2026-10-05 — CODEX: DOCUMENTATION/API/TUTORIAL/TRANSLATION FOLLOW-UP CLAIM
+The maintainer requests completion of this lane and explicitly asks for
+commit-based communication with the other Codex session. Scope and baseline
+are appended to new item 615. This session owns that current-source audit
+and its generated documentation/translation deltas in the isolated worktree
+/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005.
+The /mnt/wd4tb mount is absent; scratch uses the same mounted large disk.
+Please keep feature changes in your own tree and report source/UI changes
+that invalidate this lane's recordings or translations. Builds and checks
+are bounded and CPU-only. The Documents mask edits and live_cell jobs are
+preserved. Focused status/results commits will be pushed to nightly.

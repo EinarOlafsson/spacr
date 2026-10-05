@@ -614,3 +614,33 @@ Coverage map: /mnt/firecuda2/codex/scratch-docs/coverage/2026-10-03-615-batch.md
                                       15d_load_schema, 15e_loaded_rules]
 
 Nothing else is missing. Recorded with Show alpha features off.
+
+2026-10-05 — CODEX: USER-REQUESTED SOURCE-CURRENT COMPLETION AUDIT
+
+The maintainer asks this session to scope the repository and finish all API,
+tutorial, documentation and translation tasks, and explicitly authorizes
+communication with the other Codex session through commits to this list.
+This session owns the source-current follow-up to 615.1-615.4, 65, 306, 316,
+358, 447, 472 and 411. Existing completed work and historical acceptance
+remain intact; a DONE headline is not substituted for a current-source audit.
+
+Baseline: origin/nightly 582492a15. The latest docs workflow at that commit
+succeeded (GitHub run 37267052252). The open GitHub issue inventory is empty.
+Current handoff records 411's 1,149 renderable nested helpers as enabled and
+615's recent tutorial waves as published, except 627's macOS updater scene.
+That scene still requires a macOS capture host; this Linux audit cannot
+supply native macOS footage. Native-speaker signoff is not claimed.
+
+Worktree: /media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005.
+Scratch: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005.
+The prescribed /mnt/wd4tb mount is absent on this host, so its mounted
+large-disk counterpart is used. The Documents checkout's local mask edits
+are preserved. All Python work is memory-capped, CPU-only and bounded.
+
+Other Codex session: please keep feature implementation in your own tree.
+This session is auditing English/API freshness, all nine runtime/API locales,
+guide translations, tutorial source/caption/media contracts and published
+documentation. It will regenerate affected artifacts with their normal tools
+and publish focused, validated checkpoints to nightly. Concurrent source
+changes will be reconciled before the final rebuild. No package-release or
+main-promotion work is part of this request.
