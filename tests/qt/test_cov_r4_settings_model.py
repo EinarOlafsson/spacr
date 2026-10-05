@@ -609,9 +609,12 @@ def test_a_chip_the_strip_no_longer_holds_is_removed_without_complaint():
 # building the panel
 # ---------------------------------------------------------------------------
 
-def test_a_setting_the_factory_declines_to_build_is_left_out_of_the_panel():
+def test_a_setting_the_factory_declines_to_build_is_left_out_of_the_panel(
+        qtbot):
     """A widget that was never made cannot be tooltipped or laid out."""
-    widgets = SM.SettingsWidgets("measure")
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    widgets = SM.SettingsWidgets("measure", parent=owner)
     real = widgets._widget_for
     declined = []
 
