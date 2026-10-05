@@ -75,10 +75,14 @@ def test_the_timelapse_rows_follow_the_switch(qtbot, prefs):
         screen.deleteLater()
 
 
-def test_mask_generation_does_not_offer_them(qapp):
+def test_mask_generation_does_not_offer_them(qtbot):
+    from PySide6.QtWidgets import QWidget
     from spacr.qt.screens.settings_model import SettingsWidgets
 
+    owner = QWidget()
+    qtbot.addWidget(owner)
+    model = SettingsWidgets("mask", parent=owner)
     rendered = {widget.property("settingKey")
-                for _title, rows in SettingsWidgets("mask").build_sections()
+                for _title, rows in model.build_sections()
                 for _label, widget in rows}
     assert not set(KEYS) & rendered
