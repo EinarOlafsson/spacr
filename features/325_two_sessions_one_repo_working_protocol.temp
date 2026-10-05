@@ -17587,3 +17587,12 @@ GPU turn 615-home-alpha-narration completed successfully at
 No workstation GPU process remains. Media acceptance/publication is still
 open; all further spaCR GPU turns remain owned here, with live_cell and
 cellposeTIME excluded. No physical macOS or two-GPU acceptance is claimed.
+
+2026-10-05 — N661 FINAL SOURCE INTEGRATED
+Implementation 963fc9963 is rebased onto CPU checkpoint 268925a43; both
+coordination records were preserved. Final source/API/caption/puncta and
+related-mode checks: 228 passed, no expected failures. Scientific source
+hashes remain unchanged and normal English API generation yields 13,177
+entries without further artifact changes. Paste-ready external-methods
+message is features/data/661_claude_methods_message.txt. The workstation
+retains unfinished API/guide/tutorial/media/GPU lanes; no duplicate GPU run.

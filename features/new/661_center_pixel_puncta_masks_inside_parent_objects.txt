@@ -93,3 +93,12 @@ optional CpuParams fields; the old inventory digest is reproduced exactly
 before changing the source-derived pins. English API and Make Masks guide
 are current. Guide/API translations and the new tutorial scene remain part
 of the workstation's open items 615/358, not claimed complete here.
+
+2026-10-05 — FINAL NIGHTLY INTEGRATION
+Rebased the implementation to 963fc9963 on the CPU session's 268925a43.
+Final source/API/caption/scientific/secondary/threshold cohort: 228 passed,
+no expected failures. The three scientific implementation hashes still
+equal the actual 39-field replay receipt; English API remains 13,177 entries.
+Strict runtime source, ownership, count and identity contract also passes
+as a direct assertion call, independent of advisory translation reporting.
+The verified methods message is features/data/661_claude_methods_message.txt.

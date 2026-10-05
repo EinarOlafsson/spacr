@@ -892,8 +892,17 @@
       "passed": 56,
       "deselected": 1,
       "expected_failures": 10,
-      "note": "Nine existing API catalog mismatches remain open under 615. The tenth expected failure was the exact caption identity pin, subsequently measured and corrected with before/after source proof; the direct strict contract passes."
-    }
+      "note": "Nine existing API catalog mismatches remain open under 615. The tenth expected failure was the exact caption identity pin, subsequently measured and corrected with before/after source proof; the direct strict contract passes.",
+      "caption_identity_pin_repaired": true
+    },
+    "rebased_final_contracts": {
+      "source_commit": "963fc99633417d52ba11d56008fc251509d2a687",
+      "upstream_commit": "268925a43",
+      "passed": 228,
+      "expected_failures": 0,
+      "log": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/661-rebased-final-checks.log"
+    },
+    "strict_caption_contract_direct_call": true
   },
   "scope": {
     "implemented": "Make Masks centre-pixel puncta labels and exact candidate centre/annulus measurements",
