@@ -945,6 +945,24 @@ def _watch_series_field_of(name, settings, cache):
     return key, groups.get('chanID'), groups.get('timeID')
 
 
+def _watch_observed_field_of(name, settings, cache, series):
+    """Group a seen image, leaving unrecognised mapped images incomplete.
+
+    :param name: image name relative to the watched source folder.
+    :param settings: watch filename convention.
+    :param cache: reusable compiled filename patterns.
+    :param series: whether the map declares whole timelapse fields.
+    :returns: the observed field key and channel ID.
+    """
+    if series:
+        try:
+            key, channel, _time = _watch_series_field_of(name, settings, cache)
+            return key, channel
+        except ValueError:
+            pass
+    return _watch_field_of(name, settings, cache)
+
+
 def _watch_map_bytes(src):
     """Read at most 16 MiB of the local Convert map without following links.
 
@@ -1931,12 +1949,8 @@ def _watch_ready_fields(context, now):
     seen, fields = context['seen'], context['ledger']['fields']
     groups = {}
     for name in seen:
-        if context.get('series'):
-            key, channel, _time = _watch_series_field_of(
-                name, context['settings'], context['patterns'])
-        else:
-            key, channel = _watch_field_of(name, context['settings'],
-                                           context['patterns'])
+        key, channel = _watch_observed_field_of(
+            name, context['settings'], context['patterns'], context.get('series'))
         groups.setdefault(key, []).append((name, channel))
     manifest = context.get('manifest')
     if manifest is not None:
@@ -2698,12 +2712,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
                   if entry.get('status') == 'done')
     failed = sorted(key for key, entry in fields.items()
                     if entry.get('status') == 'failed')
-    observed_keys = (
-        {_watch_series_field_of(name, settings, context['patterns'])[0]
-         for name in context['seen']}
-        if series else
-        {_watch_field_of(name, settings, context['patterns'])[0]
-         for name in context['seen']})
+    observed_keys = {
+        _watch_observed_field_of(name, settings, context['patterns'], series)[0]
+        for name in context['seen']}
     incomplete = sorted(
         observed_keys | set(manifest or {}) |
         {key for key, entry in fields.items() if entry.get('status') == 'waiting'})

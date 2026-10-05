@@ -5,6 +5,7 @@ import shutil
 import sqlite3
 
 import numpy as np
+import pandas as pd
 import pytest
 import tifffile
 
@@ -13,6 +14,7 @@ from tests.test_watch_folder_and_analyse import (
     MASK, MEASURE, Recorder, _channels, _rows, real_pipeline,
 )
 from tests.test_watch_nested_f548 import _fast
+from tests.test_cov_object_masks_sam import fake_model
 
 
 def _converted_series(tmp_path, wells=('A01',)):
@@ -96,6 +98,62 @@ def test_two_mapped_series_keep_their_field_members_separate(tmp_path):
         assert set(files) == {row['target'] for row in rows if row['well'] == well}
 
 
+def test_mapped_series_runs_the_batch_iou_tracking_path(tmp_path, fake_model,
+                                                         monkeypatch):
+    import spacr.object as spacr_object
+
+    model_class = spacr_object.cp_models.CellposeModel
+    original_eval = model_class.eval
+
+    def enlarged_eval(self, *args, **kwargs):
+        """Keep the strict Cellpose double but make its labels trackable."""
+        masks, flows, styles = original_eval(self, *args, **kwargs)
+        enlarged = []
+        for mask in masks:
+            larger = np.zeros_like(mask)
+            if np.max(mask) >= 1:
+                larger[2:10, 2:10] = 1
+            if np.max(mask) >= 2:
+                larger[12:20, 12:20] = 2
+            enlarged.append(larger)
+        return enlarged, flows, styles
+
+    monkeypatch.setattr(model_class, 'eval', enlarged_eval)
+    output, rows = _converted_series(tmp_path)
+    batch, watched = tmp_path / 'batch', tmp_path / 'watched'
+    batch.mkdir()
+    watched.mkdir()
+    shutil.copy2(output / convert.MAP_FILENAME, watched / convert.MAP_FILENAME)
+    for row in rows:
+        shutil.copy2(output / row['target'], batch / row['target'])
+        shutil.copy2(output / row['target'], watched / row['target'])
+    mask = dict(MASK, timelapse=True, nucleus_channel=None,
+                timelapse_objects=['cell'], timelapse_mode='iou',
+                timelapse_displacement=10, timelapse_remove_transient=False)
+    core.preprocess_generate_masks(dict(mask, src=str(batch)))
+    batch_model = fake_model['model']
+    assert len(batch_model.eval_kwargs) == 1
+    result = core._watch_folder_and_analyse(dict(mask, **_fast(watched)))
+    assert len(result['done']) == 1 and not result['failed']
+    field = watched / 'spacr_watch/fields' / result['done'][0]
+    batch_names = sorted(path.name for path in (batch / 'merged').glob('*.npy'))
+    assert len(batch_names) == 2
+    for name in batch_names:
+        np.testing.assert_array_equal(np.load(batch / 'merged' / name),
+                                      np.load(field / 'merged' / name))
+    batch_tracks = sorted((batch / 'tracks').glob('trackpy_tracks_cell_*.csv'))
+    watch_tracks = sorted((field / 'tracks').glob('trackpy_tracks_cell_*.csv'))
+    assert len(batch_tracks) == len(watch_tracks) == 1
+    batch_table = pd.read_csv(batch_tracks[0])
+    pd.testing.assert_frame_equal(batch_table, pd.read_csv(watch_tracks[0]))
+    assert sorted(batch_table['frame'].unique().tolist()) == [0, 1]
+    assert (batch_table.groupby('track_id')['frame'].nunique() == 2).all()
+    watch_model = fake_model['model']
+    assert batch_model is not watch_model and len(watch_model.eval_kwargs) == 1
+    assert all(model.eval_kwargs[0]['channel_axis'] == -1
+               for model in (batch_model, watch_model))
+
+
 @pytest.mark.parametrize('kind', ['missing_frame_plane', 'sparse_time'])
 def test_mapped_series_requires_a_dense_time_and_plane_grid(tmp_path, kind):
     output, rows = _converted_series(tmp_path)
@@ -157,18 +215,25 @@ def test_series_resume_rejects_changed_provenance(tmp_path, change):
     assert (output / 'spacr_watch/watch_ledger.json').read_bytes() == ledger
 
 
-def test_extra_or_changed_frame_cannot_mutate_a_committed_series(tmp_path, capsys):
+@pytest.mark.parametrize('kind', ['third_frame', 'unmapped_name'])
+def test_extra_or_changed_frame_cannot_mutate_a_committed_series(tmp_path, capsys,
+                                                                   kind):
     output, rows = _converted_series(tmp_path)
     settings = dict(MASK, **_fast(output), timelapse=True)
-    extra = output / convert.target_name('plate1', 'A01', 1, 1, z=1, t=3)
+    extra = (output / convert.target_name('plate1', 'A01', 1, 1, z=1, t=3)
+             if kind == 'third_frame' else output / 'unmapped_image.tif')
     tifffile.imwrite(extra, np.ones((16, 16), np.uint16))
     waiting = Recorder()
     first = core._watch_folder_and_analyse(settings, waiting)
-    assert first['incomplete'] and not waiting.calls
+    if kind == 'third_frame':
+        assert first['incomplete'] and not waiting.calls
+    else:
+        assert first['incomplete'] == ['unmapped_image']
+        assert len(first['done']) == len(waiting.calls) == 1
     extra.unlink()
     recorder = Recorder()
     done = core._watch_folder_and_analyse(settings, recorder)
-    assert len(done['done']) == len(recorder.calls) == 1
+    assert len(done['done']) == 1 and len(recorder.calls) == (1 if kind == 'third_frame' else 0)
     late = next(row for row in rows if int(row['t']) == 2)
     tifffile.imwrite(output / late['target'], np.zeros((16, 16), np.uint16))
     resumed = Recorder()
@@ -184,5 +249,21 @@ def test_series_measure_recipe_must_keep_timepoint_identity(tmp_path):
     settings = dict(MASK, **_fast(output), timelapse=True,
                     watch_pipeline='mask_measure', watch_measure_settings=str(measure))
     with pytest.raises(ValueError, match='Measure settings must enable timelapse'):
+        core._watch_folder_and_analyse(settings, Recorder())
+    assert not (output / 'spacr_watch').exists()
+
+
+@pytest.mark.parametrize('extra, message', [
+    ({'z_stack': True}, 'z_stack'),
+    ({'t_stack': True}, 't_stack'),
+    ({'watch_pipeline': 'mask_measure_classify'}, 'supports mask or mask_measure'),
+    ({'watch_pipeline': 'mask_measure', 'microscope_feedback': True},
+     'without microscope feedback'),
+])
+def test_series_does_not_enable_other_live_volume_or_feedback_paths(
+        tmp_path, extra, message):
+    output, _rows_ = _converted_series(tmp_path)
+    settings = dict(MASK, **_fast(output), timelapse=True, **extra)
+    with pytest.raises(ValueError, match=message):
         core._watch_folder_and_analyse(settings, Recorder())
     assert not (output / 'spacr_watch').exists()
