@@ -466,8 +466,8 @@ The API uses these labels consistently:
 Optional dependencies
 ---------------------
 
-The base package contains the headless pipelines. Install ``spacr[qt]`` for
-the desktop interface. Other extras add OME-Zarr, OMERO, napari, attribution,
+The base package contains the Qt desktop interface and headless pipelines.
+Extras add OME-Zarr, OMERO, napari, attribution,
 tracking, Zernike measurements and vendor readers. Availability varies with
 Python version; the :doc:`installer guide <installer_guide>` is the authoritative
 compatibility table.

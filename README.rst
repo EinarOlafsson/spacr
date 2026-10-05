@@ -98,7 +98,7 @@ Try spaCR
 
    conda create -n spacr python=3.12 -y
    conda activate spacr
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 Use **Load test data…** in Import, Make Masks, Annotate or an assay screen
@@ -209,7 +209,7 @@ environment. Python 3.12 has the widest choice of optional scientific packages:
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr
 
 spaCR supports Python **3.9 through 3.14**, except Python 3.14.1, which
@@ -218,7 +218,8 @@ workflows; macOS and Windows are also supported, and both use their GPUs —
 macOS through Metal, which covers Apple Silicon and the AMD cards in Intel
 Macs, and Windows through CUDA or DirectML.
 
-For a server, cluster or CI runner, omit Qt:
+The standard installation includes the Qt desktop interface. For a server,
+cluster or CI runner, run the command-line pipelines without opening it:
 
 .. code-block:: bash
 

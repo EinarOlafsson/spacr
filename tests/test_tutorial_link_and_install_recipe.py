@@ -7,11 +7,10 @@
    test, ``grep -rn "tutorials/" --include=*.py spacr/`` returned nothing:
    the Python package did not link to the library at all.
 
-2. The install recipe. ``docs/source/index.rst`` printed ``pip install spacr``
-   followed by ``spacr``, but PySide6 lives in the ``qt`` extra, so that
-   recipe ends in a bare ``ModuleNotFoundError``.
+2. The install recipe. The standard package includes the Qt desktop stack,
+   so the landing page and README should both use ``pip install spacr``.
 
-Deliberately free of Qt imports so it runs on a core-only install.
+Deliberately free of Qt imports so it runs without a display.
 
 ONE TEST IS GONE. The Tk startup screen's logo button opened the same
 library from a ``TUTORIALS_URL`` constant in ``legacy_tk/gui.py``, and that
@@ -20,6 +19,7 @@ file is deleted -- the Qt help menu, asserted below from the source of
 """
 from __future__ import annotations
 
+import ast
 import re
 from pathlib import Path
 
@@ -96,42 +96,41 @@ _BARE_RECIPE = re.compile(
 )
 
 
-def test_the_docs_do_not_print_a_recipe_that_ends_in_an_importerror():
-    """``pip install spacr`` then ``spacr`` — PySide6 is extras-only."""
+def test_the_docs_install_and_launch_the_standard_package():
+    """The documented standard install is followed by the desktop command."""
     index = INDEX_RST.read_text(encoding="utf-8")
     match = _BARE_RECIPE.search(index)
-    assert match is None, (
-        "docs/source/index.rst tells the user to launch the GUI from a "
-        f"core-only install:\n{match.group(0) if match else ''}"
+    assert match is not None, (
+        "docs/source/index.rst should install spacr and launch its desktop "
+        "interface, which is included in the standard package"
     )
 
 
-def test_the_docs_install_the_qt_extra_for_the_gui():
+def test_the_docs_do_not_require_the_redundant_qt_extra():
     index = INDEX_RST.read_text(encoding="utf-8")
-    assert 'pip install "spacr[qt]"' in index
+    assert 'pip install spacr' in index
+    assert 'spacr[qt]' not in index
 
 
 def test_the_readme_and_the_docs_agree_on_the_gui_install():
-    """README.rst was already right; index.rst was not."""
+    """Both entry points document the same standard installation."""
     readme = (REPO_ROOT / "README.rst").read_text(encoding="utf-8")
     index = INDEX_RST.read_text(encoding="utf-8")
-    recipe = 'python -m pip install "spacr[qt]"'
+    recipe = 'python -m pip install spacr'
     assert recipe in readme
     assert recipe in index
 
 
-def test_pyside6_is_an_extra_and_not_a_core_requirement():
-    """The premise of the guard. If this ever changes, the guard is dead code."""
-    setup = (REPO_ROOT / "setup.py").read_text(encoding="utf-8")
-    qt_extra = re.search(r"'qt': \[(.*?)\]", setup, re.S)
-    assert qt_extra and "PySide6" in qt_extra.group(1)
-
-    requirements = (REPO_ROOT / "requirements.txt").read_text(encoding="utf-8")
-    core = [
-        line for line in requirements.splitlines()
-        if line.strip() and not line.strip().startswith("#")
-    ]
-    assert not any(line.lower().startswith("pyside6") for line in core), (
-        "PySide6 became a core requirement; the spacr.qt install guard is "
-        "now unreachable and should be removed"
+def test_the_documented_standard_install_declares_the_qt_stack():
+    """Read actual package dependencies rather than an editable install shim."""
+    setup = ast.parse((REPO_ROOT / "setup.py").read_text(encoding="utf-8"))
+    dependencies = next(
+        ast.literal_eval(node.value)
+        for node in setup.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "dependencies"
+                for target in node.targets)
     )
+    core = {re.split(r"[<>=!~;\[]", requirement, maxsplit=1)[0].lower()
+            for requirement in dependencies}
+    assert {"pyside6", "qtawesome", "pyqtgraph"} <= core

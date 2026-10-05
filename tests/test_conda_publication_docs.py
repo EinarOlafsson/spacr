@@ -27,7 +27,7 @@ ALL_READMES = [README, *LOCALIZED]
 PACKAGE_URL = "https://anaconda.org/conda-forge/spacr"
 BADGE_URL = f"{PACKAGE_URL}/badges/version.svg"
 CONDA_COMMAND = "conda install conda-forge::spacr"
-PIP_COMMAND = 'python -m pip install "spacr[qt]"'
+PIP_COMMAND = 'python -m pip install spacr'
 
 LOCALIZED_BADGE_ALT = {
     "de": "conda-forge-Version",
@@ -60,16 +60,15 @@ def test_conda_and_pypi_are_separate_install_routes(path: Path):
     text = path.read_text(encoding="utf-8")
 
     assert text.count(CONDA_COMMAND) == 1
-    # Every README, translated or not, carries the pip command twice: once in
-    # the quick start and once in the PyPI section. The translations gained
-    # the quick start when they were brought level with the English one.
-    assert text.count(PIP_COMMAND) == 2
+    # Every README uses the same standard package for desktop and headless
+    # workflows: quick start, PyPI desktop installation, and command line.
+    assert text.count(PIP_COMMAND) == 3
     if path == README:
         quick_start = text.split("Try spaCR\n", 1)[1].split("Hardware support\n", 1)[0]
         assert quick_start.count(PIP_COMMAND) == 1
         assert CONDA_COMMAND not in quick_start
         pypi = text.split("PyPI installation\n", 1)[1].split("Conda-forge installation\n", 1)[0]
-        assert pypi.count(PIP_COMMAND) == 1
+        assert pypi.count(PIP_COMMAND) == 2
         assert CONDA_COMMAND not in pypi
     # PIP FIRST, CONDA SECOND, since the README restructure of 2dfbbe874 on
     # 2026-09-01 moved the PyPI section above the conda-forge one. This
@@ -111,7 +110,7 @@ def test_installer_guide_covers_install_update_and_removal_by_source():
         CONDA_COMMAND,
         "conda update conda-forge::spacr",
         "conda install conda-forge::spacr=VERSION",
-        'python -m pip install "spacr[qt]==VERSION"',
+        'python -m pip install "spacr==VERSION"',
         "conda remove spacr",
         PIP_COMMAND,
         "python -m pip uninstall spacr",

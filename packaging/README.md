@@ -8,7 +8,7 @@ Python, Qt, PyTorch, CUDA, or the scientific stack. During installation they:
 1. download a pinned standalone `uv` bootstrap over TLS;
 2. download a private managed CPython 3.12 runtime;
 3. select the PyTorch backend automatically, including CUDA on compatible NVIDIA systems;
-4. install `spacr[qt]` in a private environment;
+4. install `spacr` in a private environment;
 5. run `pip check` and import spaCR, Qt, and PyTorch before activating it; and
 6. create the platform's normal application launcher and uninstaller.
 

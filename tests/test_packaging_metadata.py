@@ -614,7 +614,7 @@ def test_requirements_txt_does_not_contradict_setup_py():
     now removed or moved to extras.
 
     The fix is structural rather than clerical: requirements.txt delegates to
-    setup.py with ``-e .[qt,dev]``, so there is exactly one dependency list in
+    setup.py with ``-e .[dev]``, so there is exactly one dependency list in
     the repository. This test keeps it that way — any line that pins a version
     is a hand-written dependency creeping back in.
     """
@@ -633,11 +633,11 @@ def test_requirements_txt_does_not_contradict_setup_py():
         f"{pinned}\nsetup.py's `dependencies` list is the single source of "
         "truth. A second copy drifts — last time it drifted to "
         "`cellpose<4.0` against setup.py's `cellpose>=4.0`, which is an "
-        "unsatisfiable pair. Delegate with `-e .[qt,dev]` instead."
+        "unsatisfiable pair. Delegate with `-e .[dev]` instead."
     )
     assert any(ln.startswith("-e") or ln == "." for ln in lines), (
         "requirements.txt no longer delegates to setup.py. It should contain "
-        "`-e .[qt,dev]` so the two files cannot disagree."
+        "`-e .[dev]` so the two files cannot disagree."
     )
 
 
@@ -656,7 +656,7 @@ def test_environment_yaml_does_not_contradict_setup_py():
 
     An exported environment is one machine's resolved state on one day, not a
     specification, so re-synchronising the pins by hand would only have reset
-    the clock on the same rot. The file now delegates with ``-e .[qt,dev]``.
+    the clock on the same rot. The file now delegates with ``-e .[dev]``.
 
     The interpreter line is the one deliberate exception: conda needs to be
     told which Python to create, and a bare range is a specification rather
@@ -676,8 +676,8 @@ def test_environment_yaml_does_not_contradict_setup_py():
     # Everything that looks like a dependency: list entries, minus the YAML
     # scalars (`name:`, `channels:`, ...) that carry no version.
     # Slice rather than `lstrip("- ")`: lstrip takes a character SET, so the
-    # pip block's `- -e .[qt,dev]` would lose its `-e` flag too and read as
-    # `e .[qt,dev]`, making the delegation check fail against a correct file.
+    # pip block's `- -e .[dev]` would lose its `-e` flag too and read as
+    # `e .[dev]`, making the delegation check fail against a correct file.
     entries = [ln[2:].strip() for ln in lines if ln.startswith("- ")]
 
     exact = [e for e in entries if re.search(r"(?<![<>!~])==\s*\d", e)]
@@ -686,11 +686,11 @@ def test_environment_yaml_does_not_contradict_setup_py():
         f"{exact[:10]}\nsetup.py's `dependencies` list is the single source "
         "of truth. The last hand-written copy drifted to `cellpose==3.0.11` "
         "against setup.py's `cellpose>=4.0`, which builds a spaCR that "
-        "cannot segment. Delegate with `-e .[qt,dev]` instead."
+        "cannot segment. Delegate with `-e .[dev]` instead."
     )
     assert any(e.startswith("-e") or e == "." for e in entries), (
         "environment.yaml no longer delegates to setup.py. Its `pip:` block "
-        "should contain `-e .[qt,dev]` so the two files cannot disagree."
+        "should contain `-e .[dev]` so the two files cannot disagree."
     )
 
     # The one permitted version bound, and it must not undercut the package.
@@ -1502,15 +1502,10 @@ def test_no_console_script_name_is_declared_twice():
 
 
 def test_console_scripts_and_extras_agree_about_qt():
-    """`spacr` is the default console script and it launches the Qt GUI, but
-    PySide6 lives in the `qt` extra, not the core deps — so a plain
-    `pip install spacr` installs a `spacr` command that raises ImportError.
+    """The Qt entry points must have a declared PySide6 dependency.
 
-    This test does not assert the fix (moving PySide6 into the core deps
-    would force ~150 MB of Qt onto headless cluster users who only ever run
-    `spacr-run`, and the better fix is a friendly error inside
-    ``spacr/qt/__init__.py``). It asserts the two halves stay *visible* to
-    each other, so the trade-off is made on purpose rather than by accident.
+    Current packages declare it in core. The fallback check also recognizes
+    older metadata that provided the dependency through the Qt extra.
     """
     entry_points = _literal_kwarg("entry_points") or {}
     scripts = entry_points.get("console_scripts", [])

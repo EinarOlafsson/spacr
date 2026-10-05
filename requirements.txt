@@ -27,8 +27,8 @@
 #
 # Rather than re-synchronise 36 lines by hand and let them rot again, this
 # file now delegates. `-e .` installs exactly what setup.py declares, so the
-# two cannot drift apart, and the qt/dev extras are named explicitly because
-# they are what a developer checkout wants.
+# two cannot drift apart. The dev extra adds the tools for a developer
+# checkout; Qt is already included in the standard package.
 #
 # tests/test_packaging_metadata.py::test_no_second_qt_binding_is_declared and
 # ::test_requirements_txt_does_not_contradict_setup_py both read this file, so
@@ -36,7 +36,7 @@
 # silently shipping.
 #
 #   pip install -r requirements.txt     # editable dev install, Qt + tests
-#   pip install spacr                   # users; core only, no Qt
+#   pip install spacr                   # users; desktop + pipelines
 #   pip install "spacr[all]"            # every optional feature
 
--e .[qt,dev]
+-e .[dev]

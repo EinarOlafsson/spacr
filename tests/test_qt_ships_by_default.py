@@ -62,9 +62,7 @@ def test_spacr_qt_is_declared_unconditionally():
 
 
 def test_the_qt_extra_still_resolves():
-    """Existing instructions, the three packaging scripts, the README and
-    nine translations all say `spacr[qt]`. Removing the name would break
-    printed instructions to no benefit."""
+    """Older printed instructions using `spacr[qt]` remain compatible."""
     extras = _metadata()["extras_require"]
 
     assert "qt" in extras

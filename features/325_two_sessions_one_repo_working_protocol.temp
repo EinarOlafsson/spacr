@@ -18154,3 +18154,28 @@ retry binds the existing Cellpose cache read-only through the normal model
 cache setting while staying offline. Home retains feature/CPU/Qt/final CI;
 all generated artifacts and GPU work remain here, excluding protected
 live_cell/cellposeTIME jobs. No duplicate GPU turn is queued.
+
+2026-10-05 — HOME STANDARD INSTALLATION COMMAND CORRECTION
+The maintainer explicitly requested removal of the redundant [qt] selector
+from installation instructions: setup.py core dependencies and published
+PyPI 1.5.1.3 both include PySide6, qtawesome and pyqtgraph. Home owns this
+narrow correction to authored README/English installation guides, developer
+environment delegation, normal installer defaults and runtime repair hints.
+The qt metadata alias stays compatible with older explicit commands. No
+dependency, desktop/headless entry point, CI ceiling or guard is removed.
+
+Workstation keeps generated/API/translation/tutorial ownership. Its next
+normal source-current refresh needs the changed README prose/code recipes,
+installer_guide/features/index guide passages, launcher private docstrings
+and fast_plots runtime message. In every localized README the standard
+literal is now python -m pip install spacr, three times: quick start,
+desktop PyPI recipe and command-line recipe. The publication-route test is
+updated to require all three; do not retain the old extras-only wording or
+relax that contract. tools/tutorials/authoring/tools/render_install_keyframes.py
+still contains the old Qt-extra split and needs the owner's normal update
+and media refresh. Historical feature/proposal receipts and the qt alias's
+explicit compatibility tests are historical evidence, not active advice.
+
+Root's bounded current English/source packaging cohort passes 63 cases
+under 4 GiB with CUDA hidden. Generated locale/API/UI refresh remains with
+the workstation; final exact-source hosted CI is still required.

@@ -98,7 +98,7 @@ among their base dependencies.
 
 .. code-block:: bash
 
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
    spacr                    # launch the Qt GUI
 
 For a terminal workflow on a cluster or server, use ``spacr-run`` without

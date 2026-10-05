@@ -41,7 +41,7 @@
 #   conda activate spacr
 #
 # For a non-conda install see requirements.txt, or:
-#   pip install spacr            # users; core only, no Qt
+#   pip install spacr            # users; desktop + pipelines
 #   pip install "spacr[all]"     # every optional feature
 
 name: spacr
@@ -51,4 +51,4 @@ dependencies:
   - python>=3.10,<3.14
   - pip
   - pip:
-      - -e .[qt,dev]
+      - -e .[dev]

@@ -193,7 +193,7 @@ Update an environment installed from PyPI with:
 
 .. code-block:: bash
 
-   python -m pip install --upgrade "spacr[qt]"
+   python -m pip install --upgrade spacr
 
 For reproducible work, install an exact version instead of following the
 latest release. Use the command for the package source already installed in
@@ -202,7 +202,7 @@ the environment, replacing ``VERSION`` with a release that source publishes:
 .. code-block:: bash
 
    conda install conda-forge::spacr=VERSION
-   python -m pip install "spacr[qt]==VERSION"
+   python -m pip install "spacr==VERSION"
 
 ``python -m pip index versions spacr`` lists the PyPI releases, and
 ``conda search -c conda-forge spacr`` lists the conda-forge builds.
@@ -363,7 +363,7 @@ minor version, replacing ``VERSION`` with the release to install:
 
 .. code-block:: bash
 
-   python -m pip download --dest spacr-wheelhouse "spacr[qt]==VERSION"
+   python -m pip download --dest spacr-wheelhouse "spacr==VERSION"
 
 Copy ``spacr-wheelhouse`` to the offline machine, create and activate a Python
 environment, then install without contacting a package index:
@@ -371,7 +371,7 @@ environment, then install without contacting a package index:
 .. code-block:: bash
 
    python -m pip install --no-index --find-links spacr-wheelhouse \
-       "spacr[qt]==VERSION"
+       "spacr==VERSION"
 
 Repeat the download for the required optional extras. GPU-enabled PyTorch
 builds may require a separate wheel source, so prepare and test the complete
@@ -402,10 +402,12 @@ install the PyPI release and desktop interface inside a Conda environment:
    conda create -n spacr python=3.12 -y
    conda activate spacr
    python -m pip install --upgrade pip
-   python -m pip install "spacr[qt]"
+   python -m pip install spacr
 
-Omit ``qt`` for a headless server. Extras can be combined, for example
-``spacr[qt,czi,nd2,lif]``. Common additions are:
+The standard package includes the Qt desktop interface and command-line
+pipelines. On a headless server, use ``spacr-run`` without opening the desktop
+application. Extras can be combined, for example ``spacr[czi,nd2,lif]``.
+Common additions are:
 
 .. list-table::
    :header-rows: 1
@@ -413,8 +415,6 @@ Omit ``qt`` for a headless server. Extras can be combined, for example
 
    * - Extra
      - Adds
-   * - ``qt``
-     - The PySide6 desktop interface.
    * - ``czi``, ``nd2``, ``lif``
      - Additional microscopy file readers.
    * - ``napari``
