@@ -150,6 +150,16 @@ the Qt owner continues exact-path diagnosis. This does not establish that
 the full 6 GB CI worker now passes. No cap change or forced collection.
 The root also verifies all ten current API inventory/hash language cases.
 
+Protected rerun 37359579362 targets pushed checkpoint
+0031f9fd07e377a32760597332d30361a01627be (created 18:55:11 UTC). It is
+pending behind active 37327585557. The older run's aggregate now checks
+all 664 modules and complete 12-shard coverage integrity, with exactly one
+regression: submodules.py line 2105 / arc 2104->2105. The integrated
+Series-name collision test covers that path; no other module regresses,
+and no baseline allowance changes. The memory guard remains a separate
+failed job. Freeze CPU production/test changes for the protected verdict;
+isolated native-Z development is not part of this checkpoint.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.

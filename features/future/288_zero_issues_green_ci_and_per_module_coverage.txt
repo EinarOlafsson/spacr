@@ -5599,3 +5599,21 @@ counts and the 778->776 / 709->708 / 136->133 pins were rebound to the
 records 603423d0a retired, but the 2026-10-01/02 review batches are not yet
 classified by the test (older_sources 441 vs 305); translation lane.
 Qt shards were not rerun here.
+
+2026-10-05 — PROTECTED AGGREGATE HAS ONE REMAINING REGRESSION
+The completed coverage aggregate for protected run 37327585557 measures
+1c99dd3e85dd3fb86972b13482d13b52adc176a6: all 12 shard integrity checks
+are complete, 664 of 664 modules are checked, and no rises are unconfirmed.
+Exactly one module regresses: submodules.py statement 2105 and arc
+2104->2105. The integrated Series-name collision regression test in
+4e34be961 (agent source 7c41878d1) directly executes that plot/export path.
+Figure bundle/style have zero uncovered statements and branches; the
+unchanged ops_accel floor exemption remains. No allowance is increased.
+Coverage shard 4's memory guard still makes its test job red despite
+complete serial recovery coverage. Its settings-editor widget ownership
+fix is integrated in checkpoint 0031f9fd0; acceptance needs the rerun.
+Protected run 37359579362 targets that exact checkpoint and was created
+2026-10-05 18:55:11 UTC. It is pending behind the older active run at this
+receipt. Whole items 43/288 remain OPEN until the repaired source receives
+its completed verdict. Aggregate receipt:
+/mnt/wd4tb/scratch/codex-final-cov-audit/final-1c99-aggregate/module-coverage-ratchet.txt.
