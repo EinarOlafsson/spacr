@@ -156,6 +156,7 @@ class _WatchLivePlate(QWidget):
         self._wells = {}
         self._unplaced = 0
         self._plate = QComboBox(self)
+        self._plate.view()
         self._plate.currentTextChanged.connect(self._render)
         self._card.body_layout.addWidget(self._plate)
         self._grid = PlateGridWidget(self)
