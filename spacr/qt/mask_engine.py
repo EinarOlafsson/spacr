@@ -61,10 +61,14 @@ was the truth.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import math
 import os
+import tempfile
 from collections import deque
+from numbers import Integral
+from pathlib import Path
 from typing import Dict, List, NamedTuple, Optional, Tuple
 
 import imageio.v2 as imageio
@@ -76,6 +80,305 @@ from ..tiff_io import write_tiff
 
 
 IMAGE_EXTS = (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp")
+YOLO_ANNOTATIONS_NAME = ".spacr_yolo_annotations.json"
+YOLO_CLASSES_NAME = ".classes.json"
+
+
+def _yolo_shape(image_shape) -> tuple:
+    """Validate an image shape and return its integer dimensions."""
+    try:
+        shape = tuple(image_shape)
+    except TypeError as exc:
+        raise ValueError("image shape must have two or three dimensions") from exc
+    if len(shape) not in (2, 3) or any(
+            isinstance(value, bool) or not isinstance(value, Integral)
+            or value <= 0 for value in shape):
+        raise ValueError("image shape must have positive integer dimensions")
+    return tuple(int(value) for value in shape)
+
+
+def _yolo_classes(classes) -> list[str]:
+    """Return a nonempty, unambiguous ordered class-name map."""
+    if isinstance(classes, (str, bytes)):
+        raise ValueError("YOLO classes must be a sequence of names")
+    try:
+        names = list(classes)
+    except TypeError as exc:
+        raise ValueError("YOLO classes must be a sequence of names") from exc
+    if not names or any(
+            not isinstance(name, str) or not name or name != name.strip()
+            or name in (".", "..") or "/" in name or "\\" in name
+            or not name.isprintable() for name in names):
+        raise ValueError("YOLO class names must be nonempty printable names")
+    if len({name.casefold() for name in names}) != len(names):
+        raise ValueError("YOLO class names must be unique")
+    return names
+
+
+def _yolo_boxes(boxes, width: int, height: int, n_classes=None) -> list[tuple]:
+    """Sort and clip full-image, exclusive-edge boxes without merging overlap."""
+    try:
+        given = list(boxes)
+    except TypeError as exc:
+        raise ValueError("YOLO boxes must be a sequence") from exc
+    canonical = []
+    for box in given:
+        try:
+            class_id, x0, y0, x1, y1 = box
+        except (TypeError, ValueError) as exc:
+            raise ValueError("each YOLO box needs class ID and four corners") from exc
+        if (isinstance(class_id, bool) or not isinstance(class_id, Integral)
+                or class_id < 0 or (n_classes is not None
+                                 and class_id >= n_classes)):
+            raise ValueError("YOLO box class ID is outside the class map")
+        try:
+            coordinates = (float(x0), float(y0), float(x1), float(y1))
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("YOLO box coordinates must be finite numbers") from exc
+        if not all(math.isfinite(value) for value in coordinates):
+            raise ValueError("YOLO box coordinates must be finite numbers")
+        left, right = sorted((max(0.0, min(float(width), coordinates[0])),
+                              max(0.0, min(float(width), coordinates[2]))))
+        top, bottom = sorted((max(0.0, min(float(height), coordinates[1])),
+                              max(0.0, min(float(height), coordinates[3]))))
+        if left >= right or top >= bottom:
+            raise ValueError("YOLO box has no area inside the image")
+        canonical.append((int(class_id), left, top, right, bottom))
+    return canonical
+
+
+def yolo_box_lines(boxes, width: int, height: int) -> list[str]:
+    """Encode full-image pixel boxes as standard YOLO ``class cx cy w h``.
+
+    Corners may be reversed or outside the image. Every box is clipped and
+    checked before any line is returned; overlapping boxes stay distinct.
+    Coordinates use exclusive right and bottom edges and are normalised by
+    the positive image width and height.
+
+    :param boxes: ``(class_id, x0, y0, x1, y1)`` full-image pixel boxes.
+    :param width: positive integer width of the original image.
+    :param height: positive integer height of the original image.
+    :returns: one normalised YOLO label line per input box, in input order.
+    """
+    shape = _yolo_shape((height, width))
+    lines = []
+    for class_id, x0, y0, x1, y1 in _yolo_boxes(boxes, shape[1], shape[0]):
+        lines.append(
+            f"{class_id} {((x0 + x1) / 2 / width):.17g} "
+            f"{((y0 + y1) / 2 / height):.17g} "
+            f"{((x1 - x0) / width):.17g} {((y1 - y0) / height):.17g}"
+        )
+    return lines
+
+
+def _yolo_relative(folder, filename) -> tuple[str, Path]:
+    """Resolve one relative source file without leaving its project folder."""
+    raw = str(filename)
+    relative = Path(raw)
+    if (not raw or "\\" in raw or relative.is_absolute()
+            or any(part in (".", "..") for part in relative.parts)):
+        raise ValueError("YOLO source filename must stay inside its folder")
+    base = Path(folder).resolve(strict=True)
+    if not base.is_dir():
+        raise ValueError("YOLO source folder is not a directory")
+    source = (base / relative).resolve(strict=True)
+    try:
+        source.relative_to(base)
+    except ValueError as exc:
+        raise ValueError("YOLO source filename escapes its folder") from exc
+    if not source.is_file():
+        raise ValueError("YOLO source must be a file")
+    return relative.as_posix(), source
+
+
+def _yolo_source_hash(source: Path) -> str:
+    """Hash the original source bytes without decoding or changing them."""
+    digest = hashlib.sha256()
+    with source.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _yolo_unique_object(pairs) -> dict:
+    """Refuse duplicate JSON keys rather than silently taking the last one."""
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate YOLO annotation key: {key}")
+        result[key] = value
+    return result
+
+
+def _yolo_read_json(path: Path):
+    """Read strict JSON from one project or export metadata file."""
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return json.load(handle, object_pairs_hook=_yolo_unique_object)
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid YOLO metadata: {path}") from exc
+
+
+def _yolo_state(path: Path) -> dict:
+    """Validate the complete project ledger before changing or trusting it."""
+    if path.is_symlink():
+        raise ValueError("YOLO project annotation ledger cannot be a symbolic link")
+    if not path.exists():
+        return {"version": 1, "classes": ["object"], "images": {}}
+    state = _yolo_read_json(path)
+    if (not isinstance(state, dict) or set(state) != {"version", "classes", "images"}
+            or type(state["version"]) is not int or state["version"] != 1
+            or not isinstance(state["images"], dict)):
+        raise ValueError("invalid YOLO project annotation ledger")
+    classes = _yolo_classes(state["classes"])
+    for filename, record in state["images"].items():
+        relative = Path(filename)
+        if (not filename or "\\" in filename or relative.is_absolute()
+                or any(part in (".", "..") for part in relative.parts)
+                or relative.as_posix() != filename or not isinstance(record, dict)
+                or set(record) != {"shape", "source_sha256", "boxes"}):
+            raise ValueError("invalid YOLO project annotation record")
+        shape = _yolo_shape(record["shape"])
+        digest = record["source_sha256"]
+        if (not isinstance(digest, str) or len(digest) != 64
+                or any(char not in "0123456789abcdef" for char in digest)
+                or not isinstance(record["boxes"], list)):
+            raise ValueError("invalid YOLO project annotation record")
+        if [list(box) for box in _yolo_boxes(
+                record["boxes"], shape[1], shape[0], len(classes))] != record["boxes"]:
+            raise ValueError("invalid YOLO project annotation boxes")
+    return state
+
+
+def _yolo_atomic(path: Path, payload: bytes) -> None:
+    """Replace one annotation artifact only after its complete write."""
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(
+                mode="wb", dir=path.parent, prefix=f".{path.name}.",
+                suffix=".tmp", delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def _yolo_json_bytes(value) -> bytes:
+    """Encode deterministic UTF-8 JSON with a trailing newline."""
+    return (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2)
+            + "\n").encode("utf-8")
+
+
+def save_yolo_boxes(folder, filename, image_shape, boxes, classes,
+                    expected_source_sha256=None) -> Path:
+    """Atomically save one source-bound box record in the project's ledger.
+
+    ``folder`` holds the untouched source image. ``filename`` is relative to
+    that folder. Existing class IDs retain their meanings: the old class map
+    must be a prefix of ``classes``. The saved source SHA-256 and full image
+    shape must agree when :func:`load_yolo_boxes` is next called. When an
+    expected source digest is supplied, an external image change between
+    loading and saving is refused before touching the ledger.
+
+    :param folder: project folder holding the original image.
+    :param filename: source-image path relative to ``folder``.
+    :param image_shape: shape of the displayed source image.
+    :param boxes: ``(class_id, x0, y0, x1, y1)`` full-image pixel boxes.
+    :param classes: ordered names whose indexes are the class IDs.
+    :param expected_source_sha256: digest received from a previous load,
+        or None when the caller has no prior image snapshot.
+    :returns: the private project-ledger path.
+    """
+    shape = _yolo_shape(image_shape)
+    names = _yolo_classes(classes)
+    canonical = _yolo_boxes(boxes, shape[1], shape[0], len(names))
+    label, source = _yolo_relative(folder, filename)
+    path = Path(folder).resolve() / YOLO_ANNOTATIONS_NAME
+    state = _yolo_state(path)
+    if path.exists() and names[:len(state["classes"])] != state["classes"]:
+        raise ValueError("YOLO class map would reassign an existing class ID")
+    digest = _yolo_source_hash(source)
+    if expected_source_sha256 is not None and digest != expected_source_sha256:
+        raise ValueError("YOLO source image changed since it was loaded")
+    existing = state["images"].get(label)
+    if existing is not None:
+        if existing["source_sha256"] != digest:
+            raise ValueError("YOLO annotation source bytes changed")
+        if existing["shape"] != list(shape):
+            raise ValueError("YOLO annotation image shape changed")
+    state["classes"] = names
+    state["images"][label] = {
+        "shape": list(shape), "source_sha256": digest,
+        "boxes": [list(box) for box in canonical],
+    }
+    _yolo_atomic(path, _yolo_json_bytes(state))
+    return path
+
+
+def load_yolo_boxes(folder, filename, image_shape) -> dict:
+    """Load this source's boxes, refusing stale bytes or changed image shape.
+
+    An unannotated source returns the existing project classes and no boxes.
+    A project with no ledger starts with class ``object`` and no boxes.
+
+    :param folder: project folder holding the original image.
+    :param filename: source-image path relative to ``folder``.
+    :param image_shape: shape of the displayed source image.
+    :returns: classes, canonical boxes and the current source SHA-256.
+    """
+    shape = _yolo_shape(image_shape)
+    label, source = _yolo_relative(folder, filename)
+    state = _yolo_state(Path(folder).resolve() / YOLO_ANNOTATIONS_NAME)
+    record = state["images"].get(label)
+    digest = _yolo_source_hash(source)
+    if record is None:
+        return {"classes": list(state["classes"]), "boxes": [],
+                "source_sha256": digest}
+    if record["shape"] != list(shape) or record["source_sha256"] != digest:
+        raise ValueError("YOLO annotation source bytes or image shape changed")
+    return {"classes": list(state["classes"]),
+            "boxes": [tuple(box) for box in record["boxes"]],
+            "source_sha256": digest}
+
+
+def export_yolo_boxes(path, boxes, image_shape, classes) -> str:
+    """Atomically write a YOLO label text file and sibling class metadata.
+
+    The label path must end in ``.txt``. Its sibling ``.classes.json`` keeps
+    the ordered class names; an existing map may only be extended. Empty
+    ``boxes`` intentionally writes an empty label file for a negative image.
+    Source images and masks are never opened or converted by this export.
+
+    :param path: chosen ``.txt`` path in an existing directory.
+    :param boxes: ``(class_id, x0, y0, x1, y1)`` full-image pixel boxes.
+    :param image_shape: shape of the image the labels describe.
+    :param classes: ordered names whose indexes are the class IDs.
+    :returns: the written label text path as a string.
+    """
+    target = Path(path)
+    if target.suffix.lower() != ".txt" or not target.parent.is_dir():
+        raise ValueError("YOLO export needs a .txt path in an existing folder")
+    metadata = target.parent / YOLO_CLASSES_NAME
+    if target.is_symlink() or metadata.is_symlink():
+        raise ValueError("YOLO export cannot replace symbolic links")
+    shape = _yolo_shape(image_shape)
+    names = _yolo_classes(classes)
+    canonical = _yolo_boxes(boxes, shape[1], shape[0], len(names))
+    if metadata.exists():
+        old = _yolo_read_json(metadata)
+        if not isinstance(old, dict) or set(old) != {"classes"}:
+            raise ValueError("invalid YOLO class metadata")
+        existing = _yolo_classes(old["classes"])
+        if names[:len(existing)] != existing:
+            raise ValueError("YOLO class map would reassign an existing class ID")
+    lines = yolo_box_lines(canonical, shape[1], shape[0])
+    _yolo_atomic(metadata, _yolo_json_bytes({"classes": names}))
+    _yolo_atomic(target, ("\n".join(lines) + ("\n" if lines else "")).encode("utf-8"))
+    return str(target)
 
 #: What a ledger created by this screen records as having made the edits.
 CURATION_SOURCE = "spacr-qt make_masks"
