@@ -364,6 +364,39 @@ def test_more_dilation_ratios_than_crop_modes_are_reported_as_ignored():
     assert "the extras are ignored" in matching[0].message
 
 
+def test_measure_preflight_explains_an_invalid_processed_psf():
+    """Measure reports an unusable intensity source before the run begins."""
+    problems = V._check_app_specific(
+        {"psf_measurement_source": "processed", "psf_operation": "none"},
+        "measure")
+    matching = [p for p in problems if p.setting == "psf_measurement_source"]
+    assert len(matching) == 1 and matching[0].is_error
+    assert "Processed measurements require psf_operation" in matching[0].message
+    assert V._check_app_specific({"psf_measurement_source": "original"},
+                                 "measure") == []
+
+
+def test_module_defaults_keep_valid_keys_if_one_provider_fails(monkeypatch):
+    """One unavailable module cannot hide a sibling's valid setting names."""
+    from types import SimpleNamespace
+
+    from spacr import cli
+
+    good = SimpleNamespace(key="good", validate_key="shared")
+    broken = SimpleNamespace(key="broken", validate_key="shared")
+    monkeypatch.setattr(cli, "MODULES", {"good": good, "broken": broken})
+    monkeypatch.setattr(V, "_MODULE_DEFAULT_KEYS_CACHE", {})
+
+    def defaults(module):
+        if module is broken:
+            raise ImportError("optional backend unavailable")
+        return {"valid_setting": 1, 7: "ignored"}
+
+    monkeypatch.setattr(cli, "module_defaults", defaults)
+    assert V._module_default_keys("shared") == frozenset({"valid_setting"})
+    assert V._module_default_keys("shared") == frozenset({"valid_setting"})
+
+
 # ---------------------------------------------------------------------------
 # plugin-supplied apps and validators
 # ---------------------------------------------------------------------------
