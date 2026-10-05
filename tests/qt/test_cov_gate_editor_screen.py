@@ -729,9 +729,14 @@ class _Action:
 def test_the_menu_pops_up_where_the_user_right_clicked(loaded, monkeypatch):
     from PySide6.QtCore import QPoint
     import PySide6.QtWidgets as qtw
+    from spacr.qt.widgets import figure_settings
 
     _Menu.built = []
     monkeypatch.setattr(qtw, "QMenu", _Menu)
+    figures = []
+    monkeypatch.setattr(
+        figure_settings, "_add_figure_tools",
+        lambda _menu, figure, _parent, _on_change: figures.append(figure))
 
     loaded._show_graph_menu(QPoint(4, 5))
 
@@ -739,8 +744,9 @@ def test_the_menu_pops_up_where_the_user_right_clicked(loaded, monkeypatch):
     labels = [row.label if row is not None else None for row in menu.rows]
     assert labels == [
         "Save graph…", "Copy image to clipboard", None, "Reset view",
-        "Graph settings…", None, "Export gates to the database…"]
+        "Graph settings…", None, "Export gates to the database…", None]
     assert menu.at == loaded.gates.canvas.mapToGlobal(QPoint(4, 5))
+    assert figures == [loaded.gates.canvas.figure()]
     assert all(row.calls for row in menu.rows if row is not None), (
         "an action was built with nothing behind it")
 
@@ -750,9 +756,12 @@ def test_a_greyed_row_carries_its_reason_into_the_menu(screen, monkeypatch):
     in the menu, and a greyed row with no reason looks like a bug."""
     from PySide6.QtCore import QPoint
     import PySide6.QtWidgets as qtw
+    from spacr.qt.widgets import figure_settings
 
     _Menu.built = []
     monkeypatch.setattr(qtw, "QMenu", _Menu)
+    monkeypatch.setattr(figure_settings, "_add_figure_tools",
+                        lambda *_args, **_kwargs: None)
 
     screen._show_graph_menu(QPoint(0, 0))
 

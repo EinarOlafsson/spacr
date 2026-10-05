@@ -1218,7 +1218,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 action.setToolTip(why)
             if callback is not None and enabled:
                 action.triggered.connect(lambda _c=False, cb=callback: cb())
-        figure = getattr(canvas, "figure", None)
+        try:
+            figure = canvas.figure()
+        except Exception:
+            figure = None
         if figure is not None:
             from ..widgets.figure_settings import _add_figure_tools
             menu.addSeparator()
