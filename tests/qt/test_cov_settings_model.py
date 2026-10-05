@@ -1105,13 +1105,14 @@ def test_the_class_editor_is_handed_the_live_preview_frame(monkeypatch):
     assert seen == [widgets._preview_frame]
 
 
-def test_a_list_default_for_a_scalar_setting_still_gets_a_list_widget():
+def test_a_list_default_for_a_scalar_setting_still_gets_a_list_widget(qtbot):
     """``expected_types`` says string; the shipped default is a list anyway."""
     widgets = SM.SettingsWidgets("measure")
 
     widget = widgets._widget_for("entry", None, ["a", "b"], "src")
 
     assert widget is not None
+    qtbot.addWidget(widget)
     assert widget.get_value() in (["a", "b"], "['a', 'b']")
 
 
