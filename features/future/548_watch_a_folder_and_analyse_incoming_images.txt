@@ -513,3 +513,31 @@ FIXED-MAP PROJECTED Z FIELDS (2026-10-05, partial)
     setting or UI caption was added, so generated settings artifacts are
     unchanged. Vendor completion, pooled normalisation, and a real GPU
     acquisition run remain open.
+
+POOLED NORMALISATION LATENCY LIMIT (2026-10-05, still open)
+    Current Make Masks groups sorted stack fields in batches of batch_size
+    after optional random shuffling. _normalize_img_batch pools every nonzero
+    pixel of each selected channel across the entire batch, computes lower
+    and upper percentiles, then scales each field with those shared values.
+    A live field cannot know those percentiles until its future batch mates
+    arrive. The existing watch analyses each field after settle plus poll;
+    a fixed Convert map describes fields but does not bound when they arrive.
+
+    Executing the actual _normalize_img_batch on a 16x16 ramp (values 1..256)
+    gives 0.4979575 for the first field's pixel 128 alone. If its later batch
+    mate has values 1001..1256, that same pixel becomes 0.0945924 under the
+    two-field pooled percentiles. The first-field acquisition history is
+    identical through its pickup deadline in both cases. Therefore an
+    open-ended watch cannot publish an immutable result by that deadline and
+    also equal every possible legacy batch_size>1 run. Randomized batch order
+    and padding of unlike field shapes add further parity constraints.
+
+    A future opt-in reference-calibrated mode could apply one precomputed,
+    hash-bound per-channel intensity range to both batch and watch, giving
+    prompt deterministic normalisation parity under that new recipe. It must
+    be named as different from legacy pooled-percentile output. An opt-in
+    full batch-window mode could retain legacy pooling with deterministic
+    field order, but its first field may wait arbitrarily long for later
+    fields. A timeout that releases a partial window would again change
+    legacy batch results. Neither mode is implemented here; ordinary watch
+    parity remains batch_size=1.
