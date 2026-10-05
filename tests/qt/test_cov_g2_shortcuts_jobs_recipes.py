@@ -68,9 +68,9 @@ def test_a_deleted_holder_is_skipped_when_applying(monkeypatch):
 
 
 def test_reinstalling_a_deleted_shortcut_creates_one_live_binding(qtbot):
+    import shiboken6
     from PySide6.QtGui import QKeySequence, QShortcut
     from PySide6.QtWidgets import QMainWindow
-    import shiboken6
 
     window = QMainWindow()
     qtbot.addWidget(window)
@@ -82,6 +82,9 @@ def test_reinstalling_a_deleted_shortcut_creates_one_live_binding(qtbot):
     replacement = sc._bind(window, "Ctrl+K", lambda: activated.append("new"))
     assert replacement is not old
     assert replacement.key() == QKeySequence("Ctrl+K")
+    assert window.findChildren(QShortcut) == [replacement]
+    assert sc._bind(window, "Ctrl+K", lambda: activated.append("duplicate")) \
+        is replacement
     assert window.findChildren(QShortcut) == [replacement]
     replacement.activated.emit()
     assert activated == ["new"]

@@ -46,3 +46,38 @@ def test_an_invalid_preference_dpi_keeps_the_valid_legacy_value(monkeypatch):
                         lambda *_args, **_kwargs: {"dpi": "not-a-number"})
 
     assert plot.figure_output_preferences() == ("png", 240)
+
+
+def test_point_overlay_can_be_disabled_without_losing_group_means(monkeypatch):
+    from matplotlib.figure import Figure
+
+    from spacr.plot import spacrGraph
+
+    frame = pd.DataFrame({"group": ["a"] * 3 + ["b"] * 3,
+                          "value": [1, 2, 3, 2, 3, 4]})
+    graph = spacrGraph(frame, "group", "value", graph_type="jitter_bar",
+                       save=False)
+    chosen = {"point_overlay": False, "marker_size": 36, "point_alpha": 0.4}
+    monkeypatch.setattr(graph, "_user_style", lambda: chosen)
+    axes = Figure().add_subplot()
+    graph.create_plot(axes)
+
+    assert graph._point_look(16) == (0.4, 6.0)
+    assert len(axes.collections) == 0
+    assert [bar.get_height() for bar in axes.patches if bar.get_width() > 0] \
+        == [2.0, 3.0]
+    assert graph.summary_df["mean"].tolist() == [2.0, 3.0]
+
+
+def test_unavailable_palette_preserves_the_existing_colour_fallback(monkeypatch):
+    from spacr import figure_style
+    from spacr.plot import spacrGraph
+
+    frame = pd.DataFrame({"group": ["a", "b"], "value": [1, 2]})
+    graph = spacrGraph(frame, "group", "value", save=False)
+    chosen = {}
+    monkeypatch.setattr(graph, "_user_style", lambda: chosen)
+    before = graph._plot_palette(2)
+    chosen["palette"] = "unavailable"
+    monkeypatch.setattr(figure_style, "palette_colours", lambda _name: [])
+    assert graph._plot_palette(2) == before

@@ -774,8 +774,9 @@ def test_a_greyed_row_carries_its_reason_into_the_menu(screen, monkeypatch):
 
 @pytest.mark.parametrize("raises", [False, True])
 def test_graph_menu_remains_usable_without_a_figure(screen, monkeypatch, raises):
-    from PySide6.QtCore import QPoint
     import PySide6.QtWidgets as qtw
+    from PySide6.QtCore import QPoint
+
     from spacr.qt.widgets import figure_settings
 
     def figure():

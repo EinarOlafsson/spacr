@@ -1585,6 +1585,17 @@ serial Qt acceptance remains open as recorded above.
   prove an uninterrupted whole Qt run, so the 10.8 GiB serial memory guard
   remains an open acceptance gate.
 
+2026-10-05 — DYNAMIC CATEGORY OWNERSHIP REPAIRED; RSS ACCEPTANCE OPEN
+  Dynamically built settings headings now belong to their AppScreen even
+  if no layout mounts them. The organelle channel-growth case previously
+  retained an unparented IMAGE ENHANCEMENT alpha section with 46 widgets;
+  the same next-file sample now reports zero. In a 33-test adjacent
+  channel/close/category cohort, the final live-widget count fell from 87
+  to zero and all 33 tests passed. RSS remained about 780 MiB in both
+  cohorts, so this establishes widget ownership, not an immediate RSS
+  reduction. An original-order 78-file replay is measuring the next
+  comparison; uninterrupted serial acceptance remains open.
+
 2026-10-05 — MORE BOUNDED OWNERSHIP REPAIRS; SERIAL ACCEPTANCE OPEN
   A 105-test settings-model coverage file left 1,848 widgets alive at the
   next file boundary. Giving its large SettingsWidgets panels a qtbot-owned

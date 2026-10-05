@@ -130,6 +130,51 @@ def test_a_stale_prior_sidecar_cannot_flag_an_overwritten_figure(tmp_path):
         assert not _warnings(json.load(handle), "cross_figure_duplicate")
 
 
+@pytest.mark.parametrize("newest_first", [False, True])
+def test_prior_panel_checks_use_only_recent_exports_in_any_directory_order(
+        tmp_path, monkeypatch, newest_first):
+    from contextlib import contextmanager
+    from pathlib import Path
+
+    original = _figure([_field(305)], [(0, 3000)])
+    other = _figure([_field(306)], [(0, 3000)])
+    templates = []
+    for index, figure in enumerate((original, other)):
+        written = Path(plot.save_figure(
+            figure, tmp_path / f"template{index}.png", integrity=True))
+        templates.append((written.read_bytes(), Path(
+            plot._provenance_sidecar_path(written)).read_bytes()))
+
+    history = tmp_path / "history"
+    history.mkdir()
+    for index in range(66):
+        image, record = templates[0 if index < 2 else 1]
+        destination = history / f"prior{index:02d}.png"
+        destination.write_bytes(image)
+        sidecar = Path(plot._provenance_sidecar_path(destination))
+        sidecar.write_bytes(record)
+        timestamp = 1_000_000_000 + index * 10
+        os.utime(destination, ns=(timestamp, timestamp))
+        os.utime(sidecar, ns=(timestamp + 1, timestamp + 1))
+
+    scandir = os.scandir
+
+    @contextmanager
+    def ordered_entries(folder):
+        with scandir(folder) as entries:
+            yield iter(sorted(entries, key=lambda entry: entry.name,
+                              reverse=newest_first))
+
+    monkeypatch.setattr(os, "scandir", ordered_entries)
+    panels = _report(original)["panels"]
+    assert plot._prior_figure_findings(panels, history / "current.png") == []
+    recent_panels = _report(other)["panels"]
+    findings = plot._prior_figure_findings(recent_panels, history / "current.png")
+    assert len(findings) == 1
+    assert findings[0]["prior_figure"] == "prior65.png"
+    assert findings[0]["check"] == "cross_figure_duplicate"
+
+
 def test_mismatched_display_ranges_warn(capsys):
     panels = [_field(i) for i in range(3)]
     shared = _report(_figure(panels, [(300, 2500)] * 3))
