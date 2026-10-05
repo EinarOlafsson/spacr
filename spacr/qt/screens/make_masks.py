@@ -508,6 +508,7 @@ SHORTCUT_HINTS = (
     ("Ctrl+S", "Save the mask"),
     ("Esc", "Reset the zoom"),
     ("B E W D V Z R", "Brush, erase, wand, draw, divide, zoom, recrop"),
+    ("X", "Draw YOLO bounding boxes"),
     ("M", "Live magnifier"),
     ("Magnifier: wheel", "Box zoom"),
     ("Magnifier: Shift + wheel", "Box size"),
@@ -11454,12 +11455,19 @@ class MakeMasksScreen(QWidget):
         self._btn_save.setText(tr("Save boxes") if mode == MODE_BOX else tr("Save mask"))
         self._refresh_history_buttons()
         self._canvas.ruler.set_active(mode == MODE_RULER)
-        if mode == MODE_RULER:
+        if mode in (MODE_RULER, MODE_BOX):
             self._btn_magnifier.setChecked(False)
+        if mode == MODE_BOX:
+            self._btn_prompt.setChecked(False)
         row = getattr(self, '_shortcut_rows', {}).get('Right button')
         if row is not None:
-            row[1].setText(tr('Clear the ruler line') if mode == MODE_RULER
-                           else tr('Sweep away the objects it passes'))
+            text = (tr('Clear the ruler line') if mode == MODE_RULER else
+                    tr('Delete the box under the cursor') if mode == MODE_BOX else
+                    tr('Sweep away the objects it passes'))
+            row[1].setText(text)
+        save_row = getattr(self, '_shortcut_rows', {}).get('Ctrl+S')
+        if save_row is not None:
+            save_row[1].setText(tr('Save boxes') if mode == MODE_BOX else tr('Save the mask'))
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 
