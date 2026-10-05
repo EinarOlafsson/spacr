@@ -1625,3 +1625,8 @@ serial Qt acceptance remains open as recorded above.
   well as the move result; the 39-test storage/catalogue cohort passes with
   no lingering-worker warning. Uninterrupted whole-suite acceptance remains
   open; these bounded comparisons do not close it.
+  A second FigureQueue helper now builds a direct Matplotlib Figure rather
+  than registering a pyplot manager. Its identical 4 GiB 11-test adjacent
+  comparison passed before and after: retained managers fell from 2 to zero
+  and final RSS from 434 to 404 MiB. These separate cohorts do not establish
+  a combined 61 MiB reduction or full-suite memory behavior.

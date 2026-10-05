@@ -292,3 +292,41 @@ def test_catalogue_open_needs_a_host_window_that_can_open_modules(
     assert page._open_selected() is False
     assert loaded == ['recipe.csv']
     assert 'Could not apply template' in page.status.text()
+
+
+@pytest.mark.parametrize('destination', ['missing', 'unsupported', 'refused'])
+def test_catalogue_open_reports_a_recipe_that_the_host_cannot_apply(
+        page, qtbot, monkeypatch, destination):
+    from PySide6.QtWidgets import QWidget
+
+    opened, applied = [], []
+    settings = {'channels': [0]}
+
+    class Host(QWidget):
+        def open_module(self, requested):
+            opened.append(requested)
+            return 'measure'
+
+    host = Host()
+    qtbot.addWidget(host)
+    screen = None if destination == 'missing' else QWidget(host)
+    host._screens = {'measure': screen}
+    if destination == 'refused':
+        def refuse(values):
+            applied.append(values)
+            return False
+
+        screen.apply_settings_dict = refuse
+    page._dialog.setParent(host)
+    host.show()
+    page._dialog.show()
+    monkeypatch.setattr(plugins, '_catalogue_installed', lambda: {
+        'toxo_infection': {'kind': 'recipe', 'app': 'measure', 'path': 'recipe.csv'},
+    })
+    monkeypatch.setattr('spacr.cli.load_settings_file', lambda _path: settings)
+
+    assert page._open_selected() is False
+    assert opened == ['measure']
+    assert applied == ([settings] if destination == 'refused' else [])
+    assert page._dialog.isVisible()
+    assert 'Could not apply template' in page.status.text()

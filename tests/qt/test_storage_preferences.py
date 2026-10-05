@@ -446,3 +446,12 @@ def test_storage_worker_exception_is_delivered_as_a_failed_result(
         page._finish(delivered.append, result)
     assert delivered == [None]
     assert "a storage action failed" in caplog.text
+
+
+def test_missing_move_result_reports_failure_and_refreshes_once(
+        page, monkeypatch):
+    refreshed = []
+    monkeypatch.setattr(page, "refresh", lambda: refreshed.append(True))
+    page._moved("Move cache", None)
+    assert "Not moved: failed" in page.told[-1]
+    assert refreshed == [True]
