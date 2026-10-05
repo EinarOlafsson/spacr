@@ -290,6 +290,25 @@ def test_a_directory_entry_that_cannot_be_stat_ed_is_skipped(tmp_path,
     assert names == {good.name}
 
 
+def test_listing_cache_evicts_the_oldest_folder(tmp_path, monkeypatch):
+    """Browsing many plates keeps recent listings within the cache bound."""
+    monkeypatch.setattr(pc, "_LISTING_SETTLE_S", -1.0)
+    pc._LISTINGS.clear()
+    try:
+        folders = []
+        for index in range(pc._LISTINGS_KEPT + 1):
+            folder = tmp_path / f"plate-{index}"
+            folder.mkdir()
+            (folder / f"field-{index}.tif").write_bytes(b"x")
+            folders.append(folder)
+            assert pc._file_names(folder) == (f"field-{index}.tif",)
+        assert len(pc._LISTINGS) == pc._LISTINGS_KEPT
+        assert str(folders[0]) not in pc._LISTINGS
+        assert str(folders[-1]) in pc._LISTINGS
+    finally:
+        pc._LISTINGS.clear()
+
+
 # ---------------------------------------------------------------------------
 # Sampling
 # ---------------------------------------------------------------------------

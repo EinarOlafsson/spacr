@@ -36,6 +36,34 @@ def _on(monkeypatch, system, *, which="/usr/bin/notify-send"):
     monkeypatch.setattr(notify_module.shutil, "which", lambda name: which)
 
 
+def test_background_notifier_failure_is_logged_without_escaping(
+        monkeypatch, caplog):
+    """A desktop backend may fail after the caller has already returned."""
+    import threading
+
+    launched = []
+
+    class ImmediateThread:
+        def __init__(self, target, name, daemon):
+            assert name == "spacr-notify"
+            assert daemon is True
+            self.target = target
+
+        def start(self):
+            launched.append(True)
+            self.target()
+
+    def broken_backend(message):
+        assert message == "finished"
+        raise OSError("desktop bus vanished")
+
+    monkeypatch.setattr(threading, "Thread", ImmediateThread)
+    with caplog.at_level("DEBUG", logger="spacr.qt.notify"):
+        notify_module._in_background(broken_backend, "finished")
+    assert launched == [True]
+    assert "desktop bus vanished" in caplog.text
+
+
 def test_linux_calls_notify_send_with_the_app_name(monkeypatch, recorded_runs):
     """libnotify gets the sender, the headline and the body, in that order."""
     _on(monkeypatch, "Linux")

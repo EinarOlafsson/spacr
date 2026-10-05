@@ -29,6 +29,61 @@ def test_the_record_lands_under_spacr_home(spacr_home):
     assert path.name == restart_state.FILE_NAME
 
 
+def test_a_failed_preference_write_does_not_claim_the_session_was_saved(
+        monkeypatch, caplog):
+    """A refused preference write must let the caller keep its unsaved state."""
+    from spacr import restart_state
+
+    class RefusingStore:
+        def setValue(self, key, value):
+            raise OSError("preference store is read-only")
+
+    monkeypatch.setattr(restart_state, "_store", RefusingStore)
+    with caplog.at_level("WARNING", logger="spacr.restart_state"):
+        assert restart_state._save_session("measure", {"src": "/data"}) is False
+    assert "could not store session/last" in caplog.text
+
+
+def test_an_unreadable_preference_store_has_no_last_session(monkeypatch,
+                                                              caplog):
+    """A broken store yields no stale session instead of blocking startup."""
+    from spacr import restart_state
+
+    class RefusingStore:
+        def value(self, key, default):
+            raise OSError("preference store cannot be read")
+
+    monkeypatch.setattr(restart_state, "_store", RefusingStore)
+    with caplog.at_level("WARNING", logger="spacr.restart_state"):
+        assert restart_state._last_session() is None
+    assert "could not read session/last" in caplog.text
+
+
+def test_a_corrupt_preference_record_does_not_block_startup(monkeypatch):
+    """A truncated JSON value is ignored like a corrupt restart file."""
+    from spacr import restart_state
+
+    class Store:
+        def value(self, key, default):
+            return '{"module": "measure", "settings":'
+
+    monkeypatch.setattr(restart_state, "_store", Store)
+    assert restart_state._last_session() is None
+
+
+def test_a_last_session_with_invalid_settings_restores_an_empty_form(
+        monkeypatch):
+    """A module remains reopenable if its settings were corrupted."""
+    from spacr import restart_state
+
+    class Store:
+        def value(self, key, default):
+            return json.dumps({"module": "measure", "settings": ["bad"]})
+
+    monkeypatch.setattr(restart_state, "_store", Store)
+    assert restart_state._last_session() == {"module": "measure", "settings": {}}
+
+
 def test_a_non_mapping_entry_is_skipped_not_crashed_on():
     """``describe_running`` walks past anything that is not a mapping."""
     from spacr.restart_state import describe_running

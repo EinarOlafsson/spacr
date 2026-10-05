@@ -18,7 +18,7 @@ import numpy as np
 import pytest
 import tifffile
 
-from PySide6.QtWidgets import QFileDialog
+from PySide6.QtWidgets import QFileDialog, QWidget
 
 from spacr.external_masks import OBJECT_TYPES, detect_inputs
 from spacr.qt.widgets.external_mask_inputs import ExternalMaskInputWidget
@@ -271,3 +271,55 @@ def test_a_cancelled_folder_picker_adds_nothing(widget, monkeypatch):
                         staticmethod(lambda *a, **k: ""))
     widget._pick_folder()
     assert widget.group_count() == 0
+
+
+def test_imported_variant_adds_masks_and_fills_an_empty_destination(
+        qtbot, plate):
+    """Import test data supplies the mask folder and a usable output path."""
+    class SettingsModel:
+        _widgets = {"dst": object()}
+
+        def __init__(self):
+            self.values = {}
+
+        def _read_widget(self, widget):
+            assert widget is self._widgets["dst"]
+            return self.values.get("dst", "")
+
+        def set_value_for_key(self, key, value):
+            self.values[key] = value
+
+    screen = QWidget()
+    screen._settings_model = SettingsModel()
+    qtbot.addWidget(screen)
+    container = QWidget(screen)
+    view = ExternalMaskInputWidget(parent=container)
+    qtbot.addWidget(view)
+    inputs = {"images": plate["images"],
+              "masks": {"cell": plate["cells"] / "fov001_cell_mask.tif"}}
+
+    assert view._use_test_data(inputs) == 3
+    assert view.file_count() == 3
+    assert {group.role for group in view.groups()} == {"image", "mask"}
+    assert screen._settings_model.values["dst"] == str(plate["images"]) + "_spacr"
+
+
+def test_imported_variant_keeps_an_existing_destination(qtbot, plate):
+    """Selecting a second example must not redirect an existing project."""
+    class SettingsModel:
+        _widgets = {"dst": object()}
+
+        def _read_widget(self, widget):
+            return "/work/keep-this-output"
+
+        def set_value_for_key(self, key, value):
+            raise AssertionError("an existing destination was overwritten")
+
+    screen = QWidget()
+    screen._settings_model = SettingsModel()
+    qtbot.addWidget(screen)
+    view = ExternalMaskInputWidget(parent=screen)
+    qtbot.addWidget(view)
+
+    assert view._use_test_data({"images": plate["images"], "masks": {}}) == 2
+    assert view.file_count() == 2
