@@ -922,9 +922,10 @@ class _Heading(QWidget):
         return self._stage
 
 
-def _model_with_heading(keys, has_children=False, stage="stable"):
+def _model_with_heading(qtbot, keys, has_children=False, stage="stable"):
     """A model holding one leaf heading that is on screen, not yet hidden."""
     screen = QWidget()
+    qtbot.addWidget(screen)
     section = _Heading(screen, stage)
     widgets = SM.SettingsWidgets("measure", parent=screen)
     widgets._screen_under_test = screen          # keep the parent alive
@@ -932,19 +933,19 @@ def _model_with_heading(keys, has_children=False, stage="stable"):
     return widgets, section
 
 
-def test_a_panel_of_nothing_but_parent_headings_caches_no_leaf():
+def test_a_panel_of_nothing_but_parent_headings_caches_no_leaf(qtbot):
     """A heading answered by its sub-headings is not a leaf."""
-    parent_only, _outer = _model_with_heading(("organelleb_channel",),
+    parent_only, _outer = _model_with_heading(qtbot, ("organelleb_channel",),
                                               has_children=True)
-    with_leaf, leaf = _model_with_heading(("organelleb_channel",))
+    with_leaf, leaf = _model_with_heading(qtbot, ("organelleb_channel",))
 
     assert parent_only._slot_headings() == {}
     assert list(with_leaf._slot_headings()) == [id(leaf)]
 
 
-def test_a_heading_of_an_absent_slot_is_hidden_and_shown_again():
+def test_a_heading_of_an_absent_slot_is_hidden_and_shown_again(qtbot):
     """A heading with every row hidden is a smaller wall, but a wall."""
-    widgets, section = _model_with_heading(("organelleb_channel",))
+    widgets, section = _model_with_heading(qtbot, ("organelleb_channel",))
     assert not section.isHidden()
 
     widgets._hide_the_headings_of_slots_the_run_lacks(
@@ -964,11 +965,12 @@ def test_a_heading_of_an_absent_slot_is_hidden_and_shown_again():
     assert widgets._headings_of_absent_slots == {}
 
 
-def test_a_slot_heading_hidden_as_alpha_is_not_shown_by_the_count(monkeypatch):
+def test_a_slot_heading_hidden_as_alpha_is_not_shown_by_the_count(monkeypatch,
+                                                                  qtbot):
     """Putting a slot back must not overrule Preferences."""
     from spacr.qt import preferences
 
-    widgets, section = _model_with_heading(("organelleb_channel",),
+    widgets, section = _model_with_heading(qtbot, ("organelleb_channel",),
                                            stage="alpha")
     widgets._hide_the_headings_of_slots_the_run_lacks(
         {"number_of_organelles": 1})
@@ -982,11 +984,11 @@ def test_a_slot_heading_hidden_as_alpha_is_not_shown_by_the_count(monkeypatch):
     assert widgets._headings_of_absent_slots == {}
 
 
-def test_a_heading_that_went_away_with_its_screen_is_forgotten():
+def test_a_heading_that_went_away_with_its_screen_is_forgotten(qtbot):
     """The section is destroyed by the teardown that owns it, not by this."""
     import shiboken6
 
-    widgets, section = _model_with_heading(("organelleb_channel",))
+    widgets, section = _model_with_heading(qtbot, ("organelleb_channel",))
     widgets._hide_the_headings_of_slots_the_run_lacks(
         {"number_of_organelles": 1})
     ident = id(section)
@@ -1000,11 +1002,12 @@ def test_a_heading_that_went_away_with_its_screen_is_forgotten():
     assert ident not in widgets._headings_of_absent_slots
 
 
-def test_a_heading_whose_body_is_not_a_form_is_walked_past():
+def test_a_heading_whose_body_is_not_a_form_is_walked_past(qtbot):
     """The walk reads rows out of a QFormLayout; a section without one has none."""
     from spacr.qt.widgets.section import Section
 
     parent = QWidget()
+    qtbot.addWidget(parent)
     QVBoxLayout(parent)
     formless = Section("No form", parent)
     formless._form = QVBoxLayout()
@@ -1013,9 +1016,11 @@ def test_a_heading_whose_body_is_not_a_form_is_walked_past():
     assert widgets._slot_headings() == {}
 
 
-def test_a_panel_whose_headings_cannot_be_walked_reports_none(monkeypatch):
+def test_a_panel_whose_headings_cannot_be_walked_reports_none(monkeypatch,
+                                                               qtbot):
     """A half-torn-down screen answers 'no headings', not a traceback."""
     parent = QWidget()
+    qtbot.addWidget(parent)
     widgets = SM.SettingsWidgets("measure", parent=parent)
 
     class _Hostile:
