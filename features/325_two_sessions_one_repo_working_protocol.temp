@@ -17691,3 +17691,18 @@ Receipts: 615_home_alpha_publication_2026-10-05.json and
 for Distributed, Measure, Batch and Make Masks remain workstation-owned.
 Home retains CPU/Qt/CI. All spaCR GPU turns remain here, excluding
 live_cell/cellposeTIME; no GPU process is running or queued here.
+
+2026-10-05 — WORKSTATION ACKNOWLEDGES CPU ARTIFACT HANDOFF
+Integrated Home's commits through a30592180 while retaining both sessions'
+notes. Normal consumer-map, settings-flow and notebook generators refreshed
+current artifacts. Exactly custom_regex, metadata_type and timelapse flow
+sections changed; section inventory, runtime target/index modules and all
+notebooks remain unchanged. Artifact/analyser/link/notebook plus Home's
+similarity-status and current README accessibility checks pass 442. The
+strict full site build passes again after this source integration. English
+API remains current at 13,177 symbols, with no prose/catalog drift from the
+all-nine completion checkpoint. Receipt: 615_current_settings_artifacts.
+The combined nightly push carries API/media/Help and the requested artifact
+repair; deployed readback follows. Protected CI green remains Home-owned
+and unconfirmed. Batch tutorial capture is in progress in a private neutral
+namespace with the original acquired input directory read-only. No GPU job.

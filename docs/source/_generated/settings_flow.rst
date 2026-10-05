@@ -4458,11 +4458,16 @@ custom_regex
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_watch_folder_and_analyse``
-|             ``_watch_field_of``
-|                 ``_watch_pattern`` **-- reads it**
+|         ``_watch_folder_and_analyse`` **-- reads it**
 |             ``_watch_map_manifest``
 |                 ``_watch_field_of``
+|                     ``_watch_pattern`` **-- reads it**
+|                 ``_watch_series_field_of``
+|                     ``_watch_pattern`` **-- reads it**
+|             ``_watch_observed_field_of``
+|                 ``_watch_field_of``
+|                     ``_watch_pattern`` **-- reads it**
+|                 ``_watch_series_field_of``
 |                     ``_watch_pattern`` **-- reads it**
 |             ``_watch_source_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
@@ -4518,7 +4523,7 @@ custom_regex
 |                 ``_candidate_patterns`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``_candidate_patterns``.
+Read by ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``_candidate_patterns``.
 
 .. _setting-flow-cv_best_model_path:
 
@@ -11478,11 +11483,16 @@ metadata_type
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_watch_folder_and_analyse``
-|             ``_watch_field_of``
-|                 ``_watch_pattern`` **-- reads it**
+|         ``_watch_folder_and_analyse`` **-- reads it**
 |             ``_watch_map_manifest``
 |                 ``_watch_field_of``
+|                     ``_watch_pattern`` **-- reads it**
+|                 ``_watch_series_field_of``
+|                     ``_watch_pattern`` **-- reads it**
+|             ``_watch_observed_field_of``
+|                 ``_watch_field_of``
+|                     ``_watch_pattern`` **-- reads it**
+|                 ``_watch_series_field_of``
 |                     ``_watch_pattern`` **-- reads it**
 |             ``_watch_source_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
@@ -11551,7 +11561,7 @@ metadata_type
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_on_measure_clicked``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
+Read by ``_watch_folder_and_analyse``, ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_on_measure_clicked``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
 
 .. _setting-flow-metadata_type_by:
 
@@ -22981,9 +22991,16 @@ timelapse
 
 (bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.
 
+| ``_watch_analyse_field``
+|     ``_watch_measure_settings`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse` **-- reads it**
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``_parallel_mask_plan`` **-- reads it**
+|         ``_watch_folder_and_analyse`` **-- reads it**
+|             ``_watch_map_manifest`` **-- reads it**
+|             ``_watch_measure_recipe``
+|                 ``_watch_measure_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_volume_tiffs`` **-- reads it**
 |                 :py:func:`~spacr.io.concatenate_and_normalize`
@@ -23060,7 +23077,7 @@ timelapse
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_parallel_mask_plan``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_calibration_reference_hashes``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
+Read by ``_parallel_mask_plan``, ``_watch_folder_and_analyse``, ``_watch_map_manifest``, ``_watch_measure_settings``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_calibration_reference_hashes``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
 
 .. _setting-flow-timelapse_batch_size:
 

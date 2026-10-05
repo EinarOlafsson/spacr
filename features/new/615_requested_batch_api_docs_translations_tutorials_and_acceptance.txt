@@ -984,3 +984,16 @@ backend. Fifty-nine capture guards pass. Receipt:
 features/data/615_distributed_current_stage_2026-10-05.json. Current voices,
 video and publication for this lesson remain open, alongside Measure, Batch
 and Make Masks refreshes, remaining GPU validations and deployed readback.
+
+2026-10-05 — CURRENT SOURCE SETTINGS ARTIFACT REPAIR
+Home's CI handoff identified generated settings-flow drift. After integrating
+its commits through a30592180, the normal consumer-map/settings-flow/notebook
+generators repair exactly custom_regex, metadata_type and timelapse sections.
+The section inventory, generated runtime target/index files and notebooks
+are unchanged. Artifact/analyser/link/notebook, integrated Home similarity
+and current README accessibility checks pass 442, with one sandboxed QSettings
+observation warning during concurrent native capture. The strict full site
+build passes after regeneration. Current English API audit still covers
+13,177 symbols without translation/catalog changes. No ratchet or acceptance
+guard changed. Receipt: features/data/615_current_settings_artifacts_2026-10-05.json.
+The remaining tutorial/GPU and deployed-page scopes remain open.
