@@ -954,9 +954,14 @@ def test_a_build_without_the_plot_module_still_writes_the_file(
     assert target.exists() and target.stat().st_size > 0
 
 
-def test_a_vector_save_without_the_preference_store_uses_a_clear_ground(
+def test_a_vector_save_without_the_preference_store_uses_the_print_ground(
         qapp, figure, tmp_path, monkeypatch):
-    """SVG bypasses save_figure, and with no store the ground is transparent."""
+    """The shared writer uses the print page when no store selects a mode."""
+    from xml.etree import ElementTree
+
+    from spacr.figure_style import PRINT_GROUND
+
+    monkeypatch.delenv("SPACR_FIGURE_SAVE_MODE", raising=False)
     monkeypatch.setitem(sys.modules, "spacr.qt.preferences", None)
     target = tmp_path / "vector.svg"
 
@@ -965,18 +970,21 @@ def test_a_vector_save_without_the_preference_store_uses_a_clear_ground(
     assert written == str(target)
     body = target.read_text()
     assert body.startswith("<?xml"), "an SVG, not a raster renamed"
-    # The ground is what the fallback chooses, so assert it rather than the
-    # file type: a "white" ground writes an opaque canvas rectangle, and a
-    # transparent one writes no white fill at all.
-    assert "#ffffff" not in body.lower()
+    root = ElementTree.fromstring(body)
+    page = next(node for node in root.iter()
+                if node.attrib.get("id") == "patch_1")
+    page_style = next(iter(page)).attrib["style"].lower()
+    assert f"fill: {PRINT_GROUND.lower()}" in page_style
 
 
 def test_a_write_that_fails_reports_no_path(qapp, figure, tmp_path):
     """A save that cannot happen returns an empty string rather than raising."""
-    target = tmp_path / "no-such-directory" / "figure.svg"
+    blocker = tmp_path / "blocker"
+    blocker.write_text("a file where a directory would have to be")
+    target = blocker / "figure.svg"
 
     assert fs.save_figure_as(None, figure, str(target)) == ""
-    assert not target.exists()
+    assert blocker.is_file(), "and the thing in the way is left alone"
 
 
 # ---------------------------------------------------------------------------
