@@ -1985,10 +1985,11 @@ def _write_hit_structures_svg(chemistry, out_dir):
     """
     import json
     import os
-    from pathlib import Path
     import tempfile
     import textwrap
     import xml.etree.ElementTree as ET
+    from contextlib import ExitStack
+    from pathlib import Path
 
     hits = chemistry.sar[chemistry.sar["hit"]]
     if "smiles_valid" in hits.columns:
@@ -2058,15 +2059,12 @@ def _write_hit_structures_svg(chemistry, out_dir):
     metadata = ET.SubElement(document, "{http://www.w3.org/2000/svg}metadata")
     metadata.text = json.dumps({"structures": records}, ensure_ascii=False, allow_nan=False)
     destination = Path(out_dir) / "hit_structures.svg"
-    temporary = None
-    try:
+    with ExitStack() as cleanup:
         with tempfile.NamedTemporaryFile(dir=destination.parent, suffix=".svg", delete=False) as handle:
             temporary = Path(handle.name)
+            cleanup.callback(temporary.unlink, missing_ok=True)
             handle.write(ET.tostring(document, encoding="utf-8", xml_declaration=True))
         os.replace(temporary, destination)
-    finally:
-        if temporary is not None:
-            temporary.unlink(missing_ok=True)
     return str(destination)
 
 
