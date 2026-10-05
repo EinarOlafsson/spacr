@@ -11464,6 +11464,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if mode == MODE_BOX and self._canvas.image is None:
+            return
         if mode == MODE_BOX and self._box_load_error is not None:
             self._warn(tr("Cannot edit box annotations"), str(self._box_load_error))
             return
@@ -11849,6 +11851,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        if self._box_field is None or self._canvas.image is None:
+            return None
         if name is None:
             name, accepted = QInputDialog.getText(self, tr("Add box class"), tr("Class name"))
             if not accepted:
@@ -17107,7 +17111,9 @@ class MakeMasksScreen(QWidget):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
         self._btn_prompt.setEnabled(editable)
-        self._box_controls.setEnabled(editable and self._box_load_error is None)
+        self._box_controls.setEnabled(editable and self._box_load_error is None
+                                      and self._box_field is not None
+                                      and self._canvas.image is not None)
         self._btn_export_yolo.setEnabled(editable and self._blind is None
                                         and self._box_load_error is None)
         self._mode_buttons[MODE_BOX].setEnabled(editable and self._box_load_error is None)
