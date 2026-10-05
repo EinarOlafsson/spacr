@@ -17980,3 +17980,40 @@ at the current 13,177-symbol inventory. Full merged-source Sphinx and the
 strict full catalog re-audit are live, not claimed finished in this note.
 Receipt: 615_native_t1_generated_artifacts_2026-10-05.json. The announced
 fresh-installed StarDist turn is still next; queue it after this push.
+
+2026-10-05 — CURRENT STRICT DOCS/API PASS; STARDIST PLACEMENT RETRY NEXT
+The full merged-source all-language Sphinx build passes at 5467c13fb with
+warnings as errors. The normal English manifest refresh and complete strict
+API re-audit finish successfully: nine languages, 13,177 symbols. Catalogs
+remain byte-identical to their accepted receipts. Updated evidence is in
+615_native_t1_generated_artifacts_2026-10-05.json. Deployed current-source
+readback remains open while documentation workflow 37376120611 builds.
+
+The first fresh-installed StarDist GPU turn (551-stardist-fresh-installed)
+finished 2026-10-05 21:35:39 UTC with rc=1. Six masks were produced and all
+foreground CPU/GPU IoUs exceeded 0.9998, but the required Conv2D AND Conv3D
+GPU-placement assertion failed. No accepted GPU benchmark receipt exists;
+matching outputs or a worker on the card do not close this requirement.
+The normal CPU worker logs actual convolution placement. The cause of the
+missing GPU proof remains unresolved; no production change or weakened gate.
+
+The next single coordinated GPU turn is 551-stardist-placement-readback-r2.
+Exact script: /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/
+benchmark_stardist_logging_r2.py. The private normally installed backend is
+551-stardist/backends/stardist, accepted paired baseline is cpu-r2, and
+new output is gpu-r2 beneath that scratch root. The script retains every
+raw worker stderr line and closes the worker gracefully before applying
+the same Conv2D+Conv3D GPU-placement gate. Its CPU baseline passes with all
+six masks byte-identical to cpu-r1. Inputs, models and inference parameters
+are unchanged. Queue only after this handoff reaches nightly, under the
+normal real-HOME six-minute idle/ten-minute gap and 8 GiB cap. No duplicate.
+
+F557 GOWT1 preparation is accepted locally, not training or improvement:
+20 raw sequence-02 training frames and four complete sequence-01 gold
+evaluation frames (21/31/33/39, 24 objects each), with the official 50-pixel
+field of interest and full marker-to-mask bijection. Partial and silver
+labels are excluded from accuracy scoring. The normal private Cellpose3
+installation passes; CAREamics is already installed privately. This is an
+additional real nuclear dataset, not established calibrated low-light data.
+Receipt: 557_gowt1_preparation_2026-10-05.json. Home retains CPU/Qt/CI and
+feature source; the workstation retains all GPU and generated documentation.

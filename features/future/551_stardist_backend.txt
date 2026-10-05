@@ -358,3 +358,21 @@ API source-bound refresh is tracked in the integration follow-up.
     hashes. The audit wrapper only enables TensorFlow placement logging
     before executing the actual normal worker. No GPU completion is claimed
     by this CPU preparation. The fresh-environment GPU point remains open.
+
+2026-10-05 — FIRST FRESH GPU RUN FAILS PLACEMENT GATE; DIAGNOSTIC RETRY READY
+    The real shared turn runs 21:35:17–21:35:39 UTC and exits 1. All six
+    outputs exist with CPU/GPU foreground IoU above 0.9998 and an observed
+    GPU worker, but required Conv2D plus Conv3D GPU-placement logging was
+    not established. No accepted gpu-r1/benchmark.json was written. This
+    failure does not close the fresh-environment GPU point or establish
+    whether convolutions fell back to CPU. Existing older evidence remains.
+
+    Next exact private script: benchmark_stardist_logging_r2.py beneath
+    /media/carruthers/mnt3/codex/scratch/docs-completion-20261005. It keeps
+    all raw stderr and gracefully closes the worker before the unchanged
+    two-convolution GPU-placement gate. The cpu-r2 baseline passes; all
+    six saved masks are byte-identical to cpu-r1. Paired gpu-r2 uses the
+    same script, wrapper, package, inputs, models and prediction settings.
+    No device forcing, production change, alternative model, threshold
+    tuning or weaker acceptance assertion. Queue via the normal shared
+    GPU scheduler only after the item-325 handoff is pushed.

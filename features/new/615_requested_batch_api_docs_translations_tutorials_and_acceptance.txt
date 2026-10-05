@@ -1167,3 +1167,14 @@ at 13,177 symbols. All nine accepted catalog hashes remain identical; no
 new translation or narration is needed for these private core helpers.
 Merged-source full Sphinx and full catalog re-audit remain live. Receipt:
 features/data/615_native_t1_generated_artifacts_2026-10-05.json.
+
+2026-10-05 — MERGED-SOURCE STRICT DOCUMENTATION AND ALL-NINE API AUDIT PASS
+The complete all-language Sphinx build on source 5467c13fb succeeds with
+warnings treated as errors. The normal English manifest refresh and full
+strict API catalog audit finish successfully: nine languages and 13,177
+symbols, with all accepted translated catalog bytes preserved. These are
+completed processes, superseding the preceding live-build note. The receipt
+615_native_t1_generated_artifacts_2026-10-05.json includes build/audit log
+hashes and source identities. Current-source nightly website readback is
+still pending behind documentation workflow 37376120611; Home-owned final
+CI and the remaining scientific GPU tasks stay open.

@@ -277,3 +277,29 @@ training). Other denoisers, same held-out sets and scoring as ROUND 3.
     - Unchanged from ROUND 3: a second real low-light data set (another
       cell line or more sequences) to tell whether the Huh7 NLM/N2V gains
       hold; a raw-image threshold auto-tune is the bigger, safer win.
+
+2026-10-05 — ADDITIONAL REAL NUCLEAR DATASET PREPARED; NO NEW TRAINING CLAIM
+    CTC Fluo-N2DH-GOWT1 preparation preserves original raw image pixels and
+    annotation files. Twenty evenly spaced sequence-02 frames are selected
+    without evaluation labels for a predeclared 20-epoch, seed-0 N2V2 run.
+    Evaluation uses only complete sequence-01 gold frames 21/31/33/39,
+    each with a 24-object marker-to-segmentation bijection. Sequence-02's
+    partial gold frames are not promoted to complete truth. No silver labels
+    enter scoring and no artificial noise is added. These four timepoints
+    are one evaluation sequence, not four independent biological replicates.
+
+    The official annotation protocol gives GOWT1 a 50-pixel XY field-of-
+    interest border. Retain complete predicted objects that intersect that
+    region and ignore only objects wholly outside it. Compare retained full
+    masks to all gold objects using object IoU/Hungarian F1, explicitly our
+    benchmark rather than official CTC SEG/DET/TRA scores. Training and test
+    sequences remain disjoint; final checkpoint is not selected by test F1.
+
+    Normal private CAREamics 0.3.4 and fresh Cellpose3 3.1.1.3 installations
+    pass CPU self-tests. Prepared raw/NLM/nuclear-restoration/N2V comparison
+    awaits inference/training. No new GPU, denoising gain or low-photon
+    calibration claim. GOWT1 supplies additional real fluorescent nuclear
+    images but does not by itself satisfy the second calibrated low-light
+    dataset requirement. F557 remains open at that scientific boundary.
+    Receipt: features/data/557_gowt1_preparation_2026-10-05.json, including
+    input, annotation and exact-pixel export hashes and preparation script.

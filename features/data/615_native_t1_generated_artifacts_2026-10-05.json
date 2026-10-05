@@ -120,7 +120,24 @@
     "xfailed": 0,
     "log_sha256": "b6103b4d38e3b64e49951de026361d662f1a8c8d4227b0c0ab89d79395085630"
   },
-  "merged_source_full_sphinx_build_pending": true,
+  "merged_source_full_sphinx_build_pending": false,
   "nightly_deployment_verified": false,
-  "final_home_ci_green": false
+  "final_home_ci_green": false,
+  "strict_full_site_build": {
+    "passed": true,
+    "warnings_as_errors": true,
+    "api_language": "all",
+    "source_checkpoint": "5467c13fb752b638373de4842c24e5af266b0d3b",
+    "log_sha256": "695da62857becc51a3fe6c4205b0b647ec2f1e51c018fecb3204f1ddfd3015d5"
+  },
+  "strict_full_catalog_reaudit_pending": false,
+  "strict_full_catalog_reaudit": {
+    "passed": true,
+    "languages": 9,
+    "symbols": 13177,
+    "source_checkpoint": "5467c13fb752b638373de4842c24e5af266b0d3b",
+    "command": "tools/build_documentation_i18n.py --audit",
+    "log_sha256": "ab71f2af120be41dedd2b4109f288fe46d8eadeecc0c3196f486617e375a7975",
+    "english_sources_log_sha256": "462a622a9d58551013ed31b655d05a00bf147f0859084d614a68123eeb0547e1"
+  }
 }
