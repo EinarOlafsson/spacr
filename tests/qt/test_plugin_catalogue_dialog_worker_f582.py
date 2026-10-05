@@ -259,3 +259,36 @@ def test_failed_listing_clears_previous_rows_and_shows_error(page, qtbot, monkey
     assert 'Could not read the catalogue: catalogue permission denied' == page.status.text()
     assert page.load_button.isEnabled()
     assert not page.install_button.isEnabled()
+
+
+def test_catalogue_open_ignores_non_recipe_records(page, monkeypatch):
+    monkeypatch.setattr(plugins, '_catalogue_installed', lambda: {
+        'toxo_infection': {'kind': 'plugin'},
+    })
+    assert page._open_selected() is False
+    assert page._dialog.isVisible() is False
+    assert page.status.text() == '2 entries in the catalogue.'
+
+
+@pytest.mark.parametrize('app', ['', 'unknown_desktop_module'])
+def test_catalogue_open_reports_missing_recipe_destinations(
+        page, monkeypatch, app):
+    monkeypatch.setattr(plugins, '_catalogue_installed', lambda: {
+        'toxo_infection': {'kind': 'recipe', 'app': app, 'path': ''},
+    })
+    assert page._open_selected() is False
+    assert 'Toxoplasma infection assay failed:' in page.status.text()
+    assert 'Could not apply template' in page.status.text()
+
+
+def test_catalogue_open_needs_a_host_window_that_can_open_modules(
+        page, monkeypatch):
+    loaded = []
+    monkeypatch.setattr(plugins, '_catalogue_installed', lambda: {
+        'toxo_infection': {'kind': 'recipe', 'app': 'measure', 'path': 'recipe.csv'},
+    })
+    monkeypatch.setattr('spacr.cli.load_settings_file',
+                        lambda path: loaded.append(path) or {'channels': [0]})
+    assert page._open_selected() is False
+    assert loaded == ['recipe.csv']
+    assert 'Could not apply template' in page.status.text()

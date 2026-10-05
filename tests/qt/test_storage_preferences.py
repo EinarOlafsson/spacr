@@ -241,3 +241,118 @@ def test_clear_all_logs_deletes_but_only_empties_an_open_log(
     finally:
         logging.getLogger("spacr.test_clear_logs").removeHandler(handler)
         handler.close()
+
+
+def test_cache_actions_without_a_selection_do_no_work(page, monkeypatch):
+    submitted = []
+    monkeypatch.setattr(page, "_background",
+                        lambda *_args: submitted.append(True))
+    page.table.clearSelection()
+    page.clear()
+    page.relocate("unused")
+    assert submitted == []
+    assert page.asked == []
+
+
+def test_cache_move_waits_for_a_run_and_allows_cancel_before_work(
+        page, tmp_path, monkeypatch):
+    from spacr.qt import preferences, resource_cleanup
+
+    submitted = []
+    monkeypatch.setattr(page, "_background",
+                        lambda *_args: submitted.append(True))
+    page.table.selectRow([r["key"] for r in page._rows].index("news"))
+    monkeypatch.setattr(resource_cleanup, "_a_run_is_active", lambda: True)
+    page.relocate(str(tmp_path))
+    assert page.told and "A run is in progress" in page.told[-1]
+    assert page.asked == []
+
+    monkeypatch.setattr(resource_cleanup, "_a_run_is_active", lambda: False)
+    monkeypatch.setattr(preferences, "_choose_cache_parent", lambda *_: "")
+    page.relocate()
+    assert page.asked == []
+    page.relocate(str(tmp_path))
+    assert page.asked and "Move" in page.asked[-1]
+    assert submitted == []
+
+
+def test_empty_pruning_plan_restores_controls_without_confirmation(page):
+    page.prune_button.setEnabled(False)
+    page._planned("Prune home folder", None)
+    assert page.prune_button.isEnabled()
+    page.prune_button.setEnabled(False)
+    page._planned("Prune home folder", [{
+        "kind": "logs", "delete": [], "count": 3, "total": 300,
+    }])
+    assert page.prune_button.isEnabled()
+    assert page.asked == []
+    assert "Nothing is over its caps" in page.told[-1]
+
+
+def test_failed_and_partly_refused_pruning_restore_controls(page):
+    page.prune_button.setEnabled(False)
+    page._pruned("Prune home folder", None)
+    assert page.prune_button.isEnabled()
+    assert page.told == []
+    page._pruned("Prune home folder", [(1, 100, ["a log is locked"])])
+    assert "Deleted 1 item(s)" in page.told[-1]
+    assert "a log is locked" in page.told[-1]
+
+
+def test_empty_and_failed_log_clear_results_restore_controls(page, clearer):
+    clearer.button.setEnabled(False)
+    clearer._planned(None)
+    assert clearer.button.isEnabled()
+    assert "There are no logs to clear" in page.told[-1]
+    assert page.asked == []
+    previous = list(page.told)
+    clearer.button.setEnabled(False)
+    clearer._cleared("Clear all logs", None)
+    assert clearer.button.isEnabled()
+    assert page.told == previous
+    clearer._cleared("Clear all logs", (1, 0, 100, ["another log is locked"]))
+    assert "another log is locked" in page.told[-1]
+
+
+def test_a_busy_log_worker_keeps_the_clear_button_retryable(
+        page, clearer, monkeypatch):
+    from types import SimpleNamespace
+
+    from spacr.qt import preferences
+
+    submitted = []
+
+    def busy(*args):
+        submitted.append(args)
+        return False
+
+    monkeypatch.setattr(preferences, "_disk_report_runner",
+                        lambda: SimpleNamespace(submit=busy))
+    clearer.clear()
+    assert len(submitted) == 1
+    assert clearer.button.isEnabled()
+    assert page.asked == []
+    assert page.told == []
+
+
+def test_log_worker_failures_reach_the_live_page_as_a_failed_result(
+        clearer, caplog):
+    results = []
+    with caplog.at_level("WARNING"):
+        clearer._finish(results.append, OSError("disk unavailable"))
+    assert results == [None]
+    assert "clearing the logs failed" in caplog.text
+
+
+def test_a_log_clear_callback_after_window_destruction_does_nothing(
+        page, clearer, qtbot):
+    from PySide6.QtCore import Qt
+    from shiboken6 import isValid
+
+    page.dialog.setAttribute(Qt.WA_DeleteOnClose)
+    page.dialog.show()
+    page.dialog.close()
+    qtbot.waitUntil(lambda: not isValid(clearer.button))
+    results = []
+    clearer._finish(results.append, (1, 0, 100, []))
+    assert results == []
