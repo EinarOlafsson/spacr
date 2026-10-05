@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "reviewed_at": "2026-10-05",
+  "reviewer": "Codex",
+  "review_kind": "AI technical review, no native-speaker signoff",
+  "scope": "Visible tutorial navigation category headings derived from the current Home GUI hierarchy. Data is also the ordinary Danish, Norwegian and Swedish word; identical spelling is retained deliberately.",
+  "source": ["Core", "Data", "Tools", "Assays"],
+  "source_sha256": "7be750c68054cba18c209978b2ac2053420b4ae8c08aa5abe05b982fb2bccd77",
+  "labels": {
+    "en": ["Core", "Data", "Tools", "Assays"],
+    "es": ["Funciones básicas", "Datos", "Herramientas", "Ensayos"],
+    "fr": ["Fonctions de base", "Données", "Outils", "Essais"],
+    "hi": ["मूल कार्य", "डेटा", "उपकरण", "जैविक परीक्षण"],
+    "it": ["Funzioni di base", "Dati", "Strumenti", "Saggi"],
+    "pt-BR": ["Funções básicas", "Dados", "Ferramentas", "Ensaios"],
+    "ja": ["基本機能", "データ", "ツール", "アッセイ"],
+    "zh-CN": ["核心功能", "数据", "工具", "测定"],
+    "da": ["Kernefunktioner", "Data", "Værktøjer", "Analyser"],
+    "de": ["Kernfunktionen", "Daten", "Werkzeuge", "Analysen"],
+    "is": ["Grunnvirkni", "Gögn", "Verkfæri", "Prófanir"],
+    "ko": ["핵심 기능", "데이터", "도구", "분석"],
+    "nb": ["Kjernefunksjoner", "Data", "Verktøy", "Analyser"],
+    "sv": ["Grundfunktioner", "Data", "Verktyg", "Analyser"]
+  }
+}

@@ -85,6 +85,7 @@ def main() -> int:
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
+    parser.add_argument('--neutral-measure-source', action='store_true', help='After loading the genuine example, type the private neutral merged directory into the real source field before recording it')
     parser.add_argument('--anndata-api-introduction', action='store_true', help='Record only the AnnData GUI route/settings before the separately verified API workaround')
     parser.add_argument('--plate-current-example', action='store_true', help='Record Plate Viewer with its current Load test data control')
     parser.add_argument('--investigate-hit-example', action='store_true', help='Record Regression Hits -> Investigate Hit on the real screen example ZIP in the stage')
@@ -178,6 +179,8 @@ def main() -> int:
         parser.error('--measure-full-example requires --module measure --run')
     if args.measure_preview_controls and (args.module != 'measure' or not args.download or args.preview or args.run):
         parser.error('--measure-preview-controls requires --module measure --download without --preview/--run')
+    if args.neutral_measure_source and (args.module != 'measure' or not args.download):
+        parser.error('--neutral-measure-source requires --module measure --download')
     if args.classifier_existing_split and (args.module != 'classify_merged' or args.classifier_family != 'cv' or not args.run):
         parser.error('--classifier-existing-split requires --module classify_merged --classifier-family cv --run')
     if args.classify_overview and (args.module != 'classify_merged' or args.run or args.download or args.classifier_existing_split):
@@ -916,7 +919,8 @@ def main() -> int:
                 settle()
             already_cached = any((stage / 'example_data/plate1').glob('*.tif'))
             loading_frame = '02_cached_load' if already_cached else '02_download'
-            QTimer.singleShot(800, lambda: capture(loading_frame))
+            if not args.neutral_measure_source:
+                QTimer.singleShot(800, lambda: capture(loading_frame))
             choice = {}
             if args.module == 'map_barcodes':
                 from capture_sequencing import schedule_picker
@@ -973,6 +977,29 @@ def main() -> int:
                 # not show, alpha ones included; clear it the way a user does.
                 QTest.mouseClick(screen._btn_clear, Qt.LeftButton)
                 settle(1)
+            if args.neutral_measure_source:
+                from PySide6.QtWidgets import QLineEdit
+                source = stage / 'example_data/plate1/merged'
+                if not source.is_dir() or len(list(source.glob('*.npy'))) != 16:
+                    raise RuntimeError('The neutral Measure source needs all sixteen genuine example fields')
+                control = screen._settings_model._widgets['src']
+                if not isinstance(control, QLineEdit):
+                    raise RuntimeError('The native Measure source editor is unavailable')
+                previous = screen._settings_model.collect().get('src')
+                screen._settings_scroll.ensureWidgetVisible(control)
+                settle()
+                if not control.isVisible() or not control.isEnabled():
+                    raise RuntimeError('The native Measure source editor is not visible and enabled')
+                QTest.mouseClick(control, Qt.LeftButton)
+                QTest.keyClick(control, Qt.Key_A, Qt.ControlModifier)
+                QTest.keyClicks(control, str(source))
+                QTest.keyClick(control, Qt.Key_Return)
+                settle()
+                if screen._settings_model.collect().get('src') != str(source):
+                    raise RuntimeError('The actual source editor did not select the neutral example')
+                write_json(captures / 'neutral_source_selection.json', {
+                    'genuine_native_edit': True, 'previous': previous, 'selected': str(source),
+                    'source_count': 16, 'application_source_modified': False})
             if not (args.module == 'annotate' and args.annotation_tour):
                 capture('03_data_ready')
             # Annotate's automatic opening displays the real account cache

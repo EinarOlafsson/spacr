@@ -111,7 +111,9 @@ def test_spoken_pypi_is_the_reviewed_pype_form_in_every_spoken_locale():
     rule = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(rule)
     assert rule.PRONUNCIATION_VERSION == "2026-08-28-pype-v11"
-    display_token = re.compile(r"(?<!\w)PyPI(?!\w)")
+    # Japanese particles and Chinese prose can touch a Latin brand directly.
+    # Keep ASCII identifier boundaries while checking those genuine mentions.
+    display_token = re.compile(r"(?<![A-Za-z0-9_])PyPI(?![A-Za-z0-9_])")
     english = {lesson['id']: lesson for lesson in _catalog('lessons', 'en')['lessons']}
     compatibility = json.loads((CATALOG_DIR.parent / 'translation-compatibility.json').read_text())
     registered = {(row['lesson'], row['language']) for row in compatibility['entries']
@@ -173,6 +175,9 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
         if "nightly" in scene["narration"]
     ]
     assert nightly_scenes
+    source_pypi_counts = [scene['narration'].count('PyPI')
+                          for scene in english_release['scenes']]
+    assert sum(source_pypi_counts) > 0
     for locale in CAPTION_LOCALES:
         catalog = _catalog("captions", locale)
         lessons = {
@@ -189,7 +194,7 @@ def test_caption_only_installation_lessons_keep_reviewed_display_copy():
 
         release = lessons["01_pypi_github"]
         display = "\n".join(scene["narration"] for scene in release["scenes"])
-        assert display.count("PyPI") == 3, locale
+        assert [scene['narration'].count('PyPI') for scene in release['scenes']] == source_pypi_counts, locale
         assert "pypie" not in display, locale
         assert "GitHub" not in release["scenes"][1]["narration"], locale
         assert "conda-forge" not in release["scenes"][1]["narration"].casefold(), locale

@@ -516,3 +516,29 @@ resource monitor does not inspect a partially imported module. It makes no cold
 startup timing claim. A rejected capture saves no frame, archives its console
 privately for diagnosis and asks the real cooperative stop path to finish any
 active run before its Qt owners unwind.
+
+### Current Measure source and desktop isolation
+
+For Measure, `capture_refresh.py --download --neutral-measure-source` first
+loads the genuine cached example, then types the private stage's sixteen-field
+merged directory into the actual Source editor. The early loading frame is
+omitted for this explicit option because it precedes the source selection.
+`--clear-console-after-load` uses the real Clear button. Neither option edits
+the application, source arrays, path guards or account home.
+
+The controls recorder requires a real 3840 by 2160 desktop, such as a private
+Xvfb display with `--platform xcb`; a 4K window on Qt's smaller default
+offscreen desktop does not satisfy its visibility checks. Bind the unchanged
+interpreter read-only at a neutral stage path and set the supported SPACR_HOME
+there so actual interpreter and run paths are neutral. Keep real HOME intact.
+Preserve failed attempts, including kernel memory events when a worker exceeds
+the recording's own memory allocation. A completed preview capture does not
+prove complete batch results, narrated media or publication.
+
+Tutorial navigation category headings now require the fourteen-language
+source-bound review in `lessons/navigation_categories.review.json`. The normal
+navigation generator refuses a new or reordered GUI category, stale source
+hash or incomplete locale. Existing lesson metadata and narration are retained;
+the player reads these headings from the generated navigation label indexes.
+The new headings enter publication through a newly verified release candidate,
+without modifying an existing immutable candidate or its checkpoint.

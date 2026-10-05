@@ -1018,3 +1018,23 @@ features/data/615_batch_current_stage_2026-10-05.json. Current narration,
 video, frame/browser acceptance and publication remain open for these lessons.
 The prior API/Home/Alpha/artifact checkpoint is pushed at d160c130b; its docs
 publisher 37357501591 is pending, so final deployed acceptance remains open.
+
+2026-10-05 — CURRENT MEASURE CONTROLS ACCEPTED; FULL RUN STILL OPEN
+The current native controls capture passes twelve 4K frames under a private
+Xvfb desktop. QC, preprocessing, normalization, channel/field switching and
+checked-image comparisons use the real controls; original arrays are unchanged
+and batch settings restored. A neutral source option edits the genuine Source
+field after normal example loading, without changing the user's HOME or source
+application. Full run r2 is explicitly failed: its 8 GiB cgroup killed a worker,
+with one kernel OOM kill recorded. Failed artifacts are preserved and its
+remaining private processes terminated; a new exact sixteen-field input copy
+is prepared for an appropriately allocated 16 GiB run. No batch completion,
+biological validation, narration or publication is claimed by the preview.
+
+Two stale PyPI checks are repaired against actual Japanese text and current
+English scene counts. Visible category headings now have complete fourteen-
+language source-bound AI technical review, with refusal checks for stale or
+incomplete review. The next normal release candidate will generate those label
+indexes; current accepted publication is not edited in place. Focused tests:
+47 passed, one existing report-only published-navigation diagnostic. Receipt:
+features/data/615_measure_current_controls_2026-10-05.json.

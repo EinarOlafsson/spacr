@@ -8,6 +8,7 @@ Missing lessons are reported explicitly, not replaced with invented videos.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import subprocess
@@ -50,6 +51,29 @@ SETUP_ORDER = ('01_pypi_github', '03_pip_install', '02_conda_install',
                '04_platform_installers')
 ORIENTATION_ORDER = ('05_home', '78_spacr_screens', '80_image_analysis_pathways',
                      '81_sequencing_pathways', '79_module_inputs_outputs')
+CATEGORY_REVIEW = Path(__file__).with_name('lessons') / 'navigation_categories.review.json'
+
+
+def category_labels(categories, review_path=CATEGORY_REVIEW):
+    """Require complete technical review for the current visible GUI categories."""
+    review = json.loads(Path(review_path).read_text(encoding='utf-8'))
+    source = list(categories)
+    source_hash = hashlib.sha256(json.dumps(source, ensure_ascii=False,
+                                            separators=(',', ':')).encode()).hexdigest()
+    if (review.get('schema') != 1 or review.get('source') != source
+            or review.get('source_sha256') != source_hash
+            or review.get('review_kind') != 'AI technical review, no native-speaker signoff'):
+        raise ValueError('Navigation category review does not match current GUI source')
+    labels = review.get('labels', {})
+    if set(labels) != set(LABELS):
+        raise ValueError('Navigation category review must cover all fourteen locales')
+    for language, values in labels.items():
+        if (not isinstance(values, list) or len(values) != len(source)
+                or any(not isinstance(value, str) or not value.strip() for value in values)):
+            raise ValueError(f'Incomplete navigation category review: {language}')
+    if labels['en'] != source:
+        raise ValueError('English navigation categories must preserve GUI source')
+    return labels
 
 
 def build(catalog: dict) -> dict:
@@ -93,8 +117,11 @@ def build(catalog: dict) -> dict:
     groups = []
     bands = [(section, [row for row in tiles if row[3] == section])
              for section in app.SECTIONS]
-    for section, rows in [(section, rows) for section, rows in bands if rows]:
+    bands = [(section, rows) for section, rows in bands if rows]
+    reviewed_categories = category_labels([section for section, _rows in bands])
+    for category_index, (section, rows) in enumerate(bands):
         groups.append({'id': section.lower(), 'title': section,
+                       'label_index': 5 + category_index,
                        'kind': 'main', 'module_keys': [r[0] for r in rows],
                        'lessons': [by_key[r[0]]['id'] for r in rows
                                    if r[0] in by_key]})
@@ -152,6 +179,7 @@ def build(catalog: dict) -> dict:
     return {'schema': 1, 'source_commit': subprocess.check_output(
                 ['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
             'labels': {language: labels + [ORIENTATION_LABELS[language]]
+                       + reviewed_categories[language]
                        for language, labels in LABELS.items()},
             'intro': intro, 'sections': sections, 'routes': routes,
             'missing_tutorials': uncovered,

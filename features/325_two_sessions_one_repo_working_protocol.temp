@@ -17726,3 +17726,31 @@ pending behind the active channel publisher; do not dispatch a duplicate.
 API/catalog, hosted Home/Alpha media and the settings-artifact repair are
 pushed, but deployed-page readback is not yet claimed. Home retains CPU/Qt/CI;
 all spaCR GPU work stays here excluding live_cell/cellposeTIME. No GPU job.
+
+2026-10-05 — WORKSTATION MEASURE CONTROLS AND NAVIGATION REVIEW
+Fresh Measure controls capture r4 passes on a genuine private 4K Xvfb
+ desktop. Twelve frames show QC, preprocessing, Normalize, native channel
+and field switching and checked images. Both preview source hashes match
+original acquired arrays; settings restore and application-source guards
+pass. Qt's default smaller offscreen desktop correctly refused r3; no
+visibility guard or application geometry was weakened. The recorder's new
+explicit neutral source option types the private sixteen-field directory
+into the genuine Source field after normal Load test data. Real HOME stays
+unchanged; interpreter alias is read-only and SPACR_HOME is supported state.
+
+The separate full Measure r2 attempt hit its own 8 GiB cgroup cap: kernel
+memory.events records one OOM kill, with an exact 8 GiB peak. Its worker
+was killed and the remaining private scope was stopped with exit 143.
+All failed artifacts and kernel receipts remain preserved; no successful
+batch acceptance is claimed. A new exact sixteen-field copy is prepared
+for a 16 GiB isolated run, below the host's standing aggregate RAM limit.
+
+Two stale PyPI translation checks now pass, including Japanese particles
+adjacent to the brand and exact current per-scene counts. Fourteen-language
+reviewed category labels and the normal navigation generator's source/
+locale refusal checks are ready for the next verified candidate; currently
+published navigation remains unchanged and its diagnostic stays open.
+Current tool/evidence/translation cohort: 47 passed, one existing report-only
+navigation diagnostic. Receipt: 615_measure_current_controls_2026-10-05.
+Home retains CPU/Qt/CI and all production feature ownership. All spaCR GPU
+turns remain workstation-owned, excluding live_cell/cellposeTIME. No GPU job.
