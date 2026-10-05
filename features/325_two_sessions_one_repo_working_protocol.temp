@@ -17847,3 +17847,32 @@ Spotiflow backend installation has started with CUDA hidden, separate from
 all shared backend state. Home retains CPU/Qt/CI and production source;
 live_cell/cellposeTIME remain excluded. Docs run 37366913455 is still queued
 on 7c3194e71; older pending publishers were cancelled by concurrency.
+
+2026-10-05 — FINAL MEDIA CHECKS AND SPOTIFLOW GPU TURN PREPARED
+All four current 4K masters and 1440p renditions finish with exit zero and
+pass full decoding and frame-time identity. Measure, Batch and Distributed
+each pass fourteen narration/caption browser cases; Make Masks' cases and
+rendered-frame sweeps are live. Full native-image OCR covers eighty-five
+scenes via eighty-two unique images, with zero personal paths. Completed
+master/web sweeps have zero path, theme or decode findings. Four-lesson
+immutable publication remains open. Receipt: 615_final_wave_native_paths.
+
+F554's fresh private normal Spotiflow 0.6.5 installation and official MERFISH
+test dataset are ready. Four genuine CPU methods (general/hybiss, coordinates
+and object centroids) run all ten fields with the original 12,923 truth
+points and official 3-pixel Hungarian matcher. Pixels, annotations, worker/
+package code and cached model hashes remain unchanged. Distributed subpixel
+border annotations remain exact; none is clipped or discarded.
+
+The next single shared GPU turn runs the identical source-frozen private
+benchmark_spotiflow_merfish.py with device cuda, output merfish-cuda-r1,
+against accepted merfish-cpu-r1, under 8 GiB. Normal six-minute idle,
+ten-minute gap and real HOME remain required. Do not duplicate this turn.
+Historical OPS tiles/DB/library remain absent, so their strict replay stays
+open. Home retains production source/CPU/Qt/CI; live_cell and cellposeTIME
+remain excluded. No GPU inference is claimed before this turn finishes.
+
+Docs run 37369875756 is terminal failure before a build. Its exact annotation
+says: "The job was not acquired by Runner of type hosted even after multiple
+attempts". No source/Sphinx failure was observed and no acceptance guard is
+changed. Deployed readback remains open; the next normal push retries docs.

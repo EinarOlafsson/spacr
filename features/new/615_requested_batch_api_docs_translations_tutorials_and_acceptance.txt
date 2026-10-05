@@ -1097,3 +1097,19 @@ activity and dead-air gates; all audio/timing hashes are rechecked. Receipt:
 times; browser checks are live. The other videos, final path/browser checks,
 immutable publication and deployed readback remain open. Original failed
 recordings and old publication media remain preserved. No final CI green.
+
+2026-10-05 — ALL FOUR MASTERS/WEB COPIES FINISHED; NATIVE PATH CHECKS PASS
+Four current 4K masters and 1440p copies pass full decoding and exact
+presentation-time equality. Measure, Batch and Distributed each pass fourteen
+actual narration/caption browser cases. Make Masks' final browser and frame
+checks are live. Eighty-two unique native-image OCR checks cover all
+eighty-five scene references with zero personal-path regions. Completed
+master/web sweeps have zero path, light-theme or decoder findings. Receipt:
+615_final_wave_native_paths_2026-10-05.json. Immutable four-lesson publication
+and deployed nightly readback remain open. Source-bound media stay frozen.
+
+Docs run 37369875756 ended before its build: hosted runners did not acquire
+the branch-pinning job after multiple attempts, per its exact annotation.
+This is infrastructure evidence, not a demonstrated Sphinx/source failure.
+No acceptance guard is changed. The coordinated F554 GPU follow-up is
+prepared separately against a genuinely completed four-method CPU baseline.
