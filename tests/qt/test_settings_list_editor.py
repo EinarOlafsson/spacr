@@ -29,6 +29,8 @@ import pytest
 
 pytest.importorskip("PySide6")
 
+from PySide6.QtWidgets import QWidget
+
 from spacr.qt.screens.settings_model import (          # noqa: E402
     SettingsWidgets, _ChipStrip, _ListEditor, list_shape_for,
 )
@@ -42,8 +44,10 @@ APP_KEYS = [
 ]
 
 
-def _model(qapp, app_key):
-    model = SettingsWidgets(app_key)
+def _model(qtbot, app_key):
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    model = SettingsWidgets(app_key, parent=parent)
     model.build_sections()
     return model
 
@@ -53,10 +57,10 @@ def _model(qapp, app_key):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("app_key", APP_KEYS)
-def test_every_default_round_trips_untouched(qapp, app_key):
+def test_every_default_round_trips_untouched(qtbot, app_key):
     """Building the panel and immediately collecting must return the module's
     own defaults -- not a stringified, clamped or substituted version."""
-    model = _model(qapp, app_key)
+    model = _model(qtbot, app_key)
     collected = model.collect()
     drift = {}
     for key, value in model._defaults.items():
@@ -94,14 +98,14 @@ def test_every_default_round_trips_untouched(qapp, app_key):
 
 
 @pytest.mark.parametrize("app_key", APP_KEYS)
-def test_no_list_setting_reaches_the_pipeline_as_a_string(qapp, app_key):
+def test_no_list_setting_reaches_the_pipeline_as_a_string(qtbot, app_key):
     """A list default must collect as a list, whatever widget rendered it.
 
     This covers the curated combos too ('channels', 'crop_mode',
     'train_channels', ...), whose options are TEXT -- "['r','g','b']" -- and
     which therefore shipped a string to the pipeline as well.
     """
-    model = _model(qapp, app_key)
+    model = _model(qtbot, app_key)
     collected = model.collect()
     strings = {k: collected.get(k) for k, v in model._defaults.items()
                if isinstance(v, (list, tuple)) and k in model._widgets
@@ -113,18 +117,19 @@ def test_no_list_setting_reaches_the_pipeline_as_a_string(qapp, app_key):
 # which keys get the editor -- and which deliberately do not
 # ---------------------------------------------------------------------------
 
-def test_the_nested_class_setting_gets_a_nested_editor(qapp):
+def test_the_nested_class_setting_gets_a_nested_editor(qtbot):
     widget = _ListEditor(
         key="class_metadata", default=[["c1"], ["c2"]],
         nested_capable=True, allow_none=False, element_type=str,
     )
+    qtbot.addWidget(widget)
     assert isinstance(widget, _ListEditor)
     assert widget._nested is True
     assert len(widget._strips) == 2          # one row per class
     assert widget.get_value() == [["c1"], ["c2"]]
 
 
-def test_a_flat_list_setting_gets_one_strip(qapp):
+def test_a_flat_list_setting_gets_one_strip(qtbot):
     """A flat list is one strip, not a row per element.
 
     This used to be driven through classify's ``classes``. That key stopped
@@ -135,7 +140,7 @@ def test_a_flat_list_setting_gets_one_strip(qapp):
     invariant itself is unchanged, so it is asserted here on a key that is
     still a flat list of scalars.
     """
-    model = _model(qapp, "measure")
+    model = _model(qtbot, "measure")
     widget = model._widgets["homogeneity_distances"]
     assert isinstance(widget, _ListEditor)
     assert widget._nested is False
@@ -144,7 +149,7 @@ def test_a_flat_list_setting_gets_one_strip(qapp):
     assert model.collect()["homogeneity_distances"] == [8, 16, 32]
 
 
-def test_the_classes_setting_gets_the_class_editor(qapp):
+def test_the_classes_setting_gets_the_class_editor(qtbot):
     """``classes`` deliberately does NOT get the chip editor.
 
     Split out of ``test_a_flat_list_setting_gets_one_strip`` when commit
@@ -156,7 +161,7 @@ def test_the_classes_setting_gets_the_class_editor(qapp):
     every class.
     """
     from spacr.qt.widgets.class_editor import ClassEditorWidget
-    widget = _model(qapp, "classify")._widgets["classes"]
+    widget = _model(qtbot, "classify")._widgets["classes"]
     assert isinstance(widget, ClassEditorWidget)
     assert not isinstance(widget, _ListEditor)
     # The value is a mapping of class name -> rule, not a bare list of names.
@@ -198,15 +203,15 @@ def test_the_classes_setting_gets_the_class_editor(qapp):
     ("recruitment", "channel_dims", [0, 1, 2, 3]),
 ])
 def test_channel_lists_use_the_manders_style_editor(
-        qapp, app_key, key, expected):
-    model = _model(qapp, app_key)
+        qtbot, app_key, key, expected):
+    model = _model(qtbot, app_key)
     widget = model._widgets[key]
     assert isinstance(widget, _ListEditor)
     assert widget.get_value() == expected
     assert model.collect()[key] == expected
 
 
-def test_train_channels_gets_the_alphabet_control_instead(qapp):
+def test_train_channels_gets_the_alphabet_control_instead(qtbot):
     """It used to be here, with the other channel lists, and it was the one
     that did not belong: ``train_channels`` is not an open list of channel
     indices, it is a choice among exactly ``r``, ``g`` and ``b``. The chip
@@ -215,7 +220,7 @@ def test_train_channels_gets_the_alphabet_control_instead(qapp):
     the user asked for and nothing says so.
     """
     from spacr.qt.screens.settings_model import _AlphabetSelect
-    model = _model(qapp, "classify")
+    model = _model(qtbot, "classify")
     widget = model._widgets["train_channels"]
     assert isinstance(widget, _AlphabetSelect)
     assert not isinstance(widget, _ListEditor)
@@ -224,38 +229,39 @@ def test_train_channels_gets_the_alphabet_control_instead(qapp):
     assert model.collect()["train_channels"] == ["r", "g", "b"]
 
 
-def test_src_keeps_its_line_edit(qapp):
+def test_src_keeps_its_line_edit(qtbot):
     """Single-plate modules keep the compact path editor."""
     from PySide6.QtWidgets import QLineEdit
     for app_key in ("mask", "measure"):
-        widget = _model(qapp, app_key)._widgets["src"]
+        widget = _model(qtbot, app_key)._widgets["src"]
         assert isinstance(widget, QLineEdit), app_key
         assert not isinstance(widget, _ListEditor), app_key
 
 
-def test_classify_src_accepts_an_arbitrary_number_of_plates(qapp):
+def test_classify_src_accepts_an_arbitrary_number_of_plates(qtbot):
     """Classify supports typing or dropping several plate paths."""
-    widget = _model(qapp, "classify")._widgets["src"]
+    widget = _model(qtbot, "classify")._widgets["src"]
     assert isinstance(widget, _ListEditor)
     widget.set_value(["/data/plate-a", "/data/plate-b", "/data/plate-c"])
     assert widget.get_value() == [
         "/data/plate-a", "/data/plate-b", "/data/plate-c"]
 
 
-def test_a_list_declared_key_with_a_placeholder_string_default_is_left_alone(qapp):
+def test_a_list_declared_key_with_a_placeholder_string_default_is_left_alone(qtbot):
     """``count_data``/``score_data`` are declared ``list`` but ship the
     *string* 'list of paths'. Chipping that would turn a placeholder into a
     one-element list."""
-    model = _model(qapp, "regression")
+    model = _model(qtbot, "regression")
     for key in ("count_data", "score_data"):
         assert not isinstance(model._widgets.get(key), _ListEditor), key
 
 
-def test_a_none_default_declared_list_still_gets_the_editor(qapp):
+def test_a_none_default_declared_list_still_gets_the_editor(qtbot):
     """A list that permits ``None`` keeps an empty value as ``None``."""
     widget = _ListEditor(
         key="tables", default=None, allow_none=True, element_type=str,
     )
+    qtbot.addWidget(widget)
     assert isinstance(widget, _ListEditor)
     assert widget.get_value() is None       # empty stays None, not []
 
@@ -264,7 +270,7 @@ def test_a_none_default_declared_list_still_gets_the_editor(qapp):
 # element typing
 # ---------------------------------------------------------------------------
 
-def test_numbers_stay_numbers_and_text_stays_text(qapp):
+def test_numbers_stay_numbers_and_text_stays_text(qtbot):
     """The element type comes from the default, so typing "3" into a list of
     ints yields ``3`` and typing it into a list of names yields ``"3"``.
 
@@ -275,7 +281,7 @@ def test_numbers_stay_numbers_and_text_stays_text(qapp):
     2026-08-07 (commit 30500970). Repointed at surviving keys of each element
     type; the typing rule under test is unchanged.
     """
-    model = _model(qapp, "measure")
+    model = _model(qtbot, "measure")
     distances = model._widgets["homogeneity_distances"]
     distances._strips[0]._entry.setText("3")
     distances._strips[0]._commit_entry()
@@ -301,7 +307,7 @@ def test_numbers_stay_numbers_and_text_stays_text(qapp):
 # adding and removing
 # ---------------------------------------------------------------------------
 
-def test_a_chip_can_be_added_and_removed(qapp):
+def test_a_chip_can_be_added_and_removed(qtbot):
     """Committing the entry appends a chip; a chip's remove button drops it
     and nothing else.
 
@@ -310,7 +316,7 @@ def test_a_chip_can_be_added_and_removed(qapp):
     the chip editor. Removal is asserted on a three-element default so a
     remove that dropped the wrong chip -- or the whole list -- is visible.
     """
-    model = _model(qapp, "measure")
+    model = _model(qtbot, "measure")
     widget = model._widgets["homogeneity_distances"]
     strip = widget._strips[0]
 
@@ -323,14 +329,14 @@ def test_a_chip_can_be_added_and_removed(qapp):
     assert model.collect()["homogeneity_distances"] == [16, 32, 64]
 
 
-def test_a_comma_splits_a_pasted_run_into_chips(qapp):
+def test_a_comma_splits_a_pasted_run_into_chips(qtbot):
     """A comma ends a chip while typing, so a pasted "a,b,c" becomes three.
 
     Was driven through classify's ``classes``, which stopped being a chip
     strip in commit 30500970 (2026-08-07); comma splitting belongs to
     ``_ChipStrip`` and is asserted here on a key that still has one.
     """
-    widget = _model(qapp, "measure")._widgets["timelapse_objects"]
+    widget = _model(qtbot, "measure")._widgets["timelapse_objects"]
     strip = widget._strips[0]
     for text in ("a,", "b,", "c"):
         strip._entry.setText(strip._entry.text() + text)
@@ -338,7 +344,7 @@ def test_a_comma_splits_a_pasted_run_into_chips(qapp):
     assert widget.get_value() == ["cell", "a", "b", "c"]
 
 
-def test_uncommitted_text_is_still_collected(qapp):
+def test_uncommitted_text_is_still_collected(qtbot):
     """A user who types a value and presses Run without leaving the field
     must not lose it.
 
@@ -347,18 +353,19 @@ def test_uncommitted_text_is_still_collected(qapp):
     editor. Asserted through ``collect()`` as well, since Run reads that and
     not the widget.
     """
-    model = _model(qapp, "measure")
+    model = _model(qtbot, "measure")
     widget = model._widgets["timelapse_objects"]
     widget._strips[0]._entry.setText("nucleus")
     assert widget.get_value() == ["cell", "nucleus"]
     assert model.collect()["timelapse_objects"] == ["cell", "nucleus"]
 
 
-def test_add_group_adds_a_row_and_removing_the_last_one_flattens(qapp):
+def test_add_group_adds_a_row_and_removing_the_last_one_flattens(qtbot):
     widget = _ListEditor(
         key="class_metadata", default=[["c1"], ["c2"]],
         nested_capable=True, allow_none=True, element_type=str,
     )
+    qtbot.addWidget(widget)
     widget._on_footer()                       # + Add group
     assert len(widget._strips) == 3
     widget._strips[2]._entry.setText("c3")
@@ -375,10 +382,10 @@ def test_add_group_adds_a_row_and_removing_the_last_one_flattens(qapp):
     assert widget.get_value() is None or widget.get_value() == []
 
 
-def test_a_flat_nested_capable_key_can_be_grouped(qapp):
+def test_a_flat_nested_capable_key_can_be_grouped(qtbot):
     """``png_size`` is [224, 224] but documented as accepting a list of lists.
     The literal box could express that; the chip editor has to as well."""
-    widget = _model(qapp, "measure")._widgets["png_size"]
+    widget = _model(qtbot, "measure")._widgets["png_size"]
     assert widget._nested is False
     assert widget._nested_capable is True
     widget._on_footer()                       # "Use groups"
@@ -386,8 +393,8 @@ def test_a_flat_nested_capable_key_can_be_grouped(qapp):
     assert widget.get_value() == [[224, 224]]
 
 
-def test_a_plain_list_key_offers_no_grouping(qapp):
-    widget = _model(qapp, "measure")._widgets["homogeneity_distances"]
+def test_a_plain_list_key_offers_no_grouping(qtbot):
+    widget = _model(qtbot, "measure")._widgets["homogeneity_distances"]
     assert widget._nested_capable is False
     assert widget._footer.isVisible() is False
 
@@ -404,16 +411,17 @@ def test_a_plain_list_key_offers_no_grouping(qapp):
     ("", None),
     ("None", None),
 ])
-def test_set_value_parses_what_a_settings_csv_holds(qapp, text, expected):
+def test_set_value_parses_what_a_settings_csv_holds(qtbot, text, expected):
     """Settings CSVs store the repr; ``set_value`` has to read it back."""
     widget = _ListEditor(key="class_metadata", default=None,
                          nested_capable=True, allow_none=True)
+    qtbot.addWidget(widget)
     widget.set_value(text)
     assert widget.get_value() == expected
 
 
 @pytest.mark.parametrize("text", ["['nc', 'pc']", "['nc','pc']", "  ['nc', 'pc']  "])
-def test_the_class_editor_reads_a_settings_csv_string(qapp, text):
+def test_the_class_editor_reads_a_settings_csv_string(qtbot, text):
     """A settings CSV stores ``repr(value)``, so ``classes`` arrives as TEXT.
 
     ClassEditorWidget.set_value handled Mapping and list and nothing else, so
@@ -429,20 +437,22 @@ def test_the_class_editor_reads_a_settings_csv_string(qapp, text):
     """
     from spacr.qt.widgets.class_editor import ClassEditorWidget
     widget = ClassEditorWidget()
+    qtbot.addWidget(widget)
     widget.set_value(text)
     assert list(widget.get_value()) == ["nc", "pc"], (
         "class names from a settings CSV must survive set_value")
 
 
-def test_the_class_editor_survives_a_string_that_does_not_parse(qapp):
+def test_the_class_editor_survives_a_string_that_does_not_parse(qtbot):
     """A corrupt cell must not raise out of a settings import."""
     from spacr.qt.widgets.class_editor import ClassEditorWidget
     widget = ClassEditorWidget()
+    qtbot.addWidget(widget)
     widget.set_value("['nc', 'pc'")          # unbalanced
     assert widget.get_value() == {}
 
 
-def test_importing_a_settings_dict_reaches_the_custom_editors(qapp):
+def test_importing_a_settings_dict_reaches_the_custom_editors(qtbot):
     """AppScreen._apply_value used to have only a QLineEdit branch, and both
     of these editors are plain QWidgets -- an imported list would have been
     dropped.
@@ -455,6 +465,7 @@ def test_importing_a_settings_dict_reaches_the_custom_editors(qapp):
     """
     from spacr.qt.screens.app_screen import AppScreen
     screen = AppScreen("classify")
+    qtbot.addWidget(screen)
     applied = screen.apply_settings_dict({"class_metadata": "[['r1'], ['r2']]",
                                           "classes": ["a", "b"]})
     assert applied == 2
@@ -469,7 +480,7 @@ def test_importing_a_settings_dict_reaches_the_custom_editors(qapp):
     screen.deleteLater()
 
 
-def test_live_preview_propagation_reaches_the_chip_editor(qapp):
+def test_live_preview_propagation_reaches_the_chip_editor(qtbot):
     """``set_value_for_key`` has to find the chip editor, not just line edits.
 
     Was asserted on ``png_dims``, which stopped being a rendered setting on
@@ -479,7 +490,7 @@ def test_live_preview_propagation_reaches_the_chip_editor(qapp):
     panel, plus a check that an unknown key still reports False rather than
     pretending it landed somewhere.
     """
-    model = _model(qapp, "measure")
+    model = _model(qtbot, "measure")
     assert model.set_value_for_key("png_size", [1, 2]) is True
     assert model._widgets["png_size"].get_value() == [1, 2]
     assert model.set_value_for_key("png_dims", [1, 2]) is False
@@ -507,9 +518,9 @@ def test_list_shape_for_picks_the_right_keys(key, default, expect_editor):
     assert (list_shape_for(key, default) is not None) is expect_editor
 
 
-def test_a_tuple_declared_setting_collects_as_a_tuple(qapp):
+def test_a_tuple_declared_setting_collects_as_a_tuple(qtbot):
     """``motility_xlim`` is declared ``tuple`` and defaults to (100, -100)."""
-    model = _model(qapp, "motility")
+    model = _model(qtbot, "motility")
     widget = model._widgets.get("motility_xlim")
     assert isinstance(widget, _ListEditor)
     assert widget.get_value() == (100, -100)
@@ -519,8 +530,9 @@ def test_a_tuple_declared_setting_collects_as_a_tuple(qapp):
 # the strip itself
 # ---------------------------------------------------------------------------
 
-def test_chip_strip_set_values_replaces_rather_than_appends(qapp):
+def test_chip_strip_set_values_replaces_rather_than_appends(qtbot):
     strip = _ChipStrip()
+    qtbot.addWidget(strip)
     strip.set_values(["a", "b"])
     strip.set_values(["c"])
     assert strip.values() == ["c"]
