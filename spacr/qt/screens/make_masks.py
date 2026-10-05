@@ -353,7 +353,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_WAND_ADD,     "Wand +",       "wand_add"),
     (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
     (MODE_DRAW,         "Draw",         "draw"),
-    (MODE_BOX,          "Box",          "zoom"),
+    (MODE_BOX,          "Box",          "embeddings"),
     (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
     (MODE_RECROP,       "Recrop",       "recrop"),
@@ -10603,6 +10603,9 @@ class MakeMasksScreen(QWidget):
         self._btn_add_box_class = QPushButton(tr("Add class"))
         self._btn_add_box_class.clicked.connect(lambda: self._on_add_box_class())
         box_row.addWidget(self._btn_add_box_class)
+        self._btn_save_boxes = QPushButton(tr("Save boxes"))
+        self._btn_save_boxes.clicked.connect(self._on_save_boxes)
+        box_row.addWidget(self._btn_save_boxes)
         self._btn_export_yolo = QPushButton(tr("Export YOLO labels"))
         self._btn_export_yolo.setToolTip(tr("Export this image's boxes as a YOLO .txt "
                                           "label file with a class-name companion."))
@@ -11484,6 +11487,12 @@ class MakeMasksScreen(QWidget):
         save_row = getattr(self, '_shortcut_rows', {}).get('Ctrl+S')
         if save_row is not None:
             save_row[1].setText(tr('Save boxes') if mode == MODE_BOX else tr('Save the mask'))
+        for keys, normal, boxes in (
+                ('Ctrl + left click', 'Split the object at its waist', 'Draw an overlapping box'),
+                ('Ctrl + right click', 'Remove the object under the cursor', 'Delete the box under the cursor')):
+            shortcut = getattr(self, '_shortcut_rows', {}).get(keys)
+            if shortcut is not None:
+                shortcut[1].setText(tr(boxes if mode == MODE_BOX else normal))
         for m, btn in self._mode_buttons.items():
             btn.setChecked(m == mode)
 
@@ -17082,6 +17091,7 @@ class MakeMasksScreen(QWidget):
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
                    self._box_class_combo, self._btn_add_box_class, self._btn_export_yolo,
+                   self._btn_save_boxes,
                    self._btn_discard, self._btn_keep,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
                    self._btn_dilate, self._btn_shrink, self._btn_clear,
@@ -17090,6 +17100,7 @@ class MakeMasksScreen(QWidget):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
         self._btn_prompt.setEnabled(editable)
+        self._box_controls.setEnabled(editable and self._box_load_error is None)
         self._btn_export_yolo.setEnabled(editable and self._blind is None
                                         and self._box_load_error is None)
         self._mode_buttons[MODE_BOX].setEnabled(editable and self._box_load_error is None)
