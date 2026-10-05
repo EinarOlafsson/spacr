@@ -1386,7 +1386,9 @@
       "source_sha256": "fda3e9606f7d5c5f45a5bf04835a04a56a1132b241681c81cd2eed9f5ee6c47e",
       "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
       "translation": "Verwenden Sie :func:`active_palette` für Farben, die ein aktives Widget anzeigt, und :func:`stylesheet` für das Stylesheet der Anwendung. :data:`THEMES` enthält die wählbaren Paletten ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"`` und die zehn Nachtthemes von :mod:`spacr.qt.night_themes`; die Präferenz ``\"system\"`` wird vor dem Nachschlagen der Palette zu dunkel oder hell aufgelöst. Eine alte ``\"space\"``-Palette kann weiterhin aus gespeicherten Einstellungen gelesen werden, ist aber nicht wählbar.",
-      "review_basis": "MT draft edited in AI review"
+      "review_basis": "MT draft edited in AI review",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.theme.advance_spaceout_drift#2",

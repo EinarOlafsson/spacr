@@ -53,7 +53,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.screens.settings_model.categories_for_app#2",
+      "label": "spacr.qt.screens.settings_model.categories_for_app#3",
       "source": "application key of the module whose settings are shown; a plugin's own categories replace ``categories`` entirely, and some built-in modules relocate keys.",
       "source_sha256": "ca31e5aa4ac2a6ba59a07fdca7b4d69107957d16e7c09e1ad492d5c3383572ef",
       "context": "application structured-data name of the module whose settings are shown; a plugin's own categories replace ``categories`` entirely, and some built-in modules relocate structured-data names.",
@@ -61,7 +61,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr.qt.screens.settings_model.categories_for_app#3",
+      "label": "spacr.qt.screens.settings_model.categories_for_app#4",
       "source": "category title to ordered setting keys; it is copied, not modified.",
       "source_sha256": "e83a077c26852c1a87c8be3ac85ecafff32568602cbf547ea87223b637fb0a82",
       "context": "category title to ordered setting names; it is copied, not modified.",
@@ -2894,7 +2894,9 @@
       "source_sha256": "fda3e9606f7d5c5f45a5bf04835a04a56a1132b241681c81cd2eed9f5ee6c47e",
       "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
       "translation": "Använd :func:`active_palette` för färger som visas av en aktiv widget och :func:`stylesheet` för programmets stilmall. :data:`THEMES` innehåller de valbara paletterna ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"`` och de tio nattemana i :mod:`spacr.qt.night_themes`; inställningen ``\"system\"`` löses upp till mörkt eller ljust före palettuppslagningen. En äldre palett ``\"space\"`` kan fortfarande läsas från sparade inställningar men är inte valbar.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.theme.advance_spaceout_drift#2",

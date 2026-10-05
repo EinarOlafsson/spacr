@@ -2680,7 +2680,9 @@
       "source_sha256": "25e6318ffb88ee82ce38c117008edc6106951d7409df1fa2ca5a619945d3b381",
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | eitt af tíu næturþemunum í :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (sjálfgefið ``\"dark\"``). ``\"system\"`` fylgir litaskema stýrikerfisins, og aðeins eftir að einhver hefur valið það: vistað ``\"system\"`` sem var skrifað áður en dark varð sjálfgefið (2026-09-21) var gamla sjálfgefna gildið, ekki val, og lesist sem ``\"dark\"``; sjá :func:`get_theme`. ``\"cell\"`` notar flúrljómunarmyndir og ``\"glass\"`` notar hlutlaus lagskipt efni yfir innbyggðu ljósu sviði. Næturþema ber einnig bakgrunn og hljóðasafn, sem :func:`apply_night_theme` skrifar þegar það er valið. Space er ekki þema sem hægt er að velja. Eldri ``space_variant`` og ``space_seed`` gildin eru fjarlægð úr eldri geymslu í fyrsta sinn sem þemað er lesið; sjá :func:`get_theme`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences#9",
@@ -3898,7 +3900,9 @@
       "source_sha256": "7f79da9e073eecb0cbb1b479f825448439ee774676288f7d1e2dd1f4b9b2ec1f",
       "context": "the theme's sentence, or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
       "translation": "setning þemans, eða ``\"\"`` fyrir þemun fjögur sem eru eldri en fjölskyldan og fyrir hvert tákn án setningar. Kallandinn sendir niðurstöðuna í gegnum :func:`tr` og stillir enga verkfæraábendingu þegar hún er tóm.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences_navigation#0",

@@ -34,7 +34,9 @@
       "source_sha256": "25e6318ffb88ee82ce38c117008edc6106951d7409df1fa2ca5a619945d3b381",
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` 의 열 가지 야간 테마 중 하나 | ``\"system\"`` (기본값 ``\"dark\"``). ``\"system\"`` 은 운영 체제의 색 구성표를 따르며, 누군가 이를 선택한 경우에만 그렇습니다. dark 가 기본값이 되기 전(2026-09-21)에 기록된 ``\"system\"`` 은 선택이 아니라 이전 기본값이었으므로 ``\"dark\"`` 로 읽힙니다. :func:`get_theme` 을 참조하십시오. ``\"cell\"`` 은 형광 이미지를, ``\"glass\"`` 는 내장된 밝은 배경 위의 중립적인 층 재질을 사용합니다. 야간 테마는 배경과 사운드 세트도 함께 가지며, 선택될 때 :func:`apply_night_theme` 이 이를 기록합니다. Space 는 선택할 수 있는 테마가 아닙니다. 폐기된 ``space_variant`` 와 ``space_seed`` 값은 테마를 처음 읽을 때 이전 저장소에서 제거됩니다. :func:`get_theme` 을 참조하십시오.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences#9",
@@ -1252,7 +1254,9 @@
       "source_sha256": "7f79da9e073eecb0cbb1b479f825448439ee774676288f7d1e2dd1f4b9b2ec1f",
       "context": "the theme's sentence, or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
       "translation": "테마의 문장이며, 이 계열 이전부터 있던 네 가지 테마와 문장이 없는 토큰에 대해서는 ``\"\"`` 입니다. 호출자는 결과를 :func:`tr` 에 거쳐 전달하며, 비어 있으면 툴팁을 설정하지 않습니다.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences_navigation#0",

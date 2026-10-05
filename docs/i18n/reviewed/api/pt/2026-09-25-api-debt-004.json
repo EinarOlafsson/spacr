@@ -2560,7 +2560,9 @@
       "source_sha256": "25e6318ffb88ee82ce38c117008edc6106951d7409df1fa2ca5a619945d3b381",
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | um dos dez temas noturnos em :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (padrão ``\"dark\"``). ``\"system\"`` segue o esquema de cores do sistema operacional, e só depois que alguém o escolheu: um ``\"system\"`` armazenado antes de o escuro virar o padrão (2026-09-21) era o padrão antigo, não uma escolha, e é lido como ``\"dark\"``; veja :func:`get_theme`. ``\"cell\"`` usa imagens de fluorescência e ``\"glass\"`` usa materiais neutros em camadas sobre um campo de luz embutido. Um tema noturno também traz um fundo animado e um conjunto de sons, gravados por :func:`apply_night_theme` quando ele é escolhido. Space não é um tema selecionável. Os valores aposentados ``space_variant`` e ``space_seed`` são removidos de um armazenamento mais antigo na primeira vez que o tema é lido; veja :func:`get_theme`.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences#9",
@@ -3778,7 +3780,9 @@
       "source_sha256": "7f79da9e073eecb0cbb1b479f825448439ee774676288f7d1e2dd1f4b9b2ec1f",
       "context": "the theme's sentence, or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
       "translation": "a frase do tema, ou ``\"\"`` para os quatro temas anteriores à família e para qualquer token sem frase. O chamador passa o resultado por :func:`tr` e não define dica de ferramenta quando ele está vazio.",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences_navigation#0",

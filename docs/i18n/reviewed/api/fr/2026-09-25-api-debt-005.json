@@ -4327,7 +4327,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.screens.settings_model.categories_for_app#2",
+      "label": "spacr.qt.screens.settings_model.categories_for_app#3",
       "source": "application key of the module whose settings are shown; a plugin's own categories replace ``categories`` entirely, and some built-in modules relocate keys.",
       "source_sha256": "ca31e5aa4ac2a6ba59a07fdca7b4d69107957d16e7c09e1ad492d5c3383572ef",
       "context": "application structured-data name of the module whose settings are shown; a plugin's own categories replace ``categories`` entirely, and some built-in modules relocate structured-data names.",
@@ -4335,7 +4335,7 @@
       "review_basis": "MT draft edited in AI review"
     },
     {
-      "label": "spacr.qt.screens.settings_model.categories_for_app#3",
+      "label": "spacr.qt.screens.settings_model.categories_for_app#4",
       "source": "category title to ordered setting keys; it is copied, not modified.",
       "source_sha256": "e83a077c26852c1a87c8be3ac85ecafff32568602cbf547ea87223b637fb0a82",
       "context": "category title to ordered setting names; it is copied, not modified.",

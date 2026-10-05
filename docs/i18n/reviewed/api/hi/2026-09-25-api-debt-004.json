@@ -2680,7 +2680,9 @@
       "source_sha256": "25e6318ffb88ee82ce38c117008edc6106951d7409df1fa2ca5a619945d3b381",
       "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
       "translation": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` की दस रात्रि थीमों में से एक | ``\"system\"`` (डिफ़ॉल्ट ``\"dark\"``)। ``\"system\"`` ऑपरेटिंग सिस्टम की रंग योजना का अनुसरण करता है, और केवल तब जब किसी ने इसे चुना हो: dark के डिफ़ॉल्ट बनने (2026-09-21) से पहले लिखा गया संग्रहीत ``\"system\"`` पुराना डिफ़ॉल्ट था, कोई चुनाव नहीं, और ``\"dark\"`` के रूप में पढ़ा जाता है; :func:`get_theme` देखें। ``\"cell\"`` प्रतिदीप्ति चित्रों का उपयोग करता है और ``\"glass\"`` एक अंतर्निहित प्रकाश क्षेत्र पर तटस्थ परतदार सामग्रियों का। रात्रि थीम एक पृष्ठभूमि और एक ध्वनि सेट भी साथ लाती है, जिन्हें चुने जाने पर :func:`apply_night_theme` लिखता है। Space चुनने योग्य थीम नहीं है। हटाए गए ``space_variant`` और ``space_seed`` मान पुराने स्टोर से पहली बार थीम पढ़े जाने पर हटा दिए जाते हैं; :func:`get_theme` देखें।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences#9",
@@ -3898,7 +3900,9 @@
       "source_sha256": "7f79da9e073eecb0cbb1b479f825448439ee774676288f7d1e2dd1f4b9b2ec1f",
       "context": "the theme's sentence, or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
       "translation": "थीम का वाक्य, या परिवार से पहले की चार थीम और बिना वाक्य वाले किसी भी टोकन के लिए ``\"\"``। कॉलर परिणाम को :func:`tr` से गुज़ारता है और खाली होने पर कोई टूलटिप सेट नहीं करता।",
-      "review_basis": "written from the English (no current MT draft)"
+      "review_basis": "written from the English (no current MT draft)",
+      "retired": true,
+      "retired_reason": "English source changed before the 2026-10-05 completion audit; original review preserved, replacement reviewed against current English."
     },
     {
       "label": "spacr.qt.preferences_navigation#0",
