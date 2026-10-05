@@ -15584,7 +15584,7 @@ class MakeMasksScreen(QWidget):
         if on:
             if self._btn_magnifier.isChecked():
                 self._btn_magnifier.setChecked(False)
-            if self._canvas.ruler.active:
+            if self._canvas.ruler.active or self._canvas.mode == MODE_BOX:
                 self._set_mode(MODE_NONE)
             self._status_label.setText(tr(
                 "Prompting on: click the object, right-click what is not "
@@ -15663,7 +15663,7 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
-        if on and self._canvas.ruler.active:
+        if on and (self._canvas.ruler.active or self._canvas.mode == MODE_BOX):
             self._set_mode(MODE_NONE)
         button = getattr(self, "_btn_prompt", None)
         if on and button is not None and button.isChecked():
