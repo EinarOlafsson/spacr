@@ -1536,7 +1536,7 @@ class NewsPanel(Panel):
             import json
             from importlib.resources import files
 
-            raw = (files("spacr.resources") / "release_notes.json")
+            raw = files("spacr") / "resources" / "release_notes.json"
             data = json.loads(raw.read_text(encoding="utf-8"))
             releases = data.get("releases") or []
             return [r for r in releases if isinstance(r, dict)]

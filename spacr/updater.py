@@ -308,7 +308,7 @@ def _bundled_release_notes() -> list:
     try:
         from importlib.resources import files
 
-        raw = files("spacr.resources") / "release_notes.json"
+        raw = files("spacr") / "resources" / "release_notes.json"
         data = json.loads(raw.read_text(encoding="utf-8"))
         return [r for r in data.get("releases") or [] if isinstance(r, dict)]
     except Exception:

@@ -298,6 +298,7 @@ def _recolour(artist, mapping: dict) -> None:
     from matplotlib.colors import to_hex, to_rgba
 
     def swap(colour):
+        """Map a default colour to the selected palette, preserving opacity."""
         try:
             rgba = to_rgba(colour)
         except (TypeError, ValueError):

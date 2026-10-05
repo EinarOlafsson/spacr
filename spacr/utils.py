@@ -4637,6 +4637,10 @@ def augment_single_image(args):
 def augment_images(file_paths, dst):
     """Run :func:`augment_single_image` in parallel over ``file_paths``.
 
+    Spawn workers so they inherit no locks held by other threads in this
+    process. Close and join the pool after mapping; terminating forked workers
+    can hang while their exit handlers wait on inherited locks.
+
     :param file_paths: iterable of source image paths.
     :param dst: destination folder (created if missing).
     :returns: None.
@@ -4652,13 +4656,6 @@ def augment_images(file_paths, dst):
                              _array_file_nbytes(args_list[0][0]))
     workers = max(1, min(int(workers), len(args_list)))
 
-    # SPAWNED, AND CLOSED RATHER THAN TERMINATED. A forked worker inherits
-    # every lock another thread of this process held at fork time (a
-    # coverage tracer, a logging handler, a watchdog), and ``with Pool``
-    # ends with ``terminate()``, whose SIGTERM runs such a child's exit
-    # handlers against those locks. CI run 37245630937 hung for an hour in
-    # ``_terminate_pool`` joining one. A spawned worker inherits no locks,
-    # and ``close()`` + ``join()`` lets each worker leave on its own.
     pool = _augment_pool_context().Pool(workers)
     try:
         pool.map(augment_single_image, args_list)
