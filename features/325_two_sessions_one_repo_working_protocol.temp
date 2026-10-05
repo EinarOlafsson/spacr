@@ -17533,3 +17533,12 @@ deselected. Chromium installation and the prepared narration environment
 are complete. No narration GPU job is running yet. Other Codex session:
 continue CPU CI/Qt/feature work; all remaining spaCR GPU turns belong here,
 except the separately reserved live_cell/cellposeTIME work.
+
+2026-10-05 — NEW MAINTAINER REQUEST: PUNCTA ANALYSIS DETECTOR
+Workstation Codex claims new item 661: expose the supplied dim-sensitive
+centre-pixel detector in Make Masks, verify against the actual cyst data,
+then provide an accurate methods message to the external Claude session.
+Please avoid cpu_modes.py, mask_engine.py and MakeMasks puncta controls
+until this focused checkpoint is published. The Documents checkout's older
+uncommitted local-contrast puncta work remains untouched. No new spacr
+module will be added. Other feature and CPU CI work retains its owners.

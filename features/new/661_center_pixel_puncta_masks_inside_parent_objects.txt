@@ -1,0 +1,44 @@
+DIM-SENSITIVE CENTRE-PIXEL PUNCTA MASKS INSIDE PARENT OBJECTS
+Status: OPEN 2026-10-05 — implementation and real-data reference comparison.
+Requested: 2026-10-05 by the maintainer, forwarding the cyst/puncta analysis.
+Owner: workstation Codex API/docs/tutorial/translation/GPU session.
+
+The maintainer asks whether Make Masks can generate the puncta objects used
+in the external analysis and, if necessary, to implement that detector before
+providing a paste-ready methods message to the analysis session. Existing
+organelle LoG/DoG and Spotiflow support establishes generic puncta detection,
+not equivalence to the dim-sensitive centre-pixel analysis.
+
+Authoritative reference:
+/home/carruthers/Documents/progress_report_2026-10-01/puncta_center_reanalysis/
+center_puncta_detector.py and 02_figure1_publication.ipynb.
+Input images and unchanged cyst masks: puncta_publication/source_data/
+channel1 and cyst_masks under the same progress-report root.
+Reference tables: Puncta_Figure1_Publication/source_data/
+all_detection_candidates_including_below_threshold.csv and
+puncta_centre_measurements_all_variants.csv.
+Forwarded specification:
+/home/carruthers/.codex/attachments/27b7f15a-6dad-4696-919c-9566e5e128f9/Pasted text.txt.
+
+Make Masks must offer parent-constrained scale-normalised LoG centres at
+sigma 1.5, 2, 3, 4 and 6 pixels, pixel-noise MAD normalisation, candidate
+k=2.5, nonmaximum suppression, three-pixel parent-edge exclusion, subpixel
+centres and the N nearest centre pixels (default 20). Inclusion uses the
+centre mean minus a same-parent annulus median, default >=3 native AU.
+No display normalisation, inversion, enhancement or grown watershed support
+may change these scientific inputs. Parent masks stay read-only. Shared
+pixels need an explicit deterministic label policy; the original overlapping
+centre measurements must remain available independently of mask ownership.
+
+Implement in existing modules; no new spacr module. Reuse the uncommitted
+Documents checkout's parent-selector/UI ideas without editing that checkout
+or publishing its older watershed detector. Coordinate through nightly.
+Tests must exercise the real mode, raw pixels, missing/changed parents,
+save/undo and reference equivalence on the supplied scientific images.
+
+The pasted Figure-final specification also contains noise-null estimation,
+hierarchical tables, Games-Howell, R-by-C Monte Carlo Fisher, outlier variants
+and a composed publication figure. They are separate downstream requirements,
+not proven by implementing puncta masks or by generic figure controls. The
+methods message must state exactly what was run and may not attribute the
+existing external results to spaCR without rerunning them.
