@@ -11,6 +11,7 @@ import zipfile
 
 import numpy as np
 import pandas as pd
+import pytest
 import tifffile
 from matplotlib.figure import Figure
 
@@ -188,19 +189,23 @@ def test_recreated_histogram_keeps_the_saved_zoom():
     assert sum(patch.get_height() for patch in axes.patches) == len(frame)
 
 
-def test_recreated_horizontal_group_plot_keeps_numeric_measurements():
+@pytest.mark.parametrize("labels, expected", [
+    (["control", "control", "treated", "treated"],
+     ["control", "treated"]),
+    ([False, False, True, True], ["False", "True"]),
+])
+def test_recreated_horizontal_group_plot_keeps_numeric_measurements(
+        labels, expected):
     frame = pd.DataFrame({
         "signal": [1.0, 2.0, 3.0, 4.0],
-        "class": ["control", "control", "treated", "treated"],
+        "class": labels,
     })
     spec = {"kind": "box", "x": "signal", "y": "class"}
     assert "box" in dict(bundle._kinds_for(frame, spec))
 
     axes = bundle._draw(Figure(), frame, spec)
 
-    assert [tick.get_text() for tick in axes.get_yticklabels()] == [
-        "control", "treated",
-    ]
+    assert [tick.get_text() for tick in axes.get_yticklabels()] == expected
     assert len(axes.patches) == 2
 
 
@@ -346,3 +351,38 @@ def test_group_only_figure_zip_exports_the_values_used_for_statistics(tmp_path):
     )
     assert recreated.returncode == 0, recreated.stderr[-1000:]
     assert (tmp_path / "unpacked" / "recreated.png").is_file()
+
+
+def test_ragged_groups_keep_a_registered_graph_kind_in_the_zip(tmp_path):
+    figure = Figure()
+    figure._spacr_groups = {"control": [1.0, 2.0],
+                            "treated": [2.0, 3.0, 4.0]}
+    figure._spacr_replot = {"df": pd.DataFrame(), "graph_type": "violin"}
+
+    path = bundle._save_zip(figure, str(tmp_path / "ragged.zip"),
+                            formats=["png"])
+
+    with zipfile.ZipFile(path) as archive:
+        frame = pd.read_csv(io.BytesIO(archive.read("data.csv")))
+        spec = json.loads(archive.read("spec.json"))
+    assert frame.groupby("group")["value"].apply(list).to_dict() == \
+        figure._spacr_groups
+    assert (spec["x"], spec["y"], spec["kind"]) == \
+        ("group", "value", "violin")
+
+
+def test_groups_do_not_replace_an_existing_registered_source_table(tmp_path):
+    source = pd.DataFrame({"sample": ["A", "B"], "intensity": [1.0, 2.0]})
+    figure = Figure()
+    bundle._register_figure_data(figure, source, kind="box")
+    figure._spacr_groups = {"control": [1.0, 1.5, 2.0],
+                            "treated": [2.0, 2.5, 3.0]}
+
+    path = bundle._save_zip(figure, str(tmp_path / "source.zip"),
+                            formats=["png"])
+
+    with zipfile.ZipFile(path) as archive:
+        exported = pd.read_csv(io.BytesIO(archive.read("data.csv")))
+        statistics = pd.read_csv(io.BytesIO(archive.read("statistics.csv")))
+    pd.testing.assert_frame_equal(exported, source)
+    assert (statistics["test_stage"] == "pairwise").any()
