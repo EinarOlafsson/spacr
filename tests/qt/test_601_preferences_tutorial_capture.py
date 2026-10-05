@@ -32,7 +32,9 @@ def test_tutorial_captures_folded_categories_and_actual_expanded_controls(qtbot,
                       if isinstance(w, QDialog) and w.isVisible())
         tabs = dialog.findChild(QTabWidget, 'PreferencesTabs')
         titles = [tabs.tabText(i) for i in range(tabs.count())]
-        assert titles == ['General', 'Appearance', 'Performance', 'Modules', 'Figures', 'Logging', 'AI']
+        # 'Storage' joined after 'AI' with 643/644/646 (31b56400b).
+        assert titles == ['General', 'Appearance', 'Performance', 'Modules', 'Figures', 'Logging', 'AI',
+                          'Storage']
         sections = {s.title(): s for s in tabs.currentWidget().findChildren(Section)}
         if name == '09_performance':
             assert tabs.tabText(tabs.currentIndex()) == 'Performance'
