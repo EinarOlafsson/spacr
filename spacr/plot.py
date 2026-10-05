@@ -415,12 +415,12 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
     furniture and puts it back; the DATA is never touched, because a white
     point turned black is, on a volcano, the colour of "not a hit".
 
-    :param fig: a matplotlib ``Figure``.
-    :param path: destination; its extension is corrected to the format.
     The figure first takes the settings changed in the Preferences figure
     settings (:func:`spacr.figures.style._apply_user_style`), and a second
     copy is written when "Also save" names another format.
 
+    :param fig: a matplotlib ``Figure``.
+    :param path: destination; its extension is corrected to the format.
     :param fmt: force a format, bypassing the preference.
     :param dpi: force a DPI, bypassing the preference.
     :param close: close the figure once written.

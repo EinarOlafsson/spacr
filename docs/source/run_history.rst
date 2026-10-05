@@ -47,6 +47,13 @@ the selected cache after asking, and **Move…** moves it into
 variable (for example ``HF_HOME``) is set outside spaCR is not moved.
 Clearing and moving wait until no run is in progress.
 
+**Preferences → Logging → Log files** has **Clear all logs…**. It lists the
+daily logs, run logs, crash logs and verbose logs with the number of files
+and their size in each group, and deletes them only after you confirm. A log
+that the running spaCR session has open is emptied instead of deleted, so
+the run in progress keeps its log. The result says how many files were
+deleted and emptied and how much space was freed.
+
 Headless search
 ---------------
 
