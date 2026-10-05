@@ -2258,3 +2258,16 @@ VERIFIED 2026-10-04: 12 referenced test files pass on nightly 85c3e41c2 (CPU, of
 The user directed native-language review to 100% for this list. The nine
 API catalogs remain direct AI translations with technical review and no
 native-speaker signoff. This item stays DONE; no human review is claimed.
+
+
+2026-10-05 — CURRENT-SOURCE NINE-LOCALE ACCEPTANCE FOLLOW-UP
+The complete catalogs now carry 13,177 symbols, including the new Make Masks
+puncta callable. All nine strict audits pass. Eight repaired catalogs each
+preserve 13,126 complete records, refresh 50 and add one; French remains
+unchanged from its complete audit. The all-language strict Sphinx build and
+36 representative actual-page locale browser checks pass, alongside the
+exhaustive complete-catalog frontend gate. Source/context-bound review is
+AI technical review, with no independent native-speaker signoff. Detailed
+counts, hashes, generator outputs and test/build evidence are recorded in
+features/data/615_api_completion_2026-10-05.json. Hosted-site readback remains
+with the workstation publication lane; no whole-CI verdict is inferred.

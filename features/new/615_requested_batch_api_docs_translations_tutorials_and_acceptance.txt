@@ -922,3 +922,38 @@ locale, refreshing 50 and adding one. The six other catalogs are still in
 the normal repair/audit process; no all-nine API completion is claimed here.
 Publication-baseline restoration preserves the pinned wave-4 revision and
 hashes; a host rate-limit interruption is recovering from cached downloads.
+
+
+2026-10-05 — ALL NINE SOURCE-CURRENT API CATALOGS VERIFIED
+Normal repair and complete audits now pass in every API locale at 13,177
+symbols. Each of the eight repaired catalogs preserves 13,126 complete
+records, refreshes the expected 50 and adds the puncta callable, with no
+removals or unrelated changes. French remains byte-identical to its prior
+complete audit. Repairs use admitted source/context-bound reviews; all model
+decode, unresolved and unproven-history counts are zero. The normal English
+manifest writer prunes the now-unused historical source archive.
+
+The full documentation-i18n/plain-history/frontend cohort passes 187 tests
+with one registered README expected failure. That failure is a stale tile
+identity pin: e86e25966 already regenerated English and all nine READMEs
+without the two alpha species. Pinning the 19 ordinary tiles and explicitly
+excluding those species makes the entire nine-language accessible-label
+check pass. Generated READMEs were not modified and no coverage or semantic
+threshold was relaxed. The strict full Sphinx build passes with API language
+all and nightly channel metadata. Thirty-six actual Sphinx-page browser
+cases cover all nine locales on puncta, figure preferences, shortcuts and
+current preprocessing, preserving inline literals. The exhaustive frontend
+test also renders every catalog's 13,177-symbol union through the selector.
+Receipt: features/data/615_api_completion_2026-10-05.json.
+
+Home/Alpha's replacement masters and web copies now pass the redacted-media
+checks, including 28 narration/caption browser cases, separate 4K playback
+and 52 sampled poster/video images. All source-frame redactions pass with
+zero problems, residual paths or changed pixels outside their fitted boxes.
+The original media and reports remain preserved. Candidate
+release-candidate-append-y1yawu76 preserves the other 83 lessons, re-verifies
+all 54 current narration tracks, passes playback on all 85 ready routes and
+observes both placeholder-guard mutations fail. Upload/readback is currently
+live on a new media branch; no new hosted revision is claimed published here.
+Tutorials 08/37/38/14, final publication and remaining GPU acceptance stay
+open. Native-speaker signoff and final protected CI green are not claimed.

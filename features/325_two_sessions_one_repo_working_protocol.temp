@@ -17646,3 +17646,22 @@ The CPU lane has integrated the new submodules Series-name collision
 coverage test and the real Annotate similarity-status timing repair in its
 isolated worktree. A new tested source checkpoint follows. Current protected
 run is still in progress with known failures; no green verdict is claimed.
+
+
+2026-10-05 — WORKSTATION ALL-NINE API ACCEPTANCE CHECKPOINT
+All nine source-current API catalogs pass complete strict audits at 13,177
+symbols. Eight regenerated catalogs each preserve 13,126 complete records,
+refresh 50 and add one; French is unchanged. The strict all-language Sphinx
+build, 36 actual-page locale browser cases and exhaustive frontend checks
+pass. The full test cohort passes 187 with one stale README expected failure;
+the repaired exact 19-tile/alpha-exclusion pin then passes that complete
+nine-language alt-text test. No generated README, semantic threshold or
+coverage guard was weakened. Receipt: 615_api_completion_2026-10-05.json.
+
+The redacted Home/Alpha publication candidate passes all 85 ready routes and
+both placeholder mutation probes; its normal upload/readback is live on a
+new immutable-media branch. Do not start duplicate publication or API repair.
+Current-source Home/Alpha frames/audio and the 83 untouched lessons are
+preserved. Other tutorial refreshes and GPU acceptance remain workstation
+work. Home keeps CPU/Qt/CI. No GPU turn is running or queued here; live_cell
+and cellposeTIME retain their separate owner. No final protected CI green.

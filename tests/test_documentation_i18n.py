@@ -4173,15 +4173,16 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         for alt in canonical_alt
         if (match := re.fullmatch(r"Open the (.+) API", alt)) is not None
     ]
-    # 1d5a80f78 replaced four assay tiles with three organism entry points.
-    # Pin their identities and order, not the obsolete 22-tile count.
+    # e86e25966 gates Plasmodium and Candida behind Show alpha species.
+    # The ordinary README grid therefore has 19 tiles, retaining Toxoplasma.
+    # Pin every visible identity and its order; alpha species stay excluded.
     assert module_names == [
         "Mask", "Measure", "Annotate", "Classify", "Map Barcodes", "Regression",
         "Import", "Embeddings", "Run Compare", "Experiment Design",
         "Power / Design", "Dose–Response", "QC", "Make Masks", "Align & Stitch",
         "Image UMAP", "Gate Editor", "Graph Builder", "Toxoplasma",
-        "Plasmodium spp.", "Candida spp.",
     ]
+    assert not any("Plasmodium" in alt or "Candida" in alt for alt in canonical_alt)
     readme_root = ROOT / "docs" / "i18n" / "readme"
     for language in ("de", "es", "fr", "hi", "is", "ko", "pt", "sv", "zh_CN"):
         text = (readme_root / f"README.{language}.rst").read_text(
