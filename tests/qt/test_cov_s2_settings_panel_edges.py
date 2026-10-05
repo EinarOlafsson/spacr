@@ -219,7 +219,9 @@ class TestReadingTheControlsTheVisibilityRuleNeeds:
         value the run will actually use is the default, so that is what the
         rule is given rather than an exception on the GUI thread.
         """
-        panel = sm.SettingsWidgets("mask")
+        owner = QWidget()
+        qtbot.addWidget(owner)
+        panel = sm.SettingsWidgets("mask", parent=owner)
         panel.build_sections()
         key = next(name for name in panel._object_visibility_keys()
                    if name in panel._widgets)
@@ -232,7 +234,9 @@ class TestReadingTheControlsTheVisibilityRuleNeeds:
 
     def test_a_key_this_app_does_not_have_is_not_an_error(self, qtbot):
         """The rule is shared by every screen; not every screen has the key."""
-        panel = sm.SettingsWidgets("mask")
+        owner = QWidget()
+        qtbot.addWidget(owner)
+        panel = sm.SettingsWidgets("mask", parent=owner)
         panel.build_sections()
         controls_before = dict(panel._widgets)
 
