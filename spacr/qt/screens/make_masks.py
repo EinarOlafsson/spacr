@@ -10714,6 +10714,8 @@ class MakeMasksScreen(QWidget):
         :param keep: True for Keep, False for Discard.
         :returns: the CSV's path, or None when there was nothing to record.
         """
+        if not self._save_boxes_if_needed():
+            return None
         image_path, mask_path = self._curation_paths()
         if image_path is None:
             self._show_curation_verdict(None)
