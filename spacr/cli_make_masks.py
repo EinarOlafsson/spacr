@@ -252,7 +252,7 @@ def open_editor(queue: CurationQueue) -> int:
     except ImportError as exc:                           # pragma: no cover
         hand_over(None)
         print(f"the Qt interface could not be imported ({exc}); install it "
-              f"with: pip install 'spacr[qt]'", file=sys.stderr)
+              f"with: pip install spacr", file=sys.stderr)
         return EXIT_NO_GUI
     return int(run(["make_masks"]))
 

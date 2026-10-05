@@ -84,13 +84,9 @@ if not HAVE_PYQTGRAPH:  # pragma: no cover - exercised by the absence test
     pg = _Absorbs()
 
 
-#: What the user is told, and what they can do about it. Names the EXTRA the
-#: way NAPARI_MISSING_MESSAGE does, rather than the bare distribution: a
-#: `pip install pyqtgraph` into an environment installed from an extra is how
-#: people end up with a package the next upgrade quietly removes again.
 PYQTGRAPH_MISSING_MESSAGE = (
     "Interactive plots need pyqtgraph.\n\n"
-    "Install it with  pip install 'spacr[qt]'  and reopen this module.\n\n"
+    "Install it with python -m pip install spacr, then reopen this module.\n\n"
     "Everything else works without it: the run still produces every figure, "
     "and they appear on the grid above the console.")
 

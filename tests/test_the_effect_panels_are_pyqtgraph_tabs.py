@@ -768,7 +768,7 @@ def test_both_panels_build_and_speak_with_pyqtgraph_absent():
         print('RANK', rank.set_results(frame))
         print('DIST', dist.set_effects(frame['coefficient']))
         said = ' '.join(w.text() for w in rank.findChildren(QLabel))
-        print('SAYS', 'pyqtgraph' in said, 'spacr[qt]' in said)
+        print('SAYS', 'pyqtgraph' in said, 'pip install spacr' in said)
     """)
     out = subprocess.run([sys.executable, "-c", script], capture_output=True,
                          text=True, timeout=900)

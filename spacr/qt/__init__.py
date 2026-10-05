@@ -252,21 +252,15 @@ def _quiet_gtk_accessibility() -> None:
     """
     os.environ.setdefault("NO_AT_BRIDGE", "1")
 
-#: Distributions that only `pip install "spacr[qt]"` brings in. PySide6 is
-#: declared in the `qt` extra (setup.py), *not* in core, so a plain
-#: `pip install spacr` followed by `spacr` used to die on an unhandled
-#: `ImportError: No module named 'PySide6'` raised six frames deep inside
-#: `spacr/qt/app.py`. shiboken6 is PySide6's binding runtime and fails the
-#: same way when a wheel is half-installed.
 _QT_EXTRA_MODULES = frozenset({"PySide6", "shiboken6", "qtawesome"})
 
 _QT_MISSING_MESSAGE = """\
-spaCR's graphical interface needs the optional Qt extra, which is not
-installed in this environment (missing module: {module}).
+spaCR's graphical interface cannot import a required Qt dependency
+(missing module: {module}).
 
 Install it with:
 
-    python -m pip install "spacr[qt]"
+    python -m pip install spacr
 
 Then run `spacr` again.
 
@@ -277,9 +271,10 @@ No display available? The pipelines run headless without Qt:
 
 
 def _missing_qt_extra(exc: ImportError) -> str | None:
-    """Identify the Qt-extra distribution whose absence raised ``exc``.
+    """Identify the known Qt module whose absence raised ``exc``.
 
-    Only failures that name a module from :data:`_QT_EXTRA_MODULES` count.
+    PySide6 and qtawesome are core dependencies; shiboken6 is PySide6's
+    binding runtime. Only failures naming one of these modules count.
     Anything else is a genuine bug inside the GUI package and must keep its
     traceback rather than be reported as a missing install.
 
@@ -288,7 +283,7 @@ def _missing_qt_extra(exc: ImportError) -> str | None:
 
     Returns:
         The top-level module name to name in the install hint, or ``None``
-        when ``exc`` is unrelated to the Qt extra.
+        when ``exc`` is unrelated to these Qt dependencies.
     """
     root = (getattr(exc, "name", None) or "").split(".", 1)[0]
     if root in _QT_EXTRA_MODULES:
@@ -362,7 +357,7 @@ def run(argv: list[str] | None = None) -> int:
 
     Returns:
         The exit code returned by `QApplication.exec()`, or ``1`` when the
-        optional Qt extra is not installed.
+        required Qt dependency cannot be imported.
     """
     _prefer_a_context_the_shaders_can_run_on()
     if argv is None:

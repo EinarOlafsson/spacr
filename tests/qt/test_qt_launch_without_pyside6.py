@@ -1,12 +1,11 @@
-"""`pip install spacr` (no ``[qt]`` extra) then `spacr` must explain itself.
+"""A damaged install missing a core Qt dependency must explain itself.
 
-PySide6 is declared only in the ``qt`` extra (``setup.py``), but the ``spacr``
-console script points straight at :func:`spacr.qt.run`, which imported
-``spacr.qt.app`` unguarded. On a core-only install that surfaced as a raw
+PySide6 is a core dependency, but the ``spacr`` console script points at
+:func:`spacr.qt.run`. An incomplete install once surfaced as a raw
 ``ModuleNotFoundError: No module named 'PySide6'`` with a traceback through
-library internals, and no hint that an extra exists.
+library internals, with no useful repair hint.
 
-The subprocess test at the bottom reproduces that install for real — a fresh
+The subprocess test at the bottom reproduces that failure — a fresh
 interpreter in which ``PySide6`` genuinely cannot be imported — and drives the
 same entry point the console script does.
 """
@@ -72,7 +71,7 @@ def test_missing_pyside6_prints_the_install_command_instead_of_a_traceback(
 
     captured = capsys.readouterr()
     assert captured.out == ""
-    assert 'python -m pip install "spacr[qt]"' in captured.err
+    assert 'python -m pip install spacr' in captured.err
     assert "PySide6" in captured.err
     assert "Traceback" not in captured.err
 
@@ -93,7 +92,7 @@ def test_a_missing_qt_submodule_is_still_reported_as_the_qt_extra(
         ModuleNotFoundError("No module named 'PySide6.QtCore'", name="PySide6.QtCore")
     )
     assert qt.run([]) == 1
-    assert 'pip install "spacr[qt]"' in capsys.readouterr().err
+    assert 'pip install spacr' in capsys.readouterr().err
 
 
 @pytest.mark.parametrize("module", ["PySide6", "shiboken6", "qtawesome"])
@@ -124,7 +123,7 @@ def test_an_import_error_without_a_name_falls_back_to_the_message(
     """Import hooks and hand-raised ImportErrors leave ``.name`` unset."""
     break_app_import(ImportError("cannot import name 'QtCore' from 'PySide6'"))
     assert qt.run([]) == 1
-    assert 'pip install "spacr[qt]"' in capsys.readouterr().err
+    assert 'pip install spacr' in capsys.readouterr().err
 
 
 def test_a_nameless_unrelated_import_error_still_propagates(break_app_import):
@@ -176,7 +175,7 @@ def test_an_import_error_raised_during_launch_is_not_swallowed(monkeypatch):
     """A lazy import failing mid-run is a real error, not a missing extra.
 
     If the ``try`` block had wrapped ``launch(argv)`` too, this would print
-    "install spacr[qt]" for a bug that has nothing to do with the extra.
+    "install spacr" for a bug unrelated to the known Qt dependencies.
     """
     from types import ModuleType
 
@@ -214,8 +213,8 @@ _REPRO = textwrap.dedent(
 )
 
 
-def test_core_only_install_exits_cleanly_with_an_actionable_message(tmp_path):
-    script = tmp_path / "core_only_spacr.py"
+def test_broken_qt_install_exits_cleanly_with_an_actionable_message(tmp_path):
+    script = tmp_path / "broken_qt_spacr.py"
     script.write_text(_REPRO, encoding="utf-8")
 
     proc = subprocess.run(
@@ -229,13 +228,13 @@ def test_core_only_install_exits_cleanly_with_an_actionable_message(tmp_path):
 
     assert proc.returncode == 1, proc.stderr
     assert "Traceback" not in proc.stderr
-    assert 'python -m pip install "spacr[qt]"' in proc.stderr
+    assert 'python -m pip install spacr' in proc.stderr
     assert "PySide6" in proc.stderr
 
 
 def test_version_still_answers_without_qt_installed(tmp_path):
-    """`spacr --version` must not need the GUI extra at all."""
-    script = tmp_path / "core_only_version.py"
+    """`spacr --version` still answers when Qt modules cannot import."""
+    script = tmp_path / "without_qt_version.py"
     script.write_text(
         _REPRO.replace("spacr.qt.run([])", 'spacr.qt.run(["--version"])'),
         encoding="utf-8",

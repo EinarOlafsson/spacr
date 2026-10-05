@@ -1,4 +1,4 @@
-"""pyqtgraph is optional, so its absence must cost the plots and nothing else.
+"""A missing pyqtgraph wheel must cost the plots and nothing else.
 
 Reported from a real install on 2026-08-17: a machine with PySide6 and no
 pyqtgraph could not open ANY module. The traceback ran
@@ -16,8 +16,8 @@ The message it raised made it worse: "or use the matplotlib figures" named a
 fallback that does not exist. Telling a user there is another way and then
 dying is worse than dying.
 
-Two causes, both fixed and both pinned here: pyqtgraph was not a declared
-dependency at all, and the widget raised instead of degrading.
+Two causes, both fixed and both pinned here: pyqtgraph was once undeclared,
+and the widget raised instead of degrading. It now ships as a core dependency.
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ pytestmark = pytest.mark.qt
 # --------------------------------------------------------------------------- #
 
 def test_pyqtgraph_is_a_declared_dependency():
-    """`pip install spacr[qt]` must bring the interactive plots with it.
+    """A plain `pip install spacr` must bring interactive plots with it.
 
     The comment at the top of setup.py records pyqtgraph being REMOVED as a
     second, unused Qt binding -- true when written, since nothing imported
@@ -54,7 +54,9 @@ def test_pyqtgraph_is_a_declared_dependency():
     source = pathlib.Path(spacr.__file__).parent.parent / "setup.py"
     text = source.read_text()
     assert "pyqtgraph" in text
-    # In the extra that also carries PySide6 -- the same install situation.
+    core = text.split("dependencies = [", 1)[1].split("\n]", 1)[0]
+    assert "pyqtgraph" in core, core
+    # The compatibility extra still resolves for older installation commands.
     qt_extra = text.split("'qt': [", 1)[1].split("],", 1)[0]
     assert "pyqtgraph" in qt_extra, qt_extra
 
@@ -143,14 +145,11 @@ def test_it_says_what_is_missing_and_how_to_fix_it():
         panel = RegressionResultsPanel()
         texts = ' '.join(w.text() for w in panel.volcano.findChildren(QLabel))
         print('SAYS', 'pyqtgraph' in texts)
-        print('EXTRA', 'spacr[qt]' in texts)
+        print('PACKAGE', 'pip install spacr' in texts)
         print('NO_PHANTOM_FALLBACK', 'matplotlib figures' not in texts)
     """)
     assert "SAYS True" in out
-    # Names the EXTRA, not the bare distribution: a bare `pip install
-    # pyqtgraph` into an env installed from an extra is removed again on the
-    # next upgrade.
-    assert "EXTRA True" in out
+    assert "PACKAGE True" in out
     # And it does not offer the fallback that does not exist.
     assert "NO_PHANTOM_FALLBACK True" in out
 

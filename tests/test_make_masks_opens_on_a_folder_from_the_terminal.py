@@ -24,6 +24,7 @@ Everything here is Qt-free. The screen half of the seam --
 from __future__ import annotations
 
 import ast
+import builtins
 import subprocess
 import sys
 import textwrap
@@ -455,6 +456,27 @@ def test_open_editor_hands_the_queue_over_and_then_starts_the_gui(nested,
     assert cli_make_masks.open_editor(queue) == 0
     assert seen["argv"] == ["make_masks"]
     assert seen["queue"] is queue
+    assert cli_make_masks.take_handover() is None
+
+
+def test_editor_import_failure_names_the_plain_install_and_clears_handover(
+        monkeypatch, capsys):
+    """A damaged core Qt install leaves no stranded queue or extra-only hint."""
+    actual_import = builtins.__import__
+
+    def no_qt(name, globals=None, locals=None, fromlist=(), level=0):
+        if (name == "qt" and level == 1 and globals is not None
+                and globals.get("__name__") == "spacr.cli_make_masks"):
+            raise ImportError("missing PySide6")
+        return actual_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(cli_make_masks, "has_display", lambda: True)
+    monkeypatch.setattr(builtins, "__import__", no_qt)
+    assert cli_make_masks.open_editor(object()) == cli_make_masks.EXIT_NO_GUI
+    error = capsys.readouterr().err
+    assert "missing PySide6" in error
+    assert "pip install spacr" in error
+    assert "spacr[qt]" not in error
     assert cli_make_masks.take_handover() is None
 
 

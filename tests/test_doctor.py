@@ -630,7 +630,7 @@ def test_spacr_package_check_fails_when_the_import_dies(ctx, monkeypatch):
     monkeypatch.setattr(doctor, "_import_spacr", explode)
     row = doctor.check_spacr_package(ctx)
     assert row.status == FAIL
-    assert 'pip install "spacr[qt]"' in row.fix
+    assert 'pip install "spacr"' in row.fix
 
 
 def test_spacr_package_check_warns_about_a_namespace_leftover(ctx, monkeypatch):
@@ -781,7 +781,7 @@ def test_duplicate_installs_skips_when_nothing_is_importable(ctx, monkeypatch):
     monkeypatch.setattr(doctor, "_importable_spacr_dirs", lambda: [])
     row = doctor.check_duplicate_installs(ctx)
     assert row.status == SKIP
-    assert 'pip install "spacr[qt]"' in row.fix
+    assert 'pip install "spacr"' in row.fix
 
 
 def test_distributions_check_passes_with_a_single_metadata_dir(ctx, monkeypatch):
@@ -843,7 +843,7 @@ def test_distributions_check_warns_when_spacr_is_not_installed(ctx, monkeypatch)
     monkeypatch.setattr(doctor, "_spacr_distributions", lambda: [])
     row = doctor.check_conflicting_distributions(ctx)
     assert row.status == WARN
-    assert 'pip install "spacr[qt]"' in row.fix
+    assert 'pip install "spacr"' in row.fix
 
 
 # ---------------------------------------------------------------------------
@@ -907,7 +907,7 @@ def test_console_scripts_check_skips_without_an_installed_distribution(
     monkeypatch.setattr(importlib.metadata, "distribution", explode)
     row = doctor.check_console_scripts(ctx)
     assert row.status == SKIP
-    assert 'pip install "spacr[qt]"' in row.fix
+    assert 'pip install "spacr"' in row.fix
 
 
 def test_path_check_passes_when_the_command_is_this_environment(ctx, monkeypatch):
@@ -950,10 +950,10 @@ def test_import_qt_app_helper_either_returns_launch_or_raises_importerror():
     assert callable(launch)
 
 
-def test_qt_extra_check_reports_the_missing_extra_with_the_install_command(
+def test_qt_extra_check_reports_the_missing_dependency_with_the_install_command(
     ctx, monkeypatch
 ):
-    """The plain `pip install spacr` then `spacr` failure, diagnosed."""
+    """A broken core Qt install gets an actionable repair hint."""
 
     def explode():
         raise ModuleNotFoundError("No module named 'PySide6'", name="PySide6")
@@ -962,7 +962,7 @@ def test_qt_extra_check_reports_the_missing_extra_with_the_install_command(
     row = doctor.check_qt_extra(ctx)
     assert row.status == FAIL
     assert "PySide6" in row.message
-    assert 'pip install "spacr[qt]"' in row.fix
+    assert 'pip install spacr' in row.fix
     assert "spacr-run --list" in row.fix  # the headless escape hatch
 
 
@@ -975,7 +975,7 @@ def test_qt_extra_check_keeps_an_unrelated_import_error_distinct(ctx, monkeypatc
     monkeypatch.setattr(doctor, "_import_qt_app", explode)
     row = doctor.check_qt_extra(ctx)
     assert row.status == FAIL
-    assert "unrelated to the optional extra" in row.message
+    assert "unrelated to the known Qt dependencies" in row.message
     assert row.fix == doctor._CRASH_FIX
 
 

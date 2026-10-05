@@ -13,11 +13,10 @@ The checks exist because these failures actually happened:
   Editing checkout A while ``import spacr`` resolves to checkout B costs hours
   before anyone thinks to print ``spacr.__file__``. :func:`check_running_checkout`
   is the single most valuable function in this module.
-* **A missing optional extra.** PySide6 lives in the ``qt`` extra, not in the
-  core dependencies, so a plain ``pip install spacr`` used to install a
-  ``spacr`` command that died on an unhandled ``ImportError`` six frames deep.
-  :mod:`spacr.qt` already grew the friendly path for that; :func:`check_qt_extra`
-  reuses its logic rather than writing a second copy that can drift.
+* **A broken GUI dependency install.** PySide6 ships with the core package,
+  but a missing or incomplete wheel can still make the ``spacr`` command
+  fail on import. :mod:`spacr.qt` has a friendly path for that;
+  :func:`check_qt_extra` reuses its logic so the two cannot drift.
 * **A GPU that is present but unusable.** A CPU-only torch build on a machine
   with an NVIDIA card, or a driver older than the CUDA runtime torch was built
   against, both present as "cuda not available" and have entirely different
@@ -554,7 +553,7 @@ def check_python(ctx: Context) -> Result:
             f"Python {running} is outside spaCR's supported range ({declared}).",
             fix=(
                 "conda create -n spacr python=3.12 -y && conda activate spacr && "
-                'python -m pip install "spacr[qt]"'
+                'python -m pip install "spacr"'
             ),
             details=(f"interpreter: {sys.executable}",),
         )
@@ -591,7 +590,7 @@ def check_spacr_package(ctx: Context) -> Result:
             "spacr package",
             FAIL,
             f"`import spacr` failed: {type(exc).__name__}: {exc}",
-            fix='python -m pip install "spacr[qt]"',
+            fix='python -m pip install "spacr"',
         )
     root = _package_root(spacr)
     version = getattr(spacr, "__version__", "unknown")
@@ -601,7 +600,7 @@ def check_spacr_package(ctx: Context) -> Result:
             WARN,
             "spacr imported but has no __file__, so it cannot be located on "
             "disk (a namespace package left behind by a half-removed install?).",
-            fix="python -m pip uninstall -y spacr && python -m pip install \"spacr[qt]\"",
+            fix="python -m pip uninstall -y spacr && python -m pip install \"spacr\"",
         )
     if version == "unknown":
         return Result(
@@ -743,7 +742,7 @@ def check_duplicate_installs(ctx: Context) -> Result:
             "duplicate installs",
             SKIP,
             "No spacr package directory is reachable from sys.path.",
-            fix='python -m pip install "spacr[qt]"',
+            fix='python -m pip install "spacr"',
         )
     if len(directories) == 1:
         return Result(
@@ -761,7 +760,7 @@ def check_duplicate_installs(ctx: Context) -> Result:
         fix=(
             "python -m pip uninstall -y spacr\n"
             "# repeat until pip says it is not installed, then reinstall once:\n"
-            'python -m pip install "spacr[qt]"'
+            'python -m pip install "spacr"'
         ),
         details=tuple(listed.splitlines()),
     )
@@ -790,7 +789,7 @@ def check_conflicting_distributions(ctx: Context) -> Result:
             "distributions",
             WARN,
             "Neither `spacr` nor `spacr-nightly` is installed as a distribution.",
-            fix='python -m pip install "spacr[qt]"',
+            fix='python -m pip install "spacr"',
         )
     if len(present) == 1:
         name, version, location = present[0]
@@ -812,7 +811,7 @@ def check_conflicting_distributions(ctx: Context) -> Result:
             "share the same `spacr` package directory and overwrite each other.",
             fix=(
                 "python -m pip uninstall -y spacr spacr-nightly\n"
-                'python -m pip install "spacr[qt]"'
+                'python -m pip install "spacr"'
             ),
             details=listed,
         )
@@ -825,7 +824,7 @@ def check_conflicting_distributions(ctx: Context) -> Result:
         "working directory.",
         fix=(
             "\n".join(f'rm -rf "{path}"' for path in stale)
-            or 'python -m pip install --force-reinstall "spacr[qt]"'
+            or 'python -m pip install --force-reinstall "spacr"'
         ),
         details=listed,
     )
@@ -857,7 +856,7 @@ def check_console_scripts(ctx: Context) -> Result:
             SKIP,
             f"No installed spaCR distribution to read entry points from "
             f"({type(exc).__name__}).",
-            fix='python -m pip install "spacr[qt]"',
+            fix='python -m pip install "spacr"',
         )
     scripts = [ep for ep in entry_points if ep.group == "console_scripts"]
     if not scripts:
@@ -865,7 +864,7 @@ def check_console_scripts(ctx: Context) -> Result:
             "console scripts",
             WARN,
             "The installed spaCR distribution declares no console scripts.",
-            fix='python -m pip install --force-reinstall "spacr[qt]"',
+            fix='python -m pip install --force-reinstall "spacr"',
         )
     broken: List[str] = []
     for entry in scripts:
@@ -882,7 +881,7 @@ def check_console_scripts(ctx: Context) -> Result:
             FAIL,
             f"{len(broken)} of {len(scripts)} installed commands point at "
             "modules that do not exist; running them raises ImportError.",
-            fix='python -m pip install --force-reinstall "spacr[qt]"',
+            fix='python -m pip install --force-reinstall "spacr"',
             details=tuple(broken),
         )
     return Result(
@@ -939,11 +938,11 @@ def _import_qt_app() -> Any:
 
 @_register("qt extra")
 def check_qt_extra(ctx: Context) -> Result:
-    """The GUI's optional extra is installed.
+    """The GUI dependencies import in this interpreter.
 
     Reuses :mod:`spacr.qt`'s own diagnosis — ``_missing_qt_extra`` and
-    ``_QT_MISSING_MESSAGE`` — rather than restating which distributions are in
-    the extra, so the two cannot drift apart.
+    ``_QT_MISSING_MESSAGE`` — rather than restating which distributions the
+    GUI needs. The legacy ``qt extra`` report key stays stable for consumers.
 
     :param ctx: not read. The check imports the real GUI entry point, which
         means it is the one check that pays for importing PySide6, and it
@@ -962,7 +961,7 @@ def check_qt_extra(ctx: Context) -> Result:
                 "qt extra",
                 FAIL,
                 f"The Qt GUI failed to import for a reason unrelated to the "
-                f"optional extra: {exc}",
+                f"known Qt dependencies: {exc}",
                 fix=_CRASH_FIX,
             )
         return Result(
@@ -1776,7 +1775,7 @@ def _database_schema_rows(path: Path) -> List[Result]:
                 f"installation supports up to {CURRENT_SCHEMA_VERSION}. It was "
                 "written by a newer spaCR.",
                 fix=(
-                    'python -m pip install --upgrade "spacr[qt]"   # never '
+                    'python -m pip install --upgrade "spacr"   # never '
                     "downgrade the database file"
                 ),
             )
