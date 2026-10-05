@@ -1593,6 +1593,10 @@ serial Qt acceptance remains open as recorded above.
   reduced that test boundary to zero, with 55 adjacent tests passing.
   The UMAP greying test also left its RowExclusionEditor schema JobRunner
   busy; calling the editor's shutdown after the assertion removed the
-  warning, and its full 105-test file passes. These are bounded ownership
-  findings. The original-order serial Qt run still needs an uninterrupted
-  guarded summary before this item can be marked done.
+  warning, and its full 105-test file passes. A further Mask-panel test
+  file retained 937 widgets at the next file boundary; owning its panels
+  reduced that count to zero. Its unrelated visibility tests also started
+  a GPU-discovery child process, which the file now isolates; a traced
+  44-test run starts no child and reports no lingering process. These are
+  bounded ownership findings. The original-order serial Qt run still needs
+  an uninterrupted guarded summary before this item can be marked done.
