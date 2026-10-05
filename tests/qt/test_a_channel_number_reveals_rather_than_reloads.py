@@ -190,6 +190,9 @@ def test_raising_two_to_three_keeps_slots_one_and_two(mask_window, qtbot,
         assert model._widgets.built(name) is widget, f"{name} was rebuilt"
     assert len([k for k in model._widgets
                 if k.startswith("organellec_")]) > 20
+    assert all(section.parentWidget() is not None
+               for section in screen._settings_sections), (
+        "spawned categories must remain owned by the screen")
 
 
 def test_the_new_slot_has_a_captioned_channel_on_the_form(mask_window, qtbot,

@@ -3797,7 +3797,7 @@ class AppScreen(QWidget):
 
     def _titled_heading(self, spec, title: str):
         """A new, empty heading for ``spec``: title, maturity and blurb."""
-        section = Section(title)
+        section = Section(title, self)
         section.setProperty("settingsCategorySource", title)
         section.set_maturity(
             settings_section_maturity(self.app_key, title)
