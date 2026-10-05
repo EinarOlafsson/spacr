@@ -82,6 +82,29 @@ def test_ranking_results_respect_blind_order_and_changed_fields(screen,  # noqa:
     assert "open fields changed" in screen._status_label.text()
 
 
+def test_one_unreadable_field_does_not_discard_the_other_scores(
+        screen, monkeypatch, caplog):  # noqa: F811
+    import csv
+    from pathlib import Path
+
+    from spacr.qt.screens import make_masks as mm
+
+    load = mm.engine.load_image_and_mask
+
+    def read_field(folder, name, **layout):
+        if name == "doubtful.tif":
+            raise OSError("field unreadable")
+        return load(folder, name, **layout)
+
+    monkeypatch.setattr(mm.engine, "load_image_and_mask", read_field)
+    assert screen._on_rank_uncertainty(segment=_blind_corner, threaded=False)
+    assert screen._image_files == ["calm.tif", "doubtful.tif"]
+    with (Path(screen._folder) / "curate_uncertainty.csv").open(
+            newline="", encoding="utf-8") as handle:
+        assert [row["stem"] for row in csv.DictReader(handle)] == ["calm"]
+    assert "uncertainty of doubtful.tif could not be scored" in caplog.text
+
+
 def test_blind_helpers_without_their_buttons(screen, monkeypatch):  # noqa: F811
     screen._btn_blind = None
     screen._set_blind_checked(True)
