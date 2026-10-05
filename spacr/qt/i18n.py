@@ -3382,7 +3382,7 @@ _TERM_ROWS: Dict[str, tuple[str, ...]] = {
     "cluster weight": _row("klustervikt", "Clustergewicht", "peso de clúster", "聚类权重", "peso do cluster", "क्लस्टर भार", "클러스터 가중치", "vægi klasa", "poids des clusters"),
     "Loss": _row("Förlust", "Verlust", "Pérdida", "损失", "Perda", "हानि", "손실", "Tap", "Perte"),
     "Inference": _row("Inferens", "Inferenz", "Inferencia", "推理", "Inferência", "इंफरेंस", "추론", "Ályktun", "Inférence"),
-    "Storage": _row("Lagring", "Speicher", "Almacenamiento", "存储", "Armazenamento", "भंडारण", "저장", "Geymsla", "Stockage"),
+    "Storage": _row("Lagring", "Speicher", "Almacenamiento", "存储", "Armazenamento", "भंडारण", "저장소", "Geymsla", "Stockage"),
 }
 
 

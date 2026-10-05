@@ -230,13 +230,6 @@
     },
     {
       "table": "setting_labels",
-      "key": "cap",
-      "source": "Cap",
-      "source_sha256": "1257ac04471db97becf0cd70818dbd6e4437f11afefd321065f199a14d986cb9",
-      "translation": "Límite de objetos"
-    },
-    {
-      "table": "setting_labels",
       "key": "cell_diameter",
       "source": "Cell diameter",
       "source_sha256": "7c5447ae875c99702622be84a2b811e3370439bab2cb55183c395c26de355d83",
@@ -3638,7 +3631,15 @@
       "source": "Glm transform conflict",
       "source_sha256": "c8e634242635c2b8dd08f01a77d5c536c28cbb61a59155f6b929abea8a3d4729",
       "translation": "Conflicto de transformación del GLM"
+    },
+    {
+      "table": "setting_labels",
+      "key": "cap",
+      "source": "Cap",
+      "source_sha256": "1257ac04471db97becf0cd70818dbd6e4437f11afefd321065f199a14d986cb9",
+      "translation": "Límite de objetos"
     }
   ],
-  "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load."
+  "retirement_2026_10_04": "The glm_transform_conflict setting was retired (8456beae0); its source-bound reviews are kept here for history and no longer load.",
+  "retired_note": "2026-10-04 (rolling job): superseded for a meaning error the guide translators found (Cap read as a physical cap or roof, European Portuguese Partilhar, Icelandic infinitive buttons, ungrammatical Hindi Delete); the replacement is in 2026-10-04-runtime-meaning-fixes-rolling.json. Kept verbatim as evidence, not loaded."
 }
