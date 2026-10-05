@@ -823,23 +823,46 @@ def _watch_number(settings, key, default, minimum=0.0):
     return number
 
 
-def _watch_expected_channels(settings):
-    """How many channel files make one field complete.
+def _watch_source_channels(settings):
+    """Channel IDs needed before selected positions are stable without a map.
 
-    :param settings: the run settings; ``channels`` may be a list or its text.
-    :returns: the length of ``channels``, and 1 when it cannot be read.
+    Only confirmed numeric conventions with a documented channel origin are
+    accepted. Sorting source channels makes position ``n`` correspond to
+    origin + ``n`` once every preceding identity is present. A custom pattern
+    or channel name cannot establish that origin.
+
+    :param settings: watch settings with zero-based selected positions.
+    :returns: decimal channel IDs from the source origin through the highest
+        selected position.
+    :raises ValueError: when selected positions are invalid or the convention
+        cannot prove a numeric channel origin.
     """
     import ast
 
-    channels = settings.get('channels')
-    if isinstance(channels, str):
+    from .regex_infer import _metadata_zero_based
+
+    selected = settings.get('channels', [0, 1, 2, 3])
+    if isinstance(selected, str):
         try:
-            channels = ast.literal_eval(channels)
+            selected = ast.literal_eval(selected)
         except (ValueError, SyntaxError):
-            channels = None
-    if isinstance(channels, (list, tuple)) and channels:
-        return len(channels)
-    return 1
+            selected = None
+    if (not isinstance(selected, (list, tuple)) or not selected
+            or any(type(value) is not int or value < 0 for value in selected)
+            or len(set(selected)) != len(selected)):
+        raise ValueError('watch_folder: channels must be distinct non-negative '
+                         'zero-based positions.')
+    convention = str(settings.get('metadata_type', 'cellvoyager'))
+    known_numeric = {'cellvoyager', 'cq1', 'opera_phenix', 'imagexpress',
+                     'arrayscan', 'arrayscan_kinetic', 'micromanager_mda',
+                     'nikon_nis_xy'}
+    if (settings.get('custom_regex') not in (None, '', 'None')
+            or convention not in known_numeric):
+        raise ValueError('watch_folder: this raw filename convention has no '
+                         'documented numeric channel origin; provide a fixed '
+                         'conversion_map.csv before starting the watch.')
+    origin = 0 if 'chanID' in _metadata_zero_based(convention) else 1
+    return {str(origin + position) for position in range(max(selected) + 1)}
 
 
 def _watch_pattern(settings, extension, cache):
@@ -1864,7 +1887,8 @@ def _watch_ready_fields(context, now):
 
     Convert binds exact basenames, including every declared Z plane; relative
     folders are provenance only. Split companions and duplicate locations are
-    still rejected.
+    still rejected. Raw numeric conventions also wait for every channel ID
+    through the highest selected position.
     """
     seen, fields = context['seen'], context['ledger']['fields']
     groups = {}
@@ -1889,6 +1913,14 @@ def _watch_ready_fields(context, now):
                 print(f'watch_folder: {key} does not yet match its exact conversion-map '
                       f'companions; missing or unexpected files remain unprocessed.')
             continue
+        if manifest is None and all(channel is not None for _name, channel in members):
+            origin = context['source_origin']
+            if any(not str(channel).isdecimal() or int(channel) < origin
+                   for _name, channel in members):
+                raise ValueError(f'watch_folder: {key} has a channel ID below '
+                                 'the documented origin or a nonnumeric channel; '
+                                 'use the correct filename convention or a fixed '
+                                 'conversion_map.csv. Existing results are preserved.')
         parents = {os.path.dirname(name) for name, _channel in members}
         channels = {str(int(channel)) if str(channel).isdecimal() else channel
                     for _name, channel in members}
@@ -1922,8 +1954,9 @@ def _watch_ready_fields(context, now):
         if (key, repr(sorted(signature.items()))) in context['tried']:
             continue
         waiting += 1
-        if manifest is None and None not in channels and len(channels) < context['expected']:
-            continue
+        if manifest is None and None not in channels:
+            if not context['source_channels'] <= channels:
+                continue
         if any(now - seen[name]['changed'] < context['settle']
                for name, _channel in members):
             continue
@@ -2433,9 +2466,10 @@ def _watch_folder_and_analyse(settings, analyse=None):
 
     The folder ``src`` is scanned every ``watch_poll_seconds``. A file is
     ready once its size and modification time have not changed for
-    ``watch_settle_seconds`` and it reads whole; a field is ready once it has
-    a file for every entry of ``channels`` and all of them are ready. With a
-    fixed Convert map, every mapped channel and Z plane must be present.
+    ``watch_settle_seconds`` and it reads whole. With a fixed Convert map,
+    every mapped channel and Z plane must be present. Without a map, a known
+    numeric convention must supply the documented channel origin through the
+    highest selected position; an unknown origin is refused before output.
     Fields are told apart by the ``metadata_type`` or ``custom_regex`` filename
     pattern, and a file whose name carries no channel is a field by itself.
     Images already in the folder are analysed first.
@@ -2493,6 +2527,8 @@ def _watch_folder_and_analyse(settings, analyse=None):
     settings = deepcopy(dict(settings))
     _, mask_sha256 = _watch_mask_recipe(settings)
     manifest, map_sha256 = _watch_map_manifest(src, settings)
+    source_channels = (_watch_source_channels(settings)
+                       if manifest is None else None)
     measure_sha256 = None
     if pipeline in ('mask_measure', 'mask_measure_classify'):
         measure_recipe, measure_sha256 = _watch_measure_recipe(settings)
@@ -2548,7 +2584,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
     context = {'src': src, 'work': work, 'ledger': ledger,
                'ledger_path': ledger_path, 'settings': settings,
                'analyse': analyse or _watch_analyse_field, 'settle': settle,
-               'expected': _watch_expected_channels(settings), 'seen': {},
+               'source_channels': source_channels,
+               'source_origin': min(map(int, source_channels)) if source_channels else None,
+               'seen': {},
                'patterns': {}, 'tried': set(), 'warned': set(),
                'manifest': manifest, 'map_sha256': map_sha256,
                'microscope': None}

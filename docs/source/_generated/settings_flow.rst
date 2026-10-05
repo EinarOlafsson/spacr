@@ -2775,11 +2775,11 @@ channels
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         :py:func:`~spacr._v1_v2_bridge.v2_channels_from_settings` **-- reads it**
 |         ``_watch_folder_and_analyse``
-|             ``_watch_expected_channels`` **-- reads it**
 |             ``_watch_map_manifest``
 |                 ``_watch_validate_map_channels`` **-- reads it**
 |             ``_watch_measure_recipe``
 |                 ``_watch_measure_settings`` **-- reads it**
+|             ``_watch_source_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             :py:func:`~spacr.illumination.prepare_segmentation_illumination`
@@ -2865,7 +2865,7 @@ channels
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 
-Read by ``v2_channels_from_settings``, ``_watch_expected_channels``, ``_watch_measure_settings``, ``_watch_validate_map_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_channels``, ``describe_plan``.
+Read by ``v2_channels_from_settings``, ``_watch_measure_settings``, ``_watch_source_channels``, ``_watch_validate_map_channels``, ``preprocess_generate_masks``, ``apply_model_to_tar``, ``generate_activation_map``, ``run_import``, ``load_activation_data``, ``illumination_settings``, ``prepare_illumination_model``, ``_preprocess_volume_tiffs``, ``preprocess_img_data``, ``_cell_cycle_channel``, ``_classify_viability``, ``_confluency_channel``, ``_measure_crop_core``, ``_measure_field_confluency``, ``_measured_channel_column``, ``_morphological_measurements``, ``_with_distances``, ``_wound_plane``, ``measure_crop``, ``plot_region``, ``_prepare_measure_unmixing``, ``_compute_checked_crops``, ``_confluency_preview_settings``, ``_unmixed_crop_source``, ``_wound_preview_settings``, ``apply_settings``, ``get_analyze_plaque_settings``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``set_annotate_default_settings``, ``check_cellpose_models``, ``identify_masks_finetune``, ``_cellpose_training_arrays``, ``interpret_vision_model``, ``automated_motility_assay``, ``_check_channels``, ``describe_plan``.
 
 .. _setting-flow-checkpoint_path:
 
@@ -4464,6 +4464,7 @@ custom_regex
 |             ``_watch_map_manifest``
 |                 ``_watch_field_of``
 |                     ``_watch_pattern`` **-- reads it**
+|             ``_watch_source_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_volume_tiffs`` **-- reads it**
@@ -4517,7 +4518,7 @@ custom_regex
 |                 ``_candidate_patterns`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 
-Read by ``_watch_pattern``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``_candidate_patterns``.
+Read by ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_on_measure_clicked``, ``_candidate_patterns``.
 
 .. _setting-flow-cv_best_model_path:
 
@@ -11483,6 +11484,7 @@ metadata_type
 |             ``_watch_map_manifest``
 |                 ``_watch_field_of``
 |                     ``_watch_pattern`` **-- reads it**
+|             ``_watch_source_channels`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_volume_tiffs`` **-- reads it**
@@ -11549,7 +11551,7 @@ metadata_type
 |         ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_watch_pattern``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_on_measure_clicked``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
+Read by ``_watch_pattern``, ``_watch_source_channels``, ``preprocess_generate_masks``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``preprocess_img_data``, ``_localize_cloud_source``, ``_on_measure_clicked``, ``get_setting_dependencies``, ``_candidate_patterns``, ``_check_src``.
 
 .. _setting-flow-metadata_type_by:
 
@@ -24569,7 +24571,7 @@ Read by ``_watch_analyse_field``.
 watch_folder
 ------------
 
-(bool) - Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.
+(bool) - Watch src and analyse each field as its images arrive. A file must stop changing for watch_settle_seconds and read whole. A fixed conversion_map.csv requires every declared companion. Without a map, known numeric filename conventions require every channel from the documented first ID through the highest selected position; custom or named channels need a fixed map. Each field runs alone, like batch_size 1, and results collect in src/spacr_watch; its ledger skips completed fields on restart. Not for timelapse, z_stack or t_stack. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**

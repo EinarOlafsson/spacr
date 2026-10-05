@@ -541,3 +541,34 @@ POOLED NORMALISATION LATENCY LIMIT (2026-10-05, still open)
     fields. A timeout that releases a partial window would again change
     legacy batch results. Neither mode is implemented here; ordinary watch
     parity remains batch_size=1.
+
+RAW NUMERIC CHANNEL-POSITION GUARD (2026-10-05, partial)
+    Without conversion_map.csv, the watcher now uses the documented channel
+    origin of a small confirmed numeric metadata_type set rather than taking
+    len(channels) distinct filename tokens as proof of readiness. It waits
+    for every channel ID from that origin through the highest zero-based
+    selected position. Thus channels [0, 3] on a Yokogawa field require
+    C01..C04, not merely two arbitrary files; on an ArrayScan field they
+    require d0..d3. A missing intermediate channel cannot silently compact
+    raw stack positions. Invalid selected indices are refused before a new
+    watch workspace is created. Any channel below the documented origin or
+    nonnumeric channel in a numeric convention stops the watch, even when
+    expected IDs are also present; this prevents an extra source channel
+    from sorting ahead of selected positions. A restart still skips an
+    unchanged completed field.
+
+    The accepted no-map conventions are cellvoyager, cq1, opera_phenix,
+    imagexpress, arrayscan, arrayscan_kinetic, micromanager_mda and
+    nikon_nis_xy. Their first-channel convention is taken from the existing
+    regex_infer metadata table. Custom regexes, free-text channel names and
+    unknown conventions have no proven numeric origin and fail before output
+    with a diagnostic asking for a fixed Convert map. The map-backed path
+    and its channel/Z validation are unchanged. Real TIFF cases exercise
+    delayed intermediate channels, one-based C00 and named-channel refusal,
+    zero-based ArrayScan stack order, and resume.
+
+    This establishes selected positional identity only. It does not prove
+    acquisition completion for raw Z/T series or that later higher-numbered
+    channels cannot arrive; such fields still need a fixed map or a vendor
+    completion signal for full batch equivalence. Pooled normalisation and
+    real GPU acquisition acceptance remain open.

@@ -16,10 +16,13 @@ def test_numbers_default_when_blank_and_refuse_below_their_minimum():
         core._watch_number({"x": 0.5}, "x", 4.0, minimum=1.0)
 
 
-def test_unreadable_channel_lists_count_as_one_channel():
-    assert core._watch_expected_channels({"channels": "[0, 1"}) == 1
-    assert core._watch_expected_channels({"channels": []}) == 1
-    assert core._watch_expected_channels({"channels": "[0, 1]"}) == 2
+def test_raw_channel_positions_require_a_source_origin():
+    assert core._watch_source_channels({"channels": "[0, 3]"}) == {
+        "1", "2", "3", "4"}
+    with pytest.raises(ValueError, match="distinct non-negative"):
+        core._watch_source_channels({"channels": "[0, 1"})
+    with pytest.raises(ValueError, match="conversion_map.csv"):
+        core._watch_source_channels({"channels": [0], "metadata_type": "custom"})
 
 
 def test_an_unusable_filename_pattern_is_cached_as_none():
