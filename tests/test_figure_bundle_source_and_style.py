@@ -155,6 +155,22 @@ def test_recreated_histogram_keeps_the_saved_zoom():
     assert sum(patch.get_height() for patch in axes.patches) == len(frame)
 
 
+def test_recreated_horizontal_group_plot_keeps_numeric_measurements():
+    frame = pd.DataFrame({
+        "signal": [1.0, 2.0, 3.0, 4.0],
+        "class": ["control", "control", "treated", "treated"],
+    })
+    spec = {"kind": "box", "x": "signal", "y": "class"}
+    assert "box" in dict(bundle._kinds_for(frame, spec))
+
+    axes = bundle._draw(Figure(), frame, spec)
+
+    assert [tick.get_text() for tick in axes.get_yticklabels()] == [
+        "control", "treated",
+    ]
+    assert len(axes.patches) == 2
+
+
 def test_stale_group_annotation_is_omitted_when_recreating_filtered_data():
     frame = pd.DataFrame({
         "group": ["control", "control", "treated", "treated"],

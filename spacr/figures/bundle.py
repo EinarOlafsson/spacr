@@ -503,8 +503,15 @@ def _draw(figure, frame, spec):
                     "boxen", "box_strip", "bar_strip", "count")
     order = None
     if kind in groups_kinds and x and x in data.columns:
-        data[x] = data[x].astype(str)
-        order = [str(v) for v in (spec.get("order") or pd.unique(data[x]))]
+        horizontal = (y in data.columns
+                      and pd.api.types.is_numeric_dtype(data[x])
+                      and not pd.api.types.is_bool_dtype(data[x])
+                      and (not pd.api.types.is_numeric_dtype(data[y])
+                           or pd.api.types.is_bool_dtype(data[y])))
+        category = y if horizontal else x
+        data[category] = data[category].astype(str)
+        order = [str(v) for v in (spec.get("order")
+                                  or pd.unique(data[category]))]
     common = {"data": data, "x": x, "y": y, "ax": ax}
     if hue and hue in data.columns:
         common["hue"] = hue
