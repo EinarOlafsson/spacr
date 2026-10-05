@@ -1917,6 +1917,8 @@ class _MaskCanvas(QLabel):
         """Select, start drawing or remove an annotation without mask edits."""
         if not self.boxes_editable:
             return
+        if event.buttons() not in (Qt.LeftButton, Qt.RightButton):
+            return
         point = self._canvas_to_image(event.position().x(), event.position().y())
         if point is not None:
             point = QPoint(*point)
@@ -1926,6 +1928,7 @@ class _MaskCanvas(QLabel):
             return
         hit = self._box_hit((point.x(), point.y()) if point is not None else None)
         if event.button() == Qt.RightButton:
+            self._box_drag = self._box_preview = None
             if hit is not None:
                 del self.boxes[hit]
                 self.selected_box = None
@@ -2005,6 +2008,10 @@ class _MaskCanvas(QLabel):
             self.unsetCursor()
             return
         if self._box_drag is None:
+            return
+        if self._canvas_to_image(event.position().x(), event.position().y()) is None:
+            self._box_drag = self._box_preview = None
+            self.update()
             return
         self._box_move(event)
         _start, hit, original, _corner = self._box_drag
