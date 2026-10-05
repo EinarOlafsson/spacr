@@ -7,7 +7,7 @@ import pytest
 from PySide6.QtWidgets import QFileDialog, QInputDialog
 
 from spacr.qt import mask_engine as engine
-from spacr.qt.screens.make_masks import MODE_BOX, MakeMasksScreen
+from spacr.qt.screens.make_masks import MODE_BOX, MODE_DRAW, MakeMasksScreen
 
 
 @pytest.fixture
@@ -152,6 +152,11 @@ def test_save_and_export_without_an_open_field_never_show_a_picker(
     monkeypatch.setattr(QFileDialog, "getSaveFileName",
                         staticmethod(lambda *_args: calls.append("picker")))
     try:
+        original_mode = widget._canvas.mode
+        widget._set_mode(MODE_BOX)
+        assert widget._canvas.mode == original_mode
+        assert not widget._box_controls.isEnabled()
+        assert widget._on_add_box_class("orphan") is None
         assert widget._on_save_boxes() is None
         assert widget._on_export_yolo_boxes(str(tmp_path / "orphan.txt")) is None
         assert widget._on_export_yolo_boxes() is None
@@ -198,4 +203,10 @@ def test_unreadable_next_image_clears_the_previous_fields_boxes(opened):
     assert widget._box_field is None
     assert not widget._boxes_dirty
     assert not widget._box_history.can_undo()
+    assert not widget._box_controls.isEnabled()
+    assert widget._on_add_box_class("orphan") is None
+    assert not widget._boxes_dirty
+    widget._set_mode(MODE_DRAW)
+    widget._set_mode(MODE_BOX)
+    assert widget._canvas.mode == MODE_DRAW
     assert widget._on_save_boxes() is None
