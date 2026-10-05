@@ -376,3 +376,19 @@ API source-bound refresh is tracked in the integration follow-up.
     No device forcing, production change, alternative model, threshold
     tuning or weaker acceptance assertion. Queue via the normal shared
     GPU scheduler only after the item-325 handoff is pushed.
+
+2026-10-05 — NORMAL XLA EXECUTION NEEDS KERNEL-LEVEL OBSERVATION
+    r2 also fails the literal-op placement gate, finishing 22:00:33 UTC.
+    Raw stderr proves normal Keras prediction compiles a CUDA XLA cluster
+    and enters GPU StatefulPartitionedCall. Neither Conv2D nor Conv3D is
+    individually logged because the normal graph is compiled. A worker on
+    the card or compiled-cluster message alone still cannot close the
+    requirement that BOTH 2D and 3D convolutions execute on GPU.
+
+    The next announced r3 profile wrapper records normal TensorFlow kernel
+    events and XLA HLO dumps without changing prediction, model, compilation
+    or device configuration. Accepted cpu-r3 reproduces all six cpu-r1
+    masks exactly. gpu-r3 remains unaccepted until actual positive-duration
+    GPU events bind to both compiled convolution types. Paired IoU>=0.99,
+    genuine GPU worker and all frozen source/input/model hashes also remain
+    required. Preparation receipt: 551_stardist_profile_preparation_2026-10-05.json.

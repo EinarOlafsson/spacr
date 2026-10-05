@@ -18051,3 +18051,33 @@ covered after bounded positive-autosave/canvas/host-boundary deltas. The
 official Actions incident API reports operating normally at 21:54 UTC;
 use the source-current workstation artifact checkpoint for the next final
 verdict rather than claiming green from earlier cancelled/failed sources.
+
+2026-10-05 — XLA DIAGNOSIS; NEXT TURN CAPTURES ACTUAL GPU EXECUTION
+StarDist r2 finishes 22:00:33 UTC with rc=1; both individual convolution
+names are absent even after graceful close. Complete raw logs show normal
+Keras prediction entering GPU StatefulPartitionedCall, XLA CUDA compilation
+and loaded cuDNN. Individual op-placement text cannot observe fused XLA
+convolutions. The r1/r2 failures remain failures; no production behavior,
+model, device choice, compilation mode or acceptance scope is changed.
+
+Next single turn: 551-stardist-normal-xla-profile-r3. Exact private script:
+/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/
+benchmark_stardist_profile_r3.py; wrapper stardist_worker_profile_r3.py.
+The wrapper only enables TensorFlow's normal execution profiler and XLA
+HLO text dumps, then runs the unchanged normal worker. Accepted cpu-r3
+has all six masks byte-identical to cpu-r1. Output gpu-r3 initially records
+unaccepted inference evidence; it cannot become an accepted GPU benchmark
+until positive-duration GPU kernel events are bound to BOTH compiled
+Conv2D and Conv3D operations. Real worker PID, paired IoU>=0.99 and frozen
+source/input/model hashes remain required. Normal real-HOME six-minute idle,
+ten-minute gap and 8 GiB cap; queue only after this handoff is pushed.
+Receipt: 551_stardist_profile_preparation_2026-10-05.json. No duplicate turn.
+
+Docs publisher 37376120611 succeeds for 5467c13fb. Live static player hashes
+match current source after normal publication normalization; all six fresh
+lessons pass 390x844 touch/seek/narration readback against immutable media
+d8d275cc932a01d78185ba5cb6e41d586876aa75. Whole-library 85-route and API
+live readback are now running. F557's training-only raw-image size estimate
+finishes: fixed median 14.862803 px across 20 learned estimates. The normal
+raw/NLM/nuclear-restoration CPU comparison is live, not claimed scored.
+Home retains CPU/Qt/CI and source; all generated artifacts and GPU stay here.
