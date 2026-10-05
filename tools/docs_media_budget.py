@@ -61,7 +61,7 @@ from typing import Dict, List, Sequence, Tuple
 #: is what actually points the player at it, and this constant is what stops
 #: the build shipping a second copy nothing would request.
 NARRATION_HOST = (
-    "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/2785b7b9d91b42145e1a324aac00cd87686f5e2b")
+    "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/290e9e70174e13add3df25329e937ca52549e119")
 
 #: :data:`VOICES_PER_LANGUAGE` sentinel: publish no narration at all.
 NARRATION_EXTERNAL = -1

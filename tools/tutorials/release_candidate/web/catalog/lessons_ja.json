@@ -781,7 +781,7 @@
         },
         {
           "visual": "13c_appearance_theme",
-          "narration": "ThemeとAnimationは、Appearanceの中の折りたたまれたセクションです。Themeをクリックして開きます。インターフェースのテーマとページの不透明度、フィールドを右へフェードさせるかどうか、そしてウィンドウの縁取りの長さ、ポインターへの追従、配置、モード、周期を設定します。",
+          "narration": "ThemeとAnimationは、Appearanceの中の折りたたまれたセクションです。Themeをクリックして開きます。インターフェースのテーマとページの不透明度、フィールドを右へフェードさせるかどうか、そしてウィンドウの縁取りの長さ、ポインターへの追従、配置、モード、周期を設定します。Themeの一覧にはHigh contrastもあり、文字、コントロール、背景のコントラストを強めます。",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -789,7 +789,7 @@
             1200,
             1500
           ],
-          "speech_text": "ThemeとAnimationは、Appearanceの中の折りたたまれたセクションです。Themeをクリックして開きます。インターフェースのテーマとページの不透明度、フィールドを右へフェードさせるかどうか、そしてウィンドウの縁取りの長さ、ポインターへの追従、配置、モード、周期を設定します。"
+          "speech_text": "ThemeとAnimationは、Appearanceの中の折りたたまれたセクションです。Themeをクリックして開きます。インターフェースのテーマとページの不透明度、フィールドを右へフェードさせるかどうか、そしてウィンドウの縁取りの長さ、ポインターへの追従、配置、モード、周期を設定します。Themeの一覧にはHigh contrastもあり、文字、コントロール、背景のコントラストを強めます。"
         },
         {
           "visual": "13d_appearance_animation",
@@ -802,6 +802,42 @@
             1500
           ],
           "speech_text": "代わりにAnimationをクリックして開きます。アニメーションする背景とそのパレットを選び、細かさ、ぼかし、速さ、大きさ、密度のスライダーのほか、設定のツールチップをアニメーションさせるかどうかや、設定の背後に表示する背景を決めます。"
+        },
+        {
+          "visual": "13e_session_updates",
+          "narration": "ModulesタブのSessionでは、起動時に最後のモジュール、設定、フォルダーを開き直すかどうかを決めます。この録画は新しい状態から始めています。Update channelでは安定版か夜間ビルドかを選び、ProxyとCertificate bundleを使うと、組織のプロキシの内側でもダウンロードできます。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            397
+          ],
+          "speech_text": "ModulesタブのSessionでは、起動時に最後のモジュール、設定、フォルダーを開き直すかどうかを決めます。この録画は新しい状態から始めています。Update channelでは安定版か夜間ビルドかを選び、ProxyとCertificate bundleを使うと、組織のプロキシの内側でもダウンロードできます。"
+        },
+        {
+          "visual": "13f_storage",
+          "narration": "Storageタブでは、毎日のログ、実行ログ、実行フォルダーをspaCRがどれだけの期間保持するかと、それぞれのサイズ上限を設定します。その下のキャッシュ一覧には、モデルやダウンロードの保存場所が表示され、キャッシュごとにClearとMoveがあります。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "Storageタブでは、毎日のログ、実行ログ、実行フォルダーをスペーカーがどれだけの期間保持するかと、それぞれのサイズ上限を設定します。その下のキャッシュ一覧には、モデルやダウンロードの保存場所が表示され、キャッシュごとにClearとMoveがあります。"
+        },
+        {
+          "visual": "13g_storage_prune",
+          "narration": "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "Prune nowは、確認せずに削除することはありません。実行フォルダーに短い例の上限を設定すると、各フォルダーで削除する対象を一覧にして返答を待ちます。Cancelをクリックすれば何も削除されません。"
         },
         {
           "visual": "00_home",
@@ -16696,6 +16732,12 @@
           "speech_text": "ほかのalphaの設定は実行を自動化します。複数のGPUでの同時セグメンテーション、顕微鏡が書き込んでいる最中の視野を解析する監視フォルダー、選んだ物体を顕微鏡に送り返すフィードバック、クラウドストレージ上の画像ソースです。"
         },
         {
+          "visual": "05b_watch_live_plate",
+          "narration": "フォルダー監視の実行中は、Console の下に Live plate カードが表示されます。最初は処理が完了した視野を待ち、その後、完了した視野の数に応じて各ウェルを色分けします。ここでプレートを選ぶと、結果が届くにつれて画像取得の進行を確認できます。",
+          "hold_after": 0.7,
+          "speech_text": "フォルダー監視の実行中は、Console の下に Live plate カードが表示されます。最初は処理が完了した視野を待ち、その後、完了した視野の数に応じて各ウェルを色分けします。ここでプレートを選ぶと、結果が届くにつれて画像取得の進行を確認できます。"
+        },
+        {
           "visual": "06_timelapse",
           "narration": "Timeをオンにすると、Mask generationでalphaのトラッキングが使えます。追加のトラッキングモード、分裂のつながりから作る系統樹、そして各トラックに沿って分裂や細胞死などのイベントを見つけるイベント検出器です。",
           "hold_after": 0.7,
@@ -16766,6 +16808,18 @@
             94
           ],
           "speech_text": "Make Masksの下の列にはalphaのツールが表示されます。モデルが最も自信のない物体を探すUncertainty、整理の間は条件の名前を隠すBlindモード、ROIの読み込みと書き出し、動画を通してのSAM2 tracking、そしてApply virtual stainです。"
+        },
+        {
+          "visual": "09b_model_zoo_alpha_models",
+          "narration": "Make MasksからはModel Zooも開けます。Scanを押すと、alpha機能がオンのときはalphaのバックエンドが一覧に出ます。StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics、CellProfilerで、その下にそれぞれのモデルが並びます。これらはまだ評価中の実験的なモデルなので、頼る前にマスクを確認してください。",
+          "hold_after": 0.7,
+          "focus": [
+            34,
+            571,
+            3762,
+            340
+          ],
+          "speech_text": "Make MasksからはModel Zooも開けます。Scanを押すと、alpha機能がオンのときはalphaのバックエンドが一覧に出ます。StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics、CellProfilerで、その下にそれぞれのモデルが並びます。これらはまだ評価中の実験的なモデルなので、頼る前にマスクを確認してください。"
         },
         {
           "visual": "10_workbench_virtual_stain",

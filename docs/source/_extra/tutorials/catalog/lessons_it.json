@@ -781,7 +781,7 @@
         },
         {
           "visual": "13c_appearance_theme",
-          "narration": "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo.",
+          "narration": "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo. L’elenco Theme offre anche High contrast, che aumenta il contrasto tra testo, controlli e sfondo.",
           "hold_after": 0.7,
           "focus": [
             1310,
@@ -789,7 +789,7 @@
             1200,
             1500
           ],
-          "speech_text": "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo."
+          "speech_text": "Theme e Animation sono sezioni ripiegate di Appearance. Fai clic su Theme per aprirla: imposta il tema dell’interfaccia e l’opacità della pagina, se i campi sfumano verso destra e il bordo della finestra, con la sua lunghezza, quanto segue il puntatore, l’allineamento, la modalità e il ciclo. L’elenco Theme offre anche High contrast, che aumenta il contrasto tra testo, controlli e sfondo."
         },
         {
           "visual": "13d_appearance_animation",
@@ -802,6 +802,42 @@
             1500
           ],
           "speech_text": "Fai clic invece su Animation per aprirla. Sceglie lo sfondo animato e la sua tavolozza, con cursori per dettaglio, sfocatura, velocità, dimensione e densità, se i suggerimenti delle impostazioni sono animati e lo sfondo mostrato dietro le impostazioni."
+        },
+        {
+          "visual": "13e_session_updates",
+          "narration": "Nella scheda Modules, Session decide se spaCR riapre all’avvio l’ultimo modulo, le impostazioni e la cartella; questa registrazione parte da zero. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            440,
+            1200,
+            397
+          ],
+          "speech_text": "Nella scheda Modules, Session decide se spàker riapre all’avvio l’ultimo modulo, le impostazioni e la cartella; questa registrazione parte da zero. Update channel sceglie versioni stabili o build notturne, e Proxy e Certificate bundle permettono i download dietro un proxy istituzionale."
+        },
+        {
+          "visual": "13f_storage",
+          "narration": "La scheda Storage imposta per quanto tempo spaCR conserva i log giornalieri, i log delle esecuzioni e le cartelle delle esecuzioni, con un limite di dimensione per ciascuno. Sotto, l’elenco delle cache mostra dove sono salvati modelli e download, con Clear e Move per ogni cache.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "La scheda Storage imposta per quanto tempo spàker conserva i log giornalieri, i log delle esecuzioni e le cartelle delle esecuzioni, con un limite di dimensione per ciascuno. Sotto, l’elenco delle cache mostra dove sono salvati modelli e download, con Clear e Move per ogni cache."
+        },
+        {
+          "visual": "13g_storage_prune",
+          "narration": "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla.",
+          "hold_after": 0.7,
+          "focus": [
+            1310,
+            290,
+            1200,
+            1500
+          ],
+          "speech_text": "Prune now non cancella mai senza chiedere. Con un limite di esempio breve per le cartelle delle esecuzioni, elenca cosa cancellerebbe in ogni cartella e attende una risposta. Fai clic su Cancel e non viene rimosso nulla."
         },
         {
           "visual": "00_home",
@@ -16696,6 +16732,12 @@
           "speech_text": "Altre impostazioni alpha automatizzano le esecuzioni: segmentazione su più GPU insieme, una cartella sorvegliata che analizza i campi mentre il microscopio li sta ancora scrivendo, un ritorno che rimanda al microscopio gli oggetti scelti e sorgenti di immagini nell’archiviazione cloud."
         },
         {
+          "visual": "05b_watch_live_plate",
+          "narration": "Quando è in corso il monitoraggio di una cartella, la scheda Live plate appare sotto Console. Prima attende i campi completati, poi colora ogni pozzetto in base al numero di campi la cui analisi è terminata. Scegli qui una piastra per seguire l’acquisizione mentre arrivano i risultati.",
+          "hold_after": 0.7,
+          "speech_text": "Quando è in corso il monitoraggio di una cartella, la scheda Live plate appare sotto Console. Prima attende i campi completati, poi colora ogni pozzetto in base al numero di campi la cui analisi è terminata. Scegli qui una piastra per seguire l’acquisizione mentre arrivano i risultati."
+        },
+        {
           "visual": "06_timelapse",
           "narration": "Con Time attivo, Mask generation offre il tracciamento alpha: altre modalità di tracciamento, alberi di discendenza costruiti dalle divisioni e un rilevatore di eventi che trova eventi come divisioni o morti lungo ogni traccia.",
           "hold_after": 0.7,
@@ -16766,6 +16808,18 @@
             94
           ],
           "speech_text": "Make Masks mostra strumenti alpha nelle file in basso: Uncertainty, per trovare gli oggetti di cui un modello è meno sicuro, la modalità Blind che nasconde i nomi delle condizioni durante la cura, importazione ed esportazione di ROI, SAM2 tracking lungo un filmato e Apply virtual stain."
+        },
+        {
+          "visual": "09b_model_zoo_alpha_models",
+          "narration": "Make Masks apre anche il Model Zoo. Premi Scan e, con le funzionalità alpha attive, elenca i backend alpha: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics e CellProfiler, con i loro modelli più in basso. Sono modelli sperimentali ancora in fase di valutazione, quindi controlla le loro maschere prima di affidarti a esse.",
+          "hold_after": 0.7,
+          "focus": [
+            34,
+            571,
+            3762,
+            340
+          ],
+          "speech_text": "Make Masks apre anche il Model Zoo. Premi Scan e, con le funzionalità alpha attive, elenca i backend alpha: StarDist, InstanSeg, Omnipose, Spotiflow, DINOCell, SAMCell, micro-SAM, SAM2, SpotNet, CAREamics e CellProfiler, con i loro modelli più in basso. Sono modelli sperimentali ancora in fase di valutazione, quindi controlla le loro maschere prima di affidarti a esse."
         },
         {
           "visual": "10_workbench_virtual_stain",

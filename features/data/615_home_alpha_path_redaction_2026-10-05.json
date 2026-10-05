@@ -1,0 +1,584 @@
+{
+ "item": "447",
+ "date": "2026-10-05",
+ "scope": "Local path text in tutorial scene frames replaced by a neutral path (/data/example/..., /home/user) in the fitted font, size and colour over an inpainted background; trailing file/folder names and following text keep their captured pixels. Original path text is not recorded here. Masters re-rendered with unchanged narration timing; poster and 1440p web copy regenerated; not published.",
+ "tool": "tools/tutorials/redact_frame_paths.py",
+ "lessons": {
+  "05_home": {
+   "lesson": "05_home",
+   "frames": [
+    {
+     "frame": "13f_storage.png",
+     "capture_folder": "home",
+     "scenes": [
+      19
+     ],
+     "source_sha256": "38378688dfc49f32feefb61c072c3b322bbb5b3c1adea5ab37a84f1ba1c504c2",
+     "redacted_image": "captures/path_redacted_447/05_home/13f_storage.png",
+     "redacted_sha256": "ee1383d9efabae30923808a93e66457cbb1cd1757d99ade6231ee094de0f2ac4",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        254,
+        378,
+        1175,
+        427
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.86,
+       "fit_score": 0.934,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 2.3,
+       "verified": true
+      },
+      {
+       "box": [
+        253,
+        414,
+        1148,
+        454
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        253,
+        445,
+        1148,
+        485
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        253,
+        476,
+        1148,
+        516
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.99,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        252,
+        508,
+        1148,
+        544
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.936,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.8999999999999997,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "13g_storage_prune.png",
+     "capture_folder": "home",
+     "scenes": [
+      20
+     ],
+     "source_sha256": "65c7a2d78daf0f9b6f0a271b99ace3fc1bc0492b8deaee9bfe03d78803bcb8e7",
+     "redacted_image": "captures/path_redacted_447/05_home/13g_storage_prune.png",
+     "redacted_sha256": "1f017f15c8084fa5a4766207cd31f1031075b04da9710c624ca0896e916adeb8",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        254,
+        378,
+        1175,
+        427
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.86,
+       "fit_score": 0.934,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 2.3,
+       "verified": true
+      },
+      {
+       "box": [
+        253,
+        414,
+        1148,
+        454
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        253,
+        445,
+        1148,
+        485
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        253,
+        476,
+        1148,
+        516
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.99,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        252,
+        508,
+        1148,
+        544
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.12,
+       "fit_score": 0.936,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.8999999999999997,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "f3793dd9f8d0fffa38779e17dc66fa7624367a59c10e859ac598c87a07ac5f74",
+    "poster_sha256": "89c43973898ece922a600149d409d4c2e39ebcaa5d8361bddde45b0720a9794d",
+    "web_sha256": "1f7862077edb7c64444ead778dd34e0bff61baa5b52b5da39d48d86e39f88b20",
+    "web_bytes": 10877445,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "1d192851bbea8a83f8cc1db4dc9bb9ba27834da746047f42ceec399fec582c53",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "41725bea06d941acc5d2cd7e6e704dc483cda10157c4d0a64443aef71ba52f89"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "335d57e6d65ff0baf1663b36aa4b7e8c31f9ae77ca18be8fca2b12b9b0ac5642"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "7eb166a2ac3addfc866e839ebe6df4e9535e89794d46f89b0f8d1456a515522b"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 26,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 12
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  },
+  "87_alpha_features": {
+   "lesson": "87_alpha_features",
+   "frames": [
+    {
+     "frame": "05b_watch_live_plate.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      4
+     ],
+     "source_sha256": "d4d267f4e4c75522707dbb8f1d8cc3c1ae37153b9591c65cc36cdc19bf73826b",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/05b_watch_live_plate.png",
+     "redacted_sha256": "85ded858460a0b46d8a4145b2342e59edd53cf466e7fe07d90489a1e224b15e4",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        1819,
+        280,
+        2916,
+        328
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 18.94,
+       "fit_score": 0.951,
+       "shift": 146,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        1999,
+        331,
+        2951,
+        380
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 18.94,
+       "fit_score": 0.961,
+       "shift": 145,
+       "clipped_left": false,
+       "gamma": 1.5,
+       "verified": true
+      },
+      {
+       "box": [
+        1547,
+        363,
+        2793,
+        400
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 18.96,
+       "fit_score": 0.968,
+       "shift": 145,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        250,
+        398,
+        1237,
+        451
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.98,
+       "fit_score": 0.964,
+       "shift": 138,
+       "clipped_left": true,
+       "gamma": 1.4,
+       "verified": true
+      },
+      {
+       "box": [
+        1529,
+        463,
+        3308,
+        507
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.08,
+       "fit_score": 0.934,
+       "shift": 146,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      },
+      {
+       "box": [
+        1729,
+        383,
+        3055,
+        432
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 18.89,
+       "fit_score": 0.948,
+       "shift": 145,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "09b_model_zoo_alpha_models.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      11
+     ],
+     "source_sha256": "92075bf834bd969d084c1d2689a040f94adc621ca67f9b0559208359d780de40",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/09b_model_zoo_alpha_models.png",
+     "redacted_sha256": "1206a2ef1f2d03f511524c2617bf7e729a53b8662cb9d4ecbd1b34febb7024e3",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        78,
+        1287,
+        1059,
+        1328
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "17_run_history_export.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      19
+     ],
+     "source_sha256": "a133f3853a21b6fc504f9ba6c429382080e773df837ea15ab7a08391c92fdb25",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/17_run_history_export.png",
+     "redacted_sha256": "193fe2d715138341ceab0b58b380c063741cedd0476780a00f53cc8811ebfde0",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        159,
+        1450,
+        1481,
+        1499
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.955,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.5999999999999999,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "18_prefs_notifications.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      20
+     ],
+     "source_sha256": "f7c3ec53d8f78b544bd988336423dffd5fecc8525f5ef1addbba622b147a9469",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/18_prefs_notifications.png",
+     "redacted_sha256": "0e8cda00b0bf3a8b4d403f9b0dcd706bed2caa6b4e12d2be9469f61c3c3afe73",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        79,
+        1285,
+        1059,
+        1330
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.86,
+       "fit_score": 0.934,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 2.3,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "18b_prefs_plugins.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      21
+     ],
+     "source_sha256": "c8b44e1ddf20e4f281ae13a72dbcbe21440946ba5357074f0e6cac5eff3f9867",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/18b_prefs_plugins.png",
+     "redacted_sha256": "94d84feed7041fdd6a1131f0699a20b5b4e5255cea7445a9c8c4390d13642403",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        78,
+        1287,
+        1059,
+        1328
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "19b_map_barcodes_spatial.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      23
+     ],
+     "source_sha256": "e298344a4ffbc8426f5eef31e8d04a8b9ef680a798e365fe0336fd9e97ecc43a",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/19b_map_barcodes_spatial.png",
+     "redacted_sha256": "ee5a0ca71632436ca3a7e5725ec50c4a09220c5531496f980c7ac6d41cc6c452",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        157,
+        810,
+        535,
+        862
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.951,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      },
+      {
+       "box": [
+        157,
+        866,
+        535,
+        915
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      },
+      {
+       "box": [
+        157,
+        918,
+        535,
+        971
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 19.93,
+       "fit_score": 0.951,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.6999999999999997,
+       "verified": true
+      }
+     ]
+    },
+    {
+     "frame": "22_prefs_alpha_off.png",
+     "capture_folder": "alpha_features_20261005_r4",
+     "scenes": [
+      27
+     ],
+     "source_sha256": "3d89864c332854b2da2503f514f2ad1564ecf4686784db147653a4614f09a015",
+     "redacted_image": "captures/path_redacted_447/87_alpha_features/22_prefs_alpha_off.png",
+     "redacted_sha256": "b5d13cb89d0dde61d6a0422231cfce3852daa7d8d5df6ff5f5c35462d4755d4c",
+     "changed_pixels_outside_boxes": 0,
+     "redactions": [
+      {
+       "box": [
+        78,
+        1287,
+        1059,
+        1328
+       ],
+       "kind": "local_root->/data/example",
+       "font": "OpenSans-Regular.ttf",
+       "size": 20.0,
+       "fit_score": 0.978,
+       "shift": 153,
+       "clipped_left": false,
+       "gamma": 1.2999999999999998,
+       "verified": true
+      }
+     ]
+    }
+   ],
+   "media": {
+    "master_sha256": "7ced25bf01f1ca002884ff97ec8eab4b2ad6f962e5392825c3c7f049500a1638",
+    "poster_sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb",
+    "web_sha256": "35ed49cf56111cfad82c3cf9aa94a70a489cd118feddacbd9f77c1ef90d9b391",
+    "web_bytes": 12446715,
+    "web_rendition_accepted": true,
+    "visual_json_sha256": "5aa4cfcc6562be17185eec6fb5d55c947d1132bb830525df9d56f0944e5de02c",
+    "narration_and_timing": "unchanged (audio/en/af_heart.m4a and .json reused)",
+    "af_heart_timing_sha256": "54ee7aa0961c2df409b523f70d4dbfe96660b983a57d3a8378a1081712760de8"
+   },
+   "checks": {
+    "browser": {
+     "sentence_cues": {
+      "passed": true,
+      "report_sha256": "d551bb2a0818e18bd0b90906b439b570078176009b64809ed1e16ff90f94bf41"
+     },
+     "web_rendition": {
+      "passed": true,
+      "report_sha256": "d0c31b7bde08f814780181f57974e12243af37e34c8917bbf70da427e9acadb0"
+     }
+    },
+    "frame_sweep": {
+     "images_checked": 26,
+     "path_offenders": [],
+     "frames_sampled": {
+      "web_copy": 12,
+      "master": 12
+     },
+     "poster_checked": true
+    }
+   },
+   "published": false
+  }
+ },
+ "rerecord": {}
+}

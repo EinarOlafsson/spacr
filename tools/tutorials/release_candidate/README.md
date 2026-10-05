@@ -1,16 +1,17 @@
 # Tutorial publication checkpoint — 5 October 2026
 
-The latest published checkpoint is **`release-candidate-append-ake_bqpd`**,
-released in wave 4 on 4 October 2026. Its media is pinned to the Hugging Face
-dataset commit **`2785b7b9d91b42145e1a324aac00cd87686f5e2b`**. The
+The current checkpoint is **`release-candidate-append-y1yawu76`**, refreshing
+Home and Alpha features on 5 October 2026. Its media is pinned to the Hugging Face
+dataset commit **`290e9e70174e13add3df25329e937ca52549e119`**. The
 [publication receipt](publication-receipt.json) records the upload and full
-byte readback; the [wave 4 evidence](../evidence/2026-10-04-rerecord-wave4-publication.json)
-records local and hosted playback checks.
+byte readback; [hosted playback checks](published-media-browser-checks.json)
+cover all 85 ready routes. The other 83 lessons are preserved from wave 4.
+Nightly website deployment and its readback are tracked separately.
 
 | Published contents | Count |
 | --- | ---: |
 | Ready lessons and navigation routes | 85 |
-| English scenes | 1,187 |
+| English scenes | 1,192 |
 | Catalog languages | 14 |
 | Spoken languages | 8 |
 | Published voices per lesson | 27 |
@@ -29,6 +30,13 @@ features**. Lessons 83 and 84 were withdrawn before this checkpoint. All other
 lessons record with both alpha preferences off. Every GUI recording starts
 fresh without restored sessions or drafts; the policy is in
 [capture_policy.py](../capture_policy.py).
+
+The current Home/Alpha refresh has 22 and 28 scenes respectively, including
+the genuine waiting Live plate card in the alpha lesson. All 54 narration
+tracks pass current-source acceptance. Local path roots in nine captured
+frames were replaced using the normal fitted-text redactor; the original
+captures and initial media remain preserved. Replacement masters, web copies,
+language/caption playback and OCR sweeps pass before publication.
 
 The deployed tutorial tree is
 [`docs/source/_extra/tutorials`](../../../docs/source/_extra/tutorials).

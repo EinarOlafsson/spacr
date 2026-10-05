@@ -1,0 +1,577 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "candidate": "release-candidate-append-y1yawu76",
+  "scope": "Current Home/Alpha media uploaded, completely read back and checked through the player using one pinned hosted revision. Nightly deployment/readback remains separate.",
+  "publication": {
+    "repository": "datasets/einarolafsson/spacr-tutorials",
+    "branch": "tutorials-home-alpha-20261005-y1yawu76",
+    "commit": "290e9e70174e13add3df25329e937ca52549e119",
+    "tag": "tutorials-home-alpha-20261005-y1yawu76-verified",
+    "media_root": "https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/290e9e70174e13add3df25329e937ca52549e119",
+    "manifest_sha256": "8c6c1797db0d136d5328ef0d65f87b13a81cd9e9b92baa6f4fa3fb3614234ea2",
+    "media_files": 4760,
+    "media_bytes": 5183532967,
+    "pages": {
+      "destination": "docs/source/_extra/tutorials",
+      "files_from_candidate": 143,
+      "bundled_tutorial_index_sha256": "2c91959ee209b0aded5659413e57d1146c892256664d7f056268cbb5bc091d1e",
+      "index_sha256": "662c6e4fa1c9eda7c7a1c0046e9e2925536d2fc18c061ddf696b9ac58fba9aca",
+      "candidate_index_sha256": "91ec5254280342dfe9ef95cade55f443291d9d89e996bd1aa6a0a3b90f4ec84f",
+      "cache_key": "home-alpha-20261005-y1yawu76",
+      "unchanged_versioned_assets": [
+        "app_v2.js",
+        "styles.css",
+        "voice_catalog.js"
+      ],
+      "versioned_assets": {
+        "app_v2.js": "20261002-home-landscape",
+        "styles.css": "20261002-home-landscape",
+        "lesson_catalog.js": "home-alpha-20261005-y1yawu76",
+        "module_navigation.js": "home-alpha-20261005-y1yawu76",
+        "voice_catalog.js": "20260811-50-voices"
+      },
+      "hosted_web_copies": 85,
+      "removed_local_web_copies": [],
+      "ready": 85,
+      "routes": 85
+    }
+  },
+  "readback": {
+    "commit": "290e9e70174e13add3df25329e937ca52549e119",
+    "files_expected": 4760,
+    "metadata_matched": 4760,
+    "metadata_failures": [],
+    "bytes_read_back": 5183532967,
+    "downloaded_sha256_matched": 4760,
+    "download_failures": [],
+    "seconds": 252.5,
+    "passed": true
+  },
+  "legacy_host_files_retained_outside_declared_candidate": 3360,
+  "catalog_preservation": {
+    "captions_da.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "355efffe0eda5f1183ed25258d0b53f32cdb09f93905a464a7d534657384a4a0"
+    },
+    "captions_de.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "0bdf169890fe3f1dd56ddc8777c120cfeb80745881aff1acff7c69e144eb6c44"
+    },
+    "captions_is.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "00f0bcfb76304fd2ac3067390a2fad15fa490f40de4f63f2a605df8e548659f8"
+    },
+    "captions_ko.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "a8886fe6f97cac202474bdac20a19393d3bbfe070469aeb6a3736ad171fd4152"
+    },
+    "captions_nb.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "8dae71d412b5a1d408b360b113dbc2d68ebfe721486ef5f3a06e9aa47eacea3a"
+    },
+    "captions_sv.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "e173b1716ca5548026d9d2d63e8b60144f817513bb8cb54c049d7b5467f92911"
+    },
+    "lessons_en.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "ca5ba960af2cf01e7f47e3f6d2312b68b9e23b770ef05494d9569dc652730419"
+    },
+    "lessons_es.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "5081051f2a89e9ceed6941f9c8937d9384567ab8e3744c6b34af45216f43801f"
+    },
+    "lessons_fr.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "694c67538690fd346e529cafe97c21450446b7f1392b6fe7bd46d288aaf07170"
+    },
+    "lessons_hi.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "1ce57fc01a783e78db387b5ccc2c0845989267535739e84419e80d59c72e9519"
+    },
+    "lessons_it.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "5c730813852f570f521d713b0c7be3dfd2f92073a4776daa67582fa0ab2091de"
+    },
+    "lessons_ja.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "553caa06cf1740deb5752106fd82fdf4812d6262ba3a1964f83508dbb43002cd"
+    },
+    "lessons_pt-BR.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "1f9133bc5883579f2654935035c22df90f803fca204b5f5e5d1d10bc7037a9c6"
+    },
+    "lessons_zh-CN.json": {
+      "preserved_complete_lesson_objects": 83,
+      "sha256": "44715dfd88fc967ccd639c5250ce525cb31572290e2c60f96d3a804709a59e22"
+    }
+  },
+  "unselected_lesson_media_records_preserved": 4731,
+  "audio_tracks_verified": 54,
+  "lessons": {
+    "05_home": {
+      "unique_captured_images_checked": 20,
+      "redacted_frames": 2,
+      "redacted_regions": 10,
+      "video_acceptance": {
+        "schema": 1,
+        "lesson": "05_home",
+        "source_frame_count": 22,
+        "source_frame_hashes_verified": true,
+        "visual_sha256": "1d192851bbea8a83f8cc1db4dc9bb9ba27834da746047f42ceec399fec582c53",
+        "english_timing_sha256": "41725bea06d941acc5d2cd7e6e704dc483cda10157c4d0a64443aef71ba52f89",
+        "master_sha256": "f3793dd9f8d0fffa38779e17dc66fa7624367a59c10e859ac598c87a07ac5f74",
+        "master_probe": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "width": 3840,
+              "height": 2160,
+              "coded_width": 3840,
+              "coded_height": 2160,
+              "closed_captions": 0,
+              "has_b_frames": 2,
+              "pix_fmt": "yuv420p",
+              "level": 51,
+              "chroma_location": "left",
+              "refs": 1,
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "1036260000/34541999",
+              "time_base": "1/90000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 34541999,
+              "duration": "383.799989",
+              "bit_rate": "337266",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "11514",
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "vendor_id": "[0][0][0][0]"
+              }
+            }
+          ],
+          "format": {
+            "filename": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-r3/production/05_home/video/05_home_silent.mp4",
+            "nb_streams": 1,
+            "nb_programs": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "383.800000",
+            "size": "16319502",
+            "bit_rate": "340166",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Lavf58.76.100"
+            }
+          }
+        },
+        "master_full_decode_passed": true,
+        "master_frames_match_quantized_english_timing": true,
+        "poster_sha256": "89c43973898ece922a600149d409d4c2e39ebcaa5d8361bddde45b0720a9794d",
+        "web_rendition": {
+          "lesson": "05_home",
+          "accepted": true,
+          "master_sha256": "f3793dd9f8d0fffa38779e17dc66fa7624367a59c10e859ac598c87a07ac5f74",
+          "rendition_sha256": "1f7862077edb7c64444ead778dd34e0bff61baa5b52b5da39d48d86e39f88b20",
+          "bytes": 10877445,
+          "frames": 11514,
+          "dimensions": [
+            2560,
+            1440
+          ],
+          "all_frame_presentation_times_match": true,
+          "full_decode_passed": true,
+          "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+          "encoder_arguments": [
+            "-threads",
+            "2",
+            "-filter_threads",
+            "2",
+            "-vf",
+            "scale='min(2560,iw)':-2",
+            "-vsync",
+            "0",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "veryfast",
+            "-tune",
+            "ssim",
+            "-g",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            "-an",
+            "-movflags",
+            "+faststart"
+          ],
+          "retained_published_sha256": null,
+          "elapsed_seconds": 114.55,
+          "visual_review_complete": false,
+          "narration_regenerated": false,
+          "original_master_changed": false,
+          "published": false
+        },
+        "browser_verified": false,
+        "visual_review_complete": false,
+        "published": false
+      },
+      "language_caption_browser_acceptance": {
+        "schema": 1,
+        "lesson": "05_home",
+        "passed": true,
+        "checks": [
+          {
+            "case": "en-af_heart-sentence-cues",
+            "report": "browser-web/05_home/en-af_heart-sentence-cues/playback-checks.json"
+          },
+          {
+            "case": "es-ef_dora",
+            "report": "browser-web/05_home/es-ef_dora/playback-checks.json"
+          },
+          {
+            "case": "fr-ff_siwis",
+            "report": "browser-web/05_home/fr-ff_siwis/playback-checks.json"
+          },
+          {
+            "case": "hi-hf_alpha",
+            "report": "browser-web/05_home/hi-hf_alpha/playback-checks.json"
+          },
+          {
+            "case": "it-if_sara",
+            "report": "browser-web/05_home/it-if_sara/playback-checks.json"
+          },
+          {
+            "case": "ja-jf_alpha",
+            "report": "browser-web/05_home/ja-jf_alpha/playback-checks.json"
+          },
+          {
+            "case": "pt-BR-pf_dora",
+            "report": "browser-web/05_home/pt-BR-pf_dora/playback-checks.json"
+          },
+          {
+            "case": "zh-CN-zf_xiaobei",
+            "report": "browser-web/05_home/zh-CN-zf_xiaobei/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-da",
+            "report": "browser-web/05_home/en-af_heart-captions-da/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-de",
+            "report": "browser-web/05_home/en-af_heart-captions-de/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-is",
+            "report": "browser-web/05_home/en-af_heart-captions-is/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-ko",
+            "report": "browser-web/05_home/en-af_heart-captions-ko/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-nb",
+            "report": "browser-web/05_home/en-af_heart-captions-nb/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-sv",
+            "report": "browser-web/05_home/en-af_heart-captions-sv/playback-checks.json"
+          }
+        ],
+        "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+        "independent_native_speaker_review": false,
+        "published": false
+      },
+      "original_media_preservation_sha256": "439a1c61072aa3ad804bd4679ec2930b17912a8e002c3ce38ec317315d30adb4"
+    },
+    "87_alpha_features": {
+      "unique_captured_images_checked": 28,
+      "redacted_frames": 7,
+      "redacted_regions": 14,
+      "video_acceptance": {
+        "schema": 1,
+        "lesson": "87_alpha_features",
+        "source_frame_count": 28,
+        "source_frame_hashes_verified": true,
+        "visual_sha256": "5aa4cfcc6562be17185eec6fb5d55c947d1132bb830525df9d56f0944e5de02c",
+        "english_timing_sha256": "54ee7aa0961c2df409b523f70d4dbfe96660b983a57d3a8378a1081712760de8",
+        "master_sha256": "7ced25bf01f1ca002884ff97ec8eab4b2ad6f962e5392825c3c7f049500a1638",
+        "master_probe": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "width": 3840,
+              "height": 2160,
+              "coded_width": 3840,
+              "coded_height": 2160,
+              "closed_captions": 0,
+              "has_b_frames": 2,
+              "pix_fmt": "yuv420p",
+              "level": 51,
+              "chroma_location": "left",
+              "refs": 1,
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "856530000/28550999",
+              "time_base": "1/90000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 28550999,
+              "duration": "317.233322",
+              "bit_rate": "398984",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "9517",
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "vendor_id": "[0][0][0][0]"
+              }
+            }
+          ],
+          "format": {
+            "filename": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-home-r3/production/87_alpha_features/video/87_alpha_features_silent.mp4",
+            "nb_streams": 1,
+            "nb_programs": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "317.234000",
+            "size": "15936595",
+            "bit_rate": "401888",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Lavf58.76.100"
+            }
+          }
+        },
+        "master_full_decode_passed": true,
+        "master_frames_match_quantized_english_timing": true,
+        "poster_sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb",
+        "web_rendition": {
+          "lesson": "87_alpha_features",
+          "accepted": true,
+          "master_sha256": "7ced25bf01f1ca002884ff97ec8eab4b2ad6f962e5392825c3c7f049500a1638",
+          "rendition_sha256": "35ed49cf56111cfad82c3cf9aa94a70a489cd118feddacbd9f77c1ef90d9b391",
+          "bytes": 12446715,
+          "frames": 9517,
+          "dimensions": [
+            2560,
+            1440
+          ],
+          "all_frame_presentation_times_match": true,
+          "full_decode_passed": true,
+          "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+          "encoder_arguments": [
+            "-threads",
+            "2",
+            "-filter_threads",
+            "2",
+            "-vf",
+            "scale='min(2560,iw)':-2",
+            "-vsync",
+            "0",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "veryfast",
+            "-tune",
+            "ssim",
+            "-g",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            "-an",
+            "-movflags",
+            "+faststart"
+          ],
+          "retained_published_sha256": null,
+          "elapsed_seconds": 79.57,
+          "visual_review_complete": false,
+          "narration_regenerated": false,
+          "original_master_changed": false,
+          "published": false
+        },
+        "browser_verified": false,
+        "visual_review_complete": false,
+        "published": false
+      },
+      "language_caption_browser_acceptance": {
+        "schema": 1,
+        "lesson": "87_alpha_features",
+        "passed": true,
+        "checks": [
+          {
+            "case": "en-af_heart-sentence-cues",
+            "report": "browser-web/87_alpha_features/en-af_heart-sentence-cues/playback-checks.json"
+          },
+          {
+            "case": "es-ef_dora",
+            "report": "browser-web/87_alpha_features/es-ef_dora/playback-checks.json"
+          },
+          {
+            "case": "fr-ff_siwis",
+            "report": "browser-web/87_alpha_features/fr-ff_siwis/playback-checks.json"
+          },
+          {
+            "case": "hi-hf_alpha",
+            "report": "browser-web/87_alpha_features/hi-hf_alpha/playback-checks.json"
+          },
+          {
+            "case": "it-if_sara",
+            "report": "browser-web/87_alpha_features/it-if_sara/playback-checks.json"
+          },
+          {
+            "case": "ja-jf_alpha",
+            "report": "browser-web/87_alpha_features/ja-jf_alpha/playback-checks.json"
+          },
+          {
+            "case": "pt-BR-pf_dora",
+            "report": "browser-web/87_alpha_features/pt-BR-pf_dora/playback-checks.json"
+          },
+          {
+            "case": "zh-CN-zf_xiaobei",
+            "report": "browser-web/87_alpha_features/zh-CN-zf_xiaobei/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-da",
+            "report": "browser-web/87_alpha_features/en-af_heart-captions-da/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-de",
+            "report": "browser-web/87_alpha_features/en-af_heart-captions-de/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-is",
+            "report": "browser-web/87_alpha_features/en-af_heart-captions-is/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-ko",
+            "report": "browser-web/87_alpha_features/en-af_heart-captions-ko/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-nb",
+            "report": "browser-web/87_alpha_features/en-af_heart-captions-nb/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-sv",
+            "report": "browser-web/87_alpha_features/en-af_heart-captions-sv/playback-checks.json"
+          }
+        ],
+        "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+        "independent_native_speaker_review": false,
+        "published": false
+      },
+      "original_media_preservation_sha256": "ff13e47125b4bf683135e9e97764a3c125f8bf8bfb67d94b78b1032a48f9b36c"
+    }
+  },
+  "browser": {
+    "candidate-browser-checks.json": {
+      "sha256": "39b6ee45a9bdaafd9bc6d33e41887230f403c9a358bffe46930882c5128416cb",
+      "ready_routes_checked": 85,
+      "passed": true
+    },
+    "published-media-browser-checks.json": {
+      "sha256": "8c8ed07b3ee14793200042851bdc9da3a5191ae8ea3925525ed5622961ed8170",
+      "ready_routes_checked": 85,
+      "passed": true
+    }
+  },
+  "placeholder_mutation_checks": {
+    "player_sha256": "f3c3d59d58851efd655743f1bfffe3b0640c3c962b8253cb5680c26d282eba90",
+    "mutations": [
+      {
+        "guard": "availability guard",
+        "observed_red": true
+      },
+      {
+        "guard": "completion guard",
+        "observed_red": true
+      }
+    ],
+    "baseline_before_and_after_passed": true,
+    "source_files_modified": false,
+    "tested_placeholder": "87_alpha_features",
+    "placeholder_source": "in-memory probe; the candidate has no unavailable lesson",
+    "passed": true,
+    "published": false
+  },
+  "sampled_images_checked": 52,
+  "frame_sweep_sha256": "cbb3a923f362fdd2ed8f9ddd542fc17f5f783ba9893a550bc8f5fb1c01254710",
+  "path_offenders": [],
+  "path_redaction_receipt": "features/data/615_home_alpha_path_redaction_2026-10-05.json",
+  "strict_full_site_build_with_new_pin": {
+    "passed": true,
+    "sha256": "f10dbed9c6553b4afcf08e6f4e309f0951f0a965aaf3d2bed15361e2b486f82b"
+  },
+  "publication_help_integration": {
+    "passed": 160,
+    "report_only_translation_incompatibilities": 3,
+    "log_sha256": "0bc204adee56f29a50ed354a6c9550272dc918d0e88001ca43e3572a8e65ee6f",
+    "node_router_case_executed": true
+  },
+  "independent_native_speaker_signoff": false,
+  "nightly_deployment_verified": false,
+  "remaining_refreshes": [
+    "08_measure",
+    "37_batch",
+    "38_distributed_jobs",
+    "14_make_masks"
+  ]
+}

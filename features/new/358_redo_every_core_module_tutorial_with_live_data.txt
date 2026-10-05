@@ -2837,3 +2837,19 @@ Receipt: features/data/358_main_release_acceptance_2026-10-01.json.
 Full mobile evidence: tools/tutorials/evidence/2026-10-01-main-mobile-playback.json.
 
 VERIFIED 2026-10-04: the 9 test files this item names pass on CPU/offscreen.
+
+2026-10-05 — CURRENT HOME/ALPHA HOSTED REFRESH; DISTRIBUTED STAGED
+Home and Alpha Features now have 22 and 28 current scenes respectively.
+Normal candidate/publication tools retain all 83 other lessons unchanged,
+accept all 54 current narration tracks, and verify all 4,760 declared media
+files at immutable revision 290e9e70174e13add3df25329e937ca52549e119.
+All 85 local and hosted routes pass; final strict site integration passes.
+Source path redactions retain unchanged pixels outside their fitted boxes;
+original media and receipts are preserved. Nightly deployment remains a
+separate live readback step. No new listening or native-speaker approval.
+
+Distributed Jobs has a fresh 10-frame native profile-preparation capture,
+all 13 translation reviews staged and 59 capture guard checks passing.
+No remote execution is claimed. Its narration/video/publication, Measure,
+Batch and new Make Masks puncta scenes remain open. Evidence is in the
+615_home_alpha_publication and 615_distributed_current_stage dated receipts.

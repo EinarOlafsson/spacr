@@ -4248,6 +4248,7 @@ API_ENTRIES = (
     ('spacr.qt.cpu_modes.modes', "Every mode this module adds, in the box's order."),
     ('spacr.qt.cpu_modes.propagate', 'Grow objects out of the local maxima of ``image``.'),
     ('spacr.qt.cpu_modes.provenance', "The parameters this mode actually read, for a mask's ledger entry."),
+    ('spacr.qt.cpu_modes.puncta', 'Find noise-standardised centre-pixel puncta within unchanged parents.'),
     ('spacr.qt.cpu_modes.secondary', 'Grow secondary labels from the existing primary-mask identities.'),
     ('spacr.qt.cpu_modes.threshold_modes', 'The modes that are a threshold algorithm, Multi-Otsu included.'),
     ('spacr.qt.crash_recovery', 'Notice that spaCR keeps dying on launch, and start without the part that kills it.'),

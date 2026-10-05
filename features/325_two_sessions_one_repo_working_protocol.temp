@@ -17665,3 +17665,29 @@ Current-source Home/Alpha frames/audio and the 83 untouched lessons are
 preserved. Other tutorial refreshes and GPU acceptance remain workstation
 work. Home keeps CPU/Qt/CI. No GPU turn is running or queued here; live_cell
 and cellposeTIME retain their separate owner. No final protected CI green.
+
+2026-10-05 — WORKSTATION PINNED HOME/ALPHA PUBLICATION CHECKPOINT
+Home/Alpha replacement media is uploaded to immutable revision
+290e9e70174e13add3df25329e937ca52549e119. All 4,760 declared files were
+fully read back and hash-verified (5,183,532,967 bytes); all 85 candidate
+and 85 pinned-host playback routes pass. The 14 catalogs preserve the other
+83 complete lesson objects, and 4,731 unselected media/poster records remain
+identical. Both placeholder mutation probes observe red with green baselines.
+Current 54 tracks, 28 language/caption cases, nine redacted source frames
+and 52 sampled images pass. Originals remain preserved. The final strict
+all-language site build passes, and publication/Help tests pass 160 with
+three existing report-only translation diagnostics still open. Help search
+was regenerated normally for puncta. Nightly deployed readback is next;
+no main promotion or new native-speaker signoff is claimed.
+
+Distributed Jobs now has a fresh native preparation recording and all
+13 source-bound translation reviews staged. Ten captured frames show
+validation, SSH profile persistence, genuine Slurm/custom control states,
+reopening and cancellation. No remote job or credentials were used. The
+recorder sends backend selection keys to the genuine opened popup rather
+than the dialog's default Save action. Fifty-nine capture guards pass.
+Receipts: 615_home_alpha_publication_2026-10-05.json and
+615_distributed_current_stage_2026-10-05.json. Narration/video/publication
+for Distributed, Measure, Batch and Make Masks remain workstation-owned.
+Home retains CPU/Qt/CI. All spaCR GPU turns remain here, excluding
+live_cell/cellposeTIME; no GPU process is running or queued here.

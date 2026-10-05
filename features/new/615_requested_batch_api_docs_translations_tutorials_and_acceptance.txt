@@ -957,3 +957,30 @@ observes both placeholder-guard mutations fail. Upload/readback is currently
 live on a new media branch; no new hosted revision is claimed published here.
 Tutorials 08/37/38/14, final publication and remaining GPU acceptance stay
 open. Native-speaker signoff and final protected CI green are not claimed.
+
+2026-10-05 — PINNED HOME/ALPHA HOSTED ACCEPTANCE AND FINAL INTEGRATION
+Normal publication uploaded candidate y1yawu76 to immutable media revision
+290e9e70174e13add3df25329e937ca52549e119 and created the verified tag only
+after all 4,760 declared files passed complete hash readback. Both local
+and pinned-host checks pass all 85 ready routes. All 14 catalogs preserve
+83 unrelated complete lesson objects; 4,731 unselected media/poster records
+are identical. The updated normal checkpoint and documentation player pin
+that revision. This proves hosted media acceptance, not deployed nightly.
+
+Final strict Sphinx succeeds with all API languages and the current media
+pin. Regenerating Help with its normal tool adds the puncta callable.
+Publication/Help integration passes 160, with the actual Node route case
+executed and three older report-only tutorial translation diagnostics still
+open. Current Home/Alpha source redactions and frame/video/browser receipts
+are recorded without replacing original captures or initial media evidence.
+Receipt: features/data/615_home_alpha_publication_2026-10-05.json.
+
+Distributed Jobs has a fresh native, network-isolated setup capture and 14
+staged catalogs; 84 unrelated lesson objects per catalog remain unchanged.
+Its actual profile validation/persistence/reopen/cancel checks pass, without
+credentials or remote execution. A native-popup targeting fix in the recorder
+avoids accidentally accepting the whole profile dialog while selecting its
+backend. Fifty-nine capture guards pass. Receipt:
+features/data/615_distributed_current_stage_2026-10-05.json. Current voices,
+video and publication for this lesson remain open, alongside Measure, Batch
+and Make Masks refreshes, remaining GPU validations and deployed readback.

@@ -1,0 +1,305 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "lesson": "38_distributed_jobs",
+  "scope": "Fresh native profile preparation and reviewed translation staging; no remote execution, current narration, video or publication acceptance.",
+  "scientific_acceptance": {
+    "lesson": "38_distributed_jobs",
+    "accepted": true,
+    "scope": "Native profile preparation only; no verified remote execution",
+    "state": "/tmp/spacr-tutorial-distributed-20261005/distributed_state/distributed_jobs_20261005_r2",
+    "application_modified": false,
+    "published": false,
+    "remote_job_submitted": false,
+    "real_credentials_used": false,
+    "example_host": "researcher@workstation.invalid",
+    "backend_states": {
+      "ssh": {
+        "host": true,
+        "workdir": true,
+        "local_root": true,
+        "remote_root": true,
+        "runner": true,
+        "slurm": false,
+        "submit_command": false,
+        "status_command": false,
+        "cancel_command": false
+      },
+      "slurm": {
+        "host": true,
+        "workdir": true,
+        "local_root": true,
+        "remote_root": true,
+        "runner": true,
+        "slurm": true,
+        "submit_command": false,
+        "status_command": false,
+        "cancel_command": false
+      },
+      "command": {
+        "host": false,
+        "workdir": false,
+        "local_root": false,
+        "remote_root": false,
+        "runner": false,
+        "slurm": false,
+        "submit_command": true,
+        "status_command": true,
+        "cancel_command": true
+      }
+    },
+    "empty_profile_error": "Profile name is required.",
+    "profile_sha256": "06d743ec126f62cab8d97be0b28ee74907c08355e4821b71dede6fdf2adc10b4",
+    "persisted_profiles": [
+      {
+        "backend": "ssh",
+        "cancel_command": "",
+        "host": "researcher@workstation.invalid",
+        "job_id_pattern": "",
+        "local_root": "/local/tutorial_project",
+        "log_command": "",
+        "name": "Tutorial setup - NOT CONNECTED",
+        "poll_seconds": 10,
+        "remote_root": "/shared/tutorial_project",
+        "runner": "spacr-run",
+        "scheduler_options": "",
+        "status_command": "",
+        "submit_command": "",
+        "workdir": "/shared/tutorial_project"
+      }
+    ],
+    "profile_reopened_exactly": true,
+    "cancel_preserves_profile_bytes": true,
+    "job_rows": 0,
+    "profile_count": 1,
+    "verification": "Saved JSON, native reopened controls and cancelled edits agree exactly"
+  },
+  "catalog_preservation": {
+    "passed": true,
+    "catalog_count": 14,
+    "lesson_count": 85,
+    "scene_count": 1187,
+    "refreshed_lesson_ids": [
+      "38_distributed_jobs"
+    ],
+    "retained_lesson_ids": [
+      "01_pypi_github",
+      "02_conda_install",
+      "03_pip_install",
+      "04_platform_installers",
+      "05_home",
+      "06_api",
+      "07_mask",
+      "08_measure",
+      "09_annotate",
+      "10_classify_cv",
+      "11_classify_ml",
+      "12_map_barcodes",
+      "13_regression",
+      "14_make_masks",
+      "15_image_umap",
+      "16_activation",
+      "17_timelapse",
+      "18_motility",
+      "19_train_cellpose",
+      "20_cellpose_masks",
+      "21_model_compare",
+      "22_model_zoo",
+      "23_agreement",
+      "24_plaque",
+      "25_recruitment",
+      "26_invasion",
+      "27_replication",
+      "28_training_runs",
+      "29_report",
+      "30_plate_queue",
+      "31_external_masks",
+      "32_align_stitch",
+      "33_plate_viewer",
+      "34_database",
+      "35_converter",
+      "36_import",
+      "37_batch",
+      "39_classifier_evaluation",
+      "40_run_history",
+      "41_classify",
+      "42_curate",
+      "43_illumination",
+      "44_data_manager",
+      "45_project_browser",
+      "46_napari_bridge",
+      "47_barcode_qc",
+      "48_hit_list",
+      "49_methods_results",
+      "50_run_compare",
+      "51_control_charts",
+      "52_pipeline_graph",
+      "53_prediction_profiler",
+      "54_qc_dashboard",
+      "55_image_scatter",
+      "56_lineage",
+      "57_layer_viewer",
+      "58_graph_builder",
+      "59_anndata_export",
+      "60_pca",
+      "61_tabulate",
+      "62_feature_dictionary",
+      "63_small_multiples",
+      "64_gate_editor",
+      "65_feature_explorer",
+      "66_outliers",
+      "67_experiment_design",
+      "68_power_design",
+      "69_dose_response",
+      "70_explain_cv",
+      "71_investigate_hit",
+      "72_volcano_explorer",
+      "73_parameter_sweep",
+      "74_import_images",
+      "75_regression_diagnostics",
+      "77_embeddings",
+      "76_ops",
+      "78_spacr_screens",
+      "79_module_inputs_outputs",
+      "80_image_analysis_pathways",
+      "81_sequencing_pathways",
+      "82_toxoplasma",
+      "85_host_pathogen",
+      "86_alpha_organism_modules",
+      "87_alpha_features"
+    ],
+    "visual_only_lesson_ids": [],
+    "retained_count": 84,
+    "catalog_checks": [
+      {
+        "catalog": "lessons_en.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "ba01858f18243e91073247a32b994adb16cc6b56efe6a62edfafecbd68002a70"
+      },
+      {
+        "catalog": "lessons_es.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "b517c3b2eaf4a6ad7c89fdd9f6d29a196f69cc303ffe4e52b83e6cf61e8b05f9"
+      },
+      {
+        "catalog": "lessons_fr.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "2b21d44c11575d70e254786288a293f11ccd44eaf7ee5198b6fff978b4613a2e"
+      },
+      {
+        "catalog": "lessons_hi.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "424da8f74bcf547d2f0702602c057cd5b1580168103379740f36a3d9d58c7104"
+      },
+      {
+        "catalog": "lessons_it.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "3cc147c7b964460a50a9a14d79675ae4f31d86f9a669f1426c3021e3c8a2213b"
+      },
+      {
+        "catalog": "lessons_ja.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "41e84fcffe85173e711da4d01ec03b830f901ee59d7296c12f48622270ccb4d0"
+      },
+      {
+        "catalog": "lessons_pt-BR.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "52e36df98dbee57b9c10fe0633a1d8065f39f2a6a929a42d581a67c92ad1d302"
+      },
+      {
+        "catalog": "lessons_zh-CN.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "1fe16e3a1d27034e4163f5c2d986a139b9409b8ff3ba82ce6089e5b46f33a93e"
+      },
+      {
+        "catalog": "captions_da.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "a6244b6e06cc19980f0db1982e4afe1132a01b902ee45ba64235a39c2835baed"
+      },
+      {
+        "catalog": "captions_de.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "430aab4f541c804bedc4813605016f90f00db0e447e5e8353875d501b532e449"
+      },
+      {
+        "catalog": "captions_is.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "fc15ade92b8250bee9af3caf95b217ffec8abf2d63b9ce4305480a1ea7043060"
+      },
+      {
+        "catalog": "captions_ko.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "722d6e8eb408ad1adf5e5f142436732ef06996c4ca060c3e5e5d5ccfe73e6fe4"
+      },
+      {
+        "catalog": "captions_nb.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "b4a2fe6da467d939dcda32a84f154fc639440cd06c72b2b8f9890c099d22709f"
+      },
+      {
+        "catalog": "captions_sv.json",
+        "retained_lessons": 84,
+        "retained_content_sha256": "687aa5bc10a88e04ce5fc4ba1a197ada265276dba2a2320c465b587179811158"
+      }
+    ],
+    "unselected_replacement_media_staged": false,
+    "old_lesson_semantic_or_live_media_approval": false,
+    "published": false
+  },
+  "capture_frames": [
+    {
+      "name": "00_home.png",
+      "sha256": "78a9c7b9b14481e19476fa9fe9cfa8b5459e4871cf5c228b56c52a6441216887"
+    },
+    {
+      "name": "01_help_route.png",
+      "sha256": "bb79656bfb8ed1a8bac20cf3fc9a128db804987c9cb5ad5745e42595a449a317"
+    },
+    {
+      "name": "02_empty_actual_workbench.png",
+      "sha256": "a5370b827ab4e1cf378e4b6f704c722ecffd685608eddebc600ee3c358980073"
+    },
+    {
+      "name": "03_empty_profile_refused.png",
+      "sha256": "9aa7c0e05ce7ad2df1f0646f33ea8c6cc830b7f60c6dcd11cf6b80f9d15538d6"
+    },
+    {
+      "name": "04_ssh_profile_example.png",
+      "sha256": "720a69f2b6d46417605465de3b88196f5f4195547925c10338e9732656fe4c4b"
+    },
+    {
+      "name": "05_profile_saved_not_connected.png",
+      "sha256": "c7ae81e0af380c9e597a1db22a0ac2375e7d7e416e7d2a1e5f5ae99d7dd77514"
+    },
+    {
+      "name": "06_saved_profile_reopened.png",
+      "sha256": "1cdbb9a3a4056517b130b46977c8246e34418d8bda7c7bd6200ede0c5fa01300"
+    },
+    {
+      "name": "07_slurm_controls_not_submitted.png",
+      "sha256": "1f8dffd064b4af5173ca03a5b263367f116da4f84c1c5d732e949a5b4bd3ca42"
+    },
+    {
+      "name": "08_custom_argument_templates.png",
+      "sha256": "f0272488ca16414ecad2bf63a160bc5376860409ccc96288f8148a05c66a4edc"
+    },
+    {
+      "name": "09_submission_controls_no_job.png",
+      "sha256": "f135ef9fad50338966867435ed020c857f1fc544ff6ad32e04ee7ba5d0436755"
+    }
+  ],
+  "capture_guard_tests": {
+    "passed": 59,
+    "log_sha256": "931c2af2f40fb7fd7fb134d261078cd431690402f2464d92e9ef0e1cac8facef"
+  },
+  "native_popup_capture_fix": "Backend keys are sent to the opened native combo view, with dialog-open and exact-selection assertions.",
+  "remaining": [
+    "27 current narration tracks",
+    "4K master and web rendition",
+    "path/frame inspection",
+    "local and hosted playback",
+    "nightly publication"
+  ],
+  "published": false,
+  "native_speaker_signoff": false
+}

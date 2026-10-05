@@ -38,6 +38,7 @@ text, only kinds and boxes.
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import hashlib
 import json
 import os
@@ -1244,7 +1245,7 @@ def cmd_record(args):
     lock = open(str(evidence) + '.lock', 'w')  # parallel lessons update one receipt
     fcntl.flock(lock, fcntl.LOCK_EX)
     receipt = json.loads(evidence.read_text(encoding='utf-8')) if evidence.exists() else {
-        'item': '447', 'date': '2026-09-26',
+        'item': '447', 'date': date.today().isoformat(),
         'scope': ('Local path text in tutorial scene frames replaced by a neutral path (/data/example/..., '
                   '/home/user) in the fitted font, size and colour over an inpainted background; trailing '
                   'file/folder names and following text keep their captured pixels. Original path text is not '

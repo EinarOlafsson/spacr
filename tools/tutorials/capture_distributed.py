@@ -39,9 +39,15 @@ def record_distributed(app, window, stage, captures, capture, settle, write_json
     def backend(dialog, value):
         index=dialog._backend.findData(value)
         if index<0: raise ValueError('The actual backend is unavailable')
-        click(dialog._backend); QTest.keyClick(dialog._backend,Qt.Key_Home)
-        for _ in range(index): QTest.keyClick(dialog._backend,Qt.Key_Down)
-        QTest.keyClick(dialog._backend,Qt.Key_Return);settle(.2)
+        click(dialog._backend)
+        view = dialog._backend.view()
+        if not view.isVisible():
+            raise ValueError('The native backend popup did not open')
+        QTest.keyClick(view,Qt.Key_Home)
+        for _ in range(index): QTest.keyClick(view,Qt.Key_Down)
+        QTest.keyClick(view,Qt.Key_Return);settle(.2)
+        if not dialog.isVisible() or dialog._backend.currentData() != value:
+            raise ValueError('The native backend choice closed the editor or selected another value')
         proof['backend_states'][value]={
             name:getattr(dialog,'_'+name).isEnabled() for name in
             ('host','workdir','local_root','remote_root','runner','slurm',
