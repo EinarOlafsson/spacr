@@ -1154,3 +1154,16 @@ additional Batch scene). No semantic or byte-budget guard is weakened.
 Receipt: features/data/615_final_wave_publication_2026-10-05.json.
 Current selected media publication is complete; deployed nightly readback,
 other open scientific GPU tasks and final Home-owned CI remain open.
+
+2026-10-05 — SOURCE-CURRENT ARTIFACT FOLLOW-UP AFTER HOME NATIVE T1/Z
+Normal generators refresh the reviewed Home source from 23f24b598. The
+consumer map and thirty existing settings-flow sections change; all 1,322
+sections remain. API targets add four genuine core consumers. Flow JSON,
+runtime flow index, notebooks and Help are unchanged. Forty-six focused
+freshness/analyser/callable/Help checks pass; publication recheck after Home
+integration passes 169 with one conditional English-build skip.
+The exact nine-language API delta finds zero changed source/context blocks
+at 13,177 symbols. All nine accepted catalog hashes remain identical; no
+new translation or narration is needed for these private core helpers.
+Merged-source full Sphinx and full catalog re-audit remain live. Receipt:
+features/data/615_native_t1_generated_artifacts_2026-10-05.json.

@@ -1582,6 +1582,7 @@ SETTING_API_TARGETS_BY_MODULE = {
     'surrogate_test_size': {'spacr.surrogate': ('explain_cv_default_settings', True)},
     'sweep_points': {'spacr.sequencing_qc': ('barcode_qc_defaults', True)},
     'sweep_span': {'spacr.sequencing_qc': ('barcode_qc_defaults', True)},
+    't_stack': {'spacr.core': ('', False)},
     'tables': {'spacr.core': ('generate_image_umap', True), 'spacr.ml': ('interpret_vision_model', False), 'spacr.submodules': ('analyze_percent_positive', True)},
     'tar_path': {'spacr.deep_spacr': ('apply_model_to_tar', True)},
     'target': {'spacr.submodules': ('analyze_recruitment', True)},
@@ -1689,5 +1690,8 @@ SETTING_API_TARGETS_BY_MODULE = {
     'wound_window': {'spacr.measure': ('', False)},
     'x_lim': {'spacr.ml': ('', False)},
     'y_lims': {'spacr.ml': ('', False)},
+    'z_axis': {'spacr.core': ('', False)},
     'z_handling': {'spacr.convert': ('convert_folder', True), 'spacr.external_masks': ('plan_external_masks', True), 'spacr.foreign': ('import_project', True)},
+    'z_segmentation_mode': {'spacr.core': ('', False)},
+    'z_stack': {'spacr.core': ('', False)},
 }

@@ -4470,6 +4470,9 @@ custom_regex
 |                 ``_watch_series_field_of``
 |                     ``_watch_pattern`` **-- reads it**
 |             ``_watch_source_channels`` **-- reads it**
+|             ``_watch_volume_plan``
+|                 ``_watch_field_of``
+|                     ``_watch_pattern`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_volume_tiffs`` **-- reads it**
@@ -5895,6 +5898,13 @@ enhance_background
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -5956,6 +5966,13 @@ enhance_background_radius
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6017,6 +6034,13 @@ enhance_background_scale
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6078,6 +6102,13 @@ enhance_clahe
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6139,6 +6170,13 @@ enhance_clahe_clip
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6200,6 +6238,13 @@ enhance_clahe_tile
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6261,6 +6306,13 @@ enhance_denoise
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6322,6 +6374,13 @@ enhance_denoise_strength
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6383,6 +6442,13 @@ enhance_equalize
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6444,6 +6510,13 @@ enhance_gamma
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6505,6 +6578,13 @@ enhance_log
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6566,6 +6646,13 @@ enhance_log_gain
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6627,6 +6714,13 @@ enhance_percentile_clip
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6688,6 +6782,13 @@ enhance_percentile_high
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6749,6 +6850,13 @@ enhance_percentile_low
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6810,6 +6918,13 @@ enhance_sharpen
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6871,6 +6986,13 @@ enhance_sharpen_amount
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6932,6 +7054,13 @@ enhance_sharpen_radius
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -6993,6 +7122,13 @@ enhance_sqrt
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested`
+|                 :py:func:`~spacr.psf_pipeline.prepare_chain`
+|                     ``_read_chain_settings`` **-- reads it**
+|                     :py:func:`~spacr.psf_pipeline.chain_problems`
+|                         ``_read_chain_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested`
@@ -8857,6 +8993,8 @@ Estimate the uneven illumination of the microscope from the fields themselves an
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
+|         ``_watch_folder_and_analyse`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.illumination.load_segmentation_illumination_resume` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             :py:func:`~spacr.illumination.load_segmentation_illumination_resume` **-- reads it**
@@ -8879,7 +9017,7 @@ Estimate the uneven illumination of the microscope from the fields themselves an
 |     ``len(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``preprocess_generate_masks``, ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``validate_measurement_illumination_inputs``, ``_preprocess_volume_tiffs``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_illumination``, ``get_setting_dependencies``.
+Read by ``_watch_folder_and_analyse``, ``preprocess_generate_masks``, ``illumination_settings``, ``load_segmentation_illumination_resume``, ``prepare_illumination_model``, ``validate_measurement_illumination_inputs``, ``_preprocess_volume_tiffs``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_illumination``, ``get_setting_dependencies``.
 
 .. _setting-flow-illumination_dark:
 
@@ -11495,6 +11633,9 @@ metadata_type
 |                 ``_watch_series_field_of``
 |                     ``_watch_pattern`` **-- reads it**
 |             ``_watch_source_channels`` **-- reads it**
+|             ``_watch_volume_plan``
+|                 ``_watch_field_of``
+|                     ``_watch_pattern`` **-- reads it**
 |             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |             ``_preprocess_volume_tiffs`` **-- reads it**
@@ -12263,6 +12404,9 @@ n2v_denoise
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested` **-- reads it**
@@ -18515,6 +18659,9 @@ psf_operation
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested` **-- reads it**
@@ -21859,6 +22006,9 @@ t_stack
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         ``_parallel_mask_plan`` **-- reads it**
+|         ``_watch_folder_and_analyse``
+|             ``_watch_check_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs`` **-- reads it**
 |                 ``dict(...)  [UNRESOLVED]``
@@ -21876,7 +22026,7 @@ t_stack
 |     ``_refuse_t_stack`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
-Read by ``_parallel_mask_plan``, ``_preprocess_volume_tiffs``, ``_refuse_t_stack``, ``plan_4d_from_settings``.
+Read by ``_parallel_mask_plan``, ``_watch_check_settings``, ``_preprocess_volume_tiffs``, ``_refuse_t_stack``, ``plan_4d_from_settings``.
 
 .. _setting-flow-t_track_backend:
 
@@ -22997,6 +23147,7 @@ timelapse
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``_parallel_mask_plan`` **-- reads it**
 |         ``_watch_folder_and_analyse`` **-- reads it**
+|             ``_watch_check_settings`` **-- reads it**
 |             ``_watch_map_manifest`` **-- reads it**
 |             ``_watch_measure_recipe``
 |                 ``_watch_measure_settings`` **-- reads it**
@@ -23077,7 +23228,7 @@ timelapse
 |     ``deepcopy(...)  [UNRESOLVED]``
 | :py:func:`~spacr.settings.get_setting_dependencies` **-- reads it**
 
-Read by ``_parallel_mask_plan``, ``_watch_folder_and_analyse``, ``_watch_map_manifest``, ``_watch_measure_settings``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_calibration_reference_hashes``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
+Read by ``_parallel_mask_plan``, ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``_watch_map_manifest``, ``_watch_measure_settings``, ``preprocess_generate_masks``, ``preprocess_generate_masks_timelapse``, ``_build_calibration_plan``, ``_plate_id``, ``_concatenate_and_normalize_impl``, ``_preprocess_volume_tiffs``, ``_rebuild_stacks_from_raw``, ``_resume_normalized_archives``, ``preprocess_img_data``, ``_calibration_reference_hashes``, ``_cellprofiler_tables``, ``_measure_crop_core``, ``_measured_fields``, ``_run_plate_barcode_step``, ``_write_confluency_record``, ``_write_intensity_rescale_record``, ``measure_crop``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_timelapse_demo``, ``plan_measure_resume``, ``get_measure_crop_settings``, ``get_setting_dependencies``, ``get_timelapse_settings``, ``filepaths_to_database``.
 
 .. _setting-flow-timelapse_batch_size:
 
@@ -23909,6 +24060,9 @@ unmix
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             :py:func:`~spacr.psf_pipeline.processing_requested` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs``
 |                 :py:func:`~spacr.psf_pipeline.processing_requested` **-- reads it**
@@ -25093,6 +25247,9 @@ z_axis
 | ``_stardist_volume_batch`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             ``_watch_check_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_volume_tiffs`` **-- reads it**
 |                 ``dict(...)  [UNRESOLVED]``
@@ -25109,7 +25266,7 @@ z_axis
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``_stardist_volume_batch``, ``_preprocess_volume_tiffs``, ``plan_4d_from_settings``, ``plan_from_settings``.
+Read by ``_stardist_volume_batch``, ``_watch_check_settings``, ``_preprocess_volume_tiffs``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_handling:
 
@@ -25158,6 +25315,9 @@ z_segmentation_mode
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse``
+|             ``_watch_check_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_t_stack_plan``
@@ -25172,7 +25332,7 @@ z_segmentation_mode
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``preprocess_img_data``, ``plan_4d_from_settings``, ``plan_from_settings``.
+Read by ``_watch_check_settings``, ``preprocess_img_data``, ``plan_4d_from_settings``, ``plan_from_settings``.
 
 .. _setting-flow-z_stack:
 
@@ -25183,6 +25343,9 @@ z_stack
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
+|         ``_watch_folder_and_analyse`` **-- reads it**
+|             ``_watch_check_settings`` **-- reads it**
+|             ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
 |         ``_run_robustness_report``
 |             ``_z_stack_plan``
@@ -25193,4 +25356,4 @@ z_stack
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 
-Read by ``preprocess_img_data``, ``plan_from_settings``.
+Read by ``_watch_check_settings``, ``_watch_folder_and_analyse``, ``preprocess_img_data``, ``plan_from_settings``.

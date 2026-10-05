@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "source_checkpoint": "0a8aac61695b868af1fa9499d58afb47bd58b2c4",
+  "scope": "Normal generated settings/consumer/Help refresh after reviewed Home native T1/Z integration; all previously accepted translated API catalogs remain byte-identical.",
+  "normal_generators": [
+    "tools/build_setting_consumer_map.py",
+    "tools/settings_flow.py --rst",
+    "tools/build_notebook_settings.py",
+    "tools/build_help_search_index.py",
+    "tools/build_documentation_i18n.py --sources-only"
+  ],
+  "changed_artifacts": [
+    "docs/setting_consumers.json",
+    "docs/source/_generated/settings_flow.rst",
+    "spacr/qt/screens/setting_api_targets.py"
+  ],
+  "artifacts": {
+    "docs/setting_consumers.json": "08fd69739f0acc164ae68fc25243aec063d24baac5599e006b53edf011e82192",
+    "docs/source/_generated/settings_flow.rst": "04922113ce86401b2615f6d5a1517b1d9231ca35c9fa505a04db544ed085d68e",
+    "docs/settings_flow.json": "856fe74453bdb2b74fe1f9a652622d2a4ec8df6fb8c5d2fee13d2842af7b5d3f",
+    "spacr/qt/screens/setting_api_targets.py": "c4f10417945bc09f1fe6916fea7823417474c3603c67796268b8db8c93aadf28",
+    "spacr/qt/screens/settings_flow_index.py": "37ca58ea459c6769b2ce148a0a7b676134470a59153073345e0431f8f67d0a43",
+    "spacr/qt/help_api_index.py": "e296ec0bf8fa43f3014e02414e149b765cbb407a9daca9eec72629a26f08e36c"
+  },
+  "changed_settings_flow_sections": [
+    "custom_regex",
+    "enhance_background",
+    "enhance_background_radius",
+    "enhance_background_scale",
+    "enhance_clahe",
+    "enhance_clahe_clip",
+    "enhance_clahe_tile",
+    "enhance_denoise",
+    "enhance_denoise_strength",
+    "enhance_equalize",
+    "enhance_gamma",
+    "enhance_log",
+    "enhance_log_gain",
+    "enhance_percentile_clip",
+    "enhance_percentile_high",
+    "enhance_percentile_low",
+    "enhance_sharpen",
+    "enhance_sharpen_amount",
+    "enhance_sharpen_radius",
+    "enhance_sqrt",
+    "illumination_correction",
+    "metadata_type",
+    "n2v_denoise",
+    "psf_operation",
+    "t_stack",
+    "timelapse",
+    "unmix",
+    "z_axis",
+    "z_segmentation_mode",
+    "z_stack"
+  ],
+  "section_inventory_preserved": 1322,
+  "api_catalogs_preserved": {
+    "sv": {
+      "sha256": "c62f736ca91573819b6c0c7f6763c500b95320a06ef8bd9e0d2fb5c27a1a852c",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "de": {
+      "sha256": "ccc257f94c2fe6df9b7f47b3ca9bdd8f5d22e08a54fb5fefcb762121808b893d",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "es": {
+      "sha256": "afc887458f534210d2bd71bbf25f7b85b5904a3a3a88417cc6fb824f6912cc2d",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "pt": {
+      "sha256": "12bc8ede25d2a0a8af840d0a1fc4335eb63ea4c100b63cb874651f69b2e7af09",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "is": {
+      "sha256": "b875cc3a4942abcb7cffb6f2cca37e8fff7773f6f72ddcde30a039b12b6eebf1",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "zh_CN": {
+      "sha256": "79878b0f922bcd0d08882a55f549cd2f045c3e158a17d74bf2ba82d35c1de37e",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "ko": {
+      "sha256": "9c11351473379bdccf341276e8df94ba6d29ae8190f267d3bce3b0c9b0957418",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "hi": {
+      "sha256": "3115978a72d9f15d7ab77a9e41180e1a5493455932fda3ccd67533a149f6bad9",
+      "preserved_byte_identical_to_accepted_catalog": true
+    },
+    "fr": {
+      "sha256": "598f43e0fe785e968c0dcadfddbabb306093b5e372cf32469cebf19860c49491",
+      "preserved_byte_identical_to_accepted_catalog": true
+    }
+  },
+  "source_current_api_delta": {
+    "symbols": 13177,
+    "changed_translatable_blocks": 0,
+    "changed_symbols_per_locale": {
+      "sv": [],
+      "de": [],
+      "es": [],
+      "zh_CN": [],
+      "pt": [],
+      "hi": [],
+      "ko": [],
+      "is": [],
+      "fr": []
+    },
+    "sha256": "7f1fee9aecf03c39e67b2d5776020a2752f3cf3ef9c255ca49a557500e71aab5"
+  },
+  "current_artifact_docstring_help_tests": {
+    "passed": 46,
+    "log_sha256": "a252b5bf9af0292786d66013c7ab99fb32b4b976ece256f4a12cccf58e65cb07"
+  },
+  "publication_after_home_integration": {
+    "passed": 169,
+    "skipped": 1,
+    "xfailed": 0,
+    "log_sha256": "b6103b4d38e3b64e49951de026361d662f1a8c8d4227b0c0ab89d79395085630"
+  },
+  "merged_source_full_sphinx_build_pending": true,
+  "nightly_deployment_verified": false,
+  "final_home_ci_green": false
+}
