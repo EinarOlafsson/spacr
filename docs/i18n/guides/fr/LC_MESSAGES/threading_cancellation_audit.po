@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: fr\n"
@@ -132,12 +132,4 @@ msgstr "Installe ``token`` pour ce thread et restaure tout jeton antérieur à l
 
 msgid "cancellation token to expose within the context."
 msgstr "jeton d’annulation à exposer dans le contexte."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`object`"
-msgstr "Classes de base : :py:class:`object`"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`Exception`"
-msgstr "Classes de base : :py:class:`Exception`"
 

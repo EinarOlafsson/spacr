@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
@@ -132,12 +132,4 @@ msgstr "Installiert ``token`` für diesen Thread und stellt beim Verlassen ein z
 
 msgid "cancellation token to expose within the context."
 msgstr "Abbruch-Token, das innerhalb des Kontexts bereitgestellt wird."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`object`"
-msgstr "Basisklassen: :py:class:`object`"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`Exception`"
-msgstr "Basisklassen: :py:class:`Exception`"
 

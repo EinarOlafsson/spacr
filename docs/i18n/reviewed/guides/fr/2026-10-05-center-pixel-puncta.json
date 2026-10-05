@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "method": "Direct Codex AI technical translation and source/meaning review; no independent peer or native-speaker signoff. Standard guide import and gates unchanged.",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "source_files": {
+    "docs/source/make_masks.rst": "e8ebbcbdd5438b8619acadd7fb6c7173f4047c45b6a2030286410d350ee5219f"
+  },
+  "runtime_catalog_sha256": "ffa99d200f34b3da860e2f61152ec88d944acac8fc0fd445e7a95800492e2da8",
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Centre-pixel puncta inside cysts or cells",
+      "source_sha256": "2325f6bf2a40ba920e59c7a93af50efe1f0cc45244b20c7a1346b196abc28e6f",
+      "target": "Objets ponctuels à pixels centraux dans les kystes ou les cellules",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**.",
+      "source_sha256": "442efbe271e4a729693aca9ca14bff24f2143b75adbc600a8585885fa0c9e46e",
+      "target": "Choisissez **Objets ponctuels à pixels centraux dans les masques parents** dans **Méthodes de détection**. Ouvrez les images originales à un seul canal et sélectionnez un dossier distinct de masques parents dont les noms de base correspondent aux images, ou un fichier de masque parent pour l’image actuelle. Les masques parents sont en lecture seule. Utilisez **Remplacer** sur toute l’image, puis **Enregistrer le masque**.",
+      "ui": {
+        "Centre-pixel puncta within parent masks": "Objets ponctuels à pixels centraux dans les masques parents",
+        "Replace": "Remplacer",
+        "Save mask": "Enregistrer le masque"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration.",
+      "source_sha256": "1633c1a6afc1229e30941354ec9db90032514a854148aa03cd492a2b9bb673e3",
+      "target": "Le détecteur repère des pics LoG normalisés par l’échelle aux valeurs sigma 1.5, 2, 3, 4 et 6 pixels. Il estime le bruit par pixel de chaque objet parent à partir de la MAD du résidu passe-haut avec sigma 1, divisée par 0.87, et propage ce bruit à travers chaque noyau LoG. Le seuil des candidats vaut par défaut 2.5 unités de bruit. Les pics subissent une suppression des maxima voisins plus faibles dépendant de l’échelle et une exclusion à trois pixels du bord du parent. Modifiez la liste des échelles, le seuil des candidats, l’espacement des pics ou la marge au bord lorsque l’acquisition l’exige ; ces réglages sont exprimés en pixels d’image et ne constituent pas un étalonnage.",
+      "ui": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed.",
+      "source_sha256": "319064319bed0b4b8dac199caf9431579c9b1d26ff05450f71163e84e811b5a4",
+      "target": "Chaque objet ponctuel est mesuré avec les pixels les plus proches de son centre subpixel pondéré par l’intensité dans une fenêtre de neuf par neuf. **Pixels centraux par objet ponctuel** vaut par défaut 20 ; 10 et 40 sont également pris en charge. L’anneau de fond local au sein du même parent commence à max(4, 2.5 sigma + 2) pixels et mesure quatre pixels de large. Il exclut les centres des autres candidats lorsqu’il reste assez de fond. Le seuil minimal d’inclusion par défaut est moyenne centrale moins fond local >= 3 unités d’intensité originales. La normalisation d’affichage, l’inversion, l’amélioration d’image et Min area sont ignorés.",
+      "ui": {
+        "Centre pixels per punctum": "Pixels centraux par objet ponctuel"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary.",
+      "source_sha256": "7fc3dd660fe26df123152270a4355a1f391f9faa2789ea318fae597c0a1627e6",
+      "target": "Le masque entier enregistré attribue à chaque objet ponctuel retenu sa propre étiquette. Les fenêtres centrales voisines peuvent se chevaucher : chaque pic à coordonnées entières est réservé à son objet, les autres pixels partagés sont attribués au centre le plus proche et les pixels hors du parent sont omis. Un masque peut donc contenir moins que les N pixels demandés. Il s’agit d’un masque d’échantillonnage central, pas de la limite physique de l’objet ponctuel.",
+      "ui": {}
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results.",
+      "source_sha256": "326e38b485818ba878d17ab37bf7b73444d74facfeec88ee91fe15c473de6020",
+      "target": "Enregistrer une détection inchangée sur toute l’image écrit aussi ``<stem>.puncta.csv`` et ``<stem>.puncta.json`` à côté du masque. Le tableau contient tous les candidats, leurs indicateurs d’inclusion, les étiquettes des objets de sortie, les IDs parents, les coordonnées, le bruit, le fond local, les moyennes centrales exactes de 10/20/40 pixels et la moyenne sélectionnée de N pixels. Les moyennes centrales exactes conservent les échantillons qui se chevauchent indépendamment de l’attribution des étiquettes. Utilisez ``center_corrected`` pour la moyenne sélectionnée de N pixels moins le fond local, ou ``corrected20`` pour la variante fixe de 20 pixels. L’ancienne colonne ``corrected`` conserve le résultat de la fenêtre de trois par trois de la référence. Le reçu lie l’image, le masque parent, le masque de sortie, le CSV et les réglages du détecteur à des sommes de contrôle. Les étiquettes modifiées ou combinées ne peuvent pas recevoir silencieusement les anciennes mesures centrales. Les aperçus locaux estiment le bruit dans leur recadrage ; utilisez la détection sur toute l’image pour les résultats scientifiques.",
+      "ui": {}
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure.",
+      "source_sha256": "a64c2abbfc82902e9e7a9fa8de374fc12b85711a6c42a9f3893aa6c7d3b45c0d",
+      "target": "Utilisez **Organiser pour Measure…** pour placer les objets ponctuels dans un emplacement de masque d’organite avec les masques parents et les canaux originaux. Measure peut rapporter les intensités usuelles des régions de masque et les relations parentales, mais ces moyennes peuvent différer des moyennes centrales exactes lorsque les échantillons se chevauchent. Utilisez le tableau d’objets ponctuels lié à la source pour l’analyse du centre et de l’anneau. Ce détecteur seul n’implémente pas le modèle nul de bruit, les tests hiérarchiques ni une figure composite de publication.",
+      "ui": {
+        "Organize for Measure…": "Organiser pour Measure…"
+      }
+    }
+  ]
+}

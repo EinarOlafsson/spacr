@@ -1,5 +1,5 @@
 # spaCR user guide translation (is).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 22:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n%10==1 && n%100!=11 ? 0 : 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -314,17 +314,21 @@ msgstr "Unnið með myndir"
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "Hægrismelltu á hvaða mynd sem er í spaCR, í myndalista einingar eða í innfelldu línuriti eins og Graph Builder, UMAP-könnuðinum eða samanburði þjálfana, til að opna myndavalmynd hennar. Volcano-könnuðurinn og Gate Editor hafa eigin hægrismellivalmyndir og bæta þessum færslum við þær."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
-msgstr "**Edit figure…** breytir titli, ásamerkingum, mörkum, kvörðum, letri, litum, skýringu, stærð og upplausn myndarinnar. Breytingar birtast um leið og þú gerir þær."
+msgstr "**Breyta mynd…** breytir titli, ásamerkingum, mörkum, kvörðum, letri, litum, skýringu, stærð og upplausn myndarinnar. Breytingar birtast um leið og þú gerir þær."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**."
-msgstr "**Change graph type** teiknar myndina aftur sem annað línurit sem hæfir gögnum hennar. Hópa má sýna sem kassa-, fiðlu-, strip-, swarm-, súlu-, punkta- eða boxen-rit, sem kassa- eða súlurit með punktum, eða sem stuðlarit, KDE eða ECDF; tvær mælingar sem dreifi-, línu-, hexbin-, KDE- eða aðhvarfsrit; eina dreifingu sem stuðlarit, KDE, ECDF, kassa, fiðlu, strip eða boxen; talningar sem talningarrit eða hitakort; og fylki sem hitakort eða klasað hitakort. Myndin er teiknuð aftur úr gögnum sínum og heldur **Myndastillingar** þínum."
+msgstr "**Breyta gerð grafs** teiknar myndina aftur sem annað línurit sem hæfir gögnum hennar. Hópa má sýna sem kassa-, fiðlu-, strip-, swarm-, súlu-, punkta- eða boxen-rit, sem kassa- eða súlurit með punktum, eða sem stuðlarit, KDE eða ECDF; tvær mælingar sem dreifi-, línu-, hexbin-, KDE- eða aðhvarfsrit; eina dreifingu sem stuðlarit, KDE, ECDF, kassa, fiðlu, strip eða boxen; talningar sem talningarrit eða hitakort; og fylki sem hitakort eða klasað hitakort. Myndin er teiknuð aftur úr gögnum sínum og heldur **Myndastillingar** þínum."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure."
-msgstr "**Statistics…** sýnir prófið sem spaCR valdi fyrir gögnin og leyfir þér að hnekkja **Próf**, **Subject column**, **Paired / repeated measures** og **Multiple-comparison correction**. **Show on the plot** teiknar prófið og marktækniklofa á myndina."
+msgstr "**Tölfræði…** sýnir prófið sem spaCR valdi fyrir gögnin og leyfir þér að hnekkja **Próf**, **Dálkur fyrir tilraunaeiningar**, **Pöruð gögn / endurteknar mælingar** og **Leiðrétting fyrir margar samanburðarprófanir**. **Sýna á grafinu** teiknar prófið og marktækniklofa á myndina."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR."
-msgstr "**Save figure (zip)…** skrifar eina zip-skrá með myndinni á vistunarsniðinu þínu og sem PNG, ``data.csv`` með teiknuðu gögnunum, ``statistics.csv`` og ``statistics.txt``, ``spec.json`` með fullri uppskrift myndarinnar, og ``recreate_figure.py``, skriftu sem teiknar sömu mynd úr CSV- og JSON-skránum án spaCR."
+msgstr "**Vista mynd (zip)…** skrifar eina zip-skrá með myndinni á vistunarsniðinu þínu og sem PNG, ``data.csv`` með teiknuðu gögnunum, ``statistics.csv`` og ``statistics.txt``, ``spec.json`` með fullri uppskrift myndarinnar, og ``recreate_figure.py``, skriftu sem teiknar sömu mynd úr CSV- og JSON-skránum án spaCR."
 
 msgid "How the statistics are chosen"
 msgstr "Hvernig tölfræðin er valin"

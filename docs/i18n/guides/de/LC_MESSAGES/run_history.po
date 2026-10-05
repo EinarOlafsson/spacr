@@ -1,5 +1,5 @@
 # spaCR user guide translation (de).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 21:59-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: de\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -64,8 +64,9 @@ msgstr "**Einstellungen → Speicher** verhindert, dass der spaCR-Basisordner un
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "Die Cache-Tabelle listet die Caches für spaCR-Modelle, Cellpose, Hugging Face, Torch, Backend-Umgebungen und Neuigkeiten auf. **Messen** ermittelt ihre Größe, **Leeren…** leert nach einer Rückfrage den ausgewählten Cache, und **Verschieben…** verschiebt ihn nach ``<folder>/spacr-<cache>`` auf einem anderen Laufwerk. Der neue Ort wird in ``~/.spacr/cache_locations.json`` festgehalten und bei jedem Start verwendet; ein Cache, dessen Variable (zum Beispiel ``HF_HOME``) außerhalb von spaCR gesetzt ist, wird nicht verschoben. Leeren und Verschieben warten, bis keine Ausführung läuft."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
-msgstr "**Einstellungen → Protokollierung → Log files** enthält **Clear all logs…**. Es listet Tagesprotokolle, Laufprotokolle, Absturzprotokolle und ausführliche Protokolle mit der Anzahl der Dateien und ihrer Größe je Gruppe auf und löscht sie erst nach Ihrer Bestätigung. Ein Protokoll, das die laufende spaCR-Sitzung geöffnet hat, wird geleert statt gelöscht, sodass der laufende Lauf sein Protokoll behält. Das Ergebnis nennt, wie viele Dateien gelöscht und geleert wurden und wie viel Speicher frei wurde."
+msgstr "**Einstellungen → Protokollierung → Protokolldateien** enthält **Alle Protokolle leeren…**. Es listet Tagesprotokolle, Laufprotokolle, Absturzprotokolle und ausführliche Protokolle mit der Anzahl der Dateien und ihrer Größe je Gruppe auf und löscht sie erst nach Ihrer Bestätigung. Ein Protokoll, das die laufende spaCR-Sitzung geöffnet hat, wird geleert statt gelöscht, sodass der laufende Lauf sein Protokoll behält. Das Ergebnis nennt, wie viele Dateien gelöscht und geleert wurden und wie viel Speicher frei wurde."
 
 msgid "Headless search"
 msgstr "Suche ohne GUI"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 11:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -30,6 +30,34 @@ msgstr "关于上下游工作流程的输入和输出，请参阅 :ref:`模块�
 
 msgid "Hover a setting or its label to read the explanation and follow its API help link. Controls with a matching animation also offer an animation in that popup; each control remembers its own reveal state. Image-enhancement help links to the detection-chain documentation. A control without a matching animation still keeps its written explanation and API link."
 msgstr "将鼠标悬停在某个设置或其标签上，即可阅读说明并打开其 API 帮助链接。具有对应动画的控件还会在该弹出窗口中提供动画；每个控件会记住自己的显示状态。图像增强的帮助链接到检测链文档。没有对应动画的控件仍保留其文字说明和 API 链接。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Centre-pixel puncta inside cysts or cells"
+msgstr "囊肿或细胞内的中心像素点状对象"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**."
+msgstr "在 **检测方法** 中选择 **父级掩膜内的中心像素点状对象**。打开原始单通道图像，并选择独立的父级掩膜文件夹，其中的文件主名应与图像对应；也可选择当前图像的父级掩膜文件。父级掩膜为只读。对整幅图像使用 **替换**，然后使用 **保存掩膜**。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration."
+msgstr "检测器在 sigma 为 1.5、2、3、4 和 6 像素的尺度上寻找经过尺度归一化的 LoG 峰值。它以每个父级对象内 sigma 为 1 的高通残差的 MAD 除以 0.87 来估计像素噪声，并将该噪声传播到各个 LoG 核。候选阈值默认为 2.5 个噪声单位。峰值经过随尺度变化的非极大值抑制，并排除距父级边缘不足三像素的峰值。可根据采集条件调整尺度列表、候选阈值、峰间距或边缘距离；这些设置以图像像素为单位，不属于标定。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed."
+msgstr "每个点状对象使用九乘九窗口中最靠近其强度加权亚像素中心的像素进行测量。**每个点状对象的中心像素数** 默认为 20，也支持 10 和 40。位于同一父级对象内的局部背景环从 max(4, 2.5 sigma + 2) 像素处开始，宽度为四像素。当剩余背景足够时，会排除其他候选中心。默认纳入条件为中心均值减去局部背景 >= 3 个原始强度单位。显示归一化、反转、图像增强和 Min area 均不参与处理。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary."
+msgstr "保存的整数掩膜为每个保留的点状对象分配独立标签。邻近的中心窗口可能重叠：每个整数坐标峰值保留给其自身对象，其他共享像素归属最近的中心，父级对象外的像素被省略。因此，掩膜中的像素数可能少于请求的 N 个像素。这是中心采样掩膜，不代表点状对象的物理边界。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+msgstr "保存未经修改的整幅图像检测结果时，还会在掩膜旁写入 ``<stem>.puncta.csv`` 和 ``<stem>.puncta.json``。表格包含全部候选对象、纳入标记、输出对象标签、父级 ID、坐标、噪声、局部背景、精确的 10/20/40 像素中心均值及所选的 N 像素均值。精确中心均值保留重叠采样，与像素的标签归属无关。``center_corrected`` 表示所选 N 像素均值减去局部背景，``corrected20`` 表示固定的 20 像素版本。旧版 ``corrected`` 列保留参考实现的三乘三窗口结果。记录通过校验和关联图像、父级掩膜、输出掩膜、CSV 和检测器设置。编辑或合并的标签不会静默获得旧的中心测量。局部预览仅在裁剪范围内估计噪声；科学结果应使用整幅图像检测。"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
+msgstr "使用 **为 Measure 整理…** 将点状对象放入细胞器掩膜槽位，并配合父级掩膜和原始通道。Measure 可以报告普通掩膜区域强度及父级关系，但采样重叠时，这些均值可能不同于精确中心均值。中心和背景环分析应使用与源数据绑定的点状对象表格。此检测器本身未实现噪声零模型、分层检验或组合式发表用图。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Thumbnail display quality"

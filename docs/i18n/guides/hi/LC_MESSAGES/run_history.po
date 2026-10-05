@@ -1,5 +1,5 @@
 # spaCR user guide translation (hi).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 21:59-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -64,8 +64,9 @@ msgstr "**प्राथमिकताएं → भंडारण** spaCR �
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "कैश तालिका spaCR मॉडल, Cellpose, Hugging Face, Torch, बैकएंड परिवेश और समाचार कैश सूचीबद्ध करती है। **मापन** उनका आकार पढ़ता है, **साफ़ करें…** पूछने के बाद चुने गए कैश को खाली करता है, और **स्थानांतरित करें…** उसे किसी दूसरी ड्राइव पर ``<folder>/spacr-<cache>`` में ले जाता है। नया स्थान ``~/.spacr/cache_locations.json`` में दर्ज होता है और हर शुरुआत में उपयोग होता है; जिस कैश का चर (उदाहरण के लिए ``HF_HOME``) spaCR के बाहर सेट हो उसे स्थानांतरित नहीं किया जाता। साफ़ करना और स्थानांतरित करना तब तक प्रतीक्षा करते हैं जब तक कोई रन न चल रहा हो।"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
-msgstr "**प्राथमिकताएं → लॉगिंग → Log files** में **Clear all logs…** है। यह दैनिक लॉग, रन लॉग, क्रैश लॉग और विस्तृत लॉग को हर समूह की फ़ाइलों की संख्या और आकार के साथ सूचीबद्ध करता है, और आपकी पुष्टि के बाद ही उन्हें हटाता है। चल रहा spaCR सत्र जिस लॉग को खोले हुए है, उसे हटाने के बजाय खाली किया जाता है, ताकि चल रहे रन का लॉग बना रहे। परिणाम बताता है कि कितनी फ़ाइलें हटाई और खाली की गईं और कितनी जगह खाली हुई।"
+msgstr "**प्राथमिकताएं → लॉगिंग → लॉग फ़ाइलें** में **सभी लॉग खाली करें…** है। यह दैनिक लॉग, रन लॉग, क्रैश लॉग और विस्तृत लॉग को हर समूह की फ़ाइलों की संख्या और आकार के साथ सूचीबद्ध करता है, और आपकी पुष्टि के बाद ही उन्हें हटाता है। चल रहा spaCR सत्र जिस लॉग को खोले हुए है, उसे हटाने के बजाय खाली किया जाता है, ताकि चल रहे रन का लॉग बना रहे। परिणाम बताता है कि कितनी फ़ाइलें हटाई और खाली की गईं और कितनी जगह खाली हुई।"
 
 msgid "Headless search"
 msgstr "हेडलेस खोज"

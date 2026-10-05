@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 23:25-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -205,7 +205,7 @@ msgstr "결과 사용, 저장, 다시 불러오기"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table."
-msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction``과 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다."
+msgstr "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction`` 및 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다."
 
 msgid "When a Graph Builder channel is cleared, or holds a column the chosen plot kind cannot draw, the canvas explains what is missing instead of drawing a chart. For example, it asks you to drag a column onto **X** or **Y**, says that a histogram needs a continuous column, or names a column that the current table does not contain. The plot kind stays selected, so placing suitable columns draws the chart again."
 msgstr "Graph Builder 채널이 비워지거나 선택한 플롯 종류로 그릴 수 없는 열이 들어 있으면, 캔버스는 차트를 그리는 대신 무엇이 빠졌는지 설명합니다. 예를 들어 열을 **X** 또는 **Y** 로 끌어 놓으라고 요청하거나, 히스토그램에는 연속형 열이 필요하다고 알리거나, 현재 표에 없는 열 이름을 알려 줍니다. 플롯 종류는 선택된 채로 유지되므로 알맞은 열을 놓으면 차트가 다시 그려집니다."
@@ -294,7 +294,7 @@ msgstr "**조건 주석 추가**\\ 는 Graph Builder의 작업 테이블에 주�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced."
-msgstr "**조건 주석 추가**를 열고 **출력 열**의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다."
+msgstr "**조건 주석 추가** 기능을 열고 **출력 열** 항목의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Define the value rules, text extraction, or composition for that output. Use **Add column** for another output. A named-group regex can also create several metadata columns together."
@@ -334,7 +334,7 @@ msgstr "읽기 쉬운 규칙으로 값 지정"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string."
-msgstr "일치하는 행에 ``WildType`` 또는 ``control``처럼 직접 입력한 값을 지정하려면 **값을 할당**을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요."
+msgstr "일치하는 행에 ``WildType`` 또는 ``control`` 같은 값을 직접 지정하려면 **값을 할당** 옵션을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **all rules match** when every criterion must match, or **any rule matches** when at least one must match. Criteria may inspect different source columns or earlier generated columns. For example, assign ``control`` when ``drug`` equals ``DMSO`` and ``cell_type`` equals ``HeLa``. Missing source values do not satisfy a negative criterion. An actual empty string is a value and can be matched explicitly."
@@ -443,11 +443,11 @@ msgstr "**값을 할당**\\ 에서 조건 상자의 **정규식**\\ 을 선택�
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically."
-msgstr "조건 상자 위의 **콜럼에 대한 예**는 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사**를 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다."
+msgstr "조건 상자 위의 **콜럼에 대한 예** 기능은 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사** 버튼을 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:"
-msgstr "``drug_A_rep1.tif``와 ``control_rep1.tif`` 같은 원본 이름의 경우:"
+msgstr "``drug_A_rep1.tif`` 및 ``control_rep1.tif`` 같은 원본 이름의 경우:"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``drug_A|control`` matches either text."
@@ -455,7 +455,7 @@ msgstr "``drug_A|control``\\ 은 두 텍스트 중 어느 하나와 일치합니
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``drug_A_rep.`` allows one character after ``rep``."
-msgstr "``drug_A_rep.``은 ``rep`` 뒤에 문자 하나를 허용합니다."
+msgstr "``drug_A_rep.`` 패턴은 ``rep`` 뒤에 문자 하나를 허용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "``drug_A.*rep`` allows any intervening text, including none."

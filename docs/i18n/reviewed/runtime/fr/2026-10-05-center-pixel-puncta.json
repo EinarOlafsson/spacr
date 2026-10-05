@@ -3,7 +3,7 @@
   "language": "fr",
   "date": "2026-10-05",
   "review_kind": "Codex AI technical translation and review; no native-speaker signoff",
-  "note": "Source-bound centre-pixel puncta controls and notices. Original-pixel use, parent preservation, overlapping samples, units and export failures reviewed explicitly.",
+  "note": "Source-bound centre-pixel puncta controls and notices. Original-pixel use, parent preservation, overlapping samples, units and export failures reviewed explicitly. Follow-up technical wording review uses objets ponctuels for point-like biological objects, avoiding the punctuation sense of ponctuations.",
   "records": [
     {
       "table": "ui",
@@ -24,14 +24,14 @@
       "key": "Centre pixels per punctum",
       "source": "Centre pixels per punctum",
       "source_sha256": "ccf76dbcf6073f4bd266059d1fbd3a72925c0a881571319cebbd2732e35b209c",
-      "translation": "Pixels centraux par ponctuation"
+      "translation": "Pixels centraux par objet ponctuel"
     },
     {
       "table": "ui",
       "key": "Centre-pixel puncta within parent masks",
       "source": "Centre-pixel puncta within parent masks",
       "source_sha256": "89e8cb7c5acf8c0ee4f6f40f1a25f25889d1165f4fdfa988232aa85ce4467cb2",
-      "translation": "Ponctuations à pixels centraux dans les masques parents"
+      "translation": "Objets ponctuels à pixels centraux dans les masques parents"
     },
     {
       "table": "ui",
@@ -45,14 +45,14 @@
       "key": "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified.",
       "source": "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified.",
       "source_sha256": "27837988091533b27453d126e9368aaeef4b1b778d33659e78082b7c1bef64ac",
-      "translation": "Détecte de petites ponctuations faibles dans un masque distinct de kyste ou de cellule. Utilise les intensités originales du canal et ignore la normalisation d’affichage, l’inversion et l’amélioration d’image. Choisissez d’abord le dossier des masques parents. Les pics LoG sont mesurés en unités de bruit par pixel. Chaque objet contient ses pixels centraux les plus proches, pas une région étendue par watershed. Utilisez Replace sur toute l’image pour les masques et mesures centrales définitifs. Les masques parents ne sont jamais modifiés."
+      "translation": "Détecte de petits objets ponctuels faibles dans un masque distinct de kyste ou de cellule. Utilise les intensités originales du canal et ignore la normalisation d’affichage, l’inversion et l’amélioration d’image. Choisissez d’abord le dossier des masques parents. Les pics LoG sont mesurés en unités de bruit par pixel. Chaque objet contient ses pixels centraux les plus proches, pas une région étendue par watershed. Utilisez Replace sur toute l’image pour les masques et mesures centrales définitifs. Les masques parents ne sont jamais modifiés."
     },
     {
       "table": "ui",
       "key": "For puncta detection, open the original single-channel image rather than a segmentation bundle.",
       "source": "For puncta detection, open the original single-channel image rather than a segmentation bundle.",
       "source_sha256": "e91e7a035fd7137f0598f06f35908d23d644dc04c77a8b273af128f6e2b1d783",
-      "translation": "Pour détecter les ponctuations, ouvrez l’image originale à un seul canal plutôt qu’un ensemble de segmentation."
+      "translation": "Pour détecter les objets ponctuels, ouvrez l’image originale à un seul canal plutôt qu’un ensemble de segmentation."
     },
     {
       "table": "ui",
@@ -66,7 +66,7 @@
       "key": "Invalid puncta scale, threshold, centre-pixel or spacing settings.",
       "source": "Invalid puncta scale, threshold, centre-pixel or spacing settings.",
       "source_sha256": "8515c0bc9bf3df66790e5881d8aacfa40361b8083b6f83effbba944b3114ffba",
-      "translation": "Réglages non valides d’échelle, de seuil, de pixels centraux ou d’espacement des ponctuations."
+      "translation": "Réglages non valides d’échelle, de seuil, de pixels centraux ou d’espacement des objets ponctuels."
     },
     {
       "table": "ui",
@@ -80,7 +80,7 @@
       "key": "Load a parent mask before detecting puncta.",
       "source": "Load a parent mask before detecting puncta.",
       "source_sha256": "30d26081a7de47c84729d9a2a00c67379797a56ebdc4d8dddfb94fe5d0ad03b3",
-      "translation": "Chargez un masque parent avant de détecter les ponctuations."
+      "translation": "Chargez un masque parent avant de détecter les objets ponctuels."
     },
     {
       "table": "ui",
@@ -122,21 +122,21 @@
       "key": "Puncta detection requires a 2-D image and matching parent mask.",
       "source": "Puncta detection requires a 2-D image and matching parent mask.",
       "source_sha256": "28855216b4f0e1683672d481c742e5eda31582b316b3382b1fb123673a9be4a1",
-      "translation": "La détection des ponctuations nécessite une image 2-D et un masque parent correspondant."
+      "translation": "La détection des objets ponctuels nécessite une image 2-D et un masque parent correspondant."
     },
     {
       "table": "ui",
       "key": "Puncta detection requires a single-channel, two-dimensional image.",
       "source": "Puncta detection requires a single-channel, two-dimensional image.",
       "source_sha256": "738d5ef97be82beaa617cc0c404456973db4b281aeef062f4171640246db115f",
-      "translation": "La détection des ponctuations nécessite une image bidimensionnelle à un seul canal."
+      "translation": "La détection des objets ponctuels nécessite une image bidimensionnelle à un seul canal."
     },
     {
       "table": "ui",
       "key": "Spot scales (px)",
       "source": "Spot scales (px)",
       "source_sha256": "9633a43fe32a94728bdf94d7b9957d647f892453687cfef24428c93ca8a71c3a",
-      "translation": "Échelles des ponctuations (px)"
+      "translation": "Échelles des objets ponctuels (px)"
     },
     {
       "table": "ui",
@@ -150,21 +150,21 @@
       "key": "The parent mask changed. Reload it before detecting puncta.",
       "source": "The parent mask changed. Reload it before detecting puncta.",
       "source_sha256": "bec3955df0c0573f9bf26ff1f82552d485c6d3a511fe2f48bd2afa323c1b8b3a",
-      "translation": "Le masque parent a changé. Rechargez-le avant de détecter les ponctuations."
+      "translation": "Le masque parent a changé. Rechargez-le avant de détecter les objets ponctuels."
     },
     {
       "table": "ui",
       "key": "The puncta channel contains non-finite intensities.",
       "source": "The puncta channel contains non-finite intensities.",
       "source_sha256": "c587376b09adcc2600bde9d9830ebffa967e5df2bcccb1c614b72de5c845ae47",
-      "translation": "Le canal des ponctuations contient des intensités non finies."
+      "translation": "Le canal des objets ponctuels contient des intensités non finies."
     },
     {
       "table": "ui",
       "key": "The source image changed during puncta detection. Reload it and repeat detection.",
       "source": "The source image changed during puncta detection. Reload it and repeat detection.",
       "source_sha256": "27237091196c8e96d0f42c92b0df159557b8b269adf922937d38f7391704238a",
-      "translation": "L’image source a changé pendant la détection des ponctuations. Rechargez-la et répétez la détection."
+      "translation": "L’image source a changé pendant la détection des objets ponctuels. Rechargez-la et répétez la détection."
     },
     {
       "table": "ui",
@@ -185,7 +185,7 @@
       "key": "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area.",
       "source": "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area.",
       "source_sha256": "0cdd23cc18de5a21e34bc45df076cb164db29283eb810c94535ab88a5c8b4b3e",
-      "translation": "Utilise les intensités originales. Augmenter les seuils des candidats ou d’intensité corrigée exclut les ponctuations faibles. Les pixels centraux définissent la fenêtre de mesure, pas une surface d’objet étendue."
+      "translation": "Utilise les intensités originales. Augmenter les seuils des candidats ou d’intensité corrigée exclut les objets ponctuels faibles. Les pixels centraux définissent la fenêtre de mesure, pas une surface d’objet étendue."
     }
   ]
 }

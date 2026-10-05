@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: is\n"
@@ -414,16 +414,4 @@ msgstr "``0`` þegar allar umbeðnar heilleikaathuganir og prófanir standast, e
 
 msgid "with status ``2`` for invalid arguments or when neither a database nor ``--probe`` is supplied."
 msgstr "með stöðu ``2`` fyrir ógild viðföng eða þegar hvorki gagnagrunnur né ``--probe`` er gefinn."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`object`"
-msgstr "Grunnklasar: :py:class:`object`"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`~sqlite3.OperationalError`"
-msgstr "Grunnklasar: :py:class:`~sqlite3.OperationalError`"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`RuntimeError`"
-msgstr "Grunnklasar: :py:class:`RuntimeError`"
 

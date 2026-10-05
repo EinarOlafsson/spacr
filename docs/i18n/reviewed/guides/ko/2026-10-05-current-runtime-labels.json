@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "method": "Codex AI technical review of guide control-name alignment to the current runtime catalog. Existing prose retained. No independent peer or native-speaker signoff.",
+  "runtime_catalog_sha256": "f7ec5a7f1deab6e5fbf28cc169a7fc8a52cd33194ce0f9f40ba9208dd0fe97ec",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+      "source_sha256": "bfa21c5ee6fbafe2af955da8a4e630313ed409cea4751f2814aaf39618e1b467",
+      "original_translation": "**Edit figure…** 는 이 그림의 제목, 축 레이블, 범위, 척도, 글꼴, 색상, 범례, 크기, 해상도를 바꿉니다. 변경 사항은 바로 나타납니다.",
+      "target": "**그림 편집…** 는 이 그림의 제목, 축 레이블, 범위, 척도, 글꼴, 색상, 범례, 크기, 해상도를 바꿉니다. 변경 사항은 바로 나타납니다.",
+      "ui_replacements": {
+        "Edit figure…": "그림 편집…"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+      "source_sha256": "5a0f49c6b5a9bf999f49784736f6c07ae1494824f2d6c422d0f70bf64579d875",
+      "original_translation": "**Change graph type** 은 그림을 데이터에 맞는 다른 그래프로 다시 그립니다. 그룹은 상자, 바이올린, strip, swarm, 막대, 점, boxen 그래프, 점이 있는 상자 또는 막대 그래프, 또는 히스토그램, KDE, ECDF로 표시할 수 있습니다. 두 측정값은 산점도, 선, hexbin, KDE, 회귀 그래프로, 하나의 분포는 히스토그램, KDE, ECDF, 상자, 바이올린, strip, boxen으로, 개수는 개수 그래프나 히트맵으로, 행렬은 히트맵이나 군집 히트맵으로 표시할 수 있습니다. 그림은 데이터로부터 다시 그려지며 **그림 설정** 을 유지합니다.",
+      "target": "**그래프 유형 변경** 은 그림을 데이터에 맞는 다른 그래프로 다시 그립니다. 그룹은 상자, 바이올린, strip, swarm, 막대, 점, boxen 그래프, 점이 있는 상자 또는 막대 그래프, 또는 히스토그램, KDE, ECDF로 표시할 수 있습니다. 두 측정값은 산점도, 선, hexbin, KDE, 회귀 그래프로, 하나의 분포는 히스토그램, KDE, ECDF, 상자, 바이올린, strip, boxen으로, 개수는 개수 그래프나 히트맵으로, 행렬은 히트맵이나 군집 히트맵으로 표시할 수 있습니다. 그림은 데이터로부터 다시 그려지며 **그림 설정** 을 유지합니다.",
+      "ui_replacements": {
+        "Change graph type": "그래프 유형 변경"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+      "source_sha256": "b8d77eafc1606a6f7865b9065d1ed95b9658405294c8524c879ea3320895feb6",
+      "original_translation": "**Statistics…** 는 spaCR이 데이터에 대해 선택한 검정을 보여 주며, **테스트**, **Subject column**, **Paired / repeated measures**, **Multiple-comparison correction** 을 직접 지정할 수 있게 합니다. **Show on the plot** 은 그림 위에 검정과 유의성 괄호를 그립니다.",
+      "target": "**통계…** 는 spaCR이 데이터에 대해 선택한 검정을 보여 주며, **테스트**, **실험 대상 열**, **대응 자료 / 반복 측정**, **다중 비교 보정** 을 직접 지정할 수 있게 합니다. **그래프에 표시** 은 그림 위에 검정과 유의성 괄호를 그립니다.",
+      "ui_replacements": {
+        "Statistics…": "통계…",
+        "Subject column": "실험 대상 열",
+        "Paired / repeated measures": "대응 자료 / 반복 측정",
+        "Multiple-comparison correction": "다중 비교 보정",
+        "Show on the plot": "그래프에 표시"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+      "source_sha256": "881c1475e4224cb41fa9382a3ef69997a485a3b254d8acffe9db21e585133b51",
+      "original_translation": "**Save figure (zip)…** 는 저장 형식과 PNG로 된 그림, 그려진 데이터가 담긴 ``data.csv``, ``statistics.csv`` 와 ``statistics.txt``, 그림의 전체 레시피가 담긴 ``spec.json``, 그리고 spaCR 없이 CSV와 JSON 파일에서 같은 그림을 그리는 스크립트 ``recreate_figure.py`` 를 하나의 zip 파일로 씁니다.",
+      "target": "**그림 저장 (zip)…** 는 저장 형식과 PNG로 된 그림, 그려진 데이터가 담긴 ``data.csv``, ``statistics.csv`` 와 ``statistics.txt``, 그림의 전체 레시피가 담긴 ``spec.json``, 그리고 spaCR 없이 CSV와 JSON 파일에서 같은 그림을 그리는 스크립트 ``recreate_figure.py`` 를 하나의 zip 파일로 씁니다.",
+      "ui_replacements": {
+        "Save figure (zip)…": "그림 저장 (zip)…"
+      }
+    },
+    {
+      "domain": "run_history",
+      "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+      "source_sha256": "ea24b14679b2ca5ed54a6c5e3da24135a45d9f778e28787ef30d82faffb6005d",
+      "original_translation": "**환경설정 → 로깅 → Log files** 에는 **Clear all logs…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다.",
+      "target": "**환경설정 → 로깅 → 로그 파일** 에는 **모든 로그 비우기…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다.",
+      "ui_replacements": {
+        "Log files": "로그 파일",
+        "Clear all logs…": "모든 로그 비우기…"
+      }
+    }
+  ]
+}

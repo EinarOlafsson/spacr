@@ -1,0 +1,61 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "method": "Codex AI technical review of Korean RST delimiter boundaries. Natural Korean nouns and conjunctions retain scientific meaning and exact literals. No independent peer or native-speaker signoff.",
+  "records": [
+    {
+      "domain": "table_workflows",
+      "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+      "original_translation": "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction``과 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다.",
+      "target": "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction`` 및 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다."
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+      "original_translation": "**조건 주석 추가**를 열고 **출력 열**의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다.",
+      "target": "**조건 주석 추가** 기능을 열고 **출력 열** 항목의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다."
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+      "original_translation": "일치하는 행에 ``WildType`` 또는 ``control``처럼 직접 입력한 값을 지정하려면 **값을 할당**을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요.",
+      "target": "일치하는 행에 ``WildType`` 또는 ``control`` 같은 값을 직접 지정하려면 **값을 할당** 옵션을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요."
+    },
+    {
+      "domain": "table_workflows",
+      "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+      "original_translation": "조건 상자 위의 **콜럼에 대한 예**는 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사**를 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다.",
+      "target": "조건 상자 위의 **콜럼에 대한 예** 기능은 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사** 버튼을 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다."
+    },
+    {
+      "domain": "table_workflows",
+      "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+      "original_translation": "``drug_A_rep1.tif``와 ``control_rep1.tif`` 같은 원본 이름의 경우:",
+      "target": "``drug_A_rep1.tif`` 및 ``control_rep1.tif`` 같은 원본 이름의 경우:"
+    },
+    {
+      "domain": "table_workflows",
+      "source": "``drug_A_rep.`` allows one character after ``rep``.",
+      "original_translation": "``drug_A_rep.``은 ``rep`` 뒤에 문자 하나를 허용합니다.",
+      "target": "``drug_A_rep.`` 패턴은 ``rep`` 뒤에 문자 하나를 허용합니다."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results.",
+      "original_translation": "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv``와 ``<stem>.puncta.json``도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected``를, 고정된 20 픽셀 변형에는 ``corrected20``을 사용하세요. 기존 ``corrected`` 열은 참조 구현의 3×3 창 결과를 유지합니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요.",
+      "target": "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. 기존 ``corrected`` 열은 참조 구현의 3×3 창 결과를 유지합니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
+    },
+    {
+      "domain": "make_masks",
+      "source": "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size.",
+      "original_translation": "**표시** 또는 **Measure용으로 정리…**에서 **썸네일 품질**을 선택하세요. **낮음**은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간**은 긴 변을 최대 256픽셀, **높음**은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다.",
+      "target": "**표시** 또는 **Measure용으로 정리…** 항목에서 **썸네일 품질** 옵션을 선택하세요. **낮음** 옵션은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간** 옵션은 긴 변을 최대 256픽셀, **높음** 옵션은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다."
+    },
+    {
+      "domain": "workflows",
+      "source": "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames.",
+      "original_translation": "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours``와 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s``를 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다.",
+      "target": "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours`` 열과 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s`` 값을 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
+    }
+  ]
+}

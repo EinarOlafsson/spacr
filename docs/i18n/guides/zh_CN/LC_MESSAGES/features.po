@@ -1,5 +1,5 @@
 # spaCR user guide translation (zh_CN).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 22:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -314,17 +314,21 @@ msgstr "使用图表"
 msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
 msgstr "在 spaCR 中右键单击任意图表——无论是在模块的图表列表中，还是在 Graph Builder、UMAP 浏览器或训练对比等嵌入式图中——即可打开其图表菜单。Volcano 浏览器和 Gate Editor 保留各自的右键菜单，并在其中添加这些条目。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
-msgstr "**Edit figure…** 可更改此图表的标题、坐标轴标签、范围、刻度、字体、颜色、图例、大小和分辨率。更改会即时显示。"
+msgstr "**编辑图形…** 可更改此图表的标题、坐标轴标签、范围、刻度、字体、颜色、图例、大小和分辨率。更改会即时显示。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**."
-msgstr "**Change graph type** 会将图表重绘为另一种适合其数据的图。分组可以显示为箱线图、小提琴图、条带图、蜂群图、柱状图、点图或 boxen 图，带点的箱线图或柱状图，或直方图、KDE 或 ECDF；两个测量值可显示为散点图、折线图、hexbin、KDE 或回归图；单个分布可显示为直方图、KDE、ECDF、箱线、小提琴、条带或 boxen；计数可显示为计数图或热图；矩阵可显示为热图或聚类热图。图表会根据其数据重绘，并保留你的 **图设置** 。"
+msgstr "**更改图表类型** 会将图表重绘为另一种适合其数据的图。分组可以显示为箱线图、小提琴图、条带图、蜂群图、柱状图、点图或 boxen 图，带点的箱线图或柱状图，或直方图、KDE 或 ECDF；两个测量值可显示为散点图、折线图、hexbin、KDE 或回归图；单个分布可显示为直方图、KDE、ECDF、箱线、小提琴、条带或 boxen；计数可显示为计数图或热图；矩阵可显示为热图或聚类热图。图表会根据其数据重绘，并保留你的 **图设置** 。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure."
-msgstr "**Statistics…** 显示 spaCR 为数据选择的检验，并允许你覆盖 **检验** 、 **Subject column** 、 **Paired / repeated measures** 和 **Multiple-comparison correction** 。 **Show on the plot** 会在图上绘制检验和显著性括号。"
+msgstr "**统计…** 显示 spaCR 为数据选择的检验，并允许你覆盖 **检验** 、 **受试对象列** 、 **配对数据 / 重复测量** 和 **多重比较校正** 。 **在图上显示** 会在图上绘制检验和显著性括号。"
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR."
-msgstr "**Save figure (zip)…** 写出一个 zip 文件，其中包含以你的保存格式和 PNG 格式保存的图表、包含绘图数据的 ``data.csv`` 、 ``statistics.csv`` 和 ``statistics.txt`` 、包含图表完整配方的 ``spec.json`` ，以及 ``recreate_figure.py`` ——一个无需 spaCR 即可根据 CSV 和 JSON 文件绘制同一图表的脚本。"
+msgstr "**保存图形（zip）…** 写出一个 zip 文件，其中包含以你的保存格式和 PNG 格式保存的图表、包含绘图数据的 ``data.csv`` 、 ``statistics.csv`` 和 ``statistics.txt`` 、包含图表完整配方的 ``spec.json`` ，以及 ``recreate_figure.py`` ——一个无需 spaCR 即可根据 CSV 和 JSON 文件绘制同一图表的脚本。"
 
 msgid "How the statistics are chosen"
 msgstr "统计方法如何选择"

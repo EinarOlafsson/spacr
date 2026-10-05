@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 21:25-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -1581,7 +1581,7 @@ msgstr "마스크에서 타임랩스를 열어 순서가 있는 프레임에 걸
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames."
-msgstr "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours``와 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s``를 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
+msgstr "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours`` 열과 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s`` 값을 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
 
 msgid "**Open:** Mask → Timelapse."
 msgstr "**열기:** 마스크 → 타임랩스."

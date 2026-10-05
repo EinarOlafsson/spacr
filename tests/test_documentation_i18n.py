@@ -2888,6 +2888,28 @@ def test_reviewed_context_repair_clears_the_wrong_scientific_screen_sense():
     )
 
 
+def test_window_wide_shortcut_keys_keep_keyboard_sense():
+    import build_documentation_i18n as builder
+    from build_i18n_catalogs import _semantic_false_friends, _syntax_preserved
+
+    source = builder.public_docstrings()["spacr.qt.shortcuts"]
+    blocks, _layout = builder.translatable_blocks(source)
+    shortcut = next(block for block in blocks if block.startswith("Every window-wide key"))
+    context = builder._api_translation_source(shortcut)
+    assert "Every window-wide key can be rebound." in context
+    assert "a key typed there" in context
+    assert "structured-data name" not in context
+    assert _syntax_preserved(shortcut, context)
+
+    keyboard_source = "Every window-wide key can be rebound in the settings table."
+    keyboard_target = "Todas as teclas globais da janela podem ser reatribuídas na tabela de definições."
+    mapping_source = "Every mapping key names a setting in the table."
+    mapping_target = "Cada tecla do mapeamento identifica uma definição na tabela."
+    assert not _semantic_false_friends(keyboard_source, keyboard_target, "pt")
+    assert _semantic_false_friends(mapping_source, mapping_target, "pt")
+    assert "structured-data name" in builder._api_translation_source(mapping_source)
+
+
 def test_portuguese_exception_and_dictionary_senses_are_reviewed():
     from build_i18n_catalogs import _contextualize, _semantic_false_friends
 

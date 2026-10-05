@@ -1083,6 +1083,7 @@ _MAPPING_KEY_SOURCE = (
     r"kwargs)\b)"
     r"(?!.*(?:\b(?:keyboard|keypress|key press|key event|shortcuts?|hotkeys?|"
     r"Backspace|Escape|arrow keys?|modifier keys?|keystroke|Qt key)\b|"
+    r"\bwindow-wide\s+keys?\b|"
     r"\bpress(?:ed|ing)?(?:\s+\w+){0,3}\s+keys?\b|"
     r"\bkeys?(?:\s+\w+){0,3}\s+press(?:ed|ing)?\b))"
 )

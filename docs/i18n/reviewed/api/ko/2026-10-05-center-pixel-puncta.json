@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "note": "Evidence for twelve current puncta API source blocks. Full API catalog repair remains open; hashes and admission gates are unchanged.",
+  "source_files": {
+    "spacr/qt/cpu_modes.py": "09989fe347ed7edf9d6ba36006dde942b39e7a5040acb1ec9fe8cfc9427f5a0e"
+  },
+  "records": [
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#12",
+      "source": "scale-normalised LoG widths in image pixels.",
+      "source_sha256": "d615493d5b055422f59a603d3e9b5fdeeb89252a57cb22c85641564a1862a739",
+      "context": "scale-normalised LoG widths in image pixels.",
+      "translation": "이미지 픽셀 단위의 스케일 정규화 LoG 폭.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#13",
+      "source": "candidate response threshold in propagated pixel-noise units.",
+      "source_sha256": "3a234b99426b8264573c83cc7aae0909aa4fa30719d07549b298ab7f4d31d1fe",
+      "context": "candidate response threshold in propagated pixel-noise units.",
+      "translation": "전파된 픽셀 노이즈 단위의 후보 응답 임계값.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#14",
+      "source": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+      "source_sha256": "b452650ecee3145739fb23db1de2e1d744fb2100432e3e9a8299191bfa127aaa",
+      "context": "number of pixels nearest each subpixel centre, from 1 to 81 in the nine-by-nine measurement window.",
+      "translation": "가로세로 아홉 픽셀인 측정 창에서 각 서브픽셀 중심에 가장 가까운 픽셀 수로, 범위는 1부터 81까지입니다.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#15",
+      "source": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+      "source_sha256": "c5d3a394056b9f5a1abb387aa552d2e9685ee8d0931177113f4807466f66f347",
+      "context": "minimum centre mean minus local annulus median, in native intensity units. Equality is retained.",
+      "translation": "중심 평균에서 국소 배경 고리의 중앙값을 뺀 값의 최솟값이며 원래 강도 단위를 사용합니다. 임계값과 같아도 유지됩니다.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#16",
+      "source": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+      "source_sha256": "d2fec8aae10a43932943df6162208696950ce53d2b7bf84d8693a5cfda6645b1",
+      "context": "peak-local-maximum neighbourhood in pixels; scale-dependent nonmaximum suppression follows it.",
+      "translation": "픽셀 단위의 피크 국소 최댓값 이웃 영역으로, 이후 스케일에 따른 비최대 억제를 적용합니다.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.CpuParams#17",
+      "source": "minimum distance from the parent boundary in pixels.",
+      "source_sha256": "fb27f594e53e5c1b7a2a9f78d4446dece400717cdb88ac9250fb08996ea594ad",
+      "context": "minimum distance from the parent boundary in pixels.",
+      "translation": "픽셀 단위의 부모 객체 경계까지 최소 거리.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.puncta#0",
+      "source": "Find noise-standardised centre-pixel puncta within unchanged parents.",
+      "source_sha256": "da596bc9d7c5d9bdaccdad402e3d55efa5e787a1ef3f6b2f0435654dd93db6a8",
+      "context": "Find noise-standardised centre-pixel puncta within unchanged parents.",
+      "translation": "변경하지 않은 부모 객체 내부에서 노이즈 표준화된 중심 픽셀 점상 객체를 찾습니다.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.puncta#1",
+      "source": "original finite two-dimensional channel intensities.",
+      "source_sha256": "9a1f62b4c519d668da98113ffebb01320b2c477699b773625c95dc16b8a0db9c",
+      "context": "original finite two-dimensional image data channel intensities.",
+      "translation": "2차원 이미지 채널의 원래 유한 강도값.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.puncta#2",
+      "source": "matching nonnegative integer parent labels.",
+      "source_sha256": "6cc9e0a3db2630cd9988b693b31e67cd5473243fd6378f8f5de74af1bb495f63",
+      "context": "matching nonnegative integer parent labels.",
+      "translation": "일치하는 음이 아닌 정수 부모 라벨.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.puncta#3",
+      "source": "candidate, centre-pixel and native-intensity inclusion settings.",
+      "source_sha256": "b43dde83903f3be2c3a14edc39971a40b7eaefc98948bd936f82edc40bc98bd5",
+      "context": "candidate, centre-pixel and native-intensity inclusion settings.",
+      "translation": "후보, 중심 픽셀 및 원래 강도에 따른 포함 설정.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.puncta#4",
+      "source": "return ``(labels, candidates)`` instead of labels alone; candidate rows include rejected centres and exact overlapping centre means.",
+      "source_sha256": "b908fdc21d772c3d18c2c85dec1065d788e1e9ba40efe0a8ab6e8f5f78b1f4b1",
+      "context": "return ``(labels, candidates)`` instead of labels alone; candidate rows include rejected centres and exact overlapping centre means.",
+      "translation": "라벨만 반환하는 대신 ``(labels, candidates)`` 튜플을 반환합니다. 후보 행에는 제외된 중심과 겹치는 중심 샘플의 정확한 평균이 포함됩니다.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    },
+    {
+      "label": "spacr.qt.cpu_modes.puncta#5",
+      "source": "int32 labels, optionally with the candidate measurement DataFrame.",
+      "source_sha256": "2bb67301f59e063a2482b75f8eab9bbe36f7f41504d3b8b65a76e7b538737757",
+      "context": "int32 labels, optionally with the candidate measurement DataFrame.",
+      "translation": "int32 라벨이며, 선택적으로 후보 측정 DataFrame을 함께 반환합니다.",
+      "review_basis": "Direct Codex technical translation and review of the current detector contract: image-pixel scales, propagated noise, inclusive native-intensity threshold, parent constraints and independent overlapping centre measurements."
+    }
+  ]
+}

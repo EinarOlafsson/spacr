@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 19:22-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: hi\n"
@@ -308,8 +308,4 @@ msgstr "खोज कैश साफ़ करें और फिर से �
 
 msgid "Return ``(plugin_name, section)`` report contributions."
 msgstr "``(plugin_name, section)`` रिपोर्ट योगदान लौटाएँ।"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`object`"
-msgstr "आधार वर्ग: :py:class:`object`"
 

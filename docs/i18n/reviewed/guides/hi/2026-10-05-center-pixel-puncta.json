@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "method": "Direct Codex AI technical translation and source/meaning review; no independent peer or native-speaker signoff. Standard guide import and gates unchanged.",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "source_files": {
+    "docs/source/make_masks.rst": "e8ebbcbdd5438b8619acadd7fb6c7173f4047c45b6a2030286410d350ee5219f"
+  },
+  "runtime_catalog_sha256": "4618dba73828b654b4c13cf37cc1bdf50871ec8f97a3a5c00589f8ad7d8f4e04",
+  "records": [
+    {
+      "index": 0,
+      "domain": "make_masks",
+      "source": "Centre-pixel puncta inside cysts or cells",
+      "source_sha256": "2325f6bf2a40ba920e59c7a93af50efe1f0cc45244b20c7a1346b196abc28e6f",
+      "target": "सिस्ट या कोशिकाओं के भीतर केंद्र-पिक्सेल बिंदु",
+      "ui": {}
+    },
+    {
+      "index": 1,
+      "domain": "make_masks",
+      "source": "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**.",
+      "source_sha256": "442efbe271e4a729693aca9ca14bff24f2143b75adbc600a8585885fa0c9e46e",
+      "target": "**पहचान विधियाँ** में **मूल ऑब्जेक्ट के मास्क के भीतर केंद्र-पिक्सेल बिंदु** चुनें। मूल एक-चैनल छवियाँ खोलें और मूल ऑब्जेक्ट के मास्क का अलग फ़ोल्डर चुनें, जिसमें फ़ाइलों के आधार नाम छवियों से मेल खाते हों; या वर्तमान छवि के लिए मूल ऑब्जेक्ट का मास्क फ़ाइल चुनें। मूल ऑब्जेक्ट के मास्क केवल पढ़े जाते हैं। पूरी छवि पर **बदलें** का उपयोग करें और फिर **मास्क सहेजें** चुनें।",
+      "ui": {
+        "Centre-pixel puncta within parent masks": "मूल ऑब्जेक्ट के मास्क के भीतर केंद्र-पिक्सेल बिंदु",
+        "Replace": "बदलें",
+        "Save mask": "मास्क सहेजें"
+      }
+    },
+    {
+      "index": 2,
+      "domain": "make_masks",
+      "source": "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration.",
+      "source_sha256": "1633c1a6afc1229e30941354ec9db90032514a854148aa03cd492a2b9bb673e3",
+      "target": "पहचानकर्ता sigma 1.5, 2, 3, 4 और 6 पिक्सेल पर पैमाना-सामान्यीकृत LoG शिखर खोजता है। प्रत्येक मूल ऑब्जेक्ट के पिक्सेल शोर का अनुमान sigma 1 वाले उच्च-पास अवशेष की MAD को 0.87 से भाग देकर करता है और उस शोर को प्रत्येक LoG कर्नेल में प्रसारित करता है। संभावित बिंदुओं की डिफ़ॉल्ट सीमा 2.5 शोर इकाइयाँ है। शिखरों पर पैमाने के अनुसार आसपास के कमजोर अधिकतमों का दमन होता है और मूल ऑब्जेक्ट के किनारे से तीन पिक्सेल के भीतर के शिखर हटाए जाते हैं। छवि अधिग्रहण के अनुसार पैमाना सूची, संभावित बिंदु की सीमा, शिखरों की दूरी या किनारे की दूरी बदलें; ये सेटिंग छवि पिक्सेल में हैं, अंशांकन नहीं।",
+      "ui": {}
+    },
+    {
+      "index": 3,
+      "domain": "make_masks",
+      "source": "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed.",
+      "source_sha256": "319064319bed0b4b8dac199caf9431579c9b1d26ff05450f71163e84e811b5a4",
+      "target": "हर बिंदु को नौ गुणा नौ खिड़की में उसकी तीव्रता-भारित उपपिक्सेल केंद्र के निकटतम पिक्सेल से मापा जाता है। **प्रति बिंदु केंद्र पिक्सेल** का डिफ़ॉल्ट 20 है; 10 और 40 भी समर्थित हैं। उसी मूल ऑब्जेक्ट के भीतर स्थानीय पृष्ठभूमि का वलय max(4, 2.5 sigma + 2) पिक्सेल से शुरू होता है और चार पिक्सेल चौड़ा होता है। पर्याप्त पृष्ठभूमि शेष रहने पर अन्य संभावित बिंदुओं के केंद्र हटाए जाते हैं। शामिल करने की डिफ़ॉल्ट न्यूनतम शर्त है केंद्र का औसत घटा स्थानीय पृष्ठभूमि >= 3 मूल तीव्रता इकाइयाँ। प्रदर्शन सामान्यीकरण, उलटना, छवि सुधार और Min area का उपयोग नहीं होता।",
+      "ui": {
+        "Centre pixels per punctum": "प्रति बिंदु केंद्र पिक्सेल"
+      }
+    },
+    {
+      "index": 4,
+      "domain": "make_masks",
+      "source": "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary.",
+      "source_sha256": "7fc3dd660fe26df123152270a4355a1f391f9faa2789ea318fae597c0a1627e6",
+      "target": "सहेजा गया पूर्णांक मास्क हर रखे गए बिंदु को अपना अलग लेबल देता है। पास की केंद्र खिड़कियाँ एक-दूसरे पर आ सकती हैं: प्रत्येक पूर्णांक निर्देशांक वाला शिखर अपने ऑब्जेक्ट के लिए आरक्षित है, अन्य साझा पिक्सेल निकटतम केंद्र को दिए जाते हैं और मूल ऑब्जेक्ट के बाहर के पिक्सेल छोड़ दिए जाते हैं। इसलिए किसी मास्क में माँगे गए N से कम पिक्सेल हो सकते हैं। यह केंद्र नमूना लेने का मास्क है, बिंदु की भौतिक सीमा नहीं।",
+      "ui": {}
+    },
+    {
+      "index": 5,
+      "domain": "make_masks",
+      "source": "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results.",
+      "source_sha256": "326e38b485818ba878d17ab37bf7b73444d74facfeec88ee91fe15c473de6020",
+      "target": "पूरी छवि की अपरिवर्तित पहचान सहेजने पर मास्क के साथ ``<stem>.puncta.csv`` और ``<stem>.puncta.json`` भी लिखे जाते हैं। तालिका में सभी संभावित बिंदु, उनके शामिल होने के संकेत, आउटपुट ऑब्जेक्ट लेबल, मूल ऑब्जेक्ट ID, निर्देशांक, शोर, स्थानीय पृष्ठभूमि, 10/20/40 पिक्सेल के सटीक केंद्र औसत और चुना गया N-पिक्सेल औसत होते हैं। सटीक केंद्र औसत लेबल स्वामित्व से स्वतंत्र होकर एक-दूसरे पर आने वाले नमूनों को बनाए रखते हैं। चुने गए N-पिक्सेल औसत घटा स्थानीय पृष्ठभूमि के लिए ``center_corrected`` और स्थिर 20-पिक्सेल संस्करण के लिए ``corrected20`` का उपयोग करें। पुराना ``corrected`` स्तंभ संदर्भ की तीन गुणा तीन खिड़की का परिणाम बनाए रखता है। रिकॉर्ड चेकसम से छवि, मूल ऑब्जेक्ट के मास्क, आउटपुट मास्क, CSV और पहचानकर्ता सेटिंग को जोड़ता है। संपादित या संयुक्त लेबल को पुराने केंद्र माप चुपचाप नहीं दिए जा सकते। स्थानीय पूर्वावलोकन अपने कटे हुए क्षेत्र में शोर का अनुमान लगाते हैं; वैज्ञानिक परिणामों के लिए पूरी छवि की पहचान करें।",
+      "ui": {}
+    },
+    {
+      "index": 6,
+      "domain": "make_masks",
+      "source": "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure.",
+      "source_sha256": "a64c2abbfc82902e9e7a9fa8de374fc12b85711a6c42a9f3893aa6c7d3b45c0d",
+      "target": "**Measure के लिए व्यवस्थित करें…** का उपयोग करके बिंदुओं को मूल ऑब्जेक्ट के मास्क और मूल चैनलों के साथ कोशिकांग मास्क के स्थान में रखें। Measure सामान्य मास्क क्षेत्र की तीव्रता और मूल ऑब्जेक्ट संबंध बता सकता है, लेकिन नमूने एक-दूसरे पर आने पर ये औसत सटीक केंद्र औसत से अलग हो सकते हैं। केंद्र और वलय विश्लेषण के लिए स्रोत से जुड़ी बिंदु तालिका का उपयोग करें। यह पहचानकर्ता अकेले शोर का शून्य मॉडल, पदानुक्रमित परीक्षण या संयुक्त प्रकाशन चित्र लागू नहीं करता।",
+      "ui": {
+        "Organize for Measure…": "Measure के लिए व्यवस्थित करें…"
+      }
+    }
+  ]
+}

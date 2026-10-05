@@ -846,3 +846,43 @@ Make Masks tutorial scene. These additions keep the broader goal open.
 | 615 — puncta guide translations | 0% | 1–2 h | P1 | Translate the new scientific settings, overlap and exact-column explanation into all nine guide languages. |
 | 358/615 — Make Masks tutorial 14 | 0% | 1–3 h + queue | P1 | Add a fresh real parent/puncta scene, translations, narration and validated publication. |
 | 358/615 — GPU narration | 40% | 2–4 h + queue | P1 | Home/Alpha's 54 of the five-lesson plan's 135 tracks are rendered; the new Make Masks scene is additional work. |
+
+2026-10-05 — CURRENT GUIDES AND FRENCH API COMPLETION
+All seven new puncta guide messages are translated in each of nine locales.
+Normal glossary generation also exposed five older control-name mismatches
+per locale; these are aligned to the actual runtime labels through normal
+guide import, with explicit before/after review records. Thirteen new French
+puncta captions were refined from the ambiguous punctuation term to objects
+ponctuels; every other runtime catalog row is preserved. Strict runtime audit
+still covers 7,032 UI sources, 1,238 setting tooltips, 237 categories and 77
+modules in all nine languages.
+
+Fresh Sphinx 9 extraction contains 2,959 current guide messages: the prior
+2,960 plus seven new puncta messages minus eight autodoc Bases labels that
+are no longer extracted. The retired translations are archived in the guide
+receipt, rather than relabelled as current prose. All nine catalogs pass the
+strict audit with 100% coverage, zero stale/invalid messages and valid review
+labels. All nine translated guide builds pass with warnings as errors.
+Rendered-page inspection verifies all 63 puncta passages, exact CSV/JSON and
+measurement-column literals, actual app control names and no English fallback.
+That inspection also exposed eight older Korean messages whose adjacent
+particles broke inline markup without a Sphinx warning; those are corrected
+and their original translations retained in explicit review evidence.
+
+French's entire 13,177-symbol API catalog now passes the ordinary full audit.
+Normal repair preserves 13,126 complete records, refreshes 50 and adds puncta;
+it decodes no model output and leaves zero unresolved blocks. All twelve new
+puncta API blocks have exact source/context-bound review in every locale.
+Eight locales still need the remaining changed API prose and full catalog
+repair. A keyboard-key sense correction prevents the shortcut paragraph from
+being rewritten as mapping keys; its positive and negative semantic tests
+pass without weakening mapping-key rejection.
+
+The current English site builds successfully with warnings treated as errors,
+after correcting the new puncta heading's one-character-short underline.
+Guide/API evidence: features/data/661_guide_translation_2026-10-05.json and
+features/data/615_french_api_completion_2026-10-05.json. These are build and
+catalog completion receipts, not a claim of deployment or completion of the
+remaining API locales, tutorial media, publication or GPU lanes. Technical
+translations retain honest Codex/Claude provenance; no independent peer or
+native-speaker signoff is invented.

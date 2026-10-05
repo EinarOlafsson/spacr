@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-30 14:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: es\n"
@@ -408,12 +408,4 @@ msgstr "Devuelve la carpeta persistente de perfiles, trabajos, configuraciones y
 
 msgid "``SPACR_REMOTE_STATE_DIR`` is intentionally supported for tests, portable deployments, and managed lab installations.  Otherwise XDG state storage is used on Linux and a conventional per-user directory elsewhere."
 msgstr "``SPACR_REMOTE_STATE_DIR`` se admite intencionadamente para pruebas, despliegues portátiles e instalaciones de laboratorio gestionadas. En otro caso se usa el almacenamiento de estado XDG en Linux y una carpeta convencional por usuario en los demás sistemas."
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`object`"
-msgstr "Clases base: :py:class:`object`"
-
-# AI technical review (Codex), no native-speaker signoff.
-msgid "Bases: :py:class:`RuntimeError`"
-msgstr "Clases base: :py:class:`RuntimeError`"
 

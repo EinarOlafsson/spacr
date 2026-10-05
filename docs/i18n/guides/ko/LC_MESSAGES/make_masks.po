@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 11:42-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
@@ -32,12 +32,40 @@ msgid "Hover a setting or its label to read the explanation and follow its API h
 msgstr "설정이나 그 레이블 위에 마우스를 올리면 설명을 읽고 API 도움말 링크를 따라갈 수 있습니다. 대응하는 애니메이션이 있는 컨트롤은 그 팝업에서 애니메이션도 제공하며, 각 컨트롤은 자체 표시 상태를 기억합니다. 이미지 향상 도움말은 검출 체인 문서로 연결됩니다. 대응하는 애니메이션이 없는 컨트롤도 글로 된 설명과 API 링크는 그대로 유지합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
+msgid "Centre-pixel puncta inside cysts or cells"
+msgstr "낭종 또는 세포 내부의 중심 픽셀 점상 객체"
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Choose **Centre-pixel puncta within parent masks** in **Detection methods**. Open the original single-channel images and select a separate parent-mask folder with matching image stems, or a parent-mask file for the current image. Parent masks are read-only. Use whole-image **Replace**, then **Save mask**."
+msgstr "**감지 방법** 항목에서 **부모 마스크 내부의 중심 픽셀 점상 객체** 옵션을 선택하세요. 원래 단일 채널 이미지를 열고 이미지의 파일 기본 이름과 일치하는 별도의 부모 마스크 폴더 또는 현재 이미지의 부모 마스크 파일을 선택하세요. 부모 마스크는 읽기 전용입니다. 전체 이미지에 **바꾸기** 옵션을 적용한 다음 **마스크 저장** 옵션을 사용하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The detector finds scale-normalised LoG peaks at sigma 1.5, 2, 3, 4 and 6 pixels. It estimates each parent's pixel noise from the MAD of the sigma-1 high-pass residual divided by 0.87, and propagates that noise through each LoG kernel. The candidate threshold defaults to 2.5 noise units. Peaks undergo scale-dependent nonmaximum suppression and a three-pixel parent-edge exclusion. Change the scale list, candidate threshold, peak spacing or edge margin when the acquisition requires it; these are image-pixel settings, not calibration."
+msgstr "감지기는 sigma 1.5, 2, 3, 4 및 6 픽셀에서 스케일 정규화 LoG 피크를 찾습니다. 각 부모 객체의 픽셀 노이즈를 sigma 1 고역 통과 잔차의 MAD를 0.87로 나누어 추정하고, 이 노이즈를 각 LoG 커널을 통해 전파합니다. 후보 임계값의 기본값은 2.5 노이즈 단위입니다. 피크에는 스케일에 따른 비최대 억제와 부모 경계에서 세 픽셀 이내의 피크 제외가 적용됩니다. 촬영 조건에 따라 스케일 목록, 후보 임계값, 피크 간격 또는 경계 여백을 바꾸세요. 이 설정은 이미지 픽셀 단위이며 보정 설정이 아닙니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Each punctum is measured using the pixels nearest its intensity-weighted subpixel centre in a nine-by-nine window. **Centre pixels per punctum** defaults to 20; 10 and 40 are supported. The same-parent local-background annulus starts at max(4, 2.5 sigma + 2) pixels and is four pixels wide. It excludes other candidate centres when enough background remains. The default inclusion floor is centre mean minus local background >= 3 native intensity units. Display normalization, inversion, enhancement and Min area are bypassed."
+msgstr "각 점상 객체는 9×9 창에서 강도로 가중한 서브픽셀 중심에 가장 가까운 픽셀로 측정됩니다. **점상 객체당 중심 픽셀 수** 옵션의 기본값은 20이며 10과 40도 지원됩니다. 동일 부모 객체 내부의 국소 배경 고리는 max(4, 2.5 sigma + 2) 픽셀에서 시작하며 폭은 네 픽셀입니다. 충분한 배경이 남으면 다른 후보 중심을 제외합니다. 기본 포함 기준은 중심 평균에서 국소 배경을 뺀 값 >= 3 원래 강도 단위입니다. 표시 정규화, 반전, 이미지 향상 및 Min area는 적용되지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "The saved integer mask gives every retained punctum its own label. Nearby centre windows can overlap: each integer peak is reserved for its object, other shared pixels go to the nearest centre, and pixels outside the parent are omitted. Consequently a mask may contain fewer than the requested N pixels. This is a centre sampling mask, not the punctum's physical boundary."
+msgstr "저장된 정수 마스크는 유지되는 각 점상 객체에 고유한 라벨을 부여합니다. 인접한 중심 창은 겹칠 수 있습니다. 각 정수 좌표 피크는 해당 객체에 예약되며, 다른 공유 픽셀은 가장 가까운 중심에 할당되고 부모 밖의 픽셀은 제외됩니다. 따라서 마스크의 픽셀 수는 요청한 N보다 적을 수 있습니다. 이 마스크는 중심 샘플링용이며 점상 객체의 물리적 경계가 아닙니다."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+msgstr "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. 기존 ``corrected`` 열은 참조 구현의 3×3 창 결과를 유지합니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
+
+# AI technical review (Codex), no native-speaker signoff.
+msgid "Use **Organize for Measure…** to place the puncta in an organelle mask slot alongside the parent masks and original channels. Measure can report ordinary mask-region intensities and parent relationships, but those means can differ from exact centre means when samples overlap. Use the source-bound puncta table for the centre/annulus analysis. This detector alone does not implement the noise-null model, hierarchical tests or a composed publication figure."
+msgstr "**Measure용으로 정리…** 옵션을 사용해 점상 객체를 부모 마스크 및 원래 채널과 함께 세포소기관 마스크 슬롯에 배치하세요. Measure는 일반적인 마스크 영역 강도와 부모 관계를 보고할 수 있지만, 샘플이 겹치면 이러한 평균은 정확한 중심 평균과 다를 수 있습니다. 중심과 고리 분석에는 원본과 연결된 점상 객체 표를 사용하세요. 이 감지기만으로는 노이즈 영가설 모델, 계층적 검정 또는 조합된 출판용 그림을 구현하지 않습니다."
+
+# AI technical review (Codex), no native-speaker signoff.
 msgid "Thumbnail display quality"
 msgstr "썸네일 표시 품질"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size."
-msgstr "**표시** 또는 **Measure용으로 정리…**에서 **썸네일 품질**을 선택하세요. **낮음**은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간**은 긴 변을 최대 256픽셀, **높음**은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다."
+msgstr "**표시** 또는 **Measure용으로 정리…** 항목에서 **썸네일 품질** 옵션을 선택하세요. **낮음** 옵션은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간** 옵션은 긴 변을 최대 256픽셀, **높음** 옵션은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "The choice is remembered and updates open thumbnail views. Only visible organizer cells are loaded, with a bounded cache. Changing quality affects display only; saved images, masks and measurements are unchanged."

@@ -1,0 +1,401 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "note": "Current changed API prose, with keyboard shortcut keys reviewed as keyboard input rather than mapping keys. Standard source/context/literal admission gates unchanged.",
+  "records": [
+    {
+      "label": "spacr.condition_annotations.apply_conditions#5",
+      "source": "Values are assigned by position, never by Series index alignment: duplicated pandas indices are legal input and play no role in condition identity.",
+      "source_sha256": "e278986cd2c432a80f1b6bbe0db719a5403631efd133db749982f1412c89167f",
+      "context": "Values are assigned by position, never by Series index alignment: duplicated pandas indices are legal input and play no role in condition identity.",
+      "translation": "Les valeurs sont attribuées par position, jamais par alignement sur l’index d’une Series : les index pandas dupliqués sont autorisés en entrée et ne jouent aucun rôle dans l’identité des conditions.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.condition_annotations.save_annotated_table#8",
+      "source": "Reserved metadata is validated before the user table is created, so a conflicting unrelated table is never silently repurposed as the receipt store. Reopening and editing are bound to what SQLite actually stored, including dtype normalization, rather than assuming a pandas to SQL round trip is lossless.",
+      "source_sha256": "5f9f2931faa64e4af2a4979b385acfb2cb9e0775acb4a6c9a27e4d2c6b16dfea",
+      "context": "Reserved metadata is validated before the user table is created, so a conflicting unrelated table is never silently repurposed as the receipt store. Reopening and editing are bound to what SQLite actually stored, including dtype normalization, rather than assuming a pandas to SQL round trip is lossless.",
+      "translation": "Les métadonnées réservées sont validées avant la création de la table utilisateur ; une table distincte en conflit n’est donc jamais réaffectée silencieusement au stockage des reçus. La réouverture et les modifications sont liées à ce que SQLite a réellement enregistré, y compris la normalisation des types, plutôt que de supposer qu’un aller-retour de pandas vers SQL est sans perte.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.condition_annotations.table_identity#3",
+      "source": "Hashing is vectorized so large measurement tables stay practical; the final digest binds every row, in order, to the schema and the source definition.",
+      "source_sha256": "cda75415f33d2b6bce97577d741bc840de927497734e7e9dddda989e4fef2eee",
+      "context": "Hashing is vectorized so large measurement tables stay practical; the final digest binds every row, in order, to the schema and the source definition.",
+      "translation": "Le calcul du hachage est vectorisé pour rester utilisable sur de grandes tables de mesures ; l’empreinte finale lie chaque ligne, dans son ordre, au schéma et à la définition de la source.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#23",
+      "source": "Mask writes which object sits in which as its own table in measurements.db. That table is built from Measure's object tables, so before Measure has run there are none, and that is not a failure.",
+      "source_sha256": "b4d2e02a01115d08de9990768b9d3068de6df3925887365d6c5e57f7dcb7f703",
+      "context": "Mask writes which object sits in which as its own table in measurements.db. That table is built from Measure's object tables, so before Measure has run there are none, and that is not a failure.",
+      "translation": "Mask enregistre les relations d’inclusion entre objets dans une table dédiée de measurements.db. Cette table est construite à partir des tables d’objets de Measure ; avant l’exécution de Measure, elles n’existent donc pas, ce qui ne constitue pas un échec.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.derived_tables.execute#5",
+      "source": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Gate and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
+      "source_sha256": "46272b536827ca96d4e2d1debd47dcb49d45a03df385441ade8e81dd76131a7d",
+      "context": "Genuine base provenance is kept: external names are never turned into image identities just because they happen to be unique. One-to-one joins, once validated, still go through the same typed plan on their singleton groups, so explicit count and nunique overrides stay real. Data-selection boundary and filter identities use timeID, and the original time_id spelling is preserved too, so a chart that selects time_id stays reproducible.",
+      "translation": "La provenance réelle des données de base est conservée : les noms externes ne deviennent jamais des identités d’image simplement parce qu’ils sont uniques. Une fois validées, les jointures un-à-un suivent toujours le même plan typé pour leurs groupes à un seul élément ; les choix explicites de count et nunique restent donc effectifs. Les identités des limites de sélection de données et des filtres utilisent timeID, et l’orthographe initiale time_id est également conservée pour qu’un graphique sélectionnant time_id reste reproductible.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.drop_classification.classify_drop#3",
+      "source": "spaCR's own output counts only when it is the whole drop. Files named as masks are masks; beside images, label TIFFs are too, but only when a dropped image claims them by name, since a clean synthetic image can look like labels. Masks dropped alone open the images they belong to, when those are present.",
+      "source_sha256": "55a3b2e94228e9edd221c361f7e9a588f4087cf35a5b417f691289cb03ae85b3",
+      "context": "spaCR's own output counts only when it is the whole drop. Files named as masks are masks; beside images, label TIFFs are too, but only when a dropped image claims them by name, since a clean synthetic image can look like labels. Masks dropped alone open the images they belong to, when those are present.",
+      "translation": "Les propres sorties de spaCR ne sont reconnues comme telles que si elles constituent l’intégralité du dépôt. Les fichiers nommés comme des masques sont des masques ; les TIFF d’étiquettes placés à côté des images le sont aussi, mais uniquement si une image déposée les désigne par leur nom, car une image synthétique sans bruit peut ressembler à des étiquettes. Les masques déposés seuls ouvrent les images auxquelles ils appartiennent, lorsqu’elles sont présentes.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.install_cleanup#8",
+      "source": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
+      "source_sha256": "16c109cefeac68ae0b253a90e4ae1cf7b1dbd527ce7a3af7b2326e1a837afef3",
+      "context": "``purge`` is the opt-in clean uninstall: it also deletes spaCR's caches, backend environments and user data, after listing them and asking. It never runs on its own; ``remove --purge`` runs it after the removal succeeded.",
+      "translation": "``purge`` est la désinstallation complète explicitement demandée : elle supprime aussi les caches de spaCR, les environnements des moteurs et les données utilisateur, après les avoir listés et demandé confirmation. Elle ne s’exécute jamais seule ; ``remove --purge`` la lance une fois la suppression réussie.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.measure._cellprofiler_tables.lookup#1",
+      "source": "A centre outside the image cannot identify an edge object; the check comes before rounding so negative subpixel positions stay unmatched.",
+      "source_sha256": "beae0390bf53ee34a2347b13ac8b0dceb04fceec38e1503e162642883016d901",
+      "context": "A centre outside the image cannot identify an edge object; the check comes before rounding so negative subpixel positions stay unmatched.",
+      "translation": "Un centre hors de l’image ne peut pas identifier un objet du bord ; la vérification précède l’arrondi pour que les positions subpixel négatives restent sans correspondance.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.merge_tables.roll_up#7",
+      "source": "An unmeasured group is missing, never a measured zero. Regression and both interactive merge consumers use this same rule.",
+      "source_sha256": "d32a92e9d6a8354116e3221f1f99c2d465a93910cf52057281cac706707c1c11",
+      "context": "An unmeasured group is missing, never a measured zero. Regression and both interactive merge consumers use this same rule.",
+      "translation": "Un groupe non mesuré est une valeur manquante, jamais un zéro mesuré. La régression et les deux interfaces de fusion interactives appliquent la même règle.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.original_filenames.enrich#8",
+      "source": "Unparseable legacy names can still be restored by their exact target, and a timed filename refines an untimed prcf without merging timepoints.",
+      "source_sha256": "69a908d60ea335f9b72b264e1f1caab2a6eeb69403c196f09d9f4bd3f6a9ac92",
+      "context": "Unparseable legacy names can still be restored by their exact target, and a timed filename refines an untimed prcf without merging timepoints.",
+      "translation": "Les anciens noms impossibles à analyser peuvent encore être restaurés grâce à leur cible exacte ; un nom de fichier horodaté précise un prcf sans temps sans fusionner les instants.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.plot.figure_output_preferences#1",
+      "source": "A format or DPI changed in the Preferences figure settings wins over the \"Figure format\" and \"Resolution\" preferences. Degrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI` rather than raising: the preference store is Qt's, and the pipelines that call this run headless from the CLI and from notebooks, where importing PySide6 to decide a file extension would be absurd.",
+      "source_sha256": "29b56a5f6a20a3540823427b16eb205f3eb6e31176e94eaee3ad7610148d2c95",
+      "context": "A format or DPI changed in the Preferences figure settings wins over the \"Figure format\" and \"Resolution\" preferences. Degrades to :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI` rather than throwing: the preference store is Qt's, and the pipelines that call this execute headless from the CLI and from notebooks, where importing PySide6 to decide a file extension would be absurd.",
+      "translation": "Un format ou un DPI modifié dans les paramètres de figure des Préférences prévaut sur les préférences \"Figure format\" et \"Resolution\". En cas de problème, les valeurs :data:`DEFAULT_FIGURE_FORMAT` / :data:`DEFAULT_FIGURE_DPI` sont utilisées au lieu de lever une exception : le stockage des préférences relève de Qt, et les chaînes de traitement appelantes s’exécutent sans interface graphique depuis la CLI et les notebooks, où importer PySide6 pour choisir une extension de fichier serait inapproprié.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.plot.save_figure#7",
+      "source": "The figure first takes the settings changed in the Preferences figure settings (:func:`spacr.figures.style._apply_user_style`), and a second copy is written when \"Also save\" names another format.",
+      "source_sha256": "65efbe78582bdc89fa6b211061850a60c777e449a83f25747b28568b75cb9631",
+      "context": "The figure first takes the settings changed in the Preferences figure settings (:func:`spacr.figures.style._apply_user_style`), and a second copy is written when \"Also save\" names another format.",
+      "translation": "La figure applique d’abord les réglages modifiés dans les paramètres de figure des Préférences (:func:`spacr.figures.style._apply_user_style`), puis une seconde copie est écrite lorsque \"Also save\" désigne un autre format.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.plugins#5",
+      "source": "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads.",
+      "source_sha256": "97ad1473524ac9bd245f9285e433b6942a07316f801380d7788b4cfe8d015d1f",
+      "context": "Two locks guard the registry: registry readers hold _LOCK only for snapshot access and publication, while _CATALOGUE_MUTATION_LOCK serializes filesystem and module changes without blocking cached registry reads.",
+      "translation": "Deux verrous protègent le registre : ses lecteurs ne détiennent _LOCK que pour accéder à l’instantané et le publier, tandis que _CATALOGUE_MUTATION_LOCK sérialise les modifications du système de fichiers et des modules sans bloquer les lectures du registre en cache.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.bridge.RunRegistry.cancel_all#3",
+      "source": "A handle whose ``stop_on_quit`` is false (an install that must not be killed half way) is left running and is not waited for.",
+      "source_sha256": "dc6e86498d6584e94b8fb5b9fa57f89f0986cd794df1bff0d8fc1075f5b47f46",
+      "context": "A handle whose ``stop_on_quit`` is false (an install that must not be killed half way) is left running and is not waited for.",
+      "translation": "Un gestionnaire dont ``stop_on_quit`` est faux, par exemple une installation qui ne doit pas être interrompue, continue de s’exécuter et n’est pas attendu.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.crash_recovery.note_a_clean_shutdown#1",
+      "source": "THE COUNT RESETS RATHER THAN DECREMENTS. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
+      "source_sha256": "016cea402964e16150069ef03c1d065fdc3fd759b0333c6af70524e2ec09e799",
+      "context": "The count resets rather than decrements. The question is \"is spaCR crashing right now\", not \"how many times has it ever crashed\", and a total that only ever grew would eventually disable the backdrop on a machine where it works. Every instance and project lock this window holds is released first.",
+      "translation": "LE COMPTEUR EST RÉINITIALISÉ PLUTÔT QUE DÉCRÉMENTÉ. La question est de savoir si spaCR plante actuellement, et non combien de fois il a planté depuis toujours ; un total qui ne ferait qu’augmenter finirait par désactiver l’arrière-plan sur une machine où il fonctionne. Chaque verrou d’instance et de projet détenu par cette fenêtre est d’abord libéré.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.crash_recovery.note_that_a_launch_began#2",
+      "source": "Call once, early, before the backdrop is built. It also takes the per-instance lock: a marker left by a window that is still running is not a crash, so a second window neither counts it nor overwrites it.",
+      "source_sha256": "3a6410090bc562ed1b5b146b30ac852bf8041fcb78797e33a048fa41b03b119f",
+      "context": "Call once, early, before the backdrop is built. It also takes the per-instance lock: a marker left by a window that is still running is not a crash, so a second window neither counts it nor overwrites it.",
+      "translation": "Appeler une seule fois, tôt, avant la construction de l’arrière-plan. Cette fonction prend aussi le verrou propre à l’instance : une marque laissée par une fenêtre encore en cours d’exécution n’est pas un plantage ; une seconde fenêtre ne la compte donc pas et ne la remplace pas.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.mask_thumbnail_quality.quality_combo#3",
+      "source": "The slot is connected with a context QObject, so it disconnects automatically when that object is destroyed.",
+      "source_sha256": "8d23e93dec2a3d949d11ab0412a25b890fe2d47268e37069313e6a36a8380b8c",
+      "context": "The slot is connected with a context QObject, so it disconnects automatically when that object is destroyed.",
+      "translation": "Le slot est connecté avec un QObject de contexte ; il se déconnecte donc automatiquement à la destruction de cet objet.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.plate_queue.PlateQueue.save#0",
+      "source": "Write the queue to disk, unless it was opened read-only.",
+      "source_sha256": "6ac27746a88b7c013c7466b2dbbb0a0ad506c14fa2849984f231e82bd0f2a293",
+      "context": "Write the work list to disk, unless it was opened read-only.",
+      "translation": "Écrire la liste de travail sur disque, sauf si elle a été ouverte en lecture seule.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.preferences#7",
+      "source": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "source_sha256": "b597667cc79d085cc0bebc81dc664039e2b02a19e409367088ca92ae9ff30837",
+      "context": "``theme``: ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | one of the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (default ``\"dark\"``). ``\"system\"`` follows the operating system color scheme, and only once somebody has picked it: a stored ``\"system\"`` written before dark became the default (2026-09-21) was the old default, not a choice, and reads as ``\"dark\"``; see :func:`get_theme`. ``\"cell\"`` uses fluorescence imagery and ``\"glass\"`` uses neutral layered materials over a built-in light field. A night theme also carries a backdrop and a sound set, written by :func:`apply_night_theme` when it is chosen. Space is not a selectable theme. The retired ``space_variant`` and ``space_seed`` values are removed from an older store the first time the theme is read; see :func:`get_theme`.",
+      "translation": "``theme`` : ``\"dark\"`` | ``\"light\"`` | ``\"cell\"`` | ``\"glass\"`` | ``\"high_contrast\"`` | l’un des dix thèmes nocturnes de :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` | ``\"system\"`` (par défaut ``\"dark\"``). ``\"system\"`` suit le thème de couleurs du système d’exploitation, uniquement après un choix explicite : une valeur ``\"system\"`` enregistrée avant que le mode sombre ne devienne la valeur par défaut (2026-09-21) était l’ancien défaut, pas un choix, et se lit comme ``\"dark\"`` ; voir :func:`get_theme`. ``\"cell\"`` utilise des images de fluorescence et ``\"glass\"`` des matériaux neutres superposés sur un champ lumineux intégré. Un thème nocturne comprend également un arrière-plan et un ensemble de sons, enregistrés par :func:`apply_night_theme` lors de sa sélection. Space n’est pas un thème sélectionnable. Les anciennes valeurs ``space_variant`` et ``space_seed`` sont supprimées d’un stockage existant lors de la première lecture du thème ; voir :func:`get_theme`.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.preferences.theme_description#3",
+      "source": "the theme's sentence (the high-contrast theme has one too), or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
+      "source_sha256": "2de45835a0144ac977296e318b082f07b344ed7eb41821ed22159215b54eed63",
+      "context": "the theme's sentence (the high-contrast theme has one too), or ``\"\"`` for the four themes that predate the family and for any token without one. The caller passes the result through :func:`tr` and sets no tooltip when it is empty.",
+      "translation": "la phrase descriptive du thème, y compris pour le thème à contraste élevé, ou ``\"\"`` pour les quatre thèmes antérieurs à cette famille et pour tout identifiant sans description. L’appelant transmet le résultat à :func:`tr` et n’ajoute aucune infobulle s’il est vide.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.screens.graph_builder.GraphBuilderScreen.export_table#3",
+      "source": "Both files are prepared before either destination is replaced, so a failed CSV conversion never leaves a receipt describing an export that did not run.",
+      "source_sha256": "7db6e8767cf6a6c32ed427afb45b495235c9b3ac63d7aa536f2521018f9c4ce4",
+      "context": "Both files are prepared before either destination is replaced, so a failed CSV conversion never leaves a receipt describing an export that did not execute.",
+      "translation": "Les deux fichiers sont préparés avant le remplacement de l’une ou l’autre destination ; un échec de conversion CSV ne laisse donc jamais un reçu décrivant une exportation qui n’a pas été exécutée.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.screens.map_barcodes._SpatialTranscriptomicsPanel.__init__.destroyed#1",
+      "source": "Destruction may follow a reopen, after the initial token retired; this state stays usable without touching the destroyed widget.",
+      "source_sha256": "09ef2191d39f0b2ba820669ba55926defe60cfc7d15fe7809ae7e0f8ab77b8ff",
+      "context": "Destruction may follow a reopen, after the initial token retired; this state stays usable without touching the destroyed widget.",
+      "translation": "La destruction peut survenir après une réouverture, une fois le jeton initial retiré ; cet état reste utilisable sans accéder au widget détruit.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.categories_for_app#1",
+      "source": "Memoised per module against the shape of ``categories`` (each title and how many keys it holds) and the plugin registry's answer, and returned as a fresh copy each time: a module's first open asks this five or six times and each expansion walks every setting key spaCR has.",
+      "source_sha256": "03fcc73054d0c2cbf3c45e12f5f3ee9bd53cfd184c2b32b97815effb6bdc6437",
+      "context": "Memoised per module against the shape of ``categories`` (each title and how many structured-data names it holds) and the plugin registry's answer, and returned as a fresh copy each time: a module's first open asks this five or six times and each expansion walks every setting name spaCR has.",
+      "translation": "Le résultat est mémorisé par module selon la structure de ``categories`` (chaque titre et le nombre de clés qu’il contient) et la réponse du registre des plugins, puis renvoyé sous forme d’une nouvelle copie à chaque appel : la première ouverture d’un module le demande cinq ou six fois, et chaque expansion parcourt toutes les clés de paramètres de spaCR.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.object_of_setting#4",
+      "source": "remove_background_organelle_7 is slot 7's switch: its last token is a number, not a slot prefix.",
+      "source_sha256": "a275776c06c4f4dbfb95ae815a4c7ee1776c85a4c6ca7dabfaaaeaa00fe7f342",
+      "context": "remove_background_organelle_7 is slot 7's switch: its last token is a number, not a slot prefix.",
+      "translation": "remove_background_organelle_7 est le commutateur de l’emplacement 7 : son dernier élément est un nombre, pas un préfixe d’emplacement.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar.reveal#6",
+      "source": "A nested heading is reachable only with every containing heading open, and logical ancestry also crosses bodies parked off the widget tree.",
+      "source_sha256": "0f16f27f348346ee83cadc7004e87795c19f500c3a0e96cdb39152ebbd36dc23",
+      "context": "A nested heading is reachable only with every containing heading open, and logical ancestry also crosses bodies parked off the widget tree.",
+      "translation": "Un titre imbriqué n’est accessible que si tous les titres qui le contiennent sont ouverts ; l’ascendance logique traverse aussi les corps temporairement retirés de l’arbre des widgets.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.shortcuts#14",
+      "source": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single screen (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
+      "source_sha256": "d58a09e1d1e3b06b954ec616758a8baa4c20e9e76be3f5e14eb54dddc8cb5c7b",
+      "context": "Every window-wide key can be rebound. The cheat sheet carries a \"Change shortcuts…\" button that opens a table of the window-wide actions; a key typed there replaces the default, a key already taken by another action is named as a conflict and cannot be saved, and the overrides are kept in the Preferences store under :data:`_KEYMAP_KEY` in Qt's portable spelling, so a keymap saved on one platform reads the same on the others. Keys that belong to a single application view (Annotate, Make Masks, the field browser) keep their defaults and are listed as taken.",
+      "translation": "Chaque touche globale de la fenêtre peut être réattribuée. L’aide-mémoire comporte un bouton \"Change shortcuts…\" qui ouvre une table des actions globales de la fenêtre ; une touche saisie dans cette table remplace la valeur par défaut, une touche déjà utilisée par une autre action est signalée comme conflit et ne peut pas être enregistrée. Les modifications sont conservées dans les Préférences sous :data:`_KEYMAP_KEY`, dans la notation portable de Qt, pour qu’un jeu de raccourcis enregistré sur une plateforme soit lu de la même façon sur les autres. Les touches propres à une seule vue de l’application (Annotate, Make Masks, le navigateur de champs) gardent leurs valeurs par défaut et sont indiquées comme occupées.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.theme#1",
+      "source": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "source_sha256": "ea885ad1ccbf2a096e6f3694890e8a3139ba367273d517d9ed1e89d85b0ea947",
+      "context": "Use :func:`active_palette` for colors shown by a live widget and :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains the selectable palettes ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` and the ten night themes of :mod:`spacr.qt.night_themes`; the ``\"system\"`` preference resolves to dark or light before palette lookup. A legacy ``\"space\"`` palette can still be read from persisted settings but is not selectable.",
+      "translation": "Utiliser :func:`active_palette` pour les couleurs affichées par un widget actif et :func:`stylesheet` pour la feuille de style de l’application. :data:`THEMES` contient les palettes sélectionnables ``\"dark\"``, ``\"light\"``, ``\"cell\"``, ``\"glass\"``, ``\"high_contrast\"`` et les dix thèmes nocturnes de :mod:`spacr.qt.night_themes` ; la préférence ``\"system\"`` est résolue en mode sombre ou clair avant la recherche de palette. Une ancienne palette ``\"space\"`` peut encore être lue dans les paramètres persistants, mais ne peut pas être sélectionnée.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.theme.close_mark_side#1",
+      "source": "The result accounts for the rendered glyph, current interface scale, and :data:`CLOSE_MARK_HIT_PX` minimum. The glyph's ink box is measured once per font: ``tightBoundingRect`` rasterises the glyph, and a module screen re-measures each of its close marks at every style change.",
+      "source_sha256": "2e415b8ccca238329d6f492aa02969120f012d2a61fbbcb98efcd20a4ea8269e",
+      "context": "The result accounts for the rendered glyph, current interface scale, and :data:`CLOSE_MARK_HIT_PX` minimum. The glyph's ink box is measured once per font: ``tightBoundingRect`` rasterises the glyph, and a module application view re-measures each of its close marks at every style change.",
+      "translation": "Le résultat tient compte du glyphe rendu, de l’échelle actuelle de l’interface et du minimum :data:`CLOSE_MARK_HIT_PX`. Le rectangle d’encre du glyphe est mesuré une fois par police : ``tightBoundingRect`` rastérise le glyphe, et une vue de module remesure chacune de ses marques de fermeture à chaque changement de style.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.calibration_preview._attach_preview.open_preview#1",
+      "source": "Closing detaches safely, and a second dialog never duplicates a still-running scan parked by the first.",
+      "source_sha256": "b1505c5c010dd6ef2f9efb44a5a1f97b883d1baa4863705c4427de03c13d702b",
+      "context": "Closing detaches safely, and a second dialog never duplicates a still-running scan parked by the first.",
+      "translation": "La fermeture détache les éléments en toute sécurité, et une seconde boîte de dialogue ne duplique jamais une analyse encore en cours laissée par la première.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.collapse_arrow.paint_collapse_arrow#7",
+      "source": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
+      "source_sha256": "fb29afca7dbfe4aedbc5d227255463cf7c97ec1b3697d178f402db6319adff7c",
+      "context": "Only the baseline glyph is scaled; the painted tab and the hit target stay put.",
+      "translation": "Seul le glyphe de base change d’échelle ; l’onglet dessiné et la zone de clic restent en place.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionAnnotationDialog.refresh_preview.work#1",
+      "source": "Failures travel through the generation-guarded result channel too, so a slow invalid draft cannot disable a newer valid preview.",
+      "source_sha256": "920afb0e9827754672aa2a29e0897299304cf236e58244e2c7ec6cd4030fa520",
+      "context": "Failures travel through the generation-guarded result channel too, so a slow invalid draft cannot disable a newer valid preview.",
+      "translation": "Les échecs passent aussi par le canal de résultats protégé par le numéro de génération ; une ébauche invalide lente ne peut donc pas désactiver un aperçu valide plus récent.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.condition_annotation_dialog.ConditionBox#8",
+      "source": "Old recipe and API editing is preserved: entering a legacy regex explicitly switches to its editor rather than silently ignoring the expression.",
+      "source_sha256": "2ffa40daa0f02e01a160a76eab4d285b5e6889100660d1d18af838e1981a0708",
+      "context": "Old recipe and API editing is preserved: entering a legacy regex explicitly switches to its editor rather than silently ignoring the expression.",
+      "translation": "La modification des anciennes recettes et par l’API est conservée : saisir explicitement une ancienne regex active son éditeur au lieu d’ignorer silencieusement l’expression.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.graph_spec.GraphSpec.binding_error#4",
+      "source": "Explicit bars also support a low-cardinality numeric Y (classified as categorical) and fall back to counts when Y has no numeric values.",
+      "source_sha256": "a30e5421cfc0b45f7c202d0b587c45901c31289623ce0c7c335d6d5e18defc87",
+      "context": "Explicit bars also support a low-cardinality numeric Y (classified as categorical) and fall back to counts when Y has no numeric values.",
+      "translation": "Les barres explicites prennent aussi en charge une variable Y numérique de faible cardinalité, classée comme catégorielle, et utilisent les effectifs si Y ne contient aucune valeur numérique.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.home.RecentRunsPanel#8",
+      "source": "read the journal on the calling thread now. Home passes ``False`` and fills the panel from its worker read, so the window is not held up by the journal.",
+      "source_sha256": "63eae8f86842e8595971e5254d3426dfa70a85aac13468c7fab187f3b52541b6",
+      "context": "read the journal on the calling independent execution path now. Home passes ``False`` and fills the panel from its worker read, so the window is not held up by the journal.",
+      "translation": "lire maintenant le journal dans le fil d’exécution appelant. Home transmet ``False`` et remplit le panneau à partir de la lecture effectuée par sa tâche de fond, afin que le journal ne bloque pas la fenêtre.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.home.TotalsPanel#4",
+      "source": "read the journal on the calling thread now. Home passes ``False`` and fills the panel from its worker read.",
+      "source_sha256": "17b7ee92573466a02a4ffd7a28f1419037a860e10140c9b1e614670590bb78b6",
+      "context": "read the journal on the calling independent execution path now. Home passes ``False`` and fills the panel from its worker read.",
+      "translation": "lire maintenant le journal dans le fil d’exécution appelant. Home transmet ``False`` et remplit le panneau à partir de la lecture effectuée par sa tâche de fond.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.measure_preview.MeasurePreviewPanel.refresh#3",
+      "source": "Spinbox drags call refresh repeatedly in one event-loop turn, so the old grid is cleared once for the latest token and only its result is drawn.",
+      "source_sha256": "c2a8ce765ba2327ad5bb9763e76ccb63884aba1fb0a1591832ff94f9ccc031bd",
+      "context": "Spinbox drags call refresh repeatedly in one event-loop turn, so the old grid is cleared once for the latest token and only its result is drawn.",
+      "translation": "Le glissement d’un contrôle numérique appelle plusieurs fois l’actualisation pendant un même tour de boucle événementielle ; l’ancienne grille est donc effacée une seule fois pour le dernier jeton et seul son résultat est dessiné.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.object_grid_binding.ObjectGridBinding.owned_keys#2",
+      "source": "Columns hidden because their channel is unset are still claimed, so their rows stay off the flat form; their channels are not claimed, because a hidden object's channel on the form is how it is brought back.",
+      "source_sha256": "b8e96b8356223c98e5b893b26ed489ad3876413cfbb5512590f975755a5edcc5",
+      "context": "Columns hidden because their channel is unset are still claimed, so their rows stay off the flat form; their channels are not claimed, because a hidden object's channel on the form is how it is brought back.",
+      "translation": "Les colonnes masquées parce que leur canal n’est pas défini restent prises en charge, pour que leurs lignes n’apparaissent pas dans le formulaire simple ; leurs canaux ne le sont pas, car le canal d’un objet masqué, dans le formulaire, permet de le faire réapparaître.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.add_organelle#2",
+      "source": "A slot whose channel is unset is hidden.",
+      "source_sha256": "207a477c86154ebdeaf78715d876c0b7790ca0e3298d9d860d6e89558cd757c3",
+      "context": "A slot whose channel is unset is hidden.",
+      "translation": "Un emplacement dont le canal n’est pas défini est masqué.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle#3",
+      "source": "Hidden slots count as in use too.",
+      "source_sha256": "6aac0dfc03098a082d0002503adef18ab6b92905aa0eeb9dfef62f86a80835b2",
+      "context": "Hidden slots count as in use too.",
+      "translation": "Les emplacements masqués sont eux aussi considérés comme utilisés.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.organize_for_measure.OrganizeForMeasureDialog#9",
+      "source": "The layout puts the fields on aligned rows at the top, every action button on one line below them, then the view controls over the table.",
+      "source_sha256": "337cce1126b5bde25c5f3a2b973a0d55ac0171d22fe5c7e98b1e474f6e8867da",
+      "context": "The layout puts the fields on aligned rows at the top, every action button on one line below them, then the view controls over the table.",
+      "translation": "La disposition aligne les champs en haut, place tous les boutons d’action sur une ligne en dessous, puis les contrôles de vue au-dessus du tableau.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.qt.widgets.usage_bar.UsageBar#5",
+      "source": "The row itself must paint nothing: the application sheet's blanket background rule would otherwise put an opaque rectangle behind the bar, whatever is behind the page. The theme sheet's ``UsageBarRow`` rule says so for every row at once, so a row carries no sheet of its own.",
+      "source_sha256": "d0a17495d0b90434fb0425556302bf3bfd9d25e6af8eea4e315025eae3ed2459",
+      "context": "The row itself must paint nothing: the application sheet's blanket background rule would otherwise put an opaque rectangle behind the bar, whatever is behind the page. The theme sheet's ``UsageBarRow`` rule says so for every row at once, so a row carries no sheet of its own.",
+      "translation": "La ligne elle-même ne doit rien dessiner : la règle générale de fond de la feuille de style de l’application placerait sinon un rectangle opaque derrière la barre, quel que soit le contenu derrière la page. La règle ``UsageBarRow`` de la feuille du thème le précise pour toutes les lignes à la fois ; une ligne ne possède donc pas sa propre feuille de style.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.restart_state#3",
+      "source": "Two further records live in the preference store rather than in a file. The last session (module, its settings and its folder) is written while spaCR runs and when it closes, so an ordinary start can reopen where the user left off after any exit or crash. Settings drafts hold the unsaved settings of every open module; they are cleared on a clean exit, so a draft found at start-up means the previous run ended without closing.",
+      "source_sha256": "d03f7ba38e19859d551eae5ca0ce116bac591c9527275fcd9d75be58a2d2e027",
+      "context": "Two further records live in the preference store rather than in a file. The last session (module, its settings and its folder) is written while spaCR runs and when it closes, so an ordinary start can reopen where the user left off after any exit or crash. Settings drafts hold the unsaved settings of every open module; they are cleared on a clean exit, so a draft found at start-up means the previous processing session ended without closing.",
+      "translation": "Deux autres enregistrements se trouvent dans le stockage des préférences plutôt que dans un fichier. La dernière session, avec son module, ses paramètres et son dossier, est enregistrée pendant l’exécution de spaCR et à sa fermeture, pour qu’un démarrage normal puisse reprendre là où l’utilisateur s’était arrêté après toute sortie ou tout plantage. Les brouillons de paramètres contiennent les réglages non enregistrés de chaque module ouvert ; ils sont effacés lors d’une sortie normale, de sorte qu’un brouillon trouvé au démarrage indique que la session précédente s’est terminée sans fermeture.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.schema.is_provenance_column#1",
+      "source": "``original_*`` columns, the names a plate had before conversion, count as provenance and never as measured features.",
+      "source_sha256": "82d8e48bf959f928fca5c1bf26a55bd734f44722bb0de231a8415db342e08cec",
+      "context": "``original_*`` columns, the names a laboratory microplate had before conversion, count as provenance and never as measured features.",
+      "translation": "Les colonnes ``original_*``, qui conservent les noms d’une microplaque avant conversion, relèvent de la provenance et jamais des caractéristiques mesurées.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.segmentation_uncertainty.compute_queue_uncertainty#11",
+      "source": "This is pure image I/O: mask_engine imports no PySide6 and creates no Qt objects. Each completed field is saved as it finishes, so it is recoverable if a later field or model fails.",
+      "source_sha256": "8edef43ee56e34ce1b5582fc62ee805b399e6a06e9c4fcf623d27a4de1c83534",
+      "context": "This is pure image I/O: mask_engine imports no PySide6 and creates no Qt objects. Each completed microscope field of view is saved as it finishes, so it is recoverable if a later microscope field of view or model fails.",
+      "translation": "Il s’agit uniquement d’entrées-sorties d’images : mask_engine n’importe pas PySide6 et ne crée aucun objet Qt. Chaque champ de vue du microscope terminé est enregistré immédiatement, ce qui permet de le récupérer si un champ ultérieur ou un modèle échoue.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.segmentation_uncertainty.save_uncertainty_map#7",
+      "source": "Metadata is validated before any file is opened; integer-keyed object scores are JSON-safe.",
+      "source_sha256": "890a6578bdd8ccda24d91a9b77503f9e1840938ba3a1c234749b0c47a3842c95",
+      "context": "Metadata is validated before any file is opened; integer-keyed object scores are JSON-safe.",
+      "translation": "Les métadonnées sont validées avant l’ouverture de tout fichier ; les scores d’objets indexés par des entiers sont compatibles avec JSON.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.sp_stats.b_scores#6",
+      "source": "The cellHTS2 Bscore settings override the looser stats::medpolish defaults.",
+      "source_sha256": "70fe6d6e3bec352d83824d34c1e29efd227d08b421ffa8b5765a20097c74facf",
+      "context": "The cellHTS2 Bscore settings override the looser stats::medpolish defaults.",
+      "translation": "Les paramètres Bscore de cellHTS2 prévalent sur les valeurs par défaut moins strictes de stats::medpolish.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.suggest.write_suggestions#7",
+      "source": "Shared connections are in autocommit mode, so the connection context alone would not make these updates one atomic batch.",
+      "source_sha256": "26c10d71ef2c0bb42bedc3fb84f49d8df7a31fb3687adbbd638759a56c611b92",
+      "context": "Shared connections are in autocommit mode, so the connection context alone would not make these updates one atomic batch.",
+      "translation": "Les connexions partagées sont en mode de validation automatique ; le contexte de connexion seul ne suffirait donc pas à rendre ces mises à jour atomiques au sein d’un même lot.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.timelapse.automated_motility_assay#5",
+      "source": "Pre-QC corrected values are persisted separately; the cached originals stay raw.",
+      "source_sha256": "5b24c49db279dca2e4311ec1b227d20fb64dc3bb0d3b85ffb57726eccf4252d5",
+      "context": "Pre-QC corrected values are persisted separately; the cached originals stay raw.",
+      "translation": "Les valeurs corrigées avant QC sont conservées séparément ; les originaux en cache restent bruts.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    },
+    {
+      "label": "spacr.utils.augment_images#1",
+      "source": "Spawn workers so they inherit no locks held by other threads in this process. Close and join the pool after mapping; terminating forked workers can hang while their exit handlers wait on inherited locks.",
+      "source_sha256": "0fdc80766d9f41d3024be17ce19c5c32a856f288256f3ec5711a3dd6f37a2d99",
+      "context": "Spawn workers so they inherit no locks held by other independent execution paths in this process. Close and join the pool after mapping; terminating forked workers can hang while their exit handlers wait on inherited locks.",
+      "translation": "Créer les processus de travail par démarrage indépendant pour qu’ils n’héritent d’aucun verrou détenu par d’autres fils d’exécution de ce processus. Fermer le groupe et attendre la fin de ses processus après le traitement ; terminer des processus créés par fork peut se bloquer lorsque leurs gestionnaires de sortie attendent des verrous hérités.",
+      "review_basis": "Direct Codex technical translation and review against the current API block and its literal, semantic and context contracts."
+    }
+  ]
+}

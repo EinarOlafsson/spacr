@@ -1,0 +1,3242 @@
+{
+  "schema": 1,
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "sphinx_version": "9.1.0",
+  "review_kind": "AI technical review (Codex), no independent peer or native-speaker signoff",
+  "source_files": {
+    "docs/source/make_masks.rst": "abd8833a95501d4f52c614c4f49419bed34bbe880625e54402d90af105e46508"
+  },
+  "imported_puncta_messages_per_language": 7,
+  "preserved_catalog_rows": {
+    "sv": 2947,
+    "de": 2947,
+    "es": 2947,
+    "pt": 2947,
+    "fr": 2947,
+    "is": 2947,
+    "zh_CN": 2947,
+    "ko": 2939,
+    "hi": 2947
+  },
+  "explicit_runtime_label_updates_per_language": 5,
+  "source_message_count_change": {
+    "previous": 2960,
+    "added": 7,
+    "retired": 8,
+    "current": 2959
+  },
+  "retirement_reason": "Fresh Sphinx 9 extraction no longer emits these eight autodoc Bases labels into the guide gettext domains. English source prose and extraction exclusions were not changed.",
+  "retired_translations": {
+    "sv": [
+      {
+        "catalog": "sv/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basklasser: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "Basklasser: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Basklasser: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basklasser: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basklasser: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Basklasser: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basklasser: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "Basklasser: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "de": [
+      {
+        "catalog": "de/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basisklassen: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "Basisklassen: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Basisklassen: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basisklassen: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basisklassen: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Basisklassen: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Basisklassen: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "de/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "Basisklassen: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "es": [
+      {
+        "catalog": "es/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Clases base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "Clases base: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Clases base: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Clases base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Clases base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Clases base: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Clases base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "es/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "Clases base: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "pt": [
+      {
+        "catalog": "pt/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "Classes base: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Classes base: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Classes base: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes base: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "Classes base: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "fr": [
+      {
+        "catalog": "fr/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes de base : :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "Classes de base : :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Classes de base : :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes de base : :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes de base : :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Classes de base : :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Classes de base : :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "Classes de base : :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "is": [
+      {
+        "catalog": "is/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Grunnklasar: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "Grunnklasar: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Grunnklasar: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Grunnklasar: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Grunnklasar: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "Grunnklasar: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "Grunnklasar: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "is/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "Grunnklasar: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "zh_CN": [
+      {
+        "catalog": "zh_CN/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "基类：:py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "基类：:py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "基类：:py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "基类：:py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "基类：:py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "基类：:py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "基类：:py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "基类：:py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "ko": [
+      {
+        "catalog": "ko/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "기반 클래스: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "기반 클래스: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "기반 클래스: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "기반 클래스: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "기반 클래스: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "기반 클래스: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "기반 클래스: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "기반 클래스: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ],
+    "hi": [
+      {
+        "catalog": "hi/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "आधार वर्ग: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`~sqlite3.OperationalError`",
+        "translation": "आधार वर्ग: :py:class:`~sqlite3.OperationalError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/database_concurrency_audit.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "आधार वर्ग: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/plugin_sdk.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "आधार वर्ग: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "आधार वर्ग: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/distributed_execution.po",
+        "source": "Bases: :py:class:`RuntimeError`",
+        "translation": "आधार वर्ग: :py:class:`RuntimeError`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`object`",
+        "translation": "आधार वर्ग: :py:class:`object`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/threading_cancellation_audit.po",
+        "source": "Bases: :py:class:`Exception`",
+        "translation": "आधार वर्ग: :py:class:`Exception`",
+        "original_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c"
+      }
+    ]
+  },
+  "audit": {
+    "schema": 1,
+    "review_kind": "AI technical review; recorded per page, no native-speaker signoff",
+    "languages": {
+      "sv": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "de": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "es": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "pt": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "fr": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "is": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "zh_CN": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "ko": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      },
+      "hi": {
+        "total": 2959,
+        "translated": 2959,
+        "coverage": 1.0,
+        "stale": 0,
+        "invalid": [],
+        "label_missing": [],
+        "pages": {
+          "anndata_export": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "batch_correction": {
+            "total": 21,
+            "translated": 21,
+            "stale": 0,
+            "missing": 0
+          },
+          "cellpose_training": {
+            "total": 47,
+            "translated": 47,
+            "stale": 0,
+            "missing": 0
+          },
+          "checkpoint_resume": {
+            "total": 19,
+            "translated": 19,
+            "stale": 0,
+            "missing": 0
+          },
+          "classifier_evaluation": {
+            "total": 62,
+            "translated": 62,
+            "stale": 0,
+            "missing": 0
+          },
+          "database_concurrency_audit": {
+            "total": 132,
+            "translated": 132,
+            "stale": 0,
+            "missing": 0
+          },
+          "distributed_execution": {
+            "total": 127,
+            "translated": 127,
+            "stale": 0,
+            "missing": 0
+          },
+          "features": {
+            "total": 125,
+            "translated": 125,
+            "stale": 0,
+            "missing": 0
+          },
+          "guide_permutation": {
+            "total": 9,
+            "translated": 9,
+            "stale": 0,
+            "missing": 0
+          },
+          "host_pathogen": {
+            "total": 28,
+            "translated": 28,
+            "stale": 0,
+            "missing": 0
+          },
+          "image_quality": {
+            "total": 20,
+            "translated": 20,
+            "stale": 0,
+            "missing": 0
+          },
+          "index": {
+            "total": 61,
+            "translated": 61,
+            "stale": 0,
+            "missing": 0
+          },
+          "installer_guide": {
+            "total": 145,
+            "translated": 145,
+            "stale": 0,
+            "missing": 0
+          },
+          "installers": {
+            "total": 87,
+            "translated": 87,
+            "stale": 0,
+            "missing": 0
+          },
+          "leakage_audit": {
+            "total": 88,
+            "translated": 88,
+            "stale": 0,
+            "missing": 0
+          },
+          "localization": {
+            "total": 45,
+            "translated": 45,
+            "stale": 0,
+            "missing": 0
+          },
+          "make_masks": {
+            "total": 268,
+            "translated": 268,
+            "stale": 0,
+            "missing": 0
+          },
+          "measure_live": {
+            "total": 11,
+            "translated": 11,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_explanation": {
+            "total": 34,
+            "translated": 34,
+            "stale": 0,
+            "missing": 0
+          },
+          "model_zoo": {
+            "total": 167,
+            "translated": 167,
+            "stale": 0,
+            "missing": 0
+          },
+          "plaque_assay": {
+            "total": 44,
+            "translated": 44,
+            "stale": 0,
+            "missing": 0
+          },
+          "plugin_sdk": {
+            "total": 95,
+            "translated": 95,
+            "stale": 0,
+            "missing": 0
+          },
+          "point_spread": {
+            "total": 24,
+            "translated": 24,
+            "stale": 0,
+            "missing": 0
+          },
+          "python_api": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "recruitment": {
+            "total": 23,
+            "translated": 23,
+            "stale": 0,
+            "missing": 0
+          },
+          "reproducibility_manifests": {
+            "total": 22,
+            "translated": 22,
+            "stale": 0,
+            "missing": 0
+          },
+          "run_history": {
+            "total": 18,
+            "translated": 18,
+            "stale": 0,
+            "missing": 0
+          },
+          "setting_animations": {
+            "total": 251,
+            "translated": 251,
+            "stale": 0,
+            "missing": 0
+          },
+          "shortcuts_and_templates": {
+            "total": 15,
+            "translated": 15,
+            "stale": 0,
+            "missing": 0
+          },
+          "system_requirements": {
+            "total": 129,
+            "translated": 129,
+            "stale": 0,
+            "missing": 0
+          },
+          "table_workflows": {
+            "total": 134,
+            "translated": 134,
+            "stale": 0,
+            "missing": 0
+          },
+          "threading_cancellation_audit": {
+            "total": 38,
+            "translated": 38,
+            "stale": 0,
+            "missing": 0
+          },
+          "umap_multiobjective": {
+            "total": 25,
+            "translated": 25,
+            "stale": 0,
+            "missing": 0
+          },
+          "workflows": {
+            "total": 601,
+            "translated": 601,
+            "stale": 0,
+            "missing": 0
+          }
+        },
+        "review_kinds": {
+          "anndata_export": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "batch_correction": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "cellpose_training": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "checkpoint_resume": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "classifier_evaluation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "database_concurrency_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "distributed_execution": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "features": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "guide_permutation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "host_pathogen": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "image_quality": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "index": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "installer_guide": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "installers": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "leakage_audit": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "localization": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "make_masks": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "measure_live": "AI technical review (Codex), no native-speaker signoff",
+          "model_explanation": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "model_zoo": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plaque_assay": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "plugin_sdk": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "point_spread": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "python_api": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "recruitment": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "reproducibility_manifests": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "run_history": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "setting_animations": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "shortcuts_and_templates": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "system_requirements": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "table_workflows": "AI technical review (Codex), no native-speaker signoff",
+          "threading_cancellation_audit": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff",
+          "umap_multiobjective": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+          "workflows": "AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff"
+        }
+      }
+    },
+    "generated": "2026-10-05T16:15:53+00:00"
+  },
+  "french_runtime_refinement": {
+    "changes": [
+      {
+        "source": "Centre pixels per punctum",
+        "before": "Pixels centraux par ponctuation",
+        "after": "Pixels centraux par objet ponctuel"
+      },
+      {
+        "source": "Centre-pixel puncta within parent masks",
+        "before": "Ponctuations à pixels centraux dans les masques parents",
+        "after": "Objets ponctuels à pixels centraux dans les masques parents"
+      },
+      {
+        "source": "Detect small, faint puncta inside a separate cyst or cell mask. Uses original channel intensities and ignores display normalization, inversion and enhancement. Choose the parent-mask folder first. LoG peaks are measured in pixel-noise units. Each object contains its nearest centre pixels, not a grown watershed region. Use whole-image Replace for final masks and centre measurements. Parent masks are never modified.",
+        "before": "Détecte de petites ponctuations faibles dans un masque distinct de kyste ou de cellule. Utilise les intensités originales du canal et ignore la normalisation d’affichage, l’inversion et l’amélioration d’image. Choisissez d’abord le dossier des masques parents. Les pics LoG sont mesurés en unités de bruit par pixel. Chaque objet contient ses pixels centraux les plus proches, pas une région étendue par watershed. Utilisez Replace sur toute l’image pour les masques et mesures centrales définitifs. Les masques parents ne sont jamais modifiés.",
+        "after": "Détecte de petits objets ponctuels faibles dans un masque distinct de kyste ou de cellule. Utilise les intensités originales du canal et ignore la normalisation d’affichage, l’inversion et l’amélioration d’image. Choisissez d’abord le dossier des masques parents. Les pics LoG sont mesurés en unités de bruit par pixel. Chaque objet contient ses pixels centraux les plus proches, pas une région étendue par watershed. Utilisez Replace sur toute l’image pour les masques et mesures centrales définitifs. Les masques parents ne sont jamais modifiés."
+      },
+      {
+        "source": "For puncta detection, open the original single-channel image rather than a segmentation bundle.",
+        "before": "Pour détecter les ponctuations, ouvrez l’image originale à un seul canal plutôt qu’un ensemble de segmentation.",
+        "after": "Pour détecter les objets ponctuels, ouvrez l’image originale à un seul canal plutôt qu’un ensemble de segmentation."
+      },
+      {
+        "source": "Invalid puncta scale, threshold, centre-pixel or spacing settings.",
+        "before": "Réglages non valides d’échelle, de seuil, de pixels centraux ou d’espacement des ponctuations.",
+        "after": "Réglages non valides d’échelle, de seuil, de pixels centraux ou d’espacement des objets ponctuels."
+      },
+      {
+        "source": "Load a parent mask before detecting puncta.",
+        "before": "Chargez un masque parent avant de détecter les ponctuations.",
+        "after": "Chargez un masque parent avant de détecter les objets ponctuels."
+      },
+      {
+        "source": "Puncta detection requires a 2-D image and matching parent mask.",
+        "before": "La détection des ponctuations nécessite une image 2-D et un masque parent correspondant.",
+        "after": "La détection des objets ponctuels nécessite une image 2-D et un masque parent correspondant."
+      },
+      {
+        "source": "Puncta detection requires a single-channel, two-dimensional image.",
+        "before": "La détection des ponctuations nécessite une image bidimensionnelle à un seul canal.",
+        "after": "La détection des objets ponctuels nécessite une image bidimensionnelle à un seul canal."
+      },
+      {
+        "source": "Spot scales (px)",
+        "before": "Échelles des ponctuations (px)",
+        "after": "Échelles des objets ponctuels (px)"
+      },
+      {
+        "source": "The parent mask changed. Reload it before detecting puncta.",
+        "before": "Le masque parent a changé. Rechargez-le avant de détecter les ponctuations.",
+        "after": "Le masque parent a changé. Rechargez-le avant de détecter les objets ponctuels."
+      },
+      {
+        "source": "The puncta channel contains non-finite intensities.",
+        "before": "Le canal des ponctuations contient des intensités non finies.",
+        "after": "Le canal des objets ponctuels contient des intensités non finies."
+      },
+      {
+        "source": "The source image changed during puncta detection. Reload it and repeat detection.",
+        "before": "L’image source a changé pendant la détection des ponctuations. Rechargez-la et répétez la détection.",
+        "after": "L’image source a changé pendant la détection des objets ponctuels. Rechargez-la et répétez la détection."
+      },
+      {
+        "source": "Uses original intensity values. Raising candidate or corrected-intensity thresholds rejects faint spots. Centre pixels set the measurement window, not a grown object area.",
+        "before": "Utilise les intensités originales. Augmenter les seuils des candidats ou d’intensité corrigée exclut les ponctuations faibles. Les pixels centraux définissent la fenêtre de mesure, pas une surface d’objet étendue.",
+        "after": "Utilise les intensités originales. Augmenter les seuils des candidats ou d’intensité corrigée exclut les objets ponctuels faibles. Les pixels centraux définissent la fenêtre de mesure, pas une surface d’objet étendue."
+      }
+    ],
+    "catalog_sha256": "ffa99d200f34b3da860e2f61152ec88d944acac8fc0fd445e7a95800492e2da8"
+  },
+  "reviewed_source_files": {
+    "docs/source/make_masks.rst": "e8ebbcbdd5438b8619acadd7fb6c7173f4047c45b6a2030286410d350ee5219f"
+  },
+  "formatting_followup": "The puncta heading underline was lengthened by one character after the initial strict English build. All seven extracted source messages and reviewed translations remain identical.",
+  "rendered_guide_pages": {
+    "sv": {
+      "html_sha256": "703adb361dfdae2e5aeb076968fc2cdf919afd59cb5fc4a59e2a52d88efa1949",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "de": {
+      "html_sha256": "009896ec96e9b07190c16ace9c3014561e639c84e262f4b84df0d89c5338fec9",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "es": {
+      "html_sha256": "87557224b84ae185f21f1a849985f951b4ac90311f0e0a5e2c40350fcb50bedc",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "pt": {
+      "html_sha256": "ee71ec860547cb06e8652b76e5e8f3b6f86f0c90f99a95a2cbaf4b0cc617423c",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "fr": {
+      "html_sha256": "1efd8d9f198bdd92dcddf94a4137053796ebe87883e25647152674fbe7585943",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "is": {
+      "html_sha256": "c0dba818b8ac23182b3a4b032466d0d44bb67be90a86e351320553b5cffc2595",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "zh_CN": {
+      "html_sha256": "288cd6ec87ee7ff8f75531de5919338fe7d49924248d206f7e48bcdcb68f66f6",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "ko": {
+      "html_sha256": "dd346de671f832be578e0e0daecd730f3ee655786d036d71708785cba17066e5",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    },
+    "hi": {
+      "html_sha256": "df94b0b42bbf42d687e18acb7ff65f0c89642d6f055989b4cb173c1de00b7a03",
+      "reviewed_passages_rendered": 7,
+      "required_literals": 5,
+      "runtime_controls": 5,
+      "english_fallbacks": 0
+    }
+  },
+  "build": {
+    "command": "tools/build_guide_i18n.py build --html <English site>",
+    "warnings_are_errors": true,
+    "languages": [
+      "sv",
+      "de",
+      "es",
+      "pt",
+      "fr",
+      "is",
+      "zh_CN",
+      "ko",
+      "hi"
+    ],
+    "per_language_exit_codes": {
+      "sv": 0,
+      "de": 0,
+      "es": 0,
+      "pt": 0,
+      "fr": 0,
+      "is": 0,
+      "zh_CN": 0,
+      "ko": 0,
+      "hi": 0
+    },
+    "korean_followup": "The initial Korean build required delimiter corrections. Final Korean rebuild passed with warnings as errors, including eight older affected guide messages."
+  },
+  "explicit_old_message_changes": {
+    "sv": [
+      {
+        "catalog": "sv/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**Inställningar → Loggning → Log files** har **Clear all logs…**. Den listar dagliga loggar, körningsloggar, kraschloggar och utförliga loggar med antalet filer och deras storlek i varje grupp, och raderar dem först när du har bekräftat. En logg som den pågående spaCR-sessionen har öppen töms i stället för att raderas, så att den pågående körningen behåller sin logg. Resultatet anger hur många filer som raderades och tömdes och hur mycket utrymme som frigjordes.",
+        "target": "**Inställningar → Loggning → Loggfiler** har **Rensa alla loggar…**. Den listar dagliga loggar, körningsloggar, kraschloggar och utförliga loggar med antalet filer och deras storlek i varje grupp, och raderar dem först när du har bekräftat. En logg som den pågående spaCR-sessionen har öppen töms i stället för att raderas, så att den pågående körningen behåller sin logg. Resultatet anger hur många filer som raderades och tömdes och hur mycket utrymme som frigjordes."
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** ändrar figurens titel, axeletiketter, gränser, skalor, typsnitt, färger, teckenförklaring, storlek och upplösning. Ändringarna syns medan du gör dem.",
+        "target": "**Redigera figur…** ändrar figurens titel, axeletiketter, gränser, skalor, typsnitt, färger, teckenförklaring, storlek och upplösning. Ändringarna syns medan du gör dem."
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** ritar om figuren som ett annat diagram som passar dess data. Grupper kan visas som låd-, violin-, strip-, swarm-, stapel-, punkt- eller boxen-diagram, som ett låd- eller stapeldiagram med punkter, eller som histogram, KDE eller ECDF; två mätningar som spridnings-, linje-, hexbin-, KDE- eller regressionsdiagram; en fördelning som histogram, KDE, ECDF, låda, violin, strip eller boxen; antal som ett antalsdiagram eller en värmekarta; och en matris som en värmekarta eller en klustrad värmekarta. Figuren ritas om från sina data och behåller dina **Figurinställningar**.",
+        "target": "**Ändra diagramtyp** ritar om figuren som ett annat diagram som passar dess data. Grupper kan visas som låd-, violin-, strip-, swarm-, stapel-, punkt- eller boxen-diagram, som ett låd- eller stapeldiagram med punkter, eller som histogram, KDE eller ECDF; två mätningar som spridnings-, linje-, hexbin-, KDE- eller regressionsdiagram; en fördelning som histogram, KDE, ECDF, låda, violin, strip eller boxen; antal som ett antalsdiagram eller en värmekarta; och en matris som en värmekarta eller en klustrad värmekarta. Figuren ritas om från sina data och behåller dina **Figurinställningar**."
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** visar det test som spaCR valde för data och låter dig åsidosätta **Test**, **Subject column**, **Paired / repeated measures** och **Multiple-comparison correction**. **Show on the plot** ritar testet och signifikansparenteser i figuren.",
+        "target": "**Statistik…** visar det test som spaCR valde för data och låter dig åsidosätta **Test**, **Kolumn för försöksenheter**, **Parade data / upprepade mätningar** och **Korrigering för multipla jämförelser**. **Visa i diagrammet** ritar testet och signifikansparenteser i figuren."
+      },
+      {
+        "catalog": "sv/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** skriver en zip-fil med figuren i ditt sparformat och som PNG, ``data.csv`` med de ritade data, ``statistics.csv`` och ``statistics.txt``, ``spec.json`` med figurens fullständiga recept, och ``recreate_figure.py``, ett skript som ritar samma figur från CSV- och JSON-filerna utan spaCR.",
+        "target": "**Spara figur (zip)…** skriver en zip-fil med figuren i ditt sparformat och som PNG, ``data.csv`` med de ritade data, ``statistics.csv`` och ``statistics.txt``, ``spec.json`` med figurens fullständiga recept, och ``recreate_figure.py``, ett skript som ritar samma figur från CSV- och JSON-filerna utan spaCR."
+      }
+    ],
+    "de": [
+      {
+        "catalog": "de/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**Einstellungen → Protokollierung → Log files** enthält **Clear all logs…**. Es listet Tagesprotokolle, Laufprotokolle, Absturzprotokolle und ausführliche Protokolle mit der Anzahl der Dateien und ihrer Größe je Gruppe auf und löscht sie erst nach Ihrer Bestätigung. Ein Protokoll, das die laufende spaCR-Sitzung geöffnet hat, wird geleert statt gelöscht, sodass der laufende Lauf sein Protokoll behält. Das Ergebnis nennt, wie viele Dateien gelöscht und geleert wurden und wie viel Speicher frei wurde.",
+        "target": "**Einstellungen → Protokollierung → Protokolldateien** enthält **Alle Protokolle leeren…**. Es listet Tagesprotokolle, Laufprotokolle, Absturzprotokolle und ausführliche Protokolle mit der Anzahl der Dateien und ihrer Größe je Gruppe auf und löscht sie erst nach Ihrer Bestätigung. Ein Protokoll, das die laufende spaCR-Sitzung geöffnet hat, wird geleert statt gelöscht, sodass der laufende Lauf sein Protokoll behält. Das Ergebnis nennt, wie viele Dateien gelöscht und geleert wurden und wie viel Speicher frei wurde."
+      },
+      {
+        "catalog": "de/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** ändert Titel, Achsenbeschriftungen, Grenzen, Skalen, Schriften, Farben, Legende, Größe und Auflösung dieser Abbildung. Änderungen erscheinen, während Sie sie vornehmen.",
+        "target": "**Abbildung bearbeiten…** ändert Titel, Achsenbeschriftungen, Grenzen, Skalen, Schriften, Farben, Legende, Größe und Auflösung dieser Abbildung. Änderungen erscheinen, während Sie sie vornehmen."
+      },
+      {
+        "catalog": "de/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** zeichnet die Abbildung als anderes Diagramm neu, das zu ihren Daten passt. Gruppen können als Box-, Violin-, Strip-, Swarm-, Balken-, Punkt- oder Boxen-Diagramm, als Box- oder Balkendiagramm mit Punkten oder als Histogramm, KDE oder ECDF dargestellt werden; zwei Messgrößen als Streu-, Linien-, Hexbin-, KDE- oder Regressionsdiagramm; eine Verteilung als Histogramm, KDE, ECDF, Box, Violin, Strip oder Boxen; Häufigkeiten als Count-Plot oder Heatmap; und eine Matrix als Heatmap oder geclusterte Heatmap. Die Abbildung wird aus ihren Daten neu gezeichnet und behält Ihre **Abbildungseinstellungen**.",
+        "target": "**Diagrammtyp ändern** zeichnet die Abbildung als anderes Diagramm neu, das zu ihren Daten passt. Gruppen können als Box-, Violin-, Strip-, Swarm-, Balken-, Punkt- oder Boxen-Diagramm, als Box- oder Balkendiagramm mit Punkten oder als Histogramm, KDE oder ECDF dargestellt werden; zwei Messgrößen als Streu-, Linien-, Hexbin-, KDE- oder Regressionsdiagramm; eine Verteilung als Histogramm, KDE, ECDF, Box, Violin, Strip oder Boxen; Häufigkeiten als Count-Plot oder Heatmap; und eine Matrix als Heatmap oder geclusterte Heatmap. Die Abbildung wird aus ihren Daten neu gezeichnet und behält Ihre **Abbildungseinstellungen**."
+      },
+      {
+        "catalog": "de/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** zeigt den Test, den spaCR für die Daten gewählt hat, und lässt Sie **Test**, **Subject column**, **Paired / repeated measures** und **Multiple-comparison correction** überschreiben. **Show on the plot** zeichnet den Test und die Signifikanzklammern in die Abbildung.",
+        "target": "**Statistik…** zeigt den Test, den spaCR für die Daten gewählt hat, und lässt Sie **Test**, **Spalte für Versuchseinheiten**, **Gepaarte Daten / Messwiederholungen** und **Korrektur für multiple Vergleiche** überschreiben. **Im Diagramm anzeigen** zeichnet den Test und die Signifikanzklammern in die Abbildung."
+      },
+      {
+        "catalog": "de/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** schreibt eine ZIP-Datei mit der Abbildung in Ihrem Speicherformat und als PNG, ``data.csv`` mit den dargestellten Daten, ``statistics.csv`` und ``statistics.txt``, ``spec.json`` mit dem vollständigen Rezept der Abbildung sowie ``recreate_figure.py``, einem Skript, das dieselbe Abbildung ohne spaCR aus den CSV- und JSON-Dateien zeichnet.",
+        "target": "**Abbildung speichern (zip)…** schreibt eine ZIP-Datei mit der Abbildung in Ihrem Speicherformat und als PNG, ``data.csv`` mit den dargestellten Daten, ``statistics.csv`` und ``statistics.txt``, ``spec.json`` mit dem vollständigen Rezept der Abbildung sowie ``recreate_figure.py``, einem Skript, das dieselbe Abbildung ohne spaCR aus den CSV- und JSON-Dateien zeichnet."
+      }
+    ],
+    "es": [
+      {
+        "catalog": "es/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**Preferencias → Registro → Log files** tiene **Clear all logs…**. Enumera los registros diarios, de ejecución, de fallos y detallados, con el número de archivos y su tamaño en cada grupo, y los elimina solo después de que usted confirme. Un registro que la sesión de spaCR en curso tiene abierto se vacía en lugar de eliminarse, de modo que la ejecución en curso conserva su registro. El resultado indica cuántos archivos se eliminaron y vaciaron y cuánto espacio se liberó.",
+        "target": "**Preferencias → Registro → Archivos de registro** tiene **Vaciar todos los registros…**. Enumera los registros diarios, de ejecución, de fallos y detallados, con el número de archivos y su tamaño en cada grupo, y los elimina solo después de que usted confirme. Un registro que la sesión de spaCR en curso tiene abierto se vacía en lugar de eliminarse, de modo que la ejecución en curso conserva su registro. El resultado indica cuántos archivos se eliminaron y vaciaron y cuánto espacio se liberó."
+      },
+      {
+        "catalog": "es/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** cambia el título, las etiquetas de los ejes, los límites, las escalas, las fuentes, los colores, la leyenda, el tamaño y la resolución de esta figura. Los cambios aparecen mientras los hace.",
+        "target": "**Editar figura…** cambia el título, las etiquetas de los ejes, los límites, las escalas, las fuentes, los colores, la leyenda, el tamaño y la resolución de esta figura. Los cambios aparecen mientras los hace."
+      },
+      {
+        "catalog": "es/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** vuelve a dibujar la figura como otro gráfico adecuado a sus datos. Los grupos pueden mostrarse como gráficos de caja, violín, strip, swarm, barras, puntos o boxen, como un gráfico de caja o de barras con puntos, o como histograma, KDE o ECDF; dos medidas como gráficos de dispersión, líneas, hexbin, KDE o regresión; una distribución como histograma, KDE, ECDF, caja, violín, strip o boxen; los conteos como gráfico de conteo o mapa de calor; y una matriz como mapa de calor o mapa de calor agrupado. La figura se redibuja a partir de sus datos y conserva su **Configuración de la figura**.",
+        "target": "**Cambiar tipo de gráfico** vuelve a dibujar la figura como otro gráfico adecuado a sus datos. Los grupos pueden mostrarse como gráficos de caja, violín, strip, swarm, barras, puntos o boxen, como un gráfico de caja o de barras con puntos, o como histograma, KDE o ECDF; dos medidas como gráficos de dispersión, líneas, hexbin, KDE o regresión; una distribución como histograma, KDE, ECDF, caja, violín, strip o boxen; los conteos como gráfico de conteo o mapa de calor; y una matriz como mapa de calor o mapa de calor agrupado. La figura se redibuja a partir de sus datos y conserva su **Configuración de la figura**."
+      },
+      {
+        "catalog": "es/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** muestra la prueba que spaCR eligió para los datos y le permite anular **Prueba**, **Subject column**, **Paired / repeated measures** y **Multiple-comparison correction**. **Show on the plot** dibuja la prueba y los corchetes de significación en la figura.",
+        "target": "**Estadísticas…** muestra la prueba que spaCR eligió para los datos y le permite anular **Prueba**, **Columna de sujetos**, **Datos pareados / medidas repetidas** y **Corrección por comparaciones múltiples**. **Mostrar en el gráfico** dibuja la prueba y los corchetes de significación en la figura."
+      },
+      {
+        "catalog": "es/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** escribe un archivo zip con la figura en su formato de guardado y como PNG, ``data.csv`` con los datos representados, ``statistics.csv`` y ``statistics.txt``, ``spec.json`` con la receta completa de la figura, y ``recreate_figure.py``, un script que dibuja la misma figura a partir de los archivos CSV y JSON sin spaCR.",
+        "target": "**Guardar figura (zip)…** escribe un archivo zip con la figura en su formato de guardado y como PNG, ``data.csv`` con los datos representados, ``statistics.csv`` y ``statistics.txt``, ``spec.json`` con la receta completa de la figura, y ``recreate_figure.py``, un script que dibuja la misma figura a partir de los archivos CSV y JSON sin spaCR."
+      }
+    ],
+    "pt": [
+      {
+        "catalog": "pt/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**Preferências → Registro → Log files** tem **Clear all logs…**. Ele lista os logs diários, de execução, de falhas e detalhados, com o número de arquivos e o tamanho de cada grupo, e os exclui somente depois que você confirma. Um log que a sessão do spaCR em andamento mantém aberto é esvaziado em vez de excluído, para que a execução em andamento mantenha seu log. O resultado informa quantos arquivos foram excluídos e esvaziados e quanto espaço foi liberado.",
+        "target": "**Preferências → Registro → Arquivos de log** tem **Esvaziar todos os logs…**. Ele lista os logs diários, de execução, de falhas e detalhados, com o número de arquivos e o tamanho de cada grupo, e os exclui somente depois que você confirma. Um log que a sessão do spaCR em andamento mantém aberto é esvaziado em vez de excluído, para que a execução em andamento mantenha seu log. O resultado informa quantos arquivos foram excluídos e esvaziados e quanto espaço foi liberado."
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** altera o título, os rótulos dos eixos, os limites, as escalas, as fontes, as cores, a legenda, o tamanho e a resolução desta figura. As alterações aparecem à medida que você as faz.",
+        "target": "**Editar figura…** altera o título, os rótulos dos eixos, os limites, as escalas, as fontes, as cores, a legenda, o tamanho e a resolução desta figura. As alterações aparecem à medida que você as faz."
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** redesenha a figura como outro gráfico adequado aos seus dados. Grupos podem ser mostrados como gráficos de caixa, violino, strip, swarm, barras, pontos ou boxen, como um gráfico de caixa ou de barras com pontos, ou como histograma, KDE ou ECDF; duas medidas como gráficos de dispersão, linhas, hexbin, KDE ou regressão; uma distribuição como histograma, KDE, ECDF, caixa, violino, strip ou boxen; contagens como gráfico de contagem ou mapa de calor; e uma matriz como mapa de calor ou mapa de calor agrupado. A figura é redesenhada a partir de seus dados e mantém suas **Configurações da figura**.",
+        "target": "**Alterar tipo de gráfico** redesenha a figura como outro gráfico adequado aos seus dados. Grupos podem ser mostrados como gráficos de caixa, violino, strip, swarm, barras, pontos ou boxen, como um gráfico de caixa ou de barras com pontos, ou como histograma, KDE ou ECDF; duas medidas como gráficos de dispersão, linhas, hexbin, KDE ou regressão; uma distribuição como histograma, KDE, ECDF, caixa, violino, strip ou boxen; contagens como gráfico de contagem ou mapa de calor; e uma matriz como mapa de calor ou mapa de calor agrupado. A figura é redesenhada a partir de seus dados e mantém suas **Configurações da figura**."
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** mostra o teste que o spaCR escolheu para os dados e permite substituir **Teste**, **Subject column**, **Paired / repeated measures** e **Multiple-comparison correction**. **Show on the plot** desenha o teste e os colchetes de significância na figura.",
+        "target": "**Estatísticas…** mostra o teste que o spaCR escolheu para os dados e permite substituir **Teste**, **Coluna de sujeitos**, **Dados pareados / medidas repetidas** e **Correção para comparações múltiplas**. **Mostrar no gráfico** desenha o teste e os colchetes de significância na figura."
+      },
+      {
+        "catalog": "pt/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** grava um arquivo zip com a figura no seu formato de salvamento e como PNG, ``data.csv`` com os dados plotados, ``statistics.csv`` e ``statistics.txt``, ``spec.json`` com a receita completa da figura, e ``recreate_figure.py``, um script que desenha a mesma figura a partir dos arquivos CSV e JSON sem o spaCR.",
+        "target": "**Salvar figura (zip)…** grava um arquivo zip com a figura no seu formato de salvamento e como PNG, ``data.csv`` com os dados plotados, ``statistics.csv`` e ``statistics.txt``, ``spec.json`` com a receita completa da figura, e ``recreate_figure.py``, um script que desenha a mesma figura a partir dos arquivos CSV e JSON sem o spaCR."
+      }
+    ],
+    "fr": [
+      {
+        "catalog": "fr/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**Préférences → Journalisation → Log files** propose **Clear all logs…**. Il liste les journaux quotidiens, d’exécution, de plantage et détaillés, avec le nombre de fichiers et leur taille pour chaque groupe, et ne les supprime qu’après votre confirmation. Un journal que la session spaCR en cours tient ouvert est vidé au lieu d’être supprimé, afin que l’exécution en cours garde son journal. Le résultat indique combien de fichiers ont été supprimés et vidés et combien d’espace a été libéré.",
+        "target": "**Préférences → Journalisation → Fichiers journaux** propose **Vider tous les journaux…**. Il liste les journaux quotidiens, d’exécution, de plantage et détaillés, avec le nombre de fichiers et leur taille pour chaque groupe, et ne les supprime qu’après votre confirmation. Un journal que la session spaCR en cours tient ouvert est vidé au lieu d’être supprimé, afin que l’exécution en cours garde son journal. Le résultat indique combien de fichiers ont été supprimés et vidés et combien d’espace a été libéré."
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** modifie le titre, les étiquettes d’axe, les limites, les échelles, les polices, les couleurs, la légende, la taille et la résolution de cette figure. Les modifications apparaissent au fur et à mesure.",
+        "target": "**Modifier la figure…** modifie le titre, les étiquettes d’axe, les limites, les échelles, les polices, les couleurs, la légende, la taille et la résolution de cette figure. Les modifications apparaissent au fur et à mesure."
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** redessine la figure sous la forme d’un autre graphique adapté à ses données. Les groupes peuvent être affichés en boîtes, violons, strip, swarm, barres, points ou boxen, en boîte ou barres avec points, ou en histogramme, KDE ou ECDF ; deux mesures en nuage de points, courbe, hexbin, KDE ou régression ; une distribution en histogramme, KDE, ECDF, boîte, violon, strip ou boxen ; des effectifs en diagramme d’effectifs ou carte de chaleur ; et une matrice en carte de chaleur ou carte de chaleur avec regroupement. La figure est redessinée à partir de ses données et conserve vos **Paramètres de la figure**.",
+        "target": "**Changer le type de graphique** redessine la figure sous la forme d’un autre graphique adapté à ses données. Les groupes peuvent être affichés en boîtes, violons, strip, swarm, barres, points ou boxen, en boîte ou barres avec points, ou en histogramme, KDE ou ECDF ; deux mesures en nuage de points, courbe, hexbin, KDE ou régression ; une distribution en histogramme, KDE, ECDF, boîte, violon, strip ou boxen ; des effectifs en diagramme d’effectifs ou carte de chaleur ; et une matrice en carte de chaleur ou carte de chaleur avec regroupement. La figure est redessinée à partir de ses données et conserve vos **Paramètres de la figure**."
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** affiche le test choisi par spaCR pour les données et vous permet de remplacer **Test**, **Subject column**, **Paired / repeated measures** et **Multiple-comparison correction**. **Show on the plot** trace le test et les crochets de significativité sur la figure.",
+        "target": "**Statistiques…** affiche le test choisi par spaCR pour les données et vous permet de remplacer **Test**, **Colonne des sujets**, **Données appariées / mesures répétées** et **Correction pour comparaisons multiples**. **Afficher sur le graphique** trace le test et les crochets de significativité sur la figure."
+      },
+      {
+        "catalog": "fr/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** écrit un fichier zip contenant la figure dans votre format d’enregistrement et en PNG, ``data.csv`` avec les données tracées, ``statistics.csv`` et ``statistics.txt``, ``spec.json`` avec la recette complète de la figure, et ``recreate_figure.py``, un script qui dessine la même figure à partir des fichiers CSV et JSON sans spaCR.",
+        "target": "**Enregistrer la figure (zip)…** écrit un fichier zip contenant la figure dans votre format d’enregistrement et en PNG, ``data.csv`` avec les données tracées, ``statistics.csv`` et ``statistics.txt``, ``spec.json`` avec la recette complète de la figure, et ``recreate_figure.py``, un script qui dessine la même figure à partir des fichiers CSV et JSON sans spaCR."
+      }
+    ],
+    "is": [
+      {
+        "catalog": "is/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**Kjörstillingar → Annálaskráning → Log files** hefur **Clear all logs…**. Það telur upp daglega annála, keyrsluannála, hrunannála og ítarlega annála með fjölda skráa og stærð þeirra í hverjum flokki, og eyðir þeim aðeins eftir að þú staðfestir. Annáll sem spaCR-lotan sem er í gangi hefur opinn er tæmdur í stað þess að vera eytt, svo keyrslan sem er í gangi heldur annál sínum. Niðurstaðan segir hve mörgum skrám var eytt og hve margar voru tæmdar og hve mikið pláss losnaði.",
+        "target": "**Kjörstillingar → Annálaskráning → Annálsskrár** hefur **Tæma allar annálsskrár…**. Það telur upp daglega annála, keyrsluannála, hrunannála og ítarlega annála með fjölda skráa og stærð þeirra í hverjum flokki, og eyðir þeim aðeins eftir að þú staðfestir. Annáll sem spaCR-lotan sem er í gangi hefur opinn er tæmdur í stað þess að vera eytt, svo keyrslan sem er í gangi heldur annál sínum. Niðurstaðan segir hve mörgum skrám var eytt og hve margar voru tæmdar og hve mikið pláss losnaði."
+      },
+      {
+        "catalog": "is/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** breytir titli, ásamerkingum, mörkum, kvörðum, letri, litum, skýringu, stærð og upplausn myndarinnar. Breytingar birtast um leið og þú gerir þær.",
+        "target": "**Breyta mynd…** breytir titli, ásamerkingum, mörkum, kvörðum, letri, litum, skýringu, stærð og upplausn myndarinnar. Breytingar birtast um leið og þú gerir þær."
+      },
+      {
+        "catalog": "is/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** teiknar myndina aftur sem annað línurit sem hæfir gögnum hennar. Hópa má sýna sem kassa-, fiðlu-, strip-, swarm-, súlu-, punkta- eða boxen-rit, sem kassa- eða súlurit með punktum, eða sem stuðlarit, KDE eða ECDF; tvær mælingar sem dreifi-, línu-, hexbin-, KDE- eða aðhvarfsrit; eina dreifingu sem stuðlarit, KDE, ECDF, kassa, fiðlu, strip eða boxen; talningar sem talningarrit eða hitakort; og fylki sem hitakort eða klasað hitakort. Myndin er teiknuð aftur úr gögnum sínum og heldur **Myndastillingar** þínum.",
+        "target": "**Breyta gerð grafs** teiknar myndina aftur sem annað línurit sem hæfir gögnum hennar. Hópa má sýna sem kassa-, fiðlu-, strip-, swarm-, súlu-, punkta- eða boxen-rit, sem kassa- eða súlurit með punktum, eða sem stuðlarit, KDE eða ECDF; tvær mælingar sem dreifi-, línu-, hexbin-, KDE- eða aðhvarfsrit; eina dreifingu sem stuðlarit, KDE, ECDF, kassa, fiðlu, strip eða boxen; talningar sem talningarrit eða hitakort; og fylki sem hitakort eða klasað hitakort. Myndin er teiknuð aftur úr gögnum sínum og heldur **Myndastillingar** þínum."
+      },
+      {
+        "catalog": "is/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** sýnir prófið sem spaCR valdi fyrir gögnin og leyfir þér að hnekkja **Próf**, **Subject column**, **Paired / repeated measures** og **Multiple-comparison correction**. **Show on the plot** teiknar prófið og marktækniklofa á myndina.",
+        "target": "**Tölfræði…** sýnir prófið sem spaCR valdi fyrir gögnin og leyfir þér að hnekkja **Próf**, **Dálkur fyrir tilraunaeiningar**, **Pöruð gögn / endurteknar mælingar** og **Leiðrétting fyrir margar samanburðarprófanir**. **Sýna á grafinu** teiknar prófið og marktækniklofa á myndina."
+      },
+      {
+        "catalog": "is/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** skrifar eina zip-skrá með myndinni á vistunarsniðinu þínu og sem PNG, ``data.csv`` með teiknuðu gögnunum, ``statistics.csv`` og ``statistics.txt``, ``spec.json`` með fullri uppskrift myndarinnar, og ``recreate_figure.py``, skriftu sem teiknar sömu mynd úr CSV- og JSON-skránum án spaCR.",
+        "target": "**Vista mynd (zip)…** skrifar eina zip-skrá með myndinni á vistunarsniðinu þínu og sem PNG, ``data.csv`` með teiknuðu gögnunum, ``statistics.csv`` og ``statistics.txt``, ``spec.json`` með fullri uppskrift myndarinnar, og ``recreate_figure.py``, skriftu sem teiknar sömu mynd úr CSV- og JSON-skránum án spaCR."
+      }
+    ],
+    "zh_CN": [
+      {
+        "catalog": "zh_CN/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**偏好 → 日志 → Log files** 中有 **Clear all logs…** 。它列出每日日志、运行日志、崩溃日志和详细日志，以及每组的文件数和大小，并且只在你确认后才删除。当前 spaCR 会话正在打开的日志会被清空而不是删除，因此正在进行的运行仍保留其日志。结果会说明删除和清空了多少个文件以及释放了多少空间。",
+        "target": "**偏好 → 日志 → 日志文件** 中有 **清空所有日志…** 。它列出每日日志、运行日志、崩溃日志和详细日志，以及每组的文件数和大小，并且只在你确认后才删除。当前 spaCR 会话正在打开的日志会被清空而不是删除，因此正在进行的运行仍保留其日志。结果会说明删除和清空了多少个文件以及释放了多少空间。"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** 可更改此图表的标题、坐标轴标签、范围、刻度、字体、颜色、图例、大小和分辨率。更改会即时显示。",
+        "target": "**编辑图形…** 可更改此图表的标题、坐标轴标签、范围、刻度、字体、颜色、图例、大小和分辨率。更改会即时显示。"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** 会将图表重绘为另一种适合其数据的图。分组可以显示为箱线图、小提琴图、条带图、蜂群图、柱状图、点图或 boxen 图，带点的箱线图或柱状图，或直方图、KDE 或 ECDF；两个测量值可显示为散点图、折线图、hexbin、KDE 或回归图；单个分布可显示为直方图、KDE、ECDF、箱线、小提琴、条带或 boxen；计数可显示为计数图或热图；矩阵可显示为热图或聚类热图。图表会根据其数据重绘，并保留你的 **图设置** 。",
+        "target": "**更改图表类型** 会将图表重绘为另一种适合其数据的图。分组可以显示为箱线图、小提琴图、条带图、蜂群图、柱状图、点图或 boxen 图，带点的箱线图或柱状图，或直方图、KDE 或 ECDF；两个测量值可显示为散点图、折线图、hexbin、KDE 或回归图；单个分布可显示为直方图、KDE、ECDF、箱线、小提琴、条带或 boxen；计数可显示为计数图或热图；矩阵可显示为热图或聚类热图。图表会根据其数据重绘，并保留你的 **图设置** 。"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** 显示 spaCR 为数据选择的检验，并允许你覆盖 **检验** 、 **Subject column** 、 **Paired / repeated measures** 和 **Multiple-comparison correction** 。 **Show on the plot** 会在图上绘制检验和显著性括号。",
+        "target": "**统计…** 显示 spaCR 为数据选择的检验，并允许你覆盖 **检验** 、 **受试对象列** 、 **配对数据 / 重复测量** 和 **多重比较校正** 。 **在图上显示** 会在图上绘制检验和显著性括号。"
+      },
+      {
+        "catalog": "zh_CN/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** 写出一个 zip 文件，其中包含以你的保存格式和 PNG 格式保存的图表、包含绘图数据的 ``data.csv`` 、 ``statistics.csv`` 和 ``statistics.txt`` 、包含图表完整配方的 ``spec.json`` ，以及 ``recreate_figure.py`` ——一个无需 spaCR 即可根据 CSV 和 JSON 文件绘制同一图表的脚本。",
+        "target": "**保存图形（zip）…** 写出一个 zip 文件，其中包含以你的保存格式和 PNG 格式保存的图表、包含绘图数据的 ``data.csv`` 、 ``statistics.csv`` 和 ``statistics.txt`` 、包含图表完整配方的 ``spec.json`` ，以及 ``recreate_figure.py`` ——一个无需 spaCR 即可根据 CSV 和 JSON 文件绘制同一图表的脚本。"
+      }
+    ],
+    "ko": [
+      {
+        "catalog": "ko/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**환경설정 → 로깅 → Log files** 에는 **Clear all logs…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다.",
+        "target": "**환경설정 → 로깅 → 로그 파일** 에는 **모든 로그 비우기…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/table_workflows.po",
+        "source": "In Graph Builder, place result columns on **X**, **Y**, colour, size or facet channels. In Gate Editor, use the columns for thresholds, polygons and other gate shapes. The Gate Editor may display a sample according to its ``sample_fraction`` and ``max_points`` settings; gate export evaluates the full merged table.",
+        "original_translation": "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction``과 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다.",
+        "target": "Graph Builder에서 결과 열을 **X**, **Y**, 색상, 크기, 패싯 채널에 배치합니다. Gate Editor에서는 이 열들을 임계값, 다각형 및 다른 게이트 모양에 사용합니다. Gate Editor는 ``sample_fraction`` 및 ``max_points`` 설정에 따라 일부 표본을 표시할 수 있지만, 게이트 내보내기는 전체 병합 테이블을 평가합니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/table_workflows.po",
+        "source": "Open **Annotate conditions**, name the **Output column**, and choose **Assign values**, **Extract text**, or **Compose column**. Existing source columns cannot be replaced.",
+        "original_translation": "**조건 주석 추가**를 열고 **출력 열**의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다.",
+        "target": "**조건 주석 추가** 기능을 열고 **출력 열** 항목의 이름을 지정한 뒤 **값을 할당**, **텍스트 추출**, **열 조합** 중 하나를 선택합니다. 기존 원본 열은 교체할 수 없습니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/table_workflows.po",
+        "source": "Choose **Assign values** when matching rows should receive a value you type, such as ``WildType`` or ``control``. Each rule selects a column, an operator and a comparison value. Operators include contains, does not contain, equals, does not equal, starts with, ends with and regex matching. Text operators interpret punctuation literally; regex operators interpret it as a pattern. Matching is case-sensitive. Contains, prefix, suffix and regex criteria need nonempty text. Use an explicit ``.*`` regex to match all nonmissing text, or equals with an empty value to match an actual empty string.",
+        "original_translation": "일치하는 행에 ``WildType`` 또는 ``control``처럼 직접 입력한 값을 지정하려면 **값을 할당**을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요.",
+        "target": "일치하는 행에 ``WildType`` 또는 ``control`` 같은 값을 직접 지정하려면 **값을 할당** 옵션을 선택합니다. 각 규칙에서 열, 연산자, 비교 값을 선택합니다. 연산자에는 포함, 미포함, 같음, 같지 않음, 접두사 일치, 접미사 일치, 정규식 일치가 있습니다. 텍스트 연산자는 문장부호를 문자 그대로 해석하고, 정규식 연산자는 패턴으로 해석합니다. 일치는 대소문자를 구분합니다. 포함, 접두사, 접미사, 정규식 조건에는 비어 있지 않은 텍스트가 필요합니다. 결측이 아닌 모든 텍스트와 일치시키려면 명시적인 ``.*`` 정규식을 사용하고, 실제 빈 문자열과 일치시키려면 빈 값을 사용하는 같음 조건을 쓰세요."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/table_workflows.po",
+        "source": "Above the condition boxes, **Examples for column** offers copyable patterns based on the selected column's values. Choose an example type, inspect or edit its text, press **Copy regex**, then paste into a condition's **Include** or **Exclude** field. Copying an example does not change the condition rules. Literal punctuation in the sampled values is escaped automatically.",
+        "original_translation": "조건 상자 위의 **콜럼에 대한 예**는 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사**를 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다.",
+        "target": "조건 상자 위의 **콜럼에 대한 예** 기능은 선택한 열의 값을 바탕으로 복사 가능한 패턴을 제공합니다. 예시 유형을 선택하고 텍스트를 확인하거나 편집한 뒤 **정규식 복사** 버튼을 누르고, 조건의 **포함** 또는 **제외** 필드에 붙여 넣으세요. 예시를 복사해도 조건 규칙은 바뀌지 않습니다. 표본 값에 포함된 실제 문장부호는 자동으로 이스케이프됩니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/table_workflows.po",
+        "source": "For original names such as ``drug_A_rep1.tif`` and ``control_rep1.tif``:",
+        "original_translation": "``drug_A_rep1.tif``와 ``control_rep1.tif`` 같은 원본 이름의 경우:",
+        "target": "``drug_A_rep1.tif`` 및 ``control_rep1.tif`` 같은 원본 이름의 경우:"
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/table_workflows.po",
+        "source": "``drug_A_rep.`` allows one character after ``rep``.",
+        "original_translation": "``drug_A_rep.``은 ``rep`` 뒤에 문자 하나를 허용합니다.",
+        "target": "``drug_A_rep.`` 패턴은 ``rep`` 뒤에 문자 하나를 허용합니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/make_masks.po",
+        "source": "Choose **Thumbnail quality** in **Display** or **Organize for Measure…**. **Low** retains the original 64-pixel source sampling. **Medium** uses up to 256 pixels and **High** up to 1024 pixels on the longest side, capped by the source resolution. These choices read the source image and mask again; they do not enlarge a Low-quality bitmap. The separate **Size** control sets the logical cell size.",
+        "original_translation": "**표시** 또는 **Measure용으로 정리…**에서 **썸네일 품질**을 선택하세요. **낮음**은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간**은 긴 변을 최대 256픽셀, **높음**은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다.",
+        "target": "**표시** 또는 **Measure용으로 정리…** 항목에서 **썸네일 품질** 옵션을 선택하세요. **낮음** 옵션은 기존의 64픽셀 원본 샘플링을 유지합니다. **중간** 옵션은 긴 변을 최대 256픽셀, **높음** 옵션은 최대 1024픽셀로 사용하며 원본 해상도를 넘지 않습니다. 이 옵션들은 원본 이미지와 마스크를 다시 읽으며 낮음 품질의 비트맵을 확대하지 않습니다. 별도의 **크기** 컨트롤은 논리적 셀 크기를 설정합니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/workflows.po",
+        "source": "Lineage exports retain generation times in frames and add ``generation_time_hours`` with calibrated summary statistics. Supply a positive ``frame_interval_s`` or complete, increasing ``time_s`` values in the tracks table. If both are present, they must agree; irregular timestamps are supported without a fixed interval. Missing calibration and incomplete cell cycles have no generation time in hours. Exported tables record the calibration source and units. The tree axis and Newick branch lengths remain in frames.",
+        "original_translation": "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours``와 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s``를 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다.",
+        "target": "계보 내보내기는 프레임 단위의 세대 시간을 유지하면서 ``generation_time_hours`` 열과 보정된 요약 통계를 추가합니다. 양의 ``frame_interval_s`` 값을 지정하거나 추적 표에 누락 없이 증가하는 ``time_s`` 값을 제공하세요. 둘 다 있으면 서로 일치해야 하며, 고정 간격이 없을 때는 불규칙한 타임스탬프도 지원합니다. 보정 정보가 없거나 세포 주기가 불완전하면 시간 단위의 세대 시간은 제공되지 않습니다. 내보낸 표에는 보정 정보의 출처와 단위가 기록됩니다. 트리 축과 Newick 가지 길이는 프레임 단위로 유지됩니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** 는 이 그림의 제목, 축 레이블, 범위, 척도, 글꼴, 색상, 범례, 크기, 해상도를 바꿉니다. 변경 사항은 바로 나타납니다.",
+        "target": "**그림 편집…** 는 이 그림의 제목, 축 레이블, 범위, 척도, 글꼴, 색상, 범례, 크기, 해상도를 바꿉니다. 변경 사항은 바로 나타납니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** 은 그림을 데이터에 맞는 다른 그래프로 다시 그립니다. 그룹은 상자, 바이올린, strip, swarm, 막대, 점, boxen 그래프, 점이 있는 상자 또는 막대 그래프, 또는 히스토그램, KDE, ECDF로 표시할 수 있습니다. 두 측정값은 산점도, 선, hexbin, KDE, 회귀 그래프로, 하나의 분포는 히스토그램, KDE, ECDF, 상자, 바이올린, strip, boxen으로, 개수는 개수 그래프나 히트맵으로, 행렬은 히트맵이나 군집 히트맵으로 표시할 수 있습니다. 그림은 데이터로부터 다시 그려지며 **그림 설정** 을 유지합니다.",
+        "target": "**그래프 유형 변경** 은 그림을 데이터에 맞는 다른 그래프로 다시 그립니다. 그룹은 상자, 바이올린, strip, swarm, 막대, 점, boxen 그래프, 점이 있는 상자 또는 막대 그래프, 또는 히스토그램, KDE, ECDF로 표시할 수 있습니다. 두 측정값은 산점도, 선, hexbin, KDE, 회귀 그래프로, 하나의 분포는 히스토그램, KDE, ECDF, 상자, 바이올린, strip, boxen으로, 개수는 개수 그래프나 히트맵으로, 행렬은 히트맵이나 군집 히트맵으로 표시할 수 있습니다. 그림은 데이터로부터 다시 그려지며 **그림 설정** 을 유지합니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** 는 spaCR이 데이터에 대해 선택한 검정을 보여 주며, **테스트**, **Subject column**, **Paired / repeated measures**, **Multiple-comparison correction** 을 직접 지정할 수 있게 합니다. **Show on the plot** 은 그림 위에 검정과 유의성 괄호를 그립니다.",
+        "target": "**통계…** 는 spaCR이 데이터에 대해 선택한 검정을 보여 주며, **테스트**, **실험 대상 열**, **대응 자료 / 반복 측정**, **다중 비교 보정** 을 직접 지정할 수 있게 합니다. **그래프에 표시** 은 그림 위에 검정과 유의성 괄호를 그립니다."
+      },
+      {
+        "catalog": "ko/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** 는 저장 형식과 PNG로 된 그림, 그려진 데이터가 담긴 ``data.csv``, ``statistics.csv`` 와 ``statistics.txt``, 그림의 전체 레시피가 담긴 ``spec.json``, 그리고 spaCR 없이 CSV와 JSON 파일에서 같은 그림을 그리는 스크립트 ``recreate_figure.py`` 를 하나의 zip 파일로 씁니다.",
+        "target": "**그림 저장 (zip)…** 는 저장 형식과 PNG로 된 그림, 그려진 데이터가 담긴 ``data.csv``, ``statistics.csv`` 와 ``statistics.txt``, 그림의 전체 레시피가 담긴 ``spec.json``, 그리고 spaCR 없이 CSV와 JSON 파일에서 같은 그림을 그리는 스크립트 ``recreate_figure.py`` 를 하나의 zip 파일로 씁니다."
+      }
+    ],
+    "hi": [
+      {
+        "catalog": "hi/LC_MESSAGES/run_history.po",
+        "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+        "original_translation": "**प्राथमिकताएं → लॉगिंग → Log files** में **Clear all logs…** है। यह दैनिक लॉग, रन लॉग, क्रैश लॉग और विस्तृत लॉग को हर समूह की फ़ाइलों की संख्या और आकार के साथ सूचीबद्ध करता है, और आपकी पुष्टि के बाद ही उन्हें हटाता है। चल रहा spaCR सत्र जिस लॉग को खोले हुए है, उसे हटाने के बजाय खाली किया जाता है, ताकि चल रहे रन का लॉग बना रहे। परिणाम बताता है कि कितनी फ़ाइलें हटाई और खाली की गईं और कितनी जगह खाली हुई।",
+        "target": "**प्राथमिकताएं → लॉगिंग → लॉग फ़ाइलें** में **सभी लॉग खाली करें…** है। यह दैनिक लॉग, रन लॉग, क्रैश लॉग और विस्तृत लॉग को हर समूह की फ़ाइलों की संख्या और आकार के साथ सूचीबद्ध करता है, और आपकी पुष्टि के बाद ही उन्हें हटाता है। चल रहा spaCR सत्र जिस लॉग को खोले हुए है, उसे हटाने के बजाय खाली किया जाता है, ताकि चल रहे रन का लॉग बना रहे। परिणाम बताता है कि कितनी फ़ाइलें हटाई और खाली की गईं और कितनी जगह खाली हुई।"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/features.po",
+        "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+        "original_translation": "**Edit figure…** इस आकृति का शीर्षक, अक्ष लेबल, सीमाएँ, स्केल, फ़ॉन्ट, रंग, लेजेंड, आकार और रिज़ॉल्यूशन बदलता है। बदलाव करते ही दिखाई देते हैं।",
+        "target": "**आकृति संपादित करें…** इस आकृति का शीर्षक, अक्ष लेबल, सीमाएँ, स्केल, फ़ॉन्ट, रंग, लेजेंड, आकार और रिज़ॉल्यूशन बदलता है। बदलाव करते ही दिखाई देते हैं।"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/features.po",
+        "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+        "original_translation": "**Change graph type** आकृति को ऐसे दूसरे ग्राफ़ के रूप में फिर से बनाता है जो उसके डेटा के अनुकूल हो। समूहों को बॉक्स, वायलिन, स्ट्रिप, स्वार्म, बार, पॉइंट या boxen प्लॉट, बिंदुओं वाले बॉक्स या बार प्लॉट, या हिस्टोग्राम, KDE या ECDF के रूप में दिखाया जा सकता है; दो मापों को स्कैटर, लाइन, hexbin, KDE या रिग्रेशन प्लॉट के रूप में; एक वितरण को हिस्टोग्राम, KDE, ECDF, बॉक्स, वायलिन, स्ट्रिप या boxen के रूप में; गिनतियों को काउंट प्लॉट या हीट मैप के रूप में; और मैट्रिक्स को हीट मैप या क्लस्टर किए गए हीट मैप के रूप में। आकृति अपने डेटा से फिर से बनाई जाती है और आपकी **चित्र सेटिंग्स** बनाए रखती है।",
+        "target": "**ग्राफ़ का प्रकार बदलें** आकृति को ऐसे दूसरे ग्राफ़ के रूप में फिर से बनाता है जो उसके डेटा के अनुकूल हो। समूहों को बॉक्स, वायलिन, स्ट्रिप, स्वार्म, बार, पॉइंट या boxen प्लॉट, बिंदुओं वाले बॉक्स या बार प्लॉट, या हिस्टोग्राम, KDE या ECDF के रूप में दिखाया जा सकता है; दो मापों को स्कैटर, लाइन, hexbin, KDE या रिग्रेशन प्लॉट के रूप में; एक वितरण को हिस्टोग्राम, KDE, ECDF, बॉक्स, वायलिन, स्ट्रिप या boxen के रूप में; गिनतियों को काउंट प्लॉट या हीट मैप के रूप में; और मैट्रिक्स को हीट मैप या क्लस्टर किए गए हीट मैप के रूप में। आकृति अपने डेटा से फिर से बनाई जाती है और आपकी **चित्र सेटिंग्स** बनाए रखती है।"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/features.po",
+        "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+        "original_translation": "**Statistics…** डेटा के लिए spaCR द्वारा चुना गया परीक्षण दिखाता है और आपको **परीक्षण**, **Subject column**, **Paired / repeated measures** और **Multiple-comparison correction** बदलने देता है। **Show on the plot** आकृति पर परीक्षण और सार्थकता कोष्ठक बनाता है।",
+        "target": "**सांख्यिकी…** डेटा के लिए spaCR द्वारा चुना गया परीक्षण दिखाता है और आपको **परीक्षण**, **प्रयोग विषय का कॉलम**, **युग्मित डेटा / दोहराए गए मापन** और **एकाधिक तुलनाओं का सुधार** बदलने देता है। **ग्राफ़ पर दिखाएँ** आकृति पर परीक्षण और सार्थकता कोष्ठक बनाता है।"
+      },
+      {
+        "catalog": "hi/LC_MESSAGES/features.po",
+        "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+        "original_translation": "**Save figure (zip)…** एक zip फ़ाइल लिखता है जिसमें आपके सहेजने के फ़ॉर्मेट में और PNG के रूप में आकृति, प्लॉट किए गए डेटा के साथ ``data.csv``, ``statistics.csv`` और ``statistics.txt``, आकृति की पूरी विधि के साथ ``spec.json``, और ``recreate_figure.py`` होता है, जो बिना spaCR के CSV और JSON फ़ाइलों से वही आकृति बनाने वाली स्क्रिप्ट है।",
+        "target": "**आकृति सहेजें (zip)…** एक zip फ़ाइल लिखता है जिसमें आपके सहेजने के फ़ॉर्मेट में और PNG के रूप में आकृति, प्लॉट किए गए डेटा के साथ ``data.csv``, ``statistics.csv`` और ``statistics.txt``, आकृति की पूरी विधि के साथ ``spec.json``, और ``recreate_figure.py`` होता है, जो बिना spaCR के CSV और JSON फ़ाइलों से वही आकृति बनाने वाली स्क्रिप्ट है।"
+      }
+    ]
+  }
+}

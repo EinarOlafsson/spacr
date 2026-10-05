@@ -1,5 +1,5 @@
 # spaCR user guide translation (ko).
-# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+# AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff.
 # English source: docs/source (authoritative). Built by
 # tools/build_guide_i18n.py; a changed English message is kept only
 # as a fuzzy hint and renders in English until re-translated.
@@ -7,13 +7,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 21:59-0400\n"
+"POT-Creation-Date: 2026-10-05 11:30-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
+"Last-Translator: Codex (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Review-Kind: AI technical review (Claude Opus 5.5), no native-speaker signoff\n"
+"X-Review-Kind: AI technical review (Claude Opus 5.5 / Codex), no native-speaker signoff\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -64,8 +64,9 @@ msgstr "**환경설정 → 저장소** 은 spaCR 홈 폴더가 끝없이 커지�
 msgid "The cache table lists the spaCR model, Cellpose, Hugging Face, Torch, backend environment and news caches. **Measure** reads their sizes, **Clear…** empties the selected cache after asking, and **Move…** moves it into ``<folder>/spacr-<cache>`` on another drive. The new place is recorded in ``~/.spacr/cache_locations.json`` and used at every start; a cache whose variable (for example ``HF_HOME``) is set outside spaCR is not moved. Clearing and moving wait until no run is in progress."
 msgstr "캐시 표에는 spaCR 모델, Cellpose, Hugging Face, Torch, 백엔드 환경, 소식 캐시가 나열됩니다. **측정** 은 크기를 읽고, **비우기…** 는 확인 후 선택한 캐시를 비우며, **이동…** 은 다른 드라이브의 ``<folder>/spacr-<cache>`` 로 옮깁니다. 새 위치는 ``~/.spacr/cache_locations.json`` 에 기록되어 매번 시작할 때 사용됩니다. 변수(예: ``HF_HOME``)가 spaCR 밖에서 설정된 캐시는 옮기지 않습니다. 비우기와 이동은 진행 중인 실행이 없을 때까지 기다립니다."
 
+# AI technical review (Codex), no native-speaker signoff.
 msgid "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed."
-msgstr "**환경설정 → 로깅 → Log files** 에는 **Clear all logs…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다."
+msgstr "**환경설정 → 로깅 → 로그 파일** 에는 **모든 로그 비우기…** 가 있습니다. 일별 로그, 실행 로그, 충돌 로그, 상세 로그를 그룹별 파일 수와 크기와 함께 나열하고, 확인한 뒤에만 삭제합니다. 실행 중인 spaCR 세션이 열어 둔 로그는 삭제하지 않고 비우므로 진행 중인 실행은 로그를 유지합니다. 결과에는 삭제하고 비운 파일 수와 확보한 공간이 표시됩니다."
 
 msgid "Headless search"
 msgstr "헤드리스 검색"

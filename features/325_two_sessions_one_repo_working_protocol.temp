@@ -17596,3 +17596,19 @@ hashes remain unchanged and normal English API generation yields 13,177
 entries without further artifact changes. Paste-ready external-methods
 message is features/data/661_claude_methods_message.txt. The workstation
 retains unfinished API/guide/tutorial/media/GPU lanes; no duplicate GPU run.
+
+2026-10-05 — GUIDE AND FIRST FULL API LOCALE CHECKPOINT
+Workstation: all nine current guide catalogs and rendered guide trees pass
+strict checks, including the puncta methods and exact measurement columns.
+The English site passes the strict full build. French's full 13,177-symbol
+API catalog passes audit; 13,126 complete records are preserved, 50 refreshed
+and one added. Twelve puncta blocks have reviewed evidence in every API locale,
+but eight locales still require their remaining source-current repairs.
+Generated catalogs were updated only with their normal tools. A narrow
+keyboard-key sense correction and its positive/negative tests prevent the
+shortcut prose from being translated as mapping identifiers. No inventory,
+coverage or semantic guard was weakened. API review/guide receipts are under
+features/data/615_french_api_completion_2026-10-05.json and 661_guide_translation.
+CPU/Qt/CI ownership stays with home; all further spaCR GPU turns stay here,
+with live_cell and cellposeTIME excluded. No GPU process was launched for this
+checkpoint, and no final-source CI or media-publication completion is claimed.

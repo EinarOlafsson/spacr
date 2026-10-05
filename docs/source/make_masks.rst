@@ -20,7 +20,7 @@ links to the detection-chain documentation. A control without a matching
 animation still keeps its written explanation and API link.
 
 Centre-pixel puncta inside cysts or cells
-----------------------------------------
+-----------------------------------------
 
 Choose **Centre-pixel puncta within parent masks** in **Detection methods**.
 Open the original single-channel images and select a separate parent-mask

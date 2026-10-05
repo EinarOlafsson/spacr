@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "source_base_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "scope": "Current English site, nine translated guide trees, current runtime catalogs and the full French API catalog. Eight API locales, refreshed tutorial media/publication and remaining GPU work are still open.",
+  "source_files": {
+    "docs/source/make_masks.rst": "abd8833a95501d4f52c614c4f49419bed34bbe880625e54402d90af105e46508",
+    "tools/build_i18n_catalogs.py": "e42b714f948c7f2b680616c1d20d4f6d45c55b5174d1048ba660111910f92fea",
+    "tests/test_documentation_i18n.py": "5485bd9bcde5330b215ef5d1e577aeb572c7ca8d917600526318eb70ea7a95d6",
+    "spacr/qt/i18n_catalogs/fr.py": "ffa99d200f34b3da860e2f61152ec88d944acac8fc0fd445e7a95800492e2da8"
+  },
+  "checks": {
+    "strict_english_site": {
+      "passed": true,
+      "log_sha256": "d325916a27814707a51d282e477a8b7b495cef6077bb68ee3c22f6620d345919",
+      "receipt": "build succeeded."
+    },
+    "strict_runtime_audit": {
+      "passed": true,
+      "log_sha256": "54eaa5f6210d90bfc46af5924074f1ac743a2472f922c9cacd5c7d5b3e217228",
+      "receipt": "languages=9 settings=1238 categories=237 ui=7032 modules=77"
+    },
+    "guide_runtime_tests": {
+      "passed": true,
+      "log_sha256": "54b82fa846b599f24c527acf8f04d5c2cd3413c78c925c7b11b21e6872736610",
+      "receipt": "26 passed"
+    },
+    "api_semantic_tests": {
+      "passed": true,
+      "log_sha256": "31f9859f3a9f80d2c6f3a6358d1fb49f120367e398e27f15d8086269fcd9453e",
+      "receipt": "7 passed"
+    },
+    "rendered_guide_verification": {
+      "passed": true,
+      "log_sha256": "210f3ebd9d2df2cf98b0f420d8d8bfba9a149a8f8d881be0edfcaed221f842cd",
+      "receipt": "All nine rendered puncta guides"
+    },
+    "french_api_full_audit": {
+      "passed": true,
+      "log_sha256": "50a71f8ad6996dbe3916d8c7e7e84680f626e8da30a47d6c820867a5e955f627",
+      "receipt": "verified API catalogs: languages=1 symbols=13177"
+    },
+    "korean_api_literals": {
+      "passed": true,
+      "log_sha256": "5f6b04e06b0a3312326158d94821344313d5e0792f099e0077d1b7072e9180fe",
+      "receipt": "All twelve Korean API records"
+    }
+  },
+  "gpu_processes_launched": 0,
+  "deployed": false,
+  "guide_receipt": "features/data/661_guide_translation_2026-10-05.json",
+  "api_receipt": "features/data/615_french_api_completion_2026-10-05.json"
+}

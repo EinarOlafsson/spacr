@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "language": "de",
+  "source_commit": "2430b5c1b57d5dfb4d6b16e00f143e19fad8511c",
+  "method": "Codex AI technical review of guide control-name alignment to the current runtime catalog. Existing prose retained. No independent peer or native-speaker signoff.",
+  "runtime_catalog_sha256": "05e8d672d5032eb015da16bcaa38e5e569c4eec36df3c6fa0e96817d990e295e",
+  "records": [
+    {
+      "domain": "features",
+      "source": "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them.",
+      "source_sha256": "bfa21c5ee6fbafe2af955da8a4e630313ed409cea4751f2814aaf39618e1b467",
+      "original_translation": "**Edit figure…** ändert Titel, Achsenbeschriftungen, Grenzen, Skalen, Schriften, Farben, Legende, Größe und Auflösung dieser Abbildung. Änderungen erscheinen, während Sie sie vornehmen.",
+      "target": "**Abbildung bearbeiten…** ändert Titel, Achsenbeschriftungen, Grenzen, Skalen, Schriften, Farben, Legende, Größe und Auflösung dieser Abbildung. Änderungen erscheinen, während Sie sie vornehmen.",
+      "ui_replacements": {
+        "Edit figure…": "Abbildung bearbeiten…"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**.",
+      "source_sha256": "5a0f49c6b5a9bf999f49784736f6c07ae1494824f2d6c422d0f70bf64579d875",
+      "original_translation": "**Change graph type** zeichnet die Abbildung als anderes Diagramm neu, das zu ihren Daten passt. Gruppen können als Box-, Violin-, Strip-, Swarm-, Balken-, Punkt- oder Boxen-Diagramm, als Box- oder Balkendiagramm mit Punkten oder als Histogramm, KDE oder ECDF dargestellt werden; zwei Messgrößen als Streu-, Linien-, Hexbin-, KDE- oder Regressionsdiagramm; eine Verteilung als Histogramm, KDE, ECDF, Box, Violin, Strip oder Boxen; Häufigkeiten als Count-Plot oder Heatmap; und eine Matrix als Heatmap oder geclusterte Heatmap. Die Abbildung wird aus ihren Daten neu gezeichnet und behält Ihre **Abbildungseinstellungen**.",
+      "target": "**Diagrammtyp ändern** zeichnet die Abbildung als anderes Diagramm neu, das zu ihren Daten passt. Gruppen können als Box-, Violin-, Strip-, Swarm-, Balken-, Punkt- oder Boxen-Diagramm, als Box- oder Balkendiagramm mit Punkten oder als Histogramm, KDE oder ECDF dargestellt werden; zwei Messgrößen als Streu-, Linien-, Hexbin-, KDE- oder Regressionsdiagramm; eine Verteilung als Histogramm, KDE, ECDF, Box, Violin, Strip oder Boxen; Häufigkeiten als Count-Plot oder Heatmap; und eine Matrix als Heatmap oder geclusterte Heatmap. Die Abbildung wird aus ihren Daten neu gezeichnet und behält Ihre **Abbildungseinstellungen**.",
+      "ui_replacements": {
+        "Change graph type": "Diagrammtyp ändern"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure.",
+      "source_sha256": "b8d77eafc1606a6f7865b9065d1ed95b9658405294c8524c879ea3320895feb6",
+      "original_translation": "**Statistics…** zeigt den Test, den spaCR für die Daten gewählt hat, und lässt Sie **Test**, **Subject column**, **Paired / repeated measures** und **Multiple-comparison correction** überschreiben. **Show on the plot** zeichnet den Test und die Signifikanzklammern in die Abbildung.",
+      "target": "**Statistik…** zeigt den Test, den spaCR für die Daten gewählt hat, und lässt Sie **Test**, **Spalte für Versuchseinheiten**, **Gepaarte Daten / Messwiederholungen** und **Korrektur für multiple Vergleiche** überschreiben. **Im Diagramm anzeigen** zeichnet den Test und die Signifikanzklammern in die Abbildung.",
+      "ui_replacements": {
+        "Statistics…": "Statistik…",
+        "Subject column": "Spalte für Versuchseinheiten",
+        "Paired / repeated measures": "Gepaarte Daten / Messwiederholungen",
+        "Multiple-comparison correction": "Korrektur für multiple Vergleiche",
+        "Show on the plot": "Im Diagramm anzeigen"
+      }
+    },
+    {
+      "domain": "features",
+      "source": "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR.",
+      "source_sha256": "881c1475e4224cb41fa9382a3ef69997a485a3b254d8acffe9db21e585133b51",
+      "original_translation": "**Save figure (zip)…** schreibt eine ZIP-Datei mit der Abbildung in Ihrem Speicherformat und als PNG, ``data.csv`` mit den dargestellten Daten, ``statistics.csv`` und ``statistics.txt``, ``spec.json`` mit dem vollständigen Rezept der Abbildung sowie ``recreate_figure.py``, einem Skript, das dieselbe Abbildung ohne spaCR aus den CSV- und JSON-Dateien zeichnet.",
+      "target": "**Abbildung speichern (zip)…** schreibt eine ZIP-Datei mit der Abbildung in Ihrem Speicherformat und als PNG, ``data.csv`` mit den dargestellten Daten, ``statistics.csv`` und ``statistics.txt``, ``spec.json`` mit dem vollständigen Rezept der Abbildung sowie ``recreate_figure.py``, einem Skript, das dieselbe Abbildung ohne spaCR aus den CSV- und JSON-Dateien zeichnet.",
+      "ui_replacements": {
+        "Save figure (zip)…": "Abbildung speichern (zip)…"
+      }
+    },
+    {
+      "domain": "run_history",
+      "source": "**Preferences → Logging → Log files** has **Clear all logs…**. It lists the daily logs, run logs, crash logs and verbose logs with the number of files and their size in each group, and deletes them only after you confirm. A log that the running spaCR session has open is emptied instead of deleted, so the run in progress keeps its log. The result says how many files were deleted and emptied and how much space was freed.",
+      "source_sha256": "ea24b14679b2ca5ed54a6c5e3da24135a45d9f778e28787ef30d82faffb6005d",
+      "original_translation": "**Einstellungen → Protokollierung → Log files** enthält **Clear all logs…**. Es listet Tagesprotokolle, Laufprotokolle, Absturzprotokolle und ausführliche Protokolle mit der Anzahl der Dateien und ihrer Größe je Gruppe auf und löscht sie erst nach Ihrer Bestätigung. Ein Protokoll, das die laufende spaCR-Sitzung geöffnet hat, wird geleert statt gelöscht, sodass der laufende Lauf sein Protokoll behält. Das Ergebnis nennt, wie viele Dateien gelöscht und geleert wurden und wie viel Speicher frei wurde.",
+      "target": "**Einstellungen → Protokollierung → Protokolldateien** enthält **Alle Protokolle leeren…**. Es listet Tagesprotokolle, Laufprotokolle, Absturzprotokolle und ausführliche Protokolle mit der Anzahl der Dateien und ihrer Größe je Gruppe auf und löscht sie erst nach Ihrer Bestätigung. Ein Protokoll, das die laufende spaCR-Sitzung geöffnet hat, wird geleert statt gelöscht, sodass der laufende Lauf sein Protokoll behält. Das Ergebnis nennt, wie viele Dateien gelöscht und geleert wurden und wie viel Speicher frei wurde.",
+      "ui_replacements": {
+        "Log files": "Protokolldateien",
+        "Clear all logs…": "Alle Protokolle leeren…"
+      }
+    }
+  ]
+}
