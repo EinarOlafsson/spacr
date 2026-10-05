@@ -484,3 +484,31 @@ LIVE PLATE VIEW (2026-10-05, partial)
     xfails after integration). This does not establish vendor completion,
     z/t series support, pooled-normalisation parity or real GPU acquisition
     acceptance.
+
+FIXED-MAP PROJECTED Z FIELDS (2026-10-05, partial)
+    A fixed Convert conversion_map.csv now permits multiple Z planes per
+    channel when Make Masks uses its normal two-dimensional, maximum-intensity
+    projection path. The map must declare a dense C01..CN by Z01..ZM grid for
+    each field, with T01 only. Every exact target must arrive, settle and read
+    whole before that field starts. The existing map hash and verified source
+    snapshot bind the declared planes to resume and collection. A missing or
+    sparse plane grid, unexpected file, changed map, or split acquisition
+    folder is refused. Different fields may have different plane counts when
+    the fixed map explicitly declares them.
+
+    Genuine Convert keep-Z TIFFs and map were exercised with two fields, two
+    channels and two planes. With only Z01 present both fields remain waiting;
+    after Z02 arrives they run once and skip on resume. Actual preprocessing,
+    segmentation and Measure produce the same merged arrays and cell/nucleus
+    rows as a flat batch_size=1 run; only Cellpose's forward pass is stubbed.
+    The 42-case focused watcher/map/channel cohort passed under a 4 GiB cap
+    with CUDA hidden.
+
+    This does not enable z_stack or t_stack volumetric processing: standard
+    ingestion projects Z and cannot supply those volume axes. Timelapse and
+    mapped T>1 remain refused because the watcher keys each timepoint
+    separately while batch tracking needs the whole field series. Raw folders
+    without a fixed map still have no reliable last-plane signal. No new
+    setting or UI caption was added, so generated settings artifacts are
+    unchanged. Vendor completion, pooled normalisation, and a real GPU
+    acquisition run remain open.

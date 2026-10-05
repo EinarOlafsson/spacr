@@ -972,6 +972,9 @@ def _watch_validate_map_channels(settings, channels):
 def _watch_map_manifest(src, settings):
     """Validate a fixed Convert map and bind exact target names to each field.
 
+    Projected Z fields need a dense channel-by-plane grid. Time series still
+    need a whole-series analysis key and are refused.
+
     :param src: acquisition directory containing converted images.
     :param settings: the watch filename convention and optional custom regex.
     :returns: field-to-target sets and the map SHA256, or two None values.
@@ -992,7 +995,7 @@ def _watch_map_manifest(src, settings):
             raise ValueError('required Convert map columns are missing')
         if len(reader.fieldnames) != len(set(reader.fieldnames)):
             raise ValueError('duplicate column headers')
-        groups, channels, patterns, targets = {}, {}, {}, set()
+        groups, channels, planes, patterns, targets = {}, {}, {}, {}, set()
         for row in reader:
             name = row['target']
             if not name or name != os.path.basename(name) or '/' in name or '\\' in name:
@@ -1003,19 +1006,29 @@ def _watch_map_manifest(src, settings):
             expected = target_name(row['plate'], row['well'], **numbers)
             if name != expected or not row['source']:
                 raise ValueError(f'target disagrees with its Convert metadata: {name}')
-            if numbers['z'] != 1 or numbers['t'] != 1:
-                raise ValueError('mapped z-stacks and time series are not supported by watch mode')
+            if numbers['t'] != 1:
+                raise ValueError('mapped time series are not supported by watch mode')
             key, channel = _watch_field_of(name, settings, patterns)
             if channel is None or not str(channel).isdecimal() or int(channel) != numbers['channel']:
                 raise ValueError(f'watch filename settings do not identify the mapped channel: {name}')
-            if name in targets or numbers['channel'] in channels.setdefault(key, set()):
-                raise ValueError(f'duplicate target or field channel: {name}')
+            plane = (numbers['channel'], numbers['z'])
+            if name in targets or plane in planes.setdefault(key, set()):
+                raise ValueError(f'duplicate target or field channel/Z plane: {name}')
             targets.add(name)
-            channels[key].add(numbers['channel'])
+            planes[key].add(plane)
+            channels.setdefault(key, set()).add(numbers['channel'])
             groups.setdefault(key, set()).add(name)
         if not groups:
             raise ValueError('the conversion map has no output rows')
         _watch_validate_map_channels(settings, channels)
+        for key, field_planes in planes.items():
+            z_ids = {z for _channel, z in field_planes}
+            expected_planes = {(channel, z) for channel in channels[key]
+                               for z in range(1, len(z_ids) + 1)}
+            if field_planes != expected_planes:
+                raise ValueError(f'{key} must have a complete C01..CN by Z01..ZM '
+                                 'plane grid; missing or sparse planes would change '
+                                 'the projected field.')
     except (ValueError, TypeError, KeyError, UnicodeError, csv.Error) as exc:
         raise ValueError(f'watch_folder: invalid conversion_map.csv: {exc}') from exc
     return groups, hashlib.sha256(data).hexdigest()
@@ -1849,8 +1862,9 @@ def _watch_ready_fields(context, now):
         ``(first seen, key, members, signature)`` tuples, and how many fields
         are seen but not analysed.
 
-    Convert binds exact basenames; relative folders are provenance only. Split
-    companions and duplicate locations are still rejected.
+    Convert binds exact basenames, including every declared Z plane; relative
+    folders are provenance only. Split companions and duplicate locations are
+    still rejected.
     """
     seen, fields = context['seen'], context['ledger']['fields']
     groups = {}
@@ -1878,7 +1892,8 @@ def _watch_ready_fields(context, now):
         parents = {os.path.dirname(name) for name, _channel in members}
         channels = {str(int(channel)) if str(channel).isdecimal() else channel
                     for _name, channel in members}
-        ambiguous = (len(parents) != 1 or len(channels) != len(members))
+        ambiguous = (len(parents) != 1 or
+                     (manifest is None and len(channels) != len(members)))
         if ambiguous:
             waiting += 1
             warning = ('ambiguous', key, tuple(sorted(name for name, _c in members)))
@@ -2419,8 +2434,9 @@ def _watch_folder_and_analyse(settings, analyse=None):
     The folder ``src`` is scanned every ``watch_poll_seconds``. A file is
     ready once its size and modification time have not changed for
     ``watch_settle_seconds`` and it reads whole; a field is ready once it has
-    a file for every entry of ``channels`` and all of them are ready. Fields
-    are told apart by the ``metadata_type`` or ``custom_regex`` filename
+    a file for every entry of ``channels`` and all of them are ready. With a
+    fixed Convert map, every mapped channel and Z plane must be present.
+    Fields are told apart by the ``metadata_type`` or ``custom_regex`` filename
     pattern, and a file whose name carries no channel is a field by itself.
     Images already in the folder are analysed first.
 
