@@ -325,6 +325,7 @@ MODE_WAND_ERASE = "wand_erase"
 #: brush is not: a brush stamps disks along the path, so tracing a rim with
 #: it labels the rim and leaves the middle background.
 MODE_DRAW = "draw"
+MODE_BOX = "box"
 #: Drag a line across a merged object and it becomes two, with every other
 #: object's id untouched. The commonest correction a segmentation needs.
 MODE_DIVIDE = "divide"
@@ -352,6 +353,7 @@ TOOL_MODES: List[tuple] = [
     (MODE_WAND_ADD,     "Wand +",       "wand_add"),
     (MODE_WAND_ERASE,   "Wand −",       "wand_erase"),
     (MODE_DRAW,         "Draw",         "draw"),
+    (MODE_BOX,          "Box",          "zoom"),
     (MODE_DIVIDE,       "Divide",       "divide"),
     (MODE_ZOOM,         "Zoom",         "zoom"),
     (MODE_RECROP,       "Recrop",       "recrop"),
@@ -1144,6 +1146,8 @@ class _MaskCanvas(QLabel):
     #: Connected to :meth:`_take_enhanced` in ``__init__``, which is what
     #: carries it from the worker thread to this one.
     enhanced_ready = Signal(object)
+    boxes_changed = Signal()
+    box_selected = Signal(int)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -1164,6 +1168,12 @@ class _MaskCanvas(QLabel):
         self.image: Optional[np.ndarray] = None
         self.mask: Optional[np.ndarray] = None
         self.mode: str = MODE_NONE
+        self.boxes: List[tuple] = []
+        self.box_class_id = 0
+        self.selected_box = None
+        self.box_classes = ['object']
+        self._box_drag = None
+        self._box_preview = None
         self.brush_radius: int = 10
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
@@ -1301,6 +1311,9 @@ class _MaskCanvas(QLabel):
         """
         self.image = image
         self.mask = mask
+        self.boxes = []
+        self.selected_box = None
+        self._box_drag = self._box_preview = None
         self.ruler.clear()
         self.ruler.set_spacing()
         self._gesture_points = []
@@ -1853,6 +1866,7 @@ class _MaskCanvas(QLabel):
         without the preview the user is dragging an invisible line.
         """
         super().paintEvent(event)
+        self._paint_boxes()
         self._paint_recrop_boxes()
         self._paint_magnifier()
         self._paint_prompter()
@@ -1862,6 +1876,152 @@ class _MaskCanvas(QLabel):
             painter = QPainter(self)
             self.ruler.paint(painter, lambda x, y: self._image_to_canvas(x + 0.5, y + 0.5))
             painter.end()
+
+    def _paint_boxes(self) -> None:
+        """Overlay class-labelled boxes in whole-image coordinates."""
+        if self.image is None or not self.pixmap():
+            return
+        painter = QPainter(self)
+        painter.setClipRect(self.contentsRect())
+        palette = active_palette()
+        for index, box in enumerate(self.boxes + ([self._box_preview]
+                                                 if self._box_preview else [])):
+            class_id, x0, y0, x1, y1 = box
+            start = self._image_to_canvas(x0, y0)
+            end = self._image_to_canvas(x1, y1)
+            if start is None or end is None:
+                continue
+            painter.setPen(QPen(QColor(palette['accent']),
+                                3 if index == self.selected_box else 2))
+            painter.drawRect(QRectF(start, end).normalized())
+            name = (self.box_classes[int(class_id)]
+                    if 0 <= int(class_id) < len(self.box_classes) else str(class_id))
+            painter.drawText(start + QPointF(3, 14), name)
+        painter.end()
+
+    def _box_hit(self, point):
+        """Return the topmost annotation containing an image pixel."""
+        if point is None:
+            return None
+        x, y = point
+        return next((i for i in reversed(range(len(self.boxes)))
+                     if self.boxes[i][1] <= x < self.boxes[i][3]
+                     and self.boxes[i][2] <= y < self.boxes[i][4]), None)
+
+    def _box_press(self, event):
+        """Select, start drawing or remove an annotation without mask edits."""
+        point = self._canvas_to_image(event.position().x(), event.position().y())
+        if point is not None:
+            point = QPoint(*point)
+        if event.button() == Qt.LeftButton and event.modifiers() & PAN_MODIFIERS:
+            self._pan_from = event.position().toPoint()
+            self.setCursor(Qt.ClosedHandCursor)
+            return
+        hit = self._box_hit((point.x(), point.y()) if point is not None else None)
+        if event.button() == Qt.RightButton:
+            if hit is not None:
+                del self.boxes[hit]
+                self.selected_box = None
+                self.boxes_changed.emit()
+                self.update()
+            return
+        if event.button() != Qt.LeftButton or point is None:
+            return
+        self.selected_box = hit
+        original = self.boxes[hit] if hit is not None else None
+        corner = None
+        if original is not None:
+            self.box_selected.emit(int(original[0]))
+            for cx, cy in ((original[1], original[2]),
+                           (original[3] - 1, original[2]),
+                           (original[1], original[4] - 1),
+                           (original[3] - 1, original[4] - 1)):
+                shown = self._image_to_canvas(cx + 0.25, cy + 0.25)
+                if (shown - event.position()).manhattanLength() <= 10:
+                    corner = (cx == original[1], cy == original[2])
+                    break
+        self._box_drag = (point, hit, original, corner)
+        self._box_preview = None
+        self.update()
+
+    def _box_move(self, event):
+        """Preview a draw, translation or corner resize in image pixels."""
+        if self._pan_from is not None:
+            current = event.position().toPoint()
+            delta = current - self._pan_from
+            self._pan_from = current
+            self.pan_by(delta.x(), delta.y())
+            return
+        if self._box_drag is None:
+            return
+        point = self._canvas_to_image(event.position().x(), event.position().y())
+        if point is None:
+            return
+        point = QPoint(*point)
+        start, hit, original, corner = self._box_drag
+        dx, dy = point.x() - start.x(), point.y() - start.y()
+        height, width = self.image.shape[:2]
+        if hit is None:
+            if dx == 0 and dy == 0:
+                self._box_preview = None
+            else:
+                self._box_preview = (self.box_class_id,
+                                     min(start.x(), point.x()), min(start.y(), point.y()),
+                                     max(start.x(), point.x()) + 1, max(start.y(), point.y()) + 1)
+        elif corner is None:
+            class_id, x0, y0, x1, y1 = original
+            dx = max(-x0, min(dx, width - x1))
+            dy = max(-y0, min(dy, height - y1))
+            self._box_preview = (class_id, x0 + dx, y0 + dy, x1 + dx, y1 + dy)
+        else:
+            class_id, x0, y0, x1, y1 = original
+            if corner[0]:
+                x0 = min(point.x(), x1 - 1)
+            else:
+                x1 = max(point.x() + 1, x0 + 1)
+            if corner[1]:
+                y0 = min(point.y(), y1 - 1)
+            else:
+                y1 = max(point.y() + 1, y0 + 1)
+            self._box_preview = (class_id, x0, y0, x1, y1)
+        self.update()
+
+    def _box_release(self, event):
+        """Commit one completed annotation gesture to the separate history."""
+        if event.button() != Qt.LeftButton:
+            return
+        if self._pan_from is not None:
+            self._pan_from = None
+            self.unsetCursor()
+            return
+        if self._box_drag is None:
+            return
+        self._box_move(event)
+        _start, hit, original, _corner = self._box_drag
+        preview = self._box_preview
+        self._box_drag = self._box_preview = None
+        if preview is not None and preview != original:
+            if hit is None:
+                self.boxes.append(preview)
+                self.selected_box = len(self.boxes) - 1
+            else:
+                self.boxes[hit] = preview
+            self.boxes_changed.emit()
+        self.update()
+
+    def cancel_gesture(self):
+        """Discard uncommitted outlines when another tool is selected."""
+        self._box_drag = self._box_preview = None
+        self._gesture_points = []
+        self._zoom_drag_start = self._zoom_drag_end = None
+        self._last_pt = None
+        self._pan_from = None
+        if self._stroke_in_progress:
+            self._emit_stroke_end()
+        self._sweeping = False
+        self._ctrl_click = None
+        self._swallowed.clear()
+        self.update()
 
     def _paint_drag(self) -> None:
         """Draw the outline, cut or rectangle being dragged, if there is one."""
@@ -2343,6 +2503,10 @@ class _MaskCanvas(QLabel):
         if self.mask is None:
             return super().mousePressEvent(event)
 
+        if self.mode == MODE_BOX:
+            self._box_press(event)
+            return
+
         if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
             return
 
@@ -2490,6 +2654,9 @@ class _MaskCanvas(QLabel):
         """
         if self.mask is None:
             return
+        if self.mode == MODE_BOX:
+            self._box_move(event)
+            return
         if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
             return
         self.update_readout(event.position(),
@@ -2563,6 +2730,9 @@ class _MaskCanvas(QLabel):
         reason, before the generic stroke end below can close somebody
         else's stroke with it.
         """
+        if self.mode == MODE_BOX:
+            self._box_release(event)
+            return
         if self.ruler.handle(event, lambda p: self._canvas_to_image(p.x(), p.y())):
             return
         self._schedule_readout()
@@ -8286,6 +8456,12 @@ class MakeMasksScreen(QWidget):
         self._session_notice: str = ""
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
+        self._box_history = engine.MaskHistory(capacity=25)
+        self._box_classes = ['object']
+        self._box_field = None
+        self._box_source_sha256 = None
+        self._boxes_dirty = False
+        self._box_load_error = None
         #: The ledger for the field on screen, seeded from any sidecar
         #: already beside its mask so a second editing session appends to
         #: the first one's record instead of replacing it.
@@ -8540,6 +8716,8 @@ class MakeMasksScreen(QWidget):
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
+        self._canvas.boxes_changed.connect(self._on_boxes_changed)
+        self._canvas.box_selected.connect(self._on_box_selected)
         self._canvas.zoom_changed.connect(self._on_zoom_changed)
         self._canvas.recrop_requested.connect(self._on_recrop_requested)
         self._magnifier = _LiveMagnifier(
@@ -10373,6 +10551,10 @@ class MakeMasksScreen(QWidget):
 
             btn = QPushButton(tr(label))
             btn.setIcon(iconset.icon(icon_key))
+            if mode == MODE_BOX:
+                btn.setObjectName("MakeMasksBoxTool")
+                btn.setToolTip(tr("Draw YOLO bounding boxes (X). Drag inside to move, "
+                                  "drag a corner to resize, or right-click to delete."))
             btn.setCheckable(True)
             btn.setMinimumHeight(32)
             btn.setCursor(Qt.PointingHandCursor)
@@ -10390,6 +10572,25 @@ class MakeMasksScreen(QWidget):
         self._mode_buttons[MODE_RULER].setToolTip(tr(
             "Drag a line to measure its length in image pixels. "
             "Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement."))
+
+        self._box_controls = QWidget()
+        box_row = QHBoxLayout(self._box_controls)
+        box_row.setContentsMargins(0, 0, 0, 0)
+        self._box_class_combo = QComboBox()
+        self._box_class_combo.setToolTip(tr("Class for a selected box or the next box"))
+        self._box_class_combo.addItem('object', 0)
+        self._box_class_combo.currentIndexChanged.connect(self._on_box_class_changed)
+        box_row.addWidget(self._box_class_combo)
+        self._btn_add_box_class = QPushButton(tr("Add class"))
+        self._btn_add_box_class.clicked.connect(lambda: self._on_add_box_class())
+        box_row.addWidget(self._btn_add_box_class)
+        self._btn_export_yolo = QPushButton(tr("Export YOLO labels"))
+        self._btn_export_yolo.setToolTip(tr("Export this image's boxes as a YOLO .txt "
+                                          "label file with a class-name companion."))
+        self._btn_export_yolo.clicked.connect(lambda: self._on_export_yolo_boxes())
+        box_row.addWidget(self._btn_export_yolo)
+        self._box_controls.hide()
+        row.addWidget(self._box_controls)
 
         row.addWidget(Divider(Qt.Vertical))
         self._btn_reset_zoom = QPushButton("Reset zoom")
@@ -11189,6 +11390,7 @@ class MakeMasksScreen(QWidget):
         QShortcut(QKeySequence("E"), self, lambda: self._set_mode(MODE_ERASE))
         QShortcut(QKeySequence("W"), self, lambda: self._set_mode(MODE_WAND_ADD))
         QShortcut(QKeySequence("D"), self, lambda: self._set_mode(MODE_DRAW))
+        QShortcut(QKeySequence("X"), self, lambda: self._set_mode(MODE_BOX))
         QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
         QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
         QShortcut(QKeySequence("R"), self, lambda: self._set_mode(MODE_RECROP))
@@ -11233,7 +11435,11 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
+        self._canvas.cancel_gesture()
         self._canvas.mode = mode
+        self._box_controls.setVisible(mode == MODE_BOX)
+        self._btn_save.setText(tr("Save boxes") if mode == MODE_BOX else tr("Save mask"))
+        self._refresh_history_buttons()
         self._canvas.ruler.set_active(mode == MODE_RULER)
         if mode == MODE_RULER:
             self._btn_magnifier.setChecked(False)
@@ -11513,6 +11719,9 @@ class MakeMasksScreen(QWidget):
         data, and a history that can be quietly tidied is not evidence of
         anything.
         """
+        if self._canvas.mode == MODE_BOX:
+            self._restore_box_history(self._box_history.undo())
+            return
         prev = self._history.undo()
         if prev is None or self._canvas.mask is None:
             return
@@ -11524,6 +11733,9 @@ class MakeMasksScreen(QWidget):
 
     def _on_redo(self):
         """Restore the most recently undone edit, recorded as a ``redo``."""
+        if self._canvas.mode == MODE_BOX:
+            self._restore_box_history(self._box_history.redo())
+            return
         nxt = self._history.redo()
         if nxt is None or self._canvas.mask is None:
             return
@@ -11535,8 +11747,154 @@ class MakeMasksScreen(QWidget):
 
     def _refresh_history_buttons(self):
         """Enable undo and redo from what the history actually holds."""
-        self._btn_undo.setEnabled(self._history.can_undo())
-        self._btn_redo.setEnabled(self._history.can_redo())
+        history = self._box_history if self._canvas.mode == MODE_BOX else self._history
+        self._btn_undo.setEnabled(history.can_undo())
+        self._btn_redo.setEnabled(history.can_redo())
+
+    def _on_boxes_changed(self):
+        """Snapshot one box edit without changing segmentation history."""
+        self._box_history.push(np.asarray(self._canvas.boxes, dtype=float).reshape(-1, 5))
+        self._boxes_dirty = True
+        self._refresh_history_buttons()
+
+    def _restore_box_history(self, snapshot):
+        """Restore an annotation snapshot without creating another undo step."""
+        if snapshot is None:
+            return
+        self._canvas.boxes = [(int(row[0]), *map(float, row[1:])) for row in snapshot]
+        self._canvas.selected_box = None
+        self._boxes_dirty = True
+        self._canvas.update()
+        self._refresh_history_buttons()
+
+    def _on_box_selected(self, class_id):
+        """Show a selected box's class without relabelling it."""
+        blocked = self._box_class_combo.blockSignals(True)
+        self._box_class_combo.setCurrentIndex(self._box_class_combo.findData(class_id))
+        self._box_class_combo.blockSignals(blocked)
+        self._canvas.box_class_id = class_id
+
+    def _on_box_class_changed(self, index):
+        """Choose the next class, or relabel the selected annotation."""
+        class_id = self._box_class_combo.itemData(index)
+        if class_id is None:
+            return
+        self._canvas.box_class_id = int(class_id)
+        selected = self._canvas.selected_box
+        if selected is not None and 0 <= selected < len(self._canvas.boxes):
+            previous = self._canvas.boxes[selected]
+            if int(previous[0]) != class_id:
+                self._canvas.boxes[selected] = (class_id, *previous[1:])
+                self._canvas.boxes_changed.emit()
+                self._canvas.update()
+
+    def _on_add_box_class(self, name=None):
+        """Append a stable class identifier and select it for future boxes.
+
+        :param name: optional class name, otherwise requested in a dialog.
+        :returns: the new class identifier, or None if cancelled or invalid.
+        """
+        from ..i18n import tr
+
+        if name is None:
+            name, accepted = QInputDialog.getText(self, tr("Add box class"), tr("Class name"))
+            if not accepted:
+                return None
+        name = str(name).strip()
+        if not name or name in self._box_classes or any(c in name for c in '\r\n\x00'):
+            self._warn(tr("Invalid class"), tr("Enter a unique, nonempty class name."))
+            return None
+        self._canvas.selected_box = None
+        self._box_classes.append(name)
+        self._canvas.box_classes = list(self._box_classes)
+        class_id = len(self._box_classes) - 1
+        self._box_class_combo.addItem(name, class_id)
+        self._box_class_combo.setCurrentIndex(class_id)
+        self._boxes_dirty = True
+        return class_id
+
+    def _load_box_annotations(self, filename, image):
+        """Bind annotations and class IDs to this field's original bytes."""
+        from ..i18n import tr
+
+        self._box_field = (self._folder, filename)
+        self._box_source_sha256 = None
+        self._boxes_dirty = False
+        self._box_load_error = None
+        try:
+            record = engine.load_yolo_boxes(self._folder, filename, image.shape)
+        except Exception as exc:
+            self._box_load_error = exc
+            self._warn(tr("Cannot load box annotations"), str(exc))
+            record = {'classes': ['object'], 'boxes': [], 'source_sha256': None}
+        self._box_classes = list(record['classes'])
+        self._canvas.box_classes = list(self._box_classes)
+        self._canvas.boxes = list(record['boxes'])
+        self._canvas.selected_box = None
+        self._box_source_sha256 = record['source_sha256']
+        blocked = self._box_class_combo.blockSignals(True)
+        self._box_class_combo.clear()
+        for class_id, name in enumerate(self._box_classes):
+            self._box_class_combo.addItem(name, class_id)
+        self._box_class_combo.setCurrentIndex(0)
+        self._box_class_combo.blockSignals(blocked)
+        self._canvas.box_class_id = 0
+        self._box_history.clear()
+        self._box_history.push(np.asarray(self._canvas.boxes, dtype=float).reshape(-1, 5))
+        self._canvas.update()
+
+    def _on_save_boxes(self):
+        """Save editable annotations beside the field, retaining original pixels.
+
+        :returns: the project path, or None if no field is open or saving fails.
+        """
+        from ..i18n import tr
+
+        if self._box_field is None or self._canvas.image is None:
+            return None
+        try:
+            if self._box_load_error is not None:
+                raise ValueError(str(self._box_load_error))
+            path = engine.save_yolo_boxes(
+                *self._box_field, self._canvas.image.shape, self._canvas.boxes,
+                self._box_classes, expected_source_sha256=self._box_source_sha256)
+        except Exception as exc:
+            self._warn(tr("Cannot save box annotations"), str(exc))
+            return None
+        self._boxes_dirty = False
+        self._status_label.setText(tr("Box annotations saved → {path}").format(path=path))
+        return path
+
+    def _save_boxes_if_needed(self):
+        """Persist changed boxes before leaving their image; refuse loss on error."""
+        return not self._boxes_dirty or self._on_save_boxes() is not None
+
+    def _on_export_yolo_boxes(self, path=None):
+        """Write normalized YOLO labels and the stable class-name mapping.
+
+        :param path: optional label-file destination, otherwise chosen in a dialog.
+        :returns: the written label path, or None on cancellation or failure.
+        """
+        from ..i18n import tr
+
+        if self._box_field is None or self._canvas.image is None:
+            return None
+        if path is None:
+            default = os.path.splitext(os.path.join(*self._box_field))[0] + '.txt'
+            path, _filter = QFileDialog.getSaveFileName(
+                self, tr("Export YOLO labels"), default, tr("YOLO labels (*.txt)"))
+            if not path:
+                return None
+        if self._on_save_boxes() is None:
+            return None
+        try:
+            written = engine.export_yolo_boxes(
+                path, self._canvas.boxes, self._canvas.image.shape, self._box_classes)
+        except Exception as exc:
+            self._warn(tr("Cannot export YOLO labels"), str(exc))
+            return None
+        self._status_label.setText(tr("YOLO labels exported → {path}").format(path=written))
+        return written
 
     def _record(self, kind: str, target=None, n_changed: int = 0, **detail):
         """Append one edit to this field's ledger, if it changed anything.
@@ -15901,6 +16259,8 @@ class MakeMasksScreen(QWidget):
         if not files:
             self._warn("No images", f"Found no image files in: {folder}")
             return False
+        if not self._save_boxes_if_needed():
+            return False
         self._leave_blind_unopened("another folder was opened")
         self._queue = None
         self._session_notice = ""
@@ -15920,6 +16280,16 @@ class MakeMasksScreen(QWidget):
     def _load_current(self):
         """Show the current field and whatever mask it already has."""
         if not self._image_files:
+            return
+        if not self._save_boxes_if_needed():
+            if self._box_field is not None:
+                folder, filename = self._box_field
+                for index, name in enumerate(self._image_files):
+                    owner = self._field_folders[index] if self._field_folders else self._folder
+                    if (owner, name) == (folder, filename):
+                        self._current_index = index
+                        self._folder = folder
+                        break
             return
         if self._field_folders:
             self._folder = self._field_folders[self._current_index]
@@ -16018,6 +16388,10 @@ class MakeMasksScreen(QWidget):
         """
         from ..bridge import drain_thread
 
+        if not self._save_boxes_if_needed():
+            event.ignore()
+            return
+
         if self._blind is not None:
             try:
                 from ...run_journal import _close_blinding
@@ -16100,6 +16474,7 @@ class MakeMasksScreen(QWidget):
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
+        self._load_box_annotations(filename, image)
         self._canvas.ruler.calibrate_from_file(
             os.path.join(self._folder or "", filename), image.shape)
         self._loaded_mask = np.array(mask, copy=True)
@@ -16365,6 +16740,8 @@ class MakeMasksScreen(QWidget):
         :func:`spacr.qt.mask_engine.canonical_labels` has split any label
         lying in separated pieces, so the count matches the file.
         """
+        if self._canvas.mode == MODE_BOX:
+            return self._on_save_boxes()
         if not self._image_files or self._canvas.mask is None:
             return
         if self._save_would_change_nothing():
@@ -16635,6 +17012,7 @@ class MakeMasksScreen(QWidget):
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
+                   self._box_class_combo, self._btn_add_box_class, self._btn_export_yolo,
                    self._btn_discard, self._btn_keep,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
                    self._btn_dilate, self._btn_shrink, self._btn_clear,
