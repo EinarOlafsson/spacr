@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -18,6 +19,50 @@ from typing import Sequence
 
 
 NO_TESTS_COLLECTED = 5
+
+
+#: Exit status reported for a batch killed by ``--batch-timeout``
+#: (the same number GNU ``timeout`` uses).
+BATCH_TIMED_OUT = 124
+
+
+def _run_bounded(command, *, env=None, timeout: float = 0):
+    """Run ``command``; past ``timeout`` seconds kill its whole process group.
+
+    A per-test timeout only sees a test's own phases. Run 37245630937 lost
+    hours to time spent OUTSIDE any test -- a pytest-xdist controller moving
+    a one-megabyte test id, a pool join in teardown -- so the batch as a
+    whole also needs a ceiling. The process group matters: killing only the
+    pytest controller would orphan its xdist workers.
+    """
+    if not timeout or timeout <= 0:
+        kwargs = {"check": False}
+        if env is not None:
+            kwargs["env"] = env
+        return subprocess.run(command, **kwargs)
+    import signal as _signal
+
+    process = subprocess.Popen(command, env=env, start_new_session=True)
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(
+            f"::error title=Batch timed out::killed after {timeout:g} s: "
+            + " ".join(str(part) for part in command),
+            flush=True,
+        )
+        for sig, grace in ((_signal.SIGTERM, 15), (_signal.SIGKILL, 30)):
+            try:
+                os.killpg(process.pid, sig)
+            except (ProcessLookupError, PermissionError):
+                break
+            try:
+                process.wait(timeout=grace)
+                break
+            except subprocess.TimeoutExpired:
+                continue
+        return subprocess.CompletedProcess(command, BATCH_TIMED_OUT)
+    return subprocess.CompletedProcess(command, process.returncode)
 
 
 def _test_files(paths: Sequence[str]) -> list[str]:
@@ -87,6 +132,14 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Kill any single test that runs longer than SECONDS and report "
             "it by name (default: 0, no ceiling). Needs pytest-timeout."
+        ),
+    )
+    parser.add_argument(
+        "--batch-timeout", type=float, default=0, metavar="SECONDS",
+        help=(
+            "Kill a whole batch (controller and workers) that runs longer "
+            f"than SECONDS and report exit {BATCH_TIMED_OUT} (default: 0, "
+            "no ceiling)."
         ),
     )
     return parser
@@ -185,7 +238,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "-o", f"faulthandler_timeout={args.faulthandler_timeout}",
             ])
         command.extend(["-v", "--tb=short"])
-        result = subprocess.run(command, check=False)
+        result = _run_bounded(command, timeout=args.batch_timeout)
         if result.returncode not in (0, NO_TESTS_COLLECTED):
             # REMEMBERED, NOT RETURNED. The first failing status is what
             # the job exits with, so the signal is unchanged; what changes

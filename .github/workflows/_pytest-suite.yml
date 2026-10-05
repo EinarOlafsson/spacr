@@ -55,7 +55,7 @@ on:
           value installs pytest-timeout, which dumps every thread's stack and
           kills the worker so the wedged test is named.
         required: false
-        default: 0
+        default: 600
         type: number
       memory_telemetry_seconds:
         description: >-
@@ -232,6 +232,7 @@ jobs:
               --workers "$batch_workers" \
               --per-test-timeout "${{ inputs.per_test_timeout_seconds }}" \
               --faulthandler-timeout 900 \
+              --batch-timeout 2700 \
               --ignore=tests/test_perf_guard.py \
               --ignore=tests/qt/test_gui_responsiveness.py \
               --ignore=tests/qt/test_home_stage_and_dock.py \

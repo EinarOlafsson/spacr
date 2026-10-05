@@ -55,14 +55,16 @@ def _qt_inputs():
 
 
 def test_the_reusable_suite_accepts_a_per_test_ceiling():
-    """The ceiling is an input, so a suite that needs none is unaffected."""
+    """The ceiling is an input, on by default so no suite can wedge unnamed."""
     inputs = _workflow_call_inputs()
 
     assert "per_test_timeout_seconds" in inputs
     declared = inputs["per_test_timeout_seconds"]
     assert declared["type"] == "number"
-    # Off by default: only a suite that asks pays the install and the risk.
-    assert declared["default"] == 0
+    # ON by default since run 37245630937, where four shards hung for hours:
+    # a suite with no ceiling can hold the whole queue. 600 s leaves room for
+    # an honestly slow test; a suite can still raise it (Qt) or pass 0.
+    assert declared["default"] == 600
 
 
 def test_the_ceiling_reaches_both_pytest_invocations():

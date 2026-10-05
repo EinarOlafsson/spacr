@@ -4650,9 +4650,28 @@ def augment_images(file_paths, dst):
     from .resource_log import _array_file_nbytes, _guard_workers
     workers = _guard_workers('augment', cpu_count(),
                              _array_file_nbytes(args_list[0][0]))
+    workers = max(1, min(int(workers), len(args_list)))
 
-    with Pool(workers) as pool:
+    # SPAWNED, AND CLOSED RATHER THAN TERMINATED. A forked worker inherits
+    # every lock another thread of this process held at fork time (a
+    # coverage tracer, a logging handler, a watchdog), and ``with Pool``
+    # ends with ``terminate()``, whose SIGTERM runs such a child's exit
+    # handlers against those locks. CI run 37245630937 hung for an hour in
+    # ``_terminate_pool`` joining one. A spawned worker inherits no locks,
+    # and ``close()`` + ``join()`` lets each worker leave on its own.
+    pool = _augment_pool_context().Pool(workers)
+    try:
         pool.map(augment_single_image, args_list)
+    finally:
+        pool.close()
+        pool.join()
+
+
+def _augment_pool_context():
+    """Return the multiprocessing context :func:`augment_images` uses."""
+    import multiprocessing
+
+    return multiprocessing.get_context('spawn')
         
 
 def suggest_training_changes(

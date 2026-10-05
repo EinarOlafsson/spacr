@@ -47,6 +47,50 @@ from coverage import CoverageData
 from coverage.exceptions import CoverageException
 
 NO_TESTS_COLLECTED = 5
+
+
+#: Exit status reported for a batch killed by ``--batch-timeout``
+#: (the same number GNU ``timeout`` uses).
+BATCH_TIMED_OUT = 124
+
+
+def _run_bounded(command, *, env=None, timeout: float = 0):
+    """Run ``command``; past ``timeout`` seconds kill its whole process group.
+
+    A per-test timeout only sees a test's own phases. Run 37245630937 lost
+    hours to time spent OUTSIDE any test -- a pytest-xdist controller moving
+    a one-megabyte test id, a pool join in teardown -- so the batch as a
+    whole also needs a ceiling. The process group matters: killing only the
+    pytest controller would orphan its xdist workers.
+    """
+    if not timeout or timeout <= 0:
+        kwargs = {"check": False}
+        if env is not None:
+            kwargs["env"] = env
+        return subprocess.run(command, **kwargs)
+    import signal as _signal
+
+    process = subprocess.Popen(command, env=env, start_new_session=True)
+    try:
+        process.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        print(
+            f"::error title=Batch timed out::killed after {timeout:g} s: "
+            + " ".join(str(part) for part in command),
+            flush=True,
+        )
+        for sig, grace in ((_signal.SIGTERM, 15), (_signal.SIGKILL, 30)):
+            try:
+                os.killpg(process.pid, sig)
+            except (ProcessLookupError, PermissionError):
+                break
+            try:
+                process.wait(timeout=grace)
+                break
+            except subprocess.TimeoutExpired:
+                continue
+        return subprocess.CompletedProcess(command, BATCH_TIMED_OUT)
+    return subprocess.CompletedProcess(command, process.returncode)
 #: pytest exit statuses after which pytest-cov has saved its data: passed,
 #: tests failed, no tests collected.  A signal (negative), an interrupt (2),
 #: an internal error (3) or a usage error (4) proves nothing was saved.
@@ -272,6 +316,13 @@ def _coverage_options(source: str) -> list[str]:
     ]
 
 
+def _timeout_options(seconds: int) -> list[str]:
+    """pytest-timeout options for a per-test ceiling of ``seconds`` (0: none)."""
+    if not seconds or seconds <= 0:
+        return []
+    return ["--timeout", str(int(seconds)), "--timeout-method", "thread"]
+
+
 def _data_files(data_file: Path) -> list[Path]:
     return sorted(
         path for path in data_file.parent.glob(f"{data_file.name}*")
@@ -287,6 +338,7 @@ def recover_file(
     source: str,
     attempts: int,
     timeout: float,
+    per_test_timeout: int = 0,
 ) -> dict[str, Any]:
     """Re-run one test file serially until its coverage data is saved."""
     tries: list[dict[str, Any]] = []
@@ -295,7 +347,8 @@ def recover_file(
     environment.pop(LEDGER_ENV, None)
     command = [
         sys.executable, "-m", "pytest", test_file, "-m", marker,
-        *_coverage_options(source), "--cov-append", "-v", "--tb=short",
+        *_coverage_options(source), *_timeout_options(per_test_timeout),
+        "--cov-append", "-v", "--tb=short",
     ]
     for attempt in range(1, attempts + 1):
         # A failed attempt may leave a shell behind; the next one starts
@@ -389,6 +442,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="seconds one recovery attempt may take (default: 1800)",
     )
     parser.add_argument(
+        "--per-test-timeout", type=int, default=0, metavar="SECONDS",
+        help="kill any single test running longer than SECONDS and name it "
+        "(pytest-timeout, thread method; default: 0, no ceiling)",
+    )
+    parser.add_argument(
+        "--batch-timeout", type=float, default=0, metavar="SECONDS",
+        help="kill a whole batch (controller and workers) that runs longer "
+        f"than SECONDS and report exit {BATCH_TIMED_OUT} (default: 0)",
+    )
+    parser.add_argument(
         "--cov-source", default="spacr",
         help="package measured with --cov (default: spacr)",
     )
@@ -422,10 +485,16 @@ def _run_batch(
         PLUGIN,
         *_coverage_options(args.cov_source),
     ]
+    command.extend(_timeout_options(getattr(args, "per_test_timeout", 0)))
     if args.workers > 1:
         command.extend(["-n", str(args.workers), "--dist", "loadfile"])
+        if getattr(args, "per_test_timeout", 0) > 0:
+            # A timed-out test ends its worker; a replacement worker would
+            # be handed the same test and pay the ceiling again.
+            command.append("--max-worker-restart=0")
     command.extend(["-v", "--tb=short"])
-    result = subprocess.run(command, env=environment, check=False)
+    result = _run_bounded(command, env=environment,
+                          timeout=getattr(args, "batch_timeout", 0))
 
     lost, reasons = lost_coverage(
         read_ledger(ledger_path), relative, int(result.returncode),
@@ -459,6 +528,7 @@ def _run_batch(
             source=args.cov_source,
             attempts=args.recovery_attempts,
             timeout=args.recovery_timeout,
+            per_test_timeout=getattr(args, "per_test_timeout", 0),
         )
         key = "recovered_files" if outcome["recovered"] else "unrecovered_files"
         entry[key].append(outcome)

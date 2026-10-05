@@ -191,3 +191,59 @@ def test_the_summary_names_every_failing_batch(monkeypatch, tmp_path, capsys):
     out = capsys.readouterr().out
     assert "2 of 3 batches failed" in out
     assert "batch 2" in out and "batch 3" in out
+
+
+def test_a_batch_past_its_ceiling_is_killed_with_its_children(tmp_path):
+    """--batch-timeout ends the controller AND anything it started."""
+    import sys
+    import time
+
+    marker = tmp_path / "child.pid"
+    script = (
+        "import subprocess, sys, time\n"
+        "child = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(120)'])\n"
+        f"open({str(marker)!r}, 'w').write(str(child.pid))\n"
+        "time.sleep(120)\n"
+    )
+    started = time.monotonic()
+    result = runner._run_bounded([sys.executable, "-c", script], timeout=3)
+    assert result.returncode == runner.BATCH_TIMED_OUT
+    assert time.monotonic() - started < 60
+    child = int(marker.read_text())
+    import os
+    for _ in range(50):
+        try:
+            os.kill(child, 0)
+        except ProcessLookupError:
+            break
+        try:
+            if os.waitpid(child, os.WNOHANG) != (0, 0):
+                break
+        except ChildProcessError:
+            pass
+        time.sleep(0.1)
+    else:
+        pytest.fail("the batch's child process outlived the batch timeout")
+
+
+def test_a_batch_inside_its_ceiling_reports_its_own_status():
+    import sys
+
+    result = runner._run_bounded([sys.executable, "-c", "raise SystemExit(3)"],
+                                 timeout=60)
+    assert result.returncode == 3
+
+
+def test_main_passes_the_batch_timeout_through(tmp_path, monkeypatch):
+    (tmp_path / "test_0.py").write_text("", encoding="utf-8")
+    seen = []
+
+    def bounded(command, *, env=None, timeout=0):
+        seen.append(timeout)
+        return SimpleNamespace(returncode=runner.BATCH_TIMED_OUT)
+
+    monkeypatch.setattr(runner, "_run_bounded", bounded)
+    status = runner.main([str(tmp_path), "--marker", "", "--workers", "1",
+                          "--batch-timeout", "12"])
+    assert seen == [12.0]
+    assert status == runner.BATCH_TIMED_OUT

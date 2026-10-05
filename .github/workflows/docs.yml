@@ -20,6 +20,7 @@ jobs:
   resolve:
     name: Pin both documentation branches
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     outputs:
       main: ${{ steps.refs.outputs.main }}
       nightly: ${{ steps.refs.outputs.nightly }}
@@ -191,6 +192,7 @@ jobs:
     name: Publish main and nightly channels
     needs: build
     runs-on: ubuntu-24.04
+    timeout-minutes: 30
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

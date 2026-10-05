@@ -200,7 +200,8 @@ jobs:
         run: |
           python tools/run_pytest_batches.py \
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            --batch-size 32 --workers 2 --per-test-timeout 300
+            --batch-size 32 --workers 2 --per-test-timeout 300 \
+            --batch-timeout 2700
 
       - name: Upload translation incompatibilities (report-only)
         if: always()
@@ -325,7 +326,9 @@ jobs:
   coverage-shards:
     name: Coverage shard ${{ matrix.shard }} of 12
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
+    # Every test is bounded (--per-test-timeout) and so is every batch
+    # (--batch-timeout), so a hang costs at most one batch, never the job.
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:
@@ -403,6 +406,8 @@ jobs:
             --shard-count 12 \
             --batch-size 32 \
             --workers 2 \
+            --per-test-timeout 600 \
+            --batch-timeout 2700 \
             --data-dir "$SPACR_COVERAGE_DATA_DIR" \
             --exclude-file tests/test_perf_guard.py \
             --exclude-file tests/qt/test_gui_responsiveness.py \
@@ -715,7 +720,8 @@ jobs:
         run: |
           python tools/run_pytest_batches.py \
             --marker "not integration and not slow and not heavy and not qt and not gpu and not network and not nas and not gui" \
-            --batch-size 32 --workers 2 --per-test-timeout 300
+            --batch-size 32 --workers 2 --per-test-timeout 300 \
+            --batch-timeout 2700
 
       - name: Upload translation incompatibilities (report-only)
         if: always()

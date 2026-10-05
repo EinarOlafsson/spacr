@@ -425,6 +425,33 @@ def _stat_signature(path) -> tuple:
     return (True, info.st_size, info.st_mtime_ns)
 
 
+#: Longest text a parametrize value may put into a test id verbatim.
+_MAX_PARAM_ID_CHARS = 64
+
+
+def pytest_make_parametrize_id(config, val, argname):
+    """Keep a long text or bytes parameter out of the test id.
+
+    A test parametrized with ``'x' * (1024 * 1024 + 1)`` got a one-megabyte
+    node id. pytest-xdist ships that id between the controller and the
+    worker for every report and the terminal writes it twice, and on CI
+    (run 37245630937) each such test held its shard for 40-65 minutes
+    *outside* the test body, where pytest-timeout cannot see it. Four
+    shards sat "in progress" for hours. A long value is now named by its
+    head, its length and a digest, which stays unique and readable.
+    """
+    if isinstance(val, (str, bytes)) and len(val) > _MAX_PARAM_ID_CHARS:
+        import hashlib
+
+        raw = val if isinstance(val, bytes) else val.encode("utf-8", "surrogatepass")
+        head = val[:24]
+        head = (head.decode("ascii", "backslashreplace")
+                if isinstance(head, bytes)
+                else head.encode("unicode_escape").decode("ascii"))
+        return f"{head}...[{len(val)}:{hashlib.sha1(raw).hexdigest()[:10]}]"
+    return None
+
+
 #: Plugin name for the collection-node canonicaliser defined further down.
 _ONE_NODE_PER_DIRECTORY = "spacr-one-node-per-directory"
 

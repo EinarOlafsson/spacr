@@ -210,10 +210,51 @@ def test_augmentation_starts_only_the_safe_count(monkeypatch, tmp_path):
         def map(self, fn, items):
             return []
 
+        def close(self):
+            seen['closed'] = True
+
+        def join(self):
+            seen['joined'] = seen.get('closed', False)
+
     monkeypatch.setattr(resource_log, '_guard_workers',
                         lambda module, n, unit, **kw: seen.setdefault(
                             'guard', module) and 1)
-    monkeypatch.setattr(utils, 'Pool', FakePool)
+    monkeypatch.setattr(utils, '_augment_pool_context',
+                        lambda: type('Ctx', (), {'Pool': FakePool}))
     utils.augment_images([str(tmp_path / 'a.png')], str(tmp_path / 'out'))
     assert seen['guard'] == 'augment'
     assert seen['pool'] == 1
+    assert seen['joined'] is True
+
+
+def test_augmentation_never_starts_more_workers_than_images(monkeypatch, tmp_path):
+    from spacr import utils
+    seen = {}
+
+    class FakePool:
+        def __init__(self, processes):
+            seen['pool'] = processes
+
+        def map(self, fn, items):
+            raise RuntimeError('worker failed')
+
+        def close(self):
+            seen['closed'] = True
+
+        def join(self):
+            seen['joined'] = seen.get('closed', False)
+
+    monkeypatch.setattr(resource_log, '_guard_workers',
+                        lambda module, n, unit, **kw: 16)
+    monkeypatch.setattr(utils, '_augment_pool_context',
+                        lambda: type('Ctx', (), {'Pool': FakePool}))
+    with pytest.raises(RuntimeError, match='worker failed'):
+        utils.augment_images([str(tmp_path / 'a.png'), str(tmp_path / 'b.png')],
+                             str(tmp_path / 'out'))
+    assert seen['pool'] == 2
+    assert seen['joined'] is True
+
+
+def test_augment_pool_context_spawns():
+    from spacr import utils
+    assert utils._augment_pool_context().get_start_method() == 'spawn'
