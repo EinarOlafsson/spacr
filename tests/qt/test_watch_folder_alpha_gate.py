@@ -109,3 +109,29 @@ def test_output_without_a_watch_line_leaves_the_label_alone(qtbot, prefs):
         host, "watch_folder: 5 analysed, 0 waiting, 2 failed\n")
     assert host._watch_progress.text() == (
         "Watching: 5 analysed, 0 waiting, 2 failed")
+
+
+def test_classify_pipeline_is_selectable_in_the_alpha_mask_form(qtbot, prefs):
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widget_cleanup import retire_pyqtgraph_menus
+    from spacr.settings_spec import convert_settings_dict_for_gui
+
+    kind, choices, default = convert_settings_dict_for_gui(
+        {"watch_pipeline": "mask"})["watch_pipeline"]
+    assert (kind, choices, default) == (
+        "combo", ["mask", "mask_measure", "mask_measure_classify"], "mask")
+
+    prefs._set_show_alpha_features(True)
+    screen = AppScreen("mask")
+    try:
+        screen._open_the_heading_of("watch_pipeline")
+        screen._refresh_alpha_visibility()
+        assert screen.setting_row_is_visible("watch_pipeline")
+        assert screen._settings_model.set_value_for_key(
+            "watch_pipeline", "mask_measure_classify")
+        assert screen._settings_model.collect()["watch_pipeline"] == (
+            "mask_measure_classify")
+    finally:
+        retire_pyqtgraph_menus(screen)
+        screen.close()
+        screen.deleteLater()

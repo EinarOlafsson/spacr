@@ -1223,7 +1223,9 @@ def _watch_analyse_field(field_dir, settings):
         database = os.path.join(field_dir, 'measurements', 'measurements.db')
         with sqlite3.connect(database) as connection:
             columns = {row[1] for row in connection.execute('PRAGMA table_info(png_list)')}
-            if not {'pred', 'cv_predictions'} <= columns:
+            if (not {'pred', 'cv_predictions'} <= columns or not connection.execute(
+                    'SELECT 1 FROM png_list WHERE pred IS NOT NULL AND '
+                    'cv_predictions IS NOT NULL LIMIT 1').fetchone()):
                 raise RuntimeError('Classify wrote no CV predictions to this field; '
                                    'check the model and measured objects.')
 

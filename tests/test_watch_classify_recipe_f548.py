@@ -175,6 +175,25 @@ def test_no_predictions_means_the_field_is_not_collected(tmp_path, adapter,
     assert not (tmp_path / 'spacr_watch/measurements/measurements.db').exists()
 
 
+def test_empty_prediction_columns_do_not_count_as_classification(tmp_path, adapter,
+                                                                 monkeypatch):
+    from spacr import deep_spacr
+
+    def empty_predictions(settings):
+        database = Path(settings['src']) / 'measurements' / 'measurements.db'
+        with sqlite3.connect(database) as connection:
+            connection.execute('ALTER TABLE png_list ADD COLUMN pred REAL')
+            connection.execute('ALTER TABLE png_list ADD COLUMN cv_predictions INTEGER')
+
+    monkeypatch.setattr(deep_spacr, 'deep_spacr', empty_predictions)
+    model = tmp_path / 'model.pt'
+    model.write_text('2')
+    _arrive(tmp_path, 'A01', 1)
+    result = core._watch_folder_and_analyse(_recipe(tmp_path, model))
+    assert result['failed'] == ['plate1_A01_0001_001']
+    assert not (tmp_path / 'spacr_watch/measurements/measurements.db').exists()
+
+
 def test_real_mask_and_measure_predictions_match_batch_size_one(
         tmp_path, real_pipeline, monkeypatch):
     from spacr import deep_spacr
