@@ -1330,6 +1330,8 @@ def test_resolve_version_falls_back_to_dev(win, monkeypatch):
     assert win._resolve_version() == "dev"
     monkeypatch.setitem(sys.modules, "spacr", None)
     assert win._resolve_version() == "dev"
+    # Put spacr back before qtbot closes the window: closing imports from it.
+    monkeypatch.setitem(sys.modules, "spacr", spacr)
 
 
 def test_help_menu_urls_open_in_a_browser(win, monkeypatch):
