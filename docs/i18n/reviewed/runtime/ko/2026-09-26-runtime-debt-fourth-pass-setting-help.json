@@ -62,31 +62,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "watch_folder",
-      "source": "Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
-      "source_sha256": "e1945b9b02af0ec5552ba3fa6349595a7267daca13fb78d3480b2d33938926be",
-      "translation": "src에서 Make Masks를 계속 실행하며, 현미경이 아직 쓰고 있는 플레이트에 대해 이미지가 도착하는 대로 각 시야를 분석합니다. 파일은 watch_settle_seconds 동안 바뀌지 않고 온전히 읽히면 가져가고, 시야는 channels 설정의 모든 항목에 파일이 있으면 가져갑니다. src에 이미 있는 이미지가 먼저 처리됩니다. 각 시야는 batch_size 1로 배치 실행하듯 따로 분석되며, 결과는 src/spacr_watch 폴더에 모이고, 그 안의 watch_ledger.json 파일 덕분에 재시작 시 이미 분석한 시야를 건너뜁니다. 타임랩스, z_stack, t_stack 실행에는 쓸 수 없습니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "watch_idle_minutes",
       "source": "Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
       "source_sha256": "f8b6c2105fec08f67339f572ae5e5d563bd70b47c1ce54eb6ea8e112efb3fb1b",
       "translation": "src 안의 어떤 것도 이 시간(분) 동안 바뀌지 않으면 감시를 멈추고, 끝내 완성되지 않은 시야를 나열합니다. 0이면 중지를 누를 때까지 감시합니다. 기본값 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "watch_measure_settings",
-      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
-      "source_sha256": "18280c253b0a2c1ddc164ded85c620d8bd3c37fb37ba782c5bdbd742defdb3c1",
-      "translation": "watch_pipeline 'mask_measure' 설정이 모든 시야를 측정할 때 쓰는 Measure 설정 파일(.csv 또는 .json, Measure 화면이 저장하는 형식)입니다. 비워 두면 이 실행의 채널로 Measure 기본값을 사용합니다. 기본값은 비어 있음."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "watch_pipeline",
-      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
-      "source_sha256": "74bbca66d83197ea90d44e01e1c8dac8a91f5f80ae0c2de27239e58632ff853c",
-      "translation": "watch_folder 기능이 도착하는 각 시야에서 실행하는 작업입니다. 'mask'는 Make Masks를 실행하고, 'mask_measure'는 이어서 해당 시야의 병합 스택에 Measure를 실행한 뒤 그 행을 src/spacr_watch/measurements/measurements.db 파일에 추가합니다. 기본값 'mask'."
     },
     {
       "table": "setting_tooltips",

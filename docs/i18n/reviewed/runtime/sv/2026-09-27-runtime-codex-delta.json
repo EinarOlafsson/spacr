@@ -810,13 +810,6 @@
       "translation": "Vilken plattform som skrev mappen. Identifiera läser det från de filer som finns. Standard: Identifiera."
     },
     {
-      "table": "setting_tooltips",
-      "key": "microscope_feedback",
-      "source": "While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
-      "source_sha256": "df123f874e522da33ecb94dbbcff875aafa6703fbe6e911108a15c44ab8a84df",
-      "translation": "När watch_folder körs med watch_pipeline 'mask_measure' skickas de objekt i varje mätt bildfält som matchar microscope_event_query tillbaka till mikroskopet för ny avbildning, till exempel med högre upplösning eller som en kort tidsserie. Objektbordets positioner kommer från microscope_positions och microscope_stage_transform; varje händelse och dess bilder registreras i watch_ledger.json och bilderna sparas i src/spacr_watch/reimaged. Standard: False."
-    },
-    {
       "table": "ui",
       "key": "Who is told, one or more addresses separated by commas. Default empty.",
       "source": "Who is told, one or more addresses separated by commas. Default empty.",

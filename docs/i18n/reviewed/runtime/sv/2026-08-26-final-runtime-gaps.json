@@ -3,13 +3,6 @@
   "language": "sv",
   "records": [
     {
-      "table": "ui",
-      "key": "Bar alpha",
-      "source_sha256": "1e857e7988e57c9c3ef998c30f559198e70db57b99f6c52002b0af16e13695e9",
-      "source": "Bar alpha",
-      "translation": "Stapelopacitet"
-    },
-    {
       "table": "setting_labels",
       "key": "neg",
       "source_sha256": "ee02b7e6deb6343d4ffd86d2b3294042746361615464a21f6bbb9a736d9457c1",

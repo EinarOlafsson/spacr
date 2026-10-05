@@ -810,13 +810,6 @@
       "translation": "Qué plataforma escribió la carpeta. Detectar lo determina a partir de los archivos presentes. Valor predeterminado: Detectar."
     },
     {
-      "table": "setting_tooltips",
-      "key": "microscope_feedback",
-      "source": "While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
-      "source_sha256": "df123f874e522da33ecb94dbbcff875aafa6703fbe6e911108a15c44ab8a84df",
-      "translation": "Mientras watch_folder se ejecuta con watch_pipeline 'mask_measure', envía al microscopio los objetos de cada campo medido que coincidan con microscope_event_query para obtener nuevas imágenes, por ejemplo a mayor resolución o como secuencia temporal corta. Las posiciones de la platina proceden de microscope_positions y microscope_stage_transform; cada evento y sus imágenes se registran en watch_ledger.json y las imágenes se guardan en src/spacr_watch/reimaged. Valor predeterminado: False."
-    },
-    {
       "table": "ui",
       "key": "Who is told, one or more addresses separated by commas. Default empty.",
       "source": "Who is told, one or more addresses separated by commas. Default empty.",

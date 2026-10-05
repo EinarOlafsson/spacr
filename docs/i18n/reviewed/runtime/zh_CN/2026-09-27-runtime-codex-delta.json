@@ -810,13 +810,6 @@
       "translation": "生成该文件夹的平台。“检测”根据现有文件识别平台。默认：检测。"
     },
     {
-      "table": "setting_tooltips",
-      "key": "microscope_feedback",
-      "source": "While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
-      "source_sha256": "df123f874e522da33ecb94dbbcff875aafa6703fbe6e911108a15c44ab8a84df",
-      "translation": "当 watch_folder 以 watch_pipeline 'mask_measure' 运行时，将每个已测量视野中符合 microscope_event_query 的对象发回显微镜重新成像，例如以更高分辨率或短延时序列采集。载物台位置来自 microscope_positions 和 microscope_stage_transform；每个事件及其图像记录在 watch_ledger.json 中，图像保存到 src/spacr_watch/reimaged。默认：False。"
-    },
-    {
       "table": "ui",
       "key": "Who is told, one or more addresses separated by commas. Default empty.",
       "source": "Who is told, one or more addresses separated by commas. Default empty.",

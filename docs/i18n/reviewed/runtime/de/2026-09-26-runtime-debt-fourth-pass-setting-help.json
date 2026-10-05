@@ -62,31 +62,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "watch_folder",
-      "source": "Keep Make Masks running on src and analyse each field as its images arrive, for a plate the microscope is still writing. A file is taken once it has stopped changing for watch_settle_seconds and reads whole, and a field once a file for every entry of channels is in. Images already in src go first. Each field is analysed alone, as a batch run with batch_size 1 would, and results gather in src/spacr_watch, whose watch_ledger.json lets a restart skip fields already analysed. Not for timelapse, z_stack or t_stack runs. Default False.",
-      "source_sha256": "e1945b9b02af0ec5552ba3fa6349595a7267daca13fb78d3480b2d33938926be",
-      "translation": "Lässt Make Masks auf src weiterlaufen und analysiert jedes Bildfeld, sobald seine Bilder eintreffen, für eine Platte, die das Mikroskop noch schreibt. Eine Datei wird übernommen, sobald sie sich watch_settle_seconds lang nicht mehr geändert hat und vollständig lesbar ist, ein Bildfeld, sobald für jeden Eintrag von channels eine Datei vorliegt. Bereits in src vorhandene Bilder kommen zuerst. Jedes Bildfeld wird einzeln analysiert, wie es ein Batch-Lauf mit batch_size 1 täte, und die Ergebnisse sammeln sich in src/spacr_watch, dessen watch_ledger.json einem Neustart erlaubt, bereits analysierte Bildfelder zu überspringen. Nicht für Zeitraffer-, z_stack- oder t_stack-Läufe. Standard False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "watch_idle_minutes",
       "source": "Stop watching once nothing in src has changed for this many minutes, and list the fields that never became complete. 0 watches until Stop is pressed. Default 0.",
       "source_sha256": "f8b6c2105fec08f67339f572ae5e5d563bd70b47c1ce54eb6ea8e112efb3fb1b",
       "translation": "Die Überwachung beenden, sobald sich in src so viele Minuten lang nichts geändert hat, und die Bildfelder auflisten, die nie vollständig wurden. 0 überwacht, bis Stopp gedrückt wird. Standard 0."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "watch_measure_settings",
-      "source": "A Measure settings file (.csv or .json, as the Measure screen saves them) that watch_pipeline 'mask_measure' measures every field with. Blank uses Measure's defaults with this run's channels. Default blank.",
-      "source_sha256": "18280c253b0a2c1ddc164ded85c620d8bd3c37fb37ba782c5bdbd742defdb3c1",
-      "translation": "Eine Measure-Einstellungsdatei (.csv oder .json, wie der Measure-Bildschirm sie speichert), mit der watch_pipeline 'mask_measure' jedes Bildfeld misst. Leer verwendet die Standardwerte von Measure mit den Kanälen dieses Laufs. Standard leer."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "watch_pipeline",
-      "source": "What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' then runs Measure on the field's merged stacks and appends its rows to src/spacr_watch/measurements/measurements.db. Default 'mask'.",
-      "source_sha256": "74bbca66d83197ea90d44e01e1c8dac8a91f5f80ae0c2de27239e58632ff853c",
-      "translation": "Was watch_folder für jedes eintreffende Bildfeld ausführt. 'mask' führt Make Masks aus; 'mask_measure' führt danach Measure auf den zusammengeführten Stapeln des Bildfelds aus und hängt dessen Zeilen an src/spacr_watch/measurements/measurements.db an. Standard 'mask'."
     },
     {
       "table": "setting_tooltips",

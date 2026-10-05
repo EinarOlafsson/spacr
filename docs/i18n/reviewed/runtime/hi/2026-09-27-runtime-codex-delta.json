@@ -810,13 +810,6 @@
       "translation": "किस प्लेटफ़ॉर्म ने फ़ोल्डर लिखा। पहचानें मौजूद फ़ाइलों से यह निर्धारित करता है। डिफ़ॉल्ट: पहचानें।"
     },
     {
-      "table": "setting_tooltips",
-      "key": "microscope_feedback",
-      "source": "While watch_folder runs with watch_pipeline 'mask_measure', send the objects of each measured field that match microscope_event_query back to the microscope to be imaged again, for example at higher resolution or as a short timelapse. Stage positions come from microscope_positions and microscope_stage_transform; every event and its images are recorded in watch_ledger.json and the images saved in src/spacr_watch/reimaged. Default False.",
-      "source_sha256": "df123f874e522da33ecb94dbbcff875aafa6703fbe6e911108a15c44ab8a84df",
-      "translation": "जब watch_folder, watch_pipeline 'mask_measure' के साथ चलता है, तो हर मापे गए दृश्य क्षेत्र में microscope_event_query से मेल खाने वाली वस्तुएँ दोबारा चित्र लेने के लिए माइक्रोस्कोप को भेजता है, उदाहरण के लिए अधिक रिज़ॉल्यूशन पर या छोटे टाइमलैप्स के रूप में। स्टेज की स्थितियाँ microscope_positions और microscope_stage_transform से आती हैं; हर घटना और उसके चित्र watch_ledger.json में दर्ज होते हैं और चित्र src/spacr_watch/reimaged में सहेजे जाते हैं। डिफ़ॉल्ट: False।"
-    },
-    {
       "table": "ui",
       "key": "Who is told, one or more addresses separated by commas. Default empty.",
       "source": "Who is told, one or more addresses separated by commas. Default empty.",
