@@ -845,14 +845,19 @@ def test_the_umap_reducer_greying_stops_on_a_method_it_does_not_know(
         owned_settings_widgets):
     widgets = owned_settings_widgets("umap")
     widgets.build_sections()
+    exclusion_editor = widgets._widgets.get("exclude_rows")
     selector = widgets._widgets.get("reduction_method")
-    if selector is None:
-        pytest.skip("umap panel has no reduction_method control in this build")
-    if isinstance(selector, QComboBox):
-        selector.setEditable(True)
-        selector.setEditText("a_method_that_does_not_exist")
+    try:
+        if selector is None:
+            pytest.skip("umap panel has no reduction_method control in this build")
+        if isinstance(selector, QComboBox):
+            selector.setEditable(True)
+            selector.setEditText("a_method_that_does_not_exist")
 
-    assert widgets._refresh_umap_reducer_enablement() is None
+        assert widgets._refresh_umap_reducer_enablement() is None
+    finally:
+        if exclusion_editor is not None:
+            exclusion_editor.shutdown()
 
 
 def test_the_classifier_greying_stops_when_the_family_cannot_be_resolved(
