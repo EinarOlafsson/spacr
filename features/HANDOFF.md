@@ -37,6 +37,18 @@ fixture cleanup reduced final RSS by 31 MiB; item 47 remains open. Protected
 run 37311146886 still targets the older checkpoint, so these changes require
 a final-source GitHub verdict before items 43/288 can be marked complete.
 
+CPU coverage follow-up: source 582492a15's old figure bundle/style gaps are
+covered in local branch measurements, including new export/redraw paths and
+literal group/value label collisions. Preferences closes its required old
+statement/branch regression; measure, settings_model, Make Masks, journal,
+restart, validate, plot, shared figure_style and app/bridge regressions have
+focused evidence. Figure-control/volcano coverage and the final-source GitHub
+aggregate remain open. Avoid duplicating existing post-report tests. Narrow
+pytest-cov targeting of a Qt leaf module caused a pre-collection QtCore import
+segfault locally; `python -m coverage run --branch -m pytest` with the existing
+root-package configuration works, with reports filtered afterwards. No test
+or coverage guard was weakened. The workstation retains its five lanes.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.

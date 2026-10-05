@@ -2585,3 +2585,23 @@ after the run started; unconfirmed on CI.
   after removing an already-catalogued pending caption. The newer GitHub run
   is still pending; neither the coverage gate nor the full workflow is
   claimed green.
+
+2026-10-05 — RESTART RECOVERY AND CPU COVERAGE REPAIR; CI STILL OPEN
+  The isolated CI worktree recovered after host/VS Code restarts and pushed
+  checkpoint 3f37242ee to nightly. Focused branch-coverage checks now execute
+  all previously missing figure bundle/style paths and the branches added
+  by grouped export and horizontal redraw repairs. Follow-up tests preserve
+  groups named "group" and "value" without CSV column collisions.
+  Storage/catalogue coverage hits 56 statements and 22 branches missing in
+  the old 582492a15 report, exceeding its 36-statement regression and meeting
+  the 22-branch regression; the new move-result fallback is also covered.
+  Measurement, settings-model, Make Masks and journal error-path tests close
+  their measured old regressions. Existing tests already cover the restart,
+  validation, shared figure-style and plot gaps; they were checked rather
+  than duplicated. Integration guards passed 209 tests, and the current
+  storage/catalogue cohort passed 43 without the prior busy-worker warning.
+  These are local targeted measurements, not a replacement aggregate CI
+  verdict. Figure-control/volcano coverage is still being checked. Protected
+  run 37311146886 targets older source 56944bfdf; push run 37318617346 targets
+  checkpoint 3f37242ee and was pending at this checkpoint. The final integrated
+  source still needs its own completed GitHub verdict; items 43/288 stay OPEN.
