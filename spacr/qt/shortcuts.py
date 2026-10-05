@@ -48,7 +48,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QScrollArea,
     QTableWidget,
-    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -585,10 +584,12 @@ class _KeymapDialog(QDialog):
         self._table.setHorizontalHeaderLabels(
             [tr("Action"), tr("Default"), tr("Shortcut")])
         self._table.verticalHeader().setVisible(False)
+        from .widgets.sortable_table import install_sorting, table_item
+
         self._editors: List[QKeySequenceEdit] = []
         for row, spec in enumerate(self._specs):
-            self._table.setItem(row, 0, QTableWidgetItem(tr(spec.label)))
-            self._table.setItem(row, 1, QTableWidgetItem(native(spec.keys)))
+            self._table.setItem(row, 0, table_item(tr(spec.label)))
+            self._table.setItem(row, 1, table_item(native(spec.keys)))
             editor = QKeySequenceEdit(
                 QKeySequence(_effective(spec.keys, saved)), self._table)
             if hasattr(editor, "setMaximumSequenceLength"):
@@ -599,6 +600,7 @@ class _KeymapDialog(QDialog):
             self._table.setCellWidget(row, 2, editor)
             self._editors.append(editor)
         self._table.resizeColumnsToContents()
+        install_sorting(self._table)
         column.addWidget(self._table, 1)
 
         self._conflict_label = QLabel("", self)

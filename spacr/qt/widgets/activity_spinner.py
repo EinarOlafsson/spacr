@@ -86,7 +86,7 @@ from PySide6.QtCore import QPointF, Qt, QTimer
 from PySide6.QtGui import QColor, QPainter, QPen, QPolygonF
 from PySide6.QtWidgets import (
     QAbstractItemView, QHeaderView, QLabel, QProgressBar, QPushButton,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QTableWidget, QVBoxLayout, QWidget,
 )
 
 from ..theme import active_palette
@@ -576,12 +576,13 @@ class _JobsPanel(QWidget):
     def refresh(self) -> None:
         """Rebuild the table from the registry."""
         from ..i18n import tr
+        from .sortable_table import table_item
         self._handles = self._visible_handles()
         self._cancelled &= {id(h) for h in self._handles}
         table = self._table
         table.setRowCount(len(self._handles))
         for row, handle in enumerate(self._handles):
-            table.setItem(row, 0, QTableWidgetItem(str(handle.app_key)))
+            table.setItem(row, 0, table_item(str(handle.app_key)))
             bar = QProgressBar(table)
             fraction = handle.fraction()
             if fraction is None:
@@ -592,9 +593,9 @@ class _JobsPanel(QWidget):
                 done, total = handle.progress
                 bar.setFormat(f"{done}/{total}")
             table.setCellWidget(row, 1, bar)
-            table.setItem(row, 2, QTableWidgetItem(
+            table.setItem(row, 2, table_item(
                 self._format_elapsed(handle.elapsed())))
-            table.setItem(row, 3, QTableWidgetItem(handle.last_line or ""))
+            table.setItem(row, 3, table_item(handle.last_line or ""))
             button = QPushButton(tr("Cancel"), table)
             button.setObjectName("JobsCancel")
             button.clicked.connect(

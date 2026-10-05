@@ -6023,9 +6023,9 @@ class _StoragePage:
 
     def _list(self, rows) -> None:
         """Show ``rows`` in the cache table."""
-        from PySide6.QtWidgets import QTableWidgetItem
         from .i18n import tr
         from .resource_cleanup import human_bytes
+        from .widgets.sortable_table import table_item
 
         self._rows = list(rows)
         self.table.setRowCount(len(self._rows))
@@ -6038,7 +6038,7 @@ class _StoragePage:
                 size = human_bytes(row["size"])
             for column, text in enumerate((tr(row["label"]), size,
                                            row["path"])):
-                item = QTableWidgetItem(text)
+                item = table_item(text)
                 item.setToolTip(row["path"])
                 self.table.setItem(index, column, item)
         self._sync_buttons()

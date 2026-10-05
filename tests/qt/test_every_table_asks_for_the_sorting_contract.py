@@ -25,7 +25,12 @@ QT_ROOT = os.path.join(os.path.dirname(os.path.abspath(spacr.__file__)), "qt")
 #: order, which on a 400k-row measurement table is a different answer
 #: wearing the same sort indicator. Its header still follows the contract --
 #: see ``test_the_database_browser_sorts_descending_first``.
-EXEMPT = {("screens/db_browser.py", "self._view")}
+EXEMPT = {("screens/db_browser.py", "self._view"),
+          ("widgets/activity_spinner.py", "self._table")}
+#: The Jobs dock (650, 0037ef2bd) is the second: it is rebuilt from the job
+#: registry every tick, row by row with a progress bar and a Cancel button per
+#: job, so a header sort would be undone a fraction of a second later and
+#: would reorder the rows under the button being pressed.
 
 #: View SUBCLASSES that must not take it, and why.
 #:
