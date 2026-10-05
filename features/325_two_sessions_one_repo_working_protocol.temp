@@ -18179,3 +18179,25 @@ explicit compatibility tests are historical evidence, not active advice.
 Root's bounded current English/source packaging cohort passes 63 cases
 under 4 GiB with CUDA hidden. Generated locale/API/UI refresh remains with
 the workstation; final exact-source hosted CI is still required.
+
+The reviewed unified correction also removes qt from the four CI editable
+install commands while preserving every other extra, constraint and guard.
+Online Windows/Unix defaults are plain spacr (or spacr==VERSION); offline
+bundles request no optional extra by default and still accept explicit qt
+or package-spec overrides. The offline guide now describes that default.
+Runtime check_qt_extra and run docstrings, the private Qt import helper and
+doctor module prose changed: include those source hashes/docstrings in the
+normal API refresh. Launcher/pyqtgraph repair messages now describe required
+dependencies; the headless hint says to avoid opening the desktop interface.
+
+Final bounded root integration evidence with CUDA hidden and 4 GiB caps:
+63 source/English packaging cases, 18 README/reference cases, 44 CI batching/
+classification/metadata cases, 38 installer default/override cases, and 291
+doctor/launcher/Make Masks CLI/plot cases pass. The agent's additional
+Sphinx-backed source/docstring guards pass 12 cases. Peer review covers the
+authored docs/developer delegates, installer defaults, runtime repairs and
+four CI selector edits. No generated artifact was hand-edited, no whole
+suite was run, and protected hosted runs were not cancelled or duplicated.
+Localized README/guide/runtime/API artifacts and installation tutorial
+keyframes/media are explicitly pending the workstation's normal refresh;
+these focused receipts do not claim those gates or final GitHub green.

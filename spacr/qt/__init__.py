@@ -264,7 +264,7 @@ Install it with:
 
 Then run `spacr` again.
 
-No display available? The pipelines run headless without Qt:
+No display available? Run the pipelines without opening the desktop interface:
 
     spacr-run --list\
 """
