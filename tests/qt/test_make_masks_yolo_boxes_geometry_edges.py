@@ -154,6 +154,51 @@ def test_standalone_right_press_clears_a_lost_left_drag(canvas):
     assert canvas._box_preview is None
 
 
+def test_right_click_on_empty_image_cancels_preview_without_erasing(canvas):
+    """An empty right-click dismisses a stale draft and preserves labels."""
+    original = (0, 5, 5, 15, 15)
+    canvas.boxes = [original]
+    before_mask = canvas.mask.copy()
+    edits = []
+    canvas.boxes_changed.connect(lambda: edits.append(True))
+
+    _press(canvas, _pixel(canvas, 40, 40))
+    _move(canvas, _pixel(canvas, 50, 50))
+    assert canvas._box_preview is not None
+    _press(canvas, _pixel(canvas, 40, 10), button=Qt.RightButton)
+    _release(canvas, _pixel(canvas, 50, 50))
+
+    assert canvas.boxes == [original]
+    assert edits == []
+    assert canvas._box_drag is None
+    assert canvas._box_preview is None
+    assert np.array_equal(canvas.mask, before_mask)
+
+
+def test_box_pan_ignores_tiny_motion_and_a_blocked_image_edge(canvas):
+    """A pan at the viewport limit cannot move boxes or create an edit."""
+    original = (0, 25, 25, 36, 36)
+    canvas.boxes = [original]
+    canvas.zoom_at(32, 32, 4.0)
+    assert canvas.pan_by(-10_000, -10_000)
+    before_view = canvas._viewport_bounds()
+    before_mask = canvas.mask.copy()
+    edits = []
+    canvas.boxes_changed.connect(lambda: edits.append(True))
+
+    _press(canvas, (300, 200), modifiers=Qt.ShiftModifier)
+    _move(canvas, (300, 200), modifiers=Qt.ShiftModifier)
+    assert canvas._pan_from is not None
+    _move(canvas, (390, 290), modifiers=Qt.ShiftModifier)
+    _release(canvas, (390, 290), modifiers=Qt.ShiftModifier)
+
+    assert canvas._viewport_bounds() == before_view
+    assert canvas.boxes == [original]
+    assert edits == []
+    assert canvas._pan_from is None
+    assert np.array_equal(canvas.mask, before_mask)
+
+
 def test_valid_preview_released_in_letterbox_is_discarded(canvas):
     """The last valid hover point cannot be mistaken for the release point."""
     edits = []
