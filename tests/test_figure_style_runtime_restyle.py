@@ -55,3 +55,45 @@ def test_restyle_updates_existing_text_lines_marks_and_axes(monkeypatch):
     assert image.get_cmap().name == "cividis"
     assert marks.get_cmap().name == "cividis"
     assert any(grid.get_visible() for grid in ax.xaxis.get_gridlines())
+
+
+def test_a_broken_preference_record_leaves_an_existing_figure_drawable(
+        monkeypatch):
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, "get_figure_style", lambda: object())
+    monkeypatch.setattr(preferences, "get_figure_style_per_graph", lambda: {})
+    figure = Figure()
+    line, = figure.subplots().plot([0, 1], [1, 2])
+    width = line.get_linewidth()
+
+    assert style._apply_user_style(figure) == {}
+    assert line.get_linewidth() == width
+    figure.canvas.draw()
+
+
+def test_an_invalid_background_preference_cannot_break_the_figure(monkeypatch):
+    monkeypatch.setattr(style, "_preference_deltas",
+                        lambda kind: {"background": "not-a-colour"})
+    figure = Figure()
+    figure.subplots().plot([0, 1], [1, 2])
+    original = figure.patch.get_facecolor()
+
+    assert style._apply_user_style(figure) == {}
+    assert figure.patch.get_facecolor() == original
+    figure.canvas.draw()
+
+
+def test_one_malformed_artist_colour_does_not_block_the_others(monkeypatch):
+    figure = Figure()
+    ax = figure.subplots()
+    good, = ax.plot([0, 1], [1, 2], color="#1f77b4")
+    bad, = ax.plot([0, 1], [2, 3], color="#1f77b4")
+    marks = ax.scatter([0, 1], [2, 3], c="blue")
+    monkeypatch.setattr(bad, "get_color", lambda: object())
+    monkeypatch.setattr(marks, "get_facecolor", lambda: "invalid RGBA")
+    monkeypatch.setattr(style, "_preference_deltas",
+                        lambda kind: {"palette": "bright"})
+
+    assert style._apply_user_style(figure) == {"palette": "bright"}
+    assert to_hex(good.get_color()) == palette_colours("bright")[0]
