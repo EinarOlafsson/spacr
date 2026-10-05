@@ -1251,13 +1251,15 @@ def _watch_analyse_field(field_dir, settings):
                            'the log above says why.')
     if pipeline == 'mask_measure_classify':
         from .classify import classify
-        import sqlite3
+        from contextlib import closing
+
+        from .database_concurrency import connect
 
         classify_settings = deepcopy(settings['watch_classify_snapshot'])
         classify_settings['src'] = field_dir
         classify(classify_settings)
         database = os.path.join(field_dir, 'measurements', 'measurements.db')
-        with sqlite3.connect(database) as connection:
+        with closing(connect(database, readonly=True)) as connection:
             columns = {row[1] for row in connection.execute('PRAGMA table_info(png_list)')}
             if (not {'pred', 'cv_predictions'} <= columns or not connection.execute(
                     'SELECT 1 FROM png_list WHERE pred IS NOT NULL AND '
