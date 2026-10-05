@@ -16521,6 +16521,7 @@ class MakeMasksScreen(QWidget):
         self._box_field = None
         self._boxes_dirty = False
         self._box_history.clear()
+        self._sync_button_states()
         self._canvas.reset_zoom(silent=True)
         self._canvas.clear()
         self._history.clear()
