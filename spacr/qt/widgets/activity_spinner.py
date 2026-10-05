@@ -584,6 +584,7 @@ class _JobsPanel(QWidget):
         for row, handle in enumerate(self._handles):
             table.setItem(row, 0, table_item(str(handle.app_key)))
             bar = QProgressBar(table)
+            bar.setTextVisible(False)
             fraction = handle.fraction()
             if fraction is None:
                 bar.setRange(0, 0)
@@ -592,6 +593,7 @@ class _JobsPanel(QWidget):
                 bar.setValue(int(round(fraction * 1000)))
                 done, total = handle.progress
                 bar.setFormat(f"{done}/{total}")
+                bar.setToolTip(bar.format())
             table.setCellWidget(row, 1, bar)
             table.setItem(row, 2, table_item(
                 self._format_elapsed(handle.elapsed())))
