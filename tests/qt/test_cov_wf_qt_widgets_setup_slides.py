@@ -53,8 +53,10 @@ def own_config(tmp_path, monkeypatch):
 
 
 @pytest.fixture
-def slides(app):
-    return SetupSlides()
+def slides(app, qtbot):
+    dialog = SetupSlides()
+    qtbot.addWidget(dialog)
+    return dialog
 
 
 @pytest.fixture
@@ -154,7 +156,8 @@ def test_the_card_is_dressed_without_fonts_or_theme(slides, monkeypatch,
     assert slides._pages.count() == len(SLIDES)
 
 
-def test_a_question_that_removed_itself_leaves_no_empty_row(app, monkeypatch):
+def test_a_question_that_removed_itself_leaves_no_empty_row(app, qtbot,
+                                                            monkeypatch):
     """A question can withdraw -- the provider one does when no CLI is found
     -- and the slide it was on closes over the gap: an empty labelled row
     reads as a broken control rather than a question that does not apply."""
@@ -163,7 +166,9 @@ def test_a_question_that_removed_itself_leaves_no_empty_row(app, monkeypatch):
     monkeypatch.setattr(
         setup_screen, "questions",
         lambda: [q for q in real() if q[0] != "colour_blind"])
-    answers = SetupSlides().answers()
+    dialog = SetupSlides()
+    qtbot.addWidget(dialog)
+    answers = dialog.answers()
     assert "theme" in answers
     assert "colour_blind" not in answers
 
