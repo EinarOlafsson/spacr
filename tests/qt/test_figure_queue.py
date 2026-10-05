@@ -14,6 +14,7 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 import pytest
 
@@ -29,7 +30,8 @@ from tests.qt.test_gui_responsiveness import LoopWatchdog
 
 
 def _make_fig(seed: int = 0):
-    fig, ax = plt.subplots(figsize=(3, 2))
+    fig = Figure(figsize=(3, 2))
+    ax = fig.subplots()
     ax.plot([0, 1, 2], [seed, seed + 1, seed])
     ax.set_title(f"fig {seed}")
     return fig
