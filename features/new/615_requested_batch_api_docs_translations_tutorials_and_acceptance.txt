@@ -1113,3 +1113,22 @@ the branch-pinning job after multiple attempts, per its exact annotation.
 This is infrastructure evidence, not a demonstrated Sphinx/source failure.
 No acceptance guard is changed. The coordinated F554 GPU follow-up is
 prepared separately against a genuinely completed four-method CPU baseline.
+
+2026-10-05 — FOUR-LESSON MEDIA ACCEPTANCE COMPLETE; PRIVATE CANDIDATE PASSES
+All current four-lesson media acceptance passes: 108 decoded/source-current
+tracks, four 4K/1440p master/web pairs, 56 actual narration/caption browser
+cases, eighty-two unique native-image OCR checks, every one of eighty-five
+decoded 4K scene midpoints and eighty rendered poster/video sample screens.
+Each decoded scene matches its original capture and intended normal focus/
+pointer rendering with at least 30 dB whole-frame/focus PSNR. Original UI
+pixels are not rewritten; the lossy rendering tolerance is explicit.
+Receipt: 615_final_wave_media_acceptance_2026-10-05.json.
+
+Normal candidate release-candidate-append-co2wgfyt rechecks all 108 tracks,
+preserves eighty-one complete lesson objects per fourteen catalogs and
+4,617 unrelated media/poster records. All eighty-five actual candidate routes
+pass; both deliberately broken placeholder guards fail while the positive
+baseline passes before and after. Immutable upload/full readback is live;
+hosted playback and deployed readback are not yet complete. The initial build
+correctly refused the absent default model-cache path; the second uses the
+same supported cache setting as the accepted renderer, without guard changes.

@@ -1,0 +1,1923 @@
+{
+  "schema": 1,
+  "item": "F554",
+  "date": "2026-10-05",
+  "gpu_timing_accepted": true,
+  "scope": "Real paired CPU/GPU MERFISH inference through a fresh normally installed spaCR Spotiflow worker. Historical OPS strict replay is still open; published general-model test split is in-distribution evidence.",
+  "cpu": {
+    "schema": 1,
+    "accepted": true,
+    "device": "cpu",
+    "worker": {
+      "pid": 2526003,
+      "hello": {
+        "backend": "spotiflow",
+        "python": "3.13.14",
+        "packages": {
+          "spotiflow": "0.6.5",
+          "torch": "2.11.0+cu128",
+          "numpy": "2.5.2"
+        },
+        "device": "cpu",
+        "models": [
+          "general",
+          "hybiss",
+          "synth_complex",
+          "fluo_live"
+        ],
+        "protocol": 1,
+        "id": 1,
+        "ok": true
+      },
+      "observed_gpu_compute_processes": ""
+    },
+    "scope": "Paired real spaCR isolated-worker MERFISH benchmark; CPU and GPU use identical original uint16 planes converted only to float32, own model thresholds and automatic trained percentile normalization. Object centroids are measured from genuine disc masks.",
+    "matching": "Unmodified installed Spotiflow points_matching, Hungarian one-to-one within 3 pixels.",
+    "official_test_split": true,
+    "out_of_distribution_claim": false,
+    "all_12923_distributed_truth_points_retained": true,
+    "subpixel_border_truth_count": 22,
+    "legacy_uint8_receipt_exact_replay_claim": false,
+    "strict_historical_ops_replay_completed": false,
+    "warmup_excluded_from_field_timings": {
+      "general-coordinates": 1.4382999329827726,
+      "general-objects": 1.572951554961037,
+      "hybiss-coordinates": 1.4763331880094483,
+      "hybiss-objects": 1.6602770919562317
+    },
+    "timing_scope": "Synchronous host API wall time, including IPC and output loading; model warmup excluded.",
+    "source_files": {
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/benchmark_spotiflow_merfish.py": {
+        "sha256": "4ee8348b8a203b78fe89b3f9dca877aa715e46769d22d7bbcada13cc4ab1f1da",
+        "bytes": 11133
+      },
+      "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/_segmentation_backends.py": {
+        "sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+        "bytes": 269926
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/spacr-backend.json": {
+        "sha256": "9af37d85938a31e30081896d4110a88040054f9a4547d816a7dfd4084dd0d45d",
+        "bytes": 486
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/__init__.py": {
+        "sha256": "51bcea4b21527b3d8041877308c6c948aeb8ca7c3dd85d97f627fa5fa3ee7222",
+        "bytes": 53
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/_version.py": {
+        "sha256": "f1924c13c724b49f6bf4867584b4fba83cdd9e19f08b05efa8e6fa2441f9e708",
+        "bytes": 528
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/__init__.py": {
+        "sha256": "f9fa27f7604ab23dbfab44263d7be93bd97752ed821e7ed4ba4f847886772a98",
+        "bytes": 56
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/pipeline/__init__.py": {
+        "sha256": "38e30140cf1b77d7ff3d1a5af8d82a78feaa166fd9b9524a2c619a784ed51497",
+        "bytes": 30
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/pipeline/pipeline.py": {
+        "sha256": "03aeeccf410eceeda3712d31979b96f493387d9fa0a5a5fb6cdd4ff322dfdb90",
+        "bytes": 1832
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/test_pipeline.py": {
+        "sha256": "d61448321cf55f6b81265dc1a5e1ca01e896fe0a8577bcd2577326a23d696c97",
+        "bytes": 1107
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_crop.py": {
+        "sha256": "7aa38badab05edd405d0fbf1edead57a36e073f6e1f9c586a9390ffc7523499f",
+        "bytes": 2502
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_fliprot.py": {
+        "sha256": "6dd7d1946a17a441de516e7c80961bae8aa8ca335afbab631f206d80bd57d5c5",
+        "bytes": 2082
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_intensity_shift.py": {
+        "sha256": "2db957da1fdc62e8463c3396287e7269386c3a789f37908c238fce18190616e7",
+        "bytes": 2154
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_noise.py": {
+        "sha256": "792268821f220a2857bb6e8edbd94ad8f07b239ab38a24464318901142e85e71",
+        "bytes": 4109
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_rotation.py": {
+        "sha256": "ac2a620907903a25642a44aca128b8a1d67e6f81739b3d3ba011e59957ecfe1f",
+        "bytes": 2342
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_scale.py": {
+        "sha256": "f6dccddec07f0380434985c992dfb9b8b59dca21fff949e72a8872f4a49580df",
+        "bytes": 2523
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_translation.py": {
+        "sha256": "64a567ef9a0c502a890c6ce0c1a1dadfc96066f6f03b3c07358d8af365aca25c",
+        "bytes": 2388
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/__init__.py": {
+        "sha256": "939f81ee530037091a941ce340eb319405aa23aa0e2a01cdd39c460c84511863",
+        "bytes": 258
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/base.py": {
+        "sha256": "d299911644855900c6afeb3c1630e67cf4b0820c0157364fa066c7a048eb0364",
+        "bytes": 1216
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/crop.py": {
+        "sha256": "e63b566c76890656e778ed69aa3013ac282cc71bdbcec6cdca995c5fe57802a1",
+        "bytes": 3432
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/fliprot.py": {
+        "sha256": "5a6b961b951906aec4b60fbcfe9ca563dd5cbbfd6b2af257ecee2cc78a42104a",
+        "bytes": 2519
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/intensity_shift.py": {
+        "sha256": "fadfe123ed52ad9350ef45079e7aa54e067e965c0eec6b60a8424a43dc884e33",
+        "bytes": 2309
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/noise.py": {
+        "sha256": "252534ba8f4eacb5e10127b1bcb91fe788c850574a56c1223679b0c734cb1c16",
+        "bytes": 4381
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/rotation.py": {
+        "sha256": "022f050c7217e71bfd9ed648cb89417d8a80ba42a4560687cf76cfa06282f9a8",
+        "bytes": 3826
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/scale.py": {
+        "sha256": "bae2caa5ec4aa290421495a30fe8c65b6364487e9068abf1eba70d339b5c9ae4",
+        "bytes": 5028
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/translation.py": {
+        "sha256": "143713f2ed19282741681423da82c56d786c614dc5f04fbe1269d241a101239f",
+        "bytes": 3473
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/utils.py": {
+        "sha256": "3d0498d0a3fc57f326fc5efe4b577de7cdffda6359baf1a05f480d4a6fe5a52b",
+        "bytes": 2923
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/__init__.py": {
+        "sha256": "5345fcb655b879e54228e9347e3bacc25cce5955b6684642a2b8ec824034cfb5",
+        "bytes": 242
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/crop.py": {
+        "sha256": "2db892c2e6e55ceae3ba55a6716b5b6f72302c5c903465dcd98ff04cac34bfdd",
+        "bytes": 3860
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/fliprot.py": {
+        "sha256": "1fe7287556f6ceb47ca39db48cafa4e37a05ad1fce77120d214ccbe1271f29bd",
+        "bytes": 2733
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/intensity_shift.py": {
+        "sha256": "442da4abf33110a56e00d0f612b92a726b648317cb7a7d6b531329edeee99bef",
+        "bytes": 165
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/noise.py": {
+        "sha256": "a50226b885e95aba03036d70ec0c1525093a710d5317f9bea0270be6ab900799",
+        "bytes": 225
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/rotation.py": {
+        "sha256": "9fa48ba0f07bc671409496dbee001b212c42dd91995c94b67fb413dca665a72a",
+        "bytes": 3953
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/translation.py": {
+        "sha256": "b2bcce3bf9a34acb88a72410e21c7e5dfa9311ab3d0499bb431764528b08b572",
+        "bytes": 3559
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/__init__.py": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/check.py": {
+        "sha256": "781ebb6017a8f61d2c517e43864af77622478b2003b0814aff03ff0a70e3ab1a",
+        "bytes": 1479
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/predict.py": {
+        "sha256": "c41916cae41a0a9a9a1462671d99d7329b5474226fbdb5997f6f5b36a3ba79f0",
+        "bytes": 15898
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/train.py": {
+        "sha256": "3b11d5ca30c4a67c5326c969937c81f5661a4ced9c782c1c8d387cd3d5fc4687",
+        "bytes": 11995
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/__init__.py": {
+        "sha256": "9c254686b2ddab88e6300e0eaa72462eadf1e7ca26d0d6a94079389206ba5bcb",
+        "bytes": 130
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/spots.py": {
+        "sha256": "3275d8212a81f51d88524bb379de0cce2c785d3c10b19ddaf4a95f136d71053f",
+        "bytes": 14421
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/spots3d.py": {
+        "sha256": "92b26d4916aa8878d72854b29958e1d19fc6ed419a6d1294d358e6e6341d4841",
+        "bytes": 7697
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/test/test_datasets.py": {
+        "sha256": "d1a33271fec00da8afe3bdc80b80faa783afe38549c39414300eec898568e135",
+        "bytes": 2240
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/__init__.py": {
+        "sha256": "1cf652e78d9b926be774a064a2b8472b493de28c22db1a684419b2170ab6ec74",
+        "bytes": 278
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/backbones/__init__.py": {
+        "sha256": "95eaa9f3a1c3cfb1c652c2c1f7abda7dcc8537d0ea84d3464ae389ad59e1d4c0",
+        "bytes": 65
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/backbones/resnet.py": {
+        "sha256": "83cf9e4b01e18729376fa0ba9c25074d8e13654f5526498ce47da80637dcfbfc",
+        "bytes": 11021
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/backbones/unet.py": {
+        "sha256": "e38eb9886b756968f75d245e76324d79c77580a82e20f01b3f62225177f39102",
+        "bytes": 11404
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/bg_remover.py": {
+        "sha256": "11ecb9f8ee1eed2a3d4a3b5be2534c90343fb419f9926a6cf9762483e8756d99",
+        "bytes": 1400
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/config.py": {
+        "sha256": "06777acf99e42051ec072e0f102df6a4c102ae29be470106ffb60aa72ce544d4",
+        "bytes": 11640
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/losses/__init__.py": {
+        "sha256": "cfddd79d844af75741f000456e6902fb5ad21e5907b35335dce5d11017d5a04e",
+        "bytes": 43
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/losses/adaptive_wing.py": {
+        "sha256": "919e5a722bf03b476fa21478d532ac9313ef06908a70a8413c2b36b72fbc2561",
+        "bytes": 2258
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/post.py": {
+        "sha256": "1acac048f0fba15a99636a9f6e889fdc481f424d32eb98b1af41b6f9c833ab85",
+        "bytes": 7350
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/pretrained.py": {
+        "sha256": "cf88adb52752f9eda8974e871c866c2af7fb7b6e614e37ea1179a17ed5cd4846",
+        "bytes": 2840
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/spotiflow.py": {
+        "sha256": "6df02c4340abecb7c9a8aeb1a200d3e137d6a856258a87412b7816e29825f53e",
+        "bytes": 67099
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/trainer.py": {
+        "sha256": "7ef25f39f891dfcb120d07f0431f5f34a6c2b6c14a7bb06dbf0ac5138a56435b",
+        "bytes": 22560
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/sample_data/__init__.py": {
+        "sha256": "791dd390048be017fad08128337c90cfa4ceb4a4b46a9302dd30ddeaca6ff76d",
+        "bytes": 1352
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/sample_data/datasets.py": {
+        "sha256": "cfb5ecd184cd2a06a92999ba593b153f6b04d2f58fe7f0065228ae0b3ae9323d",
+        "bytes": 3554
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/starfish/__init__.py": {
+        "sha256": "7d31adcffaa58f0b3d3eddc38f3368ada611b9b5716db2094bfae403d0a8cac3",
+        "bytes": 48
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/starfish/spotiflow_wrapper.py": {
+        "sha256": "2787e2694df5e993b168671487d7dde5772d005dd9a186bd1f608091782056f6",
+        "bytes": 14231
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/test/test_model_saveload.py": {
+        "sha256": "48fa729e3d6a345ea8b8c900c3fd7688b9da77ce69f24bab88a7202073a75473",
+        "bytes": 1484
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/test/test_prediction.py": {
+        "sha256": "223f2da626c1c8021bd18b71232dd603902e688e9b200b423daa660c4223e8f3",
+        "bytes": 3825
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/__init__.py": {
+        "sha256": "b33410f4049a5346fa5df702b9ad1d572bf9ae8e99e7e3696dda002950d3fa94",
+        "bytes": 331
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/ci.py": {
+        "sha256": "c6713e6fbfbbcaf40e571d3b4048ea7c73507581cec60a83e472fca88c6668f3",
+        "bytes": 101
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/fitting.py": {
+        "sha256": "e2e745bf13ca103a64246d285f274ba7fdeb2447fc346f5932d9f1c8764ee0db",
+        "bytes": 9239
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/get_file.py": {
+        "sha256": "3c5f80fd5b74baba6efd312a7ace892fe5908914aea610af7fd0210f21b1a215",
+        "bytes": 22411
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/matching.py": {
+        "sha256": "a1b42b4d2025d60f89ba3cb41c6367d9cd49bbd6e7eccabc104b2a772c3e4b82",
+        "bytes": 4026
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/parallel.py": {
+        "sha256": "5b18805567f103730646e49844a40edc831edc7f2a9de8cc5759e9c3d6196f12",
+        "bytes": 7385
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/peaks.py": {
+        "sha256": "0aa2692c96e58a9a32410e9afecbc94d090ad70596833b7d5b51354b7c589037",
+        "bytes": 18092
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/utils.py": {
+        "sha256": "e0c44a57c51d1416dfaa944bb1f714437b4c2230ff759e5af05005daf66d4c33",
+        "bytes": 31345
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/__MACOSX/hybiss/._.DS_Store": {
+        "sha256": "2f380f4a3d05a8d90c2106f50da75064e9ce57a598599dc5404f8f69a0223aa9",
+        "bytes": 120
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/best.pt": {
+        "sha256": "1c3575464d621924b27f4deb66495b807f175a0ccd995d3533403f00daf806f2",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/config.yaml": {
+        "sha256": "507b60fab22c08e8819da3f7c84d8a85b3fdce4caca14c18d101b502109b0649",
+        "bytes": 389
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/last.pt": {
+        "sha256": "2d1c04545f2205de46d7002c460d492cebe0a5c76840b494668b3ede904651fc",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/thresholds.yaml": {
+        "sha256": "4c054d3cbb2825df7a4672a63ef454fbc25a7a01e53faefc431793068ac6367e",
+        "bytes": 76
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/train_config.yaml": {
+        "sha256": "fa805d53d763da34b68ddbaf6fd6876ff0d83d7565c4280f8b87ee14b7cd9777",
+        "bytes": 257
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general.zip": {
+        "sha256": "1da93a8282fedab697dbb9f5c24f623e452063b296ffaad9becd0afdc7bd2797",
+        "bytes": 87885382
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/.DS_Store": {
+        "sha256": "5667c65fa93c028da56ca89cf47096250fa9e63ae0faca88786d0368c32d2eb4",
+        "bytes": 6148
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/best.pt": {
+        "sha256": "fa5d5cb313bcfd75527f3d0962ccc3654bc7aa33359097d16f3b0835b0103bd1",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/config.yaml": {
+        "sha256": "10253c542bcc21348a1a5b3810de1950be7250be51147f96a8c679eef3cc583a",
+        "bytes": 368
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/last.pt": {
+        "sha256": "2b309de99caf9a948b922fa88e99b5599b335b77b246fd0f5d4ea2ec55f89632",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/thresholds.yaml": {
+        "sha256": "62dee75197686a9ea85fe0bf493f8ec2bcefbea20ef2748948d437b627e44045",
+        "bytes": 74
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/train_config.yaml": {
+        "sha256": "480f56279201137dc1ec74681dfd160b2d98af12d7569b8fdaad667e45bbc7cd",
+        "bytes": 244
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss.zip": {
+        "sha256": "d6221339a104cddfac77b3b8a1014bd316a7060934d69bc078f5a653cb72658b",
+        "bytes": 87945684
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_1049_x_547_C18.tif": {
+        "sha256": "07ef465fe2ef513295b4391d40d5b05af1b406a90a6ffcf825f37be5aadb5abd",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_1049_x_547_C18.csv": {
+        "sha256": "7dd1bb4fb4b216a2ba49d1819c03f549bb0efdaef978724c99b7bdc1236e42d9",
+        "bytes": 33742
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_552_x_888_C12.tif": {
+        "sha256": "19ab6fe41b73a69d17b5abb9f41a873aba12397c78aec7ff3fa6f5a4e0688399",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_552_x_888_C12.csv": {
+        "sha256": "b82433d47ac7c1240b85b705871fc5a1e32a7e7bdc1f134d0f5274f3dba2c70a",
+        "bytes": 25430
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_557_x_606_C10.tif": {
+        "sha256": "d12aca72112a6aedb64f7d3bc70d76cd98ac8d75ee5d79349c68d6a7eb062347",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_557_x_606_C10.csv": {
+        "sha256": "2626367ef0406fbbba901786a37324f16ccc03f658138583fed7a77f858261b5",
+        "bytes": 35166
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_581_x_692_C21.tif": {
+        "sha256": "03e7f5dfe4ff17f9c07b7382ab7a2153f30747d8edcbc6bd8a14ccfe08c351d0",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_581_x_692_C21.csv": {
+        "sha256": "f5f71f7e7800d62ffb6312e203f4dfa0705692e8ebffa0c7d8a9ea35d1020571",
+        "bytes": 33352
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_588_x_1000_C15.tif": {
+        "sha256": "36b6e9a97502100bc7673770da7909e2ab7b283f970bc8f44bca22f167009ceb",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_588_x_1000_C15.csv": {
+        "sha256": "afceeacf87fa4bc938de3a22fd988f7e039bd31446fa6c5763d3084148514fa0",
+        "bytes": 43869
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_609_x_1270_C03.tif": {
+        "sha256": "0a058f10fe21554f03ae00fc4b95dc138a0b8562b59261776e2dd8d541536b49",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_609_x_1270_C03.csv": {
+        "sha256": "036b6ce02547f8141050c85750bd3a3eabe54a9674f8841327d31bfe7e4efa67",
+        "bytes": 30619
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_632_x_1350_C13.tif": {
+        "sha256": "bb7c6171e019d507f688cf4ffae92580b26523139f6707dfef7529119a3e89cb",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_632_x_1350_C13.csv": {
+        "sha256": "5dc792965bb36b865731b10e23ff6ee45b82dc271f6aeac435ffbf57557b1997",
+        "bytes": 31804
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_735_x_0_C04.tif": {
+        "sha256": "2dfd49772cf13c944bcfbf4ae07f148e7e7455947cfb1c83b6797b5875915068",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_735_x_0_C04.csv": {
+        "sha256": "42fbb71c6e89fdeac8c7ddd0a955526853eee72c8c9740754382acaed16a9fd4",
+        "bytes": 32701
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_769_x_962_C00.tif": {
+        "sha256": "ab378b6aaa6fb01b236579235defd094bd14794bd6728865f48d1fd9707ab404",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_769_x_962_C00.csv": {
+        "sha256": "9ac66f6701b23c2570df563e9afb009b58886004836b1412c3cbb22ee058946c",
+        "bytes": 15474
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_966_x_69_C16.tif": {
+        "sha256": "c800c5c3f9eb39bb084a166999ba98045c83d9ba2d9562a8a5ba87f7b5899df9",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_966_x_69_C16.csv": {
+        "sha256": "766c3c9d2e8e8558d89bc00a938364a9e8bc83e608bcb7eb05ca4946bc86d9c7",
+        "bytes": 21078
+      }
+    },
+    "source_files_unchanged_after_run": true,
+    "outputs": {
+      "general-coordinates-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "dadfb7bf9e74a17c4d52107737757e5aefb81c8c52d3ffe7105b4c68432015bf",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "ae069860c16e9ca7349d6b92a48df143eb921f3786213fea68d97ba2cf737e01",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "03751dd4dea93e76e44d272a820b6dc9bbd925a0729159142997bb52796cb21e",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "44541e3b13f91db34dbed279d4e89f843999ae0c45bfa35ebe595b5b1667c3c8",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "33896d84c7f95d2f42caa4cfb4272fed08cb541d9ce1ef6be0518dc0ec74bcf4",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "8d219372b1ff9aaaeacd2fe133f8076687e1afe0ac932771d1575c2e20964486",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "93c2aa69c59e18815664330052b66a6004968f3e14f8cd18de3d643ec1ed166e",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "e339859318ba30167df5fd9ee65f486c989ea559d30c8f84e12fce731048068e",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "e63d5e0d03fc14ea0fb7cd5a3fcbd7aa4336b7df910d1e7749ab39a4a08c72bf",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "b03a62622a2128cc23c807893dd7a905d196861cc3b67ce9c9e2d4a3246a86b1",
+      "general-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18-labels.npy": "8a8b5cdc513426e06e456430c76c0463a3f7d78b5f390beecbde8e8f33aabd0d",
+      "general-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "4011878f0fa6715fb87b7470b96e19a668c5a13656368febcca4a14d302bf688",
+      "general-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12-labels.npy": "367de14f70fd67983698bc92ad7bec6aabbc2edbdfdcf852756637f675a431e6",
+      "general-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "cd309f9917cb7da3cb7f83314e7b6d946fe75350f422d86b89f5ad402a4b9d51",
+      "general-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10-labels.npy": "b2223a4c7c065a96fbb3f3354c763ccb07b7c89d7119e0aa0514ef92bca21cf9",
+      "general-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "ce479ad02824d1f96c8471482f9dd82999f8ffb93e33c4352642a257e4e4dbad",
+      "general-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21-labels.npy": "a32eefd6c165b67e8287fa9dacd0a76ed7208ed384224f0789588141b1f47f1f",
+      "general-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "1650699ffc28e18f86a3b631c40ab0b64ff52a9bcf64b1734a07b6267522d3a6",
+      "general-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15-labels.npy": "71d254762dfd69d04adafd7be09b6f9ea930494867e4c9248f1cd4fab7177802",
+      "general-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "a2d60110fa1182495c688fe2e927f5bccaa41e5f51f689e1a1756ad35b5539eb",
+      "general-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03-labels.npy": "7a1ad865d6d97e08222656f252d31862afb49c4f8ebee188ea2fab14edb8d133",
+      "general-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "1a765acda907c5122a3f84659de54515c3b6b3f35647a24e929292c1d6adabb7",
+      "general-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13-labels.npy": "cbdb75373c4ff2fc10ca106cfd57594e4dd4b30a45bb8501fafab76e7ac128c6",
+      "general-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "bdb10019c54ceeaa60fb88bf77eb9f77e8b05bcfdd545169aecb994d02045471",
+      "general-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04-labels.npy": "8813e2a6dc3d50b85dbc78590ce8d09c74c808cb2c702abfd630c18156873f92",
+      "general-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "7eb21c483323a78c723a6864c901a426f35564ccc11107081c25de3b2e82698f",
+      "general-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00-labels.npy": "fa70daae02e41e18f51cf0c910bcb15cf05073adb8d1dc5c72a32c1438253a0d",
+      "general-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "9943f89f2e6068bb2131283b69dec3ede2ec2c42d46aab9962f835cfc754c9c9",
+      "general-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16-labels.npy": "2210d62f4e98195c56064dfa28ca6b33a07093e1ed6d93ad53726ff5c2ba70e1",
+      "general-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "3dbf6dc14f07454249bfd95ea98907b3366499f894c906365ca485edbe6ac4ba",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "6174a66a27c59c91ff66d1e3e2e8a5f18beabfee5ff20fe0d2424e982011f057",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "0415702c9d61157c6eceefb8a709d72d5ca2dffd54c5e9cbcaee54377951b570",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "349397d38bf66c4333517073708fb0e80c0e32f5883bf8424dbb330d2b793fb1",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "21f4c9d376a7efa0fbc4e55174600f19a99bbb7bb49249ea7d80e596f49b34a7",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "d65925308cc091d665b74367129bf6af2bed9df1af06878c20b0dc64c52bbc56",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "733869ac59ee558889423e3fffb7e44ced828657d9c6ec010b599c0139d4965c",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "cedccd345be440cfecd269ba1216101b74654de57bcc7548b635ad7fcae03a19",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "58b3671da439b499ebd9d85f4b4c15b07090e313b9e859ce671b2eee42423f61",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "1d973fe97733350c406a1d02b1e524964a56599548ddb8f334782d34c86bdb78",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "a7569d86359e3b84bb91c69813f60d0457cfb09117f88e2d89c82bce1aed3818",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18-labels.npy": "8e7b1e4f593e626f01b4f40318d12aedb324c7963dfca00cfaaa6f8e4d28eeda",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "588ffb90fc485c4bf14308e533665baf1042d15e8cb52054eeeef58ab5374f13",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12-labels.npy": "a88d63776d1469f7ac907f86b47148842200eb19c8ee15646db60198e21cf929",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "103c55429695702ed0031e9cbeaed4b2b2bf3b95c7eda92e14d05d43bba61e6b",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10-labels.npy": "7b4d1b3116f1df94e715e710df87d1b1b62c9985f6e7b0da572859109b2bbf4b",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "e31ded7c10a653606062df23604fc21d77a2af99eab8f221487f42ebdcbd2201",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21-labels.npy": "bf24367e1400e566cca9b660426b879f44f4ad08f71cb2e39e6b48abf0f9e60c",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "5d5c7802c22f1e777f36714925d19727c46fed5a34fac125331b814da0b06bba",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15-labels.npy": "deb7adb3c9f00f99e3abaa0697a633de01149c3ec45b0e922bc6830d2ea36330",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "5d9e32772a5342dc2aae47b4d057c26c22c92c8406207a0072e555467fb5fbaa",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03-labels.npy": "55edec7c3b04d28cee4bb790860517151453bce22bdfed6c66e3ebf87ea454ab",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "e0f27941faf4db605e416a5deec8645041d5fbf3d1be660762109abc11e34671",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13-labels.npy": "7b78000a42e26018697c1987c0a86a5722ee8cf837957a435f81aac926a14255",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "18d98d4914c941d24bcd8966103f9b20f0d42e7d1dc8e9fc3d202c4d6296d5fc",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04-labels.npy": "5b45092903a87eb80ce55192c3e5d4199360771664a771a5cb6fe7ab5e81381d",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "03f6f18113869099853d90929322eaf0bf5f0d0ea4b1b7e273b261cb38a949a7",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00-labels.npy": "9b51ffc9d633be7a17d1bf5b4260020777a0dfad76838b55086caad143561240",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "fefce0cced530456b299ea29127389e719b1c04591b600a0a1491105e7d4158d",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16-labels.npy": "8fcb1b1cf08f051eda9139e94c43cc894f2303fdffc0cd8c640c58fd2fac616f",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "cb951ae26a20f6c21bdcb82df177ccb297526c8f7ef12e58eb020b444a79ff11",
+      "score-input.json": "472ee9ce779de6af5d4d75deaa01a87c8a2c649bd17ec42032b560e6c6a21080",
+      "scores.json": "245f2bef9e500b23a8a969907824951af58f55f5270a17f0fd0f9572857e3bff"
+    },
+    "scores": {
+      "general-coordinates": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1763,
+            "tp": 1606,
+            "fp": 157,
+            "fn": 268,
+            "mean_matched_distance": 0.3992659568757637
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 1049,
+            "tp": 913,
+            "fp": 136,
+            "fn": 195,
+            "mean_matched_distance": 0.4435181873506549
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 1256,
+            "tp": 1178,
+            "fp": 78,
+            "fn": 300,
+            "mean_matched_distance": 0.49174741187946375
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 909,
+            "tp": 869,
+            "fp": 40,
+            "fn": 419,
+            "mean_matched_distance": 0.5190106031338595
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 1094,
+            "tp": 1019,
+            "fp": 75,
+            "fn": 303,
+            "mean_matched_distance": 0.6817164439597019
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 1115,
+            "tp": 961,
+            "fp": 154,
+            "fn": 141,
+            "mean_matched_distance": 0.5863300786383858
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 1129,
+            "tp": 901,
+            "fp": 228,
+            "fn": 102,
+            "mean_matched_distance": 0.6847355451725972
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1267,
+            "tp": 1078,
+            "fp": 189,
+            "fn": 123,
+            "mean_matched_distance": 0.5354162056220202
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 1173,
+            "tp": 1012,
+            "fp": 161,
+            "fn": 105,
+            "mean_matched_distance": 0.3471417112517477
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1493,
+            "tp": 1274,
+            "fp": 219,
+            "fn": 156,
+            "mean_matched_distance": 0.37145662870060814
+          }
+        ],
+        "truth": 12923,
+        "pred": 12248,
+        "tp": 10811,
+        "fp": 1437,
+        "fn": 2112,
+        "precision": 0.8826747224036577,
+        "recall": 0.8365704557765224,
+        "f1": 0.8590044098367169,
+        "seconds": 12.406587986974046
+      },
+      "general-objects": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1763,
+            "tp": 1606,
+            "fp": 157,
+            "fn": 268,
+            "mean_matched_distance": 0.3193595677058141
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 1049,
+            "tp": 913,
+            "fp": 136,
+            "fn": 195,
+            "mean_matched_distance": 0.38653885715086356
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 1256,
+            "tp": 1177,
+            "fp": 79,
+            "fn": 301,
+            "mean_matched_distance": 0.44612643200371604
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 909,
+            "tp": 869,
+            "fp": 40,
+            "fn": 419,
+            "mean_matched_distance": 0.4671204909696622
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 1094,
+            "tp": 1017,
+            "fp": 77,
+            "fn": 305,
+            "mean_matched_distance": 0.7093549494439462
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 1115,
+            "tp": 960,
+            "fp": 155,
+            "fn": 142,
+            "mean_matched_distance": 0.5748843060000409
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 1129,
+            "tp": 901,
+            "fp": 228,
+            "fn": 102,
+            "mean_matched_distance": 0.700706011306422
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1267,
+            "tp": 1078,
+            "fp": 189,
+            "fn": 123,
+            "mean_matched_distance": 0.5331158857116323
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 1173,
+            "tp": 1012,
+            "fp": 161,
+            "fn": 105,
+            "mean_matched_distance": 0.24453410724004226
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1493,
+            "tp": 1274,
+            "fp": 219,
+            "fn": 156,
+            "mean_matched_distance": 0.29628300875965136
+          }
+        ],
+        "truth": 12923,
+        "pred": 12248,
+        "tp": 10807,
+        "fp": 1441,
+        "fn": 2116,
+        "precision": 0.8823481384715872,
+        "recall": 0.836260930124584,
+        "f1": 0.8586865837670334,
+        "seconds": 13.665745738020632
+      },
+      "hybiss-coordinates": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1415,
+            "tp": 1365,
+            "fp": 50,
+            "fn": 509,
+            "mean_matched_distance": 0.3747627874333854
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 868,
+            "tp": 824,
+            "fp": 44,
+            "fn": 284,
+            "mean_matched_distance": 0.42667538680038347
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 959,
+            "tp": 940,
+            "fp": 19,
+            "fn": 538,
+            "mean_matched_distance": 0.43441151566077657
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 769,
+            "tp": 754,
+            "fp": 15,
+            "fn": 534,
+            "mean_matched_distance": 0.5093341344575009
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 921,
+            "tp": 886,
+            "fp": 35,
+            "fn": 436,
+            "mean_matched_distance": 0.6599875423850455
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 882,
+            "tp": 824,
+            "fp": 58,
+            "fn": 278,
+            "mean_matched_distance": 0.5291513300594786
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 801,
+            "tp": 732,
+            "fp": 69,
+            "fn": 271,
+            "mean_matched_distance": 0.6440998046504987
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1063,
+            "tp": 957,
+            "fp": 106,
+            "fn": 244,
+            "mean_matched_distance": 0.5244109485664428
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 914,
+            "tp": 874,
+            "fp": 40,
+            "fn": 243,
+            "mean_matched_distance": 0.3502070426901
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1245,
+            "tp": 1144,
+            "fp": 101,
+            "fn": 286,
+            "mean_matched_distance": 0.39503599315488624
+          }
+        ],
+        "truth": 12923,
+        "pred": 9837,
+        "tp": 9300,
+        "fp": 537,
+        "fn": 3623,
+        "precision": 0.945410186032327,
+        "recall": 0.7196471407567903,
+        "f1": 0.8172231985940246,
+        "seconds": 12.474690117116552
+      },
+      "hybiss-objects": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1415,
+            "tp": 1365,
+            "fp": 50,
+            "fn": 509,
+            "mean_matched_distance": 0.2593889130445398
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 867,
+            "tp": 824,
+            "fp": 43,
+            "fn": 284,
+            "mean_matched_distance": 0.33496351259898516
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 959,
+            "tp": 940,
+            "fp": 19,
+            "fn": 538,
+            "mean_matched_distance": 0.34073550033161853
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 769,
+            "tp": 754,
+            "fp": 15,
+            "fn": 534,
+            "mean_matched_distance": 0.43841696271886293
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 921,
+            "tp": 886,
+            "fp": 35,
+            "fn": 436,
+            "mean_matched_distance": 0.6771596767088008
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 882,
+            "tp": 826,
+            "fp": 56,
+            "fn": 276,
+            "mean_matched_distance": 0.4994125184074983
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 801,
+            "tp": 730,
+            "fp": 71,
+            "fn": 273,
+            "mean_matched_distance": 0.6449741995072479
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1063,
+            "tp": 955,
+            "fp": 108,
+            "fn": 246,
+            "mean_matched_distance": 0.47913498398522186
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 914,
+            "tp": 874,
+            "fp": 40,
+            "fn": 243,
+            "mean_matched_distance": 0.23624317688119587
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1245,
+            "tp": 1143,
+            "fp": 102,
+            "fn": 287,
+            "mean_matched_distance": 0.26347335415723644
+          }
+        ],
+        "truth": 12923,
+        "pred": 9836,
+        "tp": 9297,
+        "fp": 539,
+        "fn": 3626,
+        "precision": 0.945201301342009,
+        "recall": 0.7194149965178365,
+        "f1": 0.8169954743178522,
+        "seconds": 12.749662996036932
+      }
+    },
+    "cpu_gpu_comparison": {},
+    "cpu_baseline_sha256": null
+  },
+  "gpu": {
+    "schema": 1,
+    "accepted": true,
+    "device": "cuda",
+    "worker": {
+      "pid": 2548496,
+      "hello": {
+        "backend": "spotiflow",
+        "python": "3.13.14",
+        "packages": {
+          "spotiflow": "0.6.5",
+          "torch": "2.11.0+cu128",
+          "numpy": "2.5.2"
+        },
+        "device": "cuda",
+        "models": [
+          "general",
+          "hybiss",
+          "synth_complex",
+          "fluo_live"
+        ],
+        "protocol": 1,
+        "id": 1,
+        "ok": true
+      },
+      "observed_gpu_compute_processes": "2548496, /media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/bin/python, 760 MiB"
+    },
+    "scope": "Paired real spaCR isolated-worker MERFISH benchmark; CPU and GPU use identical original uint16 planes converted only to float32, own model thresholds and automatic trained percentile normalization. Object centroids are measured from genuine disc masks.",
+    "matching": "Unmodified installed Spotiflow points_matching, Hungarian one-to-one within 3 pixels.",
+    "official_test_split": true,
+    "out_of_distribution_claim": false,
+    "all_12923_distributed_truth_points_retained": true,
+    "subpixel_border_truth_count": 22,
+    "legacy_uint8_receipt_exact_replay_claim": false,
+    "strict_historical_ops_replay_completed": false,
+    "warmup_excluded_from_field_timings": {
+      "general-coordinates": 0.7429209830006585,
+      "general-objects": 0.30710952798835933,
+      "hybiss-coordinates": 0.24027860804926604,
+      "hybiss-objects": 0.3071932760067284
+    },
+    "timing_scope": "Synchronous host API wall time, including IPC and output loading; model warmup excluded.",
+    "source_files": {
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/benchmark_spotiflow_merfish.py": {
+        "sha256": "4ee8348b8a203b78fe89b3f9dca877aa715e46769d22d7bbcada13cc4ab1f1da",
+        "bytes": 11133
+      },
+      "/media/carruthers/mnt3/codex/spacr-worktrees/docs-completion-20261005/spacr/_segmentation_backends.py": {
+        "sha256": "0bf668bfd65b8b429dadcca73d61fef91a80f61afc00ec6914bace43b9ce0e47",
+        "bytes": 269926
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/spacr-backend.json": {
+        "sha256": "9af37d85938a31e30081896d4110a88040054f9a4547d816a7dfd4084dd0d45d",
+        "bytes": 486
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/__init__.py": {
+        "sha256": "51bcea4b21527b3d8041877308c6c948aeb8ca7c3dd85d97f627fa5fa3ee7222",
+        "bytes": 53
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/_version.py": {
+        "sha256": "f1924c13c724b49f6bf4867584b4fba83cdd9e19f08b05efa8e6fa2441f9e708",
+        "bytes": 528
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/__init__.py": {
+        "sha256": "f9fa27f7604ab23dbfab44263d7be93bd97752ed821e7ed4ba4f847886772a98",
+        "bytes": 56
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/pipeline/__init__.py": {
+        "sha256": "38e30140cf1b77d7ff3d1a5af8d82a78feaa166fd9b9524a2c619a784ed51497",
+        "bytes": 30
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/pipeline/pipeline.py": {
+        "sha256": "03aeeccf410eceeda3712d31979b96f493387d9fa0a5a5fb6cdd4ff322dfdb90",
+        "bytes": 1832
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/test_pipeline.py": {
+        "sha256": "d61448321cf55f6b81265dc1a5e1ca01e896fe0a8577bcd2577326a23d696c97",
+        "bytes": 1107
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_crop.py": {
+        "sha256": "7aa38badab05edd405d0fbf1edead57a36e073f6e1f9c586a9390ffc7523499f",
+        "bytes": 2502
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_fliprot.py": {
+        "sha256": "6dd7d1946a17a441de516e7c80961bae8aa8ca335afbab631f206d80bd57d5c5",
+        "bytes": 2082
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_intensity_shift.py": {
+        "sha256": "2db957da1fdc62e8463c3396287e7269386c3a789f37908c238fce18190616e7",
+        "bytes": 2154
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_noise.py": {
+        "sha256": "792268821f220a2857bb6e8edbd94ad8f07b239ab38a24464318901142e85e71",
+        "bytes": 4109
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_rotation.py": {
+        "sha256": "ac2a620907903a25642a44aca128b8a1d67e6f81739b3d3ba011e59957ecfe1f",
+        "bytes": 2342
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_scale.py": {
+        "sha256": "f6dccddec07f0380434985c992dfb9b8b59dca21fff949e72a8872f4a49580df",
+        "bytes": 2523
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/test/transforms/test_translation.py": {
+        "sha256": "64a567ef9a0c502a890c6ce0c1a1dadfc96066f6f03b3c07358d8af365aca25c",
+        "bytes": 2388
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/__init__.py": {
+        "sha256": "939f81ee530037091a941ce340eb319405aa23aa0e2a01cdd39c460c84511863",
+        "bytes": 258
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/base.py": {
+        "sha256": "d299911644855900c6afeb3c1630e67cf4b0820c0157364fa066c7a048eb0364",
+        "bytes": 1216
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/crop.py": {
+        "sha256": "e63b566c76890656e778ed69aa3013ac282cc71bdbcec6cdca995c5fe57802a1",
+        "bytes": 3432
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/fliprot.py": {
+        "sha256": "5a6b961b951906aec4b60fbcfe9ca563dd5cbbfd6b2af257ecee2cc78a42104a",
+        "bytes": 2519
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/intensity_shift.py": {
+        "sha256": "fadfe123ed52ad9350ef45079e7aa54e067e965c0eec6b60a8424a43dc884e33",
+        "bytes": 2309
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/noise.py": {
+        "sha256": "252534ba8f4eacb5e10127b1bcb91fe788c850574a56c1223679b0c734cb1c16",
+        "bytes": 4381
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/rotation.py": {
+        "sha256": "022f050c7217e71bfd9ed648cb89417d8a80ba42a4560687cf76cfa06282f9a8",
+        "bytes": 3826
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/scale.py": {
+        "sha256": "bae2caa5ec4aa290421495a30fe8c65b6364487e9068abf1eba70d339b5c9ae4",
+        "bytes": 5028
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/translation.py": {
+        "sha256": "143713f2ed19282741681423da82c56d786c614dc5f04fbe1269d241a101239f",
+        "bytes": 3473
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms/utils.py": {
+        "sha256": "3d0498d0a3fc57f326fc5efe4b577de7cdffda6359baf1a05f480d4a6fe5a52b",
+        "bytes": 2923
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/__init__.py": {
+        "sha256": "5345fcb655b879e54228e9347e3bacc25cce5955b6684642a2b8ec824034cfb5",
+        "bytes": 242
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/crop.py": {
+        "sha256": "2db892c2e6e55ceae3ba55a6716b5b6f72302c5c903465dcd98ff04cac34bfdd",
+        "bytes": 3860
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/fliprot.py": {
+        "sha256": "1fe7287556f6ceb47ca39db48cafa4e37a05ad1fce77120d214ccbe1271f29bd",
+        "bytes": 2733
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/intensity_shift.py": {
+        "sha256": "442da4abf33110a56e00d0f612b92a726b648317cb7a7d6b531329edeee99bef",
+        "bytes": 165
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/noise.py": {
+        "sha256": "a50226b885e95aba03036d70ec0c1525093a710d5317f9bea0270be6ab900799",
+        "bytes": 225
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/rotation.py": {
+        "sha256": "9fa48ba0f07bc671409496dbee001b212c42dd91995c94b67fb413dca665a72a",
+        "bytes": 3953
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/augmentations/transforms3d/translation.py": {
+        "sha256": "b2bcce3bf9a34acb88a72410e21c7e5dfa9311ab3d0499bb431764528b08b572",
+        "bytes": 3559
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/__init__.py": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/check.py": {
+        "sha256": "781ebb6017a8f61d2c517e43864af77622478b2003b0814aff03ff0a70e3ab1a",
+        "bytes": 1479
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/predict.py": {
+        "sha256": "c41916cae41a0a9a9a1462671d99d7329b5474226fbdb5997f6f5b36a3ba79f0",
+        "bytes": 15898
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/cli/train.py": {
+        "sha256": "3b11d5ca30c4a67c5326c969937c81f5661a4ced9c782c1c8d387cd3d5fc4687",
+        "bytes": 11995
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/__init__.py": {
+        "sha256": "9c254686b2ddab88e6300e0eaa72462eadf1e7ca26d0d6a94079389206ba5bcb",
+        "bytes": 130
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/spots.py": {
+        "sha256": "3275d8212a81f51d88524bb379de0cce2c785d3c10b19ddaf4a95f136d71053f",
+        "bytes": 14421
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/spots3d.py": {
+        "sha256": "92b26d4916aa8878d72854b29958e1d19fc6ed419a6d1294d358e6e6341d4841",
+        "bytes": 7697
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/data/test/test_datasets.py": {
+        "sha256": "d1a33271fec00da8afe3bdc80b80faa783afe38549c39414300eec898568e135",
+        "bytes": 2240
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/__init__.py": {
+        "sha256": "1cf652e78d9b926be774a064a2b8472b493de28c22db1a684419b2170ab6ec74",
+        "bytes": 278
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/backbones/__init__.py": {
+        "sha256": "95eaa9f3a1c3cfb1c652c2c1f7abda7dcc8537d0ea84d3464ae389ad59e1d4c0",
+        "bytes": 65
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/backbones/resnet.py": {
+        "sha256": "83cf9e4b01e18729376fa0ba9c25074d8e13654f5526498ce47da80637dcfbfc",
+        "bytes": 11021
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/backbones/unet.py": {
+        "sha256": "e38eb9886b756968f75d245e76324d79c77580a82e20f01b3f62225177f39102",
+        "bytes": 11404
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/bg_remover.py": {
+        "sha256": "11ecb9f8ee1eed2a3d4a3b5be2534c90343fb419f9926a6cf9762483e8756d99",
+        "bytes": 1400
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/config.py": {
+        "sha256": "06777acf99e42051ec072e0f102df6a4c102ae29be470106ffb60aa72ce544d4",
+        "bytes": 11640
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/losses/__init__.py": {
+        "sha256": "cfddd79d844af75741f000456e6902fb5ad21e5907b35335dce5d11017d5a04e",
+        "bytes": 43
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/losses/adaptive_wing.py": {
+        "sha256": "919e5a722bf03b476fa21478d532ac9313ef06908a70a8413c2b36b72fbc2561",
+        "bytes": 2258
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/post.py": {
+        "sha256": "1acac048f0fba15a99636a9f6e889fdc481f424d32eb98b1af41b6f9c833ab85",
+        "bytes": 7350
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/pretrained.py": {
+        "sha256": "cf88adb52752f9eda8974e871c866c2af7fb7b6e614e37ea1179a17ed5cd4846",
+        "bytes": 2840
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/spotiflow.py": {
+        "sha256": "6df02c4340abecb7c9a8aeb1a200d3e137d6a856258a87412b7816e29825f53e",
+        "bytes": 67099
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/model/trainer.py": {
+        "sha256": "7ef25f39f891dfcb120d07f0431f5f34a6c2b6c14a7bb06dbf0ac5138a56435b",
+        "bytes": 22560
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/sample_data/__init__.py": {
+        "sha256": "791dd390048be017fad08128337c90cfa4ceb4a4b46a9302dd30ddeaca6ff76d",
+        "bytes": 1352
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/sample_data/datasets.py": {
+        "sha256": "cfb5ecd184cd2a06a92999ba593b153f6b04d2f58fe7f0065228ae0b3ae9323d",
+        "bytes": 3554
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/starfish/__init__.py": {
+        "sha256": "7d31adcffaa58f0b3d3eddc38f3368ada611b9b5716db2094bfae403d0a8cac3",
+        "bytes": 48
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/starfish/spotiflow_wrapper.py": {
+        "sha256": "2787e2694df5e993b168671487d7dde5772d005dd9a186bd1f608091782056f6",
+        "bytes": 14231
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/test/test_model_saveload.py": {
+        "sha256": "48fa729e3d6a345ea8b8c900c3fd7688b9da77ce69f24bab88a7202073a75473",
+        "bytes": 1484
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/test/test_prediction.py": {
+        "sha256": "223f2da626c1c8021bd18b71232dd603902e688e9b200b423daa660c4223e8f3",
+        "bytes": 3825
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/__init__.py": {
+        "sha256": "b33410f4049a5346fa5df702b9ad1d572bf9ae8e99e7e3696dda002950d3fa94",
+        "bytes": 331
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/ci.py": {
+        "sha256": "c6713e6fbfbbcaf40e571d3b4048ea7c73507581cec60a83e472fca88c6668f3",
+        "bytes": 101
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/fitting.py": {
+        "sha256": "e2e745bf13ca103a64246d285f274ba7fdeb2447fc346f5932d9f1c8764ee0db",
+        "bytes": 9239
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/get_file.py": {
+        "sha256": "3c5f80fd5b74baba6efd312a7ace892fe5908914aea610af7fd0210f21b1a215",
+        "bytes": 22411
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/matching.py": {
+        "sha256": "a1b42b4d2025d60f89ba3cb41c6367d9cd49bbd6e7eccabc104b2a772c3e4b82",
+        "bytes": 4026
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/parallel.py": {
+        "sha256": "5b18805567f103730646e49844a40edc831edc7f2a9de8cc5759e9c3d6196f12",
+        "bytes": 7385
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/peaks.py": {
+        "sha256": "0aa2692c96e58a9a32410e9afecbc94d090ad70596833b7d5b51354b7c589037",
+        "bytes": 18092
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/lib/python3.13/site-packages/spotiflow/utils/utils.py": {
+        "sha256": "e0c44a57c51d1416dfaa944bb1f714437b4c2230ff759e5af05005daf66d4c33",
+        "bytes": 31345
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/__MACOSX/hybiss/._.DS_Store": {
+        "sha256": "2f380f4a3d05a8d90c2106f50da75064e9ce57a598599dc5404f8f69a0223aa9",
+        "bytes": 120
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/best.pt": {
+        "sha256": "1c3575464d621924b27f4deb66495b807f175a0ccd995d3533403f00daf806f2",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/config.yaml": {
+        "sha256": "507b60fab22c08e8819da3f7c84d8a85b3fdce4caca14c18d101b502109b0649",
+        "bytes": 389
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/last.pt": {
+        "sha256": "2d1c04545f2205de46d7002c460d492cebe0a5c76840b494668b3ede904651fc",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/thresholds.yaml": {
+        "sha256": "4c054d3cbb2825df7a4672a63ef454fbc25a7a01e53faefc431793068ac6367e",
+        "bytes": 76
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general/train_config.yaml": {
+        "sha256": "fa805d53d763da34b68ddbaf6fd6876ff0d83d7565c4280f8b87ee14b7cd9777",
+        "bytes": 257
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/general.zip": {
+        "sha256": "1da93a8282fedab697dbb9f5c24f623e452063b296ffaad9becd0afdc7bd2797",
+        "bytes": 87885382
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/.DS_Store": {
+        "sha256": "5667c65fa93c028da56ca89cf47096250fa9e63ae0faca88786d0368c32d2eb4",
+        "bytes": 6148
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/best.pt": {
+        "sha256": "fa5d5cb313bcfd75527f3d0962ccc3654bc7aa33359097d16f3b0835b0103bd1",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/config.yaml": {
+        "sha256": "10253c542bcc21348a1a5b3810de1950be7250be51147f96a8c679eef3cc583a",
+        "bytes": 368
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/last.pt": {
+        "sha256": "2b309de99caf9a948b922fa88e99b5599b335b77b246fd0f5d4ea2ec55f89632",
+        "bytes": 47408604
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/thresholds.yaml": {
+        "sha256": "62dee75197686a9ea85fe0bf493f8ec2bcefbea20ef2748948d437b627e44045",
+        "bytes": 74
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss/train_config.yaml": {
+        "sha256": "480f56279201137dc1ec74681dfd160b2d98af12d7569b8fdaad667e45bbc7cd",
+        "bytes": 244
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/backends/spotiflow/models/hybiss.zip": {
+        "sha256": "d6221339a104cddfac77b3b8a1014bd316a7060934d69bc078f5a653cb72658b",
+        "bytes": 87945684
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_1049_x_547_C18.tif": {
+        "sha256": "07ef465fe2ef513295b4391d40d5b05af1b406a90a6ffcf825f37be5aadb5abd",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_1049_x_547_C18.csv": {
+        "sha256": "7dd1bb4fb4b216a2ba49d1819c03f549bb0efdaef978724c99b7bdc1236e42d9",
+        "bytes": 33742
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_552_x_888_C12.tif": {
+        "sha256": "19ab6fe41b73a69d17b5abb9f41a873aba12397c78aec7ff3fa6f5a4e0688399",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_552_x_888_C12.csv": {
+        "sha256": "b82433d47ac7c1240b85b705871fc5a1e32a7e7bdc1f134d0f5274f3dba2c70a",
+        "bytes": 25430
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_557_x_606_C10.tif": {
+        "sha256": "d12aca72112a6aedb64f7d3bc70d76cd98ac8d75ee5d79349c68d6a7eb062347",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_557_x_606_C10.csv": {
+        "sha256": "2626367ef0406fbbba901786a37324f16ccc03f658138583fed7a77f858261b5",
+        "bytes": 35166
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_581_x_692_C21.tif": {
+        "sha256": "03e7f5dfe4ff17f9c07b7382ab7a2153f30747d8edcbc6bd8a14ccfe08c351d0",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_581_x_692_C21.csv": {
+        "sha256": "f5f71f7e7800d62ffb6312e203f4dfa0705692e8ebffa0c7d8a9ea35d1020571",
+        "bytes": 33352
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_588_x_1000_C15.tif": {
+        "sha256": "36b6e9a97502100bc7673770da7909e2ab7b283f970bc8f44bca22f167009ceb",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_588_x_1000_C15.csv": {
+        "sha256": "afceeacf87fa4bc938de3a22fd988f7e039bd31446fa6c5763d3084148514fa0",
+        "bytes": 43869
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_609_x_1270_C03.tif": {
+        "sha256": "0a058f10fe21554f03ae00fc4b95dc138a0b8562b59261776e2dd8d541536b49",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_609_x_1270_C03.csv": {
+        "sha256": "036b6ce02547f8141050c85750bd3a3eabe54a9674f8841327d31bfe7e4efa67",
+        "bytes": 30619
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_632_x_1350_C13.tif": {
+        "sha256": "bb7c6171e019d507f688cf4ffae92580b26523139f6707dfef7529119a3e89cb",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_632_x_1350_C13.csv": {
+        "sha256": "5dc792965bb36b865731b10e23ff6ee45b82dc271f6aeac435ffbf57557b1997",
+        "bytes": 31804
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_735_x_0_C04.tif": {
+        "sha256": "2dfd49772cf13c944bcfbf4ae07f148e7e7455947cfb1c83b6797b5875915068",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_735_x_0_C04.csv": {
+        "sha256": "42fbb71c6e89fdeac8c7ddd0a955526853eee72c8c9740754382acaed16a9fd4",
+        "bytes": 32701
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_769_x_962_C00.tif": {
+        "sha256": "ab378b6aaa6fb01b236579235defd094bd14794bd6728865f48d1fd9707ab404",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_769_x_962_C00.csv": {
+        "sha256": "9ac66f6701b23c2570df563e9afb009b58886004836b1412c3cbb22ee058946c",
+        "bytes": 15474
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_966_x_69_C16.tif": {
+        "sha256": "c800c5c3f9eb39bb084a166999ba98045c83d9ba2d9562a8a5ba87f7b5899df9",
+        "bytes": 524544
+      },
+      "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow/data-cache/datasets/merfish/test/mouse1_sample1_aligned_images0_y_966_x_69_C16.csv": {
+        "sha256": "766c3c9d2e8e8558d89bc00a938364a9e8bc83e608bcb7eb05ca4946bc86d9c7",
+        "bytes": 21078
+      }
+    },
+    "source_files_unchanged_after_run": true,
+    "outputs": {
+      "general-coordinates-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "35f40a447cd0465af9e9ad0c5aab3de1fa91eced45ebdd72fff70bf6dc67a991",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "c94734be6626ff2cc40ea6c6cc96bab4486237c52d8e9bc4c6ac47298d98ccc7",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "f504d6887ea94e4f22a42f05d3e83c3ef366bd9765050aba2b41501918853178",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "9c386988828abebe6b0578ea06aa1024573d0ce02b8b586da8afb3f9a9c93b1c",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "de8ce3770320294937e1bb7559851a0fa1dcd5e1fa631bb3a9345d1ba688b0c5",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "271cc4f19fbef3fed9164f0330d0773349b5152f59b9cdfdd2bde696b957cb7f",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "2182636055b77205762a9e79c6da683fb5c2d0f60630f41fce8ad005ed28413b",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "766dd53712c8c84360cf32bd700f5e8cb359e34fcd554766da81d116cae9edbd",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "968fa04c924020e3fc7981f5bccdb158b672fa4cd59208f3dc43ce80708f1a97",
+      "general-coordinates-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "ba0d65d87fbdc19c19765be4a5d481a6a0eb144553297b3bd9afb1489f699ef4",
+      "general-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18-labels.npy": "8a8b5cdc513426e06e456430c76c0463a3f7d78b5f390beecbde8e8f33aabd0d",
+      "general-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "4011878f0fa6715fb87b7470b96e19a668c5a13656368febcca4a14d302bf688",
+      "general-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12-labels.npy": "1482ae0eccdc62a76978be2498c8d6a5af4fb6d4495cc4744ffa49070aa05ac4",
+      "general-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "0bc2e4a4f5961dbaa97c477827f6cab7a7ddf2dd5b15b7b0ec219a4b6e552293",
+      "general-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10-labels.npy": "b2223a4c7c065a96fbb3f3354c763ccb07b7c89d7119e0aa0514ef92bca21cf9",
+      "general-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "ce479ad02824d1f96c8471482f9dd82999f8ffb93e33c4352642a257e4e4dbad",
+      "general-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21-labels.npy": "be1f2f117e451f52e1eec8648a0ce8546631fe941ea0b2cf6a279ef9643b90b6",
+      "general-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "18b9337b72148161e040a6aaed53cb8a3c9d72595bfa0fb1b3d0281dfc1d835a",
+      "general-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15-labels.npy": "71d254762dfd69d04adafd7be09b6f9ea930494867e4c9248f1cd4fab7177802",
+      "general-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "a2d60110fa1182495c688fe2e927f5bccaa41e5f51f689e1a1756ad35b5539eb",
+      "general-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03-labels.npy": "f015182ddcfab81e5d5d1a1d77c87dd60f044abbe5dcf4ce04adc098dc2c9f96",
+      "general-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "76f17ef27498dbf5cc476ff5561a8a9451e633b4040ccafcae5fa4001063270f",
+      "general-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13-labels.npy": "9dbf4ec6f1ec933d7e329d07e776cb177def6d675113a1e823c97a6c05457149",
+      "general-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "43f4371a1fb275c1aa4e331eae29ef9c15a32a3d3a8a3a084cc39088c6f0aa46",
+      "general-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04-labels.npy": "8813e2a6dc3d50b85dbc78590ce8d09c74c808cb2c702abfd630c18156873f92",
+      "general-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "7eb21c483323a78c723a6864c901a426f35564ccc11107081c25de3b2e82698f",
+      "general-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00-labels.npy": "fa70daae02e41e18f51cf0c910bcb15cf05073adb8d1dc5c72a32c1438253a0d",
+      "general-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "9943f89f2e6068bb2131283b69dec3ede2ec2c42d46aab9962f835cfc754c9c9",
+      "general-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16-labels.npy": "af3ba246c18cfb429cadbbc41b06853589296b9864c0ad87e4f3b75cbccfcc32",
+      "general-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "206e66a649f39eeb062f17a3d93b63d28e0ebc367989b5bbab59323dc491e030",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "ae2c8031d91a9e94cfb85613a4f88ec086769fd7e4558324fa78f8304b98fef8",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "003f794c476a0d59f412145245b171441fd2fc10680a144655a7ad9a9b6b08e1",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "43b9e7b493cecaa3cb1170dc06270def299f8eaec56ef652d17d76a577a0714e",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "4ae6adc83fa9e8b7511b2ab5e0df81f72f69bfc4dba5ee28424bdbc62d901279",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "c32afeb0f25bdcba522654ec629b7a8361d4a58fc2e99e7e0c2fe765021ee931",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "2644a3e60055e841434b67a40727c141580d2352df3a9baa66f2a9fc04f1db83",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "b825e52789dd7dc73b1ff12df1364ce979d19d8787a982e1d00dfc7594524e73",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "1e9aa5b39d2b7fd6745aa0a9a3abf99a039ec356213e796af27429d7eb5f3ee5",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "e358678f550b0c114fbf97fc552fef21766cedfe906532557b5bb9fc4c1b04e5",
+      "hybiss-coordinates-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "48e31caaff428ef34627c0d6120711030ffe57c74afd9f5914cd36c27cea6447",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18-labels.npy": "2d3a2ceb921661f7981d8d467453e522b71f11f89620a16944cea47f7395a664",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_1049_x_547_C18.npy": "3f6bfb3b15c73bacd1d63d9198750b033241817840d9f192aadef2c8bd4b199f",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12-labels.npy": "641995024992acc62797885256943ac5b58dd51159d6bd6a536569e74e249673",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_552_x_888_C12.npy": "5a08f42d61ff947921c0d832a2b83f90bed791b9a5fb4c360f2f16e8b4c49f68",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10-labels.npy": "75e4f7fe51526b823fadbcefe2f8bba7ab02ae64b66762be2f6aa1c2452f2f1d",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_557_x_606_C10.npy": "94ffb63e8c4b68cb6025b897f07b202f869d609a6d6eb42c002b90925aa7c2c1",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21-labels.npy": "cfcf4497888569889b2165c15b381315864a82fdfd670d18ca96986531b0c582",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_581_x_692_C21.npy": "9af63cddfc3ac717facda6010398ceaccf664551a8d980966cf9c2e3d19d8fe2",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15-labels.npy": "deb7adb3c9f00f99e3abaa0697a633de01149c3ec45b0e922bc6830d2ea36330",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_588_x_1000_C15.npy": "5d9e32772a5342dc2aae47b4d057c26c22c92c8406207a0072e555467fb5fbaa",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03-labels.npy": "d7bc8399febf326432ee8b7eef2baaa26088f05ff03563a3aca049ee1fd085d9",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_609_x_1270_C03.npy": "d20ad48d0f297b91fef16ee0add45c40a002b1ee196e09adca295b6ff41b186c",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13-labels.npy": "9a9a1e256ad4fa95b7fc9c08ec61a365443cb922c9ddc622e263637cf18b68de",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_632_x_1350_C13.npy": "bcb732ff29e04fb57b143f78442ff6565f89cc07b3eed02f0eb88f8b9de8cf38",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04-labels.npy": "143083a9d1de3a61468bf6a16684ba15dc83b2bf50f95767796e9632086ef4e5",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_735_x_0_C04.npy": "8dc8b19e2df2f945be2098f439a792d35c4f8db946c76679baa9d3cc30969dc7",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00-labels.npy": "9b51ffc9d633be7a17d1bf5b4260020777a0dfad76838b55086caad143561240",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_769_x_962_C00.npy": "fefce0cced530456b299ea29127389e719b1c04591b600a0a1491105e7d4158d",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16-labels.npy": "7a55e1e55a4d2b8f2e9e6162b42906bb91a5341dde0073ce5552527db7efe81b",
+      "hybiss-objects-mouse1_sample1_aligned_images0_y_966_x_69_C16.npy": "584770250e36fadfa97985cef8a89eb393c61286bcfd078eb28009c3b2226105",
+      "score-input.json": "186500ecafc924bfb5e1e3acea57139bfd6df26b918845a01875fc84874fe390",
+      "scores.json": "05088dd5e12643d9ca9baf7aca6c7a53a8a9d5801a1bae5ed445abb023891ad0"
+    },
+    "scores": {
+      "general-coordinates": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1763,
+            "tp": 1606,
+            "fp": 157,
+            "fn": 268,
+            "mean_matched_distance": 0.39926531149843275
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 1049,
+            "tp": 913,
+            "fp": 136,
+            "fn": 195,
+            "mean_matched_distance": 0.44352741969129683
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 1256,
+            "tp": 1178,
+            "fp": 78,
+            "fn": 300,
+            "mean_matched_distance": 0.49174988118619556
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 909,
+            "tp": 869,
+            "fp": 40,
+            "fn": 419,
+            "mean_matched_distance": 0.5190178804709992
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 1094,
+            "tp": 1019,
+            "fp": 75,
+            "fn": 303,
+            "mean_matched_distance": 0.6817144299085437
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 1115,
+            "tp": 961,
+            "fp": 154,
+            "fn": 141,
+            "mean_matched_distance": 0.5860793410810674
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 1129,
+            "tp": 901,
+            "fp": 228,
+            "fn": 102,
+            "mean_matched_distance": 0.6847348861397313
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1267,
+            "tp": 1078,
+            "fp": 189,
+            "fn": 123,
+            "mean_matched_distance": 0.5354132257475608
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 1173,
+            "tp": 1012,
+            "fp": 161,
+            "fn": 105,
+            "mean_matched_distance": 0.34714752054920317
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1494,
+            "tp": 1274,
+            "fp": 220,
+            "fn": 156,
+            "mean_matched_distance": 0.3715696852485003
+          }
+        ],
+        "truth": 12923,
+        "pred": 12249,
+        "tp": 10811,
+        "fp": 1438,
+        "fn": 2112,
+        "precision": 0.8826026614417504,
+        "recall": 0.8365704557765224,
+        "f1": 0.8589702844430319,
+        "seconds": 0.383659367042128
+      },
+      "general-objects": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1763,
+            "tp": 1606,
+            "fp": 157,
+            "fn": 268,
+            "mean_matched_distance": 0.3193595677058141
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 1049,
+            "tp": 913,
+            "fp": 136,
+            "fn": 195,
+            "mean_matched_distance": 0.38653885715086356
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 1256,
+            "tp": 1177,
+            "fp": 79,
+            "fn": 301,
+            "mean_matched_distance": 0.44612643200371604
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 909,
+            "tp": 869,
+            "fp": 40,
+            "fn": 419,
+            "mean_matched_distance": 0.46596974298347116
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 1094,
+            "tp": 1017,
+            "fp": 77,
+            "fn": 305,
+            "mean_matched_distance": 0.7093549494439462
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 1115,
+            "tp": 960,
+            "fp": 155,
+            "fn": 142,
+            "mean_matched_distance": 0.574017391855141
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 1129,
+            "tp": 901,
+            "fp": 228,
+            "fn": 102,
+            "mean_matched_distance": 0.7007393400051978
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1267,
+            "tp": 1078,
+            "fp": 189,
+            "fn": 123,
+            "mean_matched_distance": 0.5331158857116323
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 1173,
+            "tp": 1012,
+            "fp": 161,
+            "fn": 105,
+            "mean_matched_distance": 0.24453410724004226
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1494,
+            "tp": 1274,
+            "fp": 220,
+            "fn": 156,
+            "mean_matched_distance": 0.29628300875965136
+          }
+        ],
+        "truth": 12923,
+        "pred": 12249,
+        "tp": 10807,
+        "fp": 1442,
+        "fn": 2116,
+        "precision": 0.8822761041717692,
+        "recall": 0.836260930124584,
+        "f1": 0.8586524709995232,
+        "seconds": 0.8021483009797521
+      },
+      "hybiss-coordinates": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1414,
+            "tp": 1364,
+            "fp": 50,
+            "fn": 510,
+            "mean_matched_distance": 0.3748128348156864
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 868,
+            "tp": 824,
+            "fp": 44,
+            "fn": 284,
+            "mean_matched_distance": 0.4267180174869197
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 958,
+            "tp": 940,
+            "fp": 18,
+            "fn": 538,
+            "mean_matched_distance": 0.43445559716564497
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 768,
+            "tp": 753,
+            "fp": 15,
+            "fn": 535,
+            "mean_matched_distance": 0.5085667060744069
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 921,
+            "tp": 886,
+            "fp": 35,
+            "fn": 436,
+            "mean_matched_distance": 0.660022624954866
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 881,
+            "tp": 823,
+            "fp": 58,
+            "fn": 279,
+            "mean_matched_distance": 0.5278022793072171
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 801,
+            "tp": 732,
+            "fp": 69,
+            "fn": 271,
+            "mean_matched_distance": 0.6445929543499075
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1063,
+            "tp": 957,
+            "fp": 106,
+            "fn": 244,
+            "mean_matched_distance": 0.5244387268657901
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 914,
+            "tp": 874,
+            "fp": 40,
+            "fn": 243,
+            "mean_matched_distance": 0.3502468086423411
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1242,
+            "tp": 1141,
+            "fp": 101,
+            "fn": 289,
+            "mean_matched_distance": 0.3938868894302931
+          }
+        ],
+        "truth": 12923,
+        "pred": 9830,
+        "tp": 9294,
+        "fp": 536,
+        "fn": 3629,
+        "precision": 0.9454730417090539,
+        "recall": 0.7191828522788826,
+        "f1": 0.816947215751769,
+        "seconds": 0.32239455805392936
+      },
+      "hybiss-objects": {
+        "fields": [
+          {
+            "field": "mouse1_sample1_aligned_images0_y_1049_x_547_C18",
+            "truth": 1874,
+            "pred": 1414,
+            "tp": 1364,
+            "fp": 50,
+            "fn": 510,
+            "mean_matched_distance": 0.2584459175310252
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_552_x_888_C12",
+            "truth": 1108,
+            "pred": 867,
+            "tp": 824,
+            "fp": 43,
+            "fn": 284,
+            "mean_matched_distance": 0.33617710483199487
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_557_x_606_C10",
+            "truth": 1478,
+            "pred": 958,
+            "tp": 940,
+            "fp": 18,
+            "fn": 538,
+            "mean_matched_distance": 0.34073550033161853
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_581_x_692_C21",
+            "truth": 1288,
+            "pred": 768,
+            "tp": 753,
+            "fp": 15,
+            "fn": 535,
+            "mean_matched_distance": 0.43619710363744946
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_588_x_1000_C15",
+            "truth": 1322,
+            "pred": 921,
+            "tp": 886,
+            "fp": 35,
+            "fn": 436,
+            "mean_matched_distance": 0.6771596767088008
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_609_x_1270_C03",
+            "truth": 1102,
+            "pred": 881,
+            "tp": 825,
+            "fp": 56,
+            "fn": 277,
+            "mean_matched_distance": 0.4966192614565116
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_632_x_1350_C13",
+            "truth": 1003,
+            "pred": 801,
+            "tp": 730,
+            "fp": 71,
+            "fn": 273,
+            "mean_matched_distance": 0.645700355668241
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_735_x_0_C04",
+            "truth": 1201,
+            "pred": 1063,
+            "tp": 955,
+            "fp": 108,
+            "fn": 246,
+            "mean_matched_distance": 0.48015489142070183
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_769_x_962_C00",
+            "truth": 1117,
+            "pred": 914,
+            "tp": 874,
+            "fp": 40,
+            "fn": 243,
+            "mean_matched_distance": 0.23624317688119587
+          },
+          {
+            "field": "mouse1_sample1_aligned_images0_y_966_x_69_C16",
+            "truth": 1430,
+            "pred": 1242,
+            "tp": 1140,
+            "fp": 102,
+            "fn": 290,
+            "mean_matched_distance": 0.26182366486301173
+          }
+        ],
+        "truth": 12923,
+        "pred": 9829,
+        "tp": 9291,
+        "fp": 538,
+        "fn": 3632,
+        "precision": 0.945264014650524,
+        "recall": 0.7189507080399288,
+        "f1": 0.8167194092827004,
+        "seconds": 0.7556229589390568
+      }
+    },
+    "cpu_gpu_comparison": {
+      "general-coordinates": {
+        "cpu_seconds": 12.406587986974046,
+        "gpu_seconds": 0.383659367042128,
+        "speedup": 32.33750835441411,
+        "cpu_f1": 0.8590044098367169,
+        "gpu_f1": 0.8589702844430319,
+        "f1_delta": -3.4125393684969474e-05,
+        "cpu_pred": 12248,
+        "gpu_pred": 12249
+      },
+      "general-objects": {
+        "cpu_seconds": 13.665745738020632,
+        "gpu_seconds": 0.8021483009797521,
+        "speedup": 17.0364329405537,
+        "cpu_f1": 0.8586865837670334,
+        "gpu_f1": 0.8586524709995232,
+        "f1_delta": -3.4112767510197095e-05,
+        "cpu_pred": 12248,
+        "gpu_pred": 12249
+      },
+      "hybiss-coordinates": {
+        "cpu_seconds": 12.474690117116552,
+        "gpu_seconds": 0.32239455805392936,
+        "speedup": 38.693860691748455,
+        "cpu_f1": 0.8172231985940246,
+        "gpu_f1": 0.816947215751769,
+        "f1_delta": -0.00027598284225560654,
+        "cpu_pred": 9837,
+        "gpu_pred": 9830
+      },
+      "hybiss-objects": {
+        "cpu_seconds": 12.749662996036932,
+        "gpu_seconds": 0.7556229589390568,
+        "speedup": 16.873048714584158,
+        "cpu_f1": 0.8169954743178522,
+        "gpu_f1": 0.8167194092827004,
+        "f1_delta": -0.0002760650351518734,
+        "cpu_pred": 9836,
+        "gpu_pred": 9829
+      }
+    },
+    "cpu_baseline_sha256": "8645299287d2f597cc93c20cf044099b12ff440e0ea0d50110772d5447624d78"
+  },
+  "benchmark_source": {
+    "sha256": "4ee8348b8a203b78fe89b3f9dca877aa715e46769d22d7bbcada13cc4ab1f1da",
+    "text": "\"\"\"Real spaCR Spotiflow worker benchmark; official point matching in its env.\"\"\"\nimport argparse\nimport hashlib\nimport json\nimport os\nfrom pathlib import Path\nimport subprocess\nimport sys\nimport time\n\nimport numpy as np\n\n\ndef read(path):\n    return json.loads(Path(path).read_text())\n\n\ndef write(path, value):\n    Path(path).write_text(json.dumps(value, indent=2) + '\\n')\n\n\ndef digest(path):\n    value = hashlib.sha256()\n    with Path(path).open('rb') as stream:\n        for chunk in iter(lambda: stream.read(1024 * 1024), b''):\n            value.update(chunk)\n    return value.hexdigest()\n\n\ndef score(folder):\n    from spotiflow.utils.matching import points_matching\n    specification = read(folder / 'score-input.json')\n    records = {}\n    for method, fields in specification['methods'].items():\n        scores = []\n        for field in fields:\n            truth = np.loadtxt(field['truth'], delimiter=',', skiprows=1).reshape(-1, 2)\n            points = np.load(field['points'], allow_pickle=False)\n            assert points.ndim == 2 and points.shape[1] == 2 and np.isfinite(points).all()\n            result = points_matching(truth, points, cutoff_distance=3)\n            scores.append({'field': field['field'], 'truth': len(truth), 'pred': len(points),\n                           'tp': result.tp, 'fp': result.fp, 'fn': result.fn,\n                           'mean_matched_distance': float(result.mean_dist)})\n        total = {key: sum(row[key] for row in scores) for key in ('truth', 'pred', 'tp', 'fp', 'fn')}\n        total['precision'] = total['tp'] / total['pred'] if total['pred'] else 0\n        total['recall'] = total['tp'] / total['truth']\n        total['f1'] = 2 * total['tp'] / (total['pred'] + total['truth'])\n        records[method] = {'fields': scores, **total}\n    write(folder / 'scores.json', records)\n\n\ndef run(device, output, cpu_baseline):\n    import tifffile\n    from scipy import ndimage\n    sys.path.insert(0, str(Path.cwd()))\n    from spacr import _segmentation_backends as backend\n\n    root = Path('/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/554-spotiflow')\n    data = root / 'data-cache/datasets/merfish/test'\n    environment = root / 'backends/spotiflow'\n    if device == 'cpu':\n        assert os.environ.get('CUDA_VISIBLE_DEVICES') == ''\n        assert cpu_baseline is None\n    else:\n        assert cpu_baseline is not None and not os.environ.get('CUDA_VISIBLE_DEVICES') == ''\n        holder = dict(part.split('=', 1) for part in (Path.home() / '.spacr/gpu/holder').read_text().split())\n        ancestor = os.getpid()\n        while ancestor and ancestor != int(holder['pid']):\n            status = Path(f'/proc/{ancestor}/status').read_text()\n            ancestor = int(next(line.split(':', 1)[1] for line in status.splitlines() if line.startswith('PPid:')))\n        assert ancestor == int(holder['pid']), 'GPU benchmark must run through the actual shared scheduler'\n    assert not output.exists(), 'Use a fresh output directory; preserve earlier evidence'\n    images = sorted(data.glob('*.tif'))\n    preparation = read(root / 'cpu-preparation.json')\n    assert len(images) == 10 and preparation['truth_total'] == 12923\n    assert hashlib.md5((root / 'data-cache/datasets/merfish.zip').read_bytes()).hexdigest() == '17fcdbd12cc71630e4f49652ded837c7'\n    package = environment / 'lib/python3.13/site-packages/spotiflow'\n    sources = [Path(__file__).resolve(), Path(backend.__file__).resolve(), environment / 'spacr-backend.json',\n               *sorted(package.rglob('*.py')), *sorted((environment / 'models').rglob('*'))]\n    sources = [p for p in sources if p.is_file()]\n    for image, declared in zip(images, preparation['fields']):\n        assert image.name == declared['image'] and digest(image) == declared['image_sha256']\n        assert digest(image.with_suffix('.csv')) == declared['truth_sha256']\n        sources.extend([image, image.with_suffix('.csv')])\n    source_hashes = {str(path): {'sha256': digest(path), 'bytes': path.stat().st_size} for path in sources}\n    baseline = read(cpu_baseline / 'benchmark.json') if cpu_baseline else None\n    if baseline:\n        assert baseline['accepted'] and baseline['device'] == 'cpu'\n        assert baseline['source_files'] == source_hashes\n    output.mkdir()\n    first = tifffile.imread(images[0]).astype(np.float32)\n    methods = {}\n    warmup_seconds = {}\n    worker = backend._worker_for('spotiflow', str(environment))\n    assert worker.hello['packages']['spotiflow'] == '0.6.5'\n    assert worker.hello['device'] == device\n    try:\n        for model in ('general', 'hybiss'):\n            for interface in ('coordinates', 'objects'):\n                name = f'{model}-{interface}'\n                object_model = backend._load_backend('spotiflow', model_name='spotiflow:' + model,\n                                                     device=device, root=root / 'backends') if interface == 'objects' else None\n\n                def predict(image):\n                    if interface == 'coordinates':\n                        points = backend._spotiflow_spots(image, model=model, device=device, root=root / 'backends')\n                        return points, None\n                    masks, _flows, _styles = object_model.eval([image], channel_axis=None, normalize=True,\n                                                             cellprob_threshold=0.0)\n                    labels = masks[0]\n                    assert labels.shape == image.shape and labels.dtype.kind in 'iu'\n                    ids = np.unique(labels)\n                    ids = ids[ids != 0]\n                    assert len(ids) and np.array_equal(ids, np.arange(1, len(ids) + 1))\n                    points = np.asarray(ndimage.center_of_mass(np.ones(labels.shape), labels, ids), float)\n                    return points, labels\n\n                started = time.perf_counter()\n                predict(first)\n                warmup_seconds[name] = time.perf_counter() - started\n                fields = []\n                for path in images:\n                    image = tifffile.imread(path).astype(np.float32)\n                    assert image.shape == (512, 512) and np.isfinite(image).all()\n                    started = time.perf_counter()\n                    points, labels = predict(image)\n                    seconds = time.perf_counter() - started\n                    assert len(points) and points.shape[1] == 2 and np.isfinite(points).all()\n                    points_path = output / f'{name}-{path.stem}.npy'\n                    np.save(points_path, points, allow_pickle=False)\n                    record = {'field': path.stem, 'truth': str(path.with_suffix('.csv')),\n                              'points': str(points_path), 'points_sha256': digest(points_path),\n                              'seconds': seconds, 'pred': len(points)}\n                    if labels is not None:\n                        mask_path = output / f'{name}-{path.stem}-labels.npy'\n                        np.save(mask_path, labels, allow_pickle=False)\n                        record.update(mask=str(mask_path), mask_sha256=digest(mask_path))\n                    fields.append(record)\n                methods[name] = fields\n                print(device, name, '10 real fields', sum(row['pred'] for row in fields),\n                      'points', round(sum(row['seconds'] for row in fields), 3), 'seconds', flush=True)\n        gpu_processes = subprocess.check_output(['nvidia-smi', '--query-compute-apps=pid,process_name,used_memory',\n                                                 '--format=csv,noheader'], text=True).strip()\n        if device == 'cuda':\n            assert str(worker._proc.pid) in [line.split(',')[0].strip() for line in gpu_processes.splitlines()]\n        worker_identity = {'pid': worker._proc.pid, 'hello': worker.hello,\n                           'observed_gpu_compute_processes': gpu_processes}\n    finally:\n        worker.close()\n    assert all(digest(path) == record['sha256'] for path, record in source_hashes.items())\n    write(output / 'score-input.json', {'methods': methods})\n    subprocess.run([str(environment / 'bin/python'), str(Path(__file__).resolve()), '--score', str(output)], check=True,\n                   env={**os.environ, 'CUDA_VISIBLE_DEVICES': ''})\n    scores = read(output / 'scores.json')\n    assert set(scores) == {'general-coordinates', 'general-objects', 'hybiss-coordinates', 'hybiss-objects'}\n    assert all(len(row['fields']) == 10 and row['truth'] == 12923 for row in scores.values())\n    comparison = {}\n    for name, result in scores.items():\n        result['seconds'] = sum(row['seconds'] for row in methods[name])\n        if baseline:\n            previous = baseline['scores'][name]\n            comparison[name] = {'cpu_seconds': previous['seconds'], 'gpu_seconds': result['seconds'],\n                                'speedup': previous['seconds'] / result['seconds'],\n                                'cpu_f1': previous['f1'], 'gpu_f1': result['f1'],\n                                'f1_delta': result['f1'] - previous['f1'],\n                                'cpu_pred': previous['pred'], 'gpu_pred': result['pred']}\n            assert abs(comparison[name]['f1_delta']) < 0.005\n            assert abs(result['pred'] - previous['pred']) / previous['pred'] < 0.01\n    outputs = {p.name: digest(p) for p in sorted(output.iterdir()) if p.is_file()}\n    receipt = {'schema': 1, 'accepted': True, 'device': device, 'worker': worker_identity,\n               'scope': 'Paired real spaCR isolated-worker MERFISH benchmark; CPU and GPU use identical original uint16 planes converted only to float32, own model thresholds and automatic trained percentile normalization. Object centroids are measured from genuine disc masks.',\n               'matching': 'Unmodified installed Spotiflow points_matching, Hungarian one-to-one within 3 pixels.',\n               'official_test_split': True, 'out_of_distribution_claim': False,\n               'all_12923_distributed_truth_points_retained': True,\n               'subpixel_border_truth_count': sum(f['subpixel_truth_outside_pixel_centres'] for f in preparation['fields']),\n               'legacy_uint8_receipt_exact_replay_claim': False, 'strict_historical_ops_replay_completed': False,\n               'warmup_excluded_from_field_timings': warmup_seconds,\n               'timing_scope': 'Synchronous host API wall time, including IPC and output loading; model warmup excluded.',\n               'source_files': source_hashes, 'source_files_unchanged_after_run': True,\n               'outputs': outputs, 'scores': scores, 'cpu_gpu_comparison': comparison,\n               'cpu_baseline_sha256': digest(cpu_baseline / 'benchmark.json') if baseline else None}\n    write(output / 'benchmark.json', receipt)\n\n\nparser = argparse.ArgumentParser()\nparser.add_argument('--score', type=Path)\nparser.add_argument('--device', choices=('cpu', 'cuda'))\nparser.add_argument('--output', type=Path)\nparser.add_argument('--cpu-baseline', type=Path)\nargs = parser.parse_args()\nif args.score:\n    score(args.score)\nelse:\n    assert args.device and args.output\n    run(args.device, args.output, args.cpu_baseline)\n"
+  },
+  "queue_log_sha256": "cde92492605a53581b6585227f4b033d225c619a394c90c42c6bbab6a18491ee",
+  "cpu_log_sha256": "f9b7e8e045b15d129fd92e1b08b9f81fbc69e1ccfd5c0eb682419f70628af65e",
+  "cpu_receipt_sha256": "8645299287d2f597cc93c20cf044099b12ff440e0ea0d50110772d5447624d78",
+  "gpu_receipt_sha256": "a62ce5fe67dd27b2ab64cca266987b4e170a983452f709d9bf655f3372901c5c",
+  "original_inputs_and_models_unchanged": true,
+  "strict_historical_ops_replay_completed": false,
+  "missing_ops_inputs": [
+    "/mnt/wd4tb/spacr_testdata/ops/raw/ops/sequencing",
+    "/mnt/wd4tb/spacr_testdata/ops_plate_run/measurements.db",
+    "/mnt/wd4tb/spacr_testdata/ops_plate_run/library/pool10_prefixes.csv"
+  ]
+}

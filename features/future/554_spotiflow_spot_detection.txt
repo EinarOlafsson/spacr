@@ -173,3 +173,44 @@ features/data/554_spotiflow_threshold_and_fish_2026-10-03.json.
 
 WHAT IS LEFT: GPU timing once the card is free; a --strict replay of these
 runs (exploratory mode used here).
+
+2026-10-05 — FRESH INSTALLED WORKER: PAIRED MERFISH CPU/GPU ACCEPTANCE
+The normal installer creates a private Spotiflow 0.6.5 backend with PyTorch
+2.11.0+cu128. Official MERFISH data is downloaded through Spotiflow's loader;
+the publisher's ZIP MD5 and all selected TIFF/CSV SHA-256 hashes are verified.
+All ten 512x512 images and all 12,923 distributed test annotations remain
+unchanged. Twenty-two subpixel annotations extend just outside pixel-centre
+coordinates; they remain in the official matcher without clipping/deletion.
+Both devices receive original uint16 planes converted only to float32 and
+the models' own thresholds/automatic percentile normalization. The object
+prefix uses actual disc masks and measured centroids. The exact original
+uint8-container run is not claimed as a replay.
+
+Actual shared turn 554-spotiflow-merfish-paired, scheduler PID 2529930,
+starts 16:56:01 EDT after normal six-minute idle/ten-minute gap and finishes
+16:56:13 with rc=0. Worker hello reports cuda; nvidia-smi independently sees
+worker PID 2548496 with 760 MiB of GPU memory. Both real API paths run every
+field. Official installed Spotiflow points_matching supplies the unmodified
+one-to-one Hungarian matcher within three pixels. Source/package code,
+installed marker, model artifacts and every input are hashed before/after;
+all 101 source records remain identical across the paired runs.
+
+Method                    CPU s    GPU s   CPU F1   GPU F1
+general coordinates       12.407   0.384   0.85900  0.85897
+general object masks      13.666   0.802   0.85869  0.85865
+hybiss coordinates        12.475   0.322   0.81722  0.81695
+hybiss object masks       12.750   0.756   0.81700  0.81672
+
+Times exclude separately recorded warmup and include synchronous host API
+transport/output loading. These are single-pass ten-field timing observations,
+not universal speed guarantees. General GPU predicts one extra spot; hybiss
+GPU predicts seven fewer. Mask/coordinate counts remain separately reported;
+results are not bit-identical. F1 drift is below 0.00028. This is the published
+model's in-distribution test split, not an independent study holdout.
+
+GPU timing and source-bound MERFISH comparison are complete. F554 remains
+partial: strict historical OPS replay still requires missing original tiles,
+measurements.db and pool10 library. No synthetic DB or surrogate labels are
+substituted. Shared environments, original acquired data and production
+spaCR source remain unchanged. Receipt, full paired records, source archive
+and output fingerprints: 554_spotiflow_merfish_cpu_gpu_2026-10-05.json.

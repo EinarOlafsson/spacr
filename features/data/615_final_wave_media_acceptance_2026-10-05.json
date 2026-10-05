@@ -1,0 +1,1605 @@
+{
+  "schema": 1,
+  "date": "2026-10-05",
+  "accepted": true,
+  "publishable": true,
+  "scope": "Current four-lesson prepublication acceptance: all narration tracks, master/web bytes, all narration/caption browser cases, every native image and every decoded 4K scene midpoint. Immutable upload, hosted route checks and deployed nightly readback remain separate.",
+  "audio_tracks_verified": 108,
+  "native_images_screened": 82,
+  "scene_references": 85,
+  "rendered_scene_midpoints_checked": 85,
+  "rendered_images_screened": 80,
+  "browser_cases": 56,
+  "lessons": {
+    "08_measure": {
+      "video": {
+        "schema": 1,
+        "lesson": "08_measure",
+        "source_frame_count": 17,
+        "source_frame_hashes_verified": true,
+        "visual_sha256": "eaedb99a0d058a76a43a35ae72fc743994d284c97fbe8a7af254f18cb6901dd9",
+        "english_timing_sha256": "662c1df0e44cf3fa69cd8ae9cb640ab569823390db625f8beac268c26f4dce5e",
+        "master_sha256": "9bb7ed32f3ec6ecc5720dd4130b7692ce8dcee3b989e6d6cfca8275f4a07daa4",
+        "master_probe": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "width": 3840,
+              "height": 2160,
+              "coded_width": 3840,
+              "coded_height": 2160,
+              "closed_captions": 0,
+              "has_b_frames": 2,
+              "pix_fmt": "yuv420p",
+              "level": 51,
+              "chroma_location": "left",
+              "refs": 1,
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "30/1",
+              "time_base": "1/90000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 25782000,
+              "duration": "286.466667",
+              "bit_rate": "450830",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "8594",
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "vendor_id": "[0][0][0][0]"
+              }
+            }
+          ],
+          "format": {
+            "filename": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-wave/production/08_measure/video/08_measure_silent.mp4",
+            "nb_streams": 1,
+            "nb_programs": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "286.467000",
+            "size": "16247592",
+            "bit_rate": "453737",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Lavf58.76.100"
+            }
+          }
+        },
+        "master_full_decode_passed": true,
+        "master_frames_match_quantized_english_timing": true,
+        "poster_sha256": "57a705ac64327d47e3dc9a7e9aae83aff224384e228755141496ab22c4162e01",
+        "web_rendition": {
+          "lesson": "08_measure",
+          "accepted": true,
+          "master_sha256": "9bb7ed32f3ec6ecc5720dd4130b7692ce8dcee3b989e6d6cfca8275f4a07daa4",
+          "rendition_sha256": "78410e84e2e3d5476e250d097dbe108fb48a4cc45be65e7ec3f30b53e1b290eb",
+          "bytes": 11891878,
+          "frames": 8594,
+          "dimensions": [
+            2560,
+            1440
+          ],
+          "all_frame_presentation_times_match": true,
+          "full_decode_passed": true,
+          "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+          "encoder_arguments": [
+            "-threads",
+            "2",
+            "-filter_threads",
+            "2",
+            "-vf",
+            "scale='min(2560,iw)':-2",
+            "-vsync",
+            "0",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "veryfast",
+            "-tune",
+            "ssim",
+            "-g",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            "-an",
+            "-movflags",
+            "+faststart"
+          ],
+          "retained_published_sha256": null,
+          "elapsed_seconds": 123.37,
+          "visual_review_complete": false,
+          "narration_regenerated": false,
+          "original_master_changed": false,
+          "published": false
+        },
+        "browser_verified": false,
+        "visual_review_complete": false,
+        "published": false
+      },
+      "current_browser": {
+        "schema": 1,
+        "lesson": "08_measure",
+        "passed": true,
+        "checks": [
+          {
+            "case": "en-af_heart-sentence-cues",
+            "report": "browser-web/08_measure/en-af_heart-sentence-cues/playback-checks.json"
+          },
+          {
+            "case": "es-ef_dora",
+            "report": "browser-web/08_measure/es-ef_dora/playback-checks.json"
+          },
+          {
+            "case": "fr-ff_siwis",
+            "report": "browser-web/08_measure/fr-ff_siwis/playback-checks.json"
+          },
+          {
+            "case": "hi-hf_alpha",
+            "report": "browser-web/08_measure/hi-hf_alpha/playback-checks.json"
+          },
+          {
+            "case": "it-if_sara",
+            "report": "browser-web/08_measure/it-if_sara/playback-checks.json"
+          },
+          {
+            "case": "ja-jf_alpha",
+            "report": "browser-web/08_measure/ja-jf_alpha/playback-checks.json"
+          },
+          {
+            "case": "pt-BR-pf_dora",
+            "report": "browser-web/08_measure/pt-BR-pf_dora/playback-checks.json"
+          },
+          {
+            "case": "zh-CN-zf_xiaobei",
+            "report": "browser-web/08_measure/zh-CN-zf_xiaobei/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-da",
+            "report": "browser-web/08_measure/en-af_heart-captions-da/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-de",
+            "report": "browser-web/08_measure/en-af_heart-captions-de/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-is",
+            "report": "browser-web/08_measure/en-af_heart-captions-is/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-ko",
+            "report": "browser-web/08_measure/en-af_heart-captions-ko/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-nb",
+            "report": "browser-web/08_measure/en-af_heart-captions-nb/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-sv",
+            "report": "browser-web/08_measure/en-af_heart-captions-sv/playback-checks.json"
+          }
+        ],
+        "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+        "independent_native_speaker_review": false,
+        "published": false
+      },
+      "rendered_scene_fidelity": {
+        "master_sha256": "9bb7ed32f3ec6ecc5720dd4130b7692ce8dcee3b989e6d6cfca8275f4a07daa4",
+        "visual_sha256": "eaedb99a0d058a76a43a35ae72fc743994d284c97fbe8a7af254f18cb6901dd9",
+        "timing_sha256": "662c1df0e44cf3fa69cd8ae9cb640ab569823390db625f8beac268c26f4dce5e",
+        "scenes": [
+          {
+            "scene": 0,
+            "seconds": 7.216666666666667,
+            "capture_sha256": "cb0e0eaf409a3b284a04dd8f359488bf828214d35cacedfd67e83055cc87e650",
+            "decoded_frame_sha256": "3e312bd8ecd2d30152c6e88106f4605e0e841056b03eff220fe61b71afd4118a",
+            "whole_frame_psnr_db": 40.03489130068981,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 1,
+            "seconds": 27.866666666666667,
+            "capture_sha256": "b99fd0ce444a3551aa61513adaa3fa073aea80c29a44f09ef1ce2f0207a3bc91",
+            "decoded_frame_sha256": "ad801e5d8261029d2fd1b9462969fd8acd7cf5124d4e22bd1babff385585e1c4",
+            "whole_frame_psnr_db": 39.92553649701446,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 2,
+            "seconds": 48.28333333333333,
+            "capture_sha256": "6f5d2736f5b3a9eead6de7e97826248aabc4e8d11139be1104b946df717bd5a2",
+            "decoded_frame_sha256": "2f9de9ae096aef6575840b2335a110f72fd52cd6e4d8a443277ea7c76b6413b4",
+            "whole_frame_psnr_db": 42.2817909886847,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 3,
+            "seconds": 60.9,
+            "capture_sha256": "e50585a1321ab756eefef3aa39a80a3a275b9ab6b46eb150e637d91d676ec151",
+            "decoded_frame_sha256": "c54c95a930627330e4af01cac0b56bc904136fcc5ed45370330c1ac8633c2f95",
+            "whole_frame_psnr_db": 33.42836312141516,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 4,
+            "seconds": 74.3,
+            "capture_sha256": "e4cd8a8c28fe3320c90f4603fda169549f98a5c4ef0993ce89e3a5f2080915aa",
+            "decoded_frame_sha256": "19ab5eb35c93ca0bcca2a2531f2c8386b5a410adc8d027b9c4c756b3965602eb",
+            "whole_frame_psnr_db": 34.51825151535678,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 5,
+            "seconds": 86.61666666666666,
+            "capture_sha256": "5de8dd7ab5b00d2cdb1872977d18dafa6c540a3826f456acd8690e2b76c6be09",
+            "decoded_frame_sha256": "286f19b64d1a9b34ef2e4babcc8114a9e1c98d634fc5a3182c38f31b60943cdc",
+            "whole_frame_psnr_db": 33.43436013167946,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 6,
+            "seconds": 100.48333333333332,
+            "capture_sha256": "deb878daa36ef13ccb01f864e77fc7db2d39b611a84a5e1493ee4655ef3250d4",
+            "decoded_frame_sha256": "4ba93509953a941aef979f52506e593a4c49c7e2cf82640dab7eb07e91ebe79e",
+            "whole_frame_psnr_db": 34.09867218687905,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 7,
+            "seconds": 120.88333333333331,
+            "capture_sha256": "fe91faedf6e643b944f6907858f71019e82b724371d3ae37e9d5933f9f8d995f",
+            "decoded_frame_sha256": "a252392bcaf796859194671f9c95d078225dd2d712618ed28b3814d5ad14ff74",
+            "whole_frame_psnr_db": 40.0425576694711,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 8,
+            "seconds": 142.1333333333333,
+            "capture_sha256": "e4d23ccdd564189edfb0a7e3ef024529e6910e55745283305663ac2f4f614d05",
+            "decoded_frame_sha256": "1d4d5a3265149cd8684e06710d777e5647563c348d4b5cab52706fe9b1fdd5ee",
+            "whole_frame_psnr_db": 39.62422198628544,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 9,
+            "seconds": 160.64999999999998,
+            "capture_sha256": "c882fd1d7f232ff2c29cf459799ddc91e21ef20df7906ee88ef51071f8e76429",
+            "decoded_frame_sha256": "7b4f3cc51f0766919d8d670e8245edc2a2e5b60d5dfe513232d7de5e29b2f1c0",
+            "whole_frame_psnr_db": 42.583494874951114,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 10,
+            "seconds": 176.04999999999998,
+            "capture_sha256": "725e85cf737145b0f345f2b11ff348d030bfe69a978f46440e43b5be0c312a2b",
+            "decoded_frame_sha256": "22cf329d4911d7da13d6069884e4efc2dd42afb4dcdf4846f7b7545abe7cf172",
+            "whole_frame_psnr_db": 41.623355101155184,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 11,
+            "seconds": 188.76666666666662,
+            "capture_sha256": "181549f06e0599c8b52473b62376415b96e1a21e9b3668d27772b1e7c41e62d7",
+            "decoded_frame_sha256": "26ccf8b9a54649bbf37cc48ce57ae4ce8534823191070019e72f16c34c9070d1",
+            "whole_frame_psnr_db": 41.78452377151566,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 12,
+            "seconds": 198.6333333333333,
+            "capture_sha256": "6ddadb7e9dccbe9d6fd0e3633d81ff710410d734c8a5dcf2189f4af744765e22",
+            "decoded_frame_sha256": "9d837242211769eaa9c3c1eee64af307e66b511f9c80e529fab49e87d539363e",
+            "whole_frame_psnr_db": 41.95316300211634,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 13,
+            "seconds": 210.6,
+            "capture_sha256": "6fa7a9d17ebf66e757d9bbc517f9be6d95e306925e0587ec0b101b6d4f3c11db",
+            "decoded_frame_sha256": "25bb1385f8bd13ff934360fcaa2e1764447aed56f297fb3825b704f1c1bb95f9",
+            "whole_frame_psnr_db": 41.60213830735912,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 14,
+            "seconds": 228.13333333333333,
+            "capture_sha256": "8d4bbee68d1c89a1f907fe2dbab2c0e62afd7c2c9f7aaae1e3cb2d32fba18363",
+            "decoded_frame_sha256": "a6a1c842e6290f4b95b8e261eec3e1149239a4769cd0c7be6b8f34a68c873466",
+            "whole_frame_psnr_db": 41.452041691048635,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 15,
+            "seconds": 247.09999999999997,
+            "capture_sha256": "f6aeb02f58bfbc7ac3ad467ccaf7103397def3daa88232e0e7896e4bb8abd3f0",
+            "decoded_frame_sha256": "7c4d99a2a217fbfd8ca5156b69dfa7593d9ab7adfa3d38dd9b5c69a14c9f26e0",
+            "whole_frame_psnr_db": 40.32839758271567,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 16,
+            "seconds": 271.38333333333327,
+            "capture_sha256": "45053304fe16ebe706a5b2a8989d38ac9d52a93074622edb0d6b5390e0b50362",
+            "decoded_frame_sha256": "3875a6a61b4fd51f65c38f0c0a8198b80afc4b73acf5dc7af638d56f5b450b6b",
+            "whole_frame_psnr_db": 43.15823424535782,
+            "focus_psnr_db": 43.74350411131541
+          }
+        ]
+      },
+      "rendered_frames_screened": 20,
+      "audio_tracks_verified": 27
+    },
+    "14_make_masks": {
+      "video": {
+        "schema": 1,
+        "lesson": "14_make_masks",
+        "source_frame_count": 45,
+        "source_frame_hashes_verified": true,
+        "visual_sha256": "23bb00cd8e4a237d76771c8696177e1e689e3071b626ae4fbb96bae718c4fa3c",
+        "english_timing_sha256": "bfc555f2cbf7b64095ff3a757c2d9d5cfe7c484417666977b624808591189695",
+        "master_sha256": "55658d78667edd89042e38ca6c8426243c83c4ddd7536e72f686e72598e3b4f7",
+        "master_probe": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "width": 3840,
+              "height": 2160,
+              "coded_width": 3840,
+              "coded_height": 2160,
+              "closed_captions": 0,
+              "has_b_frames": 2,
+              "pix_fmt": "yuv420p",
+              "level": 51,
+              "chroma_location": "left",
+              "refs": 1,
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "1762200000/58739999",
+              "time_base": "1/90000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 58739999,
+              "duration": "652.666656",
+              "bit_rate": "691553",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "19580",
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "vendor_id": "[0][0][0][0]"
+              }
+            }
+          ],
+          "format": {
+            "filename": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-wave/production/14_make_masks/video/14_make_masks_silent.mp4",
+            "nb_streams": 1,
+            "nb_programs": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "652.667000",
+            "size": "56655868",
+            "bit_rate": "694453",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Lavf58.76.100"
+            }
+          }
+        },
+        "master_full_decode_passed": true,
+        "master_frames_match_quantized_english_timing": true,
+        "poster_sha256": "6eb2845c4c25c3dd10d0a7869f7acb19b5beba3f701761887504e44c7962a2e8",
+        "web_rendition": {
+          "lesson": "14_make_masks",
+          "accepted": true,
+          "master_sha256": "55658d78667edd89042e38ca6c8426243c83c4ddd7536e72f686e72598e3b4f7",
+          "rendition_sha256": "7c6eba2c9b10794e95ffcca3db77a25fac10017fb887871243ebe6ea2dc2a130",
+          "bytes": 46753947,
+          "frames": 19580,
+          "dimensions": [
+            2560,
+            1440
+          ],
+          "all_frame_presentation_times_match": true,
+          "full_decode_passed": true,
+          "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+          "encoder_arguments": [
+            "-threads",
+            "2",
+            "-filter_threads",
+            "2",
+            "-vf",
+            "scale='min(2560,iw)':-2",
+            "-vsync",
+            "0",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "veryfast",
+            "-tune",
+            "ssim",
+            "-g",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            "-an",
+            "-movflags",
+            "+faststart"
+          ],
+          "retained_published_sha256": null,
+          "elapsed_seconds": 283.9,
+          "visual_review_complete": false,
+          "narration_regenerated": false,
+          "original_master_changed": false,
+          "published": false
+        },
+        "browser_verified": false,
+        "visual_review_complete": false,
+        "published": false
+      },
+      "current_browser": {
+        "schema": 1,
+        "lesson": "14_make_masks",
+        "passed": true,
+        "checks": [
+          {
+            "case": "en-af_heart-sentence-cues",
+            "report": "browser-web/14_make_masks/en-af_heart-sentence-cues/playback-checks.json"
+          },
+          {
+            "case": "es-ef_dora",
+            "report": "browser-web/14_make_masks/es-ef_dora/playback-checks.json"
+          },
+          {
+            "case": "fr-ff_siwis",
+            "report": "browser-web/14_make_masks/fr-ff_siwis/playback-checks.json"
+          },
+          {
+            "case": "hi-hf_alpha",
+            "report": "browser-web/14_make_masks/hi-hf_alpha/playback-checks.json"
+          },
+          {
+            "case": "it-if_sara",
+            "report": "browser-web/14_make_masks/it-if_sara/playback-checks.json"
+          },
+          {
+            "case": "ja-jf_alpha",
+            "report": "browser-web/14_make_masks/ja-jf_alpha/playback-checks.json"
+          },
+          {
+            "case": "pt-BR-pf_dora",
+            "report": "browser-web/14_make_masks/pt-BR-pf_dora/playback-checks.json"
+          },
+          {
+            "case": "zh-CN-zf_xiaobei",
+            "report": "browser-web/14_make_masks/zh-CN-zf_xiaobei/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-da",
+            "report": "browser-web/14_make_masks/en-af_heart-captions-da/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-de",
+            "report": "browser-web/14_make_masks/en-af_heart-captions-de/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-is",
+            "report": "browser-web/14_make_masks/en-af_heart-captions-is/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-ko",
+            "report": "browser-web/14_make_masks/en-af_heart-captions-ko/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-nb",
+            "report": "browser-web/14_make_masks/en-af_heart-captions-nb/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-sv",
+            "report": "browser-web/14_make_masks/en-af_heart-captions-sv/playback-checks.json"
+          }
+        ],
+        "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+        "independent_native_speaker_review": false,
+        "published": false
+      },
+      "rendered_scene_fidelity": {
+        "master_sha256": "55658d78667edd89042e38ca6c8426243c83c4ddd7536e72f686e72598e3b4f7",
+        "visual_sha256": "23bb00cd8e4a237d76771c8696177e1e689e3071b626ae4fbb96bae718c4fa3c",
+        "timing_sha256": "bfc555f2cbf7b64095ff3a757c2d9d5cfe7c484417666977b624808591189695",
+        "scenes": [
+          {
+            "scene": 0,
+            "seconds": 8.166666666666666,
+            "capture_sha256": "5c0b19aa4f9107df21e9c677d5585b17ae464a508f08dde9ffe699201589bd46",
+            "decoded_frame_sha256": "8a6d4b5dd48f70683b5ede96c9d22e0c7a18de2ea6e235b37eaa51b4b5caef6c",
+            "whole_frame_psnr_db": 43.408090525846994,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 1,
+            "seconds": 23.4,
+            "capture_sha256": "206f9de6c912376266c1f6ed64e2107dd1ec52a2cb60394ec7b0f53872abe88b",
+            "decoded_frame_sha256": "7d9cfc8d3414ce3f0437f564637ea470983fd54a1e5aea1ad1f9361d818a4bb3",
+            "whole_frame_psnr_db": 43.33106904326059,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 2,
+            "seconds": 37.449999999999996,
+            "capture_sha256": "12434a7c8bc509b5f2a27dd5927a6d8a89ff26b835433d0b46da81aa282d24db",
+            "decoded_frame_sha256": "1a84ae3ec763b8507a640ad909506f2bbff0964c3adebd35e7d16056742173f2",
+            "whole_frame_psnr_db": 42.72106568778423,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 3,
+            "seconds": 52.666666666666664,
+            "capture_sha256": "4eed6887ae4ce8c032dec0739a8577badc29a48de2008891d3f2481e0eff25df",
+            "decoded_frame_sha256": "d961f51048e11c7035d6584acedd4c6ae566bd323cae44a5c28898165c56a6c6",
+            "whole_frame_psnr_db": 41.183931418206406,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 4,
+            "seconds": 68.58333333333333,
+            "capture_sha256": "e9311316c974df0184e54fb9aaa606fc1c2bfcdceb207fc1c3b9a882c350d6e2",
+            "decoded_frame_sha256": "06e5685a7a87084834b9615400c4988fcef832c7eab52e9b30807af58db94a95",
+            "whole_frame_psnr_db": 41.277500019183684,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 5,
+            "seconds": 85.14999999999998,
+            "capture_sha256": "903811f04947e8ba9dd5c1fa195b63b41ea589ade9d02d1e6bd2aabddaf90b50",
+            "decoded_frame_sha256": "0d8810635abb063a3f6ad385066a2c3fa734185433030de462b4697c99ccee31",
+            "whole_frame_psnr_db": 41.48821532941061,
+            "focus_psnr_db": 42.393029064464145
+          },
+          {
+            "scene": 6,
+            "seconds": 101.54999999999998,
+            "capture_sha256": "4eed6887ae4ce8c032dec0739a8577badc29a48de2008891d3f2481e0eff25df",
+            "decoded_frame_sha256": "c7ae6c0cd7c974c830ef322f3a70190c514d0600fd5141564a8e9f55b6b91d16",
+            "whole_frame_psnr_db": 40.68840151928577,
+            "focus_psnr_db": 33.01353822014289
+          },
+          {
+            "scene": 7,
+            "seconds": 115.69999999999999,
+            "capture_sha256": "a709d5ba7673f72f93c2caecdf7e3998bfb66a8eb08ff7f07386852c8189364b",
+            "decoded_frame_sha256": "bc635d29334ba6b03e1435b208c10363d70b7a124afab10fa1e33c3d9a1ae313",
+            "whole_frame_psnr_db": 40.59584293869137,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 8,
+            "seconds": 127.66666666666664,
+            "capture_sha256": "a27d75fda572aefe940400e7fda3218953fc54f47a6dc342b8fbe7909852c0ef",
+            "decoded_frame_sha256": "6b87bd8434169b13cacb6b24ccd6fff2297f542f968040902850adb649de85d9",
+            "whole_frame_psnr_db": 40.68230935347819,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 9,
+            "seconds": 140.51666666666665,
+            "capture_sha256": "d38f7859a0fc2fa9a62d9b5a8737a61f2e2fe94d773f12d1315a0e7d325cca1c",
+            "decoded_frame_sha256": "5077424d3f003029092cd79f5fefa020e6bb6a15bfb0e17d967eca22553f3de2",
+            "whole_frame_psnr_db": 40.65980171012622,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 10,
+            "seconds": 154.49999999999997,
+            "capture_sha256": "deda8466976a4fe076b6ff8124c5e3a22c3099ea89dfcfd016f04f5573759843",
+            "decoded_frame_sha256": "dec8811b524d40adfe2fe0d528c6001f1cb2029f47797449c49265571d212e07",
+            "whole_frame_psnr_db": 40.526893136067486,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 11,
+            "seconds": 167.81666666666663,
+            "capture_sha256": "2917d0f2c305ac5080fb4fdeeb014bd60f8d31b8cdec4c41ae427f4e530284c5",
+            "decoded_frame_sha256": "84482f5d2de92f250a86a12afe9325a1eb858f803b7d82c4c820c815c27c31a3",
+            "whole_frame_psnr_db": 39.78427711854478,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 12,
+            "seconds": 185.76666666666662,
+            "capture_sha256": "63618d12f835b694b577f2fcc50cfc96867f66dd9098b7d1bdbaa68f9e8b0160",
+            "decoded_frame_sha256": "f5a0efa806eb0e64047aa3816d0d7e789ba021fff31cea2952bc81c6c09b0aef",
+            "whole_frame_psnr_db": 38.871005726530505,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 13,
+            "seconds": 203.7166666666666,
+            "capture_sha256": "bde1073bf1aeb664984751ea34efc47ac02e1d66f79df74e71f5deae9cf350b7",
+            "decoded_frame_sha256": "19bd0af518c5349ae7d149065dfc161b3fcd3a7398a2ef6719a7129892565b10",
+            "whole_frame_psnr_db": 39.414818197802674,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 14,
+            "seconds": 214.86666666666662,
+            "capture_sha256": "74ff10e791b32092232d1ba8c161b17b9458bf3b45f033372ee4831a8b143d7d",
+            "decoded_frame_sha256": "c722e24be316acc961da078871d9a22ac7484ad12f98c0d0e58953d84e6c27b0",
+            "whole_frame_psnr_db": 39.46190492411506,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 15,
+            "seconds": 226.1166666666666,
+            "capture_sha256": "b556d8806b68a3c37ae6ac782d020b8554fa5afe71f441a1b9e78b048e70d8d8",
+            "decoded_frame_sha256": "a4b63d5b75905c39ab94f05160ecdda4fced744a3b484ce200b3363d1c6d5f13",
+            "whole_frame_psnr_db": 43.21825642681952,
+            "focus_psnr_db": 32.5300171504492
+          },
+          {
+            "scene": 16,
+            "seconds": 238.73333333333326,
+            "capture_sha256": "d13d5507a4158740961e05250d039bd0daed9afb3653a33d468920024e51e2f4",
+            "decoded_frame_sha256": "245751c52e525bc946feb92adf8e86b7041641350639b5e985fd1a5d44c66ec1",
+            "whole_frame_psnr_db": 43.25663065522082,
+            "focus_psnr_db": 35.49053055529082
+          },
+          {
+            "scene": 17,
+            "seconds": 251.49999999999994,
+            "capture_sha256": "941e07a3f0cb37a2575fcff85eaf62851e3c27c89137c406d6ab3918dcc412a3",
+            "decoded_frame_sha256": "cfbf3941873bc208896658baba900e6196cc60acd381e1a2232a85d127f60ce3",
+            "whole_frame_psnr_db": 39.429950325743455,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 18,
+            "seconds": 264.84999999999997,
+            "capture_sha256": "8b106882d8f0f9c1b67fc7c8c6f4ff8a4c5d989a3e14fe6890a161108b9a9c8d",
+            "decoded_frame_sha256": "920580d9511b766bb42ec7122ceb016ad65e1cc71630eef90c4832c21f2610eb",
+            "whole_frame_psnr_db": 40.16255346288685,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 19,
+            "seconds": 276.6833333333333,
+            "capture_sha256": "62368fef6bce20854da891f5927789b0aa94ba2be5df7c0fddcec7a7d15f21ed",
+            "decoded_frame_sha256": "4e5db63330e04328a4334d8071ca2103007676808bb1821a8d08420f8f636d7c",
+            "whole_frame_psnr_db": 42.66251641736644,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 20,
+            "seconds": 287.93333333333334,
+            "capture_sha256": "55b0816079c70be116c680742ac497e9bd84b045563b79f9aac08be35fbeccd0",
+            "decoded_frame_sha256": "0b0e2f7cbb54ca7aa9a21c1e4df369d5196cdf64a9b06427242a0ab3b9f1c336",
+            "whole_frame_psnr_db": 42.31654575181046,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 21,
+            "seconds": 297.5333333333333,
+            "capture_sha256": "2ce8ca0fab0ec10262bc05aec091837d6141cbabceb2fbd0675f314016b3b096",
+            "decoded_frame_sha256": "b112026ca2d208399caa1c46091928a405151eac8a02489f675bf7a146efc5c0",
+            "whole_frame_psnr_db": 41.09515449517306,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 22,
+            "seconds": 306.75,
+            "capture_sha256": "f8cdce4724a5f2e328f1cfec2b63b122c982b37b2bf7e681843253b7512d0236",
+            "decoded_frame_sha256": "0e7d15ef2294713fc8a307ece6c82245cf564b808cf93d9f9368ed34158b5c63",
+            "whole_frame_psnr_db": 42.96800998034014,
+            "focus_psnr_db": 42.71709480449789
+          },
+          {
+            "scene": 23,
+            "seconds": 315.7333333333333,
+            "capture_sha256": "3c73343352396246e69beae4433151cfd28f492a158f11f24d355962fb7e6183",
+            "decoded_frame_sha256": "340069c6cbb08dfc29e08cd4edbf7cfcefd2eb943a8041ca43326a1566add609",
+            "whole_frame_psnr_db": 41.2443430849316,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 24,
+            "seconds": 328.88333333333327,
+            "capture_sha256": "ad3a43767d2b963ad8496f97c5d95b8ba123264a6a8980d1b103e42e5e9cc8e8",
+            "decoded_frame_sha256": "335be4cda7cd8440faf955d8b285140c7d7c95d082782a96f4d441ae4e00d6f3",
+            "whole_frame_psnr_db": 40.49172375366285,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 25,
+            "seconds": 345.83333333333326,
+            "capture_sha256": "fc581ff5b96cf153d452428b700a29862b156000b69bb743fb152fb029b16ce2",
+            "decoded_frame_sha256": "9561e97097d397b19c95e87e936ac1a53fa572e7efc35000379d676337ef6d21",
+            "whole_frame_psnr_db": 40.3045457322053,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 26,
+            "seconds": 359.6666666666666,
+            "capture_sha256": "016fe787849b9329497ebecdbc0e856b7898eac9f630c354200bc040b8d12a63",
+            "decoded_frame_sha256": "1fd10298368e79476f6fb604d1a5a87afaa8a327500261ce3f24e6482509f63d",
+            "whole_frame_psnr_db": 39.524355183904134,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 27,
+            "seconds": 373.41666666666663,
+            "capture_sha256": "d770bd7bda89fffece2c9269d4bc7459d8b372eec375a01b26af19233d2313aa",
+            "decoded_frame_sha256": "86f68bd4e9b898995b4ddc4c23e34d143b556070d145ed85d4b24eef2d9e3414",
+            "whole_frame_psnr_db": 39.94618295766506,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 28,
+            "seconds": 385.73333333333323,
+            "capture_sha256": "8fa3bc3490a56919227b148cfedf3d71972d0e500be4e8cb773427c727e9df52",
+            "decoded_frame_sha256": "ee3ea58caff0324773536fbdb13d6ff979261e61abfd0e7e6c50f3975e690de5",
+            "whole_frame_psnr_db": 40.14920954146794,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 29,
+            "seconds": 398.24999999999994,
+            "capture_sha256": "a00d0861bf3da98fd346a180b4525305f071081048d3bee447ddf01fed5888bf",
+            "decoded_frame_sha256": "bf0a5abc95fabcc069d3fd9f5d3639bfa922d0d4a42387b1a912cf6a9968f94e",
+            "whole_frame_psnr_db": 41.86399250127229,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 30,
+            "seconds": 414.54999999999995,
+            "capture_sha256": "6204305ad679386288f03bb11af7166731021df0ce3f785cae9da1c4cd0a97f1",
+            "decoded_frame_sha256": "f4e4363dd376e728f2c588fef4bcc8ba12ca5c10af3c3b0da7b1274324639019",
+            "whole_frame_psnr_db": 42.97889506797911,
+            "focus_psnr_db": 42.1202248721153
+          },
+          {
+            "scene": 31,
+            "seconds": 432.29999999999995,
+            "capture_sha256": "92931b542552e1ab98882a51c87e8570b8b80f2c1ed4f9252a9513448cc3a9bf",
+            "decoded_frame_sha256": "eb851c7beeecaec0aa1d28f0717bb19dbea02f8944acaef1f37ff8d3c5b6ce48",
+            "whole_frame_psnr_db": 40.59489557446813,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 32,
+            "seconds": 454.08333333333326,
+            "capture_sha256": "02aa28be6528e945b55cc70e22337cd307bab8019121db4a8e65bdcef813fc43",
+            "decoded_frame_sha256": "0cc8b43b2cca57cc5cf6ca6af1d09e7c9d3ad40c7cb4c0db45125ea9e7fe2ca3",
+            "whole_frame_psnr_db": 40.28224594034977,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 33,
+            "seconds": 474.9333333333333,
+            "capture_sha256": "8518c2bb725f0110ea6cf9656c73b475e5eff94390ed15a3ff3a6b19726d2058",
+            "decoded_frame_sha256": "7e0f58bcb2041af4d5f0ff77c7b660ac93a7920fc18e33e22b2d86d6e07b8bb7",
+            "whole_frame_psnr_db": 39.63116705994027,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 34,
+            "seconds": 490.0666666666666,
+            "capture_sha256": "1796f3567ba9eb36fa3730ea90bb25dd616c4405bb2dab54c80c5ddd86eff3d1",
+            "decoded_frame_sha256": "5e9b51ce40c0d02435448b49da1afbc45e56409b881b8bc7a054b49fb2d70902",
+            "whole_frame_psnr_db": 39.6065359774751,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 35,
+            "seconds": 506.44999999999993,
+            "capture_sha256": "f91cc28c535f3c08f3c465ea01faaa36197dc47e6c4b06f16e757db023ea22c9",
+            "decoded_frame_sha256": "9f6528462cb06d9885e3edb59cefe0663a81fb02811175383d58c82307ba724a",
+            "whole_frame_psnr_db": 39.91788678854168,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 36,
+            "seconds": 524.3499999999999,
+            "capture_sha256": "f680933be16f37b3fad801e9670039056839e9a37a85b98c7e87e7e21f12914b",
+            "decoded_frame_sha256": "cf35988c513465df7021caf058e9d403fb757712b68cf833df61d407667355b9",
+            "whole_frame_psnr_db": 40.081537497460715,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 37,
+            "seconds": 538.0833333333333,
+            "capture_sha256": "0b3cd6604886bc74e26ddf43bfc09f735f280d5858b8c6cff5e04236ce3b976f",
+            "decoded_frame_sha256": "e04719943448cbe0fb6f5b4b218be1f613a668e4f6710a744e9a8566e7553326",
+            "whole_frame_psnr_db": 40.25137752996613,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 38,
+            "seconds": 555.1166666666666,
+            "capture_sha256": "dcf8d927324fa87a932d0f0e11d729a05c187a70ca12db50efc2ff6b4d529404",
+            "decoded_frame_sha256": "3e45c02a2eeda5b1f26ff3fa708267d4d2d36a3f094efbb08c4c842c9dfd773a",
+            "whole_frame_psnr_db": 39.60571579377661,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 39,
+            "seconds": 574.8833333333332,
+            "capture_sha256": "df5d1743fe534d7737b43aeaf3b68aab93be382b094fb380c04c579fa49e5327",
+            "decoded_frame_sha256": "0ca05555e5146a545fb5b853c63c0de9f8f2e16e792ecd0bd394583bd724f5df",
+            "whole_frame_psnr_db": 39.017115543941145,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 40,
+            "seconds": 589.2666666666664,
+            "capture_sha256": "d61af58a82c7778698d72c15c6e041cd88ab2f462760ad60dd7658d4a47e4460",
+            "decoded_frame_sha256": "4e94b758fea258a7e200727d16217515dc7bbc0e9b75ff0a459314f6286f6fb1",
+            "whole_frame_psnr_db": 39.851338665917616,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 41,
+            "seconds": 603.7666666666665,
+            "capture_sha256": "048626769c7c31748562fb002120c5775df9758cad907b36651c68b791f83596",
+            "decoded_frame_sha256": "541eae85bda5180ae5c8ad0c158d489a5504419ecfcf4a8f08b1f87666b1956f",
+            "whole_frame_psnr_db": 39.707924752752874,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 42,
+            "seconds": 618.9999999999998,
+            "capture_sha256": "0198f582b8676d2e960c78730b429709c814c42aea3588fb044f98c8b4c21312",
+            "decoded_frame_sha256": "2ad0afb2cdfbf501287cfda64532200042c47576470525997675bbed8436b482",
+            "whole_frame_psnr_db": 39.61258275629186,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 43,
+            "seconds": 632.6999999999998,
+            "capture_sha256": "e579b6ed56ccbd7bcb7c3fe6eb761caae96575a75ab1b5ab4db2e84ae91fc056",
+            "decoded_frame_sha256": "4a8a5c3fb7d4ea66e7a7d3bde9e4e9b023169d3cabe863551f8f67707babc320",
+            "whole_frame_psnr_db": 39.9473737796652,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 44,
+            "seconds": 645.9499999999999,
+            "capture_sha256": "4eed6887ae4ce8c032dec0739a8577badc29a48de2008891d3f2481e0eff25df",
+            "decoded_frame_sha256": "98210a3fc7554684ed748ff2ff5f011a72e684cf3857c54fbd25e2db53754826",
+            "whole_frame_psnr_db": 41.18352637889216,
+            "focus_psnr_db": null
+          }
+        ]
+      },
+      "rendered_frames_screened": 20,
+      "audio_tracks_verified": 27
+    },
+    "37_batch": {
+      "video": {
+        "schema": 1,
+        "lesson": "37_batch",
+        "source_frame_count": 14,
+        "source_frame_hashes_verified": true,
+        "visual_sha256": "3dc6a9903919705dbd28281f063a9c544cec589e5627910a6f29125d44d6f82f",
+        "english_timing_sha256": "1b578f5c8a4c6d7ae6057267ab6269eb4d2b5c768e5db80361ce261358ce355c",
+        "master_sha256": "b3abf0a9bc4a51e93b28785b30069b3070d10efdb65d6e310269850d40e6d158",
+        "master_probe": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "width": 3840,
+              "height": 2160,
+              "coded_width": 3840,
+              "coded_height": 2160,
+              "closed_captions": 0,
+              "has_b_frames": 2,
+              "pix_fmt": "yuv420p",
+              "level": 51,
+              "chroma_location": "left",
+              "refs": 1,
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "30/1",
+              "time_base": "1/90000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 11706000,
+              "duration": "130.066667",
+              "bit_rate": "576831",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "3902",
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "vendor_id": "[0][0][0][0]"
+              }
+            }
+          ],
+          "format": {
+            "filename": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-wave/production/37_batch/video/37_batch_silent.mp4",
+            "nb_streams": 1,
+            "nb_programs": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "130.067000",
+            "size": "9426055",
+            "bit_rate": "579766",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Lavf58.76.100"
+            }
+          }
+        },
+        "master_full_decode_passed": true,
+        "master_frames_match_quantized_english_timing": true,
+        "poster_sha256": "2398146f1e1811deeb1b18ad26b4c7c2ea3f0a45610b979a9033d8f6af5a65f4",
+        "web_rendition": {
+          "lesson": "37_batch",
+          "accepted": true,
+          "master_sha256": "b3abf0a9bc4a51e93b28785b30069b3070d10efdb65d6e310269850d40e6d158",
+          "rendition_sha256": "62a28b7c0688d5076f12043b8368ec7f1f29c013117dd788914705fb69b8c9e9",
+          "bytes": 5581865,
+          "frames": 3902,
+          "dimensions": [
+            2560,
+            1440
+          ],
+          "all_frame_presentation_times_match": true,
+          "full_decode_passed": true,
+          "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+          "encoder_arguments": [
+            "-threads",
+            "2",
+            "-filter_threads",
+            "2",
+            "-vf",
+            "scale='min(2560,iw)':-2",
+            "-vsync",
+            "0",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "veryfast",
+            "-tune",
+            "ssim",
+            "-g",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            "-an",
+            "-movflags",
+            "+faststart"
+          ],
+          "retained_published_sha256": null,
+          "elapsed_seconds": 52.8,
+          "visual_review_complete": false,
+          "narration_regenerated": false,
+          "original_master_changed": false,
+          "published": false
+        },
+        "browser_verified": false,
+        "visual_review_complete": false,
+        "published": false
+      },
+      "current_browser": {
+        "schema": 1,
+        "lesson": "37_batch",
+        "passed": true,
+        "checks": [
+          {
+            "case": "en-af_heart-sentence-cues",
+            "report": "browser-web/37_batch/en-af_heart-sentence-cues/playback-checks.json"
+          },
+          {
+            "case": "es-ef_dora",
+            "report": "browser-web/37_batch/es-ef_dora/playback-checks.json"
+          },
+          {
+            "case": "fr-ff_siwis",
+            "report": "browser-web/37_batch/fr-ff_siwis/playback-checks.json"
+          },
+          {
+            "case": "hi-hf_alpha",
+            "report": "browser-web/37_batch/hi-hf_alpha/playback-checks.json"
+          },
+          {
+            "case": "it-if_sara",
+            "report": "browser-web/37_batch/it-if_sara/playback-checks.json"
+          },
+          {
+            "case": "ja-jf_alpha",
+            "report": "browser-web/37_batch/ja-jf_alpha/playback-checks.json"
+          },
+          {
+            "case": "pt-BR-pf_dora",
+            "report": "browser-web/37_batch/pt-BR-pf_dora/playback-checks.json"
+          },
+          {
+            "case": "zh-CN-zf_xiaobei",
+            "report": "browser-web/37_batch/zh-CN-zf_xiaobei/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-da",
+            "report": "browser-web/37_batch/en-af_heart-captions-da/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-de",
+            "report": "browser-web/37_batch/en-af_heart-captions-de/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-is",
+            "report": "browser-web/37_batch/en-af_heart-captions-is/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-ko",
+            "report": "browser-web/37_batch/en-af_heart-captions-ko/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-nb",
+            "report": "browser-web/37_batch/en-af_heart-captions-nb/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-sv",
+            "report": "browser-web/37_batch/en-af_heart-captions-sv/playback-checks.json"
+          }
+        ],
+        "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+        "independent_native_speaker_review": false,
+        "published": false
+      },
+      "rendered_scene_fidelity": {
+        "master_sha256": "b3abf0a9bc4a51e93b28785b30069b3070d10efdb65d6e310269850d40e6d158",
+        "visual_sha256": "3dc6a9903919705dbd28281f063a9c544cec589e5627910a6f29125d44d6f82f",
+        "timing_sha256": "1b578f5c8a4c6d7ae6057267ab6269eb4d2b5c768e5db80361ce261358ce355c",
+        "scenes": [
+          {
+            "scene": 0,
+            "seconds": 4.066666666666666,
+            "capture_sha256": "be8d04f2e0827bb7dc4e8ddf3336c09c6c18de918f114bcc7a024b7305d73320",
+            "decoded_frame_sha256": "4fbf7c477a886fbe558ef440b2003bb6f6d2ebbada8d17dfbe739e4c5db29374",
+            "whole_frame_psnr_db": 42.573364499588195,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 1,
+            "seconds": 12.333333333333332,
+            "capture_sha256": "89b090d4e1c07e634fe3c059a8780ac80490808a32f6702d35ed377e1fc53368",
+            "decoded_frame_sha256": "25837dc9a29a103412c6fc076e0b98babf3cfec11cceb4b1a2ea7e12d9fbc9a2",
+            "whole_frame_psnr_db": 41.32775076923778,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 2,
+            "seconds": 21.0,
+            "capture_sha256": "a654bef11a8c9357f0f54ef253ac7b06f5eed456c3d4c69e935475691886f89e",
+            "decoded_frame_sha256": "18790a1ed5eddfa4afacb22fca78534399da769acd9ebe4876f8dc2bb78b3a27",
+            "whole_frame_psnr_db": 39.564587838934166,
+            "focus_psnr_db": 38.41196163584405
+          },
+          {
+            "scene": 3,
+            "seconds": 32.13333333333333,
+            "capture_sha256": "73d53e73da7bb0ef86c687971d5945de0b2df2dba7a44b0ef7e7f31c6d871f99",
+            "decoded_frame_sha256": "fdd4b768ee25f89a5f30ff601b0bab472d01674b1833db74a629dce174d42394",
+            "whole_frame_psnr_db": 39.55780285229363,
+            "focus_psnr_db": 38.491065984050664
+          },
+          {
+            "scene": 4,
+            "seconds": 43.18333333333333,
+            "capture_sha256": "110383e57b0924bbf726e5a3d12ba9acf232da71e1eb4cbf97805362fa45c35e",
+            "decoded_frame_sha256": "4d6fe5730eaf65c2d9623b0ee088b646fe8123893b9a8c6c45fddbfd915e4e21",
+            "whole_frame_psnr_db": 43.43483684129343,
+            "focus_psnr_db": 40.885170894079394
+          },
+          {
+            "scene": 5,
+            "seconds": 52.31666666666666,
+            "capture_sha256": "90f4c78ed4678088220ce2f5b001a9bc5eec8284fe37b8aa9aa1e1c7b249846f",
+            "decoded_frame_sha256": "4f3040648abb4b9b36fcdb848092cc88135c8870596e31ebbc45c03439bffb73",
+            "whole_frame_psnr_db": 40.975032277252375,
+            "focus_psnr_db": 42.12282831637985
+          },
+          {
+            "scene": 6,
+            "seconds": 60.46666666666666,
+            "capture_sha256": "f41e9fec0975790017f57aef118838cb13c5aaa99645b4d0f9aedb75a790a80e",
+            "decoded_frame_sha256": "55652587e09c2233c5ca68b8091d17809943f0b6796945477234d66247798734",
+            "whole_frame_psnr_db": 43.07070078965832,
+            "focus_psnr_db": 38.57014993305891
+          },
+          {
+            "scene": 7,
+            "seconds": 68.06666666666666,
+            "capture_sha256": "08c94c0b2d72de009a9ad088267280830fd0a101f0061e7a93d094d28f568455",
+            "decoded_frame_sha256": "c36cc88c23e7add871966ff74474938c00bf3cc8de68e05d566a54694f667143",
+            "whole_frame_psnr_db": 44.14268153643139,
+            "focus_psnr_db": 43.79234341663894
+          },
+          {
+            "scene": 8,
+            "seconds": 76.75,
+            "capture_sha256": "cb7d8c990f9edc2e565205f8f3d76bd361fbe6f9af353684f64ffdbd8cbaf0b5",
+            "decoded_frame_sha256": "54f2348a30c069d6076bf7d2a2a0f2e916b2a8ebeef9050d9b6642dd9ad915a9",
+            "whole_frame_psnr_db": 41.543302460426744,
+            "focus_psnr_db": null
+          },
+          {
+            "scene": 9,
+            "seconds": 89.01666666666667,
+            "capture_sha256": "4435560f8a502ee0ceb316a42169c9f20da681e66a60a86d8bb6999867102885",
+            "decoded_frame_sha256": "309ca3dc5a8bbdf27e4e38156359216e5e4c7922e2e2b1d16b0a45ece8eeccb2",
+            "whole_frame_psnr_db": 44.075286128944555,
+            "focus_psnr_db": 53.76358797987618
+          },
+          {
+            "scene": 10,
+            "seconds": 100.6,
+            "capture_sha256": "2f9d91f562e24b62f2bdbd281663ac24110d458d5325bf8ad7b2757512888728",
+            "decoded_frame_sha256": "181aaf2f1401f6e49185fe2904442e6a083fce7e347c2dc8f7f21a201a0819b8",
+            "whole_frame_psnr_db": 40.285278169711816,
+            "focus_psnr_db": 32.91200775860224
+          },
+          {
+            "scene": 11,
+            "seconds": 107.86666666666666,
+            "capture_sha256": "07bd4492cc88910fbfdfce9bc14a7ed99d7e6be71c8886ddce9e0bba0538c879",
+            "decoded_frame_sha256": "3cf154005a140c5298deb1ea6b54ce1eebc403b26cdad2f0f98696042527a2b0",
+            "whole_frame_psnr_db": 40.17532782768476,
+            "focus_psnr_db": 32.7466943838234
+          },
+          {
+            "scene": 12,
+            "seconds": 116.06666666666666,
+            "capture_sha256": "2ec70d766bb428a84943214ada59fe0c5430a96aa6058ae1b533a38052034c74",
+            "decoded_frame_sha256": "7a84c2c249f80fc1f14396df714e38e625229600ade6cb0c177c96b226509a29",
+            "whole_frame_psnr_db": 41.38275988984734,
+            "focus_psnr_db": 40.88343013933071
+          },
+          {
+            "scene": 13,
+            "seconds": 125.43333333333334,
+            "capture_sha256": "b9f385c00870398f7b33f5c862d22f4ac2c6146aa6fbabdea75f62997b519cc0",
+            "decoded_frame_sha256": "3bce4e5c81f296296823521f8a93ca876932ba28de56eb4f7c2d13f574fa626e",
+            "whole_frame_psnr_db": 38.9061627952018,
+            "focus_psnr_db": null
+          }
+        ]
+      },
+      "rendered_frames_screened": 20,
+      "audio_tracks_verified": 27
+    },
+    "38_distributed_jobs": {
+      "video": {
+        "schema": 1,
+        "lesson": "38_distributed_jobs",
+        "source_frame_count": 9,
+        "source_frame_hashes_verified": true,
+        "visual_sha256": "f922ba970cc5570db25a41ab8728cec579a0f67055e235f13428e03d7bda998b",
+        "english_timing_sha256": "6c4d7f4d0b1818ab2d7816e94d979afe30a085e1e6870d6c181c79f0fc51af7a",
+        "master_sha256": "d840adcdd5c35488c1129c8ac621580d420cb231118c088ee195576d1fdd1399",
+        "master_probe": {
+          "streams": [
+            {
+              "index": 0,
+              "codec_name": "h264",
+              "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+              "profile": "High",
+              "codec_type": "video",
+              "codec_tag_string": "avc1",
+              "codec_tag": "0x31637661",
+              "width": 3840,
+              "height": 2160,
+              "coded_width": 3840,
+              "coded_height": 2160,
+              "closed_captions": 0,
+              "has_b_frames": 2,
+              "pix_fmt": "yuv420p",
+              "level": 51,
+              "chroma_location": "left",
+              "refs": 1,
+              "is_avc": "true",
+              "nal_length_size": "4",
+              "r_frame_rate": "30/1",
+              "avg_frame_rate": "30/1",
+              "time_base": "1/90000",
+              "start_pts": 0,
+              "start_time": "0.000000",
+              "duration_ts": 8778000,
+              "duration": "97.533333",
+              "bit_rate": "398830",
+              "bits_per_raw_sample": "8",
+              "nb_frames": "2926",
+              "disposition": {
+                "default": 1,
+                "dub": 0,
+                "original": 0,
+                "comment": 0,
+                "lyrics": 0,
+                "karaoke": 0,
+                "forced": 0,
+                "hearing_impaired": 0,
+                "visual_impaired": 0,
+                "clean_effects": 0,
+                "attached_pic": 0,
+                "timed_thumbnails": 0
+              },
+              "tags": {
+                "language": "und",
+                "handler_name": "VideoHandler",
+                "vendor_id": "[0][0][0][0]"
+              }
+            }
+          ],
+          "format": {
+            "filename": "/media/carruthers/mnt3/codex/scratch/docs-completion-20261005/tutorial-final-wave/production/38_distributed_jobs/video/38_distributed_jobs_silent.mp4",
+            "nb_streams": 1,
+            "nb_programs": 0,
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "format_long_name": "QuickTime / MOV",
+            "start_time": "0.000000",
+            "duration": "97.534000",
+            "size": "4898389",
+            "bit_rate": "401778",
+            "probe_score": 100,
+            "tags": {
+              "major_brand": "isom",
+              "minor_version": "512",
+              "compatible_brands": "isomiso2avc1mp41",
+              "encoder": "Lavf58.76.100"
+            }
+          }
+        },
+        "master_full_decode_passed": true,
+        "master_frames_match_quantized_english_timing": true,
+        "poster_sha256": "d6973c5db863a996399b63fbc41f27f28a9852f38b66f8bdd10fdfaa48e63b8e",
+        "web_rendition": {
+          "lesson": "38_distributed_jobs",
+          "accepted": true,
+          "master_sha256": "d840adcdd5c35488c1129c8ac621580d420cb231118c088ee195576d1fdd1399",
+          "rendition_sha256": "0320fe69c1571684d2e90416a762c4098c75dc0a03e83de9558131a41c38efa8",
+          "bytes": 2764680,
+          "frames": 2926,
+          "dimensions": [
+            2560,
+            1440
+          ],
+          "all_frame_presentation_times_match": true,
+          "full_decode_passed": true,
+          "publisher_sha256": "87f34c499bf35e6ec0316645fcfa4d2285fd1c98db819ee890b8e5efc0fcc05b",
+          "encoder_arguments": [
+            "-threads",
+            "2",
+            "-filter_threads",
+            "2",
+            "-vf",
+            "scale='min(2560,iw)':-2",
+            "-vsync",
+            "0",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "28",
+            "-preset",
+            "veryfast",
+            "-tune",
+            "ssim",
+            "-g",
+            "60",
+            "-pix_fmt",
+            "yuv420p",
+            "-an",
+            "-movflags",
+            "+faststart"
+          ],
+          "retained_published_sha256": null,
+          "elapsed_seconds": 33.95,
+          "visual_review_complete": false,
+          "narration_regenerated": false,
+          "original_master_changed": false,
+          "published": false
+        },
+        "browser_verified": false,
+        "visual_review_complete": false,
+        "published": false
+      },
+      "current_browser": {
+        "schema": 1,
+        "lesson": "38_distributed_jobs",
+        "passed": true,
+        "checks": [
+          {
+            "case": "en-af_heart-sentence-cues",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-sentence-cues/playback-checks.json"
+          },
+          {
+            "case": "es-ef_dora",
+            "report": "browser-web/38_distributed_jobs/es-ef_dora/playback-checks.json"
+          },
+          {
+            "case": "fr-ff_siwis",
+            "report": "browser-web/38_distributed_jobs/fr-ff_siwis/playback-checks.json"
+          },
+          {
+            "case": "hi-hf_alpha",
+            "report": "browser-web/38_distributed_jobs/hi-hf_alpha/playback-checks.json"
+          },
+          {
+            "case": "it-if_sara",
+            "report": "browser-web/38_distributed_jobs/it-if_sara/playback-checks.json"
+          },
+          {
+            "case": "ja-jf_alpha",
+            "report": "browser-web/38_distributed_jobs/ja-jf_alpha/playback-checks.json"
+          },
+          {
+            "case": "pt-BR-pf_dora",
+            "report": "browser-web/38_distributed_jobs/pt-BR-pf_dora/playback-checks.json"
+          },
+          {
+            "case": "zh-CN-zf_xiaobei",
+            "report": "browser-web/38_distributed_jobs/zh-CN-zf_xiaobei/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-da",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-captions-da/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-de",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-captions-de/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-is",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-captions-is/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-ko",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-captions-ko/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-nb",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-captions-nb/playback-checks.json"
+          },
+          {
+            "case": "en-af_heart-captions-sv",
+            "report": "browser-web/38_distributed_jobs/en-af_heart-captions-sv/playback-checks.json"
+          }
+        ],
+        "scope": "Eight narration languages and six independent caption languages, current-byte 1440p playback, desktop/mobile layout, exact narration loading, chapter links and English sentence cues.",
+        "independent_native_speaker_review": false,
+        "published": false
+      },
+      "rendered_scene_fidelity": {
+        "master_sha256": "d840adcdd5c35488c1129c8ac621580d420cb231118c088ee195576d1fdd1399",
+        "visual_sha256": "f922ba970cc5570db25a41ab8728cec579a0f67055e235f13428e03d7bda998b",
+        "timing_sha256": "6c4d7f4d0b1818ab2d7816e94d979afe30a085e1e6870d6c181c79f0fc51af7a",
+        "scenes": [
+          {
+            "scene": 0,
+            "seconds": 4.033333333333333,
+            "capture_sha256": "bb79656bfb8ed1a8bac20cf3fc9a128db804987c9cb5ad5745e42595a449a317",
+            "decoded_frame_sha256": "6fbfd84d511f0b7fa0bcf3fcd79bb7b71c2237504caebab4b3c0b5d509b62d81",
+            "whole_frame_psnr_db": 42.1398227286199,
+            "focus_psnr_db": 42.89689560796695
+          },
+          {
+            "scene": 1,
+            "seconds": 13.8,
+            "capture_sha256": "a5370b827ab4e1cf378e4b6f704c722ecffd685608eddebc600ee3c358980073",
+            "decoded_frame_sha256": "069c88cc0d9e31b35a08880159f774c4809e0bb8704f9b3cedc4b9dbf86fd520",
+            "whole_frame_psnr_db": 40.768454823962756,
+            "focus_psnr_db": 38.7843799533739
+          },
+          {
+            "scene": 2,
+            "seconds": 23.45,
+            "capture_sha256": "9aa7c0e05ce7ad2df1f0646f33ea8c6cc830b7f60c6dcd11cf6b80f9d15538d6",
+            "decoded_frame_sha256": "a8cd4ed9c0a818c38a56cc59ea618d22eae8d3d26de4e45bf4e89f3a29d492dd",
+            "whole_frame_psnr_db": 41.856399205958766,
+            "focus_psnr_db": 44.98087238002178
+          },
+          {
+            "scene": 3,
+            "seconds": 32.03333333333333,
+            "capture_sha256": "1cdbb9a3a4056517b130b46977c8246e34418d8bda7c7bd6200ede0c5fa01300",
+            "decoded_frame_sha256": "db967fce6313955af8f67e451378af6f337a1cacb7e1dcd6b47adcd80123e983",
+            "whole_frame_psnr_db": 41.77922468605928,
+            "focus_psnr_db": 38.22289781805588
+          },
+          {
+            "scene": 4,
+            "seconds": 42.599999999999994,
+            "capture_sha256": "1cdbb9a3a4056517b130b46977c8246e34418d8bda7c7bd6200ede0c5fa01300",
+            "decoded_frame_sha256": "37318666e6bab254a9dea526ae7f17ee85e62cbbf25be33c0dcf1bdf1df9f424",
+            "whole_frame_psnr_db": 42.653137891253,
+            "focus_psnr_db": 44.97326935947459
+          },
+          {
+            "scene": 5,
+            "seconds": 54.06666666666666,
+            "capture_sha256": "1f8dffd064b4af5173ca03a5b263367f116da4f84c1c5d732e949a5b4bd3ca42",
+            "decoded_frame_sha256": "7f3984c9c8518a30140535393bbaae03e0452c4572f00d694d18620341e3b963",
+            "whole_frame_psnr_db": 42.501942611241816,
+            "focus_psnr_db": 44.92113639380364
+          },
+          {
+            "scene": 6,
+            "seconds": 66.26666666666667,
+            "capture_sha256": "f0272488ca16414ecad2bf63a160bc5376860409ccc96288f8148a05c66a4edc",
+            "decoded_frame_sha256": "0eb7f8df07a9fc6684ea313799c8703a955730665e89c3217b1c975325f0e702",
+            "whole_frame_psnr_db": 42.67799270806687,
+            "focus_psnr_db": 45.723138914980225
+          },
+          {
+            "scene": 7,
+            "seconds": 77.43333333333334,
+            "capture_sha256": "c7ae81e0af380c9e597a1db22a0ac2375e7d7e416e7d2a1e5f5ae99d7dd77514",
+            "decoded_frame_sha256": "589c9f3d67d66a7e718255b4d9560d93d8f6837e77708cfc0024592682848075",
+            "whole_frame_psnr_db": 42.987936929078295,
+            "focus_psnr_db": 37.262070591430685
+          },
+          {
+            "scene": 8,
+            "seconds": 89.75,
+            "capture_sha256": "f135ef9fad50338966867435ed020c857f1fc544ff6ad32e04ee7ba5d0436755",
+            "decoded_frame_sha256": "b79c176653310841b0766e06cafaf62a08668c867b84fd919a49e44deda64180",
+            "whole_frame_psnr_db": 40.37635110739312,
+            "focus_psnr_db": 42.62114863078429
+          }
+        ]
+      },
+      "rendered_frames_screened": 20,
+      "audio_tracks_verified": 27
+    }
+  },
+  "catalog_and_media_preservation": {
+    "passed": true,
+    "catalogs": {
+      "captions_da.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "3c240a8c7f7b7cabb7e6d36888e697b01d692885e0fc2d98678b57bc77d3748a"
+      },
+      "captions_de.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "360bd9d4fe11fd52e8dfb6f33dc5700c68eb5c17269607bb709bf2dcaa82c5e7"
+      },
+      "captions_is.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "a9f168e288ed19848abe4635f72982b84b3733214e44ab136883fe8179134cbf"
+      },
+      "captions_ko.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "38b445ff111d5547ea3a206ef7816b709207418198f7862113be927122edb60e"
+      },
+      "captions_nb.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "5884444c7409f4138cc34dcabf920d0e340c916151d5f3d2962d0d82f076ee26"
+      },
+      "captions_sv.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "85252c33256a531655d908a4c3c0806f65f02875edaf87bd4ca5e8b57f784a5a"
+      },
+      "lessons_en.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "8652d6520d624b93f4b0a59dd5defaee7ae0d2401f067d1099398b3df3e41f6d"
+      },
+      "lessons_es.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "c94135bcb048511ff9d3822ba7e8a0cf21772524567dccba6d344527261bb100"
+      },
+      "lessons_fr.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "2dd046ec2122efdabd409595ac33d9bfc79ee3351e1aa731d304afceb49f9738"
+      },
+      "lessons_hi.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "bcfad78f8b2d765b8bb81f3cedaa7043408555d3cf14207a0cd272c699ea24d7"
+      },
+      "lessons_it.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "174420c026d50accc15419b7a6015b20b6a1cb096f156179a192e3323a802da3"
+      },
+      "lessons_ja.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "04b1676ceb6564a6942b0c9963477a5a04e2c33ff8f710899c478fdae096dda2"
+      },
+      "lessons_pt-BR.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "2a55b93999d5fbd1872a01b45e5a6b374599b59f3b34e3a11202a92e29c04f73"
+      },
+      "lessons_zh-CN.json": {
+        "preserved_complete_lesson_objects": 81,
+        "sha256": "6c3f20de718db06333799f96c7af6e8805edbd0e1040bc83123e0e6441657c3c"
+      }
+    },
+    "unselected_lesson_media_records_preserved": 4617,
+    "baseline_manifest_sha256": "8c6c1797db0d136d5328ef0d65f87b13a81cd9e9b92baa6f4fa3fb3614234ea2",
+    "candidate_manifest_sha256": "8edca98f414e5e9e4808f1c28c25cd397cca39a98b3c6bcfb70d76aada78bbd3"
+  },
+  "full_rendered_frame_sweep_sha256": "3b2e5232e275c6b05ebc4310cad4ff414a85ca1a652fc6aee539103b092536a3",
+  "rendered_scene_fidelity_sha256": "0456fe2eed7475f597a9c9d49c5eae3f08154fc7cc416836cb9d7dbd126408e2",
+  "representative_model_visual_review": "Decoded puncta and shortcut frames and current desktop/mobile browser screenshots inspected; all other scenes have source-bound pixel/timing and OCR checks. No independent human review claimed.",
+  "independent_native_speaker_signoff": false,
+  "published": false,
+  "nightly_deployment_verified": false
+}

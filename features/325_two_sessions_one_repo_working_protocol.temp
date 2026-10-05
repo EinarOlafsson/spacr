@@ -17876,3 +17876,27 @@ Docs run 37369875756 is terminal failure before a build. Its exact annotation
 says: "The job was not acquired by Runner of type hosted even after multiple
 attempts". No source/Sphinx failure was observed and no acceptance guard is
 changed. Deployed readback remains open; the next normal push retries docs.
+
+2026-10-05 — MEDIA CANDIDATE ACCEPTED AND FIRST SCIENTIFIC GPU TURN COMPLETE
+All four staged lessons pass their complete local media gates: 108 tracks,
+56 browser cases, 82 unique native images, 85 decoded scene midpoints and
+80 rendered-image screens. Normal candidate co2wgfyt preserves all 81 other
+lesson objects in 14 catalogs and 4,617 media records; all 85 routes and
+both actual placeholder mutation refusals pass. Immutable upload/readback
+is live. Hosted and deployed acceptance remain open. Receipt:
+615_final_wave_media_acceptance_2026-10-05.json.
+
+The coordinated F554 GPU turn is terminal rc=0, 16:56:01-16:56:13 EDT.
+Actual CUDA worker inference passes four paired MERFISH methods on identical
+image/truth/model/source hashes. Warmed ten-field coordinate timing is
+0.32-0.38 s GPU versus 12.4 s CPU; object masks 0.76-0.80 s versus
+12.7-13.7 s. F1 drift is below 0.00028, with actual count differences
+reported. This is in-distribution evidence, not a new independent holdout.
+Historical OPS strict replay stays open for missing inputs. Receipt:
+554_spotiflow_merfish_cpu_gpu_2026-10-05.json.
+
+No workstation GPU process or queue remains. A fresh StarDist backend
+installation has completed through the normal installer, CUDA hidden,
+separate from shared environments. CPU preparation of its later real GPU
+acceptance is next. Home retains production source/CPU/Qt/CI; no CI guard
+or production source changes here. live_cell/cellposeTIME remain excluded.
