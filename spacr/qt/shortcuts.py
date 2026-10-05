@@ -510,7 +510,16 @@ def _holders(window) -> dict:
             return registry
     for spec in _rebindable():
         if spec.keys in registry:
-            continue
+            cached = registry[spec.keys]
+            try:
+                if isinstance(cached, QShortcut):
+                    cached.key()
+                else:
+                    cached.shortcut()
+            except RuntimeError:
+                registry.pop(spec.keys, None)
+            else:
+                continue
         sequence = QKeySequence(spec.keys)
         try:
             shortcuts = window.findChildren(

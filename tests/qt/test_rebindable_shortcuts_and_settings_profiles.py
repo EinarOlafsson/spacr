@@ -98,6 +98,103 @@ def test_a_cleared_key_unbinds_and_defaults_come_back(window, qtbot):
     assert "Ctrl+K" in _live_keys(window)
 
 
+def test_saved_overrides_bind_once_on_each_new_window(qtbot, monkeypatch):
+    class Store:
+        data = {}
+
+        def value(self, key, default=""):
+            return self.data.get(key, default)
+
+        def setValue(self, key, value):
+            self.data[key] = value
+
+    store = Store()
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    monkeypatch.setattr(S, "_install_window_hooks", lambda window: None)
+    S._save_keymap({"Ctrl+K": "Ctrl+Shift+K", "Ctrl+P": "Ctrl+Shift+P"})
+
+    for _ in range(2):
+        win = QMainWindow()
+        qtbot.addWidget(win)
+        preferences = QAction("Preferences", win)
+        preferences.setShortcut(QKeySequence("Ctrl+P"))
+        win.addAction(preferences)
+        S.install(win)
+        palette = [sc for sc in win.findChildren(QShortcut)
+                   if sc.key() == QKeySequence("Ctrl+Shift+K")]
+        assert len(palette) == 1
+        assert "Ctrl+K" not in _live_keys(win)
+        assert preferences.shortcut() == QKeySequence("Ctrl+Shift+P")
+
+        S.install(win)
+        assert [sc for sc in win.findChildren(QShortcut)
+                if sc.key() == QKeySequence("Ctrl+Shift+K")] == palette
+        assert preferences.shortcut() == QKeySequence("Ctrl+Shift+P")
+
+
+def test_stale_saved_action_is_ignored_and_screen_key_cannot_be_taken(
+        monkeypatch):
+    class Store:
+        data = {S._KEYMAP_KEY: json.dumps({
+            "Ctrl+K": "Ctrl+Shift+K", "Ctrl+Q": "Ctrl+Alt+Q"})}
+
+        def value(self, key, default=""):
+            return self.data.get(key, default)
+
+        def setValue(self, key, value):
+            self.data[key] = value
+
+    store = Store()
+    monkeypatch.setattr("spacr.qt.preferences._settings", lambda: store)
+    assert S._load_keymap() == {"Ctrl+K": "Ctrl+Shift+K"}
+
+    with pytest.raises(ValueError, match="Undo"):
+        S._save_keymap({"Ctrl+K": "Ctrl+Z"})
+    assert S._load_keymap() == {"Ctrl+K": "Ctrl+Shift+K"}
+
+
+def test_deleted_shortcut_or_menu_holder_is_replaced_and_rebound(
+        qtbot):
+    from shiboken6 import delete
+
+    win = QMainWindow()
+    qtbot.addWidget(win)
+    old = S._bind(win, "Ctrl+K", lambda: None)
+    assert S._holders(win)["Ctrl+K"] is old
+    old_action = QAction("Preferences", win)
+    old_action.setShortcut(QKeySequence("Ctrl+P"))
+    win.addAction(old_action)
+    assert S._holders(win)["Ctrl+P"] is old_action
+
+    delete(old)
+    delete(old_action)
+    replacement = S._bind(win, "Ctrl+K", lambda: None)
+    replacement_action = QAction("Preferences", win)
+    replacement_action.setShortcut(QKeySequence("Ctrl+P"))
+    win.addAction(replacement_action)
+    assert replacement is not old
+    assert S._holders(win)["Ctrl+K"] is replacement
+    assert S._holders(win)["Ctrl+P"] is replacement_action
+    assert S._apply_keymap(win, {"Ctrl+K": "Ctrl+Shift+K",
+                                 "Ctrl+P": "Ctrl+Shift+P"}) == 2
+    assert replacement.key() == QKeySequence("Ctrl+Shift+K")
+    assert replacement_action.shortcut() == QKeySequence("Ctrl+Shift+P")
+
+
+def test_a_broken_saved_keymap_does_not_prevent_default_registration(
+        qtbot, monkeypatch):
+    win = QMainWindow()
+    qtbot.addWidget(win)
+    monkeypatch.setattr(S, "_install_window_hooks", lambda window: None)
+
+    def broken_keymap(window):
+        raise RuntimeError("settings store unavailable")
+
+    monkeypatch.setattr(S, "_apply_keymap", broken_keymap)
+    S.install(win)
+    assert {"Ctrl+K", "Ctrl+F", "F1"} <= _live_keys(win)
+
+
 def test_the_cheat_sheet_button_opens_the_editor(window, qtbot):
     overlay = S.show_cheat_sheet(window)
     overlay.findChild(S.QPushButton, "ShortcutOverlayEdit").click()
