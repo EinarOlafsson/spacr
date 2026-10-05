@@ -28,3 +28,10 @@ DONE 2026-10-04
   tests/qt/test_multi_instance_lock_and_jobs_dock.py (real second process).
   Left: user-guide page and tr() catalog rebuild (docs lane); macOS/Windows
   verified only through QLockFile's cross-platform contract, not on hardware.
+
+2026-10-04 — REMOTE-HOST PID COLLISION GUARD
+  A lock held on a shared filesystem by another host can contain the same
+  numeric PID as this process. Lock ownership now accepts a matching PID only
+  when the recorded host also matches this machine. The real second-process
+  lock tests and the remote-host collision regression pass (21 focused Qt
+  cases); the launch/recovery companion tests pass (27 cases).

@@ -1574,3 +1574,13 @@ tests/qt/test_settings_list_editor.py passes 83/83; tests/qt/test_home_variants.
 slices remain in spacr/) and tests/qt/test_preview_set_sampling.py
 (test_max_sets_control_sits_left_of_the_sets_dropdown) pass. Whole-suite
 serial Qt acceptance remains open as recorded above.
+
+2026-10-04 — TEST-OWNERSHIP LEAKS REPAIRED; SERIAL ACCEPTANCE OPEN
+  SetupSlides tests left 23 dialog trees alive after their test ended; giving
+  the dialogs to qtbot reduced a passive following-file sample from 3,024
+  widgets/161 windows to zero. Alpha-gate and standalone settings tests also
+  built orphaned SettingsWidgets trees; owning their parents reduced a
+  following-file sample from about 501 widgets/211 windows to zero. Focused
+  checks passed (36, 12 and 146 respectively). These bounded probes do not
+  prove an uninterrupted whole Qt run, so the 10.8 GiB serial memory guard
+  remains an open acceptance gate.

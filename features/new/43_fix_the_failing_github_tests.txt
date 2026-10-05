@@ -2569,3 +2569,19 @@ takes SAM2 parent links (03d7a7d42 bug), pandas-3 crop-join test, API pins
 (empty_flowchart_caption, reviewed_scientific_label_identities,
 reviewed_runtime_reporter) -- the i18n lane's ccbd26698 retired those records
 after the run started; unconfirmed on CI.
+
+2026-10-04 — CURRENT-SOURCE CI REPAIR BATCH; FINAL GATE NOT YET GREEN
+  A later completed run on an older source reports one below-floor module
+  (the stated exemption) and 28 no-regression failures. Since that source,
+  targeted tests and actual repairs landed for many listed modules. This
+  batch covers stale storage plans, import destinations, session recovery,
+  notifier failures and preview-listing eviction; it also fixes a settings-
+  flow false setting inferred from local figure-render arguments and makes a
+  resize comparison zip include its four source arrays. The current-source
+  non-coverage rerun had one settings-flow failure in 450 checks; after its
+  repair, 52 focused checks pass. Integrated focused checks pass (109), and
+  documentation/API checks pass (295, with 10 registered report-only
+  translation incompatibilities). The generated-caption guard also passes
+  after removing an already-catalogued pending caption. The newer GitHub run
+  is still pending; neither the coverage gate nor the full workflow is
+  claimed green.

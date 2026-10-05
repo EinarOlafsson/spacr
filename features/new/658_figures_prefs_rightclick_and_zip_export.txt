@@ -256,3 +256,9 @@ PART C — WHAT IS LEFT
   measurement only; a retype draws that one panel.
 * Picture figures whose arrays are not at hand (montages read from files,
   Grad-CAM grids) keep only the rendered image and metadata.
+
+2026-10-04 — RESIZE COMPARISON ZIP FIX
+  plot_resize already has all four displayed arrays in memory. It now
+  registers the source/resized images and labels so Save figure includes them
+  with the rendered picture. A zip round-trip test compares the exported
+  pixels and metadata with the originals; the focused figure cohort passes.
