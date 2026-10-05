@@ -1671,3 +1671,14 @@ serial Qt acceptance remains open as recorded above.
   cohorts passed 47 tests before and after; sampled final RSS was 462.3
   versus 452.2 MiB. This is a small-cohort observation, not a general memory
   savings claim. Source dbe918532. No forced collection or ceiling change.
+
+2026-10-05 — SHARED ANNOTATION FIXTURE RELEASES ITS WIDGET TREE
+  The module-scoped AnnotationStrategyPanel fixture shut down and closed
+  its panel but retained the complete 110-widget tree. Explicit deletion
+  after shutdown/close reduces the following sentinel from 110 widgets to
+  zero. Identical 4 GiB bounded cohorts pass 11 tests before and after;
+  RSS was 433.1 versus 433.7 MiB, so no RSS saving is claimed. Integrated
+  annotation/model neighbors pass 56. Source 47a30eb4b. Other suspected
+  dropdown/console owners in files 101-125 release cleanly in two five-test
+  probes; the 22-test AI-toggle file also retains zero widgets. These checks
+  do not establish uninterrupted whole-suite acceptance.

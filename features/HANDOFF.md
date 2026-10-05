@@ -72,6 +72,15 @@ volumes, pooled batch_size>1 normalisation and GPU acquisition acceptance
 remain open. The two synthetic model editors responsible for the late
 prefix's nine-versus-seven widget boundary now belong to qtbot (dbe918532).
 
+Fetched the workstation's four commits through 18af17281 and rebased/pushed
+the CPU checkpoint a03f05b5d. Runtime translation/tutorial updates and the
+workstation's N661 puncta claim are preserved; avoid cpu_modes.py,
+mask_engine.py and Make Masks puncta controls until its checkpoint. After
+rebase, Cancel/runtime-caption/index/syntax checks pass 36 cases. A shared
+annotation-panel test fixture now explicitly deletes its 110-widget tree
+after shutdown; integrated annotation/model checks pass 56. No full-suite
+RSS or final GitHub green is claimed.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.
