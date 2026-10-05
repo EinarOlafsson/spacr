@@ -1,0 +1,29 @@
+================================================================================
+CLEAR ALL LOGS BUTTON
+================================================================================
+
+Status:    DONE 2026-10-04.
+Requested: 2026-10-04, by the maintainer, verbatim: "in preferences in
+           logging there should be a button to clear all logs".
+
+WHAT TO BUILD
+  A "Clear all logs…" button in Preferences -> Logging. Before deleting, a
+  confirm dialog shows the count and size of the daily logs, logs/runs
+  jsonl, crash logs and verbose logs. Log files the running session holds
+  open are never deleted (emptied instead; the run in progress keeps its
+  log). Reuses item 643's Storage pruning helpers.
+
+DONE WHEN
+  The button works on Linux, macOS and Windows, asks first with counts and
+  sizes, never deletes an open log, strings go through tr(), and a Qt test
+  with a temp home covers cancel and delete.
+
+DONE NOTE
+  DONE 2026-10-04
+  spacr/run_journal.py: _log_group, _clear_logs_plan, _clear_logs, built on
+  643's _prune_root, _is_prunable_name, _tree_stats, _protected_storage and
+  _is_protected; _protected_storage now also protects the fatal-signal
+  stack file (spacr-crash.log) the GUI keeps open. spacr/qt/preferences.py:
+  _LogClearer (button "LoggingClearAllLogs", disk worker, 643's confirm and
+  result boxes). Tests: tests/qt/test_storage_preferences.py (temp home).
+  Left: captions await the next catalog rebuild (_AWAITING_CATALOG_REBUILD).

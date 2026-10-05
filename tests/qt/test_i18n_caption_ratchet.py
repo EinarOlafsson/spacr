@@ -1299,6 +1299,15 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     "Mammalian cells",
     "Trypanosoma spp.",
     "Virus infection",
+    "Clear all logs",
+    "Clear all logs…",
+    "Deleted {count} file(s) and emptied {emptied}, freeing {size}.",
+    "List every daily, run, crash and verbose log with its count and size, then ask before deleting them. Logs this session has open are emptied instead. Default nothing cleared.",
+    "Log files",
+    "Measure sizes",
+    "There are no logs to clear.",
+    "{count} file(s) this session has open are emptied, not deleted.",
+    "{label}: {count} file(s), {size}",
 })
 
 

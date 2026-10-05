@@ -3852,8 +3852,9 @@ def _is_prunable_name(kind: str, entry: Path) -> bool:
 def _protected_storage() -> Set[str]:
     """Return resolved paths and run ids pruning must never delete.
 
-    The run open on this thread, the run id this process logs under, and
-    every log file a logging handler holds open.
+    The run open on this thread, the run id this process logs under,
+    every log file a logging handler holds open, and the fatal-signal stack
+    file the GUI keeps open.
     """
     protected: Set[str] = set()
     try:
@@ -3870,14 +3871,18 @@ def _protected_storage() -> Set[str]:
     loggers = [logging.getLogger()] + [
         logger for logger in list(logging.Logger.manager.loggerDict.values())
         if isinstance(logger, logging.Logger)]
+    names = []
     for logger in loggers:
         for handler in list(getattr(logger, "handlers", ())):
-            name = getattr(handler, "baseFilename", None)
-            if name:
-                try:
-                    protected.add(str(Path(name).resolve()))
-                except OSError:
-                    protected.add(str(name))
+            names.append(getattr(handler, "baseFilename", None))
+    app = sys.modules.get("spacr.qt.app")
+    names.append(getattr(getattr(app, "_CRASH_DUMP_FILE", None), "name", None))
+    for name in names:
+        if name:
+            try:
+                protected.add(str(Path(name).resolve()))
+            except OSError:
+                protected.add(str(name))
     return protected
 
 
@@ -3992,6 +3997,116 @@ def _prune(plan: Dict[str, Any]) -> Tuple[int, int, List[str]]:
         deleted += 1
         freed += int(size)
     return deleted, freed, refused
+
+
+_LOG_GROUPS = ("daily", "run_logs", "crash", "verbose")
+_DAILY_LOG_NAME = re.compile(r"spacr-\d{8}\.log(\.\d+)?$")
+
+
+def _log_group(entry: Path) -> Optional[str]:
+    """Return which kind of log a file in the log folder is, or ``None``.
+
+    ``"crash"`` for the fatal-signal stack file and crash-report archives,
+    ``"daily"`` for the dated ``spacr-YYYYMMDD.log`` files and their rotated
+    copies, ``"verbose"`` for every other ``.log`` file and rotated copy.
+    Folders, links and other files are not logs.
+
+    :param entry: a child of the log folder.
+    """
+    try:
+        if not entry.is_file() or entry.is_symlink():
+            return None
+    except OSError:
+        return None
+    name = entry.name
+    if name.startswith("spacr-crash"):
+        return "crash"
+    if _DAILY_LOG_NAME.match(name):
+        return "daily"
+    if name.endswith(".log") or re.search(r"\.log\.\d+$", name):
+        return "verbose"
+    return None
+
+
+def _clear_logs_plan() -> Dict[str, Any]:
+    """List every log file clearing all logs would remove. Reads only.
+
+    :returns: ``groups``, ``{group: [(path, bytes, open)]}`` for the groups
+        in ``_LOG_GROUPS``; ``open`` is ``True`` for a file this session
+        holds open, which is emptied rather than deleted.
+    """
+    protected = _protected_storage()
+    groups: Dict[str, List[Tuple[str, int, bool]]] = {g: [] for g in _LOG_GROUPS}
+    for kind in ("logs", "run_logs"):
+        try:
+            children = sorted(_prune_root(kind).iterdir())
+        except OSError:
+            children = []
+        for entry in children:
+            if kind == "logs":
+                group = _log_group(entry)
+            else:
+                try:
+                    prunable = _is_prunable_name(kind, entry)
+                except OSError:
+                    prunable = False
+                group = "run_logs" if prunable else None
+            if group is None:
+                continue
+            groups[group].append((str(entry), _tree_stats(entry)[0],
+                                  _is_protected(entry, protected)))
+    return {"groups": groups}
+
+
+def _clear_logs(plan: Dict[str, Any]) -> Tuple[int, int, int, List[str]]:
+    """Delete the logs :func:`_clear_logs_plan` listed, checking each again.
+
+    A file is touched only if it is still directly inside its log folder and
+    still a log. A file this session holds open is emptied, not deleted; the
+    log of the run in progress is skipped.
+
+    :param plan: a plan from :func:`_clear_logs_plan`.
+    :returns: ``(deleted, emptied, bytes freed, refusals)``.
+    """
+    roots = {"run_logs": _prune_root("run_logs").resolve()}
+    roots.update({g: _prune_root("logs").resolve()
+                  for g in _LOG_GROUPS if g != "run_logs"})
+    protected = _protected_storage()
+    deleted, emptied, freed, refused = 0, 0, 0, []
+    for group, entries in plan.get("groups", {}).items():
+        for raw, _size, _open in entries:
+            entry = Path(raw)
+            try:
+                resolved = entry.resolve()
+                still = (_is_prunable_name("run_logs", entry)
+                         if group == "run_logs" else _log_group(entry) == group)
+                if resolved.parent != roots.get(group) or not still:
+                    refused.append(f"{entry.name}: not a log any more")
+                    continue
+                size = entry.stat().st_size
+            except OSError as error:
+                refused.append(f"{entry.name}: {error}")
+                continue
+            if _is_protected(entry, protected):
+                if group == "run_logs" or str(resolved) not in protected:
+                    refused.append(f"{entry.name}: in use")
+                    continue
+                try:
+                    os.truncate(entry, 0)
+                except OSError as error:
+                    refused.append(f"{entry.name}: {error}")
+                    continue
+                emptied += 1
+                freed += int(size)
+                continue
+            try:
+                entry.unlink()
+            except OSError as error:
+                refused.append(f"{entry.name}: {error}")
+                continue
+            deleted += 1
+            freed += int(size)
+    return deleted, emptied, freed, refused
 
 
 _CACHE_LOCATIONS_FILE = "cache_locations.json"

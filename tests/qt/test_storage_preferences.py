@@ -141,3 +141,60 @@ def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
     assert (tmp_path / "bigdisk" / "spacr-news" / "releases.json").exists()
     page.table.selectRow([r["key"] for r in page._rows].index("models"))
     assert not page.move_button.isEnabled()
+
+
+@pytest.fixture
+def clearer(page):
+    return page.dialog._log_clearer
+
+
+def _logs(home):
+    logs = home / ".spacr" / "logs"
+    runs = logs / "runs"
+    runs.mkdir(parents=True, exist_ok=True)
+    files = {
+        "daily": logs / "spacr-20200101.log",
+        "rotated": logs / "spacr-20200101.log.2",
+        "run": runs / "run-1.jsonl",
+        "crash": logs / "spacr-crash.log",
+        "verbose": logs / "spacr-debug.log",
+        "other": logs / "running.marker",
+    }
+    for path in files.values():
+        path.write_bytes(b"x" * 100)
+    return files
+
+
+def test_clear_all_logs_lists_each_kind_and_cancel_keeps_them(
+        page, clearer, home, qtbot):
+    files = _logs(home)
+    assert page.dialog.findChild(QPushButton, "LoggingClearAllLogs") is clearer.button
+    clearer.clear()
+    qtbot.waitUntil(lambda: clearer.button.isEnabled(), timeout=10000)
+    text = page.asked[0]
+    for line in ("Daily logs: 2 file(s)", "Run logs: 1 file(s)",
+                 "Crash logs: 1 file(s)", "Verbose logs: 1 file(s)"):
+        assert line in text
+    assert all(path.exists() for path in files.values())
+
+
+def test_clear_all_logs_deletes_but_only_empties_an_open_log(
+        page, clearer, home, qtbot):
+    import logging
+
+    files = _logs(home)
+    handler = logging.FileHandler(str(files["verbose"]))
+    logging.getLogger("spacr.test_clear_logs").addHandler(handler)
+    try:
+        page.answer = True
+        clearer.clear()
+        qtbot.waitUntil(lambda: bool(page.told), timeout=10000)
+        assert "emptied, not deleted" in page.asked[0]
+        assert files["verbose"].exists() and files["verbose"].stat().st_size == 0
+        for key in ("daily", "rotated", "run", "crash"):
+            assert not files[key].exists(), key
+        assert files["other"].exists()
+        assert "Deleted 4 file(s) and emptied 1" in page.told[0]
+    finally:
+        logging.getLogger("spacr.test_clear_logs").removeHandler(handler)
+        handler.close()

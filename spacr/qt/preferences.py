@@ -6269,6 +6269,119 @@ class _StoragePage:
         _show_storage_result(title, message, self._dialog)
 
 
+_LOG_GROUP_LABELS = (
+    ("daily", "Daily logs"),
+    ("run_logs", "Run logs"),
+    ("crash", "Crash logs"),
+    ("verbose", "Verbose logs"),
+)
+
+
+class _LogClearer:
+    """The Logging tab's "Clear all logs…" button.
+
+    Lists the daily, run, crash and verbose logs with their count and size,
+    asks, then deletes them on the disk worker. A log this session holds
+    open is emptied instead of deleted, and the run in progress keeps its
+    log.
+
+    :param form: the Logging tab's form layout.
+    :param dialog: the Preferences dialog.
+    """
+
+    def __init__(self, form, dialog) -> None:
+        """Add the button to ``form``."""
+        from PySide6.QtWidgets import QPushButton
+        from .i18n import tr
+
+        self._dialog = dialog
+        self.button = QPushButton(tr("Clear all logs…"))
+        self.button.setObjectName("LoggingClearAllLogs")
+        self.button.setToolTip(tr(
+            "List every daily, run, crash and verbose log with its count "
+            "and size, then ask before deleting them. Logs this session "
+            "has open are emptied instead. Default nothing cleared."))
+        self.button.clicked.connect(self.clear)
+        form.addRow(tr("Log files"), self.button)
+
+    def _finish(self, done, result) -> None:
+        """On the GUI thread: hand ``result`` to ``done`` while the tab lives."""
+        if isinstance(result, BaseException):
+            LOG.warning("clearing the logs failed", exc_info=result)
+            result = None
+        if _widget_is_alive(self.button):
+            done(result)
+        else:
+            LOG.debug("the Logging tab closed before the logs were cleared")
+
+    def _background(self, work, done) -> None:
+        """Run ``work`` on the disk worker and ``done`` with its result."""
+        from functools import partial
+
+        if not _disk_report_runner().submit(
+                partial(_StoragePage._guarded, work),
+                partial(self._finish, done)):
+            LOG.debug("the storage worker is busy")
+            self.button.setEnabled(True)
+
+    def clear(self) -> None:
+        """List the logs on the worker, then ask."""
+        from spacr.run_journal import _clear_logs_plan
+
+        self.button.setEnabled(False)
+        self._background(_clear_logs_plan, self._planned)
+
+    def _planned(self, plan) -> None:
+        """Show the count and size per kind and ask before deleting."""
+        from functools import partial
+
+        from spacr.run_journal import _clear_logs
+        from .i18n import tr
+        from .resource_cleanup import human_bytes
+
+        title = tr("Clear all logs")
+        groups = (plan or {}).get("groups", {})
+        lines, files, opened = [], 0, 0
+        for group, label in _LOG_GROUP_LABELS:
+            entries = groups.get(group, [])
+            files += len(entries)
+            opened += sum(1 for _p, _s, is_open in entries if is_open)
+            lines.append(tr("{label}: {count} file(s), {size}").format(
+                label=tr(label), count=len(entries),
+                size=human_bytes(sum(size for _p, size, _o in entries))))
+        if not files:
+            self.button.setEnabled(True)
+            _show_storage_result(title, tr("There are no logs to clear."),
+                                 self._dialog)
+            return
+        if opened:
+            lines.append(tr(
+                "{count} file(s) this session has open are emptied, not "
+                "deleted.").format(count=opened))
+        if not _confirm_storage_action(title, "\n".join(lines), self._dialog):
+            self.button.setEnabled(True)
+            return
+        self._background(partial(_clear_logs, plan),
+                         partial(self._cleared, title))
+
+    def _cleared(self, title: str, result) -> None:
+        """Report what clearing removed."""
+        from .i18n import tr
+        from .resource_cleanup import human_bytes
+
+        self.button.setEnabled(True)
+        if not result:
+            return
+        deleted, emptied, freed, refused = result
+        message = tr(
+            "Deleted {count} file(s) and emptied {emptied}, freeing "
+            "{size}.").format(count=deleted, emptied=emptied,
+                              size=human_bytes(freed))
+        if refused:
+            message += "\n" + "\n".join(refused[:20])
+        _show_storage_result(title, message, self._dialog)
+
+
 def _get_plugin_catalogue() -> str:
     """The catalogue the Plugins tab opens with, or ``$SPACR_PLUGIN_CATALOGUE``."""
     import os
@@ -7711,6 +7824,7 @@ class PreferencesDialog:
 
         for _level in log_level_toggles:
             _sync_console_enabled(_level)
+        dlg._log_clearer = _LogClearer(logging_form, dlg)
 
         _debug_file_toggle = log_level_toggles[logging.DEBUG][0]
         _debug_file_toggle.setToolTip(tr(
