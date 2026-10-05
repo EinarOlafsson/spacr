@@ -3,7 +3,7 @@
 import shutil
 import zlib
 
-from tests.test_built_nested_helper_api import ROOT, _build_site, builder
+from tests.test_built_nested_helper_api import ROOT, _build_site, builder, helpers
 
 
 def test_the_drag_module_extractor_boundary_matches_real_sphinx(tmp_path, monkeypatch):
@@ -28,6 +28,7 @@ def test_the_drag_module_extractor_boundary_matches_real_sphinx(tmp_path, monkey
 
     monkeypatch.setattr(builder, "ROOT", root)
     monkeypatch.setattr(builder, "API_DOC_ALIASES", {})
+    monkeypatch.setattr(helpers, "ENABLED_MODULES", frozenset())
     documents = builder.public_docstrings()
     assert documents["spacr.example.entry"] == "Visible callable."
     assert not any(key.startswith("spacr.qt._magnifier_drag") for key in documents)

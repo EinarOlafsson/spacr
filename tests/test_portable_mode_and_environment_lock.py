@@ -21,7 +21,8 @@ _PORTABLE_VARS = (
 def clean_env(monkeypatch, tmp_path):
     """No portable variable set; the launcher folder is an empty tmp folder."""
     for name in _PORTABLE_VARS:
-        monkeypatch.delenv(name, raising=False)
+        monkeypatch.setenv(name, "")
+        monkeypatch.delenv(name)
     app = tmp_path / "app"
     app.mkdir()
     monkeypatch.setenv("SPACR_LAUNCHER_DIR", str(app))
