@@ -151,6 +151,8 @@ def test_failed_cache_clear_reports_the_failure_and_keeps_the_cache(
 
 
 def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
+    from spacr.qt import preferences as prefs
+
     news = home / ".spacr" / "news"
     news.mkdir(parents=True)
     (news / "releases.json").write_text("[]")
@@ -160,6 +162,12 @@ def test_move_relocates_after_yes(page, home, tmp_path, qtbot):
     page.answer = True
     page.relocate(str(tmp_path / "bigdisk"))
     qtbot.waitUntil(lambda: bool(page.told), timeout=10000)
+    qtbot.waitUntil(
+        lambda: prefs._DISK_RUNNER is not None
+        and prefs._DISK_RUNNER.pending_jobs() == 0
+        and prefs._DISK_RUNNER.active_jobs() == 0,
+        timeout=10000,
+    )
     assert (tmp_path / "bigdisk" / "spacr-news" / "releases.json").exists()
     page.table.selectRow([r["key"] for r in page._rows].index("models"))
     assert not page.move_button.isEnabled()
@@ -355,4 +363,86 @@ def test_a_log_clear_callback_after_window_destruction_does_nothing(
     qtbot.waitUntil(lambda: not isValid(clearer.button))
     results = []
     clearer._finish(results.append, (1, 0, 100, []))
+    page._finish(results.append, [{"kind": "logs"}])
     assert results == []
+
+
+@pytest.mark.parametrize("proceed", [False, True])
+def test_storage_confirmation_defaults_to_cancel_and_requires_acceptance(
+        home, qtbot, monkeypatch, proceed):
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.qt import preferences
+
+    observed = []
+
+    def choose(box):
+        qtbot.addWidget(box)
+        cancel = next(button for button in box.buttons()
+                      if box.buttonRole(button) == QMessageBox.RejectRole)
+        observed.append((box.objectName(), box.defaultButton() is cancel,
+                         box.informativeText()))
+        selected = next(button for button in box.buttons()
+                        if box.buttonRole(button) == QMessageBox.AcceptRole) \
+            if proceed else cancel
+        selected.click()
+        return 0
+
+    monkeypatch.setattr(QMessageBox, "exec", choose)
+    accepted = preferences._confirm_storage_action("Delete cache", "3 files")
+    assert accepted is proceed
+    assert observed == [("StorageActionConfirm", True, "3 files")]
+
+
+def test_storage_result_dialog_displays_the_actual_outcome(
+        home, qtbot, monkeypatch):
+    from PySide6.QtWidgets import QMessageBox
+
+    from spacr.qt import preferences
+
+    observed = []
+
+    def close(box):
+        qtbot.addWidget(box)
+        observed.append((box.objectName(), box.windowTitle(), box.text()))
+        box.accept()
+        return 0
+
+    monkeypatch.setattr(QMessageBox, "exec", close)
+    preferences._show_storage_result("Clear cache", "Removed 3 items")
+    assert observed == [("StorageActionResult", "Clear cache", "Removed 3 items")]
+
+
+def test_unreadable_storage_caps_use_defaults(home):
+    from spacr.qt import preferences
+    from spacr.run_journal import _PRUNE_DEFAULTS
+
+    preferences._settings().setValue("storage/logs_days", "many")
+    preferences._settings().setValue("storage/logs_cap_mb", "large")
+    assert preferences._get_storage_caps()["logs"] == _PRUNE_DEFAULTS["logs"]
+
+
+def test_cache_clear_reports_partial_refusal_and_refreshes_once(
+        page, monkeypatch):
+    refreshed = []
+    monkeypatch.setattr(page, "refresh", lambda: refreshed.append(True))
+    page._cleared("Clear cache", (2, ["A model is locked"]))
+    assert "Removed 2 item(s)." in page.told[-1]
+    assert "A model is locked" in page.told[-1]
+    assert refreshed == [True]
+
+
+def test_storage_worker_exception_is_delivered_as_a_failed_result(
+        page, caplog):
+    failure = OSError("disk permission denied")
+
+    def refused():
+        raise failure
+
+    result = page._guarded(refused)
+    assert result is failure
+    delivered = []
+    with caplog.at_level("WARNING"):
+        page._finish(delivered.append, result)
+    assert delivered == [None]
+    assert "a storage action failed" in caplog.text

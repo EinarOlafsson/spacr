@@ -28,6 +28,15 @@ checks exercise unreadable ledger/database snapshots, gate menu/snapshot
 fallbacks, a deleted shortcut holder, an early font event and empty queue
 progress. No GPU work is scheduled by this session.
 
+After the host and VS Code restarts, the isolated CI worktree recovered its
+commits and unfinished tests. Follow-up CPU fixes preserve grouped values in
+figure ZIP exports, preserve numeric X in horizontal grouped redraws, and
+register atomic SVG cleanup only after a scratch file exists. Storage move
+tests wait for the follow-up measurement job before teardown. Bounded figure
+fixture cleanup reduced final RSS by 31 MiB; item 47 remains open. Protected
+run 37311146886 still targets the older checkpoint, so these changes require
+a final-source GitHub verdict before items 43/288 can be marked complete.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.

@@ -1611,3 +1611,17 @@ serial Qt acceptance remains open as recorded above.
   44-test run starts no child and reports no lingering process. These are
   bounded ownership findings. The original-order serial Qt run still needs
   an uninterrupted guarded summary before this item can be marked done.
+
+2026-10-05 — FIGURE RETENTION REDUCED; FULL ACCEPTANCE STILL OPEN
+  The FigureQueue fixture now closes the pyplot figures it creates. In
+  identical 4 GiB capped 12-test comparisons, retained pyplot managers fell
+  from 7 to zero and final RSS fell from 582 to 551 MiB; all 12 tests passed.
+  The original-order 78-file comparison passed 882 tests with one skip after
+  dynamic Section ownership was repaired. A representative boundary fell
+  from 57 live widgets to zero, but final RSS was 1841 versus 1843 MiB, so
+  that repair does not establish an RSS reduction. The original prefix used
+  a 4 GiB cap and the replay an 8 GiB cap, with measured RSS below both.
+  Storage move tests now wait for the follow-up cache measurement worker as
+  well as the move result; the 39-test storage/catalogue cohort passes with
+  no lingering-worker warning. Uninterrupted whole-suite acceptance remains
+  open; these bounded comparisons do not close it.
