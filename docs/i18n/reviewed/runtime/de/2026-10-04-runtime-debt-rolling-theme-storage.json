@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI technical review (Claude Opus 5.5), no native-speaker signoff",
+  "note": "Instruction 316, rolling pass 2026-10-04: the High contrast theme name and the Storage tab's Measure sizes button (e41ba2396), written and technically reviewed by AI. No human and no native speaker has read these rows.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "High contrast",
+      "source": "High contrast",
+      "source_sha256": "415a8336713e6a3bb61660818c7ae7691e2246b94bcbc61a3f92dd33408d5488",
+      "translation": "Hoher Kontrast"
+    },
+    {
+      "table": "ui",
+      "key": "Measure sizes",
+      "source": "Measure sizes",
+      "source_sha256": "6f98afb07bbf1e4ff526b943d97fe5325ca4f2e9c7c579f9bbe05d8e19cb6a3c",
+      "translation": "Größen messen"
+    }
+  ]
+}

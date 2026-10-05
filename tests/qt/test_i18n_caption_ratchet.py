@@ -1292,7 +1292,6 @@ _AWAITING_CATALOG_REBUILD: frozenset[str] = frozenset({
     'Opacity of overlaid points, from 0 (invisible) to 1 (solid). Default 0.6.',
     'Draws the individual points over bar and box graphs. Default on.',
     "Giardia duodenalis",
-    "High contrast",
     "White text and outlines on black with a yellow accent, for low vision "
     "and bright rooms.",
     "Leishmania spp.",
