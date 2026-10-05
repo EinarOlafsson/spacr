@@ -23,6 +23,7 @@ from spacr.figure_style import (
     GENERAL_DEFAULTS,
     SAVE_MODES,
     _apply_palette,
+    _user_deltas,
     apply,
     figure_save_mode,
     palette_colours,
@@ -131,6 +132,19 @@ def test_a_style_matplotlib_cannot_read_does_not_stop_the_run(
     assert style["font_size"] == "eleven"
     assert style["title_size"] == GENERAL_DEFAULTS["title_size"]
     assert float(restored_rc_params.rcParams["font.size"]) == before
+
+
+def test_a_graph_override_wins_over_a_general_style_change():
+    """A graph-specific choice wins even when it equals the house default."""
+    changed = _user_deltas(
+        "violin",
+        general={"font_size": 15, "grid": None},
+        overrides={"violin": {"font_size": GENERAL_DEFAULTS["font_size"],
+                               "line_width": None},
+                   "box": {"font_size": 30}},
+    )
+
+    assert changed == {"font_size": GENERAL_DEFAULTS["font_size"]}
 
 
 # ---------------------------------------------------------------------------
