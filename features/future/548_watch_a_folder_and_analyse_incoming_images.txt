@@ -612,3 +612,25 @@ FIXED-MAP WHOLE TIMELAPSE FIELDS (2026-10-05, partial)
     legacy pooled batch_size>1 parity, vendor completion or real GPU
     acquisition acceptance. Item 548 remains OPEN with its available alpha
     subset; all GPU processes remain owned by the workstation session.
+
+COMBINED TRACK CSV CHECKPOINTS (2026-10-05, partial)
+    Flat tracker CSVs now publish under spacr_watch/tracks alongside the
+    combined merged arrays and measurements. Their canonical filenames
+    identify plate/well/field. The existing collection checkpoint hashes
+    these CSVs before publication and validates staged and combined files
+    during interrupted-collection recovery. Changed staged CSVs, conflicting
+    destinations and nonregular or symlinked track directories are refused
+    before writes. An old pending checkpoint missing its track hashes is
+    refused rather than silently claiming verified collection. A DB append
+    failure after linking tracks resumes without re-analysis or a second
+    field transaction. Nested lineage/events and animations remain field-
+    local; combined publication here is limited to flat tracker CSVs.
+
+    The real IoU parity check now compares the combined CSV with the batch
+    CSV and asserts both frames share their track identities. Narrow branch
+    coverage passed 93 cases and executed all 70 new/changed executable lines and
+    56 touching arcs across the complete F548 follow-up, with zero missing
+    new lines/arcs. Integrated timelapse/checkpoint/Cellpose checks passed
+    65 cases under 4 GiB. Source 2d24231a3. This is focused CPU evidence; final
+    GitHub aggregate and the remaining vendor/native-volume/pooled/GPU
+    acceptance scopes are still open.

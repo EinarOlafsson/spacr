@@ -81,6 +81,17 @@ annotation-panel test fixture now explicitly deletes its 110-widget tree
 after shutdown; integrated annotation/model checks pass 56. No full-suite
 RSS or final GitHub green is claimed.
 
+F548 track review is complete at source 2d24231a3: flat tracker CSVs now
+publish in spacr_watch/tracks and participate in the existing artifact
+checkpoint/conflict checks. Interrupted DB collection resumes without
+re-analysis; staged/combined tamper and unsafe track directories are refused.
+The real IoU test compares the combined CSV with batch results. A narrow
+93-case coverage run hits all 70 new/changed executable lines and 56 touching
+arcs across the F548 source follow-up; integrated timelapse/checkpoint/Cellpose
+checks pass 65 under 4 GiB. Nested lineage/events and animations remain
+field-local. The changed private core prose still belongs in the
+workstation's next source-bound API/docs regeneration; no GPU work started.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.
