@@ -13,8 +13,7 @@ import os
 import numpy as np
 import pandas as pd
 import pytest
-
-from PySide6.QtCore import QMimeData, QPoint, QUrl, Qt
+from PySide6.QtCore import QMimeData, QPoint, Qt, QUrl
 from PySide6.QtGui import QDragEnterEvent, QDropEvent
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
@@ -312,6 +311,43 @@ def test_an_export_that_fails_says_so_rather_than_raising(explorer,
     explorer._style.x_column = "no_such_column"
     assert explorer.export("pdf", str(tmp_path / "x.pdf")) is None
     assert warned and "Export failed" in warned[0][1]
+
+
+def test_eps_export_uses_the_general_figure_writer(explorer, tmp_path):
+    path = tmp_path / "volcano.eps"
+
+    assert explorer.export("eps", str(path)) == str(path)
+    assert path.read_bytes().startswith(b"%!PS")
+
+
+def test_eps_export_reports_when_the_writer_makes_no_file(
+        explorer, tmp_path, monkeypatch):
+    from spacr.qt.widgets import figure_settings
+
+    warned = []
+    monkeypatch.setattr(QMessageBox, "warning",
+                        staticmethod(lambda *args: warned.append(args[2])))
+    monkeypatch.setattr(figure_settings, "save_figure_as",
+                        lambda *_args: "")
+    path = tmp_path / "missing.eps"
+
+    assert explorer.export("eps", str(path)) is None
+    assert warned and str(path) in warned[0]
+
+
+def test_a_column_survives_a_missing_value_checker_that_refuses_it(
+        explorer, monkeypatch):
+    original = pd.isna
+
+    def sometimes_unavailable(value):
+        if isinstance(value, str) and value == "guide":
+            raise TypeError("cannot check this column label")
+        return original(value)
+
+    monkeypatch.setattr(pd, "isna", sometimes_unavailable)
+    explorer._repopulate_column_menus()
+
+    assert explorer._controls["label_column"].findData("guide") >= 0
 
 
 # --------------------------------------------------------------------------
