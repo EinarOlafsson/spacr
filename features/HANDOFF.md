@@ -194,6 +194,16 @@ API, settings-flow, consumer-map and help refresh. The CPU candidate is held
 for root review before any push, and the root's separate Make Masks box-draw
 work must not be edited in this candidate.
 
+2026-10-05 root-reviewed CPU checkpoint: root reviewed the combined code at
+1ddcedfb5 and note commit f58960d16, accepted the 225/21/12/77 bounded
+receipts, and authorized the normal nightly push after fetch/rebase. The
+fixed-map native T1 private core helpers require the workstation's normal
+post-push API, settings-flow, consumer-map and help refresh; that session
+retains ownership of the generated artifacts and all GPU work. The new Make
+Masks box-draw UI/engine remains in a separate root worktree. The old
+protected runs remain untouched; a fresh final-source CI verdict is still
+required after the hosted Actions incident.
+
 This section is current. Everything below the "HISTORICAL" line further down
 is the 2026-09-02..09-20 record, kept for its traps; where the two disagree,
 this section wins. The short rule list is also in `AGENTS.md` at the repo root.

@@ -17927,3 +17927,12 @@ helpers; Home will not edit those generated artifacts. General native T>1,
 raw/vendor completion, pooled parity and real GPU acceptance remain F548
 open. Root's separate Make Masks box-draw work is outside this candidate.
 Do not push this candidate until root reviews its concrete diff.
+
+2026-10-05 — ROOT REVIEWED THE CPU CHECKPOINT FOR NIGHTLY
+Root reviewed combined code 1ddcedfb5 and notes f58960d16, accepted the
+225/21/12/77 capped CPU receipts, and authorized fetch/rebase and a normal
+nightly push. The workstation owns post-push normal API, settings-flow,
+consumer-map and help refresh for the new private core helpers, along with
+all GPU work. Root's new Make Masks box-draw UI/engine stays in its separate
+worktree. Preserve protected runs 37359579362 and 37327585557; a new
+exact-source verdict is still required when hosted Actions runners recover.
