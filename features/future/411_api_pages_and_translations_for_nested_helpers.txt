@@ -2253,3 +2253,8 @@ tests/test_built_nested_helper_api.py (nightly 68884079c, conf.py hook).
     WHAT IS LEFT: nothing in this item. Native-speaker review and live HTML publication are maintainer tasks.
 
 VERIFIED 2026-10-04: 12 referenced test files pass on nightly 85c3e41c2 (CPU, offscreen, -n 4).
+
+2026-10-05 — ACCEPTED REVIEW SCOPE
+The user directed native-language review to 100% for this list. The nine
+API catalogs remain direct AI translations with technical review and no
+native-speaker signoff. This item stays DONE; no human review is claimed.

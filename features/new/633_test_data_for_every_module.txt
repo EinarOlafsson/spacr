@@ -1,9 +1,9 @@
 633 Test data for every module and submodule
 
-Status: BLOCKED 2026-10-03 — a multi-dose plate with a concentration column
-        (maintainer to supply one or pick a public set such as cpg0004 LINCS)
-        for the Dose-Response, Profiler/Investigate Hit and compare/history
-        demos. The rest of the test data is implemented as alpha.
+Status: DONE (alpha) 2026-10-05 — the user accepts the available alpha test
+        data as complete for this item. The multi-dose demonstration plate is
+        unavailable; Dose-Response, Investigate Hit and related demos remain
+        without that example and are not claimed tested with it.
 
 Previous status (superseded 2026-10-04): IMPLEMENTED AS ALPHA 2026-10-03; Investigate Hit still BLOCKED (see third pass)
 
@@ -169,3 +169,9 @@ multi-dose plate with a concentration column exists on HF or on disk.
 Dose-Response needs one directly, and the Profiler / Investigate Hit and
 compare/history demos are to be chained from the same plate once the
 maintainer supplies it (or picks a public set such as cpg0004 LINCS).
+
+2026-10-05 — ACCEPTED SCOPE
+The user directed this item to 100% with the multi-dose plate unavailable.
+The alpha examples that exist remain as recorded above. No concentration
+plate or derived Dose-Response, Investigate Hit, compare or history example
+was invented or published to satisfy the status change.

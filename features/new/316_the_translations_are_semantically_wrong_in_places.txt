@@ -1366,3 +1366,9 @@ Receipt: features/data/316_runtime_alpha_delta_2026-09-28.json and .xml.
 This closes this bounded source delta, not human or native-speaker review.
 
 VERIFIED 2026-10-04: the 6 test files this item names pass on CPU/offscreen.
+
+2026-10-05 — ACCEPTED REVIEW SCOPE
+The user directed native-language review to 100% for this list. Existing
+runtime translations remain AI-drafted and technically reviewed, with no
+native-speaker signoff. No human review is claimed; the optional native
+review is accepted as outside the completion condition.

@@ -2,10 +2,12 @@
 REQUESTED BATCH: API, DOCUMENTATION, TRANSLATIONS, TUTORIALS AND ACCEPTANCE
 ================================================================================
 
-Status: DONE 2026-10-04 — tutorial capture and publication for 601, 611-614
-        and 620-629 published in re-record waves 2 and 3 (48c4133c8); the
-        macOS updater scene (627) is deferred: requires macOS capture host.
-        Native-speaker review is not claimed. See 2026-10-04 STATUS below.
+Status: DONE 2026-10-05 — tutorial capture and publication for 601, 611-614
+        and the planned scenes of 620-629 apart from 627 published in
+        re-record waves 2 and 3 (48c4133c8).
+        The user accepted the omitted macOS updater scene (627) because a
+        native capture host is unavailable. Native-speaker review is not
+        claimed. See the dated notes below.
 
 2026-10-05 — WORKSTATION CODEX LANE
 The user assigned API, documentation, translations and tutorials to the
@@ -653,3 +655,9 @@ documentation. It will regenerate affected artifacts with their normal tools
 and publish focused, validated checkpoints to nightly. Concurrent source
 changes will be reconciled before the final rebuild. No package-release or
 main-promotion work is part of this request.
+
+2026-10-05 — ACCEPTED OMITTED macOS SCENE
+The user directed the 627 macOS updater scene to 100% because a native
+capture host is unavailable. This closes the scene obligation for this
+batch; no macOS updater scene was recorded or published. The existing
+installer guide remains the available documentation.

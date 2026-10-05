@@ -2,10 +2,9 @@
 THE INSTALLERS MUST ACTUALLY BUILD AND RUN, ON ALL THREE PLATFORMS
 ================================================================================
 
-Status:    BLOCKED 2026-09-27 — the maintainer's protected macOS steps (see
-           the 2026-09-27 reconciliation). Native online installers verified;
-           macOS identity defect closed (acceptance run 37136981353,
-           e2bebcf4c).
+Status:    DONE 2026-10-05 — the user accepts the available installer evidence
+           as complete. The remaining protected macOS steps cannot be run
+           from this host and are explicitly unverified.
 
 Previous status (superseded 2026-10-04):    Native online installers verified; legacy frozen-bundle acceptance
            remains OPEN. See the 2026-09-27 reconciliation.
@@ -772,3 +771,9 @@ both 1.5.1.0 -> 1.5.1.1 and 1.5.1.0 -> 1.5.1.2 with the full identity gate
 Stall jobs and windows-upgrade 1.5.1.2 pass; windows-upgrade 1.5.1.1 fails
 as already recorded (stale imageio runtime in the shipped 1.5.1.1 NSIS).
 The macOS identity DEFECT is closed. Maintainer items above remain; OPEN.
+
+2026-10-05 — ACCEPTED SCOPE
+The user directed this list item to 100% because the remaining protected
+macOS checks are unavailable here. Native online installers and the macOS
+identity gate have the receipts above. This closes the item under that
+decision; it does not claim a protected macOS run that did not happen.

@@ -70,3 +70,9 @@ publication requires a future release containing it. The earlier 1.5.1.1 release
 attempt remains blocked on the PyPI storage request (pypi/support#12512).
 
 VERIFIED 2026-10-04: All named tests pass on nightly 85c3e41c2 (CPU, offscreen, -n 4; 1495 passed across two cohorts).
+
+2026-10-05 — ACCEPTED SCOPE FOR THE TUTORIAL SCENE
+The user directed the remaining macOS updater scene to 100% because a native
+macOS capture host is unavailable. The updater remains implemented and its
+modeled checks remain as recorded above. The scene was not recorded or
+published, and native update/relaunch acceptance remains unverified.

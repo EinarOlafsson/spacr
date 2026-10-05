@@ -150,27 +150,27 @@ On a merge conflict keep every item's entries and regenerate.
 ## Open now (2026-10-05)
 | Item | State | Owner / waits on |
 |---|---|---|
-| new 43 / future 288 | OPEN: coverage ratchet and final-source GitHub run still need a green verdict | Codex CI lane |
+| new 43 / future 288 | OPEN: completed exact-source run found 24 coverage ratchet failures and other test failures; fixes and another full GitHub run are needed | Codex CI lane |
 | new 47 | OPEN: serial whole Qt run stops at the 10.8 GiB guard (~71%); more bounded widget and runner ownership repairs landed | Codex CI lane |
 | future 548 | OPEN: vendor acquisition completion, timelapse/volumetric series and pooled normalisation; fixed-map projected Z, source-aware raw channel readiness, alpha pretrained CV Classify and live plate view landed | needs vendor completion evidence |
 | new 658 | DONE: figure preferences, context menu, data/stats ZIP and registration landed | no owner needed |
 | future 411 | DONE: nested-helper API pages and nine catalogs landed | no owner needed |
-| new 615 | DONE except macOS updater scene capture (627) | needs a macOS capture host |
+| new 615 / new 627 scene | DONE at accepted scope: the macOS updater scene was omitted because no native capture host is available; native update acceptance remains unverified | no owner needed |
+| new 53 / new 633 / future 490 / future 493 | DONE at accepted scope: unavailable macOS, dose-plate, desktop-focus and physical two-GPU checks are recorded as unverified in the items | no owner needed |
+| native-language review | DONE at accepted scope: AI technical review retained; no native-speaker signoff claimed | no owner needed |
 
 Tutorial handoff for spacr-d7: the alpha Make Masks screen now has a live plate
 card beneath Console during watch runs. Re-record the alpha-features lesson
 (87) when it next covers this screen; keep standard lessons with alpha off.
 
 Blocked on outside input: 370 and 404 (hold-out curation), 449 (hand
-counts), 470 and 559 (annotation), 493 (a second GPU), 534 (public infected
+counts), 470 and 559 (annotation), 534 (public infected
 Visium HD/Xenium set), 537 (tracked endodyogeny movies), 543 (vendor
 flat-field files), 557 (second low-light data set), 574 (IDR/BioStudies
-curators), 586 (workflow adoption, GHCR visibility, a Slurm cluster), 633
-(multi-dose plate), 53 (protected macOS steps).
+curators), 586 (workflow adoption, GHCR visibility, a Slurm cluster).
 
 Maintainer's hand tasks: curate the 370 hold-out queues; hand counts for
-449; annotate the 470 crop sample and 559 QC images; run the protected macOS
-installer steps for 53; pick or supply the 633 dose plate; enable the 586
+449; annotate the 470 crop sample and 559 QC images; enable the 586
 workflow and GHCR visibility; say go for any live_cell retraining.
 
 ## Sessions
