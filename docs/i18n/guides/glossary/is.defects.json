@@ -7,7 +7,8 @@
   "Colormap": "'Fólkur' is not a word; the setting is 'Litakort'",
   "Error bars": "'Erfiðleika bars' means 'difficulty bars'; the setting is 'Skekkjustikur'",
   "Jitter width": "'Jitter breiður' is ungrammatical; the setting is 'Breidd dreifingar (jitter)'",
-  "Logging": "'Leyfing' means permission; the tab is 'Annálaskráning'"
+  "Logging": "'Leyfing' means permission; the tab is 'Annálaskráning'",
+  "Counts": "'Rannsóknir' means 'studies'; the statistics label is 'Talningar'"
  },
  "snapshot": {
   "Layout": {
@@ -29,6 +30,10 @@
   "Logging": {
    "runtime": "Leyfing",
    "guide": "Annálaskráning"
+  },
+  "Counts": {
+   "runtime": "Rannsóknir",
+   "guide": "Talningar"
   }
  }
 }

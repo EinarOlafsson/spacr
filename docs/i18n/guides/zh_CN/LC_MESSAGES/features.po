@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 21:59-0400\n"
+"POT-Creation-Date: 2026-10-04 22:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: zh_CN\n"
@@ -307,6 +307,48 @@ msgstr "**Bar and point graphs** ： **误差棒** 显示标准误（ ``sem`` �
 
 msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
 msgstr "这些设置也可以按图表类型分别设置。图表只设置一次样式，因此通过其右键菜单所做的更改在保存时会被保留。已绘制的多面板图表保持其大小和分辨率；大小和分辨率设置适用于新图表和保存的文件。"
+
+msgid "Working with figures"
+msgstr "使用图表"
+
+msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
+msgstr "在 spaCR 中右键单击任意图表——无论是在模块的图表列表中，还是在 Graph Builder、UMAP 浏览器或训练对比等嵌入式图中——即可打开其图表菜单。Volcano 浏览器和 Gate Editor 保留各自的右键菜单，并在其中添加这些条目。"
+
+msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
+msgstr "**Edit figure…** 可更改此图表的标题、坐标轴标签、范围、刻度、字体、颜色、图例、大小和分辨率。更改会即时显示。"
+
+msgid "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**."
+msgstr "**Change graph type** 会将图表重绘为另一种适合其数据的图。分组可以显示为箱线图、小提琴图、条带图、蜂群图、柱状图、点图或 boxen 图，带点的箱线图或柱状图，或直方图、KDE 或 ECDF；两个测量值可显示为散点图、折线图、hexbin、KDE 或回归图；单个分布可显示为直方图、KDE、ECDF、箱线、小提琴、条带或 boxen；计数可显示为计数图或热图；矩阵可显示为热图或聚类热图。图表会根据其数据重绘，并保留你的 **图设置** 。"
+
+msgid "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure."
+msgstr "**Statistics…** 显示 spaCR 为数据选择的检验，并允许你覆盖 **检验** 、 **Subject column** 、 **Paired / repeated measures** 和 **Multiple-comparison correction** 。 **Show on the plot** 会在图上绘制检验和显著性括号。"
+
+msgid "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR."
+msgstr "**Save figure (zip)…** 写出一个 zip 文件，其中包含以你的保存格式和 PNG 格式保存的图表、包含绘图数据的 ``data.csv`` 、 ``statistics.csv`` 和 ``statistics.txt`` 、包含图表完整配方的 ``spec.json`` ，以及 ``recreate_figure.py`` ——一个无需 spaCR 即可根据 CSV 和 JSON 文件绘制同一图表的脚本。"
+
+msgid "How the statistics are chosen"
+msgstr "统计方法如何选择"
+
+msgid "The automatic choice follows the data:"
+msgstr "自动选择取决于数据："
+
+msgid "**Groups**: each group is tested for normality (Shapiro–Wilk) and the groups for equal variance (Bartlett, or Levene when a group is not normal). Two groups are compared with Student's t, Welch's t or Mann–Whitney, and paired data with a paired t test or Wilcoxon. Three or more groups get a one-way ANOVA followed by Tukey HSD, Welch's ANOVA followed by Games–Howell, Kruskal–Wallis followed by Dunn, or Friedman followed by pairwise Wilcoxon tests, with pairwise p-values corrected for multiple comparisons."
+msgstr "**分组** ：对每组进行正态性检验（Shapiro–Wilk），对各组进行方差齐性检验（Bartlett；若某组不服从正态分布则用 Levene）。两组使用 Student t、Welch t 或 Mann–Whitney 比较，配对数据使用配对 t 检验或 Wilcoxon。三组或更多组使用单因素 ANOVA 加 Tukey HSD、Welch ANOVA 加 Games–Howell、Kruskal–Wallis 加 Dunn，或 Friedman 加两两 Wilcoxon 检验，两两比较的 p 值会进行多重比较校正。"
+
+msgid "**Two measurements**: Pearson or Spearman correlation, chosen by normality."
+msgstr "**两个测量值** ：Pearson 或 Spearman 相关，根据正态性选择。"
+
+msgid "**Counts**: chi-square, or Fisher's exact test when an expected count is below 5; tables larger than 2×2 use the Fisher–Freeman–Halton test with a fixed-seed Monte Carlo p-value."
+msgstr "**计数** ：卡方检验；当某个期望计数小于 5 时使用 Fisher 精确检验；大于 2×2 的表使用 Fisher–Freeman–Halton 检验，并采用固定种子的 Monte Carlo p 值。"
+
+msgid "**Proportions** (a 0/1 outcome): a two-proportion z test or Fisher's exact test; three or more groups get chi-square followed by corrected pairwise z tests."
+msgstr "**比例** （0/1 结局）：两比例 z 检验或 Fisher 精确检验；三组或更多组使用卡方检验，再进行校正后的两两 z 检验。"
+
+msgid "``statistics.csv`` has one row per test, with the test name, groups, statistic, degrees of freedom, p-value, adjusted p-value and correction, effect size, number of observations, whether the test was chosen automatically or by you, and the reason for the choice."
+msgstr "``statistics.csv`` 每个检验一行，包括检验名称、分组、统计量、自由度、p 值、校正后 p 值及校正方法、效应量、观测数、检验是自动选择还是由你选择，以及选择的理由。"
+
+msgid "Figures in Graph Builder and the Volcano explorer carry their data rows. For other figures, spaCR reads the plotted values back from the figure; box and violin plots drawn this way keep only their summary, not the individual rows. A new graph type replaces a faceted Graph Builder grid with a single plot until Graph Builder draws the chart again."
+msgstr "Graph Builder 和 Volcano 浏览器中的图表携带其数据行。对于其他图表，spaCR 会从图中读回绘制的数值；以这种方式绘制的箱线图和小提琴图只保留摘要，而不保留各个数据行。在 Graph Builder 重新绘制图表之前，新的图表类型会用单个图替换分面的 Graph Builder 网格。"
 
 msgid "Workers and free memory"
 msgstr "工作进程与可用内存"

@@ -121,6 +121,7 @@
   "Feature definitions": "Egenskapsdefinitioner",
   "Features": "Egenskaper",
   "Figure": "Figur",
+  "Figure settings": "Figurinställningar",
   "Figures": "Figurer",
   "Figures and table exports": "Figurer och tabellexporter",
   "File…": "Arkiv...",
@@ -136,6 +137,7 @@
   "Free RAM by closing applications…": "Frigör RAM genom att stänga program…",
   "From a paper…": "Från en vetenskaplig artikel…",
   "Gaussian approximation": "Gaussisk approximation",
+  "Groups": "Grupper",
   "Growth ratio": "Tillväxtkvot",
   "Guide counts per well": "Guideantal per brunn",
   "Help": "Hjälp",
@@ -389,6 +391,7 @@
   "no cap": "inget tak"
  },
  "runtime_suspect": {
+  "Counts": "Räknar",
   "Error bars": "Felrader",
   "Format": "För format",
   "Layout": "Namnlayout"

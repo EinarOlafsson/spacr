@@ -5,7 +5,8 @@
  "defects": {
   "Layout": "'Namnlayout' is the file-naming layout row; the Figures tab group is plot layout ('Layout')",
   "Format": "'För format' is a sentence fragment; the field is the file format ('Format')",
-  "Error bars": "'Felrader' means error rows; the setting is 'Felstaplar'"
+  "Error bars": "'Felrader' means error rows; the setting is 'Felstaplar'",
+  "Counts": "'Räknar' is the verb 'counts'; the statistics label is 'Antal'"
  },
  "snapshot": {
   "Layout": {
@@ -19,6 +20,10 @@
   "Error bars": {
    "runtime": "Felrader",
    "guide": "Felstaplar"
+  },
+  "Counts": {
+   "runtime": "Räknar",
+   "guide": "Antal"
   }
  }
 }

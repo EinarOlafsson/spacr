@@ -121,6 +121,7 @@
   "Feature definitions": "특징 정의",
   "Features": "특징",
   "Figure": "그림",
+  "Figure settings": "그림 설정",
   "Figures": "그림",
   "Figures and table exports": "그림 및 표 내보내기",
   "File…": "파일...",
@@ -137,6 +138,7 @@
   "Free RAM by closing applications…": "애플리케이션을 닫아 RAM 확보…",
   "From a paper…": "학술 논문에서…",
   "Gaussian approximation": "가우스 근사",
+  "Groups": "그룹",
   "Growth ratio": "성장 비율",
   "Guide counts per well": "웰당 가이드 개수",
   "Help": "도움말",
@@ -350,6 +352,7 @@
   "TIFF fields for direct Cellpose inference": "Cellpose 직접 추론용 TIFF 시야",
   "Taper onto the gradient": "그래디언트로 점차 전환",
   "Teach me…": "학습시키기…",
+  "Test": "테스트",
   "Test-time augmentation": "추론 시 데이터 증강",
   "Text detection": "텍스트 검출",
   "Text size": "텍스트 크기",
@@ -393,6 +396,7 @@
  },
  "runtime_suspect": {
   "Colormap": "컬러",
+  "Counts": "계산하기",
   "Error bars": "오류 바",
   "Jitter width": "Jitter 광범위",
   "Logging": "로그인"

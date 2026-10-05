@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-04 21:59-0400\n"
+"POT-Creation-Date: 2026-10-04 22:42-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (direct AI translation)\n"
 "Language: ko\n"
@@ -307,6 +307,48 @@ msgstr "**Bar and point graphs**: **오차 막대** 는 표준오차( ``sem`` , 
 
 msgid "Settings can also differ per graph type. A figure is styled once, so a change you make with its right-click menu is kept when it is saved. Figures that are already drawn with several panels keep their size and resolution; the size and resolution settings apply to new figures and to saved files."
 msgstr "설정은 그래프 유형마다 다를 수도 있습니다. 그림은 한 번만 스타일이 적용되므로 오른쪽 클릭 메뉴로 바꾼 내용은 저장할 때 유지됩니다. 이미 여러 패널로 그려진 그림은 크기와 해상도를 유지하며, 크기와 해상도 설정은 새 그림과 저장된 파일에 적용됩니다."
+
+msgid "Working with figures"
+msgstr "그림 다루기"
+
+msgid "Right-click any figure in spaCR, in a module's figure list or in an embedded plot such as Graph Builder, the UMAP explorer or a training comparison, to open its figure menu. The Volcano explorer and the Gate Editor keep their own right-click menus and add these entries to them."
+msgstr "spaCR의 아무 그림이나 오른쪽 클릭하면 그림 메뉴가 열립니다. 모듈의 그림 목록이나 Graph Builder, UMAP 탐색기, 학습 비교 같은 내장 그래프에서도 마찬가지입니다. Volcano 탐색기와 Gate Editor는 자체 오른쪽 클릭 메뉴를 유지하며 여기에 이 항목들을 추가합니다."
+
+msgid "**Edit figure…** changes the title, axis labels, limits, scales, fonts, colours, legend, size and resolution of this figure. Changes appear as you make them."
+msgstr "**Edit figure…** 는 이 그림의 제목, 축 레이블, 범위, 척도, 글꼴, 색상, 범례, 크기, 해상도를 바꿉니다. 변경 사항은 바로 나타납니다."
+
+msgid "**Change graph type** redraws the figure as another graph that fits its data. Groups can be shown as box, violin, strip, swarm, bar, point or boxen plots, a box or bar plot with points, or as histogram, KDE or ECDF; two measurements as scatter, line, hexbin, KDE or regression plots; one distribution as histogram, KDE, ECDF, box, violin, strip or boxen; counts as a count plot or heat map; and a matrix as a heat map or clustered heat map. The figure is redrawn from its data and keeps your **Figure settings**."
+msgstr "**Change graph type** 은 그림을 데이터에 맞는 다른 그래프로 다시 그립니다. 그룹은 상자, 바이올린, strip, swarm, 막대, 점, boxen 그래프, 점이 있는 상자 또는 막대 그래프, 또는 히스토그램, KDE, ECDF로 표시할 수 있습니다. 두 측정값은 산점도, 선, hexbin, KDE, 회귀 그래프로, 하나의 분포는 히스토그램, KDE, ECDF, 상자, 바이올린, strip, boxen으로, 개수는 개수 그래프나 히트맵으로, 행렬은 히트맵이나 군집 히트맵으로 표시할 수 있습니다. 그림은 데이터로부터 다시 그려지며 **그림 설정** 을 유지합니다."
+
+msgid "**Statistics…** shows the test spaCR chose for the data and lets you override the **Test**, the **Subject column**, **Paired / repeated measures** and the **Multiple-comparison correction**. **Show on the plot** draws the test and significance brackets on the figure."
+msgstr "**Statistics…** 는 spaCR이 데이터에 대해 선택한 검정을 보여 주며, **테스트**, **Subject column**, **Paired / repeated measures**, **Multiple-comparison correction** 을 직접 지정할 수 있게 합니다. **Show on the plot** 은 그림 위에 검정과 유의성 괄호를 그립니다."
+
+msgid "**Save figure (zip)…** writes one zip file with the figure in your saved format and as PNG, ``data.csv`` with the plotted data, ``statistics.csv`` and ``statistics.txt``, ``spec.json`` with the figure's full recipe, and ``recreate_figure.py``, a script that draws the same figure from the CSV and JSON files without spaCR."
+msgstr "**Save figure (zip)…** 는 저장 형식과 PNG로 된 그림, 그려진 데이터가 담긴 ``data.csv``, ``statistics.csv`` 와 ``statistics.txt``, 그림의 전체 레시피가 담긴 ``spec.json``, 그리고 spaCR 없이 CSV와 JSON 파일에서 같은 그림을 그리는 스크립트 ``recreate_figure.py`` 를 하나의 zip 파일로 씁니다."
+
+msgid "How the statistics are chosen"
+msgstr "통계 방법이 선택되는 방식"
+
+msgid "The automatic choice follows the data:"
+msgstr "자동 선택은 데이터를 따릅니다."
+
+msgid "**Groups**: each group is tested for normality (Shapiro–Wilk) and the groups for equal variance (Bartlett, or Levene when a group is not normal). Two groups are compared with Student's t, Welch's t or Mann–Whitney, and paired data with a paired t test or Wilcoxon. Three or more groups get a one-way ANOVA followed by Tukey HSD, Welch's ANOVA followed by Games–Howell, Kruskal–Wallis followed by Dunn, or Friedman followed by pairwise Wilcoxon tests, with pairwise p-values corrected for multiple comparisons."
+msgstr "**그룹**: 각 그룹의 정규성(Shapiro–Wilk)과 그룹 간 등분산성(Bartlett, 또는 정규가 아닌 그룹이 있으면 Levene)을 검정합니다. 두 그룹은 Student t, Welch t 또는 Mann–Whitney로, 대응 데이터는 대응 t 검정이나 Wilcoxon으로 비교합니다. 셋 이상의 그룹에는 일원 ANOVA 후 Tukey HSD, Welch ANOVA 후 Games–Howell, Kruskal–Wallis 후 Dunn, 또는 Friedman 후 쌍별 Wilcoxon 검정을 적용하며, 쌍별 p값은 다중 비교에 대해 보정됩니다."
+
+msgid "**Two measurements**: Pearson or Spearman correlation, chosen by normality."
+msgstr "**두 측정값**: 정규성에 따라 선택되는 Pearson 또는 Spearman 상관."
+
+msgid "**Counts**: chi-square, or Fisher's exact test when an expected count is below 5; tables larger than 2×2 use the Fisher–Freeman–Halton test with a fixed-seed Monte Carlo p-value."
+msgstr "**개수**: 카이제곱 검정, 또는 기대 개수가 5 미만이면 Fisher 정확 검정. 2×2보다 큰 표는 고정 시드 Monte Carlo p값을 사용하는 Fisher–Freeman–Halton 검정을 씁니다."
+
+msgid "**Proportions** (a 0/1 outcome): a two-proportion z test or Fisher's exact test; three or more groups get chi-square followed by corrected pairwise z tests."
+msgstr "**비율** (0/1 결과): 두 비율 z 검정 또는 Fisher 정확 검정. 셋 이상의 그룹에는 카이제곱 검정 후 보정된 쌍별 z 검정을 적용합니다."
+
+msgid "``statistics.csv`` has one row per test, with the test name, groups, statistic, degrees of freedom, p-value, adjusted p-value and correction, effect size, number of observations, whether the test was chosen automatically or by you, and the reason for the choice."
+msgstr "``statistics.csv`` 에는 검정마다 한 행이 있으며, 검정 이름, 그룹, 통계량, 자유도, p값, 보정된 p값과 보정 방법, 효과 크기, 관측 수, 검정이 자동으로 선택되었는지 사용자가 선택했는지, 그리고 선택 이유가 들어 있습니다."
+
+msgid "Figures in Graph Builder and the Volcano explorer carry their data rows. For other figures, spaCR reads the plotted values back from the figure; box and violin plots drawn this way keep only their summary, not the individual rows. A new graph type replaces a faceted Graph Builder grid with a single plot until Graph Builder draws the chart again."
+msgstr "Graph Builder와 Volcano 탐색기의 그림은 데이터 행을 함께 지닙니다. 다른 그림에서는 spaCR이 그림에서 그려진 값을 다시 읽어 오며, 이렇게 그려진 상자 그림과 바이올린 그림은 개별 행이 아니라 요약만 유지합니다. 새 그래프 유형은 Graph Builder가 차트를 다시 그릴 때까지 패싯이 나뉜 Graph Builder 격자를 단일 그래프로 바꿉니다."
 
 msgid "Workers and free memory"
 msgstr "작업자와 여유 메모리"

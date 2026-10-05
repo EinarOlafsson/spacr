@@ -6,7 +6,9 @@
   "Layout": "'命名布局' is the file-naming row; the figure group is '布局'",
   "Colormap": "'彩色' means 'colourful'; the setting is '颜色映射'",
   "Error bars": "'错误栏' means 'mistake bar'; the setting is '误差棒'",
-  "Logging": "'登录' means log in; the tab is '日志'"
+  "Logging": "'登录' means log in; the tab is '日志'",
+  "Counts": "'计算' means 'calculate'; the statistics label is '计数'",
+  "Test": "'测试' is a software test; the statistical test is '检验'"
  },
  "snapshot": {
   "Layout": {
@@ -24,6 +26,14 @@
   "Logging": {
    "runtime": "登录",
    "guide": "日志"
+  },
+  "Counts": {
+   "runtime": "计算",
+   "guide": "计数"
+  },
+  "Test": {
+   "runtime": "测试",
+   "guide": "检验"
   }
  }
 }

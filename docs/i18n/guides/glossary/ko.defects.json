@@ -6,7 +6,8 @@
   "Colormap": "'컬러' means 'colour'; the setting is '컬러맵'",
   "Error bars": "'오류 바' means 'mistake bar'; the setting is '오차 막대'",
   "Jitter width": "'Jitter 광범위' means 'jitter wide-ranging'; the setting is 'Jitter 너비'",
-  "Logging": "'로그인' means log in; the tab is '로깅'"
+  "Logging": "'로그인' means log in; the tab is '로깅'",
+  "Counts": "'계산하기' means 'to calculate'; the statistics label is '개수'"
  },
  "snapshot": {
   "Colormap": {
@@ -24,6 +25,10 @@
   "Logging": {
    "runtime": "로그인",
    "guide": "로깅"
+  },
+  "Counts": {
+   "runtime": "계산하기",
+   "guide": "개수"
   }
  }
 }

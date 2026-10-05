@@ -122,6 +122,7 @@
   "Feature definitions": "特征定义",
   "Features": "特征",
   "Figure": "图",
+  "Figure settings": "图设置",
   "Figures": "图表",
   "Figures and table exports": "图形和表格导出",
   "File…": "文件...",
@@ -138,6 +139,7 @@
   "Free RAM by closing applications…": "关闭应用程序以释放 RAM…",
   "From a paper…": "从科研论文获取…",
   "Gaussian approximation": "高斯近似",
+  "Groups": "分组",
   "Growth ratio": "生长比例",
   "Guide counts per well": "各孔的向导计数",
   "Help": "帮助",
@@ -394,8 +396,10 @@
  },
  "runtime_suspect": {
   "Colormap": "彩色",
+  "Counts": "计算",
   "Error bars": "错误栏",
   "Layout": "命名布局",
-  "Logging": "登录"
+  "Logging": "登录",
+  "Test": "测试"
  }
 }
